@@ -25,13 +25,17 @@ function pump (readStream, writeStream, callback) {
 function createListener (root) {
   var l = function (request, response) {
     var filepath = path.join(root, request.url);
-    var stats = fs.statSync(filepath)
+    try {
+      var stats = fs.statSync(filepath);
+    } catch (e) {
+      var stats = {isFile:function() {return false;}}
+    }
+    
     if (!stats.isFile()) {
       sys.puts('no such file '+filepath)
       response.writeHead('404')
       response.end()
     } else {
-      sys.puts('doin')
       response.writeHead('200', { 'content-type' : mime.getMime(filepath)
                                 , 'content-length' : stats.size});
       pump(fs.createReadStream(filepath), response);
@@ -41,7 +45,7 @@ function createListener (root) {
 }
 
 function createFileServer(root) {
-  var listener = createListener(path.normalize(path.join(__dirname, root)));
+  var listener = createListener(path.normalize(path.join(process.cwd(), root)));
   return http.createServer(listener);
 }
 
