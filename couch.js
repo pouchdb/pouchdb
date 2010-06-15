@@ -101,7 +101,7 @@ function getObjectStore (db, name, keypath, callback, errBack) {
   } else {
     var request = db.createObjectStore(name, keypath);
     request.onsuccess = function (e) {
-      callback(e.value)
+      callback(e.result)
     }
     request.onerror = function (err) {
       if (errBack) errBack(err);
@@ -141,14 +141,11 @@ function createCouch (options, cb) {
       else options.error("Failed to open database.")
     }
   }
-  console.log(request)
+
   request.onsuccess = function(event) {
     var db = event.result;
-    console.log(db);
     getObjectStore(db, 'document-store', '_id', function (documentStore) {
-      console.log(documentStore);
       getObjectStore(db, 'sequence-index', 'seq', function (sequenceIndex) {
-        console.log(sequenceIndex);
         
         // Now we create the actual CouchDB
         var couch = {
@@ -165,8 +162,7 @@ function createCouch (options, cb) {
                                                Components.interfaces.nsIIDBTransaction.READ_WRITE);
               request = transaction.objectStore("document-store").openCursor(new KeyRange.only(doc._id));
               request.onsuccess = function (event) {
-                var cursor = event.value;
-                console.log(cursor.value);
+                var cursor = event.result;
                 throw "Write more code."
               }
             } else {
@@ -213,3 +209,21 @@ function createCouch (options, cb) {
   }
 }
 
+function removeCouch (options) {
+  var request = moz_indexedDB.open(options.name, options.description ? options.description : "a couchdb");
+  request.onsuccess = function (event) {
+    var db = event.result;
+    var successes = 0;
+    for (var i=0;i<db.objectStoreNames.length;i+=1) {
+      var r = db.removeObjectStore(db.objectStoreNames[i]);
+      r.onsuccess = function () { 
+        successes += 1; 
+        if (successes === db.objectStoreNames.length) options.success();
+      }
+      r.onerror = function () { options.error("Failed to remove "+db.objectStoreNames[i]); }
+    }
+  } 
+  request.onerror = function () {
+    options.error("No such database "+options.name);
+  }
+}

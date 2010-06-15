@@ -1,3 +1,5 @@
+module("test database.")
+
 asyncTest("create a couch", function () {
   createCouch( 
     { name: "test"
@@ -18,4 +20,13 @@ asyncTest("Add doc", function () {
     }
     , error: function (error) {ok(!error, error); start();}
   })
+})
+
+module("cleanup.")
+
+asyncTest("remove couch",function(){
+  removeCouch( { name:"test" 
+                , success:function () { start(); }
+                , error: function (error) {console.log('asdfasfs');ok(!error, error); start();}
+                } );
 })
