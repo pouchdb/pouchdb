@@ -113,7 +113,7 @@ function getObjectStore (db, name, desc, callback, errBack) {
 }
 
 function getNewSequence (transaction, couch, callback) {
-  var range = indexedDB.makeRightBoundKeyRange(couch.seq);
+  var range = moz_indexedDB.makeRightBoundKeyRange(couch.seq);
   request = transaction.objectStore("sequence-index").openCursor(range);
   var seq;
   request.onsuccess = function (e) {
@@ -135,7 +135,7 @@ var MAXINT = 999999999999999999999999999999999999;
 function createCouch (options, cb) {
   if (cb) options.success = cb;
   if (!options.name) throw "name attribute is required"
-  var request = indexedDB.open(options.name, options.description ? options.description : "a couchdb");
+  var request = moz_indexedDB.open(options.name, options.description ? options.description : "a couchdb");
   // Failure handler on getting Database
   request.onerror = function(error) {
     if (options.error) {
@@ -189,7 +189,8 @@ function createCouch (options, cb) {
           }
           , docToSeq : {}
         }
-        
+       
+
         var request = sequenceIndex.openCursor()
         request.onsuccess = function (event) {
           // Handle iterating on the sequence index to create the reverse map and validate last-seq
