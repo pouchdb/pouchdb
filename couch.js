@@ -1,6 +1,3 @@
-
-
-
 // BEGIN Math.uuid.js
 
 /*!
@@ -98,11 +95,11 @@ Dual licensed under the MIT and GPL licenses.
 
 // END Math.uuid.js
 
-function getObjectStore (db, name, desc, callback, errBack) {
+function getObjectStore (db, name, keypath, callback, errBack) {
   if (db.objectStoreNames.contains(name)) {
     callback(db.objectStore(name));
   } else {
-    var request = db.createObjectStore(name, desc);
+    var request = db.createObjectStore(name, keypath);
     request.onsuccess = function (e) {
       callback(e.value)
     }
@@ -119,8 +116,9 @@ function getNewSequence (transaction, couch, callback) {
   request.onsuccess = function (e) {
     var cursor = e.result;
     if (!cursor) {
-      //console.log(seq)
-      callback(seq + 1)
+      console.log(seq);
+      callback(seq + 1);
+      return;
     }
     cursor.continue();
   }
@@ -143,14 +141,14 @@ function createCouch (options, cb) {
       else options.error("Failed to open database.")
     }
   }
-  //console.log(request)
+  console.log(request)
   request.onsuccess = function(event) {
     var db = event.result;
-    //console.log(db);
-    getObjectStore(db, 'document-store', 'Document Store.', function (documentStore) {
-      //console.log(documentStore);
-      getObjectStore(db, 'sequence-index', 'Sequence Index', function (sequenceIndex) {
-        //console.log(sequenceIndex);
+    console.log(db);
+    getObjectStore(db, 'document-store', '_id', function (documentStore) {
+      console.log(documentStore);
+      getObjectStore(db, 'sequence-index', 'seq', function (sequenceIndex) {
+        console.log(sequenceIndex);
         
         // Now we create the actual CouchDB
         var couch = {
@@ -163,23 +161,22 @@ function createCouch (options, cb) {
               if (!doc._rev) {
                 options.error({code:413, message:"Update conflict, no revision information"});
               }
-              var transaction = db.transcation(["document-store", "sequence-index"]);
+              var transaction = db.transcation(["document-store", "sequence-index"],
+                                               Components.interfaces.nsIIDBTransaction.READ_WRITE);
               request = transaction.objectStore("document-store").openCursor(new KeyRange.only(doc._id));
               request.onsuccess = function (event) {
                 var cursor = event.value;
-                //console.log(cursor.value);
+                console.log(cursor.value);
                 throw "Write more code."
               }
             } else {
-              var transaction = db.transaction(["document-store", "sequence-index"]);
-              alert('before')
+              var transaction = db.transaction(["document-store", "sequence-index"], 
+                                               Components.interfaces.nsIIDBTransaction.READ_WRITE);
               getNewSequence(transaction, couch, function (seq) {
                 doc._rev = Math.uuid();
-                alert(seq)
-                transaction.objectStore("sequence-index").add(seq, {seq:seq, id:doc._id});
-                transaction.objectStore("document-store").add(doc._id, doc);
+                transaction.objectStore("sequence-index").add({seq:seq, id:doc._id});
+                transaction.objectStore("document-store").add(doc);
                 transaction.oncomplete = function () {
-                  alert('complete')
                   couch.docToSeq[doc._id] = seq;
                   couch.seq = seq;
                   if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq});
@@ -189,12 +186,20 @@ function createCouch (options, cb) {
           }
           , docToSeq : {}
         }
-       
-
-        var request = sequenceIndex.openCursor()
-        request.onsuccess = function (event) {
+        
+        var request = sequenceIndex.openCursor();
+        var seq;
+        request.onsuccess = function (e) {
           // Handle iterating on the sequence index to create the reverse map and validate last-seq
-          options.error('I need more code');
+          var cursor = e.result;
+          if (!cursor) {
+            couch.seq = seq;
+            options.success(couch)
+            return;
+          }
+          seq = cursor.key
+          couch.docToSeq[cursor.value['id']] = seq;
+          cursor.continue();
         }
         request.onerror = function (event) {
           // Assume the database is just empty because the error code is broken
