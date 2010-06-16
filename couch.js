@@ -197,6 +197,9 @@ function createCouch (options, cb) {
                   }
                 })
               }
+              request.onerror = function (err) {
+                if (options.error) options.error("Could not find document in object store.")
+              }
             } else {
               var transaction = db.transaction(["document-store", "sequence-index"], 
                                                Components.interfaces.nsIIDBTransaction.READ_WRITE);
