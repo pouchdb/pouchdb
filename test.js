@@ -39,6 +39,23 @@ asyncTest("Modify doc", function () {
   })
 })
 
+asyncTest("All changes", function () {
+  createCouch( 
+    { name: "test"
+    , success: function (couch) {
+        ok(couch);  
+        couch.post({"test":"somestuff"}, {success:function (info) {
+          ok(info);
+          couch.changes({onChange:function (change) {
+            if (change.seq == info.seq) start();
+          }})
+        }})
+    }
+    , error: function (error) {ok(!error, error); start();}
+  })
+})
+
+
 module("cleanup.")
 
 asyncTest("remove couch",function(){

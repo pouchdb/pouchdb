@@ -176,7 +176,8 @@ function createCouch (options, cb) {
                       oldSequence.changes = {};
                       oldSequence.changes[event.result.key] = prev;
                     }
-                    transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:rev});
+                    transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:rev, 
+                                                                   changes:oldSequence.changes});
                     event.result.remove();
                     doc._rev = rev;
                     prevDocCursor.update(doc);
@@ -210,6 +211,35 @@ function createCouch (options, cb) {
             }
           }
           , docToSeq : {}
+          , changesEvents : {
+              listeners : []
+            , emit : function () {
+              var a = arguments;
+              couch.changes.listeners.forEach(function (l) {l.apply(l, a)});
+            }
+            , addListener : function (l) { couch.changes.listeners.push(l); }
+          }
+          , changes : function (options) {
+            if (!options.seq) options.seq = 0;
+            var transaction = db.transaction(["document-store", "sequence-index"]);
+            var request = transaction.objectStore('sequence-index')
+              .openCursor(moz_indexedDB.makeLeftBoundKeyRange(options.seq));
+            request.onsuccess = function (event) {
+              var cursor = event.result;
+              if (!cursor) {
+                // move along
+              } else {
+                var change_ = cursor.value;
+                transaction.objectStore('document-store')
+                  .openCursor(moz_indexedDB.makeSingleKeyRange(change_.id))
+                  .onsuccess = function (event) {
+                    var c = {id:change_.id, seq:change_.seq, changes:change_.changes, doc:event.value};
+                    options.onChange(c);
+                    cursor.continue();
+                  }
+              }
+            }
+          }
         }
         
         var request = sequenceIndex.openCursor();
