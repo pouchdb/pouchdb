@@ -112,11 +112,10 @@ function getObjectStore (db, name, keypath, callback, errBack) {
 function getNewSequence (transaction, couch, callback) {
   var range = moz_indexedDB.makeRightBoundKeyRange(couch.seq);
   request = transaction.objectStore("sequence-index").openCursor(range);
-  var seq;
+  var seq = couch.seq;
   request.onsuccess = function (e) {
     var cursor = e.result;
     if (!cursor) {
-      console.log(seq);
       callback(seq + 1);
       return;
     }
@@ -158,19 +157,52 @@ function createCouch (options, cb) {
               if (!doc._rev) {
                 options.error({code:413, message:"Update conflict, no revision information"});
               }
-              var transaction = db.transcation(["document-store", "sequence-index"],
+              var transaction = db.transaction(["document-store", "sequence-index"],
                                                Components.interfaces.nsIIDBTransaction.READ_WRITE);
-              request = transaction.objectStore("document-store").openCursor(new KeyRange.only(doc._id));
+              request = transaction.objectStore("document-store")
+                .openCursor(moz_indexedDB.makeSingleKeyRange(doc._id));
               request.onsuccess = function (event) {
-                var cursor = event.result;
-                throw "Write more code."
+                var prevDocCursor = event.result;
+                var prev = event.result.value;
+                if (prev._rev !== doc._rev) {
+                  options.error("Conflict error, revision does not match.")
+                  return;
+                }
+                getNewSequence(transaction, couch, function (seq) {
+                  var rev = Math.uuid();  
+                  request = transaction.objectStore("sequence-index")
+                    .openCursor(moz_indexedDB.makeSingleKeyRange(couch.docToSeq[doc._id]));
+                  request.onsuccess = function (event) {
+                    var oldSequence = event.result.value;
+                    if (oldSequence.changes) {
+                      oldSequence.changes[event.result.key] = prev
+                    } else {
+                      oldSequence.changes = {};
+                      oldSequence.changes[event.result.key] = prev;
+                    }
+                    // transaction = db.transaction(["document-store", "sequence-index"],
+                    //                                  Components.interfaces.nsIIDBTransaction.READ_WRITE);
+                    transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:rev});
+                    event.result.remove();
+                    doc._rev = rev;
+                    prevDocCursor.update(doc);
+                    transaction.oncomplete = function () {
+                      couch.docToSeq[doc._id] = seq;
+                      couch.seq = seq;
+                      if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq});
+                    }
+                  }
+                  request.onerror = function (err) {
+                    if (options.error) options.error("Could not open sequence index")
+                  }
+                })
               }
             } else {
               var transaction = db.transaction(["document-store", "sequence-index"], 
                                                Components.interfaces.nsIIDBTransaction.READ_WRITE);
               getNewSequence(transaction, couch, function (seq) {
                 doc._rev = Math.uuid();
-                transaction.objectStore("sequence-index").add({seq:seq, id:doc._id});
+                transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:doc._rev});
                 transaction.objectStore("document-store").add(doc);
                 transaction.oncomplete = function () {
                   couch.docToSeq[doc._id] = seq;
@@ -216,7 +248,7 @@ function removeCouch (options) {
     var successes = 0;
     for (var i=0;i<db.objectStoreNames.length;i+=1) {
       var r = db.removeObjectStore(db.objectStoreNames[i]);
-      r.onsuccess = function () { 
+      r.onsuccess = function (event) {
         successes += 1; 
         if (successes === db.objectStoreNames.length) options.success();
       }

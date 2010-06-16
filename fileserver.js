@@ -45,7 +45,7 @@ function createListener (root) {
 }
 
 function createFileServer(root) {
-  var listener = createListener(path.normalize(path.join(process.cwd(), root)));
+  var listener = createListener(root);
   return http.createServer(listener);
 }
 
