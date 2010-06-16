@@ -135,17 +135,13 @@ function createCouch (options, cb) {
   var request = moz_indexedDB.open(options.name, options.description ? options.description : "a couchdb");
   // Failure handler on getting Database
   request.onerror = function(error) {
-    if (options.error) {
-      if (error) options.error(error)
-      else options.error("Failed to open database.")
-    }
+    if (options.error) options.error("Failed to open database.");
   }
 
   request.onsuccess = function(event) {
     var db = event.result;
     getObjectStore(db, 'document-store', '_id', function (documentStore) {
       getObjectStore(db, 'sequence-index', 'seq', function (sequenceIndex) {
-        
         // Now we create the actual CouchDB
         var couch = {
           get: function (_id, options) {
@@ -180,8 +176,6 @@ function createCouch (options, cb) {
                       oldSequence.changes = {};
                       oldSequence.changes[event.result.key] = prev;
                     }
-                    // transaction = db.transaction(["document-store", "sequence-index"],
-                    //                                  Components.interfaces.nsIIDBTransaction.READ_WRITE);
                     transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:rev});
                     event.result.remove();
                     doc._rev = rev;
