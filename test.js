@@ -43,7 +43,7 @@ module("cleanup.")
 
 asyncTest("remove couch",function(){
   removeCouch( { name:"test" 
-                , success:function () { start(); }
+                , success:function () { ok(true); start(); }
                 , error: function (error) {ok(!error, error); start();}
                 } );
 })

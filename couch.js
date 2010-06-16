@@ -249,11 +249,12 @@ function removeCouch (options) {
   request.onsuccess = function (event) {
     var db = event.result;
     var successes = 0;
+    var l = db.objectStoreNames.length;
     for (var i=0;i<db.objectStoreNames.length;i+=1) {
       var r = db.removeObjectStore(db.objectStoreNames[i]);
       r.onsuccess = function (event) {
         successes += 1; 
-        if (successes === db.objectStoreNames.length) options.success();
+        if (successes === l) options.success();
       }
       r.onerror = function () { options.error("Failed to remove "+db.objectStoreNames[i]); }
     }
