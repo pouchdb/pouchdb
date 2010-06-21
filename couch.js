@@ -110,7 +110,7 @@ function getObjectStore (db, name, keypath, callback, errBack) {
 }
 
 function getNewSequence (transaction, couch, callback) {
-  var range = moz_indexedDB.makeRightBoundKeyRange(couch.seq);
+  var range = moz_indexedDB.makeLeftBoundKeyRange(couch.seq);
   request = transaction.objectStore("sequence-index").openCursor(range);
   var seq = couch.seq;
   request.onsuccess = function (e) {
@@ -121,7 +121,7 @@ function getNewSequence (transaction, couch, callback) {
     }
     cursor.continue();
   }
-  request.onerror = function () {
+  request.onerror = function (error) {
     // Sequence index is empty.
     callback(1);
   }
@@ -184,7 +184,8 @@ function createCouch (options, cb) {
                     transaction.oncomplete = function () {
                       couch.docToSeq[doc._id] = seq;
                       couch.seq = seq;
-                      if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq});
+                      if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                      couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
                     }
                   }
                   request.onerror = function (err) {
@@ -205,20 +206,13 @@ function createCouch (options, cb) {
                 transaction.oncomplete = function () {
                   couch.docToSeq[doc._id] = seq;
                   couch.seq = seq;
-                  if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq});
+                  if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                  couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
                 }
               })
             }
           }
           , docToSeq : {}
-          , changesEvents : {
-              listeners : []
-            , emit : function () {
-              var a = arguments;
-              couch.changes.listeners.forEach(function (l) {l.apply(l, a)});
-            }
-            , addListener : function (l) { couch.changes.listeners.push(l); }
-          }
           , changes : function (options) {
             if (!options.seq) options.seq = 0;
             var transaction = db.transaction(["document-store", "sequence-index"]);
@@ -227,7 +221,12 @@ function createCouch (options, cb) {
             request.onsuccess = function (event) {
               var cursor = event.result;
               if (!cursor) {
-                // move along
+                if (options.continuous) {
+                  couch.changes.addListener(options.onChange);
+                }
+                if (options.complete) {
+                  options.complete();
+                }
               } else {
                 var change_ = cursor.value;
                 transaction.objectStore('document-store')
@@ -239,8 +238,25 @@ function createCouch (options, cb) {
                   }
               }
             }
+            request.onerror = function (error) {
+              // Cursor is out of range
+              // NOTE: What should we do with a sequence that is too high?
+              if (options.continuous) {
+                couch.changes.addListener(options.onChange);
+              }
+              if (options.complete) {
+                options.complete();
+              }
+            }
           }
         }
+        
+        couch.changes.listeners = [];
+        couch.changes.emit = function () {
+          var a = arguments;
+          couch.changes.listeners.forEach(function (l) {l.apply(l, a)});
+        }
+        couch.changes.addListener = function (l) { couch.changes.listeners.push(l); }
         
         var request = sequenceIndex.openCursor();
         var seq;
