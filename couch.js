@@ -147,14 +147,18 @@ function createCouch (options, cb) {
           get: function (_id, options) {
             
           }
-          , post: function (doc, options) {
+          , post: function (doc, options, transaction) {
             if (!doc._id) doc._id = Math.uuid();
             if (couch.docToSeq[doc._id]) {
               if (!doc._rev) {
                 options.error({code:413, message:"Update conflict, no revision information"});
               }
-              var transaction = db.transaction(["document-store", "sequence-index"],
-                                               Components.interfaces.nsIIDBTransaction.READ_WRITE);
+              if (!transaction) {
+                transaction = db.transaction(["document-store", "sequence-index"],
+                                             Components.interfaces.nsIIDBTransaction.READ_WRITE);
+                var bulk = false;
+              } else {bulk = true}
+
               request = transaction.objectStore("document-store")
                 .openCursor(moz_indexedDB.makeSingleKeyRange(doc._id));
               request.onsuccess = function (event) {
@@ -181,12 +185,18 @@ function createCouch (options, cb) {
                     event.result.remove();
                     doc._rev = rev;
                     prevDocCursor.update(doc);
-                    transaction.oncomplete = function () {
-                      couch.docToSeq[doc._id] = seq;
-                      couch.seq = seq;
-                      if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
-                      couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                    if (!bulk) {
+                      transaction.oncomplete = function () {
+                        couch.docToSeq[doc._id] = seq;
+                        couch.seq = seq;
+                        if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                        couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                      }
+                    } else {
+                      transaction.oncomplete = function () {console.log('oops')}
+                      options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc})
                     }
+                    
                   }
                   request.onerror = function (err) {
                     if (options.error) options.error("Could not open sequence index")
@@ -203,11 +213,16 @@ function createCouch (options, cb) {
                 doc._rev = Math.uuid();
                 transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:doc._rev});
                 transaction.objectStore("document-store").add(doc);
-                transaction.oncomplete = function () {
-                  couch.docToSeq[doc._id] = seq;
-                  couch.seq = seq;
-                  if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
-                  couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                if (!bulk) {
+                  transaction.oncomplete = function () {
+                    couch.docToSeq[doc._id] = seq;
+                    couch.seq = seq;
+                    if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                    couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
+                  }
+                } else {
+                  transaction.oncomplete = function () {console.log('oops')}
+                  options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
                 }
               })
             }
@@ -248,6 +263,49 @@ function createCouch (options, cb) {
                 options.complete();
               }
             }
+          }
+          , bulk: function (docs, options) {
+            var transaction = db.transaction(["document-store", "sequence-index"],
+                                             Components.interfaces.nsIIDBTransaction.READ_WRITE);
+            var oldSeq = couch.seq;
+            var infos = []
+            var i = 0;
+            var doWrite = function () {
+              if (i >= docs.length) {                
+                transaction.oncomplete = function () {
+                  console.log('complete')
+                  infos.forEach(function (info) {
+                    if (!error) couch.docToSeq[info.id] = info.seq
+                  })
+                  options.success(infos);
+                }
+                setTimeout(function() {
+                  console.log(transaction)
+                }, 1000 * 10)
+                return;
+              }
+              couch.post(docs[i], {
+                success : function (info) {
+                  couch.seq += 1;
+                  i += 1;
+                  infos.push(info);
+                  doWrite();
+                }
+                , error : function (error) {
+                  if (options.ensureFullCommit) {
+                    transaction.abort();
+                    couch.seq = oldSeq;
+                    options.error(error);
+                    return;
+                  }
+                  infos.push({id:doc[i]._id, error:"conflict", reason:error});
+                  i += 1;
+                  doWrite();
+                }
+                
+                }, transaction)
+            };
+            doWrite();
           }
         }
         
