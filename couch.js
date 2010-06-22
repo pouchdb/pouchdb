@@ -110,6 +110,7 @@ function getObjectStore (db, name, keypath, callback, errBack) {
 }
 
 function getNewSequence (transaction, couch, callback) {
+  if (couch.seq === undefined) couch.seq = 0;
   var range = moz_indexedDB.makeLeftBoundKeyRange(couch.seq);
   request = transaction.objectStore("sequence-index").openCursor(range);
   var seq = couch.seq;
@@ -126,8 +127,6 @@ function getNewSequence (transaction, couch, callback) {
     callback(1);
   }
 }
-
-var MAXINT = 999999999999999999999999999999999999;
 
 function createCouch (options, cb) {
   if (cb) options.success = cb;
