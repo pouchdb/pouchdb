@@ -85,8 +85,8 @@ asyncTest("Bulk docs", function () {
     , success: function (couch) {
         ok(couch);  
         couch.bulk([{test:"somestuff"}, {test:"another"}], {success:function (infos) {
-          ok(!info[0].error);
-          ok(!info[1].error);
+          ok(!infos[0].error);
+          ok(!infos[1].error);
           start();
         }})
     }

@@ -157,7 +157,7 @@ function createCouch (options, cb) {
                 transaction = db.transaction(["document-store", "sequence-index"],
                                              Components.interfaces.nsIIDBTransaction.READ_WRITE);
                 var bulk = false;
-              } else {bulk = true}
+              } else {var bulk = true}
 
               request = transaction.objectStore("document-store")
                 .openCursor(moz_indexedDB.makeSingleKeyRange(doc._id));
@@ -193,7 +193,6 @@ function createCouch (options, cb) {
                         couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
                       }
                     } else {
-                      transaction.oncomplete = function () {console.log('oops')}
                       options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc})
                     }
                     
@@ -207,8 +206,13 @@ function createCouch (options, cb) {
                 if (options.error) options.error("Could not find document in object store.")
               }
             } else {
-              var transaction = db.transaction(["document-store", "sequence-index"], 
-                                               Components.interfaces.nsIIDBTransaction.READ_WRITE);
+              
+              if (!transaction) {
+                transaction = db.transaction(["document-store", "sequence-index"],
+                                             Components.interfaces.nsIIDBTransaction.READ_WRITE);
+                var bulk = false;
+              } else {var bulk = true}
+              
               getNewSequence(transaction, couch, function (seq) {
                 doc._rev = Math.uuid();
                 transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:doc._rev});
@@ -221,7 +225,6 @@ function createCouch (options, cb) {
                     couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
                   }
                 } else {
-                  transaction.oncomplete = function () {console.log('oops')}
                   options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
                 }
               })
@@ -273,15 +276,11 @@ function createCouch (options, cb) {
             var doWrite = function () {
               if (i >= docs.length) {                
                 transaction.oncomplete = function () {
-                  console.log('complete')
                   infos.forEach(function (info) {
-                    if (!error) couch.docToSeq[info.id] = info.seq
+                    if (!info.error) couch.docToSeq[info.id] = info.seq
                   })
                   options.success(infos);
                 }
-                setTimeout(function() {
-                  console.log(transaction)
-                }, 1000 * 10)
                 return;
               }
               couch.post(docs[i], {
@@ -302,8 +301,8 @@ function createCouch (options, cb) {
                   i += 1;
                   doWrite();
                 }
-                
-                }, transaction)
+              }, transaction);
+              
             };
             doWrite();
           }
