@@ -48,8 +48,9 @@ asyncTest("All changes", function () {
           ok(info);
           couch.changes({onChange:function (change) {
             if (change.seq == info.seq) start();
-          }})
+          }, error:function() {ok(false); start();}})
         }})
+        
     }
     , error: function (error) {ok(!error, error); start();}
   })
