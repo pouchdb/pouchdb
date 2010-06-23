@@ -144,7 +144,15 @@ function createCouch (options, cb) {
         // Now we create the actual CouchDB
         var couch = {
           get: function (_id, options) {
-            
+            var request = db.objectStore('document-store')
+                            .openCursor(moz_indexedDB.makeSingleKeyRange(_id));
+            request.onsuccess = function (cursor) {
+              if (!cursor.result) {if (options.error) options.error({error:'Document does not exist'})}
+              else { options.success(cursor.result.value) }
+            }
+            request.onerror = function (error) {
+              if (options.error) options.error(error);
+            }
           }
           , post: function (doc, options, transaction) {
             if (!doc._id) doc._id = Math.uuid();
