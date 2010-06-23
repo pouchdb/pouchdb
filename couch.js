@@ -148,11 +148,22 @@ function createCouch (options, cb) {
                             .openCursor(moz_indexedDB.makeSingleKeyRange(_id));
             request.onsuccess = function (cursor) {
               if (!cursor.result) {if (options.error) options.error({error:'Document does not exist'})}
-              else { options.success(cursor.result.value) }
+              else { 
+                var doc = cursor.result.value;
+                if (doc._deleted) {
+                  options.error({error:"Document has been deleted."})
+                } else {
+                  options.success(doc); 
+                }
+              }
             }
             request.onerror = function (error) {
               if (options.error) options.error(error);
             }
+          }
+          , remove: function (doc, options) {
+            doc._deleted = true;
+            return couch.post(doc, options);
           }
           , post: function (doc, options, transaction) {
             if (!doc._id) doc._id = Math.uuid();

@@ -114,6 +114,27 @@ asyncTest("Get doc", function () {
   })
 })
 
+asyncTest("Remove doc", function () {
+  createCouch( 
+    { name: "test"
+    , success: function (couch) {
+        ok(couch);  
+        couch.post({test:"somestuff"}, {success:function (info) {
+          ok(info);
+          var seq = couch.seq;
+          couch.remove({test:"somestuff",_id:info.id,_rev:info.rev}, {success:function (doc) {
+            equal(couch.seq, seq + 1)
+            couch.get(info.id, {error:function(err) {
+              equal(err.error, 'Document has been deleted.');
+              start();
+            }})
+          }})
+        }})
+    }
+    , error: function (error) {ok(!error, error); start();}
+  })
+})
+
 module("cleanup.")
 
 asyncTest("remove couch",function(){
