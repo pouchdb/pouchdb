@@ -167,7 +167,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
           var bulk = false;
         } else {var bulk = true}
 
-        request = transaction.objectStore("document-store")
+        var request = transaction.objectStore("document-store")
           .openCursor(moz_indexedDB.makeSingleKeyRange(doc._id));
         request.onsuccess = function (event) {
           var prevDocCursor = event.result;
@@ -178,7 +178,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
           }
           getNewSequence(transaction, couch, function (seq) {
             var rev = Math.uuid();  
-            request = transaction.objectStore("sequence-index")
+            var request = transaction.objectStore("sequence-index")
               .openCursor(moz_indexedDB.makeSingleKeyRange(couch.docToSeq[doc._id]));
             request.onsuccess = function (event) {
               var oldSequence = event.result.value;
