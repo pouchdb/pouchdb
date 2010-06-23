@@ -130,6 +130,37 @@ var getNewSequence = function (transaction, couch, callback) {
   }
 }
 
+var viewQuery = function (objectStore, options) {
+  var range;
+  var request;
+  if (options.startKey && options.endKey) {
+    range = moz_indexedDB.makeBoundKeyRange(options.startKey, options.endKey);
+  } else if (options.startKey) {
+    if (options.descending) { range = moz_indexedDB.makeRightBoundRange(options.startKey); } 
+    else { range = moz_indexedDB.makeLeftBoundKeyRange(options.startKey); }
+  } else if (options.endKey) {
+    if (options.descending) { range = moz_indexedDB.makeLeftBoundKeyRange(options.endKey); } 
+    else { range = range = moz_indexedDB.makeRightBoundKeyRange(options.endKey); }
+  }
+  if (options.descending) {
+    request = objectStore.openCursor(range, "left");
+  } else {
+    request = objectStore.openCursor(range);
+  }
+  var results = [];
+  request.onsuccess = function (cursor) {
+    if (!cursor) {
+      if (options.success) options.success(results);
+    } else {
+      if (options.row) options.row(cursor.result.value);
+      if (options.success) results.push(cursor.results.value);
+    }
+  }
+  request.onerror = function (error) {
+    if (options.error) options.error(error);
+  }
+}
+
 var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   // Now we create the actual CouchDB
   var couch = {docToSeq:{}};
