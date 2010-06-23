@@ -1,5 +1,7 @@
 // BEGIN Math.uuid.js
 
+(function( window, undefined ) {
+  
 /*!
 Math.uuid.js (v1.4)
 http://www.broofa.com
@@ -95,7 +97,7 @@ Dual licensed under the MIT and GPL licenses.
 
 // END Math.uuid.js
 
-function getObjectStore (db, name, keypath, callback, errBack) {
+var getObjectStore = function  (db, name, keypath, callback, errBack) {
   if (db.objectStoreNames.contains(name)) {
     callback(db.objectStore(name));
   } else {
@@ -109,7 +111,7 @@ function getObjectStore (db, name, keypath, callback, errBack) {
   }
 }
 
-function getNewSequence (transaction, couch, callback) {
+var getNewSequence = function (transaction, couch, callback) {
   if (couch.seq === undefined) couch.seq = 0;
   var range = moz_indexedDB.makeLeftBoundKeyRange(couch.seq);
   request = transaction.objectStore("sequence-index").openCursor(range);
@@ -128,7 +130,8 @@ function getNewSequence (transaction, couch, callback) {
   }
 }
 
-function createCouch (options, cb) {
+
+window.createCouch = function (options, cb) {
   if (cb) options.success = cb;
   if (!options.name) throw "name attribute is required"
   var request = moz_indexedDB.open(options.name, options.description ? options.description : "a couchdb");
@@ -359,7 +362,7 @@ function createCouch (options, cb) {
   }
 }
 
-function removeCouch (options) {
+window.removeCouch = function (options) {
   var request = moz_indexedDB.open(options.name, options.description ? options.description : "a couchdb");
   request.onsuccess = function (event) {
     var db = event.result;
@@ -378,3 +381,5 @@ function removeCouch (options) {
     options.error("No such database "+options.name);
   }
 }
+
+})(window);
