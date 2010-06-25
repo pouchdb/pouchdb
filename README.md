@@ -8,21 +8,21 @@ http://ftp.mozilla.org/pub/mozilla.org/firefox/tryserver-builds/sdwilsh@shawnwil
 
 IDBCouch is a complete implementation of the CouchDB storage and views API that supports peer-to-peer replication with other CouchDB instances. It is built on top of IndexedDatabase which is a specification that is still in flux as Mozilla implements the draft for Firefox 4.
 
-## Storage and Consistency
+#### Storage and Consistency
 
 Unlike the other current couch-like browser APIs built on WebStorage (http://dev.w3.org/html5/webstorage/) IDBCouch's goal is to maintain the same kinds of consistency guarantees Apache CouchDB provides across concurrent connections across the multiple-tabs a user might be using to concurrently access an IDBCouch database. This is something that just isn't possible with the BrowserStorage API previous libraries liskt BrowserCouch and lawnchair use.
 
 IDBCouch also keeps a by-sequence index across the entire database. This means that, just like Apache CouchDB, IDBCouch can replicate with other CouchDB instances and provide the same conflict resolution system for eventual consistency across nodes.
 
-## BrowserCouch
+#### BrowserCouch
 
 At this time IDBCouch is completely independent from BrowserCouch. The main reason is just to keep the code base concise and focused as the IndexedDatabase specification is being flushed out.
 
 After IndexedDatabase is more solidified it's possible that BrowserCouch and IDBCouch might merge to provide a simple fallback option for browsers the do not yet support IndexedDatabase.
 
-## API
+# API
 
-### createCouch(options[, callback])
+## createCouch(options[, callback])
 
 This method gets an existing database if one exists or creates a new one if one does not exist.
 
@@ -39,23 +39,23 @@ The first argument is an options object. The only required option is `name`, all
   })
 </pre>
 
-### couch
+## couch
 
 The subject of the of createCouch success callback. This is primary IDBCouch API.
 
-#### couch.get(docid, options)
+### couch.get(docid, options)
 
-#### couch.remove(doc, options)
+### couch.remove(doc, options)
 
-#### couch.post(doc, options)
+### couch.post(doc, options)
 
-#### couch.changes
+### couch.changes
 
-##### couch.changes(options)
+#### couch.changes(options)
 
-##### couch.changes.addListener(listener)
+#### couch.changes.addListener(listener)
 
-##### couch.changes.removeListener(listener)
+#### couch.changes.removeListener(listener)
 
 ##### couch.bulk(docs, options)
 
