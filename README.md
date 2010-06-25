@@ -51,12 +51,12 @@ The subject of the of createCouch success callback. This is primary IDBCouch API
 
 ### couch.changes
 
-#### couch.changes(options)
+### couch.changes(options)
 
-#### couch.changes.addListener(listener)
+### couch.changes.addListener(listener)
 
-#### couch.changes.removeListener(listener)
+### couch.changes.removeListener(listener)
 
-##### couch.bulk(docs, options)
+### couch.bulk(docs, options)
 
 
