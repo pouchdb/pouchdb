@@ -98,22 +98,25 @@ Dual licensed under the MIT and GPL licenses.
 // END Math.uuid.js
 
 var getObjectStore = function  (db, name, keypath, callback, errBack) {
+  var version_request = db.setVersion('1');
   if (db.objectStoreNames.contains(name)) {
-    callback(db.objectStore(name));
+    callback(db.transaction(name).objectStore(name));
   } else {
-    var request = db.createObjectStore(name, keypath);
-    request.onsuccess = function (e) {
-      callback(e.result)
-    }
-    request.onerror = function (err) {
-      if (errBack) errBack(err);
-    }
+    version_request.onsuccess = function(event) {
+      var request = db.createObjectStore(name, {keyPath: keypath});
+      request.onsuccess = function (e) {
+        callback(e.result)
+      }
+      request.onerror = function (err) {
+        if (errBack) errBack(err);
+      }
+    };
   }
 }
 
 var getNewSequence = function (transaction, couch, callback) {
   if (couch.seq === undefined) couch.seq = 0;
-  var range = moz_indexedDB.makeLeftBoundKeyRange(couch.seq);
+  var range = mozIndexedDB.makeLeftBoundKeyRange(couch.seq);
   request = transaction.objectStore("sequence-index").openCursor(range);
   var seq = couch.seq;
   request.onsuccess = function (e) {
@@ -134,13 +137,13 @@ var viewQuery = function (objectStore, options) {
   var range;
   var request;
   if (options.startKey && options.endKey) {
-    range = moz_indexedDB.makeBoundKeyRange(options.startKey, options.endKey);
+    range = mozIndexedDB.makeBoundKeyRange(options.startKey, options.endKey);
   } else if (options.startKey) {
-    if (options.descending) { range = moz_indexedDB.makeRightBoundRange(options.startKey); } 
-    else { range = moz_indexedDB.makeLeftBoundKeyRange(options.startKey); }
+    if (options.descending) { range = mozIndexedDB.makeRightBoundRange(options.startKey); }
+    else { range = mozIndexedDB.makeLeftBoundKeyRange(options.startKey); }
   } else if (options.endKey) {
-    if (options.descending) { range = moz_indexedDB.makeLeftBoundKeyRange(options.endKey); } 
-    else { range = range = moz_indexedDB.makeRightBoundKeyRange(options.endKey); }
+    if (options.descending) { range = mozIndexedDB.makeLeftBoundKeyRange(options.endKey); }
+    else { range = range = mozIndexedDB.makeRightBoundKeyRange(options.endKey); }
   }
   if (options.descending) {
     request = objectStore.openCursor(range, "left");
@@ -167,7 +170,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   
   couch.get = function (_id, options) {
     var request = db.objectStore('document-store')
-                    .openCursor(moz_indexedDB.makeSingleKeyRange(_id));
+                    .openCursor(mozIndexedDB.makeSingleKeyRange(_id));
     request.onsuccess = function (cursor) {
       if (!cursor.result) {if (options.error) options.error({error:'Document does not exist'})}
       else { 
@@ -202,7 +205,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       } else {var bulk = true}
 
       var request = transaction.objectStore("document-store")
-        .openCursor(moz_indexedDB.makeSingleKeyRange(doc._id));
+        .openCursor(mozIndexedDB.makeSingleKeyRange(doc._id));
       request.onsuccess = function (event) {
         var prevDocCursor = event.result;
         var prev = event.result.value;
@@ -213,7 +216,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
         getNewSequence(transaction, couch, function (seq) {
           var rev = Math.uuid();  
           var request = transaction.objectStore("sequence-index")
-            .openCursor(moz_indexedDB.makeSingleKeyRange(couch.docToSeq[doc._id]));
+            .openCursor(mozIndexedDB.makeSingleKeyRange(couch.docToSeq[doc._id]));
           request.onsuccess = function (event) {
             var oldSequence = event.result.value;
             if (oldSequence.changes) {
@@ -277,7 +280,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
     if (!options.seq) options.seq = 0;
     var transaction = db.transaction(["document-store", "sequence-index"]);
     var request = transaction.objectStore('sequence-index')
-      .openCursor(moz_indexedDB.makeLeftBoundKeyRange(options.seq));
+      .openCursor(mozIndexedDB.makeLeftBoundKeyRange(options.seq));
     request.onsuccess = function (event) {
       var cursor = event.result;
       if (!cursor) {
@@ -290,7 +293,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       } else {
         var change_ = cursor.value;
         transaction.objectStore('document-store')
-          .openCursor(moz_indexedDB.makeSingleKeyRange(change_.id))
+          .openCursor(mozIndexedDB.makeSingleKeyRange(change_.id))
           .onsuccess = function (event) {
             var c = {id:change_.id, seq:change_.seq, changes:change_.changes, doc:event.value};
             options.onChange(c);
@@ -379,14 +382,14 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
 window.createCouch = function (options, cb) {
   if (cb) options.success = cb;
   if (!options.name) throw "name attribute is required"
-  var request = moz_indexedDB.open(options.name, options.description ? options.description : "a couchdb");
+  var request = mozIndexedDB.open(options.name);
   // Failure handler on getting Database
   request.onerror = function(error) {
     if (options.error) options.error("Failed to open database.");
   }
 
   request.onsuccess = function(event) {
-    var db = event.result;
+    var db = event.target.result;
     getObjectStore(db, 'document-store', '_id', function (documentStore) {
       getObjectStore(db, 'sequence-index', 'seq', function (sequenceIndex) {
         makeCouch(db, documentStore, sequenceIndex, options);
@@ -396,7 +399,7 @@ window.createCouch = function (options, cb) {
 }
 
 window.removeCouch = function (options) {
-  var request = moz_indexedDB.open(options.name, options.description ? options.description : "a couchdb");
+  var request = mozIndexedDB.open(options.name);
   request.onsuccess = function (event) {
     var db = event.result;
     var successes = 0;
