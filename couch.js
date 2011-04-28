@@ -115,7 +115,7 @@ var getObjectStore = function  (db, name, keypath, callback, errBack) {
 
       var request = db.createObjectStore(name, {keyPath: keypath});
       request.onsuccess = function (e) {
-        callback(e.result)
+        callback(e.target.result)
       }
       request.onerror = function (err) {
         if (errBack) errBack(err);
@@ -130,12 +130,13 @@ var getNewSequence = function (transaction, couch, callback) {
   request = transaction.objectStore("sequence-index").openCursor(range);
   var seq = couch.seq;
   request.onsuccess = function (e) {
-    var cursor = e.result;
+    var cursor = e.target.result;
     if (!cursor) {
       callback(seq + 1);
       return;
     }
     cursor.continue();
+    
   }
   request.onerror = function (error) {
     // Sequence index is empty.
@@ -165,8 +166,8 @@ var viewQuery = function (objectStore, options) {
     if (!cursor) {
       if (options.success) options.success(results);
     } else {
-      if (options.row) options.row(cursor.result.value);
-      if (options.success) results.push(cursor.results.value);
+      if (options.row) options.row(cursor.target.result.value);
+      if (options.success) results.push(cursor.target.results.value);
     }
   }
   request.onerror = function (error) {
@@ -179,12 +180,12 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   var couch = {docToSeq:{}};
   
   couch.get = function (_id, options) {
-    var request = db.objectStore('document-store')
+    var request = db.transaction('document-store').objectStore('document-store')
                     .openCursor(IDBKeyRange.only(_id));
     request.onsuccess = function (cursor) {
-      if (!cursor.result) {if (options.error) options.error({error:'Document does not exist'})}
+      if (!cursor.target.result) {if (options.error) options.error({error:'Document does not exist'})}
       else { 
-        var doc = cursor.result.value;
+        var doc = cursor.target.result.value;
         if (doc._deleted) {
           options.error({error:"Document has been deleted."})
         } else {
@@ -216,8 +217,8 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       var request = transaction.objectStore("document-store")
         .openCursor(IDBKeyRange.only(doc._id));
       request.onsuccess = function (event) {
-        var prevDocCursor = event.result;
-        var prev = event.result.value;
+        var prevDocCursor = event.target.result;
+        var prev = event.target.result.value;
         if (prev._rev !== doc._rev) {
           options.error("Conflict error, revision does not match.")
           return;
@@ -227,16 +228,16 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
           var request = transaction.objectStore("sequence-index")
             .openCursor(IDBKeyRange.only(couch.docToSeq[doc._id]));
           request.onsuccess = function (event) {
-            var oldSequence = event.result.value;
+            var oldSequence = event.target.result.value;
             if (oldSequence.changes) {
-              oldSequence.changes[event.result.key] = prev
+              oldSequence.changes[event.target.result.key] = prev
             } else {
               oldSequence.changes = {};
-              oldSequence.changes[event.result.key] = prev;
+              oldSequence.changes[event.target.result.key] = prev;
             }
             transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:rev, 
                                                            changes:oldSequence.changes});
-            event.result.remove();
+            event.target.source.delete(event.target.result.key);
             doc._rev = rev;
             prevDocCursor.update(doc);
             if (!bulk) {
@@ -277,8 +278,6 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
             if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
             couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
           }
-          transaction.onerror = function (e) {console.log({error:e, str:e.toString(), type:'error'})}
-          transaction.onabort = function (e) {console.log({error:e, str:e.toString(), type:'abort'})}
         } else {
           options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
         }
@@ -292,7 +291,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
     var request = transaction.objectStore('sequence-index')
       .openCursor(IDBKeyRange.leftBound(options.seq));
     request.onsuccess = function (event) {
-      var cursor = event.result;
+      var cursor = event.target.result;
       if (!cursor) {
         if (options.continuous) {
           couch.changes.addListener(options.onChange);
@@ -373,7 +372,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   var seq;
   request.onsuccess = function (e) {
     // Handle iterating on the sequence index to create the reverse map and validate last-seq
-    var cursor = e.result;
+    var cursor = e.target.result;
     if (!cursor) {
       couch.seq = seq;
       opts.success(couch)
@@ -410,16 +409,21 @@ window.createCouch = function (options, cb) {
 window.removeCouch = function (options) {
   var request = indexedDB.open(options.name);
   request.onsuccess = function (event) {
-    var db = event.result;
+    var db = event.target.result;
     var successes = 0;
     var l = db.objectStoreNames.length;
     for (var i=0;i<db.objectStoreNames.length;i+=1) {
-      var r = db.removeObjectStore(db.objectStoreNames[i]);
-      r.onsuccess = function (event) {
-        successes += 1; 
-        if (successes === l) options.success();
+      db.objectStoreNames[i]
+      var version_request = db.setVersion('1');
+      version_request.onsuccess = function(event) {
+        var r = db.deleteObjectStore(db.objectStoreNames[i]);
+      
+        r.onsuccess = function (event) {
+          successes += 1; 
+          if (successes === l) options.success();
+        }
+        r.onerror = function () { options.error("Failed to remove "+db.objectStoreNames[i]); }
       }
-      r.onerror = function () { options.error("Failed to remove "+db.objectStoreNames[i]); }
     }
   } 
   request.onerror = function () {
