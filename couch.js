@@ -100,17 +100,19 @@ Dual licensed under the MIT and GPL licenses.
 // The spec is still in flux.
 // While most of the IDB behaviors match between implementations a lot of the names still differ.
 // This section tries to normalize the different objects & methods.
-
-var indexedDB = indexedDB || mozIndexedDB;
+window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB;
+window.IDBKeyRange = window.IDBKeyRange || window.mozIDBKeyRange || window.webkitIDBKeyRange;
+window.IDBTransaction = window.IDBTransaction || window.mozIDBTransaction || window.webkitIDBTransaction;
 IDBKeyRange.leftBound = IDBKeyRange.leftBound || IDBKeyRange.lowerBound;
 IDBKeyRange.rightBound = IDBKeyRange.rightBound || IDBKeyRange.upperBound;
 
 var getObjectStore = function  (db, name, keypath, callback, errBack) {
-  var version_request = db.setVersion('1');
   if (db.objectStoreNames.contains(name)) {
     callback(db.transaction(name).objectStore(name));
   } else {
+    var version_request = db.setVersion('1');
     version_request.onsuccess = function(event) {
+
       var request = db.createObjectStore(name, {keyPath: keypath});
       request.onsuccess = function (e) {
         callback(e.result)
@@ -207,8 +209,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
         options.error({code:413, message:"Update conflict, no revision information"});
       }
       if (!transaction) {
-        transaction = db.transaction(["document-store", "sequence-index"],
-                                     Components.interfaces.nsIIDBTransaction.READ_WRITE);
+        transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
         var bulk = false;
       } else {var bulk = true}
 
@@ -261,8 +262,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
     } else {
       
       if (!transaction) {
-        transaction = db.transaction(["document-store", "sequence-index"],
-                                     Components.interfaces.nsIIDBTransaction.READ_WRITE);
+        transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
         var bulk = false;
       } else {var bulk = true}
       
@@ -277,6 +277,8 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
             if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
             couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
           }
+          transaction.onerror = function (e) {console.log({error:e, str:e.toString(), type:'error'})}
+          transaction.onabort = function (e) {console.log({error:e, str:e.toString(), type:'abort'})}
         } else {
           options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
         }
@@ -322,8 +324,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   }
   
   couch.bulk = function (docs, options) {
-    var transaction = db.transaction(["document-store", "sequence-index"],
-                                     Components.interfaces.nsIIDBTransaction.READ_WRITE);
+    var transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
     var oldSeq = couch.seq;
     var infos = []
     var i = 0;
