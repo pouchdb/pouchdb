@@ -1,8 +1,4 @@
-Don't use this, it is definitely not working yet and this API hasn't shipped in a single browser yet.
-
-I'll try to keep this link to the most recent experimental Firefox build with IDB support up to date:
-
-http://ftp.mozilla.org/pub/mozilla.org/firefox/tryserver-builds/sdwilsh@shawnwilsher.com-44f33414d557/
+Tests are passing and this is ready for more usage/feedback. Works with Chrome 11/12 and Firefox 4.
 
 # IDBCouch ( CouchDB in the Browser )
 
