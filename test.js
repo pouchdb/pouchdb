@@ -136,6 +136,29 @@ asyncTest("Remove doc", function () {
   })
 })
 
+module('replicate')
+
+asyncTest("replicate from",function(){
+  createCouch( 
+    { name: "test"
+    , success: function (couch) {
+        ok(couch);
+        couch.replicate.from(
+          { url:'/'+window.location.pathname.split('/')[1]
+          , success: function (changes) {
+              //
+            }
+          , error: function (e) {
+              //
+            }
+          }
+        );
+      }
+    }
+  )
+})
+
+
 module("cleanup.")
 
 asyncTest("remove couch",function(){
@@ -144,3 +167,4 @@ asyncTest("remove couch",function(){
                 , error: function (error) {ok(!error, error); start();}
                 } );
 })
+

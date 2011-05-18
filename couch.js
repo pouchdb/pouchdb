@@ -97,6 +97,23 @@ Dual licensed under the MIT and GPL licenses.
 
 // END Math.uuid.js
 
+// Begin request *requires jQuery*
+
+var ajax = function (options, callback) {
+  options.success = function (obj) {
+    callback(null, obj);
+  }
+  options.error = function (err) {
+    if (err) callback(err);
+    else callback(true);
+  }
+  options.dataType = 'json';
+  options.contentType = 'application/json'
+  $.ajax(options)
+}
+
+// End request
+
 // The spec is still in flux.
 // While most of the IDB behaviors match between implementations a lot of the names still differ.
 // This section tries to normalize the different objects & methods.
@@ -179,9 +196,9 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   // Now we create the actual CouchDB
   var couch = {docToSeq:{}};
   
-  couch.get = function (_id, options) {
-    var request = db.transaction('document-store').objectStore('document-store')
-                    .openCursor(IDBKeyRange.only(_id));
+  couch.get = function (_id, options, transaction) {
+    if (!transaction) transaction = db.transaction('document-store');
+    var request = transaction.objectStore('document-store').openCursor(IDBKeyRange.only(_id));
     request.onsuccess = function (cursor) {
       if (!cursor.target.result) {if (options.error) options.error({error:'Document does not exist'})}
       else { 
@@ -205,6 +222,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   
   couch.post = function (doc, options, transaction) {
     if (!doc._id) doc._id = Math.uuid();
+    if (typeof options.newEdits === 'undefined') options.newEdits = true;
     if (couch.docToSeq[doc._id]) {
       if (!doc._rev) {
         options.error({code:413, message:"Update conflict, no revision information"});
@@ -219,12 +237,17 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       request.onsuccess = function (event) {
         var prevDocCursor = event.target.result;
         var prev = event.target.result.value;
-        if (prev._rev !== doc._rev) {
+        if ((prev._rev !== doc._rev) && options.newEdits) {
           options.error("Conflict error, revision does not match.")
           return;
         }
         getNewSequence(transaction, couch, function (seq) {
-          var rev = Math.uuid();  
+          if (!options.newEdits) {
+            var rev = Math.uuid(); 
+          } else {
+            var rev = doc._rev;
+          }
+           
           var request = transaction.objectStore("sequence-index")
             .openCursor(IDBKeyRange.only(couch.docToSeq[doc._id]));
           request.onsuccess = function (event) {
@@ -368,6 +391,65 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
   }
   couch.changes.addListener = function (l) { couch.changes.listeners.push(l); }
   
+  couch.replicate = {}
+  couch.replicate.from = function (options) {
+    var c = []; // Change list
+    if (options.url[options.url.length - 1] !== '/') options.url += '/';
+    ajax({url:options.url+'_changes?style=all_docs&include_docs=true'}, function (e, resp) {
+      if (e) {
+        if (options.error) options.error(e);
+      }
+      var transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
+      var pending = resp.results.length;
+      resp.results.forEach(function (r) {
+        
+        var writeDoc = function (r) {
+          couch.post(r.doc, 
+            { newEdits:false
+            , success: function (changeset) {
+                pending--;
+                c.changeset = changeset;
+                c.push(r);
+                if (pending === 0) options.success(c);
+              } 
+            , error: function (e) {
+                pending--;
+                r.error = e;
+                c.push(r);
+                if (pending === 0) options.success(c);
+              }
+            }
+          , transaction
+          );
+        }
+        couch.get(r.id, 
+          { success: function (doc) {
+              // The document exists
+              if (doc._rev === r.changes[0].rev) return; // Do nothing if we already have the change
+              else {
+                var oldseq = parseInt(doc._rev.split('-')[0])
+                  , newseq = parseInt(r.changes[0].rev.split('-')[0])
+                  ;
+                if (oldseq > newseq) {
+                  return; // Should we do something nicer here?
+                } else {
+                  writeDoc(r);
+                }
+              }
+            }
+          , error : function (e) {
+              // doc does not exist, write it
+              writeDoc(r);
+            }
+          }, transaction);
+      })
+    })
+  }
+  couch.replicate.to = function (url) {
+    
+  }
+  
+  // This whole sequence cache is going to break on multi-window :(
   var request = sequenceIndex.openCursor();
   var seq;
   request.onsuccess = function (e) {
