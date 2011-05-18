@@ -353,6 +353,33 @@ var getNewSequence = function (transaction, couch, callback) {
   }
 }
 
+var getNewRevision = function (doc, oldRevPos) {
+  oldRevPos = (oldRevPos && oldRevPos.split('-')) || [0, ''];
+  var oldPos = Number(oldRevPos[0]);
+  var oldRev = oldRevPos[1];
+
+  var newPos = oldPos + 1;
+
+  // First clear metadata from the doc, leaving only the "body".
+  var metadata = {};
+  for (var key in doc) {
+    if (key && key[0] == '_') {
+      metadata[key] = doc[key];
+      delete(doc[key]);
+    }
+  }
+
+  // TODO: make this match CouchDB using BERTS stuff
+  var newRev = Crypto.MD5(JSON.stringify(doc));
+
+  // Restore the doc so no one hates us
+  for (var key in metadata) {
+    doc[key] = metadata[key];
+  }
+
+  return [newPos, newRev].join('-');
+}
+
 var viewQuery = function (objectStore, options) {
   var range;
   var request;
@@ -429,13 +456,13 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       request.onsuccess = function (event) {
         var prevDocCursor = event.target.result;
         var prev = event.target.result.value;
-        if ((prev._rev !== doc._rev) && options.newEdits) {
-          options.error("Conflict error, revision does not match.")
+        if ((prev._rev !== doc._rev && !prev._deleted) && options.newEdits) {
+          options.error({code:413, error:"Conflict error, revision does not match."});
           return;
         }
         getNewSequence(transaction, couch, function (seq) {
           if (!options.newEdits) {
-            var rev = Math.uuid(); 
+            var rev = getNewRevision(doc, prev._rev);
           } else {
             var rev = doc._rev;
           }
@@ -476,14 +503,14 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
         if (options.error) options.error("Could not find document in object store.")
       }
     } else {
-      
+      // no existing document information
       if (!transaction) {
         transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
         var bulk = false;
       } else {var bulk = true}
       
       getNewSequence(transaction, couch, function (seq) {
-        doc._rev = Math.uuid();
+        doc._rev = getNewRevision(doc);
         transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:doc._rev});
         transaction.objectStore("document-store").add(doc);
         if (!bulk) {
