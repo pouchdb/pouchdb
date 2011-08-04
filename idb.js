@@ -593,7 +593,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
             options.error(error);
             return;
           }
-          infos.push({id:doc[i]._id, error:"conflict", reason:error});
+          infos.push({id:docs[i]._id, error:"conflict", reason:error});
           i += 1;
           doWrite();
         }
