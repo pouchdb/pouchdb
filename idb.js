@@ -1,7 +1,7 @@
 // BEGIN Math.uuid.js
 
 (function( window, undefined ) {
-  
+
 /*!
 Math.uuid.js (v1.4)
 http://www.broofa.com
@@ -22,7 +22,7 @@ Dual licensed under the MIT and GPL licenses.
  *   // No arguments  - returns RFC4122, version 4 ID
  *   >>> Math.uuid()
  *   "92329D39-6F5C-4520-ABFC-AAB64544E172"
- * 
+ *
  *   // One argument - returns ID of the specified length
  *   >>> Math.uuid(15)     // 15 character ID (default base=62)
  *   "VcydxgltxrVZSTV"
@@ -37,7 +37,7 @@ Dual licensed under the MIT and GPL licenses.
  */
 (function() {
   // Private array of chars to use
-  var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split(''); 
+  var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
 
   Math.uuid = function (len, radix) {
     var chars = CHARS, uuid = [];
@@ -310,75 +310,55 @@ var ajax = function (options, callback) {
 // While most of the IDB behaviors match between implementations a lot of the names still differ.
 // This section tries to normalize the different objects & methods.
 window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB;
+window.IDBCursor = window.IDBCursor || window.mozIDBCursor || window.webkitIDBCursor;
 window.IDBKeyRange = window.IDBKeyRange || window.mozIDBKeyRange || window.webkitIDBKeyRange;
 window.IDBTransaction = window.IDBTransaction || window.mozIDBTransaction || window.webkitIDBTransaction;
 IDBKeyRange.leftBound = IDBKeyRange.leftBound || IDBKeyRange.lowerBound;
 IDBKeyRange.rightBound = IDBKeyRange.rightBound || IDBKeyRange.upperBound;
 
-var getObjectStore = function  (db, name, keypath, callback, errBack) {
-  if (db.objectStoreNames.contains(name)) {
-    callback(db.transaction(name).objectStore(name));
+var parseDoc = function (doc, newEdits) {
+  if (newEdits) {
+    var newRevId = Math.uuid(32, 16);
+    if (doc._rev) {
+      var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
+      if (!revInfo) throw "invalid value for property '_rev'";
+      doc._revisions = {
+        start : parseInt(revInfo[1]) + 1
+      , ids : [newRevId, revInfo[2]]
+      };
+    } else {
+      doc._revisions = {
+        start : 1,
+        ids : [newRevId]
+      };
+    }
   } else {
-    var version_request = db.setVersion('1');
-    version_request.onsuccess = function(event) {
-
-      var request = db.createObjectStore(name, {keyPath: keypath});
-      request.onsuccess = function (e) {
-        callback(e.target.result)
-      }
-      request.onerror = function (err) {
-        if (errBack) errBack(err);
-      }
-    };
+    if (!doc._revisions) throw "missing property '_revisions'";
+    if (!isFinite(doc._revisions.start))
+      throw "property '_revisions.start' must be a number";
+    if (Array.isArray(doc._revisions) && doc._revisions.length > 0)
+      throw "property '_revisions.id' must be a non-empty array";
   }
+  doc._id = decodeURIComponent(doc._id);
+  doc._rev = [doc._revisions.start, doc._revisions.ids[0]].join('-');
+  return doc;
 }
 
-var getNewSequence = function (transaction, couch, callback) {
-  if (couch.seq === undefined) couch.seq = 0;
-  var range = IDBKeyRange.leftBound(couch.seq);
-  request = transaction.objectStore("sequence-index").openCursor(range);
-  var seq = couch.seq;
-  request.onsuccess = function (e) {
-    var cursor = e.target.result;
-    if (!cursor) {
-      callback(seq + 1);
-      return;
+var docCompare = function (a, b) {
+  if (a._id == b._id) {
+    if (a._deleted ^ b._deleted) {
+      return (a._deleted ? -1 : 1);
+    } else {
+      if (a._revisions.start == b._revisions.start)
+        return (a._revisions.ids < b._revisions.ids ? -1 : 1);
+      else
+        return (a._revisions.start < b.revisions.start ? -1 : 1);
     }
-    cursor.continue();
-    
+  } else {
+    return (a._id < b._id ? -1 : 1);
   }
-  request.onerror = function (error) {
-    // Sequence index is empty.
-    callback(1);
-  }
-}
+};
 
-var getNewRevision = function (doc, oldRevPos) {
-  oldRevPos = (oldRevPos && oldRevPos.split('-')) || [0, ''];
-  var oldPos = Number(oldRevPos[0]);
-  var oldRev = oldRevPos[1];
-
-  var newPos = oldPos + 1;
-
-  // First clear metadata from the doc, leaving only the "body".
-  var metadata = {};
-  for (var key in doc) {
-    if (key && key[0] == '_') {
-      metadata[key] = doc[key];
-      delete(doc[key]);
-    }
-  }
-
-  // TODO: make this match CouchDB using BERTS stuff
-  var newRev = Crypto.MD5(JSON.stringify(doc));
-
-  // Restore the doc so no one hates us
-  for (var key in metadata) {
-    doc[key] = metadata[key];
-  }
-
-  return [newPos, newRev].join('-');
-}
 
 var viewQuery = function (objectStore, options) {
   var range;
@@ -411,21 +391,123 @@ var viewQuery = function (objectStore, options) {
   }
 }
 
-var makeCouch = function (db, documentStore, sequenceIndex, opts) {
-  // Now we create the actual CouchDB
-  var couch = {docToSeq:{}};
-  
-  couch.get = function (_id, options, transaction) {
+var makePouch = function (db) {
+  // Now we create the PouchDB interface
+  var pouch = {update_seq: 0};
+
+  var updateDocs = function (docs, options) {
+    if (!docs) options.success({docs: []});
+    var newEdits = 'new_edits' in options ? options._new_edits : true;
+
+    // Parse and sort the docs
+    docs = docs.map(function (doc) {
+      return parseDoc(doc, newEdits);
+    });
+    docs.sort(docCompare);
+
+    var keyRange = IDBKeyRange.bound(
+      docs[0]._id, docs[docs.length-1]._id
+    , {openLeft : true, openRight : true});
+
+    var buckets = docs.reduce(function (acc, doc) {
+      if (doc._id == acc[0][0]._id)
+        acc[0].push(doc);
+      else
+        acc.unshift([doc]);
+      return acc;
+    }, [[docs.shift()]]);
+
+    var result = {
+      docs : []
+    , update_seq : pouch.update_seq
+    };
+
+    var txn = db.transaction(['ids', 'revs'], IDBTransaction.READ_WRITE);
+
+    txn.oncomplete = function (event) {
+      options.success(result.docs);
+    };
+
+    txn.onabort = function (event) {
+      if(options.error)
+        options.error({
+          error : 'abort'
+        , reason : event.target.toString()
+        });
+    }
+
+    txn.ontimeout = function (event) {
+      if(options.error)
+        options.error({
+          error : 'timeout'
+        , reason : event.target.toString()
+        });
+    }
+
+    txn.objectStore('ids').openCursor(keyRange, IDBCursor.Next)
+    .onsuccess = function (event) {
+      var cursor = event.target.result;
+      if (cursor) {
+        // TODO: Accumulate a bucket by merging rev trees
+        // For now, just clobber
+        // TODO: clobber
+        cursor.continue();
+      } else {
+        // Cursor has exceeded the key range so the rest are inserts
+        buckets.forEach(function (bucket) {
+          // TODO: merge the bucket revs into a rev tree
+          var doc = bucket[0];
+          txn.objectStore('revs').add(doc).onsuccess = function (event) {
+            var metadata = {
+              id : doc._id
+            , seq : event.target.result
+            // TODO : store the rev tree here
+            };
+            txn.objectStore('ids').add(metadata, doc._id);
+            result.docs.push(metadata);
+          };
+        });
+      }
+    }
+/*    for (var doc in docs) {
+      if (newEdits) {
+        var request = objectStore.add(doc, {
+          key : [doc._id, [doc._revisions.start, doc._revisions.ids[0]]]
+        });
+        request.onsuccess = function (event) {
+          result.docs.push({
+            id : doc._id
+          , rev : doc._rev
+          });
+        };
+        request.onerror = function (event) {
+          if (options.all_or_nothing) {
+            transaction.abort();
+          } else {
+            result.docs.push({
+              id : doc._id
+            , error : 'conflict'
+            , reason : 'Document update conflict.'
+            });
+          }
+        }
+      } else {
+        throw 'new_edits=false not implemented';
+      }
+    }*/
+  };
+
+  pouch.get = function (_id, options, transaction) {
     if (!transaction) transaction = db.transaction('document-store');
     var request = transaction.objectStore('document-store').openCursor(IDBKeyRange.only(_id));
     request.onsuccess = function (cursor) {
       if (!cursor.target.result) {if (options.error) options.error({error:'Document does not exist'})}
-      else { 
+      else {
         var doc = cursor.target.result.value;
         if (doc._deleted) {
           options.error({error:"Document has been deleted."})
         } else {
-          options.success(doc); 
+          options.success(doc);
         }
       }
     }
@@ -433,101 +515,18 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       if (options.error) options.error(error);
     }
   }
-  
-  couch.remove = function (doc, options) {
-    doc._deleted = true;
-    return couch.post(doc, options);
-  }
-  
-  couch.post = function (doc, options, transaction) {
-    if (!doc._id) doc._id = Math.uuid();
-    if (typeof options.newEdits === 'undefined') options.newEdits = true;
-    if (couch.docToSeq[doc._id]) {
-      if (!doc._rev) {
-        options.error({code:413, message:"Update conflict, no revision information"});
-      }
-      if (!transaction) {
-        transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
-        var bulk = false;
-      } else {var bulk = true}
 
-      var request = transaction.objectStore("document-store")
-        .openCursor(IDBKeyRange.only(doc._id));
-      request.onsuccess = function (event) {
-        var prevDocCursor = event.target.result;
-        var prev = event.target.result.value;
-        if ((prev._rev !== doc._rev && !prev._deleted) && options.newEdits) {
-          options.error({code:413, error:"Conflict error, revision does not match."});
-          return;
-        }
-        getNewSequence(transaction, couch, function (seq) {
-          if (!options.newEdits) {
-            var rev = getNewRevision(doc, prev._rev);
-          } else {
-            var rev = doc._rev;
-          }
-           
-          var request = transaction.objectStore("sequence-index")
-            .openCursor(IDBKeyRange.only(couch.docToSeq[doc._id]));
-          request.onsuccess = function (event) {
-            var oldSequence = event.target.result.value;
-            if (oldSequence.changes) {
-              oldSequence.changes[event.target.result.key] = prev
-            } else {
-              oldSequence.changes = {};
-              oldSequence.changes[event.target.result.key] = prev;
-            }
-            transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:rev, 
-                                                           changes:oldSequence.changes});
-            event.target.source.delete(event.target.result.key);
-            doc._rev = rev;
-            prevDocCursor.update(doc);
-            if (!bulk) {
-              transaction.oncomplete = function () {
-                couch.docToSeq[doc._id] = seq;
-                couch.seq = seq;
-                if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
-                couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
-              }
-            } else {
-              options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc})
-            }
-            
-          }
-          request.onerror = function (err) {
-            if (options.error) options.error("Could not open sequence index")
-          }
-        })
-      }
-      request.onerror = function (err) {
-        if (options.error) options.error("Could not find document in object store.")
-      }
-    } else {
-      // no existing document information
-      if (!transaction) {
-        transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
-        var bulk = false;
-      } else {var bulk = true}
-      
-      getNewSequence(transaction, couch, function (seq) {
-        doc._rev = getNewRevision(doc);
-        transaction.objectStore("sequence-index").add({seq:seq, id:doc._id, rev:doc._rev});
-        transaction.objectStore("document-store").add(doc);
-        if (!bulk) {
-          transaction.oncomplete = function () {
-            couch.docToSeq[doc._id] = seq;
-            couch.seq = seq;
-            if (options.success) options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
-            couch.changes.emit({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
-          }
-        } else {
-          options.success({id:doc._id, rev:doc._rev, seq:seq, doc:doc});
-        }
-      })
-    }
+  pouch.remove = function (doc, options) {
+    doc._deleted = true;
+    return pouch.post(doc, options);
   }
-  
-  couch.changes = function (options) {
+
+  pouch.post = function (doc, options) {
+    if (!doc._id) doc._id = Math.uuid();
+    updateDocs([doc], options);
+  }
+
+  pouch.changes = function (options) {
     if (!options.seq) options.seq = 0;
     var transaction = db.transaction(["document-store", "sequence-index"]);
     var request = transaction.objectStore('sequence-index')
@@ -536,7 +535,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       var cursor = event.target.result;
       if (!cursor) {
         if (options.continuous) {
-          couch.changes.addListener(options.onChange);
+          pouch.changes.addListener(options.onChange);
         }
         if (options.complete) {
           options.complete();
@@ -556,32 +555,32 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       // Cursor is out of range
       // NOTE: What should we do with a sequence that is too high?
       if (options.continuous) {
-        couch.changes.addListener(options.onChange);
+        pouch.changes.addListener(options.onChange);
       }
       if (options.complete) {
         options.complete();
       }
     }
   }
-  
-  couch.bulk = function (docs, options) {
+
+  pouch.bulk = function (docs, options) {
     var transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
-    var oldSeq = couch.seq;
+    var oldSeq = pouch.seq;
     var infos = []
     var i = 0;
     var doWrite = function () {
-      if (i >= docs.length) {                
+      if (i >= docs.length) {
         transaction.oncomplete = function () {
           infos.forEach(function (info) {
-            if (!info.error) couch.docToSeq[info.id] = info.seq
+            if (!info.error) pouch.docToSeq[info.id] = info.seq
           })
           options.success(infos);
         }
         return;
       }
-      couch.post(docs[i], {
+      pouch.post(docs[i], {
         success : function (info) {
-          couch.seq += 1;
+          pouch.seq += 1;
           i += 1;
           infos.push(info);
           doWrite();
@@ -589,7 +588,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
         , error : function (error) {
           if (options.ensureFullCommit) {
             transaction.abort();
-            couch.seq = oldSeq;
+            pouch.seq = oldSeq;
             options.error(error);
             return;
           }
@@ -598,20 +597,20 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
           doWrite();
         }
       }, transaction);
-      
+
     };
     doWrite();
   }
-  
-  couch.changes.listeners = [];
-  couch.changes.emit = function () {
+
+  pouch.changes.listeners = [];
+  pouch.changes.emit = function () {
     var a = arguments;
-    couch.changes.listeners.forEach(function (l) {l.apply(l, a)});
+    pouch.changes.listeners.forEach(function (l) {l.apply(l, a)});
   }
-  couch.changes.addListener = function (l) { couch.changes.listeners.push(l); }
-  
-  couch.replicate = {}
-  couch.replicate.from = function (options) {
+  pouch.changes.addListener = function (l) { pouch.changes.listeners.push(l); }
+
+  pouch.replicate = {}
+  pouch.replicate.from = function (options) {
     var c = []; // Change list
     if (options.url[options.url.length - 1] !== '/') options.url += '/';
     ajax({url:options.url+'_changes?style=all_docs&include_docs=true'}, function (e, resp) {
@@ -621,16 +620,16 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       var transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
       var pending = resp.results.length;
       resp.results.forEach(function (r) {
-        
+
         var writeDoc = function (r) {
-          couch.post(r.doc, 
+          pouch.post(r.doc,
             { newEdits:false
             , success: function (changeset) {
                 pending--;
                 c.changeset = changeset;
                 c.push(r);
                 if (pending === 0) options.success(c);
-              } 
+              }
             , error: function (e) {
                 pending--;
                 r.error = e;
@@ -641,7 +640,7 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
           , transaction
           );
         }
-        couch.get(r.id, 
+        pouch.get(r.id,
           { success: function (doc) {
               // The document exists
               if (doc._rev === r.changes[0].rev) return; // Do nothing if we already have the change
@@ -664,71 +663,78 @@ var makeCouch = function (db, documentStore, sequenceIndex, opts) {
       })
     })
   }
-  couch.replicate.to = function (url) {
-    
-  }
-  
-  // This whole sequence cache is going to break on multi-window :(
-  var request = sequenceIndex.openCursor();
-  var seq;
-  request.onsuccess = function (e) {
-    // Handle iterating on the sequence index to create the reverse map and validate last-seq
-    var cursor = e.target.result;
-    if (!cursor) {
-      couch.seq = seq;
-      opts.success(couch)
-      return;
-    }
-    seq = cursor.key
-    couch.docToSeq[cursor.value['id']] = seq;
-    cursor.continue();
-  }
-  request.onerror = function (event) {
-    opts.error({error:"Couldn't iterate over the by-sequence index."});
-  }
+
+  return pouch;
 }
 
-window.createCouch = function (options, cb) {
+
+const POUCH_VERSION = 1;
+var pouchCache = {};
+pouch = {};
+pouch.open = function (options, cb) {
   if (cb) options.success = cb;
   if (!options.name) throw "name attribute is required"
-  var request = indexedDB.open(options.name);
-  // Failure handler on getting Database
-  request.onerror = function(error) {
-    if (options.error) options.error("Failed to open database.");
+
+  var name = 'pouch:' + options.name;
+  if (name in pouchCache) {
+    console.log("Using cached pouch");
+    options.success(pouchCache[name]);
+    return;
   }
+
+  var request = indexedDB.open(name);
 
   request.onsuccess = function(event) {
     var db = event.target.result;
-    getObjectStore(db, 'document-store', '_id', function (documentStore) {
-      getObjectStore(db, 'sequence-index', 'seq', function (sequenceIndex) {
-        makeCouch(db, documentStore, sequenceIndex, options);
-      }, function () {if (options.error) {options.error('Could not open sequence index.')}})
-    }, function () {if (options.error) {options.error('Could not open document store.')}})
+    pouchCache[name] = makePouch(db);
+
+    db.onversionchange = function(event) {
+      console.log("Closing!");
+      db.close();
+      delete pouchCache[name];
+    };
+
+    if (!db.version) {
+      var versionRequest = db.setVersion('1');
+      versionRequest.onsuccess = function (event) {
+        console.log("Creating!");
+        db.createObjectStore('ids', 'id')
+          .createIndex('seq', 'seq', {unique : true});
+        db.createObjectStore('revs', {autoIncrement : true});
+        options.success(pouchCache[name]);
+      }
+      versionRequest.onblocked = function (event) {
+        options.error({
+          error : 'open'
+        , reason : 'upgrade needed but blocked by another process'
+        });
+      };
+    } else {
+      options.success(pouchCache[name]);
+    }
+  };
+
+  request.onerror = function(event) {
+    if (options.error)
+      options.error({
+        error : 'open'
+      , reason : error.toString()
+      });
   }
 }
 
-window.removeCouch = function (options) {
-  var request = indexedDB.open(options.name);
+pouch.deleteDatabase = function (options) {
+  if (!options.name) throw "name attribute is required"
+
+  var name = 'pouch:' + options.name;
+  var request = indexedDB.deleteDatabase(options.name);
+
   request.onsuccess = function (event) {
-    var db = event.target.result;
-    var successes = 0;
-    var l = db.objectStoreNames.length;
-    for (var i=0;i<db.objectStoreNames.length;i+=1) {
-      db.objectStoreNames[i]
-      var version_request = db.setVersion('1');
-      version_request.onsuccess = function(event) {
-        var r = db.deleteObjectStore(db.objectStoreNames[i]);
-      
-        r.onsuccess = function (event) {
-          successes += 1; 
-          if (successes === l) options.success();
-        }
-        r.onerror = function () { options.error("Failed to remove "+db.objectStoreNames[i]); }
-      }
-    }
-  } 
-  request.onerror = function () {
-    options.error("No such database "+options.name);
+    options.success({ok : true});
+  };
+
+  request.onerror = function (event) {
+    options.error({error : 'delete', reason : event.toString});
   }
 }
 

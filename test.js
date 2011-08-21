@@ -1,68 +1,67 @@
-module("test database.")
+module("basics", {
+  setup : function () {
+    var suffix = '';
+    for (var i = 0 ; i < 10 ; i++ ) {
+      suffix += (Math.random()*16).toFixed().toString(16);
+    };
+    this.name = 'test' + suffix;
+  }
+});
 
-asyncTest("create a couch", function () {
-  createCouch( 
-    { name: "test"
-    , success: function (couch) {ok(couch); start(); }
-    , error: function (error) {ok(!error, error); start();}
+asyncTest("Create a pouch", function () {
+  pouch.open(this.name, function (err, db) {
+    ok(!err, 'created a pouch');
+    start();
   })
 })
 
-asyncTest("Add doc", function () {
-  createCouch( 
-    { name: "test"
-    , success: function (couch) {
-        ok(couch);  
-        couch.post({test:"somestuff"}, {success:function (info) {
-          ok(info);
-          start();
-        }})
-    }
-    , error: function (error) {ok(!error, error); start();}
+asyncTest("Add a doc", function () {
+  pouch.open(this.name, function (err, db) {
+    ok(!err, 'opened the pouch');
+    db.put({test:"somestuff"}, function (err, info) {
+      ok(!err, 'saved a doc with post');
+      start();
+    })
   })
 })
 
-asyncTest("Modify doc", function () {
-  createCouch( 
-    { name: "test"
-    , success: function (couch) {
-        ok(couch);  
-        couch.post({test:"somestuff"}, {success:function (info) {
-          ok(info);
-          couch.post({ _id:info.id, _rev:info.rev, 'another':'test'},
-                     { success:function (info2) {ok(info2.seq == (info.seq + 1), info.seq+' '+info2.seq); start();}
-                     , error: function (err) {ok(!err, err); start();}
-                     })
-        }})
-    }
-    , error: function (error) {ok(!error, error); start();}
+asyncTest("Modify a doc", function () {
+  pouch.open(this.name, function (err, db) {
+    ok(!err, 'opened the pouch');
+    db.put({test: "somestuff"}, function (err, info) {
+      ok(!err, 'saved a doc with post');
+      db.put({_id: info.id, _rev: info.rev, another: 'test'}
+      , function (err, info2) {
+        ok(!err && info2.seq == 2, 'updated a doc with put');
+      })
+    })
   })
 })
 
 asyncTest("All changes", function () {
-  createCouch( 
+  pouch.open(
     { name: "test"
     , success: function (couch) {
-        ok(couch);  
+        ok(couch);
         couch.post({test:"somestuff"}, {success:function (info) {
           ok(info);
           couch.changes({onChange:function (change) {
             if (change.seq == info.seq) start();
           }, error:function() {ok(false); start();}})
         }})
-        
+
     }
     , error: function (error) {ok(!error, error); start();}
   })
 })
 
 asyncTest("Continuous changes", function () {
-  createCouch( 
+  pouch.open(
     { name: "test"
     , success: function (couch) {
-        ok(couch);  
+        ok(couch);
         var count = 0;
-        couch.changes({ onChange : function (change) { count += 1; } 
+        couch.changes({ onChange : function (change) { count += 1; }
                       , continuous : true
                       , seq : couch.seq + 1
                       , complete : function () {
@@ -81,10 +80,10 @@ asyncTest("Continuous changes", function () {
 })
 
 asyncTest("Bulk docs", function () {
-  createCouch( 
+  pouch.open(
     { name: "test"
     , success: function (couch) {
-        ok(couch);  
+        ok(couch);
         couch.bulk([{test:"somestuff"}, {test:"another"}], {success:function (infos) {
           ok(!infos[0].error);
           ok(!infos[1].error);
@@ -96,10 +95,10 @@ asyncTest("Bulk docs", function () {
 })
 
 asyncTest("Get doc", function () {
-  createCouch( 
+  pouch.open(
     { name: "test"
     , success: function (couch) {
-        ok(couch);  
+        ok(couch);
         couch.post({test:"somestuff"}, {success:function (info) {
           ok(info);
           couch.get(info.id, {success:function (doc) {
@@ -116,10 +115,10 @@ asyncTest("Get doc", function () {
 })
 
 asyncTest("Remove doc", function () {
-  createCouch( 
+  pouch.open(
     { name: "test"
     , success: function (couch) {
-        ok(couch);  
+        ok(couch);
         couch.post({test:"somestuff"}, {success:function (info) {
           ok(info);
           var seq = couch.seq;
@@ -139,7 +138,7 @@ asyncTest("Remove doc", function () {
 module('replicate')
 
 asyncTest("replicate from",function(){
-  createCouch( 
+  pouch.open(
     { name: "test"
     , success: function (couch) {
         ok(couch);
@@ -158,13 +157,11 @@ asyncTest("replicate from",function(){
   )
 })
 
-
-module("cleanup.")
-
-asyncTest("remove couch",function(){
-  removeCouch( { name:"test" 
-                , success:function () { ok(true); start(); }
-                , error: function (error) {ok(!error, error); start();}
-                } );
+asyncTest("remove a pouch",function(){
+  pouch.deleteDatabase( {
+      name:"test"
+    , success:function () { ok(true); start(); }
+    , error: function (error) {ok(!error, error); start();}
+  });
 })
 
