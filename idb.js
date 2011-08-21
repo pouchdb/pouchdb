@@ -341,24 +341,29 @@ var parseDoc = function (doc, newEdits) {
   }
   doc._id = decodeURIComponent(doc._id);
   doc._rev = [doc._revisions.start, doc._revisions.ids[0]].join('-');
-  return doc;
+  return Object.keys(doc).reduce(function (acc, key) {
+    if (/^_/.test(key))
+      acc.metadata[key.slice(1)] = doc[key];
+    else
+      acc.data[key] = doc[key];
+    return acc;
+  }, {metadata : {}, data : {}});
 }
 
-var docCompare = function (a, b) {
-  if (a._id == b._id) {
-    if (a._deleted ^ b._deleted) {
-      return (a._deleted ? -1 : 1);
+var compareRevs = function (a, b) {
+  if (a.id == b.id) { // Sort by id
+    if (a.deleted ^ b.deleted) {
+      return (a.deleted ? -1 : 1); // Then by deleted
     } else {
-      if (a._revisions.start == b._revisions.start)
-        return (a._revisions.ids < b._revisions.ids ? -1 : 1);
+      if (a.revisions.start == b.revisions.start) // Then by depth of edits
+        return (a.revisions.ids < b.revisions.ids ? -1 : 1); // Then by rev id
       else
-        return (a._revisions.start < b.revisions.start ? -1 : 1);
+        return (a.revisions.start < b.revisions.start ? -1 : 1);
     }
   } else {
-    return (a._id < b._id ? -1 : 1);
+    return (a.id < b.id ? -1 : 1);
   }
-};
-
+}
 
 var viewQuery = function (objectStore, options) {
   var range;
@@ -395,136 +400,134 @@ var makePouch = function (db) {
   // Now we create the PouchDB interface
   var pouch = {update_seq: 0};
 
-  var updateDocs = function (docs, options) {
-    if (!docs) options.success({docs: []});
+  pouch.get = function (id, options, callback) {
+    options.error('not implemented');
+  }
+
+  pouch.remove = function (id, options) {
+    doc._deleted = true;
+    return pouch.bulkDocs(doc, options);
+  }
+
+  pouch.put = function (doc, options, callback) {
+    if (options instanceof Function) {
+      callback = options;
+      options = {};
+    }
+    options = options || {};
+
+    if (!doc._id) doc._id = Math.uuid();
+    pouch.bulkDocs({docs : [doc]}, options, function (err, results) {
+      if (err) {
+        if (callback) callback(err);
+      } else {
+        if (callback) callback(null, results[0]);
+      }
+    });
+  }
+
+  pouch.bulkDocs = function (req, options, callback) {
+    if (options instanceof Function) {
+      callback = options;
+      options = {};
+    }
+    options = options || {};
+
+    var docs = req.docs;
+    if (!docs) {
+      if (callback) callback(null, []);
+      return;
+    }
+
     var newEdits = 'new_edits' in options ? options._new_edits : true;
 
     // Parse and sort the docs
-    docs = docs.map(function (doc) {
+    var docInfos = docs.map(function (doc) {
       return parseDoc(doc, newEdits);
     });
-    docs.sort(docCompare);
+    docInfos.sort(function (a, b) {return compareRevs(a.metadata, b.metadata)});
 
     var keyRange = IDBKeyRange.bound(
-      docs[0]._id, docs[docs.length-1]._id
-    , {openLeft : true, openRight : true});
+      docInfos[0].metadata.id, docInfos[docInfos.length-1].metadata.id,
+      false, false);
 
-    var buckets = docs.reduce(function (acc, doc) {
-      if (doc._id == acc[0][0]._id)
-        acc[0].push(doc);
+    var buckets = docInfos.reduce(function (acc, docInfo) {
+      if (docInfo.metadata._id == acc[0][0].metadata._id)
+        acc[0].push(docInfo);
       else
-        acc.unshift([doc]);
+        acc.unshift([docInfo]);
       return acc;
-    }, [[docs.shift()]]);
+    }, [[docInfos.shift()]]);
 
-    var result = {
-      docs : []
-    , update_seq : pouch.update_seq
-    };
-
-    var txn = db.transaction(['ids', 'revs'], IDBTransaction.READ_WRITE);
+    var txn = db.transaction(['ids', 'revs'], IDBTransaction.READ_WRITE)
+      , results = [];
 
     txn.oncomplete = function (event) {
-      options.success(result.docs);
+      if (callback) callback(null, results);
     };
 
-    txn.onabort = function (event) {
-      if(options.error)
-        options.error({
+    txn.onerror = function (event) {
+      if (callback) {
+        callback({
           error : 'abort'
-        , reason : event.target.toString()
+        , reason : event.target
         });
+      }
     }
 
     txn.ontimeout = function (event) {
-      if(options.error)
-        options.error({
+      if (callback) {
+        callback({
           error : 'timeout'
-        , reason : event.target.toString()
+        , reason : event.target
         });
+      }
     }
 
-    txn.objectStore('ids').openCursor(keyRange, IDBCursor.Next)
-    .onsuccess = function (event) {
+    txn.onabort = function (event) {
+      if (callback) {
+        callback({
+          error : 'abort'
+        , reason : event.target
+        });
+      }
+    }
+
+    console.log(keyRange);
+    var cursReq = txn.objectStore('ids').openCursor(keyRange, IDBCursor.NEXT)
+    cursReq.onsuccess = function (event) {
       var cursor = event.target.result;
       if (cursor) {
         // TODO: Accumulate a bucket by merging rev trees
-        // For now, just clobber
-        // TODO: clobber
+        console.log("Document updating needs implementing ASAP!!");
         cursor.continue();
       } else {
         // Cursor has exceeded the key range so the rest are inserts
         buckets.forEach(function (bucket) {
           // TODO: merge the bucket revs into a rev tree
-          var doc = bucket[0];
-          txn.objectStore('revs').add(doc).onsuccess = function (event) {
-            var metadata = {
-              id : doc._id
-            , seq : event.target.result
-            // TODO : store the rev tree here
+          var docInfo = bucket[0];
+          console.log("Storing " + JSON.stringify(docInfo));
+          var dataRequest = txn.objectStore('revs').add(docInfo.data)
+          dataRequest.onsuccess = function (event) {
+            docInfo.metadata.seq = event.target.result;
+            console.log("Seq is " + docInfo.metadata.seq);
+            var metaDataRequest = txn.objectStore('ids').add(docInfo.metadata)
+            metaDataRequest.onsuccess = function (event) {
+              results.push({
+                id : docInfo.metadata.id
+              , rev : docInfo.metadata.rev
+              });
             };
-            txn.objectStore('ids').add(metadata, doc._id);
-            result.docs.push(metadata);
+            metaDataRequest.onerror = function (event) {
+
+              console.log("Fuck " + err.target);
+            };
           };
         });
       }
     }
-/*    for (var doc in docs) {
-      if (newEdits) {
-        var request = objectStore.add(doc, {
-          key : [doc._id, [doc._revisions.start, doc._revisions.ids[0]]]
-        });
-        request.onsuccess = function (event) {
-          result.docs.push({
-            id : doc._id
-          , rev : doc._rev
-          });
-        };
-        request.onerror = function (event) {
-          if (options.all_or_nothing) {
-            transaction.abort();
-          } else {
-            result.docs.push({
-              id : doc._id
-            , error : 'conflict'
-            , reason : 'Document update conflict.'
-            });
-          }
-        }
-      } else {
-        throw 'new_edits=false not implemented';
-      }
-    }*/
   };
 
-  pouch.get = function (_id, options, transaction) {
-    if (!transaction) transaction = db.transaction('document-store');
-    var request = transaction.objectStore('document-store').openCursor(IDBKeyRange.only(_id));
-    request.onsuccess = function (cursor) {
-      if (!cursor.target.result) {if (options.error) options.error({error:'Document does not exist'})}
-      else {
-        var doc = cursor.target.result.value;
-        if (doc._deleted) {
-          options.error({error:"Document has been deleted."})
-        } else {
-          options.success(doc);
-        }
-      }
-    }
-    request.onerror = function (error) {
-      if (options.error) options.error(error);
-    }
-  }
-
-  pouch.remove = function (doc, options) {
-    doc._deleted = true;
-    return pouch.post(doc, options);
-  }
-
-  pouch.post = function (doc, options) {
-    if (!doc._id) doc._id = Math.uuid();
-    updateDocs([doc], options);
-  }
 
   pouch.changes = function (options) {
     if (!options.seq) options.seq = 0;
@@ -561,45 +564,6 @@ var makePouch = function (db) {
         options.complete();
       }
     }
-  }
-
-  pouch.bulk = function (docs, options) {
-    var transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
-    var oldSeq = pouch.seq;
-    var infos = []
-    var i = 0;
-    var doWrite = function () {
-      if (i >= docs.length) {
-        transaction.oncomplete = function () {
-          infos.forEach(function (info) {
-            if (!info.error) pouch.docToSeq[info.id] = info.seq
-          })
-          options.success(infos);
-        }
-        return;
-      }
-      pouch.post(docs[i], {
-        success : function (info) {
-          pouch.seq += 1;
-          i += 1;
-          infos.push(info);
-          doWrite();
-        }
-        , error : function (error) {
-          if (options.ensureFullCommit) {
-            transaction.abort();
-            pouch.seq = oldSeq;
-            options.error(error);
-            return;
-          }
-          infos.push({id:docs[i]._id, error:"conflict", reason:error});
-          i += 1;
-          doWrite();
-        }
-      }, transaction);
-
-    };
-    doWrite();
   }
 
   pouch.changes.listeners = [];
@@ -671,14 +635,16 @@ var makePouch = function (db) {
 const POUCH_VERSION = 1;
 var pouchCache = {};
 pouch = {};
-pouch.open = function (options, cb) {
-  if (cb) options.success = cb;
-  if (!options.name) throw "name attribute is required"
+pouch.open = function (name, options, callback) {
+  if (options instanceof Function) {
+    callback = options;
+    options = {};
+  }
+  options = options || {};
 
-  var name = 'pouch:' + options.name;
+  var name = 'pouch:' + name;
   if (name in pouchCache) {
-    console.log("Using cached pouch");
-    options.success(pouchCache[name]);
+    if (callback) callback(null, pouchCache[name]);
     return;
   }
 
@@ -697,37 +663,39 @@ pouch.open = function (options, cb) {
     if (!db.version) {
       var versionRequest = db.setVersion('1');
       versionRequest.onsuccess = function (event) {
-        console.log("Creating!");
-        db.createObjectStore('ids', 'id')
+        db.createObjectStore('ids', {keyPath : 'id'})
           .createIndex('seq', 'seq', {unique : true});
         db.createObjectStore('revs', {autoIncrement : true});
-        options.success(pouchCache[name]);
+        if (callback)
+          callback(null, pouchCache[name]);
       }
       versionRequest.onblocked = function (event) {
-        options.error({
-          error : 'open'
-        , reason : 'upgrade needed but blocked by another process'
-        });
+        if (callback) {
+          callback({
+            error : 'open'
+          , reason : 'upgrade needed but blocked by another process'
+          });
+        }
       };
     } else {
-      options.success(pouchCache[name]);
+      if (callback)
+        callback(null, pouchCache[name]);
     }
   };
 
   request.onerror = function(event) {
-    if (options.error)
-      options.error({
+    if (callback) {
+      callback({
         error : 'open'
       , reason : error.toString()
       });
+    }
   }
 }
 
-pouch.deleteDatabase = function (options) {
-  if (!options.name) throw "name attribute is required"
-
-  var name = 'pouch:' + options.name;
-  var request = indexedDB.deleteDatabase(options.name);
+pouch.deleteDatabase = function (name) {
+  var name = 'pouch:' + name;
+  var request = indexedDB.deleteDatabase(name);
 
   request.onsuccess = function (event) {
     options.success({ok : true});
