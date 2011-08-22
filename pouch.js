@@ -309,12 +309,11 @@ var ajax = function (options, callback) {
 // The spec is still in flux.
 // While most of the IDB behaviors match between implementations a lot of the names still differ.
 // This section tries to normalize the different objects & methods.
-window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB;
-window.IDBCursor = window.IDBCursor || window.mozIDBCursor || window.webkitIDBCursor;
-window.IDBKeyRange = window.IDBKeyRange || window.mozIDBKeyRange || window.webkitIDBKeyRange;
-window.IDBTransaction = window.IDBTransaction || window.mozIDBTransaction || window.webkitIDBTransaction;
-IDBKeyRange.leftBound = IDBKeyRange.leftBound || IDBKeyRange.lowerBound;
-IDBKeyRange.rightBound = IDBKeyRange.rightBound || IDBKeyRange.upperBound;
+window.indexedDB = window.indexedDB || window.webkitIndexedDB;
+window.IDBCursor = window.IDBCursor || window.webkitIDBCursor;
+window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange;
+window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
+window.IDBDatabaseException = window.IDBDatabaseException || window.webkitIDBDatabaseException;
 
 var parseDoc = function (doc, newEdits) {
   if (newEdits) {
@@ -371,11 +370,11 @@ var viewQuery = function (objectStore, options) {
   if (options.startKey && options.endKey) {
     range = IDBKeyRange.bound(options.startKey, options.endKey);
   } else if (options.startKey) {
-    if (options.descending) { range = IDBKeyRange.rightBound(options.startKey); }
-    else { range = IDBKeyRange.leftBound(options.startKey); }
+    if (options.descending) { range = IDBKeyRange.upperBound(options.startKey); }
+    else { range = IDBKeyRange.lowerBound(options.startKey); }
   } else if (options.endKey) {
-    if (options.descending) { range = IDBKeyRange.leftBound(options.endKey); }
-    else { range = range = IDBKeyRange.rightBound(options.endKey); }
+    if (options.descending) { range = IDBKeyRange.lowerBound(options.endKey); }
+    else { range = range = IDBKeyRange.upperBound(options.endKey); }
   }
   if (options.descending) {
     request = objectStore.openCursor(range, "left");
@@ -521,7 +520,7 @@ var makePouch = function (db) {
     if (!options.seq) options.seq = 0;
     var transaction = db.transaction(["document-store", "sequence-index"]);
     var request = transaction.objectStore('sequence-index')
-      .openCursor(IDBKeyRange.leftBound(options.seq));
+      .openCursor(IDBKeyRange.lowerBound(options.seq));
     request.onsuccess = function (event) {
       var cursor = event.target.result;
       if (!cursor) {
