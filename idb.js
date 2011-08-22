@@ -409,7 +409,7 @@ var makePouch = function (db) {
     return pouch.bulkDocs(doc, options);
   }
 
-  pouch.put = function (doc, options, callback) {
+  pouch.put = pouch.post = function (doc, options, callback) {
     if (options instanceof Function) {
       callback = options;
       options = {};
@@ -468,32 +468,26 @@ var makePouch = function (db) {
 
     txn.onerror = function (event) {
       if (callback) {
+        var code = event.target.errorCode;
+        var message = Object.keys(IDBDatabaseException)[code].toLowerCase();
         callback({
-          error : 'abort'
-        , reason : event.target
+          error : event.type
+        , reason : message
         });
       }
     }
 
     txn.ontimeout = function (event) {
       if (callback) {
+        var code = event.target.errorCode;
+        var message = Object.keys(IDBDatabaseException)[code].toLowerCase();
         callback({
-          error : 'timeout'
-        , reason : event.target
+          error : event.type
+        , reason : message
         });
       }
     }
 
-    txn.onabort = function (event) {
-      if (callback) {
-        callback({
-          error : 'abort'
-        , reason : event.target
-        });
-      }
-    }
-
-    console.log(keyRange);
     var cursReq = txn.objectStore('ids').openCursor(keyRange, IDBCursor.NEXT)
     cursReq.onsuccess = function (event) {
       var cursor = event.target.result;
@@ -506,21 +500,15 @@ var makePouch = function (db) {
         buckets.forEach(function (bucket) {
           // TODO: merge the bucket revs into a rev tree
           var docInfo = bucket[0];
-          console.log("Storing " + JSON.stringify(docInfo));
           var dataRequest = txn.objectStore('revs').add(docInfo.data)
           dataRequest.onsuccess = function (event) {
             docInfo.metadata.seq = event.target.result;
-            console.log("Seq is " + docInfo.metadata.seq);
             var metaDataRequest = txn.objectStore('ids').add(docInfo.metadata)
             metaDataRequest.onsuccess = function (event) {
               results.push({
                 id : docInfo.metadata.id
               , rev : docInfo.metadata.rev
               });
-            };
-            metaDataRequest.onerror = function (event) {
-
-              console.log("Fuck " + err.target);
             };
           };
         });

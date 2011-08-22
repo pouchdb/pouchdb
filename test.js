@@ -18,7 +18,7 @@ asyncTest("Create a pouch", function () {
 asyncTest("Add a doc", function () {
   pouch.open(this.name, function (err, db) {
     ok(!err, 'opened the pouch');
-    db.put({test:"somestuff"}, function (err, info) {
+    db.post({test:"somestuff"}, function (err, info) {
       ok(!err, 'saved a doc with post');
       start();
     })
@@ -28,11 +28,12 @@ asyncTest("Add a doc", function () {
 asyncTest("Modify a doc", function () {
   pouch.open(this.name, function (err, db) {
     ok(!err, 'opened the pouch');
-    db.put({test: "somestuff"}, function (err, info) {
+    db.post({test: "somestuff"}, function (err, info) {
       ok(!err, 'saved a doc with post');
       db.put({_id: info.id, _rev: info.rev, another: 'test'}
       , function (err, info2) {
         ok(!err && info2.seq == 2, 'updated a doc with put');
+        start();
       })
     })
   })
