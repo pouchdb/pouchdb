@@ -309,7 +309,7 @@ var ajax = function (options, callback) {
 // The spec is still in flux.
 // While most of the IDB behaviors match between implementations a lot of the names still differ.
 // This section tries to normalize the different objects & methods.
-window.indexedDB = window.indexedDB || window.webkitIndexedDB;
+window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB;
 window.IDBCursor = window.IDBCursor || window.webkitIDBCursor;
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange;
 window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction;
