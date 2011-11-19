@@ -364,6 +364,132 @@ var compareRevs = function (a, b) {
   }
 }
 
+var mergeRevTrees = function () {
+  var trees = Array.prototype.slice.call(arguments)
+  , result = {
+    trees : [],
+    leaves : []
+  }
+
+  return trees.sort(sortTrees).reduce(reduceRevTrees, result)
+
+  function sortTrees(trees) {
+    trees.sort(function (a, b) { return (a.pos > b.pos) - (a.pos < b.pos) })
+  }
+
+  function reduceRevTrees(result, tree) {
+    if (!result.trees.length) {
+      result.trees.concat(tree)
+      result.leaves.concat(getLeafNodes(tree.pos, [], tree))
+    } else {
+      for (var base in result.trees) {
+        var mergeResult = mergeTrees(tree.ids, tree.pos, base.ids, base.pos)
+        if (mergeResult.trees.length == 1) {
+          // TODO : 
+        }
+      }
+    }
+  }
+
+  function mergeTrees(tree, depth, base, pos, prefix) {
+    if (!base.length) {
+      return [{
+        tree : tree,
+        leaves : getLeafNodes(depth, prefix || [], tree)
+      }]
+    } else {
+      var branches = branches(base).filter(function (branch) {
+        return (pos < depth) ? true : branch[0] == tree[0]
+      }
+      if (pos < depth) {
+        var branches = branches(base)
+        for (var b in branches) {
+          var merged = mergeTrees(tree, depth,
+                                  b.slice(1), pos + 1,
+                                  prefix.concat(b[0]))
+          if (merged.length == 1) {
+            return branches.reduce(function (results, branch) {
+              if (branch === b) {
+                return results.concat(merged)
+              } else {
+                return results.concat({
+                  tree : 
+                tre)
+              }
+        }
+        branches(base).reduce(function (results, branch, i, siblings) {
+          if (results.length < i) {
+            // Already found a successful merge or have no base branch yet
+            results.concat({
+              tree : branch,
+              leaves : getLeafNodes(branch.slice(1), pos + 1,
+                                    prefix.concat(branch[0]))
+            })
+          } else {
+            if (trees.length == 1) {
+              return results.concat(trees)
+            } else {
+              if (i == siblings.length) {
+                result results.concat({
+                  tree : tree,
+                  leaves : getLeafNodes
+                // TODO : return unmerged as a new tree
+              }
+            }
+        }
+        if (Array.isArray(base[0])) {
+          for (var branch in base[0]) {
+            var mergeResult = mergeTree(tree, 
+          )
+        } else {
+          return mergeTree(tree, depth,
+                           base.slice(1), pos + 1,
+                           prefix.concat(base[0]))
+        }
+      } else {
+        if (Array.isArray(base[0])) {
+          
+      }
+    }
+    while (pos < depth) {
+      if (Array.isArray(base[0])) {
+      } else {
+        
+      }
+    }
+    if (pos == depth) {
+      if (base.length == 0) {
+        return {
+          trees : []
+          conflicts : []
+        }
+      }
+    }
+    if (pos < depth) {
+      branches(base)
+    }
+  }
+
+  function getLeafNodes(depth, prefix, tree) {
+    if (!tree.length) {
+      return [{
+        start : depth,
+        ids : prefix.slice().reverse()
+      }]
+    } else if (Array.isArray(tree[0])) {
+      return tree[0].reduce(function (leaves, branch) {
+        return leaves.concat(getLeafNodes(depth, prefix, branch))
+      })
+    } else{
+      return getLeafNodes(depth+1, prefix.concat(tree[0]), tree.slice(1))
+    }
+  }
+      
+  function branches(tree) {
+    return Array.isArray(tree[0]) ? tree[0] : [tree]
+  }
+}
+  
 var viewQuery = function (objectStore, options) {
   var range;
   var request;
