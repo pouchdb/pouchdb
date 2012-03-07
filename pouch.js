@@ -385,7 +385,7 @@ var mergeRevTrees = function () {
       for (var base in result.trees) {
         var mergeResult = mergeTrees(tree.ids, tree.pos, base.ids, base.pos)
         if (mergeResult.trees.length == 1) {
-          // TODO : 
+          // TODO :
         }
       }
     }
@@ -396,11 +396,11 @@ var mergeRevTrees = function () {
       return [{
         tree : tree,
         leaves : getLeafNodes(depth, prefix || [], tree)
-      }]
+      }];
     } else {
       var branches = branches(base).filter(function (branch) {
         return (pos < depth) ? true : branch[0] == tree[0]
-      }
+      })
       if (pos < depth) {
         var branches = branches(base)
         for (var b in branches) {
@@ -412,61 +412,63 @@ var mergeRevTrees = function () {
               if (branch === b) {
                 return results.concat(merged)
               } else {
-                return results.concat({
-                  tree : 
-                tre)
+                return results.concat({tree : tree})
               }
-        }
-        branches(base).reduce(function (results, branch, i, siblings) {
-          if (results.length < i) {
-            // Already found a successful merge or have no base branch yet
-            results.concat({
-              tree : branch,
-              leaves : getLeafNodes(branch.slice(1), pos + 1,
-                                    prefix.concat(branch[0]))
             })
-          } else {
-            if (trees.length == 1) {
-              return results.concat(trees)
+          }
+          branches(base).reduce(function (results, branch, i, siblings) {
+            if (results.length < i) {
+              // Already found a successful merge or have no base branch yet
+              results.concat({
+                tree : branch,
+                leaves : getLeafNodes(branch.slice(1), pos + 1,
+                                      prefix.concat(branch[0]))
+              })
             } else {
-              if (i == siblings.length) {
-                result results.concat({
-                  tree : tree,
-                  leaves : getLeafNodes
-                // TODO : return unmerged as a new tree
+              if (trees.length == 1) {
+                return results.concat(trees)
+              } else {
+                if (i == siblings.length) {
+                  result = results.concat({
+                    tree : tree,
+                    leaves : getLeafNodes
+                    // TODO : return unmerged as a new tree
+                  })
+                }
               }
             }
+          });
+          if (Array.isArray(base[0])) {
+            for (var branch in base[0]) {
+              var mergeResult = mergeTree(tree);
+            }
+          } else {
+            return mergeTree(tree, depth,
+                             base.slice(1), pos + 1,
+                             prefix.concat(base[0]));
+          }
+          //  if (Array.isArray(base[0])) {
+          // }
         }
+      }
+
+      while (pos < depth) {
         if (Array.isArray(base[0])) {
-          for (var branch in base[0]) {
-            var mergeResult = mergeTree(tree, 
-          )
         } else {
-          return mergeTree(tree, depth,
-                           base.slice(1), pos + 1,
-                           prefix.concat(base[0]))
-        }
-      } else {
-        if (Array.isArray(base[0])) {
-          
-      }
-    }
-    while (pos < depth) {
-      if (Array.isArray(base[0])) {
-      } else {
-        
-      }
-    }
-    if (pos == depth) {
-      if (base.length == 0) {
-        return {
-          trees : []
-          conflicts : []
+
         }
       }
-    }
-    if (pos < depth) {
-      branches(base)
+      if (pos == depth) {
+        if (base.length === 0) {
+          return {
+            trees : [],
+            conflicts : []
+          };
+        }
+      }
+      if (pos < depth) {
+        return branches(base);
+      }
     }
   }
 
@@ -484,12 +486,12 @@ var mergeRevTrees = function () {
       return getLeafNodes(depth+1, prefix.concat(tree[0]), tree.slice(1))
     }
   }
-      
+
   function branches(tree) {
     return Array.isArray(tree[0]) ? tree[0] : [tree]
   }
 }
-  
+
 var viewQuery = function (objectStore, options) {
   var range;
   var request;
