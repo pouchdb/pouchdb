@@ -3,15 +3,15 @@
 var ajax = function (options, callback) {
   options.success = function (obj) {
     callback(null, obj);
-  }
+  };
   options.error = function (err) {
     if (err) callback(err);
     else callback(true);
-  }
+  };
   options.dataType = 'json';
-  options.contentType = 'application/json'
-  $.ajax(options)
-}
+  options.contentType = 'application/json';
+  $.ajax(options);
+};
 
 // End request
 
@@ -31,8 +31,8 @@ var parseDoc = function (doc, newEdits) {
       var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
       if (!revInfo) throw "invalid value for property '_rev'";
       doc._revisions = {
-        start : parseInt(revInfo[1]) + 1
-      , ids : [newRevId, revInfo[2]]
+        start: parseInt(revInfo[1], 10) + 1,
+        ids: [newRevId, revInfo[2]]
       };
     } else {
       doc._revisions = {
@@ -56,7 +56,7 @@ var parseDoc = function (doc, newEdits) {
       acc.data[key] = doc[key];
     return acc;
   }, {metadata : {}, data : {}});
-}
+};
 
 var compareRevs = function (a, b) {
   if (a.id == b.id) { // Sort by id
@@ -71,28 +71,20 @@ var compareRevs = function (a, b) {
   } else {
     return (a.id < b.id ? -1 : 1);
   }
-}
+};
 
 var mergeRevTrees = function () {
-  var trees = Array.prototype.slice.call(arguments)
-  , result = {
-    trees : [],
-    leaves : []
-  }
-
-  return trees.sort(sortTrees).reduce(reduceRevTrees, result)
-
   function sortTrees(trees) {
-    trees.sort(function (a, b) { return (a.pos > b.pos) - (a.pos < b.pos) })
+    trees.sort(function (a, b) { return (a.pos > b.pos) - (a.pos < b.pos); });
   }
 
   function reduceRevTrees(result, tree) {
     if (!result.trees.length) {
-      result.trees.concat(tree)
-      result.leaves.concat(getLeafNodes(tree.pos, [], tree))
+      result.trees.concat(tree);
+      result.leaves.concat(getLeafNodes(tree.pos, [], tree));
     } else {
       for (var base in result.trees) {
-        var mergeResult = mergeTrees(tree.ids, tree.pos, base.ids, base.pos)
+        var mergeResult = mergeTrees(tree.ids, tree.pos, base.ids, base.pos);
         if (mergeResult.trees.length == 1) {
           // TODO :
         }
@@ -108,22 +100,22 @@ var mergeRevTrees = function () {
       }];
     } else {
       var branches = branches(base).filter(function (branch) {
-        return (pos < depth) ? true : branch[0] == tree[0]
-      })
+        return (pos < depth) ? true : branch[0] == tree[0];
+      });
       if (pos < depth) {
-        var branches = branches(base)
+        branches = branches(base);
         for (var b in branches) {
           var merged = mergeTrees(tree, depth,
                                   b.slice(1), pos + 1,
-                                  prefix.concat(b[0]))
+                                  prefix.concat(b[0]));
           if (merged.length == 1) {
             return branches.reduce(function (results, branch) {
               if (branch === b) {
-                return results.concat(merged)
+                return results.concat(merged);
               } else {
-                return results.concat({tree : tree})
+                return results.concat({tree : tree});
               }
-            })
+            });
           }
           branches(base).reduce(function (results, branch, i, siblings) {
             if (results.length < i) {
@@ -132,17 +124,17 @@ var mergeRevTrees = function () {
                 tree : branch,
                 leaves : getLeafNodes(branch.slice(1), pos + 1,
                                       prefix.concat(branch[0]))
-              })
+              });
             } else {
               if (trees.length == 1) {
-                return results.concat(trees)
+                return results.concat(trees);
               } else {
                 if (i == siblings.length) {
                   result = results.concat({
                     tree : tree,
                     leaves : getLeafNodes
                     // TODO : return unmerged as a new tree
-                  })
+                  });
                 }
               }
             }
@@ -186,20 +178,28 @@ var mergeRevTrees = function () {
       return [{
         start : depth,
         ids : prefix.slice().reverse()
-      }]
+      }];
     } else if (Array.isArray(tree[0])) {
       return tree[0].reduce(function (leaves, branch) {
-        return leaves.concat(getLeafNodes(depth, prefix, branch))
-      })
+        return leaves.concat(getLeafNodes(depth, prefix, branch));
+      });
     } else{
-      return getLeafNodes(depth+1, prefix.concat(tree[0]), tree.slice(1))
+      return getLeafNodes(depth+1, prefix.concat(tree[0]), tree.slice(1));
     }
   }
 
   function branches(tree) {
-    return Array.isArray(tree[0]) ? tree[0] : [tree]
+    return Array.isArray(tree[0]) ? tree[0] : [tree];
   }
-}
+
+  var trees = Array.prototype.slice.call(arguments);
+  var result = {
+    trees: [],
+    leaves: []
+  };
+
+  return trees.sort(sortTrees).reduce(reduceRevTrees, result);
+};
 
 var viewQuery = function (objectStore, options) {
   var range;
@@ -226,24 +226,26 @@ var viewQuery = function (objectStore, options) {
       if (options.row) options.row(cursor.target.result.value);
       if (options.success) results.push(cursor.target.results.value);
     }
-  }
+  };
   request.onerror = function (error) {
     if (options.error) options.error(error);
-  }
-}
+  };
+};
+
 
 var makePouch = function (db) {
+
   // Now we create the PouchDB interface
   var pouch = {update_seq: 0};
 
   pouch.get = function (id, options, callback) {
     options.error('not implemented');
-  }
+  };
 
   pouch.remove = function (id, options) {
     doc._deleted = true;
     return pouch.bulkDocs(doc, options);
-  }
+  };
 
   pouch.put = pouch.post = function (doc, options, callback) {
     if (options instanceof Function) {
@@ -260,7 +262,7 @@ var makePouch = function (db) {
         if (callback) callback(null, results[0]);
       }
     });
-  }
+  };
 
   pouch.bulkDocs = function (req, options, callback) {
     if (options instanceof Function) {
@@ -281,7 +283,10 @@ var makePouch = function (db) {
     var docInfos = docs.map(function (doc) {
       return parseDoc(doc, newEdits);
     });
-    docInfos.sort(function (a, b) {return compareRevs(a.metadata, b.metadata)});
+
+    docInfos.sort(function (a, b) {
+      return compareRevs(a.metadata, b.metadata);
+    });
 
     var keyRange = IDBKeyRange.bound(
       docInfos[0].metadata.id, docInfos[docInfos.length-1].metadata.id,
@@ -295,8 +300,8 @@ var makePouch = function (db) {
       return acc;
     }, [[docInfos.shift()]]);
 
-    var txn = db.transaction(['ids', 'revs'], IDBTransaction.READ_WRITE)
-      , results = [];
+    var txn = db.transaction(['ids', 'revs'], IDBTransaction.READ_WRITE);
+    var results = [];
 
     txn.oncomplete = function (event) {
       if (callback) callback(null, results);
@@ -307,24 +312,25 @@ var makePouch = function (db) {
         var code = event.target.errorCode;
         var message = Object.keys(IDBDatabaseException)[code].toLowerCase();
         callback({
-          error : event.type
-        , reason : message
+          error : event.type,
+          reason : message
         });
       }
-    }
+    };
 
     txn.ontimeout = function (event) {
       if (callback) {
         var code = event.target.errorCode;
         var message = Object.keys(IDBDatabaseException)[code].toLowerCase();
         callback({
-          error : event.type
-        , reason : message
+          error : event.type,
+          reason : message
         });
       }
-    }
+    };
 
-    var cursReq = txn.objectStore('ids').openCursor(keyRange, IDBCursor.NEXT)
+    var cursReq = txn.objectStore('ids').openCursor(keyRange, IDBCursor.NEXT);
+
     cursReq.onsuccess = function (event) {
       var cursor = event.target.result;
       if (cursor) {
@@ -336,20 +342,20 @@ var makePouch = function (db) {
         buckets.forEach(function (bucket) {
           // TODO: merge the bucket revs into a rev tree
           var docInfo = bucket[0];
-          var dataRequest = txn.objectStore('revs').add(docInfo.data)
+          var dataRequest = txn.objectStore('revs').add(docInfo.data);
           dataRequest.onsuccess = function (event) {
             docInfo.metadata.seq = event.target.result;
-            var metaDataRequest = txn.objectStore('ids').add(docInfo.metadata)
+            var metaDataRequest = txn.objectStore('ids').add(docInfo.metadata);
             metaDataRequest.onsuccess = function (event) {
               results.push({
-                id : docInfo.metadata.id
-              , rev : docInfo.metadata.rev
+                id : docInfo.metadata.id,
+                rev : docInfo.metadata.rev
               });
             };
           };
         });
       }
-    }
+    };
   };
 
 
@@ -375,9 +381,9 @@ var makePouch = function (db) {
             var c = {id:change_.id, seq:change_.seq, changes:change_.changes, doc:event.value};
             options.onChange(c);
             cursor.continue();
-          }
+          };
       }
-    }
+    };
     request.onerror = function (error) {
       // Cursor is out of range
       // NOTE: What should we do with a sequence that is too high?
@@ -387,77 +393,85 @@ var makePouch = function (db) {
       if (options.complete) {
         options.complete();
       }
-    }
-  }
+    };
+  };
 
   pouch.changes.listeners = [];
   pouch.changes.emit = function () {
     var a = arguments;
-    pouch.changes.listeners.forEach(function (l) {l.apply(l, a)});
-  }
-  pouch.changes.addListener = function (l) { pouch.changes.listeners.push(l); }
+    pouch.changes.listeners.forEach(function (l) {
+      l.apply(l, a);
+    });
+  };
+  pouch.changes.addListener = function (l) {
+    pouch.changes.listeners.push(l);
+  };
 
-  pouch.replicate = {}
+  pouch.replicate = {};
+
   pouch.replicate.from = function (options) {
     var c = []; // Change list
     if (options.url[options.url.length - 1] !== '/') options.url += '/';
-    ajax({url:options.url+'_changes?style=all_docs&include_docs=true'}, function (e, resp) {
+    ajax({
+      url: options.url+'_changes?style=all_docs&include_docs=true'
+    }, function (e, resp) {
       if (e) {
         if (options.error) options.error(e);
       }
-      var transaction = db.transaction(["document-store", "sequence-index"], IDBTransaction.READ_WRITE);
+      var transaction = db.transaction(["document-store", "sequence-index"],
+                                       IDBTransaction.READ_WRITE);
       var pending = resp.results.length;
       resp.results.forEach(function (r) {
 
         var writeDoc = function (r) {
-          pouch.post(r.doc,
-            { newEdits:false
-            , success: function (changeset) {
-                pending--;
-                c.changeset = changeset;
-                c.push(r);
-                if (pending === 0) options.success(c);
+          pouch.post(r.doc, {
+            newEdits:false,
+            success: function (changeset) {
+              pending--;
+              c.changeset = changeset;
+              c.push(r);
+              if (pending === 0) options.success(c);
+            },
+            error: function (e) {
+              pending--;
+              r.error = e;
+              c.push(r);
+              if (pending === 0) {
+                options.success(c);
               }
-            , error: function (e) {
-                pending--;
-                r.error = e;
-                c.push(r);
-                if (pending === 0) options.success(c);
-              }
-            }
-          , transaction
-          );
-        }
-        pouch.get(r.id,
-          { success: function (doc) {
-              // The document exists
-              if (doc._rev === r.changes[0].rev) return; // Do nothing if we already have the change
-              else {
-                var oldseq = parseInt(doc._rev.split('-')[0])
-                  , newseq = parseInt(r.changes[0].rev.split('-')[0])
-                  ;
-                if (oldseq > newseq) {
-                  return; // Should we do something nicer here?
-                } else {
-                  writeDoc(r);
-                }
-              }
-            }
-          , error : function (e) {
-              // doc does not exist, write it
-              writeDoc(r);
             }
           }, transaction);
-      })
-    })
-  }
-
+        };
+        pouch.get(r.id, {
+          success: function (doc) {
+            // The document exists
+            if (doc._rev === r.changes[0].rev) {
+              return; // Do nothing if we already have the change
+            } else {
+              var oldseq = parseInt(doc._rev.split('-')[0], 10);
+              var newseq = parseInt(r.changes[0].rev.split('-')[0], 10);
+              if (oldseq > newseq) {
+                return; // Should we do something nicer here?
+              } else {
+                writeDoc(r);
+              }
+            }
+          },
+          error : function (e) {
+            // doc does not exist, write it
+            writeDoc(r);
+          }
+        }, transaction);
+      });
+    });
+  };
   return pouch;
-}
+};
 
 
-const POUCH_VERSION = 1;
+var POUCH_VERSION = 1;
 var pouchCache = {};
+
 pouch = {};
 pouch.open = function (name, options, callback) {
   if (options instanceof Function) {
@@ -466,9 +480,11 @@ pouch.open = function (name, options, callback) {
   }
   options = options || {};
 
-  var name = 'pouch:' + name;
+  name = 'pouch:' + name;
   if (name in pouchCache) {
-    if (callback) callback(null, pouchCache[name]);
+    if (callback) {
+      callback(null, pouchCache[name]);
+    }
     return;
   }
 
@@ -492,12 +508,12 @@ pouch.open = function (name, options, callback) {
         db.createObjectStore('revs', {autoIncrement : true});
         if (callback)
           callback(null, pouchCache[name]);
-      }
+      };
       versionRequest.onblocked = function (event) {
         if (callback) {
           callback({
-            error : 'open'
-          , reason : 'upgrade needed but blocked by another process'
+            error : 'open',
+            reason : 'upgrade needed but blocked by another process'
           });
         }
       };
@@ -510,15 +526,15 @@ pouch.open = function (name, options, callback) {
   request.onerror = function(event) {
     if (callback) {
       callback({
-        error : 'open'
-      , reason : error.toString()
+        error : 'open',
+        reason : error.toString()
       });
     }
-  }
-}
+  };
+};
 
 pouch.deleteDatabase = function (name) {
-  var name = 'pouch:' + name;
+  name = 'pouch:' + name;
   var request = indexedDB.deleteDatabase(name);
 
   request.onsuccess = function (event) {
@@ -527,5 +543,5 @@ pouch.deleteDatabase = function (name) {
 
   request.onerror = function (event) {
     options.error({error : 'delete', reason : event.toString});
-  }
-}
+  };
+};
