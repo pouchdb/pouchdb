@@ -26,6 +26,9 @@ window.IDBDatabaseException = window.IDBDatabaseException || window.webkitIDBDat
 
 var parseDoc = function (doc, newEdits) {
   if (newEdits) {
+    if (!doc._id) {
+      doc._id = Math.uuid();
+    }
     var newRevId = Math.uuid(32, 16);
     if (doc._rev) {
       var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
@@ -253,7 +256,6 @@ var makePouch = function (db) {
       options = {};
     }
     options = options || {};
-    if (!doc._id) doc._id = Math.uuid();
     pouch.bulkDocs({docs : [doc]}, options, function (err, results) {
       if (err) {
         if (callback) callback(err);
@@ -291,11 +293,13 @@ var makePouch = function (db) {
       docInfos[0].metadata.id, docInfos[docInfos.length-1].metadata.id,
       false, false);
 
+    // This groups edits to the same document together
     var buckets = docInfos.reduce(function (acc, docInfo) {
-      if (docInfo.metadata._id == acc[0][0].metadata._id)
+      if (docInfo.metadata.id === acc[0][0].metadata.id) {
         acc[0].push(docInfo);
-      else
+      } else {
         acc.unshift([docInfo]);
+      }
       return acc;
     }, [[docInfos.shift()]]);
 
