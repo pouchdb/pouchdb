@@ -296,10 +296,9 @@ var makePouch = function (db) {
       options = {};
     }
     options = options || {};
-
     pouch.bulkDocs({docs : [doc]}, options, function (err, results) {
-      if (err) {
-        if (callback) callback(err);
+      if (err || results[0].error) {
+        if (callback) callback(err || results[0].error);
       } else {
         if (callback) callback(null, results[0]);
       }
@@ -381,6 +380,15 @@ var makePouch = function (db) {
         // has an array of edits, this currently only works for single edits
         // they should probably be getting merged
         var docInfo = doc[0];
+        var revisions = cursor.value.revisions.ids;
+        // Currently ignoring the revision sequence number, we shouldnt do that
+        if (revisions[revisions.length - 1] !==  docInfo.metadata.revisions.ids[1]) {
+          results.push({
+            error: true,
+            message: 'Invalid rev'
+          });
+          return cursor.continue();
+        }
         var dataRequest = txn.objectStore('revs').put(docInfo.data);
         dataRequest.onsuccess = function (event) {
           docInfo.metadata.seq = event.target.result;
