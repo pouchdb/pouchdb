@@ -247,14 +247,20 @@ var makePouch = function (db) {
       options = {};
     }
     var req = db.transaction(['ids'], IDBTransaction.READ).objectStore('ids').get(id);
+    var notexists = function() {
+      callback({
+        error: true,
+        message: "Document does not exist"
+      });
+    };
     req.onsuccess = function(e) {
       if (!e.target.result) {
-        callback({
-          error: true,
-          message: "Document does not exist"
-        });
+        notexists();
       } else {
         var metadata = e.target.result;
+        if (metadata.deleted) {
+          return notexists();
+        }
         var nreq = db.transaction(['revs'], IDBTransaction.READ)
           .objectStore('revs').get(metadata.seq);
         nreq.onsuccess = function(e) {
@@ -268,9 +274,9 @@ var makePouch = function (db) {
 
   };
 
-  pouch.remove = function (id, options) {
+  pouch.remove = function (doc, options) {
     doc._deleted = true;
-    return pouch.bulkDocs(doc, options);
+    return pouch.bulkDocs({docs: [doc]}, options);
   };
 
   pouch.put = pouch.post = function (doc, options, callback) {
@@ -577,15 +583,18 @@ pouch.open = function (name, options, callback) {
   };
 };
 
-pouch.deleteDatabase = function (name) {
-  name = 'pouch:' + name;
-  var request = indexedDB.deleteDatabase(name);
+pouch.deleteDatabase = function (name, callback) {
+
+  var request = indexedDB.deleteDatabase('pouch:' + name);
 
   request.onsuccess = function (event) {
-    options.success({ok : true});
+    callback(null);
   };
 
   request.onerror = function (event) {
-    options.error({error : 'delete', reason : event.toString});
+    callback({
+      error: 'delete',
+      reason: event.toString
+    });
   };
 };

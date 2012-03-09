@@ -64,33 +64,22 @@ asyncTest("Get doc", function () {
 });
 
 asyncTest("Remove doc", function () {
-  pouch.open({
-    name: "test",
-    success: function (couch) {
-      ok(couch);
-      couch.post({test:"somestuff"}, {success:function (info) {
-        ok(info);
-        var seq = couch.seq;
-        couch.remove({test:"somestuff",_id:info.id,_rev:info.rev}, {
-          success: function (doc) {
-            equal(couch.seq, seq + 1);
-            couch.get(info.id, {error:function(err) {
-              equal(err.error, 'Document has been deleted.');
-              start();
-            }});
-          }
+  pouch.open(this.name, function (err, db) {
+    db.post({test:"somestuff"}, function (err, info) {
+      db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function (doc) {
+        db.get(info.id, function(err) {
+          ok(err.error);
+          start();
         });
-      }});
-    },
-    error: function (error) {ok(!error, error); start();}
+      });
+    });
   });
 });
 
 asyncTest("remove a pouch",function(){
-  pouch.deleteDatabase( {
-    name:"test",
-    success:function () { ok(true); start(); },
-    error: function (error) {ok(!error, error); start();}
+  pouch.deleteDatabase("test", function(err) {
+    ok(!err);
+    start();
   });
 });
 
