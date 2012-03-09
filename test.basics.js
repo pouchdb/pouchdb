@@ -72,6 +72,16 @@ asyncTest("Remove doc", function() {
   });
 });
 
+asyncTest("Delete document without id", function () {
+  pouch.open(this.name, function(err, db) {
+    db.remove({test:'ing'}, function(err) {
+      ok(err, 'failed to delete');
+      start();
+    });
+  });
+});
+
+
 asyncTest("Bulk docs", function() {
   pouch.open(this.name, function(err, db) {
     ok(!err, 'opened the pouch');

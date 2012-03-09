@@ -274,9 +274,20 @@ var makePouch = function (db) {
 
   };
 
-  pouch.remove = function (doc, options) {
+  pouch.remove = function (doc, options, callback) {
+    if (options instanceof Function) {
+      callback = options;
+      options = {};
+    }
+    options = options || {};
     doc._deleted = true;
-    return pouch.bulkDocs({docs: [doc]}, options);
+    return pouch.bulkDocs({docs: [doc]}, options, function(err, results) {
+      if (err || results[0].error) {
+        if (callback) callback(err || results[0]);
+      } else {
+        if (callback) callback(null, results[0]);
+      }
+    });
   };
 
   pouch.put = pouch.post = function (doc, options, callback) {
@@ -285,6 +296,7 @@ var makePouch = function (db) {
       options = {};
     }
     options = options || {};
+
     pouch.bulkDocs({docs : [doc]}, options, function (err, results) {
       if (err) {
         if (callback) callback(err);
@@ -301,16 +313,10 @@ var makePouch = function (db) {
     }
     options = options || {};
 
-    var docs = req.docs;
-    if (!docs) {
-      if (callback) callback(null, []);
-      return;
-    }
-
     var newEdits = 'new_edits' in options ? options._new_edits : true;
 
     // Parse and sort the docs
-    var docInfos = docs.map(function (doc) {
+    var docInfos = req.docs.map(function (doc) {
       return parseDoc(doc, newEdits);
     });
 
@@ -392,6 +398,13 @@ var makePouch = function (db) {
         buckets.forEach(function (bucket) {
           // TODO: merge the bucket revs into a rev tree
           var docInfo = bucket[0];
+          if (docInfo.metadata.deleted) {
+            results.push({
+              error: true,
+              message: 'Can only delete things that exist'
+            });
+            return;
+          }
           var dataRequest = txn.objectStore('revs').add(docInfo.data);
           dataRequest.onsuccess = function (event) {
             docInfo.metadata.seq = event.target.result;
