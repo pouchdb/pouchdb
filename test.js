@@ -32,7 +32,7 @@ asyncTest("Modify a doc", function () {
       ok(!err, 'saved a doc with post');
       db.put({_id: info.id, _rev: info.rev, another: 'test'}
       , function (err, info2) {
-        ok(!err && info2.seq == 2, 'updated a doc with put');
+        ok(!err && info2.rev !== info._rev, 'updated a doc with put');
         start();
       })
     })

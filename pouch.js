@@ -253,7 +253,6 @@ var makePouch = function (db) {
       options = {};
     }
     options = options || {};
-
     if (!doc._id) doc._id = Math.uuid();
     pouch.bulkDocs({docs : [doc]}, options, function (err, results) {
       if (err) {
@@ -304,7 +303,9 @@ var makePouch = function (db) {
     var results = [];
 
     txn.oncomplete = function (event) {
-      if (callback) callback(null, results);
+      if (callback) {
+        callback(null, results);
+      }
     };
 
     txn.onerror = function (event) {
@@ -334,8 +335,24 @@ var makePouch = function (db) {
     cursReq.onsuccess = function (event) {
       var cursor = event.target.result;
       if (cursor) {
-        // TODO: Accumulate a bucket by merging rev trees
-        console.log("Document updating needs implementing ASAP!!");
+        // I am guessing keyRange should be sorted in the same way buckets
+        // are, so we can just take the first from buckets
+        var doc = buckets.shift();
+        // Documents are grouped by id in buckets, which means each document
+        // has an array of edits, this currently only works for single edits
+        // they should probably be getting merged
+        var docInfo = doc[0];
+        var dataRequest = txn.objectStore('revs').put(docInfo.data);
+        dataRequest.onsuccess = function (event) {
+          docInfo.metadata.seq = event.target.result;
+          var metaDataRequest = txn.objectStore('ids').put(docInfo.metadata);
+          metaDataRequest.onsuccess = function (event) {
+            results.push({
+              id : docInfo.metadata.id,
+              rev : docInfo.metadata.rev
+            });
+          };
+        };
         cursor.continue();
       } else {
         // Cursor has exceeded the key range so the rest are inserts
