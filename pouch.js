@@ -351,9 +351,9 @@ var makePouch = function (db) {
               id : docInfo.metadata.id,
               rev : docInfo.metadata.rev
             });
+            cursor.continue();
           };
         };
-        cursor.continue();
       } else {
         // Cursor has exceeded the key range so the rest are inserts
         buckets.forEach(function (bucket) {
