@@ -50,22 +50,16 @@ asyncTest("Bulk docs", function () {
 });
 
 asyncTest("Get doc", function () {
-  pouch.open({
-    name: "test",
-    success: function (couch) {
-      ok(couch);
-      couch.post({test:"somestuff"}, {success:function (info) {
-        ok(info);
-        couch.get(info.id, {success:function (doc) {
-          equal(info.id, doc._id);
-          couch.get(info.id+'asdf', {error:function(err) {
-            ok(err.error);
-            start();
-          }});
-        }});
-      }});
-    },
-    error: function (error) {ok(!error, error); start();}
+  pouch.open(this.name, function (err, db) {
+    db.post({test:"somestuff"}, function (err, info) {
+      db.get(info.id, function (err, doc) {
+        ok(doc.test);
+        db.get(info.id+'asdf', function(err) {
+          ok(err.error);
+          start();
+        });
+      });
+    });
   });
 });
 

@@ -242,7 +242,30 @@ var makePouch = function (db) {
   var pouch = {update_seq: 0};
 
   pouch.get = function (id, options, callback) {
-    options.error('not implemented');
+    if (options instanceof Function) {
+      callback = options;
+      options = {};
+    }
+    var req = db.transaction(['ids'], IDBTransaction.READ).objectStore('ids').get(id);
+    req.onsuccess = function(e) {
+      if (!e.target.result) {
+        callback({
+          error: true,
+          message: "Document does not exist"
+        });
+      } else {
+        var metadata = e.target.result;
+        var nreq = db.transaction(['revs'], IDBTransaction.READ)
+          .objectStore('revs').get(metadata.seq);
+        nreq.onsuccess = function(e) {
+          var doc = e.target.result;
+          doc._id = metadata.id;
+          doc._rev = metadata.rev;
+          callback(null, doc);
+        }
+      }
+    }
+
   };
 
   pouch.remove = function (id, options) {
