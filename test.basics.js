@@ -45,6 +45,20 @@ asyncTest("Modify a doc", function() {
   });
 });
 
+asyncTest("Modify a doc with incorrect rev", function() {
+  pouch.open(this.name, function(err, db) {
+    ok(!err, 'opened the pouch');
+    db.post({test: "somestuff"}, function (err, info) {
+      ok(!err, 'saved a doc with post');
+      var nDoc = {_id: info.id, _rev: info.rev + 'broken', another: 'test'};
+      db.put(nDoc, function(err, info2) {
+        ok(err, 'put was denied');
+        start();
+      });
+    });
+  });
+});
+
 asyncTest("Get doc", function() {
   pouch.open(this.name, function(err, db) {
     db.post({test:"somestuff"}, function(err, info) {
