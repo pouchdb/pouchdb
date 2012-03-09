@@ -540,9 +540,16 @@ pouch.open = function (name, options, callback) {
 
   var request = indexedDB.open(name);
 
-  request.onsuccess = function(event) {
+  request.onupgradeneeded = function(event) {
     var db = event.target.result;
-    pouchCache[name] = makePouch(db);
+    db.createObjectStore('ids', {keyPath : 'id'})
+      .createIndex('seq', 'seq', {unique : true});
+    db.createObjectStore('revs', {autoIncrement : true});
+  }
+
+  request.onsuccess = function(event) {
+
+    var db = event.target.result;
 
     db.onversionchange = function(event) {
       console.log("Closing!");
@@ -550,27 +557,19 @@ pouch.open = function (name, options, callback) {
       delete pouchCache[name];
     };
 
-    if (!db.version) {
-      var versionRequest = db.setVersion('1');
-      versionRequest.onsuccess = function (event) {
-        db.createObjectStore('ids', {keyPath : 'id'})
-          .createIndex('seq', 'seq', {unique : true});
-        db.createObjectStore('revs', {autoIncrement : true});
-        if (callback)
-          callback(null, pouchCache[name]);
+    // polyfill the new onupgradeneeded api for chrome
+    if(db.setVersion && Number(db.version) !== POUCH_VERSION) {
+      var versionRequest = db.setVersion(POUCH_VERSION);
+      versionRequest.onsuccess = function () {
+        request.onupgradeneeded(event);
+        request.onsuccess(event);
       };
-      versionRequest.onblocked = function (event) {
-        if (callback) {
-          callback({
-            error : 'open',
-            reason : 'upgrade needed but blocked by another process'
-          });
-        }
-      };
-    } else {
-      if (callback)
-        callback(null, pouchCache[name]);
+      return;
     }
+
+    pouchCache[name] = makePouch(db);
+    if (callback)
+      callback(null, pouchCache[name]);
   };
 
   request.onerror = function(event) {
