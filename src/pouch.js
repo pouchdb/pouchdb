@@ -176,6 +176,13 @@
           var doc = e.target.result;
           doc._id = metadata.id;
           doc._rev = metadata.rev;
+          if (opts.revs_info) {
+            doc._revs_info = metadata.revisions.ids.map(function(rev, i) {
+              // we dont compact, so it kinda has to be, but need to properly
+              // check in future
+              return {rev: (i + 1) + '-' + rev, status: 'available'};
+            });
+          }
           callback(null, doc);
         };
       };
@@ -275,12 +282,19 @@
           // has an array of edits, this currently only works for single edits
           // they should probably be getting merged
           var docInfo = doc[0];
-          var revisions = cursor.value.revisions.ids;
+          var revs = cursor.value.revisions.ids;
           // Currently ignoring the revision sequence number, we shouldnt do that
-          if (revisions[revisions.length-1] !== docInfo.metadata.revisions.ids[1]) {
+          if (revs[0] !== docInfo.metadata.revisions.ids[1]) {
             results.push(Errors.REV_CONFLICT);
             return cursor['continue']();
           }
+          // Start of rev merging, for now we just keep a linear history
+          // of revisions
+          revs.shift();
+          revs.forEach(function(rev) {
+            docInfo.metadata.revisions.ids.push(rev);
+          });
+
           var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
           dataReq.onsuccess = function(e) {
             docInfo.metadata.seq = e.target.result;

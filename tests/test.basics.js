@@ -106,3 +106,18 @@ asyncTest("Bulk docs", function() {
     });
   });
 });
+
+asyncTest("Check revisions", function() {
+  pouch.open(this.name, function(err, db) {
+    db.post({test: "somestuff"}, function (err, info) {
+      db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
+        db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
+          db.get(info.id, {revs_info:true}, function(err, doc) {
+            ok(doc._revs_info.length === 3, 'updated a doc with put');
+            start();
+          });
+        });
+      });
+    });
+  });
+});
