@@ -1,10 +1,6 @@
 module("changes", {
   setup : function () {
-    var suffix = '';
-    for (var i = 0 ; i < 10 ; i++ ) {
-      suffix += (Math.random()*16).toFixed().toString(16);
-    }
-    this.name = 'test' + suffix;
+    this.name = 'test' + Math.uuid();
   }
 });
 
