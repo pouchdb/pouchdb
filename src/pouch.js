@@ -136,7 +136,7 @@
 
   // This opens a database, creating it if needed and returns the api
   // used to access the database
-  var makePouch = function(db) {
+  var makePouch = function(idb) {
 
     // Wrapper for functions that call the bulkdocs api with a single doc,
     // if the first result is an error, return an error
@@ -151,17 +151,17 @@
     };
 
     // Now we create the PouchDB interface
-    var pouch = {update_seq: 0};
+    var db = {update_seq: 0};
 
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
-    pouch.get = function(id, opts, callback) {
+    db.get = function(id, opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
       }
 
-      var req = db.transaction([DOC_STORE], IDBTransaction.READ)
+      var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
         .objectStore(DOC_STORE).get(id);
 
       req.onsuccess = function(e) {
@@ -170,7 +170,7 @@
           return call(callback, Errors.MISSING_DOC);
         }
 
-        var nreq = db.transaction([BY_SEQ_STORE], IDBTransaction.READ)
+        var nreq = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
           .objectStore(BY_SEQ_STORE).get(metadata.seq);
         nreq.onsuccess = function(e) {
           var doc = e.target.result;
@@ -188,24 +188,24 @@
       };
     };
 
-    pouch.remove = function(doc, opts, callback) {
+    db.remove = function(doc, opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
       }
       doc._deleted = true;
-      return pouch.bulkDocs({docs: [doc]}, opts, singularErr(callback));
+      return db.bulkDocs({docs: [doc]}, opts, singularErr(callback));
     };
 
-    pouch.put = pouch.post = function(doc, opts, callback) {
+    db.put = db.post = function(doc, opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
       }
-      pouch.bulkDocs({docs: [doc]}, opts, singularErr(callback));
+      return db.bulkDocs({docs: [doc]}, opts, singularErr(callback));
     };
 
-    pouch.bulkDocs = function(req, opts, callback) {
+    db.bulkDocs = function(req, opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
@@ -236,13 +236,13 @@
         return acc;
       }, [[docInfos.shift()]]);
 
-      var txn = db.transaction([DOC_STORE, BY_SEQ_STORE],
+      var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE],
                                IDBTransaction.READ_WRITE);
       var results = [];
 
       txn.oncomplete = function(event) {
         results.forEach(function(result) {
-          pouch.changes.emit(result);
+          db.changes.emit(result);
         });
         call(callback, null, results);
       };
@@ -328,18 +328,18 @@
     };
 
 
-    pouch.changes = function(opts) {
+    db.changes = function(opts) {
       if (!opts.seq) {
         opts.seq = 0;
       }
-      var transaction = db.transaction([DOC_STORE, BY_SEQ_STORE]);
+      var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
       var request = transaction.objectStore(BY_SEQ_STORE)
         .openCursor(IDBKeyRange.lowerBound(opts.seq));
       request.onsuccess = function(event) {
         var cursor = event.target.result;
         if (!cursor) {
           if (opts.continuous) {
-            pouch.changes.addListener(opts.onChange);
+            db.changes.addListener(opts.onChange);
           }
           if (opts.complete) {
             opts.complete();
@@ -365,24 +365,24 @@
         // Cursor is out of range
         // NOTE: What should we do with a sequence that is too high?
         if (opts.continuous) {
-          pouch.changes.addListener(opts.onChange);
+          db.changes.addListener(opts.onChange);
         }
         call(opts.complete);
       };
     };
 
-    pouch.changes.listeners = [];
-    pouch.changes.emit = function() {
+    db.changes.listeners = [];
+    db.changes.emit = function() {
       var a = arguments;
-      pouch.changes.listeners.forEach(function(l) {
+      db.changes.listeners.forEach(function(l) {
         l.apply(l, a);
       });
     };
-    pouch.changes.addListener = function(l) {
-      pouch.changes.listeners.push(l);
+    db.changes.addListener = function(l) {
+      db.changes.listeners.push(l);
     };
 
-    return pouch;
+    return db;
   };
 
 
