@@ -115,6 +115,8 @@
   };
 
 
+  // This opens a database, creating it if needed and returns the api
+  // used to access the database
   var makePouch = function(db) {
 
     // Wrapper for functions that call the bulkdocs api with a single doc,
