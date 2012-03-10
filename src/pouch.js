@@ -269,6 +269,21 @@
         }
       };
 
+      var writeDoc = function(docInfo, callback) {
+        var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
+        dataReq.onsuccess = function(e) {
+          docInfo.metadata.seq = e.target.result;
+          var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
+          metaDataReq.onsuccess = function() {
+            results.push({
+              id : docInfo.metadata.id,
+              rev : docInfo.metadata.rev
+            });
+            call(callback);
+          };
+        };
+      };
+
       var cursReq = txn.objectStore(DOC_STORE)
         .openCursor(keyRange, IDBCursor.NEXT);
 
@@ -294,19 +309,9 @@
           revs.forEach(function(rev) {
             docInfo.metadata.revisions.ids.push(rev);
           });
-
-          var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
-          dataReq.onsuccess = function(e) {
-            docInfo.metadata.seq = e.target.result;
-            var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
-            metaDataReq.onsuccess = function() {
-              results.push({
-                id : docInfo.metadata.id,
-                rev : docInfo.metadata.rev
-              });
-              return cursor['continue']();
-            };
-          };
+          writeDoc(docInfo, function() {
+            cursor['continue']();
+          });
         } else {
           // Cursor has exceeded the key range so the rest are inserts
           buckets.forEach(function(bucket) {
@@ -316,17 +321,7 @@
               results.push(Errors.MISSING_DOC);
               return;
             }
-            var dataReq = txn.objectStore(BY_SEQ_STORE).add(docInfo.data);
-            dataReq.onsuccess = function(e) {
-              docInfo.metadata.seq = e.target.result;
-              var metaDataReq = txn.objectStore(DOC_STORE).add(docInfo.metadata);
-              metaDataReq.onsuccess = function() {
-                results.push({
-                  id : docInfo.metadata.id,
-                  rev : docInfo.metadata.rev
-                });
-              };
-            };
+            writeDoc(docInfo);
           });
         }
       };
