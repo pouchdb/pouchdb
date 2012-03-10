@@ -43,6 +43,20 @@
   // sequence id
   var BY_SEQ_STORE = 'by-sequence';
 
+  // Enumerate errors, add the status code so we can reflect the HTTP api
+  // in future
+  var Errors = {
+    MISSING_DOC: {
+      status: 404,
+      error: 'not_found',
+      reason: 'missing'
+    },
+    REV_CONFLICT: {
+      status: 409,
+      error: 'conflict',
+      reason: 'Document update conflict'
+    }
+  };
 
   // Pretty dumb name for a function, just wraps callback calls so we dont
   // to if (callback) callback() everywhere
@@ -153,10 +167,7 @@
       req.onsuccess = function(e) {
         var metadata = e.target.result;
         if (!e.target.result || metadata.deleted) {
-          return call(callback, {
-            error: true,
-            message: "Document does not exist"
-          });
+          return call(callback, Errors.MISSING_DOC);
         }
 
         var nreq = db.transaction([BY_SEQ_STORE], IDBTransaction.READ)
@@ -166,8 +177,8 @@
           doc._id = metadata.id;
           doc._rev = metadata.rev;
           callback(null, doc);
-        }
-      }
+        };
+      };
     };
 
     pouch.remove = function(doc, opts, callback) {
@@ -267,10 +278,7 @@
           var revisions = cursor.value.revisions.ids;
           // Currently ignoring the revision sequence number, we shouldnt do that
           if (revisions[revisions.length-1] !== docInfo.metadata.revisions.ids[1]) {
-            results.push({
-              error: true,
-              message: 'Invalid rev'
-            });
+            results.push(Errors.REV_CONFLICT);
             return cursor['continue']();
           }
           var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
@@ -291,10 +299,7 @@
             // TODO: merge the bucket revs into a rev tree
             var docInfo = bucket[0];
             if (docInfo.metadata.deleted) {
-              results.push({
-                error: true,
-                message: 'Can only delete things that exist'
-              });
+              results.push(Errors.MISSING_DOC);
               return;
             }
             var dataReq = txn.objectStore(BY_SEQ_STORE).add(docInfo.data);
