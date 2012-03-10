@@ -268,7 +268,7 @@
               error: true,
               message: 'Invalid rev'
             });
-            return cursor.continue();
+            return cursor['continue']();
           }
           var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
           dataReq.onsuccess = function(e) {
@@ -279,7 +279,7 @@
                 id : docInfo.metadata.id,
                 rev : docInfo.metadata.rev
               });
-              cursor.continue();
+              return cursor['continue']();
             };
           };
         } else {
@@ -339,7 +339,7 @@
                 doc: event.value
               };
               opts.onChange(c);
-              cursor.continue();
+              cursor['continue']();
             };
         }
       };
