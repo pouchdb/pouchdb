@@ -21,6 +21,7 @@
 
   var root = this;
   var pouch = {};
+  root.pouch = pouch;
 
   // IndexedDB requires a versioned database structure, this is going to make
   // it hard to dynamically create object stores if we needed to for things
@@ -30,7 +31,13 @@
   // Cache for open databases
   var pouchCache = {};
 
-  root.pouch = pouch;
+  // The object stores created for each database
+  // DOC_STORE stores the document meta data, its revision history and state
+  var DOC_STORE = 'document-store';
+  // BY_SEQ_STORE stores a particular version of a document, keyed by its
+  // sequence id
+  var BY_SEQ_STORE = 'by-sequence';
+
 
   // Pretty dumb name for a function, just wraps callback calls so we dont
   // to if (callback) callback() everywhere
@@ -133,8 +140,8 @@
         opts = {};
       }
 
-      var req = db.transaction(['ids'], IDBTransaction.READ)
-        .objectStore('ids').get(id);
+      var req = db.transaction([DOC_STORE], IDBTransaction.READ)
+        .objectStore(DOC_STORE).get(id);
 
       req.onsuccess = function(e) {
         var metadata = e.target.result;
@@ -145,8 +152,8 @@
           });
         }
 
-        var nreq = db.transaction(['revs'], IDBTransaction.READ)
-          .objectStore('revs').get(metadata.seq);
+        var nreq = db.transaction([BY_SEQ_STORE], IDBTransaction.READ)
+          .objectStore(BY_SEQ_STORE).get(metadata.seq);
         nreq.onsuccess = function(e) {
           var doc = e.target.result;
           doc._id = metadata.id;
@@ -204,7 +211,8 @@
         return acc;
       }, [[docInfos.shift()]]);
 
-      var txn = db.transaction(['ids', 'revs'], IDBTransaction.READ_WRITE);
+      var txn = db.transaction([DOC_STORE, BY_SEQ_STORE],
+                               IDBTransaction.READ_WRITE);
       var results = [];
 
       txn.oncomplete = function(event) {
@@ -233,7 +241,8 @@
         }
       };
 
-      var cursReq = txn.objectStore('ids').openCursor(keyRange, IDBCursor.NEXT);
+      var cursReq = txn.objectStore(DOC_STORE)
+        .openCursor(keyRange, IDBCursor.NEXT);
 
       cursReq.onsuccess = function(event) {
         var cursor = event.target.result;
@@ -247,17 +256,17 @@
           var docInfo = doc[0];
           var revisions = cursor.value.revisions.ids;
           // Currently ignoring the revision sequence number, we shouldnt do that
-          if (revisions[revisions.length - 1] !==  docInfo.metadata.revisions.ids[1]) {
+          if (revisions[revisions.length-1] !== docInfo.metadata.revisions.ids[1]) {
             results.push({
               error: true,
               message: 'Invalid rev'
             });
             return cursor.continue();
           }
-          var dataReq = txn.objectStore('revs').put(docInfo.data);
+          var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
           dataReq.onsuccess = function(e) {
             docInfo.metadata.seq = e.target.result;
-            var metaDataReq = txn.objectStore('ids').put(docInfo.metadata);
+            var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
             metaDataReq.onsuccess = function() {
               results.push({
                 id : docInfo.metadata.id,
@@ -278,10 +287,10 @@
               });
               return;
             }
-            var dataReq = txn.objectStore('revs').add(docInfo.data);
+            var dataReq = txn.objectStore(BY_SEQ_STORE).add(docInfo.data);
             dataReq.onsuccess = function(e) {
               docInfo.metadata.seq = e.target.result;
-              var metaDataReq = txn.objectStore('ids').add(docInfo.metadata);
+              var metaDataReq = txn.objectStore(DOC_STORE).add(docInfo.metadata);
               metaDataReq.onsuccess = function() {
                 results.push({
                   id : docInfo.metadata.id,
@@ -367,9 +376,9 @@
 
     req.onupgradeneeded = function(e) {
       var db = e.target.result;
-      db.createObjectStore('ids', {keyPath : 'id'})
+      db.createObjectStore(DOC_STORE, {keyPath : 'id'})
         .createIndex('seq', 'seq', {unique : true});
-      db.createObjectStore('revs', {autoIncrement : true});
+      db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
     }
 
     req.onsuccess = function(e) {
