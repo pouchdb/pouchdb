@@ -223,6 +223,9 @@
       var results = [];
 
       txn.oncomplete = function(event) {
+        results.forEach(function(result) {
+          pouch.changes.emit(result);
+        });
         call(callback, null, results);
       };
 

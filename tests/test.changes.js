@@ -1,4 +1,4 @@
-module("basics", {
+module("changes", {
   setup : function () {
     var suffix = '';
     for (var i = 0 ; i < 10 ; i++ ) {
@@ -25,28 +25,23 @@ asyncTest("All changes", function () {
   });
 });
 
-// asyncTest("Continuous changes", function () {
-//   pouch.open({
-//     name: "test",
-//     success: function (couch) {
-//       ok(couch);
-//       var count = 0;
-//       couch.changes({
-//         onChange : function (change) { count += 1; },
-//         continuous : true,
-//         seq : couch.seq + 1,
-//         complete : function () {
-//           equal(count, 0);
-//           couch.post({test:"another"}, {
-//             success : function (info) {
-//               setTimeout(function () {equal(count, 1); start();}, 50);
-//             },
-//             error : function (error) {ok(!error, error); start();}
-//           });
-//         }
-//       });
-//     },
-//     error: function (error) {ok(!error, error); start();}
-//   });
-// });
+asyncTest("Continuous changes", function() {
+  pouch.open(this.name, function(err, db) {
+    var count = 0;
+    db.changes({
+      onChange: function(change) { count += 1; },
+      continuous : true,
+      seq : db.seq + 1,
+      complete: function() {
+        equal(count, 0);
+        db.post({test:"another"}, function(err, info) {
+          setTimeout(function() {
+            equal(count, 1);
+            start();
+          }, 50);
+        });
+      }
+    });
+  });
+});
 
