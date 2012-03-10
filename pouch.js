@@ -1,20 +1,3 @@
-// Begin request *requires jQuery*
-
-var ajax = function (options, callback) {
-  options.success = function (obj) {
-    callback(null, obj);
-  };
-  options.error = function (err) {
-    if (err) callback(err);
-    else callback(true);
-  };
-  options.dataType = 'json';
-  options.contentType = 'application/json';
-  $.ajax(options);
-};
-
-// End request
-
 // The spec is still in flux.
 // While most of the IDB behaviors match between implementations a lot of the names still differ.
 // This section tries to normalize the different objects & methods.
@@ -61,6 +44,7 @@ var parseDoc = function (doc, newEdits) {
   }, {metadata : {}, data : {}});
 };
 
+
 var compareRevs = function (a, b) {
   if (a.id == b.id) { // Sort by id
     if (a.deleted ^ b.deleted) {
@@ -74,165 +58,6 @@ var compareRevs = function (a, b) {
   } else {
     return (a.id < b.id ? -1 : 1);
   }
-};
-
-var mergeRevTrees = function () {
-  function sortTrees(trees) {
-    trees.sort(function (a, b) { return (a.pos > b.pos) - (a.pos < b.pos); });
-  }
-
-  function reduceRevTrees(result, tree) {
-    if (!result.trees.length) {
-      result.trees.concat(tree);
-      result.leaves.concat(getLeafNodes(tree.pos, [], tree));
-    } else {
-      for (var base in result.trees) {
-        var mergeResult = mergeTrees(tree.ids, tree.pos, base.ids, base.pos);
-        if (mergeResult.trees.length == 1) {
-          // TODO :
-        }
-      }
-    }
-  }
-
-  function mergeTrees(tree, depth, base, pos, prefix) {
-    if (!base.length) {
-      return [{
-        tree : tree,
-        leaves : getLeafNodes(depth, prefix || [], tree)
-      }];
-    } else {
-      var branches = branches(base).filter(function (branch) {
-        return (pos < depth) ? true : branch[0] == tree[0];
-      });
-      if (pos < depth) {
-        branches = branches(base);
-        for (var b in branches) {
-          var merged = mergeTrees(tree, depth,
-                                  b.slice(1), pos + 1,
-                                  prefix.concat(b[0]));
-          if (merged.length == 1) {
-            return branches.reduce(function (results, branch) {
-              if (branch === b) {
-                return results.concat(merged);
-              } else {
-                return results.concat({tree : tree});
-              }
-            });
-          }
-          branches(base).reduce(function (results, branch, i, siblings) {
-            if (results.length < i) {
-              // Already found a successful merge or have no base branch yet
-              results.concat({
-                tree : branch,
-                leaves : getLeafNodes(branch.slice(1), pos + 1,
-                                      prefix.concat(branch[0]))
-              });
-            } else {
-              if (trees.length == 1) {
-                return results.concat(trees);
-              } else {
-                if (i == siblings.length) {
-                  result = results.concat({
-                    tree : tree,
-                    leaves : getLeafNodes
-                    // TODO : return unmerged as a new tree
-                  });
-                }
-              }
-            }
-          });
-          if (Array.isArray(base[0])) {
-            for (var branch in base[0]) {
-              var mergeResult = mergeTree(tree);
-            }
-          } else {
-            return mergeTree(tree, depth,
-                             base.slice(1), pos + 1,
-                             prefix.concat(base[0]));
-          }
-          //  if (Array.isArray(base[0])) {
-          // }
-        }
-      }
-
-      while (pos < depth) {
-        if (Array.isArray(base[0])) {
-        } else {
-
-        }
-      }
-      if (pos == depth) {
-        if (base.length === 0) {
-          return {
-            trees : [],
-            conflicts : []
-          };
-        }
-      }
-      if (pos < depth) {
-        return branches(base);
-      }
-    }
-  }
-
-  function getLeafNodes(depth, prefix, tree) {
-    if (!tree.length) {
-      return [{
-        start : depth,
-        ids : prefix.slice().reverse()
-      }];
-    } else if (Array.isArray(tree[0])) {
-      return tree[0].reduce(function (leaves, branch) {
-        return leaves.concat(getLeafNodes(depth, prefix, branch));
-      });
-    } else{
-      return getLeafNodes(depth+1, prefix.concat(tree[0]), tree.slice(1));
-    }
-  }
-
-  function branches(tree) {
-    return Array.isArray(tree[0]) ? tree[0] : [tree];
-  }
-
-  var trees = Array.prototype.slice.call(arguments);
-  var result = {
-    trees: [],
-    leaves: []
-  };
-
-  return trees.sort(sortTrees).reduce(reduceRevTrees, result);
-};
-
-var viewQuery = function (objectStore, options) {
-  var range;
-  var request;
-  if (options.startKey && options.endKey) {
-    range = IDBKeyRange.bound(options.startKey, options.endKey);
-  } else if (options.startKey) {
-    if (options.descending) { range = IDBKeyRange.upperBound(options.startKey); }
-    else { range = IDBKeyRange.lowerBound(options.startKey); }
-  } else if (options.endKey) {
-    if (options.descending) { range = IDBKeyRange.lowerBound(options.endKey); }
-    else { range = range = IDBKeyRange.upperBound(options.endKey); }
-  }
-  if (options.descending) {
-    request = objectStore.openCursor(range, "left");
-  } else {
-    request = objectStore.openCursor(range);
-  }
-  var results = [];
-  request.onsuccess = function (cursor) {
-    if (!cursor) {
-      if (options.success) options.success(results);
-    } else {
-      if (options.row) options.row(cursor.target.result.value);
-      if (options.success) results.push(cursor.target.results.value);
-    }
-  };
-  request.onerror = function (error) {
-    if (options.error) options.error(error);
-  };
 };
 
 
@@ -478,64 +303,6 @@ var makePouch = function (db) {
     pouch.changes.listeners.push(l);
   };
 
-  pouch.replicate = {};
-
-  pouch.replicate.from = function (options) {
-    var c = []; // Change list
-    if (options.url[options.url.length - 1] !== '/') options.url += '/';
-    ajax({
-      url: options.url+'_changes?style=all_docs&include_docs=true'
-    }, function (e, resp) {
-      if (e) {
-        if (options.error) options.error(e);
-      }
-      var transaction = db.transaction(["document-store", "sequence-index"],
-                                       IDBTransaction.READ_WRITE);
-      var pending = resp.results.length;
-      resp.results.forEach(function (r) {
-
-        var writeDoc = function (r) {
-          pouch.post(r.doc, {
-            newEdits:false,
-            success: function (changeset) {
-              pending--;
-              c.changeset = changeset;
-              c.push(r);
-              if (pending === 0) options.success(c);
-            },
-            error: function (e) {
-              pending--;
-              r.error = e;
-              c.push(r);
-              if (pending === 0) {
-                options.success(c);
-              }
-            }
-          }, transaction);
-        };
-        pouch.get(r.id, {
-          success: function (doc) {
-            // The document exists
-            if (doc._rev === r.changes[0].rev) {
-              return; // Do nothing if we already have the change
-            } else {
-              var oldseq = parseInt(doc._rev.split('-')[0], 10);
-              var newseq = parseInt(r.changes[0].rev.split('-')[0], 10);
-              if (oldseq > newseq) {
-                return; // Should we do something nicer here?
-              } else {
-                writeDoc(r);
-              }
-            }
-          },
-          error : function (e) {
-            // doc does not exist, write it
-            writeDoc(r);
-          }
-        }, transaction);
-      });
-    });
-  };
   return pouch;
 };
 
