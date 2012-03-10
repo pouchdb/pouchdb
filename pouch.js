@@ -21,7 +21,12 @@
 
   var root = this;
   var pouch = {};
-  root.pouch = pouch;
+
+  if (typeof exports !== 'undefined') {
+    exports.pouch = pouch;
+  } else {
+    root.pouch = pouch;
+  }
 
   // IndexedDB requires a versioned database structure, this is going to make
   // it hard to dynamically create object stores if we needed to for things
