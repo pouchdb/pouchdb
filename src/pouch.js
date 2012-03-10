@@ -315,8 +315,8 @@
       if (!opts.seq) {
         opts.seq = 0;
       }
-      var transaction = db.transaction(["document-store", "sequence-index"]);
-      var request = transaction.objectStore('sequence-index')
+      var transaction = db.transaction([DOC_STORE, BY_SEQ_STORE]);
+      var request = transaction.objectStore(BY_SEQ_STORE)
         .openCursor(IDBKeyRange.lowerBound(opts.seq));
       request.onsuccess = function(event) {
         var cursor = event.target.result;
@@ -328,19 +328,20 @@
             opts.complete();
           }
         } else {
-          var change_ = cursor.value;
-          transaction.objectStore('document-store')
-            .openCursor(IDBKeyRange.only(change_.id))
-            .onsuccess = function(event) {
-              var c = {
-                id: change_.id,
-                seq: change_.seq,
-                changes: change_.changes,
-                doc: event.value
-              };
-              opts.onChange(c);
-              cursor['continue']();
+          var index = transaction.objectStore(DOC_STORE).index('seq');
+          index.get(cursor.key).onsuccess = function(event) {
+            var doc = event.target.result;
+            var c = {
+              id: doc.id,
+              seq: cursor.key,
+              changes: doc.revisions.ids
             };
+            if (opts.include_doc) {
+              c.doc = cursor.value;
+            }
+            opts.onChange(c);
+            cursor['continue']();
+          };
         }
       };
       request.onerror = function(error) {
@@ -386,7 +387,7 @@
       db.createObjectStore(DOC_STORE, {keyPath : 'id'})
         .createIndex('seq', 'seq', {unique : true});
       db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
-    }
+    };
 
     req.onsuccess = function(e) {
 

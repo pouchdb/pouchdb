@@ -556,7 +556,7 @@ var Crypto = {};
               error: true,
               message: 'Invalid rev'
             });
-            return cursor.continue();
+            return cursor['continue']();
           }
           var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
           dataReq.onsuccess = function(e) {
@@ -567,7 +567,7 @@ var Crypto = {};
                 id : docInfo.metadata.id,
                 rev : docInfo.metadata.rev
               });
-              cursor.continue();
+              return cursor['continue']();
             };
           };
         } else {
@@ -603,8 +603,8 @@ var Crypto = {};
       if (!opts.seq) {
         opts.seq = 0;
       }
-      var transaction = db.transaction(["document-store", "sequence-index"]);
-      var request = transaction.objectStore('sequence-index')
+      var transaction = db.transaction([DOC_STORE, BY_SEQ_STORE]);
+      var request = transaction.objectStore(BY_SEQ_STORE)
         .openCursor(IDBKeyRange.lowerBound(opts.seq));
       request.onsuccess = function(event) {
         var cursor = event.target.result;
@@ -616,19 +616,18 @@ var Crypto = {};
             opts.complete();
           }
         } else {
-          var change_ = cursor.value;
-          transaction.objectStore('document-store')
-            .openCursor(IDBKeyRange.only(change_.id))
-            .onsuccess = function(event) {
-              var c = {
-                id: change_.id,
-                seq: change_.seq,
-                changes: change_.changes,
-                doc: event.value
-              };
-              opts.onChange(c);
-              cursor.continue();
+          var index = transaction.objectStore(DOC_STORE).index('seq');
+          index.get(cursor.key).onsuccess = function(event) {
+            var doc = event.target.result;
+            var c = {
+              id: doc.id,
+              seq: cursor.key,
+              doc: cursor.value,
+              changes: doc.revisions.ids
             };
+            opts.onChange(c);
+            cursor['continue']();
+          };
         }
       };
       request.onerror = function(error) {
@@ -674,7 +673,7 @@ var Crypto = {};
       db.createObjectStore(DOC_STORE, {keyPath : 'id'})
         .createIndex('seq', 'seq', {unique : true});
       db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
-    }
+    };
 
     req.onsuccess = function(e) {
 
