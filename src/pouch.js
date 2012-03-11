@@ -58,6 +58,19 @@
     }
   };
 
+  var ajax = function (options, callback) {
+    options.success = function (obj) {
+      callback(null, obj);
+    };
+    options.error = function (err) {
+      if (err) callback(err);
+      else callback(true);
+    };
+    options.dataType = 'json';
+    options.contentType = 'application/json';
+    $.ajax(options);
+  };
+
   // Pretty dumb name for a function, just wraps callback calls so we dont
   // to if (callback) callback() everywhere
   var call = function() {
@@ -380,6 +393,59 @@
     };
     db.changes.addListener = function(l) {
       db.changes.listeners.push(l);
+    };
+
+    db.replicate = {};
+
+    db.replicate.from = function (url, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+
+      var c = [];
+      var ajaxOpts = {url: url+'_changes?style=all_docs&include_docs=true'};
+
+      ajax(ajaxOpts, function(e, resp) {
+        if (e) {
+          return call(callback, {error: 'borked'});
+        }
+        var pending = resp.results.length;
+
+        resp.results.forEach(function(r) {
+
+          var writeDoc = function(r) {
+            db.post(r.doc, {newEdits: false}, function(err, changeset) {
+              pending--;
+              if (err) {
+                pending--;
+                r.error = e;
+                c.push(r);
+              } else {
+                c.changeset = changeset;
+                c.push(r);
+              }
+              if (pending === 0) {
+                call(callback, null, c);
+              }
+            });
+          };
+          db.get(r.id, function(err, doc) {
+            if (err) {
+              return writeDoc(r);
+            }
+            if (doc._rev === r.changes[0].rev) {
+              return;
+            } else {
+              var oldseq = parseInt(doc._rev.split('-')[0], 10);
+              var newseq = parseInt(r.changes[0].rev.split('-')[0], 10);
+              if (oldseq <= newseq) {
+                writeDoc(r);
+              }
+            }
+          });
+        });
+      });
     };
 
     return db;
