@@ -1,3 +1,11 @@
+// Porting tests from Apache CouchDB bulk docs tests
+// https://github.com/apache/couchdb/blob/master/share/www/script/test/bulk_docs.js
+
+// Note: writing sync tests over an async api sucks, havent found a decent
+// dataflow type library I like yet
+
+// all_or_nothing is not implemented
+
 module('bulk_docs', {
   setup : function () {
     this.name = 'test' + genDBName();
@@ -36,6 +44,52 @@ asyncTest('Testing bulk docs', function() {
           });
         });
       });
+    });
+  });
+});
+
+asyncTest('No id in bulk docs', function() {
+  pouch.open(this.name, function(err, db) {
+    var newdoc = {"_id": "foobar", "body": "baz"};
+    db.put(newdoc, function(err, doc) {
+      ok(doc.ok);
+      var docs = [
+        {"_id": newdoc._id, "_rev": newdoc._rev, "body": "blam"},
+        {"_id": newdoc._id, "_rev": newdoc._rev, "_deleted": true}
+      ];
+      db.bulkDocs({docs: docs}, function(err, results) {
+        ok(results[0].error === 'conflict' || results[1].error === 'conflict');
+        start();
+      });
+    });
+  });
+});
+
+asyncTest('No docs', function() {
+  pouch.open(this.name, function(err, db) {
+    db.bulkDocs({"doc": [{"foo":"bar"}]}, function(err, result) {
+      ok(err.status === 400);
+      ok(err.error === 'bad_request');
+      ok(err.reason === "Missing JSON list of 'docs'");
+      start();
+    });
+  });
+});
+
+asyncTest('Jira 911', function() {
+  pouch.open(this.name, function(err, db) {
+    var docs = [
+      {"_id":"0", "a" : 0},
+      {"_id":"1", "a" : 1},
+      {"_id":"1", "a" : 1},
+      {"_id":"3", "a" : 3}
+    ];
+    db.bulkDocs({docs: docs}, function(err, results) {
+      console.log(results);
+      ok(results[1].id == "1");
+      ok(results[1].error == undefined);
+      ok(results[2].error == "conflict");
+      start();
     });
   });
 });
