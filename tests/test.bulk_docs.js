@@ -85,10 +85,10 @@ asyncTest('Jira 911', function() {
       {"_id":"3", "a" : 3}
     ];
     db.bulkDocs({docs: docs}, function(err, results) {
-      console.log(results);
-      ok(results[1].id == "1");
-      ok(results[1].error == undefined);
-      ok(results[2].error == "conflict");
+      ok(results[1].id == "1", 'check ordering');
+      ok(results[1].error == undefined, 'first id succeded');
+      ok(results[2].error == "conflict", 'second conflicted');
+      ok(results.length == 4, 'got right amount of results');
       start();
     });
   });
