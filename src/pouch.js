@@ -46,6 +46,11 @@
   // Enumerate errors, add the status code so we can reflect the HTTP api
   // in future
   var Errors = {
+    MISSING_BULK_DOCS: {
+      status: 400,
+      error: 'bad_request',
+      reason: "Missing JSON list of 'docs'"
+    },
     MISSING_DOC: {
       status: 404,
       error: 'not_found',
@@ -222,6 +227,10 @@
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
+      }
+
+      if (!req.docs) {
+        return call(callback, Errors.MISSING_BULK_DOCS);
       }
 
       var newEdits = 'new_edits' in opts ? opts._new_edits : true;
