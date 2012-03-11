@@ -227,8 +227,10 @@
       var newEdits = 'new_edits' in opts ? opts._new_edits : true;
 
       // Parse and sort the docs
-      var docInfos = req.docs.map(function(doc) {
-        return parseDoc(doc, newEdits);
+      var docInfos = req.docs.map(function(doc, i) {
+        var newDoc = parseDoc(doc, newEdits);
+        newDoc._bulk_seq = i;
+        return newDoc;
       });
 
       docInfos.sort(function(a, b) {
@@ -254,7 +256,12 @@
       var results = [];
 
       txn.oncomplete = function(event) {
+        results.sort(function(a, b) {
+          return a._bulk_seq - b._bulk_seq;
+        });
+
         results.forEach(function(result) {
+          delete result._bulk_seq;
           db.changes.emit(result);
         });
         call(callback, null, results);
@@ -289,8 +296,9 @@
           var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
           metaDataReq.onsuccess = function() {
             results.push({
-              id : docInfo.metadata.id,
-              rev : docInfo.metadata.rev
+              id: docInfo.metadata.id,
+              rev: docInfo.metadata.rev,
+              _bulk_seq: docInfo._bulk_seq
             });
             call(callback);
           };
