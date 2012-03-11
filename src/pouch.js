@@ -301,6 +301,7 @@
           var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
           metaDataReq.onsuccess = function() {
             results.push({
+              ok: true,
               id: docInfo.metadata.id,
               rev: docInfo.metadata.rev,
               _bulk_seq: docInfo._bulk_seq
