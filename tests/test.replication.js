@@ -24,17 +24,15 @@ asyncTest("Test basic pull replication", function() {
   var name = this.name;
   var $db = $.couch.db(name);
 
-  var docs = {
-    docs: [
-      {_id: "0", integer: 0, string: '0'},
-      {_id: "1", integer: 1, string: '1'},
-      {_id: "2", integer: 2, string: '2'}
-    ]
-  };
+  var docs = [
+    {_id: "0", integer: 0, string: '0'},
+    {_id: "1", integer: 1, string: '1'},
+    {_id: "2", integer: 2, string: '2'}
+  ];
 
   var create = function() {
     $db.create({success: function() {
-      $db.bulkSave(docs, {success: replicate});
+      $db.bulkSave({docs: docs}, {success: replicate});
     }});
   };
 

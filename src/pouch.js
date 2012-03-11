@@ -225,9 +225,12 @@
       }
 
       var newEdits = 'new_edits' in opts ? opts._new_edits : true;
+      // We dont want to modify the users variables in place, JSON is kinda
+      // nasty for a deep clone though
+      var docs = JSON.parse(JSON.stringify(req.docs));
 
       // Parse and sort the docs
-      var docInfos = req.docs.map(function(doc, i) {
+      var docInfos = docs.map(function(doc, i) {
         var newDoc = parseDoc(doc, newEdits);
         newDoc._bulk_seq = i;
         return newDoc;
@@ -250,6 +253,8 @@
         }
         return acc;
       }, [[docInfos.shift()]]);
+      // reduce is gonna reverse the array
+      buckets.reverse();
 
       var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE],
                                IDBTransaction.READ_WRITE);
@@ -311,8 +316,7 @@
       cursReq.onsuccess = function(event) {
         var cursor = event.target.result;
         if (cursor) {
-          // I am guessing keyRange should be sorted in the same way buckets
-          // are, so we can just take the first from buckets
+          // buckets are ordered by id
           var doc = buckets.shift();
           // Documents are grouped by id in buckets, which means each document
           // has an array of edits, this currently only works for single edits
