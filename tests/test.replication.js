@@ -11,7 +11,6 @@ var remote = {
 
 module('replication', {
   setup : function () {
-    stop();
     var suffix = '';
     for (var i = 0 ; i < 10 ; i++ ) {
       suffix += (Math.random()*16).toFixed().toString(16);
