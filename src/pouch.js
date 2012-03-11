@@ -236,11 +236,14 @@
       var newEdits = 'new_edits' in opts ? opts._new_edits : true;
       // We dont want to modify the users variables in place, JSON is kinda
       // nasty for a deep clone though
+
       var docs = JSON.parse(JSON.stringify(req.docs));
 
       // Parse and sort the docs
       var docInfos = docs.map(function(doc, i) {
         var newDoc = parseDoc(doc, newEdits);
+        // We want to ensure the order of the processing and return of the docs,
+        // so we give them a sequence number
         newDoc._bulk_seq = i;
         return newDoc;
       });
@@ -262,8 +265,12 @@
         }
         return acc;
       }, [[docInfos.shift()]]);
-      // reduce is gonna reverse the array
+
+      //The reduce screws up the array ordering
       buckets.reverse();
+      buckets.forEach(function(bucket) {
+        bucket.sort(function(a, b) { return a._bulk_seq - b._bulk_seq; });
+      });
 
       var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE],
                                IDBTransaction.READ_WRITE);
@@ -320,43 +327,66 @@
         };
       };
 
+      var makeErr = function(err, seq) {
+        err._bulk_seq = seq;
+        return err;
+      };
+
       var cursReq = txn.objectStore(DOC_STORE)
         .openCursor(keyRange, IDBCursor.NEXT);
+
+      var update = function(cursor, oldDoc, docInfo, callback) {
+        var revs = oldDoc.revisions.ids;
+        // Currently ignoring the revision sequence number, we shouldnt do that
+        if (revs[0] !== docInfo.metadata.revisions.ids[1]) {
+          results.push(makeErr(Errors.REV_CONFLICT, docInfo._bulk_seq));
+          call(callback);
+          return cursor['continue']();
+        }
+        // Start of rev merging, for now we just keep a linear history
+        // of revisions
+        revs.shift();
+        revs.forEach(function(rev) {
+          docInfo.metadata.revisions.ids.push(rev);
+        });
+        writeDoc(docInfo, function() {
+          cursor['continue']();
+          call(callback);
+        });
+      };
+
+      var insert = function(docInfo, callback) {
+        if (docInfo.metadata.deleted) {
+          results.push(Errors.MISSING_DOC);
+          return;
+        }
+        writeDoc(docInfo, function() {
+          call(callback);
+        });
+      };
+
+      // If we receive multiple items in bulkdocs with the same id, we process the
+      // first but mark rest as conflicts until can think of a sensible reason
+      // to not do so
+      var markConflicts = function(docs) {
+        for (var i = 1; i < docs.length; i++) {
+          results.push(makeErr(Errors.REV_CONFLICT, docs[i]._bulk_seq));
+        }
+      };
 
       cursReq.onsuccess = function(event) {
         var cursor = event.target.result;
         if (cursor) {
-          // buckets are ordered by id
-          var doc = buckets.shift();
-          // Documents are grouped by id in buckets, which means each document
-          // has an array of edits, this currently only works for single edits
-          // they should probably be getting merged
-          var docInfo = doc[0];
-          var revs = cursor.value.revisions.ids;
-          // Currently ignoring the revision sequence number, we shouldnt do that
-          if (revs[0] !== docInfo.metadata.revisions.ids[1]) {
-            results.push(Errors.REV_CONFLICT);
-            return cursor['continue']();
-          }
-          // Start of rev merging, for now we just keep a linear history
-          // of revisions
-          revs.shift();
-          revs.forEach(function(rev) {
-            docInfo.metadata.revisions.ids.push(rev);
-          });
-          writeDoc(docInfo, function() {
-            cursor['continue']();
+          var bucket = buckets.shift();
+          update(cursor, cursor.value, bucket[0], function() {
+            markConflicts(bucket);
           });
         } else {
           // Cursor has exceeded the key range so the rest are inserts
           buckets.forEach(function(bucket) {
-            // TODO: merge the bucket revs into a rev tree
-            var docInfo = bucket[0];
-            if (docInfo.metadata.deleted) {
-              results.push(Errors.MISSING_DOC);
-              return;
-            }
-            writeDoc(docInfo);
+            insert(bucket[0], function() {
+              markConflicts(bucket);
+            });
           });
         }
       };
