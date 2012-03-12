@@ -154,7 +154,7 @@
 
   // This opens a database, creating it if needed and returns the api
   // used to access the database
-  var makePouch = function(idb) {
+  var makePouch = function(idb, name) {
 
     // Wrapper for functions that call the bulkdocs api with a single doc,
     // if the first result is an error, return an error
@@ -170,6 +170,27 @@
 
     // Now we create the PouchDB interface
     var db = {update_seq: 0};
+
+    // Looping through all the documents in the database is a terrible idea
+    // easiest to implement though, should probably keep a counter
+    db.info = function(callback) {
+      var count = 0;
+      idb.transaction([DOC_STORE], IDBTransaction.READ)
+        .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
+          var cursor = event.result;
+          if (!cursor) {
+            return callback(null, {
+              db_name: name.replace(/^pouch:/, ''),
+              doc_count: count,
+              update_seq: db.update_seq
+            });
+          }
+          if (cursor.value.deleted !== true) {
+            count++;
+          }
+          cursor['continue']();
+        };
+    };
 
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
@@ -543,7 +564,7 @@
         return;
       }
 
-      pouchCache[name] = makePouch(db);
+      pouchCache[name] = makePouch(db, name);
       call(callback, null, pouchCache[name]);
     };
 
