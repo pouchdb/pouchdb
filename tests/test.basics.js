@@ -130,11 +130,26 @@ asyncTest("Check database with slashes", function() {
 
 
 asyncTest("Basic checks", function() {
-  pouch.open('test_suite_db', function(err, db) {
-    db.info(function(err, info) {
-      ok(info.db_name === 'test_suite_db');
-      ok(info.doc_count === 0);
+  pouch.deleteDatabase('test_suite_db', function(err) {
+    if (err) {
+      ok(false, 'failed to deleted');
       start();
+    }
+    pouch.open('test_suite_db', function(err, db) {
+      db.info(function(err, info) {
+        ok(info.db_name === 'test_suite_db');
+        ok(info.doc_count === 0);
+        var doc = {_id: '0', a: 1, b:1};
+        db.put(doc, function(err, res) {
+          ok(res.ok === true);
+          ok(res.id);
+          ok(res.rev);
+          db.get(doc._id, function(err, doc) {
+            ok(doc._id === res.id && doc._rev === res.rev);
+            start();
+          });
+        });
+      });
     });
   });
 });
