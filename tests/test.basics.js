@@ -117,3 +117,24 @@ asyncTest("Check revisions", function() {
     });
   });
 });
+
+// From here we are copying over tests from CouchDB
+// https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
+
+asyncTest("Check database with slashes", function() {
+  pouch.open('test_suite_db%2Fwith_slashes', function(err, db) {
+    ok(!err, 'opened');
+    start();
+  });
+});
+
+
+asyncTest("Basic checks", function() {
+  pouch.open('test_suite_db', function(err, db) {
+    db.info(function(err, info) {
+      ok(info.db_name === 'test_suite_db');
+      ok(info.doc_count === 0);
+      start();
+    });
+  });
+});
