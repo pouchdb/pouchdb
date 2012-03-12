@@ -1,0 +1,9 @@
+{
+  "name": "pouchdb",
+  "version": "0.0.1",
+  "description": "PouchDB",
+  "attachments": ["src", "tests", "lib"],
+  "dependencies": {
+    "attachments": null
+  }
+}
