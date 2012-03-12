@@ -536,7 +536,7 @@
       return call(callback, null, pouchCache[name]);
     }
 
-    var req = indexedDB.open(name);
+    var req = indexedDB.open(name, POUCH_VERSION);
 
     req.onupgradeneeded = function(e) {
       var db = e.target.result;
@@ -580,6 +580,10 @@
 
     req.onsuccess = function() {
       call(callback, null);
+    };
+
+    req.onblocked = function(e) {
+      call(callback, {error: 'blocked', reason: e.toString()});
     };
 
     req.onerror = function(e) {
