@@ -18,41 +18,43 @@ After IndexedDatabase is more solidified it's possible that BrowserCouch and Pou
 
 # API
 
-## createCouch(options[, callback])
+Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined unless there is an error, further arguments specify the result.
+
+## pouch.open(name, [options], [callback])
 
 This method gets an existing database if one exists or creates a new one if one does not exist.
 
-The first argument is an options object. The only required option is `name`, all others are optional. The second argument an optional success callback.
-
-* `'name'` - The name of the PouchDB you would like to get/create.
-* `'description'` - A description of the database. If one is not set then PouchDB will generate one since it is required by the IndexedDatabase API.
-* '`success'` - A callback function taking one argument, the PouchDB database. The second argument to `createCouch` will be used if passed.
-* '`error'` - An error handler callback taking one argument, the error.
-
 <pre>
-  createCouch({name:'test'}, function (couch) {
-    // Use my CouchDB
+  pouch.open('test', function(err, db) {
+    // Use db to call further functions
   })
 </pre>
 
-## couch
+## pouch.deleteDatabase(name, [callback])
 
-The subject of the of createCouch success callback. This is primary PouchDB API.
+Delete method with given name
 
-### couch.get(docid, options)
+## db
 
-### couch.remove(doc, options)
+The subject of the of pouch.open. This is primary PouchDB API.
 
-### couch.post(doc, options)
+### db.get(docid, [options], [callback])
 
-### couch.changes
+### db.remove(doc, [options], [callback])
 
-### couch.changes(options)
+### db.post(doc, [options], [callback])
 
-### couch.changes.addListener(listener)
+### db.put(doc, [options], [callback])
 
-### couch.changes.removeListener(listener)
+### db.bulkDocs(docs, [options], [callback])
 
-### couch.bulk(docs, options)
+## db.changes
+
+### db.changes(options)
+
+### db.changes.addListener(listener)
+
+### db.changes.removeListener(listener)
+
 
 
