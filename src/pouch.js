@@ -177,7 +177,7 @@
       var count = 0;
       idb.transaction([DOC_STORE], IDBTransaction.READ)
         .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
-          var cursor = event.result;
+          var cursor = e.result;
           if (!cursor) {
             return callback(null, {
               db_name: name.replace(/^pouch:/, ''),
