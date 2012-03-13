@@ -332,6 +332,7 @@
       };
 
       var writeDoc = function(docInfo, callback) {
+        docInfo.data._junk = new Date().getTime();
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           docInfo.metadata.seq = e.target.result;
@@ -542,7 +543,9 @@
       var db = e.target.result;
       db.createObjectStore(DOC_STORE, {keyPath : 'id'})
         .createIndex('seq', 'seq', {unique : true});
-      db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
+      // We are giving a _junk key because firefox really doesnt like
+      // writing without a key
+      db.createObjectStore(BY_SEQ_STORE, {keyPath: '_junk', autoIncrement : true});
     };
 
     req.onsuccess = function(e) {
