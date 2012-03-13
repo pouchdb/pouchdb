@@ -332,7 +332,7 @@
       };
 
       var writeDoc = function(docInfo, callback) {
-        docInfo.data._junk = new Date().getTime();
+        docInfo.data._junk = Math.uuid();
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           docInfo.metadata.seq = e.target.result;
