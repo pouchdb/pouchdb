@@ -213,6 +213,7 @@
           .objectStore(BY_SEQ_STORE).get(metadata.seq);
         nreq.onsuccess = function(e) {
           var doc = e.target.result;
+          delete doc._junk;
           doc._id = metadata.id;
           doc._rev = metadata.rev;
           if (opts.revs_info) {
