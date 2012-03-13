@@ -312,7 +312,7 @@
       txn.onerror = function(event) {
         if (callback) {
           var code = event.target.errorCode;
-          var message = Object.keys(IDBDatabaseException)[code].toLowerCase();
+          var message = Object.keys(IDBDatabaseException)[code-1].toLowerCase();
           callback({
             error : event.type,
             reason : message
