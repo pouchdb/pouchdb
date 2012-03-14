@@ -23,3 +23,9 @@ function makeDocs(start, end, templateDoc) {
   }
   return docs;
 }
+
+function initTestDB(name, callback) {
+  pouch.deleteDatabase(name, function() {
+    pouch.open(name, callback);
+  });
+}
