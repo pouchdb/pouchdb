@@ -177,7 +177,7 @@
       var count = 0;
       idb.transaction([DOC_STORE], IDBTransaction.READ)
         .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
-          var cursor = e.result;
+          var cursor = e.target.result;
           if (!cursor) {
             return callback(null, {
               db_name: name.replace(/^pouch:/, ''),
@@ -415,6 +415,28 @@
       };
     };
 
+    db.allDocs = function(opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+
+      var results = [];
+      idb.transaction([DOC_STORE], IDBTransaction.READ)
+        .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
+          var cursor = e.target.result;
+          if (!cursor) {
+            return callback(null, {
+              total_rows: results.length,
+              rows: results
+            });
+          }
+          if (cursor.value.deleted !== true) {
+            results.push(cursor.value);
+          }
+          cursor['continue']();
+        };
+    };
 
     db.changes = function(opts) {
       if (!opts.seq) {
