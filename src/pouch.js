@@ -156,6 +156,12 @@
   // used to access the database
   var makePouch = function(idb, name) {
 
+    // Firefox requires a unique key for every idb object we store, the
+    // BY_SEQ_STORE doesnt have a natural key (the autoIncrement is supposed
+    // to be its key) so we just give it the current time + an incrementing
+    // number
+    var junkSeed = 0;
+
     // Wrapper for functions that call the bulkdocs api with a single doc,
     // if the first result is an error, return an error
     var singularErr = function(callback) {
@@ -333,7 +339,7 @@
       };
 
       var writeDoc = function(docInfo, callback) {
-        docInfo.data._junk = new Date().getTime() + Math.ceil(Math.random()*100);
+        docInfo.data._junk = new Date().getTime() + (++junkSeed);
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           docInfo.metadata.seq = e.target.result;
