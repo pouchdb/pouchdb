@@ -177,7 +177,7 @@
       var count = 0;
       idb.transaction([DOC_STORE], IDBTransaction.READ)
         .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
-          var cursor = event.result;
+          var cursor = e.result;
           if (!cursor) {
             return callback(null, {
               db_name: name.replace(/^pouch:/, ''),
@@ -213,6 +213,7 @@
           .objectStore(BY_SEQ_STORE).get(metadata.seq);
         nreq.onsuccess = function(e) {
           var doc = e.target.result;
+          delete doc._junk;
           doc._id = metadata.id;
           doc._rev = metadata.rev;
           if (opts.revs_info) {
@@ -312,7 +313,7 @@
       txn.onerror = function(event) {
         if (callback) {
           var code = event.target.errorCode;
-          var message = Object.keys(IDBDatabaseException)[code].toLowerCase();
+          var message = Object.keys(IDBDatabaseException)[code-1].toLowerCase();
           callback({
             error : event.type,
             reason : message
@@ -332,6 +333,7 @@
       };
 
       var writeDoc = function(docInfo, callback) {
+        docInfo.data._junk = new Date().getTime() + Math.ceil(Math.random()*100);
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           docInfo.metadata.seq = e.target.result;
@@ -542,7 +544,9 @@
       var db = e.target.result;
       db.createObjectStore(DOC_STORE, {keyPath : 'id'})
         .createIndex('seq', 'seq', {unique : true});
-      db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
+      // We are giving a _junk key because firefox really doesnt like
+      // writing without a key
+      db.createObjectStore(BY_SEQ_STORE, {keyPath: '_junk', autoIncrement : true});
     };
 
     req.onsuccess = function(e) {

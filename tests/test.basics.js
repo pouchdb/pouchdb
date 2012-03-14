@@ -59,6 +59,7 @@ asyncTest("Get doc", function() {
   pouch.open(this.name, function(err, db) {
     db.post({test:"somestuff"}, function(err, info) {
       db.get(info.id, function(err, doc) {
+        ok(!doc._junk, 'We shouldnt expose our junk');
         ok(doc.test);
         db.get(info.id+'asdf', function(err) {
           ok(err.error);
