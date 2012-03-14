@@ -614,10 +614,6 @@
       call(callback, null);
     };
 
-    req.onblocked = function(e) {
-      call(callback, {error: 'blocked', reason: e.toString()});
-    };
-
     req.onerror = function(e) {
       call(callback, {error: 'delete', reason: e.toString()});
     };
