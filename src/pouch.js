@@ -341,6 +341,9 @@
       var writeDoc = function(docInfo, callback) {
         // The doc will need to refer back to its meta data document
         docInfo.data._id = docInfo.metadata.id;
+        if (docInfo.metadata.deleted) {
+          docInfo.data._deleted = true;
+        }
         docInfo.data._junk = new Date().getTime() + (++junkSeed);
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
@@ -459,9 +462,12 @@
       };
     };
 
-    db.changes = function(opts) {
+    db.changes = function(opts, callback) {
       if (opts instanceof Function) {
         opts = {complete: opts};
+      }
+      if (callback) {
+        opts.complete = callback;
       }
       if (!opts.seq) {
         opts.seq = 0;
@@ -492,7 +498,7 @@
           if (doc.deleted) {
             c.deleted = true;
           }
-          if (opts.include_doc) {
+          if (opts.include_docs) {
             c.doc = cursor.value;
           }
           // Dedupe the changes feed
