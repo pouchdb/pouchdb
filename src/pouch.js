@@ -489,9 +489,16 @@
             seq: cursor.key,
             changes: doc.revisions.ids
           };
+          if (doc.deleted) {
+            c.deleted = true;
+          }
           if (opts.include_doc) {
             c.doc = cursor.value;
           }
+          // Dedupe the changes feed
+          results = results.filter(function(doc) {
+            return doc.id !== c.id;
+          });
           results.push(c);
           call(opts.onChange, c);
           cursor['continue']();
