@@ -1,11 +1,11 @@
 module("changes", {
   setup : function () {
-    this.name = 'test' + Math.uuid();
+    this.name = 'test_suite_db';
   }
 });
 
 asyncTest("All changes", function () {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     db.post({test:"somestuff"}, function (err, info) {
       db.changes({
         onChange: function (change) {
@@ -22,7 +22,7 @@ asyncTest("All changes", function () {
 });
 
 asyncTest("Continuous changes", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     var count = 0;
     db.changes({
       onChange: function(change) { count += 1; },

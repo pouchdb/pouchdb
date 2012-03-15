@@ -1,11 +1,11 @@
 module("basics", {
   setup : function () {
-    this.name = 'test' + Math.uuid();
+    this.name = 'test_suite_db';
   }
 });
 
 asyncTest("Create a pouch", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     ok(!err, 'created a pouch');
     start();
   });
@@ -19,7 +19,7 @@ asyncTest("Remove a pouch",function() {
 });
 
 asyncTest("Add a doc", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     ok(!err, 'opened the pouch');
     db.post({test:"somestuff"}, function (err, info) {
       ok(!err, 'saved a doc with post');
@@ -29,7 +29,7 @@ asyncTest("Add a doc", function() {
 });
 
 asyncTest("Modify a doc", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     ok(!err, 'opened the pouch');
     db.post({test: "somestuff"}, function (err, info) {
       ok(!err, 'saved a doc with post');
@@ -42,7 +42,7 @@ asyncTest("Modify a doc", function() {
 });
 
 asyncTest("Modify a doc with incorrect rev", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     ok(!err, 'opened the pouch');
     db.post({test: "somestuff"}, function (err, info) {
       ok(!err, 'saved a doc with post');
@@ -56,7 +56,7 @@ asyncTest("Modify a doc with incorrect rev", function() {
 });
 
 asyncTest("Get doc", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     db.post({test:"somestuff"}, function(err, info) {
       db.get(info.id, function(err, doc) {
         ok(!doc._junk, 'We shouldnt expose our junk');
@@ -71,7 +71,7 @@ asyncTest("Get doc", function() {
 });
 
 asyncTest("Remove doc", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     db.post({test:"somestuff"}, function(err, info) {
       db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
         db.get(info.id, function(err) {
@@ -84,7 +84,7 @@ asyncTest("Remove doc", function() {
 });
 
 asyncTest("Delete document without id", function () {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     db.remove({test:'ing'}, function(err) {
       ok(err, 'failed to delete');
       start();
@@ -94,7 +94,7 @@ asyncTest("Delete document without id", function () {
 
 
 asyncTest("Bulk docs", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     ok(!err, 'opened the pouch');
     db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
       ok(!infos[0].error);
@@ -105,7 +105,7 @@ asyncTest("Bulk docs", function() {
 });
 
 asyncTest("Check revisions", function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     db.post({test: "somestuff"}, function (err, info) {
       db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
         db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
@@ -123,7 +123,7 @@ asyncTest("Check revisions", function() {
 // https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
 
 asyncTest("Check database with slashes", function() {
-  pouch.open('test_suite_db%2Fwith_slashes', function(err, db) {
+  initTestDB('test_suite_db%2Fwith_slashes', function(err, db) {
     ok(!err, 'opened');
     start();
   });

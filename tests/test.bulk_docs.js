@@ -8,12 +8,12 @@
 
 module('bulk_docs', {
   setup : function () {
-    this.name = 'test' + genDBName();
+    this.name = 'test_suite_db';
   }
 });
 
 asyncTest('Testing bulk docs', function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     var docs = makeDocs(5);
     db.bulkDocs({docs: docs}, function(err, results) {
       ok(results.length === 5, 'results length matches');
@@ -49,7 +49,7 @@ asyncTest('Testing bulk docs', function() {
 });
 
 asyncTest('No id in bulk docs', function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     var newdoc = {"_id": "foobar", "body": "baz"};
     db.put(newdoc, function(err, doc) {
       ok(doc.ok);
@@ -66,7 +66,7 @@ asyncTest('No id in bulk docs', function() {
 });
 
 asyncTest('No docs', function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     db.bulkDocs({"doc": [{"foo":"bar"}]}, function(err, result) {
       ok(err.status === 400);
       ok(err.error === 'bad_request');
@@ -77,7 +77,7 @@ asyncTest('No docs', function() {
 });
 
 asyncTest('Jira 911', function() {
-  pouch.open(this.name, function(err, db) {
+  initTestDB(this.name, function(err, db) {
     var docs = [
       {"_id":"0", "a" : 0},
       {"_id":"1", "a" : 1},
@@ -85,10 +85,10 @@ asyncTest('Jira 911', function() {
       {"_id":"3", "a" : 3}
     ];
     db.bulkDocs({docs: docs}, function(err, results) {
-      ok(results[1].id == "1", 'check ordering');
-      ok(results[1].error == undefined, 'first id succeded');
-      ok(results[2].error == "conflict", 'second conflicted');
-      ok(results.length == 4, 'got right amount of results');
+      ok(results[1].id === "1", 'check ordering');
+      ok(results[1].error === undefined, 'first id succeded');
+      ok(results[2].error === "conflict", 'second conflicted');
+      ok(results.length === 4, 'got right amount of results');
       start();
     });
   });

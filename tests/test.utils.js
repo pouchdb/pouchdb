@@ -1,11 +1,3 @@
-function genDBName() {
-  var suffix = '';
-  for (var i = 0 ; i < 10 ; i++ ) {
-    suffix += (Math.random()*16).toFixed().toString(16);
-  }
-  return suffix;
-}
-
 function makeDocs(start, end, templateDoc) {
   var templateDocSrc = templateDoc ? JSON.stringify(templateDoc) : "{}";
   if (end === undefined) {
