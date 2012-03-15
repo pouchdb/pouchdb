@@ -447,7 +447,7 @@
         : oStore.openCursor(null, descending);
       var results = [];
       oCursor.onsuccess = function(e) {
-        if (e.target.result === null) {
+        if (!e.target.result) {
           return callback(null, {
             total_rows: results.length,
             rows: results
@@ -480,7 +480,7 @@
       var request = transaction.objectStore(BY_SEQ_STORE)
         .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
       request.onsuccess = function(event) {
-        if (event.target.result === null) {
+        if (!event.target.result) {
           if (opts.continuous) {
             db.changes.addListener(opts.onChange);
           }
