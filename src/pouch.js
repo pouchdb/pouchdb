@@ -458,9 +458,13 @@
     };
 
     db.changes = function(opts) {
+      if (opts instanceof Function) {
+        opts = {complete: opts};
+      }
       if (!opts.seq) {
         opts.seq = 0;
       }
+      var results = [];
       var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
       var request = transaction.objectStore(BY_SEQ_STORE)
         .openCursor(IDBKeyRange.lowerBound(opts.seq));
@@ -470,9 +474,10 @@
           if (opts.continuous) {
             db.changes.addListener(opts.onChange);
           }
-          if (opts.complete) {
-            opts.complete();
+          if (opts.descending) {
+            results.reverse();
           }
+          call(opts.complete, null, {results: results});
         } else {
           var index = transaction.objectStore(DOC_STORE).index('seq');
           index.get(cursor.key).onsuccess = function(event) {
@@ -485,7 +490,8 @@
             if (opts.include_doc) {
               c.doc = cursor.value;
             }
-            opts.onChange(c);
+            results.push(c);
+            call(opts.onChange, c);
             cursor['continue']();
           };
         }

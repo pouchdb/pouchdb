@@ -33,7 +33,26 @@ asyncTest('Testing all docs', function() {
         db.allDocs({startkey:"2"}, function(err, all) {
           // TODO: implement offset
           //ok(all.offset == 2, 'offset correctly set');
-          start();
+          var opts = {startkey: "org.couchdb.user:", endkey: "org.couchdb.user;"};
+          db.allDocs(opts, function(err, raw) {
+            ok(raw.rows.length === 0, 'raw collation');
+            var ids = ["0","3","1","2"];
+            db.changes(function(err, changes) {
+              changes.results.forEach(function(row, i) {
+                ok(row.id === ids[i], 'seq order');
+              });
+              db.changes({
+                descending: true,
+                complete: function(err, changes) {
+                  ids = ["2","1","3","0"];
+                  changes.results.forEach(function(row, i) {
+                    ok(row.id === ids[i], 'descending=true');
+                  });
+                  start();
+                }
+              });
+            });
+          });
         });
       });
     });
