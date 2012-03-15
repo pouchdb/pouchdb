@@ -469,32 +469,31 @@
       var request = transaction.objectStore(BY_SEQ_STORE)
         .openCursor(IDBKeyRange.lowerBound(opts.seq));
       request.onsuccess = function(event) {
-        var cursor = event.target.result;
-        if (!cursor) {
+        if (event.target.result === null) {
           if (opts.continuous) {
             db.changes.addListener(opts.onChange);
           }
           if (opts.descending) {
             results.reverse();
           }
-          call(opts.complete, null, {results: results});
-        } else {
-          var index = transaction.objectStore(DOC_STORE).index('seq');
-          index.get(cursor.key).onsuccess = function(event) {
-            var doc = event.target.result;
-            var c = {
-              id: doc.id,
-              seq: cursor.key,
-              changes: doc.revisions.ids
-            };
-            if (opts.include_doc) {
-              c.doc = cursor.value;
-            }
-            results.push(c);
-            call(opts.onChange, c);
-            cursor['continue']();
-          };
+          return call(opts.complete, null, {results: results});
         }
+        var cursor = event.target.result;
+        var index = transaction.objectStore(DOC_STORE).index('seq');
+        index.get(cursor.key).onsuccess = function(event) {
+          var doc = event.target.result;
+          var c = {
+            id: doc.id,
+            seq: cursor.key,
+            changes: doc.revisions.ids
+          };
+          if (opts.include_doc) {
+            c.doc = cursor.value;
+          }
+          results.push(c);
+          call(opts.onChange, c);
+          cursor['continue']();
+        };
       };
       request.onerror = function(error) {
         // Cursor is out of range
