@@ -427,21 +427,34 @@
         opts = {};
       }
 
+      var start = 'startkey' in opts ? opts.startkey : false;
+      var end = 'endkey' in opts ? opts.endkey : false;
+
+      var descending = 'descending' in opts ? opts.descending : false;
+      descending = descending ? IDBCursor.PREV : null;
+
+      var keyRange = start && end ? IDBKeyRange.bound(start, end, true, true)
+        : start ? IDBKeyRange.lowerBound(start)
+        : end ? IDBKeyRange.upperBound(end, true) : false;
+      var oStore = idb.transaction([DOC_STORE], IDBTransaction.READ)
+        .objectStore(DOC_STORE);
+      var oCursor = keyRange ? oStore.openCursor(keyRange, descending)
+        : oStore.openCursor(null, descending);
       var results = [];
-      idb.transaction([DOC_STORE], IDBTransaction.READ)
-        .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
-          var cursor = e.target.result;
-          if (!cursor) {
-            return callback(null, {
-              total_rows: results.length,
-              rows: results
-            });
-          }
-          if (cursor.value.deleted !== true) {
-            results.push(cursor.value);
-          }
-          cursor['continue']();
-        };
+      oCursor.onsuccess = function(e) {
+        if (e.target.result === null) {
+          return callback(null, {
+            total_rows: results.length,
+            rows: results
+          });
+        }
+
+        var cursor = e.target.result;
+        if (cursor.value.deleted !== true) {
+          results.push(cursor.value);
+        }
+        cursor['continue']();
+      };
     };
 
     db.changes = function(opts) {

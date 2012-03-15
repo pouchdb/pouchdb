@@ -30,7 +30,11 @@ asyncTest('Testing all docs', function() {
         for(var i=0; i < rows.length; i++) {
           ok(rows[i].id >= "0" && rows[i].id <= "4", 'correct ids');
         }
-        start();
+        db.allDocs({startkey:"2"}, function(err, all) {
+          // TODO: implement offset
+          //ok(all.offset == 2, 'offset correctly set');
+          start();
+        });
       });
     });
   });
