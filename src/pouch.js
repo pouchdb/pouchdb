@@ -339,6 +339,8 @@
       };
 
       var writeDoc = function(docInfo, callback) {
+        // The doc will need to refer back to its meta data document
+        docInfo.data._id = docInfo.metadata.id;
         docInfo.data._junk = new Date().getTime() + (++junkSeed);
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
@@ -479,8 +481,8 @@
           return call(opts.complete, null, {results: results});
         }
         var cursor = event.target.result;
-        var index = transaction.objectStore(DOC_STORE).index('seq');
-        index.get(cursor.key).onsuccess = function(event) {
+        var index = transaction.objectStore(DOC_STORE);
+        index.get(cursor.value._id).onsuccess = function(event) {
           var doc = event.target.result;
           var c = {
             id: doc.id,
