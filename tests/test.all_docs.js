@@ -70,3 +70,47 @@ asyncTest('Testing all docs', function() {
     });
   });
 });
+
+asyncTest('Testing deleting in changes', function() {
+  pouch.open(this.name, function(err, db) {
+    db.get('1', function(err, doc) {
+      db.remove(doc, function(err, deleted) {
+        ok(deleted.ok, 'deleted');
+        db.changes(function(err, changes) {
+          ok(changes.results.length == 4);
+          ok(changes.results[3].id == "1");
+          ok(changes.results[3].deleted);
+          start();
+        });
+      });
+    });
+  });
+});
+
+asyncTest('Testing updating in changes', function() {
+  pouch.open(this.name, function(err, db) {
+    db.get('3', function(err, doc) {
+      doc.updated = 'totally';
+      db.put(doc, function(err, doc) {
+        db.changes(function(err, changes) {
+          ok(changes.results.length === 4);
+          ok(changes.results[3].id === "3");
+          start();
+        });
+      });
+    });
+  });
+});
+
+asyncTest('Testing include docs', function() {
+  pouch.open(this.name, function(err, db) {
+    db.changes({include_docs: true}, function(err, changes) {
+      ok(changes.results.length == 4);
+      ok(changes.results[3].id == "3");
+      ok(changes.results[3].doc.updated == "totally");
+      ok(changes.results[2].doc);
+      ok(changes.results[2].doc._deleted);
+      start();
+    });
+  });
+});
