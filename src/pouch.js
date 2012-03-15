@@ -464,17 +464,17 @@
       if (!opts.seq) {
         opts.seq = 0;
       }
+      var descending = 'descending' in opts ? opts.descending : false;
+      descending = descending ? IDBCursor.PREV : null;
+
       var results = [];
       var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
       var request = transaction.objectStore(BY_SEQ_STORE)
-        .openCursor(IDBKeyRange.lowerBound(opts.seq));
+        .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
       request.onsuccess = function(event) {
         if (event.target.result === null) {
           if (opts.continuous) {
             db.changes.addListener(opts.onChange);
-          }
-          if (opts.descending) {
-            results.reverse();
           }
           return call(opts.complete, null, {results: results});
         }
