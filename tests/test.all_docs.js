@@ -114,3 +114,56 @@ asyncTest('Testing include docs', function() {
     });
   });
 });
+
+asyncTest('Testing conflicts', function() {
+  pouch.open(this.name, function(err, db) {
+    // add conflicts
+    var conflictDoc1 = {
+      _id: "3", _rev: "2-aa01552213fafa022e6167113ed01087", value: "X"
+    };
+    var conflictDoc2 = {
+      _id: "3", _rev: "2-ff01552213fafa022e6167113ed01087", value: "Z"
+    };
+    db.put(conflictDoc1, {new_edits: false}, function(err, doc) {
+      db.put(conflictDoc2, {new_edits: false}, function(err, doc) {
+        db.get('3', function(err, winRev) {
+          var opts = {include_docs: true, conflicts: true, style: 'all_docs'};
+          db.changes(opts, function(err, changes) {
+            ok("3" === changes.results[3].id);
+            ok(3 === changes.results[3].changes.length);
+            ok(winRev._rev === changes.results[3].changes[0].rev);
+            ok("3" === changes.results[3].doc._id);
+            ok(winRev._rev === changes.results[3].doc._rev);
+            ok(true === changes.results[3].doc._conflicts instanceof Array);
+            ok(changes.results[3].doc._conflicts &&
+               2 === changes.results[3].doc._conflicts.length);
+
+            db.allDocs({include_docs: true, conflicts: true}, function(err, res) {
+              ok(3 === res.rows.length);
+              ok("3" === res.rows[2].key);
+              ok("3" === res.rows[2].id);
+              ok(winRev._rev === res.rows[2].value.rev);
+              ok(winRev._rev === res.rows[2].doc._rev);
+              ok("3" === res.rows[2].doc._id);
+              ok(true === res.rows[2].doc._conflicts instanceof Array);
+              ok(res.rows[2].doc._conflicts && 2 === res.rows[2].doc._conflicts.length);
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+asyncTest('Test basic collation', function() {
+  pouch.open(this.name, function(err, db) {
+    var docs = {docs: [{_id: "Z", foo: "Z"}, {_id: "a", foo: "a"}]};
+    db.bulkDocs(docs, function(err, res) {
+      db.allDocs({startkey: 'Z', endkey: 'Z'}, function(err, result) {
+        ok(result.rows.length === 1);
+        start();
+      });
+    });
+  });
+});
