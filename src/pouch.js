@@ -374,7 +374,9 @@
       var update = function(cursor, oldDoc, docInfo, callback) {
         var revs = oldDoc.revisions.ids;
         // Currently ignoring the revision sequence number, we shouldnt do that
-        if (!oldDoc.deleted && revs[0] !== docInfo.metadata.revisions.ids[1]) {
+        var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
+          (!oldDoc.deleted && revs[0] !== docInfo.metadata.revisions.ids[1]);
+        if (inConflict) {
           results.push(makeErr(Errors.REV_CONFLICT, docInfo._bulk_seq));
           call(callback);
           return cursor['continue']();
