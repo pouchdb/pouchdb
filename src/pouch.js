@@ -240,8 +240,9 @@
         callback = opts;
         opts = {};
       }
-      doc._deleted = true;
-      return db.bulkDocs({docs: [doc]}, opts, singularErr(callback));
+      var newDoc = JSON.parse(JSON.stringify(doc));
+      newDoc._deleted = true;
+      return db.bulkDocs({docs: [newDoc]}, opts, singularErr(callback));
     };
 
     db.put = db.post = function(doc, opts, callback) {
