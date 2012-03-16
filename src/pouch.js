@@ -113,13 +113,14 @@
       }
     } else {
       if (!doc._revisions) {
-        throw "missing property '_revisions'";
+        doc._revisions = {start: 0, ids: []};
+        //throw "missing property '_revisions'";
       }
       if (!isFinite(doc._revisions.start)) {
-        throw "property '_revisions.start' must be a number";
+        //throw "property '_revisions.start' must be a number";
       }
       if (Array.isArray(doc._revisions) && doc._revisions.length > 0) {
-        throw "property '_revisions.id' must be a non-empty array";
+        //throw "property '_revisions.id' must be a non-empty array";
       }
     }
     doc._id = decodeURIComponent(doc._id);
@@ -261,7 +262,7 @@
         return call(callback, Errors.MISSING_BULK_DOCS);
       }
 
-      var newEdits = 'new_edits' in opts ? opts._new_edits : true;
+      var newEdits = 'new_edits' in opts ? opts.new_edits : true;
       // We dont want to modify the users variables in place, JSON is kinda
       // nasty for a deep clone though
 
@@ -438,9 +439,9 @@
       var descending = 'descending' in opts ? opts.descending : false;
       descending = descending ? IDBCursor.PREV : null;
 
-      var keyRange = start && end ? IDBKeyRange.bound(start, end, true, true)
-        : start ? IDBKeyRange.lowerBound(start)
-        : end ? IDBKeyRange.upperBound(end, true) : false;
+      var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
+        : start ? IDBKeyRange.lowerBound(start, true)
+        : end ? IDBKeyRange.upperBound(end) : false;
       var oStore = idb.transaction([DOC_STORE], IDBTransaction.READ)
         .objectStore(DOC_STORE);
       var oCursor = keyRange ? oStore.openCursor(keyRange, descending)
@@ -456,7 +457,15 @@
 
         var cursor = e.target.result;
         if (cursor.value.deleted !== true) {
-          results.push(cursor.value);
+          var doc = {
+            id: cursor.value.id,
+            key: cursor.value.id,
+            value: cursor.value.rev
+          };
+          if (opts.include_docs) {
+            doc.doc = {};
+          }
+          results.push(doc);
         }
         cursor['continue']();
       };
