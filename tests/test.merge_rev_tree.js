@@ -7,106 +7,89 @@ function stem(tree, depth) {
   return tree;
 }
 
+function mergeTree(tree1, tree2) {
+  var conflicts = false;
+  for (var i = 0; i < tree2[1].length; i++) {
+    if (!tree1[1][0]) {
+      conflicts = 'new_leaf';
+      tree1[1][0] = tree2[1][i];
+    }
+    if (tree1[1][0].indexOf(tree2[1][i][0]) === -1) {
+      conflicts = 'new_branch';
+      tree1[1].push(tree2[1][i]);
+    } else {
+      var result = mergeTree(tree1[1][0], tree2[1][i]);
+      conflicts = result.conflicts || conflicts;
+      tree1[1][0] = result.tree;
+    }
+  }
+  return {conflicts: conflicts, tree: tree1};
+}
+
 function merge_one(tree, path) {
 
   var result = {tree: tree, conflicts: null};
 
-  // Returns true if the trees are an exact match, false if they dont match
-  // or a merged tree if they are a partial match
-  function matchSubtree(base, tree1, tree2) {
-    for (var i = 0; i < tree1.length; i++) {
-      if (tree1[i][0] === tree2[0]) {
-        base.push(tree1);
-        var t1Leaf = tree1[i].length === 1;
-        var t2Leaf = tree2.length === 1;
-        // Exact match
-        if (t1Leaf && t1Leaf) {
-          return true;
-        }
-        // tree1 ended, append the rest of tree2
-        if (t1Leaf) {
-          base[base.length-1][i].push(tree2); // Probably broken
-          return base;
-        }
-        // tree2 ended, append the rest of tree1
-        if (t2Leaf) {
-          base[base.length-1][i].push(tree1); // Probably broken
-          return base;
-        }
-        return matchSubtree(base[i], tree[i][0], tree2[0]);
-      }
-    }
-    return false;
-  }
-
-  function stripBase(arr, i) {
-    var base = [];
-    var el;
-    while (i--) {
-      base.push(arr.shift());  // broken
-    }
-
-    return base;
-  }
-
   if (!tree.length) {
-    return {tree: [path], conflicts: 'new_leaf'};
+    return {tree: path, conflicts: 'new_leaf'};
   }
 
-  var found = false;
+  for (var i = 0; i < tree.length; i++) {
+    var branch = tree[i];
+    var res;
+    if (branch.pos === path.pos) {
+      res = mergeTree(branch.ids, path.ids);
+      return {
+        conflicts: res.conflicts || 'internal_node',
+        tree: {pos: branch.pos, ids: res.tree}
+      };
+    } else {
+      // destructive assignment plz
+      var t1 = branch.pos < path.pos ? branch : path;
+      var t2 = branch.pos < path.pos ? path : branch;
+      var diff = t2.pos - t1.pos;
+      var parent, tmp = t1.ids;
 
-  tree.forEach(function(branch, i) {
-    if (found) {
-      return;
+      while(diff--) {
+        parent = tmp[1];
+        tmp = tmp[1][0];
+      }
+
+      res = mergeTree(tmp, t2.ids);
+      parent[0] = res.tree;
+      return {
+        conflicts: res.conflicts || 'internal_node',
+        tree: {pos: t1.pos, ids: t1.ids}
+      };
     }
-    // Stem the revision paths to a common base, if we have one tree
-    // with 3 edits and one with 2, set them both to 2, accumulate the common
-    // prefix, as we talk up the tree we append to it
-    var base = branch.pos === path.pos ? []
-      : branch.pos > path.pos ? stripBase(path.ids, branch.pos - path.pos)
-      : stripBase(branch.ids, path.pos - branch.pos);
-
-    var res = matchSubtree(base, branch.ids, path.ids);
-
-    if (res === true) {
-      found = true;
-      result.conflicts = 'internal_node';
-    }
-
-    // branch and path now start from a fixed base,
-    // find common path, if it exists, contat the remainder
-  });
-
-  // I may have just merged a common parent that joins 2 branches, reduce those
-
+  }
   return result;
 }
 
 function merge(tree1, path, depth) {
   var tree = merge_one(tree1, path);
-  tree.tree.sort();
   return {
-    tree: stem(tree.tree, depth),
+    tree: [stem(tree.tree, depth)],
     conflicts: tree.conflicts
   };
 }
 
-var simple = {pos: 1, ids: ['1']};
-var two0 = {pos: 1, ids: ['1', [['2_0']]]};
-var two1 = {pos: 1, ids: ['1', [['2_1']]]};
-var newleaf = {pos: 2, ids: ['2_0', [['3']]]};
-var withnewleaf = {pos: 1, ids: ['1', [['2_0', [['3']]]]]};
-var newbranch = {pos: 1, ids: ['1', [['2_0'], ['2_1']]]};
-var newdeepbranch = {pos: 2, ids: ['2_0', [['3_1']]]};
+var simple = {pos: 1, ids: ['1', []]};
+var two0 = {pos: 1, ids: ['1', [['2_0', []]]]};
+var two1 = {pos: 1, ids: ['1', [['2_1', []]]]};
+var newleaf = {pos: 2, ids: ['2_0', [['3', []]]]};
+var withnewleaf = {pos: 1, ids: ['1', [['2_0', [['3', []]]]]]};
+var newbranch = {pos: 1, ids: ['1', [['2_0', []], ['2_1', []]]]};
+var newdeepbranch = {pos: 2, ids: ['2_0', [['3_1', []]]]};
 
-var stemmededit = {pos: 3, ids: ['3']};
+var stemmededit = {pos: 3, ids: ['3', []]};
 var stemmedconflicts = [simple, stemmededit];
 
-var newbranchleaf = {pos: 1, ids: ['1', [['2_0', [['3']]], ['2_1']]]};
-var newbranchleafbranch = {pos: 1, ids: ['1', [['2_0', [['3'], ['3_1']]], ['2_1']]]};
+var newbranchleaf = {pos: 1, ids: ['1', [['2_0', [['3', []]]], ['2_1', []]]]};
+var newbranchleafbranch = {pos: 1, ids: ['1', [['2_0', [['3', []], ['3_1', []]]], ['2_1', []]]]};
 
 var stemmed2 = [{pos: 1, ids: ['1', [['2_1']]]},
-                {pos: 2, ids: ['2_0', [['3'], ['3_1']]]}];
+                {pos: 2, ids: ['2_0', [['3', ['3_1', []]]]]}];
 
 var stemmed3 = [{pos: 2, ids: ['2_1']},
                 {pos: 3, ids: ['3']},
