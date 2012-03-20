@@ -3,8 +3,52 @@
 
 module('merge rev tree');
 
+function actuallyExpandTree(all, current, pos, arr) {
+  current = current.slice(0);
+  current.push(arr[0]);
+  if (!arr[1].length) {
+    all.push({pos: pos, ids: current});
+  }
+  for (var i = 0; i < arr[1].length; i++) {
+    var res = actuallyExpandTree(all, current, pos, arr[1][i]);
+  }
+}
+
+function pathToTree(path) {
+  var first = path.shift();
+  var root = [first, []]
+  var leaf = root;
+  while (path.length) {
+    var el = path.shift();
+    nleaf = [el, []];
+    leaf[1].push(nleaf);
+    leaf = nleaf;
+  }
+  return root;
+}
+
+function expandTree(tree) {
+  var all = [];
+  for (var i = 0; i < tree.length; i++) {
+    actuallyExpandTree(all, [], tree[i].pos, tree[i].ids);
+  }
+  return all;
+}
+
 function stem(tree, depth) {
-  return tree;
+  var stemmedPaths = expandTree(tree).map(function(path) {
+    var npath = path.ids.slice(-depth);
+    var olength = npath.length;
+    var ids = pathToTree(npath);
+    return {
+      pos: path.pos + (path.ids.length - olength),
+      ids: ids
+    };
+  });
+
+  return stemmedPaths.reduce(function(prev, current, i, arr) {
+    return merge_one(prev, current).tree;
+  }, [stemmedPaths.shift()]);
 }
 
 function mergeTree(tree1, tree2) {
@@ -29,10 +73,11 @@ function mergeTree(tree1, tree2) {
 
 function merge_one(tree, path) {
 
-  var result = {tree: tree, conflicts: null};
+  var restree = [];
+  var conflicts = false;
 
   if (!tree.length) {
-    return {tree: path, conflicts: 'new_leaf'};
+    return {tree: [path], conflicts: 'new_leaf'};
   }
 
   for (var i = 0; i < tree.length; i++) {
@@ -40,10 +85,8 @@ function merge_one(tree, path) {
     var res;
     if (branch.pos === path.pos) {
       res = mergeTree(branch.ids, path.ids);
-      return {
-        conflicts: res.conflicts || 'internal_node',
-        tree: {pos: branch.pos, ids: res.tree}
-      };
+      restree.push({pos: branch.pos, ids: res.tree});
+      conflicts = conflicts || res.conflicts;
     } else {
       // destructive assignment plz
       var t1 = branch.pos < path.pos ? branch : path;
@@ -58,13 +101,15 @@ function merge_one(tree, path) {
 
       res = mergeTree(tmp, t2.ids);
       parent[0] = res.tree;
-      return {
-        conflicts: res.conflicts || 'internal_node',
-        tree: {pos: t1.pos, ids: t1.ids}
-      };
+      restree.push({pos: t1.pos, ids: t1.ids});
+      conflicts = conflicts || res.conflicts;
     }
   }
-  return result;
+
+  return {
+    tree: restree,
+    conflicts: conflicts || 'internal_node'
+  };
 }
 
 function merge(tree1, path, depth) {
@@ -72,7 +117,7 @@ function merge(tree1, path, depth) {
   path = JSON.parse(JSON.stringify(path));
   var tree = merge_one(tree1, path);
   return {
-    tree: [stem(tree.tree, depth)],
+    tree: stem(tree.tree, depth),
     conflicts: tree.conflicts
   };
 }
@@ -171,7 +216,7 @@ test('Merging a deep branch with branches works', function() {
   }, '');
 });
 
-test('Merging a deep branch with branches works', function() {
+test('New information reconnects steming induced conflicts', function() {
   deepEqual(merge(stemmedconflicts, withnewleaf, 10), {
     tree: [withnewleaf],
     conflicts: 'new_leaf'
