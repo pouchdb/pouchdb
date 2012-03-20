@@ -67,6 +67,8 @@ function merge_one(tree, path) {
 }
 
 function merge(tree1, path, depth) {
+  tree1 = JSON.parse(JSON.stringify(tree1));
+  path = JSON.parse(JSON.stringify(path));
   var tree = merge_one(tree1, path);
   return {
     tree: [stem(tree.tree, depth)],
