@@ -47,7 +47,7 @@ function stem(tree, depth) {
   });
 
   return stemmedPaths.reduce(function(prev, current, i, arr) {
-    return merge_one(prev, current).tree;
+    return merge_one(prev, current, true).tree;
   }, [stemmedPaths.shift()]);
 }
 
@@ -71,10 +71,10 @@ function mergeTree(tree1, tree2) {
   return {conflicts: conflicts, tree: tree1};
 }
 
-function merge_one(tree, path) {
-
+function merge_one(tree, path, dontExpand) {
   var restree = [];
   var conflicts = false;
+  var merged = false;
 
   if (!tree.length) {
     return {tree: [path], conflicts: 'new_leaf'};
@@ -83,11 +83,12 @@ function merge_one(tree, path) {
   for (var i = 0; i < tree.length; i++) {
     var branch = tree[i];
     var res;
-    if (branch.pos === path.pos) {
+    if (branch.pos === path.pos && branch.ids[0] === path.ids[0]) {
       res = mergeTree(branch.ids, path.ids);
       restree.push({pos: branch.pos, ids: res.tree});
       conflicts = conflicts || res.conflicts;
-    } else {
+      merged = true;
+    } else if (dontExpand !== true) {
       // destructive assignment plz
       var t1 = branch.pos < path.pos ? branch : path;
       var t2 = branch.pos < path.pos ? path : branch;
@@ -99,12 +100,27 @@ function merge_one(tree, path) {
         tmp = tmp[1][0];
       }
 
-      res = mergeTree(tmp, t2.ids);
-      parent[0] = res.tree;
-      restree.push({pos: t1.pos, ids: t1.ids});
-      conflicts = conflicts || res.conflicts;
+      if (tmp[0] === t2.ids[0]) {
+        res = mergeTree(tmp, t2.ids);
+        parent[0] = res.tree;
+        restree.push({pos: t1.pos, ids: t1.ids});
+        conflicts = conflicts || res.conflicts;
+        merged = true;
+      } else {
+        restree.push(branch);
+      }
+    } else {
+      restree.push(branch);
     }
   }
+
+  if (!merged) {
+    restree.push(path);
+  }
+
+  restree.sort(function(a, b) {
+    return a.pos - b.pos;
+  });
 
   return {
     tree: restree,
@@ -136,15 +152,15 @@ var stemmedconflicts = [simple, stemmededit];
 var newbranchleaf = {pos: 1, ids: ['1', [['2_0', [['3', []]]], ['2_1', []]]]};
 var newbranchleafbranch = {pos: 1, ids: ['1', [['2_0', [['3', []], ['3_1', []]]], ['2_1', []]]]};
 
-var stemmed2 = [{pos: 1, ids: ['1', [['2_1']]]},
-                {pos: 2, ids: ['2_0', [['3', ['3_1', []]]]]}];
+var stemmed2 = [{pos: 1, ids: ['1', [['2_1', []]]]},
+                {pos: 2, ids: ['2_0', [['3', []], ['3_1', []]]]}];
 
-var stemmed3 = [{pos: 2, ids: ['2_1']},
-                {pos: 3, ids: ['3']},
-                {pos: 3, ids: ['3_1']}];
-var partialrecover = [{pos: 1, ids: ['1', [['2_0', [['3']]]]]},
-                      {pos: 2, ids: ['2_1']},
-                      {pos: 3, ids: ['3_1']}];
+var stemmed3 = [{pos: 2, ids: ['2_1', []]},
+                {pos: 3, ids: ['3', []]},
+                {pos: 3, ids: ['3_1', []]}];
+var partialrecover = [{pos: 1, ids: ['1', [['2_0', [['3', []]]]]]},
+                      {pos: 2, ids: ['2_1', []]},
+                      {pos: 3, ids: ['3_1', []]}];
 
 test('Merging a path into an empty tree is the path', function() {
   deepEqual(merge([], simple, 10), {
