@@ -17,6 +17,7 @@ function mergeTree(tree1, tree2) {
     if (tree1[1][0].indexOf(tree2[1][i][0]) === -1) {
       conflicts = 'new_branch';
       tree1[1].push(tree2[1][i]);
+      tree1[1].sort();
     } else {
       var result = mergeTree(tree1[1][0], tree2[1][i]);
       conflicts = result.conflicts || conflicts;
