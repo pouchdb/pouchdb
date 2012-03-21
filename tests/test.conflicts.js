@@ -59,6 +59,11 @@ asyncTest('Testing conflicts', function() {
       db.remove(doc, function() {
         delete doc._rev;
         db.put(doc, function(err, ndoc) {
+          if (err) {
+            ok(false);
+            start();
+            return;
+          }
           ok(ndoc.ok, 'written previously deleted doc without rev');
           start();
         });

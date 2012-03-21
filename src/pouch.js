@@ -96,24 +96,31 @@
         doc._id = Math.uuid();
       }
       var newRevId = Math.uuid(32, 16);
+      var nRevNum;
       if (doc._rev) {
         var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
         if (!revInfo) {
           throw "invalid value for property '_rev'";
         }
-        doc._revisions = {
-          start: parseInt(revInfo[1], 10) + 1,
-          ids: [newRevId, revInfo[2]]
-        };
+        doc._revisions = [{
+          pos: parseInt(revInfo[1], 10),
+          ids: [revInfo[2], [[newRevId, []]]]
+        }];
+        nRevNum = parseInt(revInfo[1], 10) + 1;
       } else {
-        doc._revisions = {
-          start : 1,
-          ids : [newRevId]
-      };
+        doc._revisions = [{
+          pos: 1,
+          ids : [newRevId, []]
+        }];
+        nRevNum = 1;
       }
     } else {
       if (!doc._revisions) {
-        doc._revisions = {start: 0, ids: []};
+        var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
+        doc._revisions = [{
+          pos: parseInt(revInfo[1], 10),
+          ids: [revInfo[2], []]
+        }];
         //throw "missing property '_revisions'";
       }
       if (!isFinite(doc._revisions.start)) {
@@ -124,7 +131,7 @@
       }
     }
     doc._id = decodeURIComponent(doc._id);
-    doc._rev = [doc._revisions.start, doc._revisions.ids[0]].join('-');
+    doc._rev = [nRevNum, newRevId].join('-');
     return Object.keys(doc).reduce(function(acc, key) {
       if (/^_/.test(key))
         acc.metadata[key.slice(1)] = doc[key];
@@ -145,11 +152,11 @@
       return (a.deleted ? -1 : 1);
     }
     // Then by rev id
-    if (a.revisions.start === b.revisions.start) {
-      return (a.revisions.ids < b.revisions.ids ? -1 : 1);
+    if (a.revisions[0].pos === b.revisions[0].pos) {
+      return (a.revisions[0].ids < b.revisions[0].ids ? -1 : 1);
     }
     // Then by depth of edits
-    return (a.revisions.start < b.revisions.start ? -1 : 1);
+    return (a.revisions[0].start < b.revisions[0].start ? -1 : 1);
   };
 
 
@@ -199,6 +206,19 @@
         };
     };
 
+    // Turn a tree into a list of rootToLeaf paths
+    function expandTree(all, i, tree) {
+      all.push({rev: i + '-' + tree[0], status: 'available'});
+      tree[1].forEach(function(child) {
+        expandTree(all, i + 1, child);
+      });
+    }
+
+    function collectRevs(path) {
+      var revs = [];
+      expandTree(revs, path.pos, path.ids);
+      return revs;
+    }
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
     db.get = function(id, opts, callback) {
@@ -224,11 +244,9 @@
           doc._id = metadata.id;
           doc._rev = metadata.rev;
           if (opts.revs_info) {
-            doc._revs_info = metadata.revisions.ids.map(function(rev, i) {
-              // we dont compact, so it kinda has to be, but need to properly
-              // check in future
-              return {rev: (i + 1) + '-' + rev, status: 'available'};
-            });
+            doc._revs_info = metadata.revisions.reduce(function(prev, current) {
+              return prev.concat(collectRevs(current));
+            }, []);
           }
           callback(null, doc);
         };
@@ -372,21 +390,18 @@
         .openCursor(keyRange, IDBCursor.NEXT);
 
       var update = function(cursor, oldDoc, docInfo, callback) {
-        var revs = oldDoc.revisions.ids;
-        // Currently ignoring the revision sequence number, we shouldnt do that
+        var mergedRevisions = pouch.merge(oldDoc.revisions,
+                                          docInfo.metadata.revisions[0], 1000);
         var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
-          (!oldDoc.deleted && revs[0] !== docInfo.metadata.revisions.ids[1]);
+          (!oldDoc.deleted && newEdits && mergedRevisions.conflicts !== 'new_leaf');
         if (inConflict) {
           results.push(makeErr(Errors.REV_CONFLICT, docInfo._bulk_seq));
           call(callback);
           return cursor['continue']();
         }
-        // Start of rev merging, for now we just keep a linear history
-        // of revisions
-        revs.shift();
-        revs.forEach(function(rev) {
-          docInfo.metadata.revisions.ids.push(rev);
-        });
+
+        docInfo.metadata.revisions = mergedRevisions.tree;
+
         writeDoc(docInfo, function() {
           cursor['continue']();
           call(callback);
@@ -505,7 +520,7 @@
           var c = {
             id: doc.id,
             seq: cursor.key,
-            changes: doc.revisions.ids
+            changes: doc.revisions[0].ids
           };
           if (doc.deleted) {
             c.deleted = true;

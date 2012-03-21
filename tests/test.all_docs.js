@@ -31,7 +31,7 @@ asyncTest('Testing all docs', function() {
       ok(doc.ok, 'docwrite returned ok');
       writeDocs(callback);
     });
-  };
+  }
 
   initTestDB(this.name, function(err, _db) {
     db = _db;
