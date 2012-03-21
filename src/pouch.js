@@ -117,10 +117,13 @@
     } else {
       if (!doc._revisions) {
         var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
+        nRevNum = parseInt(revInfo[1], 10);
+        newRevId = revInfo[2];
         doc._revisions = [{
           pos: parseInt(revInfo[1], 10),
           ids: [revInfo[2], []]
         }];
+
         //throw "missing property '_revisions'";
       }
       if (!isFinite(doc._revisions.start)) {
@@ -219,6 +222,7 @@
       expandTree(revs, path.pos, path.ids);
       return revs;
     }
+
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
     db.get = function(id, opts, callback) {
@@ -489,6 +493,21 @@
       };
     };
 
+    function expandChangesTree(all, tree) {
+      all.push(tree[0]);
+      tree[1].forEach(function(child) {
+        expandChangesTree(all, child);
+      });
+    }
+
+    function collectChanges(revs) {
+      var changes = [];
+      revs.forEach(function(tree) {
+        expandChangesTree(changes, tree.ids);
+      });
+      return changes;
+    }
+
     db.changes = function(opts, callback) {
       if (opts instanceof Function) {
         opts = {complete: opts};
@@ -520,7 +539,7 @@
           var c = {
             id: doc.id,
             seq: cursor.key,
-            changes: doc.revisions[0].ids
+            changes: collectChanges(doc.revisions)
           };
           if (doc.deleted) {
             c.deleted = true;
