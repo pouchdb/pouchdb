@@ -129,22 +129,25 @@ asyncTest('Testing conflicts', function() {
         db.get('3', function(err, winRev) {
           var opts = {include_docs: true, conflicts: true, style: 'all_docs'};
           db.changes(opts, function(err, changes) {
-            ok("3" === changes.results[3].id);
-            ok(3 === changes.results[3].changes.length);
-            ok(winRev._rev === changes.results[3].changes[0].rev);
-            ok("3" === changes.results[3].doc._id);
-            ok(winRev._rev === changes.results[3].doc._rev);
-            ok(true === changes.results[3].doc._conflicts instanceof Array);
+            ok("3" === changes.results[3].id, 'changes are ordered');
+            ok(3 === changes.results[3].changes.length, 'correct number of changes');
+            ok(winRev._rev === changes.results[3].changes[0].rev,
+               'correct winning revision');
+            ok("3" === changes.results[3].doc._id, 'correct doc id');
+            ok(winRev._rev === changes.results[3].doc._rev,
+               'include doc has correct rev');
+            ok(true === changes.results[3].doc._conflicts instanceof Array,
+               'include docs contains conflicts');
             ok(changes.results[3].doc._conflicts &&
-               2 === changes.results[3].doc._conflicts.length);
-
+               2 === changes.results[3].doc._conflicts.length,
+               'correct number of changes');
             db.allDocs({include_docs: true, conflicts: true}, function(err, res) {
-              ok(3 === res.rows.length);
-              ok("3" === res.rows[2].key);
-              ok("3" === res.rows[2].id);
-              ok(winRev._rev === res.rows[2].value.rev);
-              ok(winRev._rev === res.rows[2].doc._rev);
-              ok("3" === res.rows[2].doc._id);
+              ok(3 === res.rows.length, 'correct number of changes');
+              ok("3" === res.rows[2].key, 'correct key');
+              ok("3" === res.rows[2].id, 'correct id');
+              ok(winRev._rev === res.rows[2].value.rev, 'correct rev');
+              ok(winRev._rev === res.rows[2].doc._rev, 'correct rev');
+              ok("3" === res.rows[2].doc._id, 'correct order');
               ok(true === res.rows[2].doc._conflicts instanceof Array);
               ok(res.rows[2].doc._conflicts && 2 === res.rows[2].doc._conflicts.length);
               start();
