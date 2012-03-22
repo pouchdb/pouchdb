@@ -223,6 +223,30 @@
       return revs;
     }
 
+    function collectLeavesInner(all, pos, tree) {
+      if (!tree[1].length) {
+        all.push({rev: pos + '-' + tree[0]});
+      }
+      tree[1].forEach(function(child) {
+        collectLeavesInner(all, pos+1, child);
+      });
+    }
+
+    function collectLeaves(revs) {
+      var leaves = [];
+      revs.forEach(function(tree) {
+        collectLeavesInner(leaves, tree.pos, tree.ids);
+      });
+      return leaves;
+    }
+
+    function collectConflicts(revs) {
+      var leaves = collectLeaves(revs);
+      // First is current rev
+      leaves.shift();
+      return leaves.map(function(x) { return x.rev; });
+    }
+
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
     db.get = function(id, opts, callback) {
@@ -362,6 +386,13 @@
         }
       };
 
+      function winningRev(pos, tree) {
+        if (!tree[1].length) {
+          return pos + '-' + tree[0];
+        }
+        return winningRev(pos + 1, tree[1][0]);
+      }
+
       var writeDoc = function(docInfo, callback) {
         // The doc will need to refer back to its meta data document
         docInfo.data._id = docInfo.metadata.id;
@@ -372,6 +403,10 @@
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           docInfo.metadata.seq = e.target.result;
+          // We probably shouldnt even store the winning rev, just figure it
+          // out on read
+          docInfo.metadata.rev = winningRev(docInfo.metadata.revisions[0].pos,
+                                            docInfo.metadata.revisions[0].ids);
           var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
           metaDataReq.onsuccess = function() {
             results.push({
@@ -464,8 +499,8 @@
       var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
         : start ? IDBKeyRange.lowerBound(start, true)
         : end ? IDBKeyRange.upperBound(end) : false;
-      var oStore = idb.transaction([DOC_STORE], IDBTransaction.READ)
-        .objectStore(DOC_STORE);
+      var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+      var oStore = transaction.objectStore(DOC_STORE);
       var oCursor = keyRange ? oStore.openCursor(keyRange, descending)
         : oStore.openCursor(null, descending);
       var results = [];
@@ -476,37 +511,37 @@
             rows: results
           });
         }
-
         var cursor = e.target.result;
-        if (cursor.value.deleted !== true) {
-          var doc = {
-            id: cursor.value.id,
-            key: cursor.value.id,
-            value: cursor.value.rev
-          };
-          if (opts.include_docs) {
-            doc.doc = {};
+        function allDocsInner(metadata, data) {
+          if (metadata.deleted !== true) {
+            var doc = {
+              id: metadata.id,
+              key: metadata.id,
+              value: {rev: metadata.rev}
+            };
+            if (opts.include_docs) {
+              doc.doc = data;
+              doc.doc._rev = metadata.rev;
+              delete doc.doc._junk;
+              if (opts.conflicts) {
+                doc.doc._conflicts = collectConflicts(metadata.revisions);
+              }
+            }
+            results.push(doc);
           }
-          results.push(doc);
+          cursor['continue']();
         }
-        cursor['continue']();
-      };
+
+        if (!opts.include_docs) {
+          allDocsInner(cursor.value);
+        } else {
+          var index = transaction.objectStore(BY_SEQ_STORE);
+          index.get(cursor.value.seq).onsuccess = function(event) {
+            allDocsInner(cursor.value, event.target.result);
+          };
+        }
+      }
     };
-
-    function expandChangesTree(all, tree) {
-      all.push(tree[0]);
-      tree[1].forEach(function(child) {
-        expandChangesTree(all, child);
-      });
-    }
-
-    function collectChanges(revs) {
-      var changes = [];
-      revs.forEach(function(tree) {
-        expandChangesTree(changes, tree.ids);
-      });
-      return changes;
-    }
 
     db.changes = function(opts, callback) {
       if (opts instanceof Function) {
@@ -539,13 +574,17 @@
           var c = {
             id: doc.id,
             seq: cursor.key,
-            changes: collectChanges(doc.revisions)
+            changes: collectLeaves(doc.revisions)
           };
           if (doc.deleted) {
             c.deleted = true;
           }
           if (opts.include_docs) {
             c.doc = cursor.value;
+            c.doc._rev = c.changes[0].rev;
+            if (opts.conflicts) {
+              c.doc._conflicts = collectConflicts(doc.revisions);
+            }
           }
           // Dedupe the changes feed
           results = results.filter(function(doc) {
