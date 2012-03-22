@@ -42,16 +42,6 @@ asyncTest('Testing conflicts', function() {
 });
 
 asyncTest('Testing conflicts', function() {
-  pouch.open(this.name, function(err, db) {
-    var doc = {_id:"foo",a:1,b:1, _rev: '1-foobar'};
-    db.put(doc, function(err, res) {
-      ok(err.status === 400);
-      start();
-    });
-  });
-});
-
-asyncTest('Testing conflicts', function() {
   var doc = {_id: 'fubar', a:1, b: 1};
   pouch.open(this.name, function(err, db) {
     db.put(doc, function(err, ndoc) {
