@@ -171,7 +171,13 @@ function parseUrl(url) {
     return (a.revisions[0].start < b.revisions[0].start ? -1 : 1);
   };
 
-  function getHost(name) {
+  var parseUrl = function(url) {
+    var a = document.createElement('a');
+    a.href = url;
+    return a;
+  }
+
+  var getHost = function(name) {
     if (/http:/.test(name)) {
       var url = parseUrl(name);
       return {
@@ -183,12 +189,6 @@ function parseUrl(url) {
   }
 
   var makeCouch = function(name, opts, callback) {
-
-    function parseUrl(url) {
-      var a = document.createElement('a');
-      a.href = url;
-      return a;
-    }
 
     var host = getHost(name);
     var db = {};
@@ -225,6 +225,9 @@ function parseUrl(url) {
     // number
     var junkSeed = 0;
 
+    // Now we create the PouchDB interface
+    var db = {update_seq: 0};
+
     // Wrapper for functions that call the bulkdocs api with a single doc,
     // if the first result is an error, return an error
     var singularErr = function(callback) {
@@ -237,8 +240,45 @@ function parseUrl(url) {
       };
     };
 
-    // Now we create the PouchDB interface
-    var db = {update_seq: 0};
+    // Pretty much all below can be combined into a higher order function to
+    // traverse revisions
+    // Turn a tree into a list of rootToLeaf paths
+    var expandTree = function(all, i, tree) {
+      all.push({rev: i + '-' + tree[0], status: 'available'});
+      tree[1].forEach(function(child) {
+        expandTree(all, i + 1, child);
+      });
+    }
+
+    var collectRevs = function(path) {
+      var revs = [];
+      expandTree(revs, path.pos, path.ids);
+      return revs;
+    }
+
+    var collectLeavesInner = function(all, pos, tree) {
+      if (!tree[1].length) {
+        all.push({rev: pos + '-' + tree[0]});
+      }
+      tree[1].forEach(function(child) {
+        collectLeavesInner(all, pos+1, child);
+      });
+    }
+
+    var collectLeaves = function(revs) {
+      var leaves = [];
+      revs.forEach(function(tree) {
+        collectLeavesInner(leaves, tree.pos, tree.ids);
+      });
+      return leaves;
+    }
+
+    var collectConflicts = function(revs) {
+      var leaves = collectLeaves(revs);
+      // First is current rev
+      leaves.shift();
+      return leaves.map(function(x) { return x.rev; });
+    }
 
     // Looping through all the documents in the database is a terrible idea
     // easiest to implement though, should probably keep a counter
@@ -260,47 +300,6 @@ function parseUrl(url) {
           cursor['continue']();
         };
     };
-
-    // Pretty much all below can be combined into a higher order function to
-    // traverse revisions
-
-    // Turn a tree into a list of rootToLeaf paths
-    function expandTree(all, i, tree) {
-      all.push({rev: i + '-' + tree[0], status: 'available'});
-      tree[1].forEach(function(child) {
-        expandTree(all, i + 1, child);
-      });
-    }
-
-    function collectRevs(path) {
-      var revs = [];
-      expandTree(revs, path.pos, path.ids);
-      return revs;
-    }
-
-    function collectLeavesInner(all, pos, tree) {
-      if (!tree[1].length) {
-        all.push({rev: pos + '-' + tree[0]});
-      }
-      tree[1].forEach(function(child) {
-        collectLeavesInner(all, pos+1, child);
-      });
-    }
-
-    function collectLeaves(revs) {
-      var leaves = [];
-      revs.forEach(function(tree) {
-        collectLeavesInner(leaves, tree.pos, tree.ids);
-      });
-      return leaves;
-    }
-
-    function collectConflicts(revs) {
-      var leaves = collectLeaves(revs);
-      // First is current rev
-      leaves.shift();
-      return leaves.map(function(x) { return x.rev; });
-    }
 
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
