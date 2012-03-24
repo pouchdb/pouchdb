@@ -171,12 +171,12 @@ function parseUrl(url) {
     return (a.revisions[0].start < b.revisions[0].start ? -1 : 1);
   };
 
-  function getHost(url) {
-    if (/http:/.test(url)) {
+  function getHost(name) {
+    if (/http:/.test(name)) {
       var url = parseUrl(name);
       return {
-        host: url.protocol + '//' + url.hostname + ':' + 1234 + '/',
-        db: 'test_suite_db'//url.pathname.replace('/', '')
+        host: url.protocol + '//' + url.hostname + ':' + url.port + '/',
+        db: url.pathname.replace('/', '')
       };
     }
     return {host: '/', db: url};
