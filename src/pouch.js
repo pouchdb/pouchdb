@@ -1,3 +1,9 @@
+function parseUrl(url) {
+  var a = document.createElement('a');
+  a.href = url;
+  return a;
+}
+
 (function() {
 
   // While most of the IDB behaviors match between implementations a
@@ -71,6 +77,9 @@
       if (err) callback(err);
       else callback(true);
     };
+    if (options.data && typeof options.data !== 'string') {
+      options.data = JSON.stringify(options.data);
+    }
     options.dataType = 'json';
     options.contentType = 'application/json';
     $.ajax(options);
@@ -162,6 +171,49 @@
     return (a.revisions[0].start < b.revisions[0].start ? -1 : 1);
   };
 
+  function getHost(url) {
+    if (/http:/.test(url)) {
+      var url = parseUrl(name);
+      return {
+        host: url.protocol + '//' + url.hostname + ':' + 1234 + '/',
+        db: 'test_suite_db'//url.pathname.replace('/', '')
+      };
+    }
+    return {host: '/', db: url};
+  }
+
+  var makeCouch = function(name, opts, callback) {
+
+    function parseUrl(url) {
+      var a = document.createElement('a');
+      a.href = url;
+      return a;
+    }
+
+    var host = getHost(name);
+    var db = {};
+    var dbUrl = host.host + host.db;
+
+    db.info = function(callback) {
+    };
+    db.get = function(id, opts, callback) {
+    };
+    db.remove = function(doc, opts, callback) {
+    };
+    db.put = db.post = function(doc, opts, callback) {
+    };
+    db.bulkDocs = function(req, opts, callback) {
+      ajax({type:'POST', url: dbUrl + '/_bulk_docs', data: req}, callback);
+    };
+    db.allDocs = function() {
+    };
+
+    ajax({type: 'PUT', url: dbUrl}, function(err, ret) {
+      if (!err || err.status === 412) {
+        call(callback, null, db);
+      }
+    });
+  }
 
   // This opens a database, creating it if needed and returns the api
   // used to access the database
@@ -678,6 +730,11 @@
       callback = opts;
       opts = {};
     }
+
+    if (opts.http || /^http:/.test(name)) {
+      return makeCouch(name, opts, callback);
+    }
+
     name = 'pouch:' + name;
 
     if (name in pouchCache) {
@@ -724,17 +781,27 @@
   };
 
 
-  pouch.deleteDatabase = function(name, callback) {
+  pouch.deleteDatabase = function(name, opts, callback) {
 
-    var req = indexedDB.deleteDatabase('pouch:' + name);
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
 
-    req.onsuccess = function() {
-      call(callback, null);
-    };
+    if (opts.http || /^http:/.test(name)) {
+      var host = getHost(name);
+      ajax({type: 'DELETE', url: host.host + host.db}, callback);
+    } else {
+      var req = indexedDB.deleteDatabase('pouch:' + name);
 
-    req.onerror = function(e) {
-      call(callback, {error: 'delete', reason: e.toString()});
-    };
+      req.onsuccess = function() {
+        call(callback, null);
+      };
+
+      req.onerror = function(e) {
+        call(callback, {error: 'delete', reason: e.toString()});
+      };
+    }
   };
 
 }).call(this);
