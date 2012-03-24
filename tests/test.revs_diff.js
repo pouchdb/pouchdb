@@ -7,7 +7,7 @@ module("revs diff", {
 asyncTest("Test revs diff", function() {
   var revs = [];
   initTestDB(this.name, function(err, db) {
-    db.post({test: "somestuff"}, function (err, info) {
+    db.post({test: "somestuff", _id: 'somestuff'}, function (err, info) {
       revs.push(info.rev);
       db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info2) {
         revs.push(info2.rev);
@@ -16,6 +16,7 @@ asyncTest("Test revs diff", function() {
           revs.push('2-randomid');
           db.revsDiff({'somestuff': revs}, function(err, results) {
             ok('somestuff' in results, 'listed missing revs');
+            ok(results.somestuff.length === 1, 'listed currect number of');
             start();
           });
         });

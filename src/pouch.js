@@ -261,6 +261,9 @@ function parseUrl(url) {
         };
     };
 
+    // Pretty much all below can be combined into a higher order function to
+    // traverse revisions
+
     // Turn a tree into a list of rootToLeaf paths
     function expandTree(all, i, tree) {
       all.push({rev: i + '-' + tree[0], status: 'available'});
@@ -349,6 +352,36 @@ function parseUrl(url) {
         opts = {};
       }
       return db.bulkDocs({docs: [doc]}, opts, singularErr(callback));
+    };
+
+    db.revsDiff = function(req, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+
+      var ids = Object.keys(req);
+      var count = 0;
+      var missing = {};
+
+      function readDoc(err, doc) {
+        req[doc._id].map(function(revId) {
+          if (doc._revs_info.every(function(x) { return x.rev !== revId; })) {
+            if (!missing[doc._id]) {
+              missing[doc._id] = [];
+            }
+            missing[doc._id].push(revId);
+          }
+        });
+
+        if (++count === ids.length) {
+          return call(callback, null, missing);
+        }
+      }
+
+      ids.map(function(id) {
+        db.get(id, {revs_info: true}, readDoc);
+      });
     };
 
     db.bulkDocs = function(req, opts, callback) {
