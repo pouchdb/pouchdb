@@ -1,9 +1,3 @@
-function parseUrl(url) {
-  var a = document.createElement('a');
-  a.href = url;
-  return a;
-}
-
 (function() {
 
   // While most of the IDB behaviors match between implementations a
