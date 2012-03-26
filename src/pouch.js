@@ -182,6 +182,8 @@
     return {host: '/', db: url};
   }
 
+  // This code is all ugly as hell, just making it work for what we need it
+  // for right now then will fix it up
   var makeCouch = function(name, opts, callback) {
 
     var host = getHost(name);
@@ -191,6 +193,23 @@
     db.info = function(callback) {
     };
     db.get = function(id, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+      var params = [];
+      if (opts.revs) {
+        params.push('revs=true');
+      }
+      if (opts.rev) {
+        params.push('rev=' + opts.rev);
+      }
+      params = params.join('&');
+      params = params === '' ? '' : '?' + params;
+
+      ajax({type: 'GET', url: dbUrl + id + params}, function(err, doc) {
+        call(callback, null, doc);
+      });
     };
     db.remove = function(doc, opts, callback) {
     };
@@ -749,12 +768,22 @@
             results.push(change);
             result.docs_read++;
             pending++;
-            db.post(change.doc, {newEdits: false}, function() {
-              result.docs_written++;
-              pending--;
-              if (completed && pending === 0) {
-                result.end_time = new Date();
-                call(callback, null, result);
+            var diff = {};
+            diff[change.id] = change.changes.map(function(x) { return x.rev; });
+            db.revsDiff(diff, function(err, diffs) {
+              for (var id in diffs) {
+                diffs[id].map(function(rev) {
+                  remote.get(id, {revs: true, rev: rev}, function(err, doc) {
+                    db.post(doc, {newEdits: false}, function() {
+                      result.docs_written++;
+                      pending--;
+                      if (completed && pending === 0) {
+                        result.end_time = new Date();
+                        call(callback, null, result);
+                      }
+                    });
+                  });
+                });
               }
             });
           },
