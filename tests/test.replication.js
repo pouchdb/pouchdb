@@ -34,3 +34,28 @@ asyncTest("Test basic pull replication", function() {
     });
   });
 });
+
+asyncTest("Local DB contains documents", function() {
+  var docs = [
+    {_id: "0", integer: 0, string: '0'},
+    {_id: "1", integer: 1, string: '1'},
+    {_id: "2", integer: 2, string: '2'}
+  ];
+
+  var remoteUrl = 'http://' + remote.host + '/test_suite_db/';
+
+  initTestDB(this.name, function(err, db) {
+    initTestDB(remoteUrl, function(err, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, _) {
+        db.bulkDocs({docs: docs}, {}, function(err, _) {
+          db.replicate.from(remoteUrl, function(err, _) {
+            db.allDocs(function(err, result) {
+              ok(result.rows.length === docs.length);
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+});
