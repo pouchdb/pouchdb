@@ -763,7 +763,6 @@
         };
 
         remote.changes({
-          include_docs: true,
           onChange: function(change) {
             results.push(change);
             result.docs_read++;
