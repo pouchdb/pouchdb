@@ -92,7 +92,6 @@
 
   // Preprocess documents, parse their revisions, assign an id and a
   // revision for new writes that are missing them, etc
-  // I am fairly certain we shouldnt be throwing errors here
   var parseDoc = function(doc, newEdits) {
     if (newEdits) {
       if (!doc._id) {
@@ -126,14 +125,6 @@
           pos: parseInt(revInfo[1], 10),
           ids: [revInfo[2], []]
         }];
-
-        //throw "missing property '_revisions'";
-      }
-      if (!isFinite(doc._revisions.start)) {
-        //throw "property '_revisions.start' must be a number";
-      }
-      if (Array.isArray(doc._revisions) && doc._revisions.length > 0) {
-        //throw "property '_revisions.id' must be a non-empty array";
       }
     }
     doc._id = decodeURIComponent(doc._id);
