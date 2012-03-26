@@ -377,13 +377,13 @@
       var count = 0;
       var missing = {};
 
-      function readDoc(err, doc) {
-        req[doc._id].map(function(revId) {
-          if (doc._revs_info.every(function(x) { return x.rev !== revId; })) {
-            if (!missing[doc._id]) {
-              missing[doc._id] = [];
+      function readDoc(err, doc, id) {
+        req[id].map(function(revId) {
+          if (!doc || doc._revs_info.every(function(x) { return x.rev !== revId; })) {
+            if (!missing[id]) {
+              missing[id] = [];
             }
-            missing[doc._id].push(revId);
+            missing[id].push(revId);
           }
         });
 
@@ -393,7 +393,9 @@
       }
 
       ids.map(function(id) {
-        db.get(id, {revs_info: true}, readDoc);
+        db.get(id, {revs_info: true}, function(err, doc) {
+          readDoc(err, doc, id);
+        });
       });
     };
 
