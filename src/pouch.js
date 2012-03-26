@@ -710,38 +710,23 @@
           return call(callback, {error: 'borked'});
         }
         var pending = resp.results.length;
-
         resp.results.forEach(function(r) {
 
-          var writeDoc = function(r) {
-            db.post(r.doc, {newEdits: false}, function(err, changeset) {
-              pending--;
-              if (err) {
-                pending--;
-                r.error = e;
-                c.push(r);
-              } else {
-                c.changeset = changeset;
-                c.push(r);
-              }
-              if (pending === 0) {
-                call(callback, null, c);
-              }
-            });
-          };
-          db.get(r.id, function(err, doc) {
+          var isComplete = function() {
+            if (pending === 0) {
+              call(callback, null, c);
+            }
+          }
+          db.post(r.doc, {newEdits: false}, function(err, changeset) {
+            pending--;
             if (err) {
-              return writeDoc(r);
-            }
-            if (doc._rev === r.changes[0].rev) {
-              return;
+              r.error = e;
+              c.push(r);
             } else {
-              var oldseq = parseInt(doc._rev.split('-')[0], 10);
-              var newseq = parseInt(r.changes[0].rev.split('-')[0], 10);
-              if (oldseq <= newseq) {
-                writeDoc(r);
-              }
+              c.changeset = changeset;
+              c.push(r);
             }
+            isComplete();
           });
         });
       });
