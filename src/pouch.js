@@ -202,6 +202,25 @@
     db.allDocs = function() {
     };
 
+    db.changes = function(opts, callback) {
+      if (opts instanceof Function) {
+        opts = {complete: opts};
+      }
+      if (callback) {
+        opts.complete = callback;
+      }
+      var params = '?style=all_docs'
+      if (opts.include_docs) {
+        params += '&include_docs=true'
+      }
+      ajax({type:'GET', url: dbUrl + '/_changes' + params}, function(err, res) {
+        res.results.forEach(function(c) {
+          call(opts.onChange, c);
+        });
+        call(opts.complete, res);
+      });
+    };
+
     ajax({type: 'PUT', url: dbUrl}, function(err, ret) {
       if (!err || err.status === 412) {
         call(callback, null, db);
@@ -684,6 +703,7 @@
     };
 
     db.changes.listeners = [];
+
     db.changes.emit = function() {
       var a = arguments;
       db.changes.listeners.forEach(function(l) {
@@ -694,41 +714,43 @@
       db.changes.listeners.push(l);
     };
 
+
+
     db.replicate = {};
 
     db.replicate.from = function (url, opts, callback) {
+
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
       }
 
-      var c = [];
-      var ajaxOpts = {url: url+'_changes?style=all_docs&include_docs=true'};
-
-      ajax(ajaxOpts, function(e, resp) {
-        if (e) {
+      pouch.open(url, function(err, remote) {
+        if (err) {
           return call(callback, {error: 'borked'});
         }
-        var pending = resp.results.length;
-        resp.results.forEach(function(r) {
 
-          var isComplete = function() {
-            if (pending === 0) {
-              call(callback, null, c);
-            }
+        var results = [];
+        var completed = false;
+        var pending = 0;
+
+        remote.changes({
+          include_docs: true,
+          onChange: function(change) {
+            db.post(change.doc, {newEdits: false}, function(err, changeset) {
+              results.push(change);
+              pending--;
+              if (completed && pending === 0) {
+                call(callback, null, results);
+              }
+            });
+          },
+          complete: function(res) {
+            completed = true;
+            pending += res.results.length;
           }
-          db.post(r.doc, {newEdits: false}, function(err, changeset) {
-            pending--;
-            if (err) {
-              r.error = e;
-              c.push(r);
-            } else {
-              c.changeset = changeset;
-              c.push(r);
-            }
-            isComplete();
-          });
         });
+
       });
     };
 
