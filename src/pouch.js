@@ -209,6 +209,7 @@
       if (callback) {
         opts.complete = callback;
       }
+
       var params = '?style=all_docs'
       if (opts.include_docs) {
         params += '&include_docs=true'
@@ -733,16 +734,25 @@
         var results = [];
         var completed = false;
         var pending = 0;
+        var result = {
+          ok: true,
+          start_time: new Date(),
+          docs_read: 0,
+          docs_written: 0
+        };
 
         remote.changes({
           include_docs: true,
           onChange: function(change) {
             results.push(change);
+            result.docs_read++;
             pending++;
             db.post(change.doc, {newEdits: false}, function() {
+              result.docs_written++;
               pending--;
               if (completed && pending === 0) {
-                call(callback, null, results);
+                result.end_time = new Date();
+                call(callback, null, result);
               }
             });
           },
