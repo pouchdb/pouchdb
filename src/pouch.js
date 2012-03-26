@@ -737,8 +737,9 @@
         remote.changes({
           include_docs: true,
           onChange: function(change) {
-            db.post(change.doc, {newEdits: false}, function(err, changeset) {
-              results.push(change);
+            results.push(change);
+            pending++;
+            db.post(change.doc, {newEdits: false}, function() {
               pending--;
               if (completed && pending === 0) {
                 call(callback, null, results);
@@ -747,7 +748,6 @@
           },
           complete: function(res) {
             completed = true;
-            pending += res.results.length;
           }
         });
 
