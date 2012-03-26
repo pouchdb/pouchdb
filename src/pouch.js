@@ -216,7 +216,7 @@
     db.put = db.post = function(doc, opts, callback) {
     };
     db.bulkDocs = function(req, opts, callback) {
-      ajax({type:'POST', url: dbUrl + '/_bulk_docs', data: req}, callback);
+      ajax({type:'POST', url: dbUrl + '_bulk_docs', data: req}, callback);
     };
     db.allDocs = function() {
     };
@@ -233,7 +233,7 @@
       if (opts.include_docs) {
         params += '&include_docs=true'
       }
-      ajax({type:'GET', url: dbUrl + '/_changes' + params}, function(err, res) {
+      ajax({type:'GET', url: dbUrl + '_changes' + params}, function(err, res) {
         res.results.forEach(function(c) {
           call(opts.onChange, c);
         });
