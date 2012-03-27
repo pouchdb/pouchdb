@@ -16,18 +16,24 @@ At this time PouchDB is completely independent from BrowserCouch. The main reaso
 
 After IndexedDatabase is more solidified it's possible that BrowserCouch and PouchDB might merge to provide a simple fallback option for browsers the do not yet support IndexedDatabase.
 
+# Getting started
+
+Simply download the minified pouch.js script from "https://github.com/mikeal/pouchdb/blob/master/pouch.alpha.min.js":https://github.com/mikeal/pouchdb/blob/master/pouch.alpha.min.js and include in your page with
+
+    <script type="text/javascript" src="../pouch.alpha.min.js"></script>
+
 # API
 
 Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined unless there is an error, further arguments specify the result.
 
 ## pouch.open(name, [options], [callback])
 
-This method gets an existing database if one exists or creates a new one if one does not exist.
+This method gets an existing database if one exists or creates a new one if one does not exist. if you specify `{http:true}` in the options then PouchDB will act as a client to a CouchDB server with a matching API (if your database name is a url then it behaves as a client by default)
 
 <pre>
-  pouch.open('test', function(err, db) {
-    // Use db to call further functions
-  })
+pouch.open('test', function(err, db) {
+  // Use db to call further functions
+})
 </pre>
 
 ## pouch.deleteDatabase(name, [callback])
@@ -56,5 +62,9 @@ The subject of the of pouch.open. This is primary PouchDB API.
 
 ### db.changes.removeListener(listener)
 
+## db.replicate
 
+### db.replicate.to(dbName, options)
+
+### db.replicate.from(dbName, options)
 
