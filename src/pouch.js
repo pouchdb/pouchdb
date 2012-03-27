@@ -173,6 +173,48 @@
     return {host: '/', db: url};
   }
 
+  var replicate = function(src, target, callback) {
+
+    var results = [];
+    var completed = false;
+    var pending = 0;
+    var result = {
+      ok: true,
+      start_time: new Date(),
+      docs_read: 0,
+      docs_written: 0
+    };
+
+    src.changes({
+      onChange: function(change) {
+        results.push(change);
+        result.docs_read++;
+        pending++;
+        var diff = {};
+        diff[change.id] = change.changes.map(function(x) { return x.rev; });
+        target.revsDiff(diff, function(err, diffs) {
+          for (var id in diffs) {
+            diffs[id].missing.map(function(rev) {
+              src.get(id, {revs: true, rev: rev}, function(err, doc) {
+                target.post(doc, {newEdits: false}, function() {
+                  result.docs_written++;
+                  pending--;
+                  if (completed && pending === 0) {
+                    result.end_time = new Date();
+                    call(callback, null, result);
+                  }
+                });
+              });
+            });
+          }
+        });
+      },
+      complete: function(res) {
+        completed = true;
+      }
+    });
+  };
+
   // This code is all ugly as hell, just making it work for what we need it
   // for right now then will fix it up
   var makeCouch = function(name, opts, callback) {
@@ -205,11 +247,25 @@
     db.remove = function(doc, opts, callback) {
     };
     db.put = db.post = function(doc, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+      var params = '';
+      if (opts.newEdits) {
+        params = '?newEdits=' + opts.newEdits;
+      }
+      ajax({type:'PUT', url: dbUrl + doc._id + params, data: doc}, callback);
     };
     db.bulkDocs = function(req, opts, callback) {
       ajax({type:'POST', url: dbUrl + '_bulk_docs', data: req}, callback);
     };
-    db.allDocs = function() {
+    db.allDocs = function(opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+      ajax({type:'GET', url: dbUrl + '_all_docs'}, callback);
     };
 
     db.changes = function(opts, callback) {
@@ -231,6 +287,17 @@
         call(opts.complete, res);
       });
     };
+
+    db.revsDiff = function(req, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+      ajax({type:'POST', url: dbUrl + '_revs_diff', data: req}, function(err, res) {
+        call(callback, null, res);
+      });
+    };
+
 
     ajax({type: 'PUT', url: dbUrl}, function(err, ret) {
       if (!err || err.status === 412) {
@@ -391,9 +458,9 @@
         req[id].map(function(revId) {
           if (!doc || doc._revs_info.every(function(x) { return x.rev !== revId; })) {
             if (!missing[id]) {
-              missing[id] = [];
+              missing[id] = {missing: []};
             }
-            missing[id].push(revId);
+            missing[id].missing.push(revId);
           }
         });
 
@@ -727,12 +794,9 @@
       db.changes.listeners.push(l);
     };
 
-
-
     db.replicate = {};
 
     db.replicate.from = function (url, opts, callback) {
-
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
@@ -742,52 +806,26 @@
         if (err) {
           return call(callback, {error: 'borked'});
         }
+        replicate(remote, db, callback);
+      });
+    };
 
-        var results = [];
-        var completed = false;
-        var pending = 0;
-        var result = {
-          ok: true,
-          start_time: new Date(),
-          docs_read: 0,
-          docs_written: 0
-        };
+    db.replicate.to = function(dbName, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
 
-        remote.changes({
-          onChange: function(change) {
-            results.push(change);
-            result.docs_read++;
-            pending++;
-            var diff = {};
-            diff[change.id] = change.changes.map(function(x) { return x.rev; });
-            db.revsDiff(diff, function(err, diffs) {
-              for (var id in diffs) {
-                diffs[id].map(function(rev) {
-                  remote.get(id, {revs: true, rev: rev}, function(err, doc) {
-                    db.post(doc, {newEdits: false}, function() {
-                      result.docs_written++;
-                      pending--;
-                      if (completed && pending === 0) {
-                        result.end_time = new Date();
-                        call(callback, null, result);
-                      }
-                    });
-                  });
-                });
-              }
-            });
-          },
-          complete: function(res) {
-            completed = true;
-          }
-        });
-
+      pouch.open(dbName, function(err, remote) {
+        if (err) {
+          return call(callback, {error: 'borked'});
+        }
+        replicate(db, remote, callback);
       });
     };
 
     return db;
   };
-
 
   pouch.open = function(name, opts, callback) {
     if (opts instanceof Function) {

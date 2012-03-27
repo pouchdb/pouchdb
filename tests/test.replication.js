@@ -46,3 +46,34 @@ asyncTest("Local DB contains documents", function() {
     });
   });
 });
+
+asyncTest("Test basic push replication", function() {
+  var remoteUrl = 'http://' + remote.host + '/test_suite_db/';
+  initTestDB(this.name, function(err, db) {
+    initTestDB(remoteUrl, function(err, remote) {
+      db.bulkDocs({docs: docs}, {}, function(err, results) {
+        db.replicate.to(remoteUrl, function(err, result) {
+          ok(result.ok, 'replication was ok');
+          ok(result.docs_written = docs.length, 'correct # docs written');
+          start();
+        });
+      });
+    });
+  });
+});
+
+asyncTest("Test basic push replication take 2", function() {
+  var remoteUrl = 'http://' + remote.host + '/test_suite_db/';
+  initTestDB(this.name, function(err, db) {
+    initTestDB(remoteUrl, function(err, remote) {
+      db.bulkDocs({docs: docs}, {}, function(err, _) {
+        db.replicate.to(remoteUrl, function(err, _) {
+          remote.allDocs(function(err, result) {
+            ok(result.rows.length = docs.length, 'correct # docs written');
+            start();
+          });
+        });
+      });
+    });
+  });
+});

@@ -16,7 +16,7 @@ asyncTest("Test revs diff", function() {
           revs.push('2-randomid');
           db.revsDiff({'somestuff': revs}, function(err, results) {
             ok('somestuff' in results, 'listed missing revs');
-            ok(results.somestuff.length === 1, 'listed currect number of');
+            ok(results.somestuff.missing.length === 1, 'listed currect number of');
             start();
           });
         });
