@@ -1,3 +1,28 @@
+// Basic wrapper for localStorage
+var localJSON = (function(){
+  if (!localStorage) {
+    return false;
+  }
+  return {
+    set: function(prop, val) {
+      localStorage.setItem(prop, JSON.stringify(val));
+    },
+    get: function(prop, def) {
+      try {
+        if (localStorage.getItem(prop) === null) {
+          return def;
+        }
+        return JSON.parse((localStorage.getItem(prop) || 'false'));
+      } catch(err) {
+        return def;
+      }
+    },
+    remove: function(prop) {
+      localStorage.removeItem(prop);
+    }
+  };
+})();
+
 (function() {
 
   // While most of the IDB behaviors match between implementations a
@@ -173,45 +198,82 @@
     return {host: '/', db: url};
   }
 
-  var replicate = function(src, target, callback) {
+  var fetchCheckpoint = function(src, target, callback) {
+    var id = Crypto.MD5(src.id() + target.id());
+    src.get('_local/' + id, function(err, doc) {
+      if (err && err.status === 404) {
+        callback(0);
+      } else {
+        callback(doc.last_seq);
+      }
+    });
+  };
 
-    var results = [];
-    var completed = false;
-    var pending = 0;
-    var result = {
-      ok: true,
-      start_time: new Date(),
-      docs_read: 0,
-      docs_written: 0
+  var writeCheckpoint = function(src, target, checkpoint, callback) {
+    var check = {
+      _id: '_local/' + Crypto.MD5(src.id() + target.id()),
+      last_seq: checkpoint
     };
+    src.get(check._id, function(err, doc) {
+      if (doc && doc._rev) {
+        check._rev = doc._rev;
+      }
+      src.put(check, function(err, doc) {
+        callback();
+      });
+    });
+  };
 
-    src.changes({
-      onChange: function(change) {
-        results.push(change);
-        result.docs_read++;
-        pending++;
-        var diff = {};
-        diff[change.id] = change.changes.map(function(x) { return x.rev; });
-        target.revsDiff(diff, function(err, diffs) {
-          for (var id in diffs) {
-            diffs[id].missing.map(function(rev) {
-              src.get(id, {revs: true, rev: rev}, function(err, doc) {
-                target.post(doc, {newEdits: false}, function() {
-                  result.docs_written++;
-                  pending--;
-                  if (completed && pending === 0) {
-                    result.end_time = new Date();
-                    call(callback, null, result);
-                  }
+  var replicate = function(src, target, callback) {
+    fetchCheckpoint(src, target, function(checkpoint) {
+      var results = [];
+      var completed = false;
+      var pending = 0;
+      var last_seq = 0;
+      var result = {
+        ok: true,
+        start_time: new Date(),
+        docs_read: 0,
+        docs_written: 0
+      };
+
+      function isCompleted() {
+        if (completed && pending === 0) {
+          result.end_time = new Date();
+          writeCheckpoint(src, target, last_seq, function() {
+            call(callback, null, result);
+          });
+        }
+      }
+
+      src.changes({
+        since: checkpoint,
+        onChange: function(change) {
+          results.push(change);
+          result.docs_read++;
+          pending++;
+          var diff = {};
+          diff[change.id] = change.changes.map(function(x) { return x.rev; });
+          target.revsDiff(diff, function(err, diffs) {
+            for (var id in diffs) {
+              diffs[id].missing.map(function(rev) {
+                src.get(id, {revs: true, rev: rev}, function(err, doc) {
+                  target.post(doc, {newEdits: false}, function() {
+                    result.docs_written++;
+                    pending--;
+                    isCompleted();
+                  });
                 });
               });
-            });
-          }
-        });
-      },
-      complete: function(res) {
-        completed = true;
-      }
+            }
+          });
+        },
+        complete: function(err, res) {
+          last_seq = res.last_seq;
+          completed = true;
+          isCompleted();
+        }
+      });
     });
   };
 
@@ -222,6 +284,10 @@
     var host = getHost(name);
     var db = {};
     var dbUrl = host.host + host.db;
+
+    db.id = function() {
+      return dbUrl;
+    };
 
     db.info = function(callback) {
     };
@@ -241,6 +307,9 @@
       params = params === '' ? '' : '?' + params;
 
       ajax({type: 'GET', url: dbUrl + id + params}, function(err, doc) {
+        if (err) {
+          return call(callback, Errors.MISSING_DOC);
+        }
         call(callback, null, doc);
       });
     };
@@ -280,11 +349,14 @@
       if (opts.include_docs) {
         params += '&include_docs=true'
       }
+      if (opts.since) {
+        params += '&since=' + opts.since;
+      }
       ajax({type:'GET', url: dbUrl + '_changes' + params}, function(err, res) {
         res.results.forEach(function(c) {
           call(opts.onChange, c);
         });
-        call(opts.complete, res);
+        call(opts.complete, null, res);
       });
     };
 
@@ -370,6 +442,19 @@
       leaves.shift();
       return leaves.map(function(x) { return x.rev; });
     }
+
+    // Each database needs a unique id so that we can store the sequence
+    // checkpoint without having other databases confuse itself, since
+    // localstorage is per host this shouldnt conflict, if localstorage
+    // gets wiped it isnt fatal, replications will just start from scratch
+    db.id = function() {
+      var id = localJSON.get(name + '_id', null);
+      if (id === null) {
+        id = Math.uuid();
+        localJSON.set(name + '_id', id);
+      }
+      return id;
+    };
 
     // Looping through all the documents in the database is a terrible idea
     // easiest to implement though, should probably keep a counter
