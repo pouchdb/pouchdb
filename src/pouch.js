@@ -23,6 +23,38 @@ var localJSON = (function(){
   };
 })();
 
+// parseUri 1.2.2
+// (c) Steven Levithan <stevenlevithan.com>
+// MIT License
+function parseUri (str) {
+  var o = parseUri.options;
+  var m = o.parser[o.strictMode ? "strict" : "loose"].exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) uri[o.key[i]] = m[i] || "";
+
+  uri[o.q.name] = {};
+  uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+    if ($1) uri[o.q.name][$1] = $2;
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q:   {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
+
 (function() {
 
   // While most of the IDB behaviors match between implementations a
@@ -100,6 +132,12 @@ var localJSON = (function(){
       options.data = JSON.stringify(options.data);
     }
     options.dataType = 'json';
+    if (options.auth) {
+      options.beforeSend = function(xhr) {
+        var token = btoa(options.auth.username + ":" + options.auth.password);
+        xhr.setRequestHeader("Authorization", "Basic " + token);
+      }
+    }
     options.contentType = 'application/json';
     $.ajax(options);
   };
@@ -189,13 +227,13 @@ var localJSON = (function(){
 
   var getHost = function(name) {
     if (/http:/.test(name)) {
-      var url = parseUrl(name);
-      return {
-        host: url.protocol + '//' + url.hostname + ':' + url.port + '/',
-        db: url.pathname.replace('/', '')
-      };
+      var uri = parseUri(name);
+      uri.remote = true;
+      uri.auth = {username: uri.user, password: uri.password};
+      uri.db = uri.path.replace(/\//g, '');
+      return uri;
     }
-    return {host: '/', db: url};
+    return {host: '/', db: url, auth: false};
   }
 
   var fetchCheckpoint = function(src, target, callback) {
@@ -277,20 +315,28 @@ var localJSON = (function(){
     });
   };
 
+  function genUrl(opts, path) {
+    if (opts.remote) {
+      return opts.protocol + '://' + opts.host + ':' + opts.port + '/'
+        + opts.db + '/' + path;
+    }
+    return '/' + opts.db + '/' + path;
+  };
+
   // This code is all ugly as hell, just making it work for what we need it
   // for right now then will fix it up
   var makeCouch = function(name, opts, callback) {
 
     var host = getHost(name);
     var db = {};
-    var dbUrl = host.host + host.db;
 
     db.id = function() {
-      return dbUrl;
+      return genUrl(host, '');
     };
 
     db.info = function(callback) {
     };
+
     db.get = function(id, opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
@@ -306,7 +352,10 @@ var localJSON = (function(){
       params = params.join('&');
       params = params === '' ? '' : '?' + params;
 
-      ajax({type: 'GET', url: dbUrl + id + params}, function(err, doc) {
+      ajax({
+        auth: host.auth,
+        type: 'GET',
+        url: genUrl(host, id + params)}, function(err, doc) {
         if (err) {
           return call(callback, Errors.MISSING_DOC);
         }
@@ -324,17 +373,17 @@ var localJSON = (function(){
       if (opts.newEdits) {
         params = '?newEdits=' + opts.newEdits;
       }
-      ajax({type:'PUT', url: dbUrl + doc._id + params, data: doc}, callback);
+      ajax({auth: host.auth, type:'PUT', url: genUrl(host, doc._id + params), data: doc}, callback);
     };
     db.bulkDocs = function(req, opts, callback) {
-      ajax({type:'POST', url: dbUrl + '_bulk_docs', data: req}, callback);
+      ajax({auth: host.auth, type:'POST', url: genUrl(host, '_bulk_docs'), data: req}, callback);
     };
     db.allDocs = function(opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
       }
-      ajax({type:'GET', url: dbUrl + '_all_docs'}, callback);
+      ajax({auth: host.auth, type:'GET', url: genUrl(host, '_all_docs')}, callback);
     };
 
     db.changes = function(opts, callback) {
@@ -352,7 +401,7 @@ var localJSON = (function(){
       if (opts.since) {
         params += '&since=' + opts.since;
       }
-      ajax({type:'GET', url: dbUrl + '_changes' + params}, function(err, res) {
+      ajax({auth: host.auth, type:'GET', url: genUrl(host, '_changes' + params)}, function(err, res) {
         res.results.forEach(function(c) {
           call(opts.onChange, c);
         });
@@ -365,13 +414,13 @@ var localJSON = (function(){
         callback = opts;
         opts = {};
       }
-      ajax({type:'POST', url: dbUrl + '_revs_diff', data: req}, function(err, res) {
+      ajax({auth: host.auth, type:'POST', url: genUrl(host, '_revs_diff'), data: req}, function(err, res) {
         call(callback, null, res);
       });
     };
 
 
-    ajax({type: 'PUT', url: dbUrl}, function(err, ret) {
+    ajax({auth: host.auth, type: 'PUT', url: genUrl(host, '')}, function(err, ret) {
       if (!err || err.status === 412) {
         call(callback, null, db);
       }
@@ -977,7 +1026,7 @@ var localJSON = (function(){
 
     if (opts.http || /^http:/.test(name)) {
       var host = getHost(name);
-      ajax({type: 'DELETE', url: host.host + host.db}, callback);
+      ajax({auth: host.auth, type: 'DELETE', url: genUrl(host, '')}, callback);
     } else {
       var req = indexedDB.deleteDatabase('pouch:' + name);
 
