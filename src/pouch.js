@@ -230,10 +230,12 @@ parseUri.options = {
       var uri = parseUri(name);
       uri.remote = true;
       uri.auth = {username: uri.user, password: uri.password};
-      uri.db = uri.path.replace(/\//g, '');
+      var parts = uri.path.replace(/(^\/|\/$)/g, '').split('/');
+      uri.db = parts.shift();
+      uri.path = parts.join('/');
       return uri;
     }
-    return {host: '/', db: url, auth: false};
+    return {host: '', path: '/', db: name, auth: false};
   }
 
   var fetchCheckpoint = function(src, target, callback) {
@@ -317,7 +319,7 @@ parseUri.options = {
 
   function genUrl(opts, path) {
     if (opts.remote) {
-      return opts.protocol + '://' + opts.host + ':' + opts.port + '/'
+      return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path
         + opts.db + '/' + path;
     }
     return '/' + opts.db + '/' + path;
