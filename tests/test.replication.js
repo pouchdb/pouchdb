@@ -89,6 +89,9 @@ asyncTest("Test checkpoint", function() {
   });
 });
 
+// CouchDB will not generate a conflict here, it uses a deteministic
+// method to generate the revision number, however we cannot copy its
+// method as it depends on erlangs internal data representation
 asyncTest("Test basic conflict", function() {
   var self = this;
   initDBPair(this.name, this.remote, function(db, remote) {
