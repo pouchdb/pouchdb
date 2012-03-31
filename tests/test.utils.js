@@ -29,3 +29,13 @@ function initTestDB(name, callback) {
     });
   });
 }
+
+function initDBPair(local, remote, callback) {
+  initTestDB(local, function(err, localDb) {
+    initTestDB(remote, function(err, remoteDb) {
+      console.log(localDb, remoteDb);
+      callback(localDb, remoteDb);
+    });
+  });
+}
+
