@@ -298,7 +298,7 @@ parseUri.options = {
             for (var id in diffs) {
               diffs[id].missing.map(function(rev) {
                 src.get(id, {revs: true, rev: rev}, function(err, doc) {
-                  target.post(doc, {newEdits: false}, function() {
+                  target.bulkDocs({docs: [doc]}, {newEdits: false}, function() {
                     result.docs_written++;
                     pending--;
                     isCompleted();
@@ -352,6 +352,9 @@ parseUri.options = {
       if (opts.rev) {
         params.push('rev=' + opts.rev);
       }
+      if (opts.conflicts) {
+        params.push('conflicts=' + opts.conflicts);
+      }
       params = params.join('&');
       params = params === '' ? '' : '?' + params;
 
@@ -373,12 +376,12 @@ parseUri.options = {
         opts = {};
       }
       var params = '';
-      if (opts.newEdits) {
-        params = '?newEdits=' + opts.newEdits;
-      }
       ajax({auth: host.auth, type:'PUT', url: genUrl(host, doc._id + params), data: doc}, callback);
     };
     db.bulkDocs = function(req, opts, callback) {
+      if (typeof opts.newEdits !== 'undefined') {
+        req.new_edits = opts.newEdits;
+      }
       ajax({auth: host.auth, type:'POST', url: genUrl(host, '_bulk_docs'), data: req}, callback);
     };
     db.allDocs = function(opts, callback) {

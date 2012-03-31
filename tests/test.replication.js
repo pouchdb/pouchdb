@@ -88,3 +88,20 @@ asyncTest("Test checkpoint", function() {
     });
   });
 });
+
+asyncTest("Test basic conflict", function() {
+  var self = this;
+  initDBPair(this.name, this.remote, function(db, remote) {
+    var doc = {_id: 'adoc', foo:'bar'};
+    db.put(doc, function(err, localres) {
+      remote.put(doc, function(err, remoteres) {
+        db.replicate.to(self.remote, function(err, _) {
+          remote.get('adoc', {conflicts: true}, function(err, result) {
+            ok(result._conflicts, 'result has a conflict');
+            start();
+          });
+        });
+      });
+    });
+  });
+});
