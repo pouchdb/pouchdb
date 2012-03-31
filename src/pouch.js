@@ -231,7 +231,7 @@ parseUri.options = {
       uri.remote = true;
       uri.auth = {username: uri.user, password: uri.password};
       var parts = uri.path.replace(/(^\/|\/$)/g, '').split('/');
-      uri.db = parts.shift();
+      uri.db = parts.pop();
       uri.path = parts.join('/');
       return uri;
     }
@@ -319,8 +319,9 @@ parseUri.options = {
 
   function genUrl(opts, path) {
     if (opts.remote) {
+      var pathDel = !opts.path ? '' : '/';
       return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path
-        + opts.db + '/' + path;
+        + pathDel + opts.db + '/' + path;
     }
     return '/' + opts.db + '/' + path;
   };
