@@ -375,8 +375,12 @@ parseUri.options = {
         callback = opts;
         opts = {};
       }
-      var params = '';
-      ajax({auth: host.auth, type:'PUT', url: genUrl(host, doc._id + params), data: doc}, callback);
+      ajax({
+        auth: host.auth,
+        type:'PUT',
+        url: genUrl(host, doc._id),
+        data: doc
+      }, callback);
     };
     db.bulkDocs = function(req, opts, callback) {
       if (typeof opts.newEdits !== 'undefined') {
