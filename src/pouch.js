@@ -121,24 +121,28 @@ parseUri.options = {
   };
 
   var ajax = function (options, callback) {
-    options.success = function (obj) {
-      callback(null, obj);
+    var defaults = {
+      success: function (obj) {
+        callback(null, obj);
+      },
+      error: function (err) {
+        if (err) callback(err);
+        else callback(true);
+      },
+      dataType: 'json',
+      contentType: 'application/json'
     };
-    options.error = function (err) {
-      if (err) callback(err);
-      else callback(true);
-    };
+    options = $.extend({}, defaults, options);
+
     if (options.data && typeof options.data !== 'string') {
       options.data = JSON.stringify(options.data);
     }
-    options.dataType = 'json';
     if (options.auth) {
       options.beforeSend = function(xhr) {
         var token = btoa(options.auth.username + ":" + options.auth.password);
         xhr.setRequestHeader("Authorization", "Basic " + token);
       }
     }
-    options.contentType = 'application/json';
     $.ajax(options);
   };
 
@@ -358,10 +362,17 @@ parseUri.options = {
       params = params.join('&');
       params = params === '' ? '' : '?' + params;
 
-      ajax({
+      var options = {
         auth: host.auth,
         type: 'GET',
-        url: genUrl(host, id + params)}, function(err, doc) {
+        url: genUrl(host, id + params)
+      };
+
+      if (/\//.test(id) && !/^_local/.test(id)) {
+        options.dataType = false;
+      }
+
+      ajax(options, function(err, doc) {
         if (err) {
           return call(callback, Errors.MISSING_DOC);
         }
