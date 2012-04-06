@@ -32,20 +32,32 @@ var binAttDoc2 = {
 }
 
 asyncTest("Test some attachments", function() {
-  initTestDB(this.name, function(err, db) {
+  var db;
+  initTestDB(this.name, function(err, _db) {
+    db = _db;
     db.put(binAttDoc, function(err, _) {
       ok(!err, 'saved doc with attachment');
       db.get('bin_doc/foo.txt', function(err, res) {
         ok(res === 'This is a base64 encoded text', 'Correct data returned');
-        db.put(binAttDoc2, function(err, _) {
-          db.get('bin_doc2/foo.txt', function(err, res) {
+        db.put(binAttDoc2, function(err, rev) {
+          db.get('bin_doc2/foo.txt', function(err, res, xhr) {
             ok(res === '', 'Correct data returned');
-            start();
-          });
+            moreTests(rev.rev);
+           });
         });
       });
     });
   });
 
-});
+  function moreTests(rev) {
+    var ndoc = 'This is no base64 encoded text';
+    db.putAttachment('bin_doc2/foo2.txt?rev=' + rev, ndoc, "text/plain", function() {
+      db.get('bin_doc2/foo2.txt', function(err, res, xhr) {
+        ok(xhr.getResponseHeader('content-type') === 'text/plain');
+        ok(res === 'This is no base64 encoded text', 'Correct data returned');
+        start();
+      });
+    });
+  };
 
+});
