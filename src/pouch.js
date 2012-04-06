@@ -122,8 +122,8 @@ parseUri.options = {
 
   var ajax = function (options, callback) {
     var defaults = {
-      success: function (obj) {
-        callback(null, obj);
+      success: function (obj, _, xhr) {
+        callback(null, obj, xhr);
       },
       error: function (err) {
         if (err) callback(err);
@@ -372,14 +372,23 @@ parseUri.options = {
         options.dataType = false;
       }
 
-      ajax(options, function(err, doc) {
+      ajax(options, function(err, doc, xhr) {
         if (err) {
           return call(callback, Errors.MISSING_DOC);
         }
-        call(callback, null, doc);
+        call(callback, null, doc, xhr);
       });
     };
     db.remove = function(doc, opts, callback) {
+    };
+    db.putAttachment = function(id, doc, type, callback) {
+      ajax({
+        auth: host.auth,
+        type:'PUT',
+        url: genUrl(host, id),
+        headers: {'Content-Type': type},
+        data: doc
+      }, callback);
     };
     db.put = db.post = function(doc, opts, callback) {
       if (opts instanceof Function) {
