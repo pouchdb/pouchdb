@@ -100,6 +100,9 @@ parseUri.options = {
   // sequence id
   var BY_SEQ_STORE = 'by-sequence';
 
+  // Where we store attachments
+  var ATTACH_STORE = 'attach-store';
+
   // Enumerate errors, add the status code so we can reflect the HTTP api
   // in future
   var Errors = {
@@ -197,10 +200,11 @@ parseUri.options = {
     doc._id = decodeURIComponent(doc._id);
     doc._rev = [nRevNum, newRevId].join('-');
     return Object.keys(doc).reduce(function(acc, key) {
-      if (/^_/.test(key))
+      if (/^_/.test(key) && key !== '_attachments') {
         acc.metadata[key.slice(1)] = doc[key];
-      else
+      } else {
         acc.data[key] = doc[key];
+      }
       return acc;
     }, {metadata : {}, data : {}});
   };
@@ -381,11 +385,11 @@ parseUri.options = {
     };
     db.remove = function(doc, opts, callback) {
     };
-    db.putAttachment = function(id, doc, type, callback) {
+    db.putAttachment = function(id, rev, doc, type, callback) {
       ajax({
         auth: host.auth,
         type:'PUT',
-        url: genUrl(host, id),
+        url: genUrl(host, id) + '?rev=' + rev,
         headers: {'Content-Type': type},
         data: doc
       }, callback);
@@ -559,9 +563,31 @@ parseUri.options = {
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
     db.get = function(id, opts, callback) {
+
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
+      }
+
+      if (/\//.test(id) && !/^_local/.test(id)) {
+        var docId = id.split('/')[0];
+        var attachId = id.split('/')[1];
+        var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
+          .objectStore(DOC_STORE).get(docId)
+          .onsuccess = function(e) {
+            var metadata = e.target.result;
+            var nreq = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
+              .objectStore(BY_SEQ_STORE).get(metadata.seq)
+              .onsuccess = function(e) {
+                var digest = e.target.result._attachments[attachId].digest;
+                var req = idb.transaction([ATTACH_STORE], IDBTransaction.READ)
+                  .objectStore(ATTACH_STORE).get(digest)
+                  .onsuccess = function(e) {
+                    call(callback, null, atob(e.target.result.body));
+                  };
+              };
+          }
+        return;
       }
 
       var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
@@ -598,6 +624,20 @@ parseUri.options = {
       var newDoc = JSON.parse(JSON.stringify(doc));
       newDoc._deleted = true;
       return db.bulkDocs({docs: [newDoc]}, opts, singularErr(callback));
+    };
+
+    db.putAttachment = function(id, rev, doc, type, callback) {
+      var docId = id.split('/')[0];
+      var attachId = id.split('/')[1];
+      db.get(docId, function(err, obj) {
+        obj._attachments[attachId] = {
+          content_type: type,
+          data: btoa(doc)
+        }
+        db.put(obj, callback);
+      });
+      //console.log(id);
+      //call(callback);
     };
 
     db.put = db.post = function(doc, opts, callback) {
@@ -689,7 +729,7 @@ parseUri.options = {
         bucket.sort(function(a, b) { return a._bulk_seq - b._bulk_seq; });
       });
 
-      var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE],
+      var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                                IDBTransaction.READ_WRITE);
       var results = [];
 
@@ -727,6 +767,11 @@ parseUri.options = {
         }
       };
 
+      // right now fire and forget, needs cleaned
+      function saveAttachment(digest, data) {
+        txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+      }
+
       function winningRev(pos, tree) {
         if (!tree[1].length) {
           return pos + '-' + tree[0];
@@ -735,6 +780,18 @@ parseUri.options = {
       }
 
       var writeDoc = function(docInfo, callback) {
+
+        for (var key in docInfo.data._attachments) {
+          if (!docInfo.data._attachments[key].stub) {
+            docInfo.data._attachments[key].stub = true;
+            var data = docInfo.data._attachments[key].data;
+            var digest = 'md5-' + Crypto.MD5(data);
+            delete docInfo.data._attachments[key].data;
+            docInfo.data._attachments[key].digest = digest;
+            saveAttachment(digest, data);
+          }
+        }
+        //console.log(docInfo);
         // The doc will need to refer back to its meta data document
         docInfo.data._id = docInfo.metadata.id;
         if (docInfo.metadata.deleted) {
@@ -1016,6 +1073,7 @@ parseUri.options = {
       // We are giving a _junk key because firefox really doesnt like
       // writing without a key
       db.createObjectStore(BY_SEQ_STORE, {keyPath: '_junk', autoIncrement : true});
+      db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
     };
 
     req.onsuccess = function(e) {
