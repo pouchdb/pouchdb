@@ -68,3 +68,18 @@ The subject of the of pouch.open. This is primary PouchDB API.
 
 ### db.replicate.from(dbName, options)
 
+
+
+## Running the tests
+
+To run the full test suite (including replication) you'll need to run a CORS proxy
+pointing to a local CouchDB in admin party mode.
+
+    git clone https://github.com/daleharvey/CORS-Proxy.git
+    cd CORS-Proxy
+    node server.js
+
+This will proxy requests to http://localhost:1234 (made by the test suite) to
+your local CouchDB running on http://localhost:5984, adding the correct CORS
+headers so the browser allows the requests to go through. Remember to make sure
+your local CouchDB is in admin party mode.

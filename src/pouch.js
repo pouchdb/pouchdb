@@ -454,8 +454,23 @@ parseUri.options = {
     };
 
 
-    ajax({auth: host.auth, type: 'PUT', url: genUrl(host, '')}, function(err, ret) {
-      if (!err || err.status === 412) {
+    var db_url = genUrl(host, '');
+    ajax({auth: host.auth, type: 'PUT', url: db_url}, function(err, ret) {
+      // the user may not have permission to PUT to a db url
+      if (err && err.status === 401) {
+        // test if the db already exists
+        ajax({auth: host.auth, type: 'HEAD', url: db_url}, function (err, ret) {
+          if (err) {
+            // still can't access db
+            call(callback, err);
+          }
+          else {
+            // continue
+            call(callback, null, db);
+          }
+        });
+      }
+      else if (!err || err.status === 412) {
         call(callback, null, db);
       }
     });
