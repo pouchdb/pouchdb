@@ -89,6 +89,32 @@ asyncTest("Test checkpoint", function() {
   });
 });
 
+asyncTest("Test checkpoint 2", function() {
+  var self = this;
+  var doc = {_id: "3", count: 0};
+  initDBPair(this.name, this.remote, function(db, remote) {
+    remote.put(doc, {}, function(err, results) {
+      db.replicate.from(self.remote, function(err, result) {
+        ok(result.ok, 'replication was ok');
+        ok(result.docs_written === docs.length, 'correct # docs written');
+        doc._rev = results.rev;
+        doc.count++;
+        remote.put(doc, {}, function(err, results) {
+          doc._rev = results.rev;
+          doc.count++;
+          remote.put(doc, {}, function(err, results) {
+            db.replicate.from(self.remote, function(err, result) {
+              ok(result.ok, 'replication was ok');
+              ok(result.docs_written === 1, 'correct # docs written');
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
 // CouchDB will not generate a conflict here, it uses a deteministic
 // method to generate the revision number, however we cannot copy its
 // method as it depends on erlangs internal data representation
