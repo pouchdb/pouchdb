@@ -64,9 +64,9 @@ The subject of the of pouch.open. This is primary PouchDB API.
 
 ## db.replicate
 
-### db.replicate.to(dbName, options)
+### db.replicate.to(dbName, [options], [callback])
 
-### db.replicate.from(dbName, options)
+### db.replicate.from(dbName, [options], [callback])
 
 
 ## Running the tests
