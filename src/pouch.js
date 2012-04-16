@@ -174,24 +174,24 @@ parseUri.options = {
         if (!revInfo) {
           throw "invalid value for property '_rev'";
         }
-        doc._revisions = [{
+        doc._rev_tree = [{
           pos: parseInt(revInfo[1], 10),
           ids: [revInfo[2], [[newRevId, []]]]
         }];
         nRevNum = parseInt(revInfo[1], 10) + 1;
       } else {
-        doc._revisions = [{
+        doc._rev_tree = [{
           pos: 1,
           ids : [newRevId, []]
         }];
         nRevNum = 1;
       }
     } else {
-      if (!doc._revisions) {
+      if (!doc._rev_tree) {
         var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
         nRevNum = parseInt(revInfo[1], 10);
         newRevId = revInfo[2];
-        doc._revisions = [{
+        doc._rev_tree = [{
           pos: parseInt(revInfo[1], 10),
           ids: [revInfo[2], []]
         }];
@@ -220,11 +220,11 @@ parseUri.options = {
       return (a.deleted ? -1 : 1);
     }
     // Then by rev id
-    if (a.revisions[0].pos === b.revisions[0].pos) {
-      return (a.revisions[0].ids < b.revisions[0].ids ? -1 : 1);
+    if (a.rev_tree[0].pos === b.rev_tree[0].pos) {
+      return (a.rev_tree[0].ids < b.rev_tree[0].ids ? -1 : 1);
     }
     // Then by depth of edits
-    return (a.revisions[0].start < b.revisions[0].start ? -1 : 1);
+    return (a.rev_tree[0].start < b.rev_tree[0].start ? -1 : 1);
   };
 
   var parseUrl = function(url) {
@@ -306,6 +306,7 @@ parseUri.options = {
             for (var id in diffs) {
               diffs[id].missing.map(function(rev) {
                 src.get(id, {revs: true, rev: rev}, function(err, doc) {
+                  console.log(JSON.stringify(doc));
                   target.bulkDocs({docs: [doc]}, {newEdits: false}, function() {
                     result.docs_written++;
                     pending--;
@@ -607,7 +608,7 @@ parseUri.options = {
           doc._id = metadata.id;
           doc._rev = metadata.rev;
           if (opts.revs_info) {
-            doc._revs_info = metadata.revisions.reduce(function(prev, current) {
+            doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
               return prev.concat(collectRevs(current));
             }, []);
           }
@@ -636,8 +637,6 @@ parseUri.options = {
         }
         db.put(obj, callback);
       });
-      //console.log(id);
-      //call(callback);
     };
 
     db.put = db.post = function(doc, opts, callback) {
@@ -791,7 +790,6 @@ parseUri.options = {
             saveAttachment(digest, data);
           }
         }
-        //console.log(docInfo);
         // The doc will need to refer back to its meta data document
         docInfo.data._id = docInfo.metadata.id;
         if (docInfo.metadata.deleted) {
@@ -803,8 +801,8 @@ parseUri.options = {
           docInfo.metadata.seq = e.target.result;
           // We probably shouldnt even store the winning rev, just figure it
           // out on read
-          docInfo.metadata.rev = winningRev(docInfo.metadata.revisions[0].pos,
-                                            docInfo.metadata.revisions[0].ids);
+          docInfo.metadata.rev = winningRev(docInfo.metadata.rev_tree[0].pos,
+                                            docInfo.metadata.rev_tree[0].ids);
           var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
           metaDataReq.onsuccess = function() {
             results.push({
@@ -827,8 +825,8 @@ parseUri.options = {
         .openCursor(keyRange, IDBCursor.NEXT);
 
       var update = function(cursor, oldDoc, docInfo, callback) {
-        var mergedRevisions = pouch.merge(oldDoc.revisions,
-                                          docInfo.metadata.revisions[0], 1000);
+        var mergedRevisions = pouch.merge(oldDoc.rev_tree,
+                                          docInfo.metadata.rev_tree[0], 1000);
         var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
           (!oldDoc.deleted && newEdits && mergedRevisions.conflicts !== 'new_leaf');
         if (inConflict) {
@@ -837,7 +835,7 @@ parseUri.options = {
           return cursor['continue']();
         }
 
-        docInfo.metadata.revisions = mergedRevisions.tree;
+        docInfo.metadata.rev_tree = mergedRevisions.tree;
 
         writeDoc(docInfo, function() {
           cursor['continue']();
@@ -922,7 +920,7 @@ parseUri.options = {
               doc.doc._rev = metadata.rev;
               delete doc.doc._junk;
               if (opts.conflicts) {
-                doc.doc._conflicts = collectConflicts(metadata.revisions);
+                doc.doc._conflicts = collectConflicts(metadata.rev_tree);
               }
             }
             results.push(doc);
@@ -972,7 +970,7 @@ parseUri.options = {
           var c = {
             id: doc.id,
             seq: cursor.key,
-            changes: collectLeaves(doc.revisions)
+            changes: collectLeaves(doc.rev_tree)
           };
           if (doc.deleted) {
             c.deleted = true;
@@ -981,7 +979,7 @@ parseUri.options = {
             c.doc = cursor.value;
             c.doc._rev = c.changes[0].rev;
             if (opts.conflicts) {
-              c.doc._conflicts = collectConflicts(doc.revisions);
+              c.doc._conflicts = collectConflicts(doc.rev_tree);
             }
           }
           // Dedupe the changes feed
