@@ -1,5 +1,5 @@
 var remote = {
-  host: 'localhost:1234'
+  host: document.location.hostname + ':1234'
 };
 
 module('replication', {
