@@ -187,6 +187,18 @@ parseUri.options = {
         nRevNum = 1;
       }
     } else {
+      if (doc._revisions) {
+        doc._rev_tree = [{
+          pos: doc._revisions.start - doc._revisions.ids.length + 1,
+          ids: doc._revisions.ids.reduce(function(acc, x) {
+            if (acc === null) {
+              return [x, []];
+            } else {
+              return [x, [acc]];
+            }
+          }, null)
+        }];
+      }
       if (!doc._rev_tree) {
         var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
         nRevNum = parseInt(revInfo[1], 10);
@@ -306,8 +318,7 @@ parseUri.options = {
             for (var id in diffs) {
               diffs[id].missing.map(function(rev) {
                 src.get(id, {revs: true, rev: rev}, function(err, doc) {
-                  console.log(JSON.stringify(doc));
-                  target.bulkDocs({docs: [doc]}, {newEdits: false}, function() {
+                  target.bulkDocs({docs: [doc]}, {new_edits: false}, function() {
                     result.docs_written++;
                     pending--;
                     isCompleted();
@@ -408,8 +419,8 @@ parseUri.options = {
       }, callback);
     };
     db.bulkDocs = function(req, opts, callback) {
-      if (typeof opts.newEdits !== 'undefined') {
-        req.new_edits = opts.newEdits;
+      if (typeof opts.new_edits !== 'undefined') {
+        req.new_edits = opts.new_edits;
       }
       ajax({auth: host.auth, type:'POST', url: genUrl(host, '_bulk_docs'), data: req}, callback);
     };

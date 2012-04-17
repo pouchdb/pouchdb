@@ -96,7 +96,6 @@ asyncTest("Test checkpoint 2", function() {
     remote.put(doc, {}, function(err, results) {
       db.replicate.from(self.remote, function(err, result) {
         ok(result.ok, 'replication was ok');
-        ok(result.docs_written === docs.length, 'correct # docs written');
         doc._rev = results.rev;
         doc.count++;
         remote.put(doc, {}, function(err, results) {
@@ -120,10 +119,11 @@ asyncTest("Test checkpoint 2", function() {
 // method as it depends on erlangs internal data representation
 asyncTest("Test basic conflict", function() {
   var self = this;
+  var doc1 = {_id: 'adoc', foo:'bar'};
+  var doc2 = {_id: 'adoc', bar:'baz'};
   initDBPair(this.name, this.remote, function(db, remote) {
-    var doc = {_id: 'adoc', foo:'bar'};
-    db.put(doc, function(err, localres) {
-      remote.put(doc, function(err, remoteres) {
+    db.put(doc1, function(err, localres) {
+      remote.put(doc2, function(err, remoteres) {
         db.replicate.to(self.remote, function(err, _) {
           remote.get('adoc', {conflicts: true}, function(err, result) {
             ok(result._conflicts, 'result has a conflict');
