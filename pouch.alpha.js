@@ -315,6 +315,38 @@ var localJSON = (function(){
   };
 })();
 
+// parseUri 1.2.2
+// (c) Steven Levithan <stevenlevithan.com>
+// MIT License
+function parseUri (str) {
+  var o = parseUri.options;
+  var m = o.parser[o.strictMode ? "strict" : "loose"].exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) uri[o.key[i]] = m[i] || "";
+
+  uri[o.q.name] = {};
+  uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+    if ($1) uri[o.q.name][$1] = $2;
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q:   {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
+
 (function() {
 
   // While most of the IDB behaviors match between implementations a
@@ -360,6 +392,9 @@ var localJSON = (function(){
   // sequence id
   var BY_SEQ_STORE = 'by-sequence';
 
+  // Where we store attachments
+  var ATTACH_STORE = 'attach-store';
+
   // Enumerate errors, add the status code so we can reflect the HTTP api
   // in future
   var Errors = {
@@ -381,18 +416,28 @@ var localJSON = (function(){
   };
 
   var ajax = function (options, callback) {
-    options.success = function (obj) {
-      callback(null, obj);
+    var defaults = {
+      success: function (obj, _, xhr) {
+        callback(null, obj, xhr);
+      },
+      error: function (err) {
+        if (err) callback(err);
+        else callback(true);
+      },
+      dataType: 'json',
+      contentType: 'application/json'
     };
-    options.error = function (err) {
-      if (err) callback(err);
-      else callback(true);
-    };
+    options = $.extend({}, defaults, options);
+
     if (options.data && typeof options.data !== 'string') {
       options.data = JSON.stringify(options.data);
     }
-    options.dataType = 'json';
-    options.contentType = 'application/json';
+    if (options.auth) {
+      options.beforeSend = function(xhr) {
+        var token = btoa(options.auth.username + ":" + options.auth.password);
+        xhr.setRequestHeader("Authorization", "Basic " + token);
+      }
+    }
     $.ajax(options);
   };
 
@@ -421,24 +466,36 @@ var localJSON = (function(){
         if (!revInfo) {
           throw "invalid value for property '_rev'";
         }
-        doc._revisions = [{
+        doc._rev_tree = [{
           pos: parseInt(revInfo[1], 10),
           ids: [revInfo[2], [[newRevId, []]]]
         }];
         nRevNum = parseInt(revInfo[1], 10) + 1;
       } else {
-        doc._revisions = [{
+        doc._rev_tree = [{
           pos: 1,
           ids : [newRevId, []]
         }];
         nRevNum = 1;
       }
     } else {
-      if (!doc._revisions) {
+      if (doc._revisions) {
+        doc._rev_tree = [{
+          pos: doc._revisions.start - doc._revisions.ids.length + 1,
+          ids: doc._revisions.ids.reduce(function(acc, x) {
+            if (acc === null) {
+              return [x, []];
+            } else {
+              return [x, [acc]];
+            }
+          }, null)
+        }];
+      }
+      if (!doc._rev_tree) {
         var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
         nRevNum = parseInt(revInfo[1], 10);
         newRevId = revInfo[2];
-        doc._revisions = [{
+        doc._rev_tree = [{
           pos: parseInt(revInfo[1], 10),
           ids: [revInfo[2], []]
         }];
@@ -447,10 +504,11 @@ var localJSON = (function(){
     doc._id = decodeURIComponent(doc._id);
     doc._rev = [nRevNum, newRevId].join('-');
     return Object.keys(doc).reduce(function(acc, key) {
-      if (/^_/.test(key))
+      if (/^_/.test(key) && key !== '_attachments') {
         acc.metadata[key.slice(1)] = doc[key];
-      else
+      } else {
         acc.data[key] = doc[key];
+      }
       return acc;
     }, {metadata : {}, data : {}});
   };
@@ -466,11 +524,11 @@ var localJSON = (function(){
       return (a.deleted ? -1 : 1);
     }
     // Then by rev id
-    if (a.revisions[0].pos === b.revisions[0].pos) {
-      return (a.revisions[0].ids < b.revisions[0].ids ? -1 : 1);
+    if (a.rev_tree[0].pos === b.rev_tree[0].pos) {
+      return (a.rev_tree[0].ids < b.rev_tree[0].ids ? -1 : 1);
     }
     // Then by depth of edits
-    return (a.revisions[0].start < b.revisions[0].start ? -1 : 1);
+    return (a.rev_tree[0].start < b.rev_tree[0].start ? -1 : 1);
   };
 
   var parseUrl = function(url) {
@@ -481,13 +539,15 @@ var localJSON = (function(){
 
   var getHost = function(name) {
     if (/http:/.test(name)) {
-      var url = parseUrl(name);
-      return {
-        host: url.protocol + '//' + url.hostname + ':' + url.port + '/',
-        db: url.pathname.replace('/', '')
-      };
+      var uri = parseUri(name);
+      uri.remote = true;
+      uri.auth = {username: uri.user, password: uri.password};
+      var parts = uri.path.replace(/(^\/|\/$)/g, '').split('/');
+      uri.db = parts.pop();
+      uri.path = parts.join('/');
+      return uri;
     }
-    return {host: '/', db: url};
+    return {host: '', path: '/', db: name, auth: false};
   }
 
   var fetchCheckpoint = function(src, target, callback) {
@@ -550,7 +610,7 @@ var localJSON = (function(){
             for (var id in diffs) {
               diffs[id].missing.map(function(rev) {
                 src.get(id, {revs: true, rev: rev}, function(err, doc) {
-                  target.post(doc, {newEdits: false}, function() {
+                  target.bulkDocs({docs: [doc]}, {new_edits: false}, function() {
                     result.docs_written++;
                     pending--;
                     isCompleted();
@@ -569,20 +629,29 @@ var localJSON = (function(){
     });
   };
 
+  function genUrl(opts, path) {
+    if (opts.remote) {
+      var pathDel = !opts.path ? '' : '/';
+      return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path
+        + pathDel + opts.db + '/' + path;
+    }
+    return '/' + opts.db + '/' + path;
+  };
+
   // This code is all ugly as hell, just making it work for what we need it
   // for right now then will fix it up
   var makeCouch = function(name, opts, callback) {
 
     var host = getHost(name);
     var db = {};
-    var dbUrl = host.host + host.db;
 
     db.id = function() {
-      return dbUrl;
+      return genUrl(host, '');
     };
 
     db.info = function(callback) {
     };
+
     db.get = function(id, opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
@@ -595,38 +664,64 @@ var localJSON = (function(){
       if (opts.rev) {
         params.push('rev=' + opts.rev);
       }
+      if (opts.conflicts) {
+        params.push('conflicts=' + opts.conflicts);
+      }
       params = params.join('&');
       params = params === '' ? '' : '?' + params;
 
-      ajax({type: 'GET', url: dbUrl + id + params}, function(err, doc) {
+      var options = {
+        auth: host.auth,
+        type: 'GET',
+        url: genUrl(host, id + params)
+      };
+
+      if (/\//.test(id) && !/^_local/.test(id)) {
+        options.dataType = false;
+      }
+
+      ajax(options, function(err, doc, xhr) {
         if (err) {
           return call(callback, Errors.MISSING_DOC);
         }
-        call(callback, null, doc);
+        call(callback, null, doc, xhr);
       });
     };
     db.remove = function(doc, opts, callback) {
+    };
+    db.putAttachment = function(id, rev, doc, type, callback) {
+      ajax({
+        auth: host.auth,
+        type:'PUT',
+        url: genUrl(host, id) + '?rev=' + rev,
+        headers: {'Content-Type': type},
+        data: doc
+      }, callback);
     };
     db.put = db.post = function(doc, opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
       }
-      var params = '';
-      if (opts.newEdits) {
-        params = '?newEdits=' + opts.newEdits;
-      }
-      ajax({type:'PUT', url: dbUrl + doc._id + params, data: doc}, callback);
+      ajax({
+        auth: host.auth,
+        type:'PUT',
+        url: genUrl(host, doc._id),
+        data: doc
+      }, callback);
     };
     db.bulkDocs = function(req, opts, callback) {
-      ajax({type:'POST', url: dbUrl + '_bulk_docs', data: req}, callback);
+      if (typeof opts.new_edits !== 'undefined') {
+        req.new_edits = opts.new_edits;
+      }
+      ajax({auth: host.auth, type:'POST', url: genUrl(host, '_bulk_docs'), data: req}, callback);
     };
     db.allDocs = function(opts, callback) {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
       }
-      ajax({type:'GET', url: dbUrl + '_all_docs'}, callback);
+      ajax({auth: host.auth, type:'GET', url: genUrl(host, '_all_docs')}, callback);
     };
 
     db.changes = function(opts, callback) {
@@ -644,7 +739,7 @@ var localJSON = (function(){
       if (opts.since) {
         params += '&since=' + opts.since;
       }
-      ajax({type:'GET', url: dbUrl + '_changes' + params}, function(err, res) {
+      ajax({auth: host.auth, type:'GET', url: genUrl(host, '_changes' + params)}, function(err, res) {
         res.results.forEach(function(c) {
           call(opts.onChange, c);
         });
@@ -657,13 +752,13 @@ var localJSON = (function(){
         callback = opts;
         opts = {};
       }
-      ajax({type:'POST', url: dbUrl + '_revs_diff', data: req}, function(err, res) {
+      ajax({auth: host.auth, type:'POST', url: genUrl(host, '_revs_diff'), data: req}, function(err, res) {
         call(callback, null, res);
       });
     };
 
 
-    ajax({type: 'PUT', url: dbUrl}, function(err, ret) {
+    ajax({auth: host.auth, type: 'PUT', url: genUrl(host, '')}, function(err, ret) {
       if (!err || err.status === 412) {
         call(callback, null, db);
       }
@@ -772,9 +867,31 @@ var localJSON = (function(){
     // First we look up the metadata in the ids database, then we fetch the
     // current revision(s) from the by sequence store
     db.get = function(id, opts, callback) {
+
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
+      }
+
+      if (/\//.test(id) && !/^_local/.test(id)) {
+        var docId = id.split('/')[0];
+        var attachId = id.split('/')[1];
+        var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
+          .objectStore(DOC_STORE).get(docId)
+          .onsuccess = function(e) {
+            var metadata = e.target.result;
+            var nreq = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
+              .objectStore(BY_SEQ_STORE).get(metadata.seq)
+              .onsuccess = function(e) {
+                var digest = e.target.result._attachments[attachId].digest;
+                var req = idb.transaction([ATTACH_STORE], IDBTransaction.READ)
+                  .objectStore(ATTACH_STORE).get(digest)
+                  .onsuccess = function(e) {
+                    call(callback, null, atob(e.target.result.body));
+                  };
+              };
+          }
+        return;
       }
 
       var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
@@ -794,7 +911,7 @@ var localJSON = (function(){
           doc._id = metadata.id;
           doc._rev = metadata.rev;
           if (opts.revs_info) {
-            doc._revs_info = metadata.revisions.reduce(function(prev, current) {
+            doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
               return prev.concat(collectRevs(current));
             }, []);
           }
@@ -811,6 +928,18 @@ var localJSON = (function(){
       var newDoc = JSON.parse(JSON.stringify(doc));
       newDoc._deleted = true;
       return db.bulkDocs({docs: [newDoc]}, opts, singularErr(callback));
+    };
+
+    db.putAttachment = function(id, rev, doc, type, callback) {
+      var docId = id.split('/')[0];
+      var attachId = id.split('/')[1];
+      db.get(docId, function(err, obj) {
+        obj._attachments[attachId] = {
+          content_type: type,
+          data: btoa(doc)
+        }
+        db.put(obj, callback);
+      });
     };
 
     db.put = db.post = function(doc, opts, callback) {
@@ -902,7 +1031,7 @@ var localJSON = (function(){
         bucket.sort(function(a, b) { return a._bulk_seq - b._bulk_seq; });
       });
 
-      var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE],
+      var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                                IDBTransaction.READ_WRITE);
       var results = [];
 
@@ -940,6 +1069,11 @@ var localJSON = (function(){
         }
       };
 
+      // right now fire and forget, needs cleaned
+      function saveAttachment(digest, data) {
+        txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+      }
+
       function winningRev(pos, tree) {
         if (!tree[1].length) {
           return pos + '-' + tree[0];
@@ -948,6 +1082,17 @@ var localJSON = (function(){
       }
 
       var writeDoc = function(docInfo, callback) {
+
+        for (var key in docInfo.data._attachments) {
+          if (!docInfo.data._attachments[key].stub) {
+            docInfo.data._attachments[key].stub = true;
+            var data = docInfo.data._attachments[key].data;
+            var digest = 'md5-' + Crypto.MD5(data);
+            delete docInfo.data._attachments[key].data;
+            docInfo.data._attachments[key].digest = digest;
+            saveAttachment(digest, data);
+          }
+        }
         // The doc will need to refer back to its meta data document
         docInfo.data._id = docInfo.metadata.id;
         if (docInfo.metadata.deleted) {
@@ -959,8 +1104,8 @@ var localJSON = (function(){
           docInfo.metadata.seq = e.target.result;
           // We probably shouldnt even store the winning rev, just figure it
           // out on read
-          docInfo.metadata.rev = winningRev(docInfo.metadata.revisions[0].pos,
-                                            docInfo.metadata.revisions[0].ids);
+          docInfo.metadata.rev = winningRev(docInfo.metadata.rev_tree[0].pos,
+                                            docInfo.metadata.rev_tree[0].ids);
           var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
           metaDataReq.onsuccess = function() {
             results.push({
@@ -983,8 +1128,8 @@ var localJSON = (function(){
         .openCursor(keyRange, IDBCursor.NEXT);
 
       var update = function(cursor, oldDoc, docInfo, callback) {
-        var mergedRevisions = pouch.merge(oldDoc.revisions,
-                                          docInfo.metadata.revisions[0], 1000);
+        var mergedRevisions = pouch.merge(oldDoc.rev_tree,
+                                          docInfo.metadata.rev_tree[0], 1000);
         var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
           (!oldDoc.deleted && newEdits && mergedRevisions.conflicts !== 'new_leaf');
         if (inConflict) {
@@ -993,7 +1138,7 @@ var localJSON = (function(){
           return cursor['continue']();
         }
 
-        docInfo.metadata.revisions = mergedRevisions.tree;
+        docInfo.metadata.rev_tree = mergedRevisions.tree;
 
         writeDoc(docInfo, function() {
           cursor['continue']();
@@ -1078,7 +1223,7 @@ var localJSON = (function(){
               doc.doc._rev = metadata.rev;
               delete doc.doc._junk;
               if (opts.conflicts) {
-                doc.doc._conflicts = collectConflicts(metadata.revisions);
+                doc.doc._conflicts = collectConflicts(metadata.rev_tree);
               }
             }
             results.push(doc);
@@ -1128,7 +1273,7 @@ var localJSON = (function(){
           var c = {
             id: doc.id,
             seq: cursor.key,
-            changes: collectLeaves(doc.revisions)
+            changes: collectLeaves(doc.rev_tree)
           };
           if (doc.deleted) {
             c.deleted = true;
@@ -1137,7 +1282,7 @@ var localJSON = (function(){
             c.doc = cursor.value;
             c.doc._rev = c.changes[0].rev;
             if (opts.conflicts) {
-              c.doc._conflicts = collectConflicts(doc.revisions);
+              c.doc._conflicts = collectConflicts(doc.rev_tree);
             }
           }
           // Dedupe the changes feed
@@ -1229,6 +1374,7 @@ var localJSON = (function(){
       // We are giving a _junk key because firefox really doesnt like
       // writing without a key
       db.createObjectStore(BY_SEQ_STORE, {keyPath: '_junk', autoIncrement : true});
+      db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
     };
 
     req.onsuccess = function(e) {
@@ -1269,7 +1415,7 @@ var localJSON = (function(){
 
     if (opts.http || /^http:/.test(name)) {
       var host = getHost(name);
-      ajax({type: 'DELETE', url: host.host + host.db}, callback);
+      ajax({auth: host.auth, type: 'DELETE', url: genUrl(host, '')}, callback);
     } else {
       var req = indexedDB.deleteDatabase('pouch:' + name);
 
