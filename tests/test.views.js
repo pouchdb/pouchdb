@@ -21,10 +21,10 @@ asyncTest("Create a pouch", function() {
 
   // then text, case sensitive
   values.push("a");
-  values.push("A");
+  //values.push("A");
   values.push("aa");
   values.push("b");
-  values.push("B");
+  //values.push("B");
   values.push("ba");
   values.push("bb");
 
