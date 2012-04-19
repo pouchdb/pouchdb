@@ -56,13 +56,14 @@ asyncTest("Create a pouch", function() {
     });
     db.bulkDocs({docs: docs}, {}, function() {
       var queryFun = function(doc) { emit(doc.foo, null); };
-      db.query(queryFun, function(_, res) {
+      db.query(queryFun, null, function(_, res) {
         res.rows.forEach(function(x, i) {
-          ok(x === values[i], 'keys collate');
+          ok(JSON.stringify(x.key) === JSON.stringify(values[i]), 'keys collate');
         });
-        db.query(queryFun, null, {descending: true}, function(res) {
+        db.query(queryFun, null, {descending: true}, function(_, res) {
           res.rows.forEach(function(x, i) {
-            ok(x === values[values.length - 1 - i], 'keys collate descending')
+            ok(JSON.stringify(x.key) === JSON.stringify(values[values.length - 1 - i]),
+               'keys collate descending')
           });
           start();
         });

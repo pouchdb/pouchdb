@@ -1,3 +1,5 @@
+var emit;
+
 // Basic wrapper for localStorage
 var localJSON = (function(){
   if (!localStorage) {
@@ -122,6 +124,126 @@ parseUri.options = {
       reason: 'Document update conflict'
     }
   };
+
+  var viewQuery = function (fun, idb, options) {
+
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    var objectStore = txn.objectStore(DOC_STORE);
+    var request = objectStore.openCursor();
+    var mapContext = {};
+    var results = [];
+    var current;
+
+    emit = function(key, val) {
+      results.push({
+        id: current._id,
+        key: key,
+        value: val
+      });
+    }
+
+    var collate = function(a, b) {
+      var ai = collationIndex(a);
+      var bi = collationIndex(b);
+      if ((ai - bi) !== 0) {
+        return ai - bi;
+      }
+      if (typeof a=== 'number') {
+        return a - b;
+      }
+      if (typeof a === 'boolean') {
+        return a < b ? -1 : 1;
+      }
+      if (typeof a === 'string') {
+        return stringCollate(a, b);
+      }
+      if (Array.isArray(a)) {
+        return arrayCollate(a, b)
+      }
+      if (typeof a === 'object') {
+        return objectCollate(a, b);
+      }
+    }
+
+    var stringCollate = function(a, b) {
+      // Chrome (v8) doesnt implement localecompare and orders by ascii value
+      // so tests will break
+      return a.localeCompare(b);
+    }
+
+    var objectCollate = function(a, b) {
+      var ak = Object.keys(a), bk = Object.keys(b);
+      var len = Math.min(ak.length, bk.length);
+      for (var i = 0; i < len; i++) {
+        // First sort the keys
+        var sort = collate(ak[i], bk[i]);
+        if (sort !== 0) {
+          return sort;
+        }
+        // if the keys are equal sort the values
+        sort = collate(a[ak[i]], b[bk[i]]);
+        if (sort !== 0) {
+          return sort;
+        }
+
+      }
+      return (ak.length === bk.length) ? 0 :
+        (ak.length > bk.length) ? 1 : -1;
+    }
+
+    var arrayCollate = function(a, b) {
+      var len = Math.min(a.length, b.length);
+      for (var i = 0; i < len; i++) {
+        var sort = collate(a[i], b[i]);
+        if (sort !== 0) {
+          return sort;
+        }
+      }
+      return (a.length === b.length) ? 0 :
+        (a.length > b.length) ? 1 : -1;
+    }
+
+    var collationIndex = function(x) {
+      var id = ['boolean', 'number', 'string', 'object'];
+      if (id.indexOf(typeof x) !== -1) {
+        if (x === null) {
+          return 1;
+        }
+        return id.indexOf(typeof x) + 2;
+      }
+      if (Array.isArray(x)) {
+        return 4.5;
+      }
+    }
+
+    request.onsuccess = function (e) {
+      var cursor = e.target.result;
+      if (!cursor) {
+        if (options.complete) {
+          results.sort(function(a, b) { return collate(a.key, b.key); });
+          if (options.descending) {
+            results.reverse();
+          }
+          options.complete(null, {rows: results});
+        }
+      } else {
+        var nreq = txn
+          .objectStore(BY_SEQ_STORE).get(e.target.result.value.seq)
+          .onsuccess = function(e) {
+            current = e.target.result;
+            if (options.complete) {
+              fun.apply(mapContext, [current]);
+            }
+            cursor['continue']();
+          };
+      }
+    }
+    request.onerror = function (error) {
+      if (options.error) {
+        options.error(error);
+      }
+    }
+  }
 
   var ajax = function (options, callback) {
     var defaults = {
@@ -1053,6 +1175,18 @@ parseUri.options = {
         replicate(db, remote, callback);
       });
     };
+
+    db.query = function(fun, reduce, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+      if (callback) {
+        opts.complete = callback;
+      }
+
+      viewQuery(fun, idb, opts);
+    }
 
     return db;
   };
