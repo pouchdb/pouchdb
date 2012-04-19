@@ -4,7 +4,7 @@ module('views', {
   }
 });
 
-asyncTest("Create a pouch", function() {
+asyncTest("Test basic view collation", function() {
 
   var values = [];
 
@@ -20,6 +20,7 @@ asyncTest("Create a pouch", function() {
   values.push(4);
 
   // then text, case sensitive
+  // currently chrome uses ascii ordering and so wont handle capitals properly
   values.push("a");
   //values.push("A");
   values.push("aa");
