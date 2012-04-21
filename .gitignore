@@ -1,2 +1,3 @@
-pouch.js
-pouch.min.js
+pouch.*.js
+pouch.*.min.js
+*.swp
