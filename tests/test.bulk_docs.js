@@ -8,7 +8,7 @@
 
 module('bulk_docs', {
   setup : function () {
-    this.name = 'test_suite_db';
+    this.name = 'idb://test_suite_db';
   }
 });
 

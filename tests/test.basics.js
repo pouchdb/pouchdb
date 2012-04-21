@@ -1,6 +1,6 @@
 module("basics", {
   setup : function () {
-    this.name = 'test_suite_db';
+    this.name = 'idb://test_suite_db';
   }
 });
 
@@ -12,7 +12,7 @@ asyncTest("Create a pouch", function() {
 });
 
 asyncTest("Remove a pouch",function() {
-  pouch.deleteDatabase("test", function(err) {
+  Pouch.destroy(this.name, function(err, db) {
     ok(!err);
     start();
   });
@@ -123,7 +123,7 @@ asyncTest("Check revisions", function() {
 // https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
 
 asyncTest("Check database with slashes", function() {
-  initTestDB('test_suite_db%2Fwith_slashes', function(err, db) {
+  initTestDB('idb://test_suite_db%2Fwith_slashes', function(err, db) {
     ok(!err, 'opened');
     start();
   });
@@ -131,7 +131,7 @@ asyncTest("Check database with slashes", function() {
 
 
 asyncTest("Basic checks", function() {
-  initTestDB('test_suite_db', function(err, db) {
+  initTestDB(this.name, function(err, db) {
     db.info(function(err, info) {
       ok(info.db_name === 'test_suite_db');
       ok(info.doc_count === 0);

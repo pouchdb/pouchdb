@@ -17,9 +17,9 @@ function makeDocs(start, end, templateDoc) {
 }
 
 function initTestDB(name, callback) {
-  pouch.deleteDatabase(name, function(err) {
-    // ignore errors, the database might not exist
-    pouch.open(name, function(err, db) {
+  // ignore errors, the database might not exist
+  Pouch.destroy(name, function() {
+    new Pouch(name, function(err, db) {
       if (err) {
         console.error(err);
         ok(false, 'failed to open database');

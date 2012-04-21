@@ -4,7 +4,7 @@ var remote = {
 
 module('attachments', {
   setup : function () {
-    this.name = 'test_suite_db';
+    this.name = 'idb://test_suite_db';
     this.remote = 'http://' + remote.host + '/test_suite_db/';
     //this.name = this.remote;
   }

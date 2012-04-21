@@ -28,105 +28,105 @@ var partialrecover = [{pos: 1, ids: ['1', [['2_0', [['3', []]]]]]},
                       {pos: 3, ids: ['3_1', []]}];
 
 test('Merging a path into an empty tree is the path', function() {
-  deepEqual(pouch.merge([], simple, 10), {
+  deepEqual(Pouch.merge([], simple, 10), {
     tree: [simple],
     conflicts: 'new_leaf'
   }, '');
 });
 
 test('Remerge path into path is reflexive', function() {
-  deepEqual(pouch.merge([simple], simple, 10), {
+  deepEqual(Pouch.merge([simple], simple, 10), {
     tree: [simple],
     conflicts: 'internal_node'
   }, '');
 });
 
 test('Merging a path with multiple entries is the path', function() {
-  deepEqual(pouch.merge([], two0, 10), {
+  deepEqual(Pouch.merge([], two0, 10), {
     tree: [two0],
     conflicts: 'new_leaf'
   }, '');
 });
 
 test('Merging a path with multiple entries is reflexive', function() {
-  deepEqual(pouch.merge([two0], two0, 10), {
+  deepEqual(Pouch.merge([two0], two0, 10), {
     tree: [two0],
     conflicts: 'internal_node'
   }, '');
 });
 
 test('Merging a subpath into a path results in the path', function() {
-  deepEqual(pouch.merge([two0], simple, 10), {
+  deepEqual(Pouch.merge([two0], simple, 10), {
     tree: [two0],
     conflicts: 'internal_node'
   }, '');
 });
 
 test('Merging a new leaf gives us a new leaf', function() {
-  deepEqual(pouch.merge([two0], newleaf, 10), {
+  deepEqual(Pouch.merge([two0], newleaf, 10), {
     tree: [withnewleaf],
     conflicts: 'new_leaf'
   }, '');
 });
 
 test('Merging a new branch returns a proper tree', function() {
-  deepEqual(pouch.merge([two0], two1, 10), {
+  deepEqual(Pouch.merge([two0], two1, 10), {
     tree: [newbranch],
     conflicts: 'new_branch'
   }, '');
 });
 
 test('Order of merging does not affect the resulting tree', function() {
-  deepEqual(pouch.merge([two1], two0, 10), {
+  deepEqual(Pouch.merge([two1], two0, 10), {
     tree: [newbranch],
     conflicts: 'new_branch'
   }, '');
 });
 
 test('Merging a new_leaf doesnt return new_branch when branches exist', function() {
-  deepEqual(pouch.merge([newbranch], newleaf, 10), {
+  deepEqual(Pouch.merge([newbranch], newleaf, 10), {
     tree: [newbranchleaf],
     conflicts: 'new_leaf'
   }, '');
 });
 
 test('Merging a deep branch with branches works', function() {
-  deepEqual(pouch.merge([newbranchleaf], newdeepbranch, 10), {
+  deepEqual(Pouch.merge([newbranchleaf], newdeepbranch, 10), {
     tree: [newbranchleafbranch],
     conflicts: 'new_branch'
   }, '');
 });
 
 test('New information reconnects steming induced conflicts', function() {
-  deepEqual(pouch.merge(stemmedconflicts, withnewleaf, 10), {
+  deepEqual(Pouch.merge(stemmedconflicts, withnewleaf, 10), {
     tree: [withnewleaf],
     conflicts: 'new_leaf'
   }, '');
 });
 
 test('Simple stemming works', function() {
-  deepEqual(pouch.merge([two0], newleaf, 2), {
+  deepEqual(Pouch.merge([two0], newleaf, 2), {
     tree: [newleaf],
     conflicts: 'new_leaf'
   }, '');
 });
 
 test('Merge with stemming works correctly for branches', function() {
-  deepEqual(pouch.merge([newbranchleafbranch], simple, 2), {
+  deepEqual(Pouch.merge([newbranchleafbranch], simple, 2), {
     tree: stemmed2,
     conflicts: 'internal_node'
   }, '');
 });
 
 test('Merge with stemming to leaves works fine', function() {
-  deepEqual(pouch.merge([newbranchleafbranch], simple, 1), {
+  deepEqual(Pouch.merge([newbranchleafbranch], simple, 1), {
     tree: stemmed3,
     conflicts: 'internal_node'
   }, '');
 });
 
 test('Merging unstemmed recovers as much as possible without losing info', function() {
-  deepEqual(pouch.merge(stemmed3, withnewleaf, 10), {
+  deepEqual(Pouch.merge(stemmed3, withnewleaf, 10), {
     tree: partialrecover,
     conflicts: 'internal_node'
   }, '');

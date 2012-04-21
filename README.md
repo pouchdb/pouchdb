@@ -26,19 +26,15 @@ Simply download the minified pouch.js script from https://github.com/mikeal/pouc
 
 Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined unless there is an error, further arguments specify the result.
 
-## pouch.open(name, [options], [callback])
+## new Pouch('idb://dbname', [options], [callback])
 
-This method gets an existing database if one exists or creates a new one if one does not exist. if you specify `{http:true}` in the options then PouchDB will act as a client to a CouchDB server with a matching API (if your database name is a url then it behaves as a client by default)
+This method gets an existing database if one exists or creates a new one if one does not exist. The protocol field denotes which backend you want to use (currently only http and indexeddb are supported)
 
 <pre>
-pouch.open('test', function(err, db) {
+new Pouch('idb://test', function(err, db) {
   // Use db to call further functions
 })
 </pre>
-
-## pouch.deleteDatabase(name, [callback])
-
-Delete method with given name
 
 ## db
 
@@ -62,22 +58,23 @@ The subject of the of pouch.open. This is primary PouchDB API.
 
 ### db.changes.removeListener(listener)
 
-## db.replicate
+## Pouch.destroy(name, [callback])
 
-### db.replicate.to(dbName, [options], [callback])
+Delete database with given name
 
-### db.replicate.from(dbName, [options], [callback])
+## Pouch.replicate(from, to, [callback])
 
+Replicate a database
 
 ## Running the tests
 
 To run the full test suite (including replication) you'll need to run a CORS proxy
 pointing to a local CouchDB.
-	
-    git clone https://github.com/daleharvey/CORS-Proxy.git	
+
+    git clone https://github.com/daleharvey/CORS-Proxy.git
     cd CORS-Proxy
     node server.js
-	
+
 This will proxy requests to http://localhost:1234 (made by the test suite) to
 your local CouchDB running on http://localhost:5984, adding the correct CORS
 headers so the browser allows the requests to go through.

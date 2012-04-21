@@ -8,7 +8,7 @@
 
 module('all_docs', {
   setup : function () {
-    this.name = 'test_suite_db';
+    this.name = 'idb://test_suite_db';
   }
 });
 
@@ -72,7 +72,7 @@ asyncTest('Testing all docs', function() {
 });
 
 asyncTest('Testing deleting in changes', function() {
-  pouch.open(this.name, function(err, db) {
+  Pouch(this.name, function(err, db) {
     db.get('1', function(err, doc) {
       db.remove(doc, function(err, deleted) {
         ok(deleted.ok, 'deleted');
@@ -88,7 +88,7 @@ asyncTest('Testing deleting in changes', function() {
 });
 
 asyncTest('Testing updating in changes', function() {
-  pouch.open(this.name, function(err, db) {
+  Pouch(this.name, function(err, db) {
     db.get('3', function(err, doc) {
       doc.updated = 'totally';
       db.put(doc, function(err, doc) {
@@ -103,7 +103,7 @@ asyncTest('Testing updating in changes', function() {
 });
 
 asyncTest('Testing include docs', function() {
-  pouch.open(this.name, function(err, db) {
+  Pouch(this.name, function(err, db) {
     db.changes({include_docs: true}, function(err, changes) {
       ok(changes.results.length == 4);
       ok(changes.results[3].id == "3");
@@ -116,7 +116,7 @@ asyncTest('Testing include docs', function() {
 });
 
 asyncTest('Testing conflicts', function() {
-  pouch.open(this.name, function(err, db) {
+  Pouch(this.name, function(err, db) {
     // add conflicts
     var conflictDoc1 = {
       _id: "3", _rev: "2-aa01552213fafa022e6167113ed01087", value: "X"
@@ -160,7 +160,7 @@ asyncTest('Testing conflicts', function() {
 });
 
 asyncTest('Test basic collation', function() {
-  pouch.open(this.name, function(err, db) {
+  Pouch(this.name, function(err, db) {
     var docs = {docs: [{_id: "Z", foo: "Z"}, {_id: "a", foo: "a"}]};
     db.bulkDocs(docs, function(err, res) {
       db.allDocs({startkey: 'Z', endkey: 'Z'}, function(err, result) {

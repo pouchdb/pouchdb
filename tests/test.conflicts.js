@@ -4,11 +4,9 @@
 // Note: writing sync tests over an async api sucks, havent found a decent
 // dataflow type library I like yet
 
-// all_or_nothing is not implemented
-
 module('conflicts', {
   setup : function () {
-    this.name = 'test_suite_db';
+    this.name = 'idb://test_suite_db';
   }
 });
 
@@ -43,7 +41,7 @@ asyncTest('Testing conflicts', function() {
 
 asyncTest('Testing conflicts', function() {
   var doc = {_id: 'fubar', a:1, b: 1};
-  pouch.open(this.name, function(err, db) {
+  Pouch(this.name, function(err, db) {
     db.put(doc, function(err, ndoc) {
       doc._rev = ndoc.rev;
       db.remove(doc, function() {

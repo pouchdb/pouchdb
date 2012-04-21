@@ -4,7 +4,7 @@ var remote = {
 
 module('replication', {
   setup : function () {
-    this.name = 'test_suite_db';
+    this.name = 'idb://test_suite_db';
     this.remote = 'http://' + remote.host + '/test_suite_db/';
   }
 });
@@ -19,7 +19,8 @@ asyncTest("Test basic pull replication", function() {
   var self = this;
   initDBPair(this.name, this.remote, function(db, remote) {
     remote.bulkDocs({docs: docs}, {}, function(err, results) {
-      db.replicate.from(self.remote, function(err, result) {
+      //console.log(db, db.replicate().from());
+      db.replicate().from(self.remote, function(err, result) {
         ok(result.ok, 'replication was ok');
         ok(result.docs_written = docs.length, 'correct # docs written');
         start();
@@ -33,7 +34,7 @@ asyncTest("Local DB contains documents", function() {
   initDBPair(this.name, this.remote, function(db, remote) {
     remote.bulkDocs({docs: docs}, {}, function(err, _) {
       db.bulkDocs({docs: docs}, {}, function(err, _) {
-        db.replicate.from(self.remote, function(err, _) {
+        db.replicate().from(self.remote, function(err, _) {
           db.allDocs(function(err, result) {
             ok(result.rows.length === docs.length, 'correct # docs exist');
             start();
@@ -48,7 +49,7 @@ asyncTest("Test basic push replication", function() {
   var self = this;
   initDBPair(this.name, this.remote, function(db, remote) {
     db.bulkDocs({docs: docs}, {}, function(err, results) {
-      db.replicate.to(self.remote, function(err, result) {
+      db.replicate().to(self.remote, function(err, result) {
         ok(result.ok, 'replication was ok');
         ok(result.docs_written === docs.length, 'correct # docs written');
         start();
@@ -61,8 +62,9 @@ asyncTest("Test basic push replication take 2", function() {
   var self = this;
   initDBPair(this.name, this.remote, function(db, remote) {
     db.bulkDocs({docs: docs}, {}, function(err, _) {
-      db.replicate.to(self.remote, function(err, _) {
+      db.replicate().to(self.remote, function(err, _) {
         remote.allDocs(function(err, result) {
+          console.log(JSON.stringify(result));
           ok(result.rows.length === docs.length, 'correct # docs written');
           start();
         });
@@ -75,10 +77,10 @@ asyncTest("Test checkpoint", function() {
   var self = this;
   initDBPair(this.name, this.remote, function(db, remote) {
     remote.bulkDocs({docs: docs}, {}, function(err, results) {
-      db.replicate.from(self.remote, function(err, result) {
+      db.replicate().from(self.remote, function(err, result) {
         ok(result.ok, 'replication was ok');
         ok(result.docs_written === docs.length, 'correct # docs written');
-        db.replicate.from(self.remote, function(err, result) {
+        db.replicate().from(self.remote, function(err, result) {
           ok(result.ok, 'replication was ok');
           ok(result.docs_written === 0, 'correct # docs written');
           ok(result.docs_read === 0, 'no docs read');
@@ -94,7 +96,7 @@ asyncTest("Test checkpoint 2", function() {
   var doc = {_id: "3", count: 0};
   initDBPair(this.name, this.remote, function(db, remote) {
     remote.put(doc, {}, function(err, results) {
-      db.replicate.from(self.remote, function(err, result) {
+      db.replicate().from(self.remote, function(err, result) {
         ok(result.ok, 'replication was ok');
         doc._rev = results.rev;
         doc.count++;
@@ -102,7 +104,7 @@ asyncTest("Test checkpoint 2", function() {
           doc._rev = results.rev;
           doc.count++;
           remote.put(doc, {}, function(err, results) {
-            db.replicate.from(self.remote, function(err, result) {
+            db.replicate().from(self.remote, function(err, result) {
               ok(result.ok, 'replication was ok');
               ok(result.docs_written === 1, 'correct # docs written');
               start();
@@ -124,7 +126,7 @@ asyncTest("Test basic conflict", function() {
   initDBPair(this.name, this.remote, function(db, remote) {
     db.put(doc1, function(err, localres) {
       remote.put(doc2, function(err, remoteres) {
-        db.replicate.to(self.remote, function(err, _) {
+        db.replicate().to(self.remote, function(err, _) {
           remote.get('adoc', {conflicts: true}, function(err, result) {
             ok(result._conflicts, 'result has a conflict');
             start();
