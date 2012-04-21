@@ -3,7 +3,7 @@
 //
 
 Futon = function() {
-    showAllDbs : function {
+    showAllDbs = function() {
         console.log(
             window.webkitIndexedDB.getDatabaseNames()
         );
