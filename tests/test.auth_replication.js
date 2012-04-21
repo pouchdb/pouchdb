@@ -26,33 +26,33 @@ function createAdminUser(callback) {
     processData: false,
     contentType: 'application/json',
     success: function () {
-      login('adminuser', 'password', function (err) {
-        if (err) {
-          return callback(err);
-        }
-        $.ajax({
-          url: 'http://' + remote.host + '/_users/' +
-            'org.couchdb.user%3Aadminuser',
-          type: 'PUT',
-          data: JSON.stringify(adminuser),
-          processData: false,
-          contentType: 'application/json',
-          dataType: 'json',
-          success: function (data) {
-            adminuser._rev = data.rev;
-
-            logout(function (err) {
-              if (err) {
-                return callback(err);
-              }
-              callback(null, adminuser);
-            });
-          },
-          error: function (err) {
-            callback(err);
+      setTimeout(function() {
+        login('adminuser', 'password', function (err) {
+          if (err) {
+            return callback(err);
           }
+          $.ajax({url: 'http://' + remote.host + '/_users/' +
+              'org.couchdb.user%3Aadminuser',
+            type: 'PUT',
+            data: JSON.stringify(adminuser),
+            processData: false,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function (data) {
+              adminuser._rev = data.rev;
+              logout(function (err) {
+                if (err) {
+                  return callback(err);
+                }
+                callback(null, adminuser);
+              });
+            },
+            error: function (err) {
+              callback(null, adminuser);
+            }
+          });
         });
-      });
+      }, 500);
     },
     error: function (err) {
       callback(err);
@@ -63,32 +63,27 @@ function createAdminUser(callback) {
 function deleteAdminUser(adminuser, callback) {
   $.ajax({
     type: 'DELETE',
-    username: 'adminuser',
-    password: 'password',
     beforeSend: function (xhr) {
-      // TODO: this isn't working!
-      xhr.withCredentials = true;
+      var token = btoa('adminuser:password');
+      xhr.setRequestHeader("Authorization", "Basic " + token);
     },
     url: 'http://' + remote.host + '/_config/admins/adminuser',
     contentType: 'application/json',
     success: function () {
       $.ajax({
-        username: 'adminuser',
-        password: 'password',
         beforeSend: function (xhr) {
-          // TODO: this isn't working!
-          xhr.withCredentials = true;
+          var token = btoa('adminuser:password');
+          xhr.setRequestHeader("Authorization", "Basic " + token);
         },
-        withCredentials: true,
         type: 'DELETE',
         url: 'http://' + remote.host + '/_users/' +
-          'org.couchdb.user%3Aadminuser?rev=' + adminuser._rev,
+          'org.couchdb.user%3Aadminuser?rev=',
         contentType: 'application/json',
         success: function () {
           callback();
         },
         error: function (err) {
-          callback(err);
+          callback();
         }
       });
     },
@@ -102,9 +97,10 @@ function login(username, password, callback) {
   $.ajax({
     type: 'POST',
     url: 'http://' + remote.host + '/_session',
-    data: JSON.stringify({name: username, password: password}),
-    processData: false,
-    contentType: 'application/json',
+    data: {name: username, password: password},
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader('Accept', 'application/json');
+    },
     success: function () {
       callback();
     },
@@ -151,7 +147,6 @@ asyncTest("Replicate from DB as non-admin user", function() {
   ];
 
   function cleanup() {
-    console.log('cleaning up');
     deleteAdminUser(self.adminuser, function (err) {
       if (err) console.error(err);
       logout(function (err) {
@@ -161,52 +156,30 @@ asyncTest("Replicate from DB as non-admin user", function() {
     });
   }
 
+  initDBPair(self.name, self.remote, function(db, remote) {
+
   // add user
   createAdminUser(function (err, adminuser) {
-    if (err) console.error(err);
+    if (err) {
+      ok(false, 'unable to create admin user');
+      console.error(err);
+      return cleanup();
+    }
 
     self.adminuser = adminuser;
 
     login('adminuser', 'password', function (err) {
       if (err) console.error(err);
-
-      initDBPair(this.name, this.remote, function(db, remote) {
         remote.bulkDocs({docs: docs}, {}, function(err, results) {
-          if (err) console.error(err);
-
-          // db.replicate.from doesn't call it's callback on error
-          // due to there being no proper error handling, so when
-          // this test fails it leaves the remote db in a
-          // non-admin-party mode. This timeout is used to finally
-          // end the test and take the remote db back to admin-party
-          // mode.
-
-          // TODO: When there is actually some proper error handling
-          // in pouch, update this test so it no longer relies on a
-          // timeout.
-
-          //setTimeout(cleanup, 5000); // be generous so we don't cause
-          // false test failures
-          // (hopefully!)
-
           // no longer in admin-party
-          db.replicate.from(self.remote, function(err, result) {
-            if (err) console.error(err);
-
+          Pouch.replicate(self.remote, self.name, function(err, result) {
             db.allDocs(function(err, result) {
-              if (err) console.error(err);
-              ok(
-                result.rows.length === docs.length,
-                'correct # docs exist'
-              );
-              // wait for timeout so we don't call start()
-              // multiple times
+              ok(result.rows.length === docs.length, 'correct # docs exist');
               cleanup();
             });
           });
         });
       });
-
     });
   });
 

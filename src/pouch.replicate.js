@@ -55,14 +55,14 @@
 
   function toPouch(db, callback) {
     if (db instanceof Pouch) {
-      return callback(db);
+      return callback(null, db);
     }
-    Pouch(db, callback);
+    new Pouch(db, callback);
   }
 
   Pouch.replicate = function(src, target, callback) {
-    toPouch(src, function(src) {
-      toPouch(target, function(target) {
+    toPouch(src, function(_, src) {
+      toPouch(target, function(_, target) {
         replicate(src, target, callback);
       });
     });

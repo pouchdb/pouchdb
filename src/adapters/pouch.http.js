@@ -12,15 +12,33 @@ Pouch.adapter('http', (function() {
   api.init = function(opts, callback) {
     var self = this;
     this.host = getHost(opts.name);
-    ajax({
-      auth: this.host.auth,
-      type: 'PUT',
-      url: genUrl(this.host, '')
-    }, function(err, ret) {
-      if (!err || err.status === 412) {
+    var db_url = genUrl(this.host, '');
+    ajax({auth: this.host.auth, type: 'PUT', url: db_url}, function(err, ret) {
+      // the user may not have permission to PUT to a db url
+      if (err && err.status === 401) {
+        // test if the db already exists
+        ajax({auth: self.host.auth, type: 'HEAD', url: db_url}, function (err, ret) {
+          if (err) {
+            // still can't access db
+            call(callback, err);
+          } else {
+            // continue
+            call(callback, null, self);
+          }
+        });
+      } else if (!err || err.status === 412) {
         call(callback, null, self);
       }
     });
+    // ajax({
+    //   auth: this.host.auth,
+    //   type: 'PUT',
+    //   url: genUrl(this.host, '')
+    // }, function(err, ret) {
+    //   if (!err || err.status === 412) {
+    //     call(callback, null, self);
+    //   }
+    // });
   };
 
   api.id = function() {
