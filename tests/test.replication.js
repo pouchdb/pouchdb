@@ -19,7 +19,6 @@ asyncTest("Test basic pull replication", function() {
   var self = this;
   initDBPair(this.name, this.remote, function(db, remote) {
     remote.bulkDocs({docs: docs}, {}, function(err, results) {
-      //console.log(db, db.replicate().from());
       db.replicate().from(self.remote, function(err, result) {
         ok(result.ok, 'replication was ok');
         ok(result.docs_written = docs.length, 'correct # docs written');
@@ -64,7 +63,6 @@ asyncTest("Test basic push replication take 2", function() {
     db.bulkDocs({docs: docs}, {}, function(err, _) {
       db.replicate().to(self.remote, function(err, _) {
         remote.allDocs(function(err, result) {
-          console.log(JSON.stringify(result));
           ok(result.rows.length === docs.length, 'correct # docs written');
           start();
         });
