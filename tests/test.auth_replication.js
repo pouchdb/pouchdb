@@ -23,7 +23,6 @@ function createAdminUser(callback) {
     url: 'http://' + remote.host + '/_config/admins/adminuser',
     type: 'PUT',
     data: JSON.stringify(adminuser.password),
-    processData: false,
     contentType: 'application/json',
     success: function () {
       setTimeout(function() {
@@ -31,15 +30,14 @@ function createAdminUser(callback) {
           if (err) {
             return callback(err);
           }
-          $.ajax({url: 'http://' + remote.host + '/_users/' +
+          $.ajax({
+            url: 'http://' + remote.host + '/_users/' +
               'org.couchdb.user%3Aadminuser',
             type: 'PUT',
             data: JSON.stringify(adminuser),
-            processData: false,
             contentType: 'application/json',
             dataType: 'json',
             success: function (data) {
-              adminuser._rev = data.rev;
               logout(function (err) {
                 if (err) {
                   return callback(err);
@@ -70,19 +68,27 @@ function deleteAdminUser(adminuser, callback) {
     url: 'http://' + remote.host + '/_config/admins/adminuser',
     contentType: 'application/json',
     success: function () {
+      var adminUrl = 'http://' + remote.host + '/_users/' +
+        'org.couchdb.user%3Aadminuser';
       $.ajax({
-        beforeSend: function (xhr) {
-          var token = btoa('adminuser:password');
-          xhr.setRequestHeader("Authorization", "Basic " + token);
+        type: 'GET',
+        url: adminUrl,
+        dataType: 'json',
+        success: function(doc) {
+          $.ajax({
+            type: 'DELETE',
+            url: 'http://' + remote.host + '/_users/' +
+              'org.couchdb.user%3Aadminuser?rev=' + doc._rev,
+            contentType: 'application/json',
+            success: function () {
+              callback();
+            },
+            error: function (err) {
+              callback();
+            }
+          });
         },
-        type: 'DELETE',
-        url: 'http://' + remote.host + '/_users/' +
-          'org.couchdb.user%3Aadminuser?rev=',
-        contentType: 'application/json',
-        success: function () {
-          callback();
-        },
-        error: function (err) {
+        error: function() {
           callback();
         }
       });
@@ -114,8 +120,6 @@ function logout(callback) {
   $.ajax({
     type: 'DELETE',
     url: 'http://' + remote.host + '/_session',
-    username: '_',
-    password: '_',
     success: function () {
       callback();
     },
@@ -171,7 +175,6 @@ asyncTest("Replicate from DB as non-admin user", function() {
     login('adminuser', 'password', function (err) {
       if (err) console.error(err);
         remote.bulkDocs({docs: docs}, {}, function(err, results) {
-          // no longer in admin-party
           Pouch.replicate(self.remote, self.name, function(err, result) {
             db.allDocs(function(err, result) {
               ok(result.rows.length === docs.length, 'correct # docs exist');
