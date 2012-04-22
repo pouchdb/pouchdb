@@ -4,7 +4,7 @@ window.Pouch = function(name, opts, callback) {
     return new Pouch(name, opts, callback);
   }
 
-  if (opts instanceof Function) {
+  if (opts instanceof Function || typeof opts === 'undefined') {
     callback = opts;
     opts = {};
   }
