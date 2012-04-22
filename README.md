@@ -18,7 +18,7 @@ After IndexedDatabase is more solidified it's possible that BrowserCouch and Pou
 
 # Getting started
 
-Simply download the minified pouch.js script from https://github.com/mikeal/pouchdb/blob/master/pouch.alpha.min.js and include in your page with
+Running `$ make` or `$ make min` in the projext will give you a `pouch.alpha.js` or `pouch.alpha.min.js` which you can simple include on the page:
 
     <script type="text/javascript" src="../pouch.alpha.min.js"></script>
 
