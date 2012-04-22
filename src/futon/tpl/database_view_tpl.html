@@ -1,0 +1,23 @@
+{{#total}}
+<p>{{start}} to {{end}} of {{total}}</p>
+{{/total}}
+<ul>
+  {{#rows}}
+  <li><a href="#/db/{{db}}/{{name}}/">{{{display}}}<span class="arrow right">›</span></a></li>
+  {{/rows}}
+  {{^rows}}
+  <li class="none">No Results</li>
+  {{/rows}}
+</ul>
+
+<div id="paginator">
+  {{#hasNext}}
+  <a href='#/db/{{db}}/views/{{view}}?startkey={{startkey}}'
+     class="button next">Next &gt;</a>
+  {{/hasNext}}
+  &nbsp;
+  {{#hasBack}}
+  <a href='#/db/{{db}}/views/{{view}}?descending=true&startkey={{backkey}}'
+     class="button back">&lt; Back</a>
+  {{/hasBack}}
+</div>

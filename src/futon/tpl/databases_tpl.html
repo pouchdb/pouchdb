@@ -1,0 +1,19 @@
+<ul id="db_list">
+  <li class="header">Databases</li>
+  {{#databases}}
+  <li><a href="#/db/{{url}}/">{{name}}
+      <span class="arrow right">›</span></a></li>
+  {{/databases}}
+</ul>
+
+<form action="#create_db" id="create_db_form">
+  <ul>
+    <li class="header">Create Database</li>
+    <li>
+      <input type="text"  name="name" placeholder="✎ Database Name" required />
+    </li>
+  </ul>
+  <div style="padding:10px;">
+    <input type="submit" value="Create" />
+  </div>
+</form>

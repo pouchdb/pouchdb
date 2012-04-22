@@ -1,0 +1,16 @@
+<form action="{{action}}">
+
+  {{#form}}
+  <input type="hidden" name="{{key}}" value="{{value}}" />
+  {{/form}}
+
+  <ul><li>
+      <p><strong>Are you sure you want to {{notice}}</strong></p>
+  </li></ul>
+  <div style="padding:10px;">
+    <a href="{{cancel}}" class="button">Cancel</a>
+  </div>
+  <div style="padding:10px;">
+    <input type="submit" value="{{action_btn}}" class="warning" />
+  </div>
+</form>

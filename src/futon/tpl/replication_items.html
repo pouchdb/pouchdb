@@ -1,0 +1,16 @@
+{{#running}}
+<li data-source="{{source}}" data-target="{{target}}"
+    data-continuous="{{continuous}}" data-create_target="{{create_target}}"
+    class="repl">
+  <a class="replication" href="#/replication/{{id}}">
+    {{#error}}<span class="error repl_status">!</span>{{/error}}
+    {{#completed}}<span class="completed repl_status">✔</span>{{/completed}}
+    {{#triggered}}<span class="running repl_status">✔</span>{{/triggered}}
+    {{source}} -> {{target}}
+    <span class="arrow right">›</span>
+  </a>
+</li>
+{{/running}}
+{{^running}}
+<li class="none">No Running Replications</li>
+{{/running}}
