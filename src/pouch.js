@@ -1,4 +1,4 @@
-var Pouch = function(name, opts, callback) {
+window.Pouch = function(name, opts, callback) {
 
   if (!(this instanceof arguments.callee)) {
     return new Pouch(name, opts, callback);
