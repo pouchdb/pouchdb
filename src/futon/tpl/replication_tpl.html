@@ -1,0 +1,47 @@
+
+<ul id="running">
+  <li class="header">Replicator Database</li>
+</ul>
+
+<form action="#replication">
+  <ul class="replication">
+    <li class="header">Create Replication</li>
+    <li>
+      <div class="selectwrapper">
+        From:
+        <select name="source" id="source_select">
+          {{#databases}}
+          <option value="{{.}}">{{.}}</option>
+          {{/databases}}
+        </select>
+        <input type="text" name="custom_source" id="custom_source"
+               placeholder="✎ or enter a url" value="" />
+      </div>
+      <div class="selectwrapper">
+        To:
+        <select name="target" id="target_select">
+          {{#databases}}
+          <option value="{{.}}">{{.}}</option>
+          {{/databases}}
+        </select>
+        <input type="text" name="custom_target" id="custom_target"
+               placeholder="✎ or enter a url"  value="" />
+      </div>
+
+      <label for="continuous">
+        <input type="checkbox" id="continuous" name="continuous" /> Continuous
+      </label>
+
+      <label for="persist">
+        <input type="checkbox" id="persist" name="persist" checked="checked" />
+        Persist in Replicator Database
+      </label>
+
+    </li>
+  </ul>
+  <div style="padding:10px;">
+    <input type="submit" value="replicate" />
+  </div>
+</form>
+
+<div id="replication_feedback"></div>

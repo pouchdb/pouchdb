@@ -1,0 +1,52 @@
+
+<ul>
+  <li class="header">JSON</li>
+  {{#keys}}
+  {{#canedit}}
+  <li><a href="#/db/{{db}}/{{doc}}/rev/{{rev}}/{{url}}/">
+      {{key}}: <span class="jsonval">{{value}}</span>
+      <span class="arrow right">›</span></a></li>
+  {{/canedit}}
+  {{^canedit}}
+  <li class="selectwrapper">{{key}}: <span class="jsonval">{{value}}</span></li>
+  {{/canedit}}
+  {{/keys}}
+</ul>
+
+{{#canedit}}
+<form action="#addkey" id="addkeyform">
+  <input type="hidden" name="db" value="{{db}}" />
+  <input type="hidden" name="doc" value="{{doc}}">
+  <input type="hidden" name="key" value="{{key}}">
+
+  <ul id="addkeylist"></ul>
+  <div style="padding:10px;">
+    <a class="button" id="addkey">Add Key</a>
+  </div>
+</form>
+{{/canedit}}
+
+{{#preview}}
+<ul>
+  <li class="header">Preview</li>
+  <li class="selectwrapper" style="text-align:center;">{{{preview}}}</li>
+</ul>
+{{/preview}}
+
+
+{{#hasrevisions}}
+<ul>
+  <li class="header">Revisions</li>
+  {{#revisions}}
+  {{#available}}
+  <li><a href="#/db/{{db}}/{{doc}}/rev/{{rev}}/">{{rev}}<span class="arrow right">›</span></a></li>
+  {{/available}}
+  {{^available}}<li><span class="unavailable">{{rev}}</span>{{/available}}
+  {{/revisions}}
+</ul>
+{{/hasrevisions}}
+<div style="padding:10px;">
+  <a href="#/db/{{db}}/{{doc}}{{optkey}}/_delete/" class="button warning">
+    Delete
+  </a>
+</div>

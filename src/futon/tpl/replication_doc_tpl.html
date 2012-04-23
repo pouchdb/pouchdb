@@ -1,0 +1,28 @@
+
+<div style="text-align:center; margin: 15px 0px;">
+<h3 id="repl_doc" >
+  {{#error}}<span class="error repl_status">!</span>{{/error}}
+  {{#paused}}<span class="completed repl_status">✔</span>{{/paused}}
+  {{#triggered}}<span class="running repl_status">✔</span>{{/triggered}}
+  {{source}} -> {{target}}
+</h3>
+</div>
+<ul>
+  <li class="header">Replication Document</li>
+  {{#keys}}
+  <li><span>{{key}}:<span class="right padded">{{value}}</span></span></li>
+  {{/keys}}
+</ul>
+<div style="padding:10px;">
+  {{#paused}}
+  <form action="#toggle_replication">
+    <input type="hidden" name="id" value="{{_id}}" />
+    <input type="submit" value="Rerun Replication" />
+  </form><br />
+  {{/paused}}
+  <form action="#delete_replication">
+    <input type="hidden" name="rev" value="{{_rev}}" />
+    <input type="hidden" name="id" value="{{_id}}" />
+    <input type="submit" value="Delete" class="warning" />
+  </form>
+</div>

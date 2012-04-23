@@ -1,0 +1,11 @@
+  <ul id="tasks">
+    {{#tasks}}
+    <li>
+      <table>
+        <tr><td class="label">Pid:</td><td>{{pid}}</td></tr>
+        <tr><td class="label">Type:</td><td>{{type}}</td></tr>
+      </table>
+    </li>
+    {{/tasks}}
+    {{^tasks}}<li class="none">No Tasks</li>{{/tasks}}
+  </ul>

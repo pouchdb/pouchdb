@@ -1,0 +1,26 @@
+<ul>
+  <li class="header">Database Info</li>
+  <li><span>Document Count:
+      <span class="right padded">{{doc_count}}</span></span></li>
+  <li><span>Update Seq:
+      <span class="right padded">{{update_seq}}</span></span></li>
+  <li><span>Disk Size:<span class="right padded">{{disk_size}}</span></span></li>
+  <li><a href="#/db/{{db}}/changes">Changes<span class="arrow right">›</span></a></li>
+</ul>
+
+<ul>
+  <li class="header">Views</li>
+  <li><a href="#/db/{{db}}/views/_all_docs">All Documents<span class="arrow right">›</span></a></li>
+  <li><a href="#/db/{{db}}/views/_design_docs">Design Documents<span class="arrow right">›</span></a></li>
+  {{#views}}
+  <li><a href="#/db/{{db}}/views/{{ddoc}}-{{name}}">{{id}}/{{name}}<span class="arrow right">›</span></a></li>
+  {{/views}}
+</ul>
+
+<div style="padding:10px;">
+  <a href="#/db/{{db}}/_create_doc/" class="button">Create New Document</a>
+  <br />
+  <a href="#/db/{{db}}/_compact/" class="button">Compact Database</a>
+  <br />
+  <a href="#/db/{{db}}/_delete/" class="button warning">Delete</a>
+</div>

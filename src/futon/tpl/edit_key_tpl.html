@@ -1,0 +1,16 @@
+<form action="#savekey">
+  <ul>
+    <li class="header">Edit Document</li>
+    <li><span>{{key}}: {{value}}</span></li>
+    <li><textarea name="value">{{value}}</textarea></li>
+  </ul>
+  <div style="padding:10px;">
+    <input type="hidden" name="db" value="{{db}}" />
+    <input type="hidden" name="doc" value="{{doc}}" />
+    <input type="hidden" name="key" value="{{key}}" />
+    <input type="submit" value="Save" id="savekey" />
+    <a href="#/db/{{db}}/{{doc}}/{{key}}/_delete/" class="button warning">
+      Delete
+    </a>
+  </div>
+</form>
