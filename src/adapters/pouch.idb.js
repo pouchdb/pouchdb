@@ -172,6 +172,9 @@ var IdbPouch = function(opts, callback) {
 
       results.forEach(function(result) {
         delete result._bulk_seq;
+        if (/_local/.test(result.id)) {
+          return;
+        }
         api.changes.emit(result);
       });
       call(callback, null, results);
@@ -540,12 +543,18 @@ var IdbPouch = function(opts, callback) {
         if (opts.continuous) {
           api.changes.addListener(opts.onChange);
         }
+        results.map(function(c) {
+          call(opts.onChange, c);
+        });
         return call(opts.complete, null, {results: results});
       }
       var cursor = event.target.result;
       var index = transaction.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
         var doc = event.target.result;
+        if (/_local/.test(doc.id)) {
+          return cursor['continue']();
+        }
         var c = {
           id: doc.id,
           seq: cursor.key,
@@ -566,7 +575,6 @@ var IdbPouch = function(opts, callback) {
           return doc.id !== c.id;
         });
         results.push(c);
-        call(opts.onChange, c);
         cursor['continue']();
       };
     };
