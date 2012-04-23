@@ -1,23 +1,23 @@
-Pouch.adapter('idb', (function() {
+// While most of the IDB behaviors match between implementations a
+// lot of the names still differ. This section tries to normalize the
+// different objects & methods.
+window.indexedDB = window.indexedDB ||
+  window.mozIndexedDB ||
+  window.webkitIndexedDB;
 
-  // While most of the IDB behaviors match between implementations a
-  // lot of the names still differ. This section tries to normalize the
-  // different objects & methods.
-  window.indexedDB = window.indexedDB ||
-    window.mozIndexedDB ||
-    window.webkitIndexedDB;
+window.IDBCursor = window.IDBCursor ||
+  window.webkitIDBCursor;
 
-  window.IDBCursor = window.IDBCursor ||
-    window.webkitIDBCursor;
+window.IDBKeyRange = window.IDBKeyRange ||
+  window.webkitIDBKeyRange;
 
-  window.IDBKeyRange = window.IDBKeyRange ||
-    window.webkitIDBKeyRange;
+window.IDBTransaction = window.IDBTransaction ||
+  window.webkitIDBTransaction;
 
-  window.IDBTransaction = window.IDBTransaction ||
-    window.webkitIDBTransaction;
+window.IDBDatabaseException = window.IDBDatabaseException ||
+  window.webkitIDBDatabaseException;
 
-  window.IDBDatabaseException = window.IDBDatabaseException ||
-    window.webkitIDBDatabaseException;
+var IdbPouch = function(opts, callback) {
 
   // IndexedDB requires a versioned database structure, this is going to make
   // it hard to dynamically create object stores if we needed to for things
@@ -35,6 +35,48 @@ Pouch.adapter('idb', (function() {
 
   var junkSeed = 0;
   var api = {};
+
+  var req = indexedDB.open(opts.name, POUCH_VERSION);
+  var name = opts.name;
+  var update_seq = 0;
+
+  var idb;
+
+  req.onupgradeneeded = function(e) {
+    var db = e.target.result;
+    db.createObjectStore(DOC_STORE, {keyPath : 'id'})
+      .createIndex('seq', 'seq', {unique : true});
+    // We are giving a _junk key because firefox really doesnt like
+    // writing without a key
+    db.createObjectStore(BY_SEQ_STORE, {keyPath: '_junk', autoIncrement : true});
+    db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
+  };
+
+  req.onsuccess = function(e) {
+
+    idb = e.target.result;
+
+    idb.onversionchange = function() {
+      idb.close();
+    };
+
+    // polyfill the new onupgradeneeded api for chrome
+    if (idb.setVersion && Number(idb.version) !== POUCH_VERSION) {
+      var versionReq = idb.setVersion(POUCH_VERSION);
+      versionReq.onsuccess = function() {
+        req.onupgradeneeded(e);
+        req.onsuccess(e);
+      };
+      return;
+    }
+
+    call(callback, null, api);
+  };
+
+  req.onerror = function(e) {
+    call(callback, {error: 'open', reason: e.toString()});
+  };
+
 
   api.destroy = function(name, callback) {
 
@@ -67,47 +109,6 @@ Pouch.adapter('idb', (function() {
   };
 
   api.init = function(opts, callback) {
-
-    var self = this;
-    var req = indexedDB.open(opts.name, POUCH_VERSION);
-
-    self.name = opts.name;
-    self.update_seq = 0;
-
-    req.onupgradeneeded = function(e) {
-      var db = e.target.result;
-      db.createObjectStore(DOC_STORE, {keyPath : 'id'})
-        .createIndex('seq', 'seq', {unique : true});
-      // We are giving a _junk key because firefox really doesnt like
-      // writing without a key
-      db.createObjectStore(BY_SEQ_STORE, {keyPath: '_junk', autoIncrement : true});
-      db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
-    };
-
-    req.onsuccess = function(e) {
-
-      self.idb = e.target.result;
-
-      self.idb.onversionchange = function() {
-        self.idb.close();
-      };
-
-      // polyfill the new onupgradeneeded api for chrome
-      if (self.idb.setVersion && Number(self.idb.version) !== POUCH_VERSION) {
-        var versionReq = self.idb.setVersion(POUCH_VERSION);
-        versionReq.onsuccess = function() {
-          req.onupgradeneeded(e);
-          req.onsuccess(e);
-        };
-        return;
-      }
-
-      call(callback, null, self);
-    };
-
-    req.onerror = function(e) {
-      call(callback, {error: 'open', reason: e.toString()});
-    };
   };
 
   api.bulkDocs = function(req, opts, callback) {
@@ -160,10 +161,9 @@ Pouch.adapter('idb', (function() {
       bucket.sort(function(a, b) { return a._bulk_seq - b._bulk_seq; });
     });
 
-    var txn = this.idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                                    IDBTransaction.READ_WRITE);
     var results = [];
-    var self = this
 
     txn.oncomplete = function(event) {
       results.sort(function(a, b) {
@@ -172,7 +172,7 @@ Pouch.adapter('idb', (function() {
 
       results.forEach(function(result) {
         delete result._bulk_seq;
-        self.changes.emit(result);
+        api.changes.emit(result);
       });
       call(callback, null, results);
     };
@@ -322,20 +322,18 @@ Pouch.adapter('idb', (function() {
       opts = {};
     }
 
-    var self = this;
-
     if (/\//.test(id) && !/^_local/.test(id)) {
       var docId = id.split('/')[0];
       var attachId = id.split('/')[1];
-      var req = this.idb.transaction([DOC_STORE], IDBTransaction.READ)
+      var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
         .objectStore(DOC_STORE).get(docId)
         .onsuccess = function(e) {
           var metadata = e.target.result;
-          var nreq = self.idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
+          var nreq = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
             .objectStore(BY_SEQ_STORE).get(metadata.seq)
             .onsuccess = function(e) {
               var digest = e.target.result._attachments[attachId].digest;
-              var req = self.idb.transaction([ATTACH_STORE], IDBTransaction.READ)
+              var req = idb.transaction([ATTACH_STORE], IDBTransaction.READ)
                 .objectStore(ATTACH_STORE).get(digest)
                 .onsuccess = function(e) {
                   call(callback, null, atob(e.target.result.body));
@@ -345,7 +343,7 @@ Pouch.adapter('idb', (function() {
       return;
     }
 
-    var req = this.idb.transaction([DOC_STORE], IDBTransaction.READ)
+    var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
       .objectStore(DOC_STORE).get(id);
 
     req.onsuccess = function(e) {
@@ -354,7 +352,7 @@ Pouch.adapter('idb', (function() {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
-      var nreq = self.idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
+      var nreq = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
         .objectStore(BY_SEQ_STORE).get(metadata.seq);
       nreq.onsuccess = function(e) {
         var doc = e.target.result;
@@ -376,7 +374,7 @@ Pouch.adapter('idb', (function() {
       callback = opts;
       opts = {};
     }
-    return this.bulkDocs({docs: [doc]}, opts, yankError(callback));
+    return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
   };
 
 
@@ -387,7 +385,7 @@ Pouch.adapter('idb', (function() {
     }
     var newDoc = JSON.parse(JSON.stringify(doc));
     newDoc._deleted = true;
-    return this.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
+    return api.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
   };
 
 
@@ -406,7 +404,7 @@ Pouch.adapter('idb', (function() {
     var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
       : start ? IDBKeyRange.lowerBound(start, true)
       : end ? IDBKeyRange.upperBound(end) : false;
-    var transaction = this.idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = keyRange ? oStore.openCursor(keyRange, descending)
       : oStore.openCursor(null, descending);
@@ -420,6 +418,9 @@ Pouch.adapter('idb', (function() {
       }
       var cursor = e.target.result;
       function allDocsInner(metadata, data) {
+        if (/_local/.test(metadata.id)) {
+          return cursor['continue']();
+        }
         if (metadata.deleted !== true) {
           var doc = {
             id: metadata.id,
@@ -453,16 +454,15 @@ Pouch.adapter('idb', (function() {
   // Looping through all the documents in the database is a terrible idea
   // easiest to implement though, should probably keep a counter
   api.info = function(callback) {
-    var self = this;
     var count = 0;
-    this.idb.transaction([DOC_STORE], IDBTransaction.READ)
+    idb.transaction([DOC_STORE], IDBTransaction.READ)
       .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
         var cursor = e.target.result;
         if (!cursor) {
           return callback(null, {
-            db_name: self.name,
+            db_name: name,
             doc_count: count,
-            update_seq: self.update_seq
+            update_seq: update_seq
           });
         }
         if (cursor.value.deleted !== true) {
@@ -475,13 +475,12 @@ Pouch.adapter('idb', (function() {
   api.putAttachment = function(id, rev, doc, type, callback) {
     var docId = id.split('/')[0];
     var attachId = id.split('/')[1];
-    var self = this;
-    self.get(docId, function(err, obj) {
+    api.get(docId, function(err, obj) {
       obj._attachments[attachId] = {
         content_type: type,
         data: btoa(doc)
       }
-      self.put(obj, callback);
+      api.put(obj, callback);
     });
   };
 
@@ -491,7 +490,6 @@ Pouch.adapter('idb', (function() {
       callback = opts;
       opts = {};
     }
-    var self = this;
     var ids = Object.keys(req);
     var count = 0;
     var missing = {};
@@ -512,7 +510,7 @@ Pouch.adapter('idb', (function() {
     }
 
     ids.map(function(id) {
-      self.get(id, {revs_info: true}, function(err, doc) {
+      api.get(id, {revs_info: true}, function(err, doc) {
         readDoc(err, doc, id);
       });
     });
@@ -534,7 +532,7 @@ Pouch.adapter('idb', (function() {
     descending = descending ? IDBCursor.PREV : null;
 
     var results = [];
-    var transaction = this.idb.transaction([DOC_STORE, BY_SEQ_STORE]);
+    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
     var request = transaction.objectStore(BY_SEQ_STORE)
       .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
     request.onsuccess = function(event) {
@@ -594,34 +592,22 @@ Pouch.adapter('idb', (function() {
     api.changes.listeners.push(l);
   };
 
-  api.replicate = function() {
-    var self = this;
-    return {
-      from: function(url, opts, callback) {
-        if (opts instanceof Function) {
-          callback = opts;
-          opts = {};
-        }
-        new Pouch(url, function(err, remote) {
-          if (err) {
-            return call(callback, {error: 'borked'});
-          }
-          Pouch.replicate(remote, self, callback);
-        });
-      },
-      to: function(dbName, opts, callback) {
-        if (opts instanceof Function) {
-          callback = opts;
-          opts = {};
-        }
-        Pouch(dbName, function(err, remote) {
-          if (err) {
-            return call(callback, {error: 'borked'});
-          }
-          Pouch.replicate(self, remote, callback);
-        });
-      }
-    };
+  api.replicate = {};
+
+  api.replicate.from = function(url, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    Pouch.replicate(url, api, callback);
+  };
+
+  api.replicate.to = function(dbName, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    Pouch.replicate(api, dbName, callback);
   };
 
   api.query = function(fun, reduce, opts, callback) {
@@ -633,7 +619,7 @@ Pouch.adapter('idb', (function() {
       opts.complete = callback;
     }
 
-    viewQuery(fun, this.idb, opts);
+    viewQuery(fun, idb, opts);
   }
 
   // Wrapper for functions that call the bulkdocs api with a single doc,
@@ -697,4 +683,22 @@ Pouch.adapter('idb', (function() {
 
   return api;
 
-})());
+};
+
+IdbPouch.valid = function() {
+  return true;
+};
+
+IdbPouch.destroy = function(name, callback) {
+  var req = indexedDB.deleteDatabase(name);
+
+  req.onsuccess = function() {
+    call(callback, null);
+  };
+
+  req.onerror = function(e) {
+    call(callback, {error: 'delete', reason: e.toString()});
+  };
+};
+
+Pouch.adapter('idb', IdbPouch);

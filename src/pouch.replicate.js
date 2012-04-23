@@ -54,10 +54,10 @@
   }
 
   function toPouch(db, callback) {
-    if (db instanceof Pouch) {
-      return callback(null, db);
+    if (typeof db === 'string') {
+      return new Pouch(db, callback);
     }
-    new Pouch(db, callback);
+    callback(null, db);
   }
 
   Pouch.replicate = function(src, target, callback) {

@@ -18,12 +18,10 @@ window.Pouch = function(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = Pouch.adapters[backend.adapter];
+  var adapter = Pouch.adapters[backend.adapter](opts, callback);
   for (var j in adapter) {
     this[j] = adapter[j];
   }
-
-  this.init(opts, callback);
 }
 
 

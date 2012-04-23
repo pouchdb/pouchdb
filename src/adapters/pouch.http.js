@@ -1,48 +1,109 @@
-Pouch.adapter('http', (function() {
+// parseUri 1.2.2
+// (c) Steven Levithan <stevenlevithan.com>
+// MIT License
+function parseUri (str) {
+  var o = parseUri.options;
+  var m = o.parser[o.strictMode ? "strict" : "loose"].exec(str);
+  var uri = {};
+  var i = 14;
 
+  while (i--) uri[o.key[i]] = m[i] || "";
+
+  uri[o.q.name] = {};
+  uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+    if ($1) uri[o.q.name][$1] = $2;
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q:   {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
+
+function getHost(name) {
+  if (/http:/.test(name)) {
+    var uri = parseUri(name);
+    uri.remote = true;
+    uri.auth = {username: uri.user, password: uri.password};
+    var parts = uri.path.replace(/(^\/|\/$)/g, '').split('/');
+    uri.db = parts.pop();
+    uri.path = parts.join('/');
+    return uri;
+  }
+  return {host: '', path: '/', db: name, auth: false};
+}
+
+function genUrl(opts, path) {
+  if (opts.remote) {
+    var pathDel = !opts.path ? '' : '/';
+    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path
+      + pathDel + opts.db + '/' + path;
+  }
+  return '/' + opts.db + '/' + path;
+};
+
+function ajax(options, callback) {
+  var defaults = {
+    success: function (obj, _, xhr) {
+      callback(null, obj, xhr);
+    },
+    error: function (err) {
+      if (err) callback(err);
+      else callback(true);
+    },
+    dataType: 'json',
+    contentType: 'application/json'
+  };
+  options = $.extend({}, defaults, options);
+
+  if (options.data && typeof options.data !== 'string') {
+    options.data = JSON.stringify(options.data);
+  }
+  if (options.auth) {
+    options.beforeSend = function(xhr) {
+      var token = btoa(options.auth.username + ":" + options.auth.password);
+      xhr.setRequestHeader("Authorization", "Basic " + token);
+    }
+  }
+  $.ajax(options);
+};
+
+var HttpPouch = function(opts, callback) {
+
+  var host = getHost(opts.name);
+  var db_url = genUrl(host, '');
   var api = {};
 
-  api.destroy = function(name, callback) {
-    var host = getHost(name);
-    ajax({auth: host.auth, type: 'DELETE', url: genUrl(host, '')}, callback);
-  };
-
-  api.valid = function() { return true; };
-
-  api.init = function(opts, callback) {
-    var self = this;
-    this.host = getHost(opts.name);
-    var db_url = genUrl(this.host, '');
-    ajax({auth: this.host.auth, type: 'PUT', url: db_url}, function(err, ret) {
-      // the user may not have permission to PUT to a db url
-      if (err && err.status === 401) {
-        // test if the db already exists
-        ajax({auth: self.host.auth, type: 'HEAD', url: db_url}, function (err, ret) {
-          if (err) {
-            // still can't access db
-            call(callback, err);
-          } else {
-            // continue
-            call(callback, null, self);
-          }
-        });
-      } else if (!err || err.status === 412) {
-        call(callback, null, self);
-      }
-    });
-    // ajax({
-    //   auth: this.host.auth,
-    //   type: 'PUT',
-    //   url: genUrl(this.host, '')
-    // }, function(err, ret) {
-    //   if (!err || err.status === 412) {
-    //     call(callback, null, self);
-    //   }
-    // });
-  };
+  ajax({auth: host.auth, type: 'PUT', url: db_url}, function(err, ret) {
+    // the user may not have permission to PUT to a db url
+    if (err && err.status === 401) {
+      // test if the db already exists
+      ajax({auth: host.auth, type: 'HEAD', url: db_url}, function (err, ret) {
+        if (err) {
+          // still can't access db
+          call(callback, err);
+        } else {
+          // continue
+          call(callback, null, api);
+        }
+      });
+    } else if (!err || err.status === 412) {
+      call(callback, null, api);
+    }
+  });
 
   api.id = function() {
-    return genUrl(this.host, '');
+    return genUrl(host, '');
   };
 
   api.info = function(callback) {
@@ -67,9 +128,9 @@ Pouch.adapter('http', (function() {
     params = params === '' ? '' : '?' + params;
 
     var options = {
-      auth: this.host.auth,
+      auth: host.auth,
       type: 'GET',
-      url: genUrl(this.host, id + params)
+      url: genUrl(host, id + params)
     };
 
     if (/\//.test(id) && !/^_local/.test(id)) {
@@ -89,9 +150,9 @@ Pouch.adapter('http', (function() {
 
   api.putAttachment = function(id, rev, doc, type, callback) {
     ajax({
-      auth: this.host.auth,
+      auth: host.auth,
       type:'PUT',
-      url: genUrl(this.host, id) + '?rev=' + rev,
+      url: genUrl(host, id) + '?rev=' + rev,
       headers: {'Content-Type': type},
       data: doc
     }, callback);
@@ -103,9 +164,9 @@ Pouch.adapter('http', (function() {
       opts = {};
     }
     ajax({
-      auth: this.host.auth,
+      auth: host.auth,
       type:'PUT',
-      url: genUrl(this.host, doc._id),
+      url: genUrl(host, doc._id),
       data: doc
     }, callback);
   };
@@ -115,9 +176,9 @@ Pouch.adapter('http', (function() {
       req.new_edits = opts.new_edits;
     }
     ajax({
-      auth: this.host.auth,
+      auth: host.auth,
       type:'POST',
-      url: genUrl(this.host, '_bulk_docs'),
+      url: genUrl(host, '_bulk_docs'),
       data: req
     }, callback);
   };
@@ -126,7 +187,7 @@ Pouch.adapter('http', (function() {
       callback = opts;
       opts = {};
     }
-    ajax({auth: this.host.auth, type:'GET', url: genUrl(this.host, '_all_docs')}, callback);
+    ajax({auth: host.auth, type:'GET', url: genUrl(host, '_all_docs')}, callback);
   };
 
   api.changes = function(opts, callback) {
@@ -144,7 +205,7 @@ Pouch.adapter('http', (function() {
     if (opts.since) {
       params += '&since=' + opts.since;
     }
-    ajax({auth: this.host.auth, type:'GET', url: genUrl(this.host, '_changes' + params)}, function(err, res) {
+    ajax({auth: host.auth, type:'GET', url: genUrl(host, '_changes' + params)}, function(err, res) {
       res.results.forEach(function(c) {
         call(opts.onChange, c);
       });
@@ -157,91 +218,22 @@ Pouch.adapter('http', (function() {
       callback = opts;
       opts = {};
     }
-    ajax({auth: this.host.auth, type:'POST', url: genUrl(this.host, '_revs_diff'), data: req}, function(err, res) {
+    ajax({auth: host.auth, type:'POST', url: genUrl(host, '_revs_diff'), data: req}, function(err, res) {
       call(callback, null, res);
     });
   };
 
-  // parseUri 1.2.2
-  // (c) Steven Levithan <stevenlevithan.com>
-  // MIT License
-  function parseUri (str) {
-    var o = parseUri.options;
-    var m = o.parser[o.strictMode ? "strict" : "loose"].exec(str);
-    var uri = {};
-    var i = 14;
-
-    while (i--) uri[o.key[i]] = m[i] || "";
-
-    uri[o.q.name] = {};
-    uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-      if ($1) uri[o.q.name][$1] = $2;
-    });
-
-    return uri;
-  };
-
-  parseUri.options = {
-    strictMode: false,
-    key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-    q:   {
-      name:   "queryKey",
-      parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-    },
-    parser: {
-      strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-      loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-    }
-  };
-
-  function getHost(name) {
-    if (/http:/.test(name)) {
-      var uri = parseUri(name);
-      uri.remote = true;
-      uri.auth = {username: uri.user, password: uri.password};
-      var parts = uri.path.replace(/(^\/|\/$)/g, '').split('/');
-      uri.db = parts.pop();
-      uri.path = parts.join('/');
-      return uri;
-    }
-    return {host: '', path: '/', db: name, auth: false};
-  }
-
-  function genUrl(opts, path) {
-    if (opts.remote) {
-      var pathDel = !opts.path ? '' : '/';
-      return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path
-        + pathDel + opts.db + '/' + path;
-    }
-    return '/' + opts.db + '/' + path;
-  };
-
-  function ajax(options, callback) {
-    var defaults = {
-      success: function (obj, _, xhr) {
-        callback(null, obj, xhr);
-      },
-      error: function (err) {
-        if (err) callback(err);
-        else callback(true);
-      },
-      dataType: 'json',
-      contentType: 'application/json'
-    };
-    options = $.extend({}, defaults, options);
-
-    if (options.data && typeof options.data !== 'string') {
-      options.data = JSON.stringify(options.data);
-    }
-    if (options.auth) {
-      options.beforeSend = function(xhr) {
-        var token = btoa(options.auth.username + ":" + options.auth.password);
-        xhr.setRequestHeader("Authorization", "Basic " + token);
-      }
-    }
-    $.ajax(options);
-  };
-
   return api;
+};
 
-})());
+HttpPouch.destroy = function(name, callback) {
+  var host = getHost(name);
+  ajax({auth: host.auth, type: 'DELETE', url: genUrl(host, '')}, callback);
+};
+
+
+HttpPouch.valid = function() {
+  return true;
+}
+
+Pouch.adapter('http', HttpPouch);
