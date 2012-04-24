@@ -151,6 +151,35 @@ var writeCheckpoint = function(src, target, checkpoint, callback) {
   });
 };
 
+// Turn a tree into a list of rootToLeaf paths
+function expandTree2(all, current, pos, arr) {
+  current = current.slice(0);
+  current.push(arr[0]);
+  if (!arr[1].length) {
+    all.push({pos: pos, ids: current});
+  }
+  arr[1].forEach(function(child) {
+    expandTree2(all, current, pos, child);
+  });
+}
+
+function rootToLeaf(tree) {
+  var all = [];
+  tree.forEach(function(path) {
+    expandTree2(all, [], path.pos, path.ids);
+  });
+  return all;
+}
+
+var arrayFirst = function(arr, callback) {
+  for (var i = 0; i < arr.length; i++) {
+    if (callback(arr[i], i) === true) {
+      return arr[i];
+    }
+  }
+  return false;
+};
+
 // Basic wrapper for localStorage
 var localJSON = (function(){
   if (!localStorage) {

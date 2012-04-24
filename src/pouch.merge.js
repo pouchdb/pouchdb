@@ -23,26 +23,6 @@
     return root;
   }
 
-  // Turn a tree into a list of rootToLeaf paths
-  function expandTree(all, current, pos, arr) {
-    current = current.slice(0);
-    current.push(arr[0]);
-    if (!arr[1].length) {
-      all.push({pos: pos, ids: current});
-    }
-    arr[1].forEach(function(child) {
-      expandTree(all, current, pos, child);
-    });
-  }
-
-  function rootToLeaf(tree) {
-    var all = [];
-    tree.forEach(function(path) {
-      expandTree(all, [], path.pos, path.ids);
-    });
-    return all;
-  }
-
   // To ensure we dont grow the revision tree infinitely, we stem old revisions
   function stem(tree, depth) {
     // First we break out the tree into a complete list of root to leaf paths,

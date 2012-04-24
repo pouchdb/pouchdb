@@ -362,6 +362,16 @@ var IdbPouch = function(opts, callback) {
         delete doc._junk;
         doc._id = metadata.id;
         doc._rev = metadata.rev;
+        if (opts.revs) {
+          var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
+            return arr.ids.indexOf(metadata.rev.split('-')[1]) !== -1;
+          });
+          path.ids.reverse();
+          doc._revisions = {
+            start: (path.pos + path.ids.length) - 1,
+            ids: path.ids
+          };
+        }
         if (opts.revs_info) {
           doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
             return prev.concat(collectRevs(current));
