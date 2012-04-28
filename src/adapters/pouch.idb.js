@@ -300,11 +300,17 @@ var IdbPouch = function(opts, callback) {
 
     cursReq.onsuccess = function(event) {
       var cursor = event.target.result;
-      if (cursor) {
+      if (cursor && buckets.length) {
         var bucket = buckets.shift();
-        update(cursor, cursor.value, bucket[0], function() {
-          markConflicts(bucket);
-        });
+        if (cursor.key === bucket[0].metadata.id) {
+          update(cursor, cursor.value, bucket[0], function() {
+            markConflicts(bucket);
+          });
+        } else {
+          insert(bucket[0], function() {
+            markConflicts(bucket);
+          });
+        }
       } else {
         // Cursor has exceeded the key range so the rest are inserts
         buckets.forEach(function(bucket) {

@@ -172,3 +172,23 @@ asyncTest("Testing Rev format", function() {
   });
 });
 
+asyncTest("Testing issue #48", function() {
+
+  var docs = [{"id":"0"}, {"id":"1"}, {"id":"2"}, {"id":"3"}, {"id":"4"}, {"id":"5"}];
+  var x = 0;
+  var timer;
+
+  initTestDB(this.name, function(err, db) {
+    var save = function() {
+      db.bulkDocs({docs: docs}, function(err, res) {
+        if (++x === 10) {
+          ok(true, 'all updated succedded');
+          clearInterval(timer);
+          start();
+        }
+      });
+    };
+    timer = setInterval(save, 500);
+  });
+
+});
