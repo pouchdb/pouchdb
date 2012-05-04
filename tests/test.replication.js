@@ -119,7 +119,7 @@ asyncTest("Test checkpoint 3 :)", function() {
   var doc = {_id: "3", count: 0};
   initDBPair(this.name, this.remote, function(db, remote) {
     db.put(doc, {}, function(err, results) {
-      Pouch.replicate(db, remote, function(err, result) {
+      Pouch.replicate(db, remote, {}, function(err, result) {
         ok(result.ok, 'replication was ok');
         doc._rev = results.rev;
         doc.count++;
@@ -127,7 +127,7 @@ asyncTest("Test checkpoint 3 :)", function() {
           doc._rev = results.rev;
           doc.count++;
           db.put(doc, {}, function(err, results) {
-            Pouch.replicate(db, remote, function(err, result) {
+            Pouch.replicate(db, remote, {}, function(err, result) {
               ok(result.ok, 'replication was ok');
               ok(result.docs_written === 1, 'correct # docs written');
               start();
@@ -157,6 +157,30 @@ asyncTest("Test basic conflict", function() {
           });
         });
       });
+    });
+  });
+});
+
+asyncTest("Test basic continous pull replication", function() {
+  var self = this;
+  var doc1 = {_id: 'adoc', foo:'bar'};
+  initDBPair(this.name, this.remote, function(db, remote) {
+    remote.bulkDocs({docs: docs}, {}, function(err, results) {
+      var count = 0;
+      var rep = db.replicate.from(self.remote, {continous: true});
+      var change = db.changes({
+        onChange: function(change) {
+          ++count;
+          if (count === 4) {
+            ok(true, 'Got all the changes');
+            start();
+          }
+        },
+        continuous : true,
+      });
+      setTimeout(function() {
+        remote.put(doc1);
+      }, 50);
     });
   });
 });

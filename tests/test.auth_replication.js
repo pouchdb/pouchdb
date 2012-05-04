@@ -175,7 +175,7 @@ asyncTest("Replicate from DB as non-admin user", function() {
     login('adminuser', 'password', function (err) {
       if (err) console.error(err);
         remote.bulkDocs({docs: docs}, {}, function(err, results) {
-          Pouch.replicate(self.remote, self.name, function(err, result) {
+          Pouch.replicate(self.remote, self.name, {}, function(err, result) {
             db.allDocs(function(err, result) {
               ok(result.rows.length === docs.length, 'correct # docs exist');
               cleanup();

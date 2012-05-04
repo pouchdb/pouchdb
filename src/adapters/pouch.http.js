@@ -55,11 +55,14 @@ function genUrl(opts, path) {
 function ajax(options, callback) {
   var defaults = {
     success: function (obj, _, xhr) {
-      callback(null, obj, xhr);
+      call(callback, null, obj, xhr);
     },
     error: function (err) {
-      if (err) callback(err);
-      else callback(true);
+      if (err) {
+        call(callback, err);
+      } else {
+        call(callback, true);
+      }
     },
     dataType: 'json',
     contentType: 'application/json'
@@ -202,15 +205,33 @@ var HttpPouch = function(opts, callback) {
     if (opts.include_docs) {
       params += '&include_docs=true'
     }
-    if (opts.since) {
-      params += '&since=' + opts.since;
+    if (opts.continous) {
+      params += '&feed=longpoll';
     }
-    ajax({auth: host.auth, type:'GET', url: genUrl(host, '_changes' + params)}, function(err, res) {
-      res.results.forEach(function(c) {
-        call(opts.onChange, c);
+
+    var fetch = function(since, callback) {
+      var opts = {
+        auth: host.auth, type:'GET',
+        url: genUrl(host, '_changes' + params + '&since=' + since)
+      };
+      ajax(opts, function(err, res) {
+        callback(res);
       });
-      call(opts.complete, null, res);
+    }
+
+    fetch(opts.since || 0, function fetch_cb(res) {
+      if (res.results) {
+        res.results.forEach(function(c) {
+          call(opts.onChange, c);
+        });
+      }
+      if (opts.continous) {
+        fetch(res.last_seq, fetch_cb);
+      } else {
+        call(opts.complete, null, res);
+      }
     });
+
   };
 
   api.revsDiff = function(req, opts, callback) {
