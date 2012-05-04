@@ -138,11 +138,36 @@ var IdbPouch = function(opts, callback) {
     });
 
     docInfos.sort(function(a, b) {
-      return compareRevs(a.metadata, b.metadata);
+      if (a.error || b.error) {
+        return -1;
+      }
+      return Pouch.collate(a.metadata.id, b.metadata.id);
     });
 
+    var results = [];
+
+    var firstDoc;
+    for (var i = 0; i < docInfos.length; i++) {
+      if (docInfos[i].error) {
+        results.push(docInfos[i])
+      } else {
+        firstDoc = docInfos[i];
+        break;
+      }
+    }
+
+    if (!firstDoc) {
+      docInfos.sort(function(a, b) {
+        return a._bulk_seq - b._bulk_seq;
+      });
+      docInfos.forEach(function(result) {
+        delete result._bulk_seq;
+      });
+      return call(callback, null, docInfos);
+    }
+
     var keyRange = IDBKeyRange.bound(
-      docInfos[0].metadata.id, docInfos[docInfos.length-1].metadata.id,
+      firstDoc.metadata.id, docInfos[docInfos.length-1].metadata.id,
       false, false);
 
     // This groups edits to the same document together
@@ -163,7 +188,6 @@ var IdbPouch = function(opts, callback) {
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                                    IDBTransaction.READ_WRITE);
-    var results = [];
 
     txn.oncomplete = function(event) {
       results.sort(function(a, b) {
@@ -172,7 +196,7 @@ var IdbPouch = function(opts, callback) {
 
       results.forEach(function(result) {
         delete result._bulk_seq;
-        if (/_local/.test(result.id)) {
+        if (result.id && /_local/.test(result.id)) {
           return;
         }
         api.changes.emit(result);

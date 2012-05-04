@@ -192,3 +192,12 @@ asyncTest("Testing issue #48", function() {
   });
 
 });
+
+asyncTest("Testing valid id", function() {
+  initTestDB(this.name, function(err, db) {
+    db.post({'_id': 123, test: "somestuff"}, function (err, info) {
+      ok(err, 'id must be a string');
+      start();
+    });
+  });
+});

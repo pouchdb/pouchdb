@@ -77,5 +77,10 @@ Pouch.Errors = {
     status: 409,
     error: 'conflict',
     reason: 'Document update conflict'
+  },
+  INVALID_ID: {
+    status: 400,
+    error: 'invalid_id',
+    reason: '_id field must contain a string'
   }
 };

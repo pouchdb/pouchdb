@@ -10,6 +10,7 @@ var call = function(fun) {
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
 var parseDoc = function(doc, newEdits) {
+  var error = null;
   if (newEdits) {
     if (!doc._id) {
       doc._id = Math.uuid();
@@ -56,8 +57,18 @@ var parseDoc = function(doc, newEdits) {
       }];
     }
   }
+
+  if (typeof doc._id !== 'string') {
+    error = Pouch.Errors.INVALID_ID;
+  }
+
   doc._id = decodeURIComponent(doc._id);
   doc._rev = [nRevNum, newRevId].join('-');
+
+  if (error) {
+    return error;
+  }
+
   return Object.keys(doc).reduce(function(acc, key) {
     if (/^_/.test(key) && key !== '_attachments') {
       acc.metadata[key.slice(1)] = doc[key];
