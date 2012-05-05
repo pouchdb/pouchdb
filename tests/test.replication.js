@@ -208,3 +208,31 @@ asyncTest("Test basic continous push replication", function() {
     });
   });
 });
+
+asyncTest("Test cancel pull replication", function() {
+  var self = this;
+  var doc1 = {_id: 'adoc', foo:'bar'};
+  initDBPair(this.name, this.remote, function(db, remote) {
+    remote.bulkDocs({docs: docs}, {}, function(err, results) {
+      var count = 0;
+      var rep = db.replicate.from(self.remote, {continuous: true});
+      var change = db.changes({
+        onChange: function(change) {
+          ++count;
+          if (count === 4) {
+            rep.cancel();
+            remote.put(doc2);
+            setTimeout(function() {
+              ok(count === 4, 'got no more docs');
+              start();
+            }, 500);
+          }
+        },
+        continuous: true,
+      });
+      setTimeout(function() {
+        remote.put(doc1);
+      }, 50);
+    });
+  });
+});
