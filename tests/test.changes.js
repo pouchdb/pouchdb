@@ -36,3 +36,22 @@ asyncTest("Continuous changes", function() {
     });
   });
 });
+
+asyncTest("Cancel changes", function() {
+  initTestDB(this.name, function(err, db) {
+    var count = 0;
+    var changes = db.changes({
+      onChange: function(change) { count += 1; },
+      continuous: true
+    });
+    db.post({test:"adoc"}, function(err, info) {
+      changes.cancel();
+      db.post({test:"another doc"}, function(err, info) {
+        setTimeout(function() {
+          equal(count, 1);
+          start();
+        }, 50);
+      });
+    });
+  });
+});
