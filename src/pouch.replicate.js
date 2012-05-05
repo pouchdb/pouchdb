@@ -7,7 +7,7 @@
       var completed = false;
       var pending = 0;
       var last_seq = 0;
-      var continous = opts.continous || false;
+      var continuous = opts.continuous || false;
       var result = {
         ok: true,
         start_time: new Date(),
@@ -25,7 +25,7 @@
       }
 
       src.changes({
-        continous: continous,
+        continuous: continuous,
         since: checkpoint,
         onChange: function(change) {
           results.push(change);

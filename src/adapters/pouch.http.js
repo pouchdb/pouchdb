@@ -175,6 +175,10 @@ var HttpPouch = function(opts, callback) {
   };
 
   api.bulkDocs = function(req, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
     if (typeof opts.new_edits !== 'undefined') {
       req.new_edits = opts.new_edits;
     }
@@ -185,6 +189,7 @@ var HttpPouch = function(opts, callback) {
       data: req
     }, callback);
   };
+
   api.allDocs = function(opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
@@ -205,7 +210,7 @@ var HttpPouch = function(opts, callback) {
     if (opts.include_docs) {
       params += '&include_docs=true'
     }
-    if (opts.continous) {
+    if (opts.continuous) {
       params += '&feed=longpoll';
     }
 
@@ -220,12 +225,12 @@ var HttpPouch = function(opts, callback) {
     }
 
     fetch(opts.since || 0, function fetch_cb(res) {
-      if (res.results) {
+      if (res && res.results) {
         res.results.forEach(function(c) {
           call(opts.onChange, c);
         });
       }
-      if (opts.continous) {
+      if (opts.continuous) {
         fetch(res.last_seq, fetch_cb);
       } else {
         call(opts.complete, null, res);
@@ -243,6 +248,25 @@ var HttpPouch = function(opts, callback) {
       call(callback, null, res);
     });
   };
+
+  api.replicate = {};
+
+  api.replicate.from = function(url, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    Pouch.replicate(url, api, opts, callback);
+  };
+
+  api.replicate.to = function(dbName, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    Pouch.replicate(api, dbName, opts, callback);
+  };
+
 
   return api;
 };

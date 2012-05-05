@@ -167,7 +167,7 @@ asyncTest("Test basic continous pull replication", function() {
   initDBPair(this.name, this.remote, function(db, remote) {
     remote.bulkDocs({docs: docs}, {}, function(err, results) {
       var count = 0;
-      var rep = db.replicate.from(self.remote, {continous: true});
+      var rep = db.replicate.from(self.remote, {continuous: true});
       var change = db.changes({
         onChange: function(change) {
           ++count;
@@ -176,10 +176,34 @@ asyncTest("Test basic continous pull replication", function() {
             start();
           }
         },
-        continuous : true,
+        continuous: true,
       });
       setTimeout(function() {
         remote.put(doc1);
+      }, 50);
+    });
+  });
+});
+
+asyncTest("Test basic continous push replication", function() {
+  var self = this;
+  var doc1 = {_id: 'adoc', foo:'bar'};
+  initDBPair(this.name, this.remote, function(db, remote) {
+    db.bulkDocs({docs: docs}, {}, function(err, results) {
+      var count = 0;
+      var rep = remote.replicate.from(db, {continuous: true});
+      var change = remote.changes({
+        onChange: function(change) {
+          ++count;
+          if (count === 4) {
+            ok(true, 'Got all the changes');
+            start();
+          }
+        },
+        continuous: true,
+      });
+      setTimeout(function() {
+        db.put(doc1, {});
       }, 50);
     });
   });

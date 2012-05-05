@@ -190,18 +190,38 @@ var IdbPouch = function(opts, callback) {
                                    IDBTransaction.READ_WRITE);
 
     txn.oncomplete = function(event) {
+
+      var aresults = [];
+
       results.sort(function(a, b) {
         return a._bulk_seq - b._bulk_seq;
       });
 
       results.forEach(function(result) {
         delete result._bulk_seq;
-        if (result.id && /_local/.test(result.id)) {
+        if (result.error) {
+          aresults.push(result);
+        } else {
+          aresults.push({
+            ok: true,
+            id: result.metadata.id,
+            rev: result.metadata.rev,
+          });
+        }
+
+        if (result.error || /_local/.test(result.metadata.id)) {
           return;
         }
-        api.changes.emit(result);
+
+        var c = {
+          id: result.metadata.id,
+          seq: result.metadata.seq,
+          changes: collectLeaves(result.metadata.rev_tree)
+        };
+
+        api.changes.emit(c);
       });
-      call(callback, null, results);
+      call(callback, null, aresults);
     };
 
     txn.onerror = function(event) {
@@ -265,12 +285,7 @@ var IdbPouch = function(opts, callback) {
                                           docInfo.metadata.rev_tree[0].ids);
         var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
         metaDataReq.onsuccess = function() {
-          results.push({
-            ok: true,
-            id: docInfo.metadata.id,
-            rev: docInfo.metadata.rev,
-            _bulk_seq: docInfo._bulk_seq
-          });
+          results.push(docInfo);
           call(callback);
         };
       };
