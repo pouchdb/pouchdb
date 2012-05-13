@@ -680,7 +680,7 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    Pouch.replicate(url, api, opts, callback);
+    return Pouch.replicate(url, api, opts, callback);
   };
 
   api.replicate.to = function(dbName, opts, callback) {
@@ -688,7 +688,7 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    Pouch.replicate(api, dbName, opts, callback);
+    return Pouch.replicate(api, dbName, opts, callback);
   };
 
   api.query = function(fun, reduce, opts, callback) {

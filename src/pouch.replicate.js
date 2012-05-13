@@ -1,6 +1,6 @@
 (function() {
 
-  function replicate(src, target, opts, callback) {
+  function replicate(src, target, opts, callback, replicateRet) {
 
     fetchCheckpoint(src, target, function(checkpoint) {
       var results = [];
@@ -24,7 +24,7 @@
         }
       }
 
-      src.changes({
+      var changes = src.changes({
         continuous: continuous,
         since: checkpoint,
         onChange: function(change) {
@@ -48,11 +48,14 @@
           });
         },
         complete: function(err, res) {
-          last_seq = res.last_seq;
+          if (res) {
+            last_seq = res.last_seq;
+          }
           completed = true;
           isCompleted();
         }
       });
+      replicateRet.cancel = changes.cancel;
     });
   }
 
@@ -64,11 +67,13 @@
   }
 
   Pouch.replicate = function(src, target, opts, callback) {
+    var replicateRet = {};
     toPouch(src, function(_, src) {
       toPouch(target, function(_, target) {
-        replicate(src, target, opts, callback);
+        replicate(src, target, opts, callback, replicateRet);
       });
     });
+    return replicateRet;
   };
 
 }).call(this);

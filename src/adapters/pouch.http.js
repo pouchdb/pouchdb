@@ -78,7 +78,7 @@ function ajax(options, callback) {
       xhr.setRequestHeader("Authorization", "Basic " + token);
     }
   }
-  $.ajax(options);
+  return $.ajax(options);
 };
 
 var HttpPouch = function(opts, callback) {
@@ -213,13 +213,14 @@ var HttpPouch = function(opts, callback) {
     if (opts.continuous) {
       params += '&feed=longpoll';
     }
+    var xhr;
 
     var fetch = function(since, callback) {
       var opts = {
         auth: host.auth, type:'GET',
         url: genUrl(host, '_changes' + params + '&since=' + since)
       };
-      ajax(opts, function(err, res) {
+      xhr = ajax(opts, function(err, res) {
         callback(res);
       });
     }
@@ -230,13 +231,18 @@ var HttpPouch = function(opts, callback) {
           call(opts.onChange, c);
         });
       }
-      if (opts.continuous) {
+      if (res && opts.continuous) {
         fetch(res.last_seq, fetch_cb);
       } else {
         call(opts.complete, null, res);
       }
     });
 
+    return {
+      cancel: function() {
+        xhr.abort();
+      }
+    };
   };
 
   api.revsDiff = function(req, opts, callback) {
@@ -256,7 +262,7 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    Pouch.replicate(url, api, opts, callback);
+    return Pouch.replicate(url, api, opts, callback);
   };
 
   api.replicate.to = function(dbName, opts, callback) {
@@ -264,7 +270,7 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    Pouch.replicate(api, dbName, opts, callback);
+    return Pouch.replicate(api, dbName, opts, callback);
   };
 
 
