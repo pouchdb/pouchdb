@@ -577,6 +577,7 @@ var IdbPouch = function(opts, callback) {
 
 
   api.changes = function(opts, callback) {
+
     if (opts instanceof Function) {
       opts = {complete: opts};
     }
@@ -593,10 +594,13 @@ var IdbPouch = function(opts, callback) {
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
     var request = transaction.objectStore(BY_SEQ_STORE)
       .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
+
+    var id = Math.uuid();
+
     request.onsuccess = function(event) {
       if (!event.target.result) {
         if (opts.continuous) {
-          api.changes.addListener(opts.onChange);
+          api.changes.addListener(id, opts.onChange);
         }
         results.map(function(c) {
           call(opts.onChange, c);
@@ -633,26 +637,40 @@ var IdbPouch = function(opts, callback) {
         cursor['continue']();
       };
     };
+
     request.onerror = function(error) {
       // Cursor is out of range
       // NOTE: What should we do with a sequence that is too high?
       if (opts.continuous) {
-        db.changes.addListener(opts.onChange);
+        db.changes.addListener(id, opts.onChange);
       }
       call(opts.complete);
     };
+
+    if (opts.continuous) {
+      // Possible race condition when the user cancels a continous changes feed
+      // before the current changes are finished (therefore before the listener
+      // is added
+      return {
+        cancel: function() {
+          delete api.changes.listeners[id];
+        }
+      }
+    }
   };
 
-  api.changes.listeners = [];
+  api.changes.listeners = {};
 
   api.changes.emit = function() {
     var a = arguments;
-    api.changes.listeners.forEach(function(l) {
-      l.apply(l, a);
-    });
+    for (var i in api.changes.listeners) {
+      var change = api.changes.listeners[i];
+      change.apply(change, a);
+    }
   };
-  api.changes.addListener = function(l) {
-    api.changes.listeners.push(l);
+
+  api.changes.addListener = function(id, l) {
+    api.changes.listeners[id] = l;
   };
 
   api.replicate = {};
