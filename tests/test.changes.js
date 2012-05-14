@@ -31,6 +31,7 @@ asyncTest("Continuous changes", function() {
     db.post({test:"adoc"}, function(err, info) {
       setTimeout(function() {
         equal(count, 1);
+        changes.cancel();
         start();
       }, 50);
     });

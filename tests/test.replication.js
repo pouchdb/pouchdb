@@ -173,6 +173,7 @@ asyncTest("Test basic continous pull replication", function() {
           ++count;
           if (count === 4) {
             ok(true, 'Got all the changes');
+            rep.cancel();
             start();
           }
         },
@@ -197,6 +198,7 @@ asyncTest("Test basic continous push replication", function() {
           ++count;
           if (count === 4) {
             ok(true, 'Got all the changes');
+            rep.cancel();
             start();
           }
         },
