@@ -213,10 +213,13 @@ var IdbPouch = function(opts, callback) {
           return;
         }
 
+        delete result.data.junk;
+
         var c = {
           id: result.metadata.id,
           seq: result.metadata.seq,
-          changes: collectLeaves(result.metadata.rev_tree)
+          changes: collectLeaves(result.metadata.rev_tree),
+          doc: result.data
         };
 
         api.changes.emit(c);
@@ -587,6 +590,7 @@ var IdbPouch = function(opts, callback) {
     if (!opts.seq) {
       opts.seq = 0;
     }
+
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? IDBCursor.PREV : null;
 
@@ -600,9 +604,12 @@ var IdbPouch = function(opts, callback) {
     request.onsuccess = function(event) {
       if (!event.target.result) {
         if (opts.continuous) {
-          api.changes.addListener(id, opts.onChange);
+          api.changes.addListener(id, opts);
         }
         results.map(function(c) {
+          if (opts.filter && !opts.filter.apply(this, [c.doc])) {
+            return;
+          }
           call(opts.onChange, c);
         });
         return call(opts.complete, null, {results: results});
@@ -617,13 +624,14 @@ var IdbPouch = function(opts, callback) {
         var c = {
           id: doc.id,
           seq: cursor.key,
-          changes: collectLeaves(doc.rev_tree)
+          changes: collectLeaves(doc.rev_tree),
+          doc: cursor.value,
         };
+
         if (doc.deleted) {
           c.deleted = true;
         }
         if (opts.include_docs) {
-          c.doc = cursor.value;
           c.doc._rev = c.changes[0].rev;
           if (opts.conflicts) {
             c.doc._conflicts = collectConflicts(doc.rev_tree);
@@ -642,7 +650,7 @@ var IdbPouch = function(opts, callback) {
       // Cursor is out of range
       // NOTE: What should we do with a sequence that is too high?
       if (opts.continuous) {
-        db.changes.addListener(id, opts.onChange);
+        db.changes.addListener(id, opts);
       }
       call(opts.complete);
     };
@@ -664,13 +672,16 @@ var IdbPouch = function(opts, callback) {
   api.changes.emit = function() {
     var a = arguments;
     for (var i in api.changes.listeners) {
-      var change = api.changes.listeners[i];
-      change.apply(change, a);
+      var opts = api.changes.listeners[i];
+      if (opts.filter && !opts.filter.apply(this, [a[0].doc])) {
+        return;
+      }
+      opts.onChange.apply(opts.onChange, a);
     }
   };
 
-  api.changes.addListener = function(id, l) {
-    api.changes.listeners[id] = l;
+  api.changes.addListener = function(id, opts, callback) {
+    api.changes.listeners[id] = opts;
   };
 
   api.replicate = {};
