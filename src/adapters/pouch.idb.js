@@ -373,7 +373,7 @@ var IdbPouch = function(opts, callback) {
       opts = {};
     }
 
-    if (/\//.test(id) && !/^_local/.test(id)) {
+    if (/\//.test(id) && !/^_local/.test(id) && !/^_design/.test(id)) {
       var docId = id.split('/')[0];
       var attachId = id.split('/')[1];
       var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
