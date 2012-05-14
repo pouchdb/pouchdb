@@ -24,6 +24,10 @@
         }
       }
 
+      if (replicateRet.cancelled) {
+        return;
+      }
+
       var changes = src.changes({
         continuous: continuous,
         since: checkpoint,
@@ -55,7 +59,9 @@
           isCompleted();
         }
       });
-      replicateRet.cancel = changes.cancel;
+      if (opts.continuous) {
+        replicateRet.cancel = changes.cancel;
+      }
     });
   }
 
@@ -67,7 +73,13 @@
   }
 
   Pouch.replicate = function(src, target, opts, callback) {
-    var replicateRet = {};
+    var ret = function() {
+      this.cancelled = false;
+      this.cancel = function() {
+        this.cancelled = true;
+      }
+    }
+    var replicateRet = new ret();
     toPouch(src, function(_, src) {
       toPouch(target, function(_, target) {
         replicate(src, target, opts, callback, replicateRet);
