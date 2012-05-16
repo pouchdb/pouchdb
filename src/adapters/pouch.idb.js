@@ -594,7 +594,7 @@ var IdbPouch = function(opts, callback) {
       var filterName = opts.filter.split('/');
       api.get('_design/' + filterName[0], function(err, ddoc) {
         var filter = eval('(function() { return ' + ddoc.filters[filterName[1]] + ' })()');
-        opts.filter = function (doc) { return doc.integer % 2 === 0; }
+        opts.filter = filter;
         txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
         var req = txn.objectStore(BY_SEQ_STORE)
           .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
