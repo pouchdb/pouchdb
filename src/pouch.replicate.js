@@ -28,7 +28,7 @@
         return;
       }
 
-      var changes = src.changes({
+      var repOpts = {
         continuous: continuous,
         since: checkpoint,
         onChange: function(change) {
@@ -58,7 +58,13 @@
           completed = true;
           isCompleted();
         }
-      });
+      };
+
+      if (opts.filter) {
+        repOpts.filter = opts.filter;
+      }
+
+      var changes = src.changes(repOpts);
       if (opts.continuous) {
         replicateRet.cancel = changes.cancel;
       }

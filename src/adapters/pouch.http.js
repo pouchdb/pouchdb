@@ -207,12 +207,16 @@ var HttpPouch = function(opts, callback) {
     }
 
     var params = '?style=all_docs'
-    if (opts.include_docs) {
+    if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
       params += '&include_docs=true'
     }
     if (opts.continuous) {
       params += '&feed=longpoll';
     }
+    if (opts.filter && typeof opts.filter === 'string') {
+      params += '&filter=' + opts.filter;
+    }
+
     var xhr;
 
     var fetch = function(since, callback) {
@@ -228,6 +232,10 @@ var HttpPouch = function(opts, callback) {
     fetch(opts.since || 0, function fetch_cb(res) {
       if (res && res.results) {
         res.results.forEach(function(c) {
+          if (opts.filter && typeof opts.filter === 'function' &&
+              !opts.filter.apply(this, [c.doc])) {
+            return;
+          }
           call(opts.onChange, c);
         });
       }

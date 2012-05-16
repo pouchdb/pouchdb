@@ -239,3 +239,28 @@ asyncTest("Test cancel pull replication", function() {
     });
   });
 });
+
+asyncTest("Replication filter", function() {
+  var docs1 = [
+    {_id: "0", integer: 0},
+    {_id: "1", integer: 1},
+    {_id: "2", integer: 2},
+    {_id: "3", integer: 3}
+  ];
+
+  initDBPair(this.name, this.remote, function(db, remote) {
+    remote.bulkDocs({docs: docs1}, function(err, info) {
+      var replicate = db.replicate.from(remote, {
+        continuous: true,
+        filter: function(doc) { return doc.integer % 2 === 0; }
+      });
+      setTimeout(function() {
+        db.allDocs(function(err, docs) {
+          equal(docs.rows.length, 2);
+          replicate.cancel();
+          start();
+        });
+      }, 100);
+    });
+  });
+});
