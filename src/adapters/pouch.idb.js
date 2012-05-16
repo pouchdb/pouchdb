@@ -373,39 +373,31 @@ var IdbPouch = function(opts, callback) {
       opts = {};
     }
 
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
+                              IDBTransaction.READ);
+
     if (/\//.test(id) && !/^_local/.test(id) && !/^_design/.test(id)) {
       var docId = id.split('/')[0];
       var attachId = id.split('/')[1];
-      var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
-        .objectStore(DOC_STORE).get(docId)
-        .onsuccess = function(e) {
-          var metadata = e.target.result;
-          var nreq = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
-            .objectStore(BY_SEQ_STORE).get(metadata.seq)
-            .onsuccess = function(e) {
-              var digest = e.target.result._attachments[attachId].digest;
-              var req = idb.transaction([ATTACH_STORE], IDBTransaction.READ)
-                .objectStore(ATTACH_STORE).get(digest)
-                .onsuccess = function(e) {
-                  call(callback, null, atob(e.target.result.body));
-                };
-            };
-        }
+      txn.objectStore(DOC_STORE).get(docId).onsuccess = function(e) {
+        var metadata = e.target.result;
+        txn.objectStore(BY_SEQ_STORE).get(metadata.seq).onsuccess = function(e) {
+          var digest = e.target.result._attachments[attachId].digest;
+          txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+            call(callback, null, atob(e.target.result.body));
+          };
+        };
+      }
       return;
     }
 
-    var req = idb.transaction([DOC_STORE], IDBTransaction.READ)
-      .objectStore(DOC_STORE).get(id);
-
-    req.onsuccess = function(e) {
+    txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
       var metadata = e.target.result;
       if (!e.target.result || metadata.deleted) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
-      var nreq = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ)
-        .objectStore(BY_SEQ_STORE).get(metadata.seq);
-      nreq.onsuccess = function(e) {
+      txn.objectStore(BY_SEQ_STORE).get(metadata.seq).onsuccess = function(e) {
         var doc = e.target.result;
         delete doc._junk;
         doc._id = metadata.id;
@@ -595,13 +587,29 @@ var IdbPouch = function(opts, callback) {
     descending = descending ? IDBCursor.PREV : null;
 
     var results = [];
-    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
-    var request = transaction.objectStore(BY_SEQ_STORE)
-      .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
-
     var id = Math.uuid();
+    var txn;
 
-    request.onsuccess = function(event) {
+    if (opts.filter && typeof opts.filter === 'string') {
+      var filterName = opts.filter.split('/');
+      api.get('_design/' + filterName[0], function(err, ddoc) {
+        var filter = eval('(function() { return ' + ddoc.filters[filterName[1]] + ' })()');
+        opts.filter = function (doc) { return doc.integer % 2 === 0; }
+        txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
+        var req = txn.objectStore(BY_SEQ_STORE)
+          .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
+        req.onsuccess = onsuccess;
+        req.onerror = onerror;
+      });
+    } else {
+      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
+      var req = txn.objectStore(BY_SEQ_STORE)
+        .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
+      req.onsuccess = onsuccess;
+      req.onerror = onerror;
+    }
+
+    function onsuccess(event) {
       if (!event.target.result) {
         if (opts.continuous) {
           api.changes.addListener(id, opts);
@@ -615,7 +623,7 @@ var IdbPouch = function(opts, callback) {
         return call(opts.complete, null, {results: results});
       }
       var cursor = event.target.result;
-      var index = transaction.objectStore(DOC_STORE);
+      var index = txn.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
         var doc = event.target.result;
         if (/_local/.test(doc.id)) {
@@ -646,7 +654,7 @@ var IdbPouch = function(opts, callback) {
       };
     };
 
-    request.onerror = function(error) {
+    function onerror(error) {
       // Cursor is out of range
       // NOTE: What should we do with a sequence that is too high?
       if (opts.continuous) {
