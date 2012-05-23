@@ -260,7 +260,7 @@ asyncTest("Replication filter", function() {
           replicate.cancel();
           start();
         });
-      }, 100);
+      }, 200);
     });
   });
 });
