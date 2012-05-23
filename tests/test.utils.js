@@ -38,3 +38,12 @@ function initDBPair(local, remote, callback) {
   });
 }
 
+function generateAdapterUrl(id) {
+  var opt = id.split('-');
+  if (opt[0] === 'idb') {
+    return 'idb://test_suite_db' + opt[1];
+  }
+  if (opt[0] === 'http') {
+    return 'http://localhost:1234/test_suite_db' + opt[1];
+  }
+}
