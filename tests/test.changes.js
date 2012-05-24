@@ -21,6 +21,26 @@ asyncTest("All changes", function () {
   });
 });
 
+asyncTest("Changes doc", function () {
+  initTestDB(this.name, function(err, db) {
+    db.post({test:"somestuff"}, function (err, info) {
+      db.changes({
+        onChange: function (change) {
+          ok(change.doc);
+          equal(change.doc._id, change.id);
+          ok(!change.doc._junk, 'Don not expose junk');
+          equal(change.doc._rev, change.changes[change.changes.length - 1].rev);
+          start();
+        },
+        error: function() {
+          ok(false);
+          start();
+        }
+      });
+    });
+  });
+});
+
 asyncTest("Continuous changes", function() {
   initTestDB(this.name, function(err, db) {
     var count = 0;
