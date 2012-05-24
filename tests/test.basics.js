@@ -85,6 +85,21 @@
     });
   });
 
+  asyncTest("Get design doc", function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({_id: '_design/someid', test:"somestuff"}, function(err, info) {
+        db.get(info.id, function(err, doc) {
+          ok(!doc._junk, 'We shouldnt expose our junk');
+          ok(doc.test);
+          db.get(info.id+'asdf', function(err) {
+            ok(err.error);
+            start();
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Delete document without id", function () {
     initTestDB(this.name, function(err, db) {
       db.remove({test:'ing'}, function(err) {
