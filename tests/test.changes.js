@@ -28,7 +28,7 @@ asyncTest("Changes doc", function () {
         onChange: function (change) {
           ok(change.doc);
           equal(change.doc._id, change.id);
-          ok(!change.doc._junk, 'Don not expose junk');
+          ok(!change.doc._junk, 'Do not expose junk');
           equal(change.doc._rev, change.changes[change.changes.length - 1].rev);
           start();
         },

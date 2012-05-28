@@ -213,7 +213,7 @@ var IdbPouch = function(opts, callback) {
           return;
         }
 
-        delete result.data.junk;
+        delete result.data._junk;
 
         var c = {
           id: result.metadata.id,
@@ -618,6 +618,7 @@ var IdbPouch = function(opts, callback) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
             return;
           }
+          delete c.doc._junk;
           call(opts.onChange, c);
         });
         return call(opts.complete, null, {results: results});
