@@ -59,7 +59,11 @@ function ajax(options, callback) {
     },
     error: function (err) {
       if (err) {
-        call(callback, err);
+        var errObj = {status: err.status};
+        try {
+          errObj = $.extend({}, errObj, JSON.parse(err.responseText));
+        } catch (e) {}
+        call(callback, errObj);
       } else {
         call(callback, true);
       }
