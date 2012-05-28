@@ -636,6 +636,7 @@ var IdbPouch = function(opts, callback) {
           changes: collectLeaves(doc.rev_tree),
           doc: cursor.value,
         };
+        c.doc._rev = doc.rev;
 
         if (doc.deleted) {
           c.deleted = true;
