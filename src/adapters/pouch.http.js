@@ -144,7 +144,9 @@ var HttpPouch = function(opts, callback) {
       url: genUrl(host, id + params)
     };
 
-    if (/\//.test(id) && !/^_local/.test(id)) {
+    // Is regex, so probably broken, but supposed to disable
+    // the default json data type for standalone attachments
+    if (/_design\/(a-z)*\//.test(id) && !/^_local/.test(id)) {
       options.dataType = false;
     }
 
