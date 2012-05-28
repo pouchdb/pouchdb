@@ -269,7 +269,9 @@ var HttpPouch = function(opts, callback) {
               !opts.filter.apply(this, [c.doc])) {
             return;
           }
-          call(opts.onChange, c);
+          if (!opts.aborted) {
+            call(opts.onChange, c);
+          }
         });
       }
       if (res && opts.continuous) {
@@ -281,6 +283,7 @@ var HttpPouch = function(opts, callback) {
 
     return {
       cancel: function() {
+        opts.aborted = true;
         xhr.abort();
       }
     };
