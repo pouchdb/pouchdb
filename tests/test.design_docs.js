@@ -1,6 +1,8 @@
-module("design_docs", {
+['idb-1', 'http-1'].map(function(adapter) {
+
+module("design_docs: " + adapter, {
   setup : function () {
-    this.name = 'idb://test_suite_db';
+    this.name = generateAdapterUrl(adapter);
   }
 });
 
@@ -64,4 +66,6 @@ asyncTest("Changes filter", function() {
       });
     });
   });
+});
+
 });
