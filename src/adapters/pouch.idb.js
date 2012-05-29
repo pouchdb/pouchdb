@@ -712,7 +712,7 @@ var IdbPouch = function(opts, callback) {
     return Pouch.replicate(api, dbName, opts, callback);
   };
 
-  api.query = function(fun, reduce, opts, callback) {
+  api.query = function(fun, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -721,7 +721,18 @@ var IdbPouch = function(opts, callback) {
       opts.complete = callback;
     }
 
-    viewQuery(fun, idb, opts);
+    if (typeof fun === 'string') {
+      var parts = fun.split('/');
+      api.get('_design/' + parts[0], function(err, doc) {
+        if (err) {
+          call(callback, err);
+        }
+        eval('var map = ' + doc.views[parts[1]].map);
+        viewQuery({map: map}, idb, opts);
+      });
+    } else {
+      viewQuery(fun, idb, opts);
+    }
   }
 
   // Wrapper for functions that call the bulkdocs api with a single doc,
@@ -757,7 +768,9 @@ var IdbPouch = function(opts, callback) {
       var cursor = e.target.result;
       if (!cursor) {
         if (options.complete) {
-          results.sort(function(a, b) { return Pouch.collate(a.key, b.key); });
+          results.sort(function(a, b) {
+            return Pouch.collate(a.key, b.key);
+          });
           if (options.descending) {
             results.reverse();
           }
