@@ -6,7 +6,10 @@
     if ((ai - bi) !== 0) {
       return ai - bi;
     }
-    if (typeof a=== 'number') {
+    if (a === null) {
+      return 0;
+    }
+    if (typeof a === 'number') {
       return a - b;
     }
     if (typeof a === 'boolean') {
