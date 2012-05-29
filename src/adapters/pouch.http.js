@@ -162,6 +162,27 @@ var HttpPouch = function(opts, callback) {
     });
   };
 
+
+  api.query = function(fun, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    var params = [];
+    if (typeof opts.reduce !== 'undefined') {
+      params.push('reduce=' + opts.reduce);
+    }
+    params = params.join('&');
+    params = params === '' ? '' : '?' + params;
+
+    var parts = fun.split('/');
+    ajax({
+      auth: host.auth,
+      type:'GET',
+      url: genUrl(host, '_design/' + parts[0] + '/_view/' + parts[1] + params),
+    }, callback);
+  };
+
   api.remove = function(doc, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
