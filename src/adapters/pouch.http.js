@@ -189,10 +189,21 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+
+    var params = [];
+    if (opts && typeof opts.new_edits !== 'undefined') {
+      params.push('new_edits=' + opts.new_edits);
+    }
+
+    params = params.join('&');
+    if (params !== '') {
+      params = '?' + params;
+    }
+
     ajax({
       auth: host.auth,
       type: 'PUT',
-      url: genUrl(host, doc._id),
+      url: genUrl(host, doc._id) + params,
       data: doc
     }, callback);
   };
@@ -232,7 +243,30 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    ajax({auth: host.auth, type:'GET', url: genUrl(host, '_all_docs')}, callback);
+    var params = [];
+    if (opts.conflicts) {
+      params.push('conflicts=true');
+    }
+    if (opts.include_docs) {
+      params.push('include_docs=true');
+    }
+    if (opts.startkey) {
+      params.push('startkey=' + encodeURIComponent(JSON.stringify(opts.startkey)));
+    }
+    if (opts.endkey) {
+      params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));
+    }
+
+    params = params.join('&');
+    if (params !== '') {
+      params = '?' + params;
+    }
+
+    ajax({
+      auth: host.auth,
+      type:'GET',
+      url: genUrl(host, '_all_docs' + params)
+    }, callback);
   };
 
   api.changes = function(opts, callback) {
@@ -249,6 +283,12 @@ var HttpPouch = function(opts, callback) {
     }
     if (opts.continuous) {
       params += '&feed=longpoll';
+    }
+    if (opts.conflicts) {
+      params += '&conflicts=true';
+    }
+    if (opts.descending) {
+      params += '&descending=true';
     }
     if (opts.filter && typeof opts.filter === 'string') {
       params += '&filter=' + opts.filter;
