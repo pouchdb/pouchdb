@@ -769,7 +769,7 @@ var IdbPouch = function(opts, callback) {
           .onsuccess = function(e) {
             current = e.target.result;
             if (options.complete) {
-              fun.apply(mapContext, [current]);
+              fun.map.apply(mapContext, [current]);
             }
             cursor['continue']();
           };

@@ -56,7 +56,9 @@ asyncTest("Test basic view collation", function() {
       return {_id: (i).toString(), foo: x};
     });
     db.bulkDocs({docs: docs}, {}, function() {
-      var queryFun = function(doc) { emit(doc.foo, null); };
+      var queryFun = {
+        map: function(doc) { emit(doc.foo, null); }
+      };
       db.query(queryFun, null, function(_, res) {
         res.rows.forEach(function(x, i) {
           ok(JSON.stringify(x.key) === JSON.stringify(values[i]), 'keys collate');
