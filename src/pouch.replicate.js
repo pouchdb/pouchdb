@@ -79,6 +79,10 @@
   }
 
   Pouch.replicate = function(src, target, opts, callback) {
+    // TODO: This needs some cleaning up, from the replicate call I want
+    // to return a promise in which I can cancel continuous replications
+    // this will just proxy requests to cancel the changes feed but only
+    // after we start actually running the changes feed
     var ret = function() {
       this.cancelled = false;
       this.cancel = function() {
