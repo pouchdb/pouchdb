@@ -34,7 +34,6 @@
       db.put(binAttDoc, function(err, write) {
         ok(!err, 'saved doc with attachment');
         db.get('bin_doc/foo.txt', function(err, res) {
-          console.log(arguments);
           ok(res === 'This is a base64 encoded text', 'Correct data returned');
           db.put(binAttDoc2, function(err, rev) {
             db.get('bin_doc2/foo.txt', function(err, res, xhr) {
