@@ -50,7 +50,13 @@
       db.putAttachment('bin_doc2/foo2.txt', rev, ndoc, "text/plain", function() {
         db.get('bin_doc2/foo2.txt', function(err, res, xhr) {
           ok(res === 'This is no base64 encoded text', 'Correct data returned');
-          start();
+          db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
+            ok(res._attachments, 'Result has attachments field');
+            equal(res._attachments['foo2.txt'].data,
+                  btoa('This is no base64 encoded text'));
+            equal(res._attachments['foo.txt'].data, '');
+            start();
+          });
         });
       });
     };

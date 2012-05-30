@@ -414,7 +414,21 @@ var IdbPouch = function(opts, callback) {
             return prev.concat(collectRevs(current));
           }, []);
         }
-        callback(null, doc);
+        if (opts.attachments) {
+          var attachments = Object.keys(doc._attachments);
+          var recv = 0;
+
+          attachments.forEach(function(key) {
+            api.get(doc._id + '/' + key, function(err, data) {
+              doc._attachments[key].data = btoa(data);
+              if (++recv === attachments.length) {
+                callback(null, doc);
+              }
+            });
+          });
+        } else {
+          callback(null, doc);
+        }
       };
     };
   };

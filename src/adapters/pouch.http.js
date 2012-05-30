@@ -68,6 +68,9 @@ function ajax(options, callback) {
         call(callback, true);
       }
     },
+    headers: {
+      Accept: 'application/json'
+    },
     dataType: 'json',
     contentType: 'application/json'
   };
@@ -132,6 +135,9 @@ var HttpPouch = function(opts, callback) {
     }
     if (opts.revs_info) {
       params.push('revs_info=true');
+    }
+    if (opts.attachments) {
+      params.push('attachments=true');
     }
     if (opts.rev) {
       params.push('rev=' + opts.rev);
