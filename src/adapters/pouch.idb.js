@@ -614,6 +614,9 @@ var IdbPouch = function(opts, callback) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
             return;
           }
+          if (!opts.include_docs) {
+            delete c.doc;
+          }
           call(opts.onChange, c);
         });
         return call(opts.complete, null, {results: results});

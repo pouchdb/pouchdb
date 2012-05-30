@@ -11,7 +11,8 @@
       db.post({test:"somestuff"}, function (err, info) {
         db.changes({
           onChange: function (change) {
-            ok(change.seq);
+            ok(!change.doc, 'If we dont include docs, dont include docs');
+            ok(change.seq, 'Received a sequence number');
             start();
           },
           error: function() {
