@@ -40,7 +40,7 @@
           target.revsDiff(diff, function(err, diffs) {
             for (var id in diffs) {
               diffs[id].missing.map(function(rev) {
-                src.get(id, {revs: true, rev: rev}, function(err, doc) {
+                src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
                   target.bulkDocs({docs: [doc]}, {new_edits: false}, function() {
                     result.docs_written++;
                     pending--;

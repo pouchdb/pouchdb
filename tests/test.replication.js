@@ -264,3 +264,36 @@ asyncTest("Replication filter", function() {
     });
   });
 });
+
+asyncTest("Attachments replicate", function() {
+
+  var binAttDoc = {
+    _id: "bin_doc",
+    _attachments:{
+      "foo.txt": {
+        content_type:"text/plain",
+        data: "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
+      }
+    }
+  };
+
+  var docs1 = [
+    binAttDoc,
+    {_id: "0", integer: 0},
+    {_id: "1", integer: 1},
+    {_id: "2", integer: 2},
+    {_id: "3", integer: 3}
+  ];
+
+  initDBPair(this.name, this.remote, function(db, remote) {
+    remote.bulkDocs({docs: docs1}, function(err, info) {
+      var replicate = db.replicate.from(remote, function() {
+        db.get('bin_doc', {attachments: true}, function(err, doc) {
+          equal(binAttDoc._attachments['foo.txt'].data,
+                doc._attachments['foo.txt'].data);
+          start();
+        });
+      });
+    });
+  });
+});
