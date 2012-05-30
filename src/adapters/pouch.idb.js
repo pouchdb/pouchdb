@@ -414,7 +414,7 @@ var IdbPouch = function(opts, callback) {
             return prev.concat(collectRevs(current));
           }, []);
         }
-        if (opts.attachments) {
+        if (opts.attachments && doc._attachments) {
           var attachments = Object.keys(doc._attachments);
           var recv = 0;
 
