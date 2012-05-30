@@ -11,7 +11,7 @@
     views: {
       scores: {
         map: 'function(doc) { if (doc.score) { emit(null, doc.score); } }',
-        reduce: '_sum'
+        reduce: 'function(keys, values, rereduce) { return sum(values); }'
       }
     },
     filters: {
@@ -83,7 +83,10 @@
       db.bulkDocs({docs: docs1}, function(err, info) {
         db.query('foo/scores', {reduce: false}, function(err, result) {
           equal(result.rows.length, 4, 'Correct # of results');
-          start();
+          db.query('foo/scores', function(err, result) {
+            equal(result.rows[0].value, 15, 'Reduce gave correct result');
+            start();
+          });
         });
       });
     });

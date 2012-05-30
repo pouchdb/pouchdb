@@ -59,11 +59,11 @@ asyncTest("Test basic view collation", function() {
       var queryFun = {
         map: function(doc) { emit(doc.foo, null); }
       };
-      db.query(queryFun, function(_, res) {
+      db.query(queryFun, {reduce: false}, function(_, res) {
         res.rows.forEach(function(x, i) {
           ok(JSON.stringify(x.key) === JSON.stringify(values[i]), 'keys collate');
         });
-        db.query(queryFun, {descending: true}, function(_, res) {
+        db.query(queryFun, {descending: true, reduce: false}, function(_, res) {
           res.rows.forEach(function(x, i) {
             ok(JSON.stringify(x.key) === JSON.stringify(values[values.length - 1 - i]),
                'keys collate descending')

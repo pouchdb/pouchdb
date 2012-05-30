@@ -17,6 +17,10 @@ window.IDBTransaction = window.IDBTransaction ||
 window.IDBDatabaseException = window.IDBDatabaseException ||
   window.webkitIDBDatabaseException;
 
+function sum(values) {
+  return values.reduce(function(a, b) { return a + b; }, 0);
+}
+
 var IdbPouch = function(opts, callback) {
 
   // IndexedDB requires a versioned database structure, this is going to make
@@ -728,7 +732,9 @@ var IdbPouch = function(opts, callback) {
           call(callback, err);
         }
         eval('var map = ' + doc.views[parts[1]].map);
-        viewQuery({map: map}, idb, opts);
+        // TODO: reduce may not be defined, or may be predefined
+        eval('var reduce = ' + doc.views[parts[1]].reduce);
+        viewQuery({map: map, reduce: reduce}, idb, opts);
       });
     } else {
       viewQuery(fun, idb, opts);
@@ -774,7 +780,27 @@ var IdbPouch = function(opts, callback) {
           if (options.descending) {
             results.reverse();
           }
-          options.complete(null, {rows: results});
+          if (options.reduce !== false) {
+
+            var groups = [];
+            results.forEach(function(e) {
+              var last = groups[groups.length-1] || null;
+              if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
+                last.key.push([e.key, e.id]);
+                last.value.push(e.value);
+                return;
+              }
+              groups.push({ key: [ [e.key,e.id] ], value: [ e.value ]});
+            });
+
+            groups.forEach(function(e) {
+              e.value = fun.reduce(e.key, e.value) || null;
+              e.key = e.key[0][0];
+            });
+            options.complete(null, {rows: groups});
+          } else {
+            options.complete(null, {rows: results});
+          }
         }
       } else {
         var nreq = txn
