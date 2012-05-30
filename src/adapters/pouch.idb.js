@@ -37,7 +37,6 @@ var IdbPouch = function(opts, callback) {
   // Where we store attachments
   var ATTACH_STORE = 'attach-store';
 
-  var junkSeed = 0;
   var api = {};
 
   var req = indexedDB.open(opts.name, POUCH_VERSION);
@@ -50,9 +49,7 @@ var IdbPouch = function(opts, callback) {
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique : true});
-    // We are giving a _junk key because firefox really doesnt like
-    // writing without a key
-    db.createObjectStore(BY_SEQ_STORE, {keyPath: '_junk', autoIncrement : true});
+    db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
   };
 
@@ -217,8 +214,6 @@ var IdbPouch = function(opts, callback) {
           return;
         }
 
-        delete result.data._junk;
-
         var c = {
           id: result.metadata.id,
           seq: result.metadata.seq,
@@ -282,7 +277,6 @@ var IdbPouch = function(opts, callback) {
       if (docInfo.metadata.deleted) {
         docInfo.data._deleted = true;
       }
-      docInfo.data._junk = new Date().getTime() + (++junkSeed);
       var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
       dataReq.onsuccess = function(e) {
         docInfo.metadata.seq = e.target.result;
@@ -403,7 +397,6 @@ var IdbPouch = function(opts, callback) {
 
       txn.objectStore(BY_SEQ_STORE).get(metadata.seq).onsuccess = function(e) {
         var doc = e.target.result;
-        delete doc._junk;
         doc._id = metadata.id;
         doc._rev = metadata.rev;
         if (opts.revs) {
@@ -487,7 +480,6 @@ var IdbPouch = function(opts, callback) {
           if (opts.include_docs) {
             doc.doc = data;
             doc.doc._rev = metadata.rev;
-            delete doc.doc._junk;
             if (opts.conflicts) {
               doc.doc._conflicts = collectConflicts(metadata.rev_tree);
             }
@@ -622,7 +614,6 @@ var IdbPouch = function(opts, callback) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
             return;
           }
-          delete c.doc._junk;
           call(opts.onChange, c);
         });
         return call(opts.complete, null, {results: results});

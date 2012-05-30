@@ -31,7 +31,6 @@
           onChange: function (change) {
             ok(change.doc);
             equal(change.doc._id, change.id);
-            ok(!change.doc._junk, 'Do not expose junk');
             equal(change.doc._rev, change.changes[change.changes.length - 1].rev);
             start();
           },
