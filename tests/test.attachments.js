@@ -63,4 +63,15 @@
 
   });
 
+  asyncTest("Test put attachment on a doc without attachments", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({ _id: 'mydoc' }, function(err, resp) {
+        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+          ok(res.ok);
+          start();
+        })
+      });
+    });
+  });
+
 });
