@@ -4,6 +4,22 @@ module('views', {
   }
 });
 
+asyncTest("Test basic view", function() {
+  initTestDB(this.name, function(err, db) {
+    db.bulkDocs({docs: [{foo: 'bar'}]}, {}, function() {
+      var queryFun = {
+        map: function(doc) { emit(doc.foo, null); }
+      };
+      db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+        res.rows.forEach(function(x, i) {
+          ok(x.doc, 'doc included');
+        });
+        start();
+      });
+    });
+  });
+});
+
 asyncTest("Test basic view collation", function() {
 
   var values = [];
