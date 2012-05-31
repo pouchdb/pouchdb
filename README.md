@@ -132,10 +132,10 @@ db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
 
 Fetch multiple documents.
 
-* `include_docs`: Include the associated document with each change
-* `conflicts`: Include conflicts
-* `startkey` & `endkey`: Get documents with keys in a certain range
-* `descending`: Reverse the order of the output table
+* `options.include_docs`: Include the associated document with each change
+* `options.conflicts`: Include conflicts
+* `options.startkey` & `options.endkey`: Get documents with keys in a certain range
+* `options.descending`: Reverse the order of the output table
 
 <pre>
 db.allDocs(function(err, response) {
@@ -253,12 +253,12 @@ db.info(function(err, info) {
 
 A list of changes made to documents in the database, in the order they were made.
 
-* `include_docs`: Include the associated document with each change
-* `continuous`: Use _longpoll_ feed
-* `conflicts`: Include conflicts
-* `descending`: Reverse the order of the output table
-* `filter`: Reference a filter function from a design document to selectively get updates
-* `since`: Start the results from the change immediately after the given sequence number
+* `options.include_docs`: Include the associated document with each change
+* `options.continuous`: Use _longpoll_ feed
+* `options.conflicts`: Include conflicts
+* `options.descending`: Reverse the order of the output table
+* `options.filter`: Reference a filter function from a design document to selectively get updates
+* `options.since`: Start the results from the change immediately after the given sequence number
 
 <pre>
 db.changes(function(err, response) {
