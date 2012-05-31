@@ -185,7 +185,12 @@ Retrieve a view.
 * `options.reduce`: To reduce or not. The default is to reduce if there is a reduce function
 
 <pre>
-db.query({ map: function(doc) { if(doc.title) emit(doc.title, null) } }, { reduce: false }, function(err, response) {
+function map(doc) {
+  if(doc.title) {
+    emit(doc.title, null);
+  }
+}
+db.query({ map: map, function(err, response) {
   // View rows:
   // {
   //   "rows": [
