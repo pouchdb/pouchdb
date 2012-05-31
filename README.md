@@ -18,7 +18,7 @@ After IndexedDatabase is more solidified it's possible that BrowserCouch and Pou
 
 # Getting started
 
-Running `$ make` or `$ make min` in the projext will give you a `pouch.alpha.js` or `pouch.alpha.min.js` which you can simple include on the page:
+Running `$ make` or `$ make min` in the project will give you a `pouch.alpha.js` or `pouch.alpha.min.js` which you can simple include on the page:
 
     <script type="text/javascript" src="../pouch.alpha.min.js"></script>
 
@@ -40,21 +40,281 @@ new Pouch('idb://test', function(err, db) {
 
 The subject of the of pouch.open. This is primary PouchDB API.
 
-### db.get(docid, [options], [callback])
-
-### db.remove(doc, [options], [callback])
-
 ### db.post(doc, [options], [callback])
+
+Create a new document.
+
+<pre>
+db.post({ title: 'Cony Island Baby' }, function(err, response) {
+  // Response:
+  // {
+  //   "ok": true,
+  //   "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+  //   "rev": "1-5782E71F1E4BF698FA3793D9D5A96393"
+  // }
+})
+</pre>
+
 
 ### db.put(doc, [options], [callback])
 
+Create a new document or update an existing document.
+
+<pre>
+db.put({ _id: 'mydoc', title: 'Rock and Roll Heart' }, function(err, response) {
+  // Response:
+  // {
+  //   "ok": true,
+  //   "id": "mydoc",
+  //   "rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+  // }
+})
+</pre>
+
+
+### db.get(docid, [options], [callback])
+
+Getrieves a document, specified by `docid`.
+
+* `options.revs`: Include revision history of the document
+* `options.revs_info`: Include a list of revisions of the document, and their availability
+
+<pre>
+db.get('mydoc', function(err, doc) {
+  // Document:
+  // {
+  //   "title": "Rock and Roll Heart",
+  //   "_id": "mydoc",
+  //   "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+  // }
+})
+</pre>
+
+
+### db.putAttachment(id, rev, doc, type, [callback])
+
+Create an attachment in an existing document.
+
+<pre>
+db.put({ _id: 'otherdoc', title: 'Legendary Hearts' }, function(err, response) {
+  var doc = 'Legendary hearts, tear us all apart\nMake our emotions bleed, crying out in need';
+  db.putAttachment('otherdoc/text', response.rev, doc, 'text/plain', function(err, res) {
+    // Response:
+    // {
+    //   "ok": true,
+    //   "id": "otherdoc",
+    //   "rev": "2-068E73F5B44FEC987B51354DFC772891"
+    // }
+  })
+})
+</pre>
+
+
 ### db.bulkDocs(docs, [options], [callback])
 
-## db.changes
+Modify multiple documents.
+
+<pre>
+db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
+  // Response array:
+  // [
+  //   {
+  //     "ok": true,
+  //     "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+  //     "rev": "1-A8BC08745E62E58830CA066D99E5F457"
+  //   }
+  // ]
+})
+</pre>
+
+
+### db.allDocs([options], [callback])
+
+Fetch multiple documents.
+
+* `options.include_docs`: Include the associated document with each change
+* `options.conflicts`: Include conflicts
+* `options.startkey` & `options.endkey`: Get documents with keys in a certain range
+* `options.descending`: Reverse the order of the output table
+
+<pre>
+db.allDocs(function(err, response) {
+  // Document rows:
+  // {
+  //   "total_rows": 4,
+  //   "rows": [
+  //     {
+  //       "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+  //       "key": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+  //       "value": {
+  //         "rev": "1-5782E71F1E4BF698FA3793D9D5A96393"
+  //       }
+  //     },
+  //     {
+  //       "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+  //       "key": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+  //       "value": {
+  //         "rev": "1-A8BC08745E62E58830CA066D99E5F457"
+  //       }
+  //     },
+  //     {
+  //       "id": "mydoc",
+  //       "key": "mydoc",
+  //       "value": {
+  //         "rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+  //       }
+  //     },
+  //     {
+  //       "id": "otherdoc",
+  //       "key": "otherdoc",
+  //       "value": {
+  //         "rev": "1-3753476B70A49EA4D8C9039E7B04254C"
+  //       }
+  //     }
+  //   ]
+  // }
+})
+</pre>
+
+
+### db.query(fun, [options], [callback])
+
+Retrieve a view.
+
+* `fun`: Name of a view function or function
+* `options.reduce`: To reduce or not. The default is to reduce if there is a reduce function
+
+<pre>
+function map(doc) {
+  if(doc.title) {
+    emit(doc.title, null);
+  }
+}
+db.query({ map: map, function(err, response) {
+  // View rows:
+  // {
+  //   "rows": [
+  //     {
+  //       "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+  //       "key": "Cony Island Baby",
+  //       "value": null
+  //     },
+  //     {
+  //       "id": "otherdoc",
+  //       "key": "Legendary Hearts",
+  //       "value": null
+  //     },
+  //     {
+  //       "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+  //       "key": "Lisa Says",
+  //       "value": null
+  //     },
+  //     {
+  //       "id": "mydoc",
+  //       "key": "Rock and Roll Heart",
+  //       "value": null
+  //     }
+  //   ]
+  // }
+})
+</pre>
+
+
+### db.remove(doc, [options], [callback])
+
+Delete a document.
+
+<pre>
+db.get('mydoc', function(err, doc) {
+  db.remove(doc, function(err, response) {
+    // Response:
+    // {
+    //   "ok": true,
+    //   "id": "mydoc",
+    //   "rev": "2-9AF304BE281790604D1D8A4B0F4C9ADB"
+    // }
+  })
+})
+</pre>
+
+
+### db.info(callback)
+
+Get information about a database.
+
+<pre>
+db.info(function(err, info) {
+  // Database information:
+  // {
+  //   "db_name": "test",
+  //   "doc_count": 4,
+  //   "update_seq": 0
+  // }
+})
+</pre>
+
 
 ### db.changes(options)
 
+A list of changes made to documents in the database, in the order they were made.
+
+* `options.include_docs`: Include the associated document with each change
+* `options.continuous`: Use _longpoll_ feed
+* `options.conflicts`: Include conflicts
+* `options.descending`: Reverse the order of the output table
+* `options.filter`: Reference a filter function from a design document to selectively get updates
+* `options.since`: Start the results from the change immediately after the given sequence number
+
+<pre>
+db.changes(function(err, response) {
+  // Changes list:
+  // {
+  //   "results": [
+  //     {
+  //       "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+  //       "seq": 1,
+  //       "changes": [
+  //         {
+  //           "rev": "1-5782E71F1E4BF698FA3793D9D5A96393"
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       "id": "mydoc",
+  //       "seq": 2,
+  //       "changes": [
+  //         {
+  //           "rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       "id": "otherdoc",
+  //       "seq": 3,
+  //       "changes": [
+  //         {
+  //           "rev": "1-3753476B70A49EA4D8C9039E7B04254C"
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+  //       "seq": 4,
+  //       "changes": [
+  //         {
+  //           "rev": "1-A8BC08745E62E58830CA066D99E5F457"
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // }
+})
+</pre>
+
+
 ### db.changes.addListener(listener)
+
+Register `listener` function for the changes feed.
 
 ### db.changes.removeListener(listener)
 
@@ -62,9 +322,22 @@ The subject of the of pouch.open. This is primary PouchDB API.
 
 Delete database with given name
 
+<pre>
+Pouch.destroy('idb://test', function(err, info) {
+  // database deleted
+})
+</pre>
+
+
 ## Pouch.replicate(from, to, [callback])
 
 Replicate a database
+
+<pre>
+db.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
+  //
+})
+</pre>
 
 ## Running the tests
 
