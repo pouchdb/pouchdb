@@ -539,6 +539,7 @@ var IdbPouch = function(opts, callback) {
     var docId = id.split('/')[0];
     var attachId = id.split('/')[1];
     api.get(docId, function(err, obj) {
+      obj._attachments || (obj._attachments = {});
       obj._attachments[attachId] = {
         content_type: type,
         data: btoa(doc)
