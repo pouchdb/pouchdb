@@ -6,15 +6,20 @@ module('views', {
 
 asyncTest("Test basic view", function() {
   initTestDB(this.name, function(err, db) {
-    db.bulkDocs({docs: [{foo: 'bar'}]}, {}, function() {
+    db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {
       var queryFun = {
         map: function(doc) { emit(doc.foo, null); }
       };
-      db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
-        res.rows.forEach(function(x, i) {
-          ok(x.doc, 'doc included');
+      db.get('volatile', function(_, doc) {
+        db.remove(doc, function(_, resp) {
+          db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+            res.rows.forEach(function(x, i) {
+              ok(x.doc, 'doc included');
+              if (x.id === 'volatile') ok(false, 'Do not include deleted docs');
+            });
+            start();
+          });
         });
-        start();
       });
     });
   });
