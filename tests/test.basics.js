@@ -200,7 +200,7 @@
           }
         });
       };
-      timer = setInterval(save, 500);
+      timer = setInterval(save, 50);
     });
 
   });
