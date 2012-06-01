@@ -4,6 +4,29 @@ module('views', {
   }
 });
 
+asyncTest("Test basic view", function() {
+  initTestDB(this.name, function(err, db) {
+    db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {
+      var queryFun = {
+        map: function(doc) { emit(doc.foo, doc); }
+      };
+      db.get('volatile', function(_, doc) {
+        db.remove(doc, function(_, resp) {
+          db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+            res.rows.forEach(function(x, i) {
+              ok(x.value._rev, 'emitted doc has rev');
+              ok(x.doc, 'doc included');
+              ok(x.doc && x.doc._rev, 'included doc has rev');
+              if (x.id === 'volatile') ok(false, 'Do not include deleted docs');
+            });
+            start();
+          });
+        });
+      });
+    });
+  });
+});
+
 asyncTest("Test basic view collation", function() {
 
   var values = [];
