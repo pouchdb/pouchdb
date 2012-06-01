@@ -483,9 +483,10 @@ var IdbPouch = function(opts, callback) {
       : start ? IDBKeyRange.lowerBound(start, true)
       : end ? IDBKeyRange.upperBound(end) : false;
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    keyRange = keyRange || null;
     var oStore = transaction.objectStore(DOC_STORE);
-    var oCursor = keyRange ? oStore.openCursor(keyRange, descending)
-      : oStore.openCursor(null, descending);
+    var oCursor = descending ? oStore.openCursor(keyRange, descending)
+      : oStore.openCursor(keyRange);
     var results = [];
     oCursor.onsuccess = function(e) {
       if (!e.target.result) {
@@ -624,15 +625,17 @@ var IdbPouch = function(opts, callback) {
         var filter = eval('(function() { return ' + ddoc.filters[filterName[1]] + ' })()');
         opts.filter = filter;
         txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
-        var req = txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
+        var req = descending
+          ? txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
+          : txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true));
         req.onsuccess = onsuccess;
         req.onerror = onerror;
       });
     } else {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
-      var req = txn.objectStore(BY_SEQ_STORE)
-        .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
+      var req = descending
+        ? txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
+        : txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true));
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }
