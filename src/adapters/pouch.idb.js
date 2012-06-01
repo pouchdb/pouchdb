@@ -194,7 +194,7 @@ var IdbPouch = function(opts, callback) {
     });
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                                   IDBTransaction.READ_WRITE);
+                                   "readwrite");
 
     txn.oncomplete = function(event) {
 
@@ -376,7 +376,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                              IDBTransaction.READ);
+                              "readonly");
 
     if (/\//.test(id) && !/^_local/.test(id) && !/^_design/.test(id)) {
       var docId = id.split('/')[0];
@@ -476,7 +476,7 @@ var IdbPouch = function(opts, callback) {
     var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
       : start ? IDBKeyRange.lowerBound(start, true)
       : end ? IDBKeyRange.upperBound(end) : false;
-    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], "readonly");
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = keyRange ? oStore.openCursor(keyRange, descending)
       : oStore.openCursor(null, descending);
@@ -526,7 +526,7 @@ var IdbPouch = function(opts, callback) {
   // easiest to implement though, should probably keep a counter
   api.info = function(callback) {
     var count = 0;
-    idb.transaction([DOC_STORE], IDBTransaction.READ)
+    idb.transaction([DOC_STORE], "readonly")
       .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
         var cursor = e.target.result;
         if (!cursor) {
@@ -775,7 +775,7 @@ var IdbPouch = function(opts, callback) {
 
   var viewQuery = function (fun, idb, options) {
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], "readonly");
     var objectStore = txn.objectStore(DOC_STORE);
     var request = objectStore.openCursor();
     var mapContext = {};
