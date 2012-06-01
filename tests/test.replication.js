@@ -237,6 +237,9 @@
           continuous: true,
           onChange: function(change) {
             ++count;
+            if (count === 3) {
+              remote.put(doc1);
+            }
             if (count === 4) {
               replicate.cancel();
               remote.put(doc2);
@@ -248,9 +251,6 @@
             }
           },
         });
-        setTimeout(function() {
-          remote.put(doc1);
-        }, 50);
       });
     });
   });

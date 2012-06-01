@@ -588,8 +588,6 @@ var IdbPouch = function(opts, callback) {
     });
   };
 
-
-
   api.changes = function(opts, callback) {
 
     if (opts instanceof Function) {
@@ -605,11 +603,13 @@ var IdbPouch = function(opts, callback) {
       opts.seq = opts.since;
     }
 
+    console.info('Start Changes Feed: continuous=' + opts.continuous);
+
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? IDBCursor.PREV : null;
 
     var results = [];
-    var id = Math.uuid();
+    var id = name + ':' + Math.uuid();
     var txn;
 
     if (opts.filter && typeof opts.filter === 'string') {
@@ -695,6 +695,8 @@ var IdbPouch = function(opts, callback) {
       // is added
       return {
         cancel: function() {
+          console.info('Cancel Changes Feed');
+          opts.cancelled = true;
           delete testListeners[id];
         }
       }
@@ -706,11 +708,14 @@ var IdbPouch = function(opts, callback) {
   api.changes.emit = function() {
     var a = arguments;
     for (var i in testListeners) {
-      var opts = testListeners[i];
-      if (opts.filter && !opts.filter.apply(this, [a[0].doc])) {
-        return;
+      // Currently using a global listener pool keys by db name, we shouldnt do that
+      if (i.match(name)) {
+        var opts = testListeners[i];
+        if (opts.filter && !opts.filter.apply(this, [a[0].doc])) {
+          return;
+        }
+        opts.onChange.apply(opts.onChange, a);
       }
-      opts.onChange.apply(opts.onChange, a);
     }
   };
 
