@@ -302,7 +302,7 @@ var IdbPouch = function(opts, callback) {
     };
 
     var cursReq = txn.objectStore(DOC_STORE)
-      .openCursor(keyRange, IDBCursor.NEXT);
+      .openCursor(keyRange, "next");
 
     var update = function(cursor, oldDoc, docInfo, callback) {
       var mergedRevisions = Pouch.merge(oldDoc.rev_tree,
@@ -471,7 +471,7 @@ var IdbPouch = function(opts, callback) {
     var end = 'endkey' in opts ? opts.endkey : false;
 
     var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? IDBCursor.PREV : null;
+    descending = descending ? "prev" : null;
 
     var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
       : start ? IDBKeyRange.lowerBound(start, true)
@@ -606,7 +606,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? IDBCursor.PREV : null;
+    descending = descending ? "prev" : null;
 
     var results = [];
     var id = Math.uuid();
