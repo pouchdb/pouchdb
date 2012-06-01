@@ -297,12 +297,15 @@ var HttpPouch = function(opts, callback) {
   };
 
   api.changes = function(opts, callback) {
+
     if (opts instanceof Function) {
       opts = {complete: opts};
     }
     if (callback) {
       opts.complete = callback;
     }
+
+    console.info('Start Changes Feed: continuous=' + opts.continuous);
 
     var params = '?style=all_docs'
     if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
@@ -324,36 +327,40 @@ var HttpPouch = function(opts, callback) {
     var xhr;
 
     var fetch = function(since, callback) {
-      var opts = {
+      var xhrOpts = {
         auth: host.auth, type:'GET',
         url: genUrl(host, '_changes' + params + '&since=' + since)
       };
-      xhr = ajax(opts, function(err, res) {
+      if (opts.aborted) {
+        return;
+      }
+      xhr = ajax(xhrOpts, function(err, res) {
         callback(res);
       });
     }
 
-    fetch(opts.since || 0, function fetch_cb(res) {
+    var fetched = function(res) {
       if (res && res.results) {
         res.results.forEach(function(c) {
-          if (opts.filter && typeof opts.filter === 'function' &&
-              !opts.filter.apply(this, [c.doc])) {
+          var hasFilter = opts.filter && typeof opts.filter === 'function';
+          if (opts.aborted || hasFilter && !opts.filter.apply(this, [c.doc])) {
             return;
           }
-          if (!opts.aborted) {
-            call(opts.onChange, c);
-          }
+          call(opts.onChange, c);
         });
       }
       if (res && opts.continuous) {
-        fetch(res.last_seq, fetch_cb);
+        fetch(res.last_seq, fetched);
       } else {
         call(opts.complete, null, res);
       }
-    });
+    }
+
+    fetch(opts.since || 0, fetched);
 
     return {
       cancel: function() {
+        console.info('Cancel Changes Feed');
         opts.aborted = true;
         xhr.abort();
       }
@@ -365,7 +372,12 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    ajax({auth: host.auth, type:'POST', url: genUrl(host, '_revs_diff'), data: req}, function(err, res) {
+    ajax({
+      auth: host.auth,
+      type:'POST',
+      url: genUrl(host, '_revs_diff'),
+      data: req
+    }, function(err, res) {
       call(callback, null, res);
     });
   };

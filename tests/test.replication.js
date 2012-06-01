@@ -17,6 +17,7 @@
   ];
 
   asyncTest("Test basic pull replication", function() {
+    console.info('Starting Test: Test basic pull replication');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
@@ -30,6 +31,7 @@
   });
 
   asyncTest("Local DB contains documents", function() {
+    console.info('Starting Test: Local DB contains documents');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, _) {
@@ -46,6 +48,7 @@
   });
 
   asyncTest("Test basic push replication", function() {
+    console.info('Starting Test: Test basic push replication');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, results) {
@@ -59,6 +62,7 @@
   });
 
   asyncTest("Test basic push replication take 2", function() {
+    console.info('Starting Test: Test basic push replication take 2');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, _) {
@@ -73,6 +77,7 @@
   });
 
   asyncTest("Test checkpoint", function() {
+    console.info('Starting Test: Test checkpoint');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
@@ -91,6 +96,7 @@
   });
 
   asyncTest("Test checkpoint 2", function() {
+    console.info('Starting Test: Test checkpoint 2');
     var self = this;
     var doc = {_id: "3", count: 0};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -116,6 +122,7 @@
   });
 
   asyncTest("Test checkpoint 3 :)", function() {
+    console.info('Starting Test: Test checkpoint 3 :)');
     var self = this;
     var doc = {_id: "3", count: 0};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -145,6 +152,7 @@
   // method to generate the revision number, however we cannot copy its
   // method as it depends on erlangs internal data representation
   asyncTest("Test basic conflict", function() {
+    console.info('Starting Test: Test basic conflict');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'adoc', bar:'baz'};
@@ -163,18 +171,20 @@
   });
 
   asyncTest("Test basic continous pull replication", function() {
+    console.info('Starting Test: Test basic continous pull replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
         var count = 0;
         var rep = db.replicate.from(self.remote, {continuous: true});
-        var change = db.changes({
+        var changes = db.changes({
           onChange: function(change) {
             ++count;
             if (count === 4) {
               ok(true, 'Got all the changes');
               rep.cancel();
+              changes.cancel();
               start();
             }
           },
@@ -182,24 +192,26 @@
         });
         setTimeout(function() {
           remote.put(doc1);
-        }, 500);
+        }, 50);
       });
     });
   });
 
   asyncTest("Test basic continous push replication", function() {
+    console.info('Starting Test: Test basic continous push replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, results) {
         var count = 0;
         var rep = remote.replicate.from(db, {continuous: true});
-        var change = remote.changes({
+        var changes = remote.changes({
           onChange: function(change) {
             ++count;
             if (count === 4) {
               ok(true, 'Got all the changes');
               rep.cancel();
+              changes.cancel();
               start();
             }
           },
@@ -213,6 +225,7 @@
   });
 
   asyncTest("Test cancel pull replication", function() {
+    console.info('Starting Test: Test cancel pull replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'anotherdoc', foo:'baz'};
@@ -220,7 +233,7 @@
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
         var count = 0;
         var replicate = db.replicate.from(self.remote, {continuous: true});
-        var change = db.changes({
+        var changes = db.changes({
           continuous: true,
           onChange: function(change) {
             ++count;
@@ -229,6 +242,7 @@
               remote.put(doc2);
               setTimeout(function() {
                 ok(count === 4, 'got no more docs');
+                changes.cancel();
                 start();
               }, 500);
             }
@@ -242,6 +256,7 @@
   });
 
   asyncTest("Replication filter", function() {
+    console.info('Starting Test: Replication filter');
     var docs1 = [
       {_id: "0", integer: 0},
       {_id: "1", integer: 1},
@@ -267,6 +282,7 @@
   });
 
   asyncTest("Attachments replicate", function() {
+    console.info('Starting Test: Attachments replicate');
 
     var binAttDoc = {
       _id: "bin_doc",
