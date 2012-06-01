@@ -38,6 +38,11 @@
           var diff = {};
           diff[change.id] = change.changes.map(function(x) { return x.rev; });
           target.revsDiff(diff, function(err, diffs) {
+            if (Object.keys(diffs).length === 0) {
+              pending--;
+              isCompleted();
+              return;
+            }
             for (var id in diffs) {
               diffs[id].missing.map(function(rev) {
                 src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
