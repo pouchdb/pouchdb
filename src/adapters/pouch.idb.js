@@ -772,11 +772,15 @@ var IdbPouch = function(opts, callback) {
     var current;
 
     emit = function(key, val) {
-      results.push({
+      var viewRow = {
         id: current._id,
         key: key,
         value: val
-      });
+      }
+      if (options.include_docs) {
+        viewRow.doc = current.doc;
+      }
+      results.push(viewRow);
     }
 
     request.onsuccess = function (e) {
@@ -812,12 +816,14 @@ var IdbPouch = function(opts, callback) {
           }
         }
       } else {
+        var metadata = e.target.result.value;
         var nreq = txn
-          .objectStore(BY_SEQ_STORE).get(e.target.result.value.seq)
+          .objectStore(BY_SEQ_STORE).get(metadata.seq)
           .onsuccess = function(e) {
-            current = e.target.result;
-            if (options.complete) {
-              fun.map.apply(mapContext, [current]);
+            current = {doc: e.target.result, metadata: metadata};
+            current.doc._rev = current.metadata.rev;
+            if (options.complete && !current.metadata.deleted) {
+              fun.map.apply(mapContext, [current.doc]);
             }
             cursor['continue']();
           };

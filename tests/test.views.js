@@ -13,11 +13,11 @@ asyncTest("Test basic view", function() {
       db.get('volatile', function(_, doc) {
         db.remove(doc, function(_, resp) {
           db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+            equal(res.rows.length, 1, 'Dont include deleted documents');
             res.rows.forEach(function(x, i) {
               ok(x.value._rev, 'emitted doc has rev');
               ok(x.doc, 'doc included');
               ok(x.doc && x.doc._rev, 'included doc has rev');
-              if (x.id === 'volatile') ok(false, 'Do not include deleted docs');
             });
             start();
           });
