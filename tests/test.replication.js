@@ -1,6 +1,7 @@
 [['idb-1', 'http-1'],
  ['http-1', 'http-2'],
- ['http-1', 'idb-1']].map(function(adapters) {
+ ['http-1', 'idb-1'],
+ ['idb-1', 'idb-2']].map(function(adapters) {
 
   module('replication: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
