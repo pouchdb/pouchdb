@@ -1,4 +1,6 @@
-[['idb-1', 'http-1'], ['http-1', 'http-2']].map(function(adapters) {
+[['idb-1', 'http-1'],
+ ['http-1', 'http-2'],
+ ['http-1', 'idb-1']].map(function(adapters) {
 
   module('replication: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
@@ -179,7 +181,7 @@
         });
         setTimeout(function() {
           remote.put(doc1);
-        }, 50);
+        }, 500);
       });
     });
   });

@@ -32,6 +32,7 @@
         continuous: continuous,
         since: checkpoint,
         onChange: function(change) {
+          last_seq = change.seq;
           results.push(change);
           result.docs_read++;
           pending++;
@@ -57,9 +58,6 @@
           });
         },
         complete: function(err, res) {
-          if (res) {
-            last_seq = res.last_seq;
-          }
           completed = true;
           isCompleted();
         }

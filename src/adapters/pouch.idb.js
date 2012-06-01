@@ -21,6 +21,9 @@ function sum(values) {
   return values.reduce(function(a, b) { return a + b; }, 0);
 }
 
+// TODO: This shouldnt be global, but embedded version lost listeners
+var testListeners = {};
+
 var IdbPouch = function(opts, callback) {
 
   // IndexedDB requires a versioned database structure, this is going to make
@@ -117,6 +120,9 @@ var IdbPouch = function(opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
+    }
+    if (!opts) {
+      opts = {}
     }
 
     if (!req.docs) {
@@ -220,7 +226,6 @@ var IdbPouch = function(opts, callback) {
           changes: collectLeaves(result.metadata.rev_tree),
           doc: result.data
         };
-
         api.changes.emit(c);
       });
       call(callback, null, aresults);
@@ -264,7 +269,6 @@ var IdbPouch = function(opts, callback) {
 
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
-          docInfo.data._attachments[key].stub = true;
           var data = docInfo.data._attachments[key].data;
           var digest = 'md5-' + Crypto.MD5(data);
           delete docInfo.data._attachments[key].data;
@@ -414,6 +418,10 @@ var IdbPouch = function(opts, callback) {
             return prev.concat(collectRevs(current));
           }, []);
         }
+        if (opts.conflicts) {
+          doc._conflicts = collectConflicts(metadata.rev_tree);
+        }
+
         if (opts.attachments && doc._attachments) {
           var attachments = Object.keys(doc._attachments);
           var recv = 0;
@@ -538,7 +546,7 @@ var IdbPouch = function(opts, callback) {
   api.putAttachment = function(id, rev, doc, type, callback) {
     var docId = id.split('/')[0];
     var attachId = id.split('/')[1];
-    api.get(docId, function(err, obj) {
+    api.get(docId, {attachments: true}, function(err, obj) {
       obj._attachments || (obj._attachments = {});
       obj._attachments[attachId] = {
         content_type: type,
@@ -593,6 +601,9 @@ var IdbPouch = function(opts, callback) {
     if (!opts.seq) {
       opts.seq = 0;
     }
+    if (opts.since) {
+      opts.seq = opts.since;
+    }
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? IDBCursor.PREV : null;
@@ -608,14 +619,14 @@ var IdbPouch = function(opts, callback) {
         opts.filter = filter;
         txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
         var req = txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
+          .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
         req.onsuccess = onsuccess;
         req.onerror = onerror;
       });
     } else {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
       var req = txn.objectStore(BY_SEQ_STORE)
-        .openCursor(IDBKeyRange.lowerBound(opts.seq), descending);
+        .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }
@@ -684,7 +695,7 @@ var IdbPouch = function(opts, callback) {
       // is added
       return {
         cancel: function() {
-          delete api.changes.listeners[id];
+          delete testListeners[id];
         }
       }
     }
@@ -694,8 +705,8 @@ var IdbPouch = function(opts, callback) {
 
   api.changes.emit = function() {
     var a = arguments;
-    for (var i in api.changes.listeners) {
-      var opts = api.changes.listeners[i];
+    for (var i in testListeners) {
+      var opts = testListeners[i];
       if (opts.filter && !opts.filter.apply(this, [a[0].doc])) {
         return;
       }
@@ -704,7 +715,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.changes.addListener = function(id, opts, callback) {
-    api.changes.listeners[id] = opts;
+    testListeners[id] = opts;
   };
 
   api.replicate = {};
