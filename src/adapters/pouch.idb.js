@@ -92,19 +92,6 @@ var IdbPouch = function(opts, callback) {
   };
 
 
-  api.destroy = function(name, callback) {
-
-    var req = indexedDB.deleteDatabase(name);
-
-    req.onsuccess = function() {
-      call(callback, null);
-    };
-
-    req.onerror = function(e) {
-      call(callback, {error: 'delete', reason: e.toString()});
-    };
-  };
-
   api.valid = function() {
     return true;
   };
