@@ -17,6 +17,9 @@ window.IDBTransaction = window.IDBTransaction ||
 window.IDBDatabaseException = window.IDBDatabaseException ||
   window.webkitIDBDatabaseException;
 
+// Newer webkits expect strings for transaction + cursor paramters
+// older webkit + older firefox require constants, we can drop
+// the constants when both stable releases use strings
 IDBTransaction = IDBTransaction || {};
 IDBTransaction.READ_WRITE = IDBTransaction.READ_WRITE || 'readwrite';
 IDBTransaction.READ = IDBTransaction.READ || 'readonly';
