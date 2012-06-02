@@ -200,7 +200,7 @@ var IdbPouch = function(opts, callback) {
     });
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                                   IDBTransaction.READ_WRITE);
+                                   "readwrite");
 
     txn.oncomplete = function(event) {
 
@@ -308,7 +308,7 @@ var IdbPouch = function(opts, callback) {
     };
 
     var cursReq = txn.objectStore(DOC_STORE)
-      .openCursor(keyRange, IDBCursor.NEXT);
+      .openCursor(keyRange, "next");
 
     var update = function(cursor, oldDoc, docInfo, callback) {
       var mergedRevisions = Pouch.merge(oldDoc.rev_tree,
@@ -382,7 +382,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                              IDBTransaction.READ);
+                              "readonly");
 
     if (/\//.test(id) && !/^_local/.test(id) && !/^_design/.test(id)) {
       var docId = id.split('/')[0];
@@ -477,15 +477,16 @@ var IdbPouch = function(opts, callback) {
     var end = 'endkey' in opts ? opts.endkey : false;
 
     var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? IDBCursor.PREV : null;
+    descending = descending ? "prev" : null;
 
     var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
       : start ? IDBKeyRange.lowerBound(start, true)
       : end ? IDBKeyRange.upperBound(end) : false;
-    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    keyRange = keyRange || null;
+    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], "readonly");
     var oStore = transaction.objectStore(DOC_STORE);
-    var oCursor = keyRange ? oStore.openCursor(keyRange, descending)
-      : oStore.openCursor(null, descending);
+    var oCursor = descending ? oStore.openCursor(keyRange, descending)
+      : oStore.openCursor(keyRange);
     var results = [];
     oCursor.onsuccess = function(e) {
       if (!e.target.result) {
@@ -532,7 +533,7 @@ var IdbPouch = function(opts, callback) {
   // easiest to implement though, should probably keep a counter
   api.info = function(callback) {
     var count = 0;
-    idb.transaction([DOC_STORE], IDBTransaction.READ)
+    idb.transaction([DOC_STORE], "readonly")
       .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
         var cursor = e.target.result;
         if (!cursor) {
@@ -612,7 +613,7 @@ var IdbPouch = function(opts, callback) {
     console.info('Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? IDBCursor.PREV : null;
+    descending = descending ? "prev" : null;
 
     var results = [];
     var id = name + ':' + Math.uuid();
@@ -624,15 +625,17 @@ var IdbPouch = function(opts, callback) {
         var filter = eval('(function() { return ' + ddoc.filters[filterName[1]] + ' })()');
         opts.filter = filter;
         txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
-        var req = txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
+        var req = descending 
+          ? txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
+          : txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true));
         req.onsuccess = onsuccess;
         req.onerror = onerror;
       });
     } else {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
-      var req = txn.objectStore(BY_SEQ_STORE)
-        .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
+      var req = descending
+        ? txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending);
+        : txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true));
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }
@@ -786,7 +789,7 @@ var IdbPouch = function(opts, callback) {
 
   var viewQuery = function (fun, idb, options) {
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], "readonly");
     var objectStore = txn.objectStore(DOC_STORE);
     var request = objectStore.openCursor();
     var mapContext = {};
