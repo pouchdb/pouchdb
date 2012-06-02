@@ -35,6 +35,17 @@ function sum(values) {
 // TODO: This shouldnt be global, but embedded version lost listeners
 var testListeners = {};
 
+var idbError = function(callback) {
+  return function(event) {
+    var code = event.target.errorCode;
+    call(callback, {
+      status: 500,
+      error: event.type,
+      reason: Object.keys(IDBDatabaseException)[code-1].toLowerCase()
+    });
+  }
+};
+
 var IdbPouch = function(opts, callback) {
 
   // IndexedDB requires a versioned database structure, this is going to make
@@ -51,12 +62,11 @@ var IdbPouch = function(opts, callback) {
   // Where we store attachments
   var ATTACH_STORE = 'attach-store';
 
-  var api = {};
-
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
   var update_seq = 0;
 
+  var api = {};
   var idb;
 
   console.info(name + ': Open Database');
@@ -92,9 +102,7 @@ var IdbPouch = function(opts, callback) {
     call(callback, null, api);
   };
 
-  req.onerror = function(e) {
-    call(callback, {error: 'open', reason: e.toString()});
-  };
+  req.onerror = idbError(callback);
 
   // Each database needs a unique id so that we can store the sequence
   // checkpoint without having other databases confuse itself, since
@@ -225,13 +233,8 @@ var IdbPouch = function(opts, callback) {
       call(callback, null, aresults);
     };
 
-    txn.onerror = function(event) {
-      call(callback, enumerateError(event));
-    };
-
-    txn.ontimeout = function(event) {
-      call(callback, enumerateError(event));
-    }
+    txn.onerror = idbError(callback);
+    txn.ontimeout = idbError(callback);
 
     // right now fire and forget, needs cleaned
     function saveAttachment(digest, data) {
@@ -282,9 +285,6 @@ var IdbPouch = function(opts, callback) {
       return err;
     };
 
-    var cursReq = txn.objectStore(DOC_STORE)
-      .openCursor(keyRange, IDBCursor.NEXT);
-
     var update = function(cursor, oldDoc, docInfo, callback) {
       var mergedRevisions = Pouch.merge(oldDoc.rev_tree,
                                         docInfo.metadata.rev_tree[0], 1000);
@@ -323,6 +323,9 @@ var IdbPouch = function(opts, callback) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docs[i]._bulk_seq));
       }
     };
+
+    var cursReq = txn.objectStore(DOC_STORE)
+      .openCursor(keyRange, IDBCursor.NEXT);
 
     cursReq.onsuccess = function(event) {
       var cursor = event.target.result;
@@ -604,16 +607,13 @@ var IdbPouch = function(opts, callback) {
         var filter = eval('(function() { return ' +
                           ddoc.filters[filterName[1]] + ' })()');
         opts.filter = filter;
-        txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
-        var req = descending
-          ? txn.objectStore(BY_SEQ_STORE)
-            .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
-          : txn.objectStore(BY_SEQ_STORE)
-            .openCursor(IDBKeyRange.lowerBound(opts.seq, true));
-        req.onsuccess = onsuccess;
-        req.onerror = onerror;
+        fetchChanges();
       });
     } else {
+      fetchChanges();
+    }
+
+    function fetchChanges() {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
       var req = descending
         ? txn.objectStore(BY_SEQ_STORE)
@@ -674,8 +674,6 @@ var IdbPouch = function(opts, callback) {
     };
 
     function onerror(error) {
-      // Cursor is out of range
-      // NOTE: What should we do with a sequence that is too high?
       if (opts.continuous) {
         db.changes.addListener(id, opts);
       }
@@ -683,9 +681,6 @@ var IdbPouch = function(opts, callback) {
     };
 
     if (opts.continuous) {
-      // Possible race condition when the user cancels a continous changes feed
-      // before the current changes are finished (therefore before the listener
-      // is added
       return {
         cancel: function() {
           console.info(name + ': Cancel Changes Feed');
@@ -695,8 +690,6 @@ var IdbPouch = function(opts, callback) {
       }
     }
   };
-
-  api.changes.listeners = {};
 
   api.changes.emit = function idb_change_emit() {
     var a = arguments;
@@ -772,15 +765,6 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  var enumerateError = function(event) {
-    var code = event.target.errorCode;
-    return {
-      status: 500,
-      error: event.type,
-      reason: Object.keys(IDBDatabaseException)[code-1].toLowerCase()
-    };
-  };
-
   var viewQuery = function (fun, idb, options) {
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
@@ -849,10 +833,8 @@ var IdbPouch = function(opts, callback) {
       }
     }
 
-    request.onerror = function (error) {
-      if (options.error) {
-        options.error(error);
-      }
+    request.onerror = function(evt) {
+      call(options.error, enumerateError(evt));
     }
   }
 
@@ -872,9 +854,7 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
     call(callback, null);
   };
 
-  req.onerror = function(e) {
-    call(callback, {error: 'delete', reason: e.toString()});
-  };
+  req.onerror = idbError(callback);
 };
 
 Pouch.adapter('idb', IdbPouch);
