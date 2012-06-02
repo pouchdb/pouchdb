@@ -1,6 +1,6 @@
-window.Pouch = function(name, opts, callback) {
+window.Pouch = function Pouch(name, opts, callback) {
 
-  if (!(this instanceof arguments.callee)) {
+  if (!(this instanceof Pouch)) {
     return new Pouch(name, opts, callback);
   }
 
