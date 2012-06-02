@@ -226,26 +226,12 @@ var IdbPouch = function(opts, callback) {
     };
 
     txn.onerror = function(event) {
-      if (callback) {
-        var code = event.target.errorCode;
-        var message = Object.keys(IDBDatabaseException)[code-1].toLowerCase();
-        callback({
-          error : event.type,
-          reason : message
-        });
-      }
+      call(callback, enumerateError(event));
     };
 
     txn.ontimeout = function(event) {
-      if (callback) {
-        var code = event.target.errorCode;
-        var message = Object.keys(IDBDatabaseException)[code].toLowerCase();
-        callback({
-          error : event.type,
-          reason : message
-        });
-      }
-    };
+      call(callback, enumerateError(event));
+    }
 
     // right now fire and forget, needs cleaned
     function saveAttachment(digest, data) {
@@ -702,7 +688,7 @@ var IdbPouch = function(opts, callback) {
       // is added
       return {
         cancel: function() {
-          console.info('Cancel Changes Feed');
+          console.info(name + ': Cancel Changes Feed');
           opts.cancelled = true;
           delete testListeners[id];
         }
@@ -783,6 +769,15 @@ var IdbPouch = function(opts, callback) {
       } else {
         call(callback, null, results[0]);
       }
+    };
+  };
+
+  var enumerateError = function(event) {
+    var code = event.target.errorCode;
+    return {
+      status: 500,
+      error: event.type,
+      reason: Object.keys(IDBDatabaseException)[code-1].toLowerCase()
     };
   };
 
