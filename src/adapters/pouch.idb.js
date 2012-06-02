@@ -48,11 +48,13 @@ var IdbPouch = function(opts, callback) {
 
   var api = {};
 
-  var req = indexedDB.open(opts.name, POUCH_VERSION);
   var name = opts.name;
+  var req = indexedDB.open(name, POUCH_VERSION);
   var update_seq = 0;
 
   var idb;
+
+  console.info(name + ': Open Database');
 
   req.onupgradeneeded = function(e) {
     var db = e.target.result;
@@ -871,6 +873,8 @@ IdbPouch.valid = function() {
 };
 
 IdbPouch.destroy = function(name, callback) {
+
+  console.info(name + ': Delete Database');
   var req = indexedDB.deleteDatabase(name);
 
   req.onsuccess = function() {
