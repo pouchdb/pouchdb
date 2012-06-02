@@ -100,7 +100,7 @@ var IdbPouch = function(opts, callback) {
   // checkpoint without having other databases confuse itself, since
   // localstorage is per host this shouldnt conflict, if localstorage
   // gets wiped it isnt fatal, replications will just start from scratch
-  api.id = function() {
+  api.id = function idb_id() {
     var id = localJSON.get(name + '_id', null);
     if (id === null) {
       id = Math.uuid();
@@ -109,7 +109,7 @@ var IdbPouch = function(opts, callback) {
     return id;
   };
 
-  api.bulkDocs = function(req, opts, callback) {
+  api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
     if (opts instanceof Function) {
       callback = opts;
@@ -364,7 +364,7 @@ var IdbPouch = function(opts, callback) {
 
   // First we look up the metadata in the ids database, then we fetch the
   // current revision(s) from the by sequence store
-  api.get = function(id, opts, callback) {
+  api.get = function idb_get(id, opts, callback) {
 
     if (opts instanceof Function) {
       callback = opts;
@@ -438,7 +438,7 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  api.put = api.post = function(doc, opts, callback) {
+  api.put = api.post = function idb_put(doc, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -447,7 +447,7 @@ var IdbPouch = function(opts, callback) {
   };
 
 
-  api.remove = function(doc, opts, callback) {
+  api.remove = function idb_remove(doc, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -458,7 +458,7 @@ var IdbPouch = function(opts, callback) {
   };
 
 
-  api.allDocs = function(opts, callback) {
+  api.allDocs = function idb_allDocs(opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -523,7 +523,7 @@ var IdbPouch = function(opts, callback) {
 
   // Looping through all the documents in the database is a terrible idea
   // easiest to implement though, should probably keep a counter
-  api.info = function(callback) {
+  api.info = function idb_info(callback) {
     var count = 0;
     idb.transaction([DOC_STORE], IDBTransaction.READ)
       .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
@@ -542,7 +542,7 @@ var IdbPouch = function(opts, callback) {
       };
   };
 
-  api.putAttachment = function(id, rev, doc, type, callback) {
+  api.putAttachment = function idb_putAttachment(id, rev, doc, type, callback) {
     var docId = id.split('/')[0];
     var attachId = id.split('/')[1];
     api.get(docId, {attachments: true}, function(err, obj) {
@@ -556,7 +556,7 @@ var IdbPouch = function(opts, callback) {
   };
 
 
-  api.revsDiff = function(req, opts, callback) {
+  api.revsDiff = function idb_revsDiff(req, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -588,7 +588,7 @@ var IdbPouch = function(opts, callback) {
     });
   };
 
-  api.changes = function(opts, callback) {
+  api.changes = function idb_changes(opts, callback) {
 
     if (opts instanceof Function) {
       opts = {complete: opts};
@@ -712,7 +712,7 @@ var IdbPouch = function(opts, callback) {
 
   api.changes.listeners = {};
 
-  api.changes.emit = function() {
+  api.changes.emit = function idb_change_emit() {
     var a = arguments;
     for (var i in testListeners) {
       // Currently using a global listener pool keys by db name, we shouldnt
@@ -727,13 +727,13 @@ var IdbPouch = function(opts, callback) {
     }
   };
 
-  api.changes.addListener = function(id, opts, callback) {
+  api.changes.addListener = function idb_addListener(id, opts, callback) {
     testListeners[id] = opts;
   };
 
   api.replicate = {};
 
-  api.replicate.from = function(url, opts, callback) {
+  api.replicate.from = function idb_replicate_from(url, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -741,7 +741,7 @@ var IdbPouch = function(opts, callback) {
     return Pouch.replicate(url, api, opts, callback);
   };
 
-  api.replicate.to = function(dbName, opts, callback) {
+  api.replicate.to = function idb_replicate_to(dbName, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -749,7 +749,7 @@ var IdbPouch = function(opts, callback) {
     return Pouch.replicate(api, dbName, opts, callback);
   };
 
-  api.query = function(fun, opts, callback) {
+  api.query = function idb_query(fun, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
@@ -864,11 +864,11 @@ var IdbPouch = function(opts, callback) {
   return api;
 };
 
-IdbPouch.valid = function() {
+IdbPouch.valid = function idb_valid() {
   return !!window.indexedDB;
 };
 
-IdbPouch.destroy = function(name, callback) {
+IdbPouch.destroy = function idb_destroy(name, callback) {
 
   console.info(name + ': Delete Database');
   var req = indexedDB.deleteDatabase(name);
