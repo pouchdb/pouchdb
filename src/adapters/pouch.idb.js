@@ -291,6 +291,7 @@ var IdbPouch = function(opts, callback) {
       }
       var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
       dataReq.onsuccess = function(e) {
+        console.info(name + ': Wrote Document ', docInfo.metadata.id);
         docInfo.metadata.seq = e.target.result;
         // We probably shouldnt even store the winning rev, just figure it
         // out on read
@@ -882,6 +883,7 @@ IdbPouch.destroy = function(name, callback) {
   };
 
   req.onerror = function(e) {
+    console.log(e);
     call(callback, {error: 'delete', reason: e.toString()});
   };
 };
