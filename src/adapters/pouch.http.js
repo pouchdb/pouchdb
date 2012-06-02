@@ -109,6 +109,8 @@ var HttpPouch = function(opts, callback) {
       });
     } else if (!err || err.status === 412) {
       call(callback, null, api);
+    } else {
+      call(callback, Pouch.Errors.UNKNOWN_ERROR);
     }
   });
 

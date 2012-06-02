@@ -67,6 +67,11 @@
 
   asyncTest('Testing deleting in changes', function() {
     Pouch(this.name, function(err, db) {
+      if (err) {
+        console.error(err);
+        ok(false, 'failed to open database');
+        return start();
+      }
       db.get('1', function(err, doc) {
         db.remove(doc, function(err, deleted) {
           ok(deleted.ok, 'deleted');
@@ -83,6 +88,11 @@
 
   asyncTest('Testing updating in changes', function() {
     Pouch(this.name, function(err, db) {
+      if (err) {
+        console.error(err);
+        ok(false, 'failed to open database');
+        return start();
+      }
       db.get('3', function(err, doc) {
         doc.updated = 'totally';
         db.put(doc, function(err, doc) {
@@ -98,6 +108,11 @@
 
   asyncTest('Testing include docs', function() {
     Pouch(this.name, function(err, db) {
+      if (err) {
+        console.error(err);
+        ok(false, 'failed to open database');
+        return start();
+      }
       db.changes({include_docs: true}, function(err, changes) {
         ok(changes.results.length == 4);
         ok(changes.results[3].id == "3");
@@ -111,6 +126,11 @@
 
   asyncTest('Testing conflicts', function() {
     Pouch(this.name, function(err, db) {
+      if (err) {
+        console.error(err);
+        ok(false, 'failed to open database');
+        return start();
+      }
       // add conflicts
       var conflictDoc1 = {
         _id: "3", _rev: "2-aa01552213fafa022e6167113ed01087", value: "X"

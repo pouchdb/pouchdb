@@ -82,5 +82,10 @@ Pouch.Errors = {
     status: 400,
     error: 'invalid_id',
     reason: '_id field must contain a string'
+  },
+  UNKNOWN_ERROR: {
+    status: 500,
+    error: 'unknown_error',
+    reason: 'Database encountered an unknown error'
   }
 };

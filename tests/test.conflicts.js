@@ -38,6 +38,11 @@
   asyncTest('Testing conflicts', function() {
     var doc = {_id: 'fubar', a:1, b: 1};
     Pouch(this.name, function(err, db) {
+      if (err) {
+        console.error(err);
+        ok(false, 'failed to open database');
+        return start();
+      }
       db.put(doc, function(err, ndoc) {
         doc._rev = ndoc.rev;
         db.remove(doc, function() {
