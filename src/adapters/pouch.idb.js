@@ -17,6 +17,12 @@ window.IDBTransaction = window.IDBTransaction ||
 window.IDBDatabaseException = window.IDBDatabaseException ||
   window.webkitIDBDatabaseException;
 
+IDBTransaction.READ_WRITE = IDBTransaction.READ_WRITE || 'readwrite';
+IDBTransaction.READ = IDBTransaction.READ || 'readonly';
+
+IDBCursor.NEXT = IDBCursor.NEXT || 'next';
+IDBCursor.PREV = IDBCursor.PREV || 'prev';
+
 function sum(values) {
   return values.reduce(function(a, b) { return a + b; }, 0);
 }
