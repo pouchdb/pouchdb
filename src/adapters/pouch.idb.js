@@ -75,9 +75,11 @@ var IdbPouch = function(opts, callback) {
     // polyfill the new onupgradeneeded api for chrome
     if (idb.setVersion && Number(idb.version) !== POUCH_VERSION) {
       var versionReq = idb.setVersion(POUCH_VERSION);
-      versionReq.onsuccess = function() {
+      versionReq.onsuccess = function(evt) {
+        evt.target.result.oncomplete = function() {
+          req.onsuccess(e);
+        };
         req.onupgradeneeded(e);
-        req.onsuccess(e);
       };
       return;
     }
