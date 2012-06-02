@@ -19,7 +19,8 @@ function parseUri (str) {
 
 parseUri.options = {
   strictMode: false,
-  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  key: ["source","protocol","authority","userInfo","user","password","host",
+        "port","relative","path","directory","file","query","anchor"],
   q:   {
     name:   "queryKey",
     parser: /(?:^|&)([^&=]*)=?([^&]*)/g
@@ -280,7 +281,8 @@ var HttpPouch = function(opts, callback) {
       params.push('include_docs=true');
     }
     if (opts.startkey) {
-      params.push('startkey=' + encodeURIComponent(JSON.stringify(opts.startkey)));
+      params.push('startkey=' +
+                  encodeURIComponent(JSON.stringify(opts.startkey)));
     }
     if (opts.endkey) {
       params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));

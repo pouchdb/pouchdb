@@ -303,7 +303,8 @@ var IdbPouch = function(opts, callback) {
       var mergedRevisions = Pouch.merge(oldDoc.rev_tree,
                                         docInfo.metadata.rev_tree[0], 1000);
       var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
-        (!oldDoc.deleted && newEdits && mergedRevisions.conflicts !== 'new_leaf');
+        (!oldDoc.deleted && newEdits &&
+         mergedRevisions.conflicts !== 'new_leaf');
       if (inConflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
         call(callback);
@@ -378,7 +379,8 @@ var IdbPouch = function(opts, callback) {
       var attachId = id.split('/')[1];
       txn.objectStore(DOC_STORE).get(docId).onsuccess = function(e) {
         var metadata = e.target.result;
-        txn.objectStore(BY_SEQ_STORE).get(metadata.seq).onsuccess = function(e) {
+        var bySeq = txn.objectStore(BY_SEQ_STORE);
+        bySeq.get(metadata.seq).onsuccess = function(e) {
           var digest = e.target.result._attachments[attachId].digest;
           txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
             call(callback, null, atob(e.target.result.body));
@@ -471,7 +473,8 @@ var IdbPouch = function(opts, callback) {
     var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
       : start ? IDBKeyRange.lowerBound(start, true)
       : end ? IDBKeyRange.upperBound(end) : false;
-    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE],
+                                      IDBTransaction.READ);
     keyRange = keyRange || null;
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = descending ? oStore.openCursor(keyRange, descending)
@@ -564,7 +567,8 @@ var IdbPouch = function(opts, callback) {
 
     function readDoc(err, doc, id) {
       req[id].map(function(revId) {
-        if (!doc || doc._revs_info.every(function(x) { return x.rev !== revId; })) {
+        var matches = function(x) { return x.rev !== revId; };
+        if (!doc || doc._revs_info.every(matches)) {
           if (!missing[id]) {
             missing[id] = {missing: []};
           }
@@ -599,7 +603,7 @@ var IdbPouch = function(opts, callback) {
       opts.seq = opts.since;
     }
 
-    console.info('Start Changes Feed: continuous=' + opts.continuous);
+    console.info(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? IDBCursor.PREV : null;
@@ -611,20 +615,25 @@ var IdbPouch = function(opts, callback) {
     if (opts.filter && typeof opts.filter === 'string') {
       var filterName = opts.filter.split('/');
       api.get('_design/' + filterName[0], function(err, ddoc) {
-        var filter = eval('(function() { return ' + ddoc.filters[filterName[1]] + ' })()');
+        var filter = eval('(function() { return ' +
+                          ddoc.filters[filterName[1]] + ' })()');
         opts.filter = filter;
         txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
         var req = descending
-          ? txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
-          : txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true));
+          ? txn.objectStore(BY_SEQ_STORE)
+            .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
+          : txn.objectStore(BY_SEQ_STORE)
+            .openCursor(IDBKeyRange.lowerBound(opts.seq, true));
         req.onsuccess = onsuccess;
         req.onerror = onerror;
       });
     } else {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
       var req = descending
-        ? txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
-        : txn.objectStore(BY_SEQ_STORE).openCursor(IDBKeyRange.lowerBound(opts.seq, true));
+        ? txn.objectStore(BY_SEQ_STORE)
+          .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
+        : txn.objectStore(BY_SEQ_STORE)
+          .openCursor(IDBKeyRange.lowerBound(opts.seq, true));
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }
@@ -706,7 +715,8 @@ var IdbPouch = function(opts, callback) {
   api.changes.emit = function() {
     var a = arguments;
     for (var i in testListeners) {
-      // Currently using a global listener pool keys by db name, we shouldnt do that
+      // Currently using a global listener pool keys by db name, we shouldnt
+      // do that
       if (i.match(name)) {
         var opts = testListeners[i];
         if (opts.filter && !opts.filter.apply(this, [a[0].doc])) {
