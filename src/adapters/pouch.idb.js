@@ -106,9 +106,6 @@ var IdbPouch = function(opts, callback) {
     return id;
   };
 
-  api.init = function(opts, callback) {
-  };
-
   api.bulkDocs = function(req, opts, callback) {
 
     if (opts instanceof Function) {
@@ -852,7 +849,6 @@ var IdbPouch = function(opts, callback) {
   }
 
   return api;
-
 };
 
 IdbPouch.valid = function() {
