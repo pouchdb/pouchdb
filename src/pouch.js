@@ -13,8 +13,11 @@ window.Pouch = function Pouch(name, opts, callback) {
   opts.name = backend.name;
   opts.adapter = opts.adapter || backend.adapter;
 
-  if (!Pouch.adapters[backend.adapter] ||
-      !Pouch.adapters[backend.adapter].valid()) {
+  if (!Pouch.adapters[backend.adapter]) {
+    throw 'Adapter is missing';
+  }
+
+  if (!Pouch.adapters[backend.adapter].valid()) {
     throw 'Invalid Adapter';
   }
 
@@ -32,6 +35,10 @@ Pouch.parseAdapter = function(name) {
   if (match) {
     // the http adapter expects the fully qualified name
     name = (match[1] === 'http') ? 'http://' + match[2] : match[2];
+    var adapter = match[1];
+    if (!Pouch.adapters[adapter].valid()) {
+      throw 'Invalid adapter';
+    }
     return {name: name, adapter: match[1]};
   }
 

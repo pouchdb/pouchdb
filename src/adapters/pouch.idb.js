@@ -17,9 +17,11 @@ window.IDBTransaction = window.IDBTransaction ||
 window.IDBDatabaseException = window.IDBDatabaseException ||
   window.webkitIDBDatabaseException;
 
+IDBTransaction = IDBTransaction || {};
 IDBTransaction.READ_WRITE = IDBTransaction.READ_WRITE || 'readwrite';
 IDBTransaction.READ = IDBTransaction.READ || 'readonly';
 
+IDBCursor = IDBCursor || {};
 IDBCursor.NEXT = IDBCursor.NEXT || 'next';
 IDBCursor.PREV = IDBCursor.PREV || 'prev';
 
@@ -89,11 +91,6 @@ var IdbPouch = function(opts, callback) {
 
   req.onerror = function(e) {
     call(callback, {error: 'open', reason: e.toString()});
-  };
-
-
-  api.valid = function() {
-    return true;
   };
 
   // Each database needs a unique id so that we can store the sequence
@@ -859,7 +856,7 @@ var IdbPouch = function(opts, callback) {
 };
 
 IdbPouch.valid = function() {
-  return true;
+  return !!window.indexedDB;
 };
 
 IdbPouch.destroy = function(name, callback) {
@@ -872,7 +869,6 @@ IdbPouch.destroy = function(name, callback) {
   };
 
   req.onerror = function(e) {
-    console.log(e);
     call(callback, {error: 'delete', reason: e.toString()});
   };
 };
