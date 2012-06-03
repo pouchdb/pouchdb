@@ -756,26 +756,26 @@ var IdbPouch = function(opts, callback) {
       if (options.descending) {
         results.reverse();
       }
-      if (options.reduce !== false) {
-        var groups = [];
-          results.forEach(function(e) {
-            var last = groups[groups.length-1] || null;
-            if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
-              last.key.push([e.key, e.id]);
-              last.value.push(e.value);
-              return;
-            }
-            groups.push({ key: [ [e.key,e.id] ], value: [ e.value ]});
-          });
-
-        groups.forEach(function(e) {
-          e.value = fun.reduce(e.key, e.value) || null;
-          e.key = e.key[0][0];
-        });
-        options.complete(null, {rows: groups});
-      } else {
-        options.complete(null, {rows: results});
+      if (options.reduce === false) {
+        return options.complete(null, {rows: results});
       }
+
+      var groups = [];
+      results.forEach(function(e) {
+        var last = groups[groups.length-1] || null;
+        if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
+          last.key.push([e.key, e.id]);
+          last.value.push(e.value);
+          return;
+        }
+        groups.push({ key: [ [e.key,e.id] ], value: [ e.value ]});
+      });
+
+      groups.forEach(function(e) {
+        e.value = fun.reduce(e.key, e.value) || null;
+        e.key = e.key[0][0];
+      });
+      options.complete(null, {rows: groups});
     }
 
     function fetchDocData(cursor, metadata, e) {
