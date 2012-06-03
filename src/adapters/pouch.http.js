@@ -309,7 +309,7 @@ var HttpPouch = function(opts, callback) {
       opts.complete = callback;
     }
 
-    console.info('Start Changes Feed: continuous=' + opts.continuous);
+    console.info(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var params = '?style=all_docs'
     if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
@@ -364,7 +364,7 @@ var HttpPouch = function(opts, callback) {
 
     return {
       cancel: function() {
-        console.info('Cancel Changes Feed');
+        console.info(db_url + ': Cancel Changes Feed');
         opts.aborted = true;
         xhr.abort();
       }

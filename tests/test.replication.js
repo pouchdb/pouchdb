@@ -181,6 +181,9 @@
         var changes = db.changes({
           onChange: function(change) {
             ++count;
+            if (count === 3) {
+              return remote.put(doc1);
+            }
             if (count === 4) {
               ok(true, 'Got all the changes');
               rep.cancel();
@@ -190,9 +193,6 @@
           },
           continuous: true,
         });
-        setTimeout(function() {
-          remote.put(doc1);
-        }, 50);
       });
     });
   });

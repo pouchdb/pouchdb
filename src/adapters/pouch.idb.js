@@ -32,9 +32,6 @@ function sum(values) {
   return values.reduce(function(a, b) { return a + b; }, 0);
 }
 
-// TODO: This shouldnt be global, but embedded version lost listeners
-var testListeners = {};
-
 var idbError = function(callback) {
   return function(event) {
     var code = event.target.errorCode;
@@ -218,8 +215,7 @@ var IdbPouch = function(opts, callback) {
           changes: collectLeaves(metadata.rev_tree),
           doc: result.data
         };
-        api.changes.emit(change);
-
+        IdbPouch.Changes.emitChange(name, change);
       });
       call(callback, null, aresults);
     }
@@ -575,8 +571,8 @@ var IdbPouch = function(opts, callback) {
 
     function onsuccess(event) {
       if (!event.target.result) {
-        if (opts.continuous) {
-          api.changes.addListener(id, opts);
+        if (opts.continuous && !opts.cancelled) {
+          IdbPouch.Changes.addListener(name, id, opts);
         }
         results.map(function(c) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
@@ -625,7 +621,7 @@ var IdbPouch = function(opts, callback) {
 
     function onerror(error) {
       if (opts.continuous) {
-        db.changes.addListener(id, opts);
+        IdbPouch.Changes.addListener(name, id, opts);
       }
       call(opts.complete);
     };
@@ -635,29 +631,10 @@ var IdbPouch = function(opts, callback) {
         cancel: function() {
           console.info(name + ': Cancel Changes Feed');
           opts.cancelled = true;
-          delete testListeners[id];
+          IdbPouch.Changes.removeListener(name, id);
         }
       }
     }
-  };
-
-  api.changes.emit = function idb_change_emit() {
-    var a = arguments;
-    for (var i in testListeners) {
-      // Currently using a global listener pool keys by db name, we shouldnt
-      // do that
-      if (i.match(name)) {
-        var opts = testListeners[i];
-        if (opts.filter && !opts.filter.apply(this, [a[0].doc])) {
-          return;
-        }
-        opts.onChange.apply(opts.onChange, a);
-      }
-    }
-  };
-
-  api.changes.addListener = function idb_addListener(id, opts, callback) {
-    testListeners[id] = opts;
   };
 
   api.replicate = {};
@@ -813,6 +790,42 @@ var IdbPouch = function(opts, callback) {
 
   return api;
 };
+
+IdbPouch.Changes = (function() {
+
+  var api = {};
+  var listeners = {};
+
+  api.addListener = function(db, id, opts) {
+    if (!listeners[db]) {
+      listeners[db] = {};
+    }
+    listeners[db][id] = opts;
+  }
+
+  api.removeListener = function(db, id) {
+    delete listeners[db][id];
+  }
+
+  api.clearListeners = function(db) {
+    delete listeners[db];
+  }
+
+  api.emitChange = function(db, change) {
+    if (!listeners[db]) {
+      return;
+    }
+    for (var i in listeners[db]) {
+      var opts = listeners[db][i];
+      if (opts.filter && !opts.filter.apply(this, [change.doc])) {
+        return;
+      }
+      opts.onChange.apply(opts.onChange, [change]);
+    }
+  }
+
+  return api;
+})();
 
 IdbPouch.valid = function idb_valid() {
   return !!window.indexedDB;
