@@ -28,10 +28,6 @@ IDBCursor = IDBCursor || {};
 IDBCursor.NEXT = IDBCursor.NEXT || 'next';
 IDBCursor.PREV = IDBCursor.PREV || 'prev';
 
-function sum(values) {
-  return values.reduce(function(a, b) { return a + b; }, 0);
-}
-
 var idbError = function(callback) {
   return function(event) {
     var code = event.target.errorCode;
@@ -696,6 +692,10 @@ var IdbPouch = function(opts, callback) {
 
     if (!options.complete) {
       return;
+    }
+
+    function sum(values) {
+      return values.reduce(function(a, b) { return a + b; }, 0);
     }
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
