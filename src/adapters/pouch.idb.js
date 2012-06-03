@@ -134,41 +134,36 @@ var IdbPouch = function(opts, callback) {
     }
 
     var newEdits = 'new_edits' in opts ? opts.new_edits : true;
-    var docs = JSON.parse(JSON.stringify(req.docs));
+    var userDocs = JSON.parse(JSON.stringify(req.docs));
 
     // Parse the docs, give them a sequence number for the result
-    var docInfos = docs.map(function(doc, i) {
+    var docInfos = userDocs.map(function(doc, i) {
       var newDoc = parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;
     });
 
-    docInfos.sort(function(a, b) {
-      if (a.error || b.error) {
-        return -1;
-      }
-      return Pouch.collate(a.metadata.id, b.metadata.id);
-    });
-
     var results = [];
+    var docs = [];
 
-    // We mark subsequent bulk docs with a duplicate id as conflicts
-    var docs = docInfos.reduce(function(acc, docInfo) {
+    docInfos.forEach(function(docInfo) {
       if (docInfo.error) {
-        results.push(docInfo);
-      } else if (!acc.length || docInfo.metadata.id !== acc[0].metadata.id) {
-        acc.unshift(docInfo);
-      } else {
-        results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
+        return results.push(docInfo);
       }
-      return acc;
-    }, []);
+      if (!docs.length || docInfo.metadata.id !== docs[0].metadata.id) {
+        return docs.unshift(docInfo);
+      }
+      // We mark subsequent bulk docs with a duplicate id as conflicts
+      results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
+    });
 
     if (!docs.length) {
       return txnComplete();
     }
 
-    docs.reverse();
+    docs.sort(function(a, b) {
+      return Pouch.collate(a.metadata.id, b.metadata.id);
+    });
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                               IDBTransaction.READ_WRITE);
