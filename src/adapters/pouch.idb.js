@@ -693,13 +693,13 @@ var IdbPouch = function(opts, callback) {
         if (err) {
           call(callback, err);
         }
-        eval('var map = ' + doc.views[parts[1]].map);
-        // TODO: reduce may not be defined, or may be predefined
-        eval('var reduce = ' + doc.views[parts[1]].reduce);
-        viewQuery({map: map, reduce: reduce}, idb, opts);
+        new viewQuery({
+          map: doc.views[parts[1]].map,
+          reduce: doc.views[parts[1]].reduce
+        }, idb, opts);
       });
     } else {
-      viewQuery(fun, idb, opts);
+      new viewQuery(fun, idb, opts);
     }
   }
 
@@ -715,16 +715,18 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  var viewQuery = function (fun, idb, options) {
+  var viewQuery = function(fun, idb, options) {
+
+    if (!options.complete) {
+      return;
+    }
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
     var objectStore = txn.objectStore(DOC_STORE);
-    var request = objectStore.openCursor();
-    var mapContext = {};
     var results = [];
     var current;
 
-    emit = function(key, val) {
+    var emit = function(key, val) {
       var viewRow = {
         id: current._id,
         key: key,
@@ -734,58 +736,69 @@ var IdbPouch = function(opts, callback) {
         viewRow.doc = current.doc;
       }
       results.push(viewRow);
+    };
+
+    // We may have passed in an anonymous function that used emit in
+    // the global scope, this is an ugly way to rescope it
+    eval('fun.map = ' + fun.map.toString() + ';');
+    if (fun.reduce) {
+      eval('fun.reduce = ' + fun.reduce.toString() + ';');
     }
 
-    request.onsuccess = function (e) {
-      var cursor = e.target.result;
-      if (!cursor) {
-        if (options.complete) {
-          results.sort(function(a, b) {
-            return Pouch.collate(a.key, b.key);
-          });
-          if (options.descending) {
-            results.reverse();
-          }
-          if (options.reduce !== false) {
+    var request = objectStore.openCursor();
+    request.onerror = idbError(options.error);
+    request.onsuccess = fetchMetadata;
 
-            var groups = [];
-            results.forEach(function(e) {
-              var last = groups[groups.length-1] || null;
-              if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
-                last.key.push([e.key, e.id]);
-                last.value.push(e.value);
-                return;
-              }
-              groups.push({ key: [ [e.key,e.id] ], value: [ e.value ]});
-            });
-
-            groups.forEach(function(e) {
-              e.value = fun.reduce(e.key, e.value) || null;
-              e.key = e.key[0][0];
-            });
-            options.complete(null, {rows: groups});
-          } else {
-            options.complete(null, {rows: results});
-          }
-        }
-      } else {
-        var metadata = e.target.result.value;
-        var nreq = txn
-          .objectStore(BY_SEQ_STORE).get(metadata.seq)
-          .onsuccess = function(e) {
-            current = {doc: e.target.result, metadata: metadata};
-            current.doc._rev = winningRev(current.metadata.rev_tree[0].pos,
-                                          current.metadata.rev_tree[0].ids);
-
-            if (options.complete && !current.metadata.deleted) {
-              fun.map.apply(mapContext, [current.doc]);
+    function viewComplete() {
+      results.sort(function(a, b) {
+        return Pouch.collate(a.key, b.key);
+      });
+      if (options.descending) {
+        results.reverse();
+      }
+      if (options.reduce !== false) {
+        var groups = [];
+          results.forEach(function(e) {
+            var last = groups[groups.length-1] || null;
+            if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
+              last.key.push([e.key, e.id]);
+              last.value.push(e.value);
+              return;
             }
-            cursor['continue']();
-          };
+            groups.push({ key: [ [e.key,e.id] ], value: [ e.value ]});
+          });
+
+        groups.forEach(function(e) {
+          e.value = fun.reduce(e.key, e.value) || null;
+          e.key = e.key[0][0];
+        });
+        options.complete(null, {rows: groups});
+      } else {
+        options.complete(null, {rows: results});
       }
     }
 
-    request.onerror = idbError(options.error);
+    function fetchDocData(cursor, metadata, e) {
+      current = {doc: e.target.result, metadata: metadata};
+      current.doc._rev = winningRev(current.metadata.rev_tree[0].pos,
+                                    current.metadata.rev_tree[0].ids);
+
+      if (options.complete && !current.metadata.deleted) {
+        fun.map.apply(this, [current.doc]);
+      }
+      cursor['continue']();
+    }
+
+    function fetchMetadata(e) {
+      var cursor = e.target.result;
+      if (!cursor) {
+        return viewComplete();
+      }
+      var metadata = e.target.result.value;
+      var dataReq = txn.objectStore(BY_SEQ_STORE).get(metadata.seq);
+      dataReq.onsuccess = fetchDocData.bind(this, cursor, metadata);
+      dataReq.onerror = idbError(options.complete);
+    }
   }
 
   // Trees are sorted by length, winning revision is the last revision
