@@ -136,11 +136,9 @@ var IdbPouch = function(opts, callback) {
     var newEdits = 'new_edits' in opts ? opts.new_edits : true;
     var docs = JSON.parse(JSON.stringify(req.docs));
 
-    // Parse and sort the docs
+    // Parse the docs, give them a sequence number for the result
     var docInfos = docs.map(function(doc, i) {
       var newDoc = parseDoc(doc, newEdits);
-      // We want to ensure the order of the processing and return of the docs,
-      // so we give them a sequence number
       newDoc._bulk_seq = i;
       return newDoc;
     });
@@ -154,45 +152,33 @@ var IdbPouch = function(opts, callback) {
 
     var results = [];
 
-    var firstDoc;
-    for (var i = 0; i < docInfos.length; i++) {
-      if (docInfos[i].error) {
-        results.push(docInfos[i])
-      } else {
-        firstDoc = docInfos[i];
-        break;
-      }
-    }
-
-    if (!firstDoc) {
-      docInfos.sort(sortByBulkSeq);
-      docInfos.forEach(function(result) {
-        delete result._bulk_seq;
-      });
-      return call(callback, null, docInfos);
-    }
-
-    var keyRange = IDBKeyRange.bound(
-      firstDoc.metadata.id, docInfos[docInfos.length-1].metadata.id,
-      false, false);
-
     // We mark subsequent bulk docs with a duplicate id as conflicts
     var docs = docInfos.reduce(function(acc, docInfo) {
-      if (docInfo.metadata.id === acc[0].metadata.id) {
-        results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
-      } else {
+      if (docInfo.error) {
+        results.push(docInfo);
+      } else if (!acc.length || docInfo.metadata.id !== acc[0].metadata.id) {
         acc.unshift(docInfo);
+      } else {
+        results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
       }
       return acc;
-    }, [docInfos.shift()]);
+    }, []);
 
-    docs.sort(sortByBulkSeq);
+    if (!docs.length) {
+      return txnComplete();
+    }
+
+    docs.reverse();
 
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                               IDBTransaction.READ_WRITE);
     txn.onerror = idbError(callback);
     txn.ontimeout = idbError(callback);
     txn.oncomplete = txnComplete;
+
+    var keyRange = IDBKeyRange.bound(
+      docs[0].metadata.id, docs[docs.length-1].metadata.id,
+      false, false);
 
     txn.objectStore(DOC_STORE)
       .openCursor(keyRange, IDBCursor.NEXT).onsuccess = readDoc;
