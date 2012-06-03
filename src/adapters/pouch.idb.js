@@ -210,25 +210,27 @@ var IdbPouch = function(opts, callback) {
         delete result._bulk_seq;
         if (result.error) {
           aresults.push(result);
-        } else {
-          aresults.push({
-            ok: true,
-            id: result.metadata.id,
-            rev: result.metadata.rev,
-          });
+          return;
         }
+        var metadata = result.metadata;
+        aresults.push({
+          ok: true,
+          id: metadata.id,
+          rev: winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids),
+        });
 
-        if (result.error || /_local/.test(result.metadata.id)) {
+        if (/_local/.test(metadata.id)) {
           return;
         }
 
-        var c = {
-          id: result.metadata.id,
-          seq: result.metadata.seq,
-          changes: collectLeaves(result.metadata.rev_tree),
+        var change = {
+          id: metadata.id,
+          seq: metadata.seq,
+          changes: collectLeaves(metadata.rev_tree),
           doc: result.data
         };
-        api.changes.emit(c);
+        api.changes.emit(change);
+
       });
       call(callback, null, aresults);
     };
@@ -239,13 +241,6 @@ var IdbPouch = function(opts, callback) {
     // right now fire and forget, needs cleaned
     function saveAttachment(digest, data) {
       txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
-    }
-
-    function winningRev(pos, tree) {
-      if (!tree[1].length) {
-        return pos + '-' + tree[0];
-      }
-      return winningRev(pos + 1, tree[1][0]);
     }
 
     var writeDoc = function(docInfo, callback) {
@@ -268,10 +263,8 @@ var IdbPouch = function(opts, callback) {
       dataReq.onsuccess = function(e) {
         console.info(name + ': Wrote Document ', docInfo.metadata.id);
         docInfo.metadata.seq = e.target.result;
-        // We probably shouldnt even store the winning rev, just figure it
-        // out on read
-        docInfo.metadata.rev = winningRev(docInfo.metadata.rev_tree[0].pos,
-                                          docInfo.metadata.rev_tree[0].ids);
+        // Current _rev is calculated from _rev_tree on read
+        delete docInfo.metadata.rev;
         var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
         metaDataReq.onsuccess = function() {
           results.push(docInfo);
@@ -388,10 +381,10 @@ var IdbPouch = function(opts, callback) {
       txn.objectStore(BY_SEQ_STORE).get(metadata.seq).onsuccess = function(e) {
         var doc = e.target.result;
         doc._id = metadata.id;
-        doc._rev = metadata.rev;
+        doc._rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
         if (opts.revs) {
           var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
-            return arr.ids.indexOf(metadata.rev.split('-')[1]) !== -1;
+            return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
           });
           path.ids.reverse();
           doc._revisions = {
@@ -485,11 +478,15 @@ var IdbPouch = function(opts, callback) {
           var doc = {
             id: metadata.id,
             key: metadata.id,
-            value: {rev: metadata.rev}
+            value: {
+              rev: winningRev(metadata.rev_tree[0].pos,
+                              metadata.rev_tree[0].ids)
+            }
           };
           if (opts.include_docs) {
             doc.doc = data;
-            doc.doc._rev = metadata.rev;
+            doc.doc._rev = winningRev(metadata.rev_tree[0].pos,
+                                      metadata.rev_tree[0].ids);
             if (opts.conflicts) {
               doc.doc._conflicts = collectConflicts(metadata.rev_tree);
             }
@@ -643,32 +640,33 @@ var IdbPouch = function(opts, callback) {
       var cursor = event.target.result;
       var index = txn.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
-        var doc = event.target.result;
-        if (/_local/.test(doc.id)) {
+        var metadata = event.target.result;
+        if (/_local/.test(metadata.id)) {
           return cursor['continue']();
         }
-        var c = {
-          id: doc.id,
+
+        var change = {
+          id: metadata.id,
           seq: cursor.key,
-          changes: collectLeaves(doc.rev_tree),
+          changes: collectLeaves(metadata.rev_tree),
           doc: cursor.value,
         };
-        c.doc._rev = doc.rev;
 
-        if (doc.deleted) {
-          c.deleted = true;
+        change.doc._rev = winningRev(metadata.rev_tree[0].pos,
+                                     metadata.rev_tree[0].ids);
+
+        if (metadata.deleted) {
+          change.deleted = true;
         }
-        if (opts.include_docs) {
-          c.doc._rev = c.changes[0].rev;
-          if (opts.conflicts) {
-            c.doc._conflicts = collectConflicts(doc.rev_tree);
-          }
+        if (opts.conflicts) {
+          change.doc._conflicts = collectConflicts(metadata.rev_tree);
         }
+
         // Dedupe the changes feed
         results = results.filter(function(doc) {
-          return doc.id !== c.id;
+          return doc.id !== change.id;
         });
-        results.push(c);
+        results.push(change);
         cursor['continue']();
       };
     };
@@ -824,7 +822,9 @@ var IdbPouch = function(opts, callback) {
           .objectStore(BY_SEQ_STORE).get(metadata.seq)
           .onsuccess = function(e) {
             current = {doc: e.target.result, metadata: metadata};
-            current.doc._rev = current.metadata.rev;
+            current.doc._rev = winningRev(current.metadata.rev_tree[0].pos,
+                                          current.metadata.rev_tree[0].ids);
+
             if (options.complete && !current.metadata.deleted) {
               fun.map.apply(mapContext, [current.doc]);
             }
@@ -837,6 +837,16 @@ var IdbPouch = function(opts, callback) {
       call(options.error, enumerateError(evt));
     }
   }
+
+  // Trees are sorted by length, winning revision is the last revision
+  // in the longest tree
+  function winningRev(pos, tree) {
+    if (!tree[1].length) {
+      return pos + '-' + tree[0];
+    }
+    return winningRev(pos + 1, tree[1][0]);
+  }
+
 
   return api;
 };
