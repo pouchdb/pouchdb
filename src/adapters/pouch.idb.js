@@ -791,6 +791,23 @@ var IdbPouch = function(opts, callback) {
   return api;
 };
 
+IdbPouch.valid = function idb_valid() {
+  return !!window.indexedDB;
+};
+
+IdbPouch.destroy = function idb_destroy(name, callback) {
+
+  console.info(name + ': Delete Database');
+  IdbPouch.Changes.clearListeners(name);
+  var req = indexedDB.deleteDatabase(name);
+
+  req.onsuccess = function() {
+    call(callback, null);
+  };
+
+  req.onerror = idbError(callback);
+};
+
 IdbPouch.Changes = (function() {
 
   var api = {};
@@ -826,21 +843,5 @@ IdbPouch.Changes = (function() {
 
   return api;
 })();
-
-IdbPouch.valid = function idb_valid() {
-  return !!window.indexedDB;
-};
-
-IdbPouch.destroy = function idb_destroy(name, callback) {
-
-  console.info(name + ': Delete Database');
-  var req = indexedDB.deleteDatabase(name);
-
-  req.onsuccess = function() {
-    call(callback, null);
-  };
-
-  req.onerror = idbError(callback);
-};
 
 Pouch.adapter('idb', IdbPouch);
