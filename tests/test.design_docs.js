@@ -92,4 +92,20 @@
     });
   });
 
+  asyncTest("Concurrent queries", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [doc, {_id: "dale", score: 3}]}, function(err, info) {
+        var cnt = 0;
+        db.query('foo/scores', {reduce: false}, function(err, result) {
+          equal(result.rows.length, 1, 'Correct # of results');
+          if (cnt++ === 1) start();
+        });
+        db.query('foo/scores', {reduce: false}, function(err, result) {
+          equal(result.rows.length, 1, 'Correct # of results');
+          if (cnt++ === 1) start();
+        });
+      });
+    });
+  });
+
 });
