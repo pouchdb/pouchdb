@@ -1,30 +1,32 @@
-Tests are passing and this is ready for more usage/feedback. Works with Chrome 11/12 and Firefox 4.
+# PouchDB (Portable CouchDB JavaScript implementation)
 
-# PouchDB ( Portable CouchDB JavaScript implementation )
+PouchDB is a JavaScript library that allows you to store and query data for web applications that need to work offline, and sync with an online database when you are online.
 
-PouchDB is a complete implementation of the CouchDB storage and views API that supports peer-to-peer replication with other CouchDB instances. The browser version is written for IndexedDatabase (part of HTML5). An additional implementation is in progress for leveldb.
+### The Browser Database that Syncs
 
-#### Storage and Consistency
-
-Unlike the other current couch-like browser APIs built on WebStorage (http://dev.w3.org/html5/webstorage/) PouchDB's goal is to maintain the same kinds of consistency guarantees Apache CouchDB provides across concurrent connections across the multiple-tabs a user might be using to concurrently access an PouchDB database. This is something that just isn't possible with the BrowserStorage API previous libraries like BrowserCouch and lawnchair use.
-
-PouchDB also keeps a by-sequence index across the entire database. This means that, just like Apache CouchDB, PouchDB can replicate with other CouchDB instances and provide the same conflict resolution system for eventual consistency across nodes.
-
-#### BrowserCouch
-
-At this time PouchDB is completely independent from BrowserCouch. The main reason is just to keep the code base concise and focused as the IndexedDatabase specification is being flushed out.
-
-After IndexedDatabase is more solidified it's possible that BrowserCouch and PouchDB might merge to provide a simple fallback option for browsers the do not yet support IndexedDatabase.
+Based on the work of Apache CouchDB, PouchDB provides a simple API in which to store and retrieve JSON objects, due to the similiar API, and CouchDB's HTTP API it is possible to sync data that is stored in your local PouchDB to an online CouchDB as well as syncing data from CouchDB down to PouchDB (you can even sync between 2 PouchDB databases).
 
 # Getting started
 
-Running `$ make` or `$ make min` in the project will give you a `pouch.alpha.js` or `pouch.alpha.min.js` which you can simple include on the page:
+Download pouch.js and include in your HTML.
 
-    <script type="text/javascript" src="../pouch.alpha.min.js"></script>
-
-# API
+# API Documentation
 
 Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined unless there is an error, further arguments specify the result.
+
+  * [Create a database](#api-create-db)
+  * [Delete a database](#api-delete-db)
+  * [Create a document](#api-create-doc)
+  * [Create a batch of documents](#api-create-docs)
+  * [Fetch a document](#api-fetch-doc)
+  * [Fetch documents](#api-fetch-docs)
+  * [Query the database](#api-query-db)
+  * [Delete a document](#api-delete-doc)
+  * [Get database information](#api-db-info)
+  * [Listen to database changes](#api-db-changes)
+  * [Replicate a database](#api-db-replicate)
+
+## Create a database <a id="api-create-db"></a>
 
 ## new Pouch('idb://dbname', [options], [callback])
 
@@ -36,9 +38,6 @@ new Pouch('idb://test', function(err, db) {
 })
 </pre>
 
-## db
-
-The subject of the of pouch.open. This is primary PouchDB API.
 
 ### db.post(doc, [options], [callback])
 
@@ -310,13 +309,6 @@ db.changes(function(err, response) {
   // }
 })
 </pre>
-
-
-### db.changes.addListener(listener)
-
-Register `listener` function for the changes feed.
-
-### db.changes.removeListener(listener)
 
 ## Pouch.destroy(name, [callback])
 
