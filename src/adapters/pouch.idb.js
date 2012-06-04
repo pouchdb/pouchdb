@@ -195,10 +195,11 @@ var IdbPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
+        var rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
         aresults.push({
           ok: true,
           id: metadata.id,
-          rev: winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids),
+          rev: rev,
         });
 
         if (/_local/.test(metadata.id)) {
@@ -211,6 +212,7 @@ var IdbPouch = function(opts, callback) {
           changes: collectLeaves(metadata.rev_tree),
           doc: result.data
         };
+        change.doc._rev = rev;
         IdbPouch.Changes.emitChange(name, change);
       });
       call(callback, null, aresults);
