@@ -14,6 +14,8 @@ Download pouch.js and include in your HTML.
 
 Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined unless there is an error, further arguments specify the result.
 
+### API Methods
+
   * [Create a database](#create-a-database)
   * [Delete a database](#delete-a-database)
   * [Create a document](#create-a-document)
@@ -41,7 +43,7 @@ Pouch('idb://test', function(err, db) {
 
 ## Delete a database
 
-   Pouch.destroy(name, [callback])
+    Pouch.destroy(name, [callback])
 
 Delete database with given name
 
@@ -53,7 +55,7 @@ Pouch.destroy('idb://test', function(err, info) {
 
 ## Create a document
 
-   db.post(doc, [options], [callback])
+    db.post(doc, [options], [callback])
 
 Create a new document. Only use `db.post` if you want PouchDB to generate
 an ID for your document, otherwise use (db.put)[#update-a-document]
