@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Pouchdb by daleharvey</title>
+    <title>PouchDB</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -15,44 +15,80 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Pouchdb</h1>
+        <h1><a href="/">PouchDB</a></h1>
         <p>PouchDB is a pocket-sized database.</p>
-        <p class="view"><a href="https://github.com/daleharvey/pouchdb">View the Project on GitHub <small>daleharvey/pouchdb</small></a></p>
         <ul>
-          <li><a href="https://github.com/daleharvey/pouchdb/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/daleharvey/pouchdb/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/daleharvey/pouchdb">View On <strong>GitHub</strong></a></li>
+          <li>
+            <a href="/downloads/pouch.alpha.min.js">
+              <strong>Download pouch.alpha.min.js (36Kb)</strong>
+            </a>
+            or the <a href="test">uncompressed source</a> (56Kb)
+          </li>
         </ul>
+        <h2><a href="#api-docs">API Documentation</a></h2>
+        <h2><a href="https://github.com/daleharvey/pouchdb/wiki">Wiki</a></h2>
+        <h2><a href="https://groups.google.com/d/forum/pouchdb">Discussion Group</a></h2>
+        <h2><a href="https://github.com/daleharvey/pouchdb">Source & Bugs</a></h2>
+        <h2><a href="https://twitter.com/pouchdb">Twitter</a></h2>
+
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+
       </header>
       <section>
-        <p>Tests are passing and this is ready for more usage/feedback. Works with Chrome 11/12 and Firefox 4.</p>
+<h1>PouchDB</h1>
 
-<h1>PouchDB ( Portable CouchDB JavaScript implementation )</h1>
+<p>PouchDB is a JavaScript library that allows you to store and query data for web applications that need to work offline, and sync with an online database when you are online.</p>
 
-<p>PouchDB is a complete implementation of the CouchDB storage and views API that supports peer-to-peer replication with other CouchDB instances. The browser version is written for IndexedDatabase (part of HTML5). An additional implementation is in progress for leveldb.</p>
+<h4>The Browser Database that Syncs</h4>
 
-<h4>Storage and Consistency</h4>
+<p>Based on the work of <a href="">Apache CouchDB</a>, PouchDB provides a simple API in which to store and retrieve JSON objects, due to the similiar API, and CouchDB's HTTP API it is possible to sync data that is stored in your local PouchDB to an online CouchDB as well as syncing data from CouchDB down to PouchDB (you can even sync between 2 PouchDB databases).</p>
 
-<p>Unlike the other current couch-like browser APIs built on WebStorage (<a href="http://dev.w3.org/html5/webstorage/">http://dev.w3.org/html5/webstorage/</a>) PouchDB's goal is to maintain the same kinds of consistency guarantees Apache CouchDB provides across concurrent connections across the multiple-tabs a user might be using to concurrently access an PouchDB database. This is something that just isn't possible with the BrowserStorage API previous libraries like BrowserCouch and lawnchair use.</p>
+<h4>Status & Browser Support</h4>
 
-<p>PouchDB also keeps a by-sequence index across the entire database. This means that, just like Apache CouchDB, PouchDB can replicate with other CouchDB instances and provide the same conflict resolution system for eventual consistency across nodes.</p>
-
-<h4>BrowserCouch</h4>
-
-<p>At this time PouchDB is completely independent from BrowserCouch. The main reason is just to keep the code base concise and focused as the IndexedDatabase specification is being flushed out.</p>
-
-<p>After IndexedDatabase is more solidified it's possible that BrowserCouch and PouchDB might merge to provide a simple fallback option for browsers the do not yet support IndexedDatabase.</p>
+<p>PouchDB is currently in alpha preview. The first version will support browsers that have implemented the <a href="http://www.w3.org/TR/IndexedDB/">HTML5 IndexedDB API</a>. Work is being done on providing support for <a href="https://github.com/daleharvey/pouchdb/issues/63">WebSQL</a> as well as <a href="https://github.com/daleharvey/pouchdb/issues/44">LocalStorage</a> and <a href="https://github.com/daleharvey/pouchdb/issues/82">node.js</a>. Currently tested in:</p>
+<ul>
+  <li>Firefox 12+</li>
+  <li>Chrome 19+</li>
+</ul>
+</p>
 
 <h1>Getting started</h1>
 
-<p>Running <code>$ make</code> or <code>$ make min</code> in the project will give you a <code>pouch.alpha.js</code> or <code>pouch.alpha.min.js</code> which you can simple include on the page:</p>
+<p>Download <a href="">pouch.js</a> and include in your HTML.</p>
 
-<pre><code>&lt;script type="text/javascript" src="../pouch.alpha.min.js"&gt;&lt;/script&gt;
-</code></pre>
+<pre><code>var authors = [
+  {name: 'Dale Harvey', commits: 253},
+  {name: 'Mikeal Rogers', commits: 42},
+  {name: 'Johannes J. Schmidt', commits: 13},
+  {name: 'Randall Leeds', commits: 9}
+];
+Pouch('idb://authors', function(err, db) {
+  // Opened a new database
+  db.bulkDocs({docs: authors}, function(err, results) {
+    // Saved the documents into the database
+    db.replicate.to('http://example.com/thecloud', function() {
+      // The documents are now in the cloud!
+    });
+  });
+});</code></pre>
 
-<h1>API</h1>
+<h1 id="api-docs">API Documentation</h1>
 
 <p>Most of the Pouch API is exposed as <code>fun(arg, [options], [callback])</code> Where both the options and the callback are optional. Callbacks are in the node.js idiom of <code>function(err, data)</code> Where the first argument will be undefined unless there is an error, further arguments specify the result.</p>
+
+<ul>
+  <li><a href="#api-create-db">Create a database</a></li>
+  <li><a href="#api-delete-db">Delete a database</a></li>
+  <li><a href="#api-create-doc">Create a document</a></li>
+  <li><a href="#api-create-docs">Create a batch of documents</a></li>
+  <li><a href="#api-fetch-doc">Fetch a document</a></li>
+  <li><a href="#api-fetch-docs">Fetch documents</a></li>
+  <li><a href="#api-query-db">Query the database</a></li>
+  <li><a href="#api-delete-doc">Delete a document</a></li>
+  <li><a href="#api-db-info">Get database information</a></li>
+  <li><a href="#api-db-changes">Listen to database changes</a></li>
+  <li><a href="#api-db-replicate">Replicate a database</a></li>
+</ul>
 
 <h2>new Pouch('idb://dbname', [options], [callback])</h2>
 
@@ -369,36 +405,9 @@ db.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) 
   //
 })
 </pre>
-
-<h2>Running the tests</h2>
-
-<p>To run the full test suite (including replication) you'll need to run a CORS proxy
-pointing to a CouchDB.</p>
-
-<pre><code>git clone https://github.com/daleharvey/CORS-Proxy.git
-cd CORS-Proxy
-node server.js
-</code></pre>
-
-<p>by default this server expects you to be running a local CouchDB instance in admin
-party mode on <a href="http://127.0.0.1:5984">http://127.0.0.1:5984</a>, it will proxy requests to CouchDB and provide
-CORS support (see: <a href="https://github.com/daleharvey/pouchdb/issues/25">https://github.com/daleharvey/pouchdb/issues/25</a>)</p>
-
-<p>The tests themselves also need to be served from a running server and not from the
-filesystem, the simplest way to do this is:</p>
-
-<pre><code>$ cd $POUCH
-$ python -m SimpleHTTPServer
-</code></pre>
-
-<p>You should now be able to visit <a href="http://127.0.0.1:8000/tests/test.html">http://127.0.0.1:8000/tests/test.html</a> to run the test suite.</p>
       </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/daleharvey">daleharvey</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    
+
   </body>
 </html>
