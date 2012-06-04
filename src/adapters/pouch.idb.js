@@ -837,6 +837,9 @@ IdbPouch.Changes = (function() {
       if (opts.filter && !opts.filter.apply(this, [change.doc])) {
         return;
       }
+      if (!opts.include_docs) {
+        delete change.doc;
+      }
       opts.onChange.apply(opts.onChange, [change]);
     }
   }
