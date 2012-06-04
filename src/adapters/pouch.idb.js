@@ -94,7 +94,15 @@ var IdbPouch = function(opts, callback) {
       return;
     }
 
-    call(callback, null, api);
+    // TODO: This is a really inneficient way of finding the last
+    // update sequence, cant think of an alterative right now
+    api.changes(function(err, changes) {
+      if (changes.results.length) {
+        update_seq = changes.results[changes.results.length - 1].seq;
+      }
+      call(callback, null, api);
+    });
+
   };
 
   req.onerror = idbError(callback);
@@ -213,6 +221,7 @@ var IdbPouch = function(opts, callback) {
           doc: result.data
         };
         change.doc._rev = rev;
+        update_seq++;
         IdbPouch.Changes.emitChange(name, change);
       });
       call(callback, null, aresults);
