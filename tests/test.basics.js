@@ -118,6 +118,29 @@
     });
   });
 
+  asyncTest("Sync a doc", function() {
+    var couch = generateAdapterUrl('http-2');
+    initTestDB(this.name, function(err, db) {
+      ok(!err, 'opened the pouch');
+      initTestDB(couch, function(err, db2) {
+        ok(!err, 'opened the couch');
+        db.put({_id:"adoc", test:"somestuff"}, function (err, info) {
+          ok(!err, 'saved a doc with post');
+          db.replicate.to(couch, function(err, info) {
+            ok(!err, 'replicated pouch to couch');
+            db.replicate.from(couch, function(err, info) {
+              ok(!err, 'replicated couch back to pouch');
+              db.get("adoc", {conflicts:true}, function(err, doc) {
+                ok(!doc._conflicts, 'doc has no conflicts');
+                start();
+              });
+            });
+          });
+        });
+      })
+    });
+  });
+
   asyncTest("Check revisions", function() {
     initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
