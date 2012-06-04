@@ -131,7 +131,7 @@
             db.replicate.from(couch, function(err, info) {
               ok(!err, 'replicated couch back to pouch');
               db.get("adoc", {conflicts:true}, function(err, doc) {
-                ok(!doc._conflicts.length, 'doc has no conflicts');
+                ok(!doc._conflicts, 'doc has no conflicts');
                 start();
               });
             });

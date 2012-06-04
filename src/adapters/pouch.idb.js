@@ -353,7 +353,10 @@ var IdbPouch = function(opts, callback) {
           }, []);
         }
         if (opts.conflicts) {
-          doc._conflicts = collectConflicts(metadata.rev_tree);
+          var conflicts = collectConflicts(metadata.rev_tree);
+          if (conflicts.length) {
+            doc._conflicts = conflicts;
+          }
         }
 
         if (opts.attachments && doc._attachments) {
