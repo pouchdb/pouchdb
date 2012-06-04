@@ -146,17 +146,22 @@
   asyncTest("Basic checks", function() {
     initTestDB(this.name, function(err, db) {
       db.info(function(err, info) {
-        ok(info.doc_count === 0);
+        var updateSeq = info.update_seq;
         var doc = {_id: '0', a: 1, b:1};
+        ok(info.doc_count === 0);
         db.put(doc, function(err, res) {
           ok(res.ok === true);
           ok(res.id);
           ok(res.rev);
-          db.get(doc._id, function(err, doc) {
-            ok(doc._id === res.id && doc._rev === res.rev);
-            db.get(doc._id, {revs_info: true}, function(err, doc) {
-              ok(doc._revs_info[0].status === 'available');
-              start();
+          db.info(function(err, info) {
+            ok(info.doc_count === 1);
+            equal(info.update_seq, updateSeq + 1, 'update seq incremented');
+            db.get(doc._id, function(err, doc) {
+              ok(doc._id === res.id && doc._rev === res.rev);
+              db.get(doc._id, {revs_info: true}, function(err, doc) {
+                ok(doc._revs_info[0].status === 'available');
+                start();
+              });
             });
           });
         });
