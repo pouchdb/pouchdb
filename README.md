@@ -1,5 +1,7 @@
 # PouchDB (Portable CouchDB JavaScript implementation)
 
+The PouchDB Website is at: http://pouchdb.com/
+
 PouchDB is a JavaScript library that allows you to store and query data for web applications that need to work offline, and sync with an online database when you are online.
 
 ### The Browser Database that Syncs
