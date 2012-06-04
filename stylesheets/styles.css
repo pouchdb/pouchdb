@@ -63,7 +63,7 @@ code, pre {
   font-size:12px;
 }
 
-pre {
+.syntaxhighlighter, pre {
   padding:8px 15px;
   background: #f8f8f8;
   border-radius:5px;
@@ -99,6 +99,14 @@ header {
   width:270px;
   float:left;
   position:fixed;
+}
+
+header h1 a {
+  font-weight: bold;
+  color: black;
+}
+header h1 a:hover {
+  text-decoration: underline;
 }
 
 header ul {
@@ -172,6 +180,10 @@ footer {
   float:left;
   position:fixed;
   bottom:50px;
+}
+
+.toolbar {
+  display:none !important;
 }
 
 @media print, screen and (max-width: 960px) {

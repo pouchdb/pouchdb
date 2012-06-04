@@ -5,7 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>PouchDB</title>
 
+    <script type="text/javascript" src="syntaxhighlighter_3.0.83/scripts/shCore.js"></script>
+    <script type="text/javascript" src="syntaxhighlighter_3.0.83/scripts/shBrushJScript.js"></script>
+
     <link rel="stylesheet" href="stylesheets/styles.css">
+    <link href="syntaxhighlighter_3.0.83/styles/shCore.css" rel="stylesheet" type="text/css" />
+    <link href="syntaxhighlighter_3.0.83/styles/shThemeRDark.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
@@ -19,13 +24,13 @@
         <p>PouchDB is a pocket-sized database.</p>
         <ul>
           <li>
-            <a href="/downloads/pouch.alpha.min.js">
-              <strong>Download pouch.alpha.min.js (36Kb)</strong>
+            <a href="http://cloud.github.com/downloads/daleharvey/pouchdb/pouch.alpha.js">
+              <strong>Download pouch.alpha.min.js (131Kb)</strong>
             </a>
-            or the <a href="test">uncompressed source</a> (56Kb)
+            or the <a href="http://cloud.github.com/downloads/daleharvey/pouchdb/pouch.alpha.min.js">uncompressed source</a> (152Kb)
           </li>
         </ul>
-        <h2><a href="#api-docs">API Documentation</a></h2>
+        <h2><a href="#api-documentation">API Documentation</a></h2>
         <h2><a href="https://github.com/daleharvey/pouchdb/wiki">Wiki</a></h2>
         <h2><a href="https://groups.google.com/d/forum/pouchdb">Discussion Group</a></h2>
         <h2><a href="https://github.com/daleharvey/pouchdb">Source & Bugs</a></h2>
@@ -54,9 +59,9 @@
 
 <h1>Getting started</h1>
 
-<p>Download <a href="">pouch.js</a> and include in your HTML.</p>
+<p>Download <a href="http://cloud.github.com/downloads/daleharvey/pouchdb/pouch.alpha.js">pouch.js</a> and include in your HTML then you can start using PouchDB straight away, here is a quick example:</p>
 
-<pre><code>var authors = [
+<pre class="brush: js">var authors = [
   {name: 'Dale Harvey', commits: 253},
   {name: 'Mikeal Rogers', commits: 42},
   {name: 'Johannes J. Schmidt', commits: 13},
@@ -66,50 +71,65 @@ Pouch('idb://authors', function(err, db) {
   // Opened a new database
   db.bulkDocs({docs: authors}, function(err, results) {
     // Saved the documents into the database
-    db.replicate.to('http://example.com/thecloud', function() {
+    db.replicate.to('http://host.com/cloud', function() {
       // The documents are now in the cloud!
     });
   });
-});</code></pre>
+});</pre>
 
-<h1 id="api-docs">API Documentation</h1>
+<h1><a name="api-documentation" class="anchor" href="#api-documentation"><span class="mini-icon mini-icon-link"></span></a>API Documentation</h1></1>
 
 <p>Most of the Pouch API is exposed as <code>fun(arg, [options], [callback])</code> Where both the options and the callback are optional. Callbacks are in the node.js idiom of <code>function(err, data)</code> Where the first argument will be undefined unless there is an error, further arguments specify the result.</p>
 
-<ul>
-  <li><a href="#api-create-db">Create a database</a></li>
-  <li><a href="#api-delete-db">Delete a database</a></li>
-  <li><a href="#api-create-doc">Create a document</a></li>
-  <li><a href="#api-create-docs">Create a batch of documents</a></li>
-  <li><a href="#api-fetch-doc">Fetch a document</a></li>
-  <li><a href="#api-fetch-docs">Fetch documents</a></li>
-  <li><a href="#api-query-db">Query the database</a></li>
-  <li><a href="#api-delete-doc">Delete a document</a></li>
-  <li><a href="#api-db-info">Get database information</a></li>
-  <li><a href="#api-db-changes">Listen to database changes</a></li>
-  <li><a href="#api-db-replicate">Replicate a database</a></li>
-</ul>
+<h3>
+<a name="api-methods" class="anchor" href="#api-methods"><span class="mini-icon mini-icon-link"></span></a>API Methods</h3>
 
-<h2>new Pouch('idb://dbname', [options], [callback])</h2>
+<ul>
+<li><a href="#create-a-database">Create a database</a></li>
+<li><a href="#delete-a-database">Delete a database</a></li>
+<li><a href="#create-a-document">Create a document</a></li>
+<li><a href="#update-a-document">Update a document</a></li>
+<li><a href="#create-a-batch-of-documents">Create a batch of documents</a></li>
+<li><a href="#fetch-a-document">Fetch a document</a></li>
+<li><a href="#fetch-documents">Fetch documents</a></li>
+<li><a href="#query-the-database">Query the database</a></li>
+<li><a href="#delete-a-document">Delete a document</a></li>
+<li><a href="#get-database-information">Get database information</a></li>
+<li><a href="#listen-to-database-changes">Listen to database changes</a></li>
+<li><a href="#replicate-a-database">Replicate a database</a></li>
+</ul><h2>
+<a name="create-a-database" class="anchor" href="#create-a-database"><span class="mini-icon mini-icon-link"></span></a>Create a database</h2>
+
+<pre class="brush: js">Pouch('idb://dbname', [options], [callback])</pre>
 
 <p>This method gets an existing database if one exists or creates a new one if one does not exist. The protocol field denotes which backend you want to use (currently only http and indexeddb are supported)</p>
 
-<pre>
-new Pouch('idb://test', function(err, db) {
+<pre class="brush: js">Pouch('idb://test', function(err, db) {
   // Use db to call further functions
 })
 </pre>
 
-<h2>db</h2>
+<h2>
+<a name="delete-a-database" class="anchor" href="#delete-a-database"><span class="mini-icon mini-icon-link"></span></a>Delete a database</h2>
 
-<p>The subject of the of pouch.open. This is primary PouchDB API.</p>
+<pre class="brush: js">Pouch.destroy(name, [callback])</pre>
 
-<h3>db.post(doc, [options], [callback])</h3>
+<p>Delete database with given name</p>
 
-<p>Create a new document.</p>
+<pre class="brush: js">Pouch.destroy('idb://test', function(err, info) {
+  // database deleted
+})
+</pre>
 
-<pre>
-db.post({ title: 'Cony Island Baby' }, function(err, response) {
+<h2>
+<a name="create-a-document" class="anchor" href="#create-a-document"><span class="mini-icon mini-icon-link"></span></a>Create a document</h2>
+
+<pre class="brush: js">db.post(doc, [options], [callback])</pre>
+
+<p>Create a new document. Only use <code>db.post</code> if you want PouchDB to generate
+an ID for your document, otherwise use (db.put)[#update-a-document]</p>
+
+<pre class="brush: js">db.post({ title: 'Cony Island Baby' }, function(err, response) {
   // Response:
   // {
   //   "ok": true,
@@ -119,12 +139,14 @@ db.post({ title: 'Cony Island Baby' }, function(err, response) {
 })
 </pre>
 
-<h3>db.put(doc, [options], [callback])</h3>
+<h2>
+<a name="update-a-document" class="anchor" href="#update-a-document"><span class="mini-icon mini-icon-link"></span></a>Update a document</h2>
+
+<pre class="brush: js">db.put(doc, [options], [callback])</pre>
 
 <p>Create a new document or update an existing document.</p>
 
-<pre>
-db.put({ _id: 'mydoc', title: 'Rock and Roll Heart' }, function(err, response) {
+<pre class="brush: js">db.put({ _id: 'mydoc', title: 'Rock and Roll Heart' }, function(err, response) {
   // Response:
   // {
   //   "ok": true,
@@ -134,32 +156,14 @@ db.put({ _id: 'mydoc', title: 'Rock and Roll Heart' }, function(err, response) {
 })
 </pre>
 
-<h3>db.get(docid, [options], [callback])</h3>
+<h2>
+<a name="save-an-attachment-to-a-document" class="anchor" href="#save-an-attachment-to-a-document"><span class="mini-icon mini-icon-link"></span></a>Save an attachment to a document</h2>
 
-<p>Getrieves a document, specified by <code>docid</code>.</p>
-
-<ul>
-<li>
-<code>options.revs</code>: Include revision history of the document</li>
-<li>
-<code>options.revs_info</code>: Include a list of revisions of the document, and their availability</li>
-</ul><pre>
-db.get('mydoc', function(err, doc) {
-  // Document:
-  // {
-  //   "title": "Rock and Roll Heart",
-  //   "_id": "mydoc",
-  //   "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
-  // }
-})
-</pre>
-
-<h3>db.putAttachment(id, rev, doc, type, [callback])</h3>
+<pre class="brush: js">db.putAttachment(id, rev, doc, type, [callback])</pre>
 
 <p>Create an attachment in an existing document.</p>
 
-<pre>
-db.put({ _id: 'otherdoc', title: 'Legendary Hearts' }, function(err, response) {
+<pre class="brush: js">db.put({ _id: 'otherdoc', title: 'Legendary Hearts' }, function(err, response) {
   var doc = 'Legendary hearts, tear us all apart\nMake our emotions bleed, crying out in need';
   db.putAttachment('otherdoc/text', response.rev, doc, 'text/plain', function(err, res) {
     // Response:
@@ -172,12 +176,14 @@ db.put({ _id: 'otherdoc', title: 'Legendary Hearts' }, function(err, response) {
 })
 </pre>
 
-<h3>db.bulkDocs(docs, [options], [callback])</h3>
+<h2>
+<a name="create-a-batch-of-documents" class="anchor" href="#create-a-batch-of-documents"><span class="mini-icon mini-icon-link"></span></a>Create a batch of documents</h2>
 
-<p>Modify multiple documents.</p>
+<pre class="brush: js">db.bulkDocs(docs, [options], [callback])</pre>
 
-<pre>
-db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
+<p>Modify, create or delete multiple documents.</p>
+
+<pre class="brush: js">db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
   // Response array:
   // [
   //   {
@@ -189,7 +195,33 @@ db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
 })
 </pre>
 
-<h3>db.allDocs([options], [callback])</h3>
+<h2>
+<a name="fetch-a-document" class="anchor" href="#fetch-a-document"><span class="mini-icon mini-icon-link"></span></a>Fetch a document</h2>
+
+<pre class="brush: js">db.get(docid, [options], [callback])</pre>
+
+<p>Getrieves a document, specified by <code>docid</code>.</p>
+
+<ul>
+<li>
+<code>options.revs</code>: Include revision history of the document</li>
+<li>
+<code>options.revs_info</code>: Include a list of revisions of the document, and their availability</li>
+</ul><pre class="brush: js">
+db.get('mydoc', function(err, doc) {
+  // Document:
+  // {
+  //   "title": "Rock and Roll Heart",
+  //   "_id": "mydoc",
+  //   "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+  // }
+})
+</pre>
+
+<h2>
+<a name="fetch-documents" class="anchor" href="#fetch-documents"><span class="mini-icon mini-icon-link"></span></a>Fetch documents</h2>
+
+<pre class="brush: js">db.allDocs([options], [callback])</pre>
 
 <p>Fetch multiple documents.</p>
 
@@ -202,7 +234,7 @@ db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
 <code>options.startkey</code> &amp; <code>options.endkey</code>: Get documents with keys in a certain range</li>
 <li>
 <code>options.descending</code>: Reverse the order of the output table</li>
-</ul><pre>
+</ul><pre class="brush: js">
 db.allDocs(function(err, response) {
   // Document rows:
   // {
@@ -241,7 +273,10 @@ db.allDocs(function(err, response) {
 })
 </pre>
 
-<h3>db.query(fun, [options], [callback])</h3>
+<h2>
+<a name="query-the-database" class="anchor" href="#query-the-database"><span class="mini-icon mini-icon-link"></span></a>Query the database</h2>
+
+<pre class="brush: js">db.query(fun, [options], [callback])</pre>
 
 <p>Retrieve a view.</p>
 
@@ -250,13 +285,13 @@ db.allDocs(function(err, response) {
 <code>fun</code>: Name of a view function or function</li>
 <li>
 <code>options.reduce</code>: To reduce or not. The default is to reduce if there is a reduce function</li>
-</ul><pre>
+</ul><pre class="brush: js">
 function map(doc) {
   if(doc.title) {
     emit(doc.title, null);
   }
 }
-db.query({ map: map, function(err, response) {
+db.query({map: map}, {reduce: false}, function(err, response) {
   // View rows:
   // {
   //   "rows": [
@@ -285,11 +320,14 @@ db.query({ map: map, function(err, response) {
 })
 </pre>
 
-<h3>db.remove(doc, [options], [callback])</h3>
+<h2>
+<a name="delete-a-document" class="anchor" href="#delete-a-document"><span class="mini-icon mini-icon-link"></span></a>Delete a document</h2>
+
+<pre class="brush: js">db.remove(doc, [options], [callback])</pre>
 
 <p>Delete a document.</p>
 
-<pre>
+<pre class="brush: js">
 db.get('mydoc', function(err, doc) {
   db.remove(doc, function(err, response) {
     // Response:
@@ -302,12 +340,14 @@ db.get('mydoc', function(err, doc) {
 })
 </pre>
 
-<h3>db.info(callback)</h3>
+<h2>
+<a name="get-database-information" class="anchor" href="#get-database-information"><span class="mini-icon mini-icon-link"></span></a>Get database information</h2>
+
+<pre class="brush: js">db.info(callback)</pre>
 
 <p>Get information about a database.</p>
 
-<pre>
-db.info(function(err, info) {
+<pre class="brush: js">db.info(function(err, info) {
   // Database information:
   // {
   //   "db_name": "test",
@@ -317,7 +357,10 @@ db.info(function(err, info) {
 })
 </pre>
 
-<h3>db.changes(options)</h3>
+<h2>
+<a name="listen-to-database-changes" class="anchor" href="#listen-to-database-changes"><span class="mini-icon mini-icon-link"></span></a>Listen to database changes</h2>
+
+<p>db.changes(options)</p>
 
 <p>A list of changes made to documents in the database, in the order they were made.</p>
 
@@ -334,7 +377,7 @@ db.info(function(err, info) {
 <code>options.filter</code>: Reference a filter function from a design document to selectively get updates</li>
 <li>
 <code>options.since</code>: Start the results from the change immediately after the given sequence number</li>
-</ul><pre>
+</ul><pre class="brush: js">
 db.changes(function(err, response) {
   // Changes list:
   // {
@@ -380,34 +423,23 @@ db.changes(function(err, response) {
 })
 </pre>
 
-<h3>db.changes.addListener(listener)</h3>
+<h2>
+<a name="replicate-a-database" class="anchor" href="#replicate-a-database"><span class="mini-icon mini-icon-link"></span></a>Replicate a database</h2>
 
-<p>Register <code>listener</code> function for the changes feed.</p>
+<pre class="brush: js">Pouch.replicate(from, to, [callback])</pre>
 
-<h3>db.changes.removeListener(listener)</h3>
-
-<h2>Pouch.destroy(name, [callback])</h2>
-
-<p>Delete database with given name</p>
-
-<pre>
-Pouch.destroy('idb://test', function(err, info) {
-  // database deleted
-})
-</pre>
-
-<h2>Pouch.replicate(from, to, [callback])</h2>
-
-<p>Replicate a database</p>
-
-<pre>
-db.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
+<pre class="brush: js">db.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
   //
 })
 </pre>
+
       </section>
     </div>
     <script src="javascripts/scale.fix.js"></script>
+<script type="text/javascript">
+SyntaxHighlighter.defaults['gutter'] = false;
+SyntaxHighlighter.all()
+</script>
 
   </body>
 </html>
