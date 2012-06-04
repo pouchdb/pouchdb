@@ -48,12 +48,34 @@
     initTestDB(this.name, function(err, db) {
       var count = 0;
       var changes = db.changes({
-        onChange: function(change) { count += 1; },
+        onChange: function(change) {
+          count += 1;
+          ok(!change.doc, 'If we dont include docs, dont include docs');
+        },
         continuous: true
       });
       db.post({test:"adoc"}, function(err, info) {
         setTimeout(function() {
           equal(count, 1);
+          changes.cancel();
+          start();
+        }, 50);
+      });
+    });
+  });
+
+  asyncTest("Continuous changes doc", function() {
+    initTestDB(this.name, function(err, db) {
+      var changes = db.changes({
+        onChange: function(change) {
+          ok(change.doc, 'doc included');
+          ok(change.doc._rev, 'rev included');
+        },
+        continuous: true,
+        include_docs: true
+      });
+      db.post({test:"adoc"}, function(err, info) {
+        setTimeout(function() {
           changes.cancel();
           start();
         }, 50);
