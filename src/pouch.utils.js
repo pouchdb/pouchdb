@@ -15,7 +15,7 @@ var parseDoc = function(doc, newEdits) {
     if (!doc._id) {
       doc._id = Math.uuid();
     }
-    var newRevId = Math.uuid(32, 16);
+    var newRevId = Math.uuid(32, 16).toLowerCase();
     var nRevNum;
     if (doc._rev) {
       var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
