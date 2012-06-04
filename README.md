@@ -15,16 +15,17 @@ Download pouch.js and include in your HTML.
 Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined unless there is an error, further arguments specify the result.
 
   * [Create a database](#create-a-database)
-  * [Delete a database](#api-delete-db)
-  * [Create a document](#api-create-doc)
-  * [Create a batch of documents](#api-create-docs)
-  * [Fetch a document](#api-fetch-doc)
-  * [Fetch documents](#api-fetch-docs)
-  * [Query the database](#api-query-db)
-  * [Delete a document](#api-delete-doc)
-  * [Get database information](#api-db-info)
-  * [Listen to database changes](#api-db-changes)
-  * [Replicate a database](#api-db-replicate)
+  * [Delete a database](#delete-a-database)
+  * [Create a document](#create-a-document)
+  * [Update a document](#update-a-document)
+  * [Create a batch of documents](#create-a-batch-of-documents)
+  * [Fetch a document](#fetch-a-document)
+  * [Fetch documents](#fetch-documents)
+  * [Query the database](#query-the-database)
+  * [Delete a document](#delete-a-document)
+  * [Get database information](#get-database-information)
+  * [Listen to database changes](#listen-to-database-changes)
+  * [Replicate a database](#replicate-a-database)
 
 ## Create a database
 
@@ -38,10 +39,24 @@ Pouch('idb://test', function(err, db) {
 })
 </pre>
 
+## Delete a database
 
-### db.post(doc, [options], [callback])
+   Pouch.destroy(name, [callback])
 
-Create a new document.
+Delete database with given name
+
+<pre>
+Pouch.destroy('idb://test', function(err, info) {
+  // database deleted
+})
+</pre>
+
+## Create a document
+
+   db.post(doc, [options], [callback])
+
+Create a new document. Only use `db.post` if you want PouchDB to generate
+an ID for your document, otherwise use (db.put)[#update-a-document]
 
 <pre>
 db.post({ title: 'Cony Island Baby' }, function(err, response) {
@@ -54,8 +69,9 @@ db.post({ title: 'Cony Island Baby' }, function(err, response) {
 })
 </pre>
 
+## Update a document
 
-### db.put(doc, [options], [callback])
+    db.put(doc, [options], [callback])
 
 Create a new document or update an existing document.
 
@@ -70,27 +86,9 @@ db.put({ _id: 'mydoc', title: 'Rock and Roll Heart' }, function(err, response) {
 })
 </pre>
 
+## Save an attachment to a document
 
-### db.get(docid, [options], [callback])
-
-Getrieves a document, specified by `docid`.
-
-* `options.revs`: Include revision history of the document
-* `options.revs_info`: Include a list of revisions of the document, and their availability
-
-<pre>
-db.get('mydoc', function(err, doc) {
-  // Document:
-  // {
-  //   "title": "Rock and Roll Heart",
-  //   "_id": "mydoc",
-  //   "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
-  // }
-})
-</pre>
-
-
-### db.putAttachment(id, rev, doc, type, [callback])
+     db.putAttachment(id, rev, doc, type, [callback])
 
 Create an attachment in an existing document.
 
@@ -108,10 +106,11 @@ db.put({ _id: 'otherdoc', title: 'Legendary Hearts' }, function(err, response) {
 })
 </pre>
 
+## Create a batch of documents
 
-### db.bulkDocs(docs, [options], [callback])
+    db.bulkDocs(docs, [options], [callback])
 
-Modify multiple documents.
+Modify, create or delete multiple documents.
 
 <pre>
 db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
@@ -126,8 +125,29 @@ db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
 })
 </pre>
 
+## Fetch a document
 
-### db.allDocs([options], [callback])
+    db.get(docid, [options], [callback])
+
+Getrieves a document, specified by `docid`.
+
+* `options.revs`: Include revision history of the document
+* `options.revs_info`: Include a list of revisions of the document, and their availability
+
+<pre>
+db.get('mydoc', function(err, doc) {
+  // Document:
+  // {
+  //   "title": "Rock and Roll Heart",
+  //   "_id": "mydoc",
+  //   "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+  // }
+})
+</pre>
+
+## Fetch documents
+
+    db.allDocs([options], [callback])
 
 Fetch multiple documents.
 
@@ -176,7 +196,9 @@ db.allDocs(function(err, response) {
 </pre>
 
 
-### db.query(fun, [options], [callback])
+## Query the database
+
+    db.query(fun, [options], [callback])
 
 Retrieve a view.
 
@@ -189,7 +211,7 @@ function map(doc) {
     emit(doc.title, null);
   }
 }
-db.query({ map: map, function(err, response) {
+db.query({map: map}, {reduce: false}, function(err, response) {
   // View rows:
   // {
   //   "rows": [
@@ -219,7 +241,9 @@ db.query({ map: map, function(err, response) {
 </pre>
 
 
-### db.remove(doc, [options], [callback])
+## Delete a document
+
+    db.remove(doc, [options], [callback])
 
 Delete a document.
 
@@ -237,7 +261,9 @@ db.get('mydoc', function(err, doc) {
 </pre>
 
 
-### db.info(callback)
+## Get database information
+
+    db.info(callback)
 
 Get information about a database.
 
@@ -253,7 +279,9 @@ db.info(function(err, info) {
 </pre>
 
 
-### db.changes(options)
+## Listen to database changes
+
+   db.changes(options)
 
 A list of changes made to documents in the database, in the order they were made.
 
@@ -310,20 +338,9 @@ db.changes(function(err, response) {
 })
 </pre>
 
-## Pouch.destroy(name, [callback])
+## Replicate a database
 
-Delete database with given name
-
-<pre>
-Pouch.destroy('idb://test', function(err, info) {
-  // database deleted
-})
-</pre>
-
-
-## Pouch.replicate(from, to, [callback])
-
-Replicate a database
+    Pouch.replicate(from, to, [callback])
 
 <pre>
 db.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
