@@ -14,7 +14,7 @@ Download pouch.js and include in your HTML.
 
 Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined unless there is an error, further arguments specify the result.
 
-  * [Create a database](#api-create-db)
+  * [Create a database](#create-a-database)
   * [Delete a database](#api-delete-db)
   * [Create a document](#api-create-doc)
   * [Create a batch of documents](#api-create-docs)
@@ -26,14 +26,14 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
   * [Listen to database changes](#api-db-changes)
   * [Replicate a database](#api-db-replicate)
 
-## Create a database <a id="api-create-db"></a>
+## Create a database
 
-## new Pouch('idb://dbname', [options], [callback])
+    Pouch('idb://dbname', [options], [callback])
 
 This method gets an existing database if one exists or creates a new one if one does not exist. The protocol field denotes which backend you want to use (currently only http and indexeddb are supported)
 
 <pre>
-new Pouch('idb://test', function(err, db) {
+Pouch('idb://test', function(err, db) {
   // Use db to call further functions
 })
 </pre>
