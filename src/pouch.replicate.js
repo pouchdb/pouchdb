@@ -52,12 +52,10 @@
                     pending--;
                     isCompleted();
                   };
-                  if (!!doc){
-                    target.bulkDocs({docs: [doc]}, {new_edits: false}, cb);
+                  if (!!!doc){
+                    doc = { _id : id , _rev: diffs[id].possible_ancestors, _deleted : true};
                   }
-                  else{
-                    target.remove({ _id : id , _rev: diffs[id].possible_ancestors}, cb);
-                  }
+                  target.bulkDocs({docs: [doc]}, {new_edits: false}, cb);
                 });
               });
             }
