@@ -47,11 +47,17 @@
             for (var id in diffs) {
               diffs[id].missing.map(function(rev) {
                 src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
-                  target.bulkDocs({docs: [doc]}, {new_edits: false}, function() {
+                  var cb = function() {
                     result.docs_written++;
                     pending--;
                     isCompleted();
-                  });
+                  };
+                  if (!!doc){
+                    target.bulkDocs({docs: [doc]}, {new_edits: false}, cb);
+                  }
+                  else{
+                    target.remove({ _id : id , _rev: diffs[id].possible_ancestors}, cb);
+                  }
                 });
               });
             }
@@ -95,6 +101,9 @@
     var replicateRet = new ret();
     toPouch(src, function(_, src) {
       toPouch(target, function(_, target) {
+        if (typeof opts == typeof Function && typeof callback == typeof undefined){
+          callback = opts;
+        }
         replicate(src, target, opts, callback, replicateRet);
       });
     });
