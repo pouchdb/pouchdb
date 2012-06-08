@@ -1,5 +1,13 @@
 (function() {
-
+  function getStep(rev){
+    return parseInt(rev.split('-')[0])
+  }
+  function getHead(revs){
+    return revs.reduce(function(a,b) { return  getStep(a) < getStep(b) ? b : a;   });
+  }
+  function getRevs(revs){
+    return revs.sort( function(rev1,rev2){ return getStep(rev2) - getStep(rev1); }).map(function(rev){return rev.split('-')[1]});
+  }
   function replicate(src, target, opts, callback, replicateRet) {
 
     fetchCheckpoint(src, target, function(checkpoint) {
@@ -28,23 +36,18 @@
         return;
       }
 
-      function getStep(rev){
-        return parseInt(rev.split('-')[0])
-      }
-      function getHead(revs){
-        return revs.reduce(function(a,b) { return  getStep(a) < getStep(b) ? b : a;   });
-      }
-      function getRevs(revs){
-        revs.sort( function(rev1,rev2){ return getStep(rev2) - getStep(rev1); }).map(function(rev){return rev.split('-')[1]});
-      }
       function replicateDoc(id, missing, possible_ancestors, cb){
-        var rev = getHead(missing);
+        var rev = getHead(missing),
+          new_edits = true;
         src.get(id, {revs: true, rev: rev, attachments: true},function(err,doc){
           if (!!!doc){
             var head = getHead(possible_ancestors);
-            doc = { _id : id , _rev: head, _deleted : true, _revisions: {"start":head.split('-')[0],"ids":getRevs(possible_ancestors)}};
+            doc = { _id : id , _rev: head, _deleted : true, _revisions: {"start":parseInt(head.split('-')[0]),"ids":getRevs(possible_ancestors)}};
+            new_edits = false;
           }
-          target.bulkDocs({docs: [doc]}, {new_edits: false}, cb);
+          console.error(doc);
+          console.log(new_edits ? {new_edits: false} : {});
+          target.bulkDocs({docs: [doc]}, new_edits ? {new_edits: false} : {}, cb);
         });
       }
 
@@ -71,25 +74,6 @@
                     isCompleted();
                   };
               replicateDoc(id, diffs[id].missing, diffs[id].possible_ancestors, cb);
-//              diffs[id].missing.map(function(rev, index) {
-//                src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
-//                  var cb = function() {
-//                    result.docs_written++;
-//                    pending--;
-//                    isCompleted();
-//                  };
-//                  if (!!!doc){
-//                    rev = diffs[id].possible_ancestors[];
-//                    "_revisions": {
-//                      "start": 3,
-//                        "ids": ["fffff", "eeeee", "ddddd"]
-//                    }
-//                    doc = { _id : id , _rev: diffs[id].possible_ancestors[index], _deleted : true};
-//                    console.log(doc);
-//                  }
-//                  target.bulkDocs({docs: [doc]}, {new_edits: false}, cb);
-//                });
-//              });
             }
           });
         },
