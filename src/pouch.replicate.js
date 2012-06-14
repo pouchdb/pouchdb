@@ -1,13 +1,4 @@
 (function() {
-  function getStep(rev){
-    return parseInt(rev.split('-')[0])
-  }
-  function getHead(revs){
-    return revs.reduce(function(a,b) { return  getStep(a) < getStep(b) ? b : a;   });
-  }
-  function getRevs(revs){
-    return revs.sort( function(rev1,rev2){ return getStep(rev2) - getStep(rev1); }).map(function(rev){return rev.split('-')[1]});
-  }
   function replicate(src, target, opts, callback, replicateRet) {
 
     fetchCheckpoint(src, target, function(checkpoint) {
@@ -36,21 +27,6 @@
         return;
       }
 
-      function replicateDoc(id, missing, possible_ancestors, cb){
-        var rev = getHead(missing),
-          new_edits = true;
-        src.get(id, {revs: true, rev: rev, attachments: true},function(err,doc){
-          if (!!!doc){
-            var head = getHead(possible_ancestors);
-            doc = { _id : id , _rev: head, _deleted : true, _revisions: {"start":parseInt(head.split('-')[0]),"ids":getRevs(possible_ancestors)}};
-            new_edits = false;
-          }
-          console.error(doc);
-          console.log(new_edits ? {new_edits: false} : {});
-          target.bulkDocs({docs: [doc]}, new_edits ? {new_edits: false} : {}, cb);
-        });
-      }
-
       var repOpts = {
         continuous: continuous,
         since: checkpoint,
@@ -68,12 +44,20 @@
               return;
             }
             for (var id in diffs) {
-              var cb = function() {
-                    result.docs_written++;
-                    pending--;
-                    isCompleted();
-                  };
-              replicateDoc(id, diffs[id].missing, diffs[id].possible_ancestors, cb);
+              var head = revsHead(diffs[id].missing);
+              console.log(diffs[id]);
+              src.get(id, {revs:true, rev:head, attachments:true}, function (err, doc) {
+                if (!!!doc) {
+                  doc = { _id:id, _rev:head, _deleted:true, _revisions:{"start":revSeq(head), "ids":revsNumbers(diffs[id].possible_ancestors.concat(diffs[id].missing))}};
+                  console.log(doc);
+                }
+                target.bulkDocs({docs:[doc]}, {new_edits:false}, function () {
+                  result.docs_written++;
+                  pending--;
+                  isCompleted();
+                })
+              })
+
             }
           });
         },

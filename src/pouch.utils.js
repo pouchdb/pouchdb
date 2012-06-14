@@ -215,3 +215,14 @@ var localJSON = (function(){
     }
   };
 })();
+
+var revSeq = function(rev){
+  return parseInt(rev.split('-')[0]);
+};
+var revsHead = function(revs){
+  return revs.reduce(function(a,b) { return  revSeq(a) < revSeq(b) ? b : a;   });
+};
+var revsNumbers = function(revs){
+  console.log(revs);
+  return revs.sort( function(rev1,rev2){ return revSeq(rev2) - revSeq(rev1); }).map(function(rev){return rev.split('-')[1]});
+};
