@@ -5,7 +5,8 @@ node_pid=$!
 python -m SimpleHTTPServer &
 python_pid=$!
 sleep 3
-java_pid = java -jar Sauce-Connect.jar ryanramage b8f74e0a-c3f7-4aeb-8497-1035cd4c2c84
+java -jar Sauce-Connect.jar ryanramage b8f74e0a-c3f7-4aeb-8497-1035cd4c2c84
+java_pid = $!
 sleep 20
 node run_saucelabs.js
 kill -9 $node_pid

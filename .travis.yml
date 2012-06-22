@@ -1,18 +1,7 @@
-language: node_js
-node_js:
-   - 0.6
+language: java
 
 
 env: DB=couchdb
-
-before_script:
-  - git clone https://github.com/daleharvey/CORS-Proxy.git
-  - cd CORS-Proxy
-  - node server.js
-  - python -m SimpleHTTPServer
-  - sh -e /etc/init.d/xvfb start
-  - sleep 3 # give xvfb some time to start
-  - export DISPLAY=:99.0
 
 
 
