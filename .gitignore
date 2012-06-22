@@ -1,2 +1,3 @@
-pouch*.js
+/pouch*.js
 .DS_Store
+.idea
