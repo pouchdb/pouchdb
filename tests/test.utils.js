@@ -49,6 +49,6 @@ function generateAdapterUrl(id) {
     return 'idb://test_suite_db' + opt[1];
   }
   if (opt[0] === 'http') {
-    return 'http://localhost:1234/test_suite_db' + opt[1];
+    return 'http://localhost:2020/test_suite_db' + opt[1];
   }
 }

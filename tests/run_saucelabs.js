@@ -8,7 +8,7 @@ var browser = soda.createSauceClient({
 , 'os': 'Windows 2003'
 , 'browser': 'googlechrome'
 , 'browser-version': ''
-, 'name': 'This is an example test'
+, 'name': 'Pouch-Chrome/Win2003'
 });
 
 browser.on('command', function(cmd, args){
@@ -19,10 +19,8 @@ browser
   .chain
   .session()
   .open('http://127.0.0.1:8000/tests/test.html')
+  .setTimeout(200000)
   .waitForTextPresent('Tests completed in')
-  .getTitle(function(title){
-    assert.ok(~title.indexOf('Google'), 'was not google');
-  })
   .end(function(err){
     this.queue = null;
     this.setContext('sauce:job-info={"passed": ' + (err === null) + '}', function(){
