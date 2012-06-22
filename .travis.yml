@@ -1,6 +1,6 @@
-language: node_js
-node_js:
-   - 0.6
+language: python
+python:
+   - "2.6"
 
 
 env: DB=couchdb
@@ -11,6 +11,7 @@ before_script:
   - node server.js
   - python -m SimpleHTTPServer
   - sh -e /etc/init.d/xvfb start
+  - sleep 3 # give xvfb some time to start
   - export DISPLAY=:99.0
 
 
