@@ -1,0 +1,9 @@
+language: java
+
+
+env: DB=couchdb
+
+
+
+script: "tests/run_tests.sh"
+

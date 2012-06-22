@@ -26,6 +26,19 @@
     <script type="text/javascript" src="test.views.js"></script>
     <script type="text/javascript" src="test.auth_replication.js"></script>
     <script type="text/javascript" src="test.design_docs.js"></script>
+    <script type="text/javascript">
+        var scroller = setInterval(function(){
+            window.scrollTo(0,$(document).height());
+        }, 300);
+
+        QUnit.begin = function() {
+            console.log('running!!!');
+        }
+
+        QUnit.done = function(results) {
+            clearTimeout(scroller);
+        }
+    </script>
   </head>
   <body>
     <h1 id="qunit-header">QUnit Test Suite</h1>
