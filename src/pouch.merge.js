@@ -126,7 +126,7 @@
     };
   }
 
-  this.Pouch.merge = function(tree, path, depth) {
+  Pouch.merge = function(tree, path, depth) {
     // Ugh, nicer way to not modify arguments in place?
     tree = JSON.parse(JSON.stringify(tree));
     path = JSON.parse(JSON.stringify(path));

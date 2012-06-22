@@ -15,6 +15,7 @@ AMD_JS_TARGETS = \
 	src/pouch.amd.js
 
 EXTRA_JS_TARGETS = \
+	src/pouch.window.js \
 	src/deps/jquery-1.7.1.min.js \
 	src/deps/uuid.js
 
@@ -22,7 +23,7 @@ all :
 	(echo "(function() { "; cat $(JS_TARGETS); cat $(EXTRA_JS_TARGETS); echo " })(this);") > pouch.$(RELEASE).js
 
 amd :
-	(echo "define('pouchdb',['jquery', 'simple-uuid', 'md5'], function($, uuid, md5) { "; cat $(AMD_JS_TARGETS); cat $(JS_TARGETS); echo " return window.Pouch })") > pouch.amd.$(RELEASE).js
+	(echo "define('pouchdb',['jquery', 'simple-uuid', 'md5'], function(jquery, uuid, md5) { "; cat $(AMD_JS_TARGETS); cat $(JS_TARGETS); echo " return Pouch })") > pouch.amd.$(RELEASE).js
 
 min : all
 	java -jar $(YUI) pouch.$(RELEASE).js -o pouch.$(RELEASE).min.js
