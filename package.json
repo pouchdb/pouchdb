@@ -1,0 +1,28 @@
+{
+  "name": "pouchdb",
+  "description": "PouchDB is a pocket-sized database.",
+  "author": "Dale Harvey",
+  "version": "0.0.1",
+  "main": "pouch.amd.alpha.js",
+  "homepage": "https://github.com/daleharvey/pouchdb",
+  "keywords": [ "db", "couchdb" ],
+  "tags": [ "db", "couchdb"  ],
+  "dependencies" : {
+        "jquery": null,
+        "simple-uuid" : null,
+        "md5" : null
+  },
+  "maintainers":[
+        {
+            "name":"Ryan Ramage",
+            "web":"https://github.com/ryanramage"
+        }
+    ],
+  "repositories":[
+        {
+            "type":"git",
+            "url":"https://github.com/daleharvey/pouchdb"
+        }
+    ]
+
+}
