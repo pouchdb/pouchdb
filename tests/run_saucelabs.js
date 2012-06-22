@@ -19,7 +19,7 @@ browser
   .chain
   .session()
   .open('http://127.0.0.1:8000/tests/test.html')
-  .setTimeout(200000)
+  .setTimeout(400000)
   .waitForTextPresent('Tests completed in')
   .end(function(err){
     this.queue = null;
