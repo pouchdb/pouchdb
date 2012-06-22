@@ -2,3 +2,5 @@
 .DS_Store
 .idea
 CORS-Proxy
+node_modules
+sauce_connect.log

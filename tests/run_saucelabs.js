@@ -6,8 +6,8 @@ var browser = soda.createSauceClient({
 , 'username': 'ryanramage'
 , 'access-key': 'b8f74e0a-c3f7-4aeb-8497-1035cd4c2c84'
 , 'os': 'Windows 2003'
-, 'browser': 'firefox'
-, 'browser-version': '7'
+, 'browser': 'googlechrome'
+, 'browser-version': ''
 , 'name': 'This is an example test'
 });
 
