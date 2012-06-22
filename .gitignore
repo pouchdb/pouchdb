@@ -1,3 +1,4 @@
 /pouch*.js
 .DS_Store
 .idea
+CORS-Proxy
