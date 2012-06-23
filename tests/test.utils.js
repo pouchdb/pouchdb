@@ -95,9 +95,12 @@ function generateAdapterUrl(id) {
         });
 
     }
+$(function(){
     var scroller = setInterval(function(){
         window.scrollTo(0,$(document).height());
     }, 300);
+})
+
 
 
 
