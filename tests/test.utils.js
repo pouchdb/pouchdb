@@ -57,7 +57,6 @@ function generateAdapterUrl(id) {
 /**** Test Result Support ***************/
     var doc = {};
     QUnit.jUnitReport = function(report) {
-        clearTimeout(scroller);
         doc.report = report;
         doc.completed = new Date().getTime();
         doc.system = System;
@@ -95,11 +94,7 @@ function generateAdapterUrl(id) {
         });
 
     }
-$(function(){
-    var scroller = setInterval(function(){
-        window.scrollTo(0,$(document).height());
-    }, 300);
-})
+
 
 
 
