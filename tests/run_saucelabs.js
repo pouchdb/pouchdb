@@ -26,7 +26,7 @@ browser
   .chain
   .session()
   .open(url)
-  .setTimeout(400000)
+  .setTimeout(800000)
   .waitForTextPresent('Tests completed in')
   .click('css=button')
   .waitForTextPresent('Submission complete.')
