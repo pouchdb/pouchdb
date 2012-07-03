@@ -11,6 +11,7 @@ JS_TARGETS = \
     src/pouch.replicate.js \
     src/pouch.utils.js \
     src/adapters/pouch.http.js \
+    src/adapters/pouch.https.js \
     src/adapters/pouch.idb.js
 
 all :

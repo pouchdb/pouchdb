@@ -33,8 +33,14 @@ Pouch.parseAdapter = function(name) {
   var match = name.match(/([a-z\-]*):\/\/(.*)/);
 
   if (match) {
-    // the http adapter expects the fully qualified name
-    name = (match[1] === 'http') ? 'http://' + match[2] : match[2];
+    // the http or https adapter expects the fully qualified name
+    if (match[1] === 'http') {
+      name = 'http://' + match[2];
+    } else if (match[1] === 'https') {
+      name = 'https://' + match[2];
+    } else {
+      name = match[2];
+    }
     var adapter = match[1];
     if (!Pouch.adapters[adapter].valid()) {
       throw 'Invalid adapter';
