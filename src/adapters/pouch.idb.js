@@ -14,9 +14,6 @@ window.IDBKeyRange = window.IDBKeyRange ||
 window.IDBTransaction = window.IDBTransaction ||
   window.webkitIDBTransaction;
 
-window.IDBDatabaseException = window.IDBDatabaseException ||
-  window.webkitIDBDatabaseException;
-
 // Newer webkits expect strings for transaction + cursor paramters
 // older webkit + older firefox require constants, we can drop
 // the constants when both stable releases use strings
@@ -30,11 +27,10 @@ IDBCursor.PREV = IDBCursor.PREV || 'prev';
 
 var idbError = function(callback) {
   return function(event) {
-    var code = event.target.errorCode;
     call(callback, {
       status: 500,
       error: event.type,
-      reason: Object.keys(IDBDatabaseException)[code-1].toLowerCase()
+      reason: event.target
     });
   }
 };
