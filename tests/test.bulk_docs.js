@@ -9,6 +9,13 @@
     }
   });
 
+  var authors = [
+    {name: 'Dale Harvey', commits: 253},
+    {name: 'Mikeal Rogers', commits: 42},
+    {name: 'Johannes J. Schmidt', commits: 13},
+    {name: 'Randall Leeds', commits: 9}
+  ];
+
   asyncTest('Testing bulk docs', function() {
     initTestDB(this.name, function(err, db) {
       var docs = makeDocs(5);
@@ -87,6 +94,19 @@
         ok(results[2].error === "conflict", 'second conflicted');
         ok(results.length === 4, 'got right amount of results');
         start();
+      });
+    });
+  });
+
+  asyncTest('Test multiple bulkdocs', function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: authors}, function (err, res) {
+        db.bulkDocs({docs: authors}, function (err, res) {
+          db.allDocs(function(err, result) {
+            ok(result.total_rows === 8, 'correct number of results');
+            start();
+          });
+        });
       });
     });
   });
