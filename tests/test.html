@@ -4,29 +4,62 @@
     <title>QUnit Test Suite</title>
     <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
     <script type="text/javascript" src="qunit/qunit.js"></script>
-    <script type="text/javascript" src="../src/deps/jquery-1.7.1.min.js"></script>
-    <script type="text/javascript" src="../src/deps/uuid.js" ></script>
-    <script type="text/javascript" src="../src/pouch.js" ></script>
-    <script type="text/javascript" src="../src/pouch.merge.js" ></script>
-    <script type="text/javascript" src="../src/pouch.replicate.js" ></script>
-    <script type="text/javascript" src="../src/pouch.collate.js" ></script>
-    <script type="text/javascript" src="../src/pouch.utils.js" ></script>
-    <script type="text/javascript" src="../src/adapters/pouch.http.js" ></script>
-    <script type="text/javascript" src="../src/adapters/pouch.idb.js" ></script>
-    <script type="text/javascript" src="test.utils.js"></script>
-    <script type="text/javascript" src="test.basics.js"></script>
-    <script type="text/javascript" src="test.changes.js"></script>
-    <script type="text/javascript" src="test.bulk_docs.js"></script>
-    <script type="text/javascript" src="test.all_docs.js"></script>
-    <script type="text/javascript" src="test.conflicts.js"></script>
-    <script type="text/javascript" src="test.merge_rev_tree.js"></script>
-    <script type="text/javascript" src="test.revs_diff.js"></script>
-    <script type="text/javascript" src="test.attachments.js"></script>
-    <script type="text/javascript" src="test.replication.js"></script>
-    <script type="text/javascript" src="test.views.js"></script>
-    <script type="text/javascript" src="test.auth_replication.js"></script>
-    <script type="text/javascript" src="test.design_docs.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">QUnit Test Suite</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+
     <script type="text/javascript">
+
+      var testFiles = ['test.utils.js', 'test.basics.js', 'test.changes.js',
+        'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
+        'test.merge_rev_tree.js',  'test.revs_diff.js', 'test.attachments.js',
+        'test.replication.js', 'test.views.js', 'test.auth_replication.js',
+        'test.design_docs.js'];
+
+      var srcFiles = ['../src/deps/jquery-1.7.1.min.js', '../src/deps/uuid.js',
+        '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
+        '../src/pouch.collate.js', '../src/pouch.utils.js',
+        '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js'];
+
+      var prodFiles = ['../pouch.alpha.js'];
+
+      var minProdFiles = ['../pouch.alpha.min.js'];
+
+      // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
+      function asyncLoadScript(url, callback) {
+
+        // Create a new script and setup the basics.
+        var script = document.createElement("script"),
+        firstScript = document.getElementsByTagName('script')[0];
+
+        script.async = true;
+        script.src = url;
+
+        // Handle the case where an optional callback was passed in.
+        if ( "function" === typeof(callback) ) {
+          script.onload = function() {
+            callback();
+
+            // Clear it out to avoid getting called more than once or any memory leaks.
+            script.onload = script.onreadystatechange = undefined;
+          };
+          script.onreadystatechange = function() {
+            if ( "loaded" === script.readyState || "complete" === script.readyState ) {
+              script.onload();
+            }
+          };
+        }
+
+        // Attach the script tag to the page (before the first script) so the
+        //magic can happen.
+        firstScript.parentNode.insertBefore(script, firstScript);
+      };
+
+      function startQUnit() {
         var scroller = setInterval(function(){
             window.scrollTo(0,$(document).height());
         }, 300);
@@ -38,14 +71,31 @@
         QUnit.done = function(results) {
             clearTimeout(scroller);
         }
+      }
+
+      function asyncParForEach(array, fn, callback) {
+        if (array.length === 0) {
+          callback(); // done immediately
+          return;
+        }
+        var toLoad = array.shift();
+        fn(toLoad, function() {
+          asyncParForEach(array, fn, callback);
+        });
+      };
+
+      // Switch this to srcFiles / prodFiles / minProdFiles to test
+      // the different builds
+      var filesToTest = srcFiles;
+
+      asyncParForEach(filesToTest, asyncLoadScript, function() {
+        asyncParForEach(testFiles, asyncLoadScript, function() {
+          startQUnit();
+        });
+      });
+
     </script>
-  </head>
-  <body>
-    <h1 id="qunit-header">QUnit Test Suite</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
+
   </body>
 </html>
 
