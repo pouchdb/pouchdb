@@ -315,4 +315,71 @@
     });
   });
 
+  asyncTest("Pull replication with removed item", function(){
+    console.info('Starting Test: Pull replication with removed item');
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        db.replicate.from(self.remote, function(err, result) {
+          ok(result.ok, 'basic replication was ok');
+          ok(result.docs_written = docs.length, 'correct # docs written');
+          remote.allDocs(function(err,docs){
+            var removedId = docs.rows[0].id;
+            remote.get(removedId, function(err,doc){
+              remote.remove(doc, function(err,doc){
+                remote.allDocs(function(err,docs){
+                });
+                db.replicate.from(self.remote, function(err,result){
+                  ok(result.ok, 'replication after remove was ok');
+                  ok(result.docs_written == 1, 'correct # docs written');
+                  db.get(removedId, function(err,doc){
+                    ok(!!err, 'local can\'t find removed item');
+                    if(!!err){
+                      equal(err.error, 'not_found', 'error is "not found"');
+                      equal(err.reason , 'missing', 'and reason id "deleted"');
+                    }
+                    start();
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+    asyncTest("Push replication with removed item", function(){
+      console.info('Starting Test: Push replication with removed item');
+      var self = this;
+      initDBPair(this.name, this.remote, function(db, remote) {
+        remote.bulkDocs({docs: docs}, {}, function(err, results) {
+          db.replicate.from(self.remote, function(err, result) {
+            ok(result.ok, 'basic replication was ok');
+            ok(result.docs_written = docs.length, 'correct # docs written');
+            db.allDocs(function(err,docs){
+              var removedId = docs.rows[0].id;
+              db.get(removedId, function(err,doc){
+                db.remove(doc, function(err,doc){
+                  db.allDocs(function(err,docs){
+                  });
+                  db.replicate.to(self.remote, function(err,result){
+                    ok(result.ok, 'replication after remove was ok');
+                    ok(result.docs_written == 1, 'correct # docs written');
+                    remote.get(removedId, function(err,doc){
+                      ok(!!err, 'remote can\'t find removed item');
+                      if(!!err){
+                        equal(err.error, 'not_found', 'error is "not found"');
+                        equal(err.reason , 'missing', 'and reason id "deleted"');
+                      }
+                      start();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
 });

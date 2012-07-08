@@ -1,5 +1,4 @@
 (function() {
-
   function replicate(src, target, opts, callback, replicateRet) {
 
     fetchCheckpoint(src, target, function(checkpoint) {
@@ -45,15 +44,20 @@
               return;
             }
             for (var id in diffs) {
-              diffs[id].missing.map(function(rev) {
-                src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
-                  target.bulkDocs({docs: [doc]}, {new_edits: false}, function() {
-                    result.docs_written++;
-                    pending--;
-                    isCompleted();
-                  });
-                });
-              });
+              var head = revsHead(diffs[id].missing);
+              console.log(diffs[id]);
+              src.get(id, {revs:true, rev:head, attachments:true}, function (err, doc) {
+                if (!!!doc) {
+                  doc = { _id:id, _rev:head, _deleted:true, _revisions:{"start":revSeq(head), "ids":revsNumbers(diffs[id].possible_ancestors.concat(diffs[id].missing))}};
+                  console.log(doc);
+                }
+                target.bulkDocs({docs:[doc]}, {new_edits:false}, function () {
+                  result.docs_written++;
+                  pending--;
+                  isCompleted();
+                })
+              })
+
             }
           });
         },
@@ -95,6 +99,9 @@
     var replicateRet = new ret();
     toPouch(src, function(_, src) {
       toPouch(target, function(_, target) {
+        if (typeof opts == typeof Function && typeof callback == typeof undefined){
+          callback = opts;
+        }
         replicate(src, target, opts, callback, replicateRet);
       });
     });

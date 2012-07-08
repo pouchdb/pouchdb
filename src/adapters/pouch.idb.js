@@ -501,6 +501,12 @@ var IdbPouch = function(opts, callback) {
           missing[id].missing.push(revId);
         }
       });
+      if (!!doc){
+        var head = revsHead(doc._revs_info.map(function(rev){return rev.rev;}));
+        if(revSeq(head) < revSeq(revsHead(req[id]))){
+          missing[id].possible_ancestors = [head];
+        }
+      }
 
       if (++count === ids.length) {
         return call(callback, null, missing);
