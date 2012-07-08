@@ -315,4 +315,28 @@
     });
   });
 
+
+  asyncTest("Replication with deleted doc", function() {
+    console.info('Starting Test: Replication with deleted doc');
+
+    var docs1 = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3},
+      {_id: "4", integer: 4, _deleted: true}
+    ];
+
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs1}, function(err, info) {
+        var replicate = db.replicate.from(remote, function() {
+          db.allDocs(function(err, res) {
+            equal(res.total_rows, 4, 'Replication with deleted docs');
+            start();
+          });
+        });
+      });
+    });
+  });
+
 });
