@@ -311,7 +311,7 @@ var IdbPouch = function(opts, callback) {
 
     txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
       var metadata = e.target.result;
-      if (!e.target.result || metadata.deleted) {
+      if (!e.target.result || (metadata.deleted && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 

@@ -72,6 +72,20 @@
     });
   });
 
+  asyncTest("Get revisions of removed doc", function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({test:"somestuff"}, function(err, info) {
+        var rev = info.rev;
+        db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
+          db.get(info.id, {rev: rev}, function(err, doc) {
+            ok(!err, 'Recieved deleted doc with rev');
+            start();
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Remove doc", function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
@@ -232,7 +246,6 @@
       };
       timer = setInterval(save, 50);
     });
-
   });
 
   asyncTest("Testing valid id", function() {
@@ -243,5 +256,4 @@
       });
     });
   });
-
 });
