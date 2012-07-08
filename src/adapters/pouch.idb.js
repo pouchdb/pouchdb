@@ -258,7 +258,7 @@ var IdbPouch = function(opts, callback) {
 
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
-      if (docInfo.metadata.deleted) {
+      if ('was_delete' in opts && docInfo.metadata.deleted) {
         results.push(Pouch.Errors.MISSING_DOC);
         return processDocs();
       }
@@ -374,6 +374,7 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    opts.was_delete = true;
     var newDoc = JSON.parse(JSON.stringify(doc));
     newDoc._deleted = true;
     return api.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
