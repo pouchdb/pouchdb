@@ -61,16 +61,8 @@
       };
 
       function startQUnit() {
-        var scroller = setInterval(function(){
-            window.scrollTo(0,$(document).height());
-        }, 300);
-
         QUnit.begin = function() {
-            console.log('running!!!');
-        }
-
-        QUnit.done = function(results) {
-            clearTimeout(scroller);
+          console.log('running!!!');
         }
       }
 
