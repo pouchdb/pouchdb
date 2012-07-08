@@ -167,7 +167,7 @@ var IdbPouch = function(opts, callback) {
         return complete();
       }
       var currentDoc = docs.shift();
-      var req = docOStore.get(currentDoc.metadata.id);
+      var req = txn.objectStore(DOC_STORE).get(currentDoc.metadata.id);
       req.onsuccess = function process_docRead(event) {
         var oldDoc = event.target.result;
         if (!oldDoc) {
