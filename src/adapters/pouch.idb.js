@@ -143,6 +143,7 @@ var IdbPouch = function(opts, callback) {
     var results = [];
     var docs = [];
 
+    // Group multiple edits to the same document
     docInfos.forEach(function(docInfo) {
       if (docInfo.error) {
         return results.push(docInfo);
@@ -154,42 +155,30 @@ var IdbPouch = function(opts, callback) {
       results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
     });
 
-    if (!docs.length) {
-      return txnComplete();
-    }
-
-    docs.sort(function(a, b) {
-      return Pouch.collate(a.metadata.id, b.metadata.id);
-    });
-
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                               IDBTransaction.READ_WRITE);
     txn.onerror = idbError(callback);
     txn.ontimeout = idbError(callback);
-    txn.oncomplete = txnComplete;
 
-    var keyRange = IDBKeyRange.bound(
-      docs[0].metadata.id, docs[docs.length-1].metadata.id,
-      false, false);
+    processDocs();
 
-    txn.objectStore(DOC_STORE)
-      .openCursor(keyRange, IDBCursor.NEXT).onsuccess = readDoc;
-
-    function readDoc(event) {
-      var cursor = event.target.result;
-      // Cursor has exceeded the key range so the rest are inserts
-      if (!cursor) {
-        return docs.forEach(insertDoc);
+    function processDocs() {
+      if (!docs.length) {
+        return complete();
       }
-      var doc = docs.shift();
-      if (cursor.key === doc.metadata.id) {
-        updateDoc(cursor, cursor.value, doc);
-      } else {
-        insertDoc(doc);
+      var currentDoc = docs.shift();
+      var req = docOStore.get(currentDoc.metadata.id);
+      req.onsuccess = function process_docRead(event) {
+        var oldDoc = event.target.result;
+        if (!oldDoc) {
+          insertDoc(currentDoc, processDocs);
+        } else {
+          updateDoc(oldDoc, currentDoc);
+        }
       }
     }
 
-    function txnComplete(event) {
+    function complete(event) {
       var aresults = [];
       results.sort(sortByBulkSeq);
       results.forEach(function(result) {
@@ -224,7 +213,6 @@ var IdbPouch = function(opts, callback) {
     }
 
     function writeDoc(docInfo, callback) {
-
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
           var data = docInfo.data._attachments[key].data;
@@ -253,7 +241,7 @@ var IdbPouch = function(opts, callback) {
       };
     }
 
-    function updateDoc(cursor, oldDoc, docInfo) {
+    function updateDoc(oldDoc, docInfo) {
       var merged = Pouch.merge(oldDoc.rev_tree,
                                docInfo.metadata.rev_tree[0], 1000);
       var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
@@ -261,22 +249,20 @@ var IdbPouch = function(opts, callback) {
 
       if (inConflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
-        return cursor['continue']();
+        return processDocs();
       }
 
       docInfo.metadata.rev_tree = merged.tree;
-
-      writeDoc(docInfo, function() {
-        cursor['continue']();
-      });
+      writeDoc(docInfo, processDocs);
     }
 
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
       if (docInfo.metadata.deleted) {
-        return results.push(Pouch.Errors.MISSING_DOC);
+        results.push(Pouch.Errors.MISSING_DOC);
+        return processDocs();
       }
-      writeDoc(docInfo);
+      writeDoc(docInfo, processDocs);
     }
 
     // Insert sequence number into the error so we can sort later
