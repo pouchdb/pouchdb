@@ -553,6 +553,7 @@ var IdbPouch = function(opts, callback) {
 
     function fetchChanges() {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
+      txn.oncomplete = onTxnComplete;
       var req = descending
         ? txn.objectStore(BY_SEQ_STORE)
           .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
@@ -576,7 +577,7 @@ var IdbPouch = function(opts, callback) {
           }
           call(opts.onChange, c);
         });
-        return call(opts.complete, null, {results: results});
+        return false;
       }
       var cursor = event.target.result;
       var index = txn.objectStore(DOC_STORE);
@@ -610,6 +611,10 @@ var IdbPouch = function(opts, callback) {
         results.push(change);
         cursor['continue']();
       };
+    };
+
+    function onTxnComplete() {
+      call(opts.complete, null, {results: results});
     };
 
     function onerror(error) {
