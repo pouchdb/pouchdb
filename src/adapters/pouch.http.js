@@ -31,35 +31,35 @@ parseUri.options = {
   }
 };
 
-// Get all the information you possibly can about the URI given by name and 
+// Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
 function getHost(name) {
   // If the given name contains "http:"
-  if (/http:/.test(name)) {
+  if (/http(s?):/.test(name)) {
     // Prase the URI into all its little bits
     var uri = parseUri(name);
-    
+
     // Store the fact that it is a remote URI
     uri.remote = true;
-    
+
     // Store the user and password as a separate auth object
     uri.auth = {username: uri.user, password: uri.password};
-    
+
     // Split the path part of the URI into parts using '/' as the delimiter
     // after removing any leading '/' and any trailing '/'
     var parts = uri.path.replace(/(^\/|\/$)/g, '').split('/');
-    
+
     // Store the first part as the database name and remove it from the parts
     // array
     uri.db = parts.pop();
-    
+
     // Restore the path by joining all the remaining parts (all the parts
     // except for the database name) with '/'s
     uri.path = parts.join('/');
-    
+
     return uri;
   }
-  
+
   // If the given name does not contain 'http:' then return a very basic object
   // with no host, the current path, the given name as the database name and no
   // username/password
@@ -73,12 +73,12 @@ function genUrl(opts, path) {
     // If the host already has a path, then we need to have a path delimiter
     // Otherwise, the path delimiter is the empty string
     var pathDel = !opts.path ? '' : '/';
-    
+
     // Return the URL made up of all the host's information and the given path
     return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path
       + pathDel + opts.db + '/' + path;
   }
-  
+
   // If the host is not remote, then return the URL made up of just the
   // database name and the given path
   return '/' + opts.db + '/' + path;
@@ -125,10 +125,10 @@ var HttpPouch = function(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
   var host = getHost(opts.name);
-  
+
   // Generate the database URL based on the host
   var db_url = genUrl(host, '');
-  
+
   // The functions that will be publically available for HttpPouch
   var api = {};
 
@@ -175,7 +175,7 @@ var HttpPouch = function(opts, callback) {
   };
 
   // Get the document with the given id from the database given by host.
-  // The id could be solely the _id in the database, or it may be a 
+  // The id could be solely the _id in the database, or it may be a
   // _design/ID or _local/ID path
   api.get = function(id, opts, callback) {
     // If no options were given, set the callback to the second parameter
@@ -183,45 +183,45 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    
+
     // List of parameters to add to the GET request
     var params = [];
-    
+
     // If it exists, add the opts.revs value to the list of parameters.
     // If revs=true then the resulting JSON will include a field
     // _revisions containing an array of the revision IDs.
     if (opts.revs) {
       params.push('revs=true');
     }
-    
+
     // If it exists, add the opts.revs_info value to the list of parameters.
     // If revs_info=true then the resulting JSON will include the field
-    // _revs_info containing an array of objects in which each object 
+    // _revs_info containing an array of objects in which each object
     // representing an available revision.
     if (opts.revs_info) {
       params.push('revs_info=true');
     }
-    
+
     // If it exists, add the opts.attachments value to the list of parameters.
     // If attachments=true the resulting JSON will include the base64-encoded
     // contents in the "data" property of each attachment.
     if (opts.attachments) {
       params.push('attachments=true');
     }
-    
+
     // If it exists, add the opts.rev value to the list of parameters.
     // If rev is given a revision number then get the specified revision.
     if (opts.rev) {
       params.push('rev=' + opts.rev);
     }
-    
+
     // If it exists, add the opts.conflicts value to the list of parameters.
     // If conflicts=true then the resulting JSON will include the field
     // _conflicts containing all the conflicting revisions.
     if (opts.conflicts) {
       params.push('conflicts=' + opts.conflicts);
     }
-    
+
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     params = params === '' ? '' : '?' + params;
@@ -235,10 +235,10 @@ var HttpPouch = function(opts, callback) {
 
     // If the given id contains at least one '/' and the part before the '/'
     // is NOT "_design" and is NOT "_local"
-    // OR 
+    // OR
     // If the given id contains at least two '/' and the part before the first
     // '/' is "_design".
-    // TODO This second condition seems strange since if parts[0] === '_design' 
+    // TODO This second condition seems strange since if parts[0] === '_design'
     // then we already know that parts[0] !== '_local'.
     var parts = id.split('/');
     if ((parts.length > 1 && parts[0] !== '_design' && parts[0] !== '_local') ||
@@ -253,7 +253,7 @@ var HttpPouch = function(opts, callback) {
       if (err) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
-      
+
       // Send the document to the callback
       call(callback, null, doc, xhr);
     });
@@ -268,10 +268,10 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    
+
     // List of parameters to add to the PUT request
     var params = [];
-    
+
     // If opts.reduce exists and is defined, then add it to the list
     // of parameters.
     // If reduce=false then the results are that of only the map function
@@ -279,7 +279,7 @@ var HttpPouch = function(opts, callback) {
     if (typeof opts.reduce !== 'undefined') {
       params.push('reduce=' + opts.reduce);
     }
-    
+
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     params = params === '' ? '' : '?' + params;
@@ -299,7 +299,7 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    
+
     // Delete the document
     ajax({
       auth: host.auth,
@@ -333,7 +333,7 @@ var HttpPouch = function(opts, callback) {
 
     // List of parameter to add to the PUT request
     var params = [];
-    
+
     // If it exists, add the opts.new_edits value to the list of parameters.
     // If new_edits = false then the database will NOT assign this document a
     // new revision number
@@ -365,7 +365,7 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    
+
     // Add the document
     ajax({
       auth: host.auth,
@@ -383,7 +383,7 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    
+
     // If opts.new_edits exists add it to the document data to be
     // send to the database.
     // If new_edits=false then it prevents the database from creating
@@ -392,7 +392,7 @@ var HttpPouch = function(opts, callback) {
     if (typeof opts.new_edits !== 'undefined') {
       req.new_edits = opts.new_edits;
     }
-    
+
     // Update/create the documents
     ajax({
       auth: host.auth,
@@ -410,16 +410,16 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    
+
     // List of parameters to add to the GET request
     var params = [];
-    
+
     // TODO I don't see conflicts as a valid parameter for a
     // _all_docs request (see http://wiki.apache.org/couchdb/HTTP_Document_API#all_docs)
     if (opts.conflicts) {
       params.push('conflicts=true');
     }
-    
+
     // If opts.include_docs exists, add the include_docs value to the
     // list of parameters.
     // If include_docs=true then include the associated document with each
@@ -427,7 +427,7 @@ var HttpPouch = function(opts, callback) {
     if (opts.include_docs) {
       params.push('include_docs=true');
     }
-    
+
     // If opts.startkey exists, add the startkey value to the list of
     // parameters.
     // If startkey is given then the returned list of documents will
@@ -436,7 +436,7 @@ var HttpPouch = function(opts, callback) {
       params.push('startkey=' +
                   encodeURIComponent(JSON.stringify(opts.startkey)));
     }
-    
+
     // If opts.endkey exists, add the endkey value to the list of parameters.
     // If endkey is given then the returned list of docuemnts will
     // end with the document whose id is endkey.
@@ -466,7 +466,7 @@ var HttpPouch = function(opts, callback) {
     if (opts instanceof Function) {
       opts = {complete: opts};
     }
-    
+
     // If a callback was provided outside of opts, then it is the one that
     // will be called upon completion
     if (callback) {
@@ -477,7 +477,7 @@ var HttpPouch = function(opts, callback) {
 
     // Query string of all the parameters to add to the GET request
     var params = '?style=all_docs'
-    
+
     // If opts.include_docs exists, opts.filter exists, and opts.filter is a
     // function, add the include_docs value to the query string.
     // If include_docs=true then include the associated document with each
@@ -485,28 +485,28 @@ var HttpPouch = function(opts, callback) {
     if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
       params += '&include_docs=true'
     }
-    
+
     // If opts.continuous exists, add the feed value to the query string.
-    // If feed=longpoll then it waits for either a timeout or a change to 
+    // If feed=longpoll then it waits for either a timeout or a change to
     // occur before returning.
     if (opts.continuous) {
       params += '&feed=longpoll';
     }
-    
+
     // If opts.conflicts exists, add the conflicts value to the query string.
     // TODO I can't find documentation of what conflicts=true does. See
     // http://wiki.apache.org/couchdb/HTTP_database_API#Changes
     if (opts.conflicts) {
       params += '&conflicts=true';
     }
-    
+
     // If opts.descending exists, add the descending value to the query string.
-    // if descending=true then the change results are returned in 
+    // if descending=true then the change results are returned in
     // descending order (most recent change first).
     if (opts.descending) {
       params += '&descending=true';
     }
-    
+
     // If opts.filter exists and is a string then add the filter value
     // to the query string.
     // If filter is given a string containing the name of a filter in
@@ -526,7 +526,7 @@ var HttpPouch = function(opts, callback) {
         auth: host.auth, type:'GET',
         url: genUrl(host, '_changes' + params + '&since=' + since)
       };
-      
+
       if (opts.aborted) {
         return;
       }
@@ -549,7 +549,7 @@ var HttpPouch = function(opts, callback) {
           if (opts.aborted || hasFilter && !opts.filter.apply(this, [c.doc])) {
             return;
           }
-          
+
           // Process the change
           call(opts.onChange, c);
         });
@@ -575,7 +575,7 @@ var HttpPouch = function(opts, callback) {
     };
   };
 
-  // Given a set of document/revision IDs (given by req), tets the subset of 
+  // Given a set of document/revision IDs (given by req), tets the subset of
   // those that do NOT correspond to revisions stored in the database.
   // See http://wiki.apache.org/couchdb/HttpPostRevsDiff
   api.revsDiff = function(req, opts, callback) {
@@ -584,7 +584,7 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    
+
     // Get the missing document/revision IDs
     ajax({
       auth: host.auth,
@@ -635,3 +635,4 @@ HttpPouch.valid = function() {
 
 // Set HttpPouch to be the adapter used with the http scheme.
 Pouch.adapter('http', HttpPouch);
+Pouch.adapter('https', HttpPouch);
