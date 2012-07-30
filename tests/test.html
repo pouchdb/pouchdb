@@ -79,6 +79,8 @@
 
       // Switch this to srcFiles / prodFiles / minProdFiles to test
       // the different builds
+      // var filesToTest = prodFiles;
+      // var filesToTest = minProdFiles;
       var filesToTest = srcFiles;
 
       asyncParForEach(filesToTest, asyncLoadScript, function() {
