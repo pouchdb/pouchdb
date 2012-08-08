@@ -347,7 +347,7 @@ db.changes(function(err, response) {
     Pouch.replicate(from, to, [callback])
 
 <pre>
-db.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
+Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
   //
 })
 </pre>
