@@ -535,7 +535,7 @@ var IdbPouch = function(opts, callback) {
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? IDBCursor.PREV : null;
 
-    var results = [];
+    var results = [], resultIndices = {};
     var id = name + ':' + Math.uuid();
     var txn;
 
@@ -568,6 +568,14 @@ var IdbPouch = function(opts, callback) {
         if (opts.continuous && !opts.cancelled) {
           IdbPouch.Changes.addListener(name, id, opts);
         }
+
+        // Filter out null results casued by deduping
+        var newResults = [];
+        for (var i = 0, l = results.length; i < l; i++ ) {
+          if (results) newResults.push(results);
+        }
+        results = newResults;
+
         results.map(function(c) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
             return;
@@ -605,10 +613,12 @@ var IdbPouch = function(opts, callback) {
         }
 
         // Dedupe the changes feed
-        results = results.filter(function(doc) {
-          return doc.id !== change.id;
-        });
+        var changeId = change.id, changeIdIndex = resultIndices[changeId];
+        if (changeIdIndex) {
+          results[changeIdIndex] = null;
+        }
         results.push(change);
+        resultIndices[changeId] = results.length - 1;
         cursor['continue']();
       };
     };
