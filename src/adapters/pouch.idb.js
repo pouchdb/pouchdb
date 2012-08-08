@@ -572,7 +572,8 @@ var IdbPouch = function(opts, callback) {
         // Filter out null results casued by deduping
         var newResults = [];
         for (var i = 0, l = results.length; i < l; i++ ) {
-          if (results) newResults.push(results);
+          var result = results[i];
+          if (result) newResults.push(result);
         }
         results = newResults;
 
