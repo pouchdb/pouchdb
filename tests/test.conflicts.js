@@ -11,20 +11,21 @@
       var doc = {_id: 'foo', a:1, b: 1};
       db.put(doc, function(err, res) {
         doc._rev = res.rev;
-        ok(res.ok);
+        ok(res.ok, 'Put first document');
         db.get('foo', function(err, doc2) {
-          ok(doc._id === doc2._id && doc._rev && doc2._rev);
+          ok(doc._id === doc2._id && doc._rev && doc2._rev, 'Docs had correct id + rev');
           doc.a = 2;
           doc2.a = 3;
           db.put(doc, function(err, res) {
-            ok(res.ok);
+            ok(res.ok, 'Put second doc');
             db.put(doc2, function(err) {
-              ok(err.error === 'conflict');
+              ok(err.error === 'conflict', 'Put got a conflicts');
               db.changes(function(err, results) {
-                ok(results.results.length === 1);
+                console.log(results.results);
+                ok(results.results.length === 1, 'We have one entry in changes');
                 doc2._rev = undefined;
                 db.put(doc2, function(err) {
-                  ok(err.error === 'conflict');
+                  ok(err.error === 'conflict', 'Another conflict');
                   start();
                 });
               });
