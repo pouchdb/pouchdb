@@ -574,7 +574,6 @@ var IdbPouch = function(opts, callback) {
           var result = results[i];
           if (result) dedupResults.push(result);
         }
-        results = newResults;
 
         dedupResults.map(function(c) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
