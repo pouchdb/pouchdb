@@ -615,7 +615,7 @@ var IdbPouch = function(opts, callback) {
 
         // Dedupe the changes feed
         var changeId = change.id, changeIdIndex = resultIndices[changeId];
-        if (changeIdIndex) {
+        if (changeIdIndex !== undefined) {
           results[changeIdIndex] = null;
         }
         results.push(change);
