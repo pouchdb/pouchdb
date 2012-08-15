@@ -535,7 +535,7 @@ var IdbPouch = function(opts, callback) {
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? IDBCursor.PREV : null;
 
-    var results = [], resultIndices = {};
+    var results = [], resultIndices = {}, dedupResults = [];
     var id = name + ':' + Math.uuid();
     var txn;
 
@@ -570,14 +570,13 @@ var IdbPouch = function(opts, callback) {
         }
 
         // Filter out null results casued by deduping
-        var newResults = [];
         for (var i = 0, l = results.length; i < l; i++ ) {
           var result = results[i];
-          if (result) newResults.push(result);
+          if (result) dedupResults.push(result);
         }
         results = newResults;
 
-        results.map(function(c) {
+        dedupResults.map(function(c) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
             return;
           }
@@ -625,7 +624,7 @@ var IdbPouch = function(opts, callback) {
     };
 
     function onTxnComplete() {
-      call(opts.complete, null, {results: results});
+      call(opts.complete, null, {results: dedupResults});
     };
 
     function onerror(error) {
