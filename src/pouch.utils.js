@@ -192,8 +192,9 @@ var arrayFirst = function(arr, callback) {
 };
 
 // Basic wrapper for localStorage
+var win = this;
 var localJSON = (function(){
-  if (!localStorage) {
+  if (!win.localStorage) {
     return false;
   }
   return {
@@ -215,3 +216,17 @@ var localJSON = (function(){
     }
   };
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    parseDoc: parseDoc,
+    compareRevs: compareRevs,
+    expandTree: expandTree,
+    collectRevs: collectRevs,
+    collectLeavesInner: collectLeavesInner,
+    collectLeaves: collectLeaves,
+    collectConflicts: collectConflicts,
+    fetchCheckpoint: fetchCheckpoint,
+    writeCheckpoint: writeCheckpoint,
+  }
+}

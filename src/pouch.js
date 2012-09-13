@@ -1,4 +1,4 @@
-this.Pouch = function Pouch(name, opts, callback) {
+var Pouch = this.Pouch = function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
     return new Pouch(name, opts, callback);
@@ -96,3 +96,7 @@ Pouch.Errors = {
     reason: 'Database encountered an unknown error'
   }
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Pouch;
+}
