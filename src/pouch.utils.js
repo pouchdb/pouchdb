@@ -7,6 +7,24 @@ var call = function(fun) {
   }
 }
 
+// Wrapper for functions that call the bulkdocs api with a single doc,
+// if the first result is an error, return an error
+var yankError = function(callback) {
+  return function(err, results) {
+    if (err || results[0].error) {
+      call(callback, err || results[0]);
+    } else {
+      call(callback, null, results[0]);
+    }
+  };
+};
+
+var isAttachmentId = function(id) {
+  return (/\//.test(id)
+      && !/^_local/.test(id)
+      && !/^_design/.test(id));
+}
+
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
 var parseDoc = function(doc, newEdits) {
@@ -174,7 +192,16 @@ function expandTree2(all, current, pos, arr) {
   });
 }
 
-function rootToLeaf(tree) {
+// Trees are sorted by length, winning revision is the last revision
+// in the longest tree
+var winningRev = function(pos, tree) {
+  if (!tree[1].length) {
+    return pos + '-' + tree[0];
+  }
+  return winningRev(pos + 1, tree[1][0]);
+}
+
+var rootToLeaf = function(tree) {
   var all = [];
   tree.forEach(function(path) {
     expandTree2(all, [], path.pos, path.ids);
@@ -219,6 +246,9 @@ var localJSON = (function(){
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    call: call,
+    yankError: yankError,
+    isAttachmentId: isAttachmentId,
     parseDoc: parseDoc,
     compareRevs: compareRevs,
     expandTree: expandTree,
@@ -228,5 +258,8 @@ if (typeof module !== 'undefined' && module.exports) {
     collectConflicts: collectConflicts,
     fetchCheckpoint: fetchCheckpoint,
     writeCheckpoint: writeCheckpoint,
+    winningRev: winningRev,
+    rootToLeaf: rootToLeaf,
+    arrayFirst: arrayFirst,
   }
 }
