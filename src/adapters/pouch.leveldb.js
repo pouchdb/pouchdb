@@ -18,6 +18,7 @@ require(pouchdir + 'deps/uuid.js');
 
 var path = require('path')
   , fs = require('fs')
+  , EventEmitter = require('events').EventEmitter
   , levelup = require('levelup')
 
 var error = function(callback, message) {
@@ -35,6 +36,7 @@ LevelPouch = module.exports = function(opts, callback) {
     , update_seq = 0
     , doc_count = 0
     , stores = {}
+    , change_emitter = new EventEmitter();
 
   fs.stat(opts.name, function(err, stats) {
     if (err && err.code == 'ENOENT') {
@@ -86,10 +88,11 @@ LevelPouch = module.exports = function(opts, callback) {
 
   // the db's id is just the path to the leveldb directory
   api.id = function() {
-    return db_path;
+    return opts.name;
   }
 
   api.info = function(callback) {
+    // TODO: doc_count is never updated
     return callback({
       name: opts.name,
       doc_count: doc_count,
@@ -310,7 +313,7 @@ LevelPouch = module.exports = function(opts, callback) {
       results.push(doc);
 
       // TODO: is this the right way to set seq?
-      doc.metadata.seq = doc.metadata.seq || update_seq++;
+      doc.metadata.seq = doc.metadata.seq || ++update_seq;
       stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
         if (err) {
           return console.err(err);
@@ -358,10 +361,8 @@ LevelPouch = module.exports = function(opts, callback) {
           doc: result.data
         }
         change.doc._rev = rev;
-        update_seq++;
 
-        // TODO: implement Changes
-        //LevelPouch.Changes.emit('change', opts.name, change);
+        change_emitter.emit('change', change);
       });
 
       process.nextTick(function() { callback(null, aresults); });
@@ -381,7 +382,82 @@ LevelPouch = module.exports = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    process.nextTick(function() { callback(null, {results: []}) });
+
+    if (callback) {
+      opts.complete = callback;
+    }
+    if (!opts.seq) {
+      opts.seq = '0';
+    }
+    if (opts.since) {
+      opts.seq = toString.call(opts.since);
+    }
+
+    var descending = 'descending' in opts ? opts.descending : false
+      , results = []
+
+    // fetch a filter from a design doc
+    if (opts.filter && typeof opts.filter === 'string') {
+      var filtername = opts.filter.split('/');
+      api.get('_design/'+filtername[0], function(err, design) {
+        var filter = eval('(function() { return ' + 
+                          design.filters[filterName[1]] + '})()');
+        opts.filter = filter;
+        fetchChanges();
+      })
+    }
+    else {
+      fetchChanges();
+    }
+
+    function fetchChanges() {
+      var changeStream = stores[BY_SEQ_STORE].readStream({start: opts.seq, reverse: descending});
+      changeStream
+        .on('data', function(data) {
+          stores[DOC_STORE].get(data.value._id, function(err, metadata) {
+            if (/_local/.test(metadata.id)) {
+              return;
+            }
+
+            var change = {
+              id: metadata.id,
+              seq: metadata.seq,
+              changes: pouch.utils.collectLeaves(metadata.rev_tree),
+              doc: data.value
+            };
+
+            change.doc._rev = pouch.utils.winningRev(
+                metadata.rev_tree[0].pos,
+                metadata.rev_tree[0].ids
+              );
+
+            if (metadata.deleted) {
+              change.deleted = true;
+            }
+            if (opts.conflicts) {
+              change.doc._conflicts = pouch.utils.collectConflicts(metadata.rev_tree);
+            }
+
+            // dedupe changes (TODO: more efficient way to accomplish this?)
+            results = results.filter(function(doc) {
+              return doc.id !== change.id;
+            });
+            results.push(change);
+          });
+        })
+        .on('error', function(err) {
+          // TODO: handle errors
+          console.err(err);
+        })
+        .on('close', function() {
+
+          if (opts.continuous && !opts.cancelled) {
+            change_emitter.on('change', pouch.utils.filterChange(opts));
+          }
+          results.map(pouch.utils.filterChange(opts));
+          call(opts.complete, null, {results: results});
+        })
+    }
   }
 
   api.query = function(fun, opts, callback) {
@@ -402,7 +478,4 @@ LevelPouch.valid = function() {
 }
 
 LevelPouch.destroy = function() {
-}
-
-LevelPouch.Changes = function() {
 }

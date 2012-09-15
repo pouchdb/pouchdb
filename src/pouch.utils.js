@@ -218,6 +218,18 @@ var arrayFirst = function(arr, callback) {
   return false;
 };
 
+var filterChange = function(opts) {
+  return function(change) {
+    if (opts.filter && !opts.filter.call(this, change.doc)) {
+      return;
+    }
+    if (!opts.include_docs) {
+      delete change.doc;
+    }
+    call(opts.onChange, change);
+  }
+}
+
 // Basic wrapper for localStorage
 var win = this;
 var localJSON = (function(){
@@ -261,5 +273,6 @@ if (typeof module !== 'undefined' && module.exports) {
     winningRev: winningRev,
     rootToLeaf: rootToLeaf,
     arrayFirst: arrayFirst,
+    filterChange: filterChange,
   }
 }
