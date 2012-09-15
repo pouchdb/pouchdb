@@ -10,7 +10,8 @@
   "dependencies" : {
         "jquery": null,
         "simple-uuid" : null,
-        "md5" : null
+        "md5" : null,
+        "levelup": null
   },
   "maintainers":[
         {
