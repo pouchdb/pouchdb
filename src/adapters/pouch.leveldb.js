@@ -31,6 +31,10 @@ var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
 var ATTACH_STORE = 'attach-store';
 
+// store the value of update_seq in the by-sequence store the key name will
+// never conflict, since the keys in the by-sequence store are integers
+var UPDATE_SEQ_KEY = 'last_update_seq';
+
 LevelPouch = module.exports = function(opts, callback) {
   var api = {}
     , update_seq = 0
@@ -76,10 +80,9 @@ LevelPouch = module.exports = function(opts, callback) {
         return;
       }
 
-      // TODO: this is inefficient. maybe store the value in the db itself?
-      api.changes(function(err, changes) {
-        if (changes.results.length) {
-          update_seq = changes.results[changes.results.length - 1].seq;
+      stores[BY_SEQ_STORE].get(UPDATE_SEQ_KEY, function(err, value) {
+        if (!err) {
+          update_seq = value;
         }
         process.nextTick(function() { call(callback, null, api) });
       });
@@ -312,14 +315,24 @@ LevelPouch = module.exports = function(opts, callback) {
       }
       results.push(doc);
 
-      // TODO: is this the right way to set seq?
-      doc.metadata.seq = doc.metadata.seq || ++update_seq;
+      update_seq++;
+      doc.metadata.seq = doc.metadata.seq || update_seq;
+
       stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
         if (err) {
           return console.err(err);
         }
 
         stores[DOC_STORE].put(doc.metadata.id, doc.metadata);
+        return saveUpdateSeq(callback);
+      });
+    }
+
+    function saveUpdateSeq(callback) {
+      stores[BY_SEQ_STORE].put(UPDATE_SEQ_KEY, update_seq, function(err) {
+        if (err) {
+          // TODO: handle error
+        }
         return callback();
       });
     }
