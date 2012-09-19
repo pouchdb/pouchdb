@@ -354,6 +354,12 @@ var IdbPouch = function(opts, callback) {
             });
           });
         } else {
+			//enbase: indicate that the attachments are just stubs because we are loading the attachments
+			if (doc._attachments){
+				for (var key in doc._attachments) {
+					doc._attachments[key].stub=true;
+				}
+			}
           callback(null, doc);
         }
       };
@@ -797,7 +803,6 @@ var IdbPouch = function(opts, callback) {
     }
     return winningRev(pos + 1, tree[1][0]);
   }
-
 
   return api;
 };
