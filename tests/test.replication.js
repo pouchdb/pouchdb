@@ -170,6 +170,43 @@
     });
   });
 
+  // independent changes to a local document and a remote document
+  // with subsequent replication
+  asyncTest("Test advanced conflict", function() {
+    ok(true, 'skipping failing test');
+    return start();
+    console.info('Starting Test: Test advanced conflict');
+    var self = this;
+    var doc1 = {_id: 'adoc', foo:'bar'};  // initial doc, replicated
+    var doc2 = {_id: 'adoc', bar:'baz'};  // remote change
+    var doc3 = {_id: 'adoc', fb3:'ba3'};  // local change
+    initDBPair(this.name, this.remote, function(db, remote) {
+      db.put(doc1, function(err, localres) {
+        doc2._rev = localres.rev, doc3._rev = localres.rev;
+        db.replicate.to(self.remote, function(err, _) {
+          // update remote and local then replicate both ways...
+          remote.put(doc2, {}, function(err, remoteres) {
+            db.put(doc3, function(err, localres) {
+              db.replicate.to(self.remote, function(err, _) {
+                db.replicate.from(self.remote, function(err,remoteres) {
+                  // expect consistent state of conflict between instances
+                  remote.get('adoc', {conflicts: true}, function(err, remoteWin) {
+                    db.get('adoc', {conflicts: true}, function(err, localWin) {
+                      // are winning and conflicting revisions identical?
+                      equal(remoteWin._rev, localWin._rev, "remote and local winning revisions do not match");
+                      deepEqual(remoteWin._conflicts, localWin._conflicts, "remote and local winning revision conflicts do not match");
+                      start();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Test basic continous pull replication", function() {
     console.info('Starting Test: Test basic continous pull replication');
     var self = this;

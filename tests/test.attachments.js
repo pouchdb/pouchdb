@@ -131,4 +131,19 @@ asyncTest("Test large attachments", function() {
 	});
 });
 
+  asyncTest("Test remove doc with attachment", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({ _id: 'mydoc' }, function(err, resp) {
+        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+          db.get('mydoc',{attachments:false},function(err,doc){
+            db.remove(doc, function(err, resp){
+              ok(res.ok);
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
 });

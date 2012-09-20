@@ -354,12 +354,11 @@ var IdbPouch = function(opts, callback) {
             });
           });
         } else {
-            //For docs with attachments, mark the attachments as stubs because we are not loading the attachment data
-			if (doc._attachments){
-			  for (var key in doc._attachments) {
-			    doc._attachments[key].stub = true;
-			  }
-			}
+          if (doc._attachments){
+            for (var key in doc._attachments) {
+              doc._attachments[key].stub = true;
+            }
+          }
           callback(null, doc);
         }
       };
