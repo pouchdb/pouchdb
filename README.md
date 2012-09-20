@@ -77,7 +77,8 @@ db.post({ title: 'Cony Island Baby' }, function(err, response) {
 
     db.put(doc, [options], [callback])
 
-Create a new document or update an existing document.
+Create a new document or update an existing document. If the document already exists
+you must specify its revision (_rev), otherwise a conflict will occur.
 
 <pre>
 db.put({ _id: 'mydoc', title: 'Rock and Roll Heart' }, function(err, response) {
