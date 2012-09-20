@@ -65,6 +65,9 @@ LevelPouch = module.exports = function(opts, callback) {
     var dbpath = path.resolve(path.join(opts.name, store_name));
     opts.encoding = encoding || 'json';
 
+    // createIfMissing = true by default
+    opts.createIfMissing = opts.createIfMissing === undefined ? true : opts.createIfMissing;
+
     levelup(dbpath, opts, function(err, ldb) {
       if (stores.err) return;
       if (err) {
@@ -185,7 +188,7 @@ LevelPouch = module.exports = function(opts, callback) {
     });
   }
 
-  api.put = api.put = function(doc, opts, callback) {
+  api.put = api.post = function(doc, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {}
@@ -276,7 +279,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
     function insertDoc(doc, callback) {
       if ('was_delete' in opts && doc.metadata.deleted) {
-        results.push(makeErr(puch.Errors.MISSING_DOC, doc._bulk_seq));
+        results.push(makeErr(pouch.Errors.MISSING_DOC, doc._bulk_seq));
         return processDocs();
       }
       writeDoc(doc, callback);
@@ -288,7 +291,7 @@ LevelPouch = module.exports = function(opts, callback) {
         (!oldDoc.deleted && newEdits && merged.conflicts !== 'new_leaf');
 
       if (conflict) {
-        results.push(makeErr(pouch.Eddors.REV_CONFLICT, docInfo._bulk_seq));
+        results.push(makeErr(pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
         return callback();
       }
 
@@ -488,7 +491,42 @@ LevelPouch = module.exports = function(opts, callback) {
 }
 
 LevelPouch.valid = function() {
+  return true;
 }
 
-LevelPouch.destroy = function() {
+LevelPouch.destroy = function(name, callback) {
+  console.log('delete database: \'%s\'', name);
+  rmdir(name, function(err) {
+    if (err && err.code === 'ENOENT') {
+      // TODO: MISSING_DOC name is somewhat misleading in this context
+      return callback(pouch.Errors.MISSING_DOC);
+    }
+    return callback(err);
+  });
+}
+
+pouch.adapter('ldb', LevelPouch);
+
+// recursive fs.rmdir for Pouch.destroy. Use with care.
+function rmdir(dir, callback) {
+  fs.readdir(dir, function rmfiles(err, files) {
+    if (err) {
+      return err.code == 'ENOTDIR'
+        ? fs.unlink(dir, callback)
+        : callback(err);
+    }
+    var count = files.length;
+    if (count == 0) {
+      return fs.rmdir(dir, callback);
+    }
+    files.forEach(function(file) {
+      var todel = path.join(dir, file);
+      rmdir(todel, function(err) {
+        count--;
+        if (count <= 0) {
+          fs.rmdir(dir, callback);
+        }
+      });
+    })
+  });
 }
