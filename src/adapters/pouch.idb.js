@@ -54,6 +54,15 @@ var IdbPouch = function(opts, callback) {
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
   var update_seq = 0;
+  
+  //Get the webkit file system objects in a way that is forward compatible
+  var storageInfo = (window.webkitStorageInfo ? window.webkitStorageInfo : window.storageInfo)
+  var requestFileSystem = (window.webkitRequestFileSystem ? window.webkitRequestFileSystem : window.requestFileSystem)
+  var storeAttachmentsInIDB = false;
+  if (!storageInfo || !requestFileSystem){
+    //This browser does not support the file system API, use idb to store attachments insead
+    storeAttachmentsInIDB=true;
+  }
 
   var api = {};
   var idb;
@@ -273,7 +282,11 @@ var IdbPouch = function(opts, callback) {
 
     // right now fire and forget, needs cleaned
     function saveAttachment(digest, data) {
-      txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+      if (storeAttachmentsInIDB){
+        txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+      }else{
+        writeAttachmentToFile(digest,data);
+      }
     }
   };
 
@@ -301,9 +314,15 @@ var IdbPouch = function(opts, callback) {
         var bySeq = txn.objectStore(BY_SEQ_STORE);
         bySeq.get(metadata.seq).onsuccess = function(e) {
           var digest = e.target.result._attachments[attachId].digest;
-          txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
-            call(callback, null, atob(e.target.result.body));
-          };
+          if (storeAttachmentsInIDB){
+            txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+              call(callback, null, atob(e.target.result.body));
+            }
+          }else{
+            readAttachmentFromFile(digest, function(data) {
+              call(callback, null, atob(data));
+            });
+          }
         };
       }
       return;
@@ -803,6 +822,111 @@ var IdbPouch = function(opts, callback) {
     return winningRev(pos + 1, tree[1][0]);
   }
 
+  //Functions for reading and writing an attachment in the html5 file system instead of idb
+  function toArray(list) {
+    return Array.prototype.slice.call(list || [], 0);
+  }
+  function fileErrorHandler(e) {
+    console.error('File system error',e);
+  }
+  
+  //Delete attachments that are no longer referenced by any existing documents
+  function deleteOrphanedFiles(currentQuota){
+    api.allDocs({include_docs:true},function(err, response) {
+      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
+      var dirReader = fs.root.createReader();
+      var entries = [];
+      var docRows = response.rows;
+      
+      // Call the reader.readEntries() until no more results are returned.
+      var readEntries = function() {
+        dirReader.readEntries (function(results) {
+          if (!results.length) {
+            for (var i in entries){
+              var entryIsReferenced=false;
+              for (var k in docRows){
+                if (docRows[k].doc){
+                  var aDoc = docRows[k].doc;
+                  if (aDoc._attachments){
+                    for (var j in aDoc._attachments){ 
+                      if (aDoc._attachments[j].digest==entries[i].name) entryIsReferenced=true;
+                    };
+                  }
+                  if (entryIsReferenced) break;
+                }         
+              };
+              if (!entryIsReferenced){
+                entries[i].remove(function() {
+                  console.info("Removed orphaned attachment: "+entries[i].name);
+                }, fileErrorHandler);
+              }
+            };        
+          } else {
+            entries = entries.concat(toArray(results));
+            readEntries();
+          }
+        }, fileErrorHandler);
+      };
+    
+      readEntries(); // Start reading dirs.
+    
+      }, fileErrorHandler);
+    });
+  }
+		
+  function writeAttachmentToFile(digest, data, type){
+    //Check the current file quota and increase it if necessary   
+    storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+      var newQuota = currentQuota;
+      if (currentQuota == 0){
+        newQuota = 1000*1024*1024; //start with 1GB
+      }else if ((currentUsage/currentQuota) > 0.8){ 
+        deleteOrphanedFiles(currentQuota); //delete old attachments when we hit 80% usage
+      }else if ((currentUsage/currentQuota) > 0.9){ 
+        newQuota=2*currentQuota; //double the quota when we hit 90% usage
+      }
+      
+      console.info("Current file quota: "+currentQuota+", current usage:"+currentUsage+", new quota will be: "+newQuota);
+         
+      //Ask for file quota. This does nothing if the proper quota size has already been granted.
+      storageInfo.requestQuota(window.PERSISTENT, newQuota, function(grantedBytes) {
+        storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+          requestFileSystem(window.PERSISTENT, currentQuota, function(fs){            
+            fs.root.getFile(digest, {create: true}, function(fileEntry) {       
+              fileEntry.createWriter(function(fileWriter) {         
+                fileWriter.onwriteend = function(e) {
+                  console.info('Wrote attachment');                 
+                };            
+                fileWriter.onerror = function(e) {
+                  console.info('File write failed: ' + e.toString());
+                };            
+                var blob = new Blob([data], {type: type});            
+                fileWriter.write(blob);         
+              }, fileErrorHandler);       
+            }, fileErrorHandler);
+          }, fileErrorHandler);
+        }, fileErrorHandler);
+      }, fileErrorHandler);
+    },fileErrorHandler);
+  }
+	
+  function readAttachmentFromFile(digest, callback){
+    storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){      
+        fs.root.getFile(digest, {}, function(fileEntry) {     
+          fileEntry.file(function(file) {
+            var reader = new FileReader();            
+            reader.onloadend = function(e) {
+              data = this.result;
+              console.info("Read attachment");
+              callback(data);
+            };            
+            reader.readAsBinaryString(file);
+          }, fileErrorHandler);       
+        }, fileErrorHandler);
+      }, fileErrorHandler);
+    }, fileErrorHandler);
+  }
 
   return api;
 };
