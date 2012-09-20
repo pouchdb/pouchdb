@@ -54,6 +54,15 @@ var IdbPouch = function(opts, callback) {
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
   var update_seq = 0;
+  
+  //Get the webkit file system objects in a way that is forward compatible
+  var storageInfo = (window.webkitStorageInfo ? window.webkitStorageInfo : window.storageInfo)
+  var requestFileSystem = (window.webkitRequestFileSystem ? window.webkitRequestFileSystem : window.requestFileSystem)
+  var storeAttachmentsInIDB = false;
+  if (!storageInfo || !requestFileSystem){
+    //This browser does not support the file system API, use idb to store attachments insead
+    storeAttachmentsInIDB=true;
+  }
 
   var api = {};
   var idb;
@@ -273,7 +282,11 @@ var IdbPouch = function(opts, callback) {
 
     // right now fire and forget, needs cleaned
     function saveAttachment(digest, data) {
-      writeAttachment(digest,data);
+      if (storeAttachmentsInIDB){
+        txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+      }else{
+        writeAttachmentToFile(digest,data);
+      }
     }
   };
 
@@ -301,9 +314,15 @@ var IdbPouch = function(opts, callback) {
         var bySeq = txn.objectStore(BY_SEQ_STORE);
         bySeq.get(metadata.seq).onsuccess = function(e) {
           var digest = e.target.result._attachments[attachId].digest;
-          readAttachment(digest, function(data) {
-            call(callback, null, atob(data));
-          });
+          if (storeAttachmentsInIDB){
+            txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+              call(callback, null, atob(e.target.result.body));
+            }
+          }else{
+            readAttachmentFromFile(digest, function(data) {
+              call(callback, null, atob(data));
+            });
+          }
         };
       }
       return;
@@ -810,9 +829,6 @@ var IdbPouch = function(opts, callback) {
   function fileErrorHandler(e) {
     console.error('File system error',e);
   }
-  //Get the webkit file system objects in a way that is forward compatible
-  var storageInfo = (window.webkitStorageInfo ? window.webkitStorageInfo : window.storageInfo)
-  var requestFileSystem = (window.webkitRequestFileSystem ? window.webkitRequestFileSystem : window.requestFileSystem)  
   
   //Delete attachments that are no longer referenced by any existing documents
   function deleteOrphanedFiles(currentQuota){
@@ -858,7 +874,7 @@ var IdbPouch = function(opts, callback) {
     });
   }
 		
-  function writeAttachment(digest, data, type){
+  function writeAttachmentToFile(digest, data, type){
     //Check the current file quota and increase it if necessary   
     storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
       var newQuota = currentQuota;
@@ -894,7 +910,7 @@ var IdbPouch = function(opts, callback) {
     },fileErrorHandler);
   }
 	
-  function readAttachment(digest, callback){
+  function readAttachmentFromFile(digest, callback){
     storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
       requestFileSystem(window.PERSISTENT, currentQuota, function(fs){      
         fs.root.getFile(digest, {}, function(fileEntry) {     
