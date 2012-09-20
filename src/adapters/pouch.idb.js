@@ -354,6 +354,11 @@ var IdbPouch = function(opts, callback) {
             });
           });
         } else {
+          if (doc._attachments){
+            for (var key in doc._attachments) {
+              doc._attachments[key].stub = true;
+            }
+          }
           callback(null, doc);
         }
       };
