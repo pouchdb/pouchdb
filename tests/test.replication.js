@@ -192,7 +192,7 @@
                     db.get('adoc', {conflicts: true}, function(err, localWin) {
                       // are winning and conflicting revisions identical?
                       equal(remoteWin._rev, localWin._rev, "remote and local winning revisions do not match");
-                      equal(remoteWin._conflicts, localWin._conflicts, "remote and local winning revision conflicts do not match");
+                      deepEqual(remoteWin._conflicts, localWin._conflicts, "remote and local winning revision conflicts do not match");
                       start();
                     });
                   });
