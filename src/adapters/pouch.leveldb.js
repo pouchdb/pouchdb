@@ -99,7 +99,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api.info = function(callback) {
     // TODO: doc_count is never updated
-    return callback({
+    return callback(null, {
       name: opts.name,
       doc_count: doc_count,
       update_seq: update_seq,
@@ -129,8 +129,9 @@ LevelPouch = module.exports = function(opts, callback) {
           var path = pouch.utils.arrayFirst(
             pouch.utils.rootToLeaf(metadata.rev_tree),
             function(arr) {
-              return add.ids.indexOf(doc._rev.split('-')[1]) !== -1
-            });
+              return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1
+            }
+          );
           path.ids.reverse();
           doc._revisions = {
             start: (path.pos + path.ids.length) - 1,
