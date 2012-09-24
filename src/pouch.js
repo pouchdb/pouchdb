@@ -98,5 +98,7 @@ Pouch.Errors = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
+  Pouch.merge = require('./pouch.merge.js').merge;
   module.exports = Pouch;
+  global['Pouch'] = Pouch;
 }
