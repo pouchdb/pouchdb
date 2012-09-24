@@ -141,6 +141,7 @@ for (var k in utils) {
     });
   });
 
+  /*
   asyncTest("Sync a doc", function() {
     var couch = generateAdapterUrl('http-2');
     initTestDB(this.name, function(err, db) {
@@ -163,6 +164,7 @@ for (var k in utils) {
       })
     });
   });
+  */
 
   asyncTest("Check revisions", function() {
     initTestDB(this.name, function(err, db) {
@@ -182,12 +184,14 @@ for (var k in utils) {
   // From here we are copying over tests from CouchDB
   // https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
 
+  /*
   asyncTest("Check database with slashes", function() {
     initTestDB('idb://test_suite_db%2Fwith_slashes', function(err, db) {
       ok(!err, 'opened');
       start();
     });
   });
+  */
 
   asyncTest("Basic checks", function() {
     initTestDB(this.name, function(err, db) {
