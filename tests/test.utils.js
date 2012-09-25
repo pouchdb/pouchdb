@@ -66,33 +66,32 @@ function generateAdapterUrl(id) {
         $('button').on('click', function(){
             submitResults();
         });
+        initTestDB(generateAdapterUrl('http-1'), function(err, db) {
+            if (err) return console.log('Cant open db to store results');
+            db.post(doc, function (err, info) {
+              if (err) return console.log('Could not post results');
+            });
+        });
     }
 
 
     function submitResults() {
 
         $('button').text('uploading...').attr('disabled', 'disabled');
-        initTestDB(generateAdapterUrl('http-1'), function(err, db) {
-            if (err) return console.log('Cant open db to store results');
-            db.post(doc, function (err, info) {
-              if (err) return console.log('Could not post results');
-              $.ajax({
-                  type: 'POST',
-                  url: 'http://localhost:2020/_replicate',
-                  data: JSON.stringify({"source":"test_suite_db1","target":"http://reupholster.iriscouch.com/pouch_tests"}),
-                  success: function() {
-                      $('button').hide();
-                      $('body').append('<p>Submission complete.</p>')
-                  },
-                  headers: {
-                    Accept: 'application/json'
-                  },
-                  dataType: 'json',
-                  contentType: 'application/json'
-              });
-            });
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:2020/_replicate',
+            data: JSON.stringify({"source":"test_suite_db1","target":"http://reupholster.iriscouch.com/pouch_tests"}),
+            success: function() {
+                $('button').hide();
+                $('body').append('<p>Submission complete.</p>')
+            },
+            headers: {
+                Accept: 'application/json'
+            },
+            dataType: 'json',
+            contentType: 'application/json'
         });
-
     }
 
 

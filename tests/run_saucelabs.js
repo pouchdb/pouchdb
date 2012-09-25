@@ -1,5 +1,6 @@
 var soda = require('soda')
-,   assert = require('assert');
+,   assert = require('assert')
+,   nano = require('nano');
 
 var browser = soda.createSauceClient({
   'url': 'http://saucelabs.com/'
@@ -28,13 +29,34 @@ browser
   .open(url)
   .setTimeout(800000)
   .waitForTextPresent('Tests completed in')
-  .click('css=button')
-  .waitForTextPresent('Submission complete.')
   .end(function(err){
     this.queue = null;
-    this.setContext('sauce:job-info={"passed": ' + (err === null) + '}', function(){
-      browser.testComplete(function(){
-        if (err) throw err;
-      });
+    var sauce = {
+        jobUrl : this.jobUrl,
+        videoUrl : this.videoUrl,
+        logUrl : this.logUrl
+    }
+    var couch = nano('http://127.0.0.1:5984');
+    var db = couch.db.use('test_suite_db1');
+    db.list({include_docs: true}, function(err, res){
+        if (err) return console.log('err: ' + err);
+        console.log(res);
+        var doc = res.rows[0].doc;
+        doc.sauce = sauce;
+        var failed = false;
+        if (doc.report.results.failed > 0) failed = true;
+        db.insert(doc, doc._id, function(err){
+            couch.replicate('test_suite_db1', 'http://reupholster.iriscouch.com/pouch_tests', function(err){
+                this.setContext('sauce:job-info={"passed": ' + (err === null) + '}', function(){
+                  browser.testComplete(function(){
+                    if (err) throw err;
+                  });
+                });
+            })
+        });
+
     });
   });
+
+
+
