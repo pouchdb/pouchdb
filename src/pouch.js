@@ -1,3 +1,5 @@
+window.shimIndexedDB && window.shimIndexedDB.__useShim();
+
 this.Pouch = function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
