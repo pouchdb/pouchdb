@@ -14,9 +14,6 @@ window.IDBKeyRange = window.IDBKeyRange ||
 window.IDBTransaction = window.IDBTransaction ||
   window.webkitIDBTransaction;
 
-window.IDBDatabaseException = window.IDBDatabaseException ||
-  window.webkitIDBDatabaseException;
-
 // Newer webkits expect strings for transaction + cursor paramters
 // older webkit + older firefox require constants, we can drop
 // the constants when both stable releases use strings
@@ -30,11 +27,10 @@ IDBCursor.PREV = IDBCursor.PREV || 'prev';
 
 var idbError = function(callback) {
   return function(event) {
-    var code = event.target.errorCode;
     call(callback, {
       status: 500,
       error: event.type,
-      reason: Object.keys(IDBDatabaseException)[code-1].toLowerCase()
+      reason: event.target
     });
   }
 };
@@ -58,6 +54,15 @@ var IdbPouch = function(opts, callback) {
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
   var update_seq = 0;
+  
+  //Get the webkit file system objects in a way that is forward compatible
+  var storageInfo = (window.webkitStorageInfo ? window.webkitStorageInfo : window.storageInfo)
+  var requestFileSystem = (window.webkitRequestFileSystem ? window.webkitRequestFileSystem : window.requestFileSystem)
+  var storeAttachmentsInIDB = false;
+  if (!storageInfo || !requestFileSystem){
+    //This browser does not support the file system API, use idb to store attachments insead
+    storeAttachmentsInIDB=true;
+  }
 
   var api = {};
   var idb;
@@ -147,6 +152,7 @@ var IdbPouch = function(opts, callback) {
     var results = [];
     var docs = [];
 
+    // Group multiple edits to the same document
     docInfos.forEach(function(docInfo) {
       if (docInfo.error) {
         return results.push(docInfo);
@@ -158,42 +164,30 @@ var IdbPouch = function(opts, callback) {
       results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
     });
 
-    if (!docs.length) {
-      return txnComplete();
-    }
-
-    docs.sort(function(a, b) {
-      return Pouch.collate(a.metadata.id, b.metadata.id);
-    });
-
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                               IDBTransaction.READ_WRITE);
     txn.onerror = idbError(callback);
     txn.ontimeout = idbError(callback);
-    txn.oncomplete = txnComplete;
 
-    var keyRange = IDBKeyRange.bound(
-      docs[0].metadata.id, docs[docs.length-1].metadata.id,
-      false, false);
+    processDocs();
 
-    txn.objectStore(DOC_STORE)
-      .openCursor(keyRange, IDBCursor.NEXT).onsuccess = readDoc;
-
-    function readDoc(event) {
-      var cursor = event.target.result;
-      // Cursor has exceeded the key range so the rest are inserts
-      if (!cursor) {
-        return docs.forEach(insertDoc);
+    function processDocs() {
+      if (!docs.length) {
+        return complete();
       }
-      var doc = docs.shift();
-      if (cursor.key === doc.metadata.id) {
-        updateDoc(cursor, cursor.value, doc);
-      } else {
-        insertDoc(doc);
+      var currentDoc = docs.shift();
+      var req = txn.objectStore(DOC_STORE).get(currentDoc.metadata.id);
+      req.onsuccess = function process_docRead(event) {
+        var oldDoc = event.target.result;
+        if (!oldDoc) {
+          insertDoc(currentDoc, processDocs);
+        } else {
+          updateDoc(oldDoc, currentDoc);
+        }
       }
     }
 
-    function txnComplete(event) {
+    function complete(event) {
       var aresults = [];
       results.sort(sortByBulkSeq);
       results.forEach(function(result) {
@@ -228,7 +222,6 @@ var IdbPouch = function(opts, callback) {
     }
 
     function writeDoc(docInfo, callback) {
-
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
           var data = docInfo.data._attachments[key].data;
@@ -257,7 +250,7 @@ var IdbPouch = function(opts, callback) {
       };
     }
 
-    function updateDoc(cursor, oldDoc, docInfo) {
+    function updateDoc(oldDoc, docInfo) {
       var merged = Pouch.merge(oldDoc.rev_tree,
                                docInfo.metadata.rev_tree[0], 1000);
       var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
@@ -265,22 +258,20 @@ var IdbPouch = function(opts, callback) {
 
       if (inConflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
-        return cursor['continue']();
+        return processDocs();
       }
 
       docInfo.metadata.rev_tree = merged.tree;
-
-      writeDoc(docInfo, function() {
-        cursor['continue']();
-      });
+      writeDoc(docInfo, processDocs);
     }
 
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
-      if (docInfo.metadata.deleted) {
-        return results.push(Pouch.Errors.MISSING_DOC);
+      if ('was_delete' in opts && docInfo.metadata.deleted) {
+        results.push(Pouch.Errors.MISSING_DOC);
+        return processDocs();
       }
-      writeDoc(docInfo);
+      writeDoc(docInfo, processDocs);
     }
 
     // Insert sequence number into the error so we can sort later
@@ -291,7 +282,11 @@ var IdbPouch = function(opts, callback) {
 
     // right now fire and forget, needs cleaned
     function saveAttachment(digest, data) {
-      txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+      if (storeAttachmentsInIDB){
+        txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+      }else{
+        writeAttachmentToFile(digest,data);
+      }
     }
   };
 
@@ -319,9 +314,15 @@ var IdbPouch = function(opts, callback) {
         var bySeq = txn.objectStore(BY_SEQ_STORE);
         bySeq.get(metadata.seq).onsuccess = function(e) {
           var digest = e.target.result._attachments[attachId].digest;
-          txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
-            call(callback, null, atob(e.target.result.body));
-          };
+          if (storeAttachmentsInIDB){
+            txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+              call(callback, null, atob(e.target.result.body));
+            }
+          }else{
+            readAttachmentFromFile(digest, function(data) {
+              call(callback, null, atob(data));
+            });
+          }
         };
       }
       return;
@@ -329,7 +330,7 @@ var IdbPouch = function(opts, callback) {
 
     txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
       var metadata = e.target.result;
-      if (!e.target.result || metadata.deleted) {
+      if (!e.target.result || (metadata.deleted && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
@@ -372,6 +373,11 @@ var IdbPouch = function(opts, callback) {
             });
           });
         } else {
+          if (doc._attachments){
+            for (var key in doc._attachments) {
+              doc._attachments[key].stub = true;
+            }
+          }
           callback(null, doc);
         }
       };
@@ -392,6 +398,7 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    opts.was_delete = true;
     var newDoc = JSON.parse(JSON.stringify(doc));
     newDoc._deleted = true;
     return api.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
@@ -552,7 +559,7 @@ var IdbPouch = function(opts, callback) {
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? IDBCursor.PREV : null;
 
-    var results = [];
+    var results = [], resultIndices = {}, dedupResults = [];
     var id = name + ':' + Math.uuid();
     var txn;
 
@@ -570,6 +577,7 @@ var IdbPouch = function(opts, callback) {
 
     function fetchChanges() {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
+      txn.oncomplete = onTxnComplete;
       var req = descending
         ? txn.objectStore(BY_SEQ_STORE)
           .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
@@ -584,7 +592,14 @@ var IdbPouch = function(opts, callback) {
         if (opts.continuous && !opts.cancelled) {
           IdbPouch.Changes.addListener(name, id, opts);
         }
-        results.map(function(c) {
+
+        // Filter out null results casued by deduping
+        for (var i = 0, l = results.length; i < l; i++ ) {
+          var result = results[i];
+          if (result) dedupResults.push(result);
+        }
+
+        dedupResults.map(function(c) {
           if (opts.filter && !opts.filter.apply(this, [c.doc])) {
             return;
           }
@@ -593,7 +608,7 @@ var IdbPouch = function(opts, callback) {
           }
           call(opts.onChange, c);
         });
-        return call(opts.complete, null, {results: results});
+        return false;
       }
       var cursor = event.target.result;
       var index = txn.objectStore(DOC_STORE);
@@ -621,12 +636,18 @@ var IdbPouch = function(opts, callback) {
         }
 
         // Dedupe the changes feed
-        results = results.filter(function(doc) {
-          return doc.id !== change.id;
-        });
+        var changeId = change.id, changeIdIndex = resultIndices[changeId];
+        if (changeIdIndex !== undefined) {
+          results[changeIdIndex] = null;
+        }
         results.push(change);
+        resultIndices[changeId] = results.length - 1;
         cursor['continue']();
       };
+    };
+
+    function onTxnComplete() {
+      call(opts.complete, null, {results: dedupResults});
     };
 
     function onerror(error) {
@@ -801,6 +822,111 @@ var IdbPouch = function(opts, callback) {
     return winningRev(pos + 1, tree[1][0]);
   }
 
+  //Functions for reading and writing an attachment in the html5 file system instead of idb
+  function toArray(list) {
+    return Array.prototype.slice.call(list || [], 0);
+  }
+  function fileErrorHandler(e) {
+    console.error('File system error',e);
+  }
+  
+  //Delete attachments that are no longer referenced by any existing documents
+  function deleteOrphanedFiles(currentQuota){
+    api.allDocs({include_docs:true},function(err, response) {
+      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
+      var dirReader = fs.root.createReader();
+      var entries = [];
+      var docRows = response.rows;
+      
+      // Call the reader.readEntries() until no more results are returned.
+      var readEntries = function() {
+        dirReader.readEntries (function(results) {
+          if (!results.length) {
+            for (var i in entries){
+              var entryIsReferenced=false;
+              for (var k in docRows){
+                if (docRows[k].doc){
+                  var aDoc = docRows[k].doc;
+                  if (aDoc._attachments){
+                    for (var j in aDoc._attachments){ 
+                      if (aDoc._attachments[j].digest==entries[i].name) entryIsReferenced=true;
+                    };
+                  }
+                  if (entryIsReferenced) break;
+                }         
+              };
+              if (!entryIsReferenced){
+                entries[i].remove(function() {
+                  console.info("Removed orphaned attachment: "+entries[i].name);
+                }, fileErrorHandler);
+              }
+            };        
+          } else {
+            entries = entries.concat(toArray(results));
+            readEntries();
+          }
+        }, fileErrorHandler);
+      };
+    
+      readEntries(); // Start reading dirs.
+    
+      }, fileErrorHandler);
+    });
+  }
+		
+  function writeAttachmentToFile(digest, data, type){
+    //Check the current file quota and increase it if necessary   
+    storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+      var newQuota = currentQuota;
+      if (currentQuota == 0){
+        newQuota = 1000*1024*1024; //start with 1GB
+      }else if ((currentUsage/currentQuota) > 0.8){ 
+        deleteOrphanedFiles(currentQuota); //delete old attachments when we hit 80% usage
+      }else if ((currentUsage/currentQuota) > 0.9){ 
+        newQuota=2*currentQuota; //double the quota when we hit 90% usage
+      }
+      
+      console.info("Current file quota: "+currentQuota+", current usage:"+currentUsage+", new quota will be: "+newQuota);
+         
+      //Ask for file quota. This does nothing if the proper quota size has already been granted.
+      storageInfo.requestQuota(window.PERSISTENT, newQuota, function(grantedBytes) {
+        storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+          requestFileSystem(window.PERSISTENT, currentQuota, function(fs){            
+            fs.root.getFile(digest, {create: true}, function(fileEntry) {       
+              fileEntry.createWriter(function(fileWriter) {         
+                fileWriter.onwriteend = function(e) {
+                  console.info('Wrote attachment');                 
+                };            
+                fileWriter.onerror = function(e) {
+                  console.info('File write failed: ' + e.toString());
+                };            
+                var blob = new Blob([data], {type: type});            
+                fileWriter.write(blob);         
+              }, fileErrorHandler);       
+            }, fileErrorHandler);
+          }, fileErrorHandler);
+        }, fileErrorHandler);
+      }, fileErrorHandler);
+    },fileErrorHandler);
+  }
+	
+  function readAttachmentFromFile(digest, callback){
+    storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){      
+        fs.root.getFile(digest, {}, function(fileEntry) {     
+          fileEntry.file(function(file) {
+            var reader = new FileReader();            
+            reader.onloadend = function(e) {
+              data = this.result;
+              console.info("Read attachment");
+              callback(data);
+            };            
+            reader.readAsBinaryString(file);
+          }, fileErrorHandler);       
+        }, fileErrorHandler);
+      }, fileErrorHandler);
+    }, fileErrorHandler);
+  }
 
   return api;
 };

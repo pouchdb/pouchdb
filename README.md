@@ -4,6 +4,8 @@ The PouchDB Website is at: http://pouchdb.com/
 
 PouchDB is a JavaScript library that allows you to store and query data for web applications that need to work offline, and sync with an online database when you are online.
 
+[![Build Status](https://secure.travis-ci.org/daleharvey/pouchdb.png)](http://travis-ci.org/daleharvey/pouchdb)
+
 ### The Browser Database that Syncs
 
 Based on the work of Apache CouchDB, PouchDB provides a simple API in which to store and retrieve JSON objects, due to the similiar API, and CouchDB's HTTP API it is possible to sync data that is stored in your local PouchDB to an online CouchDB as well as syncing data from CouchDB down to PouchDB (you can even sync between 2 PouchDB databases).
@@ -77,7 +79,8 @@ db.post({ title: 'Cony Island Baby' }, function(err, response) {
 
     db.put(doc, [options], [callback])
 
-Create a new document or update an existing document.
+Create a new document or update an existing document. If the document already exists
+you must specify its revision (_rev), otherwise a conflict will occur.
 
 <pre>
 db.put({ _id: 'mydoc', title: 'Rock and Roll Heart' }, function(err, response) {
@@ -347,7 +350,7 @@ db.changes(function(err, response) {
     Pouch.replicate(from, to, [callback])
 
 <pre>
-db.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
+Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
   //
 })
 </pre>

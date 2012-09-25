@@ -36,6 +36,93 @@
     <h2 id="qunit-userAgent"></h2>
     <ol id="qunit-tests"></ol>
     <button class="btn submit">Submit Results</button>
+
+
+    <script type="text/javascript">
+
+      // If you want to run performance tests, uncomment these tests
+      // and comment out the testFiles below
+      //var testFiles = [
+      //  'test.utils.js',
+      //  'perf.attachments.js'
+      //];
+
+      var testFiles = ['test.utils.js', 'test.basics.js', 'test.changes.js',
+        'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
+        'test.merge_rev_tree.js',  'test.revs_diff.js', 'test.attachments.js',
+        'test.replication.js', 'test.views.js', 'test.auth_replication.js',
+        'test.design_docs.js'];
+
+      var srcFiles = ['../src/deps/uuid.js',
+        '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
+        '../src/pouch.collate.js', '../src/pouch.utils.js',
+        '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js'];
+
+      var prodFiles = ['../pouch.alpha.js'];
+
+      var minProdFiles = ['../pouch.alpha.min.js'];
+
+      // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
+      function asyncLoadScript(url, callback) {
+
+        // Create a new script and setup the basics.
+        var script = document.createElement("script"),
+        firstScript = document.getElementsByTagName('script')[0];
+
+        script.async = true;
+        script.src = url;
+
+        // Handle the case where an optional callback was passed in.
+        if ( "function" === typeof(callback) ) {
+          script.onload = function() {
+            callback();
+
+            // Clear it out to avoid getting called more than once or any memory leaks.
+            script.onload = script.onreadystatechange = undefined;
+          };
+          script.onreadystatechange = function() {
+            if ( "loaded" === script.readyState || "complete" === script.readyState ) {
+              script.onload();
+            }
+          };
+        }
+
+        // Attach the script tag to the page (before the first script) so the
+        //magic can happen.
+        firstScript.parentNode.insertBefore(script, firstScript);
+      };
+
+      function startQUnit() {
+        QUnit.begin = function() {
+          console.log('running!!!');
+        }
+      }
+
+      function asyncParForEach(array, fn, callback) {
+        if (array.length === 0) {
+          callback(); // done immediately
+          return;
+        }
+        var toLoad = array.shift();
+        fn(toLoad, function() {
+          asyncParForEach(array, fn, callback);
+        });
+      };
+
+      // Switch this to srcFiles / prodFiles / minProdFiles to test
+      // the different builds
+      // var filesToTest = prodFiles;
+      // var filesToTest = minProdFiles;
+      var filesToTest = srcFiles;
+
+      asyncParForEach(filesToTest, asyncLoadScript, function() {
+        asyncParForEach(testFiles, asyncLoadScript, function() {
+          startQUnit();
+        });
+      });
+
+    </script>
+
   </body>
 </html>
 

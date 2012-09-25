@@ -1,4 +1,4 @@
-var Pouch = function Pouch(name, opts, callback) {
+this.Pouch = function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
     return new Pouch(name, opts, callback);
@@ -34,7 +34,7 @@ Pouch.parseAdapter = function(name) {
 
   if (match) {
     // the http adapter expects the fully qualified name
-    name = (match[1] === 'http') ? 'http://' + match[2] : match[2];
+    name = /http(s?)/.test(match[1]) ? match[1] + '://' + match[2] : match[2];
     var adapter = match[1];
     if (!Pouch.adapters[adapter].valid()) {
       throw 'Invalid adapter';

@@ -31,6 +31,7 @@
   });
 
   asyncTest("Modify a doc", function() {
+    console.info('testing: Modify a doc');
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({test: "somestuff"}, function (err, info) {
@@ -64,6 +65,20 @@
           ok(doc.test);
           db.get(info.id+'asdf', function(err) {
             ok(err.error);
+            start();
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("Get revisions of removed doc", function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({test:"somestuff"}, function(err, info) {
+        var rev = info.rev;
+        db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
+          db.get(info.id, {rev: rev}, function(err, doc) {
+            ok(!err, 'Recieved deleted doc with rev');
             start();
           });
         });
@@ -193,13 +208,14 @@
   });
 
   asyncTest("Testing Rev format", function() {
+    console.info('testing: Rev format');
     var revs = [];
     initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
         revs.unshift(info.rev.split('-')[1]);
-        db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info2) {
+        db.put({_id: info.id, _rev: info.rev, another: 'test1'}, function(err, info2) {
           revs.unshift(info2.rev.split('-')[1]);
-          db.put({_id: info.id, _rev: info2.rev, last: 'test'}, function(err, info3) {
+          db.put({_id: info.id, _rev: info2.rev, last: 'test2'}, function(err, info3) {
             revs.unshift(info3.rev.split('-')[1]);
             db.get(info.id, {revs:true}, function(err, doc) {
               ok(doc._revisions.start === 3, 'correct starting position');
@@ -230,7 +246,6 @@
       };
       timer = setInterval(save, 50);
     });
-
   });
 
   asyncTest("Testing valid id", function() {
@@ -241,5 +256,4 @@
       });
     });
   });
-
 });
