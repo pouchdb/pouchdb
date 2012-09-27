@@ -59,7 +59,7 @@ LevelPouch = module.exports = function(opts, callback) {
     function initstores() {
       initstore(DOC_STORE, 'json');
       initstore(BY_SEQ_STORE, 'json');
-      initstore(ATTACH_STORE, 'base64');
+      initstore(ATTACH_STORE, 'binary');
     }
   });
 
@@ -136,7 +136,7 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     if (pouch.utils.isAttachmentId(id)) {
-      return api.getAttachment(id, opts, callback);
+      return api.getAttachment(id, {decode: true}, callback);
     }
 
     stores[DOC_STORE].get(id, function(err, metadata) {
@@ -207,10 +207,23 @@ LevelPouch = module.exports = function(opts, callback) {
       , attachId = ids[1];
 
     stores[DOC_STORE].get(docId, function(err, metadata) {
+      if (err) {
+        return callback(err);
+      }
       stores[BY_SEQ_STORE].get(metadata.seq, function(err, doc) {
+        if (err) {
+          return callback(err);
+        }
         var digest = doc._attachments[attachId].digest;
         stores[ATTACH_STORE].get(digest, function(err, attach) {
-          call(callback, null, attach);
+          if (err) {
+            return callback(err);
+          }
+          var data = opts.decode
+            ? new Buffer(attach.toString(), 'base64').toString()
+            : attach.toString();
+
+          call(callback, null, data);
         });
       });
     });
@@ -232,7 +245,7 @@ LevelPouch = module.exports = function(opts, callback) {
       obj._attachments || (obj._attachments = {});
       obj._attachments[attachId] = {
         content_type: type,
-        data: doc
+        data: new Buffer(doc, 'binary').toString('base64')
       }
       api.put(obj, callback);
     });
@@ -532,7 +545,6 @@ LevelPouch.valid = function() {
 }
 
 LevelPouch.destroy = function(name, callback) {
-  console.log('delete database: \'%s\'', name);
   rmdir(name, function(err) {
     if (err && err.code === 'ENOENT') {
       // TODO: MISSING_DOC name is somewhat misleading in this context
