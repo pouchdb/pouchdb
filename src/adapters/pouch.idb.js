@@ -942,6 +942,8 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
   var req = indexedDB.deleteDatabase(name);
 
   req.onsuccess = function() {
+    //delete the db id from localStorage so it doesn't get reused.
+    delete localStorage[name+"_id"];
     call(callback, null);
   };
 
