@@ -73,6 +73,7 @@ var IdbPouch = function(opts, callback) {
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique : true});
+      //.createIndex('jobID', 'jobID', {unique : false}); TODO: this is an idea to create an special index that allows to retrieve documents by jobID
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
   };
@@ -383,6 +384,25 @@ var IdbPouch = function(opts, callback) {
       };
     };
   };
+  
+  //enbase: retrieve documents using a named index (like jobID). Our index should probably be on a compound property that is docType-jobID
+  api.getByIndex = function idb_getByIndex(indexName, indexedID, opts, callback){
+    if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+    }
+    var txn = idb.transaction([DOC_STORE],IDBTransaction.READ);
+    var index = txn.objectStore.index(indexName);
+    var singleKeyRange = IDBKeyRange.only(indexedID);
+    index.openCursor(singleKeyRange).onsuccess = function(event) {
+        var cursor = event.target.result;
+        if (cursor) {
+            var _id=event.target.result._id;
+            api.get(_id,opts,callback);
+            cursor['continue']();
+        }        
+    };
+  }
 
   api.put = api.post = function idb_put(doc, opts, callback) {
     if (opts instanceof Function) {
@@ -939,6 +959,7 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
 
   console.info(name + ': Delete Database');
   IdbPouch.Changes.clearListeners(name);
+  delete localStorage[name+"_id"];
   var req = indexedDB.deleteDatabase(name);
 
   req.onsuccess = function() {
