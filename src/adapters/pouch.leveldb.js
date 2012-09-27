@@ -34,6 +34,7 @@ var ATTACH_STORE = 'attach-store';
 // store the value of update_seq in the by-sequence store the key name will
 // never conflict, since the keys in the by-sequence store are integers
 var UPDATE_SEQ_KEY = 'last_update_seq';
+var DOC_COUNT_KEY = 'doc_count';
 
 LevelPouch = module.exports = function(opts, callback) {
   var api = {}
@@ -83,11 +84,32 @@ LevelPouch = module.exports = function(opts, callback) {
         return;
       }
 
+      update_seq = doc_count = -1;
+
+      stores[BY_SEQ_STORE].get(DOC_COUNT_KEY, function(err, value) {
+        if (!err) {
+          doc_count = value;
+        }
+        else {
+          doc_count = 0;
+        }
+        finish();
+      });
+
+      function finish() {
+        if (doc_count >= 0 && update_seq >= 0) {
+          process.nextTick(function() { call(callback, null, api) });
+        }
+      }
+
       stores[BY_SEQ_STORE].get(UPDATE_SEQ_KEY, function(err, value) {
         if (!err) {
           update_seq = value;
         }
-        process.nextTick(function() { call(callback, null, api) });
+        else {
+          update_seq = 0;
+        }
+        finish();
       });
     });
   }
@@ -283,7 +305,15 @@ LevelPouch = module.exports = function(opts, callback) {
         results.push(makeErr(pouch.Errors.MISSING_DOC, doc._bulk_seq));
         return processDocs();
       }
-      writeDoc(doc, callback);
+      doc_count++;
+      writeDoc(doc, function() {
+        stores[BY_SEQ_STORE].put(DOC_COUNT_KEY, doc_count, function(err) {
+          if (err) {
+            // TODO: handle error
+          }
+          return callback();
+        })
+      });
     }
 
     function updateDoc(oldDoc, docInfo, callback) {
