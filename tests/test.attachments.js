@@ -1,6 +1,20 @@
-['idb-1', 'http-1'].map(function(adapter) {
+/*
+ * to run tests (from pouchdb root dir)
+ * $ qunit -t ./tests/test.attachments.js \
+        -d ./src/pouch.js ./tests/test.utils.js \
+        -c ./src/adapters/pouch.leveldb.js
+ */
+var Pouch = require('../src/pouch.js')
+  , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+  , utils = require('./test.utils.js')
 
-  module('attachments: ' + adapter, {
+for (var k in utils) {
+  global[k] = global[k] || utils[k];
+}
+
+['ldb-1'].map(function(adapter) {
+
+  QUnit.module('attachments: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }
@@ -53,7 +67,7 @@
           db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
             ok(res._attachments, 'Result has attachments field');
             equal(res._attachments['foo2.txt'].data,
-                  btoa('This is no base64 encoded text'));
+                  new Buffer('This is no base64 encoded text', 'binary').toString('base64'));
             equal(res._attachments['foo.txt'].data, '');
             start();
           });

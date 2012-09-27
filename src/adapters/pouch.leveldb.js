@@ -18,6 +18,7 @@ require(pouchdir + 'deps/uuid.js');
 
 var path = require('path')
   , fs = require('fs')
+  , crypto = require('crypto')
   , EventEmitter = require('events').EventEmitter
   , levelup = require('levelup')
 
@@ -197,6 +198,10 @@ LevelPouch = module.exports = function(opts, callback) {
 
   // not technically part of the spec, but if putAttachment has its own method...
   api.getAttachment = function(id, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
     var ids = id.split('/')
       , docId = ids[0]
       , attachId = ids[1];
@@ -205,7 +210,7 @@ LevelPouch = module.exports = function(opts, callback) {
       stores[BY_SEQ_STORE].get(metadata.seq, function(err, doc) {
         var digest = doc._attachments[attachId].digest;
         stores[ATTACH_STORE].get(digest, function(err, attach) {
-          call(callback, null, attach.body);
+          call(callback, null, attach);
         });
       });
     });
@@ -221,7 +226,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api.putAttachment = function(id, rev, doc, type, callback) {
     var ids = id.split('/')
-      , docId = ids('/')[0]
+      , docId = ids[0]
       , attachId = ids[1];
     api.get(docId, {attachments: true}, function(err, obj) {
       obj._attachments || (obj._attachments = {});
@@ -229,6 +234,7 @@ LevelPouch = module.exports = function(opts, callback) {
         content_type: type,
         data: doc
       }
+      api.put(obj, callback);
     });
 
   }
