@@ -273,7 +273,7 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     if (!bulk || !bulk.docs || bulk.docs.length < 1) {
-      return callback(null, []);
+      return callback(Pouch.Errors.MISSING_BULK_DOCS);
     }
     if (!Array.isArray(bulk.docs)) {
       return error(callback, new Error("docs should be an array of documents"));
@@ -285,7 +285,8 @@ LevelPouch = module.exports = function(opts, callback) {
       , results = []
 
     // parse the docs and give each a sequence number
-    info = bulk.docs.map(function(doc, i) {
+    var userDocs = JSON.parse(JSON.stringify(bulk.docs));
+    info = userDocs.map(function(doc, i) {
       var newDoc = pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;
@@ -438,6 +439,69 @@ LevelPouch = module.exports = function(opts, callback) {
       err._bulk_seq = seq;
       return err;
     }
+  }
+
+  api.allDocs = function(options, callback) {
+    if (options instanceof Function) {
+      callback = options;
+      options = {};
+    }
+
+    var readstreamOpts = {}
+    if ('startkey' in opts && opts.startkey)
+      readstreamOpts.start = opts.startkey;
+    if ('endkey' in opts && opts.endkey)
+      readstreamOpts.end = opts.endkey;
+    if ('descending' in opts && opts.descending)
+      readstreamOpts.descending = true;
+
+    var results = [];
+
+    var docstream = stores[DOC_STORE].readStream(readstreamOpts);
+    docstream.on('data', function(entry) {
+      function allDocsInner(metadata, data) {
+        if (/_local/.test(metadata.id)) {
+          return;
+        }
+        if (metadata.deleted !== true) {
+          var result = {
+            id: metadata.id,
+            key: metadata.id,
+            value: {
+              rev: Pouch.utils.winningRev(metadata.rev_tree[0].pos,
+                                          metadata.rev_tree[0].ids)
+            }
+          };
+          if (opts.include_docs) {
+            result.doc = data;
+            result.doc._rev = result.value.rev;
+            if (opts.conflicts) {
+              result.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+            }
+          }
+          results.push(result);
+        }
+      }
+      if (opts.include_docs) {
+        stores[BY_SEQ_STORE].get(enrty.value.seq, function(err, data) {
+          allDocsInner(entry.value, data);
+        });
+      }
+      else {
+        allDocsInner(entry.value);
+      }
+    });
+    docstream.on('error', function(err) {
+      // TODO: handle error
+    });
+    docstream.on('end', function() {
+    });
+    docstream.on('close', function() {
+      return call(callback, null, {
+        total_rows: results.length,
+        rows: results,
+      });
+    });
   }
 
   api.revsDiff = function(req, opts, callback) {
