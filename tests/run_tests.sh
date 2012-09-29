@@ -1,10 +1,5 @@
 #!/bin/bash
-npm install soda
-npm install assert
-npm install nano
-git clone https://github.com/daleharvey/CORS-Proxy.git
 cd CORS-Proxy
-export PORT=2020
 node server.js &
 node_pid=$!
 cd ..
