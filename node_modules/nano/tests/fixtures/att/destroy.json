@@ -1,0 +1,23 @@
+[
+  { "method"   : "put"
+  , "path"     : "/att_destroy"
+  , "status"   : 201
+  , "response" : "{ \"ok\": true }" 
+  }
+, { "method"   : "put"
+  , "path"     : "/att_destroy/new/att"
+  , "body"     : "\"Hello World!\""
+  , "status"   : 201
+  , "response" : "{\"ok\": true, \"id\": \"new\", \"rev\": \"1-921bd51\" }"
+  }
+, { "method"   : "delete"
+  , "path"     : "/att_destroy/new/att?rev=1-921bd51"
+  , "response" : "{ \"ok\": true, \"id\": \"new\" }"
+  , "status"   : 201
+  }
+, { "method"   : "delete"
+  , "path"     : "/att_destroy"
+  , "status"   : 200
+  , "response" : "{ \"ok\": true }" 
+  }
+]

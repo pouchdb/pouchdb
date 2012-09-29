@@ -1,0 +1,11 @@
+[
+  { "method"   : "put"
+  , "path"     : "/db_create"
+  , "status"   : 201
+  , "response" : "{ \"ok\": true }" 
+  }
+, { "method"   : "delete"
+  , "path"     : "/db_create"
+  , "response" : "{ \"ok\": true }" 
+  }
+]

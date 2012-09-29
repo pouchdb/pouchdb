@@ -6,10 +6,10 @@ var browser = soda.createSauceClient({
   'url': 'http://saucelabs.com/'
 , 'username': 'pouchdb'
 , 'access-key': '97de9ee0-2712-49f0-9b17-4b9751d79073'
-, 'os': 'Windows 2008'
-, 'browser': 'firefox'
-, 'browser-version': '15'
-, 'name': 'Pouch-Firefox/Vista'
+    , 'os': 'Windows 2003'
+    , 'browser': 'googlechrome'
+    , 'browser-version': ''
+    , 'name': 'Pouch-Chrome/Win2003'
 });
 
 browser.on('command', function(cmd, args){
@@ -27,7 +27,7 @@ browser
   .chain
   .session()
   .open(url)
-  .setTimeout(800000)
+  .setTimeout(1000000)
   .waitForTextPresent('Tests completed in')
   .end(function(err){
     this.queue = null;
