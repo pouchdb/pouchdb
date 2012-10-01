@@ -279,16 +279,41 @@ var HttpPouch = function(opts, callback) {
     if (typeof opts.reduce !== 'undefined') {
       params.push('reduce=' + opts.reduce);
     }
+    if (typeof opts.include_docs !== 'undefined') {
+      params.push('include_docs=' + opts.include_docs);
+    }
+    if (typeof opts.descending !== 'undefined') {
+      params.push('descending=' + opts.descending);
+    }
 
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     params = params === '' ? '' : '?' + params;
 
-    var parts = fun.split('/');
+    // We are referencing a query defined in the design doc
+    if (typeof fun === 'string') {
+      var parts = fun.split('/');
+      ajax({
+        auth: host.auth,
+        type:'GET',
+        url: genUrl(host, '_design/' + parts[0] + '/_view/' + parts[1] + params),
+      }, callback);
+      return;
+    }
+
+    // We are using a temporary view, terrible for performance but good for testing
+    var queryObject = JSON.stringify(fun, function(key, val) {
+      if (typeof val === 'function') {
+        return val + ''; // implicitly `toString` it
+      }
+      return val;
+    });
+
     ajax({
       auth: host.auth,
-      type:'GET',
-      url: genUrl(host, '_design/' + parts[0] + '/_view/' + parts[1] + params),
+      type:'POST',
+      url: genUrl(host, '_temp_view' + params),
+      data: queryObject
     }, callback);
   };
 
