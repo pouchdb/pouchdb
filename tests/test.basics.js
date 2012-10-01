@@ -98,6 +98,29 @@
       });
     });
   });
+  
+  
+  asyncTest("Remove doc twice with specified id", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({_id:"specifiedId",test:"somestuff"}, function(err, info) {
+        db.get("specifiedId",function(err,doc){
+          ok(doc.test,"Put and got doc");
+          db.remove(doc, function(err,response) {
+            ok(!err,"Removed doc");
+            db.put({_id:"specifiedId",test:"somestuff2"}, function(err, info) {
+              db.get("specifiedId",function(err,doc){
+                ok(doc,"Put and got doc again");
+                db.remove(doc, function(err,response) {
+                  ok(!err,"Removed doc again");
+                  start();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 
   asyncTest("Get design doc", function() {
     initTestDB(this.name, function(err, db) {
