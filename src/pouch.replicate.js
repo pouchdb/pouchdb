@@ -6,7 +6,7 @@
       var results = [];
       var completed = false;
       var pending = 0;
-      var last_seq = 0;
+      var last_seq = checkpoint;
       var continuous = opts.continuous || false;
       var result = {
         ok: true,
