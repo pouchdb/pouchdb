@@ -16,4 +16,4 @@ return_val=$?
 kill -9 $node_pid
 kill -9 $python_pid
 kill $java_pid
-exit return_val
+exit $return_val
