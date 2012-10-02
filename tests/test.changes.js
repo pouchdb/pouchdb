@@ -51,16 +51,13 @@
         onChange: function(change) {
           count += 1;
           ok(!change.doc, 'If we dont include docs, dont include docs');
+          equal(count, 1, 'Only recieve a single change');
+          changes.cancel();
+          start();
         },
         continuous: true
       });
-      db.post({test:"adoc"}, function(err, info) {
-        setTimeout(function() {
-          equal(count, 1);
-          changes.cancel();
-          start();
-        }, 50);
-      });
+      db.post({test:"adoc"});
     });
   });
 
@@ -70,16 +67,13 @@
         onChange: function(change) {
           ok(change.doc, 'doc included');
           ok(change.doc._rev, 'rev included');
+          changes.cancel();
+          start();
         },
         continuous: true,
         include_docs: true
       });
-      db.post({test:"adoc"}, function(err, info) {
-        setTimeout(function() {
-          changes.cancel();
-          start();
-        }, 50);
-      });
+      db.post({test:"adoc"});
     });
   });
 
@@ -92,6 +86,8 @@
           if (count === 1) {
             changes.cancel();
             db.post({test:"another doc"}, function(err, info) {
+              // This setTimeout ensures that once we cancel a change we dont recieve
+              // subsequent callbacks, so it is needed
               setTimeout(function() {
                 equal(count, 1);
                 start();
@@ -101,7 +97,7 @@
         },
         continuous: true
       });
-      db.post({test:"adoc"}, function() {});
+      db.post({test:"adoc"});
     });
   });
 
@@ -128,16 +124,15 @@
           filter: function(doc) { return doc.integer % 2 === 0; },
           onChange: function(change) {
             count += 1;
+            if (count === 4) {
+              ok(true, 'We got all the docs');
+              changes.cancel();
+              start();
+            }
           },
           continuous: true
         });
-        db.bulkDocs({docs: docs2}, function(err, info) {
-          setTimeout(function() {
-            equal(count, 4);
-            changes.cancel();
-            start();
-          }, 100);
-        });
+        db.bulkDocs({docs: docs2}, function() { });
       });
     });
   });
