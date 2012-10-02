@@ -264,7 +264,10 @@
         var rep = remote.replicate.from(db, {continuous: true});
         var changes = remote.changes({
           onChange: function(change) {
-            ++count;
+            ++count
+            if (count === 3) {
+              return db.put(doc1);
+            }
             if (count === 4) {
               ok(true, 'Got all the changes');
               rep.cancel();
@@ -274,9 +277,6 @@
           },
           continuous: true,
         });
-        setTimeout(function() {
-          db.put(doc1, {});
-        }, 50);
       });
     });
   });
@@ -300,6 +300,7 @@
             if (count === 4) {
               replicate.cancel();
               remote.put(doc2);
+              // This setTimeout is needed to ensure no further changes come through
               setTimeout(function() {
                 ok(count === 4, 'got no more docs');
                 changes.cancel();
@@ -324,16 +325,14 @@
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs1}, function(err, info) {
         var replicate = db.replicate.from(remote, {
-          continuous: true,
           filter: function(doc) { return doc.integer % 2 === 0; }
-        });
-        setTimeout(function() {
+        }, function() {
           db.allDocs(function(err, docs) {
             equal(docs.rows.length, 2);
             replicate.cancel();
             start();
           });
-        }, 500);
+        });
       });
     });
   });
