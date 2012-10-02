@@ -70,6 +70,7 @@ function generateAdapterUrl(id) {
             if (err) return console.log('Cant open db to store results');
             db.post(doc, function (err, info) {
               if (err) return console.log('Could not post results');
+              $('body').append('<p>Storing Results Complete.</p>')
             });
         });
     }

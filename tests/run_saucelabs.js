@@ -39,6 +39,7 @@ browser
   .open(url)
   .setTimeout(1000000)
   .waitForTextPresent('Tests completed in')
+  .waitForTextPresent('Storing Results Complete.')
   .end(function(err){
     this.queue = null;
     var sauce_details = {
@@ -62,7 +63,8 @@ browser
 function replicate_test_results(sauce_details, couch, callback) {
    var db = couch.db.use('test_suite_db110');
    db.list({include_docs: true}, function(err, res){
-       if (err) callback('could not find stored results')
+       if (err) return callback('could not find stored results')
+       if (!res || !res.rows || res.rows.length == 0 || !res.rows[0].doc) return callback('No stored results');
        var doc = res.rows[0].doc;
        doc.sauce = sauce_details;
        var failed = false;
