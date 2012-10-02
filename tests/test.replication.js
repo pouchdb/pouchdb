@@ -76,6 +76,26 @@
     });
   });
 
+  asyncTest("Test basic push replication sequence tracking", function() {
+    console.info('Starting Test: Test basic push replication sequence tracking');
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      var doc1 = {_id: 'adoc', foo:'bar'};
+      db.put(doc1, function(err, result) {
+        db.replicate.to(self.remote, function(err, result) {
+          ok(result.docs_read === 1, 'correct # changed docs read (1) on first replication');
+          db.replicate.to(self.remote, function(err, result) {
+            ok(result.docs_read === 0, 'correct # changed docs read (0) on second replication');
+            db.replicate.to(self.remote, function(err, result) {
+              ok(result.docs_read === 0, 'correct # changed docs read (0) on third replication');
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Test checkpoint", function() {
     console.info('Starting Test: Test checkpoint');
     var self = this;
