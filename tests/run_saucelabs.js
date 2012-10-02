@@ -71,8 +71,10 @@ function replicate_test_results(sauce_details, couch, callback) {
        if (!doc.report || !doc.report.results || doc.report.results.failed > 0) failed = true;
        db.insert(doc, doc._id, function(err){
            if (err) callback('could not store test results');
-           couch.replicate('test_suite_db110', 'http://reupholster.iriscouch.com/pouch_tests', callback);
-           callback(null, doc);
+           couch.db.replicate('test_suite_db110', 'http://reupholster.iriscouch.com/pouch_tests', function(err){
+               callback(err, doc);
+           });
+
        });
    });
 }
