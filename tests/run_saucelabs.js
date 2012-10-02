@@ -16,7 +16,7 @@ browser.on('command', function(cmd, args){
   console.log(' \x1b[33m%s\x1b[0m: %s', cmd, args.join(', '));
 });
 
-var url = 'http://127.0.0.1:8000/tests/test.html';
+var url = 'http://127.0.0.1:8000/tests/test.html?basics%3A%20idb-1%20module';
 if(process.argv[2]) {
     git_hash = process.argv[2];
     url += '#' + git_hash;
