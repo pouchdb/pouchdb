@@ -1,8 +1,8 @@
 language: java
 
 
-env: DB=couchdb
-
+services:
+  - couchdb
 
 
 script: "tests/run_tests.sh"

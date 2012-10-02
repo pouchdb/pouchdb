@@ -16,11 +16,21 @@ browser.on('command', function(cmd, args){
   console.log(' \x1b[33m%s\x1b[0m: %s', cmd, args.join(', '));
 });
 
-var url = 'http://127.0.0.1:8000/tests/test.html?basics%3A%20idb-1%20module';
+var url = 'http://127.0.0.1:8000/tests/test.html';
 if(process.argv[2]) {
     git_hash = process.argv[2];
     url += '#' + git_hash;
 }
+
+var couch = nano('http://127.0.0.1:5984');
+var couch_proxy = nano('http://127.0.0.1:2020');
+// just prove that we can hit these dbs on both ports
+couch.db.list(function(err, body) {
+    console.log('couch 5984', err, body);
+});
+couch_proxy.db.list(function(err, body) {
+    console.log('couch proxy', err, body);
+});
 
 
 browser
@@ -36,7 +46,7 @@ browser
         videoUrl : this.videoUrl,
         logUrl : this.logUrl
     }
-    var couch = nano('http://127.0.0.1:5984');
+
     var db = couch.db.use('test_suite_db1');
     db.list({include_docs: true}, function(err, res){
         if (err) return console.log('err: ' + err);
