@@ -1,5 +1,5 @@
 var remote = {
-  host: 'localhost:1234'
+  host: 'localhost:2020'
 };
 
 module('auth_replication', {

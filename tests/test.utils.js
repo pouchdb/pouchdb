@@ -59,7 +59,7 @@ function generateAdapterUrl(id) {
     QUnit.jUnitReport = function(report) {
         doc.report = report;
         doc.completed = new Date().getTime();
-        doc.system = System;
+        //doc.system = System;
         if (window.location.hash && window.location.hash.length > 0) {
             doc.git_commit = window.location.hash.substring(1);
         }
