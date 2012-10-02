@@ -358,9 +358,8 @@ Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, change
 ## Running the tests
 
 To run the full test suite (including replication) you'll need to run a CORS proxy
-pointing to a CouchDB.
+pointing to a CouchDB. The CORS-Proxy is now bundled with this repo. To start it do the following:
 
-    git clone https://github.com/daleharvey/CORS-Proxy.git
     cd CORS-Proxy
     node server.js
 
