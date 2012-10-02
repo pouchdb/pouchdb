@@ -66,10 +66,11 @@ function generateAdapterUrl(id) {
         $('button').on('click', function(){
             submitResults();
         });
-        initTestDB(generateAdapterUrl('http-1'), function(err, db) {
+        new Pouch(generateAdapterUrl('http-110'), function(err, db) {
             if (err) return console.log('Cant open db to store results');
             db.post(doc, function (err, info) {
               if (err) return console.log('Could not post results');
+              $('body').append('<p>Storing Results Complete.</p>')
             });
         });
     }
