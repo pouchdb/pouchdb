@@ -89,38 +89,58 @@
     });
   });
 
-  asyncTest("Attachments replicate", function() {
-      console.info('Starting Test: Attachments replicate');
 
-      var binAttDoc = {
-        _id: "bin_doc",
-        _attachments:{
-          "foo.txt": {
-            content_type:"text/plain",
-            data: "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
+
+});
+
+
+[['idb-1', 'http-1'],
+ ['http-1', 'http-2'],
+ ['http-1', 'idb-1'],
+ ['idb-1', 'idb-2']].map(function(adapters) {
+
+  module('replication: ' + adapters[0] + ':' + adapters[1], {
+    setup : function () {
+      this.name = generateAdapterUrl(adapters[0]);
+      this.remote = generateAdapterUrl(adapters[1]);
+    }
+  });
+
+
+    asyncTest("Attachments replicate", function() {
+        console.info('Starting Test: Attachments replicate');
+
+        var binAttDoc = {
+          _id: "bin_doc",
+          _attachments:{
+            "foo.txt": {
+              content_type:"text/plain",
+              data: "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
+            }
           }
-        }
-      };
+        };
 
-      var docs1 = [
-        binAttDoc,
-        {_id: "0", integer: 0},
-        {_id: "1", integer: 1},
-        {_id: "2", integer: 2},
-        {_id: "3", integer: 3}
-      ];
+        var docs1 = [
+          binAttDoc,
+          {_id: "0", integer: 0},
+          {_id: "1", integer: 1},
+          {_id: "2", integer: 2},
+          {_id: "3", integer: 3}
+        ];
 
-      initDBPair(this.name, this.remote, function(db, remote) {
-        remote.bulkDocs({docs: docs1}, function(err, info) {
-          var replicate = db.replicate.from(remote, function() {
-            db.get('bin_doc', {attachments: true}, function(err, doc) {
-              equal(binAttDoc._attachments['foo.txt'].data,
-                    doc._attachments['foo.txt'].data);
-              start();
+        initDBPair(this.name, this.remote, function(db, remote) {
+          remote.bulkDocs({docs: docs1}, function(err, info) {
+            var replicate = db.replicate.from(remote, function() {
+              db.get('bin_doc', {attachments: true}, function(err, doc) {
+                equal(binAttDoc._attachments['foo.txt'].data,
+                      doc._attachments['foo.txt'].data);
+                start();
+              });
             });
           });
         });
-      });
-  });
+    });
+
+
 
 });

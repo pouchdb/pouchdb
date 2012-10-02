@@ -39,34 +39,52 @@ browser
   .open(url)
   .setTimeout(1000000)
   .waitForTextPresent('Tests completed in')
+  .waitForTextPresent('Storing Results Complete.')
   .end(function(err){
     this.queue = null;
-    var sauce = {
+    var sauce_details = {
         jobUrl : this.jobUrl,
         videoUrl : this.videoUrl,
         logUrl : this.logUrl
     }
 
-    var db = couch.db.use('test_suite_db1');
-    db.list({include_docs: true}, function(err, res){
-        if (err) return console.log('err: ' + err);
-        console.log(res);
-        var doc = res.rows[0].doc;
-        doc.sauce = sauce;
-        var failed = false;
-        if (doc.report.results.failed > 0) failed = true;
-        db.insert(doc, doc._id, function(err){
-            couch.replicate('test_suite_db1', 'http://reupholster.iriscouch.com/pouch_tests', function(err){
-                this.setContext('sauce:job-info={"passed": ' + (err === null) + '}', function(){
-                  browser.testComplete(function(){
-                    if (err) throw err;
-                  });
-                });
-            })
-        });
+    replicate_test_results(sauce_details, couch, function(err, doc){
+        var passed = true;
+        if (err || doc.report.results.failed > 0) passed = false;
+        setTestPassed(browser, passed, function(err){
+            closeTest(browser, function(err){
 
+            });
+        })
     });
   });
 
 
+function replicate_test_results(sauce_details, couch, callback) {
+   var db = couch.db.use('test_suite_db110');
+   db.list({include_docs: true}, function(err, res){
+       if (err) return callback('could not find stored results')
+       if (!res || !res.rows || res.rows.length == 0 || !res.rows[0].doc) return callback('No stored results');
+       var doc = res.rows[0].doc;
+       doc.sauce = sauce_details;
+       var failed = false;
+       if (!doc.report || !doc.report.results || doc.report.results.failed > 0) failed = true;
+       db.insert(doc, doc._id, function(err){
+           if (err) callback('could not store test results');
+           couch.db.replicate('test_suite_db110', 'http://reupholster.iriscouch.com/pouch_tests', function(err){
+               callback(err, doc);
+           });
 
+       });
+   });
+}
+
+
+function setTestPassed(browser, pass, callback) {
+    browser.setContext('sauce:job-info={"passed": ' + pass + '}', callback);
+}
+
+
+function closeTest(browser, callback) {
+    browser.testComplete(callback);
+}
