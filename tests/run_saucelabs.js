@@ -1,7 +1,6 @@
 var soda = require('soda')
 ,   assert = require('assert')
-,   nano = require('nano')
-,   process = require('process');
+,   nano = require('nano');
 
 process.on('uncaughtException', function (err) {
     console.log('Tests failed with an uncaught exception: ' + err);
