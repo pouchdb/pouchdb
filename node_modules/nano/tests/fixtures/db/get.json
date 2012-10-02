@@ -1,0 +1,15 @@
+[
+  { "method"   : "put"
+  , "path"     : "/db_get"
+  , "status"   : 201
+  , "response" : "{ \"ok\": true }" 
+  }
+, { "method"   : "get"
+  , "path"     : "/db_get"
+  , "response" : "{ \"db_name\": \"db_get\", \"doc_count\": 0}"
+  }
+, { "method"   : "delete"
+  , "path"     : "/db_get"
+  , "response" : "{ \"ok\": true }" 
+  }
+]

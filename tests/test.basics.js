@@ -219,7 +219,7 @@
             revs.unshift(info3.rev.split('-')[1]);
             db.get(info.id, {revs:true}, function(err, doc) {
               ok(doc._revisions.start === 3, 'correct starting position');
-              same(revs, doc._revisions.ids, 'correct revs returned');
+              deepEqual(revs, doc._revisions.ids, 'correct revs returned');
               start();
             });
           });

@@ -1,0 +1,30 @@
+[
+  { "method"   : "put"
+  , "path"     : "/doc_get"
+  , "status"   : 201
+  , "response" : "{ \"ok\": true }" 
+  }
+, { "method"   : "put"
+  , "status"   : 201
+  , "path"     : "/doc_get/foobaz"
+  , "body"     : "{\"foo\":\"baz\"}"
+  , "response" : "{\"ok\":true,\"id\":\"foobaz\",\"rev\":\"1-611488\"}"
+  }
+, { "method"   : "put"
+  , "status"   : 409
+  , "path"     : "/doc_get/foobaz"
+  , "body"     : "{\"foo\":\"bar\"}"
+  , "response" : "{\"error\":\"conflict\",\"reason\":\"Document update conflict.\"}"
+  }
+, { "path"     : "/doc_get/foobaz?revs_info=true"
+  , "response" : "{\"_id\":\"foobaz\", \"_rev\": \"1-611488\", \"foo\": \"baz\", \"_revs_info\": [] }"
+  }
+, { "method"   : "delete"
+  , "path"     : "/doc_get/foobaz?rev=1-611488"
+  , "response" : "{\"ok\":true}"
+  }
+, { "method"   : "delete"
+  , "path"     : "/doc_get"
+  , "response" : "{ \"ok\": true }" 
+  }
+]

@@ -49,6 +49,53 @@ function generateAdapterUrl(id) {
     return 'idb://test_suite_db' + opt[1];
   }
   if (opt[0] === 'http') {
-    return 'http://localhost:1234/test_suite_db' + opt[1];
+    return 'http://localhost:2020/test_suite_db' + opt[1];
   }
 }
+
+
+/**** Test Result Support ***************/
+    var doc = {};
+    QUnit.jUnitReport = function(report) {
+        doc.report = report;
+        doc.completed = new Date().getTime();
+        doc.system = System;
+        if (window.location.hash && window.location.hash.length > 0) {
+            doc.git_commit = window.location.hash.substring(1);
+        }
+        $('button').on('click', function(){
+            submitResults();
+        });
+        initTestDB(generateAdapterUrl('http-1'), function(err, db) {
+            if (err) return console.log('Cant open db to store results');
+            db.post(doc, function (err, info) {
+              if (err) return console.log('Could not post results');
+            });
+        });
+    }
+
+
+    function submitResults() {
+
+        $('button').text('uploading...').attr('disabled', 'disabled');
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:2020/_replicate',
+            data: JSON.stringify({"source":"test_suite_db1","target":"http://reupholster.iriscouch.com/pouch_tests"}),
+            success: function() {
+                $('button').hide();
+                $('body').append('<p>Submission complete.</p>')
+            },
+            headers: {
+                Accept: 'application/json'
+            },
+            dataType: 'json',
+            contentType: 'application/json'
+        });
+    }
+
+
+
+
+
+
