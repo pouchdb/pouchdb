@@ -1,6 +1,15 @@
 var soda = require('soda')
 ,   assert = require('assert')
-,   nano = require('nano');
+,   nano = require('nano')
+,   process = require('process');
+
+process.on('uncaughtException', function (err) {
+    console.log('Tests failed with an uncaught exception: ' + err);
+    process.exit(1);
+});
+
+
+
 
 var browser = soda.createSauceClient({
   'url': 'http://saucelabs.com/'
@@ -51,8 +60,19 @@ browser
     replicate_test_results(sauce_details, couch, function(err, doc){
         var passed = true;
         if (err || doc.report.results.failed > 0) passed = false;
+
+        console.log('Testing Passes: ' + passed);
+        if (doc.report && doc.report.results) {
+            console.log(doc.report.results.failed + ' failed');
+            console.log(doc.report.results.passed + ' passed');
+        }
+        if (doc && doc._id) {
+            console.log('Test details can be found at :\thttp://reupholster.iriscouch.com/_utils/document.html?pouch_tests/' + doc._id);
+        }
+        console.log('Saucelabs run can be found at:\t' + sauce_details.jobUrl);
         setTestPassed(browser, passed, function(err){
-            closeTest(browser, function(err){
+            closeTest(browser, function(err2){
+                if (!passed || err || err2) return process.exit(1);
 
             });
         })
@@ -81,7 +101,7 @@ function replicate_test_results(sauce_details, couch, callback) {
 
 
 function setTestPassed(browser, pass, callback) {
-    browser.setContext('sauce:job-info={"passed": ' + pass + '}', callback);
+    browser.setContext('sauce:job-info={"passed": ' + pass + ', "public" : true  }', callback);
 }
 
 
