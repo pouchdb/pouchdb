@@ -55,16 +55,15 @@
           filter: 'foo/even',
           onChange: function(change) {
             count += 1;
+            if (count === 4) {
+              ok(true, 'We got all the changes');
+              changes.cancel();
+              start();
+            }
           },
           continuous: true
         });
-        db.bulkDocs({docs: docs2}, function(err, info) {
-          setTimeout(function() {
-            equal(count, 4);
-            changes.cancel();
-            start();
-          }, 100);
-        });
+        db.bulkDocs({docs: docs2}, {});
       });
     });
   });
