@@ -408,6 +408,9 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (!opts) {
+      opts = {}
+    }
 
     // If opts.new_edits exists add it to the document data to be
     // send to the database.

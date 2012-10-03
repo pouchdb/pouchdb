@@ -132,7 +132,7 @@
           },
           continuous: true
         });
-        db.bulkDocs({docs: docs2}, function() { });
+        db.bulkDocs({docs: docs2});
       });
     });
   });
