@@ -1,6 +1,14 @@
-['idb-1', 'http-1'].map(function(adapter) {
+var Pouch = require('../src/pouch.js')
+  , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+  , utils = require('./test.utils.js')
 
-  module("changes: " + adapter, {
+for (var k in utils) {
+  global[k] = global[k] || utils[k];
+}
+
+['ldb-1'].map(function(adapter) {
+
+  QUnit.module("changes: " + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }

@@ -42,6 +42,7 @@ LevelPouch = module.exports = function(opts, callback) {
     , update_seq = 0
     , doc_count = 0
     , stores = {}
+    , name = opts.name
     , change_emitter = new EventEmitter();
 
   fs.stat(opts.name, function(err, stats) {
@@ -525,6 +526,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
     var descending = 'descending' in opts ? opts.descending : false
       , results = []
+      , changeListener
 
     // fetch a filter from a design doc
     if (opts.filter && typeof opts.filter === 'string') {
@@ -580,13 +582,23 @@ LevelPouch = module.exports = function(opts, callback) {
           console.err(err);
         })
         .on('close', function() {
-
+          changeListener = pouch.utils.filterChange(opts)
           if (opts.continuous && !opts.cancelled) {
-            change_emitter.on('change', pouch.utils.filterChange(opts));
+            change_emitter.on('change', changeListener);
           }
           results.map(pouch.utils.filterChange(opts));
           call(opts.complete, null, {results: results});
         })
+    }
+
+    if (opts.continuous) {
+      return {
+        cancel: function() {
+          console.info(name + ': Cancel Changes Feed');
+          opts.cancelled = true;
+          change_emitter.removeListener('change', changeListener);
+        }
+      }
     }
   }
 
