@@ -381,6 +381,25 @@
       });
     });
   });
+});
 
+// This test only needs to run for one configuration, and it slows stuff
+// down
+['idb-1'].map(function(adapter) {
 
+  module('replication: ' + adapter, {
+    setup : function () {
+      this.name = generateAdapterUrl(adapter);
+    }
+  });
+
+  asyncTest("replicate from down server test", function (){
+    expect(1);
+    initTestDB(this.name, function(err, db) {
+      db.replicate.to('http://10.1.1.1:1234/store', function (err, changes) {
+        ok(err);
+        start();
+      });
+    });
+  });
 });
