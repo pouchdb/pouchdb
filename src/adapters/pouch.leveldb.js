@@ -37,6 +37,90 @@ var ATTACH_STORE = 'attach-store';
 var UPDATE_SEQ_KEY = 'last_update_seq';
 var DOC_COUNT_KEY = 'doc_count';
 
+function dbError(callback) {
+  return function(err) {
+    call(callback, {
+      status: 500,
+      error: err,
+      reason: err.message,
+    });
+  }
+}
+
+var ViewQuery = function(fun, stores, options) {
+  if (!options.complete) {
+    return;
+  }
+
+  function sum(values) {
+    return values.reduce(function(a, b) { return a + b }, 0);
+  }
+
+  var results = []
+    , current
+
+  var emit = function(key, val) {
+    var viewRow = {
+      id: current._id,
+      key: key,
+      value: val
+    }
+    if (options.include_docs) {
+      viewRow.doc = current.doc;
+    }
+    results.push(viewRow);
+  }
+
+  // ugly way to make sure references to 'emit' in map/reduce bind to the above emit
+  eval('fun.map = '+fun.map.toString() + ';');
+  if (fun.reduce) {
+    eval('fun.reduce = '+fun.reduce.toString() + ';');
+  }
+
+  var docs = stores[DOC_STORE].readStream()
+  docs.on('data', function(data) {
+    var metadata = data.value;
+    stores[BY_SEQ_STORE].get(metadata.seq, processDoc);
+
+    function processDoc(err, doc) {
+      current = {doc: doc, metadata: metadata};
+      current.doc._rev = winningRev(metadata.rev_tree[0].pos,
+                                    metadata.rev_tree[0].ids);
+      if (options.complete && !current.metadata.deleted) {
+        fun.map.call(this, current.doc);
+      }
+    }
+  });
+  docs.on('error', dbError(options.error));
+  docs.on('close', function viewComplete() {
+    results.sort(function(a, b) {
+      return Pouch.collate(a.key, b.key);
+    });
+    if (options.descending) {
+      results.reverse();
+    }
+    if (options.reduce === false) {
+      return options.complete(null, {rows: results});
+    }
+
+    var groups = []
+    results.forEach(function(e) {
+      var last = groups[groups.length-1] || null;
+      if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
+        last.key.push([e.key, e.id]);
+        last.value.push(e.value);
+        return
+      }
+      groups.push({key: [[e.key, e.id]], value: [e.value]})
+    });
+    groups.forEach(function(e) {
+      e.value = fun.reduce(e.key, e.value) || null;
+      e.key = e.key[0][0];
+    });
+    options.complete(null, {rows: groups});
+  });
+}
+
 LevelPouch = module.exports = function(opts, callback) {
   var api = {}
     , update_seq = 0
@@ -494,6 +578,7 @@ LevelPouch = module.exports = function(opts, callback) {
     });
     docstream.on('error', function(err) {
       // TODO: handle error
+      console.log(err);
     });
     docstream.on('end', function() {
     });
@@ -533,7 +618,7 @@ LevelPouch = module.exports = function(opts, callback) {
       var filtername = opts.filter.split('/');
       api.get('_design/'+filtername[0], function(err, design) {
         var filter = eval('(function() { return ' + 
-                          design.filters[filterName[1]] + '})()');
+                          design.filters[filtername[1]] + '})()');
         opts.filter = filter;
         fetchChanges();
       })
@@ -603,6 +688,29 @@ LevelPouch = module.exports = function(opts, callback) {
   }
 
   api.query = function(fun, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    if (callback) {
+      opts.complete = callback;
+    }
+
+    if (typeof fun === 'string') {
+      var parts = fun.split('/');
+      api.get('_design/'+parts[0], function(err, doc) {
+        if (err) {
+          return callback(err);
+        }
+        new ViewQuery({
+          map: doc.views[parts[1]].map,
+          reduce: doc.views[parts[1]].reduce,
+        }, stores, opts);
+      });
+    }
+    else {
+      new ViewQuery(fun, stores, opts);
+    }
   }
 
   api.replicate = {}

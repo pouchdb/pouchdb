@@ -99,6 +99,7 @@ Pouch.Errors = {
 
 if (typeof module !== 'undefined' && module.exports) {
   Pouch.merge = require('./pouch.merge.js').merge;
+  Pouch.collate = require('./pouch.collate.js').collate;
   module.exports = Pouch;
   global['Pouch'] = Pouch;
 }
