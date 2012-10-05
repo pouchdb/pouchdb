@@ -1,3 +1,5 @@
+var HTTP_TIMEOUT = 10000;
+
 // parseUri 1.2.2
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
@@ -86,7 +88,7 @@ function genUrl(opts, path) {
 
 function ajax(options, callback) {
   var defaults = {
-    timeout: 5000,
+    timeout: HTTP_TIMEOUT,
     success: function (obj, _, xhr) {
       call(callback, null, obj, xhr);
     },
