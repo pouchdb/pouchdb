@@ -86,6 +86,7 @@ function genUrl(opts, path) {
 
 function ajax(options, callback) {
   var defaults = {
+    timeout: 5000,
     success: function (obj, _, xhr) {
       call(callback, null, obj, xhr);
     },
