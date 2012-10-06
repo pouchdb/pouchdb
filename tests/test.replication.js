@@ -47,6 +47,32 @@
     });
   });
 
+  asyncTest("Test basic pull replication from a non reachable addess", function() {
+    console.info('Starting Test: Test basic pull replication from a non reachable address');
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        db.replicate.from('http://9.9.9.9', function(err, result) {
+          ok(err, 'error given');
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Test basic push replication to a non reachable address", function() {
+    console.info('Starting Test: Test basic push replication to a non reachable address');
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      db.bulkDocs({docs: docs}, {}, function(err, results) {
+        db.replicate.to('http://9.9.9.9', function(err, result) {
+          ok(err, 'error given');
+          start();
+        });
+      });
+    });
+  });
+
   asyncTest("Test basic push replication", function() {
     console.info('Starting Test: Test basic push replication');
     var self = this;
