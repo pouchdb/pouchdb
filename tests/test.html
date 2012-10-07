@@ -102,6 +102,8 @@
       // var filesToTest = minProdFiles;
       var filesToTest = srcFiles;
 
+      QUnit.config.testTimeout = 15000;
+
       asyncParForEach(filesToTest, asyncLoadScript, function() {
         asyncParForEach(testFiles, asyncLoadScript, function() {
           startQUnit();
