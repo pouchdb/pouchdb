@@ -6,21 +6,21 @@
     }
   });
 
-  asyncTest("Create a pouch", function() {
+  asyncTest("Create a pouch", 1, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'created a pouch');
       start();
     });
   });
 
-  asyncTest("Remove a pouch",function() {
+  asyncTest("Remove a pouch", 1, function() {
     Pouch.destroy(this.name, function(err, db) {
       ok(!err);
       start();
     });
   });
 
-  asyncTest("Add a doc", function() {
+  asyncTest("Add a doc", 2, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({test:"somestuff"}, function (err, info) {
@@ -30,7 +30,7 @@
     });
   });
 
-  asyncTest("Modify a doc", function() {
+  asyncTest("Modify a doc", 3, function() {
     console.info('testing: Modify a doc');
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
@@ -44,7 +44,7 @@
     });
   });
 
-  asyncTest("Modify a doc with incorrect rev", function() {
+  asyncTest("Modify a doc with incorrect rev", 3, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({test: "somestuff"}, function (err, info) {
@@ -58,7 +58,7 @@
     });
   });
 
-  asyncTest("Get doc", function() {
+  asyncTest("Get doc", 2, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         db.get(info.id, function(err, doc) {
@@ -72,7 +72,7 @@
     });
   });
 
-  asyncTest("Get revisions of removed doc", function() {
+  asyncTest("Get revisions of removed doc", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         var rev = info.rev;
@@ -86,7 +86,7 @@
     });
   });
 
-  asyncTest("Remove doc", function() {
+  asyncTest("Remove doc", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
@@ -99,7 +99,7 @@
     });
   });
 
-  asyncTest("Get design doc", function() {
+  asyncTest("Get design doc", 2, function() {
     initTestDB(this.name, function(err, db) {
       db.put({_id: '_design/someid', test:"somestuff"}, function(err, info) {
         db.get(info.id, function(err, doc) {
@@ -113,7 +113,7 @@
     });
   });
 
-  asyncTest("Delete document without id", function () {
+  asyncTest("Delete document without id", 1, function () {
     initTestDB(this.name, function(err, db) {
       db.remove({test:'ing'}, function(err) {
         ok(err, 'failed to delete');
@@ -122,7 +122,7 @@
     });
   });
 
-  asyncTest("Bulk docs", function() {
+  asyncTest("Bulk docs", 3, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
@@ -133,7 +133,7 @@
     });
   });
 
-  asyncTest("Sync a doc", function() {
+  asyncTest("Sync a doc", 6, function() {
     var couch = generateAdapterUrl('http-2');
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
@@ -156,7 +156,7 @@
     });
   });
 
-  asyncTest("Check revisions", function() {
+  asyncTest("Check revisions", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
         db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
@@ -174,14 +174,14 @@
   // From here we are copying over tests from CouchDB
   // https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
 
-  asyncTest("Check database with slashes", function() {
+  asyncTest("Check database with slashes", 1, function() {
     initTestDB('idb://test_suite_db%2Fwith_slashes', function(err, db) {
       ok(!err, 'opened');
       start();
     });
   });
 
-  asyncTest("Basic checks", function() {
+  asyncTest("Basic checks", 8, function() {
     initTestDB(this.name, function(err, db) {
       db.info(function(err, info) {
         var updateSeq = info.update_seq;
@@ -207,7 +207,7 @@
     });
   });
 
-  asyncTest("Testing Rev format", function() {
+  asyncTest("Testing Rev format", 2, function() {
     console.info('testing: Rev format');
     var revs = [];
     initTestDB(this.name, function(err, db) {
@@ -228,7 +228,7 @@
     });
   });
 
-  asyncTest("Testing issue #48", function() {
+  asyncTest("Testing issue #48", 1, function() {
 
     var docs = [{"id":"0"}, {"id":"1"}, {"id":"2"}, {"id":"3"}, {"id":"4"}, {"id":"5"}];
     var x = 0;
@@ -248,7 +248,7 @@
     });
   });
 
-  asyncTest("Testing valid id", function() {
+  asyncTest("Testing valid id", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({'_id': 123, test: "somestuff"}, function (err, info) {
         ok(err, 'id must be a string');
