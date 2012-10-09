@@ -46,6 +46,8 @@ var parseDoc = function(doc, newEdits) {
           }
         }, null)
       }];
+      nRevNum = doc._revisions.start;
+      newRevId = doc._revisions.ids[doc._revisions.ids.length-1];
     }
     if (!doc._rev_tree) {
       var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
@@ -61,6 +63,7 @@ var parseDoc = function(doc, newEdits) {
   if (typeof doc._id !== 'string') {
     error = Pouch.Errors.INVALID_ID;
   }
+
 
   doc._id = decodeURIComponent(doc._id);
   doc._rev = [nRevNum, newRevId].join('-');
