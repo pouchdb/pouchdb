@@ -72,8 +72,9 @@ var IdbPouch = function(opts, callback) {
   req.onupgradeneeded = function(e) {
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
-      .createIndex('seq', 'seq', {unique : true});
-    db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
+      .createIndex('seq', 'seq', {unique: true});
+    db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
+      .createIndex('_rev', '_rev', {unique: true});;
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
   };
 
@@ -233,6 +234,8 @@ var IdbPouch = function(opts, callback) {
       }
 
       docInfo.data._id = docInfo.metadata.id;
+      docInfo.data._rev = docInfo.metadata.rev;
+
       if (docInfo.metadata.deleted) {
         docInfo.data._deleted = true;
       }
@@ -334,10 +337,12 @@ var IdbPouch = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
-      txn.objectStore(BY_SEQ_STORE).get(metadata.seq).onsuccess = function(e) {
+      var rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+      var key = opts.rev ? opts.rev : rev;
+      var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+
+      index.get(key).onsuccess = function(e) {
         var doc = e.target.result;
-        doc._id = metadata.id;
-        doc._rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
         if (opts.revs) {
           var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
             return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
