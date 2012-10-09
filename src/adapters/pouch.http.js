@@ -182,7 +182,7 @@ var HttpPouch = function(opts, callback) {
   // _design/ID or _local/ID path
   api.get = function(id, opts, callback) {
     // If no options were given, set the callback to the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -267,7 +267,7 @@ var HttpPouch = function(opts, callback) {
   // part is the design and the second is the view.
   api.query = function(fun, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -323,7 +323,7 @@ var HttpPouch = function(opts, callback) {
   // Delete the document given by doc from the database given by host.
   api.remove = function(doc, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -354,7 +354,7 @@ var HttpPouch = function(opts, callback) {
   // given by host. This assumes that doc has a _id field.
   api.put = function(doc, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -389,7 +389,7 @@ var HttpPouch = function(opts, callback) {
   // have a _id or a _rev field.
   api.post = function(doc, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -407,7 +407,7 @@ var HttpPouch = function(opts, callback) {
   // given by host.
   api.bulkDocs = function(req, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -437,7 +437,7 @@ var HttpPouch = function(opts, callback) {
   // by host and ordered by increasing id.
   api.allDocs = function(opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -494,7 +494,7 @@ var HttpPouch = function(opts, callback) {
   // api.changes.addListener and api.changes.removeListener.
   api.changes = function(opts, callback) {
     // If no options were given, set the callback to the first parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       opts = {complete: opts};
     }
 
@@ -548,6 +548,7 @@ var HttpPouch = function(opts, callback) {
     }
 
     var xhr;
+    var last_seq;
 
     // Get all the changes starting wtih the one immediately after the
     // sequence number given by since.
@@ -557,6 +558,7 @@ var HttpPouch = function(opts, callback) {
         auth: host.auth, type:'GET',
         url: genUrl(host, '_changes' + params + '&since=' + since)
       };
+      last_seq = since;
 
       if (opts.aborted) {
         return;
@@ -566,7 +568,7 @@ var HttpPouch = function(opts, callback) {
       xhr = ajax(xhrOpts, function(err, res) {
         callback(res);
       });
-    }
+    };
 
     // If opts.since exists, get all the changes from the sequence
     // number given by opts.since. Otherwise, get all the changes
@@ -585,14 +587,20 @@ var HttpPouch = function(opts, callback) {
           call(opts.onChange, c);
         });
       }
-      if (res && opts.continuous) {
+      // The changes feed may have timed out with no results
+      // if so reuse last update sequence
+      if (res && res.last_seq) {
+        last_seq = res.last_seq;
+      }
+
+      if (opts.continuous) {
         // Call fetch again with the newest sequence number
-        fetch(res.last_seq, fetched);
+        fetch(last_seq, fetched);
       } else {
         // We're done, call the callback
         call(opts.complete, null, res);
       }
-    }
+    };
 
     fetch(opts.since || 0, fetched);
 
@@ -611,7 +619,7 @@ var HttpPouch = function(opts, callback) {
   // See http://wiki.apache.org/couchdb/HttpPostRevsDiff
   api.revsDiff = function(req, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -632,7 +640,7 @@ var HttpPouch = function(opts, callback) {
   // Replicate from the database given by url to this HttpPouch
   api.replicate.from = function(url, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -642,7 +650,7 @@ var HttpPouch = function(opts, callback) {
   // Replicate to the database given by dbName from this HttpPouch
   api.replicate.to = function(dbName, opts, callback) {
     // If no options were given, set the callback to be the second parameter
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }

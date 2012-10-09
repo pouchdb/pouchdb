@@ -127,7 +127,7 @@ var IdbPouch = function(opts, callback) {
 
   api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -298,7 +298,7 @@ var IdbPouch = function(opts, callback) {
   // current revision(s) from the by sequence store
   api.get = function idb_get(id, opts, callback) {
 
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -385,7 +385,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.put = api.post = function idb_put(doc, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -394,7 +394,7 @@ var IdbPouch = function(opts, callback) {
 
 
   api.remove = function idb_remove(doc, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -406,7 +406,7 @@ var IdbPouch = function(opts, callback) {
 
 
   api.allDocs = function idb_allDocs(opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -508,7 +508,7 @@ var IdbPouch = function(opts, callback) {
 
 
   api.revsDiff = function idb_revsDiff(req, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -541,7 +541,7 @@ var IdbPouch = function(opts, callback) {
 
   api.changes = function idb_changes(opts, callback) {
 
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       opts = {complete: opts};
     }
     if (callback) {
@@ -671,7 +671,7 @@ var IdbPouch = function(opts, callback) {
   api.replicate = {};
 
   api.replicate.from = function idb_replicate_from(url, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -679,7 +679,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.replicate.to = function idb_replicate_to(dbName, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -687,7 +687,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.query = function idb_query(fun, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }

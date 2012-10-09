@@ -4,7 +4,7 @@ this.Pouch = function Pouch(name, opts, callback) {
     return new Pouch(name, opts, callback);
   }
 
-  if (opts instanceof Function || typeof opts === 'undefined') {
+  if (typeof opts === 'function' || typeof opts === 'undefined') {
     callback = opts;
     opts = {};
   }
