@@ -256,4 +256,22 @@
       });
     });
   });
+
+  asyncTest("Retrieve old revision", function() {
+    initTestDB(this.name, function(err, db) {
+      ok(!err, 'opened the pouch');
+      db.post({version: "first"}, function (err, info) {
+        var firstrev = info.rev;
+        ok(!err, 'saved a doc with post');
+        db.put({_id: info.id, _rev: info.rev, version: 'second'}, function(err, info2) {
+          ok(!err && info2.rev !== info._rev, 'updated a doc with put');
+          db.get(info.id, {rev: info.rev}, function(err, oldRev) {
+            equal(oldRev.version, 'first', 'Fetched old revision');
+            start();
+          });
+        });
+      });
+    });
+  });
+
 });
