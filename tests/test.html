@@ -47,14 +47,14 @@
       testFiles.unshift('test.utils.js');
 
 
-      var srcFiles = ['../src/deps/uuid.js',
-        '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
-        '../src/pouch.collate.js', '../src/pouch.utils.js',
-        '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js'];
-
-      var prodFiles = ['../pouch.alpha.js'];
-
-      var minProdFiles = ['../pouch.alpha.min.js'];
+      var sourceFiles = {
+        'dev': ['../src/deps/uuid.js',
+          '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
+          '../src/pouch.collate.js', '../src/pouch.utils.js',
+          '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js'],
+        'release': ['../pouch.alpha.js'],
+        'release-min': ['../pouch.alpha.min.js']
+      };
 
       // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
       function asyncLoadScript(url, callback) {
@@ -103,15 +103,12 @@
         });
       };
 
-      // Switch this to srcFiles / prodFiles / minProdFiles to test
-      // the different builds
-      // var filesToTest = prodFiles;
-      // var filesToTest = minProdFiles;
-      var filesToTest = srcFiles;
+      var source = window.location.search.match(/[?&]test=([^&]+)/);
+      source = source && source[1] || 'dev';
 
       QUnit.config.testTimeout = 30000;
 
-      asyncParForEach(filesToTest, asyncLoadScript, function() {
+      asyncParForEach(sourceFiles[source], asyncLoadScript, function() {
         asyncParForEach(testFiles, asyncLoadScript, function() {
           startQUnit();
         });
