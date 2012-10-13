@@ -18,26 +18,33 @@
 
     <script type="text/javascript">
 
-      // If you want to run performance tests, uncomment these tests
-      // and comment out the testFiles below
-      //var testFiles = [
-      //  'test.utils.js',
-      //  'perf.attachments.js'
-      //];
+      // use query parameter testFiles if present,
+      // eg: test.html?testFiles=test.basics.js
+      var testFiles = window.location.search.match(/[?&]testFiles=([^&]+)/);
+      testFiles = testFiles && testFiles[1].split(',') || [];
 
-      var testFiles = ['test.utils.js', 'test.basics.js', 'test.changes.js',
-        'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
-        'test.merge_rev_tree.js',  'test.revs_diff.js',
-        'test.replication.js', 'test.views.js', 'test.auth_replication.js',
-        'test.design_docs.js'];
+      if (!testFiles.length) {
+        // If you want to run performance tests, uncomment these tests
+        // and comment out the testFiles below
+        //testFiles = [
+        //  'perf.attachments.js'
+        //];
 
-      // attachments dont run well on the ci server yet.
-      // if there is a hash, it is because the git rev is put on the url as a hash
-      // take that as a sign not to run the attachment tests
-      if (!window.location.hash || window.location.hash.length == 0) {
-          testFiles.push('test.attachments.js');
+        testFiles = ['test.basics.js', 'test.changes.js',
+          'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
+          'test.merge_rev_tree.js',  'test.revs_diff.js',
+          'test.replication.js', 'test.views.js', 'test.auth_replication.js',
+          'test.design_docs.js'];
+
+        // attachments dont run well on the ci server yet.
+        // if there is a hash, it is because the git rev is put on the url as a hash
+        // take that as a sign not to run the attachment tests
+        if (!window.location.hash || window.location.hash.length == 0) {
+            testFiles.push('test.attachments.js');
+        }
       }
 
+      testFiles.unshift('test.utils.js');
 
 
       var srcFiles = ['../src/deps/uuid.js',
