@@ -61,6 +61,25 @@
     });
   });
 
+  asyncTest("Continuous changes across windows", function() {
+    var dbname = this.name;
+    initTestDB(this.name, function(err, db) {
+      var count = 0;
+      var tab;
+      var changes = db.changes({
+        onChange: function(change) {
+          count += 1;
+          equal(count, 1, 'Recieved a single change');
+          changes.cancel();
+          tab && tab.close();
+          start();
+        },
+        continuous: true
+      });
+      tab = window.open('post.html#' + encodeURIComponent(dbname));
+    });
+  });
+
   asyncTest("Continuous changes doc", function() {
     initTestDB(this.name, function(err, db) {
       var changes = db.changes({
