@@ -76,7 +76,7 @@
   //       },
   //       continuous: true
   //     });
-  //     tab = window.open('post.html#' + encodeURIComponent(dbname));
+  //     tab = window.open('test.html?testFiles=test.post.js&dbname=' + encodeURIComponent(dbname));
   //   });
   // });
 
