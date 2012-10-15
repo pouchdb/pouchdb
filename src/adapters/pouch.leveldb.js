@@ -34,8 +34,8 @@ var ATTACH_STORE = 'attach-store';
 
 // store the value of update_seq in the by-sequence store the key name will
 // never conflict, since the keys in the by-sequence store are integers
-var UPDATE_SEQ_KEY = 'last_update_seq';
-var DOC_COUNT_KEY = 'doc_count';
+var UPDATE_SEQ_KEY = '_local_last_update_seq';
+var DOC_COUNT_KEY = '_local_doc_count';
 
 function dbError(callback) {
   return function(err) {
@@ -150,7 +150,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
   function initstore(store_name, encoding) {
     var dbpath = path.resolve(path.join(opts.name, store_name));
-    opts.encoding = encoding || 'json';
+    opts.valueEncoding = encoding || 'json';
 
     // createIfMissing = true by default
     opts.createIfMissing = opts.createIfMissing === undefined ? true : opts.createIfMissing;
@@ -526,9 +526,9 @@ LevelPouch = module.exports = function(opts, callback) {
     }
   }
 
-  api.allDocs = function(options, callback) {
-    if (options instanceof Function) {
-      callback = options;
+  api.allDocs = function(opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
       options = {};
     }
 
@@ -538,7 +538,7 @@ LevelPouch = module.exports = function(opts, callback) {
     if ('endkey' in opts && opts.endkey)
       readstreamOpts.end = opts.endkey;
     if ('descending' in opts && opts.descending)
-      readstreamOpts.descending = true;
+      readstreamOpts.reverse = true;
 
     var results = [];
 
@@ -568,7 +568,7 @@ LevelPouch = module.exports = function(opts, callback) {
         }
       }
       if (opts.include_docs) {
-        stores[BY_SEQ_STORE].get(enrty.value.seq, function(err, data) {
+        stores[BY_SEQ_STORE].get(entry.value.seq, function(err, data) {
           allDocsInner(entry.value, data);
         });
       }
@@ -603,7 +603,7 @@ LevelPouch = module.exports = function(opts, callback) {
       opts.complete = callback;
     }
     if (!opts.seq) {
-      opts.seq = '0';
+      opts.seq = opts.descending ? update_seq : '0';
     }
     if (opts.since) {
       opts.seq = toString.call(opts.since);
@@ -628,9 +628,17 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function fetchChanges() {
-      var changeStream = stores[BY_SEQ_STORE].readStream({start: opts.seq, reverse: descending});
+      var streamOpts = {
+        start: opts.seq,
+        reverse: descending
+      }
+      var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
+          if (/_local/.test(data.key)) {
+            return;
+          }
+
           stores[DOC_STORE].get(data.value._id, function(err, metadata) {
             if (/_local/.test(metadata.id)) {
               return;
