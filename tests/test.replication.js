@@ -191,7 +191,6 @@ adapters.map(function(adapters) {
   });
 
 
-  /*
   // CouchDB will not generate a conflict here, it uses a deteministic
   // method to generate the revision number, however we cannot copy its
   // method as it depends on erlangs internal data representation
@@ -405,7 +404,6 @@ adapters.map(function(adapters) {
       });
     });
   });
- */
 
 
 });

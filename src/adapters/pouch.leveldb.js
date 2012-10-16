@@ -32,6 +32,10 @@ var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
 var ATTACH_STORE = 'attach-store';
 
+// leveldb barks if we try to open a db multiple times
+// so we cache opened connections here for initstore()
+var STORES = {};
+
 // store the value of update_seq in the by-sequence store the key name will
 // never conflict, since the keys in the by-sequence store are integers
 var UPDATE_SEQ_KEY = '_local_last_update_seq';
@@ -155,7 +159,14 @@ LevelPouch = module.exports = function(opts, callback) {
     // createIfMissing = true by default
     opts.createIfMissing = opts.createIfMissing === undefined ? true : opts.createIfMissing;
 
-    levelup(dbpath, opts, function(err, ldb) {
+    if (STORES[dbpath] !== undefined) {
+      setup_store(null, STORES[dbpath]);
+    }
+    else {
+      levelup(dbpath, opts, setup_store);
+    }
+
+    function setup_store(err, ldb) {
       if (stores.err) return;
       if (err) {
         stores.err = err;
@@ -163,6 +174,7 @@ LevelPouch = module.exports = function(opts, callback) {
       }
 
       stores[store_name] = ldb;
+      STORES[dbpath] = ldb;
 
       if (!stores[DOC_STORE] ||
           !stores[BY_SEQ_STORE] ||
@@ -182,12 +194,6 @@ LevelPouch = module.exports = function(opts, callback) {
         finish();
       });
 
-      function finish() {
-        if (doc_count >= 0 && update_seq >= 0) {
-          process.nextTick(function() { call(callback, null, api) });
-        }
-      }
-
       stores[BY_SEQ_STORE].get(UPDATE_SEQ_KEY, function(err, value) {
         if (!err) {
           update_seq = value;
@@ -197,7 +203,13 @@ LevelPouch = module.exports = function(opts, callback) {
         }
         finish();
       });
-    });
+
+      function finish() {
+        if (doc_count >= 0 && update_seq >= 0) {
+          process.nextTick(function() { call(callback, null, api) });
+        }
+      }
+    };
   }
 
   // the db's id is just the path to the leveldb directory
@@ -784,14 +796,43 @@ LevelPouch.valid = function() {
   return true;
 }
 
+// close and delete open leveldb stores
 LevelPouch.destroy = function(name, callback) {
-  rmdir(name, function(err) {
-    if (err && err.code === 'ENOENT') {
-      // TODO: MISSING_DOC name is somewhat misleading in this context
-      return callback(pouch.Errors.MISSING_DOC);
+  var dbpath = path.resolve(name);
+  var stores = [
+    path.join(dbpath, DOC_STORE),
+    path.join(dbpath, BY_SEQ_STORE),
+    path.join(dbpath, ATTACH_STORE),
+  ];
+  var closed = 0;
+  stores.map(function(path) {
+    var store = STORES[path]
+    if (store) {
+      store.close(function() {
+        delete STORES[path];
+
+        if (++closed >= stores.length) {
+          done();
+        }
+      });
     }
-    return callback(err);
+    else {
+      if (++closed >= stores.length) {
+        done();
+      }
+    }
   });
+
+  function done() {
+    rmdir(name, function(err) {
+      if (err && err.code === 'ENOENT') {
+        // TODO: MISSING_DOC name is somewhat misleading in this context
+        return callback(pouch.Errors.MISSING_DOC);
+      }
+      return callback(err);
+    });
+  }
+
 }
 
 pouch.adapter('ldb', LevelPouch);
@@ -800,9 +841,15 @@ pouch.adapter('ldb', LevelPouch);
 function rmdir(dir, callback) {
   fs.readdir(dir, function rmfiles(err, files) {
     if (err) {
-      return err.code == 'ENOTDIR'
-        ? fs.unlink(dir, callback)
-        : callback(err);
+      if (err.code == 'ENOTDIR') {
+        return fs.unlink(dir, callback);
+      }
+      else if (callback) {
+        return callback(err);
+      }
+      else {
+        return;
+      }
     }
     var count = files.length;
     if (count == 0) {
