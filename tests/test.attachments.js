@@ -4,17 +4,30 @@
         -d ./src/pouch.js ./tests/test.utils.js \
         -c ./src/adapters/pouch.leveldb.js
  */
-var Pouch = require('../src/pouch.js')
-  , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-  , utils = require('./test.utils.js')
+var adapters = ['idb-1', 'http-1']
+  , repl_adapters = [['idb-1', 'http-1'],
+         ['http-1', 'http-2'],
+         ['http-1', 'idb-1'],
+         ['idb-1', 'idb-2']]
+  , qunit = module;
 
-for (var k in utils) {
-  global[k] = global[k] || utils[k];
+// if we are running under node.js, set things up
+// a little differently, and only test the leveldb adapter
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  qunit = QUnit.module;
+  adapters = ['ldb-1'];
+  repl_adapters = []; // TODO
 }
 
-['ldb-1'].map(function(adapter) {
-
-  QUnit.module('attachments: ' + adapter, {
+adapters.map(function(adapter) {
+  qunit('attachments: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }
@@ -102,18 +115,12 @@ for (var k in utils) {
       });
     });
   });
-
-
-
 });
 
 
-[['idb-1', 'http-1'],
- ['http-1', 'http-2'],
- ['http-1', 'idb-1'],
- ['idb-1', 'idb-2']].map(function(adapters) {
+repl_adapters.map(function(adapters) {
 
-  module('replication: ' + adapters[0] + ':' + adapters[1], {
+  qunit('replication: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
       this.name = generateAdapterUrl(adapters[0]);
       this.remote = generateAdapterUrl(adapters[1]);

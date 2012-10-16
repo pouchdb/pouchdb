@@ -275,6 +275,11 @@ LevelPouch = module.exports = function(opts, callback) {
           });
         }
         else {
+          if (doc._attachments){
+            for (var key in doc._attachments) {
+              doc._attachments[key].stub = true;
+            }
+          }
           callback(null, doc);
         }
       });
@@ -334,7 +339,6 @@ LevelPouch = module.exports = function(opts, callback) {
       }
       api.put(obj, callback);
     });
-
   }
 
   api.remove = function(doc, opts, callback) {
@@ -436,11 +440,15 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function writeDoc(doc, callback) {
-      for (var key in doc.data._attachments) {
+      var attachments = doc.data._attachments
+        ? Object.keys(doc.data._attachments)
+        : [];
+      for (var i=0; i<attachments.length; i++) {
+        var key = attachments[i];
         if (!doc.data._attachments[key].stub) {
           var data = doc.data._attachments[key].data
             , digest = 'md5-' + crypto.createHash('md5')
-                .update(data)
+                .update(data || '')
                 .digest('hex');
           delete doc.data._attachments[key].data;
           doc.data._attachments[key].digest = digest;
@@ -479,7 +487,7 @@ LevelPouch = module.exports = function(opts, callback) {
     function saveAttachment(digest, data) {
       stores[ATTACH_STORE].put(digest, data, function(err) {
         if (err) {
-          return console.err(err);
+          return console.error(err);
         }
       });
     }
