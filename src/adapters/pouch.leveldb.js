@@ -525,7 +525,7 @@ LevelPouch = module.exports = function(opts, callback) {
         change_emitter.emit('change', change);
       });
 
-      process.nextTick(function() { callback(null, aresults); });
+      process.nextTick(function() { call(callback, null, aresults); });
     }
 
     function makeErr(err, seq) {
