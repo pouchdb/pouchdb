@@ -62,7 +62,10 @@
   });
 
   // asyncTest("Continuous changes across windows", function() {
-  //   var dbname = this.name;
+  //   var search = window.location.search
+  //     .replace(/[?&]testFiles=[^&]+/, '')
+  //     .replace(/[?&]dbname=[^&]+/, '')
+  //     + '&testFiles=test.post.js&dbname=' + encodeURIComponent(this.name);
   //   initTestDB(this.name, function(err, db) {
   //     var count = 0;
   //     var tab;
@@ -76,7 +79,7 @@
   //       },
   //       continuous: true
   //     });
-  //     tab = window.open('post.html#' + encodeURIComponent(dbname));
+  //     tab = window.open('test.html?' + search.replace(/^[?&]+/, ''));
   //   });
   // });
 
