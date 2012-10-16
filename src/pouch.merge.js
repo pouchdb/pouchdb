@@ -1,7 +1,7 @@
 (function() {
   // a few hacks to get things in the right place for node.js
   if (typeof module !== 'undefined' && module.exports) {
-    Pouch = module.exports;
+    module.exports = Pouch;
     var utils = require('./pouch.utils.js');
     for (var k in utils) {
       global[k] = utils[k];

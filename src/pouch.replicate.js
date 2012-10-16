@@ -1,3 +1,7 @@
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Pouch;
+}
+
 (function() {
 
   function replicate(src, target, opts, callback, replicateRet) {

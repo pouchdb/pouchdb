@@ -257,7 +257,16 @@ var localJSON = (function(){
 })();
 
 if (typeof module !== 'undefined' && module.exports) {
+  // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
+  var crypto = require('crypto');
+  var Crypto = {
+    MD5: function(str) {
+      return crypto.createHash('md5').update(str).digest('hex');
+    }
+  }
+
   module.exports = {
+    Crypto: Crypto,
     call: call,
     yankError: yankError,
     isAttachmentId: isAttachmentId,

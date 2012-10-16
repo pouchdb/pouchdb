@@ -591,6 +591,36 @@ LevelPouch = module.exports = function(opts, callback) {
   }
 
   api.revsDiff = function(req, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+
+    var ids = Object.keys(req)
+      , count = 0
+      , missing = {};
+
+    function readDoc(err, doc, id) {
+      req[id].map(function(revId) {
+        var matches = function(x) { return x.rev !== revId };
+        if (!doc || doc._revs_info.every(matches)) {
+          if (!missing[id]) {
+            missing[id] = {missing: []};
+          }
+          missing[id].missing.push(revId);
+        }
+      });
+
+      if (++count === ids.length) {
+        return call(callback, null, missing);
+      }
+    }
+
+    ids.map(function(id) {
+      api.get(id, {revs_info: true}, function(err, doc) {
+        readDoc(err, doc, id);
+      });
+    });
   }
 
   api.changes = function(opts, callback) {
@@ -724,9 +754,19 @@ LevelPouch = module.exports = function(opts, callback) {
   api.replicate = {}
 
   api.replicate.from = function(url, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    return Pouch.replicate(url, api, opts, callback);
   }
 
   api.replicate.to = function(dbname, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    return Pouch.replicate(api, dbname, opts, callback);
   }
 
   return api;
