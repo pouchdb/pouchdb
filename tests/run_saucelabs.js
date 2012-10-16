@@ -7,9 +7,6 @@ process.on('uncaughtException', function (err) {
     process.exit(1);
 });
 
-
-
-
 var browser = soda.createSauceClient({
   'url': 'http://saucelabs.com/'
 , 'username': 'pouchdb'
@@ -24,7 +21,7 @@ browser.on('command', function(cmd, args){
   console.log(' \x1b[33m%s\x1b[0m: %s', cmd, args.join(', '));
 });
 
-var url = 'http://127.0.0.1:8000/tests/test.html';
+var url = 'http://127.0.0.1:8000/tests/test.html?test=release-min';
 if(process.argv[2]) {
     git_hash = process.argv[2];
     url += '#' + git_hash;
