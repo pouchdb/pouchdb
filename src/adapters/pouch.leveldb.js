@@ -604,7 +604,7 @@ LevelPouch = module.exports = function(opts, callback) {
     });
     docstream.on('error', function(err) {
       // TODO: handle error
-      console.log(err);
+      console.error(err);
     });
     docstream.on('end', function() {
     });
@@ -662,7 +662,7 @@ LevelPouch = module.exports = function(opts, callback) {
       opts.seq = opts.descending ? update_seq : '0';
     }
     if (opts.since) {
-      opts.seq = toString.call(opts.since);
+      opts.seq = String(opts.since + 1);
     }
 
     var descending = 'descending' in opts ? opts.descending : false
