@@ -36,6 +36,10 @@ var ATTACH_STORE = 'attach-store';
 // so we cache opened connections here for initstore()
 var STORES = {};
 
+// global store of change_emitter objects (one per db name)
+// this allows replication to work by providing a db name as the src
+var CHANGES = {};
+
 // store the value of update_seq in the by-sequence store the key name will
 // never conflict, since the keys in the by-sequence store are integers
 var UPDATE_SEQ_KEY = '_local_last_update_seq';
@@ -131,7 +135,9 @@ LevelPouch = module.exports = function(opts, callback) {
     , doc_count = 0
     , stores = {}
     , name = opts.name
-    , change_emitter = new EventEmitter();
+    , change_emitter = CHANGES[name] || new EventEmitter();
+
+  CHANGES[name] = change_emitter;
 
   fs.stat(opts.name, function(err, stats) {
     if (err && err.code == 'ENOENT') {
@@ -671,7 +677,7 @@ LevelPouch = module.exports = function(opts, callback) {
                           design.filters[filtername[1]] + '})()');
         opts.filter = filter;
         fetchChanges();
-      })
+      });
     }
     else {
       fetchChanges();
@@ -729,7 +735,7 @@ LevelPouch = module.exports = function(opts, callback) {
           if (opts.continuous && !opts.cancelled) {
             change_emitter.on('change', changeListener);
           }
-          results.map(pouch.utils.filterChange(opts));
+          results = results.map(pouch.utils.filterChange(opts));
           call(opts.complete, null, {results: results});
         })
     }
