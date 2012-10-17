@@ -557,7 +557,11 @@ LevelPouch = module.exports = function(opts, callback) {
       options = {};
     }
 
-    var readstreamOpts = {}
+    var readstreamOpts = {
+      reverse: false,
+      start: '-1',
+      end: Number.POSITIVE_INFINITY,
+    }
     if ('startkey' in opts && opts.startkey)
       readstreamOpts.start = opts.startkey;
     if ('endkey' in opts && opts.endkey)
@@ -734,7 +738,8 @@ LevelPouch = module.exports = function(opts, callback) {
           if (opts.continuous && !opts.cancelled) {
             change_emitter.on('change', changeListener);
           }
-          results = results.map(Pouch.utils.filterChange(opts));
+          // filters changes in-place, calling opts.onChange on matching changes
+          results.map(Pouch.utils.filterChange(opts));
           call(opts.complete, null, {results: results});
         })
     }
@@ -832,9 +837,9 @@ LevelPouch.destroy = function(name, callback) {
     rmdir(name, function(err) {
       if (err && err.code === 'ENOENT') {
         // TODO: MISSING_DOC name is somewhat misleading in this context
-        return callback(Pouch.Errors.MISSING_DOC);
+        return call(callback, Pouch.Errors.MISSING_DOC);
       }
-      return callback(err);
+      return call(callback, err);
     });
   }
 
