@@ -22,7 +22,7 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
-  adapters = ['ldb-1'];
+  adapters = ['ldb-1', 'http-1'];
   repl_adapters = []; // TODO
 }
 
