@@ -230,6 +230,80 @@ var filterChange = function(opts) {
   }
 }
 
+var ajax = function ajax(options, callback) {
+  var success = function sucess(obj, _, xhr) {
+      call(callback, null, obj, xhr);
+  };
+  var error = function error(err) {
+    if (err) {
+      var errObj = {status: err.status};
+      try {
+        errObj = $.extend({}, errObj, JSON.parse(err.responseText));
+      } catch (e) {}
+      call(callback, errObj);
+    } else {
+      call(callback, true);
+    }
+  };
+
+  var defaults = {
+    success: success,
+    error: error,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    dataType: 'json',
+  };
+  options = $.extend({}, defaults, options);
+
+  if (options.data && typeof options.data !== 'string') {
+    options.data = JSON.stringify(options.data);
+  }
+  if (options.auth) {
+    options.beforeSend = function(xhr) {
+      var token = btoa(options.auth.username + ":" + options.auth.password);
+      xhr.setRequestHeader("Authorization", "Basic " + token);
+    }
+  }
+  if ($.ajax) {
+    return $.ajax(options);
+  }
+  else {
+    if (options.data) {
+      options.body = options.data;
+      delete options.data;
+    }
+    if (options.type) {
+      options.method = options.type;
+      delete options.type;
+    }
+    return request(options, function(err, response, body) {
+      var content_type = response.headers['content-type']
+        , data = (body || '').trim();
+
+      // CouchDB doesn't always return the right content-type for JSON data, so
+      // we check for ^{ and }$ (ignoring leading/trailing whitespace)
+      if (/json/.test(content_type)
+          || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data))) {
+        data = JSON.parse(data);
+      }
+
+      if (err) {
+        err.status = response ? response.statusCode : 400;
+        call(callback, err);
+      }
+      else if (data.error) {
+        data.status = response.statusCode;
+        call(callback, data);
+      }
+      else {
+        success(data, 'OK', response);
+      }
+    });
+  }
+};
+
 // Basic wrapper for localStorage
 var win = this;
 var localJSON = (function(){
@@ -256,6 +330,18 @@ var localJSON = (function(){
   };
 })();
 
+// btoa and atob don't exist in node. see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
+if (typeof btoa === 'undefined') {
+  var btoa = function(str) {
+    return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
+  }
+}
+if (typeof atob === 'undefined') {
+  var atob = function(str) {
+    return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
+  }
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
   var crypto = require('crypto');
@@ -264,6 +350,9 @@ if (typeof module !== 'undefined' && module.exports) {
       return crypto.createHash('md5').update(str).digest('hex');
     }
   }
+  var request = require('request')
+    , _ = require('underscore')
+    , $ = _
 
   module.exports = {
     Crypto: Crypto,
@@ -283,5 +372,8 @@ if (typeof module !== 'undefined' && module.exports) {
     rootToLeaf: rootToLeaf,
     arrayFirst: arrayFirst,
     filterChange: filterChange,
+    ajax: ajax,
+    atob: atob,
+    btoa: btoa,
   }
 }

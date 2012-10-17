@@ -84,71 +84,6 @@ function genUrl(opts, path) {
   return '/' + opts.db + '/' + path;
 };
 
-function ajax(options, callback) {
-  var success = function sucess(obj, _, xhr) {
-      call(callback, null, obj, xhr);
-  };
-  var error = function error(err) {
-    if (err) {
-      var errObj = {status: err.status};
-      try {
-        errObj = $.extend({}, errObj, JSON.parse(err.responseText));
-      } catch (e) {}
-      call(callback, errObj);
-    } else {
-      call(callback, true);
-    }
-  };
-
-  var defaults = {
-    success: success,
-    error: error,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    dataType: 'json',
-  };
-  options = $.extend({}, defaults, options);
-
-  if (options.data && typeof options.data !== 'string') {
-    options.data = JSON.stringify(options.data);
-  }
-  if (options.auth) {
-    options.beforeSend = function(xhr) {
-      var token = btoa(options.auth.username + ":" + options.auth.password);
-      xhr.setRequestHeader("Authorization", "Basic " + token);
-    }
-  }
-  if ($.ajax) {
-    return $.ajax(options);
-  }
-  else {
-    if (options.data) {
-      options.body = options.data;
-      delete options.data;
-    }
-    if (options.type) {
-      options.method = options.type;
-      delete options.type;
-    }
-    return request(options, function(err, response, body) {
-      var data = JSON.parse(body);
-
-      if (err) {
-        err.status = response.statusCode;
-        call(callback, err);
-      }
-      else if (data.error) {
-        data.status = response.statusCode;
-        call(callback, data);
-      }
-      else {
-        success(data, 'OK', response);
-      }
-    });
-  }
-};
 
 // Implements the PouchDB API for dealing with CouchDB instances over HTTP
 var HttpPouch = function(opts, callback) {
@@ -695,11 +630,8 @@ if (typeof module !== 'undefined' && module.exports) {
   // running in node
   var pouchdir = '../'
     , Pouch = require(pouchdir + 'pouch.js')
-    , request = require('request')
-    , _ = require('underscore')
-    , $ = _
+  var ajax = Pouch.utils.ajax;
 }
-
 
 // Set HttpPouch to be the adapter used with the http scheme.
 Pouch.adapter('http', HttpPouch);

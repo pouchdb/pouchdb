@@ -327,7 +327,7 @@ LevelPouch = module.exports = function(opts, callback) {
             return callback(err);
           }
           var data = opts.decode
-            ? new Buffer(attach.toString(), 'base64').toString()
+            ? Pouch.utils.atob(attach.toString())
             : attach.toString();
 
           call(callback, null, data);
@@ -352,7 +352,7 @@ LevelPouch = module.exports = function(opts, callback) {
       obj._attachments || (obj._attachments = {});
       obj._attachments[attachId] = {
         content_type: type,
-        data: new Buffer(doc, 'binary').toString('base64')
+        data: Pouch.utils.btoa(doc)
       }
       api.put(obj, callback);
     });

@@ -17,13 +17,17 @@ if (typeof module !== undefined && module.exports) {
   var Pouch = require('../src/pouch.js')
     , LevelPouch = require('../src/adapters/pouch.leveldb.js')
     , utils = require('./test.utils.js')
+    , btoa = Pouch.utils.btoa;
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
   adapters = ['ldb-1', 'http-1'];
-  repl_adapters = []; // TODO
+  repl_adapters = [['ldb-1', 'http-1'],
+         ['http-1', 'http-2'],
+         ['http-1', 'ldb-1'],
+         ['ldb-1', 'ldb-2']];
 }
 
 adapters.map(function(adapter) {
@@ -80,7 +84,7 @@ adapters.map(function(adapter) {
           db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
             ok(res._attachments, 'Result has attachments field');
             equal(res._attachments['foo2.txt'].data,
-                  new Buffer('This is no base64 encoded text', 'binary').toString('base64'));
+                  btoa('This is no base64 encoded text', 'binary'));
             equal(res._attachments['foo.txt'].data, '');
             start();
           });
