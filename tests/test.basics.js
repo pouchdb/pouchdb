@@ -9,7 +9,7 @@ if (typeof module !== undefined && module.exports) {
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['ldb-1']
+  adapters = ['http-1', 'ldb-1']
   qunit = QUnit.module;
 }
 

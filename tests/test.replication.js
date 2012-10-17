@@ -19,9 +19,11 @@ if (typeof module !== undefined && module.exports) {
 
   // TODO: get an http adapter working and test replication to http
   adapters = [
-    ['ldb-1', 'ldb-2'],
-    ['ldb-2', 'ldb-3'],
-  ];
+      ['ldb-1', 'http-1'],
+      ['http-1', 'http-2'],
+      ['http-1', 'ldb-1'],
+      ['ldb-1', 'ldb-2']]
+
 }
 
 adapters.map(function(adapters) {

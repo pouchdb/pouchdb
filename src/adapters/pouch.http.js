@@ -85,26 +85,29 @@ function genUrl(opts, path) {
 };
 
 function ajax(options, callback) {
-  var defaults = {
-    success: function (obj, _, xhr) {
+  var success = function sucess(obj, _, xhr) {
       call(callback, null, obj, xhr);
-    },
-    error: function (err) {
-      if (err) {
-        var errObj = {status: err.status};
-        try {
-          errObj = $.extend({}, errObj, JSON.parse(err.responseText));
-        } catch (e) {}
-        call(callback, errObj);
-      } else {
-        call(callback, true);
-      }
-    },
+  };
+  var error = function error(err) {
+    if (err) {
+      var errObj = {status: err.status};
+      try {
+        errObj = $.extend({}, errObj, JSON.parse(err.responseText));
+      } catch (e) {}
+      call(callback, errObj);
+    } else {
+      call(callback, true);
+    }
+  };
+
+  var defaults = {
+    success: success,
+    error: error,
     headers: {
-      Accept: 'application/json'
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
     dataType: 'json',
-    contentType: 'application/json'
   };
   options = $.extend({}, defaults, options);
 
@@ -117,7 +120,34 @@ function ajax(options, callback) {
       xhr.setRequestHeader("Authorization", "Basic " + token);
     }
   }
-  return $.ajax(options);
+  if ($.ajax) {
+    return $.ajax(options);
+  }
+  else {
+    if (options.data) {
+      options.body = options.data;
+      delete options.data;
+    }
+    if (options.type) {
+      options.method = options.type;
+      delete options.type;
+    }
+    return request(options, function(err, response, body) {
+      var data = JSON.parse(body);
+
+      if (err) {
+        err.status = response.statusCode;
+        error(err);
+      }
+      else if (data.error) {
+        data.status = response.statusCode;
+        error(data);
+      }
+      else {
+        success(data, 'OK', response);
+      }
+    });
+  }
 };
 
 // Implements the PouchDB API for dealing with CouchDB instances over HTTP
@@ -660,6 +690,16 @@ HttpPouch.destroy = function(name, callback) {
 HttpPouch.valid = function() {
   return true;
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+  // running in node
+  var pouchdir = '../'
+    , Pouch = require(pouchdir + 'pouch.js')
+    , request = require('request')
+    , _ = require('underscore')
+    , $ = _
+}
+
 
 // Set HttpPouch to be the adapter used with the http scheme.
 Pouch.adapter('http', HttpPouch);

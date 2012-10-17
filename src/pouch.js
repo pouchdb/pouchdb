@@ -102,5 +102,13 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.merge = require('./pouch.merge.js').merge;
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
+  Pouch.utils = require('./pouch.utils.js');
   module.exports = Pouch;
+
+  // load adapters known to work under node
+  var adapters = ['leveldb', 'http'];
+  adapters.map(function(adapter) {
+    var adapter_path = './adapters/pouch.'+adapter+'.js';
+    require(adapter_path);
+  });
 }

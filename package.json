@@ -12,6 +12,8 @@
         "simple-uuid" : null,
         "md5" : null,
         "levelup": null
+        "request": null
+        "underscore": null
   },
   "maintainers":[
         {

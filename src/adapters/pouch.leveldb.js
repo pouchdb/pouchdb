@@ -9,7 +9,6 @@
 var pouchdir = '../'
   , Pouch = require(pouchdir + 'pouch.js')
 
-Pouch.utils = require(pouchdir + 'pouch.utils.js')
 var call = Pouch.utils.call;
 
 // TODO: this adds the Math.uuid function used in pouch.utils
