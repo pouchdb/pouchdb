@@ -137,11 +137,11 @@ function ajax(options, callback) {
 
       if (err) {
         err.status = response.statusCode;
-        error(err);
+        call(callback, err);
       }
       else if (data.error) {
         data.status = response.statusCode;
-        error(data);
+        call(callback, data);
       }
       else {
         success(data, 'OK', response);
