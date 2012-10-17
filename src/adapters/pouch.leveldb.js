@@ -554,14 +554,14 @@ LevelPouch = module.exports = function(opts, callback) {
   api.allDocs = function(opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
-      options = {};
+      opts = {};
     }
 
     var readstreamOpts = {
       reverse: false,
       start: '-1',
-      end: Number.POSITIVE_INFINITY,
     }
+
     if ('startkey' in opts && opts.startkey)
       readstreamOpts.start = opts.startkey;
     if ('endkey' in opts && opts.endkey)
