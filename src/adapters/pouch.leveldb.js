@@ -7,10 +7,10 @@
  */
 
 var pouchdir = '../'
-  , pouch = require(pouchdir + 'pouch.js')
+  , Pouch = require(pouchdir + 'pouch.js')
 
-pouch.utils = require(pouchdir + 'pouch.utils.js')
-var call = pouch.utils.call;
+Pouch.utils = require(pouchdir + 'pouch.utils.js')
+var call = Pouch.utils.call;
 
 // TODO: this adds the Math.uuid function used in pouch.utils
 // possibly not the best place for it, but it works for now
@@ -238,22 +238,22 @@ LevelPouch = module.exports = function(opts, callback) {
       opts = {};
     }
 
-    if (pouch.utils.isAttachmentId(id)) {
+    if (Pouch.utils.isAttachmentId(id)) {
       return api.getAttachment(id, {decode: true}, callback);
     }
 
     stores[DOC_STORE].get(id, function(err, metadata) {
       if (err || !metadata || (metadata.deleted && !opts.rev)) {
-        return call(callback, pouch.Errors.MISSING_DOC);
+        return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
       stores[BY_SEQ_STORE].get(metadata.seq, function(err, doc) {
         doc._id = metadata.id;
-        doc._rev = pouch.utils.winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+        doc._rev = Pouch.utils.winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
 
         if (opts.revs) {
-          var path = pouch.utils.arrayFirst(
-            pouch.utils.rootToLeaf(metadata.rev_tree),
+          var path = Pouch.utils.arrayFirst(
+            Pouch.utils.rootToLeaf(metadata.rev_tree),
             function(arr) {
               return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1
             }
@@ -267,12 +267,12 @@ LevelPouch = module.exports = function(opts, callback) {
 
         if (opts.revs_info) {
           doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
-            return prev.concat(pouch.utils.collectRevs(current));
+            return prev.concat(Pouch.utils.collectRevs(current));
           }, []);
         }
 
         if (opts.conflicts) {
-          var conflicts = pouch.utils.collectConflicts(metadata.rev_tree);
+          var conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
           if (conflicts.length) {
             doc._conflicts = conflicts;
           }
@@ -342,7 +342,7 @@ LevelPouch = module.exports = function(opts, callback) {
       callback = opts;
       opts = {}
     }
-    return api.bulkDocs({docs: [doc]}, opts, pouch.utils.yankError(callback));
+    return api.bulkDocs({docs: [doc]}, opts, Pouch.utils.yankError(callback));
   }
 
   api.putAttachment = function(id, rev, doc, type, callback) {
@@ -367,7 +367,7 @@ LevelPouch = module.exports = function(opts, callback) {
     opts.was_delete = true;
     var newDoc = JSON.parse(JSON.stringify(doc));
     newDoc._deleted = true;
-    return api.bulkDocs({docs: [newDoc]}, opts, pouch.utils.yankError(callback));
+    return api.bulkDocs({docs: [newDoc]}, opts, Pouch.utils.yankError(callback));
   }
 
   api.bulkDocs = function(bulk, opts, callback) {
@@ -394,7 +394,7 @@ LevelPouch = module.exports = function(opts, callback) {
     // parse the docs and give each a sequence number
     var userDocs = JSON.parse(JSON.stringify(bulk.docs));
     info = userDocs.map(function(doc, i) {
-      var newDoc = pouch.utils.parseDoc(doc, newEdits);
+      var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;
     });
@@ -407,7 +407,7 @@ LevelPouch = module.exports = function(opts, callback) {
       if (!docs.length || info.metadata.id !== docs[docs.length-1].metadata.id) {
         return docs.push(info);
       }
-      results.push(makeErr(pouch.Errors.REV_CONFLICT, info._bulk_seq));
+      results.push(makeErr(Pouch.Errors.REV_CONFLICT, info._bulk_seq));
     });
 
     processDocs();
@@ -429,7 +429,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
     function insertDoc(doc, callback) {
       if ('was_delete' in opts && doc.metadata.deleted) {
-        results.push(makeErr(pouch.Errors.MISSING_DOC, doc._bulk_seq));
+        results.push(makeErr(Pouch.Errors.MISSING_DOC, doc._bulk_seq));
         return processDocs();
       }
       doc_count++;
@@ -444,12 +444,12 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo, callback) {
-      var merged = pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
+      var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
       var conflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
         (!oldDoc.deleted && newEdits && merged.conflicts !== 'new_leaf');
 
       if (conflict) {
-        results.push(makeErr(pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
+        results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
         return callback();
       }
 
@@ -485,7 +485,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
       stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
         if (err) {
-          return console.err(err);
+          return console.error(err);
         }
 
         stores[DOC_STORE].put(doc.metadata.id, doc.metadata);
@@ -520,7 +520,7 @@ LevelPouch = module.exports = function(opts, callback) {
           return aresults.push(result);
         }
         var metadata = result.metadata
-          , rev = pouch.utils.winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+          , rev = Pouch.utils.winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
 
         aresults.push({
           ok: true,
@@ -535,7 +535,7 @@ LevelPouch = module.exports = function(opts, callback) {
         var change = {
           id: metadata.id,
           seq: metadata.seq,
-          changes: pouch.utils.collectLeaves(metadata.rev_tree),
+          changes: Pouch.utils.collectLeaves(metadata.rev_tree),
           doc: result.data
         }
         change.doc._rev = rev;
@@ -703,11 +703,11 @@ LevelPouch = module.exports = function(opts, callback) {
             var change = {
               id: metadata.id,
               seq: metadata.seq,
-              changes: pouch.utils.collectLeaves(metadata.rev_tree),
+              changes: Pouch.utils.collectLeaves(metadata.rev_tree),
               doc: data.value
             };
 
-            change.doc._rev = pouch.utils.winningRev(
+            change.doc._rev = Pouch.utils.winningRev(
                 metadata.rev_tree[0].pos,
                 metadata.rev_tree[0].ids
               );
@@ -716,7 +716,7 @@ LevelPouch = module.exports = function(opts, callback) {
               change.deleted = true;
             }
             if (opts.conflicts) {
-              change.doc._conflicts = pouch.utils.collectConflicts(metadata.rev_tree);
+              change.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
             }
 
             // dedupe changes (TODO: more efficient way to accomplish this?)
@@ -728,14 +728,14 @@ LevelPouch = module.exports = function(opts, callback) {
         })
         .on('error', function(err) {
           // TODO: handle errors
-          console.err(err);
+          console.error(err);
         })
         .on('close', function() {
-          changeListener = pouch.utils.filterChange(opts)
+          changeListener = Pouch.utils.filterChange(opts)
           if (opts.continuous && !opts.cancelled) {
             change_emitter.on('change', changeListener);
           }
-          results = results.map(pouch.utils.filterChange(opts));
+          results = results.map(Pouch.utils.filterChange(opts));
           call(opts.complete, null, {results: results});
         })
     }
@@ -833,7 +833,7 @@ LevelPouch.destroy = function(name, callback) {
     rmdir(name, function(err) {
       if (err && err.code === 'ENOENT') {
         // TODO: MISSING_DOC name is somewhat misleading in this context
-        return callback(pouch.Errors.MISSING_DOC);
+        return callback(Pouch.Errors.MISSING_DOC);
       }
       return callback(err);
     });
@@ -841,7 +841,7 @@ LevelPouch.destroy = function(name, callback) {
 
 }
 
-pouch.adapter('ldb', LevelPouch);
+Pouch.adapter('ldb', LevelPouch);
 
 // recursive fs.rmdir for Pouch.destroy. Use with care.
 function rmdir(dir, callback) {
