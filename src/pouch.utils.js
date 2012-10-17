@@ -231,12 +231,18 @@ var filterChange = function(opts) {
 }
 
 var ajax = function ajax(options, callback) {
+  if (options.success && callback === undefined) {
+    callback = options.success;
+  }
+
   var success = function sucess(obj, _, xhr) {
       call(callback, null, obj, xhr);
   };
   var error = function error(err) {
     if (err) {
-      var errObj = {status: err.status};
+      var errObj = err.responseText
+        ? {status: err.status}
+        : err
       try {
         errObj = $.extend({}, errObj, JSON.parse(err.responseText));
       } catch (e) {}
@@ -270,6 +276,7 @@ var ajax = function ajax(options, callback) {
     return $.ajax(options);
   }
   else {
+    // convert options from xhr api to request api
     if (options.data) {
       options.body = options.data;
       delete options.data;
@@ -278,9 +285,10 @@ var ajax = function ajax(options, callback) {
       options.method = options.type;
       delete options.type;
     }
+
     return request(options, function(err, response, body) {
       var content_type = response.headers['content-type']
-        , data = (body || '').trim();
+        , data = (body || '');
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
@@ -291,14 +299,14 @@ var ajax = function ajax(options, callback) {
 
       if (err) {
         err.status = response ? response.statusCode : 400;
-        call(callback, err);
+        call(options.error, err);
       }
       else if (data.error) {
         data.status = response.statusCode;
-        call(callback, data);
+        call(options.error, data);
       }
       else {
-        success(data, 'OK', response);
+        call(options.success, data, 'OK', response);
       }
     });
   }
