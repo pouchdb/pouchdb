@@ -287,6 +287,11 @@ var ajax = function ajax(options, callback) {
     }
 
     return request(options, function(err, response, body) {
+      if (err) {
+        err.status = response ? response.statusCode : 400;
+        return call(options.error, err);
+      }
+
       var content_type = response.headers['content-type']
         , data = (body || '');
 
@@ -297,11 +302,7 @@ var ajax = function ajax(options, callback) {
         data = JSON.parse(data);
       }
 
-      if (err) {
-        err.status = response ? response.statusCode : 400;
-        call(options.error, err);
-      }
-      else if (data.error) {
+      if (data.error) {
         data.status = response.statusCode;
         call(options.error, data);
       }
