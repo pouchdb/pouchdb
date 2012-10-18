@@ -175,7 +175,7 @@ LevelPouch = module.exports = function(opts, callback) {
       if (stores.err) return;
       if (err) {
         stores.err = err;
-        return callback(err);
+        return call(callback, err);
       }
 
       stores[store_name] = ldb;
@@ -224,7 +224,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api.info = function(callback) {
     // TODO: doc_count is never updated
-    return callback(null, {
+    return call(callback, null, {
       name: opts.name,
       doc_count: doc_count,
       update_seq: update_seq,
@@ -315,16 +315,16 @@ LevelPouch = module.exports = function(opts, callback) {
 
     stores[DOC_STORE].get(docId, function(err, metadata) {
       if (err) {
-        return callback(err);
+        return call(callback, err);
       }
       stores[BY_SEQ_STORE].get(metadata.seq, function(err, doc) {
         if (err) {
-          return callback(err);
+          return call(callback, err);
         }
         var digest = doc._attachments[attachId].digest;
         stores[ATTACH_STORE].get(digest, function(err, attach) {
           if (err) {
-            return callback(err);
+            return call(callback, err);
           }
           var data = opts.decode
             ? Pouch.utils.atob(attach.toString())
@@ -379,7 +379,7 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     if (!bulk || !bulk.docs || bulk.docs.length < 1) {
-      return callback(Pouch.Errors.MISSING_BULK_DOCS);
+      return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
     }
     if (!Array.isArray(bulk.docs)) {
       return error(callback, new Error("docs should be an array of documents"));
