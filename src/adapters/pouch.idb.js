@@ -309,7 +309,7 @@ var IdbPouch = function(opts, callback) {
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                               IDBTransaction.READ);
 
-    if (/\//.test(id) && !/^_local/.test(id) && !/^_design/.test(id)) {
+    if (isAttachmentId(id)) {
       var docId = id.split('/')[0];
       var attachId = id.split('/')[1];
       txn.objectStore(DOC_STORE).get(docId).onsuccess = function(e) {
@@ -715,18 +715,6 @@ var IdbPouch = function(opts, callback) {
       new viewQuery(fun, idb, opts);
     }
   }
-
-  // Wrapper for functions that call the bulkdocs api with a single doc,
-  // if the first result is an error, return an error
-  var yankError = function(callback) {
-    return function(err, results) {
-      if (err || results[0].error) {
-        call(callback, err || results[0]);
-      } else {
-        call(callback, null, results[0]);
-      }
-    };
-  };
 
   var viewQuery = function(fun, idb, options) {
 

@@ -1,6 +1,23 @@
-['idb-1', 'http-1'].map(function(adapter) {
+var adapters = ['idb-1', 'http-1']
+  , qunit = module;
 
-  module('conflicts: ' + adapter, {
+// if we are running under node.js, set things up
+// a little differently, and only test the leveldb adapter
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  adapters = ['ldb-1', 'http-1']
+  qunit = QUnit.module;
+}
+
+adapters.map(function(adapter) {
+
+  qunit('conflicts: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }
@@ -21,7 +38,6 @@
             db.put(doc2, function(err) {
               ok(err.error === 'conflict', 'Put got a conflicts');
               db.changes(function(err, results) {
-                console.log(results.results);
                 ok(results.results.length === 1, 'We have one entry in changes');
                 doc2._rev = undefined;
                 db.put(doc2, function(err) {

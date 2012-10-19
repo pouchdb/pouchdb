@@ -1,6 +1,21 @@
-['idb-1', 'http-1'].map(function(adapter) {
+var adapters = ['idb-1', 'http-1']
+  , qunit = module;
 
-  module("basics: " + adapter, {
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  adapters = ['http-1', 'ldb-1']
+  qunit = QUnit.module;
+}
+
+adapters.map(function(adapter) {
+
+  qunit("basics: " + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }
@@ -133,6 +148,7 @@
     });
   });
 
+  /*
   asyncTest("Sync a doc", 6, function() {
     var couch = generateAdapterUrl('http-2');
     initTestDB(this.name, function(err, db) {
@@ -155,6 +171,7 @@
       })
     });
   });
+  */
 
   asyncTest("Check revisions", 1, function() {
     initTestDB(this.name, function(err, db) {
@@ -174,12 +191,18 @@
   // From here we are copying over tests from CouchDB
   // https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
 
+<<<<<<< HEAD
   asyncTest("Check database with slashes", 1, function() {
+=======
+  /*
+  asyncTest("Check database with slashes", function() {
+>>>>>>> chesles/node
     initTestDB('idb://test_suite_db%2Fwith_slashes', function(err, db) {
       ok(!err, 'opened');
       start();
     });
   });
+  */
 
   asyncTest("Basic checks", 8, function() {
     initTestDB(this.name, function(err, db) {

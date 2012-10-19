@@ -55,52 +55,58 @@ function generateAdapterUrl(id) {
   if (opt[0] === 'http') {
     return 'http://localhost:2020/test_suite_db' + opt[1];
   }
+  if (opt[0] === 'ldb') {
+    return 'ldb://testdb' + opt[1];
+  }
 }
 
 
 /**** Test Result Support ***************/
-    var doc = {};
-    QUnit.jUnitReport = function(report) {
-        doc.report = report;
-        doc.completed = new Date().getTime();
-        //doc.system = System;
-        if (window.location.hash && window.location.hash.length > 0) {
-            doc.git_commit = window.location.hash.substring(1);
-        }
-        $('button').on('click', function(){
-            submitResults();
-        });
-        new Pouch(generateAdapterUrl('http-110'), function(err, db) {
-            if (err) return console.log('Cant open db to store results');
-            db.post(doc, function (err, info) {
-              if (err) return console.log('Could not post results');
-              $('body').append('<p>Storing Results Complete.</p>')
-            });
-        });
+var doc = {};
+QUnit.jUnitReport = function(report) {
+    doc.report = report;
+    doc.completed = new Date().getTime();
+    //doc.system = System;
+    if (window.location.hash && window.location.hash.length > 0) {
+        doc.git_commit = window.location.hash.substring(1);
     }
-
-
-    function submitResults() {
-
-        $('button').text('uploading...').attr('disabled', 'disabled');
-        $.ajax({
-            type: 'POST',
-            url: 'http://localhost:2020/_replicate',
-            data: JSON.stringify({"source":"test_suite_db1","target":"http://reupholster.iriscouch.com/pouch_tests"}),
-            success: function() {
-                $('button').hide();
-                $('body').append('<p>Submission complete.</p>')
-            },
-            headers: {
-                Accept: 'application/json'
-            },
-            dataType: 'json',
-            contentType: 'application/json'
+    $('button').on('click', function(){
+        submitResults();
+    });
+    new Pouch(generateAdapterUrl('http-110'), function(err, db) {
+        if (err) return console.log('Cant open db to store results');
+        db.post(doc, function (err, info) {
+          if (err) return console.log('Could not post results');
+          $('body').append('<p>Storing Results Complete.</p>')
         });
-    }
+    });
+}
 
 
+function submitResults() {
+    $('button').text('uploading...').attr('disabled', 'disabled');
+    $.ajax({
+        type: 'POST',
+        url: 'http://localhost:2020/_replicate',
+        data: JSON.stringify({"source":"test_suite_db1","target":"http://reupholster.iriscouch.com/pouch_tests"}),
+        success: function() {
+            $('button').hide();
+            $('body').append('<p>Submission complete.</p>')
+        },
+        headers: {
+            Accept: 'application/json'
+        },
+        dataType: 'json',
+        contentType: 'application/json'
+    });
+}
 
-
-
-
+if (typeof module !== 'undefinedi' && module.exports) {
+  var Pouch = require('../src/pouch.js');
+  module.exports = {
+    makeDocs: makeDocs,
+    initTestDB: initTestDB,
+    initDBPair: initDBPair,
+    generateAdapterUrl: generateAdapterUrl,
+  }
+}

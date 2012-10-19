@@ -1,4 +1,8 @@
 (function() {
+  // a few hacks to get things in the right place for node.js
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Pouch;
+  }
 
   Pouch.collate = function(a, b) {
     var ai = collationIndex(a);

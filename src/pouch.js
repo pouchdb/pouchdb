@@ -1,4 +1,4 @@
-this.Pouch = function Pouch(name, opts, callback) {
+var Pouch = this.Pouch = function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
     return new Pouch(name, opts, callback);
@@ -96,3 +96,19 @@ Pouch.Errors = {
     reason: 'Database encountered an unknown error'
   }
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  global['Pouch'] = Pouch;
+  Pouch.merge = require('./pouch.merge.js').merge;
+  Pouch.collate = require('./pouch.collate.js').collate;
+  Pouch.replicate = require('./pouch.replicate.js').replicate;
+  Pouch.utils = require('./pouch.utils.js');
+  module.exports = Pouch;
+
+  // load adapters known to work under node
+  var adapters = ['leveldb', 'http'];
+  adapters.map(function(adapter) {
+    var adapter_path = './adapters/pouch.'+adapter+'.js';
+    require(adapter_path);
+  });
+}

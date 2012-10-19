@@ -1,9 +1,34 @@
-[['idb-1', 'http-1'],
- ['http-1', 'http-2'],
- ['http-1', 'idb-1'],
- ['idb-1', 'idb-2']].map(function(adapters) {
+var adapters = [
+      ['idb-1', 'http-1'],
+      ['http-1', 'http-2'],
+      ['http-1', 'idb-1'],
+      ['idb-1', 'idb-2']]
+  , qunit = module;
 
-  module('replication: ' + adapters[0] + ':' + adapters[1], {
+// if we are running under node.js, set things up
+// a little differently, and only test the leveldb adapter
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  qunit = QUnit.module;
+
+  // TODO: get an http adapter working and test replication to http
+  adapters = [
+      ['ldb-1', 'http-1'],
+      ['http-1', 'http-2'],
+      ['http-1', 'ldb-1'],
+      ['ldb-1', 'ldb-2']]
+
+}
+
+adapters.map(function(adapters) {
+
+  qunit('replication: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
       this.name = generateAdapterUrl(adapters[0]);
       this.remote = generateAdapterUrl(adapters[1]);
@@ -23,7 +48,7 @@
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
         db.replicate.from(self.remote, function(err, result) {
           ok(result.ok, 'replication was ok');
-          ok(result.docs_written = docs.length, 'correct # docs written');
+          ok(result.docs_written === docs.length, 'correct # docs written');
           start();
         });
       });
