@@ -363,19 +363,37 @@ syncing with CouchDB. An npm module is coming soon; until then if you want to
 try it out, follow these steps:
 
 <pre>
-mkdir node_modules && git clone https://github.com/chesles/pouchdb.git node_modules/pouchdb
-cd node_modules/pouchdb && git checkout node && npm install underscore request levelup && cd -
+mkdir -p node_modules
+git clone https://github.com/daleharvey/pouchdb.git node_modules/pouchdb
+npm install underscore request levelup
 </pre>
 
 The node-leveldb adapter exposes the same API as documented above, so you can
-use it just like you would in a browser. Instead of `idb://` use `ldb://` in
-the protocol field.
+use it just like you would in a browser. Instead of `idb://` use `ldb://` or
+`http://` in the protocol field of the url.
 
 <pre>
-node
-> var Pouch = require('pouchdb')
-> var db = Pouch("ldb://my-db") # leveldb-backed pouch
-> var couch = Pouch("http://localhost:5984") # CouchDB-backed pouch
+var Pouch = require('pouchdb')
+
+# leveldb-backed pouch
+Pouch("ldb://my-db", function(err, db) {
+  // use db.put, db.get, db.replicate, etc.
+});
+
+# couchdb-backed pouch
+Pouch("http://localhost:5984", function(err, db) {
+  // use db.put, db.get, db.replicate, etc.
+})
+</pre>
+
+To run the tests under node, install [node-qunit](https://github.com/kof/node-qunit) and run the proxy server and a local CouchDB in admin-party mode, as described below.
+
+<pre>
+npm install qunit
+node_modules/.bin/qunit \
+    -d ./src/pouch.js \
+    -c ./src/adapters/pouch.leveldb.js \
+    -t ./tests/test.basics.js # space-delimited list of tests to run
 </pre>
 
 ## Running the tests
