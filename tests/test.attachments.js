@@ -17,7 +17,7 @@ if (typeof module !== undefined && module.exports) {
   this.Pouch = require('../src/pouch.js');
   this.LevelPouch = require('../src/adapters/pouch.leveldb.js');
   this.utils = require('./test.utils.js');
-  this.utils = Pouch.utils.btoa;
+  this.utils = Pouch.utils;
 
   for (var k in this.utils) {
     global[k] = global[k] || this.utils[k];
