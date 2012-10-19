@@ -637,9 +637,9 @@ HttpPouch.valid = function() {
 
 if (typeof module !== 'undefined' && module.exports) {
   // running in node
-  var pouchdir = '../'
-    , Pouch = require(pouchdir + 'pouch.js')
-  var ajax = Pouch.utils.ajax;
+  var pouchdir = '../';
+  this.Pouch = require(pouchdir + 'pouch.js')
+  this.ajax = Pouch.utils.ajax;
 }
 
 // Set HttpPouch to be the adapter used with the http scheme.

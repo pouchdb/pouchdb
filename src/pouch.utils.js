@@ -363,9 +363,9 @@ if (typeof module !== 'undefined' && module.exports) {
       return crypto.createHash('md5').update(str).digest('hex');
     }
   }
-  var request = require('request')
-    , _ = require('underscore')
-    , $ = _
+  request = require('request');
+  _ = require('underscore');
+  $ = _;
 
   module.exports = {
     Crypto: Crypto,
