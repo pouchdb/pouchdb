@@ -5,6 +5,8 @@ var adapters = [
       ['idb-1', 'idb-2']]
   , qunit = module;
 
+var downAdapters = ['idb-1'];
+
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
@@ -16,6 +18,7 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
+  downAdapters = [];
 
   // TODO: get an http adapter working and test replication to http
   adapters = [
@@ -410,9 +413,9 @@ adapters.map(function(adapters) {
 
 // This test only needs to run for one configuration, and it slows stuff
 // down
-['idb-1'].map(function(adapter) {
+downAdapters.map(function(adapter) {
 
-  module('replication: ' + adapter, {
+  qunit('replication: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }

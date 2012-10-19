@@ -263,6 +263,7 @@ var ajax = function ajax(options, callback) {
       'Content-Type': 'application/json',
     },
     dataType: 'json',
+    timeout: 10000
   };
   options = $.extend({}, defaults, options);
 
@@ -344,12 +345,12 @@ var localJSON = (function(){
 
 // btoa and atob don't exist in node. see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
 if (typeof btoa === 'undefined') {
-  var btoa = function(str) {
+  btoa = function(str) {
     return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
   }
 }
 if (typeof atob === 'undefined') {
-  var atob = function(str) {
+  atob = function(str) {
     return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
   }
 }

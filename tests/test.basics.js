@@ -2,12 +2,12 @@ var adapters = ['idb-1', 'http-1']
   , qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  this.Pouch = require('../src/pouch.js');
+  this.LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  this.utils = require('./test.utils.js');
 
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
+  for (var k in this.utils) {
+    global[k] = global[k] || this.utils[k];
   }
   adapters = ['http-1', 'ldb-1']
   qunit = QUnit.module;
@@ -190,13 +190,8 @@ adapters.map(function(adapter) {
 
   // From here we are copying over tests from CouchDB
   // https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
-
-<<<<<<< HEAD
-  asyncTest("Check database with slashes", 1, function() {
-=======
   /*
-  asyncTest("Check database with slashes", function() {
->>>>>>> chesles/node
+  asyncTest("Check database with slashes", 1, function() {
     initTestDB('idb://test_suite_db%2Fwith_slashes', function(err, db) {
       ok(!err, 'opened');
       start();
