@@ -80,7 +80,7 @@ adapters.map(function(adapter) {
   //   var search = window.location.search
   //     .replace(/[?&]testFiles=[^&]+/, '')
   //     .replace(/[?&]dbname=[^&]+/, '')
-  //     + '&testFiles=test.post.js&dbname=' + encodeURIComponent(this.name);
+  //     + '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
   //   initTestDB(this.name, function(err, db) {
   //     var count = 0;
   //     var tab;
