@@ -86,43 +86,6 @@ function genUrl(opts, path) {
   return '/' + opts.db + '/' + path;
 };
 
-function ajax(options, callback) {
-  var defaults = {
-    timeout: HTTP_TIMEOUT,
-    success: function (obj, _, xhr) {
-      call(callback, null, obj, xhr);
-    },
-    error: function (err) {
-      if (err) {
-        var errObj = {status: err.status};
-        try {
-          errObj = $.extend({}, errObj, JSON.parse(err.responseText));
-        } catch (e) {}
-        call(callback, errObj);
-      } else {
-        call(callback, true);
-      }
-    },
-    headers: {
-      Accept: 'application/json'
-    },
-    dataType: 'json',
-    contentType: 'application/json'
-  };
-  options = $.extend({}, defaults, options);
-
-  if (options.data && typeof options.data !== 'string') {
-    options.data = JSON.stringify(options.data);
-  }
-  if (options.auth) {
-    options.beforeSend = function(xhr) {
-      var token = btoa(options.auth.username + ":" + options.auth.password);
-      xhr.setRequestHeader("Authorization", "Basic " + token);
-    }
-  }
-  return $.ajax(options);
-};
-
 // Implements the PouchDB API for dealing with CouchDB instances over HTTP
 var HttpPouch = function(opts, callback) {
 
@@ -670,6 +633,13 @@ HttpPouch.destroy = function(name, callback) {
 // HttpPouch is a valid adapter.
 HttpPouch.valid = function() {
   return true;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  // running in node
+  var pouchdir = '../';
+  this.Pouch = require(pouchdir + 'pouch.js')
+  this.ajax = Pouch.utils.ajax;
 }
 
 // Set HttpPouch to be the adapter used with the http scheme.

@@ -7,6 +7,24 @@ var call = function(fun) {
   }
 }
 
+// Wrapper for functions that call the bulkdocs api with a single doc,
+// if the first result is an error, return an error
+var yankError = function(callback) {
+  return function(err, results) {
+    if (err || results[0].error) {
+      call(callback, err || results[0]);
+    } else {
+      call(callback, null, results[0]);
+    }
+  };
+};
+
+var isAttachmentId = function(id) {
+  return (/\//.test(id)
+      && !/^_local/.test(id)
+      && !/^_design/.test(id));
+}
+
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
 var parseDoc = function(doc, newEdits) {
@@ -177,7 +195,16 @@ function expandTree2(all, current, pos, arr) {
   });
 }
 
-function rootToLeaf(tree) {
+// Trees are sorted by length, winning revision is the last revision
+// in the longest tree
+var winningRev = function(pos, tree) {
+  if (!tree[1].length) {
+    return pos + '-' + tree[0];
+  }
+  return winningRev(pos + 1, tree[1][0]);
+}
+
+var rootToLeaf = function(tree) {
   var all = [];
   tree.forEach(function(path) {
     expandTree2(all, [], path.pos, path.ids);
@@ -194,9 +221,106 @@ var arrayFirst = function(arr, callback) {
   return false;
 };
 
+var filterChange = function(opts) {
+  return function(change) {
+    if (opts.filter && !opts.filter.call(this, change.doc)) {
+      return;
+    }
+    if (!opts.include_docs) {
+      delete change.doc;
+    }
+    call(opts.onChange, change);
+  }
+}
+
+var ajax = function ajax(options, callback) {
+  if (options.success && callback === undefined) {
+    callback = options.success;
+  }
+
+  var success = function sucess(obj, _, xhr) {
+      call(callback, null, obj, xhr);
+  };
+  var error = function error(err) {
+    if (err) {
+      var errObj = err.responseText
+        ? {status: err.status}
+        : err
+      try {
+        errObj = $.extend({}, errObj, JSON.parse(err.responseText));
+      } catch (e) {}
+      call(callback, errObj);
+    } else {
+      call(callback, true);
+    }
+  };
+
+  var defaults = {
+    success: success,
+    error: error,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    dataType: 'json',
+    timeout: 10000
+  };
+  options = $.extend({}, defaults, options);
+
+  if (options.data && typeof options.data !== 'string') {
+    options.data = JSON.stringify(options.data);
+  }
+  if (options.auth) {
+    options.beforeSend = function(xhr) {
+      var token = btoa(options.auth.username + ":" + options.auth.password);
+      xhr.setRequestHeader("Authorization", "Basic " + token);
+    }
+  }
+  if ($.ajax) {
+    return $.ajax(options);
+  }
+  else {
+    // convert options from xhr api to request api
+    if (options.data) {
+      options.body = options.data;
+      delete options.data;
+    }
+    if (options.type) {
+      options.method = options.type;
+      delete options.type;
+    }
+
+    return request(options, function(err, response, body) {
+      if (err) {
+        err.status = response ? response.statusCode : 400;
+        return call(options.error, err);
+      }
+
+      var content_type = response.headers['content-type']
+        , data = (body || '');
+
+      // CouchDB doesn't always return the right content-type for JSON data, so
+      // we check for ^{ and }$ (ignoring leading/trailing whitespace)
+      if (/json/.test(content_type)
+          || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data))) {
+        data = JSON.parse(data);
+      }
+
+      if (data.error) {
+        data.status = response.statusCode;
+        call(options.error, data);
+      }
+      else {
+        call(options.success, data, 'OK', response);
+      }
+    });
+  }
+};
+
 // Basic wrapper for localStorage
+var win = this;
 var localJSON = (function(){
-  if (!localStorage) {
+  if (!win.localStorage) {
     return false;
   }
   return {
@@ -218,3 +342,51 @@ var localJSON = (function(){
     }
   };
 })();
+
+// btoa and atob don't exist in node. see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
+if (typeof btoa === 'undefined') {
+  btoa = function(str) {
+    return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
+  }
+}
+if (typeof atob === 'undefined') {
+  atob = function(str) {
+    return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
+  }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
+  var crypto = require('crypto');
+  var Crypto = {
+    MD5: function(str) {
+      return crypto.createHash('md5').update(str).digest('hex');
+    }
+  }
+  request = require('request');
+  _ = require('underscore');
+  $ = _;
+
+  module.exports = {
+    Crypto: Crypto,
+    call: call,
+    yankError: yankError,
+    isAttachmentId: isAttachmentId,
+    parseDoc: parseDoc,
+    compareRevs: compareRevs,
+    expandTree: expandTree,
+    collectRevs: collectRevs,
+    collectLeavesInner: collectLeavesInner,
+    collectLeaves: collectLeaves,
+    collectConflicts: collectConflicts,
+    fetchCheckpoint: fetchCheckpoint,
+    writeCheckpoint: writeCheckpoint,
+    winningRev: winningRev,
+    rootToLeaf: rootToLeaf,
+    arrayFirst: arrayFirst,
+    filterChange: filterChange,
+    ajax: ajax,
+    atob: atob,
+    btoa: btoa,
+  }
+}

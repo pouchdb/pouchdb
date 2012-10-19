@@ -1,9 +1,24 @@
 // Porting tests from Apache CouchDB bulk docs tests
 // https://github.com/apache/couchdb/blob/master/share/www/script/test/bulk_docs.js
 
-['idb-1', 'http-1'].map(function(adapter) {
+var adapters = ['idb-1', 'http-1']
+  , qunit = module;
 
-  module('bulk_docs: ' + adapter, {
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  adapters = ['ldb-1', 'http-1']
+  qunit = QUnit.module;
+}
+
+adapters.map(function(adapter) {
+
+  qunit('bulk_docs: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }

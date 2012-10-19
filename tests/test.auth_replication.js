@@ -1,10 +1,24 @@
 var remote = {
   host: 'localhost:2020'
 };
+var local = 'idb://test_suite_db';
 
-module('auth_replication', {
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+    , ajax = Pouch.utils.ajax
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  local = 'ldb://test_suite_db';
+  qunit = QUnit.module;
+}
+
+qunit('auth_replication', {
   setup: function () {
-    this.name = 'idb://test_suite_db';
+    this.name = local;
     this.remote = 'http://' + remote.host + '/test_suite_db/';
   }
 });
@@ -19,7 +33,7 @@ function createAdminUser(callback) {
     roles: []
   };
 
-  $.ajax({
+  ajax({
     url: 'http://' + remote.host + '/_config/admins/adminuser',
     type: 'PUT',
     data: JSON.stringify(adminuser.password),
@@ -30,7 +44,7 @@ function createAdminUser(callback) {
           if (err) {
             return callback(err);
           }
-          $.ajax({
+          ajax({
             url: 'http://' + remote.host + '/_users/' +
               'org.couchdb.user%3Aadminuser',
             type: 'PUT',
@@ -59,7 +73,7 @@ function createAdminUser(callback) {
 }
 
 function deleteAdminUser(adminuser, callback) {
-  $.ajax({
+  ajax({
     type: 'DELETE',
     beforeSend: function (xhr) {
       var token = btoa('adminuser:password');
@@ -70,12 +84,12 @@ function deleteAdminUser(adminuser, callback) {
     success: function () {
       var adminUrl = 'http://' + remote.host + '/_users/' +
         'org.couchdb.user%3Aadminuser';
-      $.ajax({
+      ajax({
         type: 'GET',
         url: adminUrl,
         dataType: 'json',
         success: function(doc) {
-          $.ajax({
+          ajax({
             type: 'DELETE',
             url: 'http://' + remote.host + '/_users/' +
               'org.couchdb.user%3Aadminuser?rev=' + doc._rev,
@@ -100,7 +114,7 @@ function deleteAdminUser(adminuser, callback) {
 }
 
 function login(username, password, callback) {
-  $.ajax({
+  ajax({
     type: 'POST',
     url: 'http://' + remote.host + '/_session',
     data: {name: username, password: password},
@@ -117,7 +131,7 @@ function login(username, password, callback) {
 }
 
 function logout(callback) {
-  $.ajax({
+  ajax({
     type: 'DELETE',
     url: 'http://' + remote.host + '/_session',
     success: function () {

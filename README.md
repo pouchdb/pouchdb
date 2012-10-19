@@ -355,6 +355,29 @@ Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, change
 })
 </pre>
 
+## Node.js
+
+PouchDB has experimental support for node.js, with
+[leveldb](http://code.google.com/p/leveldb/)-backed storage and support for
+syncing with CouchDB. An npm module is coming soon; until then if you want to
+try it out, follow these steps:
+
+<pre>
+mkdir node_modules && git clone https://github.com/chesles/pouchdb.git node_modules/pouchdb
+cd node_modules/pouchdb && git checkout node && npm install underscore request levelup && cd -
+</pre>
+
+The node-leveldb adapter exposes the same API as documented above, so you can
+use it just like you would in a browser. Instead of `idb://` use `ldb://` in
+the protocol field.
+
+<pre>
+node
+> var Pouch = require('pouchdb')
+> var db = Pouch("ldb://my-db") # leveldb-backed pouch
+> var couch = Pouch("http://localhost:5984") # CouchDB-backed pouch
+</pre>
+
 ## Running the tests
 
 To run the full test suite (including replication) you'll need to run a CORS proxy
