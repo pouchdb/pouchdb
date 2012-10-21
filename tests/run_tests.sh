@@ -4,12 +4,12 @@
 make min
 
 # Start a cors proxy
-cd CORS-Proxy
+cd tests/CORS-Proxy
 node server.js &
 node_pid=$!
 
 # Start a local server
-cd ..
+cd ../..
 python -m SimpleHTTPServer &
 python_pid=$!
 sleep 3
