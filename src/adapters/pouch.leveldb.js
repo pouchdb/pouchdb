@@ -344,7 +344,7 @@ LevelPouch = module.exports = function(opts, callback) {
     return api.bulkDocs({docs: [doc]}, opts, Pouch.utils.yankError(callback));
   }
 
-  api.putAttachment = function(id, rev, doc, type, callback) {
+  api.putAttachment = function(id, rev, data, type, callback) {
     var ids = id.split('/')
       , docId = ids[0]
       , attachId = ids[1];
@@ -352,7 +352,7 @@ LevelPouch = module.exports = function(opts, callback) {
       obj._attachments || (obj._attachments = {});
       obj._attachments[attachId] = {
         content_type: type,
-        data: Pouch.utils.btoa(doc)
+        data: data instanceof Buffer ? data : Pouch.utils.btoa(data)
       }
       api.put(obj, callback);
     });
@@ -464,7 +464,9 @@ LevelPouch = module.exports = function(opts, callback) {
         var key = attachments[i];
         if (!doc.data._attachments[key].stub) {
           var data = doc.data._attachments[key].data
-            , digest = 'md5-' + crypto.createHash('md5')
+          // if data is an object, it's likely to actually be a Buffer that got JSON.stringified
+          if (typeof data === 'object') data = new Buffer(data);
+          var digest = 'md5-' + crypto.createHash('md5')
                 .update(data || '')
                 .digest('hex');
           delete doc.data._attachments[key].data;
