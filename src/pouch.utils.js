@@ -25,6 +25,20 @@ var isAttachmentId = function(id) {
       && !/^_design/.test(id));
 }
 
+// Parse document ids: docid[/attachid]
+//   - /attachid is optional, and can have slashes in it too
+//   - int ids and strings beginning with _design or _local are not split
+// returns an object: { docId: docid, attachmentId: attachid }
+var parseDocId = function(id) {
+  var ids = (typeof id === 'string') && !(/^_(design|local)\//.test(id))
+    ? id.split('/')
+    : [id]
+  return {
+    docId: ids[0],
+    attachmentId: ids.splice(1).join('/').replace(/^\/+/, '')
+  }
+}
+
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
 var parseDoc = function(doc, newEdits) {
@@ -372,6 +386,7 @@ if (typeof module !== 'undefined' && module.exports) {
     call: call,
     yankError: yankError,
     isAttachmentId: isAttachmentId,
+    parseDocId: parseDocId,
     parseDoc: parseDoc,
     compareRevs: compareRevs,
     expandTree: expandTree,

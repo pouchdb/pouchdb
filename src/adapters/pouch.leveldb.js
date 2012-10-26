@@ -223,7 +223,6 @@ LevelPouch = module.exports = function(opts, callback) {
   }
 
   api.info = function(callback) {
-    // TODO: doc_count is never updated
     return call(callback, null, {
       name: opts.name,
       doc_count: doc_count,
@@ -237,11 +236,12 @@ LevelPouch = module.exports = function(opts, callback) {
       opts = {};
     }
 
-    if (Pouch.utils.isAttachmentId(id)) {
+    id = Pouch.utils.parseDocId(id);
+    if (id.attachmentId !== '') {
       return api.getAttachment(id, {decode: true}, callback);
     }
 
-    stores[DOC_STORE].get(id, function(err, metadata) {
+    stores[DOC_STORE].get(id.docId, function(err, metadata) {
       if (err || !metadata || (metadata.deleted && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
@@ -309,11 +309,13 @@ LevelPouch = module.exports = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    var ids = id.split('/')
-      , docId = ids[0]
-      , attachId = ids[1];
 
-    stores[DOC_STORE].get(docId, function(err, metadata) {
+    id = id.docId ? id : Pouch.utils.parseDocId(id);
+    if (id.attachmentId === '') {
+      return api.get(id, opts, callback);
+    }
+
+    stores[DOC_STORE].get(id.docId, function(err, metadata) {
       if (err) {
         return call(callback, err);
       }
@@ -321,7 +323,9 @@ LevelPouch = module.exports = function(opts, callback) {
         if (err) {
           return call(callback, err);
         }
-        var digest = doc._attachments[attachId].digest;
+        var digest = doc._attachments[id.attachmentId].digest
+          , type = doc._attachments[id.attachmentId].content_type
+
         stores[ATTACH_STORE].get(digest, function(err, attach) {
           if (err) {
             return call(callback, err);
@@ -329,6 +333,9 @@ LevelPouch = module.exports = function(opts, callback) {
           var data = opts.decode
             ? Pouch.utils.atob(attach.toString())
             : attach.toString();
+          if (opts.decode && type === 'application/json') {
+            data = JSON.parse(data);
+          }
 
           call(callback, null, data);
         });
@@ -345,12 +352,11 @@ LevelPouch = module.exports = function(opts, callback) {
   }
 
   api.putAttachment = function(id, rev, data, type, callback) {
-    var ids = id.split('/')
-      , docId = ids[0]
-      , attachId = ids[1];
-    api.get(docId, {attachments: true}, function(err, obj) {
+    id = Pouch.utils.parseDocId(id);
+
+    api.get(id.docId, {attachments: true}, function(err, obj) {
       obj._attachments || (obj._attachments = {});
-      obj._attachments[attachId] = {
+      obj._attachments[id.attachmentId] = {
         content_type: type,
         data: data instanceof Buffer ? data : Pouch.utils.btoa(data)
       }
@@ -393,6 +399,22 @@ LevelPouch = module.exports = function(opts, callback) {
     // parse the docs and give each a sequence number
     var userDocs = JSON.parse(JSON.stringify(bulk.docs));
     info = userDocs.map(function(doc, i) {
+      if (doc._id) {
+        var id = Pouch.utils.parseDocId(doc._id);
+        if (id.attachmentId !== '') {
+          var attachment = Pouch.utils.btoa(JSON.stringify(doc));
+          doc = {
+            _id: id.docId,
+          }
+          if (!Array.isArray(doc._attachments)) {
+            doc._attachments = {};
+          }
+          doc._attachments[id.attachmentId] = {
+            content_type: 'application/json',
+            data: attachment
+          }
+        }
+      }
       var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;

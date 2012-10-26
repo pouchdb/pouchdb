@@ -292,4 +292,30 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Insert a doc with a / in the _id", function() {
+    initTestDB(this.name, function(err, db) {
+      ok(!err, 'opened the pouch');
+      var doc = {_id: 'doc/attachment', test: true};
+      db.put(doc, function(err, info) {
+        ok(!err, 'saved doc')
+        ok(info.id === 'doc', '_id got truncated');
+        db.get('doc', {attachments: true}, function(err, doc2) {
+          ok(!err, 'retreived the doc');
+          ok(doc2._attachments['attachment'], 'it has the attachment');
+          equal(doc2._attachments['attachment'].data, Pouch.utils.btoa(JSON.stringify(doc)),
+             'the attachment matches the original doc');
+
+          db.get('doc/attachment', function(err, response) {
+            ok(!err, 'got the attachment');
+            equal(JSON.stringify(response), JSON.stringify(doc),
+                  'the attachment is returned as a javascript object');
+            equal(response._id, doc._id, 'id matches');
+            equal(response.test, doc.test, 'id matches');
+            start();
+          });
+        });
+
+      });
+    });
+  })
 });
