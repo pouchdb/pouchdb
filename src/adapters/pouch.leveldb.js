@@ -333,9 +333,6 @@ LevelPouch = module.exports = function(opts, callback) {
           var data = opts.decode
             ? Pouch.utils.atob(attach.toString())
             : attach.toString();
-          if (opts.decode && type === 'application/json') {
-            data = JSON.parse(data);
-          }
 
           call(callback, null, data);
         });

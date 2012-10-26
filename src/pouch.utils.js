@@ -272,7 +272,11 @@ var ajax = function ajax(options, callback) {
   }
 
   var success = function sucess(obj, _, xhr) {
-      call(callback, null, obj, xhr);
+    // Chrome will parse some attachments that are JSON. We don't want that.
+    if (options.dataType === false && typeof obj !== 'string') {
+      obj = JSON.stringify(obj);
+    }
+    call(callback, null, obj, xhr);
   };
   var error = function error(err) {
     if (err) {
@@ -309,6 +313,7 @@ var ajax = function ajax(options, callback) {
       xhr.setRequestHeader("Authorization", "Basic " + token);
     }
   }
+
   if ($.ajax) {
     return $.ajax(options);
   }
@@ -334,8 +339,8 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (/json/.test(content_type)
-          || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data))) {
+      if (options.dataType && (/json/.test(content_type)
+          || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
 

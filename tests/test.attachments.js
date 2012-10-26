@@ -57,6 +57,17 @@ adapters.map(function(adapter) {
     }
   }
 
+  // json string doc
+  var jsonDoc = {
+    _id: 'json_doc',
+    _attachments: {
+      "foo.json": {
+        content_type: "text/plain",
+        data: btoa('{"Hello":"world"}')
+      }
+    }
+  }
+
   asyncTest("Test some attachments", function() {
     var db;
     initTestDB(this.name, function(err, _db) {
@@ -64,10 +75,10 @@ adapters.map(function(adapter) {
       db.put(binAttDoc, function(err, write) {
         ok(!err, 'saved doc with attachment');
         db.get('bin_doc/foo.txt', function(err, res) {
-          ok(res === 'This is a base64 encoded text', 'Correct data returned');
+          equal(res, 'This is a base64 encoded text', 'Correct data returned');
           db.put(binAttDoc2, function(err, rev) {
             db.get('bin_doc2/foo.txt', function(err, res, xhr) {
-              ok(res === '', 'Correct data returned');
+              equal(res, '', 'Correct data returned');
               moreTests(rev.rev);
             });
           });
@@ -100,6 +111,22 @@ adapters.map(function(adapter) {
           ok(res.ok);
           start();
         })
+      });
+    });
+  });
+
+  asyncTest("Test a document with a json string attachment", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put(jsonDoc, function(err, results) {
+        ok(!err, 'saved doc with attachment');
+        db.get(results.id, function(err, doc) {
+          ok(!err, 'fetched doc')
+          ok(doc._attachments, 'doc has attachment')
+          db.get(results.id + '/' + 'foo.json', function(err, attachment) {
+            equal(attachment, atob(jsonDoc._attachments['foo.json'].data), 'correct data');
+            start();
+          });
+        });
       });
     });
   });

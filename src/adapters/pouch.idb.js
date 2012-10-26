@@ -395,9 +395,6 @@ var IdbPouch = function(opts, callback) {
         function postProcessDoc(data) {
           if (opts.decode) {
             data = atob(data);
-            if (type === 'application/json') {
-              data = JSON.parse(data);
-            }
           }
           return data;
         }
