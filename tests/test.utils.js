@@ -101,7 +101,7 @@ function submitResults() {
     });
 }
 
-if (typeof module !== 'undefinedi' && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var Pouch = require('../src/pouch.js');
   module.exports = {
     makeDocs: makeDocs,

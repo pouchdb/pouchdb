@@ -5,12 +5,9 @@
   "version": "0.0.2",
   "main": "./src/pouch.js",
   "homepage": "https://github.com/daleharvey/pouchdb",
-  "keywords": [ "db", "couchdb" ],
-  "tags": [ "db", "couchdb"  ],
+  "keywords": [ "db", "couchdb", "pouchdb" ],
+  "tags": [ "db", "couchdb", "pouchdb" ],
   "dependencies" : {
-        "jquery": "*",
-        "simple-uuid" : "*",
-        "md5" : "*",
         "levelup": "*",
         "request": "*",
         "underscore": "*"
