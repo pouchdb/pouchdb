@@ -306,32 +306,15 @@ var IdbPouch = function(opts, callback) {
       opts = {};
     }
 
+    id = parseDocId(id);
+    if (id.attachmentId !== '') {
+      return api.getAttachment(id, {decode: true}, callback);
+    }
+
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                               IDBTransaction.READ);
 
-    if (isAttachmentId(id)) {
-      var docId = id.split('/')[0];
-      var attachId = id.split('/')[1];
-      txn.objectStore(DOC_STORE).get(docId).onsuccess = function(e) {
-        var metadata = e.target.result;
-        var bySeq = txn.objectStore(BY_SEQ_STORE);
-        bySeq.get(metadata.seq).onsuccess = function(e) {
-          var digest = e.target.result._attachments[attachId].digest;
-          if (storeAttachmentsInIDB){
-            txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
-              call(callback, null, atob(e.target.result.body));
-            }
-          }else{
-            readAttachmentFromFile(digest, function(data) {
-              call(callback, null, atob(data));
-            });
-          }
-        };
-      }
-      return;
-    }
-
-    txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
+    txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
       if (!e.target.result || (metadata.deleted && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
@@ -370,8 +353,9 @@ var IdbPouch = function(opts, callback) {
           var recv = 0;
 
           attachments.forEach(function(key) {
-            api.get(doc._id + '/' + key, function(err, data) {
-              doc._attachments[key].data = btoa(data);
+            api.getAttachment(doc._id + '/' + key, function(err, data) {
+              doc._attachments[key].data = data;
+
               if (++recv === attachments.length) {
                 callback(null, doc);
               }
@@ -388,6 +372,51 @@ var IdbPouch = function(opts, callback) {
       };
     };
   };
+
+  api.getAttachment = function(id, opts, callback) {
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {};
+    }
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
+                              IDBTransaction.READ);
+
+    if (typeof id === 'string') {
+      id = parseDocId(id);
+    }
+    txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
+      var metadata = e.target.result;
+      var bySeq = txn.objectStore(BY_SEQ_STORE);
+      bySeq.get(metadata.seq).onsuccess = function(e) {
+        var attachment = e.target.result._attachments[id.attachmentId]
+          , digest = attachment.digest
+          , type = attachment.content_type
+
+        function postProcessDoc(data) {
+          if (opts.decode) {
+            data = atob(data);
+            if (type === 'application/json') {
+              data = JSON.parse(data);
+            }
+          }
+          return data;
+        }
+
+        if (storeAttachmentsInIDB) {
+          txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+            var data = e.target.result.body;
+            call(callback, null, postProcessDoc(data));
+          }
+        }
+        else {
+          readAttachmentFromFile(digest, function(data) {
+            call(callback, null, postProcessDoc(data));
+          });
+        }
+      };
+    }
+    return;
+  }
 
   api.put = api.post = function idb_put(doc, opts, callback) {
     if (typeof opts === 'function') {
@@ -499,11 +528,10 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.putAttachment = function idb_putAttachment(id, rev, doc, type, callback) {
-    var docId = id.split('/')[0];
-    var attachId = id.split('/')[1];
-    api.get(docId, {attachments: true}, function(err, obj) {
+    id = parseDocId(id);
+    api.get(id.docId, {attachments: true}, function(err, obj) {
       obj._attachments || (obj._attachments = {});
-      obj._attachments[attachId] = {
+      obj._attachments[id.attachmentId] = {
         content_type: type,
         data: btoa(doc)
       }

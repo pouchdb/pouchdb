@@ -399,22 +399,6 @@ LevelPouch = module.exports = function(opts, callback) {
     // parse the docs and give each a sequence number
     var userDocs = JSON.parse(JSON.stringify(bulk.docs));
     info = userDocs.map(function(doc, i) {
-      if (doc._id) {
-        var id = Pouch.utils.parseDocId(doc._id);
-        if (id.attachmentId !== '') {
-          var attachment = Pouch.utils.btoa(JSON.stringify(doc));
-          doc = {
-            _id: id.docId,
-          }
-          if (!Array.isArray(doc._attachments)) {
-            doc._attachments = {};
-          }
-          doc._attachments[id.attachmentId] = {
-            content_type: 'application/json',
-            data: attachment
-          }
-        }
-      }
       var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;

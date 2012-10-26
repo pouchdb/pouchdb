@@ -302,7 +302,7 @@ adapters.map(function(adapter) {
         db.get('doc', {attachments: true}, function(err, doc2) {
           ok(!err, 'retreived the doc');
           ok(doc2._attachments['attachment'], 'it has the attachment');
-          equal(doc2._attachments['attachment'].data, Pouch.utils.btoa(JSON.stringify(doc)),
+          equal(doc2._attachments['attachment'].data, btoa(JSON.stringify(doc)),
              'the attachment matches the original doc');
 
           db.get('doc/attachment', function(err, response) {

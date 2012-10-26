@@ -43,6 +43,25 @@ var parseDocId = function(id) {
 // revision for new writes that are missing them, etc
 var parseDoc = function(doc, newEdits) {
   var error = null;
+
+  // check for an attachment id and add attachments as needed
+  if (doc._id) {
+    var id = parseDocId(doc._id);
+    if (id.attachmentId !== '') {
+      var attachment = btoa(JSON.stringify(doc));
+      doc = {
+        _id: id.docId,
+      }
+      if (!doc._attachments) {
+        doc._attachments = {};
+      }
+      doc._attachments[id.attachmentId] = {
+        content_type: 'application/json',
+        data: attachment
+      }
+    }
+  }
+
   if (newEdits) {
     if (!doc._id) {
       doc._id = Math.uuid();
