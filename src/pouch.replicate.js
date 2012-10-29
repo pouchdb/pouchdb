@@ -1,3 +1,7 @@
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Pouch;
+}
+
 (function() {
 
   function replicate(src, target, opts, callback, replicateRet) {
@@ -96,8 +100,14 @@
       }
     }
     var replicateRet = new ret();
-    toPouch(src, function(_, src) {
-      toPouch(target, function(_, target) {
+    toPouch(src, function(err, src) {
+      if (err) {
+        return callback(err);
+      }
+      toPouch(target, function(err, target) {
+        if (err) {
+          return callback(err);
+        }
         replicate(src, target, opts, callback, replicateRet);
       });
     });

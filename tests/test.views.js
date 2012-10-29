@@ -1,6 +1,23 @@
-['idb-1', 'http-1'].map(function(adapter) {
+var adapters = ['idb-1', 'http-1']
+  , qunit = module;
 
-  module('views: ' + adapter, {
+// if we are running under node.js, set things up
+// a little differently, and only test the leveldb adapter
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  adapters = ['ldb-1', 'http-1']
+  qunit = QUnit.module;
+}
+
+adapters.map(function(adapter) {
+
+  qunit('views: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }
@@ -98,6 +115,26 @@
         });
       });
     });
-
   });
+
+  // TODO: Not currently implemented
+  // asyncTest("Test joins", function() {
+  //   initTestDB(this.name, function(err, db) {
+  //     db.bulkDocs({docs: [{_id: 'mydoc', foo: 'bar'}, { doc_id: 'mydoc' }]}, {}, function() {
+  //       var queryFun = {
+  //         map: function(doc) {
+  //           if (doc.doc_id) {
+  //             emit(doc._id, {_id: doc.doc_id});
+  //           }
+  //         }
+  //       };
+  //       db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+  //         console.log(res);
+  //         ok(res.rows[0].doc, 'doc included');
+  //         equal(res.rows[0].doc._id, 'mydoc', 'mydoc included');
+  //         start();
+  //       });
+  //     });
+  //   });
+  // });
 });

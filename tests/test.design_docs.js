@@ -1,6 +1,23 @@
-['idb-1', 'http-1'].map(function(adapter) {
+var adapters = ['idb-1', 'http-1']
+  , qunit = module;
 
-  module("design_docs: " + adapter, {
+// if we are running under node.js, set things up
+// a little differently, and only test the leveldb adapter
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  adapters = ['ldb-1', 'http-1']
+  qunit = QUnit.module;
+}
+
+adapters.map(function(adapter) {
+
+  qunit("design_docs: " + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     }
@@ -55,16 +72,15 @@
           filter: 'foo/even',
           onChange: function(change) {
             count += 1;
+            if (count === 4) {
+              ok(true, 'We got all the changes');
+              changes.cancel();
+              start();
+            }
           },
           continuous: true
         });
-        db.bulkDocs({docs: docs2}, function(err, info) {
-          setTimeout(function() {
-            equal(count, 4);
-            changes.cancel();
-            start();
-          }, 100);
-        });
+        db.bulkDocs({docs: docs2}, {});
       });
     });
   });

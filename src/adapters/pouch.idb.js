@@ -54,7 +54,7 @@ var IdbPouch = function(opts, callback) {
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
   var update_seq = 0;
-  
+
   //Get the webkit file system objects in a way that is forward compatible
   var storageInfo = (window.webkitStorageInfo ? window.webkitStorageInfo : window.storageInfo)
   var requestFileSystem = (window.webkitRequestFileSystem ? window.webkitRequestFileSystem : window.requestFileSystem)
@@ -72,8 +72,9 @@ var IdbPouch = function(opts, callback) {
   req.onupgradeneeded = function(e) {
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
-      .createIndex('seq', 'seq', {unique : true});
-    db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true});
+      .createIndex('seq', 'seq', {unique: true});
+    db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
+      .createIndex('_rev', '_rev', {unique: true});;
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
   };
 
@@ -127,7 +128,7 @@ var IdbPouch = function(opts, callback) {
 
   api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -233,6 +234,8 @@ var IdbPouch = function(opts, callback) {
       }
 
       docInfo.data._id = docInfo.metadata.id;
+      docInfo.data._rev = docInfo.metadata.rev;
+
       if (docInfo.metadata.deleted) {
         docInfo.data._deleted = true;
       }
@@ -298,7 +301,7 @@ var IdbPouch = function(opts, callback) {
   // current revision(s) from the by sequence store
   api.get = function idb_get(id, opts, callback) {
 
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -306,7 +309,7 @@ var IdbPouch = function(opts, callback) {
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
                               IDBTransaction.READ);
 
-    if (/\//.test(id) && !/^_local/.test(id) && !/^_design/.test(id)) {
+    if (isAttachmentId(id)) {
       var docId = id.split('/')[0];
       var attachId = id.split('/')[1];
       txn.objectStore(DOC_STORE).get(docId).onsuccess = function(e) {
@@ -334,10 +337,12 @@ var IdbPouch = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
-      txn.objectStore(BY_SEQ_STORE).get(metadata.seq).onsuccess = function(e) {
+      var rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+      var key = opts.rev ? opts.rev : rev;
+      var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+
+      index.get(key).onsuccess = function(e) {
         var doc = e.target.result;
-        doc._id = metadata.id;
-        doc._rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
         if (opts.revs) {
           var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
             return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
@@ -385,7 +390,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.put = api.post = function idb_put(doc, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -394,7 +399,7 @@ var IdbPouch = function(opts, callback) {
 
 
   api.remove = function idb_remove(doc, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -406,7 +411,7 @@ var IdbPouch = function(opts, callback) {
 
 
   api.allDocs = function idb_allDocs(opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -508,7 +513,7 @@ var IdbPouch = function(opts, callback) {
 
 
   api.revsDiff = function idb_revsDiff(req, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -541,7 +546,7 @@ var IdbPouch = function(opts, callback) {
 
   api.changes = function idb_changes(opts, callback) {
 
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       opts = {complete: opts};
     }
     if (callback) {
@@ -671,7 +676,7 @@ var IdbPouch = function(opts, callback) {
   api.replicate = {};
 
   api.replicate.from = function idb_replicate_from(url, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -679,7 +684,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.replicate.to = function idb_replicate_to(dbName, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -687,7 +692,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.query = function idb_query(fun, opts, callback) {
-    if (opts instanceof Function) {
+    if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
@@ -710,18 +715,6 @@ var IdbPouch = function(opts, callback) {
       new viewQuery(fun, idb, opts);
     }
   }
-
-  // Wrapper for functions that call the bulkdocs api with a single doc,
-  // if the first result is an error, return an error
-  var yankError = function(callback) {
-    return function(err, results) {
-      if (err || results[0].error) {
-        call(callback, err || results[0]);
-      } else {
-        call(callback, null, results[0]);
-      }
-    };
-  };
 
   var viewQuery = function(fun, idb, options) {
 
@@ -829,7 +822,7 @@ var IdbPouch = function(opts, callback) {
   function fileErrorHandler(e) {
     console.error('File system error',e);
   }
-  
+
   //Delete attachments that are no longer referenced by any existing documents
   function deleteOrphanedFiles(currentQuota){
     api.allDocs({include_docs:true},function(err, response) {
@@ -837,7 +830,7 @@ var IdbPouch = function(opts, callback) {
       var dirReader = fs.root.createReader();
       var entries = [];
       var docRows = response.rows;
-      
+
       // Call the reader.readEntries() until no more results are returned.
       var readEntries = function() {
         dirReader.readEntries (function(results) {
@@ -848,81 +841,81 @@ var IdbPouch = function(opts, callback) {
                 if (docRows[k].doc){
                   var aDoc = docRows[k].doc;
                   if (aDoc._attachments){
-                    for (var j in aDoc._attachments){ 
+                    for (var j in aDoc._attachments){
                       if (aDoc._attachments[j].digest==entries[i].name) entryIsReferenced=true;
                     };
                   }
                   if (entryIsReferenced) break;
-                }         
+                }
               };
               if (!entryIsReferenced){
                 entries[i].remove(function() {
                   console.info("Removed orphaned attachment: "+entries[i].name);
                 }, fileErrorHandler);
               }
-            };        
+            };
           } else {
             entries = entries.concat(toArray(results));
             readEntries();
           }
         }, fileErrorHandler);
       };
-    
+
       readEntries(); // Start reading dirs.
-    
+
       }, fileErrorHandler);
     });
   }
-		
+
   function writeAttachmentToFile(digest, data, type){
-    //Check the current file quota and increase it if necessary   
+    //Check the current file quota and increase it if necessary
     storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
       var newQuota = currentQuota;
       if (currentQuota == 0){
         newQuota = 1000*1024*1024; //start with 1GB
-      }else if ((currentUsage/currentQuota) > 0.8){ 
+      }else if ((currentUsage/currentQuota) > 0.8){
         deleteOrphanedFiles(currentQuota); //delete old attachments when we hit 80% usage
-      }else if ((currentUsage/currentQuota) > 0.9){ 
+      }else if ((currentUsage/currentQuota) > 0.9){
         newQuota=2*currentQuota; //double the quota when we hit 90% usage
       }
-      
+
       console.info("Current file quota: "+currentQuota+", current usage:"+currentUsage+", new quota will be: "+newQuota);
-         
+
       //Ask for file quota. This does nothing if the proper quota size has already been granted.
       storageInfo.requestQuota(window.PERSISTENT, newQuota, function(grantedBytes) {
         storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
-          requestFileSystem(window.PERSISTENT, currentQuota, function(fs){            
-            fs.root.getFile(digest, {create: true}, function(fileEntry) {       
-              fileEntry.createWriter(function(fileWriter) {         
+          requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
+            fs.root.getFile(digest, {create: true}, function(fileEntry) {
+              fileEntry.createWriter(function(fileWriter) {
                 fileWriter.onwriteend = function(e) {
-                  console.info('Wrote attachment');                 
-                };            
+                  console.info('Wrote attachment');
+                };
                 fileWriter.onerror = function(e) {
                   console.info('File write failed: ' + e.toString());
-                };            
-                var blob = new Blob([data], {type: type});            
-                fileWriter.write(blob);         
-              }, fileErrorHandler);       
+                };
+                var blob = new Blob([data], {type: type});
+                fileWriter.write(blob);
+              }, fileErrorHandler);
             }, fileErrorHandler);
           }, fileErrorHandler);
         }, fileErrorHandler);
       }, fileErrorHandler);
     },fileErrorHandler);
   }
-	
+
   function readAttachmentFromFile(digest, callback){
     storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
-      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){      
-        fs.root.getFile(digest, {}, function(fileEntry) {     
+      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
+        fs.root.getFile(digest, {}, function(fileEntry) {
           fileEntry.file(function(file) {
-            var reader = new FileReader();            
+            var reader = new FileReader();
             reader.onloadend = function(e) {
               data = this.result;
               console.info("Read attachment");
               callback(data);
-            };            
+            };
             reader.readAsBinaryString(file);
-          }, fileErrorHandler);       
+          }, fileErrorHandler);
         }, fileErrorHandler);
       }, fileErrorHandler);
     }, fileErrorHandler);

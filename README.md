@@ -4,7 +4,7 @@ The PouchDB Website is at: http://pouchdb.com/
 
 PouchDB is a JavaScript library that allows you to store and query data for web applications that need to work offline, and sync with an online database when you are online.
 
-[![Build Status](https://secure.travis-ci.org/daleharvey/pouchdb.png)](http://travis-ci.org/daleharvey/pouchdb)
+[![Build Status](https://secure.travis-ci.org/daleharvey/pouchdb.png?branch=master)](http://travis-ci.org/daleharvey/pouchdb)
 
 ### The Browser Database that Syncs
 
@@ -355,12 +355,52 @@ Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, change
 })
 </pre>
 
+## Node.js
+
+PouchDB has experimental support for node.js, with
+[leveldb](http://code.google.com/p/leveldb/)-backed storage and support for
+syncing with CouchDB. An npm module is coming soon; until then if you want to
+try it out, follow these steps:
+
+<pre>
+mkdir -p node_modules
+git clone https://github.com/daleharvey/pouchdb.git node_modules/pouchdb
+npm install underscore request levelup
+</pre>
+
+The node-leveldb adapter exposes the same API as documented above, so you can
+use it just like you would in a browser. Instead of `idb://` use `ldb://` or
+`http://` in the protocol field of the url.
+
+<pre>
+var Pouch = require('pouchdb')
+
+# leveldb-backed pouch
+Pouch("ldb://my-db", function(err, db) {
+  // use db.put, db.get, db.replicate, etc.
+});
+
+# couchdb-backed pouch
+Pouch("http://localhost:5984", function(err, db) {
+  // use db.put, db.get, db.replicate, etc.
+})
+</pre>
+
+To run the tests under node, install [node-qunit](https://github.com/kof/node-qunit) and run the proxy server and a local CouchDB in admin-party mode, as described below.
+
+<pre>
+npm install qunit
+node_modules/.bin/qunit \
+    -d ./src/pouch.js \
+    -c ./src/adapters/pouch.leveldb.js \
+    -t ./tests/test.basics.js # space-delimited list of tests to run
+</pre>
+
 ## Running the tests
 
 To run the full test suite (including replication) you'll need to run a CORS proxy
-pointing to a CouchDB.
+pointing to a CouchDB. The CORS-Proxy is now bundled with this repo. To start it do the following:
 
-    git clone https://github.com/daleharvey/CORS-Proxy.git
     cd CORS-Proxy
     node server.js
 
