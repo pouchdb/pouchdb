@@ -25,10 +25,43 @@ var isAttachmentId = function(id) {
       && !/^_design/.test(id));
 }
 
+// Parse document ids: docid[/attachid]
+//   - /attachid is optional, and can have slashes in it too
+//   - int ids and strings beginning with _design or _local are not split
+// returns an object: { docId: docid, attachmentId: attachid }
+var parseDocId = function(id) {
+  var ids = (typeof id === 'string') && !(/^_(design|local)\//.test(id))
+    ? id.split('/')
+    : [id]
+  return {
+    docId: ids[0],
+    attachmentId: ids.splice(1).join('/').replace(/^\/+/, '')
+  }
+}
+
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
 var parseDoc = function(doc, newEdits) {
   var error = null;
+
+  // check for an attachment id and add attachments as needed
+  if (doc._id) {
+    var id = parseDocId(doc._id);
+    if (id.attachmentId !== '') {
+      var attachment = btoa(JSON.stringify(doc));
+      doc = {
+        _id: id.docId,
+      }
+      if (!doc._attachments) {
+        doc._attachments = {};
+      }
+      doc._attachments[id.attachmentId] = {
+        content_type: 'application/json',
+        data: attachment
+      }
+    }
+  }
+
   if (newEdits) {
     if (!doc._id) {
       doc._id = Math.uuid();
@@ -239,7 +272,11 @@ var ajax = function ajax(options, callback) {
   }
 
   var success = function sucess(obj, _, xhr) {
-      call(callback, null, obj, xhr);
+    // Chrome will parse some attachments that are JSON. We don't want that.
+    if (options.dataType === false && typeof obj !== 'string') {
+      obj = JSON.stringify(obj);
+    }
+    call(callback, null, obj, xhr);
   };
   var error = function error(err) {
     if (err) {
@@ -276,6 +313,7 @@ var ajax = function ajax(options, callback) {
       xhr.setRequestHeader("Authorization", "Basic " + token);
     }
   }
+
   if ($.ajax) {
     return $.ajax(options);
   }
@@ -301,8 +339,8 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (/json/.test(content_type)
-          || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data))) {
+      if (options.dataType && (/json/.test(content_type)
+          || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
 
@@ -372,6 +410,7 @@ if (typeof module !== 'undefined' && module.exports) {
     call: call,
     yankError: yankError,
     isAttachmentId: isAttachmentId,
+    parseDocId: parseDocId,
     parseDoc: parseDoc,
     compareRevs: compareRevs,
     expandTree: expandTree,

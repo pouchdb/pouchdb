@@ -223,7 +223,6 @@ LevelPouch = module.exports = function(opts, callback) {
   }
 
   api.info = function(callback) {
-    // TODO: doc_count is never updated
     return call(callback, null, {
       name: opts.name,
       doc_count: doc_count,
@@ -237,11 +236,12 @@ LevelPouch = module.exports = function(opts, callback) {
       opts = {};
     }
 
-    if (Pouch.utils.isAttachmentId(id)) {
+    id = Pouch.utils.parseDocId(id);
+    if (id.attachmentId !== '') {
       return api.getAttachment(id, {decode: true}, callback);
     }
 
-    stores[DOC_STORE].get(id, function(err, metadata) {
+    stores[DOC_STORE].get(id.docId, function(err, metadata) {
       if (err || !metadata || (metadata.deleted && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
@@ -309,11 +309,13 @@ LevelPouch = module.exports = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    var ids = id.split('/')
-      , docId = ids[0]
-      , attachId = ids[1];
 
-    stores[DOC_STORE].get(docId, function(err, metadata) {
+    id = id.docId ? id : Pouch.utils.parseDocId(id);
+    if (id.attachmentId === '') {
+      return api.get(id, opts, callback);
+    }
+
+    stores[DOC_STORE].get(id.docId, function(err, metadata) {
       if (err) {
         return call(callback, err);
       }
@@ -321,7 +323,9 @@ LevelPouch = module.exports = function(opts, callback) {
         if (err) {
           return call(callback, err);
         }
-        var digest = doc._attachments[attachId].digest;
+        var digest = doc._attachments[id.attachmentId].digest
+          , type = doc._attachments[id.attachmentId].content_type
+
         stores[ATTACH_STORE].get(digest, function(err, attach) {
           if (err) {
             return call(callback, err);
@@ -344,15 +348,14 @@ LevelPouch = module.exports = function(opts, callback) {
     return api.bulkDocs({docs: [doc]}, opts, Pouch.utils.yankError(callback));
   }
 
-  api.putAttachment = function(id, rev, doc, type, callback) {
-    var ids = id.split('/')
-      , docId = ids[0]
-      , attachId = ids[1];
-    api.get(docId, {attachments: true}, function(err, obj) {
+  api.putAttachment = function(id, rev, data, type, callback) {
+    id = Pouch.utils.parseDocId(id);
+
+    api.get(id.docId, {attachments: true}, function(err, obj) {
       obj._attachments || (obj._attachments = {});
-      obj._attachments[attachId] = {
+      obj._attachments[id.attachmentId] = {
         content_type: type,
-        data: Pouch.utils.btoa(doc)
+        data: data instanceof Buffer ? data : Pouch.utils.btoa(data)
       }
       api.put(obj, callback);
     });
@@ -464,7 +467,9 @@ LevelPouch = module.exports = function(opts, callback) {
         var key = attachments[i];
         if (!doc.data._attachments[key].stub) {
           var data = doc.data._attachments[key].data
-            , digest = 'md5-' + crypto.createHash('md5')
+          // if data is an object, it's likely to actually be a Buffer that got JSON.stringified
+          if (typeof data === 'object') data = new Buffer(data);
+          var digest = 'md5-' + crypto.createHash('md5')
                 .update(data || '')
                 .digest('hex');
           delete doc.data._attachments[key].data;
