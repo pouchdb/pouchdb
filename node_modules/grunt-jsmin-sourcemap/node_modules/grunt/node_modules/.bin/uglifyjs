@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ -x "`dirname "$0"`/node" ]; then
+  "`dirname "$0"`/node"  "`dirname "$0"`/../uglify-js/bin/uglifyjs" "$@"
+  ret=$?
+else 
+  node  "`dirname "$0"`/../uglify-js/bin/uglifyjs" "$@"
+  ret=$?
+fi
+exit $ret
