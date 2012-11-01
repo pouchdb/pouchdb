@@ -86,8 +86,9 @@ var ViewQuery = function(fun, stores, options) {
 
   var docs = stores[DOC_STORE].readStream()
   docs.on('data', function(data) {
-    var metadata = data.value;
-    stores[BY_SEQ_STORE].get(metadata.seq, processDoc);
+    var metadata = data.value
+      , seq = metadata.seq
+    stores[BY_SEQ_STORE].get(seq, processDoc);
 
     function processDoc(err, doc) {
       current = {doc: doc, metadata: metadata};
@@ -246,7 +247,11 @@ LevelPouch = module.exports = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
-      stores[BY_SEQ_STORE].get(metadata.seq, function(err, doc) {
+      var seq = opts.rev
+        ? metadata.rev_map[opts.rev]
+        : metadata.seq;
+
+      stores[BY_SEQ_STORE].get(seq, function(err, doc) {
         doc._id = metadata.id;
         doc._rev = Pouch.utils.winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
 
@@ -319,7 +324,8 @@ LevelPouch = module.exports = function(opts, callback) {
       if (err) {
         return call(callback, err);
       }
-      stores[BY_SEQ_STORE].get(metadata.seq, function(err, doc) {
+      var seq = metadata.seq;
+      stores[BY_SEQ_STORE].get(seq, function(err, doc) {
         if (err) {
           return call(callback, err);
         }
@@ -398,6 +404,9 @@ LevelPouch = module.exports = function(opts, callback) {
     info = userDocs.map(function(doc, i) {
       var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
+      if (newDoc.metadata && !newDoc.metadata.rev_map) {
+        newDoc.metadata.rev_map = {};
+      }
       return newDoc;
     });
 
@@ -456,6 +465,7 @@ LevelPouch = module.exports = function(opts, callback) {
       }
 
       docInfo.metadata.rev_tree = merged.tree;
+      docInfo.metadata.rev_map = oldDoc.rev_map;
       writeDoc(docInfo, callback);
     }
 
@@ -486,6 +496,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
       update_seq++;
       doc.metadata.seq = doc.metadata.seq || update_seq;
+      doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
 
       stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
         if (err) {
@@ -602,7 +613,8 @@ LevelPouch = module.exports = function(opts, callback) {
         }
       }
       if (opts.include_docs) {
-        stores[BY_SEQ_STORE].get(entry.value.seq, function(err, data) {
+        var seq = entry.value.seq;
+        stores[BY_SEQ_STORE].get(seq, function(err, data) {
           allDocsInner(entry.value, data);
         });
       }
