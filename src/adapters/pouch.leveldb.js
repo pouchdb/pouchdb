@@ -404,7 +404,7 @@ LevelPouch = module.exports = function(opts, callback) {
     info = userDocs.map(function(doc, i) {
       var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
-      if (!newDoc.metadata.rev_map) {
+      if (newDoc.metadata && !newDoc.metadata.rev_map) {
         newDoc.metadata.rev_map = {};
       }
       return newDoc;
