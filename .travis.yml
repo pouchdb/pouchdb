@@ -1,11 +1,11 @@
 language: java
 
-
 services:
   - couchdb
 
+install: "npm install"
 
-script: "tests/run_tests.sh"
+script: "./pouch test"
 
 branches:
   only:
