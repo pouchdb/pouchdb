@@ -60,34 +60,37 @@ var resultsDoc = {
   runs: {}
 };
 
+var sauce_connect;
+
+function sauceUrl() {
+  return 'https://' + sauce.user + ':' + sauce.key +'@saucelabs.com';
+}
+
+function sauceConnections(callback) {
+  var connsUrl = sauceUrl() + '/rest/v1/' + sauce.user + '/tunnels';
+  request({url: connsUrl, json: true}, function(err, resp, body) {
+    callback(body);
+  });
+}
+
+function sauceDisconnect(callback) {
+  if (sauce_connect) {
+    sauce_connect.kill('SIGHUP');
+  }
+  sauceConnections(function(conns) {
+    if (!conns.length) {
+      return;
+    }
+    request({
+      method: 'DELETE',
+      url: sauceUrl() + '/rest/v1/' + sauce.user + '/tunnels/' + conns[0]
+    }, function() { callback(); });
+  });
+}
+
 var PouchTestRunner = (function() {
 
   var api = {};
-  var sauce_connect;
-
-  function sauceUrl() {
-    return 'https://' + sauce.user + ':' + sauce.key +'@saucelabs.com';
-  }
-
-  function sauceConnections(callback) {
-    var connsUrl = sauceUrl() + '/rest/v1/' + sauce.user + '/tunnels';
-    request({url: connsUrl, json: true}, function(err, resp, body) {
-      callback(body);
-    });
-  }
-
-  function sauceDisconnect() {
-    sauce_connect.kill('SIGHUP');
-    sauceConnections(function(conns) {
-      if (!conns.length) {
-        return;
-      }
-      request({
-        method: 'DELETE',
-        url: '/rest/v1/' + sauce.user + '/tunnels/' + conns[0]
-      });
-    });
-  }
 
   api.init = function(callback) {
     proc.exec('git rev-list HEAD --max-count=1', function(err, stdout, stderr) {
@@ -149,8 +152,7 @@ var PouchTestRunner = (function() {
 
     if (!browserConfig.length) {
       console.log('=> Browser tests complete');
-      sauceDisconnect();
-      return callback();
+      return sauceDisconnect(callback);
     }
     var config = browserConfig.pop();
 
@@ -261,7 +263,9 @@ var PouchTestRunner = (function() {
 
 process.on('uncaughtException', function(err) {
   console.log('Tests failed with an uncaught exception: ' + err);
-  process.exit(1);
+  sauceDisconnect(function() {
+    process.exit(1);
+  });
 });
 
 function initTests(callback) {
