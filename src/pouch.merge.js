@@ -1,4 +1,12 @@
 (function() {
+  // a few hacks to get things in the right place for node.js
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Pouch;
+    var utils = require('./pouch.utils.js');
+    for (var k in utils) {
+      global[k] = utils[k];
+    }
+  }
 
   // for a better overview of what this is doing, read:
   // https://github.com/apache/couchdb/blob/master/src/couchdb/couch_key_tree.erl

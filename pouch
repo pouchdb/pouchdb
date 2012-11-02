@@ -1,0 +1,306 @@
+#! /usr/bin/env node
+
+"use strict";
+
+// External Deps
+var webdriver = require('wd');
+var program = require('commander');
+var colors = require('colors');
+var assert = require('assert');
+var nano = require('nano');
+var send = require('send');
+var qunit = require("qunit");
+
+// Local Deps
+var cors = require('./tests/CORS-Proxy/server.js');
+
+// Stdlib Deps
+var path = require('path');
+var proc = require('child_process');
+var http = require('http');
+var util = require('util');
+var fs = require('fs');
+
+var POUCH_ROOT = __dirname;
+var TEST_ROOT = POUCH_ROOT + '/tests';
+
+// Location that we store the log + results about this test run
+var RESULTS_HOST = 'pouchdb.iriscouch.com';
+var RESULTS_DB = 'test_results';
+
+// Which build are we testing
+var TEST_RELEASE = 'release-min';
+
+var results = nano('http://' + RESULTS_HOST).use(RESULTS_DB);
+var testDb = nano('http://127.0.0.1:5984').use('test_suite_db110');
+var url = 'http://127.0.0.1:8000/tests/test.html?test=' + TEST_RELEASE;
+
+var sauce = {
+  host: 'ondemand.saucelabs.com',
+  port: 80,
+  user: 'pouchdb',
+  key: '97de9ee0-2712-49f0-9b17-4b9751d79073'
+};
+
+var browserConfig = [{
+  browserName: 'chrome',
+  platform: 'Windows 2003',
+  name: 'win2003/chrome'
+}, {
+  browserName: 'firefox',
+  version: '17',
+  platform: 'Windows 2003',
+  name: 'win2003/firefox'
+}];
+
+var resultsDoc = {
+  _id: new Date().getTime() + '',
+  release: TEST_RELEASE,
+  runs: {}
+};
+
+var PouchTestRunner = (function() {
+
+  var api = {};
+
+  api.init = function(callback) {
+    proc.exec('git rev-list HEAD --max-count=1', function(err, stdout, stderr) {
+      resultsDoc.git_hash = stdout.replace(/[\n\r]/g, '');
+      api.initServers();
+      callback();
+    });
+  };
+
+  api.initServers = function() {
+    console.log('=> Starting file server on: http://127.0.0.1:8000/');
+    http.createServer(function(req, res) {
+      var url = req.url.split('?')[0];
+      send(req, url).root(POUCH_ROOT).pipe(res);
+    }).listen(8000);
+    console.log('=> Starting CORS server on: http://127.0.0.1:2020/');
+    cors.init(2020);
+  };
+
+  api.sauceConnect = function(callback) {
+    console.log('=> Connecting to Saucelabs ...');
+    var sauce_args = [
+      '-jar',
+      POUCH_ROOT + '/tests/Sauce-Connect.jar',
+      'pouchdb',
+      '97de9ee0-2712-49f0-9b17-4b9751d79073'
+    ];
+    var sauce_connect = proc.spawn('java', sauce_args);
+
+    sauce_connect.stdout.on('data', function(data) {
+      console.log('[sauce]', data.toString().replace(/[\n\r]/g, ''));
+      if (data.toString().match(/Connected\! You may start your tests/)) {
+        console.log('=> Saucelabs connected!');
+        callback();
+      }
+    });
+
+    sauce_connect.stderr.on('data', function(data) {
+      console.log('[sauce-err]', data.toString().replace(/[\n\r]/g, ''));
+    });
+
+    sauce_connect.on('exit', function(code) {
+      console.log('=> Saucelabs disconnected');
+    });
+  };
+
+  api.startBrowserTests = function(callback) {
+
+    if (!browserConfig.length) {
+      console.log('=> Browser tests complete');
+      return callback();
+    }
+    var config = browserConfig.pop();
+
+    var testFiles = api.findTestFiles().map(function(file) {
+      return file.split('/').pop();
+    }).filter(function(file) {
+      return file !== 'test.auth_replication.js' &&
+        !(file === 'test.attachments.js' && /chrome/.test(config.browserName))
+    });
+
+    var testUrl = url + '&testFiles=' + testFiles.join(',');
+    var browser = webdriver.remote(sauce.host, sauce.port, sauce.user, sauce.key);
+
+    browser.on('status', function(info) {
+      console.log('\x1b[36m%s\x1b[0m', info);
+    });
+
+    browser.on('command', function(meth, path) {
+      console.log(' > \x1b[33m%s\x1b[0m: %s', meth, path);
+    });
+
+    resultsDoc.runs[config.name] = {
+      started: JSON.stringify(new Date())
+    };
+    var doc = resultsDoc.runs[config.name];
+    console.log('=> Starting browser tests:', config.name);
+
+    results.insert(resultsDoc, function(err, body) {
+      resultsDoc._rev = body.rev;
+      browser.chain().init(config).get(testUrl, function() {
+        browser
+          .chain()
+          .waitForElementByCss('.complete', 1000000)
+          .elementByCssSelector('.complete', function(err, el) {
+            browser.getAttribute(el, 'data-results-id', function(err, attr) {
+              browserComplete(attr);
+            });
+          });
+      });
+    });
+
+    function browserComplete(resultsId) {
+      testDb.get(resultsId, function(err, browserDoc) {
+        doc.completed = JSON.stringify(new Date());
+        doc.report = browserDoc.report;
+        doc.passed = !browserDoc.report.results.failed;
+        results.insert(resultsDoc, function(err, body) {
+          resultsDoc._rev = body.rev;
+          browser.quit(function() {
+            console.log('=> Completed browser tests: ', config.name);
+            api.startBrowserTests(callback);
+          });
+        });
+      });
+    }
+  };
+
+  api.runNodeTests = function(callback) {
+    console.log('=> Starting node tests');
+    resultsDoc.runs.node = {
+      started: JSON.stringify(new Date())
+    };
+    results.insert(resultsDoc, function(err, body) {
+      resultsDoc._rev = body.rev;
+      qunit.options.timeout = 2000;
+      qunit.setup({
+        log: {
+          summary: true,
+          errors: true
+        }
+      });
+      qunit.run({
+        deps: POUCH_ROOT + '/src/pouch.js',
+        code: POUCH_ROOT + '/src/adapters/pouch.leveldb.js',
+        tests: api.findTestFiles()
+      }, function(err, result) {
+        resultsDoc.runs.node.results = result;
+        resultsDoc.runs.node.completed = JSON.stringify(new Date());
+        resultsDoc.runs.node.passed = result.failed === 0;
+        results.insert(resultsDoc, function(err, body) {
+          resultsDoc._rev = body.rev;
+          console.log('=> Completed node tests');
+          callback();
+        });
+      });
+    });
+  };
+
+  // Find all the test files in the test directory, these
+  // are files with the name in the format test.name.js
+  api.findTestFiles = function() {
+    return fs.readdirSync(TEST_ROOT).filter(function(name) {
+      return /^test\.([a-z_])*\.js$/.test(name);
+    }).map(function(name) {
+      return TEST_ROOT + '/' + name;
+    });
+  };
+
+  api.passed = function() {
+    return Object.keys(resultsDoc.runs).reduce(function(acc, key) {
+      return acc && resultsDoc.runs[key].passed;
+    }, true);
+  };
+
+  return api;
+
+})();
+
+process.on('uncaughtException', function(err) {
+  console.log('Tests failed with an uncaught exception: ' + err);
+  process.exit(1);
+});
+
+function initTests(callback) {
+  runMake('min', function() {
+    PouchTestRunner.init(callback);
+  });
+}
+
+function testsComplete() {
+  var passed = PouchTestRunner.passed();
+  var passedMsg = passed ? 'PASS!!'.green : 'FAIL'.red;
+  var url = 'http://' + RESULTS_HOST + '/_utils/document.html?' +
+    RESULTS_DB + '/' + resultsDoc._id;
+  resultsDoc.passed = passed;
+  results.insert(resultsDoc, function(err, body) {
+    console.log('=> Results stored:', url);
+    console.log('=> Tests complete:', passedMsg);
+    process.exit(passed ? 0 : 1);
+  });
+}
+
+function runTests(which) {
+  which = which || 'all';
+  initTests(function() {
+    console.log('=> Running tests:', which);
+    if (which === 'node') {
+      return PouchTestRunner.runNodeTests(testsComplete);
+    }
+    if (which === 'all') {
+      return PouchTestRunner.runNodeTests(function() {
+        PouchTestRunner.sauceConnect(function() {
+          PouchTestRunner.startBrowserTests(testsComplete);
+        });
+      });
+    }
+    if (which === 'browser') {
+      return PouchTestRunner.sauceConnect(function() {
+        PouchTestRunner.startBrowserTests(testsComplete);
+      });
+    }
+  });
+}
+
+function runMake(min, callback) {
+  var cmd = 'make' + (min ? ' min' : '');
+  console.log('=> Building:', min ? 'pouch.alpha.min.js' : 'pouch.alpha.js');
+  proc.exec('make min', function(err, stdout, stderr) {
+    if (callback) {
+      callback();
+    }
+  });
+}
+
+// Somewhat pointless currently since it just calls out to
+// make, but in future will likely be using geddy to build.
+program
+  .command('make [min]')
+  .description('Make PouchDB')
+  .action(function(min) { runMake(min); });
+
+program
+  .command('test [browser|node|all]')
+  .option('--no-store', 'Dont store the results')
+  .option('-R, --release <release>', 'Which release to test')
+  .description('Run tests')
+  .action(runTests);
+
+program
+  .command('start-dev')
+  .description('Start development servers')
+  .action(function() { PouchTestRunner.initServers(); });
+
+program
+  .version('0.0.1')
+  .option('-v, --verbose', 'Verbose output')
+  .parse(process.argv);
+
+if (!program.args.length) {
+  program.help();
+}

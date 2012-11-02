@@ -1,9 +1,12 @@
 language: java
 
+services:
+  - couchdb
 
-env: DB=couchdb
+install: "npm install"
 
+script: "./pouch test"
 
-
-script: "tests/run_tests.sh"
-
+branches:
+  only:
+    - master

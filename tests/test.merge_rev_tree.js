@@ -1,7 +1,18 @@
 // Porting tests from Apache CouchDB
 // https://github.com/davisp/couchdb/blob/local_doc_revs/test/etap/060-kt-merging.t
+var qunit = module;
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
 
-module('merge rev tree');
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  qunit = QUnit.module;
+}
+
+qunit('merge rev tree');
 
 var simple = {pos: 1, ids: ['1', []]};
 var two0 = {pos: 1, ids: ['1', [['2_0', []]]]};

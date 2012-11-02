@@ -1,3 +1,5 @@
+"use strict";
+
 function makeDocs(start, end, templateDoc) {
   var templateDocSrc = templateDoc ? JSON.stringify(templateDoc) : "{}";
   if (end === undefined) {
@@ -16,6 +18,17 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 
+function openTestDB(name, callback) {
+  new Pouch(name, function(err, db) {
+    if (err) {
+      console.error(err);
+      ok(false, 'failed to open database');
+      return start();
+    }
+    callback.apply(this, arguments);
+  });
+}
+
 function initTestDB(name, callback) {
   // ignore errors, the database might not exist
   Pouch.destroy(name, function(err) {
@@ -24,14 +37,7 @@ function initTestDB(name, callback) {
       ok(false, 'failed to open database');
       return start();
     }
-    new Pouch(name, function(err, db) {
-      if (err) {
-        console.error(err);
-        ok(false, 'failed to open database');
-        return start();
-      }
-      callback.apply(this, arguments);
-    });
+    openTestDB(name, callback);
   });
 }
 
@@ -49,6 +55,19 @@ function generateAdapterUrl(id) {
     return 'idb://test_suite_db' + opt[1];
   }
   if (opt[0] === 'http') {
-    return 'http://localhost:1234/test_suite_db' + opt[1];
+    return 'http://localhost:2020/test_suite_db' + opt[1];
+  }
+  if (opt[0] === 'ldb') {
+    return 'ldb://testdb' + opt[1];
+  }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  var Pouch = require('../src/pouch.js');
+  module.exports = {
+    makeDocs: makeDocs,
+    initTestDB: initTestDB,
+    initDBPair: initDBPair,
+    generateAdapterUrl: generateAdapterUrl
   }
 }

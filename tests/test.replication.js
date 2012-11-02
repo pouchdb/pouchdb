@@ -1,9 +1,37 @@
-[['idb-1', 'http-1'],
- ['http-1', 'http-2'],
- ['http-1', 'idb-1'],
- ['idb-1', 'idb-2']].map(function(adapters) {
+var adapters = [
+      ['idb-1', 'http-1'],
+      ['http-1', 'http-2'],
+      ['http-1', 'idb-1'],
+      ['idb-1', 'idb-2']]
+  , qunit = module;
 
-  module('replication: ' + adapters[0] + ':' + adapters[1], {
+var downAdapters = ['idb-1'];
+
+// if we are running under node.js, set things up
+// a little differently, and only test the leveldb adapter
+if (typeof module !== undefined && module.exports) {
+  var Pouch = require('../src/pouch.js')
+    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
+    , utils = require('./test.utils.js')
+
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
+  }
+  qunit = QUnit.module;
+  downAdapters = [];
+
+  // TODO: get an http adapter working and test replication to http
+  adapters = [
+      ['ldb-1', 'http-1'],
+      ['http-1', 'http-2'],
+      ['http-1', 'ldb-1'],
+      ['ldb-1', 'ldb-2']]
+
+}
+
+adapters.map(function(adapters) {
+
+  qunit('replication: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
       this.name = generateAdapterUrl(adapters[0]);
       this.remote = generateAdapterUrl(adapters[1]);
@@ -23,7 +51,7 @@
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
         db.replicate.from(self.remote, function(err, result) {
           ok(result.ok, 'replication was ok');
-          ok(result.docs_written = docs.length, 'correct # docs written');
+          ok(result.docs_written === docs.length, 'correct # docs written');
           start();
         });
       });
@@ -70,6 +98,26 @@
           remote.allDocs(function(err, result) {
             ok(result.rows.length === docs.length, 'correct # docs written');
             start();
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("Test basic push replication sequence tracking", function() {
+    console.info('Starting Test: Test basic push replication sequence tracking');
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      var doc1 = {_id: 'adoc', foo:'bar'};
+      db.put(doc1, function(err, result) {
+        db.replicate.to(self.remote, function(err, result) {
+          ok(result.docs_read === 1, 'correct # changed docs read (1) on first replication');
+          db.replicate.to(self.remote, function(err, result) {
+            ok(result.docs_read === 0, 'correct # changed docs read (0) on second replication');
+            db.replicate.to(self.remote, function(err, result) {
+              ok(result.docs_read === 0, 'correct # changed docs read (0) on third replication');
+              start();
+            });
           });
         });
       });
@@ -244,7 +292,10 @@
         var rep = remote.replicate.from(db, {continuous: true});
         var changes = remote.changes({
           onChange: function(change) {
-            ++count;
+            ++count
+            if (count === 3) {
+              return db.put(doc1);
+            }
             if (count === 4) {
               ok(true, 'Got all the changes');
               rep.cancel();
@@ -254,9 +305,6 @@
           },
           continuous: true,
         });
-        setTimeout(function() {
-          db.put(doc1, {});
-        }, 50);
       });
     });
   });
@@ -280,6 +328,7 @@
             if (count === 4) {
               replicate.cancel();
               remote.put(doc2);
+              // This setTimeout is needed to ensure no further changes come through
               setTimeout(function() {
                 ok(count === 4, 'got no more docs');
                 changes.cancel();
@@ -304,53 +353,19 @@
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs1}, function(err, info) {
         var replicate = db.replicate.from(remote, {
-          continuous: true,
           filter: function(doc) { return doc.integer % 2 === 0; }
-        });
-        setTimeout(function() {
+        }, function() {
           db.allDocs(function(err, docs) {
             equal(docs.rows.length, 2);
             replicate.cancel();
             start();
           });
-        }, 500);
-      });
-    });
-  });
-
-  asyncTest("Attachments replicate", function() {
-    console.info('Starting Test: Attachments replicate');
-
-    var binAttDoc = {
-      _id: "bin_doc",
-      _attachments:{
-        "foo.txt": {
-          content_type:"text/plain",
-          data: "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
-        }
-      }
-    };
-
-    var docs1 = [
-      binAttDoc,
-      {_id: "0", integer: 0},
-      {_id: "1", integer: 1},
-      {_id: "2", integer: 2},
-      {_id: "3", integer: 3}
-    ];
-
-    initDBPair(this.name, this.remote, function(db, remote) {
-      remote.bulkDocs({docs: docs1}, function(err, info) {
-        var replicate = db.replicate.from(remote, function() {
-          db.get('bin_doc', {attachments: true}, function(err, doc) {
-            equal(binAttDoc._attachments['foo.txt'].data,
-                  doc._attachments['foo.txt'].data);
-            start();
-          });
         });
       });
     });
   });
+
+
 
 
   asyncTest("Replication with deleted doc", function() {
@@ -394,6 +409,25 @@
       });
     });
   });
+});
 
+// This test only needs to run for one configuration, and it slows stuff
+// down
+downAdapters.map(function(adapter) {
 
+  qunit('replication: ' + adapter, {
+    setup : function () {
+      this.name = generateAdapterUrl(adapter);
+    }
+  });
+
+  asyncTest("replicate from down server test", function (){
+    expect(1);
+    initTestDB(this.name, function(err, db) {
+      db.replicate.to('http://10.1.1.1:1234/store', function (err, changes) {
+        ok(err);
+        start();
+      });
+    });
+  });
 });
