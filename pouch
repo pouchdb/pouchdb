@@ -10,6 +10,7 @@ var assert = require('assert');
 var nano = require('nano');
 var send = require('send');
 var qunit = require("qunit");
+var request = require('request');
 
 // Local Deps
 var cors = require('./tests/CORS-Proxy/server.js');
@@ -62,6 +63,31 @@ var resultsDoc = {
 var PouchTestRunner = (function() {
 
   var api = {};
+  var sauce_connect;
+
+  function sauceUrl() {
+    return 'https://' + sauce.user + ':' + sauce.key +'@saucelabs.com';
+  }
+
+  function sauceConnections(callback) {
+    var connsUrl = sauceUrl() + '/rest/v1/' + sauce.user + '/tunnels';
+    request({url: connsUrl, json: true}, function(err, resp, body) {
+      callback(body);
+    });
+  }
+
+  function sauceDisconnect() {
+    sauce_connect.kill('SIGHUP');
+    if (!conns.length) {
+      return;
+    }
+    sauceConnections(function(conns) {
+      request({
+        method: 'DELETE',
+        url: 'rest/v1/' + sauce.user + '/tunnels/' + conns[0]
+      });
+    });
+  }
 
   api.init = function(callback) {
     proc.exec('git rev-list HEAD --max-count=1', function(err, stdout, stderr) {
@@ -82,6 +108,17 @@ var PouchTestRunner = (function() {
   };
 
   api.sauceConnect = function(callback) {
+    sauceConnections(function(conns) {
+      if (conns.length > 0) {
+        console.log('=> Saucelabs has an active Job running, waiting ...');
+        setTimeout(function() { api.sauceConnect(callback); }, 1000 * 30);
+      } else {
+        api.doSauceConnect(callback);
+      }
+    });
+  };
+
+  api.doSauceConnect = function(callback) {
     console.log('=> Connecting to Saucelabs ...');
     var sauce_args = [
       '-jar',
@@ -89,7 +126,7 @@ var PouchTestRunner = (function() {
       'pouchdb',
       '97de9ee0-2712-49f0-9b17-4b9751d79073'
     ];
-    var sauce_connect = proc.spawn('java', sauce_args);
+    sauce_connect = proc.spawn('java', sauce_args);
 
     sauce_connect.stdout.on('data', function(data) {
       console.log('[sauce]', data.toString().replace(/[\n\r]/g, ''));
