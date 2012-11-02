@@ -84,7 +84,7 @@ var PouchTestRunner = (function() {
       }
       request({
         method: 'DELETE',
-        url: 'rest/v1/' + sauce.user + '/tunnels/' + conns[0]
+        url: '/rest/v1/' + sauce.user + '/tunnels/' + conns[0]
       });
     });
   }
