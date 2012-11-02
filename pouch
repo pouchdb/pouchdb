@@ -149,6 +149,7 @@ var PouchTestRunner = (function() {
 
     if (!browserConfig.length) {
       console.log('=> Browser tests complete');
+      sauceDisconnect();
       return callback();
     }
     var config = browserConfig.pop();
