@@ -78,10 +78,10 @@ var PouchTestRunner = (function() {
 
   function sauceDisconnect() {
     sauce_connect.kill('SIGHUP');
-    if (!conns.length) {
-      return;
-    }
     sauceConnections(function(conns) {
+      if (!conns.length) {
+        return;
+      }
       request({
         method: 'DELETE',
         url: 'rest/v1/' + sauce.user + '/tunnels/' + conns[0]
