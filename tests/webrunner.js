@@ -35,8 +35,8 @@ var sourceFiles = {
           '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js'],
-  'release': ['../pouch.alpha.js'],
-  'release-min': ['../pouch.alpha.min.js']
+  'release': ['../pouchdb.alpha.js'],
+  'release-min': ['../pouchdb.alpha.min.js']
 };
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
