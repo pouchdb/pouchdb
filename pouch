@@ -5,7 +5,7 @@
 // External Deps
 var webdriver = require('wd');
 var program = require('commander');
-var colors = require('colors');
+//var colors = require('colors');
 var assert = require('assert');
 var nano = require('nano');
 var send = require('send');
