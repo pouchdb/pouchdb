@@ -310,9 +310,8 @@ function runTests(which) {
 }
 
 function runMake(min, callback) {
-  var cmd = 'make' + (min ? ' min' : '');
-  console.log('=> Building:', min ? 'pouch.alpha.min.js' : 'pouch.alpha.js');
-  proc.exec('make min', function(err, stdout, stderr) {
+  console.log('=> Building: pouch.alpha.min.js and pouch.alpha.js');
+  proc.exec('grunt', function(err, stdout, stderr) {
     if (callback) {
       callback();
     }
