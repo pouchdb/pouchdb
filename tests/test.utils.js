@@ -1,5 +1,19 @@
 "use strict";
 
+function uuid() {
+  var S4 = function() {
+    return Math.floor(Math.random() * 0x10000).toString(16);
+  };
+
+  return (
+    S4() + S4() + "-" +
+      S4() + "-" +
+      S4() + "-" +
+      S4() + "-" +
+      S4() + S4() + S4()
+  );
+}
+
 function makeDocs(start, end, templateDoc) {
   var templateDocSrc = templateDoc ? JSON.stringify(templateDoc) : "{}";
   if (end === undefined) {
@@ -49,16 +63,18 @@ function initDBPair(local, remote, callback) {
   });
 }
 
+var testId = uuid();
+
 function generateAdapterUrl(id) {
   var opt = id.split('-');
   if (opt[0] === 'idb') {
-    return 'idb://test_suite_db' + opt[1];
+    return 'idb://testdb_' + testId + '_' + opt[1];
   }
   if (opt[0] === 'http') {
-    return 'http://localhost:2020/test_suite_db' + opt[1];
+    return 'http://localhost:2020/testdb_' + testId + '_' + opt[1];
   }
   if (opt[0] === 'ldb') {
-    return 'ldb://testdb' + opt[1];
+    return 'ldb://testdb_' + testId + '_' + opt[1];
   }
 }
 

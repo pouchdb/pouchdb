@@ -127,7 +127,7 @@ QUnit.jUnitReport = function(report) {
   doc.report = report;
   doc.completed = new Date().getTime();
   document.getElementById('submit-results').addEventListener('click', submitResults);
-  new Pouch(generateAdapterUrl('http-110'), function(err, db) {
+  new Pouch('http://localhost:2020/test_results', function(err, db) {
     if (err) {
       return console.log('Cant open db to store results');
     }
