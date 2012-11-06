@@ -33,7 +33,7 @@ var RESULTS_DB = 'test_results';
 var TEST_RELEASE = 'release-min';
 
 var results = nano('http://' + RESULTS_HOST).use(RESULTS_DB);
-var testDb = nano('http://127.0.0.1:5984').use('test_suite_db110');
+var testDb = nano('http://127.0.0.1:5984').use('test_results');
 var url = 'http://127.0.0.1:8000/tests/test.html?test=' + TEST_RELEASE;
 
 var sauce = {
