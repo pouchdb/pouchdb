@@ -39,6 +39,16 @@ var parseDocId = function(id) {
   }
 }
 
+// Determine id an ID is valid
+//   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
+//   - any other string value is a valid id
+var isValidId = function(id) {
+  if (/^_/.test(id)) {
+    return /^_(design|local)/.test(id);
+  }
+  return true;
+}
+
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
 var parseDoc = function(doc, newEdits) {
@@ -113,6 +123,9 @@ var parseDoc = function(doc, newEdits) {
 
   if (typeof doc._id !== 'string') {
     error = Pouch.Errors.INVALID_ID;
+  }
+  else if (!isValidId(doc._id)) {
+    error = Pouch.Errors.RESERVED_ID;
   }
 
 
