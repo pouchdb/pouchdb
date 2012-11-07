@@ -130,7 +130,9 @@ var parseDoc = function(doc, newEdits) {
 
 
   doc._id = decodeURIComponent(doc._id);
-  doc._rev = [nRevNum, newRevId].join('-');
+  if(doc._rev === undefined) {
+    doc._rev = [nRevNum, newRevId].join('-');
+  }
 
   if (error) {
     return error;
