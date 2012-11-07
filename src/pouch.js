@@ -90,6 +90,11 @@ Pouch.Errors = {
     error: 'invalid_id',
     reason: '_id field must contain a string'
   },
+  RESERVED_ID: {
+    status: 400,
+    error: 'bad_request',
+    reason: 'Only reserved document ids may start with underscore.'
+  },
   UNKNOWN_ERROR: {
     status: 500,
     error: 'unknown_error',

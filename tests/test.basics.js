@@ -87,6 +87,15 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Add a doc with leading underscore in id", function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({_id: '_testing', value: 42}, function(err, info) {
+        ok(err);
+        start();
+      });
+    });
+  });
+
   asyncTest("Get revisions of removed doc", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
