@@ -327,6 +327,10 @@ var ajax = function ajax(options, callback) {
       options.method = options.type;
       delete options.type;
     }
+    if (options.auth) {
+      var token = btoa(options.auth.username + ':' + options.auth.password);
+      options.headers['Authorization'] = 'Basic ' + token;
+    }
 
     return request(options, function(err, response, body) {
       if (err) {
