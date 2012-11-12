@@ -243,7 +243,7 @@ var IdbPouch = function(opts, callback) {
           var digest = 'md5-' + Crypto.MD5(data);
           delete docInfo.data._attachments[key].data;
           docInfo.data._attachments[key].digest = digest;
-          saveAttachment(digest, data, function (err) {
+          saveAttachment(docInfo, digest, data, function (err) {
             recv++;
             collectResults(err);
           });
@@ -321,14 +321,32 @@ var IdbPouch = function(opts, callback) {
       return err;
     }
 
-    function saveAttachment(digest, data, callback) {
+    function saveAttachment(docInfo, digest, data, callback) {
       if (storeAttachmentsInIDB){
-        var attReq = txn.objectStore(ATTACH_STORE)
-          .put({digest: digest, body: data});
-        attReq.onsuccess = function() {
-          call(callback);
+        var objectStore = txn.objectStore(ATTACH_STORE);
+        var getReq = objectStore.get(digest).onsuccess = function(e) {
+          var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
+          var newAtt = {digest: digest, body: data};
+
+          if (e.target.result) {
+            if (e.target.result.refs) {
+              // only update references if this attachment already has them
+              // since we cannot migrate old style attachments here without
+              // doing a full db scan for references
+              newAtt.refs = e.target.result.refs;
+              newAtt.refs[ref] = true;
+            }
+          } else {
+            newAtt.refs = {}
+            newAtt.refs[ref] = true;
+          }
+
+          var putReq = objectStore.put(newAtt).onsuccess = function(e) {
+            call(callback);
+          };
+          putReq.onerror = putReq.ontimeout = idbError(callback);
         };
-        attReq.onerror = attReq.ontimeout = idbError(callback);
+        getReq.onerror = getReq.ontimeout = idbError(callback);
       }else{
         // right now fire and forget, needs cleaned
         writeAttachmentToFile(digest,data);
