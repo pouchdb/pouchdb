@@ -21,6 +21,10 @@ var proc = require('child_process');
 var http = require('http');
 var util = require('util');
 var fs = require('fs');
+var url = require('url');
+
+var DEFAULT_COUCH_HOST = 'http://127.0.0.1:5984';
+var DEFAULT_CORS_HOST = 'http://127.0.0.1:2020';
 
 var POUCH_ROOT = __dirname;
 var TEST_ROOT = POUCH_ROOT + '/tests';
@@ -34,7 +38,7 @@ var TEST_RELEASE = 'release-min';
 
 var results = nano('http://' + RESULTS_HOST).use(RESULTS_DB);
 var testDb = nano('http://127.0.0.1:5984').use('test_results');
-var url = 'http://127.0.0.1:8000/tests/test.html?test=' + TEST_RELEASE;
+var launchUrl = 'http://127.0.0.1:8000/tests/test.html?test=' + TEST_RELEASE;
 
 var sauce = {
   host: 'ondemand.saucelabs.com',
@@ -100,14 +104,19 @@ var PouchTestRunner = (function() {
     });
   };
 
-  api.initServers = function() {
+  api.initServers = function(couch) {
+    var couchHost = couch || url.parse(DEFAULT_COUCH_HOST);
+    var corsHost = url.parse(DEFAULT_CORS_HOST);
+
     console.log('=> Starting file server on: http://127.0.0.1:8000/');
     http.createServer(function(req, res) {
       var url = req.url.split('?')[0];
       send(req, url).root(POUCH_ROOT).pipe(res);
     }).listen(8000);
-    console.log('=> Starting CORS server on: http://127.0.0.1:2020/');
-    cors.init(2020);
+
+    console.log('=> Starting CORS server on:', url.format(corsHost),
+                '=> ', url.format(couchHost));
+    cors.init(couchHost, corsHost);
   };
 
   api.sauceConnect = function(callback) {
@@ -163,7 +172,7 @@ var PouchTestRunner = (function() {
         !(file === 'test.attachments.js' && /chrome/.test(config.browserName))
     });
 
-    var testUrl = url + '&testFiles=' + testFiles.join(',');
+    var testUrl = launchUrl + '&testFiles=' + testFiles.join(',');
     var browser = webdriver.remote(sauce.host, sauce.port, sauce.user, sauce.key);
 
     browser.on('status', function(info) {
@@ -335,8 +344,11 @@ program
 
 program
   .command('start-dev')
+  .option('-c, --couch <url>', 'location of CouchDB', String, DEFAULT_COUCH_HOST)
   .description('Start development servers')
-  .action(function() { PouchTestRunner.initServers(); });
+  .action(function(args) {
+    PouchTestRunner.initServers(url.parse(args.couch));
+  });
 
 program
   .version('0.0.1')
