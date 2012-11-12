@@ -181,7 +181,7 @@ var IdbPouch = function(opts, callback) {
       req.onsuccess = function process_docRead(event) {
         var oldDoc = event.target.result;
         if (!oldDoc) {
-          insertDoc(currentDoc, processDocs);
+          insertDoc(currentDoc);
         } else {
           updateDoc(oldDoc, currentDoc);
         }
