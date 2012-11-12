@@ -198,7 +198,8 @@ var IdbPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
-        var rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+        var rev = winningRev(metadata);
+
         aresults.push({
           ok: true,
           id: metadata.id,
@@ -264,6 +265,13 @@ var IdbPouch = function(opts, callback) {
         return processDocs();
       }
 
+      if (docInfo.metadata.deleted) {
+        if (!('deletions' in docInfo.metadata)) {
+          docInfo.metadata.deletions = {};
+        }
+        docInfo.metadata.deletions[docInfo.metadata.id] = true;
+      }
+
       docInfo.metadata.rev_tree = merged.tree;
       writeDoc(docInfo, processDocs);
     }
@@ -320,7 +328,7 @@ var IdbPouch = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
-      var rev = winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+      var rev = winningRev(metadata);
       var key = opts.rev ? opts.rev : rev;
       var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
 
@@ -475,14 +483,12 @@ var IdbPouch = function(opts, callback) {
             id: metadata.id,
             key: metadata.id,
             value: {
-              rev: winningRev(metadata.rev_tree[0].pos,
-                              metadata.rev_tree[0].ids)
+              rev: winningRev(metadata)
             }
           };
           if (opts.include_docs) {
             doc.doc = data;
-            doc.doc._rev = winningRev(metadata.rev_tree[0].pos,
-                                      metadata.rev_tree[0].ids);
+            doc.doc._rev = winningRev(metadata);
             if (opts.conflicts) {
               doc.doc._conflicts = collectConflicts(metadata.rev_tree);
             }
@@ -655,8 +661,7 @@ var IdbPouch = function(opts, callback) {
           doc: cursor.value,
         };
 
-        change.doc._rev = winningRev(metadata.rev_tree[0].pos,
-                                     metadata.rev_tree[0].ids);
+        change.doc._rev = winningRev(metadata);
 
         if (metadata.deleted) {
           change.deleted = true;
@@ -810,8 +815,7 @@ var IdbPouch = function(opts, callback) {
 
     function fetchDocData(cursor, metadata, e) {
       current = {doc: e.target.result, metadata: metadata};
-      current.doc._rev = winningRev(current.metadata.rev_tree[0].pos,
-                                    current.metadata.rev_tree[0].ids);
+      current.doc._rev = winningRev(metadata);
 
       if (options.complete && !current.metadata.deleted) {
         fun.map.apply(this, [current.doc]);
@@ -829,15 +833,6 @@ var IdbPouch = function(opts, callback) {
       dataReq.onsuccess = fetchDocData.bind(this, cursor, metadata);
       dataReq.onerror = idbError(options.complete);
     }
-  }
-
-  // Trees are sorted by length, winning revision is the last revision
-  // in the longest tree
-  function winningRev(pos, tree) {
-    if (!tree[1].length) {
-      return pos + '-' + tree[0];
-    }
-    return winningRev(pos + 1, tree[1][0]);
   }
 
   //Functions for reading and writing an attachment in the html5 file system instead of idb

@@ -92,8 +92,7 @@ var ViewQuery = function(fun, stores, options) {
 
     function processDoc(err, doc) {
       current = {doc: doc, metadata: metadata};
-      current.doc._rev = winningRev(metadata.rev_tree[0].pos,
-                                    metadata.rev_tree[0].ids);
+      current.doc._rev = winningRev(metadata);
       if (options.complete && !current.metadata.deleted) {
         fun.map.call(this, current.doc);
       }
@@ -253,7 +252,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
       stores[BY_SEQ_STORE].get(seq, function(err, doc) {
         doc._id = metadata.id;
-        doc._rev = Pouch.utils.winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+        doc._rev = Pouch.utils.winningRev(metadata);
 
         if (opts.revs) {
           var path = Pouch.utils.arrayFirst(
@@ -464,6 +463,13 @@ LevelPouch = module.exports = function(opts, callback) {
         return callback();
       }
 
+      if (docInfo.metadata.deleted) {
+        if (!('deletions' in docInfo.metadata)) {
+          docInfo.metadata.deletions = {};
+        }
+        docInfo.metadata.deletions[docInfo.metadata.id] = true;
+      }
+
       docInfo.metadata.rev_tree = merged.tree;
       docInfo.metadata.rev_map = oldDoc.rev_map;
       writeDoc(docInfo, callback);
@@ -535,7 +541,7 @@ LevelPouch = module.exports = function(opts, callback) {
           return aresults.push(result);
         }
         var metadata = result.metadata
-          , rev = Pouch.utils.winningRev(metadata.rev_tree[0].pos, metadata.rev_tree[0].ids);
+          , rev = Pouch.utils.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -598,8 +604,7 @@ LevelPouch = module.exports = function(opts, callback) {
             id: metadata.id,
             key: metadata.id,
             value: {
-              rev: Pouch.utils.winningRev(metadata.rev_tree[0].pos,
-                                          metadata.rev_tree[0].ids)
+              rev: Pouch.utils.winningRev(metadata)
             }
           };
           if (opts.include_docs) {
@@ -693,7 +698,7 @@ LevelPouch = module.exports = function(opts, callback) {
     if (opts.filter && typeof opts.filter === 'string') {
       var filtername = opts.filter.split('/');
       api.get('_design/'+filtername[0], function(err, design) {
-        var filter = eval('(function() { return ' + 
+        var filter = eval('(function() { return ' +
                           design.filters[filtername[1]] + '})()');
         opts.filter = filter;
         fetchChanges();
@@ -727,10 +732,7 @@ LevelPouch = module.exports = function(opts, callback) {
               doc: data.value
             };
 
-            change.doc._rev = Pouch.utils.winningRev(
-                metadata.rev_tree[0].pos,
-                metadata.rev_tree[0].ids
-              );
+            change.doc._rev = Pouch.utils.winningRev(metadata);
 
             if (metadata.deleted) {
               change.deleted = true;
