@@ -476,6 +476,15 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function writeDoc(doc, callback) {
+      var err = null;
+      var recv = 0;
+
+      doc.data._id = doc.metadata.id;
+
+      if (doc.metadata.deleted) {
+        doc.data._deleted = true;
+      }
+
       var attachments = doc.data._attachments
         ? Object.keys(doc.data._attachments)
         : [];
@@ -490,28 +499,47 @@ LevelPouch = module.exports = function(opts, callback) {
                 .digest('hex');
           delete doc.data._attachments[key].data;
           doc.data._attachments[key].digest = digest;
-          saveAttachment(digest, data);
+          saveAttachment(digest, data, function (err) {
+            recv++;
+            collectResults(err);
+          });
+        } else {
+          recv++;
+          collectResults();
         }
       }
 
-      doc.data._id = doc.metadata.id;
-      if (doc.metadata.deleted) {
-        doc.data._deleted = true;
+      if(!attachments.length) {
+        finish();
       }
-      results.push(doc);
 
-      update_seq++;
-      doc.metadata.seq = doc.metadata.seq || update_seq;
-      doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
-
-      stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
-        if (err) {
-          return console.error(err);
+      function collectResults(attachmentErr) {
+        if (!err) {
+          if (attachmentErr) {
+            err = attachmentErr;
+            call(callback, err);
+          } else if (recv == attachments.length) {
+            finish();
+          }
         }
+      }
 
-        stores[DOC_STORE].put(doc.metadata.id, doc.metadata);
-        return saveUpdateSeq(callback);
-      });
+      function finish() {
+        update_seq++;
+        doc.metadata.seq = doc.metadata.seq || update_seq;
+        doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
+
+        stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
+          if (err) {
+            return console.error(err);
+          }
+
+          stores[DOC_STORE].put(doc.metadata.id, doc.metadata, function(err) {
+            results.push(doc);
+            return saveUpdateSeq(callback);
+          });
+        });
+      }
     }
 
     function saveUpdateSeq(callback) {
@@ -523,8 +551,9 @@ LevelPouch = module.exports = function(opts, callback) {
       });
     }
 
-    function saveAttachment(digest, data) {
+    function saveAttachment(digest, data, callback) {
       stores[ATTACH_STORE].put(digest, data, function(err) {
+        callback(err);
         if (err) {
           return console.error(err);
         }
