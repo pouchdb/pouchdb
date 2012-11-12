@@ -1,4 +1,4 @@
 /pouch*.js
-.DS_Store
-.idea
+.*
+!.gitignore
 sauce_connect.log*
