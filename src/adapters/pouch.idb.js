@@ -431,6 +431,17 @@ var IdbPouch = function(opts, callback) {
     return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
   };
 
+  api.putAttachment = function idb_putAttachment(id, rev, doc, type, callback) {
+    id = parseDocId(id);
+    api.get(id.docId, {attachments: true}, function(err, obj) {
+      obj._attachments || (obj._attachments = {});
+      obj._attachments[id.attachmentId] = {
+        content_type: type,
+        data: btoa(doc)
+      }
+      api.put(obj, callback);
+    });
+  };
 
   api.remove = function idb_remove(doc, opts, callback) {
     if (typeof opts === 'function') {
@@ -529,19 +540,6 @@ var IdbPouch = function(opts, callback) {
         cursor['continue']();
       };
   };
-
-  api.putAttachment = function idb_putAttachment(id, rev, doc, type, callback) {
-    id = parseDocId(id);
-    api.get(id.docId, {attachments: true}, function(err, obj) {
-      obj._attachments || (obj._attachments = {});
-      obj._attachments[id.attachmentId] = {
-        content_type: type,
-        data: btoa(doc)
-      }
-      api.put(obj, callback);
-    });
-  };
-
 
   api.revsDiff = function idb_revsDiff(req, opts, callback) {
     if (typeof opts === 'function') {
