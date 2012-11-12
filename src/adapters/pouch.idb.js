@@ -508,6 +508,24 @@ var IdbPouch = function(opts, callback) {
     return api.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
   };
 
+  api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
+    id = parseDocId(id);
+    api.get(id.docId, function(err, obj) {
+      if (err) {
+        call(callback, err);
+        return;
+      }
+
+      if (obj._rev != rev) {
+        call(callback, Pouch.Errors.REV_CONFLICT);
+        return;
+      }
+
+      obj._attachments || (obj._attachments = {});
+      delete obj._attachments[id.attachmentId];
+      api.put(obj, callback);
+    });
+  };
 
   api.allDocs = function idb_allDocs(opts, callback) {
     if (typeof opts === 'function') {
