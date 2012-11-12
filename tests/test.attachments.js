@@ -115,6 +115,24 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test delete attachment from a doc", function() {
+    initTestDB(this.name, function(erro, db) {
+      db.put({ _id: 'mydoc' }, function(err, resp) {
+        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+          ok(res.ok);
+          var rev = res.rev;
+          db.removeAttachment('mydoc/mytext', 0, function(err, res) {
+            ok(err);
+            db.removeAttachment('mydoc/mytext', rev, function(err, res) {
+              ok(res.ok);
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Test a document with a json string attachment", function() {
     initTestDB(this.name, function(err, db) {
       db.put(jsonDoc, function(err, results) {

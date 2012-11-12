@@ -153,7 +153,7 @@ LevelPouch = module.exports = function(opts, callback) {
     function initstores() {
       initstore(DOC_STORE, 'json');
       initstore(BY_SEQ_STORE, 'json');
-      initstore(ATTACH_STORE, 'binary');
+      initstore(ATTACH_STORE, 'json');
     }
   });
 
@@ -336,8 +336,8 @@ LevelPouch = module.exports = function(opts, callback) {
             return call(callback, err);
           }
           var data = opts.decode
-            ? Pouch.utils.atob(attach.toString())
-            : attach.toString();
+            ? Pouch.utils.atob(attach.body.toString())
+            : attach.body.toString();
 
           call(callback, null, data);
         });
@@ -376,6 +376,25 @@ LevelPouch = module.exports = function(opts, callback) {
     newDoc._deleted = true;
     return api.bulkDocs({docs: [newDoc]}, opts, Pouch.utils.yankError(callback));
   }
+
+  api.removeAttachment = function(id, rev, callback) {
+    id = parseDocId(id);
+    api.get(id.docId, function(err, obj) {
+      if (err) {
+        call(callback, err);
+        return;
+      }
+
+      if (obj._rev != rev) {
+        call(callback, Pouch.Errors.REV_CONFLICT);
+        return;
+      }
+
+      obj._attachments || (obj._attachments = {});
+      delete obj._attachments[id.attachmentId];
+      api.put(obj, callback);
+    });
+  };
 
   api.bulkDocs = function(bulk, opts, callback) {
     if (opts instanceof Function) {
@@ -476,6 +495,15 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function writeDoc(doc, callback) {
+      var err = null;
+      var recv = 0;
+
+      doc.data._id = doc.metadata.id;
+
+      if (doc.metadata.deleted) {
+        doc.data._deleted = true;
+      }
+
       var attachments = doc.data._attachments
         ? Object.keys(doc.data._attachments)
         : [];
@@ -490,28 +518,47 @@ LevelPouch = module.exports = function(opts, callback) {
                 .digest('hex');
           delete doc.data._attachments[key].data;
           doc.data._attachments[key].digest = digest;
-          saveAttachment(digest, data);
+          saveAttachment(doc, digest, data, function (err) {
+            recv++;
+            collectResults(err);
+          });
+        } else {
+          recv++;
+          collectResults();
         }
       }
 
-      doc.data._id = doc.metadata.id;
-      if (doc.metadata.deleted) {
-        doc.data._deleted = true;
+      if(!attachments.length) {
+        finish();
       }
-      results.push(doc);
 
-      update_seq++;
-      doc.metadata.seq = doc.metadata.seq || update_seq;
-      doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
-
-      stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
-        if (err) {
-          return console.error(err);
+      function collectResults(attachmentErr) {
+        if (!err) {
+          if (attachmentErr) {
+            err = attachmentErr;
+            call(callback, err);
+          } else if (recv == attachments.length) {
+            finish();
+          }
         }
+      }
 
-        stores[DOC_STORE].put(doc.metadata.id, doc.metadata);
-        return saveUpdateSeq(callback);
-      });
+      function finish() {
+        update_seq++;
+        doc.metadata.seq = doc.metadata.seq || update_seq;
+        doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
+
+        stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
+          if (err) {
+            return console.error(err);
+          }
+
+          stores[DOC_STORE].put(doc.metadata.id, doc.metadata, function(err) {
+            results.push(doc);
+            return saveUpdateSeq(callback);
+          });
+        });
+      }
     }
 
     function saveUpdateSeq(callback) {
@@ -523,11 +570,35 @@ LevelPouch = module.exports = function(opts, callback) {
       });
     }
 
-    function saveAttachment(digest, data) {
-      stores[ATTACH_STORE].put(digest, data, function(err) {
-        if (err) {
+    function saveAttachment(docInfo, digest, data, callback) {
+      stores[ATTACH_STORE].get(digest, function(err, oldAtt) {
+        if (err && err.name !== 'NotFoundError') {
+          callback(err);
           return console.error(err);
         }
+
+        var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
+        var newAtt = {body: data};
+
+        if (oldAtt) {
+          if (oldAtt.refs) {
+            // only update references if this attachment already has them
+            // since we cannot migrate old style attachments here without
+            // doing a full db scan for references
+            newAtt.refs = oldAtt.refs;
+            newAtt.refs[ref] = true;
+          }
+        } else {
+          newAtt.refs = {}
+          newAtt.refs[ref] = true;
+        }
+
+        stores[ATTACH_STORE].put(digest, newAtt, function(err) {
+          callback(err);
+          if (err) {
+            return console.error(err);
+          }
+        });
       });
     }
 

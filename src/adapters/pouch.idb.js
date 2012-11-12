@@ -224,15 +224,8 @@ var IdbPouch = function(opts, callback) {
     }
 
     function writeDoc(docInfo, callback) {
-      for (var key in docInfo.data._attachments) {
-        if (!docInfo.data._attachments[key].stub) {
-          var data = docInfo.data._attachments[key].data;
-          var digest = 'md5-' + Crypto.MD5(data);
-          delete docInfo.data._attachments[key].data;
-          docInfo.data._attachments[key].digest = digest;
-          saveAttachment(digest, data);
-        }
-      }
+      var err = null;
+      var recv = 0;
 
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
@@ -240,18 +233,55 @@ var IdbPouch = function(opts, callback) {
       if (docInfo.metadata.deleted) {
         docInfo.data._deleted = true;
       }
-      var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
-      dataReq.onsuccess = function(e) {
-        console.info(name + ': Wrote Document ', docInfo.metadata.id);
-        docInfo.metadata.seq = e.target.result;
-        // Current _rev is calculated from _rev_tree on read
-        delete docInfo.metadata.rev;
-        var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
-        metaDataReq.onsuccess = function() {
-          results.push(docInfo);
-          call(callback);
+
+      var attachments = docInfo.data._attachments
+        ? Object.keys(docInfo.data._attachments)
+        : [];
+      for (var key in docInfo.data._attachments) {
+        if (!docInfo.data._attachments[key].stub) {
+          var data = docInfo.data._attachments[key].data;
+          var digest = 'md5-' + Crypto.MD5(data);
+          delete docInfo.data._attachments[key].data;
+          docInfo.data._attachments[key].digest = digest;
+          saveAttachment(docInfo, digest, data, function (err) {
+            recv++;
+            collectResults(err);
+          });
+        } else {
+          recv++;
+          collectResults();
+        }
+      }
+
+      if (!attachments.length) {
+        finish();
+      }
+
+      function collectResults(attachmentErr) {
+        if (!err) {
+          if (attachmentErr) {
+            err = attachmentErr;
+            call(callback, err);
+          } else if (recv == attachments.length) {
+            finish();
+          }
+        }
+      }
+
+      function finish() {
+        var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
+        dataReq.onsuccess = function(e) {
+          console.info(name + ': Wrote Document ', docInfo.metadata.id);
+          docInfo.metadata.seq = e.target.result;
+          // Current _rev is calculated from _rev_tree on read
+          delete docInfo.metadata.rev;
+          var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
+          metaDataReq.onsuccess = function() {
+            results.push(docInfo);
+            call(callback);
+          };
         };
-      };
+      }
     }
 
     function updateDoc(oldDoc, docInfo) {
@@ -291,12 +321,36 @@ var IdbPouch = function(opts, callback) {
       return err;
     }
 
-    // right now fire and forget, needs cleaned
-    function saveAttachment(digest, data) {
+    function saveAttachment(docInfo, digest, data, callback) {
       if (storeAttachmentsInIDB){
-        txn.objectStore(ATTACH_STORE).put({digest: digest, body: data});
+        var objectStore = txn.objectStore(ATTACH_STORE);
+        var getReq = objectStore.get(digest).onsuccess = function(e) {
+          var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
+          var newAtt = {digest: digest, body: data};
+
+          if (e.target.result) {
+            if (e.target.result.refs) {
+              // only update references if this attachment already has them
+              // since we cannot migrate old style attachments here without
+              // doing a full db scan for references
+              newAtt.refs = e.target.result.refs;
+              newAtt.refs[ref] = true;
+            }
+          } else {
+            newAtt.refs = {}
+            newAtt.refs[ref] = true;
+          }
+
+          var putReq = objectStore.put(newAtt).onsuccess = function(e) {
+            call(callback);
+          };
+          putReq.onerror = putReq.ontimeout = idbError(callback);
+        };
+        getReq.onerror = getReq.ontimeout = idbError(callback);
       }else{
+        // right now fire and forget, needs cleaned
         writeAttachmentToFile(digest,data);
+        call(callback);
       }
     }
   };
@@ -454,6 +508,24 @@ var IdbPouch = function(opts, callback) {
     return api.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
   };
 
+  api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
+    id = parseDocId(id);
+    api.get(id.docId, function(err, obj) {
+      if (err) {
+        call(callback, err);
+        return;
+      }
+
+      if (obj._rev != rev) {
+        call(callback, Pouch.Errors.REV_CONFLICT);
+        return;
+      }
+
+      obj._attachments || (obj._attachments = {});
+      delete obj._attachments[id.attachmentId];
+      api.put(obj, callback);
+    });
+  };
 
   api.allDocs = function idb_allDocs(opts, callback) {
     if (typeof opts === 'function') {
