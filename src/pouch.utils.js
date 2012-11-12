@@ -241,13 +241,31 @@ function expandTree2(all, current, pos, arr) {
   });
 }
 
-// Trees are sorted by length, winning revision is the last revision
-// in the longest tree
-var winningRev = function(pos, tree) {
+// We fetch all leafs of the revision tree, and sort them based on tree length
+// and whether they were deleted, undeleted documents with the longest revision
+// tree (most edits) win
+var winningRev = function(metadata) {
+  var deletions = metadata.deletions || {};
+  var leafs = metadata.rev_tree.map(function(tree) {
+    var leaf = treeLeaf(tree.pos, tree.ids);
+    leaf.deleted = leaf.id in deletions;
+    return leaf;
+  });
+
+  leafs.sort(function(a, b) {
+    if (a.deleted !== b.deleted) {
+      return a.deleted > b.deleted;
+    }
+    return a.pos > b.pos;
+  });
+  return leafs[0].pos + '-' + leafs[0].id;
+}
+
+var treeLeaf = function(pos, tree) {
   if (!tree[1].length) {
-    return pos + '-' + tree[0];
+    return {pos: pos, id: tree[0]};
   }
-  return winningRev(pos + 1, tree[1][0]);
+  return treeLeaf(pos + 1, tree[1][0]);
 }
 
 var rootToLeaf = function(tree) {
