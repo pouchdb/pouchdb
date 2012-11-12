@@ -11,22 +11,21 @@ var cors_headers = {
     'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization'
 };
 
+var couchUrl;
+
 function handleRequest(request, response) {
 
   if (request.method === 'OPTIONS') {
-    //console.log('OPTIONS request: sending cors headers only.');
     response.writeHead(204, cors_headers);
     response.end();
     return;
   }
 
-  request.headers.host  = request.headers.host.replace(/\:.*$/,'');
-
-  //console.log(request.headers.host, request.method, request.url);
+  request.headers.host = couchUrl.host;
 
   var options = {
-    host: request.headers.host,
-    port: 5984,
+    host: couchUrl.hostname,
+    port: couchUrl.port,
     method: request.method,
     path: request.url,
     headers: request.headers
@@ -55,12 +54,13 @@ function handleRequest(request, response) {
   });
 }
 
-function startServer(port) {
-  http.createServer(handleRequest).listen(port);
+function startServer(couch, cors) {
+  couchUrl = couch;
+  http.createServer(handleRequest).listen(cors.port);
 }
 
 if (require.main === module) {
-  startServer(process.env.PORT || 2020);
+  startServer();
 } else {
   exports.init = startServer;
 }
