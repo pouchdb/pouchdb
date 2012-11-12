@@ -299,6 +299,15 @@ var HttpPouch = function(opts, callback) {
     }, callback);
   };
 
+  // Remove the attachment given by the id and rev
+  api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
+    ajax({
+      auth: host.auth,
+      type: 'DELETE',
+      url: genUrl(host, id) + '?rev=' + rev,
+    }, callback);
+  };
+
   // Add the attachment given by doc and the content type given by type
   // to the document with the given id, the revision given by rev, and
   // add it to the database given by host.
