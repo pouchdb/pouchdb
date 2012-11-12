@@ -6,6 +6,7 @@ var adapters = [
   , qunit = module;
 
 var downAdapters = ['idb-1'];
+var deletedDocAdapters = [['idb-1', 'http-1']];
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -19,6 +20,7 @@ if (typeof module !== undefined && module.exports) {
   }
   qunit = QUnit.module;
   downAdapters = [];
+  deletedDocAdapters = [];
 
   // TODO: get an http adapter working and test replication to http
   adapters = [
@@ -410,7 +412,6 @@ adapters.map(function(adapters) {
 
 // test a basic "initialize pouch" scenario when couch instance contains deleted revisions
 // currently testing idb-http only
-var deletedDocAdapters = [['idb-1', 'http-1']];
 deletedDocAdapters.map(function(adapters) {
   qunit('replication: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
@@ -419,16 +420,16 @@ deletedDocAdapters.map(function(adapters) {
     }
   });
 
-  asyncTest("Test document count after multiple replications with deleted revisions.", function() {
-  console.info('Starting Test: Test document count after multiple replications with deleted revisions.');
+  asyncTest("doc count after multiple replications with deleted revisions.", function() {
     var self = this;
     var runs = 2;
 
-    // helper.  remove each document in db and bulk load docs into same
+    // helper. remove each document in db and bulk load docs into same
     function rebuildDocuments(db, docs, callback) {
-      db.allDocs({include_docs:true},function (err, response) {
-        var count= 0,limit=response.rows.length;
-        if(limit==0){
+      db.allDocs({include_docs:true}, function (err, response) {
+        var count = 0;
+        var limit = response.rows.length;
+        if (limit === 0) {
           bulkLoad(db, docs, callback);
         }
         $.each(response.rows, function () {
@@ -456,16 +457,19 @@ deletedDocAdapters.map(function(adapters) {
 
     // a basic map function to mimic our testing situation
     function map(doc) {
-      if (doc.common == true) {
+      if (doc.common === true) {
         emit(doc._id, doc.rev);
       }
     }
 
-    // The number of workflow cycles to perform. 2+ was always failing -- reason for this test.
+    // The number of workflow cycles to perform. 2+ was always failing
+    // reason for this test.
     var workflow = function(name, remote, x){
 
-      // some documents.  note that the variable Date component, thisVaries, makes a difference.
-      // when the document is otherwise static, couch gets the same hash when calculating revision.
+      // some documents.  note that the variable Date component,
+      //thisVaries, makes a difference.
+      // when the document is otherwise static, couch gets the same hash
+      // when calculating revision.
       // and the revisions get messed up in pouch
       var docs = [
         {_id: "0", integer: 0, thisVaries: new Date(), common: true},
@@ -478,12 +482,12 @@ deletedDocAdapters.map(function(adapters) {
         rebuildDocuments(dbr, docs, function(){
           openTestDB(name, function(err, db){
             db.replicate.from(remote, function(err, result) {
-              db.query({map:map}, {reduce:false}, function (err, result) {
-                ok(result.rows.length===docs.length,
-                  "correct # docs replicated. Expected " + docs.length + " got " + result.rows.length);
-                if(--x){
+              db.query({map:map}, {reduce: false}, function (err, result) {
+                console.log(result);
+                equal(result.rows.length, docs.length, "correct # docs replicated");
+                if (--x) {
                   workflow(name, remote, x);
-                }else{
+                } else {
                   start();
                 }
               });

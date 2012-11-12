@@ -269,7 +269,7 @@ var IdbPouch = function(opts, callback) {
         if (!('deletions' in docInfo.metadata)) {
           docInfo.metadata.deletions = {};
         }
-        docInfo.metadata.deletions[docInfo.metadata.id] = true;
+        docInfo.metadata.deletions[docInfo.metadata.rev.split('-')[1]] = true;
       }
 
       docInfo.metadata.rev_tree = merged.tree;
@@ -816,8 +816,12 @@ var IdbPouch = function(opts, callback) {
     function fetchDocData(cursor, metadata, e) {
       current = {doc: e.target.result, metadata: metadata};
       current.doc._rev = winningRev(metadata);
+      var deleted = false;
+      if (metadata.deletions) {
+        deleted = current.doc._rev.split('-')[1] in metadata.deletions;
+      }
 
-      if (options.complete && !current.metadata.deleted) {
+      if (options.complete && !deleted) {
         fun.map.apply(this, [current.doc]);
       }
       cursor['continue']();
@@ -829,7 +833,8 @@ var IdbPouch = function(opts, callback) {
         return viewComplete();
       }
       var metadata = e.target.result.value;
-      var dataReq = txn.objectStore(BY_SEQ_STORE).get(metadata.seq);
+      var rev = winningRev(metadata);
+      var dataReq = txn.objectStore(BY_SEQ_STORE).index('_rev').get(rev);
       dataReq.onsuccess = fetchDocData.bind(this, cursor, metadata);
       dataReq.onerror = idbError(options.complete);
     }
