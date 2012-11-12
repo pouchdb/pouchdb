@@ -20,7 +20,7 @@ if (typeof module !== undefined && module.exports) {
   }
   qunit = QUnit.module;
   downAdapters = [];
-  deletedDocAdapters = [];
+  deletedDocAdapters = [['ldb-1', 'http-1']];
 
   // TODO: get an http adapter working and test replication to http
   adapters = [
@@ -395,14 +395,15 @@ deletedDocAdapters.map(function(adapters) {
         if (limit === 0) {
           bulkLoad(db, docs, callback);
         }
-        $.each(response.rows, function () {
-          db.remove(this.doc, function (err, response) {
+        response.rows.forEach(function(doc) {
+          db.remove(doc, function(err, response) {
             if (err) console.error(err);
             ++count;
             if(count==limit){
               bulkLoad(db, docs, callback);
             }
           });
+
         });
       });
     }
@@ -446,7 +447,6 @@ deletedDocAdapters.map(function(adapters) {
           openTestDB(name, function(err, db){
             db.replicate.from(remote, function(err, result) {
               db.query({map:map}, {reduce: false}, function (err, result) {
-                console.log(result);
                 equal(result.rows.length, docs.length, "correct # docs replicated");
                 if (--x) {
                   workflow(name, remote, x);
