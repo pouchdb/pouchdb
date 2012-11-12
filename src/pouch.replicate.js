@@ -93,6 +93,14 @@ if (typeof module !== 'undefined' && module.exports) {
     // to return a promise in which I can cancel continuous replications
     // this will just proxy requests to cancel the changes feed but only
     // after we start actually running the changes feed
+    if (opts instanceof Function) {
+      callback = opts;
+      opts = {}
+    }
+    if (opts === undefined) {
+      opts = {};
+    }
+
     var ret = function() {
       this.cancelled = false;
       this.cancel = function() {
