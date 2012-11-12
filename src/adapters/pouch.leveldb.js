@@ -153,7 +153,7 @@ LevelPouch = module.exports = function(opts, callback) {
     function initstores() {
       initstore(DOC_STORE, 'json');
       initstore(BY_SEQ_STORE, 'json');
-      initstore(ATTACH_STORE, 'binary');
+      initstore(ATTACH_STORE, 'json');
     }
   });
 
@@ -336,8 +336,8 @@ LevelPouch = module.exports = function(opts, callback) {
             return call(callback, err);
           }
           var data = opts.decode
-            ? Pouch.utils.atob(attach.toString())
-            : attach.toString();
+            ? Pouch.utils.atob(attach.body.toString())
+            : attach.body.toString();
 
           call(callback, null, data);
         });
@@ -499,7 +499,7 @@ LevelPouch = module.exports = function(opts, callback) {
                 .digest('hex');
           delete doc.data._attachments[key].data;
           doc.data._attachments[key].digest = digest;
-          saveAttachment(digest, data, function (err) {
+          saveAttachment(doc, digest, data, function (err) {
             recv++;
             collectResults(err);
           });
@@ -551,12 +551,35 @@ LevelPouch = module.exports = function(opts, callback) {
       });
     }
 
-    function saveAttachment(digest, data, callback) {
-      stores[ATTACH_STORE].put(digest, data, function(err) {
-        callback(err);
-        if (err) {
+    function saveAttachment(docInfo, digest, data, callback) {
+      stores[ATTACH_STORE].get(digest, function(err, oldAtt) {
+        if (err && err.name !== 'NotFoundError') {
+          callback(err);
           return console.error(err);
         }
+
+        var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
+        var newAtt = {body: data};
+
+        if (oldAtt) {
+          if (oldAtt.refs) {
+            // only update references if this attachment already has them
+            // since we cannot migrate old style attachments here without
+            // doing a full db scan for references
+            newAtt.refs = oldAtt.refs;
+            newAtt.refs[ref] = true;
+          }
+        } else {
+          newAtt.refs = {}
+          newAtt.refs[ref] = true;
+        }
+
+        stores[ATTACH_STORE].put(digest, newAtt, function(err) {
+          callback(err);
+          if (err) {
+            return console.error(err);
+          }
+        });
       });
     }
 
