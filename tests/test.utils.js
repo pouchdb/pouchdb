@@ -84,6 +84,7 @@ if (typeof module !== 'undefined' && module.exports) {
     makeDocs: makeDocs,
     initTestDB: initTestDB,
     initDBPair: initDBPair,
+    openTestDB: openTestDB,
     generateAdapterUrl: generateAdapterUrl
   }
 }
