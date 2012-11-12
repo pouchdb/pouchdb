@@ -386,12 +386,12 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                              IDBTransaction.READ);
-
     if (typeof id === 'string') {
       id = parseDocId(id);
     }
+
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
+                              IDBTransaction.READ);
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
       var bySeq = txn.objectStore(BY_SEQ_STORE);
