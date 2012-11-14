@@ -377,8 +377,12 @@ db.get('mydoc', function(err, doc) {
 <code>options.filter</code>: Reference a filter function from a design document to selectively get updates</li>
 <li>
 <code>options.since</code>: Start the results from the change immediately after the given sequence number</li>
+<li>
+<code>options.complete</code>: Function called when all changes have been processed, defaults to the callback</li>
+<li>
+<code>options.onChange</code>: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change)</li>
 </ul><pre class="brush: js">
-db.changes(function(err, response) {
+db.changes(options, function(err, response) {
   // Changes list:
   // {
   //   "results": [
