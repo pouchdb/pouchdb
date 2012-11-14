@@ -631,6 +631,9 @@ var IdbPouch = function(opts, callback) {
     }
     if (callback) {
       opts.complete = callback;
+      if (!opts.onChange){
+        opts.onChange = callback;
+      }
     }
     if (!opts.seq) {
       opts.seq = 0;
@@ -638,6 +641,7 @@ var IdbPouch = function(opts, callback) {
     if (opts.since) {
       opts.seq = opts.since;
     }
+
 
     console.info(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
