@@ -5,25 +5,8 @@ window.indexedDB = window.indexedDB ||
   window.mozIndexedDB ||
   window.webkitIndexedDB;
 
-window.IDBCursor = window.IDBCursor ||
-  window.webkitIDBCursor;
-
 window.IDBKeyRange = window.IDBKeyRange ||
   window.webkitIDBKeyRange;
-
-window.IDBTransaction = window.IDBTransaction ||
-  window.webkitIDBTransaction;
-
-// Newer webkits expect strings for transaction + cursor paramters
-// older webkit + older firefox require constants, we can drop
-// the constants when both stable releases use strings
-IDBTransaction = IDBTransaction || {};
-IDBTransaction.READ_WRITE = IDBTransaction.READ_WRITE || 'readwrite';
-IDBTransaction.READ = IDBTransaction.READ || 'readonly';
-
-IDBCursor = IDBCursor || {};
-IDBCursor.NEXT = IDBCursor.NEXT || 'next';
-IDBCursor.PREV = IDBCursor.PREV || 'prev';
 
 var idbError = function(callback) {
   return function(event) {
@@ -165,8 +148,7 @@ var IdbPouch = function(opts, callback) {
       results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
     });
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                              IDBTransaction.READ_WRITE);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readwrite');
     txn.onerror = idbError(callback);
     txn.ontimeout = idbError(callback);
 
@@ -373,8 +355,7 @@ var IdbPouch = function(opts, callback) {
       return api.getAttachment(id, {decode: true}, callback);
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                              IDBTransaction.READ);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
 
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
@@ -444,8 +425,7 @@ var IdbPouch = function(opts, callback) {
       id = parseDocId(id);
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE],
-                              IDBTransaction.READ);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
       var bySeq = txn.objectStore(BY_SEQ_STORE);
@@ -537,13 +517,12 @@ var IdbPouch = function(opts, callback) {
     var end = 'endkey' in opts ? opts.endkey : false;
 
     var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? IDBCursor.PREV : null;
+    descending = descending ? 'prev' : null;
 
     var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
       : start ? IDBKeyRange.lowerBound(start, true)
       : end ? IDBKeyRange.upperBound(end) : false;
-    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE],
-                                      IDBTransaction.READ);
+    var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
     keyRange = keyRange || null;
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = descending ? oStore.openCursor(keyRange, descending)
@@ -596,7 +575,7 @@ var IdbPouch = function(opts, callback) {
   // easiest to implement though, should probably keep a counter
   api.info = function idb_info(callback) {
     var count = 0;
-    idb.transaction([DOC_STORE], IDBTransaction.READ)
+    idb.transaction([DOC_STORE], 'readonly')
       .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
         var cursor = e.target.result;
         if (!cursor) {
@@ -663,7 +642,7 @@ var IdbPouch = function(opts, callback) {
     console.info(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? IDBCursor.PREV : null;
+    descending = descending ? 'prev' : null;
 
     var results = [], resultIndices = {}, dedupResults = [];
     var id = name + ':' + Math.uuid();
@@ -826,7 +805,7 @@ var IdbPouch = function(opts, callback) {
       return values.reduce(function(a, b) { return a + b; }, 0);
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
     var objectStore = txn.objectStore(DOC_STORE);
     var results = [];
     var current;
