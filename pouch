@@ -60,7 +60,7 @@ var browserConfig = [{
 
 var resultsDoc = {
   _id: new Date().getTime() + '',
-  started: JSON.stringify(new Date()),
+  started: new Date(),
   release: TEST_RELEASE,
   runs: {}
 };
@@ -185,7 +185,7 @@ var PouchTestRunner = (function() {
     });
 
     resultsDoc.runs[config.name] = {
-      started: JSON.stringify(new Date())
+      started: new Date()
     };
     var doc = resultsDoc.runs[config.name];
     console.log('=> Starting browser tests:', config.name);
@@ -206,7 +206,7 @@ var PouchTestRunner = (function() {
 
     function browserComplete(resultsId) {
       testDb.get(resultsId, function(err, browserDoc) {
-        doc.completed = JSON.stringify(new Date());
+        doc.completed = new Date();
         doc.report = browserDoc.report;
         doc.passed = !browserDoc.report.results.failed;
         results.insert(resultsDoc, function(err, body) {
@@ -223,7 +223,7 @@ var PouchTestRunner = (function() {
   api.runNodeTests = function(callback) {
     console.log('=> Starting node tests');
     resultsDoc.runs.node = {
-      started: JSON.stringify(new Date())
+      started: new Date()
     };
     results.insert(resultsDoc, function(err, body) {
       resultsDoc._rev = body.rev;
@@ -240,7 +240,7 @@ var PouchTestRunner = (function() {
         tests: api.findTestFiles()
       }, function(err, result) {
         resultsDoc.runs.node.results = result;
-        resultsDoc.runs.node.completed = JSON.stringify(new Date());
+        resultsDoc.runs.node.completed = new Date();
         resultsDoc.runs.node.passed = result.failed === 0;
         results.insert(resultsDoc, function(err, body) {
           resultsDoc._rev = body.rev;
@@ -290,7 +290,7 @@ function testsComplete() {
   var url = 'http://' + RESULTS_HOST + '/_utils/document.html?' +
     RESULTS_DB + '/' + resultsDoc._id;
   resultsDoc.passed = passed;
-  resultsDoc.completed = JSON.stringify(new Date());
+  resultsDoc.completed = new Date();
   results.insert(resultsDoc, function(err, body) {
     console.log('=> Results stored:', url);
     console.log('=> Tests complete:', passedMsg);
