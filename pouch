@@ -60,6 +60,7 @@ var browserConfig = [{
 
 var resultsDoc = {
   _id: new Date().getTime() + '',
+  started: JSON.stringify(new Date()),
   release: TEST_RELEASE,
   runs: {}
 };
@@ -289,6 +290,7 @@ function testsComplete() {
   var url = 'http://' + RESULTS_HOST + '/_utils/document.html?' +
     RESULTS_DB + '/' + resultsDoc._id;
   resultsDoc.passed = passed;
+  resultsDoc.completed = JSON.stringify(new Date());
   results.insert(resultsDoc, function(err, body) {
     console.log('=> Results stored:', url);
     console.log('=> Tests complete:', passedMsg);
