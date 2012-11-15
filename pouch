@@ -100,8 +100,11 @@ var PouchTestRunner = (function() {
   api.init = function(callback) {
     proc.exec('git rev-list HEAD --max-count=1', function(err, stdout, stderr) {
       resultsDoc.git_hash = stdout.replace(/[\n\r]/g, '');
-      api.initServers();
-      callback();
+      proc.exec('git rev-parse --abbrev-ref HEAD', function(err, stdout, stderr) {
+        resultsDoc.git_branch = stdout.replace(/[\n\r]/g, '');
+        api.initServers();
+        callback();
+      });
     });
   };
 
