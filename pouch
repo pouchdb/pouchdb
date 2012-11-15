@@ -65,6 +65,12 @@ var resultsDoc = {
   runs: {}
 };
 
+if ('TRAVIS' in process.env) {
+  resultsDoc.branch = process.env.TRAVIS_BRANCH;
+  resultsDoc.travis_job = process.env.TRAVIS_JOB_ID;
+  resultsDoc.pull_request = process.env.TRAVIS_PULL_REQUEST;
+}
+
 var sauce_connect;
 
 function sauceUrl() {
@@ -100,11 +106,8 @@ var PouchTestRunner = (function() {
   api.init = function(callback) {
     proc.exec('git rev-list HEAD --max-count=1', function(err, stdout, stderr) {
       resultsDoc.git_hash = stdout.replace(/[\n\r]/g, '');
-      proc.exec('git rev-parse --abbrev-ref HEAD', function(err, stdout, stderr) {
-        resultsDoc.git_branch = stdout.replace(/[\n\r]/g, '');
-        api.initServers();
-        callback();
-      });
+      api.initServers();
+      callback();
     });
   };
 
