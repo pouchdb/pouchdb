@@ -1,9 +1,0 @@
-{
-    "name": "result_viewer",
-    "version": "0.0.1",
-    "description": "JUnit Test suite viewer",
-    "app": "app",
-    "dependencies": {
-        "node-couchapp": null
-    }
-}
