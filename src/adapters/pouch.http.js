@@ -248,6 +248,9 @@ var HttpPouch = function(opts, callback) {
     if (typeof opts.include_docs !== 'undefined') {
       params.push('include_docs=' + opts.include_docs);
     }
+    if (typeof opts.limit !== 'undefined') {
+      params.push('limit=' + opts.limit);
+    }
     if (typeof opts.descending !== 'undefined') {
       params.push('descending=' + opts.descending);
     }
