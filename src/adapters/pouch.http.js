@@ -99,7 +99,7 @@ var HttpPouch = function(opts, callback) {
   var api = {};
 
   // Create a new CouchDB database based on the given opts
-  ajax({auth: host.auth, type: 'PUT', url: db_url}, function(err, ret) {
+var createDB = function(){ajax({auth: host.auth, type: 'PUT', url: db_url}, function(err, ret) {
     // If we get an "Unauthorized" error
     if (err && err.status === 401) {
       // Test if the database already exists
@@ -123,7 +123,23 @@ var HttpPouch = function(opts, callback) {
       call(callback, Pouch.Errors.UNKNOWN_ERROR);
     }
   });
-
+}
+ajax({auth: host.auth, type: 'GET', url: db_url}, function(err, ret) {
+    //check if the db exists
+    if(err){
+        if(err.status === 404){
+            //if it doesn't, create it
+            createDB();  
+        }else{
+        call(callback, err);
+        }
+    }else if(!err && ret){
+        //go do stuff with the db
+        call(callback, null, api);
+    }else{
+        call(callback, Pouch.Errors.UNKNOWN_ERROR);
+    }
+});
   // The HttpPouch's ID is its URL
   api.id = function() {
     return genUrl(host, '');
