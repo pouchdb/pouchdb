@@ -45,7 +45,9 @@ function getHost(name) {
     uri.remote = true;
 
     // Store the user and password as a separate auth object
-    uri.auth = {username: uri.user, password: uri.password};
+    if (uri.user || uri.password) {
+      uri.auth = {username: uri.user, password: uri.password};
+    }
 
     // Split the path part of the URI into parts using '/' as the delimiter
     // after removing any leading '/' and any trailing '/'
