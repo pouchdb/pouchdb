@@ -99,47 +99,46 @@ var HttpPouch = function(opts, callback) {
   var api = {};
 
   // Create a new CouchDB database based on the given opts
-var createDB = function(){ajax({auth: host.auth, type: 'PUT', url: db_url}, function(err, ret) {
-    // If we get an "Unauthorized" error
-    if (err && err.status === 401) {
-      // Test if the database already exists
-      ajax({auth: host.auth, type: 'HEAD', url: db_url}, function (err, ret) {
-        // If there is still an error
-        if (err) {
-          // Give the error to the callback to deal with
-          call(callback, err);
-        } else {
-          // Continue as if there had been no errors
-          call(callback, null, api);
-        }
-      });
-    // If there were no errros or if the only error is "Precondition Failed"
-    // (note: "Precondition Failed" occurs when we try to create a database
-    // that already exists)
-    } else if (!err || err.status === 412) {
-      // Continue as if there had been no errors
-      call(callback, null, api);
-    } else {
+var createDB = function(){
+    ajax({auth: host.auth, type: 'PUT', url: db_url}, function(err, ret) {
+      // If we get an "Unauthorized" error
+      if (err && err.status === 401) {
+        // Test if the database already exists
+        ajax({auth: host.auth, type: 'HEAD', url: db_url}, function (err, ret) {
+          // If there is still an error
+          if (err) {
+            // Give the error to the callback to deal with
+            call(callback, err);
+          } else {
+            // Continue as if there had been no errors
+            call(callback, null, api);
+          }
+        });
+      // If there were no errros or if the only error is "Precondition Failed"
+      // (note: "Precondition Failed" occurs when we try to create a database
+      // that already exists)
+      } else if (!err || err.status === 412) {
+        // Continue as if there had been no errors
+        call(callback, null, api);
+      } else {
       call(callback, Pouch.Errors.UNKNOWN_ERROR);
     }
   });
 }
 ajax({auth: host.auth, type: 'GET', url: db_url}, function(err, ret) {
     //check if the db exists
-    if(err){
-        if(err.status === 404){
-            //if it doesn't, create it
-            createDB();  
-        }else{
-        call(callback, err);
-        }
-    }else if(!err && ret){
-        //go do stuff with the db
-        call(callback, null, api);
-    }else{
-        call(callback, Pouch.Errors.UNKNOWN_ERROR);
+  if (err) {
+    if (err.status === 404) {
+      //if it doesn't, create it
+      createDB();  
+    } else {
+      call(callback, err);
     }
-});
+  } else if (!err && ret) {
+    //go do stuff with the db
+    call(callback, null, api);
+    }
+  });
   // The HttpPouch's ID is its URL
   api.id = function() {
     return genUrl(host, '');
