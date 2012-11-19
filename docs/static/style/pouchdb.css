@@ -1,0 +1,122 @@
+@import "https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700";
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  color: #777777;
+  font: 300 14px/1.5 Lato,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  margin: 40px auto;
+  width: 860px;
+}
+
+a {
+  color: #3399CC;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+header {
+  float: left;
+  position: fixed;
+  width: 270px;
+}
+
+h1 {
+  font-size: 28px;
+  color: black;
+}
+
+h1, h2, h3 {
+  line-height: 1.1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #222;
+  margin: 0 0 20px;
+}
+
+h3, h4, h5, h6 {
+    color: #494949;
+}
+
+header h5 {
+  margin-top: 0;
+  font-weight: normal;
+}
+
+header h1 {
+  margin-bottom: 0;
+}
+
+header h1 a {
+  color: black;
+  font-weight: bold;
+}
+
+header h1 a:hover {
+  text-decoration: underline;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+nav li {
+  margin: 0 0 15px;
+}
+
+nav a {
+  font-size: 21px;
+  line-height: 1.1;
+}
+
+#content {
+  float: right;
+  padding-bottom: 50px;
+  width: 550px;
+}
+
+pre {
+  background: none repeat scroll 0 0 #002B36;
+  width: 100%;
+  overflow: auto;
+  font-size: 12px;
+}
+
+pre, code {
+  color: #333333;
+  font-family: Monaco,Bitstream Vera Sans Mono,Lucida Console,Terminal;
+  font-size: 12px;
+}
+
+#download-button {
+  border: 0;
+  font-size: 14px;
+  padding: 10px 10px 10px 40px;
+  background: #DDD url(./noun_project_5618.svg) no-repeat 10px center;
+  background-size: 24px 24px;
+  border-radius: 3px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+#download-button:hover {
+  background-color: #CCC;
+}
+
+header section {
+  float: left;
+  background: #EEE;
+  padding-top: 5px;
+}
+
+header section input {
+  margin-left: 10px;
+}
+
+nav {
+  padding-top: 10px;
+  clear: both;
+}

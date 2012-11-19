@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="/static/style/pouchdb.css" />
+    <link rel="stylesheet" href="/static/style/solarized_dark.min.css">
+  </head>
+
+  <body>
+
+    <header>
+      <h1><a href="/">PouchDB</a></h1>
+      <h5>The JavaScript Database that Syncs!</h5>
+
+      <section style="background: #EEE;float:left;">
+        <input type="radio" id="nightly-min" name="download"
+               checked="checked" value="min" />
+        <label for="nightly-min">Production (Nightly)</label><br />
+
+        <input type="radio" id="nightly-dev" name="download" value="dev" />
+        <label for="nightly-dev">Development (Nightly)</label><br />
+
+        <button id="download-button">Download PouchDB</button>
+      </section>
+
+      <nav>
+        <ul>
+          <li><a href="/">What is PouchDB?</a></li>
+          <li><a href="/api.html">API Documentation</a></li>
+          <li><a href="https://github.com/daleharvey/pouchdb/wiki">Wiki</a></li>
+          <li><a href="https://groups.google.com/d/forum/pouchdb">Mailing List</a></li>
+          <li><a href="https://github.com/daleharvey/pouchdb">Source & Issues</a></li>
+          <li><a href="https://twitter.com/pouchdb">Twitter</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section id="content">{{ content }}</section>
+
+    <script src="/static/js/pouchdb.website.js"></script>
+    <script src="/static/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
