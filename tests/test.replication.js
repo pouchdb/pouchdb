@@ -20,14 +20,13 @@ if (typeof module !== undefined && module.exports) {
   }
   qunit = QUnit.module;
   downAdapters = [];
-  deletedDocAdapters = [['ldb-1', 'http-1']];
+  deletedDocAdapters = [['leveldb-1', 'http-1']];
 
-  // TODO: get an http adapter working and test replication to http
   adapters = [
-      ['ldb-1', 'http-1'],
+      ['leveldb-1', 'http-1'],
       ['http-1', 'http-2'],
-      ['http-1', 'ldb-1'],
-      ['ldb-1', 'ldb-2']]
+      ['http-1', 'leveldb-1'],
+      ['leveldb-1', 'leveldb-2']]
 
 }
 

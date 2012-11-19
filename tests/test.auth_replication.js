@@ -12,7 +12,7 @@ if (typeof module !== undefined && module.exports) {
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  local = 'ldb://test_suite_db';
+  local = 'leveldb://test_suite_db';
   qunit = QUnit.module;
 }
 

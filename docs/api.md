@@ -26,7 +26,7 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 
     Pouch('idb://dbname', [options], [callback])
 
-This method gets an existing database if one exists or creates a new one if one does not exist. The protocol field denotes which backend you want to use (current options are idb, http and ldb)
+This method gets an existing database if one exists or creates a new one if one does not exist. The protocol field denotes which backend you want to use (current options are `idb`, `http` and `leveldb`)
 
     var pouchdb;
     Pouch('idb://test', function(err, db) {
