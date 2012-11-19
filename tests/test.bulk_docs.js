@@ -12,7 +12,7 @@ if (typeof module !== undefined && module.exports) {
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['ldb-1', 'http-1']
+  adapters = ['leveldb-1', 'http-1']
   qunit = QUnit.module;
 }
 

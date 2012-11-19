@@ -73,8 +73,8 @@ function generateAdapterUrl(id) {
   if (opt[0] === 'http') {
     return 'http://localhost:2020/testdb_' + testId + '_' + opt[1];
   }
-  if (opt[0] === 'ldb') {
-    return 'ldb://testdb_' + testId + '_' + opt[1];
+  if (opt[0] === 'leveldb') {
+    return 'leveldb://testdb_' + testId + '_' + opt[1];
   }
 }
 
