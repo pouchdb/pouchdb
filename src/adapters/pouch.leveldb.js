@@ -936,6 +936,7 @@ LevelPouch.destroy = function(name, callback) {
 }
 
 Pouch.adapter('ldb', LevelPouch);
+Pouch.adapter('leveldb', LevelPouch);
 
 // recursive fs.rmdir for Pouch.destroy. Use with care.
 function rmdir(dir, callback) {
