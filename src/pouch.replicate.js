@@ -110,11 +110,11 @@ if (typeof module !== 'undefined' && module.exports) {
     var replicateRet = new ret();
     toPouch(src, function(err, src) {
       if (err) {
-        return callback(err);
+        return call(callback, err);
       }
       toPouch(target, function(err, target) {
         if (err) {
-          return callback(err);
+          return call(callback, err);
         }
         replicate(src, target, opts, callback, replicateRet);
       });
