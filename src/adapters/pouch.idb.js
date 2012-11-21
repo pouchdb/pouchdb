@@ -130,6 +130,12 @@ var IdbPouch = function(opts, callback) {
     var docInfos = userDocs.map(function(doc, i) {
       var newDoc = parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
+      if (doc._deleted) {
+        if (!newDoc.metadata.deletions) {
+          newDoc.metadata.deletions = {};
+        }
+        newDoc.metadata.deletions[doc._rev.split('-')[1]] = true;
+      }
       return newDoc;
     });
 
@@ -212,7 +218,7 @@ var IdbPouch = function(opts, callback) {
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
 
-      if (docInfo.metadata.deleted) {
+      if (isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
         docInfo.data._deleted = true;
       }
 
@@ -267,21 +273,14 @@ var IdbPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
-      var merged = Pouch.merge(oldDoc.rev_tree,
-                               docInfo.metadata.rev_tree[0], 1000);
-      var inConflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
-        (!oldDoc.deleted && newEdits && merged.conflicts !== 'new_leaf');
+      var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
+
+      var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
+        (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
 
       if (inConflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
         return processDocs();
-      }
-
-      if (docInfo.metadata.deleted) {
-        if (!('deletions' in docInfo.metadata)) {
-          docInfo.metadata.deletions = {};
-        }
-        docInfo.metadata.deletions[docInfo.metadata.rev.split('-')[1]] = true;
       }
 
       docInfo.metadata.rev_tree = merged.tree;
@@ -290,7 +289,7 @@ var IdbPouch = function(opts, callback) {
 
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
-      if ('was_delete' in opts && docInfo.metadata.deleted) {
+      if ('was_delete' in opts && isDeleted(docInfo.metadata)) {
         results.push(Pouch.Errors.MISSING_DOC);
         return processDocs();
       }
@@ -359,7 +358,7 @@ var IdbPouch = function(opts, callback) {
 
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
-      if (!e.target.result || (metadata.deleted && !opts.rev)) {
+      if (!e.target.result || (isDeleted(metadata, opts.rev) && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
@@ -540,7 +539,7 @@ var IdbPouch = function(opts, callback) {
         if (/_local/.test(metadata.id)) {
           return cursor['continue']();
         }
-        if (metadata.deleted !== true) {
+        if (!isDeleted(metadata)) {
           var doc = {
             id: metadata.id,
             key: metadata.id,
@@ -712,7 +711,7 @@ var IdbPouch = function(opts, callback) {
 
         change.doc._rev = winningRev(metadata);
 
-        if (metadata.deleted) {
+        if (isDeleted(metadata, change.doc._rev)) {
           change.deleted = true;
         }
         if (opts.conflicts) {
@@ -865,12 +864,8 @@ var IdbPouch = function(opts, callback) {
     function fetchDocData(cursor, metadata, e) {
       current = {doc: e.target.result, metadata: metadata};
       current.doc._rev = winningRev(metadata);
-      var deleted = false;
-      if (metadata.deletions) {
-        deleted = current.doc._rev.split('-')[1] in metadata.deletions;
-      }
 
-      if (options.complete && !deleted) {
+      if (options.complete && !isDeleted(current.metadata, doc._rev)) {
         fun.map.apply(this, [current.doc]);
       }
       cursor['continue']();

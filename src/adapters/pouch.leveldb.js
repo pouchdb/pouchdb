@@ -93,7 +93,7 @@ var ViewQuery = function(fun, stores, options) {
     function processDoc(err, doc) {
       current = {doc: doc, metadata: metadata};
       current.doc._rev = winningRev(metadata);
-      if (options.complete && !current.metadata.deleted) {
+      if (options.complete && !isDeleted(current.metadata, current.doc._rev)) {
         fun.map.call(this, current.doc);
       }
     }
@@ -242,7 +242,7 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     stores[DOC_STORE].get(id.docId, function(err, metadata) {
-      if (err || !metadata || (metadata.deleted && !opts.rev)) {
+      if (err || !metadata || (isDeleted(metadata) && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
@@ -425,6 +425,13 @@ LevelPouch = module.exports = function(opts, callback) {
       if (newDoc.metadata && !newDoc.metadata.rev_map) {
         newDoc.metadata.rev_map = {};
       }
+      if (doc._deleted) {
+        if (!newDoc.metadata.deletions) {
+          newDoc.metadata.deletions = {};
+        }
+        newDoc.metadata.deletions[doc._rev.split('-')[1]] = true;
+      }
+
       return newDoc;
     });
 
@@ -457,9 +464,10 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function insertDoc(doc, callback) {
-      if ('was_delete' in opts && doc.metadata.deleted) {
+      // Can't insert new deleted documents
+      if ('was_delete' in opts && isDeleted(doc.metadata)) {
         results.push(makeErr(Pouch.Errors.MISSING_DOC, doc._bulk_seq));
-        return processDocs();
+        return callback();
       }
       doc_count++;
       writeDoc(doc, function() {
@@ -474,19 +482,13 @@ LevelPouch = module.exports = function(opts, callback) {
 
     function updateDoc(oldDoc, docInfo, callback) {
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
-      var conflict = (oldDoc.deleted && docInfo.metadata.deleted) ||
-        (!oldDoc.deleted && newEdits && merged.conflicts !== 'new_leaf');
+
+      var conflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
+        (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
 
       if (conflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
         return callback();
-      }
-
-      if (docInfo.metadata.deleted) {
-        if (!('deletions' in docInfo.metadata)) {
-          docInfo.metadata.deletions = {};
-        }
-        docInfo.metadata.deletions[docInfo.metadata.rev.split('-')[1]] = true;
       }
 
       docInfo.metadata.rev_tree = merged.tree;
@@ -500,7 +502,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
       doc.data._id = doc.metadata.id;
 
-      if (doc.metadata.deleted) {
+      if (isDeleted(doc.metadata)) {
         doc.data._deleted = true;
       }
 
@@ -670,7 +672,7 @@ LevelPouch = module.exports = function(opts, callback) {
         if (/_local/.test(metadata.id)) {
           return;
         }
-        if (metadata.deleted !== true) {
+        if (!isDeleted(metadata)) {
           var result = {
             id: metadata.id,
             key: metadata.id,
@@ -805,7 +807,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
             change.doc._rev = Pouch.utils.winningRev(metadata);
 
-            if (metadata.deleted) {
+            if (isDeleted(metadata)) {
               change.deleted = true;
             }
             if (opts.conflicts) {
