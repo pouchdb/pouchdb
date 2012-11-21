@@ -32,7 +32,7 @@ parseUri.options = {
     loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
   }
 };
-
+var uuids = [];
 // Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
 function getHost(name) {
@@ -475,7 +475,26 @@ var HttpPouch = function(opts, callback) {
       url: genUrl(host, '_all_docs' + params)
     }, callback);
   };
-
+  api.uuids = function(opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {count: 10};
+    }
+    var cb = function(err, body){
+      if(err){
+        call(callback, err);
+      } else {
+        uuids = uuids.concat(body.uuids)
+        call(callback, null, "OK")
+      }
+    }
+    var params = '?count=' + opts.count;
+    ajax({
+      auth: host.auth,
+      type: 'GET',
+      url: db_url + params
+    }, cb);
+  };
   // Get a list of changes made to documents in the database given by host.
   // TODO According to the README, there should be two other methods here,
   // api.changes.addListener and api.changes.removeListener.
