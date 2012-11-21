@@ -370,7 +370,26 @@ var HttpPouch = function(opts, callback) {
       data: doc
     }, callback);
   };
-
+  api.uuids = function(opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {count: 10};
+    }
+    var cb = function(err, body){
+      if(err){
+        call(callback, err);
+      } else {
+        uuids = uuids.concat(body.uuids)
+        call(callback, null, "OK")
+      }
+    }
+    var params = '?count=' + opts.count;
+    ajax({
+      auth: host.auth,
+      type: 'GET',
+      url: db_url + params
+    }, cb);
+  };
   // Add the document given by doc (in JSON string format) to the database
   // given by host. This assumes that doc is a new document (i.e. does not
   // have a _id or a _rev field.
@@ -474,26 +493,6 @@ var HttpPouch = function(opts, callback) {
       type:'GET',
       url: genUrl(host, '_all_docs' + params)
     }, callback);
-  };
-  api.uuids = function(opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {count: 10};
-    }
-    var cb = function(err, body){
-      if(err){
-        call(callback, err);
-      } else {
-        uuids = uuids.concat(body.uuids)
-        call(callback, null, "OK")
-      }
-    }
-    var params = '?count=' + opts.count;
-    ajax({
-      auth: host.auth,
-      type: 'GET',
-      url: db_url + params
-    }, cb);
   };
   // Get a list of changes made to documents in the database given by host.
   // TODO According to the README, there should be two other methods here,
