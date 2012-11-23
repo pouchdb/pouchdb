@@ -4,7 +4,7 @@
 // eg: test.html?testFiles=test.basics.js
 var testFiles = window.location.search.match(/[?&]testFiles=([^&]+)/);
 testFiles = testFiles && testFiles[1].split(',') || [];
-
+var started = new Date();
 if (!testFiles.length) {
   // If you want to run performance tests, uncomment these tests
   // and comment out the testFiles below
@@ -122,22 +122,31 @@ function submitResults() {
 }
 
 var doc = {};
-
 QUnit.jUnitReport = function(report) {
-  doc.report = report;
-  doc.completed = new Date().getTime();
+  var id = window.location.search.match(/[?&]id=([^&]+)/)[1];
   document.getElementById('submit-results').addEventListener('click', submitResults);
   new Pouch('http://localhost:2020/test_results', function(err, db) {
     if (err) {
       return console.log('Cant open db to store results');
     }
-    db.post(doc, function (err, info) {
-      if (err) {
-        return console.log('Could not post results');
-      }
-      document.body.setAttribute('data-results-id', info.id);
-      document.body.classList.add('complete');
-      $('body').append('<p>Storing Results Complete.</p>');
+    db.get(id, function(err, res){
+   	if (err){
+        var res = {
+            _id : id,
+            report: []
+        };
+     }
+	 report.completed = new Date();
+	 report.started = started;
+   	 res.report.push(report);
+   	 db.put(res, function (err, info) {
+	      if (err) {
+	        return ;
+	      }
+	      document.body.setAttribute('data-results-id', info.id);
+	      document.body.classList.add('complete');
+	      $('body').append('<p>Storing Results Complete.</p>');
+	    });
     });
   });
 };
