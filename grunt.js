@@ -97,10 +97,10 @@ module.exports = function(grunt){
 	});
 	
 	// Custom tasks
-	grunt.registerTask("cors-server", "Runs a CORS proxy", function(port, server){
+	grunt.registerTask("cors-server", "Runs a CORS proxy", function(){
 		var url = require('url');
-		var corsUrl = url.parse("http://127.0.0.1:" + (port || grunt.config("cors-server.port")));
-		var couchUrl = url.parse(server || grunt.config("cors-server.base"));
+		var corsUrl = url.parse("http://127.0.0.1:" + (arguments[0] || grunt.config("cors-server.port")));
+		var couchUrl = url.parse(grunt.utils._.toArray(arguments).slice(1).join(":") || grunt.config("cors-server.base"));
 		grunt.log.writeln("Starting CORS server " + url.format(corsUrl) + " => " + url.format(couchUrl));
 		require('./tests/CORS-Proxy/server.js').init(couchUrl, corsUrl);
 	});
