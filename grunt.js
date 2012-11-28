@@ -136,7 +136,7 @@ module.exports = function(grunt){
 		});
 	});
 	
-	grunt.loadNpmTasks('grunt-saucelabs-qunit');
+	grunt.loadNpmTasks('grunt-saucelabs');
 	grunt.loadNpmTasks('grunt-node-qunit');
 	
 	grunt.registerTask("build", "concat min");
