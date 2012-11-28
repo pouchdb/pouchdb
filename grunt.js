@@ -2,7 +2,7 @@
 module.exports = function(grunt){
 	var srcFiles = ["src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js", "src/pouch.replicate.js", "src/pouch.utils.js", "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js"];
 	var testFiles = require('fs').readdirSync("./tests").filter(function(name){
-		return /^test\.([a-z_])*\.js$/.test(name);
+		return /^test\.([a-z0-9_])*\.js$/.test(name);
 	});
 	
 	var testStartTime = new Date();
