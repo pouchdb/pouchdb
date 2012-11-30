@@ -539,6 +539,16 @@ var HttpPouch = function(opts, callback) {
       params += '&filter=' + opts.filter;
     }
 
+    // If opts.query_params exists, pass it through to the changes request.
+    // These parameters may be used by the filter on the source database.
+    if (opts.query_params && typeof opts.query_params === 'object') {
+      for (var param_name in opts.query_params) {
+        if (opts.query_params.hasOwnProperty(param_name)) {
+          params += '&'+param_name+'='+opts.query_params[param_name];
+        }
+      }
+    }
+
     var xhr;
     var last_seq;
 
