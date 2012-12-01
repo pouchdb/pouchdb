@@ -123,7 +123,7 @@ var parseDoc = function(doc, newEdits) {
         }, null)
       }];
       nRevNum = doc._revisions.start;
-      newRevId = doc._revisions.ids[doc._revisions.ids.length-1];
+      newRevId = doc._revisions.ids[0];
     }
     if (!doc._rev_tree) {
       var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
