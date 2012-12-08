@@ -1,7 +1,5 @@
 /*jshint node: true */
 
-"use strict";
-
 var url = require('url');
 var fs = require('fs');
 var cp = require('child_process');
@@ -79,9 +77,7 @@ module.exports = function(grunt) {
       code: './src/adapters/pouch.leveldb.js',
       tests: testFiles.map(function (n) { return "./tests/" + n; }),
       done: function(err, res) {
-        if (!err) {
-          testResults.node = res;
-        }
+        !err && (testResults['node'] = res);
 	return true;
       }
     },
@@ -97,13 +93,12 @@ module.exports = function(grunt) {
 	urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
                testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 	browsers: browserConfig,
-	onTestComplete: function(status, page, config, browser){
+	onTestComplete: function(status, page, config, browser) {
 	  var done = this.async();
 	  var browserDB = nano('http://127.0.0.1:5984').use('test_results');
           var retries = 0;
 	  (function getResults() {
-            /*jshint evil: true */
-	    browser['eval']("window.testReport", function(err, val) {
+	    browser.eval("window.testReport", function(err, val) {
 	      testResults[config.name] = err ? "No results" : val;
 	      done(true);
 	    });
