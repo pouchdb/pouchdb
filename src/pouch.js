@@ -27,6 +27,10 @@ var Pouch = this.Pouch = function Pouch(name, opts, callback) {
   }
 }
 
+Pouch.log = function() {
+  var args = Array.prototype.slice.call(arguments)
+  console[args[0]].call(console, args.slice(1, args.length))
+}
 
 Pouch.parseAdapter = function(name) {
 
