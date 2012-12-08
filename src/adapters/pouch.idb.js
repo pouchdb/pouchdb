@@ -52,6 +52,8 @@ var IdbPouch = function(opts, callback) {
 
   console.info(name + ': Open Database');
 
+  // TODO: before we release, make sure we write upgrade needed
+  // in a way that supports a future upgrade path
   req.onupgradeneeded = function(e) {
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
@@ -68,20 +70,6 @@ var IdbPouch = function(opts, callback) {
     idb.onversionchange = function() {
       idb.close();
     };
-
-    // polyfill the new onupgradeneeded api for chrome. can get rid of when
-    // http://code.google.com/p/chromium/issues/detail?id=108223 lands
-    if (idb.setVersion && Number(idb.version) !== POUCH_VERSION) {
-      var versionReq = idb.setVersion(POUCH_VERSION);
-      versionReq.onsuccess = function(evt) {
-        function setVersionComplete() {
-          req.onsuccess(e);
-        }
-        evt.target.result.oncomplete = setVersionComplete;
-        req.onupgradeneeded(e);
-      };
-      return;
-    }
 
     // TODO: This is a really inneficient way of finding the last
     // update sequence, cant think of an alterative right now
