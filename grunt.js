@@ -72,7 +72,7 @@ module.exports = function(grunt){
 				testname: 'PouchDB Tests',
 				tags: [process.env.TRAVIS_BRANCH || "unknown"],
 				testTimeout: 1000 * 60 * 15, // 15 minutes
-				urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" + testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
+				urls: ["http://127.0.0.1:8000/tests/test.html?id=" + testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 				browsers: browserConfig,
 				onTestComplete: function(status, page, config, browser){
 					var done = this.async();
