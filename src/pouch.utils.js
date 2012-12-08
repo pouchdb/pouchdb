@@ -39,6 +39,21 @@ var parseDocId = function(id) {
   }
 }
 
+// check if a specific revision of a doc has been deleted
+//  - metadata: the metadata object from the doc store
+//  - rev: (optional) the revision to check. defaults to metadata.rev
+var isDeleted = function(metadata, rev) {
+  if (!metadata || !metadata.deletions) return false;
+  if (!rev) {
+    rev = winningRev(metadata);
+  }
+  if (rev.indexOf('-') >= 0) {
+    rev = rev.split('-')[1];
+  }
+
+  return metadata.deletions[rev] === true;
+}
+
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
 //   - any other string value is a valid id
@@ -108,7 +123,7 @@ var parseDoc = function(doc, newEdits) {
         }, null)
       }];
       nRevNum = doc._revisions.start;
-      newRevId = doc._revisions.ids[doc._revisions.ids.length-1];
+      newRevId = doc._revisions.ids[0];
     }
     if (!doc._rev_tree) {
       var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
@@ -447,6 +462,7 @@ if (typeof module !== 'undefined' && module.exports) {
     isAttachmentId: isAttachmentId,
     parseDocId: parseDocId,
     parseDoc: parseDoc,
+    isDeleted: isDeleted,
     compareRevs: compareRevs,
     expandTree: expandTree,
     collectRevs: collectRevs,

@@ -1,0 +1,37 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+#results-table th {
+  font-size: 12px;
+}
+
+#results-table {
+  border: 1px solid #DDD;
+  border-bottom: 0;
+}
+
+.status {
+  text-align: center;
+}
+.status:before {
+  content:"●";
+}
+
+#results-table td, #results-table th {
+  padding: 5px;
+  border-bottom: 1px solid #DDD;
+}
+tr.fail, tr.stalled {
+  font-weight: bold;
+}
+tr.fail .status, tr.stalled .status {
+  color: red;
+}
+tr.pass .status {
+  color: green;
+}
+tr.inprogress .status {
+  color: yellow;
+}

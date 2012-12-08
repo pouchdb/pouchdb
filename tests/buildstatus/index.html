@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>PouchDB Build Status</title>
+    <link rel="stylesheet" href="./css/buildstatus.css" />
+  </head>
+  <body>
+
+    <h1>Recent Test Runs</h1>
+    <table cellspacing="0" id="results-table">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Started</th>
+          <th>Duration</th>
+          <th>Git Hash</th>
+          <th>Results Document</th>
+          <th>Travis Run</th>
+        </tr>
+      </thead>
+      <tbody id="results-table-body">&nbsp;</tbody>
+    </table>
+
+    <h1>Last Fail</h1>
+    <div id="last-fail"></div>
+
+    <script src="./js/pouch.alpha.min.js"></script>
+    <script src="./js/pouchdb.buildstatus.js"></script>
+  </body>
+</html>

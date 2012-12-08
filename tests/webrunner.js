@@ -4,7 +4,7 @@
 // eg: test.html?testFiles=test.basics.js
 var testFiles = window.location.search.match(/[?&]testFiles=([^&]+)/);
 testFiles = testFiles && testFiles[1].split(',') || [];
-
+var started = new Date();
 if (!testFiles.length) {
   // If you want to run performance tests, uncomment these tests
   // and comment out the testFiles below
@@ -18,7 +18,7 @@ if (!testFiles.length) {
                'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
                'test.merge_rev_tree.js',  'test.revs_diff.js',
                'test.replication.js', 'test.views.js',
-               'test.design_docs.js'];
+               'test.design_docs.js', 'test.issue221.js'];
 
   // attachments dont run well on the ci server yet.
   // if there is a hash, it is because the git rev is put on the url as a hash
@@ -122,22 +122,35 @@ function submitResults() {
 }
 
 var doc = {};
-
 QUnit.jUnitReport = function(report) {
-  doc.report = report;
-  doc.completed = new Date().getTime();
+  var match = window.location.search.match(/[?&]id=([^&]+)/);
+  if (!match) return;
+  var id = match[1];
   document.getElementById('submit-results').addEventListener('click', submitResults);
+
   new Pouch('http://localhost:2020/test_results', function(err, db) {
     if (err) {
       return console.log('Cant open db to store results');
     }
-    db.post(doc, function (err, info) {
+    db.get(id, function(err, res){
       if (err) {
-        return console.log('Could not post results');
+        var res = {
+          _id : id,
+          report: []
+        };
       }
-      document.body.setAttribute('data-results-id', info.id);
-      document.body.classList.add('complete');
-      $('body').append('<p>Storing Results Complete.</p>');
+      report.completed = new Date();
+      report.started = started;
+      report.passed = (report.results.failed === 0);
+      res.report.push(report);
+      db.put(res, function (err, info) {
+	if (err) {
+	  return ;
+	}
+	document.body.setAttribute('data-results-id', info.id);
+	document.body.classList.add('complete');
+	$('body').append('<p>Storing Results Complete.</p>');
+      });
     });
   });
 };

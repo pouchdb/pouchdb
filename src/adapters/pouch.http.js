@@ -44,7 +44,9 @@ function getHost(name) {
     uri.remote = true;
 
     // Store the user and password as a separate auth object
-    uri.auth = {username: uri.user, password: uri.password};
+    if (uri.user || uri.password) {
+      uri.auth = {username: uri.user, password: uri.password};
+    }
 
     // Split the path part of the URI into parts using '/' as the delimiter
     // after removing any leading '/' and any trailing '/'
@@ -261,6 +263,9 @@ var HttpPouch = function(opts, callback) {
     }
     if (typeof opts.include_docs !== 'undefined') {
       params.push('include_docs=' + opts.include_docs);
+    }
+    if (typeof opts.limit !== 'undefined') {
+      params.push('limit=' + opts.limit);
     }
     if (typeof opts.descending !== 'undefined') {
       params.push('descending=' + opts.descending);
@@ -557,6 +562,16 @@ var HttpPouch = function(opts, callback) {
     // be returned.
     if (opts.filter && typeof opts.filter === 'string') {
       params += '&filter=' + opts.filter;
+    }
+
+    // If opts.query_params exists, pass it through to the changes request.
+    // These parameters may be used by the filter on the source database.
+    if (opts.query_params && typeof opts.query_params === 'object') {
+      for (var param_name in opts.query_params) {
+        if (opts.query_params.hasOwnProperty(param_name)) {
+          params += '&'+param_name+'='+opts.query_params[param_name];
+        }
+      }
     }
 
     var xhr;

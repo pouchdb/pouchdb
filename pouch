@@ -65,6 +65,12 @@ var resultsDoc = {
   runs: {}
 };
 
+if ('TRAVIS' in process.env) {
+  resultsDoc.branch = process.env.TRAVIS_BRANCH;
+  resultsDoc.travis_job = process.env.TRAVIS_JOB_ID;
+  resultsDoc.pull_request = process.env.TRAVIS_PULL_REQUEST;
+}
+
 var sauce_connect;
 
 function sauceUrl() {

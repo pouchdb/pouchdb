@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>pouchdb benchmark</title>
+        <script type="text/javascript" src="../../pouch.alpha.js"></script>
+        <script type="text/javascript" src="benchmark.js"></script>
+        <script type="text/javascript" src="flashcards.js"></script>
+        <style>
+        body {
+            font: 10pt sans-serif;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>Pouchdb flashcards benchmark</h1>
+        <button id="start">Run tests</button>
+        <div id="messages">
+            <ul>
+            </ul>
+        </div>
+
+        <div id="chart">
+        </div>
+
+        <div id="pastRunsDiv" style="display: none;">
+            <h2>past runs</h2>
+            <ul id="pastRuns">
+            </ul>
+        </div>
+        <script>
+        $(document).ready(function() {
+            $("#start").click(test);
+            $(".plotLink").click(replot);
+        });
+        </script>
+    </body>
+</html>
+
+

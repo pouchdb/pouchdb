@@ -1,11 +1,8 @@
-language: java
-
+language: node_js
+node_js:
+  - 0.6
 services:
   - couchdb
-
-install: "npm install"
-
-script: "./pouch test"
 
 branches:
   only:
