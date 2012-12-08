@@ -123,36 +123,7 @@ function submitResults() {
 
 var doc = {};
 QUnit.jUnitReport = function(report) {
-  var match = window.location.search.match(/[?&]id=([^&]+)/);
-  if (!match) return;
-  var id = match[1];
-  document.getElementById('submit-results').addEventListener('click', submitResults);
-
-  new Pouch('http://localhost:2020/test_results', function(err, db) {
-    if (err) {
-      return console.log('Cant open db to store results');
-    }
-    db.get(id, function(err, res){
-      if (err) {
-        var res = {
-          _id : id,
-          report: []
-        };
-      }
-      report.completed = new Date();
-      report.started = started;
-      report.passed = (report.results.failed === 0);
-      res.report.push(report);
-      db.put(res, function (err, info) {
-	if (err) {
-	  return ;
-	}
-	document.body.setAttribute('data-results-id', info.id);
-	document.body.classList.add('complete');
-	$('body').append('<p>Storing Results Complete.</p>');
-      });
-    });
-  });
+  window.testReport = report;
 };
 
 asyncParForEach(sourceFiles[source], asyncLoadScript, function() {
