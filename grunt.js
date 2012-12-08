@@ -11,7 +11,8 @@ module.exports = function(grunt){
 	var i = 0, browserConfig = [{
 		browserName: 'chrome',
 		platform: 'Windows 2003',
-		name: 'win2003/chrome'
+		name: 'win2003/chrome',
+		'chrome.switches' : ['disable-file-system']
 	}, {
 		browserName: 'firefox',
 		version: '17',
