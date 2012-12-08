@@ -73,18 +73,13 @@ module.exports = function(grunt){
 				testTimeout: 1000 * 60 * 15, // 15 minutes
 				urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" + testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 				browsers: browserConfig,
-				onTestComplete: function(status, page, config){
+				onTestComplete: function(status, page, config, browser){
 					var done = this.async();
 					var browserDB = require('nano')('http://127.0.0.1:5984').use('test_results'), retries = 0;
 					(function getResults(){
-						browserDB.get(testStartTime.getTime() + '', function(err, doc){
-							if (++retries < 5 && (err || (doc && doc.report && doc.report.length - 1 !== i))) {
-								setTimeout(getResults, 3000);
-							}
-							else {
-								testResults[config.name] = retries >= 5 ? "No results" : doc.report[i++];
-								done(true);
-							}
+						browser.eval("window.testReport", function(err, val){
+							testResults[config.name] = err ? "No results" : val;
+							done(true);
 						});
 					}());
 				}
@@ -120,7 +115,7 @@ module.exports = function(grunt){
 				runs: {},
 				runner: 'grunt'
 			};
-			for (key in testResults) {
+			for (var key in testResults) {
 				results.runs[key] = {
 					started: testResults[key].started || "",
 					completed: testResults[key].completed || "",
