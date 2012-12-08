@@ -728,16 +728,6 @@ var IdbPouch = function(opts, callback) {
           var result = results[i];
           if (result) dedupResults.push(result);
         }
-
-        dedupResults.map(function(c) {
-          if (opts.filter && !opts.filter.apply(this, [c.doc])) {
-            return;
-          }
-          if (!opts.include_docs) {
-            delete c.doc;
-          }
-          call(opts.onChange, c);
-        });
         return false;
       }
       var cursor = event.target.result;
@@ -776,6 +766,15 @@ var IdbPouch = function(opts, callback) {
     };
 
     function onTxnComplete() {
+      dedupResults.map(function(c) {
+        if (opts.filter && !opts.filter.apply(this, [c.doc])) {
+          return;
+        }
+        if (!opts.include_docs) {
+          delete c.doc;
+        }
+        call(opts.onChange, c);
+      });
       call(opts.complete, null, {results: dedupResults});
     };
 
