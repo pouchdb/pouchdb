@@ -51,7 +51,7 @@ var IdbPouch = function(opts, callback) {
   var storeAttachmentsInIDB = true;
 
   var api = {};
-  var idb;
+  var idb = null;
 
   console.info(name + ': Open Database');
 
@@ -1037,6 +1037,17 @@ var IdbPouch = function(opts, callback) {
       }, fileErrorHandler);
     }, fileErrorHandler);
   }
+
+  api.close = function(callback) {
+    if (idb === null) {
+      return call(callback, Pouch.Errors.NOT_OPEN);
+    }
+
+    // https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#close
+    // "Returns immediately and closes the connection in a separate thread..."
+    idb.close();
+    call(callback, null);
+  };
 
   return api;
 };
