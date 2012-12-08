@@ -374,14 +374,14 @@ var HttpPouch = function(opts, callback) {
       data: doc
     }, callback);
   };
-  var uuids = {list:[]};
+  var uuids = {list: []};
   uuids.get = function(opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
       opts = {count: 10};
     }
     var cb = function(err, body) {
-      if(err){
+      if (err){
         call(callback, err);
       } else {
         uuids.list = uuids.list.concat(body.uuids);
