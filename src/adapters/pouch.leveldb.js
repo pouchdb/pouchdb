@@ -552,7 +552,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
         stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
           if (err) {
-            return console.error(err);
+            return Pouch.log('error', err);
           }
 
           stores[DOC_STORE].put(doc.metadata.id, doc.metadata, function(err) {
@@ -576,7 +576,7 @@ LevelPouch = module.exports = function(opts, callback) {
       stores[ATTACH_STORE].get(digest, function(err, oldAtt) {
         if (err && err.name !== 'NotFoundError') {
           callback(err);
-          return console.error(err);
+          return Pouch.log('error', err);
         }
 
         var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
@@ -598,7 +598,7 @@ LevelPouch = module.exports = function(opts, callback) {
         stores[ATTACH_STORE].put(digest, newAtt, function(err) {
           callback(err);
           if (err) {
-            return console.error(err);
+            return Pouch.log('error', err);
           }
         });
       });
@@ -702,7 +702,7 @@ LevelPouch = module.exports = function(opts, callback) {
     });
     docstream.on('error', function(err) {
       // TODO: handle error
-      console.error(err);
+      Pouch.log('error', err);
     });
     docstream.on('end', function() {
     });
@@ -823,7 +823,7 @@ LevelPouch = module.exports = function(opts, callback) {
         })
         .on('error', function(err) {
           // TODO: handle errors
-          console.error(err);
+          Pouch.log('error', err);
         })
         .on('close', function() {
           changeListener = Pouch.utils.filterChange(opts)
@@ -839,7 +839,7 @@ LevelPouch = module.exports = function(opts, callback) {
     if (opts.continuous) {
       return {
         cancel: function() {
-          console.info(name + ': Cancel Changes Feed');
+          Pouch.log('info', name + ': Cancel Changes Feed');
           opts.cancelled = true;
           change_emitter.removeListener('change', changeListener);
         }
