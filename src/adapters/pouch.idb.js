@@ -53,17 +53,19 @@ var IdbPouch = function(opts, callback) {
   var api = {};
   var idb;
 
-  console.info(name + ': Open Database');
+  console.log(name + ': Open Database');
 
   // TODO: before we release, make sure we write upgrade needed
   // in a way that supports a future upgrade path
   req.onupgradeneeded = function(e) {
+    console.log('in onupgradeneeded');
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique: true});
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
       .createIndex('_rev', '_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
+    console.log('done onupgradeneeded');
   };
 
   req.onsuccess = function(e) {
@@ -90,10 +92,13 @@ var IdbPouch = function(opts, callback) {
 
     // TODO: This is a really inneficient way of finding the last
     // update sequence, cant think of an alterative right now
+    console.log('fetching changes');
+
     api.changes(function(err, changes) {
       if (changes.results.length) {
         update_seq = changes.results[changes.results.length - 1].seq;
       }
+      console.log('got changes');
       call(callback, null, api);
     });
 
