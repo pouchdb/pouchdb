@@ -32,7 +32,6 @@ parseUri.options = {
     loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
   }
 };
-
 // Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
 function getHost(name) {
@@ -375,9 +374,29 @@ var HttpPouch = function(opts, callback) {
       data: doc
     }, callback);
   };
-
+  var uuids = {list: []};
+  uuids.get = function(opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {count: 10};
+    }
+    var cb = function(err, body) {
+      if (err){
+        call(callback, err);
+      } else {
+        uuids.list = uuids.list.concat(body.uuids);
+        call(callback, null, "OK")
+      }
+    };
+    var params = '?count=' + opts.count;
+    ajax({
+      auth: host.auth,
+      type: 'GET',
+      url: db_url + params
+    }, cb);
+  };
   // Add the document given by doc (in JSON string format) to the database
-  // given by host. This assumes that doc is a new document (i.e. does not
+  // given by host. This does not assume that doc is a new document (i.e. does not
   // have a _id or a _rev field.
   api.post = function(doc, opts, callback) {
     // If no options were given, set the callback to be the second parameter
@@ -385,14 +404,21 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-
-    // Add the document
-    ajax({
-      auth: host.auth,
-      type: 'POST',
-      url: genUrl(host, ''),
-      data: doc
-    }, callback);
+    if (! ("_id" in doc)) {
+      if (uuids.list.length > 0) {
+        doc._id = uuids.list.pop();
+        api.put(doc, opts, callback);
+      }else {
+        uuids.get(function(err, resp) {
+          if (!err) {
+            doc._id = uuids.list.pop();
+            api.put(doc, opts, callback);
+          }
+        });
+      }
+    } else {
+      api.put(doc, opts, callback);
+    }
   };
 
   // Update/create multiple documents given by req in the database
@@ -480,7 +506,6 @@ var HttpPouch = function(opts, callback) {
       url: genUrl(host, '_all_docs' + params)
     }, callback);
   };
-
   // Get a list of changes made to documents in the database given by host.
   // TODO According to the README, there should be two other methods here,
   // api.changes.addListener and api.changes.removeListener.
