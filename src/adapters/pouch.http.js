@@ -1,3 +1,5 @@
+"use strict";
+
 var HTTP_TIMEOUT = 10000;
 
 // parseUri 1.2.2
@@ -17,7 +19,7 @@ function parseUri (str) {
   });
 
   return uri;
-};
+}
 
 parseUri.options = {
   strictMode: false,
@@ -32,6 +34,7 @@ parseUri.options = {
     loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
   }
 };
+
 // Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
 function getHost(name) {
@@ -70,7 +73,7 @@ function getHost(name) {
 }
 
 // Generate a URL with the host data given by opts and the given path
-function genUrl(opts, path) {
+function genDBUrl(opts, path) {
   // If the host is remote
   if (opts.remote) {
     // If the host already has a path, then we need to have a path delimiter
@@ -78,14 +81,22 @@ function genUrl(opts, path) {
     var pathDel = !opts.path ? '' : '/';
 
     // Return the URL made up of all the host's information and the given path
-    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path
-      + pathDel + opts.db + '/' + path;
+    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' +
+      opts.path + pathDel + opts.db + '/' + path;
   }
 
   // If the host is not remote, then return the URL made up of just the
   // database name and the given path
   return '/' + opts.db + '/' + path;
-};
+}
+
+// Generate a URL with the host data given by opts and the given path
+function genUrl(opts, path) {
+  if (opts.remote) {
+    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + path;
+  }
+  return '/' + path;
+}
 
 // Implements the PouchDB API for dealing with CouchDB instances over HTTP
 var HttpPouch = function(opts, callback) {
@@ -94,10 +105,34 @@ var HttpPouch = function(opts, callback) {
   var host = getHost(opts.name);
 
   // Generate the database URL based on the host
-  var db_url = genUrl(host, '');
+  var db_url = genDBUrl(host, '');
 
   // The functions that will be publically available for HttpPouch
   var api = {};
+
+  var uuids = {
+    list: [],
+    get: function(opts, callback) {
+      if (typeof opts === 'function') {
+        callback = opts;
+        opts = {count: 10};
+      }
+      var cb = function(err, body) {
+        if (err || !('uuids' in body)) {
+          call(callback, err || Pouch.Errors.UNKNOWN_ERROR);
+        } else {
+          uuids.list = uuids.list.concat(body.uuids);
+          call(callback, null, "OK");
+        }
+      };
+      var params = '?count=' + opts.count;
+      ajax({
+        auth: host.auth,
+        type: 'GET',
+        url: genUrl(host, '_uuids') + params
+      }, cb);
+    }
+  };
 
   // Create a new CouchDB database based on the given opts
   var createDB = function(){
@@ -115,17 +150,17 @@ var HttpPouch = function(opts, callback) {
             call(callback, null, api);
           }
         });
-      // If there were no errros or if the only error is "Precondition Failed"
-      // (note: "Precondition Failed" occurs when we try to create a database
-      // that already exists)
+        // If there were no errros or if the only error is "Precondition Failed"
+        // (note: "Precondition Failed" occurs when we try to create a database
+        // that already exists)
       } else if (!err || err.status === 412) {
         // Continue as if there had been no errors
         call(callback, null, api);
       } else {
-      call(callback, Pouch.Errors.UNKNOWN_ERROR);
-    }
-  });
-};
+        call(callback, Pouch.Errors.UNKNOWN_ERROR);
+      }
+    });
+  };
   ajax({auth: host.auth, type: 'GET', url: db_url}, function(err, ret) {
     //check if the db exists
     if (err) {
@@ -142,7 +177,7 @@ var HttpPouch = function(opts, callback) {
   });
   // The HttpPouch's ID is its URL
   api.id = function() {
-    return genUrl(host, '');
+    return genDBUrl(host, '');
   };
 
   // Calls GET on the host, which gets back a JSON string containing
@@ -152,7 +187,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type:'GET',
-      url: genUrl(host, ''),
+      url: genDBUrl(host, ''),
     }, callback);
   };
 
@@ -212,7 +247,7 @@ var HttpPouch = function(opts, callback) {
     var options = {
       auth: host.auth,
       type: 'GET',
-      url: genUrl(host, id + params)
+      url: genDBUrl(host, id + params)
     };
 
     // If the given id contains at least one '/' and the part before the '/'
@@ -281,7 +316,7 @@ var HttpPouch = function(opts, callback) {
       ajax({
         auth: host.auth,
         type:'GET',
-        url: genUrl(host, '_design/' + parts[0] + '/_view/' + parts[1] + params),
+        url: genDBUrl(host, '_design/' + parts[0] + '/_view/' + parts[1] + params),
       }, callback);
       return;
     }
@@ -297,7 +332,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type:'POST',
-      url: genUrl(host, '_temp_view' + params),
+      url: genDBUrl(host, '_temp_view' + params),
       data: queryObject
     }, callback);
   };
@@ -314,7 +349,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type:'DELETE',
-      url: genUrl(host, doc._id) + '?rev=' + doc._rev
+      url: genDBUrl(host, doc._id) + '?rev=' + doc._rev
     }, callback);
   };
 
@@ -323,7 +358,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type: 'DELETE',
-      url: genUrl(host, id) + '?rev=' + rev,
+      url: genDBUrl(host, id) + '?rev=' + rev,
     }, callback);
   };
 
@@ -335,7 +370,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type:'PUT',
-      url: genUrl(host, id) + '?rev=' + rev,
+      url: genDBUrl(host, id) + '?rev=' + rev,
       headers: {'Content-Type': type},
       data: doc
     }, callback);
@@ -370,31 +405,11 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type: 'PUT',
-      url: genUrl(host, doc._id) + params,
+      url: genDBUrl(host, doc._id) + params,
       data: doc
     }, callback);
   };
-  var uuids = {list: []};
-  uuids.get = function(opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {count: 10};
-    }
-    var cb = function(err, body) {
-      if (err){
-        call(callback, err);
-      } else {
-        uuids.list = uuids.list.concat(body.uuids);
-        call(callback, null, "OK")
-      }
-    };
-    var params = '?count=' + opts.count;
-    ajax({
-      auth: host.auth,
-      type: 'GET',
-      url: db_url + params
-    }, cb);
-  };
+
   // Add the document given by doc (in JSON string format) to the database
   // given by host. This does not assume that doc is a new document (i.e. does not
   // have a _id or a _rev field.
@@ -410,10 +425,11 @@ var HttpPouch = function(opts, callback) {
         api.put(doc, opts, callback);
       }else {
         uuids.get(function(err, resp) {
-          if (!err) {
-            doc._id = uuids.list.pop();
-            api.put(doc, opts, callback);
+          if (err) {
+            return call(callback, Pouch.Errors.UNKNOWN_ERROR);
           }
+          doc._id = uuids.list.pop();
+          api.put(doc, opts, callback);
         });
       }
     } else {
@@ -446,7 +462,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type:'POST',
-      url: genUrl(host, '_bulk_docs'),
+      url: genDBUrl(host, '_bulk_docs'),
       data: req
     }, callback);
   };
@@ -503,7 +519,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type:'GET',
-      url: genUrl(host, '_all_docs' + params)
+      url: genDBUrl(host, '_all_docs' + params)
     }, callback);
   };
   // Get a list of changes made to documents in the database given by host.
@@ -524,14 +540,14 @@ var HttpPouch = function(opts, callback) {
     console.info(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
 
     // Query string of all the parameters to add to the GET request
-    var params = '?style=all_docs'
+    var params = '?style=all_docs';
 
     // If opts.include_docs exists, opts.filter exists, and opts.filter is a
     // function, add the include_docs value to the query string.
     // If include_docs=true then include the associated document with each
     // result.
     if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
-      params += '&include_docs=true'
+      params += '&include_docs=true';
     }
 
     // If opts.continuous exists, add the feed value to the query string.
@@ -583,7 +599,7 @@ var HttpPouch = function(opts, callback) {
       // Set the options for the ajax call
       var xhrOpts = {
         auth: host.auth, type:'GET',
-        url: genUrl(host, '_changes' + params + '&since=' + since)
+        url: genDBUrl(host, '_changes' + params + '&since=' + since)
       };
       last_seq = since;
 
@@ -655,7 +671,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       type:'POST',
-      url: genUrl(host, '_revs_diff'),
+      url: genDBUrl(host, '_revs_diff'),
       data: req
     }, function(err, res) {
       call(callback, null, res);
@@ -691,13 +707,13 @@ var HttpPouch = function(opts, callback) {
 // Delete the HttpPouch specified by the given name.
 HttpPouch.destroy = function(name, callback) {
   var host = getHost(name);
-  ajax({auth: host.auth, type: 'DELETE', url: genUrl(host, '')}, callback);
+  ajax({auth: host.auth, type: 'DELETE', url: genDBUrl(host, '')}, callback);
 };
 
 // HttpPouch is a valid adapter.
 HttpPouch.valid = function() {
   return true;
-}
+};
 
 if (typeof module !== 'undefined' && module.exports) {
   // running in node
