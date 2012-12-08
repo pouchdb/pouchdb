@@ -8,6 +8,12 @@ window.indexedDB = window.indexedDB ||
 window.IDBKeyRange = window.IDBKeyRange ||
   window.webkitIDBKeyRange;
 
+window.storageInfo = window.storageInfo ||
+  window.webkitStorageInfo;
+
+window.requestFileSystem = window.requestFileSystem ||
+    window.webkitRequestFileSystem;
+
 var idbError = function(callback) {
   return function(event) {
     call(callback, {
@@ -15,7 +21,7 @@ var idbError = function(callback) {
       error: event.type,
       reason: event.target
     });
-  }
+  };
 };
 
 var IdbPouch = function(opts, callback) {
@@ -38,14 +44,11 @@ var IdbPouch = function(opts, callback) {
   var req = indexedDB.open(name, POUCH_VERSION);
   var update_seq = 0;
 
-  //Get the webkit file system objects in a way that is forward compatible
-  var storageInfo = (window.webkitStorageInfo ? window.webkitStorageInfo : window.storageInfo)
-  var requestFileSystem = (window.webkitRequestFileSystem ? window.webkitRequestFileSystem : window.requestFileSystem)
-  var storeAttachmentsInIDB = false;
-  if (!storageInfo || !requestFileSystem){
-    //This browser does not support the file system API, use idb to store attachments insead
-    storeAttachmentsInIDB=true;
-  }
+
+  // var storeAttachmentsInIDB = !(window.storageInfo && window.requestFileSystem);
+  // We cant store attachments on the filesystem due to a limitation in the
+  // indexeddb api, it will close a transaction when we yield to the event loop
+  var storeAttachmentsInIDB = true;
 
   var api = {};
   var idb;
@@ -59,7 +62,7 @@ var IdbPouch = function(opts, callback) {
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique: true});
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
-      .createIndex('_rev', '_rev', {unique: true});;
+      .createIndex('_rev', '_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
   };
 
@@ -104,7 +107,7 @@ var IdbPouch = function(opts, callback) {
       opts = {};
     }
     if (!opts) {
-      opts = {}
+      opts = {};
     }
 
     if (!req.docs) {
@@ -142,15 +145,9 @@ var IdbPouch = function(opts, callback) {
       results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
     });
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readwrite');
-    txn.onerror = idbError(callback);
-    txn.ontimeout = idbError(callback);
-
-    processDocs();
-
     function processDocs() {
       if (!docs.length) {
-        return complete();
+        return;
       }
       var currentDoc = docs.shift();
       var req = txn.objectStore(DOC_STORE).get(currentDoc.metadata.id);
@@ -161,7 +158,7 @@ var IdbPouch = function(opts, callback) {
         } else {
           updateDoc(oldDoc, currentDoc);
         }
-      }
+      };
     }
 
     function complete(event) {
@@ -179,7 +176,7 @@ var IdbPouch = function(opts, callback) {
         aresults.push({
           ok: true,
           id: metadata.id,
-          rev: rev,
+          rev: rev
         });
 
         if (/_local/.test(metadata.id)) {
@@ -210,16 +207,16 @@ var IdbPouch = function(opts, callback) {
         docInfo.data._deleted = true;
       }
 
-      var attachments = docInfo.data._attachments
-        ? Object.keys(docInfo.data._attachments)
-        : [];
+      var attachments = docInfo.data._attachments ?
+        Object.keys(docInfo.data._attachments) : [];
+
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
           var data = docInfo.data._attachments[key].data;
           var digest = 'md5-' + Crypto.MD5(data);
           delete docInfo.data._attachments[key].data;
           docInfo.data._attachments[key].digest = digest;
-          saveAttachment(docInfo, digest, data, function (err) {
+          saveAttachment(docInfo, digest, data, function(err) {
             recv++;
             collectResults(err);
           });
@@ -291,7 +288,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     function saveAttachment(docInfo, digest, data, callback) {
-      if (storeAttachmentsInIDB){
+      if (storeAttachmentsInIDB) {
         var objectStore = txn.objectStore(ATTACH_STORE);
         var getReq = objectStore.get(digest).onsuccess = function(e) {
           var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
@@ -306,7 +303,7 @@ var IdbPouch = function(opts, callback) {
               newAtt.refs[ref] = true;
             }
           } else {
-            newAtt.refs = {}
+            newAtt.refs = {};
             newAtt.refs[ref] = true;
           }
 
@@ -316,12 +313,20 @@ var IdbPouch = function(opts, callback) {
           putReq.onerror = putReq.ontimeout = idbError(callback);
         };
         getReq.onerror = getReq.ontimeout = idbError(callback);
-      }else{
+      } else {
         // right now fire and forget, needs cleaned
         writeAttachmentToFile(digest,data);
         call(callback);
       }
     }
+
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readwrite');
+    txn.onerror = idbError(callback);
+    txn.ontimeout = idbError(callback);
+    txn.oncomplete = complete;
+
+    processDocs();
+
   };
 
   function sortByBulkSeq(a, b) {
@@ -342,12 +347,21 @@ var IdbPouch = function(opts, callback) {
       return api.getAttachment(id, {decode: true}, callback);
     }
 
+    var result;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
+    txn.oncomplete = function() {
+      if ('error' in result) {
+        call(callback, result);
+      } else {
+        call(callback, null, result);
+      }
+    };
 
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
       if (!e.target.result || (isDeleted(metadata, opts.rev) && !opts.rev)) {
-        return call(callback, Pouch.Errors.MISSING_DOC);
+        result = Pouch.Errors.MISSING_DOC;
+        return;
       }
 
       var rev = winningRev(metadata);
@@ -383,11 +397,11 @@ var IdbPouch = function(opts, callback) {
           var recv = 0;
 
           attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, function(err, data) {
+            api.getAttachment(doc._id + '/' + key, {txn: txn}, function(err, data) {
               doc._attachments[key].data = data;
 
               if (++recv === attachments.length) {
-                callback(null, doc);
+                result = doc;
               }
             });
           });
@@ -397,7 +411,7 @@ var IdbPouch = function(opts, callback) {
               doc._attachments[key].stub = true;
             }
           }
-          callback(null, doc);
+          result = doc;
         }
       };
     };
@@ -412,14 +426,25 @@ var IdbPouch = function(opts, callback) {
       id = parseDocId(id);
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
+    var result;
+    var txn;
+
+    // This can be called while we are in a current transaction, pass the context
+    // along and dont wait for the transaction to complete here.
+    if ('txn' in opts) {
+      txn = opts.txn;
+    } else {
+      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
+      txn.oncomplete = function() { call(callback, null, result); }
+    }
+
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
       var bySeq = txn.objectStore(BY_SEQ_STORE);
       bySeq.get(metadata.seq).onsuccess = function(e) {
-        var attachment = e.target.result._attachments[id.attachmentId]
-          , digest = attachment.digest
-          , type = attachment.content_type
+        var attachment = e.target.result._attachments[id.attachmentId];
+        var digest = attachment.digest;
+        var type = attachment.content_type
 
         function postProcessDoc(data) {
           if (opts.decode) {
@@ -431,12 +456,20 @@ var IdbPouch = function(opts, callback) {
         if (storeAttachmentsInIDB) {
           txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
             var data = e.target.result.body;
-            call(callback, null, postProcessDoc(data));
+            result = postProcessDoc(data);
+            if ('txn' in opts) {
+              call(callback, null, result);
+            }
           }
-        }
-        else {
+        } else {
+          // This will be buggy, it will cause the transaction to be closed
+          // as we will be returning to the event loop waiting on the file to
+          // read, switch back to idb asap
           readAttachmentFromFile(digest, function(data) {
-            call(callback, null, postProcessDoc(data));
+            result = postProcessDoc(data);
+            if ('txn' in opts) {
+              call(callback, null, result);
+            }
           });
         }
       };
@@ -508,19 +541,23 @@ var IdbPouch = function(opts, callback) {
 
     var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
       : start ? IDBKeyRange.lowerBound(start, true)
-      : end ? IDBKeyRange.upperBound(end) : false;
+      : end ? IDBKeyRange.upperBound(end) : null;
+
+    var result;
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
-    keyRange = keyRange || null;
+    transaction.oncomplete = function() { callback(null, result); };
+
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = descending ? oStore.openCursor(keyRange, descending)
       : oStore.openCursor(keyRange);
     var results = [];
     oCursor.onsuccess = function(e) {
       if (!e.target.result) {
-        return callback(null, {
+        result = {
           total_rows: results.length,
           rows: results
-        });
+        };
+        return;
       }
       var cursor = e.target.result;
       function allDocsInner(metadata, data) {
@@ -872,7 +909,8 @@ var IdbPouch = function(opts, callback) {
     }
   }
 
-  //Functions for reading and writing an attachment in the html5 file system instead of idb
+  // Functions for reading and writing an attachment in the html5 file system
+  // instead of idb
   function toArray(list) {
     return Array.prototype.slice.call(list || [], 0);
   }
@@ -883,7 +921,7 @@ var IdbPouch = function(opts, callback) {
   //Delete attachments that are no longer referenced by any existing documents
   function deleteOrphanedFiles(currentQuota){
     api.allDocs({include_docs:true},function(err, response) {
-      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
+      window.requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
       var dirReader = fs.root.createReader();
       var entries = [];
       var docRows = response.rows;
@@ -893,13 +931,15 @@ var IdbPouch = function(opts, callback) {
         dirReader.readEntries (function(results) {
           if (!results.length) {
             for (var i in entries){
-              var entryIsReferenced=false;
+              var entryIsReferenced = false;
               for (var k in docRows){
                 if (docRows[k].doc){
                   var aDoc = docRows[k].doc;
-                  if (aDoc._attachments){
-                    for (var j in aDoc._attachments){
-                      if (aDoc._attachments[j].digest==entries[i].name) entryIsReferenced=true;
+                  if (aDoc._attachments) {
+                    for (var j in aDoc._attachments) {
+                      if (aDoc._attachments[j].digest==entries[i].name) {
+                        entryIsReferenced = true;
+                      }
                     };
                   }
                   if (entryIsReferenced) break;
@@ -926,7 +966,7 @@ var IdbPouch = function(opts, callback) {
 
   function writeAttachmentToFile(digest, data, type){
     //Check the current file quota and increase it if necessary
-    storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+    window.storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
       var newQuota = currentQuota;
       if (currentQuota == 0){
         newQuota = 1000*1024*1024; //start with 1GB
@@ -939,9 +979,9 @@ var IdbPouch = function(opts, callback) {
       console.info("Current file quota: "+currentQuota+", current usage:"+currentUsage+", new quota will be: "+newQuota);
 
       //Ask for file quota. This does nothing if the proper quota size has already been granted.
-      storageInfo.requestQuota(window.PERSISTENT, newQuota, function(grantedBytes) {
-        storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
-          requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
+      window.storageInfo.requestQuota(window.PERSISTENT, newQuota, function(grantedBytes) {
+        window.storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+          window.requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
             fs.root.getFile(digest, {create: true}, function(fileEntry) {
               fileEntry.createWriter(function(fileWriter) {
                 fileWriter.onwriteend = function(e) {
@@ -961,8 +1001,8 @@ var IdbPouch = function(opts, callback) {
   }
 
   function readAttachmentFromFile(digest, callback){
-    storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
-      requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
+    window.storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
+      window.requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
         fs.root.getFile(digest, {}, function(fileEntry) {
           fileEntry.file(function(file) {
             var reader = new FileReader();
