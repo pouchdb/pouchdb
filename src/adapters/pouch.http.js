@@ -700,6 +700,9 @@ var HttpPouch = function(opts, callback) {
     return Pouch.replicate(api, dbName, opts, callback);
   };
 
+  api.close = function(callback) {
+    call(callback, null);
+  };
 
   return api;
 };

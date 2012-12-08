@@ -129,7 +129,8 @@ var ViewQuery = function(fun, stores, options) {
 }
 
 LevelPouch = module.exports = function(opts, callback) {
-  var api = {}
+  var opened = false
+    , api = {}
     , update_seq = 0
     , doc_count = 0
     , stores = {}
@@ -211,6 +212,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
       function finish() {
         if (doc_count >= 0 && update_seq >= 0) {
+          opened = true;
           process.nextTick(function() { call(callback, null, api) });
         }
       }
@@ -890,6 +892,41 @@ LevelPouch = module.exports = function(opts, callback) {
     }
     return Pouch.replicate(api, dbname, opts, callback);
   }
+
+  api.close = function(callback) {
+    if (!opened) {
+      return call(callback, Pouch.Errors.NOT_OPEN);
+    }
+
+    var dbpath = path.resolve(opts.name);
+    var stores = [
+      path.join(dbpath, DOC_STORE),
+      path.join(dbpath, BY_SEQ_STORE),
+      path.join(dbpath, ATTACH_STORE),
+    ];
+    var closed = 0;
+    stores.map(function(path) {
+      var store = STORES[path]
+      if (store) {
+        store.close(function() {
+          delete STORES[path];
+
+          if (++closed >= stores.length) {
+            done();
+          }
+        });
+      }
+      else {
+        if (++closed >= stores.length) {
+          done();
+        }
+      }
+    });
+
+    function done() {
+      call(callback, null);
+    }
+  };
 
   return api;
 }
