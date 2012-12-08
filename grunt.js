@@ -1,10 +1,10 @@
 /* global module:false */
 module.exports = function(grunt){
 	var srcFiles = ["src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js", "src/pouch.replicate.js", "src/pouch.utils.js", "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js"];
-	var testFiles = require('fs').readdirSync("./tests").filter(function(name){
-		return /^test\.([a-z0-9_])*\.js$/.test(name);
-	});
-	
+  var testFiles = ['test.utils.js', 'test.replication.js', 'test.issue221.js'];
+	// var testFiles = require('fs').readdirSync("./tests").filter(function(name){
+	// 	return /^test\.([a-z0-9_])*\.js$/.test(name);
+	// });
 	var testStartTime = new Date();
 	var testResults = {};
 	
@@ -72,7 +72,7 @@ module.exports = function(grunt){
 				testname: 'PouchDB Tests',
 				tags: [process.env.TRAVIS_BRANCH || "unknown"],
 				testTimeout: 1000 * 60 * 15, // 15 minutes
-				urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" + testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
+				urls: ["http://127.0.0.1:8000/tests/test.html?id=" + testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 				browsers: browserConfig,
 				onTestComplete: function(status, page, config, browser){
 					var done = this.async();
