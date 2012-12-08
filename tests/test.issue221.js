@@ -46,6 +46,7 @@ adapters.map(function(adapters) {
             contentType: 'application/json',
             success: function(data, status, jqXHR) {
               // Wait until compaction has affected the doc.
+              var interval;
               var checkDoc = function() {
                 ajax({
                   url: self.remote + '/' + doc._id + '?revs_info=true',
@@ -53,7 +54,13 @@ adapters.map(function(adapters) {
                   success: function(data, status, jqXHR) {
                     var correctRev = data._revs_info[0];
                     if (data._revs_info[1].status == 'missing') {
+                      // We already got a successful compaction, but did a whole
+                      // new request before we figured it out, yay races
+                      if (!interval) {
+                        return;
+                      }
                       clearInterval(interval);
+                      interval = null;
                       // Replicate to PouchDB.
                       local.replicate.from(remote, function(err, results) {
                         // Check the PouchDB doc.
@@ -69,7 +76,7 @@ adapters.map(function(adapters) {
                   }
                 });
               };
-              var interval = setInterval(checkDoc, 100);
+              interval = setInterval(checkDoc, 100);
             }
           });
         });
