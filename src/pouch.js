@@ -96,8 +96,8 @@ Pouch.Errors = {
     reason: 'Only reserved document ids may start with underscore.'
   },
   NOT_OPEN: {
-    status: 409,
-    error: 'conflict',
+    status: 412,
+    error: 'precondition_failed',
     reason: 'Database not open so cannot close'
   },
   UNKNOWN_ERROR: {
