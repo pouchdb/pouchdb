@@ -74,6 +74,20 @@ var IdbPouch = function(opts, callback) {
       idb.close();
     };
 
+    // polyfill the new onupgradeneeded api for chrome. can get rid of when
+    // saucelabs moves to chrome 23
+    if (idb.setVersion && Number(idb.version) !== POUCH_VERSION) {
+      var versionReq = idb.setVersion(POUCH_VERSION);
+      versionReq.onsuccess = function(evt) {
+        function setVersionComplete() {
+          req.onsuccess(e);
+        }
+        evt.target.result.oncomplete = setVersionComplete;
+        req.onupgradeneeded(e);
+      };
+      return;
+    }
+
     // TODO: This is a really inneficient way of finding the last
     // update sequence, cant think of an alterative right now
     api.changes(function(err, changes) {
@@ -599,15 +613,22 @@ var IdbPouch = function(opts, callback) {
   // easiest to implement though, should probably keep a counter
   api.info = function idb_info(callback) {
     var count = 0;
-    idb.transaction([DOC_STORE], 'readonly')
-      .objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
+    var result;
+    var txn = idb.transaction([DOC_STORE], 'readonly');
+
+    txn.oncomplete = function() {
+      callback(null, result);
+    };
+
+    txn.objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
         var cursor = e.target.result;
         if (!cursor) {
-          return callback(null, {
+          result = {
             db_name: name,
             doc_count: count,
             update_seq: update_seq
-          });
+          };
+          return;
         }
         if (cursor.value.deleted !== true) {
           count++;
