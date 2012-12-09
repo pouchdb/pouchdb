@@ -30,7 +30,7 @@
         "nano": "*",
         "send": "*",
 		    "grunt" : "*",
-		    "grunt-saucelabs" : "~1.1.3",
+		    "grunt-saucelabs" : "~1.2.0",
 		    "grunt-node-qunit" : "*"
   },
   "maintainers":[

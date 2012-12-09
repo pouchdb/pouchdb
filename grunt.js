@@ -89,7 +89,8 @@ module.exports = function(grunt) {
 	testname: 'PouchDB Tests',
 	tags: [process.env.TRAVIS_BRANCH || "unknown"],
 	testTimeout: 1000 * 60 * 15, // 15 minutes
-	testInterval: 30000,
+	testInterval: 1000 * 30, // 30 seconds
+  tunnelTimeout: 1000 * 60 * 15, // 15 minutes
 	urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
                testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 	browsers: browserConfig,
@@ -146,13 +147,14 @@ module.exports = function(grunt) {
 	  passed: !!(testResults[key].passed),
 	  report: testResults[key]
 	};
+  console.log("Test Result for %s is %s".yellow , key , results.runs[key].passed);
 	results.passed = results.passed && results.runs[key].passed;
       }
       nano(grunt.config("publish-results.server"))
         .use(grunt.config("publish-results.db"))
         .insert(results, testStartTime.getTime() + "", function(err, body){
 	  console.log(testStartTime.getTime(), err ? err.message : body);
-	  done(results.passed && typeof err === "undefined");
+	  done(results.passed && err == null);
         });
     });
   });
