@@ -377,12 +377,16 @@ var HttpPouch = function(opts, callback) {
   };
 
   // Add the document given by doc (in JSON string format) to the database
-  // given by host. This assumes that doc has a _id field.
+  // given by host. This fails if the doc has no _id field.
   api.put = function(doc, opts, callback) {
     // If no options were given, set the callback to be the second parameter
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
+    }
+
+    if (!doc || !('_id' in doc)) {
+      return call(callback, Pouch.Errors.MISSING_ID);
     }
 
     // List of parameter to add to the PUT request
