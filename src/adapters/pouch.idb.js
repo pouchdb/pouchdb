@@ -922,7 +922,7 @@ var IdbPouch = function(opts, callback) {
       current = {doc: e.target.result, metadata: metadata};
       current.doc._rev = winningRev(metadata);
 
-      if (options.complete && !isDeleted(current.metadata, doc._rev)) {
+      if (options.complete && !isDeleted(current.metadata, current.doc._rev)) {
         fun.map.apply(this, [current.doc]);
       }
       cursor['continue']();
