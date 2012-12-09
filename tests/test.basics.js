@@ -306,6 +306,15 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Put doc without _id should fail", 1, function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({test:"somestuff"}, function(err, info) {
+        ok(err, '_id is required');
+        start();
+      });
+    });
+  });
+
   asyncTest("Retrieve old revision", function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');

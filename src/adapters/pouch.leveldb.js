@@ -347,7 +347,19 @@ LevelPouch = module.exports = function(opts, callback) {
     });
   }
 
-  api.put = api.post = function(doc, opts, callback) {
+  api.put = function(doc, opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
+    }
+
+    if (!doc || !('_id' in doc)) {
+      return call(callback, Pouch.Errors.MISSING_ID);
+    }
+    return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
+  }
+
+  api.post = function(doc, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {}

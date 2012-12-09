@@ -90,6 +90,11 @@ Pouch.Errors = {
     error: 'invalid_id',
     reason: '_id field must contain a string'
   },
+  MISSING_ID: {
+    status: 412,
+    error: 'missing_id',
+    reason: '_id is required for puts'
+  },
   RESERVED_ID: {
     status: 400,
     error: 'bad_request',
