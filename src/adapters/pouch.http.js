@@ -385,7 +385,7 @@ var HttpPouch = function(opts, callback) {
       opts = {};
     }
 
-    if (doc._id === undefined) {
+    if (!doc || !('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
 
