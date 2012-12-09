@@ -121,8 +121,11 @@ function submitResults() {
   });
 }
 
-var doc = {};
+document.getElementById('submit-results').addEventListener('click', submitResults);
 QUnit.jUnitReport = function(report) {
+  report.started = started;
+  report.completed = new Date();
+  report.passed = (report.results.failed === 0);
   window.testReport = report;
 };
 
