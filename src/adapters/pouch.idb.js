@@ -491,7 +491,19 @@ var IdbPouch = function(opts, callback) {
     return;
   }
 
-  api.put = api.post = function idb_put(doc, opts, callback) {
+  api.put = function(doc, opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
+    }
+
+    if (!doc || doc._id === undefined) {
+      return call(callback, Pouch.Errors.MISSING_ID);
+    }
+    return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
+  }
+
+  api.post = function idb_put(doc, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
