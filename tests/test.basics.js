@@ -29,9 +29,12 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Remove a pouch", 1, function() {
-    Pouch.destroy(this.name, function(err, db) {
-      ok(!err);
-      start();
+    var name = this.name;
+    initTestDB(name, function(err, db) {
+      Pouch.destroy(name, function(err, db) {
+        ok(!err);
+        start();
+      });
     });
   });
 
