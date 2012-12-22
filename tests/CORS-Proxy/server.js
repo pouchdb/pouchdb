@@ -16,7 +16,7 @@ var couchUrl;
 function handleRequest(request, response) {
 
   if (request.method === 'OPTIONS') {
-    response.writeHead(204, cors_headers);
+    response.writeHead(200, cors_headers);
     response.end();
     return;
   }
