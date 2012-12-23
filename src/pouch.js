@@ -1,4 +1,6 @@
-var Pouch = this.Pouch = function Pouch(name, opts, callback) {
+"use strict";
+
+var Pouch = function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
     return new Pouch(name, opts, callback);
@@ -21,12 +23,32 @@ var Pouch = this.Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = Pouch.adapters[backend.adapter](opts, callback);
+  var adapter = Pouch.adapters[backend.adapter](opts, function(err, db) {
+    if (err) {
+      if (callback) callback(err);
+      return;
+    }
+    for (var plugin in Pouch.plugins) {
+      // In future these will likely need to be async to allow the plugin
+      // to initialise
+      var pluginObj = Pouch.plugins[plugin](db);
+      for (var api in pluginObj) {
+        // We let things like the http adapter use its own implementation
+        // as it shares a lot of code
+        if (!(api in db)) {
+          db[api] = pluginObj[api];
+        }
+      }
+    }
+    callback(null, db);
+  });
   for (var j in adapter) {
     this[j] = adapter[j];
   }
-}
+};
 
+Pouch.adapters = {};
+Pouch.plugins = {};
 
 Pouch.parseAdapter = function(name) {
 
@@ -51,21 +73,24 @@ Pouch.parseAdapter = function(name) {
     }
   }
   throw 'No Valid Adapter.';
-}
+};
 
 
 Pouch.destroy = function(name, callback) {
+  for (var plugin in Pouch.plugins) {
+    Pouch.plugins[plugin]._delete(name);
+  }
   var opts = Pouch.parseAdapter(name);
   Pouch.adapters[opts.adapter].destroy(opts.name, callback);
 };
 
-
-Pouch.adapters = {};
-
-Pouch.adapter = function (id, obj) {
+Pouch.adapter = function(id, obj) {
   Pouch.adapters[id] = obj;
-}
+};
 
+Pouch.plugin = function(id, obj) {
+  Pouch.plugins[id] = obj;
+};
 
 // Enumerate errors, add the status code so we can reflect the HTTP api
 // in future
@@ -126,4 +151,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var adapter_path = './adapters/pouch.'+adapter+'.js';
     require(adapter_path);
   });
+  require('./plugins/pouchdb.mapreduce.js');
+} else {
+  this.Pouch = Pouch;
 }
