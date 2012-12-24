@@ -85,6 +85,57 @@ var MapReduce = function(db) {
     });
   };
 
+  function httpQuery(fun, opts, callback) {
+
+    // List of parameters to add to the PUT request
+    var params = [];
+
+    // If opts.reduce exists and is defined, then add it to the list
+    // of parameters.
+    // If reduce=false then the results are that of only the map function
+    // not the final result of map and reduce.
+    if (typeof opts.reduce !== 'undefined') {
+      params.push('reduce=' + opts.reduce);
+    }
+    if (typeof opts.include_docs !== 'undefined') {
+      params.push('include_docs=' + opts.include_docs);
+    }
+    if (typeof opts.limit !== 'undefined') {
+      params.push('limit=' + opts.limit);
+    }
+    if (typeof opts.descending !== 'undefined') {
+      params.push('descending=' + opts.descending);
+    }
+
+    // Format the list of parameters into a valid URI query string
+    params = params.join('&');
+    params = params === '' ? '' : '?' + params;
+
+    // We are referencing a query defined in the design doc
+    if (typeof fun === 'string') {
+      var parts = fun.split('/');
+      db.request({
+        type:'GET',
+        url: '_design/' + parts[0] + '/_view/' + parts[1] + params,
+      }, callback);
+      return;
+    }
+
+    // We are using a temporary view, terrible for performance but good for testing
+    var queryObject = JSON.stringify(fun, function(key, val) {
+      if (typeof val === 'function') {
+        return val + ''; // implicitly `toString` it
+      }
+      return val;
+    });
+
+    db.request({
+      type:'POST',
+      url: '_temp_view' + params,
+      data: queryObject
+    }, callback);
+  };
+
   function query(fun, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
@@ -93,6 +144,10 @@ var MapReduce = function(db) {
 
     if (callback) {
       opts.complete = callback;
+    }
+
+    if (db.type() === 'http') {
+      return httpQuery(fun, opts, callback);
     }
 
     if (typeof fun === 'object') {

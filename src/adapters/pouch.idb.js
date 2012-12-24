@@ -101,6 +101,10 @@ var IdbPouch = function(opts, callback) {
 
   req.onerror = idbError(callback);
 
+  api.type = function() {
+    return 'idb';
+  };
+
   // Each database needs a unique id so that we can store the sequence
   // checkpoint without having other databases confuse itself, since
   // localstorage is per host this shouldnt conflict, if localstorage

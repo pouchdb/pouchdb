@@ -145,6 +145,11 @@ LevelPouch = module.exports = function(opts, callback) {
     };
   }
 
+
+  api.type = function() {
+    return 'leveldb';
+  };
+
   // the db's id is just the path to the leveldb directory
   api.id = function() {
     return opts.name;

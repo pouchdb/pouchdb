@@ -166,7 +166,7 @@ var HttpPouch = function(opts, callback) {
     if (err) {
       if (err.status === 404) {
         //if it doesn't, create it
-        createDB();  
+        createDB();
       } else {
         call(callback, err);
       }
@@ -175,9 +175,20 @@ var HttpPouch = function(opts, callback) {
       call(callback, null, api);
       }
   });
+
+  api.type = function() {
+    return 'http';
+  };
+
   // The HttpPouch's ID is its URL
   api.id = function() {
     return genDBUrl(host, '');
+  };
+
+  api.request = function(options, callback) {
+    options.auth = host.auth;
+    options.url = genDBUrl(host, options.url);
+    ajax(options, callback);
   };
 
   // Calls GET on the host, which gets back a JSON string containing
@@ -274,67 +285,6 @@ var HttpPouch = function(opts, callback) {
       // Send the document to the callback
       call(callback, null, doc, xhr);
     });
-  };
-
-  // Get the view given by fun of the database given by host.
-  // fun is formatted in two parts separated by a '/'; the first
-  // part is the design and the second is the view.
-  api.query = function(fun, opts, callback) {
-    // If no options were given, set the callback to be the second parameter
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
-    // List of parameters to add to the PUT request
-    var params = [];
-
-    // If opts.reduce exists and is defined, then add it to the list
-    // of parameters.
-    // If reduce=false then the results are that of only the map function
-    // not the final result of map and reduce.
-    if (typeof opts.reduce !== 'undefined') {
-      params.push('reduce=' + opts.reduce);
-    }
-    if (typeof opts.include_docs !== 'undefined') {
-      params.push('include_docs=' + opts.include_docs);
-    }
-    if (typeof opts.limit !== 'undefined') {
-      params.push('limit=' + opts.limit);
-    }
-    if (typeof opts.descending !== 'undefined') {
-      params.push('descending=' + opts.descending);
-    }
-
-    // Format the list of parameters into a valid URI query string
-    params = params.join('&');
-    params = params === '' ? '' : '?' + params;
-
-    // We are referencing a query defined in the design doc
-    if (typeof fun === 'string') {
-      var parts = fun.split('/');
-      ajax({
-        auth: host.auth,
-        type:'GET',
-        url: genDBUrl(host, '_design/' + parts[0] + '/_view/' + parts[1] + params),
-      }, callback);
-      return;
-    }
-
-    // We are using a temporary view, terrible for performance but good for testing
-    var queryObject = JSON.stringify(fun, function(key, val) {
-      if (typeof val === 'function') {
-        return val + ''; // implicitly `toString` it
-      }
-      return val;
-    });
-
-    ajax({
-      auth: host.auth,
-      type:'POST',
-      url: genDBUrl(host, '_temp_view' + params),
-      data: queryObject
-    }, callback);
   };
 
   // Delete the document given by doc from the database given by host.
