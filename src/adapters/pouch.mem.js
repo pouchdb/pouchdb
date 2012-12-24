@@ -9,6 +9,8 @@ var pouchdir = '../'
   , Pouch = require(pouchdir + 'pouch.js')
   , PouchAdapter = require(pouchdir + 'pouch.adapter.js')
 
+require(pouchdir + 'deps/uuid.js');
+
 var call = Pouch.utils.call;
 
 var EventEmitter = require('events').EventEmitter
@@ -48,6 +50,10 @@ MemPouch.prototype = {
       call(callback, new Error('no metadata found:'+id));
     }
   },
+  writeMetadata: function(id, meta, callback) {
+    this.stores.meta[id] = meta;
+    call(callback, null);
+  },
   getSequence: function(seq, callback) {
     if (seq in this.stores.byseq) {
       call(callback, null, this.stores.byseq[seq]);
@@ -56,6 +62,10 @@ MemPouch.prototype = {
       call(callback, new Error('sequence not found:'+seq));
     }
   },
+  writeSequence: function(seq, doc, callback) {
+    this.stores.byseq[seq] = doc;
+    call(callback, null);
+  },
   getAttachment: function(digest, callback) {
     if (digest in this.stores.attachments) {
       call(callback, null, this.stores.attachments[digest])
@@ -63,18 +73,33 @@ MemPouch.prototype = {
     else {
       call(callback, new Error('attachment not found:'+digest));
     }
+  },
+  writeAttachment: function(digest, attachment, callback) {
+    this.stores.attachments[digest] = attachment;
+    call(callback, null);
+  },
+  getDocCount: function(callback) {
   }
 }
 
 var mempouch = function(opts, callback) {
   var backend = new MemPouch(opts)
-    , adapter = new PouchAdapter(backend)
+    , adapter = PouchAdapter(backend)
 
   adapter.open(function(err) {
-    call(callback, err);
+    call(callback, err, adapter);
   });
 
   return adapter;
+}
+
+mempouch.valid = function() {
+  return true;
+}
+mempouch.destroy = function(name, callback) {
+  delete STORES[name];
+  delete CHANGES[name];
+  call(callback, null);
 }
 
 Pouch.adapter('mem', mempouch);

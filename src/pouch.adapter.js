@@ -4,6 +4,7 @@
 
 var PouchAdapter = function(storage) {
   var update_seq = 0;
+  var doc_count = 0;
 
   var api = {
     open: function(callback) {
@@ -16,7 +17,12 @@ var PouchAdapter = function(storage) {
     id: function() {
     },
 
-    info: function() {
+    info: function(callback) {
+      return call(callback, null, {
+        name: storage.name,
+        doc_count: doc_count,
+        update_seq: update_seq
+      });
     },
 
     get: function(id, opts, callback) {
@@ -30,7 +36,7 @@ var PouchAdapter = function(storage) {
         return api.getAttachment(id, {decode: true}, callback);
       }
 
-      api.storage.getMetadata(id.docId, function(err, metadata) {
+      storage.getMetadata(id.docId, function(err, metadata) {
         if (err || !metadata || (isDeleted(metadata) && !opts.rev)) {
           return call(callback, Pouch.Errors.MISSING_DOC);
         }
@@ -39,7 +45,7 @@ var PouchAdapter = function(storage) {
           ? metadata.rev_map[opts.rev]
           : metadata.seq;
 
-        api.storage.getSequence(seq, function(err, doc) {
+        storage.getSequence(seq, function(err, doc) {
           doc._id = metadata.id;
           doc._rev = Pouch.utils.winningRev(metadata);
 
@@ -163,7 +169,235 @@ var PouchAdapter = function(storage) {
     allDocs: function(opts, callback) {
     },
 
-    bulkDocs: function(docs, opts, callback) {
+    bulkDocs: function(bulk, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+      if (!opts) {
+        opts = {};
+      }
+
+      if (!bulk || !bulk.docs || bulk.docs.length < 1) {
+        return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
+      }
+      if (!Array.isArray(bulk.docs)) {
+        return error(callback, new Error("docs should be an array of documents"));
+      }
+
+      var newEdits = opts.new_edits !== undefined ? opts.new_edits : true
+        , info = []
+        , docs = []
+        , results = []
+
+      // parse the docs and give each a sequence number
+      var userDocs = JSON.parse(JSON.stringify(bulk.docs));
+      info = userDocs.map(function(doc, i) {
+        var newDoc = Pouch.utils.parseDoc(doc, newEdits);
+        newDoc._bulk_seq = i;
+        if (newDoc.metadata && !newDoc.metadata.rev_map) {
+          newDoc.metadata.rev_map = {};
+        }
+        if (doc._deleted) {
+          if (!newDoc.metadata.deletions) {
+            newDoc.metadata.deletions = {};
+          }
+          newDoc.metadata.deletions[doc._rev.split('-')[1]] = true;
+        }
+
+        return newDoc;
+      });
+
+      // group multiple edits to the same document
+      info.forEach(function(info) {
+        if (info.error) {
+          return results.push(info);
+        }
+        if (!docs.length || info.metadata.id !== docs[docs.length-1].metadata.id) {
+          return docs.push(info);
+        }
+        results.push(makeErr(Pouch.Errors.REV_CONFLICT, info._bulk_seq));
+      });
+
+      processDocs();
+
+      function processDocs() {
+        if (docs.length === 0) {
+          return complete();
+        }
+        var currentDoc = docs.pop();
+        storage.getMetadata(currentDoc.metadata.id, function(err, oldDoc) {
+          if (err) { // && err.name == 'NotFoundError') {
+            insertDoc(currentDoc, processDocs);
+          }
+          else {
+            updateDoc(oldDoc, currentDoc, processDocs);
+          }
+        });
+      }
+
+      function insertDoc(doc, callback) {
+        // Can't insert new deleted documents
+        if ('was_delete' in opts && isDeleted(doc.metadata)) {
+          results.push(makeErr(Pouch.Errors.MISSING_DOC, doc._bulk_seq));
+          return callback();
+        }
+        doc_count++;
+        writeDoc(doc, callback);
+      }
+
+      function updateDoc(oldDoc, docInfo, callback) {
+        var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
+
+        var conflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
+          (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
+
+        if (conflict) {
+          results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
+          return call(callback);
+        }
+
+        docInfo.metadata.rev_tree = merged.tree;
+        docInfo.metadata.rev_map = oldDoc.rev_map;
+        writeDoc(docInfo, callback);
+      }
+
+      function writeDoc(doc, callback) {
+        var err = null;
+        var recv = 0;
+
+        doc.data._id = doc.metadata.id;
+
+        if (isDeleted(doc.metadata)) {
+          doc.data._deleted = true;
+        }
+
+        var attachments = doc.data._attachments
+          ? Object.keys(doc.data._attachments)
+          : [];
+        for (var i=0; i<attachments.length; i++) {
+          var key = attachments[i];
+          if (!doc.data._attachments[key].stub) {
+            var data = doc.data._attachments[key].data
+            // if data is an object, it's likely to actually be a Buffer that got JSON.stringified
+            if (typeof data === 'object') data = new Buffer(data);
+            var digest = 'md5-' + crypto.createHash('md5')
+                  .update(data || '')
+                  .digest('hex');
+            delete doc.data._attachments[key].data;
+            doc.data._attachments[key].digest = digest;
+            saveAttachment(doc, digest, data, function (err) {
+              recv++;
+              collectResults(err);
+            });
+          } else {
+            recv++;
+            collectResults();
+          }
+        }
+
+        if(!attachments.length) {
+          finish();
+        }
+
+        function collectResults(attachmentErr) {
+          if (!err) {
+            if (attachmentErr) {
+              err = attachmentErr;
+              call(callback, err);
+            } else if (recv == attachments.length) {
+              finish();
+            }
+          }
+        }
+
+        function finish() {
+          update_seq++;
+          doc.metadata.seq = doc.metadata.seq || update_seq;
+          doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
+
+          storage.writeSequence(doc.metadata.seq, doc.data, function(err) {
+            if (err) {
+              return console.error(err);
+            }
+
+            storage.writeMetadata(doc.metadata.id, doc.metadata, function(err) {
+              results.push(doc);
+              return call(callback, null);
+            });
+          });
+        }
+      }
+
+      function saveAttachment(docInfo, digest, data, callback) {
+        storage.getAttachment(digest, function(err, oldAtt) {
+          if (err && err.name !== 'NotFoundError') {
+            callback(err);
+            return console.error(err);
+          }
+
+          var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
+          var newAtt = {body: data};
+
+          if (oldAtt) {
+            if (oldAtt.refs) {
+              // only update references if this attachment already has them
+              // since we cannot migrate old style attachments here without
+              // doing a full db scan for references
+              newAtt.refs = oldAtt.refs;
+              newAtt.refs[ref] = true;
+            }
+          } else {
+            newAtt.refs = {}
+            newAtt.refs[ref] = true;
+          }
+
+          storage.writeAttachment(digest, newAtt, function(err) {
+            return call(callback, err);
+          });
+        });
+      }
+      function complete() {
+        var aresults = [];
+        results.sort(function(a, b) { return a._bulk_seq - b._bulk_seq });
+
+        results.forEach(function(result) {
+          delete result._bulk_seq;
+          if (result.error) {
+            return aresults.push(result);
+          }
+          var metadata = result.metadata
+            , rev = Pouch.utils.winningRev(metadata);
+
+          aresults.push({
+            ok: true,
+            id: metadata.id,
+            rev: rev,
+          });
+
+          if (/_local/.test(metadata.id)) {
+            return;
+          }
+
+          var change = {
+            id: metadata.id,
+            seq: metadata.seq,
+            changes: Pouch.utils.collectLeaves(metadata.rev_tree),
+            doc: result.data
+          }
+          change.doc._rev = rev;
+
+          //change_emitter.emit('change', change);
+        });
+
+        return call(callback, null, aresults);
+      }
+
+      function makeErr(err, seq) {
+        err._bulk_seq = seq;
+        return err;
+      }
+
     },
 
     revsDiff: function(req, opts, callback) {
