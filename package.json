@@ -29,9 +29,9 @@
         "assert": "*",
         "nano": "*",
         "send": "*",
-		    "grunt" : "*",
+		    "grunt" : "~0.3.17",
 		    "grunt-saucelabs" : "~1.2.0",
-		    "grunt-node-qunit" : "*"
+		    "grunt-node-qunit" : "~0.1.0"
   },
   "maintainers":[
         {
