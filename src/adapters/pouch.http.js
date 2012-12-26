@@ -562,15 +562,15 @@ var HttpPouch = function(opts, callback) {
       }
 
       // Get the changes
-      xhr = ajax(xhrOpts, function(err, res) {
-        callback(res);
-      });
+      xhr = ajax(xhrOpts, callback);
     };
 
     // If opts.since exists, get all the changes from the sequence
     // number given by opts.since. Otherwise, get all the changes
     // from the sequence number 0.
-    var fetched = function(res) {
+    var fetchTimeout = 10;
+    var fetchRetryCount = 0;
+    var fetched = function(err, res) {
       // If the result of the ajax call (res) contains changes (res.results)
       if (res && res.results) {
         // For each change
@@ -591,8 +591,15 @@ var HttpPouch = function(opts, callback) {
       }
 
       if (opts.continuous) {
-        // Call fetch again with the newest sequence number
-        fetch(last_seq, fetched);
+        // Increase retry delay exponentially as long as errors persist
+        if (err) fetchRetryCount += 1;
+        else fetchRetryCount = 0;
+        var timeoutMultiplier = 1 << fetchRetryCount;       // i.e. Math.pow(2, fetchRetryCount)
+        
+        // Queue a call to fetch again with the newest sequence number
+        setTimeout(function () {
+          fetch(last_seq, fetched);
+        }, fetchTimeout * timeoutMultiplier);
       } else {
         // We're done, call the callback
         call(opts.complete, null, res);
