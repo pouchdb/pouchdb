@@ -5,6 +5,12 @@ window.indexedDB = window.indexedDB ||
   window.mozIndexedDB ||
   window.webkitIndexedDB;
 
+// still needed for R/W transactions in Android Chrome. follow MDN example:
+// https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#transaction
+window.IDBTransaction = window.IDBTransaction ||
+  window.webkitIDBTransaction ||
+  { READ_WRITE: 'readwrite' };
+
 window.IDBKeyRange = window.IDBKeyRange ||
   window.webkitIDBKeyRange;
 
@@ -338,7 +344,7 @@ var IdbPouch = function(opts, callback) {
       }
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readwrite');
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], IDBTransaction.READ_WRITE);
     txn.onerror = idbError(callback);
     txn.ontimeout = idbError(callback);
     txn.oncomplete = complete;
