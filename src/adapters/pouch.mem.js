@@ -22,7 +22,7 @@ var STORES = {}
 
 function MemPouch(opts) {
   if (!this instanceof MemPouch)
-    return new MemPouch(opts, callback);
+    return new MemPouch(opts);
 
   this.name = opts.name;
   this.stores = STORES[this.name] || {meta: {}, byseq: [], attachments: {}}
@@ -39,6 +39,9 @@ function MemPouch(opts) {
 module.exports = MemPouch;
 
 MemPouch.prototype = {
+  id: function() {
+    return this.name;
+  },
   init: function(callback) {
     call(callback, null);
   },
@@ -49,6 +52,23 @@ MemPouch.prototype = {
     else {
       call(callback, new Error('no metadata found:'+id));
     }
+  },
+  getBulkMetadata: function(opts, callback) {
+    var results = []
+      , ids = [];
+    Object.keys(this.stores.meta).forEach(function(key) {
+      // skip keys that are outside of the requested range
+      if ((opts.startkey && key < opts.startkey)
+        || (opts.endkey && key > opts.endkey)) {
+          return;
+      }
+      ids.push(key);
+    });
+    ids.sort();
+    for(var i=0; i<ids.length; i++) {
+      results.push(this.stores.meta[ids[i]]);
+    }
+    call(callback, null, results);
   },
   writeMetadata: function(id, meta, callback) {
     this.stores.meta[id] = meta;

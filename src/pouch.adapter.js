@@ -11,15 +11,17 @@ var PouchAdapter = function(storage) {
       storage.init(callback);
     },
 
-    close: function() {
+    close: function(callback) {
+      return storage.close(callback);
     },
 
     id: function() {
+      return storage.id();
     },
 
     info: function(callback) {
       return call(callback, null, {
-        name: storage.name,
+        name: storage.id(),
         doc_count: doc_count,
         update_seq: update_seq
       });
@@ -102,6 +104,40 @@ var PouchAdapter = function(storage) {
     },
 
     getAttachment: function(id, opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+
+      id = id.docId ? id : Pouch.utils.parseDocId(id);
+      if (id.attachmentId === '') {
+        return api.get(id, opts, callback);
+      }
+
+      storage.readMetadata(id.docId, function(err, metadata) {
+        if (err) {
+          return call(callback, err);
+        }
+        storage.readSequence(metadata.seq, function(err, doc) {
+          if (err) {
+            return call(callback, err);
+          }
+          var digest = doc._attachments[id.attachmendId].digest
+            , type = doc._attachments[id.attachmentId].content_type
+
+          storage.readAttachment(digest, function(err, attachment) {
+            if (err) {
+              return call(callback, err);
+            }
+
+            var data = opts.decode
+              ? Pouch.utils.atob(attach.body.toString())
+              : attach.body.toString();
+
+            call(callback, null, data);
+          });
+        });
+      });
     },
 
     put: function(doc, opts, callback) {
@@ -167,6 +203,56 @@ var PouchAdapter = function(storage) {
     },
 
     allDocs: function(opts, callback) {
+      if (opts instanceof Function) {
+        callback = opts;
+        opts = {};
+      }
+
+      storage.getBulkMetadata(opts, function(err, metadatas) {
+        if (err) return call(callback, err);
+        var processed = 0;
+        var results = {total_rows:0, rows: []};
+        if (metadatas.length == 0) {
+          return call(callback, null, results);
+        }
+        function addResult(result) {
+          processed++;
+          results.rows.push(result);
+          if (processed === metadatas.length) {
+            results.total_rows = results.rows.length;
+            return call(callback, null, results);
+          }
+        }
+
+        metadatas.forEach(function(metadata) {
+          if (/^_local/.test(metadata.id)) {
+            processed++;
+            return;
+          }
+          if (!isDeleted(metadata)) {
+            var result = {
+              id: metadata.id,
+              key: metadata.id,
+              value: {
+                rev: Pouch.utils.winningRev(metadata)
+              }
+            }
+            if (opts.include_docs) {
+              storage.getSequence(metadata.seq, function(err, doc) {
+                result.doc = doc;
+                result.doc._rev = result.value.rev;
+                if (opts.conflicts) {
+                  result.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+                }
+                addResult(result);
+              });
+            }
+            else {
+              addResult(result);
+            }
+          }
+        });
+      });
     },
 
     bulkDocs: function(bulk, opts, callback) {
