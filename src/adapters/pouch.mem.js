@@ -25,7 +25,7 @@ function MemPouch(opts) {
     return new MemPouch(opts);
 
   this.name = opts.name;
-  this.stores = STORES[this.name] || {meta: {}, byseq: [], attachments: {}}
+  this.stores = STORES[this.name] || {max_seq:0, meta: {}, byseq: [], attachments: {}}
   this.changeEmitter = CHANGES[this.name] || new EventEmitter();
 
   if (!(this.name in STORES)) {
@@ -47,7 +47,7 @@ MemPouch.prototype = {
   },
   getMetadata: function(id, callback) {
     if (id in this.stores.meta) {
-      call(callback, null, this.stores.meta[id])
+      call(callback, null, JSON.parse(this.stores.meta[id]));
     }
     else {
       call(callback, new Error('no metadata found:'+id));
@@ -66,24 +66,35 @@ MemPouch.prototype = {
     });
     ids.sort();
     for(var i=0; i<ids.length; i++) {
-      results.push(this.stores.meta[ids[i]]);
+      results.push(JSON.parse(this.stores.meta[ids[i]]));
     }
     call(callback, null, results);
   },
   writeMetadata: function(id, meta, callback) {
-    this.stores.meta[id] = meta;
+    this.stores.meta[id] = JSON.stringify(meta);
     call(callback, null);
+  },
+  getUpdateSeq: function(callback) {
+    call(callback, null, this.stores.max_seq);
   },
   getSequence: function(seq, callback) {
     if (seq in this.stores.byseq) {
-      call(callback, null, this.stores.byseq[seq]);
+      call(callback, null, JSON.parse(this.stores.byseq[seq]));
     }
     else {
       call(callback, new Error('sequence not found:'+seq));
     }
   },
+  getBulkSequence: function(opts, callback) {
+    var start = opts.seq;
+    var seqs = this.stores.byseq.slice(start);
+    call(callback, null, seqs.map(JSON.parse));
+  },
   writeSequence: function(seq, doc, callback) {
-    this.stores.byseq[seq] = doc;
+    if (seq > this.stores.max_seq) {
+      this.stores.max_seq = seq;
+    }
+    this.stores.byseq[seq] = JSON.stringify(doc);
     call(callback, null);
   },
   getAttachment: function(digest, callback) {

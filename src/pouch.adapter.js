@@ -8,7 +8,14 @@ var PouchAdapter = function(storage) {
 
   var api = {
     open: function(callback) {
-      storage.init(callback);
+      storage.init(function(err) {
+        if (err) return call(callback, err);
+        storage.getUpdateSeq(function(err, seq) {
+          if (err) return call(callback, err);
+          update_seq = seq;
+          call(callback);
+        });
+      });
     },
 
     close: function(callback) {
@@ -229,7 +236,9 @@ var PouchAdapter = function(storage) {
             processed++;
             return;
           }
-          if (!isDeleted(metadata)) {
+          if (isDeleted(metadata)) {
+            processed++;
+          } else {
             var result = {
               id: metadata.id,
               key: metadata.id,
@@ -399,7 +408,7 @@ var PouchAdapter = function(storage) {
 
         function finish() {
           update_seq++;
-          doc.metadata.seq = doc.metadata.seq || update_seq;
+          doc.metadata.seq = update_seq;
           doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
 
           storage.writeSequence(doc.metadata.seq, doc.data, function(err) {
