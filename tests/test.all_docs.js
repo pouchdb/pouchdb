@@ -14,7 +14,7 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
-  adapters = ['leveldb-1', 'http-1'];
+  adapters = ['mem-1', 'leveldb-1', 'http-1'];
 }
 
 adapters.map(function(adapter) {
@@ -73,6 +73,7 @@ adapters.map(function(adapter) {
                   descending: true,
                   complete: function(err, changes) {
                     ids = ["2","1","3","0"];
+                    ok(changes.results.length === ids.length, 'correct number of changes');
                     changes.results.forEach(function(row, i) {
                       ok(row.id === ids[i], 'descending=true');
                     });

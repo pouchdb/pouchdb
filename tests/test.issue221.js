@@ -13,7 +13,8 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || this.utils[k];
   }
   adapters = [
-    ['leveldb-1', 'http-1']
+    ['leveldb-1', 'http-1'],
+    ['mem-1', 'http-1']
   ]
   qunit = QUnit.module;
 }
