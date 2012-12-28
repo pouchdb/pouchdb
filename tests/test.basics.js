@@ -1,5 +1,7 @@
-var adapters = ['idb-1', 'http-1']
-  , qunit = module;
+"use strict";
+
+var adapters = ['http-1', 'local-1'];
+var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
   this.Pouch = require('../src/pouch.js');

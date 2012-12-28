@@ -849,7 +849,7 @@ LevelPouch = module.exports = function(opts, callback) {
 }
 
 LevelPouch.valid = function() {
-  return true;
+  return typeof module !== undefined && module.exports;
 }
 
 // close and delete open leveldb stores

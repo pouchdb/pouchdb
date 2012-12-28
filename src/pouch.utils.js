@@ -143,7 +143,6 @@ var parseDoc = function(doc, newEdits) {
     error = Pouch.Errors.RESERVED_ID;
   }
 
-
   doc._id = decodeURIComponent(doc._id);
   doc._rev = [nRevNum, newRevId].join('-');
 
