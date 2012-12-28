@@ -145,6 +145,7 @@ Pouch.Errors = {
 if (typeof module !== 'undefined' && module.exports) {
   global.Pouch = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
+  Pouch.changes = require('./pouch.changes.js');
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   Pouch.utils = require('./pouch.utils.js');
@@ -152,7 +153,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
   // load adapters known to work under node
   var adapters = ['leveldb', 'mem', 'http'];
-  adapters.map(function(adapter) {
+  adapters.forEach(function(adapter) {
     var adapter_path = './adapters/pouch.'+adapter+'.js';
     require(adapter_path);
   });
