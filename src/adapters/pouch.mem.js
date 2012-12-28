@@ -15,10 +15,8 @@ var call = Pouch.utils.call;
 
 var EventEmitter = require('events').EventEmitter
 
-// global cache of stores and change EventEmitter objects so opening the same
-// db twice uses the same objects
+// global cache of stores so that opening the same db twice uses the same objects
 var STORES = {}
-  , CHANGES = {}
 
 function MemPouch(opts) {
   if (!this instanceof MemPouch)
@@ -26,13 +24,9 @@ function MemPouch(opts) {
 
   this.name = opts.name;
   this.stores = STORES[this.name] || {max_seq:0, meta: {}, byseq: [], attachments: {}}
-  this.changeEmitter = CHANGES[this.name] || new EventEmitter();
 
   if (!(this.name in STORES)) {
     STORES[this.name] = this.stores;
-  }
-  if (!(this.name in CHANGES)) {
-    CHANGES[this.name] = this.changeEmitter;
   }
 }
 
@@ -86,8 +80,10 @@ MemPouch.prototype = {
     }
   },
   getBulkSequence: function(opts, callback) {
-    var start = opts.seq;
-    var seqs = this.stores.byseq.slice(start);
+    var seqs = this.stores.byseq.slice(opts.since);
+    if (opts.descending) {
+      seqs.reverse();
+    }
     call(callback, null, seqs.map(JSON.parse));
   },
   writeSequence: function(seq, doc, callback) {
@@ -129,7 +125,6 @@ mempouch.valid = function() {
 }
 mempouch.destroy = function(name, callback) {
   delete STORES[name];
-  delete CHANGES[name];
   call(callback, null);
 }
 

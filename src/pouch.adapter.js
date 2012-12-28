@@ -482,7 +482,7 @@ var PouchAdapter = function(storage) {
           }
           change.doc._rev = rev;
 
-          //change_emitter.emit('change', change);
+          Pouch.changes.emitChange(api.id(), change);
         });
 
         return call(callback, null, aresults);
@@ -529,6 +529,124 @@ var PouchAdapter = function(storage) {
     },
 
     changes: function(opts, callback) {
+      if (opts instanceof Function && callback === undefined) {
+        callback = opts;
+        opts = {};
+      }
+      if (callback) {
+        opts.complete = callback;
+      }
+      if (!opts.seq) {
+        opts.seq = 1;
+      }
+      if (opts.since) {
+        opts.seq = opts.since;
+      }
+
+      var descending = 'descending' in opts ? opts.descending : false
+        , results = []
+        , listenerId = Math.uuid();
+
+      if (opts.filter && typeof opts.filter === 'string') {
+        var filter = opts.filter.split('/')
+          , ddoc = filter[0]
+          , filtername = filter[1]
+        if (typeof filtername !== 'string' || filtername === '') {
+          return call(opts.complete, new Error('Invalid filtername:'+opts.filter));
+        }
+        api.get('_design/'+ddoc, function(err, design) {
+          if (err) {
+            return call(opts.complete, err);
+          }
+          var filter = eval('(function() { return ' +
+                            design.filters[filtername] + '})()');
+          opts.filter = filter;
+          fetchChanges();
+        });
+      }
+      else {
+        fetchChanges();
+      }
+
+      function fetchChanges() {
+        var seq_opts = {
+          descending: descending,
+          since: opts.seq
+        }
+
+        if (opts.continuous && !opts.cancelled) {
+          Pouch.changes.addListener(api.id(), listenerId, opts);
+        }
+
+        storage.getBulkSequence(seq_opts, function(err, seqs) {
+          var processed = 0
+            , results = []
+            , resultIndices = {}
+
+          function addChange(change) {
+            processed++;
+
+            if (opts.filter && !opts.filter(change.doc)) {
+              return;
+            }
+            if (!opts.include_docs) {
+              delete change.doc;
+            }
+            call(opts.onChange, change);
+
+            var changeIndex = resultIndices[change.id]
+            if (changeIndex !== undefined) {
+              console.log(results[changeIndex], change);
+              results[changeIndex] = null;
+            }
+            results.push(change);
+            resultIndices[change.id] = results.length - 1;
+
+            // finished!
+            if (processed === seqs.length) {
+              // remove nulls resulting from the de-duping process
+              results = results.filter(function(doc) {
+                return doc !== null;
+              });
+              call(opts.complete, null, {results: results});
+            }
+          }
+
+          seqs.forEach(function(doc) {
+            storage.getMetadata(doc._id, function(err, metadata) {
+              if (/^_local/.test(metadata.id)) {
+                processed++;
+                return;
+              }
+
+              var change = {
+                id: metadata.id,
+                seq: metadata.seq,
+                changes: Pouch.utils.collectLeaves(metadata.rev_tree),
+                doc: doc
+              }
+              change.doc._rev = Pouch.utils.winningRev(metadata);
+
+              if (isDeleted(metadata)) {
+                change.deleted = true;
+              }
+              if (opts.conflicts) {
+                change.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+              }
+
+              addChange(change);
+            });
+          });
+        });
+      }
+      if (opts.continuous) {
+        return {
+          cancel: function() {
+            opts.cancelled = true;
+            Pouch.changes.removeListener(api.id(), listenerId);
+          }
+        }
+      }
     },
 
     query: function(fun, opts, callback) {
