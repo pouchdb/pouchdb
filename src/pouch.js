@@ -53,7 +53,6 @@ Pouch.plugins = {};
 Pouch.parseAdapter = function(name) {
 
   var match = name.match(/([a-z\-]*):\/\/(.*)/);
-
   if (match) {
     // the http adapter expects the fully qualified name
     name = /http(s?)/.test(match[1]) ? match[1] + '://' + match[2] : match[2];
@@ -68,9 +67,7 @@ Pouch.parseAdapter = function(name) {
   // valid one, we will probably add some bias to this (ie http should be last
   // fallback)
   for (var i in Pouch.adapters) {
-    if (Pouch.adapters[i].valid()) {
-      return {name: name, adapter: i};
-    }
+    return {name: name, adapter: i};
   }
   throw 'No Valid Adapter.';
 };
@@ -84,8 +81,14 @@ Pouch.destroy = function(name, callback) {
   Pouch.adapters[opts.adapter].destroy(opts.name, callback);
 };
 
-Pouch.adapter = function(id, obj) {
-  Pouch.adapters[id] = obj;
+Pouch.adapter = function (id, obj) {
+  if (obj.valid()) {
+    Pouch.adapters[id] = obj;
+  }
+};
+
+Pouch.getValidAdapters = function() {
+  return Object.keys(Pouch.adapters);
 };
 
 Pouch.plugin = function(id, obj) {
@@ -138,7 +141,7 @@ Pouch.Errors = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  global['Pouch'] = Pouch;
+  global.Pouch = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
@@ -152,6 +155,4 @@ if (typeof module !== 'undefined' && module.exports) {
     require(adapter_path);
   });
   require('./plugins/pouchdb.mapreduce.js');
-} else {
-  this.Pouch = Pouch;
 }
