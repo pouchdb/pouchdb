@@ -36,6 +36,9 @@ MemPouch.prototype = {
   id: function() {
     return this.name;
   },
+  type: function() {
+    return 'mem';
+  },
   init: function(callback) {
     call(callback, null);
   },

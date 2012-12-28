@@ -26,6 +26,10 @@ var PouchAdapter = function(storage) {
       return storage.id();
     },
 
+    type: function() {
+      return storage.type();
+    },
+
     info: function(callback) {
       return call(callback, null, {
         name: storage.id(),
@@ -223,8 +227,11 @@ var PouchAdapter = function(storage) {
           return call(callback, null, results);
         }
         function addResult(result) {
-          processed++;
           results.rows.push(result);
+          return checkFinished();
+        }
+        function checkFinished() {
+          processed++;
           if (processed === metadatas.length) {
             results.total_rows = results.rows.length;
             return call(callback, null, results);
@@ -233,11 +240,10 @@ var PouchAdapter = function(storage) {
 
         metadatas.forEach(function(metadata) {
           if (/^_local/.test(metadata.id)) {
-            processed++;
-            return;
+            return checkFinished();
           }
           if (isDeleted(metadata)) {
-            processed++;
+            return checkFinished();
           } else {
             var result = {
               id: metadata.id,
@@ -583,11 +589,15 @@ var PouchAdapter = function(storage) {
             , results = []
             , resultIndices = {}
 
+          if (seqs.length == 0) {
+            return call(opts.complete, null, results);
+          }
+
           function addChange(change) {
             processed++;
 
             if (opts.filter && !opts.filter(change.doc)) {
-              return;
+              return checkFinished();
             }
             if (!opts.include_docs) {
               delete change.doc;
@@ -596,13 +606,14 @@ var PouchAdapter = function(storage) {
 
             var changeIndex = resultIndices[change.id]
             if (changeIndex !== undefined) {
-              console.log(results[changeIndex], change);
               results[changeIndex] = null;
             }
             results.push(change);
             resultIndices[change.id] = results.length - 1;
 
-            // finished!
+            return checkFinished();
+          }
+          function checkFinished() {
             if (processed === seqs.length) {
               // remove nulls resulting from the de-duping process
               results = results.filter(function(doc) {
@@ -616,7 +627,7 @@ var PouchAdapter = function(storage) {
             storage.getMetadata(doc._id, function(err, metadata) {
               if (/^_local/.test(metadata.id)) {
                 processed++;
-                return;
+                return checkFinished();
               }
 
               var change = {
@@ -647,9 +658,6 @@ var PouchAdapter = function(storage) {
           }
         }
       }
-    },
-
-    query: function(fun, opts, callback) {
     },
 
     replicate : {
