@@ -67,8 +67,8 @@ var testId = uuid();
 
 function generateAdapterUrl(id) {
   var opt = id.split('-');
-  if (opt[0] === 'idb') {
-    return 'idb://testdb_' + testId + '_' + opt[1];
+  if (opt[0] === 'local') {
+    return 'testdb_' + testId + '_' + opt[1];
   }
   if (opt[0] === 'http') {
     return 'http://localhost:2020/testdb_' + testId + '_' + opt[1];

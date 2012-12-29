@@ -1,7 +1,7 @@
 // Porting tests from Apache CouchDB bulk docs tests
 // https://github.com/apache/couchdb/blob/master/share/www/script/test/bulk_docs.js
 
-var adapters = ['idb-1', 'http-1']
+var adapters = ['local-1', 'http-1']
   , qunit = module;
 
 if (typeof module !== undefined && module.exports) {

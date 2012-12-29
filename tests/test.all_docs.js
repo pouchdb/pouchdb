@@ -1,5 +1,7 @@
-var adapters = ['idb-1', 'http-1']
-  , qunit = module;
+"use strict";
+
+var adapters = ['http-1', 'local-1'];
+var qunit = module;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -23,30 +25,28 @@ adapters.map(function(adapter) {
     }
   });
 
+  var origDocs = [
+    {_id:"0",a:1,b:1},
+    {_id:"3",a:4,b:16},
+    {_id:"1",a:2,b:4},
+    {_id:"2",a:3,b:9}
+  ];
+
+  function writeDocs(db, docs, callback) {
+    if (!docs.length) {
+      return callback();
+    }
+    var doc = docs.shift();
+    db.put(doc, function(err, doc) {
+      ok(doc.ok, 'docwrite returned ok');
+      writeDocs(db, docs, callback);
+    });
+  }
+
   asyncTest('Testing all docs', function() {
 
-    var db;
-    var docs = [
-      {_id:"0",a:1,b:1},
-      {_id:"3",a:4,b:16},
-      {_id:"1",a:2,b:4},
-      {_id:"2",a:3,b:9}
-    ];
-
-    function writeDocs(callback) {
-      if (!docs.length) {
-        return callback();
-      }
-      var doc = docs.shift();
-      db.put(doc, function(err, doc) {
-        ok(doc.ok, 'docwrite returned ok');
-        writeDocs(callback);
-      });
-    }
-
-    initTestDB(this.name, function(err, _db) {
-      db = _db;
-      writeDocs(function() {
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.allDocs(function(err, result) {
           var rows = result.rows;
           ok(result.total_rows === 4, 'correct number of results');
@@ -83,20 +83,17 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing deleting in changes', function() {
-    Pouch(this.name, function(err, db) {
-      if (err) {
-        console.error(err);
-        ok(false, 'failed to open database');
-        return start();
-      }
-      db.get('1', function(err, doc) {
-        db.remove(doc, function(err, deleted) {
-          ok(deleted.ok, 'deleted');
-          db.changes(function(err, changes) {
-            ok(changes.results.length == 4);
-            ok(changes.results[3].id == "1");
-            ok(changes.results[3].deleted);
-            start();
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        db.get('1', function(err, doc) {
+          db.remove(doc, function(err, deleted) {
+            ok(deleted.ok, 'deleted');
+            db.changes(function(err, changes) {
+              ok(changes.results.length == 4);
+              ok(changes.results[3].id == "1");
+              ok(changes.results[3].deleted);
+              start();
+            });
           });
         });
       });
@@ -166,9 +163,9 @@ adapters.map(function(adapter) {
                  'correct winning revision');
               equal("3", changes.results[3].doc._id, 'correct doc id');
               equal(winRev._rev, changes.results[3].doc._rev,
-                 'include doc has correct rev');
+                    'include doc has correct rev');
               equal(true, changes.results[3].doc._conflicts instanceof Array,
-                 'include docs contains conflicts');
+                    'include docs contains conflicts');
               ok(changes.results[3].doc._conflicts &&
                  2 === changes.results[3].doc._conflicts.length,
                  'correct number of changes');
@@ -195,7 +192,7 @@ adapters.map(function(adapter) {
       var docs = {docs: [{_id: "Z", foo: "Z"}, {_id: "a", foo: "a"}]};
       db.bulkDocs(docs, function(err, res) {
         db.allDocs({startkey: 'Z', endkey: 'Z'}, function(err, result) {
-          ok(result.rows.length === 1);
+          equal(result.rows.length, 1, 'Exclude a result');
           start();
         });
       });

@@ -11,7 +11,7 @@ var srcFiles = [
   "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
   "src/pouch.replicate.js", "src/pouch.utils.js",
   "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js",
-  "src/plugins/pouchdb.mapreduce.js"
+  "src/adapters/pouch.websql.js", "src/plugins/pouchdb.mapreduce.js"
 ];
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
@@ -28,6 +28,11 @@ var browserConfig = [{
   version: '17',
   platform: 'Windows 2003',
   name: 'win2003/firefox'
+}, {
+  browserName: 'opera',
+  version: '12',
+  platform: 'Windows 2008',
+  name: 'win2008/opera'
 }];
 
 module.exports = function(grunt) {

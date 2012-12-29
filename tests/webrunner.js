@@ -35,6 +35,7 @@ var sourceFiles = {
           '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
+          '../src/adapters/pouch.websql.js',
           '../src/plugins/pouchdb.mapreduce.js'],
   'release': ['../pouch.alpha.js'],
   'release-min': ['../pouch.alpha.min.js']
@@ -71,6 +72,7 @@ function asyncLoadScript(url, callback) {
 }
 
 function startQUnit() {
+  QUnit.config.reorder = false;
   QUnit.begin = function() {
     console.log('running!!!');
   };

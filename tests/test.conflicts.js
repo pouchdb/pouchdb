@@ -1,5 +1,7 @@
-var adapters = ['idb-1', 'http-1']
-  , qunit = module;
+"use strict";
+
+var adapters = ['http-1', 'local-1'];
+var qunit = module;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
