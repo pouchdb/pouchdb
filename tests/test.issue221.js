@@ -1,5 +1,5 @@
 var adapters = [
-    ['idb-1', 'http-1']
+    ['local-1', 'http-1']
   ]
   , qunit = module;
 

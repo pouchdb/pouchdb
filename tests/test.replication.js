@@ -1,12 +1,12 @@
 var adapters = [
-      ['idb-1', 'http-1'],
+      ['local-1', 'http-1'],
       ['http-1', 'http-2'],
-      ['http-1', 'idb-1'],
-      ['idb-1', 'idb-2']]
+      ['http-1', 'local-1'],
+      ['local-1', 'local-2']]
   , qunit = module;
 
-var downAdapters = ['idb-1'];
-var deletedDocAdapters = [['idb-1', 'http-1']];
+var downAdapters = ['local-1'];
+var deletedDocAdapters = [['local-1', 'http-1']];
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -135,8 +135,8 @@ adapters.map(function(adapters) {
           ok(result.docs_written === docs.length, 'correct # docs written');
           db.replicate.from(self.remote, function(err, result) {
             ok(result.ok, 'replication was ok');
-            ok(result.docs_written === 0, 'correct # docs written');
-            ok(result.docs_read === 0, 'no docs read');
+            equal(result.docs_written, 0, 'correct # docs written');
+            equal(result.docs_read, 0, 'no docs read');
             start();
           });
         });
@@ -160,7 +160,7 @@ adapters.map(function(adapters) {
             remote.put(doc, {}, function(err, results) {
               db.replicate.from(self.remote, function(err, result) {
                 ok(result.ok, 'replication was ok');
-                ok(result.docs_written === 1, 'correct # docs written');
+                equal(result.docs_written, 1, 'correct # docs written');
                 start();
               });
             });
@@ -480,7 +480,7 @@ downAdapters.map(function(adapter) {
   asyncTest("replicate from down server test", function (){
     expect(1);
     initTestDB(this.name, function(err, db) {
-      db.replicate.to('http://10.1.1.1:1234/store', function (err, changes) {
+      db.replicate.to('http://infiniterequest.com', function (err, changes) {
         ok(err);
         start();
       });

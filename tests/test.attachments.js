@@ -1,14 +1,8 @@
-/*
- * to run tests (from pouchdb root dir)
- * $ qunit -t ./tests/test.attachments.js \
-        -d ./src/pouch.js ./tests/test.utils.js \
-        -c ./src/adapters/pouch.leveldb.js
- */
-var adapters = ['idb-1', 'http-1']
-  , repl_adapters = [['idb-1', 'http-1'],
+var adapters = ['local-1', 'http-1']
+  , repl_adapters = [['local-1', 'http-1'],
          ['http-1', 'http-2'],
-         ['http-1', 'idb-1'],
-         ['idb-1', 'idb-2']]
+         ['http-1', 'local-1'],
+         ['local-1', 'local-2']]
   , qunit = module;
 
 // if we are running under node.js, set things up
