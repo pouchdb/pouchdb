@@ -553,7 +553,8 @@ var HttpPouch = function(opts, callback) {
       // Set the options for the ajax call
       var xhrOpts = {
         auth: host.auth, type:'GET',
-        url: genDBUrl(host, '_changes' + params + '&since=' + since)
+        url: genDBUrl(host, '_changes' + params + '&since=' + since),
+        timeout: null          // _changes can take a long time to generate, especially when filtered
       };
       last_seq = since;
 
