@@ -37,6 +37,9 @@ var MapReduce = function(db) {
       if (options.include_docs) {
         viewRow.doc = current.doc;
       }
+      if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
+      if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
+      if (options.key && Pouch.collate(key, options.key) != 0) return;
       results.push(viewRow);
     };
 
@@ -105,6 +108,15 @@ var MapReduce = function(db) {
     }
     if (typeof opts.descending !== 'undefined') {
       params.push('descending=' + opts.descending);
+    }
+    if (typeof opts.startkey !== 'undefined') {
+      params.push('startkey=' + encodeURIComponent(JSON.stringify(opts.startkey)));
+    }
+    if (typeof opts.endkey !== 'undefined') {
+      params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));
+    }
+    if (typeof opts.key !== 'undefined') {
+      params.push('key=' + encodeURIComponent(JSON.stringify(opts.key)));
     }
 
     // Format the list of parameters into a valid URI query string

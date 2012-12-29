@@ -48,6 +48,46 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test opts.startkey/opts.endkey", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key4'},{key: 'key5'}]}, {}, function() {
+        var queryFun = {
+          map: function(doc) { emit(doc.key, doc); }
+        };
+        db.query(queryFun, {reduce: false, startkey: 'key2'}, function(_, res) {
+          equal(res.rows.length, 4, 'Startkey is inclusive');
+          db.query(queryFun, {reduce: false, endkey: 'key3'}, function(_, res) {
+            equal(res.rows.length, 3, 'Endkey is inclusive');
+            db.query(queryFun, {reduce: false, startkey: 'key2', endkey: 'key3'}, function(_, res) {
+              equal(res.rows.length, 2, 'Startkey and endkey together');
+              db.query(queryFun, {reduce: false, startkey: 'key4', endkey: 'key4'}, function(_, res) {
+                equal(res.rows.length, 1, 'Startkey=endkey');
+                start();
+              })
+            })
+          })
+        })
+      });
+    });
+  });
+
+  asyncTest("Test opts.key", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key3'}]}, {}, function() {
+        var queryFun = {
+          map: function(doc) { emit(doc.key, doc); }
+        };
+        db.query(queryFun, {reduce: false, key: 'key2'}, function(_, res) {
+          equal(res.rows.length, 1, 'Doc with key');
+          db.query(queryFun, {reduce: false, key: 'key3'}, function(_, res) {
+            equal(res.rows.length, 2, 'Multiple docs with key');
+            start();
+          })
+        })
+      });
+    });
+  });
+
   asyncTest("Test basic view collation", function() {
 
     var values = [];
