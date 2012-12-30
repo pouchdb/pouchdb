@@ -596,10 +596,16 @@ var HttpPouch = function(opts, callback) {
         else fetchRetryCount = 0;
         var timeoutMultiplier = 1 << fetchRetryCount;       // i.e. Math.pow(2, fetchRetryCount)
         
+        var retryWait = fetchTimeout * timeoutMultiplier;
+        var maximumWait = opts.maximumWait || 30000;
+        if (retryWait > maximumWait) {
+          call(opts.complete, err || Pouch.Errors.UNKNOWN_ERROR, null);
+        }
+        
         // Queue a call to fetch again with the newest sequence number
         setTimeout(function () {
           fetch(last_seq, fetched);
-        }, fetchTimeout * timeoutMultiplier);
+        }, retryWait);
       } else {
         // We're done, call the callback
         call(opts.complete, null, res);
