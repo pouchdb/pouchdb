@@ -606,7 +606,6 @@ var PouchAdapter = function(storage) {
             if (!opts.include_docs) {
               delete change.doc;
             }
-            call(opts.onChange, change);
 
             var changeIndex = resultIndices[change.id]
             if (changeIndex !== undefined) {
@@ -620,8 +619,12 @@ var PouchAdapter = function(storage) {
           function checkFinished() {
             if (processed === seqs.length) {
               // remove nulls resulting from the de-duping process
-              results = results.filter(function(doc) {
-                return doc !== null;
+              results = results.filter(function(change) {
+                if (change !== null) {
+                  call(opts.onChange, change);
+                  return true;
+                }
+                return false;
               });
               call(opts.complete, null, {results: results});
             }
