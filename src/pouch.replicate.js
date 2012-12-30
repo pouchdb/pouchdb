@@ -43,6 +43,12 @@ if (typeof module !== 'undefined' && module.exports) {
           var diff = {};
           diff[change.id] = change.changes.map(function(x) { return x.rev; });
           target.revsDiff(diff, function(err, diffs) {
+            if (err) {
+              if (continuous)
+                replicateRet.cancel();
+              call(callback, err, null);
+              return;
+            }
             if (Object.keys(diffs).length === 0) {
               pending--;
               isCompleted();
