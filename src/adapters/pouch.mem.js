@@ -83,7 +83,7 @@ MemPouch.prototype = {
     }
   },
   getBulkSequence: function(opts, callback) {
-    var seqs = this.stores.byseq.slice(opts.since);
+    var seqs = this.stores.byseq.slice(opts.since + 1);
     if (opts.descending) {
       seqs.reverse();
     }

@@ -547,7 +547,7 @@ var PouchAdapter = function(storage) {
         opts.complete = callback;
       }
       if (!opts.seq) {
-        opts.seq = 1;
+        opts.seq = 0;
       }
       if (opts.since) {
         opts.seq = opts.since;
