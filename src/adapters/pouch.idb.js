@@ -59,7 +59,8 @@ var IdbPouch = function(opts, callback) {
   var api = {};
   var idb = null;
 
-  console.info(name + ': Open Database');
+  if (Pouch.DEBUG)
+    console.log(name + ': Open Database');
 
   // TODO: before we release, make sure we write upgrade needed
   // in a way that supports a future upgrade path
@@ -268,7 +269,8 @@ var IdbPouch = function(opts, callback) {
       function finish() {
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
-          console.info(name + ': Wrote Document ', docInfo.metadata.id);
+          if (Pouch.DEBUG)
+            console.log(name + ': Wrote Document ', docInfo.metadata.id);
           docInfo.metadata.seq = e.target.result;
           // Current _rev is calculated from _rev_tree on read
           delete docInfo.metadata.rev;
@@ -706,7 +708,8 @@ var IdbPouch = function(opts, callback) {
       opts.seq = opts.since;
     }
 
-    console.info(name + ': Start Changes Feed: continuous=' + opts.continuous);
+    if (Pouch.DEBUG)
+      console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
@@ -810,7 +813,8 @@ var IdbPouch = function(opts, callback) {
     if (opts.continuous) {
       return {
         cancel: function() {
-          console.info(name + ': Cancel Changes Feed');
+          if (Pouch.DEBUG)
+            console.log(name + ': Cancel Changes Feed');
           opts.cancelled = true;
           IdbPouch.Changes.removeListener(name, id);
         }
@@ -874,7 +878,8 @@ var IdbPouch = function(opts, callback) {
               };
               if (!entryIsReferenced){
                 entries[i].remove(function() {
-                  console.info("Removed orphaned attachment: "+entries[i].name);
+                  if (Pouch.DEBUG)
+                    console.log("Removed orphaned attachment: "+entries[i].name);
                 }, fileErrorHandler);
               }
             };
@@ -903,7 +908,8 @@ var IdbPouch = function(opts, callback) {
         newQuota=2*currentQuota; //double the quota when we hit 90% usage
       }
 
-      console.info("Current file quota: "+currentQuota+", current usage:"+currentUsage+", new quota will be: "+newQuota);
+      if (Pouch.DEBUG)
+        console.log("Current file quota: "+currentQuota+", current usage:"+currentUsage+", new quota will be: "+newQuota);
 
       //Ask for file quota. This does nothing if the proper quota size has already been granted.
       window.storageInfo.requestQuota(window.PERSISTENT, newQuota, function(grantedBytes) {
@@ -912,10 +918,11 @@ var IdbPouch = function(opts, callback) {
             fs.root.getFile(digest, {create: true}, function(fileEntry) {
               fileEntry.createWriter(function(fileWriter) {
                 fileWriter.onwriteend = function(e) {
-                  console.info('Wrote attachment');
+                  if (Pouch.DEBUG)
+                    console.log('Wrote attachment');
                 };
                 fileWriter.onerror = function(e) {
-                  console.info('File write failed: ' + e.toString());
+                  console.error('File write failed: ' + e.toString());
                 };
                 var blob = new Blob([data], {type: type});
                 fileWriter.write(blob);
@@ -935,7 +942,8 @@ var IdbPouch = function(opts, callback) {
             var reader = new FileReader();
             reader.onloadend = function(e) {
               data = this.result;
-              console.info("Read attachment");
+              if (Pouch.DEBUG)
+                console.log("Read attachment");
               callback(data);
             };
             reader.readAsBinaryString(file);
@@ -961,14 +969,14 @@ var IdbPouch = function(opts, callback) {
 
 IdbPouch.valid = function idb_valid() {
   if (!document.location.host) {
-    console.warn('indexedDB cannot be used in pages served from the filesystem');
+    console.error('indexedDB cannot be used in pages served from the filesystem');
   }
   return !!window.indexedDB && !!document.location.host;
 };
 
 IdbPouch.destroy = function idb_destroy(name, callback) {
-
-  console.info(name + ': Delete Database');
+  if (Pouch.DEBUG)
+    console.log(name + ': Delete Database');
   //delete the db id from localStorage so it doesn't get reused.
   delete localStorage[name+"_id"];
   IdbPouch.Changes.clearListeners(name);

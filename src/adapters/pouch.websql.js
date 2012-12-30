@@ -528,7 +528,8 @@ var webSqlPouch = function(opts, callback) {
       opts.seq = opts.since;
     }
 
-    console.info(name + ': Start Changes Feed: continuous=' + opts.continuous);
+    if (Pouch.DEBUG)
+      console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
@@ -603,7 +604,8 @@ var webSqlPouch = function(opts, callback) {
     if (opts.continuous) {
       return {
         cancel: function() {
-          console.log(name + ': Cancel Changes Feed');
+          if (Pouch.DEBUG)
+            console.log(name + ': Cancel Changes Feed');
           opts.cancelled = true;
           webSqlPouch.Changes.removeListener(name, id);
         }
@@ -766,6 +768,5 @@ webSqlPouch.Changes = (function() {
 
   return api;
 })();
-
 
 Pouch.adapter('websql', webSqlPouch);

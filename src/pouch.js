@@ -47,6 +47,8 @@ var Pouch = function Pouch(name, opts, callback) {
   }
 };
 
+Pouch.DEBUG = false;
+
 Pouch.adapters = {};
 Pouch.plugins = {};
 
