@@ -2,6 +2,8 @@
  * A generic adapter module for PouchDB.
  */
 
+var crypto = require('crypto');
+
 var PouchAdapter = function(storage) {
   var update_seq = 0;
   var doc_count = 0;
@@ -125,25 +127,25 @@ var PouchAdapter = function(storage) {
         return api.get(id, opts, callback);
       }
 
-      storage.readMetadata(id.docId, function(err, metadata) {
+      storage.getMetadata(id.docId, function(err, metadata) {
         if (err) {
           return call(callback, err);
         }
-        storage.readSequence(metadata.seq, function(err, doc) {
+        storage.getSequence(metadata.seq, function(err, doc) {
           if (err) {
             return call(callback, err);
           }
-          var digest = doc._attachments[id.attachmendId].digest
+          var digest = doc._attachments[id.attachmentId].digest
             , type = doc._attachments[id.attachmentId].content_type
 
-          storage.readAttachment(digest, function(err, attachment) {
+          storage.getAttachment(digest, function(err, attachment) {
             if (err) {
               return call(callback, err);
             }
 
             var data = opts.decode
-              ? Pouch.utils.atob(attach.body.toString())
-              : attach.body.toString();
+              ? Pouch.utils.atob(attachment.body.toString())
+              : attachment.body.toString();
 
             call(callback, null, data);
           });
@@ -177,7 +179,7 @@ var PouchAdapter = function(storage) {
         obj._attachments || (obj._attachments = {});
         obj._attachments[id.attachmentId] = {
           content_type: type,
-          data: btoa(doc)
+          data: btoa(data)
         }
         api.put(obj, callback);
       });
@@ -432,10 +434,12 @@ var PouchAdapter = function(storage) {
 
       function saveAttachment(docInfo, digest, data, callback) {
         storage.getAttachment(digest, function(err, oldAtt) {
+          /*
           if (err && err.name !== 'NotFoundError') {
             callback(err);
             return console.error(err);
           }
+         */
 
           var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
           var newAtt = {body: data};

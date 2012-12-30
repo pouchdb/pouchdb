@@ -17,16 +17,12 @@ if (typeof module !== undefined && module.exports) {
   }
   qunit = QUnit.module;
   adapters = ['mem-1', 'leveldb-1', 'http-1'];
-  repl_adapters = [
-         ['leveldb-1', 'http-1'],
+  repl_adapters = [['leveldb-1', 'http-1'],
          ['http-1', 'http-2'],
          ['http-1', 'leveldb-1'],
-         ['http-1', 'mem-1'],
-         ['leveldb-1', 'mem-2'],
          ['leveldb-1', 'leveldb-2'],
-         ['mem-3', 'http-2'],
-         ['mem-3', 'leveldb-1'],
-         ['mem-3', 'mem-4'],
+         ['http-1', 'mem-1'],
+         ['mem-1', 'leveldb-3'],
   ];
 }
 

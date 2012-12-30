@@ -27,15 +27,14 @@ if (typeof module !== undefined && module.exports) {
 
   adapters = [
       ['leveldb-1', 'http-1'],
-      ['leveldb-1', 'mem-1'],
-      ['leveldb-1', 'leveldb-2'],
+      ['mem-1', 'http-1'],
       ['http-1', 'http-2'],
       ['http-1', 'leveldb-1'],
-      ['mem-1', 'http-3'],
+      ['http-1', 'mem-1'],
+      ['leveldb-1', 'leveldb-2'],
       ['mem-1', 'leveldb-3'],
-      ['mem-1', 'mem-3'],
+      ['leveldb-3', 'mem-2'],
   ]
-
 }
 
 adapters.map(function(adapters) {

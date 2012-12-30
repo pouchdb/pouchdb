@@ -11,7 +11,7 @@ var call = function(fun) {
 // if the first result is an error, return an error
 var yankError = function(callback) {
   return function(err, results) {
-    if (err || results[0].error) {
+    if (err || results && results[0] && results[0].error) {
       call(callback, err || results[0]);
     } else {
       call(callback, null, results[0]);
