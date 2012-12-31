@@ -15,6 +15,7 @@ var DOC_STORE = quote('document-store');
 var BY_SEQ_STORE = quote('by-sequence');
 // Where we store attachments
 var ATTACH_STORE = quote('attach-store');
+var META_STORE = quote('metadata-store');
 
 var unknownError = function(callback) {
   return function(event) {
@@ -42,15 +43,29 @@ var webSqlPouch = function(opts, callback) {
   }
 
   db.transaction(function (tx) {
+    var meta = 'CREATE TABLE IF NOT EXISTS ' + META_STORE +
+      ' (update_seq)';
     var attach = 'CREATE TABLE IF NOT EXISTS ' + ATTACH_STORE +
       ' (digest, json)';
     var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
       ' (id unique, seq, json)';
     var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE +
       ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, rev UNIQUE, json)';
+
     tx.executeSql(attach);
     tx.executeSql(doc);
     tx.executeSql(seq);
+    tx.executeSql(meta);
+
+    var sql = 'SELECT update_seq FROM ' + META_STORE;
+    tx.executeSql(sql, [], function(tx, result) {
+      if (!result.rows.length) {
+        var initSeq = 'INSERT INTO ' + META_STORE + ' (update_seq) VALUES (?)';
+        tx.executeSql(initSeq, [0]);
+        return;
+      }
+      update_seq = result.rows[0].update_seq;
+    });
   }, unknownError(callback), dbCreated);
 
   api.type = function() {
@@ -159,7 +174,10 @@ var webSqlPouch = function(opts, callback) {
         };
         change.doc._rev = rev;
         update_seq++;
-        webSqlPouch.Changes.emitChange(name, change);
+        var sql = 'UPDATE ' + META_STORE + ' SET update_seq=?';
+        tx.executeSql(sql, [update_seq], function() {
+          webSqlPouch.Changes.emitChange(name, change);
+        });
       });
       call(callback, null, aresults);
     }

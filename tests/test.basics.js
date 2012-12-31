@@ -336,4 +336,19 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest('update_seq persists', 2, function() {
+    var name = this.name;
+    initTestDB(name, function(err, db) {
+      db.post({test:"somestuff"}, function (err, info) {
+        Pouch(name, function(err, db) {
+          db.info(function(err, info) {
+            equal(info.update_seq, 1, 'Update seq persisted');
+            equal(info.doc_count, 1, 'Doc Count persists');
+            start();
+          });
+        });
+      });
+    });
+  });
 });
