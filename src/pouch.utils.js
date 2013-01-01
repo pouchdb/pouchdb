@@ -258,28 +258,40 @@ function expandTree2(all, current, pos, arr) {
 // We fetch all leafs of the revision tree, and sort them based on tree length
 // and whether they were deleted, undeleted documents with the longest revision
 // tree (most edits) win
+// The final sort algorithm is slightly documented in a sidebar here:
+// http://guide.couchdb.org/draft/conflicts.html
 var winningRev = function(metadata) {
   var deletions = metadata.deletions || {};
-  var leafs = metadata.rev_tree.map(function(tree) {
-    var leaf = treeLeaf(tree.pos, tree.ids);
+  var leafs = [];
+
+  function treeLeaf(pos, tree) {
+    if (!tree[1].length) {
+      leafs.push({pos: pos, id: tree[0]});
+    }
+    tree[1].forEach(function(branch) {
+      treeLeaf(pos+1, branch);
+    });
+  }
+
+  metadata.rev_tree.forEach(function(tree) {
+    treeLeaf(tree.pos, tree.ids);
+  });
+
+  leafs.forEach(function(leaf) {
     leaf.deleted = leaf.id in deletions;
-    return leaf;
   });
 
   leafs.sort(function(a, b) {
     if (a.deleted !== b.deleted) {
       return a.deleted > b.deleted;
     }
-    return a.pos > b.pos;
+    if (a.pos !== b.pos) {
+      return a.pos < b.pos;
+    }
+    return a.id < b.id
   });
-  return leafs[0].pos + '-' + leafs[0].id;
-}
-
-var treeLeaf = function(pos, tree) {
-  if (!tree[1].length) {
-    return {pos: pos, id: tree[0]};
-  }
-  return treeLeaf(pos + 1, tree[1][0]);
+  var ret = leafs[0].pos + '-' + leafs[0].id;
+  return ret;
 }
 
 var rootToLeaf = function(tree) {
