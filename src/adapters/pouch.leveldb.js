@@ -520,8 +520,9 @@ LevelPouch = module.exports = function(opts, callback) {
     function saveAttachment(docInfo, digest, data, callback) {
       stores[ATTACH_STORE].get(digest, function(err, oldAtt) {
         if (err && err.name !== 'NotFoundError') {
-          callback(err);
-          return console.error(err);
+          if (Pouch.DEBUG)
+            console.error(err);
+          return call(callback, err);
         }
 
         var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
@@ -784,7 +785,8 @@ LevelPouch = module.exports = function(opts, callback) {
     if (opts.continuous) {
       return {
         cancel: function() {
-          console.info(name + ': Cancel Changes Feed');
+          if (Pouch.DEBUG)
+            console.log(name + ': Cancel Changes Feed');
           opts.cancelled = true;
           change_emitter.removeListener('change', changeListener);
         }

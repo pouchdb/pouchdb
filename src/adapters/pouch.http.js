@@ -491,7 +491,8 @@ var HttpPouch = function(opts, callback) {
       opts.complete = callback;
     }
 
-    console.info(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
+    if (Pouch.DEBUG)
+      console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
 
     // Query string of all the parameters to add to the GET request
     var params = '?style=all_docs';
@@ -605,7 +606,8 @@ var HttpPouch = function(opts, callback) {
     // Return a method to cancel this method from processing any more
     return {
       cancel: function() {
-        console.info(db_url + ': Cancel Changes Feed');
+        if (Pouch.DEBUG)
+          console.log(db_url + ': Cancel Changes Feed');
         opts.aborted = true;
         xhr.abort();
       }
