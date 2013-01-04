@@ -53,7 +53,7 @@ module.exports = function(grunt) {
       all: {
 	src: grunt.utils._.flatten([
           "(function() { ", "src/deps/jquery-1.7.1.min.js",
-          "src/deps/uuid.js", srcFiles, " })(this);"]),
+          "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, " })(this);"]),
 	dest: 'pouch.<%= pkg.release %>.js'
       }
     },
