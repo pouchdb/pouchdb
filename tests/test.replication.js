@@ -370,6 +370,43 @@ adapters.map(function(adapters) {
       });
     });
   });
+
+  asyncTest("Replication with remote conflict", function() {
+    var doc = {_id: 'test', test: "Remote 1"},
+        winningRev;
+
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.post(doc, function(err, resp) {
+        doc._rev = resp.rev;
+        Pouch.replicate(remote, db, function(err, resp) {
+          doc.test = "Local 1";
+          db.put(doc, function(err, resp) {
+            doc.test = "Remote 2";
+            remote.put(doc, function(err, resp) {
+              doc._rev = resp.rev;
+              doc.test = "Remote 3";
+              remote.put(doc, function(err, resp) {
+                winningRev = resp.rev;
+                Pouch.replicate(db, remote, function(err, resp) {
+                  Pouch.replicate(remote, db, function(err, resp) {
+                    remote.get('test', {revs_info: true}, function(err, remotedoc) {
+                      db.get('test', {revs_info: true}, function(err, localdoc) {
+                        equal(localdoc._rev, winningRev, "Local chose correct winning revision");
+                        equal(remotedoc._rev, winningRev, "Remote chose winning revision");
+                        start();
+                      })
+                    })
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
+    })
+  });
+
+
 });
 
 // test a basic "initialize pouch" scenario when couch instance contains deleted revisions
