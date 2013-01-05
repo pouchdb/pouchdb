@@ -144,16 +144,42 @@ test('Merging unstemmed recovers as much as possible without losing info', funct
 });
 
 test('winningRev returns the longest leaf', function() {
-  var tree = [{"pos":1,"ids":["bfe70372c90ded1087239e5191984f76",[["44d71a718b90e4696c06a90e08912c8f",[]],["56e657612d55ab1a402dcb281c874f2a",[["93c3db16462f656f7172ccabd3cf6cd6",[]]]]]]}]
-  equal(winningRev({rev_tree: tree}), "3-93c3db16462f656f7172ccabd3cf6cd6", "Picks the longest path")
+  var tree = [
+    {"pos":1,"ids":[
+      "bfe70372c90ded1087239e5191984f76",[
+        ["44d71a718b90e4696c06a90e08912c8f",[]],
+        ["56e657612d55ab1a402dcb281c874f2a",[
+          ["93c3db16462f656f7172ccabd3cf6cd6",[]]
+        ]]
+      ]]
+    }]
+  equal(winningRev({rev_tree: tree}),
+        "3-93c3db16462f656f7172ccabd3cf6cd6",
+        "Picks the longest path")
 });
 
 test('winningRev returns the longest leaf again', function() {
   // this one is from issue #293
-  var tree = [{"pos": 1,"ids": ["203db1a1810a838895d561f67b224b5d", [["bf5e08a4f9fa6d33a53f4a00ae3ea399", [["28cd77a3ca30f79e1cfffcd6a41ca308", []]]]]]}, {
-      "pos": 1,"ids": ["c6d5cce35bcfbef90b20f140d723cbdb", [["1b8dfbb1267e213328920bae43f2f597", []],["59ed830b84b276ab776c3c51aaf93a16", [["64a9842c6aea50bf24660378e496e853", []]]]]]}]
-
-  equal(winningRev({rev_tree: tree}), "3-64a9842c6aea50bf24660378e496e853", "Picks the longest path")
+  var tree = [
+    {"pos": 1,"ids": [
+      "203db1a1810a838895d561f67b224b5d", [
+        ["bf5e08a4f9fa6d33a53f4a00ae3ea399", [
+          ["28cd77a3ca30f79e1cfffcd6a41ca308", []]
+        ]]
+      ]
+    ]},
+    {"pos": 1,"ids": [
+      "c6d5cce35bcfbef90b20f140d723cbdb", [
+        ["1b8dfbb1267e213328920bae43f2f597", []],
+        ["59ed830b84b276ab776c3c51aaf93a16", [
+          ["64a9842c6aea50bf24660378e496e853", []]
+        ]]
+      ]]
+    }
+  ];
+  equal(winningRev({rev_tree: tree}),
+        "3-64a9842c6aea50bf24660378e496e853",
+        "Picks the longest path")
 });
 
 ///// These are tests from CouchDB's kt-merging.erl test suite
@@ -165,7 +191,7 @@ test('The empty tree is the identity for merge.', function() {
     conflicts: 'new_leaf'
   })
 });
- 
+
 test('Merging is reflexive', function() {
   deepEqual(Pouch.merge([one], one, 10), {
     tree: [one],

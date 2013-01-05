@@ -269,7 +269,7 @@ var winningRev = function(metadata) {
       leafs.push({pos: pos, id: tree[0]});
     }
     tree[1].forEach(function(branch) {
-      treeLeaf(pos+1, branch);
+      treeLeaf(pos + 1, branch);
     });
   }
 
@@ -283,15 +283,14 @@ var winningRev = function(metadata) {
 
   leafs.sort(function(a, b) {
     if (a.deleted !== b.deleted) {
-      return a.deleted > b.deleted;
+      return a.deleted > b.deleted ? 1 : -1;
     }
     if (a.pos !== b.pos) {
-      return a.pos < b.pos;
+      return b.pos - a.pos;
     }
-    return a.id < b.id
+    return a.id < b.id ? 1 : -1;
   });
-  var ret = leafs[0].pos + '-' + leafs[0].id;
-  return ret;
+  return leafs[0].pos + '-' + leafs[0].id;
 }
 
 var rootToLeaf = function(tree) {
