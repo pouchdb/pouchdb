@@ -22,6 +22,11 @@ adapters.map(function(adapter) {
   qunit('conflicts: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+    },
+    teardown: function() {
+      if (!PERSIST_DATABASES) {
+        Pouch.destroy(this.name);
+      }
     }
   });
 
@@ -56,12 +61,7 @@ adapters.map(function(adapter) {
 
   asyncTest('Testing conflicts', function() {
     var doc = {_id: 'fubar', a:1, b: 1};
-    Pouch(this.name, function(err, db) {
-      if (err) {
-        console.error(err);
-        ok(false, 'failed to open database');
-        return start();
-      }
+    initTestDB(this.name, function(err, db) {
       db.put(doc, function(err, ndoc) {
         doc._rev = ndoc.rev;
         db.remove(doc, function() {

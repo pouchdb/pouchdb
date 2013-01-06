@@ -36,6 +36,12 @@ adapters.map(function(adapters) {
     setup : function () {
       this.name = generateAdapterUrl(adapters[0]);
       this.remote = generateAdapterUrl(adapters[1]);
+    },
+    teardown: function() {
+      if (!PERSIST_DATABASES) {
+        Pouch.destroy(this.name);
+        Pouch.destroy(this.remote);
+      }
     }
   });
 

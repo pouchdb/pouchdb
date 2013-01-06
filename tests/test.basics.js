@@ -18,8 +18,13 @@ if (typeof module !== undefined && module.exports) {
 adapters.map(function(adapter) {
 
   qunit("basics: " + adapter, {
-    setup : function () {
+    setup: function() {
       this.name = generateAdapterUrl(adapter);
+    },
+    teardown: function() {
+      if (!PERSIST_DATABASES) {
+        Pouch.destroy(this.name);
+      }
     }
   });
 

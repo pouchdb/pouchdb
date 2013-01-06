@@ -22,6 +22,11 @@ adapters.map(function(adapter) {
   qunit("revs diff:" + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+    },
+    teardown: function() {
+      if (!PERSIST_DATABASES) {
+        Pouch.destroy(this.name);
+      }
     }
   });
 
