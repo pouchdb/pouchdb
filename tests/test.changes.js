@@ -20,6 +20,11 @@ adapters.map(function(adapter) {
   QUnit.module("changes: " + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+    },
+    teardown: function() {
+      if (!PERSIST_DATABASES) {
+        Pouch.destroy(this.name);
+      }
     }
   });
 

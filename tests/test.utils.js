@@ -1,5 +1,7 @@
 "use strict";
 
+var PERSIST_DATABASES = false;
+
 function uuid() {
   var S4 = function() {
     return Math.floor(Math.random() * 0x10000).toString(16);
@@ -85,6 +87,7 @@ if (typeof module !== 'undefined' && module.exports) {
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,
-    generateAdapterUrl: generateAdapterUrl
+    generateAdapterUrl: generateAdapterUrl,
+    PERSIST_DATABASES: PERSIST_DATABASES
   }
 }
