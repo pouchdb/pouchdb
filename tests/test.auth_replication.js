@@ -20,6 +20,12 @@ qunit('auth_replication', {
   setup: function () {
     this.name = local;
     this.remote = 'http://' + remote.host + '/test_suite_db/';
+  },
+  teardown: function() {
+    if (!PERSIST_DATABASES) {
+      Pouch.destroy(this.name);
+      Pouch.destroy(this.remote);
+    }
   }
 });
 

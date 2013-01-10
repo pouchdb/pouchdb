@@ -21,6 +21,11 @@ adapters.map(function(adapter) {
   qunit('bulk_docs: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+    },
+    teardown: function() {
+      if (!PERSIST_DATABASES) {
+        Pouch.destroy(this.name);
+      }
     }
   });
 

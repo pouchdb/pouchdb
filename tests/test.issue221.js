@@ -24,6 +24,12 @@ adapters.map(function(adapters) {
     setup: function() {
       this.local = generateAdapterUrl(adapters[0]);
       this.remote = generateAdapterUrl(adapters[1]);
+    },
+    teardown: function() {
+      if (!PERSIST_DATABASES) {
+        Pouch.destroy(this.local);
+        Pouch.destroy(this.remote);
+      }
     }
   });
 
