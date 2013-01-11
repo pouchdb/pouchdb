@@ -755,7 +755,19 @@ var IdbPouch = function(opts, callback) {
         }
         return false;
       }
+
       var cursor = event.target.result;
+
+      // Try to pre-emptively dedup to save us a bunch of idb calls
+      var changeId = cursor.value._id, changeIdIndex = resultIndices[changeId];
+      if (changeIdIndex !== undefined) {
+        results[changeIdIndex].seq = cursor.key; // update so it has the later sequence number
+        results.push(results[changeIdIndex]);
+        results[changeIdIndex] = null;
+        resultIndices[changeId] = results.length - 1;
+        return cursor['continue']();
+      }
+
       var index = txn.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
         var metadata = event.target.result;
@@ -763,30 +775,37 @@ var IdbPouch = function(opts, callback) {
           return cursor['continue']();
         }
 
-        var change = {
-          id: metadata.id,
-          seq: cursor.key,
-          changes: collectLeaves(metadata.rev_tree),
-          doc: cursor.value,
-        };
+        var mainRev = winningRev(metadata);
+        var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+        index.get(mainRev).onsuccess = function(docevent) {
+          var doc = docevent.target.result;
+          var changeList = [{rev: mainRev}]
+          if (opts.style === 'all_docs') {
+          //  console.log('all docs', changeList, collectLeaves(metadata.rev_tree));
+            changeList = collectLeaves(metadata.rev_tree);
+          }
+          var change = {
+            id: metadata.id,
+            seq: cursor.key,
+            changes: changeList,
+            doc: doc,
+          };
+          if (isDeleted(metadata, mainRev)) {
+            change.deleted = true;
+          }
+          if (opts.conflicts) {
+            change.doc._conflicts = collectConflicts(metadata.rev_tree);
+          }
 
-        change.doc._rev = winningRev(metadata);
-
-        if (isDeleted(metadata, change.doc._rev)) {
-          change.deleted = true;
+          // Dedupe the changes feed
+          var changeId = change.id, changeIdIndex = resultIndices[changeId];
+          if (changeIdIndex !== undefined) {
+            results[changeIdIndex] = null;
+          }
+          results.push(change);
+          resultIndices[changeId] = results.length - 1;
+          cursor['continue']();
         }
-        if (opts.conflicts) {
-          change.doc._conflicts = collectConflicts(metadata.rev_tree);
-        }
-
-        // Dedupe the changes feed
-        var changeId = change.id, changeIdIndex = resultIndices[changeId];
-        if (changeIdIndex !== undefined) {
-          results[changeIdIndex] = null;
-        }
-        results.push(change);
-        resultIndices[changeId] = results.length - 1;
-        cursor['continue']();
       };
     };
 
