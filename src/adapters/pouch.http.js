@@ -495,9 +495,12 @@ var HttpPouch = function(opts, callback) {
       console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
 
     // Query string of all the parameters to add to the GET request
-    var params = [];
+    var params = [],
+        paramsStr;
 
-    if (opts.style) params.push('style='+opts.style);
+    if (opts.style) {
+      params.push('style='+opts.style);
+    }
 
     // If opts.include_docs exists, opts.filter exists, and opts.filter is a
     // function, add the include_docs value to the query string.
@@ -547,7 +550,11 @@ var HttpPouch = function(opts, callback) {
       }
     }
 
-    params = '?' + params.join('&');
+    paramsStr = '?';
+
+    if (params.length > 0) {
+      paramsStr += params.join('&');
+    }
 
     var xhr;
     var last_seq;
@@ -558,7 +565,7 @@ var HttpPouch = function(opts, callback) {
       // Set the options for the ajax call
       var xhrOpts = {
         auth: host.auth, type:'GET',
-        url: genDBUrl(host, '_changes' + params + '&since=' + since),
+        url: genDBUrl(host, '_changes' + paramsStr + '&since=' + since),
         timeout: null          // _changes can take a long time to generate, especially when filtered
       };
       last_seq = since;
