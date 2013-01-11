@@ -495,35 +495,37 @@ var HttpPouch = function(opts, callback) {
       console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
 
     // Query string of all the parameters to add to the GET request
-    var params = '?style=all_docs';
+    var params = [];
+
+    if (opts.style) params.push('style='+opts.style);
 
     // If opts.include_docs exists, opts.filter exists, and opts.filter is a
     // function, add the include_docs value to the query string.
     // If include_docs=true then include the associated document with each
     // result.
     if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
-      params += '&include_docs=true';
+      params.push('include_docs=true');
     }
 
     // If opts.continuous exists, add the feed value to the query string.
     // If feed=longpoll then it waits for either a timeout or a change to
     // occur before returning.
     if (opts.continuous) {
-      params += '&feed=longpoll';
+      params.push('feed=longpoll');
     }
 
     // If opts.conflicts exists, add the conflicts value to the query string.
     // TODO I can't find documentation of what conflicts=true does. See
     // http://wiki.apache.org/couchdb/HTTP_database_API#Changes
     if (opts.conflicts) {
-      params += '&conflicts=true';
+      params.push('conflicts=true');
     }
 
     // If opts.descending exists, add the descending value to the query string.
     // if descending=true then the change results are returned in
     // descending order (most recent change first).
     if (opts.descending) {
-      params += '&descending=true';
+      params.push('descending=true');
     }
 
     // If opts.filter exists and is a string then add the filter value
@@ -532,7 +534,7 @@ var HttpPouch = function(opts, callback) {
     // the design, then only documents passing through the filter will
     // be returned.
     if (opts.filter && typeof opts.filter === 'string') {
-      params += '&filter=' + opts.filter;
+      params.push('filter=' + opts.filter);
     }
 
     // If opts.query_params exists, pass it through to the changes request.
@@ -540,10 +542,12 @@ var HttpPouch = function(opts, callback) {
     if (opts.query_params && typeof opts.query_params === 'object') {
       for (var param_name in opts.query_params) {
         if (opts.query_params.hasOwnProperty(param_name)) {
-          params += '&'+param_name+'='+opts.query_params[param_name];
+          params.push(param_name+'='+opts.query_params[param_name]);
         }
       }
     }
+
+    params = '?' + params.join('&');
 
     var xhr;
     var last_seq;
