@@ -1,12 +1,18 @@
 var adapters = [
       ['local-1', 'http-1'],
+      ['mem-1', 'http-1'],
       ['http-1', 'http-2'],
       ['http-1', 'local-1'],
+      ['http-1', 'mem-1'],
+      ['mem-1', 'mem-2'],
       ['local-1', 'local-2']]
   , qunit = module;
 
 var downAdapters = ['local-1'];
-var deletedDocAdapters = [['local-1', 'http-1']];
+var deletedDocAdapters = [
+  ['local-1', 'http-1'],
+  ['mem-1', 'http-1'],
+];
 
 // if we are running under node.js, set things up
 // a little differently

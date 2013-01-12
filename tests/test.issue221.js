@@ -1,5 +1,6 @@
 var adapters = [
-    ['local-1', 'http-1']
+    ['local-1', 'http-1'],
+    ['mem-1', 'http-1'],
   ]
   , qunit = module;
 

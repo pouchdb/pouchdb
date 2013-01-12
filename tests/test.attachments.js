@@ -1,8 +1,12 @@
-var adapters = ['local-1', 'http-1']
-  , repl_adapters = [['local-1', 'http-1'],
-         ['http-1', 'http-2'],
-         ['http-1', 'local-1'],
-         ['local-1', 'local-2']]
+var adapters = ['mem-1', 'local-1', 'http-1']
+  , repl_adapters = [
+        ['local-1', 'http-1'],
+        ['http-1', 'http-2'],
+        ['mem-1', 'http-3'],
+        ['http-3', 'mem-3'],
+        ['http-1', 'local-1'],
+        ['local-1', 'local-2']
+    ]
   , qunit = module;
 
 // if we are running under node.js, set things up

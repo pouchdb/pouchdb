@@ -1,6 +1,6 @@
 "use strict";
 
-var adapters = ['http-1', 'local-1'];
+var adapters = ['mem-1', 'http-1', 'local-1'];
 var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
