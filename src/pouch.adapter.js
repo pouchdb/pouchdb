@@ -2,8 +2,6 @@
  * A generic adapter module for PouchDB.
  */
 
-var crypto = require('crypto');
-
 var PouchAdapter = function(storage) {
   var update_seq = 0;
   var doc_count = 0;
@@ -384,9 +382,7 @@ var PouchAdapter = function(storage) {
             var data = doc.data._attachments[key].data
             // if data is an object, it's likely to actually be a Buffer that got JSON.stringified
             if (typeof data === 'object') data = new Buffer(data);
-            var digest = 'md5-' + crypto.createHash('md5')
-                  .update(data || '')
-                  .digest('hex');
+            var digest = 'md5-' + Crypto.MD5(data || '')
             delete doc.data._attachments[key].data;
             doc.data._attachments[key].digest = digest;
             saveAttachment(doc, digest, data, function (err) {
@@ -688,5 +684,8 @@ var PouchAdapter = function(storage) {
   return api;
 }
 
-module.exports = PouchAdapter;
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PouchAdapter;
+}
 

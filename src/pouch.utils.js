@@ -453,6 +453,30 @@ if (typeof atob === 'undefined') {
   }
 }
 
+var exports = {
+  call: call,
+  yankError: yankError,
+  isAttachmentId: isAttachmentId,
+  parseDocId: parseDocId,
+  parseDoc: parseDoc,
+  isDeleted: isDeleted,
+  compareRevs: compareRevs,
+  expandTree: expandTree,
+  collectRevs: collectRevs,
+  collectLeavesInner: collectLeavesInner,
+  collectLeaves: collectLeaves,
+  collectConflicts: collectConflicts,
+  fetchCheckpoint: fetchCheckpoint,
+  writeCheckpoint: writeCheckpoint,
+  winningRev: winningRev,
+  rootToLeaf: rootToLeaf,
+  arrayFirst: arrayFirst,
+  filterChange: filterChange,
+  ajax: ajax,
+  atob: atob,
+  btoa: btoa
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
   var crypto = require('crypto');
@@ -461,32 +485,13 @@ if (typeof module !== 'undefined' && module.exports) {
       return crypto.createHash('md5').update(str).digest('hex');
     }
   }
-  request = require('request');
+  exports.Crypto = Crypto;
+  var request = require('request');
   _ = require('underscore');
   $ = _;
 
-  module.exports = {
-    Crypto: Crypto,
-    call: call,
-    yankError: yankError,
-    isAttachmentId: isAttachmentId,
-    parseDocId: parseDocId,
-    parseDoc: parseDoc,
-    isDeleted: isDeleted,
-    compareRevs: compareRevs,
-    expandTree: expandTree,
-    collectRevs: collectRevs,
-    collectLeavesInner: collectLeavesInner,
-    collectLeaves: collectLeaves,
-    collectConflicts: collectConflicts,
-    fetchCheckpoint: fetchCheckpoint,
-    writeCheckpoint: writeCheckpoint,
-    winningRev: winningRev,
-    rootToLeaf: rootToLeaf,
-    arrayFirst: arrayFirst,
-    filterChange: filterChange,
-    ajax: ajax,
-    atob: atob,
-    btoa: btoa,
-  }
+  module.exports = exports;
+}
+else {
+  Pouch.utils = exports;
 }

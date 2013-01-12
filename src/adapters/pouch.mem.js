@@ -5,15 +5,17 @@
  * December 2012
  */
 
-var pouchdir = '../'
-  , Pouch = require(pouchdir + 'pouch.js')
-  , PouchAdapter = require(pouchdir + 'pouch.adapter.js')
+if (typeof module !== 'undefined' && module.exports) {
+  var pouchdir = '../'
+    , Pouch = require(pouchdir + 'pouch.js')
+    , PouchAdapter = require(pouchdir + 'pouch.adapter.js')
 
-require(pouchdir + 'deps/uuid.js');
+  require(pouchdir + 'deps/uuid.js');
 
-var call = Pouch.utils.call;
+  var call = Pouch.utils.call;
 
-var EventEmitter = require('events').EventEmitter
+  module.exports = MemPouch;
+}
 
 // global cache of stores so that opening the same db twice uses the same objects
 var STORES = {}
@@ -30,7 +32,6 @@ function MemPouch(opts) {
   }
 }
 
-module.exports = MemPouch;
 
 MemPouch.prototype = {
   id: function() {
@@ -108,8 +109,6 @@ MemPouch.prototype = {
     this.stores.attachments[digest] = attachment;
     call(callback, null);
   },
-  getDocCount: function(callback) {
-  }
 }
 
 var mempouch = function(opts, callback) {
