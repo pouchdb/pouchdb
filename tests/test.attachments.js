@@ -1,8 +1,12 @@
-var adapters = ['local-1', 'http-1']
-  , repl_adapters = [['local-1', 'http-1'],
-         ['http-1', 'http-2'],
-         ['http-1', 'local-1'],
-         ['local-1', 'local-2']]
+var adapters = ['mem-1', 'local-1', 'http-1']
+  , repl_adapters = [
+        ['local-1', 'http-1'],
+        ['http-1', 'http-2'],
+        ['mem-1', 'http-3'],
+        ['http-3', 'mem-3'],
+        ['http-1', 'local-1'],
+        ['local-1', 'local-2']
+    ]
   , qunit = module;
 
 // if we are running under node.js, set things up
@@ -16,11 +20,14 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || this.utils[k];
   }
   qunit = QUnit.module;
-  adapters = ['leveldb-1', 'http-1'];
+  adapters = ['mem-1', 'leveldb-1', 'http-1'];
   repl_adapters = [['leveldb-1', 'http-1'],
          ['http-1', 'http-2'],
          ['http-1', 'leveldb-1'],
-         ['leveldb-1', 'leveldb-2']];
+         ['leveldb-1', 'leveldb-2'],
+         ['http-1', 'mem-1'],
+         ['mem-1', 'leveldb-3'],
+  ];
 }
 
 adapters.map(function(adapter) {

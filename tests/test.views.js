@@ -1,6 +1,6 @@
 "use strict";
 
-var adapters = ['local-1', 'http-1'];
+var adapters = ['mem-1', 'local-1', 'http-1'];
 var qunit = module;
 
 // if we are running under node.js, set things up
@@ -13,7 +13,7 @@ if (typeof module !== undefined && module.exports) {
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['leveldb-1', 'http-1']
+  adapters = ['mem-1', 'leveldb-1', 'http-1']
   qunit = QUnit.module;
 }
 

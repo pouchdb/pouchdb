@@ -78,6 +78,9 @@ function generateAdapterUrl(id) {
   if (opt[0] === 'leveldb') {
     return 'leveldb://testdb_' + testId + '_' + opt[1];
   }
+  if (opt[0] === 'mem') {
+    return 'mem://testdb_' + testId + '_' + opt[1];
+  }
 }
 
 if (typeof module !== 'undefined' && module.exports) {

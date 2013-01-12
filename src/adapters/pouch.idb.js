@@ -216,7 +216,7 @@ var IdbPouch = function(opts, callback) {
         };
         change.doc._rev = rev;
         update_seq++;
-        IdbPouch.Changes.emitChange(name, change);
+        Pouch.changes.emitChange(name, change);
       });
       call(callback, null, aresults);
     }
@@ -745,7 +745,7 @@ var IdbPouch = function(opts, callback) {
     function onsuccess(event) {
       if (!event.target.result) {
         if (opts.continuous && !opts.cancelled) {
-          IdbPouch.Changes.addListener(name, id, opts);
+          Pouch.changes.addListener(name, id, opts);
         }
 
         // Filter out null results casued by deduping
@@ -805,7 +805,7 @@ var IdbPouch = function(opts, callback) {
 
     function onerror(error) {
       if (opts.continuous) {
-        IdbPouch.Changes.addListener(name, id, opts);
+        Pouch.changes.addListener(name, id, opts);
       }
       call(opts.complete);
     };
@@ -816,7 +816,7 @@ var IdbPouch = function(opts, callback) {
           if (Pouch.DEBUG)
             console.log(name + ': Cancel Changes Feed');
           opts.cancelled = true;
-          IdbPouch.Changes.removeListener(name, id);
+          Pouch.changes.removeListener(name, id);
         }
       }
     }
@@ -979,7 +979,7 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
     console.log(name + ': Delete Database');
   //delete the db id from localStorage so it doesn't get reused.
   delete localStorage[name+"_id"];
-  IdbPouch.Changes.clearListeners(name);
+  Pouch.changes.clearListeners(name);
   var req = indexedDB.deleteDatabase(name);
 
   req.onsuccess = function() {
@@ -988,44 +988,5 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
 
   req.onerror = idbError(callback);
 };
-
-IdbPouch.Changes = (function() {
-
-  var api = {};
-  var listeners = {};
-
-  api.addListener = function(db, id, opts) {
-    if (!listeners[db]) {
-      listeners[db] = {};
-    }
-    listeners[db][id] = opts;
-  }
-
-  api.removeListener = function(db, id) {
-    delete listeners[db][id];
-  }
-
-  api.clearListeners = function(db) {
-    delete listeners[db];
-  }
-
-  api.emitChange = function(db, change) {
-    if (!listeners[db]) {
-      return;
-    }
-    for (var i in listeners[db]) {
-      var opts = listeners[db][i];
-      if (opts.filter && !opts.filter.apply(this, [change.doc])) {
-        return;
-      }
-      if (!opts.include_docs) {
-        delete change.doc;
-      }
-      opts.onChange.apply(opts.onChange, [change]);
-    }
-  }
-
-  return api;
-})();
 
 Pouch.adapter('idb', IdbPouch);

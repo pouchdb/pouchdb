@@ -7,11 +7,28 @@ var call = function(fun) {
   }
 }
 
+var async = function() {
+  var args = arguments;
+  var fn = function() {
+    call.apply(this, args);
+  }
+
+  if (typeof process !== 'undefined') {
+    process.nextTick(fn);
+  }
+  else {
+    // TODO: use the postMessage trick to speed this up:
+    // http://dbaron.org/log/20100309-faster-timeouts
+    setTimeout(fn, 0);
+  }
+}
+
+
 // Wrapper for functions that call the bulkdocs api with a single doc,
 // if the first result is an error, return an error
 var yankError = function(callback) {
   return function(err, results) {
-    if (err || results[0].error) {
+    if (err || results && results[0] && results[0].error) {
       call(callback, err || results[0]);
     } else {
       call(callback, null, results[0]);
@@ -441,16 +458,45 @@ var localJSON = (function(){
   };
 })();
 
+var exports = {
+  call: call,
+  yankError: yankError,
+  isAttachmentId: isAttachmentId,
+  parseDocId: parseDocId,
+  parseDoc: parseDoc,
+  isDeleted: isDeleted,
+  compareRevs: compareRevs,
+  expandTree: expandTree,
+  collectRevs: collectRevs,
+  collectLeavesInner: collectLeavesInner,
+  collectLeaves: collectLeaves,
+  collectConflicts: collectConflicts,
+  fetchCheckpoint: fetchCheckpoint,
+  writeCheckpoint: writeCheckpoint,
+  winningRev: winningRev,
+  rootToLeaf: rootToLeaf,
+  arrayFirst: arrayFirst,
+  filterChange: filterChange,
+  ajax: ajax,
+  async: async,
+}
+
 // btoa and atob don't exist in node. see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
 if (typeof btoa === 'undefined') {
-  btoa = function(str) {
+  exports.btoa = function(str) {
     return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
   }
 }
+else {
+  exports.btoa = function() { return btoa.apply(window, arguments); }
+}
 if (typeof atob === 'undefined') {
-  atob = function(str) {
+  exports.atob = function(str) {
     return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
   }
+}
+else {
+  exports.atob = function() { return atob.apply(window, arguments); }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -461,32 +507,13 @@ if (typeof module !== 'undefined' && module.exports) {
       return crypto.createHash('md5').update(str).digest('hex');
     }
   }
-  request = require('request');
+  exports.Crypto = Crypto;
+  var request = require('request');
   _ = require('underscore');
   $ = _;
 
-  module.exports = {
-    Crypto: Crypto,
-    call: call,
-    yankError: yankError,
-    isAttachmentId: isAttachmentId,
-    parseDocId: parseDocId,
-    parseDoc: parseDoc,
-    isDeleted: isDeleted,
-    compareRevs: compareRevs,
-    expandTree: expandTree,
-    collectRevs: collectRevs,
-    collectLeavesInner: collectLeavesInner,
-    collectLeaves: collectLeaves,
-    collectConflicts: collectConflicts,
-    fetchCheckpoint: fetchCheckpoint,
-    writeCheckpoint: writeCheckpoint,
-    winningRev: winningRev,
-    rootToLeaf: rootToLeaf,
-    arrayFirst: arrayFirst,
-    filterChange: filterChange,
-    ajax: ajax,
-    atob: atob,
-    btoa: btoa,
-  }
+  module.exports = exports;
+}
+else {
+  Pouch.utils = exports;
 }

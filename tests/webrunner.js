@@ -32,10 +32,10 @@ testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
   'dev': ['../src/deps/uuid.js',
-          '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
-          '../src/pouch.collate.js', '../src/pouch.utils.js',
+          '../src/pouch.js', '../src/pouch.adapter.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
+          '../src/pouch.collate.js', '../src/pouch.changes.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
-          '../src/adapters/pouch.websql.js',
+          '../src/adapters/pouch.websql.js', '../src/adapters/pouch.mem.js',
           '../src/plugins/pouchdb.mapreduce.js'],
   'release': ['../pouch.alpha.js'],
   'release-min': ['../pouch.alpha.min.js']

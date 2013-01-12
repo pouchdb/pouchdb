@@ -1,15 +1,21 @@
 var adapters = [
       ['local-1', 'http-1'],
+      ['mem-1', 'http-1'],
       ['http-1', 'http-2'],
       ['http-1', 'local-1'],
+      ['http-1', 'mem-1'],
+      ['mem-1', 'mem-2'],
       ['local-1', 'local-2']]
   , qunit = module;
 
 var downAdapters = ['local-1'];
-var deletedDocAdapters = [['local-1', 'http-1']];
+var deletedDocAdapters = [
+  ['local-1', 'http-1'],
+  ['mem-1', 'http-1'],
+];
 
 // if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
+// a little differently
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../src/pouch.js')
     , LevelPouch = require('../src/adapters/pouch.leveldb.js')
@@ -20,14 +26,21 @@ if (typeof module !== undefined && module.exports) {
   }
   qunit = QUnit.module;
   downAdapters = [];
-  deletedDocAdapters = [['leveldb-1', 'http-1']];
+  deletedDocAdapters = [
+    ['leveldb-1', 'http-1'],
+    ['mem-1', 'http-1']
+  ];
 
   adapters = [
       ['leveldb-1', 'http-1'],
+      ['mem-1', 'http-1'],
       ['http-1', 'http-2'],
       ['http-1', 'leveldb-1'],
-      ['leveldb-1', 'leveldb-2']]
-
+      ['http-1', 'mem-1'],
+      ['leveldb-1', 'leveldb-2'],
+      ['mem-1', 'leveldb-3'],
+      ['leveldb-3', 'mem-2'],
+  ]
 }
 
 adapters.map(function(adapters) {

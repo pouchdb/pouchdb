@@ -1,10 +1,10 @@
 "use strict";
 
-var adapters = ['http-1', 'local-1'];
+var adapters = ['mem-1', 'http-1', 'local-1'];
 var qunit = module;
 
 // if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
+// a little differently
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../src/pouch.js')
     , LevelPouch = require('../src/adapters/pouch.leveldb.js')
@@ -13,7 +13,7 @@ if (typeof module !== undefined && module.exports) {
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['leveldb-1', 'http-1']
+  adapters = ['mem-1', 'leveldb-1', 'http-1']
   qunit = QUnit.module;
 }
 
