@@ -653,6 +653,7 @@ var PouchAdapter = function(storage) {
           });
         });
       }
+
       if (opts.continuous) {
         return {
           cancel: function() {

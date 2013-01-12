@@ -12,8 +12,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
   require(pouchdir + 'deps/uuid.js');
 
-  var call = Pouch.utils.call;
-
   module.exports = MemPouch;
 }
 
@@ -41,14 +39,14 @@ MemPouch.prototype = {
     return 'mem';
   },
   init: function(callback) {
-    call(callback, null);
+    Pouch.utils.async(callback, null);
   },
   getMetadata: function(id, callback) {
     if (id in this.stores.meta) {
-      call(callback, null, JSON.parse(this.stores.meta[id]));
+      Pouch.utils.async(callback, null, JSON.parse(this.stores.meta[id]));
     }
     else {
-      call(callback, new Error('no metadata found:'+id));
+      Pouch.utils.async(callback, new Error('no metadata found:'+id));
     }
   },
   getBulkMetadata: function(opts, callback) {
@@ -66,21 +64,21 @@ MemPouch.prototype = {
     for(var i=0; i<ids.length; i++) {
       results.push(JSON.parse(this.stores.meta[ids[i]]));
     }
-    call(callback, null, results);
+    Pouch.utils.async(callback, null, results);
   },
   writeMetadata: function(id, meta, callback) {
     this.stores.meta[id] = JSON.stringify(meta);
-    call(callback, null);
+    Pouch.utils.async(callback, null);
   },
   getUpdateSeq: function(callback) {
-    call(callback, null, this.stores.max_seq);
+    Pouch.utils.async(callback, null, this.stores.max_seq);
   },
   getSequence: function(seq, callback) {
     if (seq in this.stores.byseq) {
-      call(callback, null, JSON.parse(this.stores.byseq[seq]));
+      Pouch.utils.async(callback, null, JSON.parse(this.stores.byseq[seq]));
     }
     else {
-      call(callback, new Error('sequence not found:'+seq));
+      Pouch.utils.async(callback, new Error('sequence not found:'+seq));
     }
   },
   getBulkSequence: function(opts, callback) {
@@ -88,26 +86,26 @@ MemPouch.prototype = {
     if (opts.descending) {
       seqs.reverse();
     }
-    call(callback, null, seqs.map(JSON.parse));
+    Pouch.utils.async(callback, null, seqs.map(JSON.parse));
   },
   writeSequence: function(seq, doc, callback) {
     if (seq > this.stores.max_seq) {
       this.stores.max_seq = seq;
     }
     this.stores.byseq[seq] = JSON.stringify(doc);
-    call(callback, null);
+    Pouch.utils.async(callback, null);
   },
   getAttachment: function(digest, callback) {
     if (digest in this.stores.attachments) {
-      call(callback, null, this.stores.attachments[digest])
+      Pouch.utils.async(callback, null, this.stores.attachments[digest])
     }
     else {
-      call(callback, new Error('attachment not found:'+digest));
+      Pouch.utils.async(callback, new Error('attachment not found:'+digest));
     }
   },
   writeAttachment: function(digest, attachment, callback) {
     this.stores.attachments[digest] = attachment;
-    call(callback, null);
+    Pouch.utils.async(callback, null);
   },
 }
 
@@ -116,7 +114,7 @@ var mempouch = function(opts, callback) {
     , adapter = PouchAdapter(backend)
 
   adapter.open(function(err) {
-    call(callback, err, adapter);
+    Pouch.utils.async(callback, err, adapter);
   });
 
   return adapter;
@@ -127,7 +125,7 @@ mempouch.valid = function() {
 }
 mempouch.destroy = function(name, callback) {
   delete STORES[name];
-  call(callback, null);
+  Pouch.utils.async(callback, null);
 }
 
 Pouch.adapter('mem', mempouch);

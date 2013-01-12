@@ -7,6 +7,23 @@ var call = function(fun) {
   }
 }
 
+var async = function() {
+  var args = arguments;
+  var fn = function() {
+    call.apply(this, args);
+  }
+
+  if (typeof process !== 'undefined') {
+    process.nextTick(fn);
+  }
+  else {
+    // TODO: use the postMessage trick to speed this up:
+    // http://dbaron.org/log/20100309-faster-timeouts
+    setTimeout(fn, 0);
+  }
+}
+
+
 // Wrapper for functions that call the bulkdocs api with a single doc,
 // if the first result is an error, return an error
 var yankError = function(callback) {
@@ -441,18 +458,6 @@ var localJSON = (function(){
   };
 })();
 
-// btoa and atob don't exist in node. see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
-if (typeof btoa === 'undefined') {
-  btoa = function(str) {
-    return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
-  }
-}
-if (typeof atob === 'undefined') {
-  atob = function(str) {
-    return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
-  }
-}
-
 var exports = {
   call: call,
   yankError: yankError,
@@ -473,8 +478,25 @@ var exports = {
   arrayFirst: arrayFirst,
   filterChange: filterChange,
   ajax: ajax,
-  atob: atob,
-  btoa: btoa
+  async: async,
+}
+
+// btoa and atob don't exist in node. see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
+if (typeof btoa === 'undefined') {
+  exports.btoa = function(str) {
+    return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
+  }
+}
+else {
+  exports.btoa = function() { return btoa.apply(window, arguments); }
+}
+if (typeof atob === 'undefined') {
+  exports.atob = function(str) {
+    return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
+  }
+}
+else {
+  exports.atob = function() { return atob.apply(window, arguments); }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
