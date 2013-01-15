@@ -800,14 +800,17 @@ var IdbPouch = function(opts, callback) {
         }
         call(opts.onChange, c);
       });
-      call(opts.complete, null, {results: dedupResults});
+      if (!opts.continuous || (opts.continuous && !opts.cancelled)) {
+        call(opts.complete, null, {results: dedupResults});
     };
 
     function onerror(error) {
-      if (opts.continuous) {
+      if (opts.continuous && !opts.cancelled) {
         IdbPouch.Changes.addListener(name, id, opts);
       }
-      call(opts.complete);
+      else {
+        call(opts.complete);
+      }
     };
 
     if (opts.continuous) {
