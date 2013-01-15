@@ -293,6 +293,13 @@ var IdbPouch = function(opts, callback) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
         return processDocs();
       }
+      oldDoc.deletions && (docInfo.metadata.deletions = oldDoc.deletions);
+      if(docInfo.metadata.deleted) {
+        if(!('deletions' in docInfo.metadata)) {
+          docInfo.metadata.deletions = {};
+        }
+        docInfo.metadata.deletions[docInfo.metadata.rev.split('-')[1]] = true;
+      }
 
       docInfo.metadata.rev_tree = merged.tree;
       writeDoc(docInfo, processDocs);
