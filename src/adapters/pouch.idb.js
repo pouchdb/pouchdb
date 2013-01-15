@@ -68,8 +68,9 @@ var IdbPouch = function(opts, callback) {
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique: true});
+    //rev ids are unique per document
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
-      .createIndex('_rev', '_rev', {unique: true});
+      .createIndex('_doc_id_rev', '_doc_id_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
   };
 
@@ -267,6 +268,7 @@ var IdbPouch = function(opts, callback) {
       }
 
       function finish() {
+        docInfo.data._doc_id_rev = docInfo.data._id + "::" + docInfo.data._rev;
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           if (Pouch.DEBUG)
@@ -392,10 +394,14 @@ var IdbPouch = function(opts, callback) {
 
       var rev = winningRev(metadata);
       var key = opts.rev ? opts.rev : rev;
-      var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+      key = metadata.id + "::" + key;
+      var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
 
       index.get(key).onsuccess = function(e) {
         var doc = e.target.result;
+        //Remove local key _doc_rev_id
+        if(doc && doc._doc_id_rev) delete(doc._doc_id_rev);
+
         if (opts.revs) {
           var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
             return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
@@ -613,6 +619,8 @@ var IdbPouch = function(opts, callback) {
           if (opts.include_docs) {
             doc.doc = data;
             doc.doc._rev = winningRev(metadata);
+            //Remove local key
+            doc.doc._doc_id_rev && delete(doc.doc._doc_id_rev);
             if (opts.conflicts) {
               doc.doc._conflicts = collectConflicts(metadata.rev_tree);
             }
