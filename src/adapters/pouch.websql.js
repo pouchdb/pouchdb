@@ -49,8 +49,9 @@ var webSqlPouch = function(opts, callback) {
       ' (digest, json)';
     var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
       ' (id unique, seq, json)';
+    //rev id unique per document
     var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE +
-      ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, rev UNIQUE, json)';
+      ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, doc_id_rev UNIQUE, json)';
 
     tx.executeSql(attach);
     tx.executeSql(doc);
@@ -244,8 +245,8 @@ var webSqlPouch = function(opts, callback) {
 
       function finish() {
         var data = docInfo.data;
-        var sql = 'INSERT INTO ' + BY_SEQ_STORE + ' (rev, json) VALUES (?, ?);';
-        tx.executeSql(sql, [data._rev, JSON.stringify(data)], dataWritten);
+        var sql = 'INSERT INTO ' + BY_SEQ_STORE + ' (doc_id_rev, json) VALUES (?, ?);';
+        tx.executeSql(sql, [data._id + "::" + data._rev, JSON.stringify(data)], dataWritten);
       }
     }
 
@@ -420,8 +421,8 @@ var webSqlPouch = function(opts, callback) {
 
         var rev = winningRev(metadata);
         var key = opts.rev ? opts.rev : rev;
-        var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE rev=?';
-        tx.executeSql(sql, [key], function(tx, results) {
+        var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
+        tx.executeSql(sql, [metadata.id + "::" + key], function(tx, results) {
           var doc = JSON.parse(results.rows.item(0).json);
 
           if (opts.revs) {
