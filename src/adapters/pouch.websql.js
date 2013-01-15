@@ -64,7 +64,7 @@ var webSqlPouch = function(opts, callback) {
         tx.executeSql(initSeq, [0]);
         return;
       }
-      update_seq = result.rows[0].update_seq;
+      update_seq = result.rows.item(0).update_seq;
     });
   }, unknownError(callback), dbCreated);
 
@@ -741,8 +741,9 @@ webSqlPouch.destroy = function(name, callback) {
     tx.executeSql('DROP TABLE IF EXISTS ' + DOC_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + BY_SEQ_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + ATTACH_STORE, []);
+    tx.executeSql('DROP TABLE IF EXISTS ' + META_STORE, []);
   }, unknownError(callback), function() {
-    callback(null);
+    call(callback, null);
   });
 };
 
