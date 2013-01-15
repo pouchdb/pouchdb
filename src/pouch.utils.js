@@ -179,34 +179,45 @@ var compareRevs = function(a, b) {
 
 // Pretty much all below can be combined into a higher order function to
 // traverse revisions
-// Turn a tree into a list of rootToLeaf paths
-var expandTree = function(all, i, tree) {
-  all.push({rev: i + '-' + tree[0], status: 'available'});
-  tree[1].forEach(function(child) {
-    expandTree(all, i + 1, child);
+// Callback has signature function(isLeaf, pos, id, [context])
+// The return value from the callback will be passed as context to all children of that node
+var traverseRevTree = function(revs, callback) {
+  var toVisit = [];
+
+  revs.forEach(function(tree) {
+    toVisit.push({pos: tree.pos, ids: tree.ids});
   });
+
+  while (toVisit.length > 0) {
+    var node = toVisit.pop(),
+        pos = node.pos,
+        tree = node.ids;
+    var newCtx = callback(tree[1].length == 0, pos, tree[0], node.ctx);
+    tree[1].forEach(function(branch) {
+      toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
+    });
+  }
 }
 
 var collectRevs = function(path) {
   var revs = [];
-  expandTree(revs, path.pos, path.ids);
-  return revs;
-}
 
-var collectLeavesInner = function(all, pos, tree) {
-  if (!tree[1].length) {
-    all.push({rev: pos + '-' + tree[0]});
-  }
-  tree[1].forEach(function(child) {
-    collectLeavesInner(all, pos+1, child);
+  traverseRevTree([path], function(isLeaf, pos, id) {
+    revs.push({rev: pos + "-" + id, status: 'available'});
   });
+
+  return revs;
 }
 
 var collectLeaves = function(revs) {
   var leaves = [];
-  revs.forEach(function(tree) {
-    collectLeavesInner(leaves, tree.pos, tree.ids);
+  traverseRevTree(revs, function(isLeaf, pos, id) {
+    if (isLeaf) leaves.unshift({rev: pos + "-" + id, pos: pos});
   });
+  leaves.sort(function(a, b) {
+    return b.pos-a.pos;
+  });
+  leaves.map(function(leaf) { delete leaf.pos });
   return leaves;
 }
 
@@ -243,18 +254,6 @@ var writeCheckpoint = function(src, target, checkpoint, callback) {
   });
 };
 
-// Turn a tree into a list of rootToLeaf paths
-function expandTree2(all, current, pos, arr) {
-  current = current.slice(0);
-  current.push(arr[0]);
-  if (!arr[1].length) {
-    all.push({pos: pos, ids: current});
-  }
-  arr[1].forEach(function(child) {
-    expandTree2(all, current, pos, child);
-  });
-}
-
 // We fetch all leafs of the revision tree, and sort them based on tree length
 // and whether they were deleted, undeleted documents with the longest revision
 // tree (most edits) win
@@ -264,18 +263,9 @@ var winningRev = function(metadata) {
   var deletions = metadata.deletions || {};
   var leafs = [];
 
-  function treeLeaf(pos, tree) {
-    if (!tree[1].length) {
-      leafs.push({pos: pos, id: tree[0]});
-    }
-    tree[1].forEach(function(branch) {
-      treeLeaf(pos + 1, branch);
-    });
-  }
-
-  metadata.rev_tree.forEach(function(tree) {
-    treeLeaf(tree.pos, tree.ids);
-  });
+  traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id) {
+    if (isLeaf) leafs.push({pos: pos, id: id});
+  })
 
   leafs.forEach(function(leaf) {
     leaf.deleted = leaf.id in deletions;
@@ -294,11 +284,19 @@ var winningRev = function(metadata) {
 }
 
 var rootToLeaf = function(tree) {
-  var all = [];
-  tree.forEach(function(path) {
-    expandTree2(all, [], path.pos, path.ids);
+  var paths = [];
+  
+  traverseRevTree(tree, function(isLeaf, pos, id, history) {
+    history = history ? history.slice(0) : [];
+    history.push(id);
+    if (isLeaf) {
+      var rootPos = pos + 1 - history.length;
+      paths.unshift({pos: rootPos, ids: history});
+    }
+    return history;
   });
-  return all;
+
+  return paths;
 }
 
 var arrayFirst = function(arr, callback) {
@@ -474,9 +472,7 @@ if (typeof module !== 'undefined' && module.exports) {
     parseDoc: parseDoc,
     isDeleted: isDeleted,
     compareRevs: compareRevs,
-    expandTree: expandTree,
     collectRevs: collectRevs,
-    collectLeavesInner: collectLeavesInner,
     collectLeaves: collectLeaves,
     collectConflicts: collectConflicts,
     fetchCheckpoint: fetchCheckpoint,
