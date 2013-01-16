@@ -740,6 +740,7 @@ webSqlPouch.valid = function() {
 
 webSqlPouch.destroy = function(name, callback) {
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
+  localJSON.set(name + '_id', null);
   db.transaction(function (tx) {
     tx.executeSql('DROP TABLE IF EXISTS ' + DOC_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + BY_SEQ_STORE, []);
