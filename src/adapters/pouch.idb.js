@@ -802,6 +802,7 @@ var IdbPouch = function(opts, callback) {
       });
       if (!opts.continuous || (opts.continuous && !opts.cancelled)) {
         call(opts.complete, null, {results: dedupResults});
+      }
     };
 
     function onerror(error) {
