@@ -48,7 +48,7 @@ var webSqlPouch = function(opts, callback) {
     var attach = 'CREATE TABLE IF NOT EXISTS ' + ATTACH_STORE +
       ' (digest, json)';
     var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
-      ' (id unique, seq, json)';
+      ' (id unique, seq, json, winningseq)';
     var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE +
       ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, rev UNIQUE, json)';
 
@@ -230,12 +230,15 @@ var webSqlPouch = function(opts, callback) {
       function dataWritten(tx, result) {
         var seq = docInfo.metadata.seq = result.insertId;
         delete docInfo.metadata.rev;
+
+        var mainRev = winningRev(docInfo.metadata);
+
         var sql = isUpdate ?
-          'UPDATE ' + DOC_STORE + ' SET seq=?, json=? WHERE id=?' :
-          'INSERT INTO ' + DOC_STORE + ' (id, seq, json) VALUES (?, ?, ?);';
+          'UPDATE ' + DOC_STORE + ' SET seq=?, json=?, winningseq=(SELECT seq FROM ' + BY_SEQ_STORE + ' WHERE rev=?) WHERE id=?' :
+          'INSERT INTO ' + DOC_STORE + ' (id, seq, winningseq, json) VALUES (?, ?, ?, ?);';
         var params = isUpdate ?
-          [seq, JSON.stringify(docInfo.metadata), docInfo.metadata.id] :
-          [docInfo.metadata.id, seq, JSON.stringify(docInfo.metadata)];
+          [seq, JSON.stringify(docInfo.metadata), mainRev, docInfo.metadata.id] :
+          [docInfo.metadata.id, seq, seq, JSON.stringify(docInfo.metadata)];
         tx.executeSql(sql, params, function(tx, result) {
           results.push(docInfo);
           call(callback, null);
@@ -489,7 +492,7 @@ var webSqlPouch = function(opts, callback) {
     var sql = 'SELECT ' + DOC_STORE + '.id, ' + BY_SEQ_STORE + '.seq, ' +
       BY_SEQ_STORE + '.json AS data, ' + DOC_STORE + '.json AS metadata FROM ' +
       BY_SEQ_STORE + ' JOIN ' + DOC_STORE + ' ON ' + BY_SEQ_STORE + '.seq = ' +
-      DOC_STORE + '.seq';
+      DOC_STORE + '.winningseq';
 
     if (start) {
       sql += ' WHERE ' + DOC_STORE + '.id >= "' + start + '"';
@@ -572,8 +575,8 @@ var webSqlPouch = function(opts, callback) {
       var sql = 'SELECT ' + DOC_STORE + '.id, ' + BY_SEQ_STORE + '.seq, ' +
         BY_SEQ_STORE + '.json AS data, ' + DOC_STORE + '.json AS metadata FROM ' +
         BY_SEQ_STORE + ' JOIN ' + DOC_STORE + ' ON ' + BY_SEQ_STORE + '.seq = ' +
-        DOC_STORE + '.seq WHERE ' + BY_SEQ_STORE + '.seq > ' + opts.seq +
-        ' ORDER BY ' + BY_SEQ_STORE + '.seq ' + (descending ? 'DESC' : 'ASC');
+        DOC_STORE + '.winningseq WHERE ' + DOC_STORE + '.seq > ' + opts.seq +
+        ' ORDER BY ' + DOC_STORE + '.seq ' + (descending ? 'DESC' : 'ASC');
 
       db.transaction(function(tx) {
         tx.executeSql(sql, [], function(tx, result) {
@@ -737,6 +740,7 @@ webSqlPouch.valid = function() {
 
 webSqlPouch.destroy = function(name, callback) {
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
+  localJSON.set(name + '_id', null);
   db.transaction(function (tx) {
     tx.executeSql('DROP TABLE IF EXISTS ' + DOC_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + BY_SEQ_STORE, []);
