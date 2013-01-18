@@ -225,6 +225,38 @@ adapters.map(function(adapters) {
     });
   });
 
+
+  asyncTest("Test _conflicts key", function() {
+    console.info("Starting Test: Testing _conflicts key");
+
+    var self = this;
+    var doc1 = {_id: 'adoc', foo:'bar'};
+    var doc2 = {_id: 'adoc', bar:'baz'};
+    initDBPair(this.name, this.remote, function(db, remote) {
+      db.put(doc1, function(err, localres) {
+        remote.put(doc2, function(err, remoteres) {
+          db.replicate.to(self.remote, function(err, _) {
+            
+            var queryFun = {
+              map: function(doc) {
+                if (doc._conflicts) {
+                  emit(doc._id, [doc._rev].concat(doc._conflicts));
+                }
+              }
+            };
+
+            remote.query(queryFun, {reduce: false}, function(_, res) {
+              equal(res.rows.length, 1, "_conflict key exists");
+              start();
+            });
+
+          });
+        });
+      });
+    });
+  });
+
+
   asyncTest("Test basic continous pull replication", function() {
     console.info('Starting Test: Test basic continous pull replication');
     var self = this;
