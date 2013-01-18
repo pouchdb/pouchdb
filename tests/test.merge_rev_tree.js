@@ -223,9 +223,9 @@ var twoChild = {pos: 1, ids: ['1', [
   ]]
 ]]};
 test('Merging two children is still reflexive.', function() {
-  deepEqual(Pouch.merge(twoChild, twoChild, 10), {
+  deepEqual(Pouch.merge([twoChild], twoChild, 10), {
     tree: [twoChild],
-    conflicts: 'new_leaf'
+    conflicts: 'internal_node'
   })
 });
 
@@ -234,9 +234,9 @@ var twoChildSibs = {pos: 1, ids: ['1', [
   ['1b', []]
 ]]}
 test('Merging a tree to itself is itself.', function() {
-  deepEqual(Pouch.merge(twoChildSibs, twoChildSibs, 10), {
+  deepEqual(Pouch.merge([twoChildSibs], twoChildSibs, 10), {
     tree: [twoChildSibs],
-    conflicts: 'new_leaf'
+    conflicts: 'internal_node'
   })
 });
 
