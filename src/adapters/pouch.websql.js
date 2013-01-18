@@ -534,14 +534,8 @@ var webSqlPouch = function(opts, callback) {
     });
   }
 
-  api.changes = function idb_changes(opts, callback) {
+  api.changes = function idb_changes(opts) {
 
-    if (typeof opts === 'function') {
-      opts = {complete: opts};
-    }
-    if (callback) {
-      opts.complete = callback;
-    }
     if (!opts.seq) {
       opts.seq = 0;
     }

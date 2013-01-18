@@ -693,15 +693,8 @@ LevelPouch = module.exports = function(opts, callback) {
     });
   }
 
-  api.changes = function(opts, callback) {
-    if (opts instanceof Function && callback === undefined) {
-      callback = opts;
-      opts = {};
-    }
+  api.changes = function(opts) {
 
-    if (callback) {
-      opts.complete = callback;
-    }
     if (!opts.seq) {
       opts.seq = opts.descending ? update_seq : '0';
     }
