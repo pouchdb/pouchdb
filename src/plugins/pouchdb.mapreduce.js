@@ -39,7 +39,7 @@ var MapReduce = function(db) {
       }
       if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
       if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
-      if (options.key && Pouch.collate(key, options.key) != 0) return;
+      if (options.key && Pouch.collate(key, options.key) !== 0) return;
       results.push(viewRow);
     };
 
@@ -51,6 +51,7 @@ var MapReduce = function(db) {
     }
 
     db.changes({
+      conflicts: true,
       include_docs: true,
       onChange: function(doc) {
         if (!('deleted' in doc)) {
@@ -86,7 +87,7 @@ var MapReduce = function(db) {
         options.complete(null, {rows: groups});
       }
     });
-  };
+  }
 
   function httpQuery(fun, opts, callback) {
 
@@ -128,7 +129,7 @@ var MapReduce = function(db) {
       var parts = fun.split('/');
       db.request({
         type:'GET',
-        url: '_design/' + parts[0] + '/_view/' + parts[1] + params,
+        url: '_design/' + parts[0] + '/_view/' + parts[1] + params
       }, callback);
       return;
     }
@@ -146,7 +147,7 @@ var MapReduce = function(db) {
       url: '_temp_view' + params,
       data: queryObject
     }, callback);
-  };
+  }
 
   function query(fun, opts, callback) {
     if (typeof opts === 'function') {
@@ -183,6 +184,6 @@ var MapReduce = function(db) {
 };
 
 // Deletion is a noop since we dont store the results of the view
-MapReduce._delete = function() { }
+MapReduce._delete = function() { };
 
 Pouch.plugin('mapreduce', MapReduce);
