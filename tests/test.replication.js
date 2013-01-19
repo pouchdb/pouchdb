@@ -103,6 +103,7 @@ adapters.map(function(adapters) {
       db.bulkDocs({docs: docs}, {}, function(err, _) {
         db.replicate.to(self.remote, function(err, _) {
           remote.allDocs(function(err, result) {
+            console.log(result);
             ok(result.rows.length === docs.length, 'correct # docs written');
             start();
           });
@@ -201,7 +202,6 @@ adapters.map(function(adapters) {
       });
     });
   });
-
 
   // CouchDB will not generate a conflict here, it uses a deteministic
   // method to generate the revision number, however we cannot copy its
@@ -335,6 +335,56 @@ adapters.map(function(adapters) {
     });
   });
 
+
+  asyncTest("Replication with different filters", function() {
+    console.info('Starting Test: Replication with different filters');
+    var more_docs = [
+      {_id: '3', integer: 3, string: '3'},
+      {_id: '4', integer: 4, string: '4'}
+    ];
+
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, function(err, info) {
+        db.replicate.from(remote, {
+          filter: function(doc) { return doc.integer % 2 === 0; }
+        }, function(err, response){
+          remote.bulkDocs({docs:more_docs}, function(err, info) {
+            db.replicate.from(remote, {}, function(err, response) {
+              ok(response.docs_written === 3,'correct # of docs replicated');
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("Replication with same filters", function() {
+    console.info('Starting Test: Replication with same filters');
+    var more_docs = [
+      {_id: '3', integer: 3, string: '3'},
+      {_id: '4', integer: 4, string: '4'}
+    ];
+
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, function(err, info) {
+        db.replicate.from(remote, {
+          filter: function(doc) { return doc.integer % 2 === 0; }
+        }, function(err, response){
+          db.allDocs(function(err, docs) {console.log(docs);});
+          remote.bulkDocs({docs:more_docs}, function(err, info) {
+            db.replicate.from(remote, {
+              filter: function(doc) { return doc.integer % 2 === 0; }
+            }, function(err, response) {
+              ok(response.docs_written === 1,'correct # of docs replicated');
+              start();
+            });
+          });
+        });
+      });
+    });
+  });  
+   
   asyncTest("Replication with deleted doc", function() {
     console.info('Starting Test: Replication with deleted doc');
 
