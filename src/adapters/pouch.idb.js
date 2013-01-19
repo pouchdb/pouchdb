@@ -45,6 +45,9 @@ var IdbPouch = function(opts, callback) {
   var BY_SEQ_STORE = 'by-sequence';
   // Where we store attachments
   var ATTACH_STORE = 'attach-store';
+  // Where we store meta data
+  var META_STORE = 'meta-store';
+
 
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
@@ -71,11 +74,14 @@ var IdbPouch = function(opts, callback) {
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
       .createIndex('_rev', '_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
+    db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
   };
 
   req.onsuccess = function(e) {
 
     idb = e.target.result;
+
+    var txn = idb.transaction([META_STORE], IDBTransaction.READ_ONLY);
 
     idb.onversionchange = function() {
       idb.close();
@@ -95,15 +101,12 @@ var IdbPouch = function(opts, callback) {
       return;
     }
 
-    // TODO: This is a really inneficient way of finding the last
-    // update sequence, cant think of an alterative right now
-    api.changes(function(err, changes) {
-      if (changes.results.length) {
-        update_seq = changes.results[changes.results.length - 1].seq;
-      }
-      call(callback, null, api);
-    });
+    var req = txn.objectStore(META_STORE).get('update_seq');
 
+    req.onsuccess = function(e) {
+      update_seq = e.target.result ? e.target.result.update_seq : 0;
+      call(callback, null, api);
+    }
   };
 
   req.onerror = idbError(callback);
@@ -215,7 +218,7 @@ var IdbPouch = function(opts, callback) {
           doc: result.data
         };
         change.doc._rev = rev;
-        update_seq++;
+
         IdbPouch.Changes.emitChange(name, change);
       });
       call(callback, null, aresults);
@@ -227,6 +230,9 @@ var IdbPouch = function(opts, callback) {
 
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
+
+      update_seq++;
+      var req = txn.objectStore(META_STORE).put({id: 'update_seq', update_seq: update_seq});
 
       if (isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
         docInfo.data._deleted = true;
@@ -346,7 +352,7 @@ var IdbPouch = function(opts, callback) {
       }
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], IDBTransaction.READ_WRITE);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE], IDBTransaction.READ_WRITE);
     txn.onerror = idbError(callback);
     txn.ontimeout = idbError(callback);
     txn.oncomplete = complete;
