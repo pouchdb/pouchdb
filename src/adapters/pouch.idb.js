@@ -56,7 +56,7 @@ var IdbPouch = function(opts, callback) {
     updateSeq: 0,
   };
 
-  var _apiId = null;
+  var instanceId = null;
 
   // var storeAttachmentsInIDB = !(window.storageInfo && window.requestFileSystem);
   // We cant store attachments on the filesystem due to a limitation in the
@@ -115,12 +115,12 @@ var IdbPouch = function(opts, callback) {
         meta = e.target.result;
       }
 
-      _apiId = meta[name + '_id'];
+      if (name + '_id' in meta) {
+        instanceId = meta[name + '_id'];
+      } else {
+        instanceId = Math.uuid();
 
-      if (!_apiId) {
-        _apiId = Math.uuid();
-
-        meta[name + '_id'] = _apiId;
+        meta[name + '_id'] = instanceId;
         reqDBId = txn.objectStore(META_STORE).put(meta);
       }
       call(callback, null, api);
@@ -136,7 +136,7 @@ var IdbPouch = function(opts, callback) {
   // Each database needs a unique id so that we can store the sequence
   // checkpoint without having other databases confuse itself.
   api.id = function idb_id() {
-    return _apiId;
+    return instanceId;
   };
 
   api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
