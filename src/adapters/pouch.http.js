@@ -103,6 +103,7 @@ var HttpPouch = function(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
   var host = getHost(opts.name);
+  if (opts.auth) host.auth = opts.auth;
 
   // Generate the database URL based on the host
   var db_url = genDBUrl(host, '');
