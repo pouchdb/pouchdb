@@ -236,7 +236,7 @@ adapters.map(function(adapters) {
       db.put(doc1, function(err, localres) {
         remote.put(doc2, function(err, remoteres) {
           db.replicate.to(self.remote, function(err, _) {
-            
+
             var queryFun = {
               map: function(doc) {
                 if (doc._conflicts) {
@@ -245,7 +245,7 @@ adapters.map(function(adapters) {
               }
             };
 
-            remote.query(queryFun, {reduce: false}, function(_, res) {
+            remote.query(queryFun, {reduce: false, conflicts: true}, function(_, res) {
               equal(res.rows.length, 1, "_conflict key exists");
               start();
             });
@@ -415,8 +415,8 @@ adapters.map(function(adapters) {
         });
       });
     });
-  });  
-   
+  });
+
   asyncTest("Replication with deleted doc", function() {
     console.info('Starting Test: Replication with deleted doc');
 
