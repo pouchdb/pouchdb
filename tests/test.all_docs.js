@@ -65,20 +65,22 @@ adapters.map(function(adapter) {
             db.allDocs(opts, function(err, raw) {
               ok(raw.rows.length === 0, 'raw collation');
               var ids = ["0","3","1","2"];
-              db.changes(function(err, changes) {
-                changes.results.forEach(function(row, i) {
-                  ok(row.id === ids[i], 'seq order');
-                });
-                db.changes({
-                  descending: true,
-                  complete: function(err, changes) {
-                    ids = ["2","1","3","0"];
-                    changes.results.forEach(function(row, i) {
-                      ok(row.id === ids[i], 'descending=true');
-                    });
-                    start();
-                  }
-                });
+              db.changes({
+                complete: function(err, changes) {
+                  changes.results.forEach(function(row, i) {
+                    ok(row.id === ids[i], 'seq order');
+                  });
+                  db.changes({
+                    descending: true,
+                    complete: function(err, changes) {
+                      ids = ["2","1","3","0"];
+                      changes.results.forEach(function(row, i) {
+                        ok(row.id === ids[i], 'descending=true');
+                      });
+                      start();
+                    }
+                  });
+                }
               });
             });
           });
@@ -93,11 +95,13 @@ adapters.map(function(adapter) {
         db.get('1', function(err, doc) {
           db.remove(doc, function(err, deleted) {
             ok(deleted.ok, 'deleted');
-            db.changes(function(err, changes) {
-              ok(changes.results.length == 4);
-              ok(changes.results[3].id == "1");
-              ok(changes.results[3].deleted);
-              start();
+            db.changes({
+              complete: function(err, changes) {
+                ok(changes.results.length == 4);
+                ok(changes.results[3].id == "1");
+                ok(changes.results[3].deleted);
+                start();
+              }
             });
           });
         });
@@ -111,10 +115,12 @@ adapters.map(function(adapter) {
         db.get('3', function(err, doc) {
           doc.updated = 'totally';
           db.put(doc, function(err, doc) {
-            db.changes(function(err, changes) {
-              ok(changes.results.length === 4);
-              ok(changes.results[3].id === "3");
-              start();
+            db.changes({
+              complete: function(err, changes) {
+                ok(changes.results.length === 4);
+                ok(changes.results[3].id === "3");
+                start();
+              }
             });
           });
         });
@@ -125,9 +131,12 @@ adapters.map(function(adapter) {
   asyncTest('Testing include docs', function() {
     initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
-        db.changes({include_docs: true}, function(err, changes) {
-          equal(changes.results[0].doc.a, 1);
-          start();
+        db.changes({
+          include_docs: true,
+          complete: function(err, changes) {
+            equal(changes.results[0].doc.a, 1);
+            start();
+          }
         });
       });
     });
@@ -148,32 +157,37 @@ adapters.map(function(adapter) {
             db.get('3', function(err, winRev) {
               equal(winRev._rev, conflictDoc2._rev, "correct wining revision on get");
               var opts = {include_docs: true, conflicts: true, style: 'all_docs'};
-              db.changes(opts, function(err, changes) {
-                var result = changes.results[3];
-                ok("3" === result.id, 'changes are ordered');
-                ok(3 === result.changes.length, 'correct number of changes');
-                ok(result.doc._rev === conflictDoc2._rev,
-                   'correct winning revision');
-                equal("3", result.doc._id, 'correct doc id');
-                equal(winRev._rev, result.doc._rev,
-                      'include doc has correct rev');
-                equal(true, result.doc._conflicts instanceof Array,
-                      'include docs contains conflicts');
-                ok(result.doc._conflicts &&
-                   2 === result.doc._conflicts.length,
-                   'correct number of changes');
-                db.allDocs({include_docs: true, conflicts: true}, function(err, res) {
-                  var row = res.rows[3];
-                  equal(4, res.rows.length, 'correct number of changes');
-                  equal("3", row.key, 'correct key');
-                  equal("3", row.id, 'correct id');
-                  equal(row.value.rev, winRev._rev, 'correct rev');
-                  equal(row.doc._rev, winRev._rev, 'correct rev');
-                  equal("3", row.doc._id, 'correct order');
-                  ok(row.doc._conflicts instanceof Array);
-                  ok(row.doc._conflicts && 2 === row.doc._conflicts.length);
-                  start();
-                });
+              db.changes({
+                include_docs: true,
+                conflicts: true,
+                style: 'all_docs',
+                complete: function(err, changes) {
+                  var result = changes.results[3];
+                  ok("3" === result.id, 'changes are ordered');
+                  ok(3 === result.changes.length, 'correct number of changes');
+                  ok(result.doc._rev === conflictDoc2._rev,
+                     'correct winning revision');
+                  equal("3", result.doc._id, 'correct doc id');
+                  equal(winRev._rev, result.doc._rev,
+                        'include doc has correct rev');
+                  equal(true, result.doc._conflicts instanceof Array,
+                        'include docs contains conflicts');
+                  ok(result.doc._conflicts &&
+                     2 === result.doc._conflicts.length,
+                     'correct number of changes');
+                  db.allDocs({include_docs: true, conflicts: true}, function(err, res) {
+                    var row = res.rows[3];
+                    equal(4, res.rows.length, 'correct number of changes');
+                    equal("3", row.key, 'correct key');
+                    equal("3", row.id, 'correct id');
+                    equal(row.value.rev, winRev._rev, 'correct rev');
+                    equal(row.doc._rev, winRev._rev, 'correct rev');
+                    equal("3", row.doc._id, 'correct order');
+                    ok(row.doc._conflicts instanceof Array);
+                    ok(row.doc._conflicts && 2 === row.doc._conflicts.length);
+                    start();
+                  });
+                }
               });
             });
           });

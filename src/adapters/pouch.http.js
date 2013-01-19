@@ -485,17 +485,7 @@ var HttpPouch = function(opts, callback) {
   // Get a list of changes made to documents in the database given by host.
   // TODO According to the README, there should be two other methods here,
   // api.changes.addListener and api.changes.removeListener.
-  api.changes = function(opts, callback) {
-    // If no options were given, set the callback to the first parameter
-    if (typeof opts === 'function') {
-      opts = {complete: opts};
-    }
-
-    // If a callback was provided outside of opts, then it is the one that
-    // will be called upon completion
-    if (callback) {
-      opts.complete = callback;
-    }
+  api.changes = function(opts) {
 
     if (Pouch.DEBUG)
       console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);

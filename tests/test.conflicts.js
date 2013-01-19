@@ -44,13 +44,15 @@ adapters.map(function(adapter) {
             ok(res.ok, 'Put second doc');
             db.put(doc2, function(err) {
               ok(err.error === 'conflict', 'Put got a conflicts');
-              db.changes(function(err, results) {
-                ok(results.results.length === 1, 'We have one entry in changes');
-                doc2._rev = undefined;
-                db.put(doc2, function(err) {
-                  ok(err.error === 'conflict', 'Another conflict');
-                  start();
-                });
+              db.changes({
+                complete: function(err, results) {
+                  ok(results.results.length === 1, 'We have one entry in changes');
+                  doc2._rev = undefined;
+                  db.put(doc2, function(err) {
+                    ok(err.error === 'conflict', 'Another conflict');
+                    start();
+                  });
+                }
               });
             });
           });
