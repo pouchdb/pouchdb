@@ -50,10 +50,13 @@ var MapReduce = function(db) {
       eval('fun.reduce = ' + fun.reduce.toString() + ';');
     }
 
+
+    // exclude  _conflicts key by default
+    // or to use options.conflicts if it's set when called by db.query
+    var conflicts = ('conflicts' in options ? options.conflicts : false);
+
     db.changes({
-      // include _conflicts key by default
-      // or to use options.conflicts if it's set when called by db.query
-      conflicts: (typeof options.conflicts === 'boolean' ? options.conflicts : true),
+      conflicts: conflicts,
       include_docs: true,
       onChange: function(doc) {
         if (!('deleted' in doc)) {
