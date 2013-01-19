@@ -192,6 +192,16 @@ var HttpPouch = function(opts, callback) {
     ajax(options, callback);
   };
 
+  // Sends a POST request to the host calling the couchdb _compact function
+  //    version: The version of CouchDB it is running
+  api.compact = function(callback) {
+    ajax({
+      auth: host.auth,
+      url: genDBUrl(host, '_compact'),
+      type: 'POST'
+    }, callback)
+  }
+
   // Calls GET on the host, which gets back a JSON string containing
   //    couchdb: A welcome string
   //    version: The version of CouchDB it is running
