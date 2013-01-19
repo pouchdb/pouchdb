@@ -6,7 +6,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
   function replicate(src, target, opts, callback, replicateRet) {
 
-    fetchCheckpoint(src, target, function(checkpoint) {
+    fetchCheckpoint(src, target, opts, function(checkpoint) {
       var results = [];
       var completed = false;
       var pending = 0;
@@ -22,7 +22,7 @@ if (typeof module !== 'undefined' && module.exports) {
       function isCompleted() {
         if (completed && pending === 0) {
           result.end_time = new Date();
-          writeCheckpoint(src, target, last_seq, function() {
+          writeCheckpoint(src, target, opts, last_seq, function() {
             call(callback, null, result);
           });
         }

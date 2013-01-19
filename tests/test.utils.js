@@ -48,7 +48,7 @@ function openTestDB(name, callback) {
 function initTestDB(name, callback) {
   // ignore errors, the database might not exist
   Pouch.destroy(name, function(err) {
-    if (err && err.status !== 404) {
+    if (err && err.status !== 404 && err.statusText != 'timeout') {
       console.error(err);
       ok(false, 'failed to open database');
       return start();
