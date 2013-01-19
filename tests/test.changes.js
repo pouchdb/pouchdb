@@ -36,10 +36,6 @@ adapters.map(function(adapter) {
             ok(!change.doc, 'If we dont include docs, dont include docs');
             ok(change.seq, 'Received a sequence number');
             start();
-          },
-          error: function() {
-            ok(false);
-            start();
           }
         });
       });
@@ -55,10 +51,6 @@ adapters.map(function(adapter) {
             ok(change.doc);
             equal(change.doc._id, change.id);
             equal(change.doc._rev, change.changes[change.changes.length - 1].rev);
-            start();
-          },
-          error: function() {
-            ok(false);
             start();
           }
         });
