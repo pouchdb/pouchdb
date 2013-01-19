@@ -163,8 +163,8 @@
 
   Pouch.merge = function(tree, path, depth) {
     // Ugh, nicer way to not modify arguments in place?
-    tree = JSON.parse(JSON.stringify(tree));
-    path = JSON.parse(JSON.stringify(path));
+    tree = extend(true, [], tree);
+    path = extend(true, {}, path);
     var newTree = doMerge(tree, path);
     return {
       tree: stem(newTree.tree, depth),

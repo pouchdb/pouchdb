@@ -317,7 +317,7 @@ LevelPouch = module.exports = function(opts, callback) {
       opts = {}
     }
     opts.was_delete = true;
-    var newDoc = JSON.parse(JSON.stringify(doc));
+    var newDoc = extend(true, {}, doc);
     newDoc._deleted = true;
     return api.bulkDocs({docs: [newDoc]}, opts, Pouch.utils.yankError(callback));
   }
@@ -363,7 +363,7 @@ LevelPouch = module.exports = function(opts, callback) {
       , results = []
 
     // parse the docs and give each a sequence number
-    var userDocs = JSON.parse(JSON.stringify(bulk.docs));
+    var userDocs = extend(true, [], bulk.docs);
     info = userDocs.map(function(doc, i) {
       var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
