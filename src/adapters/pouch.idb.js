@@ -74,14 +74,14 @@ var IdbPouch = function(opts, callback) {
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
       .createIndex('_rev', '_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
-    db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false})
+    db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
   };
 
   req.onsuccess = function(e) {
 
     idb = e.target.result;
 
-    var txn = idb.transaction([META_STORE], IDBTransaction.READ_ONLY)
+    var txn = idb.transaction([META_STORE], IDBTransaction.READ_ONLY);
 
     idb.onversionchange = function() {
       idb.close();
@@ -101,11 +101,11 @@ var IdbPouch = function(opts, callback) {
       return;
     }
 
-    var req = txn.objectStore(META_STORE).get("update_seq")
+    var req = txn.objectStore(META_STORE).get('update_seq');
 
     req.onsuccess = function(e) {
-      update_seq = e.target.result ? e.target.result.update_seq : 0
-      call(callback, null, api)
+      update_seq = e.target.result ? e.target.result.update_seq : 0;
+      call(callback, null, api);
     }
   };
 
@@ -232,7 +232,7 @@ var IdbPouch = function(opts, callback) {
       docInfo.data._rev = docInfo.metadata.rev;
 
       update_seq++;
-      var req = txn.objectStore(META_STORE).put({ id: "update_seq", update_seq: update_seq })
+      var req = txn.objectStore(META_STORE).put({id: 'update_seq', update_seq: update_seq});
 
       if (isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
         docInfo.data._deleted = true;
