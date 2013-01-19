@@ -10,20 +10,25 @@ var Pouch = function Pouch(name, opts, callback) {
     callback = opts;
     opts = {};
   }
+  
+  if (typeof name === 'object') {
+    opts = name;
+    name = undefined;
+  }
 
   var backend = Pouch.parseAdapter(opts.name || name);
-  opts.name = backend.name;
+  opts.name = opts.name || backend.name;
   opts.adapter = opts.adapter || backend.adapter;
 
-  if (!Pouch.adapters[backend.adapter]) {
+  if (!Pouch.adapters[opts.adapter]) {
     throw 'Adapter is missing';
   }
 
-  if (!Pouch.adapters[backend.adapter].valid()) {
+  if (!Pouch.adapters[opts.adapter].valid()) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = Pouch.adapters[backend.adapter](opts, function(err, db) {
+  var adapter = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
       if (callback) callback(err);
       return;

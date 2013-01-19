@@ -103,6 +103,7 @@ var HttpPouch = function(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
   var host = getHost(opts.name);
+  if (opts.auth) host.auth = opts.auth;
 
   // Generate the database URL based on the host
   var db_url = genDBUrl(host, '');
@@ -461,6 +462,11 @@ var HttpPouch = function(opts, callback) {
     // end with the document whose id is endkey.
     if (opts.endkey) {
       params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));
+    }
+
+    // If opts.keys exists, add the keys value to the list of parameters.
+    if (opts.keys) {
+      params.push('keys=' + encodeURIComponent(JSON.stringify(opts.keys)));
     }
 
     // Format the list of parameters into a valid URI query string
