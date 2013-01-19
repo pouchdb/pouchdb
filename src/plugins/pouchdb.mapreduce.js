@@ -27,19 +27,36 @@ var MapReduce = function(db) {
 
     var results = [];
     var current = null;
+    var num_started= 0;
+    var completed= false;
 
     var emit = function(key, val) {
       var viewRow = {
         id: current._id,
         key: key,
         value: val
-      };
-      if (options.include_docs) {
-        viewRow.doc = current.doc;
-      }
+      }; 
+
       if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
       if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
       if (options.key && Pouch.collate(key, options.key) !== 0) return;
+      num_started++;
+      if (options.include_docs) {
+        //in this special case, join on _id (issue #106)
+        if (val && typeof val === 'object' && val._id){
+          db.get(val._id,
+              function(_, joined_doc){
+                if (joined_doc) {
+                  viewRow.doc = joined_doc;
+                }
+                results.push(viewRow);
+                checkComplete();
+              });
+          return;
+        } else {
+          viewRow.doc = current.doc;
+        }
+      }
       results.push(viewRow);
     };
 
@@ -50,21 +67,13 @@ var MapReduce = function(db) {
       eval('fun.reduce = ' + fun.reduce.toString() + ';');
     }
 
-
     // exclude  _conflicts key by default
     // or to use options.conflicts if it's set when called by db.query
     var conflicts = ('conflicts' in options ? options.conflicts : false);
 
-    db.changes({
-      conflicts: conflicts,
-      include_docs: true,
-      onChange: function(doc) {
-        if (!('deleted' in doc)) {
-          current = {doc: doc.doc};
-          fun.map.call(this, doc.doc);
-        }
-      },
-      complete: function() {
+    //only proceed once all documents are mapped and joined
+    var checkComplete= function(){
+      if (completed && results.length == num_started){
         results.sort(function(a, b) {
           return Pouch.collate(a.key, b.key);
         });
@@ -90,6 +99,21 @@ var MapReduce = function(db) {
           e.key = e.key[0][0];
         });
         options.complete(null, {rows: groups});
+      }
+    }
+
+    db.changes({
+      conflicts: conflicts,
+      include_docs: true,
+      onChange: function(doc) {
+        if (!('deleted' in doc)) {
+          current = {doc: doc.doc};
+          fun.map.call(this, doc.doc);
+        }
+      },
+      complete: function() {
+        completed= true;
+        checkComplete();
       }
     });
   }

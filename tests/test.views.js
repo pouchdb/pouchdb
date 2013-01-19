@@ -164,24 +164,23 @@ adapters.map(function(adapter) {
     });
   });
 
-  // TODO: Not currently implemented
-  // asyncTest("Test joins", function() {
-  //   initTestDB(this.name, function(err, db) {
-  //     db.bulkDocs({docs: [{_id: 'mydoc', foo: 'bar'}, { doc_id: 'mydoc' }]}, {}, function() {
-  //       var queryFun = {
-  //         map: function(doc) {
-  //           if (doc.doc_id) {
-  //             emit(doc._id, {_id: doc.doc_id});
-  //           }
-  //         }
-  //       };
-  //       db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
-  //         console.log(res);
-  //         ok(res.rows[0].doc, 'doc included');
-  //         equal(res.rows[0].doc._id, 'mydoc', 'mydoc included');
-  //         start();
-  //       });
-  //     });
-  //   });
-  // });
+  asyncTest("Test joins", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{_id: 'mydoc', foo: 'bar'}, { doc_id: 'mydoc' }]}, {}, function() {
+        var queryFun = {
+          map: function(doc) {
+            if (doc.doc_id) {
+              emit(doc._id, {_id: doc.doc_id});
+            }
+          }
+        };
+        db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+          console.log(res);
+          ok(res.rows[0].doc, 'doc included');
+          equal(res.rows[0].doc._id, 'mydoc', 'mydoc included');
+          start();
+        });
+      });
+    });
+  });
 });
