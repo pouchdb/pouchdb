@@ -217,8 +217,13 @@ var collectConflicts = function(revs) {
   return leaves.map(function(x) { return x.rev; });
 }
 
-var fetchCheckpoint = function(src, target, callback) {
-  var id = Crypto.MD5(src.id() + target.id());
+var fetchCheckpoint = function(src, target, opts, callback) {
+  var filter_func = '';
+  if(typeof opts.filter != "undefined"){
+    filter_func = opts.filter.toString();
+  }
+
+  var id = Crypto.MD5(src.id() + target.id() + filter_func);
   src.get('_local/' + id, function(err, doc) {
     if (err && err.status === 404) {
       callback(0);
@@ -228,9 +233,14 @@ var fetchCheckpoint = function(src, target, callback) {
   });
 };
 
-var writeCheckpoint = function(src, target, checkpoint, callback) {
+var writeCheckpoint = function(src, target, opts, checkpoint, callback) {
+  var filter_func = '';
+  if(typeof opts.filter != "undefined"){
+    filter_func = opts.filter.toString();
+  }
+  
   var check = {
-    _id: '_local/' + Crypto.MD5(src.id() + target.id()),
+    _id: '_local/' + Crypto.MD5(src.id() + target.id() + filter_func),
     last_seq: checkpoint
   };
   src.get(check._id, function(err, doc) {
