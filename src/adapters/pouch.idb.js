@@ -143,7 +143,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     var newEdits = 'new_edits' in opts ? opts.new_edits : true;
-    var userDocs = JSON.parse(JSON.stringify(req.docs));
+    var userDocs = extend(true, [], req.docs);
 
     // Parse the docs, give them a sequence number for the result
     var docInfos = userDocs.map(function(doc, i) {
@@ -547,7 +547,7 @@ var IdbPouch = function(opts, callback) {
       opts = {};
     }
     opts.was_delete = true;
-    var newDoc = JSON.parse(JSON.stringify(doc));
+    var newDoc = extend(true, {}, doc);
     newDoc._deleted = true;
     return api.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
   };
