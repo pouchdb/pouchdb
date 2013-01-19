@@ -30,7 +30,10 @@ function handleRequest(request, response) {
     path: request.url,
     headers: request.headers
   };
-
+  var currLen = 0;
+  if (options.method !== 'PUT' && options.method !== 'POST'){
+    options.headers['content-length'] = 0;
+  }
   var proxy_request = http.request(options);
 
   proxy_request.addListener('response', function (proxy_response) {
