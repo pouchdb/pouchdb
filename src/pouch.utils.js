@@ -414,33 +414,75 @@ var ajax = function ajax(options, callback) {
 };
 
 // Extends method
-// (taken from https://github.com/justmoon/node-extend)
-var hasOwn = Object.prototype.hasOwnProperty;
+// (taken from http://code.jquery.com/jquery-1.9.0.js)
+// Populate the class2type map
+var class2type = {};
 
-var isPlainObject = function(obj) {
-  if (!obj || toString.call(obj) !== '[object Object]' || obj.nodeType || obj.setInterval)
-    return false;
+var types = ["Boolean", "Number", "String", "Function", "Array", "Date", "RegExp", "Object", "Error"];
+for (var i = 0; i < types.length; i++) {
+  var typename = types[i];
+  class2type[ "[object " + typename + "]" ] = typename.toLowerCase();
+}
 
-  var has_own_constructor = hasOwnProperty.call(obj, 'constructor');
-  var has_is_property_of_method = hasOwnProperty.call(obj.constructor.prototype, 'isPrototypeOf');
-  // Not own constructor property must be Object
-  if (obj.constructor && !has_own_constructor && !has_is_property_of_method)
+var core_toString = class2type.toString;
+var core_hasOwn = class2type.hasOwnProperty;
+
+var type = function(obj) {
+  if (obj === null) {
+    return String( obj );
+  }
+  return typeof obj === "object" || typeof obj === "function" ?
+    class2type[core_toString.call(obj)] || "object" :
+    typeof obj;
+};
+
+var isPlainObject = function( obj ) {
+  // Must be an Object.
+  // Because of IE, we also have to check the presence of the constructor property.
+  // Make sure that DOM nodes and window objects don't pass through, as well
+  if ( !obj || type(obj) !== "object" || obj.nodeType || isWindow( obj ) ) {
     return false;
+  }
+
+  try {
+    // Not own constructor property must be Object
+    if ( obj.constructor &&
+      !core_hasOwn.call(obj, "constructor") &&
+      !core_hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
+      return false;
+    }
+  } catch ( e ) {
+    // IE8,9 Will throw exceptions on certain host objects #9897
+    return false;
+  }
 
   // Own properties are enumerated firstly, so to speed up,
   // if last one is own, then all properties are own.
+
   var key;
   for ( key in obj ) {}
 
-  return key === undefined || hasOwn.call( obj, key );
+  return key === undefined || core_hasOwn.call( obj, key );
+};
+
+var isFunction = function(obj) {
+  return type(obj) === "function";
+};
+
+var isWindow = function(obj) {
+  return obj != null && obj == obj.window;
+};
+
+var isArray = Array.isArray || function(obj) {
+  return type(obj) === "array";
 };
 
 var extend = function() {
   var options, name, src, copy, copyIsArray, clone,
-      target = arguments[0] || {},
-      i = 1,
-      length = arguments.length,
-      deep = false;
+    target = arguments[0] || {},
+    i = 1,
+    length = arguments.length,
+    deep = false;
 
   // Handle a deep copy situation
   if ( typeof target === "boolean" ) {
@@ -451,13 +493,19 @@ var extend = function() {
   }
 
   // Handle case when target is a string or something (possible in deep copy)
-  if ( typeof target !== "object" && typeof target !== "function") {
+  if ( typeof target !== "object" && !isFunction(target) ) {
     target = {};
+  }
+
+  // extend jQuery itself if only one argument is passed
+  if ( length === i ) {
+    target = this;
+    --i;
   }
 
   for ( ; i < length; i++ ) {
     // Only deal with non-null/undefined values
-    if ( (options = arguments[ i ]) != null ) {
+    if ((options = arguments[ i ]) != null) {
       // Extend the base object
       for ( name in options ) {
         src = target[ name ];
@@ -469,10 +517,10 @@ var extend = function() {
         }
 
         // Recurse if we're merging plain objects or arrays
-        if ( deep && copy && ( isPlainObject(copy) || (copyIsArray = Array.isArray(copy)) ) ) {
+        if ( deep && copy && ( isPlainObject(copy) || (copyIsArray = isArray(copy)) ) ) {
           if ( copyIsArray ) {
             copyIsArray = false;
-            clone = src && Array.isArray(src) ? src : [];
+            clone = src && isArray(src) ? src : [];
 
           } else {
             clone = src && isPlainObject(src) ? src : {};
