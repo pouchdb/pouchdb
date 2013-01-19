@@ -51,31 +51,37 @@
 
   // Merge two trees together
   // The roots of tree1 and tree2 must be the same revision
-  function mergeTree(tree1, tree2) {
-    var conflicts = false;
-    for (var i = 0; i < tree2[1].length; i++) {
-      if (!tree1[1][0]) {
-        conflicts = 'new_leaf';
-        tree1[1][0] = tree2[1][i];
-      }
 
-      var merged = false;
-      for (var j = 0; j < tree1[1].length; j++) {
-        if (tree1[1][j][0] == tree2[1][i][0]) {
-          var result = mergeTree(tree1[1][j], tree2[1][i]);
-          conflicts = result.conflicts || conflicts;
-          tree1[1][j] = result.tree;
-          merged = true;
+  function mergeTree(in_tree1, in_tree2) {
+    var queue = [{tree1: in_tree1, tree2: in_tree2}];
+    var conflicts = false;
+    while (queue.length > 0) {
+      var item = queue.pop();
+      var tree1 = item.tree1;
+      var tree2 = item.tree2;
+
+      for (var i = 0; i < tree2[1].length; i++) {
+        if (!tree1[1][0]) {
+          conflicts = 'new_leaf';
+          tree1[1][0] = tree2[1][i];
+          continue;
+        }
+
+        var merged = false;
+        for (var j = 0; j < tree1[1].length; j++) {
+          if (tree1[1][j][0] == tree2[1][i][0]) {
+            queue.push({tree1: tree1[1][j], tree2: tree2[1][i]});
+            merged = true;
+          }
+        }
+        if (!merged) {
+          conflicts = 'new_branch';
+          tree1[1].push(tree2[1][i]);
+          tree1[1].sort();
         }
       }
-      if (!merged) {
-        conflicts = 'new_branch';
-        tree1[1].push(tree2[1][i]);
-        tree1[1].sort();
-      }
     }
-
-    return {conflicts: conflicts, tree: tree1};
+    return {conflicts: conflicts, tree: in_tree1};
   }
 
   function doMerge(tree, path, dontExpand) {
@@ -107,20 +113,22 @@
         var diff = t2.pos - t1.pos;
 
         var candidateParents = [];
-        function treeWalk(ids, diff, parent, parentIdx) {
-          if (diff == 0) {
-            if (ids[0] == t2.ids[0]) {
-              candidateParents.push({parent: parent, ids: ids, parentIdx: parentIdx});
+
+        var trees = [];
+        trees.push({ids: t1.ids, diff: diff, parent: null, parentIdx: null});
+        while (trees.length > 0) {
+          var item = trees.pop();
+          if (item.diff == 0) {
+            if (item.ids[0] == t2.ids[0]) {
+              candidateParents.push(item);
             }
-            return;
+            continue;
           }
-          if (!ids) return;
-          ids[1].forEach(function(el, idx) {
-            treeWalk(el, diff-1, ids, idx);
+          if (!item.ids) continue;
+          item.ids[1].forEach(function(el, idx) {
+            trees.push({ids: el, diff: item.diff-1, parent: item.ids, parentIdx: idx});
           });
         }
-
-        treeWalk(t1.ids, diff, undefined);
 
         var el = candidateParents[0];
 

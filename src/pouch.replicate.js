@@ -35,6 +35,7 @@ if (typeof module !== 'undefined' && module.exports) {
       var repOpts = {
         continuous: continuous,
         since: checkpoint,
+        style: 'all_docs',
         onChange: function(change) {
           last_seq = change.seq;
           results.push(change);
