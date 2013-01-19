@@ -115,9 +115,7 @@ var IdbPouch = function(opts, callback) {
         meta = e.target.result;
       }
 
-      if (meta[name + '_id']) {
-        _apiId = meta[name + '_id'];
-      }
+      _apiId = meta[name + '_id'];
 
       if (!_apiId) {
         _apiId = Math.uuid();
