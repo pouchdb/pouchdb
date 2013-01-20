@@ -17,7 +17,7 @@ To run it - due to [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sha
 
     python2 -m SimpleHTTPServer 8888
 
-Then simply run our example: http://localhost:8888/vanilla-examples/vanillajs/. Unfortunately, sync doesn’t work yet.
+Then simply run our example: [http://localhost:8888](http://localhost:8888). Unfortunately, sync doesn’t work yet.
 
 ## Sync
 
