@@ -51,8 +51,12 @@ var IdbPouch = function(opts, callback) {
 
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
-  var update_seq = 0;
+  var meta = {
+    id: 'meta-store',
+    updateSeq: 0,
+  };
 
+  var instanceId = null;
 
   // var storeAttachmentsInIDB = !(window.storageInfo && window.requestFileSystem);
   // We cant store attachments on the filesystem due to a limitation in the
@@ -81,7 +85,7 @@ var IdbPouch = function(opts, callback) {
 
     idb = e.target.result;
 
-    var txn = idb.transaction([META_STORE], IDBTransaction.READ_ONLY);
+    var txn = idb.transaction([META_STORE], IDBTransaction.READ_WRITE);
 
     idb.onversionchange = function() {
       idb.close();
@@ -101,10 +105,24 @@ var IdbPouch = function(opts, callback) {
       return;
     }
 
-    var req = txn.objectStore(META_STORE).get('update_seq');
+    var req = txn.objectStore(META_STORE).get('meta-store');
 
     req.onsuccess = function(e) {
-      update_seq = e.target.result ? e.target.result.update_seq : 0;
+      var reqDBId,
+          result;
+
+      if (e.target.result) {
+        meta = e.target.result;
+      }
+
+      if (name + '_id' in meta) {
+        instanceId = meta[name + '_id'];
+      } else {
+        instanceId = Math.uuid();
+
+        meta[name + '_id'] = instanceId;
+        reqDBId = txn.objectStore(META_STORE).put(meta);
+      }
       call(callback, null, api);
     }
   };
@@ -116,16 +134,9 @@ var IdbPouch = function(opts, callback) {
   };
 
   // Each database needs a unique id so that we can store the sequence
-  // checkpoint without having other databases confuse itself, since
-  // localstorage is per host this shouldnt conflict, if localstorage
-  // gets wiped it isnt fatal, replications will just start from scratch
+  // checkpoint without having other databases confuse itself.
   api.id = function idb_id() {
-    var id = localJSON.get(name + '_id', null);
-    if (id === null) {
-      id = Math.uuid();
-      localJSON.set(name + '_id', id);
-    }
-    return id;
+    return instanceId;
   };
 
   api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
@@ -231,8 +242,8 @@ var IdbPouch = function(opts, callback) {
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
 
-      update_seq++;
-      var req = txn.objectStore(META_STORE).put({id: 'update_seq', update_seq: update_seq});
+      meta.updateSeq++;
+      var req = txn.objectStore(META_STORE).put(meta);
 
       if (isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
         docInfo.data._deleted = true;
@@ -656,7 +667,7 @@ var IdbPouch = function(opts, callback) {
           result = {
             db_name: name,
             doc_count: count,
-            update_seq: update_seq
+            update_seq: meta.updateSeq
           };
           return;
         }
@@ -996,8 +1007,6 @@ IdbPouch.valid = function idb_valid() {
 IdbPouch.destroy = function idb_destroy(name, callback) {
   if (Pouch.DEBUG)
     console.log(name + ': Delete Database');
-  //delete the db id from localStorage so it doesn't get reused.
-  delete localStorage[name+"_id"];
   IdbPouch.Changes.clearListeners(name);
   var req = indexedDB.deleteDatabase(name);
 
