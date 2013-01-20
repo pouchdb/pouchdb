@@ -607,10 +607,12 @@ var webSqlPouch = function(opts, callback) {
             }
             call(opts.onChange, c);
           });
-          call(opts.complete, null, {results: dedupResults});
-
+          
           if (opts.continuous && !opts.cancelled) {
             webSqlPouch.Changes.addListener(name, id, opts);
+          }
+          else {
+              call(opts.complete, null, {results: dedupResults});
           }
         });
       });
