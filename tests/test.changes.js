@@ -42,6 +42,26 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Changes Since", function () {
+    var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, function(err, info) {
+        db.changes({
+          since: 2,
+          complete: function(err, results) {
+            equal(results.results.length, 2, 'Partial results');
+            start();
+          }
+        });
+      });
+    });
+  });
+
   asyncTest("Changes doc", function () {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
