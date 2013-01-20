@@ -52,7 +52,7 @@ module.exports = function(grunt) {
       },
       all: {
 	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/jquery-1.7.1.min.js",
+          "(function() { ", "src/deps/zepto.min.js",
           "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, " })(this);"]),
 	dest: 'pouch.<%= pkg.release %>.js'
       }
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
     min: {
       dist: {
 	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/jquery-1.7.1.min.js", "src/deps/uuid.js","src/deps/polyfill.js",
+          "(function() { ", "src/deps/zepto.min.js", "src/deps/uuid.js","src/deps/polyfill.js",
           srcFiles, " })(this);"]),
 	dest: 'pouch.<%= pkg.release %>.min.js'
       }
