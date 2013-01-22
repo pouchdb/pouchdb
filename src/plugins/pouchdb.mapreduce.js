@@ -157,7 +157,7 @@ var MapReduce = function(db) {
     if (typeof fun === 'string') {
       var parts = fun.split('/');
       db.request({
-        type:'GET',
+        method:'GET',
         url: '_design/' + parts[0] + '/_view/' + parts[1] + params
       }, callback);
       return;
@@ -172,7 +172,7 @@ var MapReduce = function(db) {
     });
 
     db.request({
-      type:'POST',
+      method:'POST',
       url: '_temp_view' + params,
       data: queryObject
     }, callback);
