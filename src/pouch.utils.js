@@ -395,6 +395,7 @@ var ajax = function ajax(options, callback) {
       timer = setTimeout(function() {
         timedout=true;
         xhr.abort();
+        call(onError, xhr, callback);
       }, options.timeout);
     }
     xhr.send(options.body);
