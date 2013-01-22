@@ -331,20 +331,9 @@ var filterChange = function(opts) {
 };
 
 function browserAjax(options, callback) {
-  var defaultOptions = {
-    method : "GET",
-    headers: {},
-    json: true,
-    timeout: 10000
-  };
   var errObj, errParsed, timer,timedout  = false;
-  extend(options, defaultOptions);
   var xhr = new XMLHttpRequest();
   xhr.open(options.method, options.url);
-  if (options.auth) {
-    var token = btoa(options.auth.username + ":" + options.auth.password);
-    options.headers.Authorization = "Basic " + token;
-  }
   if (options.json) {
     options.headers.Accept = 'application/json';
     options.headers['Content-Type'] = 'application/json';
@@ -374,7 +363,7 @@ function browserAjax(options, callback) {
        errObj = xhr.responseText ? {status: xhr.status} : xhr; //this seems too clever
        try{
         errParsed = JSON.parse(xhr.responseText); //would prefer not to have a try/catch clause
-        extend(errObj, errParsed);
+        extend(true, errObj, errParsed);
        }catch(e){}
        call(callback, errObj);
     }
@@ -389,19 +378,28 @@ function browserAjax(options, callback) {
 }
 
 var ajax = function ajax(options, callback) {
-  if (window.XMLHttpRequest) {
-    browserAjax(options, callback);
-  } else {
-    // convert options from xhr api to request api
-    if (options.auth) {
+  if (typeof options === "function") {
+    callback = options;
+    options = {};
+  }
+  var defaultOptions = {
+    method : "GET",
+    headers: {},
+    json: true,
+    timeout: 10000
+  };
+  extend(true, options, defaultOptions);
+  if (options.auth) {
       var token = btoa(options.auth.username + ':' + options.auth.password);
       options.headers['Authorization'] = 'Basic ' + token;
     }
-
+  if (window.XMLHttpRequest) {
+    browserAjax(options, callback);
+  } else {
     return request(options, function(err, response, body) {
       if (err) {
         err.status = response ? response.statusCode : 400;
-        return call(options.error, err);
+        return call(callback, err);
       }
 
       var content_type = response.headers['content-type']
@@ -416,10 +414,10 @@ var ajax = function ajax(options, callback) {
 
       if (data.error) {
         data.status = response.statusCode;
-        call(options.error, data);
+        call(callback, data);
       }
       else {
-        call(options.success, data, 'OK', response);
+        call(callback, null, data, response);
       }
     });
   }
