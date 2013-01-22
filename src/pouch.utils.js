@@ -343,7 +343,7 @@ var ajax = function ajax(options, callback) {
     json: true,
     timeout: 10000
   };
-  extend(true, options, defaultOptions);
+  options = extend(true, defaultOptions, options);
   if (options.auth) {
       var token = btoa(options.auth.username + ':' + options.auth.password);
       options.headers.Authorization = 'Basic ' + token;
@@ -361,7 +361,7 @@ var ajax = function ajax(options, callback) {
     var errObj = err.responseText ? {status: err.status} : err; //this seems too clever
          try{
           errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
-          extend(true, errObj, errParsed);
+          errObj = extend(true, {}, errObj, errParsed);
          } catch(e){}
          call(cb, errObj);
   };
