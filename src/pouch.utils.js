@@ -375,6 +375,7 @@ function browserAjax(options, callback) {
     }, options.timeout);
   }
   xhr.send(options.body);
+  return xhr;
 }
 
 var ajax = function ajax(options, callback) {
@@ -394,7 +395,7 @@ var ajax = function ajax(options, callback) {
       options.headers['Authorization'] = 'Basic ' + token;
     }
   if (window.XMLHttpRequest) {
-    browserAjax(options, callback);
+    return browserAjax(options, callback);
   } else {
     return request(options, function(err, response, body) {
       if (err) {
