@@ -42,6 +42,10 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: '<json:package.json>',
+    meta: {
+    banner:  "(function() { ",
+      footer:" })(this);"
+    },
     concat: {
       amd: {
 	src: grunt.utils._.flatten([
@@ -52,8 +56,8 @@ module.exports = function(grunt) {
       },
       all: {
 	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/zepto.min.js",
-          "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, " })(this);"]),
+          "<banner>", "src/deps/zepto.min.js",
+          "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, "<banner:meta.footer>"]),
 	dest: 'pouch.<%= pkg.release %>.js'
       }
     },
@@ -61,8 +65,8 @@ module.exports = function(grunt) {
     min: {
       dist: {
 	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/zepto.min.js", "src/deps/uuid.js","src/deps/polyfill.js",
-          srcFiles, " })(this);"]),
+          "<banner>", "src/deps/zepto.min.js", "src/deps/uuid.js","src/deps/polyfill.js",
+          srcFiles, "<footer:meta.footer>"]),
 	dest: 'pouch.<%= pkg.release %>.min.js'
       }
     },
