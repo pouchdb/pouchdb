@@ -350,7 +350,7 @@ var ajax = function ajax(options, callback) {
       try {
         var errParsed = JSON.parse(err.responseText);
         for (var key in errParsed) {
-          if (!errObj[key]) {
+          if (!key in errObj) {
             errObj[key]=errParsed[key];
           }
         }
@@ -372,7 +372,7 @@ var ajax = function ajax(options, callback) {
     timeout: 10000
   };
   for (var key in defaults) {
-    if (!options[key]) {
+    if (!key in options) {
       options[key] = defaults[key];
     }
   }
