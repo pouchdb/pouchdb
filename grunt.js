@@ -45,14 +45,14 @@ module.exports = function(grunt) {
     concat: {
       amd: {
 	src: grunt.utils._.flatten([
-          "define('pouchdb',['jquery', 'simple-uuid', 'md5'], " +
-            "function(jquery, uuid, md5) { ", 'src/pouch.amd.js', srcFiles,
+          "define('pouchdb',[ 'simple-uuid', 'md5'], " +
+            "function(uuid, md5) { ", 'src/pouch.amd.js', srcFiles,
           " return Pouch });"]),
 	dest: 'pouch.amd.<%= pkg.release %>.js'
       },
       all: {
 	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/zepto.min.js",
+          "(function() { ",
           "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, " })(this);"]),
 	dest: 'pouch.<%= pkg.release %>.js'
       }
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
     min: {
       dist: {
 	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/zepto.min.js", "src/deps/uuid.js","src/deps/polyfill.js",
+          "(function() { ", "src/deps/uuid.js","src/deps/polyfill.js",
           srcFiles, " })(this);"]),
 	dest: 'pouch.<%= pkg.release %>.min.js'
       }
