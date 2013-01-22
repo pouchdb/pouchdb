@@ -348,7 +348,12 @@ var ajax = function ajax(options, callback) {
         ? {status: err.status}
         : err
       try {
-        errObj = $.extend({}, errObj, JSON.parse(err.responseText));
+        var errParsed = JSON.parse(err.responseText);
+        for (var key in errParsed) {
+          if (!errObj[key]) {
+            errObj[key]=errParsed[key];
+          }
+        }
       } catch (e) {}
       call(callback, errObj);
     } else {
@@ -366,8 +371,11 @@ var ajax = function ajax(options, callback) {
     dataType: 'json',
     timeout: 10000
   };
-  options = $.extend({}, defaults, options);
-
+  for (var key in defaults) {
+    if (!options[key]) {
+      options[key] = defaults[key];
+    }
+  }
   if (options.data && typeof options.data !== 'string') {
     options.data = JSON.stringify(options.data);
   }
