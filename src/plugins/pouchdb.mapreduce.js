@@ -174,7 +174,7 @@ var MapReduce = function(db) {
     db.request({
       method:'POST',
       url: '_temp_view' + params,
-      data: queryObject
+      body: queryObject
     }, callback);
   }
 
