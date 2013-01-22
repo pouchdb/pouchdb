@@ -164,12 +164,12 @@ var MapReduce = function(db) {
     }
 
     // We are using a temporary view, terrible for performance but good for testing
-    var queryObject = JSON.stringify(fun, function(key, val) {
+    var queryObject = JSON.parse(JSON.stringify(fun, function(key, val) {
       if (typeof val === 'function') {
         return val + ''; // implicitly `toString` it
       }
       return val;
-    });
+    }));
 
     db.request({
       method:'POST',
