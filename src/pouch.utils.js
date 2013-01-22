@@ -372,7 +372,7 @@ var ajax = function ajax(options, callback) {
     if (options.json) {
       options.headers.Accept = 'application/json';
       options.headers['Content-Type'] = 'application/json';
-      if (options.body && typeof options.boyd !== "string") {
+      if (options.body && typeof options.body !== "string") {
         options.body = JSON.stringify(options.body);
       }
     }
