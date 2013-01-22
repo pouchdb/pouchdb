@@ -43,7 +43,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: '<json:package.json>',
     meta: {
-    banner:  "(function() { ",
+      banner:  "/*PouchDB*/\n(function() { ",
       footer:" })(this);"
     },
     concat: {
