@@ -338,11 +338,7 @@ function browserAjax(options, callback) {
     timeout: 10000
   };
   var errObj, errParsed, timer,timedout  = false;
-  for(var key in defaultOptions){
-    if (!(key in options)) {
-      options[key] = defaultOptions[key];
-    }
-  }
+  extend(options, defaultOptions);
   var xhr = new XMLHttpRequest();
   xhr.open(options.method, options.url);
   if (options.auth) {
@@ -378,11 +374,7 @@ function browserAjax(options, callback) {
        errObj = xhr.responseText ? {status: xhr.status} : xhr; //this seems too clever
        try{
         errParsed = JSON.parse(xhr.responseText); //would prefer not to have a try/catch clause
-        for (var key in errParsed) {
-          if (!(key in errObj)) {
-            errObj[key] = errParsed[key];
-          }
-        }
+        extend(errObj, errParsed);
        }catch(e){}
        call(callback, errObj);
     }
