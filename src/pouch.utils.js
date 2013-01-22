@@ -328,77 +328,79 @@ var filterChange = function(opts) {
     }
     call(opts.onChange, change);
   }
+};
+
+function browserAjax(options, callback) {
+  var defaultOptions = {
+    method : "GET",
+    headers: {},
+    json: true,
+    timeout: 10000
+  };
+  var errObj, errParsed, timer,timedout  = false;
+  for(var key in defaultOptions){
+    if (!(key in options)) {
+      options[key] = defaultOptions[key];
+    }
+  }
+  var xhr = new XMLHttpRequest();
+  xhr.open(options.method, options.url);
+  if (options.auth) {
+    var token = btoa(options.auth.username + ":" + options.auth.password);
+    options.headers.Authorization = "Basic " + token;
+  }
+  if (options.json) {
+    options.headers.Accept = 'application/json';
+    options.headers['Content-Type'] = 'application/json';
+    if (options.body && typeof options.boyd !== "string") {
+      options.body = JSON.stringify(options.body);
+    }
+  }
+  for (var key in options.headers){
+    xhr.setRequestHeader(key, options.headers[key]);
+  }
+  if (!("body" in options)) {
+    options.body = null;
+  }
+  xhr.onreadystatechange = function() {
+    var obj;
+    if (xhr.readyState !== 4 || timedout) return;
+    clearTimeout(timer);
+    if (xhr.status >= 200 && xhr.status < 300){
+      obj = xhr.responseText;
+      if(!options.json && typeof obj !== 'string') {
+        obj = JSON.stringify(obj);
+      } else if(options.json && typeof obj === 'string') {
+        obj = JSON.parse(obj);
+      }
+      call(callback, null, obj, xhr);
+    } else {
+       errObj = xhr.responseText ? {status: xhr.status} : xhr; //this seems too clever
+       try{
+        errParsed = JSON.parse(xhr.responseText); //would prefer not to have a try/catch clause
+        for (var key in errParsed) {
+          if (!(key in errObj)) {
+            errObj[key] = errParsed[key];
+          }
+        }
+       }catch(e){}
+       call(callback, errObj);
+    }
+  };
+  if (options.timeout > 0) {
+    timer = setTimeout(function() {
+      timedout=true;
+      xhr.abort();
+    }, options.timeout);
+  }
+  xhr.send(options.body);
 }
 
 var ajax = function ajax(options, callback) {
-  if (options.success && callback === undefined) {
-    callback = options.success;
-  }
-
-  var success = function sucess(obj, _, xhr) {
-    // Chrome will parse some attachments that are JSON. We don't want that.
-    if (options.dataType === false && typeof obj !== 'string') {
-      obj = JSON.stringify(obj);
-    }
-    call(callback, null, obj, xhr);
-  };
-  var error = function error(err) {
-    if (err) {
-      var errObj = err.responseText
-        ? {status: err.status}
-        : err
-      try {
-        var errParsed = JSON.parse(err.responseText);
-        for (var key in errParsed) {
-          if (!key in errObj) {
-            errObj[key]=errParsed[key];
-          }
-        }
-      } catch (e) {}
-      call(callback, errObj);
-    } else {
-      call(callback, true);
-    }
-  };
-
-  var defaults = {
-    success: success,
-    error: error,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    dataType: 'json',
-    timeout: 10000
-  };
-  for (var key in defaults) {
-    if (!key in options) {
-      options[key] = defaults[key];
-    }
-  }
-  if (options.data && typeof options.data !== 'string') {
-    options.data = JSON.stringify(options.data);
-  }
-  if (options.auth) {
-    options.beforeSend = function(xhr) {
-      var token = btoa(options.auth.username + ":" + options.auth.password);
-      xhr.setRequestHeader("Authorization", "Basic " + token);
-    }
-  }
-
-  if ($.ajax) {
-    return $.ajax(options);
-  }
-  else {
+  if (window.XMLHttpRequest) {
+    browserAjax(options, callback);
+  } else {
     // convert options from xhr api to request api
-    if (options.data) {
-      options.body = options.data;
-      delete options.data;
-    }
-    if (options.type) {
-      options.method = options.type;
-      delete options.type;
-    }
     if (options.auth) {
       var token = btoa(options.auth.username + ':' + options.auth.password);
       options.headers['Authorization'] = 'Basic ' + token;
