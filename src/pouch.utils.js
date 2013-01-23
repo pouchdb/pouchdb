@@ -332,7 +332,6 @@ var filterChange = function(opts) {
 
 
 var ajax = function ajax(options, callback) {
-var iid = (Math.random()+'').slice(2)
   if (typeof options === "function") {
     callback = options;
     options = {};
