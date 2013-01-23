@@ -157,24 +157,24 @@ var MapReduce = function(db) {
     if (typeof fun === 'string') {
       var parts = fun.split('/');
       db.request({
-        type:'GET',
+        method:'GET',
         url: '_design/' + parts[0] + '/_view/' + parts[1] + params
       }, callback);
       return;
     }
 
     // We are using a temporary view, terrible for performance but good for testing
-    var queryObject = JSON.stringify(fun, function(key, val) {
+    var queryObject = JSON.parse(JSON.stringify(fun, function(key, val) {
       if (typeof val === 'function') {
         return val + ''; // implicitly `toString` it
       }
       return val;
-    });
+    }));
 
     db.request({
-      type:'POST',
+      method:'POST',
       url: '_temp_view' + params,
-      data: queryObject
+      body: queryObject
     }, callback);
   }
 
