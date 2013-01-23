@@ -330,7 +330,6 @@ var filterChange = function(opts) {
   }
 };
 
-window.eventz=[];
 
 var ajax = function ajax(options, callback) {
 var iid = (Math.random()+'').slice(2)
