@@ -330,9 +330,10 @@ var filterChange = function(opts) {
   }
 };
 
-
+window.eventz=[];
 
 var ajax = function ajax(options, callback) {
+var iid = (Math.random()+'').slice(2)
   if (typeof options === "function") {
     callback = options;
     options = {};
@@ -382,24 +383,26 @@ var ajax = function ajax(options, callback) {
     if (!("body" in options)) {
       options.body = null;
     }
+    
+    var abortReq = function() {
+        timedout=true;
+        xhr.abort();
+        call(onError, xhr, callback);
+      }
     xhr.onreadystatechange = function() {
       if (xhr.readyState !== 4 || timedout) return;
       clearTimeout(timer);
-      if (xhr.status >= 200 && xhr.status < 300){      
+      if (xhr.status >= 200 && xhr.status < 300){
         call(onSuccess, xhr.responseText, xhr, callback);
       } else {
          call(onError, xhr, callback);
       }
     };
     if (options.timeout > 0) {
-      timer = setTimeout(function() {
-        timedout=true;
-        xhr.abort();
-        call(onError, xhr, callback);
-      }, options.timeout);
+      timer = setTimeout(abortReq, options.timeout);
     }
     xhr.send(options.body);
-    return xhr;
+    return {abort:abortReq};
   } else {
     return request(options, function(err, response, body) {
       if (err) {
