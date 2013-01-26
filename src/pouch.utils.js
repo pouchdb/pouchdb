@@ -328,78 +328,84 @@ var filterChange = function(opts) {
     }
     call(opts.onChange, change);
   }
-}
+};
+
 
 var ajax = function ajax(options, callback) {
-  if (options.success && callback === undefined) {
-    callback = options.success;
+  if (typeof options === "function") {
+    callback = options;
+    options = {};
   }
-
-  var success = function sucess(obj, _, xhr) {
-    // Chrome will parse some attachments that are JSON. We don't want that.
-    if (options.dataType === false && typeof obj !== 'string') {
-      obj = JSON.stringify(obj);
-    }
-    call(callback, null, obj, xhr);
-  };
-  var error = function error(err) {
-    if (err) {
-      var errObj = err.responseText
-        ? {status: err.status}
-        : err
-      try {
-        errObj = $.extend({}, errObj, JSON.parse(err.responseText));
-      } catch (e) {}
-      call(callback, errObj);
-    } else {
-      call(callback, true);
-    }
-  };
-
-  var defaults = {
-    success: success,
-    error: error,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    dataType: 'json',
+  var defaultOptions = {
+    method : "GET",
+    headers: {},
+    json: true,
     timeout: 10000
   };
-  options = $.extend({}, defaults, options);
-
-  if (options.data && typeof options.data !== 'string') {
-    options.data = JSON.stringify(options.data);
-  }
+  options = extend(true, defaultOptions, options);
   if (options.auth) {
-    options.beforeSend = function(xhr) {
-      var token = btoa(options.auth.username + ":" + options.auth.password);
-      xhr.setRequestHeader("Authorization", "Basic " + token);
-    }
-  }
-
-  if ($.ajax) {
-    return $.ajax(options);
-  }
-  else {
-    // convert options from xhr api to request api
-    if (options.data) {
-      options.body = options.data;
-      delete options.data;
-    }
-    if (options.type) {
-      options.method = options.type;
-      delete options.type;
-    }
-    if (options.auth) {
       var token = btoa(options.auth.username + ':' + options.auth.password);
-      options.headers['Authorization'] = 'Basic ' + token;
+      options.headers.Authorization = 'Basic ' + token;
+  }
+  var onSuccess = function(obj, resp, cb){
+    if (!options.json && typeof obj !== 'string') {
+          obj = JSON.stringify(obj);
+    } else if (options.json && typeof obj === 'string') {
+          obj = JSON.parse(obj);
     }
-
+    call(cb, null, obj, resp);
+  };
+  var onError = function(err, cb){
+    var errParsed;
+    var errObj = err.responseText ? {status: err.status} : err; //this seems too clever
+         try{
+          errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
+          errObj = extend(true, {}, errObj, errParsed);
+         } catch(e){}
+         call(cb, errObj);
+  };
+  if (window.XMLHttpRequest) {
+    var timer,timedout  = false;
+    var xhr = new XMLHttpRequest();
+    xhr.open(options.method, options.url);
+    if (options.json) {
+      options.headers.Accept = 'application/json';
+      options.headers['Content-Type'] = 'application/json';
+      if (options.body && typeof options.body !== "string") {
+        options.body = JSON.stringify(options.body);
+      }
+    }
+    for (var key in options.headers){
+      xhr.setRequestHeader(key, options.headers[key]);
+    }
+    if (!("body" in options)) {
+      options.body = null;
+    }
+    
+    var abortReq = function() {
+        timedout=true;
+        xhr.abort();
+        call(onError, xhr, callback);
+      }
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4 || timedout) return;
+      clearTimeout(timer);
+      if (xhr.status >= 200 && xhr.status < 300){
+        call(onSuccess, xhr.responseText, xhr, callback);
+      } else {
+         call(onError, xhr, callback);
+      }
+    };
+    if (options.timeout > 0) {
+      timer = setTimeout(abortReq, options.timeout);
+    }
+    xhr.send(options.body);
+    return {abort:abortReq};
+  } else {
     return request(options, function(err, response, body) {
       if (err) {
         err.status = response ? response.statusCode : 400;
-        return call(options.error, err);
+        return call(onError, err, callback);
       }
 
       var content_type = response.headers['content-type']
@@ -407,17 +413,17 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (options.dataType && (/json/.test(content_type)
+      if (options.json && (/json/.test(content_type)
           || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
 
       if (data.error) {
         data.status = response.statusCode;
-        call(options.error, data);
+        call(onError, data, callback);
       }
       else {
-        call(options.success, data, 'OK', response);
+        call(onSuccess, data, response, callback);
       }
     });
   }
