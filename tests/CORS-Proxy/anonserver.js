@@ -60,7 +60,7 @@ function handleRequest(request, response) {
   }
 
   var path;
-  if (request.url !== '/_uuids') {
+  if (/^\/_uuids/.test(request.url)) {
     path = request.url;
   } else {
     path = request.url.replace(/^\//, '/' + DB_PREFIX + key + '_');
