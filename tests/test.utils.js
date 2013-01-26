@@ -66,8 +66,8 @@ function initDBPair(local, remote, callback) {
 }
 
 function generateAdapterUrl(id) {
-  var host = document.location.host === 'tests.arandomurl.com'
-    ? 'cors.arandomurl.com'
+  var host = document.location.host === 'tests.pouchdb.com'
+    ? 'cors.pouchdb.com'
     : document.location.host + ':2020';
   var opt = id.split('-');
   if (opt[0] === 'local') {
