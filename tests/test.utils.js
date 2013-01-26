@@ -66,12 +66,15 @@ function initDBPair(local, remote, callback) {
 }
 
 function generateAdapterUrl(id) {
+  var host = document.location.host === 'tests.arandomurl.com'
+    ? 'cors.arandomurl.com'
+    : document.location.host + ':2020';
   var opt = id.split('-');
   if (opt[0] === 'local') {
     return 'testdb_' + opt[1];
   }
   if (opt[0] === 'http') {
-    return 'http://localhost:2020/testdb_' + opt[1];
+    return 'http://' + host + '/testdb_' + opt[1];
   }
   if (opt[0] === 'leveldb') {
     return 'leveldb://testdb_' + opt[1];

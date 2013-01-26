@@ -135,13 +135,16 @@ function runTests() {
 }
 
 asyncParForEach(sourceFiles[source], asyncLoadScript, function() {
-  ajax({url: 'http://127.0.0.1:2020'}, function(err, data) {
+  var host = document.location.host === 'tests.arandomurl.com'
+    ? 'cors.arandomurl.com'
+    : document.location.host + ':2020';
+  ajax({url: 'http://' + host}, function(err, data) {
     if (err || !('tokenserver' in data)) {
       return runTests();
     }
     ajax({
       method: 'POST',
-      url: 'http://127.0.0.1:2020/_provision'
+      url: 'http://' + host + '/_provision'
     }, function(err, data) {
       Pouch.setOptions('headers', {'test-key': data.token});
       runTests();
