@@ -7,4 +7,4 @@ services:
 
 env:
   global:
-    - secure: "EDUlVQllE7MF61/sItIWQlzA0ICvAKRBLt6TpiZqNq/7z5nLFWjSjFz+ZvGO\nwyfPMFBYW1eq44t1zTEfGBWAc2Pl9j9otT0JZb0UP4F1AzIYO2zstI/SYz38\ntMgAuFnkGx87xjjALVr21KNDgU/g9vwNDWpSBrRqlGxAPr5b6kw="
+    - secure: "oFxOiqJlOOuDn7SYxvfkMdt96mcow5uRr69mXTsSHMlPEd9TRQkMg9b1qrbW\nx7pnJ/vNCr1LYKH5EBxwYoDrWa9uqb1lmnzystEO9PRVoDONGvD5XUa93J9n\nn28/Gg1rFHk1C8gVTC8SKv4S2b6oFgAVrIG3sFqfFAtlpBJu27s="
