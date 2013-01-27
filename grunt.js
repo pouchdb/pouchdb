@@ -180,7 +180,8 @@ module.exports = function(grunt) {
 
     if (process.env.MY_KEY) {
       fs.writeFileSync('id_rsa', process.env.MY_KEY, 'utf8');
-      identity = '-o IdentityFile=./id_rsa ';
+      identity = '-o IdentityFile=./id_rsa -o UserKnownHostsFile=/dev/null '
+        + '-o StrictHostKeyChecking=no ';
     }
 
     cp.exec('scp ' + identity + src + ' ' + dest, function(err, stdout, stderr) {
