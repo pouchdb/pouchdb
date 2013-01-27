@@ -180,6 +180,7 @@ module.exports = function(grunt) {
 
     if (process.env.MY_KEY) {
       fs.writeFileSync('id_rsa', process.env.MY_KEY, 'utf8');
+      fs.chmodSync('id_rsa', '600');
       identity = '-o IdentityFile=./id_rsa -o UserKnownHostsFile=/dev/null '
         + '-o StrictHostKeyChecking=no ';
     }
