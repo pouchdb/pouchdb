@@ -9,7 +9,7 @@ var cors = require('./tests/CORS-Proxy/server.js');
 
 console.log('start');
 console.log(process.env.HELLO);
-console.log(process.env.WTF);
+console.log(process.env.SSH_POUCH_KEY);
 console.log(typeof process.env.SSH_POUCH_KEY);
 
 var srcFiles = [
