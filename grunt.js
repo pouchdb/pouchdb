@@ -184,6 +184,7 @@ module.exports = function(grunt) {
       identity = '-o IdentityFile=./id_rsa -o UserKnownHostsFile=/dev/null '
         + '-o StrictHostKeyChecking=no ';
     }
+    console.log('Identity: ', identity);
 
     cp.exec('scp ' + identity + src + ' ' + dest, function(err, stdout, stderr) {
       done(true);
