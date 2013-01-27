@@ -169,7 +169,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-qunit');
 
   grunt.registerTask("build", "concat min");
-  grunt.registerTask("test", "build server cors-server node-qunit " +
+  grunt.registerTask("test", "build server cors-server " +
                      "saucelabs-qunit publish-results");
 
   grunt.registerTask('default', 'build');
