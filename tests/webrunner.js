@@ -137,7 +137,8 @@ function runTests() {
 asyncParForEach(sourceFiles[source], asyncLoadScript, function() {
   var host = document.location.host === 'tests.pouchdb.com'
     ? 'cors.pouchdb.com'
-    : document.location.host + ':2020';
+    : document.location.hostname + ':2020';
+  console.log(host);
   ajax({url: 'http://' + host}, function(err, data) {
     if (err || !('tokenserver' in data)) {
       return runTests();
