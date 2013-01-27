@@ -20,11 +20,11 @@ var testFiles = fs.readdirSync("./tests").filter(function(name){
 });
 
 var browserConfig = [{
-  browserName: 'chrome',
-  platform: 'Windows 2003',
-  name: 'win2003/chrome',
-  'chrome.switches' : ['disable-file-system']
-}, {
+//   browserName: 'chrome',
+//   platform: 'Windows 2003',
+//   name: 'win2003/chrome',
+//   'chrome.switches' : ['disable-file-system']
+// }, {
   browserName: 'firefox',
   version: '17',
   platform: 'Windows 2003',
