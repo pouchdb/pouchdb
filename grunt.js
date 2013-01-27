@@ -15,7 +15,8 @@ var srcFiles = [
 ];
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
-  return (/^test\.([a-z0-9_])*\.js$/).test(name);
+  return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
+    name !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
