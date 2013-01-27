@@ -30,10 +30,15 @@ var browserConfig = [{
   platform: 'Windows 2003',
   name: 'win2003/firefox'
 }, {
-  browserName: 'opera',
-  version: '12',
+  browserName: 'safari',
+  version: '5',
   platform: 'Windows 2008',
-  name: 'win2008/opera'
+  name: 'win2008/safari'
+// }, {
+//   browserName: 'opera',
+//   version: '12',
+//   platform: 'Windows 2008',
+//   name: 'win2008/opera'
 }];
 
 module.exports = function(grunt) {
