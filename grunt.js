@@ -96,8 +96,8 @@ module.exports = function(grunt) {
 	tags: [process.env.TRAVIS_BRANCH || "unknown"],
 	testTimeout: 1000 * 60 * 15, // 15 minutes
 	testInterval: 1000 * 30, // 30 seconds
-  tunnelTimeout: 1000 * 60 * 15, // 15 minutes
-	urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
+        tunnelTimeout: 1000 * 60 * 15, // 15 minutes
+	urls: ["http://tests.pouchdb.com/tests/test.html?test=release-min&id=" +
                testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 	browsers: browserConfig,
 	onTestComplete: function(status, page, config, browser) {
