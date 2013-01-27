@@ -1,5 +1,11 @@
 /*jshint node: true */
 
+console.log(process.env.TRAVIS_SECURE_ENV_VARS);
+
+if (!process.env.TRAVIS_SECURE_ENV_VARS) {
+  return;
+}
+
 var url = require('url');
 var fs = require('fs');
 var cp = require('child_process');
