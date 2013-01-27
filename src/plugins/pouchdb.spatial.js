@@ -2,13 +2,6 @@
 
 "use strict";
 
-// This is the first implementation of a basic plugin, we register the
-// plugin object with pouch and it is mixin'd to each database created
-// (regardless of adapter), adapters can override plugins by providing
-// their own implementation. functions on the plugin object that start
-// with _ are reserved function that are called by pouchdb for special
-// notifications.
-
 // If we wanted to store incremental views we can do it here by listening
 // to the changes feed (keeping track of our last update_seq between page loads)
 // and storing the result of the map function (possibly using the upcoming
@@ -26,20 +19,99 @@ var Spatial = function(db) {
     var num_started= 0;
     var completed= false;
 
+    // NOTE vmx 2013-01-27: I wouldn't guarantee that this function is
+    // flawless
+    var calculateBbox = function (geom) {
+      var coords = geom.coordinates;
+      if (geom.type === 'Point') {
+        return [[coords[0], coords[0]], [coords[1], coords[1]]];
+      }
+      if (geom.type === 'GeometryCollection') {
+        coords = geom.geometries.map(function(g) {
+          return calculateBbox(g);
+        });
+        return coords.reduce(function (a, b) {
+          var minX = Math.min(a[0], b[0]);
+          var minY = Math.min(a[1], b[1]);
+          var maxX = Math.max(a[2], b[0]);
+          var maxY = Math.max(a[3], b[1]);
+          return [[minX, maxX], [minY, maxY]];
+        });
+      }
+
+      // Flatten coords as much as possible
+      while (Array.isArray(coords[0][0])) {
+        coords = coords.reduce(function(a, b) {
+          return a.concat(b);
+        });
+      };
+
+      return coords.reduce(function (acc, coord) {
+        // The first element isn't a bbox yet
+        if (acc.length === 1) {
+          acc = [[acc[0], acc[0]], [acc[1], acc[1]]];
+        }
+        var minX = Math.min(acc[0][0], coord[0]);
+        var minY = Math.min(acc[0][1], coord[1]);
+        var maxX = Math.max(acc[1][0], coord[0]);
+        var maxY = Math.max(acc[1][1], coord[1]);
+        return [[minX, maxX], [minY, maxY]];
+      });
+    };
+
+    // Make the key a proper one. If a value is a single point, transform it
+    // to a range. If the first element (or the whole key) is a geometry,
+    // calculate its bounding box.
+    // The geometry is also returned (`null` if there is none).
+    var normalizeKey = function(key) {
+      var newKey = [];
+      var geometry = null;
+
+      // Whole key is one geometry
+      if (isPlainObject(key)) {
+        return {
+          key: calculateBbox(key),
+          geometry: key
+        };
+      }
+
+      if (isPlainObject(key[0])) {
+        newKey = calculateBbox(key[0]);
+        geometry = key[0];
+        key = key.slice(1);
+      }
+
+      for(var i=0; i<key.length; i++) {
+        if(isArray(key[i])) {
+          newKey.push(key[i]);
+        // If only a single point, not a range was emitted
+        } else {
+          newKey.push([key[i], key[i]]);
+        }
+      }
+      return {
+        key: newKey,
+        geometry: geometry
+      };
+    };
+
     var within = function(key, start_range, end_range) {
       var start;
       var end;
+
       for(var i=0; i<key.length; i++) {
-        if(isArray(key[i])) {
-          start = key[i][0];
-          end = key[i][1];
-        // If only a single point, not a range was emitted
-        } else {
-          start = key[i];
-          end = key[i];
-        }
-        if ((start_range[i] == null || start <= end_range[i]) &&
-          (end_range[i] == null || end >= start_range[i])) {
+        start = key[i][0];
+        end = key[i][1];
+        if (
+          // Wildcard at the start
+          ((start_range[i] === null && (start <= end_range[i] || end_range[i] === null))
+           // Start is set
+           || (start <= end_range[i] || end_range[i] === null))
+          &&
+            // Wildcard at the end
+            ((end_range[i] === null && (end >= start_range[i] || start_range[i] === null))
+             // End is set
+             || (end >= start_range[i] || start_range[i] === null))) {
           continue;
         } else {
           return false;
@@ -49,13 +121,21 @@ var Spatial = function(db) {
     };
 
     var emit = function(key, val) {
+      var keyGeom = normalizeKey(key);
       var viewRow = {
-        id: current._id,
-        key: key,
-        value: val
+        id: current.doc._id,
+        key: keyGeom.key,
+        value: val,
+        geometry: keyGeom.geometry
       };
 
-      if (!within(key, options.start_range, options.end_range)) return;
+      // If no range is given, return everything
+      if (options.start_range !== undefined &&
+          options.end_range !== undefined) {
+        if (!within(keyGeom.key, options.start_range, options.end_range)) {
+          return;
+        }
+      }
 
       num_started++;
       if (options.include_docs) {
@@ -96,7 +176,8 @@ var Spatial = function(db) {
       conflicts: conflicts,
       include_docs: true,
       onChange: function(doc) {
-        if (!('deleted' in doc)) {
+        // Don't index deleted or design documents
+        if (!('deleted' in doc) && doc.id.indexOf('_design/') !== 0) {
           current = {doc: doc.doc};
           fun.call(this, doc.doc);
         }
@@ -113,15 +194,8 @@ var Spatial = function(db) {
     // List of parameters to add to the PUT request
     var params = [];
 
-    if (typeof opts.limit !== 'undefined') {
-      params.push('limit=' + opts.limit);
-    }
-    if (typeof opts.limit !== 'undefined') {
-      params.push('skip=' + opts.skip);
-    }
-    if (typeof opts.descending !== 'undefined') {
-      params.push('descending=' + opts.descending);
-    }
+    // TODO vmx 2013-01-27: Support skip and limit
+
     if (typeof opts.start_range !== 'undefined') {
       params.push('start_range=' + encodeURIComponent(JSON.stringify(
         opts.start_range)));
