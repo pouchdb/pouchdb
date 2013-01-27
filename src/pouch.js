@@ -10,7 +10,7 @@ var Pouch = function Pouch(name, opts, callback) {
     callback = opts;
     opts = {};
   }
-  
+
   if (typeof name === 'object') {
     opts = name;
     name = undefined;
@@ -56,6 +56,7 @@ Pouch.DEBUG = false;
 
 Pouch.adapters = {};
 Pouch.plugins = {};
+Pouch.opts = {};
 
 Pouch.parseAdapter = function(name) {
 
@@ -100,6 +101,14 @@ Pouch.adapter = function (id, obj) {
 
 Pouch.plugin = function(id, obj) {
   Pouch.plugins[id] = obj;
+};
+
+Pouch.setOptions = function(name, value) {
+  Pouch.opts[name] = value;
+};
+
+Pouch.getOptions = function(name, def) {
+  return name in Pouch.opts ? Pouch.opts[name] : def;
 };
 
 // Enumerate errors, add the status code so we can reflect the HTTP api

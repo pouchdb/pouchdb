@@ -9,47 +9,47 @@
   "keywords": [ "db", "couchdb", "pouchdb" ],
   "tags": [ "db", "couchdb", "pouchdb" ],
   "dependencies" : {
-        "levelup": "*",
-        "request": "*",
-        "underscore": "*"
+    "levelup": "0.5.1",
+    "request": "*",
+    "underscore": "*"
   },
   "jam" : {
-     "main" : "pouch.amd.alpha.js",
-     "include" : ["pouch.amd.alpha.js", "README.md", "LICENSE"],
-     "dependencies" : {
-         "jquery": null,
-         "simple-uuid" : null,
-         "md5" : null
-     }
+    "main" : "pouch.amd.alpha.js",
+    "include" : ["pouch.amd.alpha.js", "README.md", "LICENSE"],
+    "dependencies" : {
+      "jquery": null,
+      "simple-uuid" : null,
+      "md5" : null
+    }
   },
   "devDependencies" : {
-        "wd": "*",
-        "commander": "*",
-        "colors": "*",
-        "assert": "*",
-        "nano": "*",
-        "send": "*",
-		    "grunt" : "*",
-		    "grunt-saucelabs" : "~1.2.0",
-		    "grunt-node-qunit" : "*"
+    "wd": "*",
+    "commander": "*",
+    "colors": "*",
+    "assert": "*",
+    "nano": "*",
+    "send": "*",
+    "grunt" : "*",
+    "grunt-saucelabs" : "*",
+    "grunt-node-qunit" : "*"
   },
   "maintainers":[
-        {
-            "name" : "Dale Harvey",
-            "web"  : "https://github.com/daleharvey"
-        },
-        {
-            "name":"Ryan Ramage",
-            "web":"https://github.com/ryanramage"
-        }
-    ],
+    {
+      "name" : "Dale Harvey",
+      "web"  : "https://github.com/daleharvey"
+    },
+    {
+      "name":"Ryan Ramage",
+      "web":"https://github.com/ryanramage"
+    }
+  ],
   "repositories":[
-        {
-            "type":"git",
-            "url":"https://github.com/daleharvey/pouchdb"
-        }
-    ],
-	"scripts": {
-		"test": "grunt test"
-	}
+    {
+      "type":"git",
+      "url":"https://github.com/daleharvey/pouchdb"
+    }
+  ],
+  "scripts": {
+    "test": "grunt test"
+  }
 }

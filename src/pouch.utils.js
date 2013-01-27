@@ -249,7 +249,7 @@ var writeCheckpoint = function(src, target, opts, checkpoint, callback) {
   if(typeof opts.filter != "undefined"){
     filter_func = opts.filter.toString();
   }
-  
+
   var check = {
     _id: '_local/' + Crypto.MD5(src.id() + target.id() + filter_func),
     last_seq: checkpoint
@@ -295,7 +295,7 @@ var winningRev = function(metadata) {
 
 var rootToLeaf = function(tree) {
   var paths = [];
-  
+
   traverseRevTree(tree, function(isLeaf, pos, id, history) {
     history = history ? history.slice(0) : [];
     history.push(id);
@@ -338,7 +338,7 @@ var ajax = function ajax(options, callback) {
   }
   var defaultOptions = {
     method : "GET",
-    headers: {},
+    headers: Pouch.getOptions('headers', {}),
     json: true,
     timeout: 10000
   };
@@ -381,7 +381,7 @@ var ajax = function ajax(options, callback) {
     if (!("body" in options)) {
       options.body = null;
     }
-    
+
     var abortReq = function() {
         timedout=true;
         xhr.abort();

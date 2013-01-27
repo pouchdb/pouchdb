@@ -1,11 +1,22 @@
 /*jshint node: true */
 
+console.log(process.env.TRAVIS_SECURE_ENV_VARS);
+
+if (!process.env.TRAVIS_SECURE_ENV_VARS) {
+  return;
+}
+
 var url = require('url');
 var fs = require('fs');
 var cp = require('child_process');
 
 var nano = require('nano');
 var cors = require('./tests/CORS-Proxy/server.js');
+
+console.log('start');
+console.log(process.env.HELLO);
+console.log(process.env.SSH_POUCH_KEY);
+console.log(typeof process.env.SSH_POUCH_KEY);
 
 var srcFiles = [
   "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
@@ -15,24 +26,30 @@ var srcFiles = [
 ];
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
-  return (/^test\.([a-z0-9_])*\.js$/).test(name);
+  return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
+    name !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
-  browserName: 'chrome',
-  platform: 'Windows 2003',
-  name: 'win2003/chrome',
-  'chrome.switches' : ['disable-file-system']
-}, {
+//   browserName: 'chrome',
+//   platform: 'Windows 2003',
+//   name: 'win2003/chrome',
+//   'chrome.switches' : ['disable-file-system']
+// }, {
   browserName: 'firefox',
   version: '17',
   platform: 'Windows 2003',
   name: 'win2003/firefox'
-}, {
-  browserName: 'opera',
-  version: '12',
-  platform: 'Windows 2008',
-  name: 'win2008/opera'
+// }, {
+//   browserName: 'safari',
+//   version: '5',
+//   platform: 'Windows 2008',
+//   name: 'win2008/safari'
+// }, {
+//   browserName: 'opera',
+//   version: '12',
+//   platform: 'Windows 2008',
+//   name: 'win2008/opera'
 }];
 
 module.exports = function(grunt) {
@@ -96,8 +113,9 @@ module.exports = function(grunt) {
 	tags: [process.env.TRAVIS_BRANCH || "unknown"],
 	testTimeout: 1000 * 60 * 15, // 15 minutes
 	testInterval: 1000 * 30, // 30 seconds
-  tunnelTimeout: 1000 * 60 * 15, // 15 minutes
-	urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
+        tunneled: false,
+        concurrency: 3,
+	urls: ["http://tests.pouchdb.com/tests/test.html?test=release-min&id=" +
                testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 	browsers: browserConfig,
 	onTestComplete: function(status, page, config, browser) {
@@ -153,7 +171,7 @@ module.exports = function(grunt) {
 	  passed: !!(testResults[key].passed),
 	  report: testResults[key]
 	};
-  console.log("Test Result for %s is %s".yellow , key , results.runs[key].passed);
+        console.log("Test Result for %s is %s".yellow , key , results.runs[key].passed);
 	results.passed = results.passed && results.runs[key].passed;
       }
       nano(grunt.config("publish-results.server"))
@@ -165,12 +183,36 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('deploy', 'Deploy a live pouch.alpha', function() {
+    var done = this.async();
+    var src = 'pouch.alpha.min.js';
+    var dest ='dale@arandomurl.com:www/pouchdb/pouchdb/testfile';
+    var identity = '';
+
+    console.log('in deploy');
+    console.log(process.env.WTF);
+    console.log(typeof process.env.SSH_POUCH_KEY);
+    console.log((typeof process.env.SSH_POUCH_KEY !== 'undefined'));
+
+    if (typeof process.env.SSH_POUCH_KEY !== 'undefined') {
+      console.log('writing ssh key');
+      fs.writeFileSync('id_rsa', process.env.SSH_POUCH_KEY, 'utf8');
+      fs.chmodSync('id_rsa', '600');
+      identity = '-o IdentityFile=./id_rsa -o UserKnownHostsFile=/dev/null '
+        + '-o StrictHostKeyChecking=no ';
+    }
+    console.log('Identity:', identity);
+
+    cp.exec('scp ' + identity + src + ' ' + dest, function(err, stdout, stderr) {
+      done(true);
+    });
+  });
+
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
 
   grunt.registerTask("build", "concat min");
-  grunt.registerTask("test", "build server cors-server node-qunit " +
-                     "saucelabs-qunit publish-results");
+  grunt.registerTask("test", "build deploy server cors-server saucelabs-qunit publish-results");
 
   grunt.registerTask('default', 'build');
 };

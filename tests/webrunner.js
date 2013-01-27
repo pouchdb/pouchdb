@@ -71,13 +71,6 @@ function asyncLoadScript(url, callback) {
   firstScript.parentNode.insertBefore(script, firstScript);
 }
 
-function startQUnit() {
-  QUnit.config.reorder = false;
-  QUnit.begin = function() {
-    console.log('running!!!');
-  };
-}
-
 function asyncParForEach(array, fn, callback) {
   if (array.length === 0) {
     callback(); // done immediately
@@ -92,7 +85,9 @@ function asyncParForEach(array, fn, callback) {
 var source = window.location.search.match(/[?&]test=([^&]+)/);
 source = source && source[1] || 'dev';
 
+QUnit.config.reorder = false;
 QUnit.config.testTimeout = 30000;
+QUnit.config.autostart = false;
 
 /**** Test Result Support ***************/
 function submitResults() {
@@ -125,6 +120,7 @@ function submitResults() {
 }
 
 document.getElementById('submit-results').addEventListener('click', submitResults);
+
 QUnit.jUnitReport = function(report) {
   report.started = started;
   report.completed = new Date();
@@ -132,8 +128,27 @@ QUnit.jUnitReport = function(report) {
   window.testReport = report;
 };
 
-asyncParForEach(sourceFiles[source], asyncLoadScript, function() {
+function runTests() {
   asyncParForEach(testFiles, asyncLoadScript, function() {
-    startQUnit();
+    QUnit.start();
+  });
+}
+
+asyncParForEach(sourceFiles[source], asyncLoadScript, function() {
+  var host = document.location.host === 'tests.pouchdb.com'
+    ? 'cors.pouchdb.com'
+    : document.location.hostname + ':2020';
+  console.log(host);
+  ajax({url: 'http://' + host}, function(err, data) {
+    if (err || !('tokenserver' in data)) {
+      return runTests();
+    }
+    ajax({
+      method: 'POST',
+      url: 'http://' + host + '/_provision'
+    }, function(err, data) {
+      Pouch.setOptions('headers', {'test-key': data.token});
+      runTests();
+    });
   });
 });
