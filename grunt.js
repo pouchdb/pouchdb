@@ -98,6 +98,7 @@ module.exports = function(grunt) {
 	testTimeout: 1000 * 60 * 15, // 15 minutes
 	testInterval: 1000 * 30, // 30 seconds
         tunnelTimeout: 1000 * 60 * 15, // 15 minutes
+        concurrency: 3,
 	urls: ["http://tests.pouchdb.com/tests/test.html?test=release-min&id=" +
                testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
 	browsers: browserConfig,
