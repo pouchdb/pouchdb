@@ -8,3 +8,4 @@ services:
 env:
   global:
     - secure: "bBxw36+W6poYTSGgUYP1m07SbhHFlQgCoadOAJ/6g6v1kyIK1cUqHkq8WW9R\n5KlwZQgwh+UJSeXe0mut5JrT4xVWxdy4Qr5+QFBJNUBUUms0BCQlb+Jy64Cz\nm5mLOckRQUntw6cSJ5P1Z/HYBTthce0EQPlYdUdP6o7gOq/wSx0="
+    - WTF=testing

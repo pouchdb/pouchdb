@@ -7,6 +7,9 @@ var cp = require('child_process');
 var nano = require('nano');
 var cors = require('./tests/CORS-Proxy/server.js');
 
+console.log(process.env.WTF);
+console.log(typeof process.env.SSH_POUCH_KEY);
+
 var srcFiles = [
   "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
   "src/pouch.replicate.js", "src/pouch.utils.js",
