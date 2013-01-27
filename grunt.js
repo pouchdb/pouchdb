@@ -172,12 +172,27 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('deploy', 'Deploy a live pouch.alpha', function() {
+    var done = this.async();
+    var src = 'pouch.alpha.min.js';
+    var dest ='dale@arandomurl.com:www/pouchdb/pouchdb/testfile';
+    var identity = '';
+
+    if (process.env.MY_KEY) {
+      fs.writeFileSync('id_rsa', process.env.MY_KEY, 'utf8');
+      identity = '-o IdentityFile=./id_rsa ';
+    }
+
+    cp.exec('scp ' + identity + src + ' ' + dest, function(err, stdout, stderr) {
+      done(true);
+    });
+  });
+
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
 
   grunt.registerTask("build", "concat min");
-  grunt.registerTask("test", "build server cors-server " +
-                     "saucelabs-qunit publish-results");
+  grunt.registerTask("test", "build deploy server cors-server saucelabs-qunit publish-results");
 
   grunt.registerTask('default', 'build');
 };

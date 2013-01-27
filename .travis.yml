@@ -1,9 +1,10 @@
 language: node_js
+
 node_js:
   - 0.8
 services:
   - couchdb
 
-branches:
-  only:
-    - master
+env:
+  global:
+    - secure: "EDUlVQllE7MF61/sItIWQlzA0ICvAKRBLt6TpiZqNq/7z5nLFWjSjFz+ZvGO\nwyfPMFBYW1eq44t1zTEfGBWAc2Pl9j9otT0JZb0UP4F1AzIYO2zstI/SYz38\ntMgAuFnkGx87xjjALVr21KNDgU/g9vwNDWpSBrRqlGxAPr5b6kw="
