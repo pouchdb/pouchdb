@@ -29,11 +29,11 @@ var browserConfig = [{
   version: '17',
   platform: 'Windows 2003',
   name: 'win2003/firefox'
-}, {
-  browserName: 'safari',
-  version: '5',
-  platform: 'Windows 2008',
-  name: 'win2008/safari'
+// }, {
+//   browserName: 'safari',
+//   version: '5',
+//   platform: 'Windows 2008',
+//   name: 'win2008/safari'
 // }, {
 //   browserName: 'opera',
 //   version: '12',
