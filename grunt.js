@@ -178,7 +178,7 @@ module.exports = function(grunt) {
     var dest ='dale@arandomurl.com:www/pouchdb/pouchdb/testfile';
     var identity = '';
 
-    if (process.env.MY_KEY) {
+    if (process.env.KEY) {
       fs.writeFileSync('id_rsa', process.env.KEY, 'utf8');
       fs.chmodSync('id_rsa', '600');
       identity = '-o IdentityFile=./id_rsa -o UserKnownHostsFile=/dev/null '
