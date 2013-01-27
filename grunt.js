@@ -7,6 +7,7 @@ var cp = require('child_process');
 var nano = require('nano');
 var cors = require('./tests/CORS-Proxy/server.js');
 
+console.log('start');
 console.log(process.env.WTF);
 console.log(typeof process.env.SSH_POUCH_KEY);
 
@@ -180,6 +181,10 @@ module.exports = function(grunt) {
     var src = 'pouch.alpha.min.js';
     var dest ='dale@arandomurl.com:www/pouchdb/pouchdb/testfile';
     var identity = '';
+
+    console.log('in deploy');
+    console.log(process.env.WTF);
+    console.log(typeof process.env.SSH_POUCH_KEY);
 
     if (process.env.SSH_POUCH_KEY) {
       fs.writeFileSync('id_rsa', process.env.SSH_POUCH_KEY, 'utf8');
