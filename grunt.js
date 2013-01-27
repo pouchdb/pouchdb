@@ -185,8 +185,10 @@ module.exports = function(grunt) {
     console.log('in deploy');
     console.log(process.env.WTF);
     console.log(typeof process.env.SSH_POUCH_KEY);
+    console.log((typeof process.env.SSH_POUCH_KEY !== 'undefined'));
 
-    if (process.env.SSH_POUCH_KEY) {
+    if (typeof process.env.SSH_POUCH_KEY !== 'undefined') {
+      console.log('writing ssh key');
       fs.writeFileSync('id_rsa', process.env.SSH_POUCH_KEY, 'utf8');
       fs.chmodSync('id_rsa', '600');
       identity = '-o IdentityFile=./id_rsa -o UserKnownHostsFile=/dev/null '
