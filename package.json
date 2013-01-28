@@ -9,7 +9,7 @@
   "keywords": [ "db", "couchdb", "pouchdb" ],
   "tags": [ "db", "couchdb", "pouchdb" ],
   "dependencies": {
-    "levelup": "1.5.2",
+    "levelup": "0.5.2",
     "request": "*",
     "underscore": "*"
   },
