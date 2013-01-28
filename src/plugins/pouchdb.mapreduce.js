@@ -32,7 +32,7 @@ var MapReduce = function(db) {
 
     var emit = function(key, val) {
       var viewRow = {
-        id: current._id,
+        id: current.doc._id,
         key: key,
         value: val
       }; 

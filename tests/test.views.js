@@ -41,6 +41,9 @@ adapters.map(function(adapter) {
             db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
               equal(res.rows.length, 1, 'Dont include deleted documents');
               res.rows.forEach(function(x, i) {
+                ok(x.id, 'emitted row has id');
+                ok(x.key, 'emitted row has key');
+                ok(x.value, 'emitted row has value');
                 ok(x.value._rev, 'emitted doc has rev');
                 ok(x.doc, 'doc included');
                 ok(x.doc && x.doc._rev, 'included doc has rev');
