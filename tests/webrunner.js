@@ -36,7 +36,8 @@ var sourceFiles = {
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
           '../src/adapters/pouch.websql.js',
-          '../src/plugins/pouchdb.mapreduce.js'],
+          '../src/plugins/pouchdb.mapreduce.js',
+          '../src/plugins/pouchdb.spatial.js'],
   'release': ['../pouch.alpha.js'],
   'release-min': ['../pouch.alpha.min.js']
 };
