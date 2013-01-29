@@ -45,7 +45,7 @@ var parseDocId = function(id) {
 var isDeleted = function(metadata, rev) {
   if (!metadata || !metadata.deletions) return false;
   if (!rev) {
-    rev = winningRev(metadata);
+    rev = Pouch.merge.winningRev(metadata);
   }
   if (rev.indexOf('-') >= 0) {
     rev = rev.split('-')[1];
@@ -269,7 +269,7 @@ var writeCheckpoint = function(src, target, opts, checkpoint, callback) {
 // tree (most edits) win
 // The final sort algorithm is slightly documented in a sidebar here:
 // http://guide.couchdb.org/draft/conflicts.html
-var winningRev = function(metadata) {
+Pouch.merge.winningRev = function(metadata) {
   var deletions = metadata.deletions || {};
   var leafs = [];
 

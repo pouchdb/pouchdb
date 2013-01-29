@@ -154,7 +154,7 @@ var webSqlPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
-        var rev = winningRev(metadata);
+        var rev = Pouch.merge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -231,7 +231,7 @@ var webSqlPouch = function(opts, callback) {
         var seq = docInfo.metadata.seq = result.insertId;
         delete docInfo.metadata.rev;
 
-        var mainRev = winningRev(docInfo.metadata);
+        var mainRev = Pouch.merge.winningRev(docInfo.metadata);
 
         var sql = isUpdate ?
           'UPDATE ' + DOC_STORE + ' SET seq=?, json=?, winningseq=(SELECT seq FROM ' + BY_SEQ_STORE + ' WHERE rev=?) WHERE id=?' :
@@ -421,7 +421,7 @@ var webSqlPouch = function(opts, callback) {
           return;
         }
 
-        var rev = winningRev(metadata);
+        var rev = Pouch.merge.winningRev(metadata);
         var key = opts.rev ? opts.rev : rev;
         var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE rev=?';
         tx.executeSql(sql, [key], function(tx, results) {
@@ -513,11 +513,11 @@ var webSqlPouch = function(opts, callback) {
             var doc = {
               id: metadata.id,
               key: metadata.id,
-              value: {rev: winningRev(metadata)}
+              value: {rev: Pouch.merge.winningRev(metadata)}
             };
             if (opts.include_docs) {
               doc.doc = data;
-              doc.doc._rev = winningRev(metadata);
+              doc.doc._rev = Pouch.merge.winningRev(metadata);
               if (opts.conflicts) {
                 doc.doc._conflicts = collectConflicts(metadata.rev_tree);
               }
@@ -584,7 +584,7 @@ var webSqlPouch = function(opts, callback) {
                 changes: collectLeaves(metadata.rev_tree),
                 doc: JSON.parse(doc.data),
               };
-              change.doc._rev = winningRev(metadata);
+              change.doc._rev = Pouch.merge.winningRev(metadata);
               if (isDeleted(metadata, change.doc._rev)) {
                 change.deleted = true;
               }
