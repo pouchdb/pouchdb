@@ -7,9 +7,13 @@ window.indexedDB = window.indexedDB ||
 
 // still needed for R/W transactions in Android Chrome. follow MDN example:
 // https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#transaction
-window.IDBTransaction = window.IDBTransaction ||
-  window.webkitIDBTransaction ||
-  { READ_WRITE: 'readwrite' };
+// note though that Chrome Canary fails on undefined READ_WRITE constants
+// on the native IDBTransaction object
+window.IDBTransaction = (window.IDBTransaction && window.IDBTransaction.READ_WRITE)
+  ? window.IDBTransaction
+  : (window.webkitIDBTransaction && window.webkitIDBTransaction.READ_WRITE)
+    ? window.webkitIDBTransaction
+    : { READ_WRITE: 'readwrite' };
 
 window.IDBKeyRange = window.IDBKeyRange ||
   window.webkitIDBKeyRange;
