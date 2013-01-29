@@ -43,8 +43,9 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: '<json:package.json>',
     meta: {
-      top:  "/*PouchDB*/\n(function() { ",
-      bottom:" })(this);"
+      banner:"/*PouchDB*/",
+      top:  "\n(function() {\n ",
+      bottom:"\n })(this);"
     },
     concat: {
       amd: {
@@ -56,7 +57,7 @@ module.exports = function(grunt) {
       },
       all: {
 	src: grunt.utils._.flatten([
-          "<banner:meta.top>",
+          "<banner","<banner:meta.top>",
           "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"]),
 
 	dest: 'pouch.<%= pkg.release %>.js'
@@ -65,9 +66,7 @@ module.exports = function(grunt) {
 
     min: {
       dist: {
-	src: grunt.utils._.flatten([
-          "<banner:meta.top>", "src/deps/uuid.js","src/deps/polyfill.js",
-          srcFiles, "<banner:meta.bottom>"]),
+	src: "./pouch.<%= pkg.release %>.js",
 	dest: 'pouch.<%= pkg.release %>.min.js'
       }
     },
