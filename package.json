@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "release": "alpha",
+  "release": "nightly",
   "description": "PouchDB is a pocket-sized database.",
   "author": "Dale Harvey",
   "version": "0.0.4",
@@ -31,7 +31,9 @@
     "send": "*",
     "grunt": "*",
     "grunt-saucelabs": "*",
-    "grunt-node-qunit": "*"
+    "grunt-node-qunit": "*",
+    "corsproxy": "*",
+    "http-proxy": "*"
   },
   "maintainers": [
     {

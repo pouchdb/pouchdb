@@ -37,8 +37,8 @@ var sourceFiles = {
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
           '../src/adapters/pouch.websql.js',
           '../src/plugins/pouchdb.mapreduce.js'],
-  'release': ['../pouch.alpha.js'],
-  'release-min': ['../pouch.alpha.min.js']
+  'release': ['../dist/pouchdb-nightly.js'],
+  'release-min': ['../dist/pouchdb-nightly.min.js']
 };
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/

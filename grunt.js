@@ -5,7 +5,8 @@ var fs = require('fs');
 var cp = require('child_process');
 
 var nano = require('nano');
-var cors = require('./tests/CORS-Proxy/server.js');
+var cors_proxy = require("corsproxy");
+var http_proxy = require("http-proxy");
 
 var srcFiles = [
   "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
@@ -128,13 +129,13 @@ module.exports = function(grunt) {
 
   // Custom tasks
   grunt.registerTask("cors-server", "Runs a CORS proxy", function(){
-    var corsUrl = url.parse("http://127.0.0.1:" +
-                            (arguments[0] || grunt.config("cors-server.port")));
-    var couchUrl = url.parse(grunt.utils._.toArray(arguments).slice(1).join(":") ||
-                             grunt.config("cors-server.base"));
-    grunt.log.writeln("Starting CORS server " + url.format(corsUrl) +
-                      " => " + url.format(couchUrl));
-    cors.init(couchUrl, corsUrl);
+    var corsPort = arguments[0] || grunt.config("cors-server.port");
+    var couchUrl = grunt.utils._.toArray(arguments).slice(1).join(":") ||
+      grunt.config("cors-server.base");
+    grunt.log.writeln("Starting CORS server " + corsPort + " => " + couchUrl);
+
+    cors_proxy.options = {target: couchUrl};
+    http_proxy.createServer(cors_proxy).listen(corsPort);
   });
 
   grunt.registerTask("forever", "Runs a task forever, exits only on Ctrl+C", function(){
