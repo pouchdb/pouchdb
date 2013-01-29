@@ -45,14 +45,17 @@ module.exports = function(grunt) {
     meta: {
       banner:"/*PouchDB*/",
       top:  "\n(function() {\n ",
-      bottom:"\n })(this);"
+      bottom:"\n })(this);",
+      amd:{
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { ",
+        bottom : " return Pouch });"
+      }
     },
     concat: {
       amd: {
 	src: grunt.utils._.flatten([
-          "define('pouchdb',[ 'simple-uuid', 'md5'], " +
-            "function(uuid, md5) { ", 'src/pouch.amd.js', srcFiles,
-          " return Pouch });"]),
+          "<banner:meta.amd.top>", 'src/pouch.amd.js', srcFiles,
+          "<banner:meta.amd.bottom>"]),
 	dest: 'pouch.amd.<%= pkg.release %>.js'
       },
       all: {
