@@ -61,7 +61,7 @@ module.exports = function(grunt) {
       },
       all: {
         src: grunt.utils._.flatten([
-          "<banner","<banner:meta.top>","src/deps/uuid.js",
+          "<banner>","<banner:meta.top>","src/deps/uuid.js",
           "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
         ]),
         dest: 'dist/pouchdb-<%= pkg.release %>.js'
