@@ -49,13 +49,13 @@ module.exports = function(grunt) {
           "define('pouchdb',[ 'simple-uuid', 'md5'], " +
             "function(uuid, md5) { ", 'src/pouch.amd.js', srcFiles,
           " return Pouch });"]),
-	dest: 'pouch.amd.<%= pkg.release %>.js'
+	dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
       },
       all: {
 	src: grunt.utils._.flatten([
           "(function() { ",
           "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, " })(this);"]),
-	dest: 'pouch.<%= pkg.release %>.js'
+	dest: 'dist/pouchdb-<%= pkg.release %>.js'
       }
     },
 
@@ -64,7 +64,7 @@ module.exports = function(grunt) {
 	src: grunt.utils._.flatten([
           "(function() { ", "src/deps/uuid.js","src/deps/polyfill.js",
           srcFiles, " })(this);"]),
-	dest: 'pouch.<%= pkg.release %>.min.js'
+	dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
       }
     },
 

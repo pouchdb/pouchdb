@@ -1,4 +1,4 @@
-/pouch*.js
+dist
 .*
 !.gitignore
 sauce_connect.log*
