@@ -54,23 +54,24 @@ module.exports = function(grunt) {
     },
     concat: {
       amd: {
-	src: grunt.utils._.flatten([
-         "<banner:meta.amd.top>", 'src/pouch.amd.js', srcFiles,
-          "<banner:meta.amd.bottom>"]),
-	dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
+        src: grunt.utils._.flatten([
+          "<banner:meta.amd.top>", 'src/pouch.amd.js', srcFiles,"<banner:meta.amd.bottom>"
+        ]),
+        dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
       },
       all: {
-	src: grunt.utils._.flatten([
-         "<banner","<banner:meta.top>",
-          "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"]),
-	dest: 'dist/pouchdb-<%= pkg.release %>.js'
+        src: grunt.utils._.flatten([
+          "<banner","<banner:meta.top>","src/deps/uuid.js",
+          "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
+        ]),
+        dest: 'dist/pouchdb-<%= pkg.release %>.js'
       }
     },
 
     min: {
       dist: {
-	src: "./dist/pouchdb-<%= pkg.release %>.js",
-	dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+        src: "./dist/pouchdb-<%= pkg.release %>.js",
+        dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
       }
     },
 
