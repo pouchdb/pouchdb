@@ -2,6 +2,7 @@
 
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
+var is_browser = true;
 
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../src/pouch.js')
@@ -13,6 +14,7 @@ if (typeof module !== undefined && module.exports) {
   }
   adapters = ['leveldb-1', 'http-1']
   qunit = QUnit.module;
+  is_browser = false;
 }
 
 adapters.map(function(adapter) {
@@ -85,7 +87,7 @@ adapters.map(function(adapter) {
         onChange: function(change) {
           count += 1;
           ok(!change.doc, 'If we dont include docs, dont include docs');
-          equal(count, 1, 'Only recieve a single change');
+          equal(count, 1, 'Only receive a single change');
           changes.cancel();
           start();
         },
@@ -95,27 +97,30 @@ adapters.map(function(adapter) {
     });
   });
 
-  // asyncTest("Continuous changes across windows", function() {
-  //   var search = window.location.search
-  //     .replace(/[?&]testFiles=[^&]+/, '')
-  //     .replace(/[?&]dbname=[^&]+/, '')
-  //     + '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
-  //   initTestDB(this.name, function(err, db) {
-  //     var count = 0;
-  //     var tab;
-  //     var changes = db.changes({
-  //       onChange: function(change) {
-  //         count += 1;
-  //         equal(count, 1, 'Recieved a single change');
-  //         changes.cancel();
-  //         tab && tab.close();
-  //         start();
-  //       },
-  //       continuous: true
-  //     });
-  //     tab = window.open('test.html?' + search.replace(/^[?&]+/, ''));
-  //   });
-  // });
+  if (is_browser) {
+    asyncTest("Continuous changes across windows", function() {
+      var search = window.location.search
+        .replace(/[?&]testFiles=[^&]+/, '')
+        .replace(/[?&]testNumber=[^&]+/, '')
+        .replace(/[?&]dbname=[^&]+/, '')
+        + '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
+      initTestDB(this.name, function(err, db) {
+        var count = 0;
+        var tab;
+        var changes = db.changes({
+          onChange: function(change) {
+            count += 1;
+            equal(count, 1, 'Received a single change');
+            changes.cancel();
+            tab && tab.close();
+            start();
+          },
+          continuous: true
+        });
+        tab = window.open('test.html?' + search.replace(/^[?&]+/, ''));
+      });
+    });
+  }
 
   asyncTest("Continuous changes doc", function() {
     initTestDB(this.name, function(err, db) {
