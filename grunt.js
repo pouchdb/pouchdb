@@ -57,21 +57,21 @@ module.exports = function(grunt) {
 	src: grunt.utils._.flatten([
           "<banner:meta.amd.top>", 'src/pouch.amd.js', srcFiles,
           "<banner:meta.amd.bottom>"]),
-	dest: 'pouch.amd.<%= pkg.release %>.js'
+	dest: 'dist/pouch.amd.<%= pkg.release %>.js'
       },
       all: {
 	src: grunt.utils._.flatten([
           "<banner","<banner:meta.top>",
           "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"]),
 
-	dest: 'pouch.<%= pkg.release %>.js'
+	dest: 'distpouch.<%= pkg.release %>.js'
       }
     },
 
     min: {
       dist: {
-	src: "./pouch.<%= pkg.release %>.js",
-	dest: 'pouch.<%= pkg.release %>.min.js'
+	src: "./dist/pouch.<%= pkg.release %>.js",
+	dest: 'dist/pouch.<%= pkg.release %>.min.js'
       }
     },
 
