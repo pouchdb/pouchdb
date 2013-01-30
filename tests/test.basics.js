@@ -28,7 +28,7 @@ adapters.map(function(adapter) {
     }
   });
 
-  asyncTest("Create a pouch", 1, function() {
+  asyncTest("Create a pouch (If this fails, make sure you are running CouchDB in admin party mode!)", 1, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'created a pouch');
       start();
