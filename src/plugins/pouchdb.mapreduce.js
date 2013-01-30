@@ -157,8 +157,9 @@ var MapReduce = function(db) {
     if (typeof fun === 'string') {
       var parts = fun.split('/');
       db.request({
-        method:'GET',
-        url: '_design/' + parts[0] + '/_view/' + parts[1] + params
+        method: opts.keys ? 'POST' : 'GET',
+        url: '_design/' + parts[0] + '/_view/' + parts[1] + params,
+        body: opts.keys ? JSON.stringify({keys:opts.keys}) : undefined
       }, callback);
       return;
     }
