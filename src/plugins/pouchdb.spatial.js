@@ -48,7 +48,7 @@ var Spatial = function(db) {
 
       return coords.reduce(function (acc, coord) {
         // The first element isn't a bbox yet
-        if (acc.length === 1) {
+        if (typeof acc[0] === "number") {//acc will never be of length 1
           acc = [[acc[0], acc[0]], [acc[1], acc[1]]];
         }
         var minX = Math.min(acc[0][0], coord[0]);
