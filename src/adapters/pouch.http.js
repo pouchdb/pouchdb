@@ -443,6 +443,8 @@ var HttpPouch = function(opts, callback) {
 
     // List of parameters to add to the GET request
     var params = [];
+    var body = undefined;
+    var method = 'GET';
 
     // TODO I don't see conflicts as a valid parameter for a
     // _all_docs request (see http://wiki.apache.org/couchdb/HTTP_Document_API#all_docs)
@@ -474,22 +476,25 @@ var HttpPouch = function(opts, callback) {
       params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));
     }
 
-    // If opts.keys exists, add the keys value to the list of parameters.
-    if (opts.keys) {
-      params.push('keys=' + encodeURIComponent(JSON.stringify(opts.keys)));
-    }
-
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     if (params !== '') {
       params = '?' + params;
     }
 
+    // If keys are supplied, issue a POST request to circumvent GET query string limits
+    // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
+    if (typeof opts.keys !== 'undefined') {
+      method = 'POST';
+      body = JSON.stringify({keys:opts.keys});
+    }
+
     // Get the document listing
     ajax({
       auth: host.auth,
-      method:'GET',
-      url: genDBUrl(host, '_all_docs' + params)
+      method: method,
+      url: genDBUrl(host, '_all_docs' + params),
+      body: body
     }, callback);
   };
   // Get a list of changes made to documents in the database given by host.
