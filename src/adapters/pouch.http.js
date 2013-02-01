@@ -474,11 +474,6 @@ var HttpPouch = function(opts, callback) {
       params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));
     }
 
-    // If opts.keys exists, add the keys value to the list of parameters.
-    if (opts.keys) {
-      params.push('keys=' + encodeURIComponent(JSON.stringify(opts.keys)));
-    }
-
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     if (params !== '') {
