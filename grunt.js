@@ -43,28 +43,35 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: '<json:package.json>',
+    meta: {
+      banner:"/*PouchDB*/",
+      top:  "\n(function() {\n ",
+      bottom:"\n })(this);",
+      amd:{
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { ",
+        bottom : " return Pouch });"
+      }
+    },
     concat: {
       amd: {
-	src: grunt.utils._.flatten([
-          "define('pouchdb',[ 'simple-uuid', 'md5'], " +
-            "function(uuid, md5) { ", 'src/pouch.amd.js', srcFiles,
-          " return Pouch });"]),
-	dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
+        src: grunt.utils._.flatten([
+          "<banner:meta.amd.top>", 'src/pouch.amd.js', srcFiles,"<banner:meta.amd.bottom>"
+        ]),
+        dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
       },
       all: {
-	src: grunt.utils._.flatten([
-          "(function() { ",
-          "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, " })(this);"]),
-	dest: 'dist/pouchdb-<%= pkg.release %>.js'
+        src: grunt.utils._.flatten([
+          "<banner>","<banner:meta.top>","src/deps/uuid.js",
+          "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
+        ]),
+        dest: 'dist/pouchdb-<%= pkg.release %>.js'
       }
     },
 
     min: {
       dist: {
-	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/uuid.js","src/deps/polyfill.js",
-          srcFiles, " })(this);"]),
-	dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+        src: "./dist/pouchdb-<%= pkg.release %>.js",
+        dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
       }
     },
 
