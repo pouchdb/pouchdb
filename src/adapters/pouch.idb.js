@@ -214,7 +214,7 @@ var IdbPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
-        var rev = winningRev(metadata);
+        var rev = Pouch.merge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -411,7 +411,7 @@ var IdbPouch = function(opts, callback) {
         return;
       }
 
-      var rev = winningRev(metadata);
+      var rev = Pouch.merge.winningRev(metadata);
       var key = opts.rev ? opts.rev : rev;
       var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
 
@@ -628,12 +628,12 @@ var IdbPouch = function(opts, callback) {
             id: metadata.id,
             key: metadata.id,
             value: {
-              rev: winningRev(metadata)
+              rev: Pouch.merge.winningRev(metadata)
             }
           };
           if (opts.include_docs) {
             doc.doc = data;
-            doc.doc._rev = winningRev(metadata);
+            doc.doc._rev = Pouch.merge.winningRev(metadata);
             if (opts.conflicts) {
               doc.doc._conflicts = collectConflicts(metadata.rev_tree);
             }
@@ -790,7 +790,7 @@ var IdbPouch = function(opts, callback) {
           return cursor['continue']();
         }
 
-        var mainRev = winningRev(metadata);
+        var mainRev = Pouch.merge.winningRev(metadata);
         var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
         index.get(mainRev).onsuccess = function(docevent) {
           var doc = docevent.target.result;

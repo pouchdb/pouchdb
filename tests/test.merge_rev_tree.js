@@ -153,7 +153,7 @@ test('winningRev returns the longest leaf', function() {
         ]]
       ]]
     }]
-  equal(winningRev({rev_tree: tree}),
+  equal(Pouch.merge.winningRev({rev_tree: tree}),
         "3-93c3db16462f656f7172ccabd3cf6cd6",
         "Picks the longest path")
 });
@@ -177,7 +177,7 @@ test('winningRev returns the longest leaf again', function() {
       ]]
     }
   ];
-  equal(winningRev({rev_tree: tree}),
+  equal(Pouch.merge.winningRev({rev_tree: tree}),
         "3-64a9842c6aea50bf24660378e496e853",
         "Picks the longest path")
 });
