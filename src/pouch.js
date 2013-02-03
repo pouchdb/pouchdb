@@ -161,7 +161,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var adapter_path = './adapters/pouch.'+adapter+'.js';
     require(adapter_path);
   });
-  require('./plugins/pouchdb.mapreduce.js');
+  require('./plugins/pouchdb.gql.js');
 } else {
   this.Pouch = Pouch;
 }
