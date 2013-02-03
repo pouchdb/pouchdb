@@ -14,15 +14,14 @@
 // and storing the result of the map function (possibly using the upcoming
 // extracted adapter functions)
 
-var MapReduce = function(db) {
+var GQL= function(db) {
 
   function viewQuery(query, options) {
     if (!options.complete) {
       return;
     }
 
-    function sum(values) {
-      return values.reduce(function(a, b) { return a + b; }, 0);
+    function sum(values) { return values.reduce(function(a, b) { return a + b; }, 0);
     }
 
     var results = [];
@@ -562,6 +561,6 @@ var MapReduce = function(db) {
 };
 
 // Deletion is a noop since we dont store the results of the view
-MapReduce._delete = function() { };
+GQL._delete = function() { };
 
-Pouch.plugin('mapreduce', MapReduce);
+Pouch.plugin('gql', GQL);
