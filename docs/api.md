@@ -290,7 +290,7 @@ A list of changes made to documents in the database, in the order they were made
 
 <span></span>
 
-    db.changes(options, function(err, response) {
+    db.changes({complete: function(err, response) {
       // Changes list:
       // {
       //   "results": [
@@ -332,7 +332,7 @@ A list of changes made to documents in the database, in the order they were made
       //     }
       //   ]
       // }
-    })
+    }})
 
 ## Replicate a database
 
