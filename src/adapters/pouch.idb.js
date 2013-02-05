@@ -561,6 +561,9 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (opts === undefined) {
+      opts = {};
+    }
     opts.was_delete = true;
     var newDoc = extend(true, {}, doc);
     newDoc._deleted = true;

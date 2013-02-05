@@ -155,6 +155,16 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Remove doc, no callback", 1, function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({test:"somestuff"}, function (err, doc) {
+        ok(!err, 'save a doc with post');
+        db.remove(doc); // how to test remove with no callback properly?
+        start();
+      });
+    });
+  });
+
   asyncTest("Get design doc", 2, function() {
     initTestDB(this.name, function(err, db) {
       db.put({_id: '_design/someid', test:"somestuff"}, function(err, info) {
