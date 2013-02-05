@@ -155,12 +155,21 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Remove doc, no callback", 1, function() {
+  asyncTest("Remove doc, no callback", 2, function() {
     initTestDB(this.name, function(err, db) {
-      db.post({test:"somestuff"}, function (err, doc) {
+      db.post({_id:"somestuff"}, function (err, res) {
         ok(!err, 'save a doc with post');
-        db.remove(doc); // how to test remove with no callback properly?
-        start();
+        db.changes({
+          continuous: true,
+          include_docs: true,
+          onChange: function(change){
+            if(change.seq == 2){
+              ok(change.doc._deleted, 'Doc deleted properly');
+              start();
+            }
+          }
+        });
+        db.remove({_id: res.id, _rev: res.rev});
       });
     });
   });
