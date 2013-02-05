@@ -21,6 +21,7 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
  * [Get database information](#get_database_information)
  * [Listen to database changes](#listen_to_database_changes)
  * [Replicate a database](#replicate_a_database)
+ * [Get document revision diffs](#document_revisions)
 
 ## Create a database
 
@@ -349,3 +350,24 @@ Replicate one database to another.
     Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
       //
     })
+
+## Document Revisions
+
+    db.revsDiff(diff, [callback])
+
+Given a set of document/revision IDs, returns the subset of those that do not correspond 
+to revisions stored in the database. Primarily used in replication.
+
+    db.revsDiff({
+      myDoc1: [
+        "1-b2e54331db828310f3c772d6e042ac9c",
+        "2-3a24009a9525bde9e4bfa8a99046b00d"
+      ]
+    }, function (err, diffs) {
+      // Diffs:
+      // {
+      //   "myDoc1": {
+      //     "missing": ["2-3a24009a9525bde9e4bfa8a99046b00d"]
+      //   }
+      // }
+    });
