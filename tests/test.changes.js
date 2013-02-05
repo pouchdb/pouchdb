@@ -117,7 +117,10 @@ adapters.map(function(adapter) {
           },
           continuous: true
         });
-        tab = window.open('test.html?' + search.replace(/^[?&]+/, ''));
+        var iframe = document.createElement('iframe');
+        iframe.src = 'test.html?' + search.replace(/^[?&]+/, '');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
       });
     });
   }
