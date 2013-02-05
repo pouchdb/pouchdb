@@ -56,14 +56,10 @@ var GQL= function(db) {
           var tokens = [], c, index = 0, currentString= "";
 
           function isOperator(c) { return /[=<>!+\-*\/()]/.test(c); }
-          function isFullWordOperator(str) { return /and|or|not|where|select/.test(str);}
+          function isFullWordOperator(str) { return /^and$|^or$|^not$|^where$|^select$/.test(str);}
           function isBooleanLiteral(str) { return /true|false/.test(str);}
           function isDigit(c) { return /[0-9.]/.test(c); }
           function isWhiteSpace(c) { return /\s/.test(c); }
-          function isIdentifier(c) { 
-            return typeof c === "string" && !isOperator(c) && !isDigit(c) && !isWhiteSpace(c);
-          }
-
 
           function LexerError(message) {
             this.name= "LexerError";
@@ -257,14 +253,14 @@ var GQL= function(db) {
 
         infix("and", 30);
         infix("or", 30);
-        infix("not", 31); //not totally sure about this...
+        prefix("not", 70); //TODO: not totally sure about this...
 
         symbol(")");
         symbol("(end)");
 
         symbol("(", function () {
-          value= expression(20);
-          if (token.type !== ")") throw "Expected closing parenthesis ')'";
+          var value= expression(20);
+          if (peekToken().type !== ")") throw "Expected closing parenthesis ')'";
           advance();
           return value;
         });
@@ -368,10 +364,10 @@ var GQL= function(db) {
               break;
 
             case "identifier":
-              if (typeof doc[node.value] === "undefined"){
-                //is this the correct behavior?
-                throw node.value + " is undefined in doc " + doc._id;
-              }
+              //if (typeof doc[node.value] === "undefined"){
+                //throw node.value + " is undefined in doc " + doc._id;
+              //}
+              //TODO: is this the correct behavior?
               return doc[node.value];
               break;
 
@@ -382,10 +378,6 @@ var GQL= function(db) {
                 }
                 return operators[node.type](parseNode(node.right));
               }
-              console.log(operators[node.type]);
-              console.log(node.type);
-              console.log(operators["or"]);
-              console.log(node);
               throw "Unknown token type";
               break;
           }
