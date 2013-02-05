@@ -87,12 +87,14 @@ module.exports = function(grunt) {
     },
 
     'node-qunit': {
-      deps: './src/pouch.js',
-      code: './src/adapters/pouch.leveldb.js',
-      tests: testFiles.map(function (n) { return "./tests/" + n; }),
-      done: function(err, res) {
-        !err && (testResults['node'] = res);
-	return true;
+      all: {
+        deps: './src/pouch.js',
+        code: './src/adapters/pouch.leveldb.js',
+        tests: testFiles.map(function (n) { return "./tests/" + n; }),
+        done: function(err, res) {
+          !err && (testResults['node'] = res);
+	       return true;
+        }
       }
     },
 
