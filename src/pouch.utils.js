@@ -631,3 +631,54 @@ if (typeof module !== 'undefined' && module.exports) {
     extend: extend
   }
 }
+
+var Changes = function() {
+
+  var api = {};
+  var listeners = {};
+
+  window.addEventListener("storage", function(e) {
+    api.notify(e.key);
+  });
+
+  api.addListener = function(db_name, id, db, opts) {
+    if (!listeners[db_name]) {
+      listeners[db_name] = {};
+    }
+    listeners[db_name][id] = {
+      db: db,
+      opts: opts
+    };
+  }
+
+  api.removeListener = function(db_name, id) {
+    delete listeners[db_name][id];
+  }
+
+  api.clearListeners = function(db_name) {
+    delete listeners[db_name];
+  }
+
+  api.notify = function(db_name) {
+    if (!listeners[db_name]) { return; }
+    for (var i in listeners[db_name]) {
+      var opts = listeners[db_name][i].opts;
+      listeners[db_name][i].db.changes({
+        include_docs: opts.include_docs,
+        conflicts: opts.conflicts,
+        continuous: false,
+        filter: opts.filter,
+        since: opts.since,
+        onChange: function(c) {
+          if (c.seq > opts.since) {
+            opts.since = c.seq;
+            call(opts.onChange, c);
+          }
+        }
+      });
+    }
+  }
+
+  return api;
+};
+
