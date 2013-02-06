@@ -63,6 +63,29 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Descending changes", function () {
+    var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, function(err, info) {
+        db.changes({
+          descending: true,
+          complete: function(err, results) {
+            var ids = ["3", "2", "1", "0"];
+            results.results.forEach(function (row, i) {
+              ok(row.id === ids[i], 'All results, descending order');
+            });
+            start();
+          }
+        });
+      });
+    });
+  });
+
   asyncTest("Changes doc", function () {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
