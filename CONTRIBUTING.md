@@ -42,7 +42,7 @@ The PouchDB test suite expects an instance of CouchDB running on http://127.0.0.
 
 ### Browser Tests
 
-    $ server cors-server forever
+    $ grunt server cors-server forever
     # Now visit http://127.0.0.1:8000/tests/test.html in your browser
 
 Git Essentials
