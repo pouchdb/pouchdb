@@ -332,7 +332,7 @@ var ajax = function ajax(options, callback) {
          } catch(e){}
          call(cb, errObj);
   };
-  if (window.XMLHttpRequest) {
+  if (typeof window !== 'undefined' && window.XMLHttpRequest) {
     var timer,timedout  = false;
     var xhr = new XMLHttpRequest();
     xhr.open(options.method, options.url);
@@ -370,6 +370,10 @@ var ajax = function ajax(options, callback) {
     xhr.send(options.body);
     return {abort:abortReq};
   } else {
+    if (options.json) {
+      options.headers.Accept = 'application/json';
+      options.headers['Content-Type'] = 'application/json';
+    }
     return request(options, function(err, response, body) {
       if (err) {
         err.status = response ? response.statusCode : 400;
@@ -381,7 +385,7 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (options.json && (/json/.test(content_type)
+      if (options.json && typeof data !== 'object' && (/json/.test(content_type)
           || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
@@ -596,6 +600,8 @@ if (typeof module !== 'undefined' && module.exports) {
     btoa: btoa,
     extend: extend,
     traverseRevTree: traverseRevTree,
-    rootToLeaf: rootToLeaf
+    rootToLeaf: rootToLeaf,
+    isPlainObject: isPlainObject,
+    isArray: isArray
   }
 }
