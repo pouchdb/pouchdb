@@ -77,9 +77,6 @@ function generateAdapterUrl(id) {
       'http://localhost:5984/testdb_' + testId + '_' + opt[1] :
       'http://localhost:2020/testdb_' + testId + '_' + opt[1];
   }
-  if (opt[0] === 'leveldb') {
-    return 'leveldb://testdb_' + testId + '_' + opt[1];
-  }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
