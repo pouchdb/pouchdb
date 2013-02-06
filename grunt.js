@@ -90,7 +90,12 @@ module.exports = function(grunt) {
       all: {
         deps: './src/pouch.js',
         code: './src/adapters/pouch.leveldb.js',
-        tests: testFiles.map(function (n) { return "./tests/" + n; }),
+        tests: testFiles
+          .filter(function(n) {
+            return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
+          }).map(function (n) {
+            return "./tests/" + n;
+          }),
         done: function(err, res) {
           !err && (testResults['node'] = res);
 	       return true;
