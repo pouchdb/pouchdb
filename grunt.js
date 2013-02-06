@@ -48,14 +48,15 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { ",
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
+          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
         bottom : " return Pouch });"
       }
     },
     concat: {
       amd: {
         src: grunt.utils._.flatten([
-          "<banner:meta.amd.top>", 'src/pouch.amd.js', srcFiles,"<banner:meta.amd.bottom>"
+          "<banner:meta.amd.top>", srcFiles,"<banner:meta.amd.bottom>"
         ]),
         dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
       },
@@ -84,6 +85,46 @@ module.exports = function(grunt) {
     'cors-server': {
       base: 'http://127.0.0.1:5984',
       port: 2020
+    },
+
+    lint: {
+      files: ["src/*/*.js", "tests/*.js"]
+    },
+
+    jshint: {
+      options: {
+        curly: true,
+        eqeqeq: true,
+        immed: true,
+        latedef: true,
+        newcap: true,
+        noarg: true,
+        sub: true,
+        undef: true,
+        eqnull: true,
+        browser: true,
+        strict: true
+      },
+      globals: {
+          // Tests.
+        _: true,
+        QUnit: true,
+        asyncTest: true,
+        DB: true,
+        deepEqual: true,
+        equal: true,
+        expect: true,
+        fail: true,
+        module: true,
+        nextTest: true,
+        notEqual: true,
+        ok: true,
+        sample: true,
+        start: true,
+        stop: true,
+        unescape: true,
+        process: true
+      }
     },
 
     'node-qunit': {
