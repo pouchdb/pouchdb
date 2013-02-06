@@ -286,7 +286,7 @@ A list of changes made to documents in the database, in the order they were made
 * `options.descending`: Reverse the order of the output table
 * `options.filter`: Reference a filter function from a design document to selectively get updates
 * `options.since`: Start the results from the change immediately after the given sequence number
-* `options.complete`: Function called when all changes have been processed, defaults to the callback
+* `options.complete`: Function called when all changes have been processed
 * `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change)
 
 <span></span>
