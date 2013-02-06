@@ -226,15 +226,8 @@ var IdbPouch = function(opts, callback) {
           return;
         }
 
-        var change = {
-          id: metadata.id,
-          seq: metadata.seq,
-          changes: collectLeaves(metadata.rev_tree),
-          doc: result.data
-        };
-        change.doc._rev = rev;
-
-        IdbPouch.Changes.emitChange(name, change);
+        IdbPouch.Changes.notify(name);
+        localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
       });
       call(callback, null, aresults);
     }
@@ -719,11 +712,8 @@ var IdbPouch = function(opts, callback) {
 
   api.changes = function idb_changes(opts) {
 
-    if (!opts.seq) {
-      opts.seq = 0;
-    }
-    if (opts.since) {
-      opts.seq = opts.since;
+    if (!opts.since) {
+      opts.since = 0;
     }
 
     if (Pouch.DEBUG)
@@ -753,9 +743,9 @@ var IdbPouch = function(opts, callback) {
       txn.oncomplete = onTxnComplete;
       var req = descending
         ? txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
+          .openCursor(IDBKeyRange.lowerBound(opts.since, true), descending)
         : txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true));
+          .openCursor(IDBKeyRange.lowerBound(opts.since, true));
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }
@@ -763,7 +753,7 @@ var IdbPouch = function(opts, callback) {
     function onsuccess(event) {
       if (!event.target.result) {
         if (opts.continuous && !opts.cancelled) {
-          IdbPouch.Changes.addListener(name, id, opts);
+          IdbPouch.Changes.addListener(name, id, api, opts);
         }
 
         // Filter out null results casued by deduping
@@ -835,7 +825,10 @@ var IdbPouch = function(opts, callback) {
         if (!opts.include_docs) {
           delete c.doc;
         }
-        call(opts.onChange, c);
+        if (c.seq > opts.since) {
+          opts.since = c.seq;
+          call(opts.onChange, c);
+        }
       });
       if (!opts.continuous || (opts.continuous && !opts.cancelled)) {
         call(opts.complete, null, {results: dedupResults});
@@ -1028,43 +1021,6 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
   req.onerror = idbError(callback);
 };
 
-IdbPouch.Changes = (function() {
-
-  var api = {};
-  var listeners = {};
-
-  api.addListener = function(db, id, opts) {
-    if (!listeners[db]) {
-      listeners[db] = {};
-    }
-    listeners[db][id] = opts;
-  }
-
-  api.removeListener = function(db, id) {
-    delete listeners[db][id];
-  }
-
-  api.clearListeners = function(db) {
-    delete listeners[db];
-  }
-
-  api.emitChange = function(db, change) {
-    if (!listeners[db]) {
-      return;
-    }
-    for (var i in listeners[db]) {
-      var opts = listeners[db][i];
-      if (opts.filter && !opts.filter.apply(this, [change.doc])) {
-        return;
-      }
-      if (!opts.include_docs) {
-        delete change.doc;
-      }
-      opts.onChange.apply(opts.onChange, [change]);
-    }
-  }
-
-  return api;
-})();
+IdbPouch.Changes = Changes();
 
 Pouch.adapter('idb', IdbPouch);

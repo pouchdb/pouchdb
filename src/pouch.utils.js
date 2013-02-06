@@ -264,51 +264,6 @@ var writeCheckpoint = function(src, target, opts, checkpoint, callback) {
   });
 };
 
-// We fetch all leafs of the revision tree, and sort them based on tree length
-// and whether they were deleted, undeleted documents with the longest revision
-// tree (most edits) win
-// The final sort algorithm is slightly documented in a sidebar here:
-// http://guide.couchdb.org/draft/conflicts.html
-Pouch.merge.winningRev = function(metadata) {
-  var deletions = metadata.deletions || {};
-  var leafs = [];
-
-  traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id) {
-    if (isLeaf) leafs.push({pos: pos, id: id});
-  })
-
-  leafs.forEach(function(leaf) {
-    leaf.deleted = leaf.id in deletions;
-  });
-
-  leafs.sort(function(a, b) {
-    if (a.deleted !== b.deleted) {
-      return a.deleted > b.deleted ? 1 : -1;
-    }
-    if (a.pos !== b.pos) {
-      return b.pos - a.pos;
-    }
-    return a.id < b.id ? 1 : -1;
-  });
-  return leafs[0].pos + '-' + leafs[0].id;
-}
-
-var rootToLeaf = function(tree) {
-  var paths = [];
-  
-  traverseRevTree(tree, function(isLeaf, pos, id, history) {
-    history = history ? history.slice(0) : [];
-    history.push(id);
-    if (isLeaf) {
-      var rootPos = pos + 1 - history.length;
-      paths.unshift({pos: rootPos, ids: history});
-    }
-    return history;
-  });
-
-  return paths;
-}
-
 var arrayFirst = function(arr, callback) {
   for (var i = 0; i < arr.length; i++) {
     if (callback(arr[i], i) === true) {
@@ -330,6 +285,19 @@ var filterChange = function(opts) {
   }
 };
 
+var rootToLeaf = function(tree) {
+  var paths = [];
+  traverseRevTree(tree, function(isLeaf, pos, id, history) {
+    history = history ? history.slice(0) : [];
+    history.push(id);
+    if (isLeaf) {
+      var rootPos = pos + 1 - history.length;
+      paths.unshift({pos: rootPos, ids: history});
+    }
+    return history;
+  });
+  return paths;
+};
 
 var ajax = function ajax(options, callback) {
   if (typeof options === "function") {
@@ -364,7 +332,7 @@ var ajax = function ajax(options, callback) {
          } catch(e){}
          call(cb, errObj);
   };
-  if (window.XMLHttpRequest) {
+  if (typeof window !== 'undefined' && window.XMLHttpRequest) {
     var timer,timedout  = false;
     var xhr = new XMLHttpRequest();
     xhr.open(options.method, options.url);
@@ -402,6 +370,10 @@ var ajax = function ajax(options, callback) {
     xhr.send(options.body);
     return {abort:abortReq};
   } else {
+    if (options.json) {
+      options.headers.Accept = 'application/json';
+      options.headers['Content-Type'] = 'application/json';
+    }
     return request(options, function(err, response, body) {
       if (err) {
         err.status = response ? response.statusCode : 400;
@@ -413,7 +385,7 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (options.json && (/json/.test(content_type)
+      if (options.json && typeof data !== 'object' && (/json/.test(content_type)
           || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
@@ -621,13 +593,66 @@ if (typeof module !== 'undefined' && module.exports) {
     collectConflicts: collectConflicts,
     fetchCheckpoint: fetchCheckpoint,
     writeCheckpoint: writeCheckpoint,
-    winningRev: winningRev,
-    rootToLeaf: rootToLeaf,
     arrayFirst: arrayFirst,
     filterChange: filterChange,
     ajax: ajax,
     atob: atob,
     btoa: btoa,
-    extend: extend
+    extend: extend,
+    traverseRevTree: traverseRevTree,
+    rootToLeaf: rootToLeaf,
+    isPlainObject: isPlainObject,
+    isArray: isArray
   }
 }
+
+var Changes = function() {
+
+  var api = {};
+  var listeners = {};
+
+  window.addEventListener("storage", function(e) {
+    api.notify(e.key);
+  });
+
+  api.addListener = function(db_name, id, db, opts) {
+    if (!listeners[db_name]) {
+      listeners[db_name] = {};
+    }
+    listeners[db_name][id] = {
+      db: db,
+      opts: opts
+    };
+  }
+
+  api.removeListener = function(db_name, id) {
+    delete listeners[db_name][id];
+  }
+
+  api.clearListeners = function(db_name) {
+    delete listeners[db_name];
+  }
+
+  api.notify = function(db_name) {
+    if (!listeners[db_name]) { return; }
+    for (var i in listeners[db_name]) {
+      var opts = listeners[db_name][i].opts;
+      listeners[db_name][i].db.changes({
+        include_docs: opts.include_docs,
+        conflicts: opts.conflicts,
+        continuous: false,
+        filter: opts.filter,
+        since: opts.since,
+        onChange: function(c) {
+          if (c.seq > opts.since) {
+            opts.since = c.seq;
+            call(opts.onChange, c);
+          }
+        }
+      });
+    }
+  }
+
+  return api;
+};
+
