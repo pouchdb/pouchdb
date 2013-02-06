@@ -14,7 +14,6 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
-  adapters = ['leveldb-1', 'http-1'];
 }
 
 adapters.map(function(adapter) {
