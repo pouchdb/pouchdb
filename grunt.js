@@ -66,6 +66,13 @@ module.exports = function(grunt) {
           "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
         ]),
         dest: 'dist/pouchdb-<%= pkg.release %>.js'
+      },
+      edge: {
+        src: grunt.utils._.flatten([
+          "<banner>","<banner:meta.top>","src/deps/uuid.js",
+          "src/deps/polyfill.js", srcFiles,"src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
+        ]),
+        dest: 'dist/pouchdb-<%= pkg.release %>.edge.js'
       }
     },
 
@@ -73,6 +80,10 @@ module.exports = function(grunt) {
       dist: {
         src: "./dist/pouchdb-<%= pkg.release %>.js",
         dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+      },
+      dev: {
+        src: "./dist/pouchdb-<%= pkg.release %>.edge.js",
+        dest: 'dist/pouchdb-<%= pkg.release %>.edge.min.js'
       }
     },
 
@@ -224,9 +235,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
 
-  grunt.registerTask("build", "concat min");
+  grunt.registerTask("build", "concat:amd concat:all min:dist");
   grunt.registerTask("test", "build server cors-server node-qunit " +
                      "saucelabs-qunit publish-results");
-
+  grunt.registerTask("full", "concat min");
+  grunt.registerTask("edge", "concat:edge min:dev");
   grunt.registerTask('default', 'build');
 };
