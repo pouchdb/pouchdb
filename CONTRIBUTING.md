@@ -8,7 +8,7 @@ Guide to Contributions
 
   * Almost all Pull Requests for features or bug fixes will need tests
   * Looking for something to work on? look for bugs marked [goodfirstbug](https://github.com/daleharvey/pouchdb/issues?labels=goodfirstbug&page=1&state=open)
-  * We follow [Felixs Node.js Style Guide](http://nodeguide.com/style.html
+  * We follow [Felix's Node.js Style Guide](http://nodeguide.com/style.html)
   * Almost all Pull Requests for features or bug fixes will need tests (seriously, its really important)
 
 Dependencies
