@@ -21,7 +21,7 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
  * [Get database information](#get_database_information)
  * [Listen to database changes](#listen_to_database_changes)
  * [Replicate a database](#replicate_a_database)
- * [Get document revision diffs](#document_revisions)
+ * [Get document revision diffs](#document_revisions_diff)
 
 ## Create a database
 
@@ -351,7 +351,7 @@ Replicate one database to another.
       //
     })
 
-## Document Revisions
+## Document Revisions Diff
 
     db.revsDiff(diff, [callback])
 
