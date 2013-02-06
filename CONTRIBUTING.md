@@ -8,7 +8,7 @@ Guide to Contributions
 
   * Almost all Pull Requests for features or bug fixes will need tests
   * Looking for something to work on? look for bugs marked [goodfirstbug](https://github.com/daleharvey/pouchdb/issues?labels=goodfirstbug&page=1&state=open)
-  * We follow [Felix's Node.js Style Guide](http://nodeguide.com/style.html
+  * We follow [Felixs Node.js Style Guide](http://nodeguide.com/style.html
   * Almost all Pull Requests for features or bug fixes will need tests (seriously, its really important)
 
 Dependencies
@@ -34,7 +34,7 @@ You will now have various distributions of PouchDB in your `dist` folder, congra
 Running PouchDB Tests
 --------------------------------------
 
-The PouchDB test suite expects an instance of CouchDB running on 127.0.0.1:5984 and it will need to be in Admin Party. 
+The PouchDB test suite expects an instance of CouchDB running on http://127.0.0.1:5984 and it will need to be in Admin Party. 
 
 ### Node Tests
 
