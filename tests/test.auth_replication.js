@@ -1,7 +1,7 @@
 var remote = {
   host: 'localhost:2020'
 };
-var local = 'idb://test_suite_db';
+var local = 'test_suite_db';
 
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../src/pouch.js')
@@ -12,7 +12,6 @@ if (typeof module !== undefined && module.exports) {
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  local = 'leveldb://test_suite_db';
   qunit = QUnit.module;
 }
 
