@@ -86,6 +86,46 @@ module.exports = function(grunt) {
       port: 2020
     },
 
+    lint: {
+      files: ["src/*/*.js", "tests/*.js"]
+    },
+
+    jshint: {
+      options: {
+        curly: true,
+        eqeqeq: true,
+        immed: true,
+        latedef: true,
+        newcap: true,
+        noarg: true,
+        sub: true,
+        undef: true,
+        eqnull: true,
+        browser: true,
+        strict: true
+      },
+      globals: {
+          // Tests.
+        _: true,
+        QUnit: true,
+        asyncTest: true,
+        DB: true,
+        deepEqual: true,
+        equal: true,
+        expect: true,
+        fail: true,
+        module: true,
+        nextTest: true,
+        notEqual: true,
+        ok: true,
+        sample: true,
+        start: true,
+        stop: true,
+        unescape: true,
+        process: true
+      }
+    },
+
     'node-qunit': {
       all: {
         deps: './src/pouch.js',
