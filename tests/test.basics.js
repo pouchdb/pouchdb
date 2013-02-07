@@ -158,12 +158,13 @@ adapters.map(function(adapter) {
     initTestDB(this.name, function(err, db) {
       db.post({_id:"somestuff"}, function (err, res) {
         ok(!err, 'save a doc with post');
-        db.changes({
+        var changes = db.changes({
           continuous: true,
           include_docs: true,
           onChange: function(change){
             if(change.seq == 2){
               ok(change.doc._deleted, 'Doc deleted properly');
+              changes.cancel();
               start();
             }
           }
