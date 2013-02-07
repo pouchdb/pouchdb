@@ -38,7 +38,7 @@ adapters.map(function(adapter) {
           var queryFun = {
             select: "*",
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               ok(x._id, "emitted row has id");
@@ -59,7 +59,7 @@ adapters.map(function(adapter) {
           var queryFun = {
             select: "foo",
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               equal(Object.keys(x).length, 1, "correct number of columns in row");
@@ -78,7 +78,7 @@ adapters.map(function(adapter) {
           var queryFun = {
             select: "foo, _id",
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               equal(Object.keys(x).length, 2, "correct number of columns in row");
@@ -98,7 +98,7 @@ adapters.map(function(adapter) {
           var queryFun = {
             select: "foo, what, _id",
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               equal(Object.keys(x).length, 3, "correct number of columns in row");
@@ -123,7 +123,7 @@ adapters.map(function(adapter) {
             select: "foo, what, _id",
             where: "bravo"
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 0, "Correct number of rows");
             start();
           });
@@ -140,7 +140,7 @@ adapters.map(function(adapter) {
             select: "*",
             where: "charizard aNd charmander oR charmeleon"
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               ok(x.charmeleon, "emitted row has charmeleon");
@@ -160,7 +160,7 @@ adapters.map(function(adapter) {
             select: "*",
             where: "charizard aNd (charmander oR charmeleon)"
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               ok(x.charizard, "emitted row has charizard");
@@ -181,7 +181,7 @@ adapters.map(function(adapter) {
             select: "*",
             where: "charizard aNd (charmander oR (charmeleon and NOT bulbasaur))"
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               ok(x.charizard, "emitted row has charizard");
@@ -202,7 +202,7 @@ adapters.map(function(adapter) {
             select: "*",
             where: "charizard >=charmander and (charmander <>  22)"
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               ok(x.haunter, "emitted row has haunter");
@@ -223,10 +223,29 @@ adapters.map(function(adapter) {
             select: "*",
             where: "charizard <=charmander * charmeleon + 2 and (charmander - 7 !=  24/3)"
           };
-          db.query(queryFun, function(_, res) {
+          db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               ok(x.haunter, "emitted row has haunter");
+            });
+          });
+          start();
+        });
+    });
+  });
+  
+  asyncTest("Test where math", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: "SDFJKJ", charmander: 24, charmeleon: 2, haunter:true},
+      {charizard: "DlkjddL", charmeleon: .5, charmander: 50} ]},{},
+        function() {
+          var queryFun = {
+            select: "max(charmander) + max (charmeleon)",
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 3, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              ok(x.charizard, "emitted row has haunter");
             });
           });
           start();
