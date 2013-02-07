@@ -156,19 +156,20 @@ adapters.map(function(adapter) {
 
   asyncTest("Remove doc, no callback", 2, function() {
     initTestDB(this.name, function(err, db) {
+      var changes = db.changes({
+        continuous: true,
+        include_docs: true,
+        onChange: function(change){
+          console.log(change);
+          if(change.seq == 2){
+            ok(change.doc._deleted, 'Doc deleted properly');
+            changes.cancel();
+            start();
+          }
+        }
+      });
       db.post({_id:"somestuff"}, function (err, res) {
         ok(!err, 'save a doc with post');
-        var changes = db.changes({
-          continuous: true,
-          include_docs: true,
-          onChange: function(change){
-            if(change.seq == 2){
-              ok(change.doc._deleted, 'Doc deleted properly');
-              changes.cancel();
-              start();
-            }
-          }
-        });
         db.remove({_id: res.id, _rev: res.rev});
       });
     });
