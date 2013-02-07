@@ -48,8 +48,8 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
-          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " +
+          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex};",
         bottom : " return Pouch });"
       }
     },
