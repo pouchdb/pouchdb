@@ -17,6 +17,8 @@ var srcFiles = [
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
   return (/^test\.([a-z0-9_])*\.js$/).test(name);
+}).filter(function(n) {
+  return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
@@ -48,8 +50,8 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
-          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " +
+          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex};",
         bottom : " return Pouch });"
       }
     },
@@ -142,12 +144,7 @@ module.exports = function(grunt) {
       all: {
         deps: './src/pouch.js',
         code: './src/adapters/pouch.leveldb.js',
-        tests: testFiles
-          .filter(function(n) {
-            return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
-          }).map(function (n) {
-            return "./tests/" + n;
-          }),
+        tests: testFiles.map(function (n) { return "./tests/" + n; }),
         done: function(err, res) {
           !err && (testResults['node'] = res);
 	       return true;

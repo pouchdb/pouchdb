@@ -279,15 +279,16 @@ Get information about a database.
     db.changes(options)
 
 A list of changes made to documents in the database, in the order they were made.
+If `options.continuous` is set it returns object with one method `cancel` which you call if you don't want to listen to new changes anymore.
 
 * `options.include_docs`: Include the associated document with each change
-* `options.continuous`: Use _longpoll_ feed
 * `options.conflicts`: Include conflicts
 * `options.descending`: Reverse the order of the output table
 * `options.filter`: Reference a filter function from a design document to selectively get updates
 * `options.since`: Start the results from the change immediately after the given sequence number
 * `options.complete`: Function called when all changes have been processed
-* `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change)
+* `options.continuous`: Use _longpoll_ feed
+* `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change). Use with `continuous` flag. If you want to 
 
 <span></span>
 
@@ -334,6 +335,29 @@ A list of changes made to documents in the database, in the order they were made
       //   ]
       // }
     }})
+
+
+    var changes = db.changes({
+      continuous: true,
+      onChange: function(change){
+      // example change object:
+      // {
+      //   "id":"somestuff",
+      //   "seq":21,
+      //   "changes":[
+      //     {
+      //       "rev":"1-8e6e4c0beac3ec54b27d1df75c7183a8"
+      //     }
+      //   ],
+      //   "doc":{
+      //     "value":"somevalue",
+      //     "_id":"somestuff",
+      //     "_rev":"1-8e6e4c0beac3ec54b27d1df75c7183a8"
+      //   }
+      //  }
+      }
+    });
+    // changes.cancel() - no longer fire onChange
 
 ## Replicate a database
 

@@ -384,6 +384,9 @@ var webSqlPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (opts === undefined) {
+      opts = {};
+    }
     opts.was_delete = true;
     var newDoc = extend(true, {}, doc);
     newDoc._deleted = true;
@@ -530,15 +533,14 @@ var webSqlPouch = function(opts, callback) {
 
   api.changes = function idb_changes(opts) {
 
-    if (!opts.since) {
-      opts.since = 0;
-    }
-
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
+
+    // Ignore the `since` parameter when `descending` is true
+    opts.since = opts.since && !descending ? opts.since : 0;
 
     var results = [], resultIndices = {}, dedupResults = [];
     var id = name + ':' + Math.uuid();

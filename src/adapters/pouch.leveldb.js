@@ -316,6 +316,9 @@ LevelPouch = module.exports = function(opts, callback) {
       callback = opts;
       opts = {}
     }
+    if (opts === undefined) {
+      opts = {}
+    }
     opts.was_delete = true;
     var newDoc = extend(true, {}, doc);
     newDoc._deleted = true;
@@ -695,13 +698,6 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api.changes = function(opts) {
 
-    if (!opts.seq) {
-      opts.seq = opts.descending ? update_seq : '0';
-    }
-    if (opts.since) {
-      opts.seq = String(opts.since + 1);
-    }
-
     var descending = 'descending' in opts ? opts.descending : false
       , results = []
       , changeListener
@@ -722,9 +718,15 @@ LevelPouch = module.exports = function(opts, callback) {
 
     function fetchChanges() {
       var streamOpts = {
-        start: opts.seq,
         reverse: descending
+      };
+
+      if (!streamOpts.reverse) {
+        streamOpts.start = opts.since
+          ? opts.since + 1
+          : 0;
       }
+
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
