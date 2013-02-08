@@ -21,13 +21,7 @@ var GQL= function(db) {
       return;
     }
 
-    function sum(values) { return values.reduce(function(a, b) { return a + b; }, 0);
-    }
-
     var results = [];
-    var columns= [];
-    var count;
-    var summation;
 
     function parse(queryString){
 
@@ -288,34 +282,12 @@ var GQL= function(db) {
     var selectFun= function(){
 
       if (!query.select || query.select == "" || query.select == "*"){
-        return function(doc){results.push(doc);};
+        return function(doc){return doc;};
       }
-      //query.select.split(',').forEach(function(element){
-        //element= element.trim();
-
-        //columns.push(element);
-      //});
-
 
       var parsedTokens= parse(query.select);
 
-      //var selector= function(doc){
-        //var viewRow= {};
-
-        //columns.forEach(function(column){
-          //viewRow[column]= doc[column];
-        //});
-
-        //if(Object.keys(viewRow).length != 0){
-          //results.push(viewRow);
-          //}
-          //}
-
           var interpreter= function(){
-
-            var viewRow= [];
-            var evaluator;
-            var tracking= {};
 
             var operators = {
               "+": function(a, b) { return a + b; },
@@ -340,11 +312,27 @@ var GQL= function(db) {
             var functions= {
               upper: function(str){return str.toUpperCase();},
               lower: function(str){return str.toLowerCase();},
-              max: function(val, identifier){return tracking["max"][identifier](val);},
-              min: function(val, identifier){return tracking.min[identifier](val);},
-              average: function(val, identifier){return tracking.average[identifier](val);},
-              count: function(val, identifier){return tracking.count[identifier](val);},
-              sum: function(val, identifier){return tracking.sum[identifier](val);},
+              //max: function(values){return tracking["max"][identifier](val);},
+              //min: function(values){return tracking.min[identifier](val);},
+              //average: function(values){return tracking.average[identifier](val);},
+              //count: function(values){return tracking.count[identifier](val);},
+              max: function(values) {
+                return values.reduce(function(a, max) {
+                  if(!max || a > max){max= a;} 
+                  return max;
+                }, null) },
+              min: function(values) {
+                return values.reduce(function(a, min) {
+                  if(!min || a < min){min= a;} 
+                  return min;
+                }, null) },
+              average: function(values) {
+                var v= values.reduce(function(a, tracker) {
+                  return {count: tracker.count++, total: tracker.total+a}; }, {count: 0, total: 0});
+                return v.total/v.count;
+              },
+              count: function(values) {return values.length;},
+              sum: function(values) {return values.reduce(function(a, b) { return a + b; }, 0)}
             };
 
             function isAggregator(str){return /max|average|min|sum|count/.test(str);}
@@ -425,12 +413,11 @@ var GQL= function(db) {
                   break;
 
                 case "identifier":
-                  //if (typeof doc[node.value] === "undefined"){
-                    //throw node.value + " is undefined in doc " + doc._id;
-                    //}
-                    //TODO: is this the correct behavior?
-                    return doc[node.value];
-                    break;
+                  if (Array.isArray(doc)){
+                    return doc[0][node.value] ? doc[0][node.value] : null;
+                  }
+                  return doc[node.value] ? doc[node.value] : null;
+                  break;
 
                   default:
                     if (operators[node.type]) {
@@ -444,19 +431,24 @@ var GQL= function(db) {
               }
             }
 
-            function normalSelect(doc){
+            function normalSelect(values){
+              var result= [];
+              var viewRow= [];
 
-              parsedTokens.forEach(function(statement, i){
-                if(statement.type === "identifier"){
-                  viewRow[statement.value]= parseNode(statement, doc);
-                } else {
-                  viewRow[i]= parseNode(statement, doc);
+              values.forEach(function(doc){
+                parsedTokens.forEach(function(statement, i){
+                  if(statement.type === "identifier"){
+                    viewRow[statement.value]= parseNode(statement, doc);
+                  } else {
+                    viewRow[i]= parseNode(statement, doc);
+                  }
+                });
+                if(Object.keys(viewRow).length != 0){
+                  result.push(viewRow);
                 }
               });
 
-              if(Object.keys(viewRow).length != 0){
-                results.push(viewRow);
-              }
+              return result;
             }
 
             var selectWithAggregator= function(){
@@ -469,93 +461,88 @@ var GQL= function(db) {
 
               var aggregators= containsAggregator();
 
-              aggregators.forEach(function(statement, i){
+              //aggregators.forEach(function(statement, i){
 
-                if (!tracking[statement.name]){
-                  tracking[statement.name]= {};
-                }
-
-                switch (statement.name) {
-
-                  case "average":
-                    tracking[statement.name][statement.args[0].value]= function(){
-                      var count= 0;
-                      var runningTotal= 0;
-                      return function(val){
-                        runningTotal += val;
-                        count++;
-                        return runningTotal/count;
-                      };
-                    }();
-                    break;
-
-                  case "max":
-                    tracking[statement.name][statement.args[0].value]= function(){
-                      var max;
-                      return function(val){
-                        if (!max || val > max){
-                          max= val;
-                        }
-                        return max;
-                      };
-                    }();
-                    break;
-
-                  case "min":
-                    tracking[statement.name][statement.args[0].value]= function(){
-                      var min;
-                      return function(val){
-                        if (!min || val < min){
-                          min= val;
-                        }
-                        return min;
-                      };
-                    }();
-                    break;
-
-                  case "count":
-                    tracking[statement.name][statement.args[0].value]= function(){
-                      var count= 0;
-                      return function(val){
-                        if (val !== null && val !== undefined){
-                          count++;
-                        }
-                        return count;
-                      };
-                    }();
-                    break;
-
-                  case "sum":
-                    tracking[statement.name][statement.args[0].value]= function(){
-                      var runningTotal= 0;
-                      return function(val){
-                        runningTotal += val;
-                        return runningTotal;
-                      };
-                    }();
-                    break;
-                }
-                //if(statement.type === "identifier"){
-                  //viewRow[statement.value]= parseNode(statement, doc);
-                //} else {
-                  //viewRow[i]= parseNode(statement, doc);
+                //if (!tracking[statement.name]){
+                  //tracking[statement.name]= {};
                 //}
-              });
 
-              var selectFunction= function(doc){
+                //switch (statement.name) {
+
+                  //case "average":
+                    //tracking[statement.name][statement.args[0].value]= function(){
+                      //var count= 0;
+                      //var runningTotal= 0;
+                      //return function(val){
+                        //runningTotal += val;
+                        //count++;
+                        //return runningTotal/count;
+                      //};
+                    //}();
+                    //break;
+
+                  //case "max":
+                    //tracking[statement.name][statement.args[0].value]= function(){
+                      //var max;
+                      //return function(val){
+                        //if (!max || val > max){
+                          //max= val;
+                        //}
+                        //return max;
+                      //};
+                    //}();
+                    //break;
+
+                  //case "min":
+                    //tracking[statement.name][statement.args[0].value]= function(){
+                      //var min;
+                      //return function(val){
+                        //if (!min || val < min){
+                          //min= val;
+                        //}
+                        //return min;
+                      //};
+                    //}();
+                    //break;
+
+                  //case "count":
+                    //tracking[statement.name][statement.args[0].value]= function(){
+                      //var count= 0;
+                      //return function(val){
+                        //if (val !== null && val !== undefined){
+                          //count++;
+                        //}
+                        //return count;
+                      //};
+                    //}();
+                    //break;
+
+                  //case "sum":
+                    //tracking[statement.name][statement.args[0].value]= function(){
+                      //var runningTotal= 0;
+                      //return function(val){
+                        //runningTotal += val;
+                        //return runningTotal;
+                      //};
+                    //}();
+                    //break;
+                //}
+              //});
+
+              var selectFunction= function(values){
+                var viewRow;
                 parsedTokens.forEach(function(statement, i){
                   if(statement.type === "identifier"){
-                    viewRow[statement.value]= parseNode(statement, doc);
+                    viewRow[statement.value]= parseNode(statement, values);
                   } else if (statement.type === "call" && isAggregator(statement.name)) {
-                    viewRow[statement.args[0].value]= parseNode(statement, doc);
+                    viewRow[statement.args[0].value]= parseNode(statement, values);
                   } else {
-                    viewRow[i]= parseNode(statement, doc);
+                    viewRow[i]= parseNode(statement, values);
                   }
                 });
 
                 if(Object.keys(viewRow).length != 0){
-                  results= [];
-                  results.push(viewRow);
+                  return [viewRow];
                 }
               }
               return selectFunction;
@@ -613,11 +600,7 @@ var GQL= function(db) {
               break;
 
             case "identifier":
-              //if (typeof doc[node.value] === "undefined"){
-                //throw node.value + " is undefined in doc " + doc._id;
-                //}
-                //TODO: is this the correct behavior?
-                return doc[node.value];
+                return doc[node.value] ? doc[node.value] : null;
                 break;
 
               default:
@@ -638,10 +621,14 @@ var GQL= function(db) {
       return interpreter;
     }();
 
-    function processDoc(doc){
+    function map(doc){
       if (whereFun(doc)){
-        selectFun(doc);
+        results.push({id: doc._id, key: null, value: doc});
       }
+    }
+
+    function reduce(keys, values){
+      return selectFun(values);
     }
 
     //// exclude  _conflicts key by default
@@ -656,8 +643,35 @@ var GQL= function(db) {
       if (options.descending) {
         results.reverse();
       }
-      console.log(results);
-      return options.complete(null, {rows: results});
+
+      var groups= [];
+      results.forEach(function(e) {
+        var last= groups[groups.length-1] || null;
+        if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
+          last.key.push([e.key, e.id]);
+          last.value.push(e.value);
+          return;
+        }
+        groups.push({key: [[e.key, e.id]], value: [e.value]});
+      });
+
+      groups.forEach(function(e) {
+        e.value= reduce(e.key, e.value) || null;
+        e.key= e.key[0][0];
+      });
+
+      console.log(groups);
+      
+      var flattenedOutput= [];
+
+      //this bit is to make the output palatable
+      groups.forEach(function(e){
+        e.value.forEach(function(f){
+          flattenedOutput.push(f);
+        });
+      });
+
+      options.complete(null, {rows: flattenedOutput});
     };
 
     db.changes({
@@ -665,7 +679,7 @@ var GQL= function(db) {
       include_docs: true,
       onChange: function(doc) {
         if (!('deleted' in doc)) {
-          processDoc(doc.doc);
+          map(doc.doc);
         }
       },
       complete: function() {
