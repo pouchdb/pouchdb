@@ -222,7 +222,7 @@ var IdbPouch = function(opts, callback) {
           rev: rev
         });
 
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return;
         }
 
@@ -616,7 +616,7 @@ var IdbPouch = function(opts, callback) {
       }
       var cursor = e.target.result;
       function allDocsInner(metadata, data) {
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
         if (!isDeleted(metadata)) {
@@ -778,7 +778,7 @@ var IdbPouch = function(opts, callback) {
       var index = txn.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
         var metadata = event.target.result;
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
 
