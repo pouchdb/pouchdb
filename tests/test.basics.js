@@ -27,7 +27,7 @@ adapters.map(function(adapter) {
     }
   });
 
-  asyncTest("Create a pouch", function() {
+  asyncTest("Create a pouch", 1, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'created a pouch');
       start();
