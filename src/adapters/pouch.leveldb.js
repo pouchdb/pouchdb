@@ -571,7 +571,7 @@ LevelPouch = module.exports = function(opts, callback) {
           rev: rev,
         });
 
-        if (/_local/.test(metadata.id)) {
+        if (Pouch.utils.isLocalId(metadata.id)) {
           return;
         }
 
@@ -618,7 +618,7 @@ LevelPouch = module.exports = function(opts, callback) {
     var docstream = stores[DOC_STORE].readStream(readstreamOpts);
     docstream.on('data', function(entry) {
       function allDocsInner(metadata, data) {
-        if (/_local/.test(metadata.id)) {
+        if (Pouch.utils.isLocalId(metadata.id)) {
           return;
         }
         if (!isDeleted(metadata)) {
@@ -730,12 +730,12 @@ LevelPouch = module.exports = function(opts, callback) {
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
-          if (/_local/.test(data.key)) {
+          if (Pouch.utils.isLocalId(data.key)) {
             return;
           }
 
           stores[DOC_STORE].get(data.value._id, function(err, metadata) {
-            if (/_local/.test(metadata.id)) {
+            if (Pouch.utils.isLocalId(metadata.id)) {
               return;
             }
 

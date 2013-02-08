@@ -162,7 +162,7 @@ var webSqlPouch = function(opts, callback) {
           rev: rev
         });
 
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return;
         }
 
@@ -506,7 +506,7 @@ var webSqlPouch = function(opts, callback) {
           var doc = result.rows.item(i);
           var metadata = JSON.parse(doc.metadata);
           var data = JSON.parse(doc.data);
-          if (!(/_local/.test(metadata.id) || isDeleted(metadata))) {
+          if (!(isLocalId(metadata.id) || isDeleted(metadata))) {
             var doc = {
               id: metadata.id,
               key: metadata.id,
@@ -570,7 +570,7 @@ var webSqlPouch = function(opts, callback) {
           for (var i = 0, l = result.rows.length; i < l; i++ ) {
             var doc = result.rows.item(i);
             var metadata = JSON.parse(doc.metadata);
-            if (!/_local/.test(metadata.id)) {
+            if (!isLocalId(metadata.id)) {
               var change = {
                 id: metadata.id,
                 seq: doc.seq,
