@@ -166,17 +166,11 @@ var webSqlPouch = function(opts, callback) {
           return;
         }
 
-        var change = {
-          id: metadata.id,
-          seq: metadata.seq,
-          changes: collectLeaves(metadata.rev_tree),
-          doc: result.data
-        };
-        change.doc._rev = rev;
         update_seq++;
         var sql = 'UPDATE ' + META_STORE + ' SET update_seq=?';
         tx.executeSql(sql, [update_seq], function() {
-          webSqlPouch.Changes.emitChange(name, change);
+          webSqlPouch.Changes.notify(name);
+          localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
         });
       });
       call(callback, null, aresults);
@@ -390,6 +384,9 @@ var webSqlPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (opts === undefined) {
+      opts = {};
+    }
     opts.was_delete = true;
     var newDoc = extend(true, {}, doc);
     newDoc._deleted = true;
@@ -536,18 +533,14 @@ var webSqlPouch = function(opts, callback) {
 
   api.changes = function idb_changes(opts) {
 
-    if (!opts.seq) {
-      opts.seq = 0;
-    }
-    if (opts.since) {
-      opts.seq = opts.since;
-    }
-
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
+
+    // Ignore the `since` parameter when `descending` is true
+    opts.since = opts.since && !descending ? opts.since : 0;
 
     var results = [], resultIndices = {}, dedupResults = [];
     var id = name + ':' + Math.uuid();
@@ -569,7 +562,7 @@ var webSqlPouch = function(opts, callback) {
       var sql = 'SELECT ' + DOC_STORE + '.id, ' + BY_SEQ_STORE + '.seq, ' +
         BY_SEQ_STORE + '.json AS data, ' + DOC_STORE + '.json AS metadata FROM ' +
         BY_SEQ_STORE + ' JOIN ' + DOC_STORE + ' ON ' + BY_SEQ_STORE + '.seq = ' +
-        DOC_STORE + '.winningseq WHERE ' + DOC_STORE + '.seq > ' + opts.seq +
+        DOC_STORE + '.winningseq WHERE ' + DOC_STORE + '.seq > ' + opts.since +
         ' ORDER BY ' + DOC_STORE + '.seq ' + (descending ? 'DESC' : 'ASC');
 
       db.transaction(function(tx) {
@@ -605,11 +598,14 @@ var webSqlPouch = function(opts, callback) {
             if (!opts.include_docs) {
               delete c.doc;
             }
-            call(opts.onChange, c);
+            if (c.seq > opts.since) {
+              opts.since = c.seq;
+              call(opts.onChange, c);
+            }
           });
           
           if (opts.continuous && !opts.cancelled) {
-            webSqlPouch.Changes.addListener(name, id, opts);
+            webSqlPouch.Changes.addListener(name, id, api, opts);
           }
           else {
               call(opts.complete, null, {results: dedupResults});
@@ -747,45 +743,6 @@ webSqlPouch.destroy = function(name, callback) {
   });
 };
 
-
-// This is shared exactly with the idb adapter, extract into utils
-webSqlPouch.Changes = (function() {
-
-  var api = {};
-  var listeners = {};
-
-  api.addListener = function(db, id, opts) {
-    if (!listeners[db]) {
-      listeners[db] = {};
-    }
-    listeners[db][id] = opts;
-  }
-
-  api.removeListener = function(db, id) {
-    delete listeners[db][id];
-  }
-
-  api.clearListeners = function(db) {
-    delete listeners[db];
-  }
-
-  api.emitChange = function(db, change) {
-    if (!listeners[db]) {
-      return;
-    }
-    for (var i in listeners[db]) {
-      var opts = listeners[db][i];
-      if (opts.filter && !opts.filter.apply(this, [change.doc])) {
-        return;
-      }
-      if (!opts.include_docs) {
-        delete change.doc;
-      }
-      opts.onChange.apply(opts.onChange, [change]);
-    }
-  }
-
-  return api;
-})();
+webSqlPouch.Changes = Changes();
 
 Pouch.adapter('websql', webSqlPouch);

@@ -172,4 +172,33 @@
     };
   };
 
+  // We fetch all leafs of the revision tree, and sort them based on tree length
+  // and whether they were deleted, undeleted documents with the longest revision
+  // tree (most edits) win
+  // The final sort algorithm is slightly documented in a sidebar here:
+  // http://guide.couchdb.org/draft/conflicts.html
+  Pouch.merge.winningRev = function(metadata) {
+    var deletions = metadata.deletions || {};
+    var leafs = [];
+
+    traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id) {
+      if (isLeaf) leafs.push({pos: pos, id: id});
+    });
+
+    leafs.forEach(function(leaf) {
+      leaf.deleted = leaf.id in deletions;
+    });
+
+    leafs.sort(function(a, b) {
+      if (a.deleted !== b.deleted) {
+        return a.deleted > b.deleted ? 1 : -1;
+      }
+      if (a.pos !== b.pos) {
+        return b.pos - a.pos;
+      }
+      return a.id < b.id ? 1 : -1;
+    });
+    return leafs[0].pos + '-' + leafs[0].id;
+  };
+
 }).call(this);

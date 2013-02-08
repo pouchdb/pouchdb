@@ -2,6 +2,7 @@
 
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
+var is_browser = true;
 
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../src/pouch.js')
@@ -11,8 +12,8 @@ if (typeof module !== undefined && module.exports) {
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['leveldb-1', 'http-1']
   qunit = QUnit.module;
+  is_browser = false;
 }
 
 adapters.map(function(adapter) {
@@ -62,6 +63,31 @@ adapters.map(function(adapter) {
     });
   });
 
+  // Note for the following test that CouchDB's implementation of /_changes
+  // with `descending=true` ignores any `since` parameter.
+  asyncTest("Descending changes", function () {
+    initTestDB(this.name, function(err, db) {
+      db.post({ _id: "0", test: "ing" }, function (err, res) {
+        db.post({ _id: "1", test: "ing" }, function (err, res) {
+          db.post({ _id: "2", test: "ing" }, function (err, res) {
+            db.changes({
+              descending: true,
+              since: 1,
+              complete: function(err, results) {
+                equal(results.results.length, 3);
+                var ids = ["2", "1", "0"];
+                results.results.forEach(function (row, i) {
+                  equal(row.id, ids[i], 'All results, descending order');
+                });
+                start();
+              }
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Changes doc", function () {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
@@ -85,7 +111,7 @@ adapters.map(function(adapter) {
         onChange: function(change) {
           count += 1;
           ok(!change.doc, 'If we dont include docs, dont include docs');
-          equal(count, 1, 'Only recieve a single change');
+          equal(count, 1, 'Only receive a single change');
           changes.cancel();
           start();
         },
@@ -95,27 +121,33 @@ adapters.map(function(adapter) {
     });
   });
 
-  // asyncTest("Continuous changes across windows", function() {
-  //   var search = window.location.search
-  //     .replace(/[?&]testFiles=[^&]+/, '')
-  //     .replace(/[?&]dbname=[^&]+/, '')
-  //     + '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
-  //   initTestDB(this.name, function(err, db) {
-  //     var count = 0;
-  //     var tab;
-  //     var changes = db.changes({
-  //       onChange: function(change) {
-  //         count += 1;
-  //         equal(count, 1, 'Recieved a single change');
-  //         changes.cancel();
-  //         tab && tab.close();
-  //         start();
-  //       },
-  //       continuous: true
-  //     });
-  //     tab = window.open('test.html?' + search.replace(/^[?&]+/, ''));
-  //   });
-  // });
+  if (is_browser) {
+    asyncTest("Continuous changes across windows", function() {
+      var search = window.location.search
+        .replace(/[?&]testFiles=[^&]+/, '')
+        .replace(/[?&]testNumber=[^&]+/, '')
+        .replace(/[?&]dbname=[^&]+/, '')
+        + '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
+      initTestDB(this.name, function(err, db) {
+        var count = 0;
+        var tab;
+        var changes = db.changes({
+          onChange: function(change) {
+            count += 1;
+            equal(count, 1, 'Received a single change');
+            changes.cancel();
+            tab && tab.close();
+            start();
+          },
+          continuous: true
+        });
+        var iframe = document.createElement('iframe');
+        iframe.src = 'test.html?' + search.replace(/^[?&]+/, '');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      });
+    });
+  }
 
   asyncTest("Continuous changes doc", function() {
     initTestDB(this.name, function(err, db) {

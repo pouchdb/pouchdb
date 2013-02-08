@@ -185,7 +185,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
       stores[BY_SEQ_STORE].get(seq, function(err, doc) {
         doc._id = metadata.id;
-        doc._rev = Pouch.utils.winningRev(metadata);
+        doc._rev = Pouch.merge.winningRev(metadata);
 
         if (opts.revs) {
           var path = Pouch.utils.arrayFirst(
@@ -314,6 +314,9 @@ LevelPouch = module.exports = function(opts, callback) {
   api.remove = function(doc, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
+      opts = {}
+    }
+    if (opts === undefined) {
       opts = {}
     }
     opts.was_delete = true;
@@ -560,7 +563,7 @@ LevelPouch = module.exports = function(opts, callback) {
           return aresults.push(result);
         }
         var metadata = result.metadata
-          , rev = Pouch.utils.winningRev(metadata);
+          , rev = Pouch.merge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -623,7 +626,7 @@ LevelPouch = module.exports = function(opts, callback) {
             id: metadata.id,
             key: metadata.id,
             value: {
-              rev: Pouch.utils.winningRev(metadata)
+              rev: Pouch.merge.winningRev(metadata)
             }
           };
           if (opts.include_docs) {
@@ -695,13 +698,6 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api.changes = function(opts) {
 
-    if (!opts.seq) {
-      opts.seq = opts.descending ? update_seq : '0';
-    }
-    if (opts.since) {
-      opts.seq = String(opts.since + 1);
-    }
-
     var descending = 'descending' in opts ? opts.descending : false
       , results = []
       , changeListener
@@ -722,9 +718,15 @@ LevelPouch = module.exports = function(opts, callback) {
 
     function fetchChanges() {
       var streamOpts = {
-        start: opts.seq,
         reverse: descending
+      };
+
+      if (!streamOpts.reverse) {
+        streamOpts.start = opts.since
+          ? opts.since + 1
+          : 0;
       }
+
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
@@ -744,7 +746,7 @@ LevelPouch = module.exports = function(opts, callback) {
               doc: data.value
             };
 
-            change.doc._rev = Pouch.utils.winningRev(metadata);
+            change.doc._rev = Pouch.merge.winningRev(metadata);
 
             if (isDeleted(metadata)) {
               change.deleted = true;

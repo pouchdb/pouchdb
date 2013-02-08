@@ -17,6 +17,8 @@ var srcFiles = [
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
   return (/^test\.([a-z0-9_])*\.js$/).test(name);
+}).filter(function(n) {
+  return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
@@ -48,14 +50,15 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { ",
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " +
+          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex};",
         bottom : " return Pouch });"
       }
     },
     concat: {
       amd: {
         src: grunt.utils._.flatten([
-          "<banner:meta.amd.top>", 'src/pouch.amd.js', srcFiles,"<banner:meta.amd.bottom>"
+          "<banner:meta.amd.top>", srcFiles,"<banner:meta.amd.bottom>"
         ]),
         dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
       },
@@ -86,13 +89,55 @@ module.exports = function(grunt) {
       port: 2020
     },
 
+    lint: {
+      files: ["src/*/*.js", "tests/*.js"]
+    },
+
+    jshint: {
+      options: {
+        curly: true,
+        eqeqeq: true,
+        immed: true,
+        latedef: true,
+        newcap: true,
+        noarg: true,
+        sub: true,
+        undef: true,
+        eqnull: true,
+        browser: true,
+        strict: true
+      },
+      globals: {
+          // Tests.
+        _: true,
+        QUnit: true,
+        asyncTest: true,
+        DB: true,
+        deepEqual: true,
+        equal: true,
+        expect: true,
+        fail: true,
+        module: true,
+        nextTest: true,
+        notEqual: true,
+        ok: true,
+        sample: true,
+        start: true,
+        stop: true,
+        unescape: true,
+        process: true
+      }
+    },
+
     'node-qunit': {
-      deps: './src/pouch.js',
-      code: './src/adapters/pouch.leveldb.js',
-      tests: testFiles.map(function (n) { return "./tests/" + n; }),
-      done: function(err, res) {
-        !err && (testResults['node'] = res);
-	return true;
+      all: {
+        deps: './src/pouch.js',
+        code: './src/adapters/pouch.leveldb.js',
+        tests: testFiles.map(function (n) { return "./tests/" + n; }),
+        done: function(err, res) {
+          !err && (testResults['node'] = res);
+	       return true;
+        }
       }
     },
 

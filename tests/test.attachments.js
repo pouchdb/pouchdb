@@ -16,11 +16,6 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || this.utils[k];
   }
   qunit = QUnit.module;
-  adapters = ['leveldb-1', 'http-1'];
-  repl_adapters = [['leveldb-1', 'http-1'],
-         ['http-1', 'http-2'],
-         ['http-1', 'leveldb-1'],
-         ['leveldb-1', 'leveldb-2']];
 }
 
 adapters.map(function(adapter) {
