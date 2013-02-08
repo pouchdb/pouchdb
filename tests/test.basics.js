@@ -28,10 +28,22 @@ adapters.map(function(adapter) {
     }
   });
 
-  asyncTest("Create a pouch", 1, function() {
+  asyncTest("Create a pouch", function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'created a pouch');
       start();
+    });
+  });
+
+  asyncTest("Create a pouch without DB setup", function() {
+    var instantDB;
+    Pouch(this.name, function(err, db) {
+      ok(!err, 'created a pouch');
+      instantDB = Pouch(db.name, {skipSetup: true})
+      instantDB.post({test:"abc"}), function(err, info) {
+        ok(!err, 'saved document using the skipSetup flag')
+        start();
+      }
     });
   });
 
