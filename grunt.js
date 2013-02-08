@@ -17,8 +17,6 @@ var srcFiles = [
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
   return (/^test\.([a-z0-9_])*\.js$/).test(name);
-}).filter(function(n) {
-  return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
@@ -50,8 +48,8 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " +
-          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex};",
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
+          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
         bottom : " return Pouch });"
       }
     },
@@ -68,6 +66,13 @@ module.exports = function(grunt) {
           "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
         ]),
         dest: 'dist/pouchdb-<%= pkg.release %>.js'
+      },
+      spatial: {
+        src: grunt.utils._.flatten([
+          "<banner>","<banner:meta.top>","src/deps/uuid.js",
+          "src/deps/polyfill.js", srcFiles,"src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
+        ]),
+        dest: 'dist/pouchdb.spatial-<%= pkg.release %>.js'
       }
     },
 
@@ -75,6 +80,10 @@ module.exports = function(grunt) {
       dist: {
         src: "./dist/pouchdb-<%= pkg.release %>.js",
         dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+      },
+      spatial: {
+        src:  'dist/pouchdb.spatial-<%= pkg.release %>.js',
+        dest:  'dist/pouchdb.spatial-<%= pkg.release %>.min.js'
       }
     },
 
@@ -133,7 +142,12 @@ module.exports = function(grunt) {
       all: {
         deps: './src/pouch.js',
         code: './src/adapters/pouch.leveldb.js',
-        tests: testFiles.map(function (n) { return "./tests/" + n; }),
+        tests: testFiles
+          .filter(function(n) {
+            return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
+          }).map(function (n) {
+            return "./tests/" + n;
+          }),
         done: function(err, res) {
           !err && (testResults['node'] = res);
 	       return true;
@@ -221,9 +235,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
 
-  grunt.registerTask("build", "concat min");
+  grunt.registerTask("build", "concat:amd concat:all min:dist");
   grunt.registerTask("test", "build server cors-server node-qunit " +
                      "saucelabs-qunit publish-results");
-
+  grunt.registerTask("full", "concat min");
+  grunt.registerTask("spatial", "concat:spatial min:spatial");
   grunt.registerTask('default', 'build');
 };
