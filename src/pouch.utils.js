@@ -19,9 +19,13 @@ var yankError = function(callback) {
   };
 };
 
+var isLocalId = function(id) {
+  return /^_local/.test(id);
+}
+
 var isAttachmentId = function(id) {
   return (/\//.test(id)
-      && !/^_local/.test(id)
+      && !isLocalId(id)
       && !/^_design/.test(id));
 }
 
@@ -583,6 +587,7 @@ if (typeof module !== 'undefined' && module.exports) {
     Crypto: Crypto,
     call: call,
     yankError: yankError,
+    isLocalId: isLocalId,
     isAttachmentId: isAttachmentId,
     parseDocId: parseDocId,
     parseDoc: parseDoc,
