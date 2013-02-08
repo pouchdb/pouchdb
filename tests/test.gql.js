@@ -234,22 +234,4 @@ adapters.map(function(adapter) {
     });
   });
   
-  asyncTest("Test where math", function() {
-    initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: "SDFJKJ", charmander: 24, charmeleon: 2, haunter:true},
-      {charizard: "DlkjddL", charmeleon: .5, charmander: 50} ]},{},
-        function() {
-          var queryFun = {
-            select: "max(charmander) + max (charmeleon)",
-          };
-          db.gql(queryFun, function(_, res) {
-            equal(res.rows.length, 3, "Correct number of rows");
-            res.rows.forEach(function(x, i) {
-              ok(x.charizard, "emitted row has haunter");
-            });
-          });
-          start();
-        });
-    });
-  });
 });

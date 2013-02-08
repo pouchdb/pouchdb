@@ -559,10 +559,10 @@ var GQL= function(db) {
                 }
               }
               return selectFunction;
-            }();
+            };
 
             if(containsAggregator()){
-              return selectWithAggregator;
+              return selectWithAggregator();
             } else {
               return normalSelect;
             }
