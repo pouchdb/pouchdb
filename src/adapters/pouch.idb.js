@@ -594,8 +594,8 @@ var IdbPouch = function(opts, callback) {
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
 
-    var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
-      : start ? IDBKeyRange.lowerBound(start, true)
+    var keyRange = start && end ? IDBKeyRange.bound(start, end)
+      : start ? IDBKeyRange.lowerBound(start)
       : end ? IDBKeyRange.upperBound(end) : null;
 
     var result;
