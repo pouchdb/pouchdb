@@ -66,12 +66,6 @@ adapters.map(function(adapter) {
   // Note for the following test that CouchDB's implementation of /_changes
   // with `descending=true` ignores any `since` parameter.
   asyncTest("Descending changes", function () {
-    var docs = [
-      {_id: "0", integer: 0},
-      {_id: "1", integer: 1},
-      {_id: "2", integer: 2},
-      {_id: "3", integer: 3}
-    ];
     initTestDB(this.name, function(err, db) {
       db.post({ _id: "0", test: "ing" }, function (err, res) {
         db.post({ _id: "1", test: "ing" }, function (err, res) {
@@ -80,9 +74,10 @@ adapters.map(function(adapter) {
               descending: true,
               since: 1,
               complete: function(err, results) {
+                equal(results.results.length, 3);
                 var ids = ["2", "1", "0"];
                 results.results.forEach(function (row, i) {
-                  ok(row.id === ids[i], 'All results, descending order');
+                  equal(row.id, ids[i], 'All results, descending order');
                 });
                 start();
               }
