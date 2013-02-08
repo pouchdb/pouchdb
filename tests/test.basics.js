@@ -38,9 +38,9 @@ adapters.map(function(adapter) {
     var instantDB;
     Pouch(this.name, function(err, db) {
       ok(!err, 'created a pouch');
-      instantDB = Pouch(db.name, {skipSetup: true})
+      instantDB = Pouch(db.name, {skipSetup: true});
       instantDB.post({test:"abc"}), function(err, info) {
-        ok(!err, 'saved document using the skipSetup flag')
+        ok(!err, 'saved document using the skipSetup flag');
         start();
       }
     });
