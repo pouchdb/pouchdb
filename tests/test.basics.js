@@ -34,18 +34,6 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Create a pouch without DB setup", function() {
-    var instantDB;
-    Pouch(this.name, function(err, db) {
-      ok(!err, 'created a pouch');
-      instantDB = Pouch(db.name, {skipSetup: true});
-      instantDB.post({test:"abc"}), function(err, info) {
-        ok(!err || err === 'not_ready', 'saved (or attempted to save) document using the skipSetup flag');
-        start();
-      }
-    });
-  });
-
   asyncTest("Remove a pouch", 1, function() {
     var name = this.name;
     initTestDB(name, function(err, db) {
