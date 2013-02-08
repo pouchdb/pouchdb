@@ -16,9 +16,8 @@ var srcFiles = [
 ];
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
-  return (/^test\.([a-z0-9_])*\.js$/).test(name);
-}).filter(function(n) {
-  return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
+  return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
+    name !== 'test.spatial.js' && name !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
