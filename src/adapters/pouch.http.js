@@ -162,20 +162,22 @@ var HttpPouch = function(opts, callback) {
       }
     });
   };
-  ajax({auth: host.auth, method: 'GET', url: db_url}, function(err, ret) {
-    //check if the db exists
-    if (err) {
-      if (err.status === 404) {
-        //if it doesn't, create it
-        createDB();
+  if (!opts.skipSetup) {
+    ajax({auth: host.auth, method: 'GET', url: db_url}, function(err, ret) {
+      //check if the db exists
+      if (err) {
+        if (err.status === 404) {
+          //if it doesn't, create it
+          createDB();
+        } else {
+          call(callback, err);
+        }
       } else {
-        call(callback, err);
-      }
-    } else {
-      //go do stuff with the db
-      call(callback, null, api);
-      }
-  });
+        //go do stuff with the db
+        call(callback, null, api);
+        }
+    });
+  }
 
   api.type = function() {
     return 'http';
@@ -619,13 +621,13 @@ var HttpPouch = function(opts, callback) {
         if (err) fetchRetryCount += 1;
         else fetchRetryCount = 0;
         var timeoutMultiplier = 1 << fetchRetryCount;       // i.e. Math.pow(2, fetchRetryCount)
-        
+
         var retryWait = fetchTimeout * timeoutMultiplier;
         var maximumWait = opts.maximumWait || 30000;
         if (retryWait > maximumWait) {
           call(opts.complete, err || Pouch.Errors.UNKNOWN_ERROR, null);
         }
-        
+
         // Queue a call to fetch again with the newest sequence number
         setTimeout(function () {
           fetch(last_seq, fetched);
