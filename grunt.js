@@ -17,8 +17,6 @@ var srcFiles = [
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
   return (/^test\.([a-z0-9_])*\.js$/).test(name);
-}).filter(function(n) {
-  return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
@@ -50,8 +48,8 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " +
-          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex};",
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
+          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
         bottom : " return Pouch });"
       }
     },
@@ -74,7 +72,7 @@ module.exports = function(grunt) {
           "<banner>","<banner:meta.top>","src/deps/uuid.js",
           "src/deps/polyfill.js", srcFiles,"src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
         ]),
-        dest: 'dist/pouchdb-<%= pkg.release %>.spatial.js'
+        dest: 'dist/pouchdb.spatial-<%= pkg.release %>.js'
       }
     },
 
@@ -84,8 +82,8 @@ module.exports = function(grunt) {
         dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
       },
       spatial: {
-        src: "./dist/pouchdb-<%= pkg.release %>.spatial.js",
-        dest: 'dist/pouchdb-<%= pkg.release %>.spatial.min.js'
+        src:  'dist/pouchdb.spatial-<%= pkg.release %>.js',
+        dest:  'dist/pouchdb.spatial-<%= pkg.release %>.min.js'
       }
     },
 
@@ -144,7 +142,12 @@ module.exports = function(grunt) {
       all: {
         deps: './src/pouch.js',
         code: './src/adapters/pouch.leveldb.js',
-        tests: testFiles.map(function (n) { return "./tests/" + n; }),
+        tests: testFiles
+          .filter(function(n) {
+            return n !== 'test.spatial.js' && n !== 'test.auth_replication.js';
+          }).map(function (n) {
+            return "./tests/" + n;
+          }),
         done: function(err, res) {
           !err && (testResults['node'] = res);
 	       return true;
