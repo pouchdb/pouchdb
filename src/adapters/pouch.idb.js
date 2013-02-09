@@ -608,13 +608,8 @@ var IdbPouch = function(opts, callback) {
       : start ? IDBKeyRange.lowerBound(start)
       : end ? IDBKeyRange.upperBound(end) : null;
 
-    var result;
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
     transaction.oncomplete = function() {
-      result = {
-        total_rows: results.length,
-        rows: results
-      };
       if ('keys' in opts) {
         opts.keys.forEach(function(key) {
           if (key in resultsMap) {
@@ -627,8 +622,10 @@ var IdbPouch = function(opts, callback) {
           results.reverse();
         }
       }
-      console.log(results);
-      callback(null, result); 
+      call(callback, null, {
+        total_rows: results.length,
+        rows: results
+      }); 
     };
 
     var oStore = transaction.objectStore(DOC_STORE);
@@ -641,9 +638,13 @@ var IdbPouch = function(opts, callback) {
         return;
       }
       var cursor = e.target.result;
+      // If opts.keys is set we want to filter here only those docs with
+      // key in opts.keys. With no performance tests it is difficult to
+      // guess if iteration with filter (see isDocNeeded)  is faster than 
+      // many single requests
       function isDocNeeded(metadata) {
         if (opts.keys) {
-          return opts.keys.indexOf(metadata.id) > -1;
+          return opts.keys.indexOf(metadata.id) > -1; // FIXME: could be performance issue
         } else {
           return true;
         }
