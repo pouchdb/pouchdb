@@ -600,6 +600,16 @@ LevelPouch = module.exports = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if ('keys' in opts) {
+      if ('startkey' in opts) {
+        call(callback, Pouch.Errors.MULTI_GET_START_KEY);
+        return;
+      }
+      if ('endkey' in opts) {
+        call(callback, Pouch.Errors.MULTI_GET_END_KEY);
+        return;
+      }
+    }
 
     var readstreamOpts = {
       reverse: false,
@@ -614,6 +624,15 @@ LevelPouch = module.exports = function(opts, callback) {
       readstreamOpts.reverse = true;
 
     var results = [];
+    var resultsMap = {};
+
+    function isDocNeeded(metadata) {
+      if (opts.keys) {
+        return opts.keys.indexOf(metadata.id) > -1; // FIXME: could be performance issue
+      } else {
+        return true;
+      }
+    }
 
     var docstream = stores[DOC_STORE].readStream(readstreamOpts);
     docstream.on('data', function(entry) {
@@ -621,8 +640,8 @@ LevelPouch = module.exports = function(opts, callback) {
         if (Pouch.utils.isLocalId(metadata.id)) {
           return;
         }
-        if (!isDeleted(metadata)) {
-          var result = {
+        if (!isDeleted(metadata) && isDocNeeded(metadata)) {
+          var doc = {
             id: metadata.id,
             key: metadata.id,
             value: {
@@ -630,13 +649,17 @@ LevelPouch = module.exports = function(opts, callback) {
             }
           };
           if (opts.include_docs) {
-            result.doc = data;
-            result.doc._rev = result.value.rev;
+            doc.doc = data;
+            doc.doc._rev = doc.value.rev;
             if (opts.conflicts) {
-              result.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+              doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
             }
           }
-          results.push(result);
+          if ('keys' in opts) {
+            resultsMap[doc.id] = doc;
+          } else {
+            results.push(doc);
+          }
         }
       }
       if (opts.include_docs) {
@@ -656,10 +679,22 @@ LevelPouch = module.exports = function(opts, callback) {
     docstream.on('end', function() {
     });
     docstream.on('close', function() {
+      if ('keys' in opts) {
+        opts.keys.forEach(function(key) {
+          if (key in resultsMap) {
+            results.push(resultsMap[key]);
+          } else {
+            results.push({"key": key, "error": "not_found"});
+          }
+        });
+        if (opts.descending) {
+          results.reverse();
+        }
+      }
       return call(callback, null, {
         total_rows: results.length,
-        rows: results,
-      });
+        rows: results
+      }); 
     });
   }
 
