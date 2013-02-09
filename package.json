@@ -3,7 +3,7 @@
   "release": "nightly",
   "description": "PouchDB is a pocket-sized database.",
   "author": "Dale Harvey",
-  "version": "0.0.4",
+  "version": "0.0.9",
   "main": "./src/pouch.js",
   "homepage": "https://github.com/daleharvey/pouchdb",
   "keywords": [ "db", "couchdb", "pouchdb" ],
