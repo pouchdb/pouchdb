@@ -587,7 +587,6 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-
     if ('keys' in opts) {
       if ('startkey' in opts) {
         call(callback, Pouch.Errors.MULTI_GET_START_KEY);
@@ -624,6 +623,9 @@ var IdbPouch = function(opts, callback) {
             results.push({"key": key, "error": "not_found"});
           }
         });
+        if (opts.descending) {
+          results.reverse();
+        }
       }
       console.log(results);
       callback(null, result); 

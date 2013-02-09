@@ -452,6 +452,11 @@ var HttpPouch = function(opts, callback) {
       params.push('conflicts=true');
     }
 
+    // If opts.descending is truthy add it to params
+    if (opts.descending) {
+      params.push('descending=true');
+    }
+
     // If opts.include_docs exists, add the include_docs value to the
     // list of parameters.
     // If include_docs=true then include the associated document with each
