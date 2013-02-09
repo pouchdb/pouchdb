@@ -588,6 +588,17 @@ var IdbPouch = function(opts, callback) {
       opts = {};
     }
 
+    if ('keys' in opts) {
+      if ('startkey' in opts) {
+        call(callback, Pouch.Errors.MULTI_GET_START_KEY);
+        return;
+      }
+      if ('endkey' in opts) {
+        call(callback, Pouch.Errors.MULTI_GET_END_KEY);
+        return;
+      }
+    }
+
     var start = 'startkey' in opts ? opts.startkey : false;
     var end = 'endkey' in opts ? opts.endkey : false;
 
@@ -600,26 +611,46 @@ var IdbPouch = function(opts, callback) {
 
     var result;
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
-    transaction.oncomplete = function() { callback(null, result); };
+    transaction.oncomplete = function() {
+      result = {
+        total_rows: results.length,
+        rows: results
+      };
+      if ('keys' in opts) {
+        opts.keys.forEach(function(key) {
+          if (key in resultsMap) {
+            results.push(resultsMap[key]);
+          } else {
+            results.push({"key": key, "error": "not_found"});
+          }
+        });
+      }
+      console.log(results);
+      callback(null, result); 
+    };
 
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = descending ? oStore.openCursor(keyRange, descending)
       : oStore.openCursor(keyRange);
     var results = [];
+    var resultsMap = {};
     oCursor.onsuccess = function(e) {
       if (!e.target.result) {
-        result = {
-          total_rows: results.length,
-          rows: results
-        };
         return;
       }
       var cursor = e.target.result;
+      function isDocNeeded(metadata) {
+        if (opts.keys) {
+          return opts.keys.indexOf(metadata.id) > -1;
+        } else {
+          return true;
+        }
+      }
       function allDocsInner(metadata, data) {
         if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
-        if (!isDeleted(metadata)) {
+        if (!isDeleted(metadata) && isDocNeeded(metadata)) {
           var doc = {
             id: metadata.id,
             key: metadata.id,
@@ -634,7 +665,11 @@ var IdbPouch = function(opts, callback) {
               doc.doc._conflicts = collectConflicts(metadata.rev_tree);
             }
           }
-          results.push(doc);
+          if ('keys' in opts) {
+            resultsMap[doc.id] = doc;
+          } else {
+            results.push(doc);
+          }
         }
         cursor['continue']();
       }
