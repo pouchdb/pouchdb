@@ -154,6 +154,10 @@ Fetch multiple documents.
 * `options.conflicts`: Include conflicts
 * `options.startkey` & `options.endkey`: Get documents with keys in a certain range
 * `options.descending`: Reverse the order of the output table
+* `options.keys`: array of keys you want to get
+    - neither `startkey` not `endkey` can be specified with this option
+    - the rows are returned in the same order as the supplied "keys" array
+    - the row for a nonexistent document will just contain an "error" property with the value "not_found"
 
 <span></span>
 
@@ -193,6 +197,32 @@ Fetch multiple documents.
       //   ]
       // }
     })
+
+    db.allDocs({keys: ["2", "0", "1000"]}, function(err, response) {
+      // {
+      //   "total_rows":4,
+      //   "rows":[
+      //     {
+      //       "id":"2",
+      //       "key":"2",
+      //       "value": {
+      //         "rev":"1-3a0bf449367880a229ea7c61f9394c83"
+      //       }
+      //     },
+      //     {
+      //       "id":"0",
+      //       "key":"0",
+      //       "value":{
+      //         "rev":"1-fb8a93eb436b7e799a7bbc578a08e9a5"
+      //       }
+      //     },
+      //     {
+      //       "key":"1000",
+      //       "error":"not_found"
+      //     }
+      //   ]
+      // }
+    });
 
 ## Query the database
 
