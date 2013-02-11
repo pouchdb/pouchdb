@@ -148,10 +148,10 @@ Getrieves a document, specified by `docid`.
 
     db.allDocs([options], [callback])
 
-Fetch multiple documents. Deleted documents are taken into account only if `options.keys` is specified.
+Fetch multiple documents, deleted document are only included if `options.keys` is specified.
 
-* `options.include_docs`: Include the associated document with each change. The doc for each row gets in the `doc` field.
-    - `options.conflicts`: Include conflicts - conflicts get in `_conflicts` field of a doc
+* `options.include_docs`: Include the document in each row in the `doc` field
+    - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc
 * `options.startkey` & `options.endkey`: Get documents with keys in a certain range
 * `options.descending`: Reverse the order of the output table
 * `options.keys`: array of keys you want to get

@@ -589,11 +589,15 @@ var IdbPouch = function(opts, callback) {
     }
     if ('keys' in opts) {
       if ('startkey' in opts) {
-        call(callback, extend({reason: 'Query parameter `start_key` is not compatible with multi-get'}, Pouch.Errors.QUERY_PARSE_ERROR));
+        call(callback, extend({
+          reason: 'Query parameter `start_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
         return;
       }
       if ('endkey' in opts) {
-        call(callback, extend({reason: 'Query parameter `end_key` is not compatible with multi-get'}, Pouch.Errors.QUERY_PARSE_ERROR));
+        call(callback, extend({
+          reason: 'Query parameter `end_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
         return;
       }
     }

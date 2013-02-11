@@ -100,14 +100,12 @@ adapters.map(function(adapter) {
           keys = ["2", "0", "1000"];
           db.allDocs({keys: keys}, function(err, result) {
             var rows = result.rows;
-            console.log(rows);
             ok(rows.length === 3, 'correct number of rows');
             ok(rows[0].key === "2", 'correct first row');
             ok(rows[1].key === "0", 'correct second row');
             ok(rows[2].key === "1000" && rows[2].error === "not_found", 'correct third (non-existent) row - has error field');
             db.allDocs({keys: keys, descending: true}, function(err, result) {
               var rows = result.rows;
-              console.log(rows);
               ok(rows.length === 3, 'correct number of rows (desc)');
               ok(rows[2].key === "2", 'correct first row (desc)');
               ok(rows[1].key === "0", 'correct second row (desc)');
@@ -121,14 +119,11 @@ adapters.map(function(adapter) {
                     db.get("2", function(err, doc){
                       db.remove(doc, function(err, doc){
                         db.allDocs({keys: keys, include_docs: true}, function(err, result){
-                          console.log(err, result);
                           var rows = result.rows;
                           ok(rows.length === 3, 'correct number of rows');
                           ok(rows[0].key === "2" && rows[0].value.deleted, 'deleted doc reported properly');
                           ok(rows[1].key === "0", 'correct second doc');
-                          console.log(rows[2]);
                           ok(rows[2].key === "1000" && rows[2].error === "not_found", 'correct missing doc');
-                          console.log(rows);
                           start();
                         });
                       });
