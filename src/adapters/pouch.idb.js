@@ -587,6 +587,20 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if ('keys' in opts) {
+      if ('startkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `start_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+      if ('endkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `end_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+    }
 
     var start = 'startkey' in opts ? opts.startkey : false;
     var end = 'endkey' in opts ? opts.endkey : false;
@@ -594,47 +608,73 @@ var IdbPouch = function(opts, callback) {
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
 
-    var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
-      : start ? IDBKeyRange.lowerBound(start, true)
+    var keyRange = start && end ? IDBKeyRange.bound(start, end)
+      : start ? IDBKeyRange.lowerBound(start)
       : end ? IDBKeyRange.upperBound(end) : null;
 
-    var result;
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
-    transaction.oncomplete = function() { callback(null, result); };
+    transaction.oncomplete = function() {
+      if ('keys' in opts) {
+        opts.keys.forEach(function(key) {
+          if (key in resultsMap) {
+            results.push(resultsMap[key]);
+          } else {
+            results.push({"key": key, "error": "not_found"});
+          }
+        });
+        if (opts.descending) {
+          results.reverse();
+        }
+      }
+      call(callback, null, {
+        total_rows: results.length,
+        rows: results
+      }); 
+    };
 
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = descending ? oStore.openCursor(keyRange, descending)
       : oStore.openCursor(keyRange);
     var results = [];
+    var resultsMap = {};
     oCursor.onsuccess = function(e) {
       if (!e.target.result) {
-        result = {
-          total_rows: results.length,
-          rows: results
-        };
         return;
       }
       var cursor = e.target.result;
+      // If opts.keys is set we want to filter here only those docs with
+      // key in opts.keys. With no performance tests it is difficult to
+      // guess if iteration with filter is faster than many single requests
       function allDocsInner(metadata, data) {
         if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
-        if (!isDeleted(metadata)) {
-          var doc = {
-            id: metadata.id,
-            key: metadata.id,
-            value: {
-              rev: Pouch.merge.winningRev(metadata)
-            }
-          };
-          if (opts.include_docs) {
-            doc.doc = data;
-            doc.doc._rev = Pouch.merge.winningRev(metadata);
-            if (opts.conflicts) {
-              doc.doc._conflicts = collectConflicts(metadata.rev_tree);
-            }
+        var doc = {
+          id: metadata.id,
+          key: metadata.id,
+          value: {
+            rev: Pouch.merge.winningRev(metadata)
           }
-          results.push(doc);
+        };
+        if (opts.include_docs) {
+          doc.doc = data;
+          doc.doc._rev = Pouch.merge.winningRev(metadata);
+          if (opts.conflicts) {
+            doc.doc._conflicts = collectConflicts(metadata.rev_tree);
+          }
+        }
+        if ('keys' in opts) {
+          if (opts.keys.indexOf(metadata.id) > -1) {
+            if (isDeleted(metadata)) {
+              doc.value.deleted = true;
+              doc.doc = null;
+            }
+            resultsMap[doc.id] = doc;
+          }
+        } else {
+          if(!isDeleted(metadata)) {
+            results.push(doc);
+          }
         }
         cursor['continue']();
       }
