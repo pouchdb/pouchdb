@@ -100,7 +100,13 @@ Create an attachment in an existing document.
 
     db.bulkDocs(docs, [options], [callback])
 
-Modify, create or delete multiple documents.
+Modify, create or delete multiple documents. If you omit an `_id` parameter on
+a given document, the database will create a new document and assign an ID for you.
+To update a document you must include both an `_id` parameter and a `_rev` parameter,
+which should match the ID and revision of the document on which to base your updates. Finally, to delete
+a document, include a `_deleted` parameter with the value `true`.
+
+ * `options.new_edits`: Prevent the database from assigning new revision IDs to the documents.
 
     db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
       // Response array:
