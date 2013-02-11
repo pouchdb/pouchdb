@@ -481,8 +481,23 @@ var webSqlPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if ('keys' in opts) {
+      if ('startkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `start_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+      if ('endkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `end_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+    }
 
     var results = [];
+    var resultsMap = {};
     var start = 'startkey' in opts ? opts.startkey : false;
     var end = 'endkey' in opts ? opts.endkey : false;
     var descending = 'descending' in opts ? opts.descending : false;
@@ -491,14 +506,19 @@ var webSqlPouch = function(opts, callback) {
       BY_SEQ_STORE + ' JOIN ' + DOC_STORE + ' ON ' + BY_SEQ_STORE + '.seq = ' +
       DOC_STORE + '.winningseq';
 
-    if (start) {
-      sql += ' WHERE ' + DOC_STORE + '.id >= "' + start + '"';
+    if ('keys' in opts) {
+      sql += ' WHERE ' + DOC_STORE + '.id IN (' + opts.keys.map(function(key){
+        return quote(key);
+      }).join(',') + ')';
+    } else {
+      if (start) {
+        sql += ' WHERE ' + DOC_STORE + '.id >= "' + start + '"';
+      }
+      if (end) {
+        sql += (start ? ' AND ' : ' WHERE ') + DOC_STORE + '.id <= "' + end + '"';
+      }
+      sql += ' ORDER BY ' + DOC_STORE + '.id ' + (descending ? 'DESC' : 'ASC');
     }
-    if (end) {
-      sql += (start ? ' AND ' : ' WHERE ') + DOC_STORE + '.id <= "' + end + '"';
-    }
-
-    sql += ' ORDER BY ' + DOC_STORE + '.id ' + (descending ? 'DESC' : 'ASC');
 
     db.transaction(function(tx) {
       tx.executeSql(sql, [], function(tx, result) {
@@ -506,7 +526,7 @@ var webSqlPouch = function(opts, callback) {
           var doc = result.rows.item(i);
           var metadata = JSON.parse(doc.metadata);
           var data = JSON.parse(doc.data);
-          if (!(isLocalId(metadata.id) || isDeleted(metadata))) {
+          if (!(isLocalId(metadata.id))) {
             var doc = {
               id: metadata.id,
               key: metadata.id,
@@ -519,11 +539,35 @@ var webSqlPouch = function(opts, callback) {
                 doc.doc._conflicts = collectConflicts(metadata.rev_tree);
               }
             }
-            results.push(doc);
+            if ('keys' in opts) {
+              if (opts.keys.indexOf(metadata.id) > -1) {
+                if (isDeleted(metadata)) {
+                  doc.value.deleted = true;
+                  doc.doc = null;
+                }
+                resultsMap[doc.id] = doc;
+              }
+            } else {
+              if(!isDeleted(metadata)) {
+                results.push(doc);
+              }
+            }
           }
         }
       });
     }, unknownError(callback), function() {
+      if ('keys' in opts) {
+        opts.keys.forEach(function(key) {
+          if (key in resultsMap) {
+            results.push(resultsMap[key]);
+          } else {
+            results.push({"key": key, "error": "not_found"});
+          }
+        });
+        if (opts.descending) {
+          results.reverse();
+        }
+      }
       call(callback, null, {
         total_rows: results.length,
         rows: results

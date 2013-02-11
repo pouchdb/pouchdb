@@ -48,7 +48,6 @@ adapters.map(function(adapter) {
   }
 
   asyncTest('Testing all docs', function() {
-
     initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.allDocs(function(err, result) {
@@ -57,7 +56,9 @@ adapters.map(function(adapter) {
           for(var i=0; i < rows.length; i++) {
             ok(rows[i].id >= "0" && rows[i].id <= "4", 'correct ids');
           }
-          db.allDocs({startkey:"2"}, function(err, all) {
+          db.allDocs({startkey:"2", include_docs: true}, function(err, all) {
+            ok(all.rows.length === 2, 'correct number when opts.startkey set');
+            ok(all.rows[0].id === "2" && all.rows[1].id, 'correct docs when opts.startkey set');
             // TODO: implement offset
             //ok(all.offset == 2, 'offset correctly set');
             var opts = {startkey: "org.couchdb.user:", endkey: "org.couchdb.user;"};
@@ -80,6 +81,55 @@ adapters.map(function(adapter) {
                     }
                   });
                 }
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing allDocs opts.keys', function() {
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        var keys = ["3", "1"];
+        db.allDocs({keys: keys}, function(err, result) {
+          var rows = result.rows;
+          ok(rows.length === 2, 'correct number of rows');
+          ok(rows[0].id === "3" && rows[1].id === "1", 'correct rows returned');
+          keys = ["2", "0", "1000"];
+          db.allDocs({keys: keys}, function(err, result) {
+            var rows = result.rows;
+            ok(rows.length === 3, 'correct number of rows');
+            ok(rows[0].key === "2", 'correct first row');
+            ok(rows[1].key === "0", 'correct second row');
+            ok(rows[2].key === "1000" && rows[2].error === "not_found", 'correct third (non-existent) row - has error field');
+            db.allDocs({keys: keys, descending: true}, function(err, result) {
+              var rows = result.rows;
+              ok(rows.length === 3, 'correct number of rows (desc)');
+              ok(rows[2].key === "2", 'correct first row (desc)');
+              ok(rows[1].key === "0", 'correct second row (desc)');
+              ok(rows[0].key === "1000" && rows[0].error === "not_found", 'correct third (non-existent) row - has error field (desc)');
+              db.allDocs({keys: keys, startkey: "a"}, function(err, result) {
+                ok(err, 'error correctly reported - startkey is incompatible with keys');
+                db.allDocs({keys: keys, endkey: "a"}, function(err, result) {
+                  ok(err, 'error correctly reported - endkey is incompatible with keys');
+                  db.allDocs({keys: []}, function(err, result) {
+                    ok(!err && result.rows.length === 0, 'correct answer if keys is empty');
+                    db.get("2", function(err, doc){
+                      db.remove(doc, function(err, doc){
+                        db.allDocs({keys: keys, include_docs: true}, function(err, result){
+                          var rows = result.rows;
+                          ok(rows.length === 3, 'correct number of rows');
+                          ok(rows[0].key === "2" && rows[0].value.deleted, 'deleted doc reported properly');
+                          ok(rows[1].key === "0", 'correct second doc');
+                          ok(rows[2].key === "1000" && rows[2].error === "not_found", 'correct missing doc');
+                          start();
+                        });
+                      });
+                    });
+                  });
+                });
               });
             });
           });
