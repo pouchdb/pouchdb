@@ -155,7 +155,7 @@ Fetch multiple documents.
 * `options.startkey` & `options.endkey`: Get documents with keys in a certain range
 * `options.descending`: Reverse the order of the output table
 * `options.keys`: array of keys you want to get
-    - neither `startkey` not `endkey` can be specified with this option
+    - neither `startkey` nor `endkey` can be specified with this option
     - the rows are returned in the same order as the supplied "keys" array
     - the row for a nonexistent document will just contain an "error" property with the value "not_found"
 
