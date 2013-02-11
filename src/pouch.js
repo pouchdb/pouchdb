@@ -150,15 +150,10 @@ Pouch.Errors = {
     error: 'invalid_request',
     reason: 'Request was invalid'
   },
-  MULTI_GET_START_KEY: {
+  QUERY_PARSE_ERROR: {
     status: 400,
     error: 'query_parse_error',
-    reason: 'Query parameter `start_key` is not compatible with multi-get'
-  },
-  MULTI_GET_END_KEY: {
-    status: 400,
-    error: 'query_parse_error',
-    reason: 'Query parameter `end_key` is not compatible with multi-get'
+    reason: 'Some query parameter is invalid'
   }
 };
 
