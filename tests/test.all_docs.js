@@ -118,7 +118,21 @@ adapters.map(function(adapter) {
                   ok(err, 'error correctly reported - endkey is incompatible with keys');
                   db.allDocs({keys: []}, function(err, result) {
                     ok(!err && result.rows.length === 0, 'correct answer if keys is empty');
-                    start();
+                    db.get("2", function(err, doc){
+                      db.remove(doc, function(err, doc){
+                        db.allDocs({keys: keys, include_docs: true}, function(err, result){
+                          console.log(err, result);
+                          var rows = result.rows;
+                          ok(rows.length === 3, 'correct number of rows');
+                          ok(rows[0].key === "2" && rows[0].value.deleted, 'deleted doc reported properly');
+                          ok(rows[1].key === "0", 'correct second doc');
+                          console.log(rows[2]);
+                          ok(rows[2].key === "1000" && rows[2].error === "not_found", 'correct missing doc');
+                          console.log(rows);
+                          start();
+                        });
+                      });
+                    });
                   });
                 });
               });

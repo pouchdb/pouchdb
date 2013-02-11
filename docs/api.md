@@ -148,25 +148,31 @@ Getrieves a document, specified by `docid`.
 
     db.allDocs([options], [callback])
 
-Fetch multiple documents.
+Fetch multiple documents. Deleted documents are taken into account only if `options.keys` is specified.
 
-* `options.include_docs`: Include the associated document with each change
-* `options.conflicts`: Include conflicts
+* `options.include_docs`: Include the associated document with each change. The doc for each row gets in the `doc` field.
+    - `options.conflicts`: Include conflicts - conflicts get in `_conflicts` field of a doc
 * `options.startkey` & `options.endkey`: Get documents with keys in a certain range
 * `options.descending`: Reverse the order of the output table
 * `options.keys`: array of keys you want to get
     - neither `startkey` nor `endkey` can be specified with this option
     - the rows are returned in the same order as the supplied "keys" array
+    - the row for a deleted document will have the revision ID of the deletion, and an extra key "deleted":true in the "value" property 
     - the row for a nonexistent document will just contain an "error" property with the value "not_found"
 
 <span></span>
 
-    db.allDocs(function(err, response) {
+    db.allDocs({include_docs: true}, function(err, response) {
       // Document rows:
       // {
       //   "total_rows": 4,
       //   "rows": [
       //     {
+      //       "doc": {
+      //         "_id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+      //         "_rev": "1-5782E71F1E4BF698FA3793D9D5A96393",
+      //         "blog_post": "my blog post"
+      //       },
       //       "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
       //       "key": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
       //       "value": {
@@ -174,6 +180,11 @@ Fetch multiple documents.
       //       }
       //     },
       //     {
+      //       "doc": {
+      //         "__id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+      //         "__rev": "1-A8BC08745E62E58830CA066D99E5F457",
+      //         "blog_post": "my second blog post"
+      //       },
       //       "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
       //       "key": "828124B9-3973-4AF3-9DFD-A94CE4544005",
       //       "value": {
@@ -181,17 +192,15 @@ Fetch multiple documents.
       //       }
       //     },
       //     {
+      //       "doc": {
+      //         "_id": "mydoc",
+      //         "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F",
+      //         "other_field": "some other document"
+      //       },
       //       "id": "mydoc",
       //       "key": "mydoc",
       //       "value": {
       //         "rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
-      //       }
-      //     },
-      //     {
-      //       "id": "otherdoc",
-      //       "key": "otherdoc",
-      //       "value": {
-      //         "rev": "1-3753476B70A49EA4D8C9039E7B04254C"
       //       }
       //     }
       //   ]
@@ -200,25 +209,26 @@ Fetch multiple documents.
 
     db.allDocs({keys: ["2", "0", "1000"]}, function(err, response) {
       // {
-      //   "total_rows":4,
-      //   "rows":[
+      //   "total_rows": 4,
+      //   "rows": [
       //     {
-      //       "id":"2",
-      //       "key":"2",
+      //       "id": "2",
+      //       "key": "2",
       //       "value": {
-      //         "rev":"1-3a0bf449367880a229ea7c61f9394c83"
+      //         "rev": "1-3a0bf449367880a229ea7c61f9394c83"
       //       }
       //     },
       //     {
-      //       "id":"0",
-      //       "key":"0",
-      //       "value":{
-      //         "rev":"1-fb8a93eb436b7e799a7bbc578a08e9a5"
+      //       "id": "0",
+      //       "key": "0",
+      //       "value": {
+      //         "deleted": true
+      //         "rev": "1-fb8a93eb436b7e799a7bbc578a08e9a5"
       //       }
       //     },
       //     {
-      //       "key":"1000",
-      //       "error":"not_found"
+      //       "key": "1000",
+      //       "error": "not_found"
       //     }
       //   ]
       // }

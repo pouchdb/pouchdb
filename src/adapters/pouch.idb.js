@@ -640,37 +640,35 @@ var IdbPouch = function(opts, callback) {
       var cursor = e.target.result;
       // If opts.keys is set we want to filter here only those docs with
       // key in opts.keys. With no performance tests it is difficult to
-      // guess if iteration with filter (see isDocNeeded)  is faster than 
-      // many single requests
-      function isDocNeeded(metadata) {
-        if (opts.keys) {
-          return opts.keys.indexOf(metadata.id) > -1; // FIXME: could be performance issue
-        } else {
-          return true;
-        }
-      }
+      // guess if iteration with filter is faster than many single requests
       function allDocsInner(metadata, data) {
         if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
-        if (!isDeleted(metadata) && isDocNeeded(metadata)) {
-          var doc = {
-            id: metadata.id,
-            key: metadata.id,
-            value: {
-              rev: Pouch.merge.winningRev(metadata)
-            }
-          };
-          if (opts.include_docs) {
-            doc.doc = data;
-            doc.doc._rev = Pouch.merge.winningRev(metadata);
-            if (opts.conflicts) {
-              doc.doc._conflicts = collectConflicts(metadata.rev_tree);
-            }
+        var doc = {
+          id: metadata.id,
+          key: metadata.id,
+          value: {
+            rev: Pouch.merge.winningRev(metadata)
           }
-          if ('keys' in opts) {
+        };
+        if (opts.include_docs) {
+          doc.doc = data;
+          doc.doc._rev = Pouch.merge.winningRev(metadata);
+          if (opts.conflicts) {
+            doc.doc._conflicts = collectConflicts(metadata.rev_tree);
+          }
+        }
+        if ('keys' in opts) {
+          if (opts.keys.indexOf(metadata.id) > -1) {
+            if (isDeleted(metadata)) {
+              doc.value.deleted = true;
+              doc.doc = null;
+            }
             resultsMap[doc.id] = doc;
-          } else {
+          }
+        } else {
+          if(!isDeleted(metadata)) {
             results.push(doc);
           }
         }

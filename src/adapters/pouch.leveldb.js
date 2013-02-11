@@ -625,39 +625,36 @@ LevelPouch = module.exports = function(opts, callback) {
 
     var results = [];
     var resultsMap = {};
-
-    function isDocNeeded(metadata) {
-      if (opts.keys) {
-        return opts.keys.indexOf(metadata.id) > -1; // FIXME: could be performance issue
-      } else {
-        return true;
-      }
-    }
-
     var docstream = stores[DOC_STORE].readStream(readstreamOpts);
     docstream.on('data', function(entry) {
       function allDocsInner(metadata, data) {
         if (Pouch.utils.isLocalId(metadata.id)) {
           return;
         }
-        if (!isDeleted(metadata) && isDocNeeded(metadata)) {
-          var doc = {
-            id: metadata.id,
-            key: metadata.id,
-            value: {
-              rev: Pouch.merge.winningRev(metadata)
-            }
-          };
-          if (opts.include_docs) {
-            doc.doc = data;
-            doc.doc._rev = doc.value.rev;
-            if (opts.conflicts) {
-              doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
-            }
+        var doc = {
+          id: metadata.id,
+          key: metadata.id,
+          value: {
+            rev: Pouch.merge.winningRev(metadata)
           }
-          if ('keys' in opts) {
+        };
+        if (opts.include_docs) {
+          doc.doc = data;
+          doc.doc._rev = doc.value.rev;
+          if (opts.conflicts) {
+            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+          }
+        }
+        if ('keys' in opts) {
+          if (opts.keys.indexOf(metadata.id) > -1) {
+            if (isDeleted(metadata)) {
+              doc.value.deleted = true;
+              doc.doc = null;
+            }
             resultsMap[doc.id] = doc;
-          } else {
+          }
+        } else {
+          if(!isDeleted(metadata)) {
             results.push(doc);
           }
         }
