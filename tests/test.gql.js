@@ -17,8 +17,7 @@ if (typeof module !== undefined && module.exports) {
   qunit = QUnit.module;
 }
 
-adapters.map(function(adapter) {
-
+adapters.map(function(adapter) { 
   qunit('views: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
@@ -104,9 +103,8 @@ adapters.map(function(adapter) {
               equal(Object.keys(x).length, 3, "correct number of columns in row");
               ok(x.foo, "emitted row has foo");
               ok(x._id, "emitted row has id");
-              //TODO: should this be undefined or something else?
-              if (x.what !== undefined){
-                ok(x.what, "emitted row has what");
+              if (x.what !== null){
+                equal(x.what, "field", "What field is correct");
               }
             });
             start();
@@ -213,6 +211,25 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test where inequalities with strings", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: 50, charmander: "porygon"}, {charizard: 40, charmander: "Zubat"}]},{},
+        function() {
+          var queryFun = {
+            select: "*",
+            where: "charmander > 'abra'"
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 1, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              equal(x.charizard, 50, "Correct value for charizard selected");
+            });
+          });
+          start();
+        });
+    });
+  });
+
   asyncTest("Test where math", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmander: 24, charmeleon: 2, haunter:true},
@@ -233,5 +250,156 @@ adapters.map(function(adapter) {
         });
     });
   });
+
+  asyncTest("Test aggregation functions", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: 50}, {charizard: 40}, {charizard: 7}]},{},
+        function() {
+          var queryFun = {
+            select: "max(charizard), min(charizard), average(charizard), count(charizard), sum(charizard)",
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 1, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              equal(x["max-charizard"], 50, "Max computed correctly");
+              equal(x["min-charizard"], 7, "Min computed correctly");
+              equal(x["average-charizard"], (97/3), "Average computed correctly");
+              equal(x["count-charizard"], 3, "Count computed correctly");
+              equal(x["sum-charizard"], 97, "Sum computed correctly");
+            });
+          });
+          start();
+        });
+    });
+  });
+
+  asyncTest("Test null checker", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: null}, {charmander: 40}, {charizard: 7}, {charizard: false}]},{},
+        function() {
+          var queryFun = {
+            select: "*",
+            where: "charizard is not nUlL"
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 2, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              if(x.charizard){
+                equal(x.charizard, 7, "Correct row selected");
+              } else {
+                equal(x.charizard, false, "Correct row selected");
+              }
+            });
+          });
+          start();
+        });
+    });
+  });
   
+  asyncTest("Test basic group by", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: 50, charmander: 24, charmeleon: 2, haunter:true},
+      {charizard: 40, charmeleon: 2, charmander: 50}, {charizard: 7, charmeleon: 20, charmander: 15}]},{},
+        function() {
+          var queryFun = { 
+            select: "max(charizard), charmeleon",
+            groupBy: "charmeleon"
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 2, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              if(x.charmeleon === 2){
+                equal(x["max-charizard"], 50, "Correct aggregate value for charizard when charmeleon is 2");
+              } else {
+                equal(x["max-charizard"], 7, "Correct aggregate value for charizard when charmeleon is 20");
+              }
+            });
+          });
+          start();
+        });
+    });
+  });
+
+  asyncTest("Test basic pivot", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello"}, {charizard: 40, charmeleon: "hello"}, 
+      {charizard: 7, charmeleon: "world", charmander: 15}]},{},
+        function() {
+          var queryFun = { 
+            select: "max(charizard)",
+            pivot: "charmeleon"
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 1, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              equal(x["hello max-charizard"], 50, "Correct aggregate value for charizard, charmeleon is 'hello'");
+              equal(x["world max-charizard"], 7, "Correct aggregate value for charizard, charmeleon is 'world'");
+            });
+          });
+          start();
+        });
+    });
+  });
+
+  asyncTest("Test double pivot", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello", abra: 2}, 
+      {charizard: 40, charmeleon: "hello", abra: 3}, 
+      {charizard: 99, charmeleon: "hello", abra: 3}, 
+      {charizard: 7, charmeleon: "world", charmander: 15, abra: 3}]},{},
+        function() {
+          var queryFun = { 
+            select: "max(charizard)",
+            pivot: "charmeleon, abra"
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 1, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              if(x["hello, 3 max-charizard"]){
+                equal(x["hello, 3 max-charizard"], 99, "Correct aggregate value for charizard, "+
+                "charmeleon is 'hello', abra is 3");
+                equal(x["world, 3 max-charizard"], 7, "Correct aggregate value for charizard, "+
+                "charmeleon is 'world', abra is 3");
+                equal(x["hello, 2 max-charizard"], 50, "Correct aggregate value for charizard, "+
+                "charmeleon is 'hello', abra is 2");
+              } else {
+                equal(x["3, hello max-charizard"], 99, "Correct aggregate value for charizard, "+
+                "charmeleon is 'hello', abra is 3");
+                equal(x["3, world max-charizard"], 7, "Correct aggregate value for charizard, "+
+                "charmeleon is 'world', abra is 3");
+                equal(x["2, hello max-charizard"], 50, "Correct aggregate value for charizard, "+
+                "charmeleon is 'hello', abra is 2");
+              }
+            });
+          });
+          start();
+        });
+    });
+  });
+
+  asyncTest("Test group by and pivot together", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+      {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
+        function() {
+          var queryFun = { 
+            select: "dept, max(charizard)",
+            groupBy: "dept",
+            pivot: "lunch"
+          };
+          db.gql(queryFun, function(_, res) {
+            equal(res.rows.length, 2, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              if(x.dept === "eng"){
+                equal(x["1 max-charizard"], 99, "Correct aggregate value for charizard where lunch is 1");
+                equal(x["2 max-charizard"], 50, "Correct aggregate value for charizard where lunch is 2");
+              } else {
+                equal(x["1 max-charizard"], 40, "Correct aggregate value for charizard where lunch is 1");
+              }
+            });
+          });
+          start();
+        });
+    });
+  });
 });

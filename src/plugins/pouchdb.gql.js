@@ -23,16 +23,33 @@ var GQL= function(db) {
 
     var results = [];
 
+    function isAggregator(str){return /max|average|min|sum|count/.test(str);}
+
+    function getIdentifierList(str){
+      var columns;
+      if (!str){
+        return [];
+      }
+      if (str.indexOf(",") === -1){
+        columns= [str.trim()];
+      } else {
+        columns= str.trim().split(/\s*,\s*/);
+      }
+      return columns.map(function (id){return id.replace(/`([^`]*)`/, "$1");});
+    }
+
     function parse(queryString){
 
       var lexedTokens= function(){
         var tokens = [], c, index = 0, currentString= "";
 
         function isOperator(c) { return /[=<>!+\-*\/(),]/.test(c); }
-        function isFullWordOperator(str) { return /^and$|^or$|^not$|^where$|^select$/.test(str);}
+        function isFullWordOperator(str) { return /^and$|^or$|^not$|^is$/.test(str);}
         function isBooleanLiteral(str) { return /true|false/.test(str);}
         function isDigit(c) { return /[0-9.]/.test(c); }
         function isWhiteSpace(c) { return /\s/.test(c); }
+        function isConstant(str) {return /null/.test(str);}
+        function isString(str) {return /^".*"$|^'.*'$/.test(str);}
 
         function LexerError(message) {
           this.name= "LexerError";
@@ -61,18 +78,24 @@ var GQL= function(db) {
         }
 
         function handleDelimitedCharacters(){
-          if (currentString !== ""){
+          var normalizedString= currentString.toLowerCase();
+          if (normalizedString !== ""){
             //full-word operators, e.g. not, where
-            if (isFullWordOperator(currentString.toLowerCase())){
-              addToken(currentString.toLowerCase());
+            if (isFullWordOperator(normalizedString)){
+              addToken(normalizedString);
               //boolean literal
-            } else if (isBooleanLiteral(currentString.toLowerCase())) {
-              addToken("boolean", currentString.toLowerCase() === "true");
+            } else if (isBooleanLiteral(normalizedString)) {
+              addToken("boolean", normalizedString === "true");
               //number literal
-            } else if (isDigit(currentString[0])) {
-              addToken("number", parseFloat(currentString));
-            }else {
-              addToken("identifier", currentString);
+            } else if (isDigit(normalizedString[0])) {
+              addToken("number", parseFloat(normalizedString));
+            } else if (isConstant(normalizedString)){
+              addToken("constant", normalizedString);
+              //note that string literals are cast sensitive
+            } else if (isString(currentString)) {
+              addToken("string", currentString);
+            } else {
+              addToken("identifier", normalizedString);
             }
           }
         }
@@ -82,18 +105,28 @@ var GQL= function(db) {
           advance();
         }
 
+        function quotedString(delimiter, label){
+          while (advance()) {
+            if (c !== delimiter){
+              currentString += c;
+            } else {
+              addToken(label, currentString);
+              return;
+            }
+          }
+          throw new LexerError(label + " needs a closing " + delimiter);
+        }
+
         while (advance()) {
           //back quoted identifiers
           if (c === "`"){
-            currentString= "";
-            while (advance()) {
-              if (c !== "'"){
-                currentString += c;
-              } else {
-                addToken("identifier", currentString);
-              }
-            }
-            throw new LexerError("Identifier needs a closing ` (backquote)");
+            quotedString("`", "identifier");
+          //string literals with single quotes
+          } else if (c === "'") {
+            quotedString("'", "string");
+          //string literals with double quotes
+          } else if (c === '"') {
+            quotedString('"', "string");
             //non-word operators
           } else if (isOperator(c)) {
             handleDelimitedCharacters();
@@ -172,9 +205,7 @@ var GQL= function(db) {
         };
       };
 
-      function isFunction(name){
-        return /max|min|sum|lower|upper/.test(name.toLowerCase());
-      }
+      function isFunction(name){ return isAggregator(name) || /lower|upper/.test(name.toLowerCase()); }
 
       function expression(rbp) {
         var left;
@@ -226,7 +257,7 @@ var GQL= function(db) {
 
       infix("and", 30);
       infix("or", 30);
-      prefix("not", 70); //TODO: not totally sure about this...
+      prefix("not", 70);
 
       symbol(")");
       symbol("(end)");
@@ -244,10 +275,30 @@ var GQL= function(db) {
       symbol("boolean", function(bool) {
         return bool;
       });
+      symbol("constant", function(c) {
+        return c;
+      });
+      symbol("string", function(str) {
+        return str;
+      });
 
       symbol(",", function() {
         //commas are used to separate independent statements
         return expression(20);
+      });
+
+      symbol("is", null, 40, function (left) {
+        var type= "is";
+        //"is not" is a special case
+        if (peekToken().type === "not"){
+          type= "!=";
+          advance();
+        }
+        return {
+          type: type,
+          left: left,
+          right: expression(40)
+        };
       });
 
       symbol("identifier", function(tok) {
@@ -273,168 +324,245 @@ var GQL= function(db) {
         parseTree.push(expression(0));
       } while (peekToken().type !== "(end)");
 
-      //parseTree= expression(0);
-
       console.log(parseTree);
       return parseTree;
     }
 
     var selectFun= function(){
 
-      if (!query.select || query.select == "" || query.select == "*"){
-        return function(doc){return doc;};
+      //handle special "select all" case
+      if(!query.select || query.select.trim() === "*"){
+        if (query.pivot || query.groupBy){
+          throw "If a pivot or group by is present, select columns must be specified explicitly.";
+        } else {
+          return function(doc){return doc;};
+        }
       }
 
       var parsedTokens= parse(query.select);
 
-          var interpreter= function(){
+      return function(){
 
-            var operators = {
-              "+": function(a, b) { return a + b; },
-              "-": function(a, b) {
-                if (typeof b === "undefined") return -a;
-                return a - b;
-              },
-              "*": function(a, b) { return a * b; }, 
-              "/": function(a, b) { return a / b; },
-              "=": function(a, b) { return a === b; },
-              "<": function(a, b) { return a < b; },
-              "<=": function(a, b) { return a <= b; },
-              ">": function(a, b) { return a > b; },
-              ">=": function(a, b) { return a >= b; },
-              "!=": function(a, b) { return a !== b; },
-              "<>": function(a, b) { return a !== b; },
-              "and": function(a, b) { return a && b; },
-              "or": function(a, b) { return a || b; },
-              "not": function(a) { return !a; }
-            };
+        var operators = {
+          "+": function(a, b) { return a + b; },
+          "-": function(a, b) {
+            if (typeof b === "undefined") return -a;
+            return a - b;
+          },
+          "*": function(a, b) { return a * b; }, 
+          "/": function(a, b) { return a / b; },
+          "=": function(a, b) { return a === b; },
+          "<": function(a, b) { return a < b; },
+          "<=": function(a, b) { return a <= b; },
+          ">": function(a, b) { return a > b; },
+          ">=": function(a, b) { return a >= b; },
+          "!=": function(a, b) { return a !== b; },
+          "<>": function(a, b) { return a !== b; },
+          "and": function(a, b) { return a && b; },
+          "or": function(a, b) { return a || b; },
+          "not": function(a) { return !a; }
+        };
 
-            var functions= {
-              upper: function(str){return str.toUpperCase();},
-              lower: function(str){return str.toLowerCase();},
-              //max: function(values){return tracking["max"][identifier](val);},
-              //min: function(values){return tracking.min[identifier](val);},
-              //average: function(values){return tracking.average[identifier](val);},
-              //count: function(values){return tracking.count[identifier](val);},
-              max: function(values) {
-                return values.reduce(function(a, max) {
-                  if(!max || a > max){max= a;} 
-                  return max;
-                }, null) },
-              min: function(values) {
-                return values.reduce(function(a, min) {
-                  if(!min || a < min){min= a;} 
-                  return min;
-                }, null) },
-              average: function(values) {
-                var v= values.reduce(function(a, tracker) {
-                  return {count: tracker.count++, total: tracker.total+a}; }, {count: 0, total: 0});
+        var functions= {
+          upper: function(str){return str.toUpperCase();},
+          lower: function(str){return str.toLowerCase();},
+          max: function(values, label) {
+            return values.reduce(function(max, a) {
+              if(a[label] && (!max || a[label] > max)){max= a[label];} 
+              return max;
+            }, null) },
+            min: function(values, label) {
+              return values.reduce(function(min, a) {
+                if(a[label] && (!min || a[label] < min)){min= a[label];} 
+                return min;
+              }, null) },
+              average: function(values, label) {
+                var v= values.reduce(function(tracker, a) {
+                  if(a[label]){
+                    if(typeof a[label] !== "number"){
+                      throw "All values being averaged must be numbers, but "+ a[label] + " is not.";
+                    }
+                    return {count: ++tracker.count, total: tracker.total+a[label]}; 
+                  }
+                return tracker }, {count: 0, total: 0});
                 return v.total/v.count;
               },
-              count: function(values) {return values.length;},
-              sum: function(values) {return values.reduce(function(a, b) { return a + b; }, 0)}
-            };
+              count: function(values, label) {
+                return values.reduce(function(count, a) {
+                  if(a[label]){
+                    return ++count;
+                  }
+                  return count;
+                }, 0);
+              },
+              sum: function(values, label) {
+                return values.reduce(function(sum, a) { 
+                  if(a[label]){
+                    if(typeof a[label] !== "number"){
+                      throw "All values being summed must be numbers, but "+ a[label] + " is not.";
+                    }
+                    return sum+a[label];
+                  }
+                return sum}, 0)}
+        };
 
-            function isAggregator(str){return /max|average|min|sum|count/.test(str);}
 
-            function containsAggregator(){
-              var aggregators= []
-
-              function recur(parentNode){
-                if (!parentNode){
-                  return;
-                }
-                if (parentNode.type === "call" && isAggregator(parentNode.name)){
-                  aggregators.push(parentNode);
-                  return;
-                }
-                recur(parentNode.left);
-                recur(parentNode.right);
-              }
-
-              parsedTokens.forEach(function(node) {
-                if(recur(node)){
-                  return true;
-                }
-              });
-
-              if (aggregators.length){
-                return aggregators;
-              }
-              return null;
-            }
-
-            //TODO: will need to be modified to support group-by
-            function containsIdentifierWithoutAggregator(){
-              function recur(parentNode){
-                if (!parentNode){
-                  return false;
-                }
-                if (parentNode.type === "call" && isAggregator(parentNode.name)){
-                  return false;
-                }
-                if (parentNode.type === "identifier") {
-                  return true;
-                }
-                if (recur(parentNode.left)){
-                  return true;
-                }
-                return recur(parentNode.right);
-              }
-
-              parsedTokens.forEach(function(node) {
-                if(recur(node)){
-                  return true;
-                }
-              });
+        function containsAggregator(){
+          function recur(parentNode){
+            if (!parentNode){
               return false;
             }
-
-            function parseNode(node, doc){
-              switch (node.type) {
-                case "boolean":
-                  return node.value;
-                  break;
-
-                case "number":
-                  return node.value;
-                  break;
-
-                case "call":
-                  if (functions[node.name]){
-                    var tempArgs= [];
-                    for (var i = 0; i < node.args.length; i++){
-                      tempArgs.push(parseNode(node.args[i], doc));
-                    }
-                    tempArgs.push(node.args[0].value);
-                    return functions[node.name].apply(null, tempArgs);
-                  }
-                  throw "Unrecognized function: " + node.name;
-                  break;
-
-                case "identifier":
-                  if (Array.isArray(doc)){
-                    return doc[0][node.value] ? doc[0][node.value] : null;
-                  }
-                  return doc[node.value] ? doc[node.value] : null;
-                  break;
-
-                  default:
-                    if (operators[node.type]) {
-                      if(node.left){
-                        return operators[node.type](parseNode(node.left, doc), parseNode(node.right, doc));
-                      }
-                      return operators[node.type](parseNode(node.right, doc));
-                    }
-                    throw "Unknown token type";
-                    break;
-              }
+            if (parentNode.type === "call" && isAggregator(parentNode.name)){
+              return true;
             }
+            if (recur(parentNode.left)){
+              return true;
+            }
+            return recur(parentNode.right);
+          }
 
-            function normalSelect(values){
+          var hasAggregator= false;
+
+          for (var i=0; i< parsedTokens.length; i++){
+            if(recur(parsedTokens[i])){
+              hasAggregator= true;
+              break;
+            }
+          };
+
+          return hasAggregator;
+        }
+
+        function containsIdentifierWithoutAggregator(){
+          function recur(parentNode){
+            if (!parentNode){
+              return false;
+            }
+            if (parentNode.type === "call" && isAggregator(parentNode.name)){
+              return false;
+            }
+            //unaggregated identifiers are allowed if they are in the groupBy clause
+            if (parentNode.type === "identifier"){
+              var re= new RegExp("\b"+parentNode.value+"\b");
+              if(query.groupBy && !re.test(query.groupBy)){
+                return false;
+              }
+              return true;
+            }
+            if (recur(parentNode.left)){
+              return true;
+            }
+            return recur(parentNode.right);
+          }
+
+          var contains= false;
+
+          for (var i=0; i< parsedTokens.length; i++){
+            if(recur(parsedTokens[i])){
+              contains= true;
+              break;
+            }
+          }
+          return contains;
+        }
+
+        function pivotOverlap(pivotingColumns){
+          var overlap= false;
+          var groupByColumns= getIdentifierList(query.groupBy);
+          var selectColumns= [];
+
+          function recur(parentNode){
+            if (!parentNode){
+              return;
+            }
+            if (parentNode.type === "identifier"){
+              selectColumns.push(parentNode.value);
+              return;
+            }
+            recur(parentNode.left);
+            recur(parentNode.right);
+          }
+
+          parsedTokens.forEach(function(node){
+              recur(node); 
+          });
+
+          for (var i=0; i< pivotingColumns.length; i++){
+            if (groupByColumns.indexOf(pivotingColumns[i]) !== -1
+            || selectColumns.indexOf(pivotingColumns[i]) !== -1){
+              overlap= true;
+              break;
+            }
+          }
+
+          return overlap;
+        }
+
+        function parseNode(node, doc){
+          switch (node.type) {
+            case "boolean":
+              return node.value;
+              break;
+
+            case "number":
+              return node.value;
+              break;
+
+            case "string":
+              return node.value;
+              break;
+
+            case "call":
+              if (functions[node.name]){
+                var tempArgs= [];
+                if (isAggregator(node.name)){
+                  return functions[node.name].apply(null, [doc, node.args[0].value]);
+                }
+                for (var i = 0; i < node.args.length; i++){
+                  tempArgs.push(parseNode(node.args[i], doc));
+                }
+                return functions[node.name].apply(null, tempArgs);
+              }
+              throw "Unrecognized function: " + node.name;
+              break;
+
+            case "identifier":
+              //handle the case where a column in the group-by is present in the 
+              //select without and aggregate function (all cells will have the same value)
+              if (Array.isArray(doc)){
+                if(doc[0][node.value] === undefined){
+                  return null;
+                }
+                return doc[0][node.value];
+              }
+              if (doc[node.value] === undefined){
+                return null;
+              }
+              return doc[node.value];
+              break;
+
+            default:
+              if (operators[node.type]) {
+                if(node.left){
+                  return operators[node.type](parseNode(node.left, doc), parseNode(node.right, doc));
+                }
+                return operators[node.type](parseNode(node.right, doc));
+              }
+              throw "Unknown token type";
+              break;
+          }
+        }
+
+        return function (){
+          //reduce special case checking
+          if (!query.pivot){
+            query.pivot= "";
+          }
+
+          if (!containsAggregator() && !query.pivot){
+            return function(values){
+              var viewRow= {};
               var result= [];
-              var viewRow= [];
-
               values.forEach(function(doc){
                 parsedTokens.forEach(function(statement, i){
                   if(statement.type === "identifier"){
@@ -450,92 +578,54 @@ var GQL= function(db) {
 
               return result;
             }
-
-            var selectWithAggregator= function(){
-
-              if(containsIdentifierWithoutAggregator()){
-                throw "If an aggregation function is used in the select clause, all identifiers " +
-                  "in the select clause must be wrapped by an aggregation function or appear in the " +
-                  "group-by clause."
+          } else {
+            //select in the presence of aggregators and/or pivot
+            if(containsIdentifierWithoutAggregator()){
+              throw "If an aggregation function is used in the select clause, all identifiers " +
+                "in the select clause must be wrapped by an aggregation function or appear in the " +
+                "group-by clause."
+            }
+            if (query.pivot){
+            //if there are pivoting columns
+              var pivotingColumns= getIdentifierList(query.pivot);
+              if(pivotOverlap(pivotingColumns)){
+                throw "Columns that appear in the pivot clause may not appear in the group by or " +
+                  "select clauses.";
               }
+              return function(values){
+                var viewRow= {};
+                var pivotGroups= {};
+                values.forEach(function (doc){
+                  var pivotKey= pivotingColumns.map(function(id){return doc[id];}).join(", ");
+                  if (!pivotGroups[pivotKey]){
+                    pivotGroups[pivotKey]= [doc];
+                  } else {
+                    pivotGroups[pivotKey].push(doc);
+                  }
+                });
+                for (var pg in pivotGroups){
+                  parsedTokens.forEach(function(statement, i){
+                    if(statement.type === "identifier"){
+                      viewRow[statement.value]= parseNode(statement, pivotGroups[pg]);
+                    } else if (statement.type === "call" && isAggregator(statement.name)) {
+                      viewRow[pg + " " + statement.name+"-"+statement.args[0].value]= 
+                      parseNode(statement, pivotGroups[pg]);
+                    }
+                  });
+                }
+                if(Object.keys(viewRow).length != 0){
+                  return [viewRow];
+                }
 
-              var aggregators= containsAggregator();
-
-              //aggregators.forEach(function(statement, i){
-
-                //if (!tracking[statement.name]){
-                  //tracking[statement.name]= {};
-                //}
-
-                //switch (statement.name) {
-
-                  //case "average":
-                    //tracking[statement.name][statement.args[0].value]= function(){
-                      //var count= 0;
-                      //var runningTotal= 0;
-                      //return function(val){
-                        //runningTotal += val;
-                        //count++;
-                        //return runningTotal/count;
-                      //};
-                    //}();
-                    //break;
-
-                  //case "max":
-                    //tracking[statement.name][statement.args[0].value]= function(){
-                      //var max;
-                      //return function(val){
-                        //if (!max || val > max){
-                          //max= val;
-                        //}
-                        //return max;
-                      //};
-                    //}();
-                    //break;
-
-                  //case "min":
-                    //tracking[statement.name][statement.args[0].value]= function(){
-                      //var min;
-                      //return function(val){
-                        //if (!min || val < min){
-                          //min= val;
-                        //}
-                        //return min;
-                      //};
-                    //}();
-                    //break;
-
-                  //case "count":
-                    //tracking[statement.name][statement.args[0].value]= function(){
-                      //var count= 0;
-                      //return function(val){
-                        //if (val !== null && val !== undefined){
-                          //count++;
-                        //}
-                        //return count;
-                      //};
-                    //}();
-                    //break;
-
-                  //case "sum":
-                    //tracking[statement.name][statement.args[0].value]= function(){
-                      //var runningTotal= 0;
-                      //return function(val){
-                        //runningTotal += val;
-                        //return runningTotal;
-                      //};
-                    //}();
-                    //break;
-                //}
-              //});
-
-              var selectFunction= function(values){
-                var viewRow;
+              }
+            } else {
+              return function(values){
+                var viewRow= {};
                 parsedTokens.forEach(function(statement, i){
                   if(statement.type === "identifier"){
                     viewRow[statement.value]= parseNode(statement, values);
                   } else if (statement.type === "call" && isAggregator(statement.name)) {
-                    viewRow[statement.args[0].value]= parseNode(statement, values);
+                    viewRow[statement.name+"-"+statement.args[0].value]= parseNode(statement, values);
                   } else {
                     viewRow[i]= parseNode(statement, values);
                   }
@@ -544,18 +634,13 @@ var GQL= function(db) {
                 if(Object.keys(viewRow).length != 0){
                   return [viewRow];
                 }
+
               }
-              return selectFunction;
-            };
-
-            if(containsAggregator()){
-              return selectWithAggregator();
-            } else {
-              return normalSelect;
             }
-          }();
-
-          return interpreter;
+            return selectFunction;
+          }
+        }();
+      }();
     }();
 
     var whereFun= function() {
@@ -577,9 +662,11 @@ var GQL= function(db) {
           "*": function(a, b) { return a * b; },
           "/": function(a, b) { return a / b; },
           "=": function(a, b) { return a === b; },
+          "is": function(a, b) { return a === b; },
           "<": function(a, b) { return a < b; },
           "<=": function(a, b) { return a <= b; },
-          ">": function(a, b) { return a > b; },
+          ">": function(a, b) { 
+          return a > b; },
           ">=": function(a, b) { return a >= b; },
           "!=": function(a, b) { return a !== b; },
           "<>": function(a, b) { return a !== b; },
@@ -587,7 +674,6 @@ var GQL= function(db) {
           "or": function(a, b) { return a || b; },
           "not": function(a) { return !a; }
         };
-
 
         function parseNode(node){
           switch (node.type) {
@@ -599,19 +685,35 @@ var GQL= function(db) {
               return node.value;
               break;
 
-            case "identifier":
-                return doc[node.value] ? doc[node.value] : null;
-                break;
+            case "constant":
+              if (node.value === "null"){
+                return null;
+              }
+              throw "Unknown constant: " + node.value;
+              break;
 
-              default:
-                if (operators[node.type]) {
-                  if(node.left){
-                    return operators[node.type](parseNode(node.left), parseNode(node.right));
-                  }
-                  return operators[node.type](parseNode(node.right));
+            case "string":
+              return node.value;
+              break;
+
+            case "identifier":
+              if(doc[node.value] === undefined){
+                return null;
+              }
+              return doc[node.value];
+              break;
+
+            default:
+              if (operators[node.type]) {
+                if(node.left){
+                  var left= parseNode(node.left);
+                  var right= parseNode(node.right);
+                  return operators[node.type](left, right);
                 }
-                throw "Unknown token type";
-                break;
+                return operators[node.type](parseNode(node.right));
+              }
+              throw "Unknown token type";
+              break;
           }
         }
 
@@ -621,9 +723,27 @@ var GQL= function(db) {
       return interpreter;
     }();
 
+    var groupByFun= function(){
+      if(!query.groupBy){
+        return function(doc){return null;};
+      }
+
+      var columns= getIdentifierList(query.groupBy);
+
+      var interpreter= function(doc){
+        var key= [];
+        columns.forEach(function(col){
+          key.push(doc[col]);
+        });
+        return key;
+      };
+
+      return interpreter;
+    }();
+
     function map(doc){
       if (whereFun(doc)){
-        results.push({id: doc._id, key: null, value: doc});
+        results.push({id: doc._id, key: groupByFun(doc), value: doc});
       }
     }
 
@@ -660,8 +780,6 @@ var GQL= function(db) {
         e.key= e.key[0][0];
       });
 
-      console.log(groups);
-      
       var flattenedOutput= [];
 
       //this bit is to make the output palatable
@@ -670,6 +788,8 @@ var GQL= function(db) {
           flattenedOutput.push(f);
         });
       });
+
+      console.log(flattenedOutput);
 
       options.complete(null, {rows: flattenedOutput});
     };
