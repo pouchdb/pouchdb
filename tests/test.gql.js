@@ -18,7 +18,7 @@ if (typeof module !== undefined && module.exports) {
 }
 
 adapters.map(function(adapter) { 
-  qunit('views: ' + adapter, {
+  qunit('gql: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
     },
