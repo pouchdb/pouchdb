@@ -214,7 +214,7 @@ var IdbPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
-        var rev = winningRev(metadata);
+        var rev = Pouch.merge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -222,19 +222,12 @@ var IdbPouch = function(opts, callback) {
           rev: rev
         });
 
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return;
         }
 
-        var change = {
-          id: metadata.id,
-          seq: metadata.seq,
-          changes: collectLeaves(metadata.rev_tree),
-          doc: result.data
-        };
-        change.doc._rev = rev;
-
-        IdbPouch.Changes.emitChange(name, change);
+        IdbPouch.Changes.notify(name);
+        localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
       });
       call(callback, null, aresults);
     }
@@ -411,7 +404,7 @@ var IdbPouch = function(opts, callback) {
         return;
       }
 
-      var rev = winningRev(metadata);
+      var rev = Pouch.merge.winningRev(metadata);
       var key = opts.rev ? opts.rev : rev;
       var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
 
@@ -561,6 +554,9 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (opts === undefined) {
+      opts = {};
+    }
     opts.was_delete = true;
     var newDoc = extend(true, {}, doc);
     newDoc._deleted = true;
@@ -591,6 +587,20 @@ var IdbPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if ('keys' in opts) {
+      if ('startkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `start_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+      if ('endkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `end_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+    }
 
     var start = 'startkey' in opts ? opts.startkey : false;
     var end = 'endkey' in opts ? opts.endkey : false;
@@ -598,47 +608,73 @@ var IdbPouch = function(opts, callback) {
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
 
-    var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
-      : start ? IDBKeyRange.lowerBound(start, true)
+    var keyRange = start && end ? IDBKeyRange.bound(start, end)
+      : start ? IDBKeyRange.lowerBound(start)
       : end ? IDBKeyRange.upperBound(end) : null;
 
-    var result;
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
-    transaction.oncomplete = function() { callback(null, result); };
+    transaction.oncomplete = function() {
+      if ('keys' in opts) {
+        opts.keys.forEach(function(key) {
+          if (key in resultsMap) {
+            results.push(resultsMap[key]);
+          } else {
+            results.push({"key": key, "error": "not_found"});
+          }
+        });
+        if (opts.descending) {
+          results.reverse();
+        }
+      }
+      call(callback, null, {
+        total_rows: results.length,
+        rows: results
+      }); 
+    };
 
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = descending ? oStore.openCursor(keyRange, descending)
       : oStore.openCursor(keyRange);
     var results = [];
+    var resultsMap = {};
     oCursor.onsuccess = function(e) {
       if (!e.target.result) {
-        result = {
-          total_rows: results.length,
-          rows: results
-        };
         return;
       }
       var cursor = e.target.result;
+      // If opts.keys is set we want to filter here only those docs with
+      // key in opts.keys. With no performance tests it is difficult to
+      // guess if iteration with filter is faster than many single requests
       function allDocsInner(metadata, data) {
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
-        if (!isDeleted(metadata)) {
-          var doc = {
-            id: metadata.id,
-            key: metadata.id,
-            value: {
-              rev: winningRev(metadata)
-            }
-          };
-          if (opts.include_docs) {
-            doc.doc = data;
-            doc.doc._rev = winningRev(metadata);
-            if (opts.conflicts) {
-              doc.doc._conflicts = collectConflicts(metadata.rev_tree);
-            }
+        var doc = {
+          id: metadata.id,
+          key: metadata.id,
+          value: {
+            rev: Pouch.merge.winningRev(metadata)
           }
-          results.push(doc);
+        };
+        if (opts.include_docs) {
+          doc.doc = data;
+          doc.doc._rev = Pouch.merge.winningRev(metadata);
+          if (opts.conflicts) {
+            doc.doc._conflicts = collectConflicts(metadata.rev_tree);
+          }
+        }
+        if ('keys' in opts) {
+          if (opts.keys.indexOf(metadata.id) > -1) {
+            if (isDeleted(metadata)) {
+              doc.value.deleted = true;
+              doc.doc = null;
+            }
+            resultsMap[doc.id] = doc;
+          }
+        } else {
+          if(!isDeleted(metadata)) {
+            results.push(doc);
+          }
         }
         cursor['continue']();
       }
@@ -716,18 +752,14 @@ var IdbPouch = function(opts, callback) {
 
   api.changes = function idb_changes(opts) {
 
-    if (!opts.seq) {
-      opts.seq = 0;
-    }
-    if (opts.since) {
-      opts.seq = opts.since;
-    }
-
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
+
+    // Ignore the `since` parameter when `descending` is true
+    opts.since = opts.since && !descending ? opts.since : 0;
 
     var results = [], resultIndices = {}, dedupResults = [];
     var id = name + ':' + Math.uuid();
@@ -750,9 +782,9 @@ var IdbPouch = function(opts, callback) {
       txn.oncomplete = onTxnComplete;
       var req = descending
         ? txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
+          .openCursor(IDBKeyRange.lowerBound(opts.since, true), descending)
         : txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true));
+          .openCursor(IDBKeyRange.lowerBound(opts.since, true));
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }
@@ -760,7 +792,7 @@ var IdbPouch = function(opts, callback) {
     function onsuccess(event) {
       if (!event.target.result) {
         if (opts.continuous && !opts.cancelled) {
-          IdbPouch.Changes.addListener(name, id, opts);
+          IdbPouch.Changes.addListener(name, id, api, opts);
         }
 
         // Filter out null results casued by deduping
@@ -786,11 +818,11 @@ var IdbPouch = function(opts, callback) {
       var index = txn.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
         var metadata = event.target.result;
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
 
-        var mainRev = winningRev(metadata);
+        var mainRev = Pouch.merge.winningRev(metadata);
         var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
         index.get(mainRev).onsuccess = function(docevent) {
           var doc = docevent.target.result;
@@ -832,7 +864,10 @@ var IdbPouch = function(opts, callback) {
         if (!opts.include_docs) {
           delete c.doc;
         }
-        call(opts.onChange, c);
+        if (c.seq > opts.since) {
+          opts.since = c.seq;
+          call(opts.onChange, c);
+        }
       });
       if (!opts.continuous || (opts.continuous && !opts.cancelled)) {
         call(opts.complete, null, {results: dedupResults});
@@ -1025,43 +1060,6 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
   req.onerror = idbError(callback);
 };
 
-IdbPouch.Changes = (function() {
-
-  var api = {};
-  var listeners = {};
-
-  api.addListener = function(db, id, opts) {
-    if (!listeners[db]) {
-      listeners[db] = {};
-    }
-    listeners[db][id] = opts;
-  }
-
-  api.removeListener = function(db, id) {
-    delete listeners[db][id];
-  }
-
-  api.clearListeners = function(db) {
-    delete listeners[db];
-  }
-
-  api.emitChange = function(db, change) {
-    if (!listeners[db]) {
-      return;
-    }
-    for (var i in listeners[db]) {
-      var opts = listeners[db][i];
-      if (opts.filter && !opts.filter.apply(this, [change.doc])) {
-        return;
-      }
-      if (!opts.include_docs) {
-        delete change.doc;
-      }
-      opts.onChange.apply(opts.onChange, [change]);
-    }
-  }
-
-  return api;
-})();
+IdbPouch.Changes = Changes();
 
 Pouch.adapter('idb', IdbPouch);

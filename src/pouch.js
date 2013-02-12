@@ -144,6 +144,16 @@ Pouch.Errors = {
     status: 500,
     error: 'unknown_error',
     reason: 'Database encountered an unknown error'
+  },
+  INVALID_REQUEST: {
+    status: 400,
+    error: 'invalid_request',
+    reason: 'Request was invalid'
+  },
+  QUERY_PARSE_ERROR: {
+    status: 400,
+    error: 'query_parse_error',
+    reason: 'Some query parameter is invalid'
   }
 };
 

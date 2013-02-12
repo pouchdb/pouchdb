@@ -16,7 +16,8 @@ var srcFiles = [
 ];
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
-  return (/^test\.([a-z0-9_])*\.js$/).test(name);
+  return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
+    name !== 'test.spatial.js' && name !== 'test.auth_replication.js';
 });
 
 var browserConfig = [{
@@ -43,28 +44,47 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: '<json:package.json>',
+    meta: {
+      banner:"/*PouchDB*/",
+      top:  "\n(function() {\n ",
+      bottom:"\n })(this);",
+      amd:{
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
+          "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
+        bottom : " return Pouch });"
+      }
+    },
     concat: {
       amd: {
-	src: grunt.utils._.flatten([
-          "define('pouchdb',[ 'simple-uuid', 'md5'], " +
-            "function(uuid, md5) { ", 'src/pouch.amd.js', srcFiles,
-          " return Pouch });"]),
-	dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
+        src: grunt.utils._.flatten([
+          "<banner:meta.amd.top>", srcFiles,"<banner:meta.amd.bottom>"
+        ]),
+        dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
       },
       all: {
-	src: grunt.utils._.flatten([
-          "(function() { ",
-          "src/deps/uuid.js","src/deps/polyfill.js", srcFiles, " })(this);"]),
-	dest: 'dist/pouchdb-<%= pkg.release %>.js'
+        src: grunt.utils._.flatten([
+          "<banner>","<banner:meta.top>","src/deps/uuid.js",
+          "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
+        ]),
+        dest: 'dist/pouchdb-<%= pkg.release %>.js'
+      },
+      spatial: {
+        src: grunt.utils._.flatten([
+          "<banner>","<banner:meta.top>","src/deps/uuid.js",
+          "src/deps/polyfill.js", srcFiles,"src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
+        ]),
+        dest: 'dist/pouchdb.spatial-<%= pkg.release %>.js'
       }
     },
 
     min: {
       dist: {
-	src: grunt.utils._.flatten([
-          "(function() { ", "src/deps/uuid.js","src/deps/polyfill.js",
-          srcFiles, " })(this);"]),
-	dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+        src: "./dist/pouchdb-<%= pkg.release %>.js",
+        dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+      },
+      spatial: {
+        src:  'dist/pouchdb.spatial-<%= pkg.release %>.js',
+        dest:  'dist/pouchdb.spatial-<%= pkg.release %>.min.js'
       }
     },
 
@@ -79,13 +99,55 @@ module.exports = function(grunt) {
       port: 2020
     },
 
+    lint: {
+      files: ["src/*/*.js", "tests/*.js"]
+    },
+
+    jshint: {
+      options: {
+        curly: true,
+        eqeqeq: true,
+        immed: true,
+        latedef: true,
+        newcap: true,
+        noarg: true,
+        sub: true,
+        undef: true,
+        eqnull: true,
+        browser: true,
+        strict: true
+      },
+      globals: {
+          // Tests.
+        _: true,
+        QUnit: true,
+        asyncTest: true,
+        DB: true,
+        deepEqual: true,
+        equal: true,
+        expect: true,
+        fail: true,
+        module: true,
+        nextTest: true,
+        notEqual: true,
+        ok: true,
+        sample: true,
+        start: true,
+        stop: true,
+        unescape: true,
+        process: true
+      }
+    },
+
     'node-qunit': {
-      deps: './src/pouch.js',
-      code: './src/adapters/pouch.leveldb.js',
-      tests: testFiles.map(function (n) { return "./tests/" + n; }),
-      done: function(err, res) {
-        !err && (testResults['node'] = res);
-	return true;
+      all: {
+        deps: './src/pouch.js',
+        code: './src/adapters/pouch.leveldb.js',
+        tests: testFiles.map(function (n) { return "./tests/" + n; }),
+        done: function(err, res) {
+          !err && (testResults['node'] = res);
+	       return true;
+        }
       }
     },
 
@@ -169,9 +231,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
 
-  grunt.registerTask("build", "concat min");
+  grunt.registerTask("build", "concat:amd concat:all min:dist");
   grunt.registerTask("test", "build server cors-server node-qunit " +
                      "saucelabs-qunit publish-results");
-
+  grunt.registerTask("full", "concat min");
+  grunt.registerTask("spatial", "concat:spatial min:spatial");
   grunt.registerTask('default', 'build');
 };

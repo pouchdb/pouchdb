@@ -162,20 +162,22 @@ var HttpPouch = function(opts, callback) {
       }
     });
   };
-  ajax({auth: host.auth, method: 'GET', url: db_url}, function(err, ret) {
-    //check if the db exists
-    if (err) {
-      if (err.status === 404) {
-        //if it doesn't, create it
-        createDB();
+  if (!opts.skipSetup) {
+    ajax({auth: host.auth, method: 'GET', url: db_url}, function(err, ret) {
+      //check if the db exists
+      if (err) {
+        if (err.status === 404) {
+          //if it doesn't, create it
+          createDB();
+        } else {
+          call(callback, err);
+        }
       } else {
-        call(callback, err);
-      }
-    } else {
-      //go do stuff with the db
-      call(callback, null, api);
-      }
-  });
+        //go do stuff with the db
+        call(callback, null, api);
+        }
+    });
+  }
 
   api.type = function() {
     return 'http';
@@ -443,11 +445,18 @@ var HttpPouch = function(opts, callback) {
 
     // List of parameters to add to the GET request
     var params = [];
+    var body = undefined;
+    var method = 'GET';
 
     // TODO I don't see conflicts as a valid parameter for a
     // _all_docs request (see http://wiki.apache.org/couchdb/HTTP_Document_API#all_docs)
     if (opts.conflicts) {
       params.push('conflicts=true');
+    }
+
+    // If opts.descending is truthy add it to params
+    if (opts.descending) {
+      params.push('descending=true');
     }
 
     // If opts.include_docs exists, add the include_docs value to the
@@ -474,22 +483,25 @@ var HttpPouch = function(opts, callback) {
       params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));
     }
 
-    // If opts.keys exists, add the keys value to the list of parameters.
-    if (opts.keys) {
-      params.push('keys=' + encodeURIComponent(JSON.stringify(opts.keys)));
-    }
-
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     if (params !== '') {
       params = '?' + params;
     }
 
+    // If keys are supplied, issue a POST request to circumvent GET query string limits
+    // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
+    if (typeof opts.keys !== 'undefined') {
+      method = 'POST';
+      body = JSON.stringify({keys:opts.keys});
+    }
+
     // Get the document listing
     ajax({
       auth: host.auth,
-      method:'GET',
-      url: genDBUrl(host, '_all_docs' + params)
+      method: method,
+      url: genDBUrl(host, '_all_docs' + params),
+      body: body
     }, callback);
   };
   // Get a list of changes made to documents in the database given by host.
@@ -614,13 +626,13 @@ var HttpPouch = function(opts, callback) {
         if (err) fetchRetryCount += 1;
         else fetchRetryCount = 0;
         var timeoutMultiplier = 1 << fetchRetryCount;       // i.e. Math.pow(2, fetchRetryCount)
-        
+
         var retryWait = fetchTimeout * timeoutMultiplier;
         var maximumWait = opts.maximumWait || 30000;
         if (retryWait > maximumWait) {
           call(opts.complete, err || Pouch.Errors.UNKNOWN_ERROR, null);
         }
-        
+
         // Queue a call to fetch again with the newest sequence number
         setTimeout(function () {
           fetch(last_seq, fetched);

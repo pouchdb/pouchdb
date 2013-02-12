@@ -3,7 +3,7 @@
   "release": "nightly",
   "description": "PouchDB is a pocket-sized database.",
   "author": "Dale Harvey",
-  "version": "0.0.4",
+  "version": "0.0.0",
   "main": "./src/pouch.js",
   "homepage": "https://github.com/daleharvey/pouchdb",
   "keywords": [ "db", "couchdb", "pouchdb" ],
@@ -14,10 +14,9 @@
     "underscore": "*"
   },
   "jam": {
-    "main": "pouch.amd.alpha.js",
-    "include": ["pouch.amd.alpha.js", "README.md", "LICENSE"],
+    "main": "dist/pouch.amd-nightly.js",
+    "include": ["dist/pouch.amd-nightly.js", "README.md", "LICENSE"],
     "dependencies": {
-      "jquery": null,
       "simple-uuid": null,
       "md5": null
     }
