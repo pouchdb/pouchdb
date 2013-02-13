@@ -1,14 +1,17 @@
 "use strict";
 var visualizeRevTree = function(db) {
 
-  var visualize = function(id, callback) {
+  var visualize = function(id, opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+    }
     var svgNS = "http://www.w3.org/2000/svg";
     var svg = document.createElementNS(svgNS, "svg");
     var linesBox = document.createElementNS(svgNS, "g");
     svg.appendChild(linesBox);
     var circlesBox = document.createElementNS(svgNS, "g");
     svg.appendChild(circlesBox);
-    var circ = function(x, y, r, isLeaf, isWinner) {
+    var circ = function(x, y, r, isLeaf, isWinner, isDeleted) {
       var el = document.createElementNS(svgNS, "circle");
       el.setAttributeNS(null, "cx", x);
       el.setAttributeNS(null, "cy", y);
@@ -18,6 +21,9 @@ var visualizeRevTree = function(db) {
       }
       if (isWinner) {
         el.setAttributeNS(null, "fill", "red");
+      }
+      if (isDeleted) {
+        el.setAttributeNS(null, "stroke", "grey");
       }
       circlesBox.appendChild(el);
       return el;
@@ -34,16 +40,15 @@ var visualizeRevTree = function(db) {
       return el;
     };
 
-    db.get(id, {rev_tree: true}, function (err, res){
-      var revs = res.rev_tree;
+    db.get(id, {metadata: true}, function (err, res){
+      metadata = res.metadata;
+      var revs = res.metadata.rev_tree;
       var toVisit = [];
 
-      console.log('revs', revs);
+      console.log('res', res);
       revs.forEach(function(tree) {
         toVisit.push({pos: tree.pos, ids: tree.ids});
       });
-
-      console.log(toVisit);
 
       var grid = 10;
       var maxX = grid;
@@ -52,7 +57,9 @@ var visualizeRevTree = function(db) {
       var prevPos = 0;
       var posCount = 0; // count elements on current depth
 
-      var winningRev = Pouch.merge.winningRev(res).split('-')[1];
+      var winningRev = Pouch.merge.winningRev(metadata).split('-')[1];
+
+      console.log('winner', winningRev);
 
       while (toVisit.length > 0) {
         console.log(toVisit);
@@ -77,8 +84,23 @@ var visualizeRevTree = function(db) {
 
         var nodeEl = circ(x, y, r, isLeaf, winningRev === rev);
         nodeEl.rev = rev;
+        nodeEl.pos = pos;
+
+        (function(nodeEl){
+          console.log(nodeEl);
+          db.get(id, {rev: nodeEl.pos + '-' + nodeEl.rev}, function(err, doc){
+            if(doc._deleted) {
+              nodeEl.style.stroke = "#999";
+            }
+          });
+        })(nodeEl);
+
         nodeEl.onclick = function() {
-          console.log(this.rev);
+          var that = this;
+          //console.log(this.pos + '-' + this.rev);
+          db.get(id, {rev: this.pos + '-' + this.rev}, function(err, doc){
+            console.log(err, doc);
+          });
         }
         if (node.parentY) {
           line(x, y, node.parentX, node.parentY); 

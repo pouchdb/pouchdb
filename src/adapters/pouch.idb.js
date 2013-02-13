@@ -425,6 +425,9 @@ var IdbPouch = function(opts, callback) {
             return prev.concat(collectRevs(current));
           }, []);
         }
+        if (opts.metadata) { // developers only option
+          doc.metadata = metadata;
+        }
         if (opts.conflicts) {
           var conflicts = collectConflicts(metadata.rev_tree);
           if (conflicts.length) {
