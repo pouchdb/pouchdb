@@ -52,8 +52,6 @@ var IdbPouch = function(opts, callback) {
   // Where we store meta data
   var META_STORE = 'meta-store';
 
-  var ready = false;
-
 
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
@@ -63,8 +61,6 @@ var IdbPouch = function(opts, callback) {
   };
 
   var instanceId = null;
-
-  var taskQueue = []
 
   // var storeAttachmentsInIDB = !(window.storageInfo && window.requestFileSystem);
   // We cant store attachments on the filesystem due to a limitation in the
@@ -92,7 +88,6 @@ var IdbPouch = function(opts, callback) {
   req.onsuccess = function(e) {
 
     idb = e.target.result;
-    ready = true;
 
     var txn = idb.transaction([META_STORE], IDBTransaction.READ_WRITE);
 
@@ -134,21 +129,12 @@ var IdbPouch = function(opts, callback) {
       }
       call(callback, null, api);
     }
-
-    // do all queued tasks
-    for (var i = 0; i < taskQueue.length; i ++) {
-      api.bulkDocs.apply(null, taskQueue[i]);
-    }
   };
 
   req.onerror = idbError(callback);
 
   api.type = function() {
     return 'idb';
-  };
-
-  api.isReady = function() {
-    return ready;
   };
 
   // Each database needs a unique id so that we can store the sequence
@@ -158,11 +144,6 @@ var IdbPouch = function(opts, callback) {
   };
 
   api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
-
-    if (!ready) {
-      taskQueue.push(arguments);
-      return;
-    }
 
     if (typeof opts === 'function') {
       callback = opts;
