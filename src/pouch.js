@@ -10,7 +10,7 @@ var Pouch = function Pouch(name, opts, callback) {
     callback = opts;
     opts = {};
   }
-  
+
   if (typeof name === 'object') {
     opts = name;
     name = undefined;
@@ -28,7 +28,7 @@ var Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = Pouch.adapters[opts.adapter](opts, function(err, db) {
+  var adapter = PouchAdapter(opts, function(err, db) {
     if (err) {
       if (callback) callback(err);
       return;
@@ -47,6 +47,7 @@ var Pouch = function Pouch(name, opts, callback) {
     }
     callback(null, db);
   });
+
   for (var j in adapter) {
     this[j] = adapter[j];
   }

@@ -672,28 +672,6 @@ var HttpPouch = function(opts, callback) {
     });
   };
 
-  api.replicate = {};
-
-  // Replicate from the database given by url to this HttpPouch
-  api.replicate.from = function(url, opts, callback) {
-    // If no options were given, set the callback to be the second parameter
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(url, api, opts, callback);
-  };
-
-  // Replicate to the database given by dbName from this HttpPouch
-  api.replicate.to = function(dbName, opts, callback) {
-    // If no options were given, set the callback to be the second parameter
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(api, dbName, opts, callback);
-  };
-
   api.close = function(callback) {
     call(callback, null);
   };

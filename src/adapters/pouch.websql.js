@@ -603,7 +603,7 @@ var webSqlPouch = function(opts, callback) {
               call(opts.onChange, c);
             }
           });
-          
+
           if (opts.continuous && !opts.cancelled) {
             webSqlPouch.Changes.addListener(name, id, api, opts);
           }
@@ -707,23 +707,6 @@ var webSqlPouch = function(opts, callback) {
     });
   };
 
-  api.replicate = {};
-
-  api.replicate.from = function idb_replicate_from(url, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(url, api, opts, callback);
-  };
-
-  api.replicate.to = function idb_replicate_to(dbName, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(api, dbName, opts, callback);
-  };
 }
 
 webSqlPouch.valid = function() {
