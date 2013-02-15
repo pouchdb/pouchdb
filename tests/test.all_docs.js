@@ -245,6 +245,75 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Testing get with rev', function() {
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        db.get("3", function(err, parent){
+          // add conflicts
+          var pRevId = parent._rev.split('-')[1];
+          var conflicts = [
+            {_id: "3", _rev: "2-aaa", value: "x", _revisions: {start: 2, ids: ["aaa", pRevId]}},
+            {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", pRevId]}},
+            {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", pRevId]}}
+          ];
+          db.put(conflicts[0], {new_edits: false}, function(err, doc) {
+            db.put(conflicts[1], {new_edits: false}, function(err, doc) {
+              db.put(conflicts[2], {new_edits: false}, function(err, doc) {
+                db.get("3", {rev: "2-aaa"}, function(err, doc){
+                  console.log(err, doc);
+                  ok(doc._rev === "2-aaa", 'rev ok');
+                  start();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+/*
+  asyncTest('Testing get with open_revs', function() {
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        db.get("3", function(err, parent){
+          // add conflicts
+          var pRevId = parent._rev.split('-')[1];
+          var conflicts = [
+            {_id: "3", _rev: "2-aaa", value: "x", _revisions: {start: 2, ids: ["aaa", pRevId]}},
+            {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", pRevId]}},
+            {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", pRevId]}}
+          ];
+          db.put(conflicts[0], {new_edits: false}, function(err, doc) {
+            db.put(conflicts[1], {new_edits: false}, function(err, doc) {
+              db.put(conflicts[2], {new_edits: false}, function(err, doc) {
+                db.get("3", {open_revs: "all", revs: true}, function(err, res){
+                  var i
+                  res = res.map(function(row){
+                    return row.ok;
+                  });
+                  res.sort(function(a, b){
+                    return a._rev === b._rev ? 0 : a._rev < b._rev ? -1 : 1;
+                  });
+
+                  console.log(res);
+
+                  ok(res.length === conflicts.length, 'correct number of open_revs');
+                  for (i = 0; i < conflicts.length; i++){
+                    console.log(conflicts[i]._rev, res[i]._rev);
+                    ok(conflicts[i]._rev === res[i]._rev, 'correct rev');
+                  }
+                  start();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+  */
+
   asyncTest('Test basic collation', function() {
     initTestDB(this.name, function(err, db) {
       var docs = {docs: [{_id: "Z", foo: "Z"}, {_id: "a", foo: "a"}]};

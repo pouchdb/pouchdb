@@ -355,7 +355,10 @@ adapters.map(function(adapter) {
           ok(!err && info2.rev !== info._rev, 'updated a doc with put');
           db.get(info.id, {rev: info.rev}, function(err, oldRev) {
             equal(oldRev.version, 'first', 'Fetched old revision');
-            start();
+            db.get(info.id, {rev: '1-nonexistentRev'}, function(err, doc){
+              ok(err, 'Non existent row error correctly reported');
+              start();
+            });
           });
         });
       });
