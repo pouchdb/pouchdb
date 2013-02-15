@@ -4,7 +4,7 @@ var visualizeRevTree = function(db) {
     if (typeof opts === 'function') {
       callback = opts;
     }
-    var circ = function(x, y, r, isLeaf, isWinner, isDeleted) {
+    var circ = function(x, y, r, isLeaf, isDeleted, isWinner) {
       var el = document.createElementNS(svgNS, "circle");
       el.setAttributeNS(null, "cx", x);
       el.setAttributeNS(null, "cy", y);
@@ -54,32 +54,42 @@ var visualizeRevTree = function(db) {
 
     // first we need to download all data using public API
     tree = [];
+    var deleted = {};
+    var winner;
 
-    db.get(docId, {open_revs: "all"}, function(err, res){
-      if(err){
-        call(callback, Pouch.Errors.MISSING_DOC);
+    db.get(docId, function(err, doc){ // get winning revision here
+      if (err) {
+        call(callback, err);
         return;
       }
-      var len = res.length;
-      res.forEach(function(res){
-        db.get(docId, {rev: res.ok._rev, revs: true}, function(err, res){
-          //console.log('revisions', res._revisions);
-          path = revisionsToPath(res._revisions);
-          //console.log(path);
-
-          tree = Pouch.merge(tree, path).tree;
-          len--;
-          if (len == 0){
-            draw(tree);
+      winner = doc._rev;
+      db.get(docId, {open_revs: "all"}, function(err, results){ // get all leaves
+        if(err){
+          call(callback, err);
+          return;
+        }
+        var len = results.length;
+        results.forEach(function(res){
+          if (res.ok._deleted) {
+            deleted[res.ok._rev] = true;
           }
+          db.get(docId, {rev: res.ok._rev, revs: true}, function(err, res){ // get the whole branch of current leaf
+            //console.log('revisions', res._revisions);
+            path = revisionsToPath(res._revisions);
+            //console.log(path);
+
+            tree = Pouch.merge(tree, path).tree;
+            len--;
+            if (len == 0){
+              draw(tree);
+            }
+          });
         });
       });
     });
 
     function draw(forest){
       console.log('forest', forest);
-      var toVisit = [];
-
       var grid = 10;
       var maxX = grid;
       var maxY = grid;
@@ -101,10 +111,9 @@ var visualizeRevTree = function(db) {
         maxX = Math.max(maxX, x);
         maxY = Math.max(maxY, y);
 
-        var nodeEl = circ(x, y, r, isLeaf);
+        var nodeEl = circ(x, y, r, isLeaf, rev in deleted, rev === winner);
         nodeEl.rev = rev;
         nodeEl.pos = pos;
-
         nodeEl.onclick = function() {
           var that = this;
           //console.log(this.pos + '-' + this.rev);
@@ -121,7 +130,6 @@ var visualizeRevTree = function(db) {
       call(callback, null, svg);
     }
   }
-
   return {'visualizeRevTree': visualize};
 };
 visualizeRevTree._delete = function(){};
