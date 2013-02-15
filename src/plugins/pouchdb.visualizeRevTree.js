@@ -1,16 +1,9 @@
 "use strict";
 var visualizeRevTree = function(db) {
-
-  var visualize = function(id, opts, callback) {
+  var visualize = function(docId, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
     }
-    var svgNS = "http://www.w3.org/2000/svg";
-    var svg = document.createElementNS(svgNS, "svg");
-    var linesBox = document.createElementNS(svgNS, "g");
-    svg.appendChild(linesBox);
-    var circlesBox = document.createElementNS(svgNS, "g");
-    svg.appendChild(circlesBox);
     var circ = function(x, y, r, isLeaf, isWinner, isDeleted) {
       var el = document.createElementNS(svgNS, "circle");
       el.setAttributeNS(null, "cx", x);
@@ -39,81 +32,95 @@ var visualizeRevTree = function(db) {
       linesBox.appendChild(el);
       return el;
     };
+    var svgNS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(svgNS, "svg");
+    var linesBox = document.createElementNS(svgNS, "g");
+    svg.appendChild(linesBox);
+    var circlesBox = document.createElementNS(svgNS, "g");
+    svg.appendChild(circlesBox);
 
-    db.get(id, {metadata: true}, function (err, res){
-      metadata = res.metadata;
-      var revs = res.metadata.rev_tree;
-      var toVisit = [];
+    function revisionsToPath(revisions){
+      var tree = [revisions.ids[0], []];
+      var i, rev;
+      for(i = 1; i < revisions.ids.length; i++){
+        rev = revisions.ids[i];
+        tree = [rev, [tree]];
+      }
+      return {
+        pos: revisions.start - revisions.ids.length + 1,
+        ids: tree
+      };
+    }
 
-      console.log('res', res);
-      revs.forEach(function(tree) {
-        toVisit.push({pos: tree.pos, ids: tree.ids});
+    // first we need to download all data using public API
+    tree = [];
+
+    db.get(docId, {open_revs: "all"}, function(err, res){
+      if(err){
+        call(callback, Pouch.Errors.MISSING_DOC);
+        return;
+      }
+      var len = res.length;
+      res.forEach(function(res){
+        db.get(docId, {rev: res.ok._rev, revs: true}, function(err, res){
+          //console.log('revisions', res._revisions);
+          path = revisionsToPath(res._revisions);
+          //console.log(path);
+
+          tree = Pouch.merge(tree, path).tree;
+          len--;
+          if (len == 0){
+            draw(tree);
+          }
+        });
       });
+    });
+
+    function draw(forest){
+      console.log('forest', forest);
+      var toVisit = [];
 
       var grid = 10;
       var maxX = grid;
       var maxY = grid;
       var r = 1;
-      var prevPos = 0;
-      var posCount = 0; // count elements on current depth
 
-      var winningRev = Pouch.merge.winningRev(metadata).split('-')[1];
+      var winningRev = 0; //Pouch.merge.winningRev(metadata).split('-')[1];
 
-      console.log('winner', winningRev);
-
-      while (toVisit.length > 0) {
-        console.log(toVisit);
-        var node = toVisit.shift(),
-            pos = node.pos,
-            tree = node.ids,
-            rev = tree[0],
-            children = tree[1],
-            isLeaf = (children.length === 0);
-
-        if (prevPos != pos) {
-          prevPos = pos;
-          posCount = 0;
+      var levelCount = []; // numer of nodes on some level (pos)
+      traverseRevTree(forest, function(isLeaf, pos, id, ctx) {
+        if (!levelCount[pos]) {
+          levelCount[pos] = 1;
         } else {
-          posCount++;
+          levelCount[pos]++;
         }
-        
-        var x = posCount * grid;
+
+        var rev = pos + '-' + id;
+        var x = levelCount[pos] * grid;
         var y = pos * grid;
         maxX = Math.max(maxX, x);
         maxY = Math.max(maxY, y);
 
-        var nodeEl = circ(x, y, r, isLeaf, winningRev === rev);
+        var nodeEl = circ(x, y, r, isLeaf);
         nodeEl.rev = rev;
         nodeEl.pos = pos;
-
-        (function(nodeEl){
-          console.log(nodeEl);
-          db.get(id, {rev: nodeEl.pos + '-' + nodeEl.rev}, function(err, doc){
-            if(doc._deleted) {
-              nodeEl.style.stroke = "#999";
-            }
-          });
-        })(nodeEl);
 
         nodeEl.onclick = function() {
           var that = this;
           //console.log(this.pos + '-' + this.rev);
-          db.get(id, {rev: this.pos + '-' + this.rev}, function(err, doc){
+          db.get(docId, {rev: this.rev}, function(err, doc){
             console.log(err, doc);
           });
         }
-        if (node.parentY) {
-          line(x, y, node.parentX, node.parentY); 
+        if (ctx) {
+          line(x, y, ctx.x, ctx.y); 
         }
-
-        children.forEach(function(branch) {
-          toVisit.push({pos: pos+1, ids: branch, parentX: x, parentY: y});
-        });
-      }
+        return {x: x, y:y};
+      });
       svg.setAttribute('viewBox', (-grid) + ' 0 ' + (maxX + 2 * grid) + ' ' + (maxY + grid));
-      call(callback, svg);
-    });
-  };
+      call(callback, null, svg);
+    }
+  }
 
   return {'visualizeRevTree': visualize};
 };

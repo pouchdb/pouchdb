@@ -243,6 +243,17 @@ var HttpPouch = function(opts, callback) {
       params.push('revs_info=true');
     }
 
+    // If it exists, add the opts.open_revs value to the list of parameters.
+    // If open_revs=all then the resulting JSON will include all the leaf
+    // revisions. If open_revs=["rev1", "rev2",...] then the resulting JSON
+    // will contain an array of objects containing data of all revisions
+    if (opts.open_revs) {
+      if (opts.open_revs !== "all") {
+        opts.open_revs = JSON.stringify(opts.open_revs);
+      }
+      params.push('open_revs=' + opts.open_revs);
+    }
+
     // If it exists, add the opts.attachments value to the list of parameters.
     // If attachments=true the resulting JSON will include the base64-encoded
     // contents in the "data" property of each attachment.
