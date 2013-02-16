@@ -257,12 +257,20 @@ adapters.map(function(adapter) {
             {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", pRevId]}}
           ];
           db.put(conflicts[0], {new_edits: false}, function(err, doc) {
+            console.log(doc);
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
+              console.log(doc);
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
+                console.log(doc);
                 db.get("3", {rev: "2-aaa"}, function(err, doc){
-                  console.log(err, doc);
-                  ok(doc._rev === "2-aaa", 'rev ok');
-                  start();
+                  ok(doc._rev === "2-aaa" && doc.value === "x", 'rev ok');
+                  db.get("3", {rev: "3-bbb"}, function(err, doc){
+                    ok(doc._rev === "3-bbb" && doc.value === "y", 'rev ok');
+                    db.get("3", {rev: "4-ccc"}, function(err, doc){
+                      ok(doc._rev === "4-ccc" && doc.value === "z", 'rev ok');
+                      start();
+                    });
+                  });
                 });
               });
             });
@@ -272,7 +280,6 @@ adapters.map(function(adapter) {
     });
   });
 
-/*
   asyncTest('Testing get with open_revs', function() {
     initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
@@ -296,8 +303,6 @@ adapters.map(function(adapter) {
                     return a._rev === b._rev ? 0 : a._rev < b._rev ? -1 : 1;
                   });
 
-                  console.log(res);
-
                   ok(res.length === conflicts.length, 'correct number of open_revs');
                   for (i = 0; i < conflicts.length; i++){
                     console.log(conflicts[i]._rev, res[i]._rev);
@@ -312,7 +317,6 @@ adapters.map(function(adapter) {
       });
     });
   });
-  */
 
   asyncTest('Test basic collation', function() {
     initTestDB(this.name, function(err, db) {
