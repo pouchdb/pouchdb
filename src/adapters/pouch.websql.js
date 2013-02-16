@@ -422,6 +422,10 @@ var webSqlPouch = function(opts, callback) {
         var key = opts.rev ? opts.rev : rev;
         var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE rev=?';
         tx.executeSql(sql, [key], function(tx, results) {
+          if (!results.rows.length) {
+            result = Pouch.Errors.MISSING_DOC;
+            return;
+          }
           var doc = JSON.parse(results.rows.item(0).json);
 
           if (opts.revs) {
@@ -438,6 +442,9 @@ var webSqlPouch = function(opts, callback) {
             doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
               return prev.concat(collectRevs(current));
             }, []);
+          }
+          if (opts.rev_tree) { // developers only option
+            doc.rev_tree = metadata.rev_tree;
           }
           if (opts.conflicts) {
             var conflicts = collectConflicts(metadata.rev_tree);
