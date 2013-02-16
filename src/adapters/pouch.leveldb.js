@@ -571,7 +571,7 @@ LevelPouch = module.exports = function(opts, callback) {
           rev: rev,
         });
 
-        if (/_local/.test(metadata.id)) {
+        if (Pouch.utils.isLocalId(metadata.id)) {
           return;
         }
 
@@ -600,6 +600,20 @@ LevelPouch = module.exports = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if ('keys' in opts) {
+      if ('startkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `start_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+      if ('endkey' in opts) {
+        call(callback, extend({
+          reason: 'Query parameter `end_key` is not compatible with multi-get'
+        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        return;
+      }
+    }
 
     var readstreamOpts = {
       reverse: false,
@@ -614,29 +628,39 @@ LevelPouch = module.exports = function(opts, callback) {
       readstreamOpts.reverse = true;
 
     var results = [];
-
+    var resultsMap = {};
     var docstream = stores[DOC_STORE].readStream(readstreamOpts);
     docstream.on('data', function(entry) {
       function allDocsInner(metadata, data) {
-        if (/_local/.test(metadata.id)) {
+        if (Pouch.utils.isLocalId(metadata.id)) {
           return;
         }
-        if (!isDeleted(metadata)) {
-          var result = {
-            id: metadata.id,
-            key: metadata.id,
-            value: {
-              rev: Pouch.merge.winningRev(metadata)
-            }
-          };
-          if (opts.include_docs) {
-            result.doc = data;
-            result.doc._rev = result.value.rev;
-            if (opts.conflicts) {
-              result.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
-            }
+        var doc = {
+          id: metadata.id,
+          key: metadata.id,
+          value: {
+            rev: Pouch.merge.winningRev(metadata)
           }
-          results.push(result);
+        };
+        if (opts.include_docs) {
+          doc.doc = data;
+          doc.doc._rev = doc.value.rev;
+          if (opts.conflicts) {
+            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+          }
+        }
+        if ('keys' in opts) {
+          if (opts.keys.indexOf(metadata.id) > -1) {
+            if (isDeleted(metadata)) {
+              doc.value.deleted = true;
+              doc.doc = null;
+            }
+            resultsMap[doc.id] = doc;
+          }
+        } else {
+          if(!isDeleted(metadata)) {
+            results.push(doc);
+          }
         }
       }
       if (opts.include_docs) {
@@ -656,10 +680,22 @@ LevelPouch = module.exports = function(opts, callback) {
     docstream.on('end', function() {
     });
     docstream.on('close', function() {
+      if ('keys' in opts) {
+        opts.keys.forEach(function(key) {
+          if (key in resultsMap) {
+            results.push(resultsMap[key]);
+          } else {
+            results.push({"key": key, "error": "not_found"});
+          }
+        });
+        if (opts.descending) {
+          results.reverse();
+        }
+      }
       return call(callback, null, {
         total_rows: results.length,
-        rows: results,
-      });
+        rows: results
+      }); 
     });
   }
 
@@ -730,12 +766,12 @@ LevelPouch = module.exports = function(opts, callback) {
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
-          if (/_local/.test(data.key)) {
+          if (Pouch.utils.isLocalId(data.key)) {
             return;
           }
 
           stores[DOC_STORE].get(data.value._id, function(err, metadata) {
-            if (/_local/.test(metadata.id)) {
+            if (Pouch.utils.isLocalId(metadata.id)) {
               return;
             }
 
