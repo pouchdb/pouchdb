@@ -28,3 +28,7 @@ var PouchAdapter = function(opts, callback) {
 
   return adapter;
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PouchAdapter;
+}

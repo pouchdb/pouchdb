@@ -166,6 +166,7 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.utils = require('./pouch.utils.js');
   module.exports = Pouch;
 
+  var PouchAdapter = require('./pouch.adapter.js');
   // load adapters known to work under node
   var adapters = ['leveldb', 'http'];
   adapters.map(function(adapter) {
