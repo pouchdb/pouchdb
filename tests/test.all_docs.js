@@ -257,11 +257,8 @@ adapters.map(function(adapter) {
             {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", pRevId]}}
           ];
           db.put(conflicts[0], {new_edits: false}, function(err, doc) {
-            console.log(doc);
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
-              console.log(doc);
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
-                console.log(doc);
                 db.get("3", {rev: "2-aaa"}, function(err, doc){
                   ok(doc._rev === "2-aaa" && doc.value === "x", 'rev ok');
                   db.get("3", {rev: "3-bbb"}, function(err, doc){
@@ -305,7 +302,6 @@ adapters.map(function(adapter) {
 
                   ok(res.length === conflicts.length, 'correct number of open_revs');
                   for (i = 0; i < conflicts.length; i++){
-                    console.log(conflicts[i]._rev, res[i]._rev);
                     ok(conflicts[i]._rev === res[i]._rev, 'correct rev');
                   }
                   start();

@@ -160,7 +160,6 @@ adapters.map(function(adapter) {
         continuous: true,
         include_docs: true,
         onChange: function(change){
-          console.log(change);
           if(change.seq == 2){
             ok(change.doc._deleted, 'Doc deleted properly');
             changes.cancel();
