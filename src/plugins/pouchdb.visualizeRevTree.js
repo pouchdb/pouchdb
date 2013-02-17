@@ -1,5 +1,24 @@
 "use strict";
 var visualizeRevTree = function(db) {
+  // see: pouch.utils.js
+  var traverseRevTree = function(revs, callback) {
+    var toVisit = [];
+
+    revs.forEach(function(tree) {
+      toVisit.push({pos: tree.pos, ids: tree.ids});
+    });
+
+    while (toVisit.length > 0) {
+      var node = toVisit.pop(),
+      pos = node.pos,
+      tree = node.ids;
+      var newCtx = callback(tree[1].length == 0, pos, tree[0], node.ctx);
+      tree[1].forEach(function(branch) {
+        toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
+      });
+    }
+  }
+
   var visualize = function(docId, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
@@ -53,19 +72,20 @@ var visualizeRevTree = function(db) {
     }
 
     // first we need to download all data using public API
-    tree = [];
+    var tree = [];
     var deleted = {};
     var winner;
 
+    // consider using revs=true&open_revs=all to get everything in one query
     db.get(docId, function(err, doc){ // get winning revision here
       if (err) {
-        call(callback, err);
+        callback(err);
         return;
       }
       winner = doc._rev;
       db.get(docId, {open_revs: "all"}, function(err, results){ // get all leaves
         if(err){
-          call(callback, err);
+          callback(err);
           return;
         }
         var len = results.length;
@@ -74,10 +94,7 @@ var visualizeRevTree = function(db) {
             deleted[res.ok._rev] = true;
           }
           db.get(docId, {rev: res.ok._rev, revs: true}, function(err, res){ // get the whole branch of current leaf
-            //console.log('revisions', res._revisions);
-            path = revisionsToPath(res._revisions);
-            //console.log(path);
-
+            var path = revisionsToPath(res._revisions);
             tree = Pouch.merge(tree, path).tree;
             len--;
             if (len == 0){
@@ -89,14 +106,10 @@ var visualizeRevTree = function(db) {
     });
 
     function draw(forest){
-      console.log('forest', forest);
       var grid = 10;
       var maxX = grid;
       var maxY = grid;
       var r = 1;
-
-      var winningRev = 0; //Pouch.merge.winningRev(metadata).split('-')[1];
-
       var levelCount = []; // numer of nodes on some level (pos)
       traverseRevTree(forest, function(isLeaf, pos, id, ctx) {
         if (!levelCount[pos]) {
@@ -116,18 +129,17 @@ var visualizeRevTree = function(db) {
         nodeEl.pos = pos;
         nodeEl.onclick = function() {
           var that = this;
-          //console.log(this.pos + '-' + this.rev);
           db.get(docId, {rev: this.rev}, function(err, doc){
-            console.log(err, doc);
+            console.log(that.rev, err, doc);
           });
         }
         if (ctx) {
           line(x, y, ctx.x, ctx.y); 
         }
-        return {x: x, y:y};
+        return {x: x, y: y};
       });
       svg.setAttribute('viewBox', (-grid) + ' 0 ' + (maxX + 2 * grid) + ' ' + (maxY + grid));
-      call(callback, null, svg);
+      callback(null, svg);
     }
   }
   return {'visualizeRevTree': visualize};
