@@ -825,24 +825,6 @@ LevelPouch = module.exports = function(opts, callback) {
     }
   }
 
-  api.replicate = {}
-
-  api.replicate.from = function(url, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(url, api, opts, callback);
-  }
-
-  api.replicate.to = function(dbname, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(api, dbname, opts, callback);
-  }
-
   api.close = function(callback) {
     if (!opened) {
       return call(callback, Pouch.Errors.NOT_OPEN);
