@@ -18,34 +18,33 @@ adapters.map(function(adapter) {
 
   qunit("basics: " + adapter, {
     setup: function() {
-      this.name = generateAdapterUrl(adapter);
+      //this.name = generateAdapterUrl(adapter);
     },
     teardown: function() {
-      if (!PERSIST_DATABASES) {
+      /*if (!PERSIST_DATABASES) {
         Pouch.destroy(this.name);
-      }
+      }*/
     }
   });
 
   asyncTest("Create a pouch", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'created a pouch');
       start();
     });
   });
 
   asyncTest("Remove a pouch", 1, function() {
-    var name = this.name;
-    initTestDB(name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       Pouch.destroy(name, function(err, db) {
-        ok(!err);
         start();
+        ok(!err);
       });
     });
   });
 
   asyncTest("Add a doc", 2, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({test:"somestuff"}, function (err, info) {
         ok(!err, 'saved a doc with post');
@@ -56,7 +55,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Modify a doc", 3, function() {
     console.info('testing: Modify a doc');
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({test: "somestuff"}, function (err, info) {
         ok(!err, 'saved a doc with post');
@@ -69,7 +68,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Modify a doc with incorrect rev", 3, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({test: "somestuff"}, function (err, info) {
         ok(!err, 'saved a doc with post');
@@ -83,7 +82,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Get doc", 2, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         db.get(info.id, function(err, doc) {
           ok(doc.test);
@@ -97,7 +96,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Add a doc with leading underscore in id", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({_id: '_testing', value: 42}, function(err, info) {
         ok(err);
         start();
@@ -106,7 +105,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Get revisions of removed doc", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         var rev = info.rev;
         db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
@@ -120,7 +119,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Remove doc", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
           db.get(info.id, function(err) {
@@ -133,7 +132,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Remove doc twice with specified id", 4, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.put({_id:"specifiedId", test:"somestuff"}, function(err, info) {
         db.get("specifiedId", function(err, doc) {
           ok(doc.test, "Put and got doc");
@@ -155,7 +154,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Remove doc, no callback", 2, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var changes = db.changes({
         continuous: true,
         include_docs: true,
@@ -176,7 +175,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Get design doc", 2, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.put({_id: '_design/someid', test:"somestuff"}, function(err, info) {
         db.get(info.id, function(err, doc) {
           ok(doc.test);
@@ -190,7 +189,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Delete document without id", 1, function () {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.remove({test:'ing'}, function(err) {
         ok(err, 'failed to delete');
         start();
@@ -199,7 +198,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Bulk docs", 3, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'opened the pouch');
       db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
         ok(!infos[0].error);
@@ -212,7 +211,7 @@ adapters.map(function(adapter) {
   /*
   asyncTest("Sync a doc", 6, function() {
     var couch = generateAdapterUrl('http-2');
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'opened the pouch');
       initTestDB(couch, function(err, db2) {
         ok(!err, 'opened the couch');
@@ -235,7 +234,7 @@ adapters.map(function(adapter) {
   */
 
   asyncTest("Check revisions", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
         db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
           db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
@@ -261,7 +260,7 @@ adapters.map(function(adapter) {
   */
 
   asyncTest("Basic checks", 8, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.info(function(err, info) {
         var updateSeq = info.update_seq;
         var doc = {_id: '0', a: 1, b:1};
@@ -289,7 +288,7 @@ adapters.map(function(adapter) {
   asyncTest("Testing Rev format", 2, function() {
     console.info('testing: Rev format');
     var revs = [];
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
         revs.unshift(info.rev.split('-')[1]);
         db.put({_id: info.id, _rev: info.rev, another: 'test1'}, function(err, info2) {
@@ -313,7 +312,7 @@ adapters.map(function(adapter) {
     var x = 0;
     var timer;
 
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var save = function() {
         db.bulkDocs({docs: docs}, function(err, res) {
           if (++x === 10) {
@@ -328,7 +327,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Testing valid id", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({'_id': 123, test: "somestuff"}, function (err, info) {
         ok(err, 'id must be a string');
         start();
@@ -337,7 +336,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Put doc without _id should fail", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.put({test:"somestuff"}, function(err, info) {
         ok(err, '_id is required');
         start();
@@ -346,7 +345,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Retrieve old revision", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({version: "first"}, function (err, info) {
         var firstrev = info.rev;
@@ -363,7 +362,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('update_seq persists', 2, function() {
-    var name = this.name;
+    var name = generateAdapterUrl(adapter);
     initTestDB(name, function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
         Pouch(name, function(err, db) {

@@ -52,7 +52,7 @@ var Pouch = function Pouch(name, opts, callback) {
   }
 };
 
-Pouch.DEBUG = false;
+Pouch.DEBUG = true;
 
 Pouch.adapters = {};
 Pouch.plugins = {};
