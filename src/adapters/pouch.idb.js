@@ -507,7 +507,7 @@ var IdbPouch = function(opts, callback) {
       };
     }
     return;
-  }
+  };
 
   api.put = function(doc, opts, callback) {
     if (typeof opts === 'function') {
@@ -519,7 +519,7 @@ var IdbPouch = function(opts, callback) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
     return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
-  }
+  };
 
   api.post = function idb_put(doc, opts, callback) {
     if (typeof opts === 'function') {
@@ -986,60 +986,6 @@ var IdbPouch = function(opts, callback) {
   return api;
 };
 
-IdbPouch.open = function idb_open(name, version, callback) {
-  var cb = function(err) {
-    if (err) {
-      callback(err);
-    } else {
-      callback(null, indexedDB.open(name, POUCH_VERSION));
-    }
-  };
-
-  if (name === Pouch.ALL_DBS) {
-    return cb();
-  } else {
-    Pouch("idb://" + Pouch.ALL_DBS, function(err, db) {
-      if (err) {
-        callback(err);
-        return;
-      }
-
-      // check if db has been registered in Pouch.ALL_DBS
-      var map = function(doc) {
-        if (doc.name === name) {
-          emit(doc.id, doc);
-        }
-      };
-
-      db.query({map: map}, function(err, response) {
-        if (err) {
-          callback(err);
-          return;
-        }
-
-        if (response.rows.length === 0) {
-          db.post({
-            name: name,
-            version: version
-          }, cb);
-        } else {
-          // check if document is up-to-date
-          var doc = response.rows[0];
-          if (doc.value.version !== version) {
-            doc = doc.value;
-            // update doc's version
-            doc.version = version;
-            db.put(doc, cb);
-          } else {
-            // doc is up-to-date.
-            cb();
-          }
-        }
-      });
-    });
-  }
-};
-
 IdbPouch.valid = function idb_valid() {
   if (!document.location.host) {
     console.error('indexedDB cannot be used in pages served from the filesystem');
@@ -1051,52 +997,16 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
   if (Pouch.DEBUG) {
     console.log(name + ': Delete Database');
   }
+  //delete the db id from localStorage so it doesn't get reused.
+  delete localStorage[name+"_id"];
+  IdbPouch.Changes.clearListeners(name);
+  var req = indexedDB.deleteDatabase(name);
 
-  // remove db from Pouch.ALL_DBS
-  Pouch("idb://" + Pouch.ALL_DBS, function(err, db) {
-      if (err) {
-        callback(err);
-        return;
-      }
-      // check if db has been registered in Pouch.ALL_DBS
-      var map = function(doc) {
-        if (doc.name === name) {
-          emit(doc.id, doc);
-        }
-      };
+  req.onsuccess = function() {
+    call(callback, null);
+  };
 
-      db.query({map: map}, function(err, response) {
-        if (err) {
-          callback(err);
-          return;
-        }
-
-        var cb = function(err, response) {
-          if (err) {
-            callback(err);
-            return;
-          }
-
-          //delete the db id from localStorage so it doesn't get reused.
-          delete localStorage[name+"_id"];
-          IdbPouch.Changes.clearListeners(name);
-          var req = indexedDB.deleteDatabase(name);
-
-          req.onsuccess = function() {
-            call(callback, null);
-          };
-
-          req.onerror = idbError(callback);
-        };
-
-        if (response.rows.length === 0) {
-          cb();
-        } else {
-          var doc = response.rows[0].value;
-          db.remove(doc, cb);
-        }
-      });
-  });
+  req.onerror = idbError(callback);
 };
 
 IdbPouch.Changes = (function() {

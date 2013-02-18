@@ -28,33 +28,51 @@ var Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = Pouch.adapters[opts.adapter](opts, function(err, db) {
+  var that = this;
+  var cb = function(err) {
     if (err) {
-      if (callback) callback(err);
+      if (callback) {
+        callback(err);
+      }
       return;
     }
-    for (var plugin in Pouch.plugins) {
-      // In future these will likely need to be async to allow the plugin
-      // to initialise
-      var pluginObj = Pouch.plugins[plugin](db);
-      for (var api in pluginObj) {
-        // We let things like the http adapter use its own implementation
-        // as it shares a lot of code
-        if (!(api in db)) {
-          db[api] = pluginObj[api];
+
+    var adapter = Pouch.adapters[opts.adapter](opts, function(err, db) {
+      if (err) {
+        if (callback) {
+          callback(err);
+        }
+        return;
+      }
+      for (var plugin in Pouch.plugins) {
+        // In future these will likely need to be async to allow the plugin
+        // to initialise
+        var pluginObj = Pouch.plugins[plugin](db);
+        for (var api in pluginObj) {
+          // We let things like the http adapter use its own implementation
+          // as it shares a lot of code
+          if (!(api in db)) {
+            db[api] = pluginObj[api];
+          }
         }
       }
+      callback(null, db);
+    });
+    for (var j in adapter) {
+      that[j] = adapter[j];
     }
-    callback(null, db);
-  });
-  for (var j in adapter) {
-    this[j] = adapter[j];
+  };
+
+  // Don't call Pouch.open for ALL_DBS
+  // Pouch.open saves the db's name into ALL_DBS
+  if (name === Pouch.allDBName(opts.adapter)) {
+    cb();
+  } else {
+    Pouch.open(opts.adapter, opts.name, cb);
   }
 };
 
 Pouch.DEBUG = false;
-// name of database used to keep track of databases
-Pouch.ALL_DBS = "_all_dbs";
 
 Pouch.adapters = {};
 Pouch.plugins = {};
@@ -85,13 +103,53 @@ Pouch.parseAdapter = function(name) {
   throw 'No Valid Adapter.';
 };
 
-
 Pouch.destroy = function(name, callback) {
-  for (var plugin in Pouch.plugins) {
-    Pouch.plugins[plugin]._delete(name);
-  }
   var opts = Pouch.parseAdapter(name);
-  Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+
+  // remove db from Pouch.ALL_DBS
+  new Pouch(Pouch.allDBName(opts.adapter), function(err, db) {
+    if (err) {
+      callback(err);
+      return;
+    }
+    // check if db has been registered in Pouch.ALL_DBS
+    var map = function(doc) {
+      emit(doc.name, doc);
+    };
+    db.query({map: map},{
+      key: opts.name,
+      reduce: false
+    }, function(err, response) {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      var cb = function(err, response) {
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        for (var plugin in Pouch.plugins) {
+          Pouch.plugins[plugin]._delete(name);
+        }
+        if (Pouch.DEBUG) {
+          console.log(name + ': Delete Database');
+        }
+
+        // call destroy method of the particular adaptor
+        Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+      };
+
+      if (response.rows.length === 0) {
+        cb();
+      } else {
+        var doc = response.rows[0].value;
+        db.remove(doc, cb);
+      }
+    });
+  });
 };
 
 Pouch.adapter = function (id, obj) {
@@ -102,6 +160,78 @@ Pouch.adapter = function (id, obj) {
 
 Pouch.plugin = function(id, obj) {
   Pouch.plugins[id] = obj;
+};
+
+// name of database used to keep track of databases
+Pouch.ALL_DBS = "_all_dbs";
+Pouch.allDBName = function(adapter) {
+  return [adapter, "://", Pouch.ALL_DBS].join('');
+};
+
+Pouch.open = function(adapter, name, callback) {
+  new Pouch(Pouch.allDBName(adapter), function(err, db) {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    // check if db has been registered in Pouch.ALL_DBS
+    var map = function(doc) {
+      emit(doc.name, doc);
+    };
+    db.query({map: map},{
+      key: name,
+      reduce: false
+    }, function(err, response) {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      if (response.rows.length === 0) {
+        db.post({
+          name: name
+        }, callback);
+      } else {
+          callback();
+      }
+    });
+  });
+};
+
+Pouch._all_dbs = function(callback) {
+  var accumulate = function(adapters, all_dbs) {
+    if (adapters.length === 0) {
+      callback(null, all_dbs);
+      return;
+    }
+
+    var adapter = adapters.shift();
+    if (adapter === "http" || adapter === "https") {
+      accumulate(adapters, all_dbs);
+    } else {
+      new Pouch(Pouch.allDBName(adapter), function(err, db) {
+        if (err) {
+          callback(err);
+          return;
+        }
+        db.allDocs({include_docs: true}, function(err, response) {
+          if (err) {
+            callback(err);
+            return;
+          }
+
+          // append from current adapter rows
+          all_dbs.unshift.apply(all_dbs, response.rows);
+
+          // recurse
+          accumulate(adapters, all_dbs);
+        });
+      });
+    }
+  };
+  var adapters = Object.keys(Pouch.adapters);
+  accumulate(adapters, []);
 };
 
 // Enumerate errors, add the status code so we can reflect the HTTP api
