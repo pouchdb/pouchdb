@@ -12,12 +12,12 @@ var visualizeRevTree = function(db) {
       var node = toVisit.pop(),
       pos = node.pos,
       tree = node.ids;
-      var newCtx = callback(tree[1].length == 0, pos, tree[0], node.ctx);
+      var newCtx = callback(tree[1].length === 0, pos, tree[0], node.ctx);
       tree[1].forEach(function(branch) {
         toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
       });
     }
-  }
+  };
 
   var visualize = function(docId, opts, callback) {
     if (typeof opts === 'function') {
@@ -97,7 +97,7 @@ var visualizeRevTree = function(db) {
             var path = revisionsToPath(res._revisions);
             tree = Pouch.merge(tree, path).tree;
             len--;
-            if (len == 0){
+            if (len === 0){
               draw(tree);
             }
           });
@@ -132,16 +132,16 @@ var visualizeRevTree = function(db) {
           db.get(docId, {rev: this.rev}, function(err, doc){
             console.log(that.rev, err, doc);
           });
-        }
+        };
         if (ctx) {
           line(x, y, ctx.x, ctx.y); 
         }
         return {x: x, y: y};
       });
-      svg.setAttribute('viewBox', (-grid) + ' 0 ' + (maxX + 2 * grid) + ' ' + (maxY + grid));
+      svg.setAttribute('viewBox', '0 0 ' + (maxX + grid) + ' ' + (maxY + grid));
       callback(null, svg);
     }
-  }
+  };
   return {'visualizeRevTree': visualize};
 };
 visualizeRevTree._delete = function(){};
