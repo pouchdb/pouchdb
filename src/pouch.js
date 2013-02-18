@@ -53,6 +53,8 @@ var Pouch = function Pouch(name, opts, callback) {
 };
 
 Pouch.DEBUG = false;
+// name of database used to keep track of databases
+Pouch.ALL_DBS = "_all_dbs";
 
 Pouch.adapters = {};
 Pouch.plugins = {};
