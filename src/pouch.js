@@ -155,6 +155,11 @@ Pouch.Errors = {
     status: 400,
     error: 'query_parse_error',
     reason: 'Some query parameter is invalid'
+  },
+  BAD_REQUEST: {
+    status: 400,
+    error: 'bad_request',
+    reason: 'Something wrong with the request'
   }
 };
 

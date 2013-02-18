@@ -17,7 +17,7 @@
   //
   // KeyTree = [Path ... ]
   // Path = {pos: position_from_root, ids: Tree}
-  // Tree = [Key, Tree]
+  // Tree = [Key, [Tree, ...]], in particular single node: [Key, []]
 
   // Turn a path as a flat array into a tree with a single branch
   function pathToTree(path) {

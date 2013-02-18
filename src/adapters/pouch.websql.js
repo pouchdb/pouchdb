@@ -405,6 +405,7 @@ var webSqlPouch = function(opts, callback) {
     }
 
     var result;
+    var leaves;
     db.transaction(function(tx) {
       var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
       tx.executeSql(sql, [id.docId], function(tx, results) {
@@ -418,10 +419,25 @@ var webSqlPouch = function(opts, callback) {
           return;
         }
 
+        if (opts.open_revs) {
+          if (opts.open_revs === "all") {
+            leaves = collectLeaves(metadata.rev_tree).map(function(leaf){
+              return leaf.rev;
+            });
+          } else {
+            leaves = opts.open_revs; // should be some validation here
+          }
+          return; // open_revs can be used only with revs
+        }
+
         var rev = Pouch.merge.winningRev(metadata);
         var key = opts.rev ? opts.rev : rev;
         var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE rev=?';
         tx.executeSql(sql, [key], function(tx, results) {
+          if (!results.rows.length) {
+            result = Pouch.Errors.MISSING_DOC;
+            return;
+          }
           var doc = JSON.parse(results.rows.item(0).json);
 
           if (opts.revs) {
@@ -434,11 +450,13 @@ var webSqlPouch = function(opts, callback) {
               ids: path.ids
             };
           }
+
           if (opts.revs_info) {
             doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
               return prev.concat(collectRevs(current));
             }, []);
           }
+
           if (opts.conflicts) {
             var conflicts = collectConflicts(metadata.rev_tree);
             if (conflicts.length) {
@@ -468,12 +486,34 @@ var webSqlPouch = function(opts, callback) {
         });
       });
     }, unknownError(callback), function() {
+      if (leaves) {
+        result = [];
+        var count = leaves.length;
+        leaves.forEach(function(leaf){
+          api.get(id.docId, {rev: leaf}, function(err, doc){
+            if (!err) {
+              result.push({ok: doc});
+            } else {
+              result.push({missing: leaf});
+            }
+            count--;
+            if(!count) {
+              finish();
+            }
+          });
+        });
+      } else {
+        finish();
+      }
+    });
+
+    function finish(){
       if ('error' in result) {
         call(callback, result);
       } else {
         call(callback, null, result);
       }
-    });
+    }
   };
 
   api.allDocs = function(opts, callback) {
