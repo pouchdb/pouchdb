@@ -231,7 +231,7 @@ var collectConflicts = function(revs,deletions) {
   for(var i = 0; i < leaves.length; i++){
      var leaf = leaves.shift();
      var rev = leaf.rev.split("-")[1]; 
-     if(!deletions[rev]){
+     if(deletions && !deletions[rev]){
          leaves.push(leaf);
      } 
   }
