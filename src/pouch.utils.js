@@ -225,8 +225,17 @@ var collectLeaves = function(revs) {
   return leaves;
 }
 
-var collectConflicts = function(revs) {
+var collectConflicts = function(revs,deletions) {
+  // Remove all deleted leaves
   var leaves = collectLeaves(revs);
+  for(var i = 0; i < leaves.length; i++){
+     var leaf = leaves.shift();
+     var rev = leaf.rev.split("-")[1]; 
+     if(!deletions[rev]){
+         leaves.push(leaf);
+     } 
+  }
+
   // First is current rev
   leaves.shift();
   return leaves.map(function(x) { return x.rev; });
