@@ -105,6 +105,29 @@ Pouch.parseAdapter = function(name) {
 
 Pouch.destroy = function(name, callback) {
   var opts = Pouch.parseAdapter(name);
+  var cb = function(err, response) {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    for (var plugin in Pouch.plugins) {
+      Pouch.plugins[plugin]._delete(name);
+    }
+    if (Pouch.DEBUG) {
+      console.log(name + ': Delete Database');
+    }
+
+    // call destroy method of the particular adaptor
+    Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+  };
+
+  // skip http and https adaptors for _all_dbs
+  var adapter = opts.adapter;
+  if (adapter === "http" || adapter === "https") {
+    cb();
+    return;
+  }
 
   // remove db from Pouch.ALL_DBS
   new Pouch(Pouch.allDBName(opts.adapter), function(err, db) {
@@ -124,23 +147,6 @@ Pouch.destroy = function(name, callback) {
         callback(err);
         return;
       }
-
-      var cb = function(err, response) {
-        if (err) {
-          callback(err);
-          return;
-        }
-
-        for (var plugin in Pouch.plugins) {
-          Pouch.plugins[plugin]._delete(name);
-        }
-        if (Pouch.DEBUG) {
-          console.log(name + ': Delete Database');
-        }
-
-        // call destroy method of the particular adaptor
-        Pouch.adapters[opts.adapter].destroy(opts.name, callback);
-      };
 
       if (response.rows.length === 0) {
         cb();
@@ -169,6 +175,12 @@ Pouch.allDBName = function(adapter) {
 };
 
 Pouch.open = function(adapter, name, callback) {
+  // skip http and https adaptors for _all_dbs
+  if (adapter === "http" || adapter === "https") {
+    callback();
+    return;
+  }
+
   new Pouch(Pouch.allDBName(adapter), function(err, db) {
     if (err) {
       callback(err);
@@ -207,28 +219,31 @@ Pouch._all_dbs = function(callback) {
     }
 
     var adapter = adapters.shift();
+
+    // skip http and https adaptors for _all_dbs
     if (adapter === "http" || adapter === "https") {
       accumulate(adapters, all_dbs);
-    } else {
-      new Pouch(Pouch.allDBName(adapter), function(err, db) {
+      return;
+    }
+
+    new Pouch(Pouch.allDBName(adapter), function(err, db) {
+      if (err) {
+        callback(err);
+        return;
+      }
+      db.allDocs({include_docs: true}, function(err, response) {
         if (err) {
           callback(err);
           return;
         }
-        db.allDocs({include_docs: true}, function(err, response) {
-          if (err) {
-            callback(err);
-            return;
-          }
 
-          // append from current adapter rows
-          all_dbs.unshift.apply(all_dbs, response.rows);
+        // append from current adapter rows
+        all_dbs.unshift.apply(all_dbs, response.rows);
 
-          // recurse
-          accumulate(adapters, all_dbs);
-        });
+        // recurse
+        accumulate(adapters, all_dbs);
       });
-    }
+    });
   };
   var adapters = Object.keys(Pouch.adapters);
   accumulate(adapters, []);
