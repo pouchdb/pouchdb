@@ -137,7 +137,9 @@ Pouch.destroy = function(name, callback) {
     }
     // check if db has been registered in Pouch.ALL_DBS
     var map = function(doc) {
-      emit(doc.name, doc);
+      if (doc.name) {
+        emit(doc.name, doc);
+      }
     };
     db.query({map: map},{
       key: opts.name,
@@ -189,7 +191,9 @@ Pouch.open = function(adapter, name, callback) {
 
     // check if db has been registered in Pouch.ALL_DBS
     var map = function(doc) {
-      emit(doc.name, doc);
+      if (doc.name) {
+        emit(doc.name, doc);
+      }
     };
     db.query({map: map},{
       key: name,
