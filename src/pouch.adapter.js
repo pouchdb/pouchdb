@@ -17,7 +17,7 @@ var PouchAdapter = function(opts, callback) {
         opts = {};
       }
       return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
-    }
+    };
   }
 
   if (!api.put) {
@@ -32,7 +32,7 @@ var PouchAdapter = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_ID);
       }
       return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
-    }
+    };
 
   }
 
