@@ -10,7 +10,7 @@ var PouchAdapter = function(opts, callback) {
 
   api.replicate = {};
 
-  if (!api.post) {
+  if (!api.hasOwnProperty('post')) {
     api.post = function (doc, opts, callback) {
       if (typeof opts === 'function') {
         callback = opts;
@@ -20,7 +20,7 @@ var PouchAdapter = function(opts, callback) {
     };
   }
 
-  if (!api.put) {
+  if (!api.hasOwnProperty('put')) {
 
     api.put = function(doc, opts, callback) {
       if (typeof opts === 'function') {
@@ -36,7 +36,7 @@ var PouchAdapter = function(opts, callback) {
 
   }
 
-  if (!api.putAttachment) {
+  if (!api.hasOwnProperty('putAttachment')) {
     api.putAttachment = api.putAttachment = function (id, rev, doc, type, callback) {
       id = parseDocId(id);
       api.get(id.docId, {attachments: true}, function(err, obj) {
@@ -50,8 +50,8 @@ var PouchAdapter = function(opts, callback) {
     };
   }
 
-  if (!api.removeAttachment) {
-     api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
+  if (!api.hasOwnProperty('removeAttachment')) {
+     api.removeAttachment = function (id, rev, callback) {
       id = parseDocId(id);
       api.get(id.docId, function(err, obj) {
         if (err) {
@@ -71,7 +71,7 @@ var PouchAdapter = function(opts, callback) {
     };
   }
 
-  if (!api.remove) {
+  if (!api.hasOwnProperty('remove')) {
     api.remove = function (doc, opts, callback) {
       if (typeof opts === 'function') {
         callback = opts;
@@ -88,8 +88,8 @@ var PouchAdapter = function(opts, callback) {
 
   }
 
-  if (!api.revsDiff) {
-    api.revsDiff = function idb_revsDiff(req, opts, callback) {
+  if (!api.hasOwnProperty('revsDiff')) {
+    api.revsDiff = function (req, opts, callback) {
       if (typeof opts === 'function') {
         callback = opts;
         opts = {};
