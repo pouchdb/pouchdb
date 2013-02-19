@@ -10,7 +10,7 @@ var http_proxy = require("http-proxy");
 
 var srcFiles = [
   "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
-  "src/pouch.replicate.js", "src/pouch.utils.js",
+  "src/pouch.replicate.js", "src/pouch.utils.js", "src/pouch.adapter.js",
   "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js",
   "src/adapters/pouch.websql.js", "src/plugins/pouchdb.mapreduce.js"
 ];
@@ -30,11 +30,11 @@ var browserConfig = [{
   version: '17',
   platform: 'Windows 2003',
   name: 'win2003/firefox'
-}, {
-  browserName: 'opera',
-  version: '12',
-  platform: 'Windows 2008',
-  name: 'win2008/opera'
+// }, {
+//   browserName: 'opera',
+//   version: '12',
+//   platform: 'Windows 2008',
+//   name: 'win2008/opera'
 }];
 
 module.exports = function(grunt) {
@@ -49,7 +49,7 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " +
           "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
         bottom : " return Pouch });"
       }

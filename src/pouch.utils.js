@@ -268,6 +268,7 @@ var writeCheckpoint = function(src, target, opts, checkpoint, callback) {
   });
 };
 
+// returns first element of arr satisfying callback predicate
 var arrayFirst = function(arr, callback) {
   for (var i = 0; i < arr.length; i++) {
     if (callback(arr[i], i) === true) {
@@ -289,6 +290,8 @@ var filterChange = function(opts) {
   }
 };
 
+// returns array of all branches from root to leaf in the ids form:
+// [[id, ...], ...]
 var rootToLeaf = function(tree) {
   var paths = [];
   traverseRevTree(tree, function(isLeaf, pos, id, history) {

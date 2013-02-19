@@ -179,13 +179,46 @@ LevelPouch = module.exports = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
+      if (opts.open_revs) {
+        if (opts.open_revs === "all") {
+          leaves = collectLeaves(metadata.rev_tree).map(function(leaf){
+            return leaf.rev;
+          });
+        } else {
+          leaves = opts.open_revs; // should be some validation here
+        }
+        var result = [];
+        var count = leaves.length;
+        leaves.forEach(function(leaf){
+          api.get(id.docId, {rev: leaf}, function(err, doc){
+            if (!err) {
+              result.push({ok: doc});
+            } else {
+              result.push({missing: leaf});
+            }
+            count--;
+            if(!count) {
+              call(callback, null, result);
+            }
+          });
+        });
+        return; // open_revs can be used only with revs
+      }
+
       var seq = opts.rev
         ? metadata.rev_map[opts.rev]
         : metadata.seq;
 
+      var rev = Pouch.merge.winningRev(metadata);
+      rev = opts.rev ? opts.rev : rev;
+
       stores[BY_SEQ_STORE].get(seq, function(err, doc) {
+        if (!doc) {
+          return call(callback, Pouch.Errors.MISSING_DOC);
+        }
+
         doc._id = metadata.id;
-        doc._rev = Pouch.merge.winningRev(metadata);
+        doc._rev = rev;
 
         if (opts.revs) {
           var path = Pouch.utils.arrayFirst(
@@ -823,24 +856,6 @@ LevelPouch = module.exports = function(opts, callback) {
         }
       }
     }
-  }
-
-  api.replicate = {}
-
-  api.replicate.from = function(url, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(url, api, opts, callback);
-  }
-
-  api.replicate.to = function(dbname, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(api, dbname, opts, callback);
   }
 
   api.close = function(callback) {
