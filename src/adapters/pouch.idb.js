@@ -298,7 +298,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
-        docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
+      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
 
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
