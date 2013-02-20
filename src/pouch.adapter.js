@@ -4,8 +4,6 @@
  * A generic pouch adapter
  */
 var PouchAdapter = function(opts, callback) {
-  var api = {};
-
   var api = Pouch.adapters[opts.adapter](opts, callback);
 
   api.replicate = {};

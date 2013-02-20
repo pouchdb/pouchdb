@@ -692,6 +692,7 @@ var webSqlPouch = function(opts, callback) {
       });
     }
   }
+  return api;
 }
 
 webSqlPouch.valid = function() {
