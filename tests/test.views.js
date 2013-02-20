@@ -1,3 +1,6 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false */
+
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
@@ -6,9 +9,9 @@ var qunit = module;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  var Pouch = require('../src/pouch.js');
+  var LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  var utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -70,10 +73,10 @@ adapters.map(function(adapter) {
               db.query(queryFun, {reduce: false, startkey: 'key4', endkey: 'key4'}, function(_, res) {
                 equal(res.rows.length, 1, 'Startkey=endkey');
                 start();
-              })
-            })
-          })
-        })
+              });
+            });
+          });
+        });
       });
     });
   });
@@ -89,8 +92,8 @@ adapters.map(function(adapter) {
           db.query(queryFun, {reduce: false, key: 'key3'}, function(_, res) {
             equal(res.rows.length, 2, 'Multiple docs with key');
             start();
-          })
-        })
+          });
+        });
       });
     });
   });
@@ -157,7 +160,7 @@ adapters.map(function(adapter) {
           db.query(queryFun, {descending: true, reduce: false}, function(_, res) {
             res.rows.forEach(function(x, i) {
               ok(JSON.stringify(x.key) === JSON.stringify(values[values.length - 1 - i]),
-                 'keys collate descending')
+                 'keys collate descending');
             });
             start();
           });

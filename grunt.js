@@ -100,7 +100,7 @@ module.exports = function(grunt) {
     },
 
     lint: {
-      files: ["src/*/*.js", "tests/*.js"]
+      files: ["src/adapter/*.js", "tests/*.js", "src/*.js"]
     },
 
     jshint: {
@@ -123,6 +123,7 @@ module.exports = function(grunt) {
         _: true,
         QUnit: true,
         asyncTest: true,
+        test: true,
         DB: true,
         deepEqual: true,
         equal: true,
@@ -136,7 +137,11 @@ module.exports = function(grunt) {
         start: true,
         stop: true,
         unescape: true,
-        process: true
+        process: true,
+        global: true,
+        require: true,
+        console: true,
+        Pouch: true
       }
     },
 
