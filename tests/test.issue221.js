@@ -1,16 +1,22 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true */
+
+"use strict";
+
 var adapters = [
-    ['local-1', 'http-1']
-  ]
-  , qunit = module;
+  ['local-1', 'http-1']
+];
+var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  this.Pouch = require('../src/pouch.js');
-  this.LevelPouch = require('../src/adapters/pouch.leveldb.js');
-  this.utils = require('./test.utils.js')
-  this.ajax = Pouch.utils.ajax
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
+  ajax = Pouch.utils.ajax;
 
-  for (var k in this.utils) {
-    global[k] = global[k] || this.utils[k];
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
 }
@@ -49,7 +55,7 @@ adapters.map(function(adapters) {
             var checkDoc = function() {
               remote.get(doc._id,{revs_info:true},function(err, data) {
                 var correctRev = data._revs_info[0];
-                if (data._revs_info[1].status == 'missing') {
+                if (data._revs_info[1].status === 'missing') {
                   // We already got a successful compaction, but did a whole
                   // new request before we figured it out, yay races
                   if (!interval) {
@@ -61,9 +67,9 @@ adapters.map(function(adapters) {
                   local.replicate.from(remote, function(err, results) {
                     // Check the PouchDB doc.
                     local.get(doc._id, function(err, results) {
-                      ok(results._rev == correctRev.rev,
+                      ok(results._rev === correctRev.rev,
                          'correct rev stored after replication');
-                      ok(results.integer == 1,
+                      ok(results.integer === 1,
                          'correct content stored after replication');
                       start();
                     });
@@ -95,11 +101,11 @@ adapters.map(function(adapters) {
               // Testing if second replications fails now
               local.replicate.from(remote, function(err, results) {
                 local.get(doc._id, function(err, results) {
-                  ok(results.integer == 1, 'correct content stored after replication');
+                  ok(results.integer === 1, 'correct content stored after replication');
                   start();
                 });
-              })
-            })
+              });
+            });
           });
         });
       });
