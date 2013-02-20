@@ -1,3 +1,7 @@
+/*globals fetchCheckpoint: false, writeCheckpoint: false, call: false */
+
+'use strict';
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Pouch;
 }
@@ -45,8 +49,9 @@ if (typeof module !== 'undefined' && module.exports) {
           diff[change.id] = change.changes.map(function(x) { return x.rev; });
           target.revsDiff(diff, function(err, diffs) {
             if (err) {
-              if (continuous)
+              if (continuous) {
                 replicateRet.cancel();
+              }
               call(callback, err, null);
               return;
             }
@@ -106,19 +111,19 @@ if (typeof module !== 'undefined' && module.exports) {
     // after we start actually running the changes feed
     if (opts instanceof Function) {
       callback = opts;
-      opts = {}
+      opts = {};
     }
     if (opts === undefined) {
       opts = {};
     }
 
-    var ret = function() {
+    var Ret = function() {
       this.cancelled = false;
       this.cancel = function() {
         this.cancelled = true;
-      }
-    }
-    var replicateRet = new ret();
+      };
+    };
+    var replicateRet = new Ret();
     toPouch(src, function(err, src) {
       if (err) {
         return call(callback, err);
