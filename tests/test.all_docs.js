@@ -1,3 +1,7 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true, makeDocs: false */
+
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
@@ -6,9 +10,9 @@ var qunit = module;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -146,8 +150,8 @@ adapters.map(function(adapter) {
             ok(deleted.ok, 'deleted');
             db.changes({
               complete: function(err, changes) {
-                ok(changes.results.length == 4);
-                ok(changes.results[3].id == "1");
+                ok(changes.results.length === 4);
+                ok(changes.results[3].id === "1");
                 ok(changes.results[3].deleted);
                 start();
               }
@@ -292,7 +296,7 @@ adapters.map(function(adapter) {
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
                 db.get("3", {open_revs: "all", revs: true}, function(err, res){
-                  var i
+                  var i;
                   res = res.map(function(row){
                     return row.ok;
                   });
