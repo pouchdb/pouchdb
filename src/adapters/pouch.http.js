@@ -1,3 +1,6 @@
+/*globals Pouch: true, call: false, ajax: true */
+/*globals require: false, console: false */
+
 "use strict";
 
 var HTTP_TIMEOUT = 10000;
@@ -11,11 +14,15 @@ function parseUri (str) {
   var uri = {};
   var i = 14;
 
-  while (i--) uri[o.key[i]] = m[i] || "";
+  while (i--) {
+    uri[o.key[i]] = m[i] || "";
+  }
 
   uri[o.q.name] = {};
   uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-    if ($1) uri[o.q.name][$1] = $2;
+    if ($1) {
+      uri[o.q.name][$1] = $2;
+    }
   });
 
   return uri;
@@ -103,7 +110,9 @@ var HttpPouch = function(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
   var host = getHost(opts.name);
-  if (opts.auth) host.auth = opts.auth;
+  if (opts.auth) {
+    host.auth = opts.auth;
+  }
 
   // Generate the database URL based on the host
   var db_url = genDBUrl(host, '');
@@ -201,8 +210,8 @@ var HttpPouch = function(opts, callback) {
       auth: host.auth,
       url: genDBUrl(host, '_compact'),
       method: 'POST'
-    }, callback)
-  }
+    }, callback);
+  };
 
   // Calls GET on the host, which gets back a JSON string containing
   //    couchdb: A welcome string
@@ -211,7 +220,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       method:'GET',
-      url: genDBUrl(host, ''),
+      url: genDBUrl(host, '')
     }, callback);
   };
 
@@ -332,7 +341,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       method: 'DELETE',
-      url: genDBUrl(host, id) + '?rev=' + rev,
+      url: genDBUrl(host, id) + '?rev=' + rev
     }, callback);
   };
 
@@ -424,7 +433,7 @@ var HttpPouch = function(opts, callback) {
       opts = {};
     }
     if (!opts) {
-      opts = {}
+      opts = {};
     }
 
     // If opts.new_edits exists add it to the document data to be
@@ -456,7 +465,7 @@ var HttpPouch = function(opts, callback) {
 
     // List of parameters to add to the GET request
     var params = [];
-    var body = undefined;
+    var body;
     var method = 'GET';
 
     // TODO I don't see conflicts as a valid parameter for a
@@ -520,8 +529,9 @@ var HttpPouch = function(opts, callback) {
   // api.changes.addListener and api.changes.removeListener.
   api.changes = function(opts) {
 
-    if (Pouch.DEBUG)
+    if (Pouch.DEBUG) {
       console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
+    }
 
     // Query string of all the parameters to add to the GET request
     var params = [],
@@ -634,9 +644,13 @@ var HttpPouch = function(opts, callback) {
 
       if (opts.continuous) {
         // Increase retry delay exponentially as long as errors persist
-        if (err) fetchRetryCount += 1;
-        else fetchRetryCount = 0;
-        var timeoutMultiplier = 1 << fetchRetryCount;       // i.e. Math.pow(2, fetchRetryCount)
+        if (err) {
+          fetchRetryCount += 1;
+        } else {
+          fetchRetryCount = 0;
+        }
+        var timeoutMultiplier = 1 << fetchRetryCount;
+        // i.e. Math.pow(2, fetchRetryCount)
 
         var retryWait = fetchTimeout * timeoutMultiplier;
         var maximumWait = opts.maximumWait || 30000;
@@ -659,8 +673,9 @@ var HttpPouch = function(opts, callback) {
     // Return a method to cancel this method from processing any more
     return {
       cancel: function() {
-        if (Pouch.DEBUG)
+        if (Pouch.DEBUG) {
           console.log(db_url + ': Cancel Changes Feed');
+        }
         opts.aborted = true;
         xhr.abort();
       }
@@ -709,8 +724,8 @@ HttpPouch.valid = function() {
 if (typeof module !== 'undefined' && module.exports) {
   // running in node
   var pouchdir = '../';
-  this.Pouch = require(pouchdir + 'pouch.js')
-  this.ajax = Pouch.utils.ajax;
+  Pouch = require(pouchdir + 'pouch.js');
+  ajax = Pouch.utils.ajax;
 }
 
 // Set HttpPouch to be the adapter used with the http scheme.
