@@ -115,7 +115,8 @@ module.exports = function(grunt) {
         undef: true,
         eqnull: true,
         browser: true,
-        strict: true
+        strict: true,
+        globalstrict: true
       },
       globals: {
           // Tests.
