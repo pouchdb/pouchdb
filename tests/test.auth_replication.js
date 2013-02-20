@@ -1,13 +1,20 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true, makeDocs: false */
+
+"use strict";
+
 var remote = {
   host: 'localhost:2020'
 };
 var local = 'test_suite_db';
+var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
-    , ajax = Pouch.utils.ajax
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
+  ajax = Pouch.utils.ajax;
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -27,6 +34,36 @@ qunit('auth_replication', {
     }
   }
 });
+
+function login(username, password, callback) {
+  ajax({
+    type: 'POST',
+    url: 'http://' + remote.host + '/_session',
+    data: {name: username, password: password},
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader('Accept', 'application/json');
+    },
+    success: function () {
+      callback();
+    },
+    error: function (err) {
+      callback(err);
+    }
+  });
+}
+
+function logout(callback) {
+  ajax({
+    type: 'DELETE',
+    url: 'http://' + remote.host + '/_session',
+    success: function () {
+      callback();
+    },
+    error: function (err) {
+      callback(err);
+    }
+  });
+}
 
 function createAdminUser(callback) {
   // create admin user
@@ -118,37 +155,6 @@ function deleteAdminUser(adminuser, callback) {
   });
 }
 
-function login(username, password, callback) {
-  ajax({
-    type: 'POST',
-    url: 'http://' + remote.host + '/_session',
-    data: {name: username, password: password},
-    beforeSend: function(xhr) {
-      xhr.setRequestHeader('Accept', 'application/json');
-    },
-    success: function () {
-      callback();
-    },
-    error: function (err) {
-      callback(err);
-    }
-  });
-}
-
-function logout(callback) {
-  ajax({
-    type: 'DELETE',
-    url: 'http://' + remote.host + '/_session',
-    success: function () {
-      callback();
-    },
-    error: function (err) {
-      callback(err);
-    }
-  });
-}
-
-
 asyncTest("Replicate from DB as non-admin user", function() {
   // SEE: https://github.com/apache/couchdb/blob/master/share/www/script/couch_test_runner.js
   // - create new DB
@@ -171,9 +177,13 @@ asyncTest("Replicate from DB as non-admin user", function() {
 
   function cleanup() {
     deleteAdminUser(self.adminuser, function (err) {
-      if (err) console.error(err);
+      if (err) {
+        console.error(err);
+      }
       logout(function (err) {
-        if (err) console.error(err);
+        if (err) { 
+          console.error(err);
+        }
         start();
       });
     });
@@ -192,7 +202,9 @@ asyncTest("Replicate from DB as non-admin user", function() {
     self.adminuser = adminuser;
 
     login('adminuser', 'password', function (err) {
-      if (err) console.error(err);
+      if (err) { 
+        console.error(err);
+      }
         remote.bulkDocs({docs: docs}, {}, function(err, results) {
           Pouch.replicate(self.remote, self.name, {}, function(err, result) {
             db.allDocs(function(err, result) {

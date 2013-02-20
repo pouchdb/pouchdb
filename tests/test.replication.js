@@ -1,9 +1,14 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, openTestDB: false */
+
+"use strict";
+
 var adapters = [
-      ['local-1', 'http-1'],
-      ['http-1', 'http-2'],
-      ['http-1', 'local-1'],
-      ['local-1', 'local-2']]
-  , qunit = module;
+  ['local-1', 'http-1'],
+  ['http-1', 'http-2'],
+  ['http-1', 'local-1'],
+  ['local-1', 'local-2']];
+var qunit = module;
 
 var downAdapters = ['local-1'];
 var deletedDocAdapters = [['local-1', 'http-1']];
@@ -11,9 +16,9 @@ var deletedDocAdapters = [['local-1', 'http-1']];
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  var Pouch = require('../src/pouch.js');
+  var LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  var utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -270,7 +275,7 @@ adapters.map(function(adapters) {
               start();
             }
           },
-          continuous: true,
+          continuous: true
         });
       });
     });
@@ -286,7 +291,7 @@ adapters.map(function(adapters) {
         var rep = remote.replicate.from(db, {continuous: true});
         var changes = remote.changes({
           onChange: function(change) {
-            ++count
+            ++count;
             if (count === 3) {
               return db.put(doc1);
             }
@@ -297,7 +302,7 @@ adapters.map(function(adapters) {
               start();
             }
           },
-          continuous: true,
+          continuous: true
         });
       });
     });
@@ -329,7 +334,7 @@ adapters.map(function(adapters) {
                 start();
               }, 500);
             }
-          },
+          }
         });
       });
     });
@@ -443,7 +448,7 @@ adapters.map(function(adapters) {
         ok(true, 'Got all change notification');
         start();
       }
-    }
+    };
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
         db.replicate.from(self.remote, {onChange: onChange});
@@ -474,16 +479,16 @@ adapters.map(function(adapters) {
                         equal(localdoc._rev, winningRev, "Local chose correct winning revision");
                         equal(remotedoc._rev, winningRev, "Remote chose winning revision");
                         start();
-                      })
-                    })
-                  })
-                })
-              })
-            })
-          })
-        })
-      })
-    })
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
 
@@ -513,9 +518,11 @@ deletedDocAdapters.map(function(adapters) {
         }
         response.rows.forEach(function(doc) {
           db.remove(doc, function(err, response) {
-            if (err) console.error(err);
+            if (err) {
+              console.error(err);
+            }
             ++count;
-            if(count==limit){
+            if (count === limit){
               bulkLoad(db, docs, callback);
             }
           });

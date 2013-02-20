@@ -1,3 +1,6 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false */
+
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
@@ -6,9 +9,9 @@ var qunit = module;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js');
+  var Pouch = require('../src/pouch.js');
+  var LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  var utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -156,17 +159,17 @@ adapters.map(function(adapter) {
       _id:"_design/spatial",
       language: "javascript",
       spatial: {
-        withGeometry: (function(doc) {
+        withGeometry: function(doc) {
           emit([{
             type: "Point",
             coordinates: doc.loc
           }, [doc.integer, doc.integer+5]], doc.string);
-        }).toString(),
-        noGeometry: (function(doc) {
+        }.toString(),
+        noGeometry: function(doc) {
           emit([[doc.integer, doc.integer+1], doc.integer*3,
             [doc.integer-14, doc.integer+100], doc.integer],
             doc.string);
-        }).toString()
+        }.toString()
       }
     };
 
