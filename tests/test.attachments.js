@@ -75,29 +75,46 @@ adapters.map(function(adapter) {
       db.put(binAttDoc, function(err, write) {
         ok(!err, 'saved doc with attachment');
         db.get('bin_doc/foo.txt', function(err, res) {
-          equal(res, 'This is a base64 encoded text', 'Correct data returned');
-          db.put(binAttDoc2, function(err, rev) {
-            db.get('bin_doc2/foo.txt', function(err, res, xhr) {
-              equal(res, '', 'Correct data returned');
-              moreTests(rev.rev);
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            equal(e.target.result, 'This is a base64 encoded text',
+              'Correct data returned');
+            db.put(binAttDoc2, function(err, rev) {
+              db.get('bin_doc2/foo.txt', function(err, res, xhr) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                  // FIXME: Chrome reads an empty binary as 'null',
+                  // where FF correctly returns ''. See src/pouch.utils.js:400
+                  equal(e.target.result, '', 'Correct data returned');
+                  moreTests(rev.rev);
+                };
+                reader.readAsText(res);
+              });
             });
-          });
+          };
+          reader.readAsText(res);
         });
       });
     });
 
     function moreTests(rev) {
-      var ndoc = 'This is no base64 encoded text';
-      db.putAttachment('bin_doc2/foo2.txt', rev, ndoc, "text/plain", function() {
+      var parts = ['This is no base64 encoded text'];
+      var blob = new Blob(parts, {type: 'text/plain'});
+      db.putAttachment('bin_doc2/foo2.txt', rev, blob, function() {
         db.get('bin_doc2/foo2.txt', function(err, res, xhr) {
-          ok(res === 'This is no base64 encoded text', 'Correct data returned');
-          db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
-            ok(res._attachments, 'Result has attachments field');
-            equal(res._attachments['foo2.txt'].data,
-                  btoa('This is no base64 encoded text', 'binary'));
-            equal(res._attachments['foo.txt'].data, '');
-            start();
-          });
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            ok(e.target.result === 'This is no base64 encoded text',
+              'Correct data returned');
+            db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
+              ok(res._attachments, 'Result has attachments field');
+              equal(res._attachments['foo2.txt'].data,
+                btoa('This is no base64 encoded text'));
+              equal(res._attachments['foo.txt'].data, '');
+              start();
+            });
+          };
+          reader.readAsText(res);
         });
       });
     }
@@ -106,7 +123,9 @@ adapters.map(function(adapter) {
   asyncTest("Test put attachment on a doc without attachments", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+        var parts = ['Mytext'];
+        var blob = new Blob(parts, {type: 'text/plain'});
+        db.putAttachment('mydoc/mytext', resp.rev, blob, function(err, res) {
           ok(res.ok);
           start();
         });
@@ -117,7 +136,9 @@ adapters.map(function(adapter) {
   asyncTest("Test delete attachment from a doc", function() {
     initTestDB(this.name, function(erro, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+        var parts = ['Mytext'];
+        var blob = new Blob(parts, {type: 'text/plain'});
+        db.putAttachment('mydoc/mytext', resp.rev, blob, function(err, res) {
           ok(res.ok);
           var rev = res.rev;
           db.removeAttachment('mydoc/mytext', 0, function(err, res) {
@@ -140,8 +161,13 @@ adapters.map(function(adapter) {
           ok(!err, 'fetched doc');
           ok(doc._attachments, 'doc has attachment');
           db.get(results.id + '/' + 'foo.json', function(err, attachment) {
-            equal(attachment, atob(jsonDoc._attachments['foo.json'].data), 'correct data');
-            start();
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              equal(e.target.result, atob(jsonDoc._attachments['foo.json'].data),
+                'correct data');
+              start();
+            };
+            reader.readAsText(attachment);
           });
         });
       });
@@ -151,7 +177,9 @@ adapters.map(function(adapter) {
   asyncTest("Test remove doc with attachment", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+        var parts = ['Mytext'];
+        var blob = new Blob(parts, {type: 'text/plain'});
+        db.putAttachment('mydoc/mytext', resp.rev, blob, function(err, res) {
           db.get('mydoc',{attachments:false},function(err,doc){
             db.remove(doc, function(err, resp){
               ok(res.ok);
@@ -178,12 +206,16 @@ adapters.map(function(adapter) {
 
           db.get('doc/attachment', function(err, response) {
             ok(!err, 'got the attachment');
-            equal(response, JSON.stringify(doc),
-                  'the attachment is returned as a JSON string');
-            var obj = JSON.parse(response);
-            equal(obj._id, doc._id, 'id matches');
-            equal(obj.test, doc.test, 'test matches');
-            start();
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              equal(e.target.result, JSON.stringify(doc),
+                    'the attachment is returned as a JSON string');
+              var obj = JSON.parse(e.target.result);
+              equal(obj._id, doc._id, 'id matches');
+              equal(obj.test, doc.test, 'test matches');
+              start();
+            };
+            reader.readAsText(response);
           });
         });
       });
