@@ -27,19 +27,36 @@ var MapReduce = function(db) {
 
     var results = [];
     var current = null;
+    var num_started= 0;
+    var completed= false;
 
     var emit = function(key, val) {
       var viewRow = {
-        id: current._id,
+        id: current.doc._id,
         key: key,
         value: val
-      };
-      if (options.include_docs) {
-        viewRow.doc = current.doc;
-      }
+      }; 
+
       if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
       if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
       if (options.key && Pouch.collate(key, options.key) !== 0) return;
+      num_started++;
+      if (options.include_docs) {
+        //in this special case, join on _id (issue #106)
+        if (val && typeof val === 'object' && val._id){
+          db.get(val._id,
+              function(_, joined_doc){
+                if (joined_doc) {
+                  viewRow.doc = joined_doc;
+                }
+                results.push(viewRow);
+                checkComplete();
+              });
+          return;
+        } else {
+          viewRow.doc = current.doc;
+        }
+      }
       results.push(viewRow);
     };
 
@@ -50,21 +67,13 @@ var MapReduce = function(db) {
       eval('fun.reduce = ' + fun.reduce.toString() + ';');
     }
 
-
     // exclude  _conflicts key by default
     // or to use options.conflicts if it's set when called by db.query
     var conflicts = ('conflicts' in options ? options.conflicts : false);
 
-    db.changes({
-      conflicts: conflicts,
-      include_docs: true,
-      onChange: function(doc) {
-        if (!('deleted' in doc)) {
-          current = {doc: doc.doc};
-          fun.map.call(this, doc.doc);
-        }
-      },
-      complete: function() {
+    //only proceed once all documents are mapped and joined
+    var checkComplete= function(){
+      if (completed && results.length == num_started){
         results.sort(function(a, b) {
           return Pouch.collate(a.key, b.key);
         });
@@ -91,6 +100,21 @@ var MapReduce = function(db) {
         });
         options.complete(null, {rows: groups});
       }
+    }
+
+    db.changes({
+      conflicts: conflicts,
+      include_docs: true,
+      onChange: function(doc) {
+        if (!('deleted' in doc)) {
+          current = {doc: doc.doc};
+          fun.map.call(this, doc.doc);
+        }
+      },
+      complete: function() {
+        completed= true;
+        checkComplete();
+      }
     });
   }
 
@@ -98,6 +122,8 @@ var MapReduce = function(db) {
 
     // List of parameters to add to the PUT request
     var params = [];
+    var body = undefined;
+    var method = 'GET';
 
     // If opts.reduce exists and is defined, then add it to the list
     // of parameters.
@@ -125,6 +151,13 @@ var MapReduce = function(db) {
       params.push('key=' + encodeURIComponent(JSON.stringify(opts.key)));
     }
 
+    // If keys are supplied, issue a POST request to circumvent GET query string limits
+    // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
+    if (typeof opts.keys !== 'undefined') {
+      method = 'POST';
+      body = JSON.stringify({keys:opts.keys});
+    }
+
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     params = params === '' ? '' : '?' + params;
@@ -133,24 +166,25 @@ var MapReduce = function(db) {
     if (typeof fun === 'string') {
       var parts = fun.split('/');
       db.request({
-        type:'GET',
-        url: '_design/' + parts[0] + '/_view/' + parts[1] + params
+        method: method,
+        url: '_design/' + parts[0] + '/_view/' + parts[1] + params,
+        body: body
       }, callback);
       return;
     }
 
     // We are using a temporary view, terrible for performance but good for testing
-    var queryObject = JSON.stringify(fun, function(key, val) {
+    var queryObject = JSON.parse(JSON.stringify(fun, function(key, val) {
       if (typeof val === 'function') {
         return val + ''; // implicitly `toString` it
       }
       return val;
-    });
+    }));
 
     db.request({
-      type:'POST',
+      method:'POST',
       url: '_temp_view' + params,
-      data: queryObject
+      body: queryObject
     }, callback);
   }
 

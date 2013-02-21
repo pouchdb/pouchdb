@@ -1,18 +1,23 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true */
+
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
+var is_browser = true;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['leveldb-1', 'http-1']
   qunit = QUnit.module;
+  is_browser = false;
 }
 
 adapters.map(function(adapter) {
@@ -42,6 +47,51 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Changes Since", function () {
+    var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, function(err, info) {
+        db.changes({
+          since: 2,
+          complete: function(err, results) {
+            equal(results.results.length, 2, 'Partial results');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  // Note for the following test that CouchDB's implementation of /_changes
+  // with `descending=true` ignores any `since` parameter.
+  asyncTest("Descending changes", function () {
+    initTestDB(this.name, function(err, db) {
+      db.post({ _id: "0", test: "ing" }, function (err, res) {
+        db.post({ _id: "1", test: "ing" }, function (err, res) {
+          db.post({ _id: "2", test: "ing" }, function (err, res) {
+            db.changes({
+              descending: true,
+              since: 1,
+              complete: function(err, results) {
+                equal(results.results.length, 3);
+                var ids = ["2", "1", "0"];
+                results.results.forEach(function (row, i) {
+                  equal(row.id, ids[i], 'All results, descending order');
+                });
+                start();
+              }
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Changes doc", function () {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
@@ -65,7 +115,7 @@ adapters.map(function(adapter) {
         onChange: function(change) {
           count += 1;
           ok(!change.doc, 'If we dont include docs, dont include docs');
-          equal(count, 1, 'Only recieve a single change');
+          equal(count, 1, 'Only receive a single change');
           changes.cancel();
           start();
         },
@@ -75,27 +125,35 @@ adapters.map(function(adapter) {
     });
   });
 
-  // asyncTest("Continuous changes across windows", function() {
-  //   var search = window.location.search
-  //     .replace(/[?&]testFiles=[^&]+/, '')
-  //     .replace(/[?&]dbname=[^&]+/, '')
-  //     + '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
-  //   initTestDB(this.name, function(err, db) {
-  //     var count = 0;
-  //     var tab;
-  //     var changes = db.changes({
-  //       onChange: function(change) {
-  //         count += 1;
-  //         equal(count, 1, 'Recieved a single change');
-  //         changes.cancel();
-  //         tab && tab.close();
-  //         start();
-  //       },
-  //       continuous: true
-  //     });
-  //     tab = window.open('test.html?' + search.replace(/^[?&]+/, ''));
-  //   });
-  // });
+  if (is_browser) {
+    asyncTest("Continuous changes across windows", function() {
+      var search = window.location.search
+        .replace(/[?&]testFiles=[^&]+/, '')
+        .replace(/[?&]testNumber=[^&]+/, '')
+        .replace(/[?&]dbname=[^&]+/, '') + 
+          '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
+      initTestDB(this.name, function(err, db) {
+        var count = 0;
+        var tab;
+        var changes = db.changes({
+          onChange: function(change) {
+            count += 1;
+            equal(count, 1, 'Received a single change');
+            changes.cancel();
+            if (tab) { 
+              tab.close();
+            }
+            start();
+          },
+          continuous: true
+        });
+        var iframe = document.createElement('iframe');
+        iframe.src = 'test.html?' + search.replace(/^[?&]+/, '');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      });
+    });
+  }
 
   asyncTest("Continuous changes doc", function() {
     initTestDB(this.name, function(err, db) {
@@ -205,11 +263,11 @@ adapters.map(function(adapter) {
 
                 start();
               }
-            })
-          })
-        })
-      })
-    })
+            });
+          });
+        });
+      });
+    });
   });
 
   asyncTest("Changes with conflicts are handled correctly", function() {
@@ -240,9 +298,9 @@ adapters.map(function(adapter) {
               localdb.put({_id: "3", _rev: rev2, integer: 20}, function(err, resp) {
                 var rev3local = resp.rev;
                 localdb.put({_id: "3", _rev: rev3local, integer: 30}, function(err, resp) {
-                  var rev4local = resp.rev
+                  var rev4local = resp.rev;
                   remotedb.put({_id: "3", _rev: rev2, integer: 100}, function(err, resp) {
-                    var remoterev = resp.rev
+                    var remoterev = resp.rev;
                     Pouch.replicate(remotedb, localdb, function(err, done) {
                       localdb.changes({
                         include_docs: true,
@@ -251,25 +309,25 @@ adapters.map(function(adapter) {
                           ok(changes, "got changes");
                           ok(changes.results, "changes has results array");
                           equal(changes.results.length, 4, "should get only 4 changes");
-                          var ch = changes.results[3]
+                          var ch = changes.results[3];
                           equal(ch.id, "3");
                           equal(ch.changes.length, 2, "Should include both conflicting revisions");
                           equal(ch.doc.integer, 30, "Includes correct value of the doc");
                           equal(ch.doc._rev, rev4local, "Includes correct revision of the doc");
-                          deepEqual(ch.changes, [{rev:rev4local}, {rev:remoterev}], "Includes correct changes array")
+                          deepEqual(ch.changes, [{rev:rev4local}, {rev:remoterev}], "Includes correct changes array");
 
                           start();
                         }
-                      })
-                    })
-                  })
-                })
-              })
-            })
-          })
-        })
-      })
-    })
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
   asyncTest("Change entry for a deleted doc", function() {
@@ -291,14 +349,14 @@ adapters.map(function(adapter) {
               equal(changes.results.length, 4, "should get only 4 changes");
               var ch = changes.results[3];
               equal(ch.id, "3", "Have correct doc");
-              equal(ch.seq, 5, "Have correct sequence")
+              equal(ch.seq, 5, "Have correct sequence");
               equal(ch.deleted, true, "Shows doc as deleted");
               start();
             }
-          })
-        })
-      })
-    })
+          });
+        });
+      });
+    });
   });
 
 });

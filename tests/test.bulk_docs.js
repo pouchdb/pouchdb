@@ -1,18 +1,23 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true, makeDocs: false */
+
+"use strict";
+
 // Porting tests from Apache CouchDB bulk docs tests
 // https://github.com/apache/couchdb/blob/master/share/www/script/test/bulk_docs.js
 
-var adapters = ['local-1', 'http-1']
-  , qunit = module;
+var adapters = ['local-1', 'http-1'];
+var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['leveldb-1', 'http-1']
   qunit = QUnit.module;
 }
 
@@ -51,7 +56,7 @@ adapters.map(function(adapter) {
         db.bulkDocs({docs: docs}, function(err, results) {
           ok(results.length === 5, 'results length matches');
           for (i = 0; i < 5; i++) {
-            ok(results[i].id == i.toString(), 'id matches again');
+            ok(results[i].id === i.toString(), 'id matches again');
             // set the delete flag to delete the docs in the next step
             docs[i]._rev = results[i].rev;
             docs[i]._deleted = true;
@@ -61,7 +66,7 @@ adapters.map(function(adapter) {
               ok(results[0].error === 'conflict', 'First doc should be in conflict');
               ok(typeof results[0].rev === "undefined", 'no rev in conflict');
               for (i = 1; i < 5; i++) {
-                ok(results[i].id == i.toString());
+                ok(results[i].id === i.toString());
                 ok(results[i].rev);
               }
               start();

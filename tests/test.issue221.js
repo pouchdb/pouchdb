@@ -1,20 +1,23 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true */
+
+"use strict";
+
 var adapters = [
-    ['local-1', 'http-1']
-  ]
-  , qunit = module;
+  ['local-1', 'http-1']
+];
+var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  this.Pouch = require('../src/pouch.js');
-  this.LevelPouch = require('../src/adapters/pouch.leveldb.js');
-  this.utils = require('./test.utils.js')
-  this.ajax = Pouch.utils.ajax
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
+  ajax = Pouch.utils.ajax;
 
-  for (var k in this.utils) {
-    global[k] = global[k] || this.utils[k];
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
   }
-  adapters = [
-    ['leveldb-1', 'http-1']
-  ]
   qunit = QUnit.module;
 }
 
@@ -46,44 +49,35 @@ adapters.map(function(adapters) {
         doc.integer = 1;
         remote.put(doc, {}, function(err, results) {
           // Compact the db.
-          ajax({
-            url: self.remote + '/_compact',
-            type: 'POST',
-            contentType: 'application/json',
-            success: function(data, status, jqXHR) {
-              // Wait until compaction has affected the doc.
-              var interval;
-              var checkDoc = function() {
-                ajax({
-                  url: self.remote + '/' + doc._id + '?revs_info=true',
-                  dataType: 'json',
-                  success: function(data, status, jqXHR) {
-                    var correctRev = data._revs_info[0];
-                    if (data._revs_info[1].status == 'missing') {
-                      // We already got a successful compaction, but did a whole
-                      // new request before we figured it out, yay races
-                      if (!interval) {
-                        return;
-                      }
-                      clearInterval(interval);
-                      interval = null;
-                      // Replicate to PouchDB.
-                      local.replicate.from(remote, function(err, results) {
-                        // Check the PouchDB doc.
-                        local.get(doc._id, function(err, results) {
-                          ok(results._rev == correctRev.rev,
-                             'correct rev stored after replication');
-                          ok(results.integer == 1,
-                             'correct content stored after replication');
-                          start();
-                        });
-                      });
-                    }
+          remote.compact(function(data, status, jqXHR) {
+            // Wait until compaction has affected the doc.
+            var interval;
+            var checkDoc = function() {
+              remote.get(doc._id,{revs_info:true},function(err, data) {
+                var correctRev = data._revs_info[0];
+                if (data._revs_info[1].status === 'missing') {
+                  // We already got a successful compaction, but did a whole
+                  // new request before we figured it out, yay races
+                  if (!interval) {
+                    return;
                   }
-                });
-              };
-              interval = setInterval(checkDoc, 100);
-            }
+                  clearInterval(interval);
+                  interval = null;
+                  // Replicate to PouchDB.
+                  local.replicate.from(remote, function(err, results) {
+                    // Check the PouchDB doc.
+                    local.get(doc._id, function(err, results) {
+                      ok(results._rev === correctRev.rev,
+                         'correct rev stored after replication');
+                      ok(results.integer === 1,
+                         'correct content stored after replication');
+                      start();
+                    });
+                  });
+                }
+              });
+            };
+            interval = setInterval(checkDoc, 100);
           });
         });
       });
@@ -107,11 +101,11 @@ adapters.map(function(adapters) {
               // Testing if second replications fails now
               local.replicate.from(remote, function(err, results) {
                 local.get(doc._id, function(err, results) {
-                  ok(results.integer == 1, 'correct content stored after replication');
+                  ok(results.integer === 1, 'correct content stored after replication');
                   start();
                 });
-              })
-            })
+              });
+            });
           });
         });
       });

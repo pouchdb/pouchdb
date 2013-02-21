@@ -17,6 +17,6 @@ PouchDB is currently in alpha preview. Currently tested in:
 
  * Firefox 12+
  * Chrome 19+
+ * Opera 12+
+ * Safari 5+
  * node.js
-
-Support for WebSQL which provides support for Opera, Safari and Mobile Safari is in progress.

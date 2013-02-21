@@ -1,3 +1,5 @@
+/*globals $:false, console: false */
+
 "use strict";
 
 // use query parameter testFiles if present,
@@ -18,7 +20,7 @@ if (!testFiles.length) {
                'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
                'test.merge_rev_tree.js',  'test.revs_diff.js',
                'test.replication.js', 'test.views.js',
-               'test.design_docs.js', 'test.issue221.js'];
+               'test.design_docs.js', 'test.issue221.js', 'test.http.js'];
 
   // attachments dont run well on the ci server yet.
   // if there is a hash, it is because the git rev is put on the url as a hash
@@ -32,13 +34,14 @@ testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
   'dev': ['../src/deps/uuid.js',
-          '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
+          '../src/pouch.js', '../src/pouch.adapter.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
           '../src/adapters/pouch.websql.js',
-          '../src/plugins/pouchdb.mapreduce.js'],
-  'release': ['../pouch.alpha.js'],
-  'release-min': ['../pouch.alpha.min.js']
+          '../src/plugins/pouchdb.mapreduce.js',
+          '../src/plugins/pouchdb.spatial.js'],
+  'release': ['../dist/pouchdb-nightly.js'],
+  'release-min': ['../dist/pouchdb-nightly.min.js']
 };
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/

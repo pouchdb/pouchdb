@@ -1,10 +1,12 @@
+"use strict";
+
 // Porting tests from Apache CouchDB
 // https://github.com/davisp/couchdb/blob/local_doc_revs/test/etap/060-kt-merging.t
 var qunit = module;
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  var Pouch = require('../src/pouch.js');
+  var LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  var utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -152,10 +154,10 @@ test('winningRev returns the longest leaf', function() {
           ["93c3db16462f656f7172ccabd3cf6cd6",[]]
         ]]
       ]]
-    }]
-  equal(winningRev({rev_tree: tree}),
+    }];
+  equal(Pouch.merge.winningRev({rev_tree: tree}),
         "3-93c3db16462f656f7172ccabd3cf6cd6",
-        "Picks the longest path")
+        "Picks the longest path");
 });
 
 test('winningRev returns the longest leaf again', function() {
@@ -177,9 +179,9 @@ test('winningRev returns the longest leaf again', function() {
       ]]
     }
   ];
-  equal(winningRev({rev_tree: tree}),
+  equal(Pouch.merge.winningRev({rev_tree: tree}),
         "3-64a9842c6aea50bf24660378e496e853",
-        "Picks the longest path")
+        "Picks the longest path");
 });
 
 ///// These are tests from CouchDB's kt-merging.erl test suite
@@ -189,14 +191,14 @@ test('The empty tree is the identity for merge.', function() {
   deepEqual(Pouch.merge([], one, 10), {
     tree: [one],
     conflicts: 'new_leaf'
-  })
+  });
 });
 
 test('Merging is reflexive', function() {
   deepEqual(Pouch.merge([one], one, 10), {
     tree: [one],
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var two = {pos: 1, ids: ['2', []]};
@@ -205,7 +207,7 @@ test('Merging a prefix of a tree with the tree yields the tree.', function() {
   deepEqual(Pouch.merge(twoSibs, one, 10), {
     tree: twoSibs,
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var three = {pos: 1, ids: ['3', []]};
@@ -214,7 +216,7 @@ test('Merging a third unrelated branch leads to a conflict.', function() {
   deepEqual(Pouch.merge(twoSibs, three, 10), {
     tree: threeSibs,
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var twoChild = {pos: 1, ids: ['1', [
@@ -226,18 +228,18 @@ test('Merging two children is still reflexive.', function() {
   deepEqual(Pouch.merge([twoChild], twoChild, 10), {
     tree: [twoChild],
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var twoChildSibs = {pos: 1, ids: ['1', [
   ['1a', []],
   ['1b', []]
-]]}
+]]};
 test('Merging a tree to itself is itself.', function() {
   deepEqual(Pouch.merge([twoChildSibs], twoChildSibs, 10), {
     tree: [twoChildSibs],
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var twoChildPlusSibs = {pos: 1, ids: ['1', [
@@ -250,7 +252,7 @@ test('Merging tree of uneven length at node 2.', function() {
   deepEqual(Pouch.merge([twoChild], twoChildSibs, 10), {
     tree: [twoChildPlusSibs],
     conflicts: 'new_branch'
-  })
+  });
 });
 
 var stemmed1b = {pos: 2, ids: ['1a', []]};
@@ -258,7 +260,7 @@ test('Merging a tree with a stem.', function() {
   deepEqual(Pouch.merge([twoChildSibs], stemmed1b, 10), {
     tree: [twoChildSibs],
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var twoChildPlusSibs2 = {pos: 1, ids: ['1', [
@@ -272,7 +274,7 @@ test('Merging a stem at a deeper level.', function() {
   deepEqual(Pouch.merge([twoChildPlusSibs2], stemmed1bb, 10), {
     tree: [twoChildPlusSibs2],
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var stemmedTwoChildSibs2 = [
@@ -283,7 +285,7 @@ test('Merging a stem at a deeper level against paths at deeper levels.', functio
   deepEqual(Pouch.merge(stemmedTwoChildSibs2, stemmed1bb, 10), {
     tree: stemmedTwoChildSibs2,
     conflicts: 'internal_node'
-  })
+  });
 });
 
 var stemmed1aa = {pos: 3, ids: ['1aa', []]};
@@ -291,15 +293,15 @@ test("Merging a single tree with a deeper stem.", function() {
   deepEqual(Pouch.merge([twoChild], stemmed1aa, 10), {
     tree: [twoChild],
     conflicts: 'internal_node'
-  })
+  });
 });
 
-var stemmed1a = {pos: 2, ids: ['1a', [['1aa', []]]]}
+var stemmed1a = {pos: 2, ids: ['1a', [['1aa', []]]]};
 test('Merging a larger stem.', function() {
   deepEqual(Pouch.merge([twoChild], stemmed1a, 10), {
     tree: [twoChild],
     conflicts: 'internal_node'
-  })
+  });
 });
 
 test('More merging.', function() {

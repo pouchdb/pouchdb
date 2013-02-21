@@ -21,6 +21,7 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
  * [Get database information](#get_database_information)
  * [Listen to database changes](#listen_to_database_changes)
  * [Replicate a database](#replicate_a_database)
+ * [Get document revision diffs](#document_revisions_diff)
 
 ## Create a database
 
@@ -99,7 +100,13 @@ Create an attachment in an existing document.
 
     db.bulkDocs(docs, [options], [callback])
 
-Modify, create or delete multiple documents.
+Modify, create or delete multiple documents. If you omit an `_id` parameter on
+a given document, the database will create a new document and assign an ID for you.
+To update a document you must include both an `_id` parameter and a `_rev` parameter,
+which should match the ID and revision of the document on which to base your updates. Finally, to delete
+a document, include a `_deleted` parameter with the value `true`.
+
+ * `options.new_edits`: Prevent the database from assigning new revision IDs to the documents.
 
     db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
       // Response array:
@@ -147,21 +154,31 @@ Getrieves a document, specified by `docid`.
 
     db.allDocs([options], [callback])
 
-Fetch multiple documents.
+Fetch multiple documents, deleted document are only included if `options.keys` is specified.
 
-* `options.include_docs`: Include the associated document with each change
-* `options.conflicts`: Include conflicts
+* `options.include_docs`: Include the document in each row in the `doc` field
+    - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc
 * `options.startkey` & `options.endkey`: Get documents with keys in a certain range
 * `options.descending`: Reverse the order of the output table
+* `options.keys`: array of keys you want to get
+    - neither `startkey` nor `endkey` can be specified with this option
+    - the rows are returned in the same order as the supplied "keys" array
+    - the row for a deleted document will have the revision ID of the deletion, and an extra key "deleted":true in the "value" property 
+    - the row for a nonexistent document will just contain an "error" property with the value "not_found"
 
 <span></span>
 
-    db.allDocs(function(err, response) {
+    db.allDocs({include_docs: true}, function(err, response) {
       // Document rows:
       // {
       //   "total_rows": 4,
       //   "rows": [
       //     {
+      //       "doc": {
+      //         "_id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+      //         "_rev": "1-5782E71F1E4BF698FA3793D9D5A96393",
+      //         "blog_post": "my blog post"
+      //       },
       //       "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
       //       "key": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
       //       "value": {
@@ -169,6 +186,11 @@ Fetch multiple documents.
       //       }
       //     },
       //     {
+      //       "doc": {
+      //         "__id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+      //         "__rev": "1-A8BC08745E62E58830CA066D99E5F457",
+      //         "blog_post": "my second blog post"
+      //       },
       //       "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
       //       "key": "828124B9-3973-4AF3-9DFD-A94CE4544005",
       //       "value": {
@@ -176,22 +198,47 @@ Fetch multiple documents.
       //       }
       //     },
       //     {
+      //       "doc": {
+      //         "_id": "mydoc",
+      //         "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F",
+      //         "other_field": "some other document"
+      //       },
       //       "id": "mydoc",
       //       "key": "mydoc",
       //       "value": {
       //         "rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
       //       }
-      //     },
-      //     {
-      //       "id": "otherdoc",
-      //       "key": "otherdoc",
-      //       "value": {
-      //         "rev": "1-3753476B70A49EA4D8C9039E7B04254C"
-      //       }
       //     }
       //   ]
       // }
     })
+
+    db.allDocs({keys: ["2", "0", "1000"]}, function(err, response) {
+      // {
+      //   "total_rows": 4,
+      //   "rows": [
+      //     {
+      //       "id": "2",
+      //       "key": "2",
+      //       "value": {
+      //         "rev": "1-3a0bf449367880a229ea7c61f9394c83"
+      //       }
+      //     },
+      //     {
+      //       "id": "0",
+      //       "key": "0",
+      //       "value": {
+      //         "deleted": true
+      //         "rev": "1-fb8a93eb436b7e799a7bbc578a08e9a5"
+      //       }
+      //     },
+      //     {
+      //       "key": "1000",
+      //       "error": "not_found"
+      //     }
+      //   ]
+      // }
+    });
 
 ## Query the database
 
@@ -278,19 +325,20 @@ Get information about a database.
     db.changes(options)
 
 A list of changes made to documents in the database, in the order they were made.
+If `options.continuous` is set it returns object with one method `cancel` which you call if you don't want to listen to new changes anymore.
 
 * `options.include_docs`: Include the associated document with each change
-* `options.continuous`: Use _longpoll_ feed
 * `options.conflicts`: Include conflicts
 * `options.descending`: Reverse the order of the output table
 * `options.filter`: Reference a filter function from a design document to selectively get updates
 * `options.since`: Start the results from the change immediately after the given sequence number
-* `options.complete`: Function called when all changes have been processed, defaults to the callback
-* `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change)
+* `options.complete`: Function called when all changes have been processed
+* `options.continuous`: Use _longpoll_ feed
+* `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change). Use with `continuous` flag. If you want to 
 
 <span></span>
 
-    db.changes(options, function(err, response) {
+    db.changes({complete: function(err, response) {
       // Changes list:
       // {
       //   "results": [
@@ -332,7 +380,30 @@ A list of changes made to documents in the database, in the order they were made
       //     }
       //   ]
       // }
-    })
+    }})
+
+
+    var changes = db.changes({
+      continuous: true,
+      onChange: function(change){
+      // example change object:
+      // {
+      //   "id":"somestuff",
+      //   "seq":21,
+      //   "changes":[
+      //     {
+      //       "rev":"1-8e6e4c0beac3ec54b27d1df75c7183a8"
+      //     }
+      //   ],
+      //   "doc":{
+      //     "value":"somevalue",
+      //     "_id":"somestuff",
+      //     "_rev":"1-8e6e4c0beac3ec54b27d1df75c7183a8"
+      //   }
+      //  }
+      }
+    });
+    // changes.cancel() - no longer fire onChange
 
 ## Replicate a database
 
@@ -349,3 +420,24 @@ Replicate one database to another.
     Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
       //
     })
+
+## Document Revisions Diff
+
+    db.revsDiff(diff, [callback])
+
+Given a set of document/revision IDs, returns the subset of those that do not correspond 
+to revisions stored in the database. Primarily used in replication.
+
+    db.revsDiff({
+      myDoc1: [
+        "1-b2e54331db828310f3c772d6e042ac9c",
+        "2-3a24009a9525bde9e4bfa8a99046b00d"
+      ]
+    }, function (err, diffs) {
+      // Diffs:
+      // {
+      //   "myDoc1": {
+      //     "missing": ["2-3a24009a9525bde9e4bfa8a99046b00d"]
+      //   }
+      // }
+    });
