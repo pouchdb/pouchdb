@@ -51,6 +51,8 @@ var IdbPouch = function(opts, callback) {
   var ATTACH_STORE = 'attach-store';
   // Where we store meta data
   var META_STORE = 'meta-store';
+  // Where we detect blob support
+  var DETECT_BLOB_SUPPORT_STORE = 'detect-blob-support'
 
 
   var name = opts.name;
@@ -59,6 +61,8 @@ var IdbPouch = function(opts, callback) {
     id: 'meta-store',
     updateSeq: 0,
   };
+
+  var blobSupport = null;
 
   var instanceId = null;
   var api = {};
@@ -77,13 +81,14 @@ var IdbPouch = function(opts, callback) {
       .createIndex('_rev', '_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
     db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
+    db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
   };
 
   req.onsuccess = function(e) {
 
     idb = e.target.result;
 
-    var txn = idb.transaction([META_STORE], IDBTransaction.READ_WRITE);
+    var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE], IDBTransaction.READ_WRITE);
 
     idb.onversionchange = function() {
       idb.close();
@@ -121,7 +126,16 @@ var IdbPouch = function(opts, callback) {
         meta[name + '_id'] = instanceId;
         reqDBId = txn.objectStore(META_STORE).put(meta);
       }
-      call(callback, null, api);
+
+      // detect blob support
+      try {
+        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(new Blob(), "key");
+        blobSupport = true;
+      } catch (e) {
+        blobSupport = false;
+      } finally {
+        call(callback, null, api);
+      }
     }
   };
 
