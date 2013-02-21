@@ -1,3 +1,7 @@
+/*globals rootToLeaf: false, extend: false, traverseRevTree: false */
+
+'use strict';
+
 (function() {
   // a few hacks to get things in the right place for node.js
   if (typeof module !== 'undefined' && module.exports) {
@@ -23,6 +27,8 @@
   function pathToTree(path) {
     var root = [path.shift(), []];
     var leaf = root;
+    var nleaf;
+
     while (path.length) {
       nleaf = [path.shift(), []];
       leaf[1].push(nleaf);
@@ -69,7 +75,7 @@
 
         var merged = false;
         for (var j = 0; j < tree1[1].length; j++) {
-          if (tree1[1][j][0] == tree2[1][i][0]) {
+          if (tree1[1][j][0] === tree2[1][i][0]) {
             queue.push({tree1: tree1[1][j], tree2: tree2[1][i]});
             merged = true;
           }
@@ -118,13 +124,15 @@
         trees.push({ids: t1.ids, diff: diff, parent: null, parentIdx: null});
         while (trees.length > 0) {
           var item = trees.pop();
-          if (item.diff == 0) {
-            if (item.ids[0] == t2.ids[0]) {
+          if (item.diff === 0) {
+            if (item.ids[0] === t2.ids[0]) {
               candidateParents.push(item);
             }
             continue;
           }
-          if (!item.ids) continue;
+          if (!item.ids) {
+            continue;
+          }
           item.ids[1].forEach(function(el, idx) {
             trees.push({ids: el, diff: item.diff-1, parent: item.ids, parentIdx: idx});
           });
@@ -182,7 +190,9 @@
     var leafs = [];
 
     traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id) {
-      if (isLeaf) leafs.push({pos: pos, id: id});
+      if (isLeaf) {
+        leafs.push({pos: pos, id: id});
+      }
     });
 
     leafs.forEach(function(leaf) {
