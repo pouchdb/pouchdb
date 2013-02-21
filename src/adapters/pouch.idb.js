@@ -312,8 +312,8 @@ var IdbPouch = function(opts, callback) {
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
           var data = docInfo.data._attachments[key].data;
-          var digest = docInfo.data._attachments[key].digest;
           delete docInfo.data._attachments[key].data;
+          var digest = docInfo.data._attachments[key].digest;
           saveAttachment(docInfo, digest, data, function(err) {
             recv++;
             collectResults(err);
@@ -525,23 +525,11 @@ var IdbPouch = function(opts, callback) {
           var recv = 0;
 
           attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, {txn: txn}, function(err, data) {
-              if (typeof data === 'string') {
-                doc._attachments[key].data = data;
+            api.getAttachment(doc._id + '/' + key, {encode: true, txn: txn}, function(err, data) {
+              doc._attachments[key].data = data;
 
-                if (++recv === attachments.length) {
-                  result = doc;
-                }
-              } else {
-                var reader = new FileReader();
-                reader.onloadend = function(e) {
-                  doc._attachments[key].data = btoa(this.result);
-
-                  if (++recv === attachments.length) {
-                    result = doc;
-                  }
-                }
-                reader.readAsBinaryString(data);
+              if (++recv === attachments.length) {
+                result = doc;
               }
             });
           });
@@ -580,13 +568,33 @@ var IdbPouch = function(opts, callback) {
 
         txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
           var data = e.target.result.body;
-          if (typeof data === 'string') {
-            result = new Blob([atob(data)], {type: type});
+          if (opts.encode) {
+            if (blobSupport) {
+              var reader = new FileReader();
+              reader.onloadend = function(e) {
+                result = btoa(this.result);
+
+                if ('txn' in opts) {
+                  call(callback, null, result);
+                }
+              }
+              reader.readAsBinaryString(data);
+            } else {
+              result = data;
+
+              if ('txn' in opts) {
+                call(callback, null, result);
+              }
+            }
           } else {
-            result = data;
-          }
-          if ('txn' in opts) {
-            call(callback, null, result);
+            if (blobSupport) {
+              result = data;
+            } else {
+              result = new Blob([atob(data)], {type: type});
+            }
+            if ('txn' in opts) {
+              call(callback, null, result);
+            }
           }
         }
       };
