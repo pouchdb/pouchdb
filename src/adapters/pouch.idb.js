@@ -595,6 +595,7 @@ var IdbPouch = function(opts, callback) {
         return;
       }
       var cursor = e.target.result;
+      var metadata = cursor.value;
       // If opts.keys is set we want to filter here only those docs with
       // key in opts.keys. With no performance tests it is difficult to
       // guess if iteration with filter is faster than many single requests
@@ -633,10 +634,11 @@ var IdbPouch = function(opts, callback) {
       }
 
       if (!opts.include_docs) {
-        allDocsInner(cursor.value);
+        allDocsInner(metadata);
       } else {
-        var index = transaction.objectStore(BY_SEQ_STORE);
-        index.get(cursor.value.seq).onsuccess = function(event) {
+        var index = transaction.objectStore(BY_SEQ_STORE).index('_rev');
+        var mainRev = Pouch.merge.winningRev(metadata);
+        index.get(mainRev).onsuccess = function(event) {
           allDocsInner(cursor.value, event.target.result);
         };
       }

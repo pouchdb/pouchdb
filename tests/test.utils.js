@@ -79,6 +79,19 @@ function generateAdapterUrl(id) {
   }
 }
 
+
+function putAfter(db, doc, prevRev, callback){
+  var newDoc = extend({}, doc);
+  newDoc._revisions = {
+    start: +newDoc._rev.split('-')[0],
+    ids: [
+      newDoc._rev.split('-')[1],
+      prevRev.split('-')[1]
+    ]
+  };
+  db.put(newDoc, {new_edits: false}, callback);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   Pouch = require('../src/pouch.js');
   module.exports = {
@@ -87,6 +100,7 @@ if (typeof module !== 'undefined' && module.exports) {
     initDBPair: initDBPair,
     openTestDB: openTestDB,
     generateAdapterUrl: generateAdapterUrl,
+    putAfter: putAfter,
     PERSIST_DATABASES: PERSIST_DATABASES
   };
 }
