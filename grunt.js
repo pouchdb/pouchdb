@@ -25,11 +25,11 @@ var browserConfig = [{
   platform: 'Windows 2003',
   name: 'win2003/chrome',
   'chrome.switches' : ['disable-file-system']
-}, {
-  browserName: 'firefox',
-  version: '17',
-  platform: 'Windows 2003',
-  name: 'win2003/firefox'
+// }, {
+//   browserName: 'firefox',
+//   version: '17',
+//   platform: 'Windows 2003',
+//   name: 'win2003/firefox'
 }, {
   browserName: 'safari',
   version: '5',
