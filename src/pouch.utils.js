@@ -1,4 +1,6 @@
-/*globals request: true, Buffer: true, escape: true, $:true */
+/*jshint strict: false */
+/*global request: true, Buffer: true, escape: true, $:true */
+/*global extend: true, Crypto: true */
 
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
@@ -199,6 +201,7 @@ var traverseRevTree = function(revs, callback) {
     var pos = node.pos;
     var tree = node.ids;
     var newCtx = callback(tree[1].length === 0, pos, tree[0], node.ctx);
+    /*jshint loopfunc: true */
     tree[1].forEach(function(branch) {
       toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
     });
@@ -438,6 +441,10 @@ var type = function(obj) {
     typeof obj;
 };
 
+var isWindow = function(obj) {
+  return obj !== null && obj === obj.window;
+};
+
 var isPlainObject = function( obj ) {
   // Must be an Object.
   // Because of IE, we also have to check the presence of the constructor property.
@@ -469,10 +476,6 @@ var isPlainObject = function( obj ) {
 
 var isFunction = function(obj) {
   return type(obj) === "function";
-};
-
-var isWindow = function(obj) {
-  return obj !== null && obj === obj.window;
 };
 
 var isArray = Array.isArray || function(obj) {
@@ -569,19 +572,6 @@ var localJSON = (function(){
   };
 })();
 
-// btoa and atob don't exist in node. see
-// https://developer.mozilla.org/en-US/docs/DOM/window.btoa
-if (typeof btoa === 'undefined') {
-  btoa = function(str) {
-    return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
-  };
-}
-if (typeof atob === 'undefined') {
-  atob = function(str) {
-    return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
-  };
-}
-
 if (typeof module !== 'undefined' && module.exports) {
   // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
   var crypto = require('crypto');
@@ -612,8 +602,12 @@ if (typeof module !== 'undefined' && module.exports) {
     arrayFirst: arrayFirst,
     filterChange: filterChange,
     ajax: ajax,
-    atob: atob,
-    btoa: btoa,
+    atob: function(str) {
+      return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
+    },
+    btoa: function(str) {
+      return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
+    },
     extend: extend,
     traverseRevTree: traverseRevTree,
     rootToLeaf: rootToLeaf,
@@ -652,6 +646,7 @@ var Changes = function() {
   api.notify = function(db_name) {
     if (!listeners[db_name]) { return; }
     for (var i in listeners[db_name]) {
+      /*jshint loopfunc: true */
       var opts = listeners[db_name][i].opts;
       listeners[db_name][i].db.changes({
         include_docs: opts.include_docs,
