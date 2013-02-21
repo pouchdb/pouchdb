@@ -76,14 +76,14 @@ adapters.map(function(adapter) {
         ok(!err, 'saved doc with attachment');
         db.get('bin_doc/foo.txt', function(err, res) {
           var reader = new FileReader();
-          reader.onload = function(e) {
-            equal(e.target.result, 'This is a base64 encoded text',
+          reader.onloadend = function(e) {
+            equal(this.result, 'This is a base64 encoded text',
               'Correct data returned');
             db.put(binAttDoc2, function(err, rev) {
               db.get('bin_doc2/foo.txt', function(err, res, xhr) {
                 var reader = new FileReader();
-                reader.onload = function(e) {
-                  equal(e.target.result, '', 'Correct data returned');
+                reader.onloadend = function(e) {
+                  equal(this.result, '', 'Correct data returned');
                   moreTests(rev.rev);
                 };
                 reader.readAsText(res);
@@ -101,8 +101,8 @@ adapters.map(function(adapter) {
       db.putAttachment('bin_doc2/foo2.txt', rev, blob, function() {
         db.get('bin_doc2/foo2.txt', function(err, res, xhr) {
           var reader = new FileReader();
-          reader.onload = function(e) {
-            ok(e.target.result === 'This is no base64 encoded text',
+          reader.onloadend = function(e) {
+            ok(this.result === 'This is no base64 encoded text',
               'Correct data returned');
             db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
               ok(res._attachments, 'Result has attachments field');
@@ -160,8 +160,8 @@ adapters.map(function(adapter) {
           ok(doc._attachments, 'doc has attachment');
           db.get(results.id + '/' + 'foo.json', function(err, attachment) {
             var reader = new FileReader();
-            reader.onload = function(e) {
-              equal(e.target.result, atob(jsonDoc._attachments['foo.json'].data),
+            reader.onloadend = function(e) {
+              equal(this.result, atob(jsonDoc._attachments['foo.json'].data),
                 'correct data');
               start();
             };
@@ -205,10 +205,10 @@ adapters.map(function(adapter) {
           db.get('doc/attachment', function(err, response) {
             ok(!err, 'got the attachment');
             var reader = new FileReader();
-            reader.onload = function(e) {
-              equal(e.target.result, JSON.stringify(doc),
+            reader.onloadend = function(e) {
+              equal(this.result, JSON.stringify(doc),
                     'the attachment is returned as a JSON string');
-              var obj = JSON.parse(e.target.result);
+              var obj = JSON.parse(this.result);
               equal(obj._id, doc._id, 'id matches');
               equal(obj.test, doc.test, 'test matches');
               start();
