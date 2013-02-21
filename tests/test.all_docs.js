@@ -217,7 +217,7 @@ adapters.map(function(adapter) {
                 complete: function(err, changes) {
                   var result = changes.results[3];
                   ok("3" === result.id, 'changes are ordered');
-                  ok(3 === result.changes.length, 'correct number of changes');
+                  equal(3, result.changes.length, 'correct number of changes');
                   ok(result.doc._rev === conflictDoc2._rev,
                      'correct winning revision');
                   equal("3", result.doc._id, 'correct doc id');
@@ -225,9 +225,7 @@ adapters.map(function(adapter) {
                         'include doc has correct rev');
                   equal(true, result.doc._conflicts instanceof Array,
                         'include docs contains conflicts');
-                  ok(result.doc._conflicts &&
-                     2 === result.doc._conflicts.length,
-                     'correct number of changes');
+                  equal(2, result.doc._conflicts.length, 'correct number of changes');
                   db.allDocs({include_docs: true, conflicts: true}, function(err, res) {
                     var row = res.rows[3];
                     equal(4, res.rows.length, 'correct number of changes');
@@ -237,7 +235,7 @@ adapters.map(function(adapter) {
                     equal(row.doc._rev, winRev._rev, 'correct rev');
                     equal("3", row.doc._id, 'correct order');
                     ok(row.doc._conflicts instanceof Array);
-                    ok(row.doc._conflicts && 2 === row.doc._conflicts.length);
+                    equal(2, row.doc._conflicts.length, 'Correct number of conflicts');
                     start();
                   });
                 }
