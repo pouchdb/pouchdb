@@ -1,4 +1,4 @@
-//"use strict";
+"use strict";
 var visualizeRevTree = function(db) {
   // see: pouch.utils.js
   var traverseRevTree = function(revs, callback) {
@@ -32,7 +32,7 @@ var visualizeRevTree = function(db) {
   };
   // returns minimal number i such that prefixes of lenght i are unique
   // ex: ["xyaaa", "xybbb", "xybccc"] -> 4
-  minUniqueLength = function(arr, len){
+  var minUniqueLength = function(arr, len){
     function strCommon(a, b){
       if (a === b) return a.length;
       var i = 0;
@@ -47,7 +47,7 @@ var visualizeRevTree = function(db) {
       com = Math.max(com, strCommon(array[i], array[i - 1]));
     }
     return com;
-  }
+  };
 
   var visualize = function(docId, opts, callback) {
     if (typeof opts === 'function') {
