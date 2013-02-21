@@ -331,6 +331,7 @@ var ajax = function ajax(options, callback) {
     method : "GET",
     headers: {},
     json: true,
+    processData: true,
     timeout: 10000
   };
   options = extend(true, defaultOptions, options);
@@ -362,9 +363,12 @@ var ajax = function ajax(options, callback) {
     if (options.json) {
       options.headers.Accept = 'application/json';
       options.headers['Content-Type'] = 'application/json';
-      if (options.body && typeof options.body !== "string") {
+      if (options.body && options.processData && typeof options.body !== "string") {
         options.body = JSON.stringify(options.body);
       }
+    }
+    if (options.binary) {
+      xhr.responseType = 'arraybuffer';
     }
     for (var key in options.headers){
       xhr.setRequestHeader(key, options.headers[key]);
@@ -383,8 +387,14 @@ var ajax = function ajax(options, callback) {
         return;
       }
       clearTimeout(timer);
-      if (xhr.status >= 200 && xhr.status < 300){
-        call(onSuccess, xhr.responseText, xhr, callback);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var data;
+        if (options.binary) {
+          data = new Blob([xhr.response], {type: xhr.getResponseHeader('Content-Type')});
+        } else {
+          data = xhr.responseText;
+        }
+        call(onSuccess, data, xhr, callback);
       } else {
          call(onError, xhr, callback);
       }
