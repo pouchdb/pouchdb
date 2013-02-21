@@ -1,3 +1,5 @@
+'use strict';
+
 (function() {
   // a few hacks to get things in the right place for node.js
   if (typeof module !== 'undefined' && module.exports) {
@@ -23,19 +25,19 @@
       return stringCollate(a, b);
     }
     if (Array.isArray(a)) {
-      return arrayCollate(a, b)
+      return arrayCollate(a, b);
     }
     if (typeof a === 'object') {
       return objectCollate(a, b);
     }
-  }
+  };
 
   var stringCollate = function(a, b) {
     // See: https://github.com/daleharvey/pouchdb/issues/40
     // This is incompatible with the CouchDB implementation, but its the
     // best we can do for now
     return (a === b) ? 0 : ((a > b) ? 1 : -1);
-  }
+  };
 
   var objectCollate = function(a, b) {
     var ak = Object.keys(a), bk = Object.keys(b);
@@ -55,7 +57,7 @@
     }
     return (ak.length === bk.length) ? 0 :
       (ak.length > bk.length) ? 1 : -1;
-  }
+  };
 
   var arrayCollate = function(a, b) {
     var len = Math.min(a.length, b.length);
@@ -67,7 +69,7 @@
     }
     return (a.length === b.length) ? 0 :
       (a.length > b.length) ? 1 : -1;
-  }
+  };
 
   // The collation is defined by erlangs ordered terms
   // the atoms null, true, false come first, then numbers, strings,
@@ -83,6 +85,6 @@
     if (Array.isArray(x)) {
       return 4.5;
     }
-  }
+  };
 
 }).call(this);
