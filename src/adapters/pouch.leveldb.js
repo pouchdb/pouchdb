@@ -632,14 +632,15 @@ LevelPouch = module.exports = function(opts, callback) {
           }
         }
       }
+      var metadata = entry.value;
       if (opts.include_docs) {
-        var seq = entry.value.seq;
+        var seq = metadata.rev_map[Pouch.merge.winningRev(metadata)];
         stores[BY_SEQ_STORE].get(seq, function(err, data) {
-          allDocsInner(entry.value, data);
+          allDocsInner(metadata, data);
         });
       }
       else {
-        allDocsInner(entry.value);
+        allDocsInner(metadata);
       }
     });
     docstream.on('error', function(err) {
