@@ -136,25 +136,19 @@ Pouch.destroy = function(name, callback) {
       return;
     }
     // check if db has been registered in Pouch.ALL_DBS
-    var map = function(doc) {
-      if (doc.name) {
-        emit(doc.name, doc);
-      }
-    };
-    db.query({map: map},{
-      key: opts.name,
-      reduce: false
-    }, function(err, response) {
+    var dbname = Pouch.DBName(opts.adapter, opts.name);
+    console.log(dbname);
+    db.get(dbname, function(err, doc) {
       if (err) {
-        callback(err);
-        return;
-      }
-
-      if (response.rows.length === 0) {
-        cb();
+        if (err.status === 404) {
+          cb();
+        } else {
+          cb(err);
+        }
       } else {
-        var doc = response.rows[0].value;
-        db.remove(doc, cb);
+        db.remove(doc, function(err, response) {
+            cb(err);
+        });
       }
     });
   });
@@ -172,6 +166,9 @@ Pouch.plugin = function(id, obj) {
 
 // name of database used to keep track of databases
 Pouch.ALL_DBS = "_all_dbs";
+Pouch.DBName = function(adapter, name) {
+  return [adapter, "-", name].join('');
+};
 Pouch.allDBName = function(adapter) {
   return [adapter, "://", Pouch.ALL_DBS].join('');
 };
@@ -190,26 +187,18 @@ Pouch.open = function(adapter, name, callback) {
     }
 
     // check if db has been registered in Pouch.ALL_DBS
-    var map = function(doc) {
-      if (doc.name) {
-        emit(doc.name, doc);
-      }
-    };
-    db.query({map: map},{
-      key: name,
-      reduce: false
-    }, function(err, response) {
+    var dbname = Pouch.DBName(adapter, name);
+    db.get(dbname, function(err, response) {
       if (err) {
-        callback(err);
-        return;
-      }
-
-      if (response.rows.length === 0) {
-        db.post({
-          name: name
-        }, callback);
+        if (err.status === 404) {
+          db.put({
+            _id: dbname
+          }, callback);
+        } else {
+          callback(err);
+        }
       } else {
-          callback();
+        callback();
       }
     });
   });
@@ -243,6 +232,13 @@ Pouch._all_dbs = function(callback) {
 
         // append from current adapter rows
         all_dbs.unshift.apply(all_dbs, response.rows);
+
+        // code to clear _all_dbs.
+        // response.rows.forEach(function(row) {
+        //   db.remove(row.doc, function() {
+        //     console.log(arguments);
+        //   });
+        // });
 
         // recurse
         accumulate(adapters, all_dbs);
