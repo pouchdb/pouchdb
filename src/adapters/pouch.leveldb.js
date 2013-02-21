@@ -396,6 +396,8 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo, callback) {
+      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
+
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
       var conflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
