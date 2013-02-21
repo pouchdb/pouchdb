@@ -1,3 +1,5 @@
+/*globals PouchAdapter: true */
+
 "use strict";
 
 var Pouch = function Pouch(name, opts, callback) {
@@ -28,9 +30,11 @@ var Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = PouchAdapter(opts, function(err, db) {
+  var adapter = new PouchAdapter(opts, function(err, db) {
     if (err) {
-      if (callback) callback(err);
+      if (callback) {
+        callback(err);
+      }
       return;
     }
     for (var plugin in Pouch.plugins) {
@@ -80,8 +84,6 @@ Pouch.parseAdapter = function(name) {
     name: name,
     adapter: rankedAdapter
   };
-
-  throw 'No Valid Adapter.';
 };
 
 
@@ -180,5 +182,5 @@ if (typeof module !== 'undefined' && module.exports) {
   });
   require('./plugins/pouchdb.mapreduce.js');
 } else {
-  this.Pouch = Pouch;
+  Pouch = Pouch;
 }
