@@ -238,7 +238,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-qunit');
 
   grunt.registerTask("build", "concat:amd concat:all min:dist");
-  grunt.registerTask("test", "build server cors-server node-qunit " +
+  grunt.registerTask("test", "lint build server cors-server node-qunit " +
                      "saucelabs-qunit publish-results");
   grunt.registerTask("full", "concat min");
   grunt.registerTask("spatial", "concat:spatial min:spatial");

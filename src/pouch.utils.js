@@ -1,3 +1,7 @@
+/*jshint strict: false */
+/*global request: true, Buffer: true, escape: true, $:true */
+/*global extend: true, Crypto: true */
+
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
 var call = function(fun) {
@@ -5,7 +9,7 @@ var call = function(fun) {
   if (typeof fun === typeof Function) {
     fun.apply(this, args);
   }
-}
+};
 
 // Wrapper for functions that call the bulkdocs api with a single doc,
 // if the first result is an error, return an error
@@ -20,34 +24,33 @@ var yankError = function(callback) {
 };
 
 var isLocalId = function(id) {
-  return /^_local/.test(id);
-}
+  return (/^_local/).test(id);
+};
 
 var isAttachmentId = function(id) {
-  return (/\//.test(id)
-      && !isLocalId(id)
-      && !/^_design/.test(id));
-}
+  return (/\//.test(id) && !isLocalId(id) && !/^_design/.test(id));
+};
 
 // Parse document ids: docid[/attachid]
 //   - /attachid is optional, and can have slashes in it too
 //   - int ids and strings beginning with _design or _local are not split
 // returns an object: { docId: docid, attachmentId: attachid }
 var parseDocId = function(id) {
-  var ids = (typeof id === 'string') && !(/^_(design|local)\//.test(id))
-    ? id.split('/')
-    : [id]
+  var ids = (typeof id === 'string') && !(/^_(design|local)\//.test(id)) ?
+    id.split('/') : [id];
   return {
     docId: ids[0],
     attachmentId: ids.splice(1).join('/').replace(/^\/+/, '')
-  }
-}
+  };
+};
 
 // check if a specific revision of a doc has been deleted
 //  - metadata: the metadata object from the doc store
 //  - rev: (optional) the revision to check. defaults to metadata.rev
 var isDeleted = function(metadata, rev) {
-  if (!metadata || !metadata.deletions) return false;
+  if (!metadata || !metadata.deletions) {
+    return false;
+  }
   if (!rev) {
     rev = Pouch.merge.winningRev(metadata);
   }
@@ -56,17 +59,17 @@ var isDeleted = function(metadata, rev) {
   }
 
   return metadata.deletions[rev] === true;
-}
+};
 
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
 //   - any other string value is a valid id
 var isValidId = function(id) {
   if (/^_/.test(id)) {
-    return /^_(design|local)/.test(id);
+    return (/^_(design|local)/).test(id);
   }
   return true;
-}
+};
 
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
@@ -78,27 +81,28 @@ var parseDoc = function(doc, newEdits) {
     var id = parseDocId(doc._id);
     if (id.attachmentId !== '') {
       var attachment = btoa(JSON.stringify(doc));
-      doc = {
-        _id: id.docId,
-      }
+      doc = {_id: id.docId};
       if (!doc._attachments) {
         doc._attachments = {};
       }
       doc._attachments[id.attachmentId] = {
         content_type: 'application/json',
         data: attachment
-      }
+      };
     }
   }
+
+  var nRevNum;
+  var newRevId;
+  var revInfo;
 
   if (newEdits) {
     if (!doc._id) {
       doc._id = Math.uuid();
     }
-    var newRevId = Math.uuid(32, 16).toLowerCase();
-    var nRevNum;
+    newRevId = Math.uuid(32, 16).toLowerCase();
     if (doc._rev) {
-      var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
+      revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
       if (!revInfo) {
         throw "invalid value for property '_rev'";
       }
@@ -130,7 +134,7 @@ var parseDoc = function(doc, newEdits) {
       newRevId = doc._revisions.ids[0];
     }
     if (!doc._rev_tree) {
-      var revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
+      revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
       nRevNum = parseInt(revInfo[1], 10);
       newRevId = revInfo[2];
       doc._rev_tree = [{
@@ -193,15 +197,16 @@ var traverseRevTree = function(revs, callback) {
   });
 
   while (toVisit.length > 0) {
-    var node = toVisit.pop(),
-        pos = node.pos,
-        tree = node.ids;
-    var newCtx = callback(tree[1].length == 0, pos, tree[0], node.ctx);
+    var node = toVisit.pop();
+    var pos = node.pos;
+    var tree = node.ids;
+    var newCtx = callback(tree[1].length === 0, pos, tree[0], node.ctx);
+    /*jshint loopfunc: true */
     tree[1].forEach(function(branch) {
       toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
     });
   }
-}
+};
 
 var collectRevs = function(path) {
   var revs = [];
@@ -211,30 +216,32 @@ var collectRevs = function(path) {
   });
 
   return revs;
-}
+};
 
 var collectLeaves = function(revs) {
   var leaves = [];
   traverseRevTree(revs, function(isLeaf, pos, id) {
-    if (isLeaf) leaves.unshift({rev: pos + "-" + id, pos: pos});
+    if (isLeaf) {
+      leaves.unshift({rev: pos + "-" + id, pos: pos});
+    }
   });
   leaves.sort(function(a, b) {
-    return b.pos-a.pos;
+    return b.pos - a.pos;
   });
-  leaves.map(function(leaf) { delete leaf.pos });
+  leaves.map(function(leaf) { delete leaf.pos; });
   return leaves;
-}
+};
 
 var collectConflicts = function(revs) {
   var leaves = collectLeaves(revs);
   // First is current rev
   leaves.shift();
   return leaves.map(function(x) { return x.rev; });
-}
+};
 
 var fetchCheckpoint = function(src, target, opts, callback) {
   var filter_func = '';
-  if(typeof opts.filter != "undefined"){
+  if (typeof opts.filter !== "undefined") {
     filter_func = opts.filter.toString();
   }
 
@@ -250,10 +257,10 @@ var fetchCheckpoint = function(src, target, opts, callback) {
 
 var writeCheckpoint = function(src, target, opts, checkpoint, callback) {
   var filter_func = '';
-  if(typeof opts.filter != "undefined"){
+  if (typeof opts.filter !== "undefined") {
     filter_func = opts.filter.toString();
   }
-  
+
   var check = {
     _id: '_local/' + Crypto.MD5(src.id() + target.id() + filter_func),
     last_seq: checkpoint
@@ -287,7 +294,7 @@ var filterChange = function(opts) {
       delete change.doc;
     }
     call(opts.onChange, change);
-  }
+  };
 };
 
 // returns array of all branches from root to leaf in the ids form:
@@ -356,14 +363,16 @@ var ajax = function ajax(options, callback) {
     if (!("body" in options)) {
       options.body = null;
     }
-    
+
     var abortReq = function() {
         timedout=true;
         xhr.abort();
         call(onError, xhr, callback);
-      }
+    };
     xhr.onreadystatechange = function() {
-      if (xhr.readyState !== 4 || timedout) return;
+      if (xhr.readyState !== 4 || timedout) {
+        return;
+      }
       clearTimeout(timer);
       if (xhr.status >= 200 && xhr.status < 300){
         call(onSuccess, xhr.responseText, xhr, callback);
@@ -387,13 +396,14 @@ var ajax = function ajax(options, callback) {
         return call(onError, err, callback);
       }
 
-      var content_type = response.headers['content-type']
-        , data = (body || '');
+      var content_type = response.headers['content-type'];
+      var data = (body || '');
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (options.json && typeof data !== 'object' && (/json/.test(content_type)
-          || (/^[\s]*{/.test(data) && /}[\s]*$/.test(data)))) {
+      if (options.json && typeof data !== 'object' &&
+          (/json/.test(content_type) ||
+           (/^[\s]*\{/.test(data) && /\}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
 
@@ -431,6 +441,10 @@ var type = function(obj) {
     typeof obj;
 };
 
+var isWindow = function(obj) {
+  return obj !== null && obj === obj.window;
+};
+
 var isPlainObject = function( obj ) {
   // Must be an Object.
   // Because of IE, we also have to check the presence of the constructor property.
@@ -462,10 +476,6 @@ var isPlainObject = function( obj ) {
 
 var isFunction = function(obj) {
   return type(obj) === "function";
-};
-
-var isWindow = function(obj) {
-  return obj != null && obj == obj.window;
 };
 
 var isArray = Array.isArray || function(obj) {
@@ -562,18 +572,6 @@ var localJSON = (function(){
   };
 })();
 
-// btoa and atob don't exist in node. see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
-if (typeof btoa === 'undefined') {
-  btoa = function(str) {
-    return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
-  }
-}
-if (typeof atob === 'undefined') {
-  atob = function(str) {
-    return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
-  }
-}
-
 if (typeof module !== 'undefined' && module.exports) {
   // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
   var crypto = require('crypto');
@@ -581,7 +579,7 @@ if (typeof module !== 'undefined' && module.exports) {
     MD5: function(str) {
       return crypto.createHash('md5').update(str).digest('hex');
     }
-  }
+  };
   request = require('request');
   _ = require('underscore');
   $ = _;
@@ -604,14 +602,18 @@ if (typeof module !== 'undefined' && module.exports) {
     arrayFirst: arrayFirst,
     filterChange: filterChange,
     ajax: ajax,
-    atob: atob,
-    btoa: btoa,
+    atob: function(str) {
+      return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
+    },
+    btoa: function(str) {
+      return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
+    },
     extend: extend,
     traverseRevTree: traverseRevTree,
     rootToLeaf: rootToLeaf,
     isPlainObject: isPlainObject,
     isArray: isArray
-  }
+  };
 }
 
 var Changes = function() {
@@ -631,19 +633,20 @@ var Changes = function() {
       db: db,
       opts: opts
     };
-  }
+  };
 
   api.removeListener = function(db_name, id) {
     delete listeners[db_name][id];
-  }
+  };
 
   api.clearListeners = function(db_name) {
     delete listeners[db_name];
-  }
+  };
 
   api.notify = function(db_name) {
     if (!listeners[db_name]) { return; }
     for (var i in listeners[db_name]) {
+      /*jshint loopfunc: true */
       var opts = listeners[db_name][i].opts;
       listeners[db_name][i].db.changes({
         include_docs: opts.include_docs,
@@ -659,7 +662,7 @@ var Changes = function() {
         }
       });
     }
-  }
+  };
 
   return api;
 };

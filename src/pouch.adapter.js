@@ -1,4 +1,6 @@
-"use strict"
+/*globals yankError: false, extend: false, call: false, parseDocId: false */
+
+"use strict";
 
 /*
  * A generic pouch adapter
@@ -38,11 +40,11 @@ var PouchAdapter = function(opts, callback) {
     api.putAttachment = api.putAttachment = function (id, rev, doc, type, callback) {
       id = parseDocId(id);
       api.get(id.docId, {attachments: true}, function(err, obj) {
-        obj._attachments || (obj._attachments = {});
+        obj._attachments = obj._attachments || {};
         obj._attachments[id.attachmentId] = {
           content_type: type,
           data: btoa(doc)
-        }
+        };
         api.put(obj, callback);
       });
     };
@@ -57,12 +59,12 @@ var PouchAdapter = function(opts, callback) {
           return;
         }
 
-        if (obj._rev != rev) {
+        if (obj._rev !== rev) {
           call(callback, Pouch.Errors.REV_CONFLICT);
           return;
         }
 
-        obj._attachments || (obj._attachments = {});
+        obj._attachments = obj._attachments || {};
         delete obj._attachments[id.attachmentId];
         api.put(obj, callback);
       });
