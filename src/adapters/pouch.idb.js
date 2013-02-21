@@ -235,6 +235,63 @@ var IdbPouch = function(opts, callback) {
       call(callback, null, aresults);
     }
 
+    function preprocessAttachment(att, callback) {
+      if (att.stub) {
+        return callback();
+      }
+      if (typeof att.data === 'string') {
+        var data = atob(att.data);
+        att.digest = 'md5-' + Crypto.MD5(data);
+        if (blobSupport) {
+          var type = att.content_type;
+          att.data = new Blob([data], {type: type});
+        }
+        return callback();
+      }
+      var reader = new FileReader();
+      reader.onloadend = function(e) {
+        att.digest = 'md5-' + Crypto.MD5(this.result);
+        if (!blobSupport) {
+          att.data = btoa(this.result);
+        }
+        callback();
+      };
+      reader.readAsBinaryString(att.data);
+    }
+
+    function preprocessAttachments(callback) {
+      if (!docInfos.length) {
+        return callback();
+      }
+
+      var docv = 0;
+      docInfos.forEach(function(docInfo) {
+        var attachments = docInfo.data._attachments ?
+          Object.keys(docInfo.data._attachments) : [];
+
+        if (!attachments.length) {
+          return done();
+        }
+
+        var recv = 0;
+        for (var key in docInfo.data._attachments) {
+          preprocessAttachment(docInfo.data._attachments[key], function() {
+            recv++;
+            if (recv == attachments.length) {
+              done();
+            }
+          });
+        }
+      });
+      
+      function done() {
+        docv++;
+        if (docInfos.length === docv) {
+          callback();
+        }
+      }
+    }
+
     function writeDoc(docInfo, callback) {
       var err = null;
       var recv = 0;
@@ -255,9 +312,8 @@ var IdbPouch = function(opts, callback) {
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
           var data = docInfo.data._attachments[key].data;
-          var digest = 'md5-' + Crypto.MD5(data);
+          var digest = docInfo.data._attachments[key].digest;
           delete docInfo.data._attachments[key].data;
-          docInfo.data._attachments[key].digest = digest;
           saveAttachment(docInfo, digest, data, function(err) {
             recv++;
             collectResults(err);
@@ -359,12 +415,15 @@ var IdbPouch = function(opts, callback) {
       getReq.onerror = getReq.ontimeout = idbError(callback);
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE], IDBTransaction.READ_WRITE);
-    txn.onerror = idbError(callback);
-    txn.ontimeout = idbError(callback);
-    txn.oncomplete = complete;
+    var txn;
+    preprocessAttachments(function() {
+      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE], IDBTransaction.READ_WRITE);
+      txn.onerror = idbError(callback);
+      txn.ontimeout = idbError(callback);
+      txn.oncomplete = complete;
 
-    processDocs();
+      processDocs();
+    });
 
   };
 
@@ -467,10 +526,22 @@ var IdbPouch = function(opts, callback) {
 
           attachments.forEach(function(key) {
             api.getAttachment(doc._id + '/' + key, {txn: txn}, function(err, data) {
-              doc._attachments[key].data = data;
+              if (typeof data === 'string') {
+                doc._attachments[key].data = data;
 
-              if (++recv === attachments.length) {
-                result = doc;
+                if (++recv === attachments.length) {
+                  result = doc;
+                }
+              } else {
+                var reader = new FileReader();
+                reader.onloadend = function(e) {
+                  doc._attachments[key].data = btoa(this.result);
+
+                  if (++recv === attachments.length) {
+                    result = doc;
+                  }
+                }
+                reader.readAsBinaryString(data);
               }
             });
           });
@@ -507,16 +578,13 @@ var IdbPouch = function(opts, callback) {
         var digest = attachment.digest;
         var type = attachment.content_type
 
-        function postProcessDoc(data) {
-          if (opts.decode) {
-            data = atob(data);
-          }
-          return data;
-        }
-
         txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
           var data = e.target.result.body;
-          result = postProcessDoc(data);
+          if (typeof data === 'string') {
+            result = new Blob([atob(data)], {type: type});
+          } else {
+            result = data;
+          }
           if ('txn' in opts) {
             call(callback, null, result);
           }
