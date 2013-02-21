@@ -83,8 +83,6 @@ adapters.map(function(adapter) {
               db.get('bin_doc2/foo.txt', function(err, res, xhr) {
                 var reader = new FileReader();
                 reader.onload = function(e) {
-                  // FIXME: Chrome reads an empty binary as 'null',
-                  // where FF correctly returns ''. See src/pouch.utils.js:400
                   equal(e.target.result, '', 'Correct data returned');
                   moreTests(rev.rev);
                 };

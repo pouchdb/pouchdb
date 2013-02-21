@@ -390,7 +390,7 @@ var ajax = function ajax(options, callback) {
       if (xhr.status >= 200 && xhr.status < 300) {
         var data;
         if (options.binary) {
-          data = new Blob([xhr.response], {type: xhr.getResponseHeader('Content-Type')});
+          data = new Blob([xhr.response || ''], {type: xhr.getResponseHeader('Content-Type')});
         } else {
           data = xhr.responseText;
         }
