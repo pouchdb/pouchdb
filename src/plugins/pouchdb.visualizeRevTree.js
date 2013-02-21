@@ -1,4 +1,4 @@
-"use strict";
+//"use strict";
 var visualizeRevTree = function(db) {
   // see: pouch.utils.js
   var traverseRevTree = function(revs, callback) {
@@ -18,6 +18,36 @@ var visualizeRevTree = function(db) {
       });
     }
   };
+  var revisionsToPath = function(revisions){
+    var tree = [revisions.ids[0], []];
+    var i, rev;
+    for(i = 1; i < revisions.ids.length; i++){
+      rev = revisions.ids[i];
+      tree = [rev, [tree]];
+    }
+    return {
+      pos: revisions.start - revisions.ids.length + 1,
+      ids: tree
+    };
+  };
+  // returns minimal number i such that prefixes of lenght i are unique
+  // ex: ["xyaaa", "xybbb", "xybccc"] -> 4
+  minUniqueLength = function(arr, len){
+    function strCommon(a, b){
+      if (a === b) return a.length;
+      var i = 0;
+      while(++i){
+        if(a[i - 1] !== b[i - 1]) return i;
+      }
+    }
+    var array = arr.slice(0);
+    var com = 0;
+    array.sort();
+    for (var i = 1; i < array.length; i++){
+      com = Math.max(com, strCommon(array[i], array[i - 1]));
+    }
+    return com;
+  }
 
   var visualize = function(docId, opts, callback) {
     if (typeof opts === 'function') {
@@ -57,24 +87,14 @@ var visualizeRevTree = function(db) {
     svg.appendChild(linesBox);
     var circlesBox = document.createElementNS(svgNS, "g");
     svg.appendChild(circlesBox);
-
-    function revisionsToPath(revisions){
-      var tree = [revisions.ids[0], []];
-      var i, rev;
-      for(i = 1; i < revisions.ids.length; i++){
-        rev = revisions.ids[i];
-        tree = [rev, [tree]];
-      }
-      return {
-        pos: revisions.start - revisions.ids.length + 1,
-        ids: tree
-      };
-    }
+    var textsBox = document.createElementNS(svgNS, "g");
+    svg.appendChild(textsBox);
 
     // first we need to download all data using public API
     var tree = [];
     var deleted = {};
     var winner;
+    var allRevs = [];
 
     // consider using revs=true&open_revs=all to get everything in one query
     db.get(docId, function(err, doc){ // get winning revision here
@@ -94,6 +114,11 @@ var visualizeRevTree = function(db) {
             deleted[res.ok._rev] = true;
           }
           db.get(docId, {rev: res.ok._rev, revs: true}, function(err, res){ // get the whole branch of current leaf
+            res._revisions.ids.forEach(function(rev){
+              if (allRevs.indexOf(rev) === -1) {
+                allRevs.push(rev);
+              }
+            });
             var path = revisionsToPath(res._revisions);
             tree = Pouch.merge(tree, path).tree;
             len--;
@@ -106,6 +131,7 @@ var visualizeRevTree = function(db) {
     });
 
     function draw(forest){
+      var minUniq = minUniqueLength(allRevs);
       var grid = 10;
       var maxX = grid;
       var maxY = grid;
@@ -133,6 +159,14 @@ var visualizeRevTree = function(db) {
             console.log(that.rev, err, doc);
           });
         };
+
+        var text = document.createElementNS(svgNS, "text");
+        text.setAttributeNS(null, "x", x + 1);
+        text.setAttributeNS(null, "y", y - 0.5);
+        text.setAttributeNS(null, "font-size", "1");
+        text.appendChild(document.createTextNode(pos + '-' + id.substr(0, minUniq)));
+        textsBox.appendChild(text);
+
         if (ctx) {
           line(x, y, ctx.x, ctx.y); 
         }
