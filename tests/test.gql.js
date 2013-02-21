@@ -113,6 +113,43 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test select with parsing errors", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs(
+        {docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
+        function() {
+          var queryFun = {
+            select: "foo(, what, _id",
+          };
+          db.gql(queryFun, function(error, res) {
+            equal(error.error, "parsing_error", "Correct error received");
+            equal(res, undefined, "Result is not defined");
+          });
+          start(); });
+    });
+  });
+
+  asyncTest("Test unwrapped identifier in select", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs(
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+          {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
+          function() {
+            var queryFun = {
+              select: "dept, charizard",
+              groupBy: "dept",
+              pivot: "lunch"
+            };
+            db.gql(queryFun, function(error, res) {
+              console.log(error);
+              equal(error.error, "select_error", "Correct error received");
+              equal(res, undefined, "Result is not defined");
+            });
+            start();
+          });
+    });
+  });
+
   asyncTest("Test where with no results", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
@@ -259,13 +296,14 @@ adapters.map(function(adapter) {
             select: "max(charizard), min(charizard), average(charizard), count(charizard), sum(charizard)",
           };
           db.gql(queryFun, function(_, res) {
+            console.log(res);
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
-              equal(x["max-charizard"], 50, "Max computed correctly");
-              equal(x["min-charizard"], 7, "Min computed correctly");
-              equal(x["average-charizard"], (97/3), "Average computed correctly");
-              equal(x["count-charizard"], 3, "Count computed correctly");
-              equal(x["sum-charizard"], 97, "Sum computed correctly");
+              equal(x["max(charizard)"], 50, "Max computed correctly");
+              equal(x["min(charizard)"], 7, "Min computed correctly");
+              equal(x["average(charizard)"], (97/3), "Average computed correctly");
+              equal(x["count(charizard)"], 3, "Count computed correctly");
+              equal(x["sum(charizard)"], 97, "Sum computed correctly");
             });
           });
           start();
@@ -309,9 +347,9 @@ adapters.map(function(adapter) {
             equal(res.rows.length, 2, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               if(x.charmeleon === 2){
-                equal(x["max-charizard"], 50, "Correct aggregate value for charizard when charmeleon is 2");
+                equal(x["max(charizard)"], 50, "Correct aggregate value for charizard when charmeleon is 2");
               } else {
-                equal(x["max-charizard"], 7, "Correct aggregate value for charizard when charmeleon is 20");
+                equal(x["max(charizard)"], 7, "Correct aggregate value for charizard when charmeleon is 20");
               }
             });
           });
@@ -332,8 +370,8 @@ adapters.map(function(adapter) {
           db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
-              equal(x["hello max-charizard"], 50, "Correct aggregate value for charizard, charmeleon is 'hello'");
-              equal(x["world max-charizard"], 7, "Correct aggregate value for charizard, charmeleon is 'world'");
+              equal(x["hello max(charizard)"],50, "Correct aggregate value for charizard, charmeleon is 'hello'");
+              equal(x["world max(charizard)"],7, "Correct aggregate value for charizard, charmeleon is 'world'");
             });
           });
           start();
@@ -356,18 +394,18 @@ adapters.map(function(adapter) {
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               if(x["hello, 3 max-charizard"]){
-                equal(x["hello, 3 max-charizard"], 99, "Correct aggregate value for charizard, "+
+                equal(x["hello, 3 max(charizard)"], 99, "Correct aggregate value for charizard, "+
                 "charmeleon is 'hello', abra is 3");
-                equal(x["world, 3 max-charizard"], 7, "Correct aggregate value for charizard, "+
+                equal(x["world, 3 max(charizard)"], 7, "Correct aggregate value for charizard, "+
                 "charmeleon is 'world', abra is 3");
-                equal(x["hello, 2 max-charizard"], 50, "Correct aggregate value for charizard, "+
+                equal(x["hello, 2 max(charizard)"], 50, "Correct aggregate value for charizard, "+
                 "charmeleon is 'hello', abra is 2");
               } else {
-                equal(x["3, hello max-charizard"], 99, "Correct aggregate value for charizard, "+
+                equal(x["3, hello max(charizard)"], 99, "Correct aggregate value for charizard, "+
                 "charmeleon is 'hello', abra is 3");
-                equal(x["3, world max-charizard"], 7, "Correct aggregate value for charizard, "+
+                equal(x["3, world max(charizard)"], 7, "Correct aggregate value for charizard, "+
                 "charmeleon is 'world', abra is 3");
-                equal(x["2, hello max-charizard"], 50, "Correct aggregate value for charizard, "+
+                equal(x["2, hello max(charizard)"], 50, "Correct aggregate value for charizard, "+
                 "charmeleon is 'hello', abra is 2");
               }
             });
@@ -377,10 +415,32 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test pivot clause that shares identifiers with select", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs(
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+          {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
+          function() {
+            var queryFun = {
+              select: "dept, max(lunch)",
+              groupBy: "dept",
+              pivot: "lunch"
+            };
+            db.gql(queryFun, function(error, res) {
+              console.log(error);
+              equal(error.error, "pivot_error", "Correct error received");
+              equal(res, undefined, "Result is not defined");
+            });
+            start();
+          });
+    });
+  });
+
   asyncTest("Test group by and pivot together", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
-      {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
+      db.bulkDocs(
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+          {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
         function() {
           var queryFun = { 
             select: "dept, max(charizard)",
@@ -391,11 +451,35 @@ adapters.map(function(adapter) {
             equal(res.rows.length, 2, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               if(x.dept === "eng"){
-                equal(x["1 max-charizard"], 99, "Correct aggregate value for charizard where lunch is 1");
-                equal(x["2 max-charizard"], 50, "Correct aggregate value for charizard where lunch is 2");
+                equal(x["1 max(charizard)"], 99, "Correct aggregate value for charizard where lunch is 1");
+                equal(x["2 max(charizard)"], 50, "Correct aggregate value for charizard where lunch is 2");
               } else {
-                equal(x["1 max-charizard"], 40, "Correct aggregate value for charizard where lunch is 1");
+                equal(x["1 max(charizard)"], 40, "Correct aggregate value for charizard where lunch is 1");
               }
+            });
+          });
+          start();
+        });
+    });
+  });
+
+  asyncTest("Test basic label", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs(
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+          {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
+        function() {
+          var queryFun = { 
+            select: 'upper(dept), charizard',
+            label: "upper(dept) 'Department', charizard 'Maximum Charizard!'"
+          };
+          db.gql(queryFun, function(_, res) {
+            console.log(res);
+            equal(res.rows.length, 4, "Correct number of rows");
+            res.rows.forEach(function(x, i) {
+              ok(x.Department, "Department label applied correctly");
+              ok(x["Maximum Charizard!"], "Maximum Charizard! label applied correctly");
+              ok(!x.charizard, "Regular charizard label not present.");
             });
           });
           start();
