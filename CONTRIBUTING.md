@@ -12,11 +12,13 @@ Guide to Contributions
   * Almost all Pull Requests for features or bug fixes will need tests (seriously, its really important)
   * Commit messages should follow the following style:
 
-    (#99) - A brief one line description < 50 chars
+```
+(#99) - A brief one line description < 50 chars
 
-    Followed by further explanation if needed, this should be wrapped at
-    around 72 characters. Most commits should reference an existing
-    issue
+Followed by further explanation if needed, this should be wrapped at
+around 72 characters. Most commits should reference an existing
+issue
+```
 
 Dependencies
 --------------------------------------
