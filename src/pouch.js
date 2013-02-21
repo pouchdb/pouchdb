@@ -182,5 +182,5 @@ if (typeof module !== 'undefined' && module.exports) {
   });
   require('./plugins/pouchdb.mapreduce.js');
 } else {
-  Pouch = Pouch;
+  window.Pouch = Pouch;
 }
