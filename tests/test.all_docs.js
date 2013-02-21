@@ -248,48 +248,6 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest('Testing more complicated conflicts', function() {
-    initDBPair("aaa", "bbb", function(db1, db2) { // this.name, this.remote
-      var doc = {
-        _id: "foo",
-        _rev: "1-a",
-        value: "generic"
-      };
-      db1.put(doc, function(err, res) {
-        db2.put(doc, function(err, res) {
-          putAfter(db1, {_id: "foo", _rev: "3-c", value: "db1"}, "1-a", function(err, res) {
-            putAfter(db2, {_id: "foo", _rev: "2-b", value: "db2"}, "1-a", function(err, res) {
-              db1.get("foo", function(err, doc) {
-                ok(doc.value === "db1", "db1 has correct value (get)");
-                db2.get("foo", function(err, doc) {
-                  ok(doc.value === "db2", "db2 has correct value (get)");
-                  Pouch.replicate(db1, db2, function() {
-                    Pouch.replicate(db2, db1, function() {
-                      db1.get("foo", function(err, doc) {
-                        ok(doc.value === "db1", "db1 has correct value (get after replication)");
-                        db2.get("foo", function(err, doc) {
-                          ok(doc.value === "db1", "db2 has correct value (get after replication)");
-                          db1.allDocs({include_docs: true}, function(err, res) {
-                            ok(res.rows[0].doc.value === "db1", "db1 has correct value (allDocs)");
-                            db2.allDocs({include_docs: true}, function(err, res) {
-                              ok(res.rows[0].doc.value === "db1", "db2 has correct value (allDocs)");
-
-                              start();
-                            });
-                          });
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  });
-
   asyncTest('Testing get with rev', function() {
     initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {

@@ -200,6 +200,53 @@ adapters.map(function(adapters) {
     });
   });
 
+
+  asyncTest('Testing allDocs with some conflicts (issue #468)', function() {
+    // we indeed needed replication to create failing test here!
+    initDBPair(this.name, this.remote, function(db1, db2) {
+      var doc = {
+        _id: "foo",
+        _rev: "1-a",
+        value: "generic"
+      };
+      db1.put(doc, {new_edits: false}, function(err, res) {
+        db2.put(doc, {new_edits: false}, function(err, res) {
+          putAfter(db2, {_id: "foo", _rev: "2-b", value: "db2"}, "1-a", function(err, res) {
+            putAfter(db1, {_id: "foo", _rev: "2-c", value: "whatever"}, "1-a", function(err,res) {
+              putAfter(db1, {_id: "foo", _rev: "3-c", value: "db1"}, "2-c", function(err, res) {
+                db1.get("foo", function(err, doc) {
+                  ok(doc.value === "db1", "db1 has correct value (get)");
+                  db2.get("foo", function(err, doc) {
+                    ok(doc.value === "db2", "db2 has correct value (get)");
+                    Pouch.replicate(db1, db2, function() {
+                      Pouch.replicate(db2, db1, function() {
+                        db1.get("foo", function(err, doc) {
+                          ok(doc.value === "db1", "db1 has correct value (get after replication)");
+                          db2.get("foo", function(err, doc) {
+                            ok(doc.value === "db1", "db2 has correct value (get after replication)");
+                            db1.allDocs({include_docs: true}, function(err, res) { // redundant but we want to test it
+                              ok(res.rows[0].doc.value === "db1", "db1 has correct value (allDocs)");
+                              db2.allDocs({include_docs: true}, function(err, res) {
+                                ok(res.rows[0].doc.value === "db1", "db2 has correct value (allDocs)");
+
+                                start();
+                              });
+                            });
+                          });
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+
   // CouchDB will not generate a conflict here, it uses a deteministic
   // method to generate the revision number, however we cannot copy its
   // method as it depends on erlangs internal data representation
