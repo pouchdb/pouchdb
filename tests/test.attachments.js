@@ -118,6 +118,17 @@ adapters.map(function(adapter) {
     }
   });
 
+  asyncTest("Testing with invalid docs", function() {
+    var invalidDoc = {'_id': '_invalid', foo: "bar"};
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [invalidDoc, binAttDoc]}, function (err, info) {
+        ok(info[0].error, 'first doc is invalid');
+        ok(info[1].ok, 'second doc is valid');
+        start();
+      });
+    });
+  });
+
   asyncTest("Test put attachment on a doc without attachments", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
