@@ -35,6 +35,18 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 
+function makeBlob(data, type) {
+  return new Blob([data], {type: type});
+}
+
+function readBlob(blob, callback) {
+  var reader = new FileReader();
+  reader.onloadend = function(e) {
+    callback(this.result);
+  };
+  reader.readAsBinaryString(blob);
+}
+
 function openTestDB(name, callback) {
   new Pouch(name, function(err, db) {
     if (err) {
