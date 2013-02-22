@@ -94,6 +94,19 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test errors on invalid doc id", function() {
+    var docs = [
+      {'_id': '_invalid', foo: 'bar'}
+    ];
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, function(err, info) {
+        equal(err.error, 'bad_request', 'correct error returned');
+        ok(!info, 'info is empty');
+        start();
+      });
+    });
+  });
+
   asyncTest('No docs', function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({"doc": [{"foo":"bar"}]}, function(err, result) {
