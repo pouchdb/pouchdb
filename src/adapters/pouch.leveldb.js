@@ -205,12 +205,9 @@ LevelPouch = module.exports = function(opts, callback) {
         return; // open_revs can be used only with revs
       }
 
-      var seq = opts.rev
-        ? metadata.rev_map[opts.rev]
-        : metadata.seq;
-
       var rev = Pouch.merge.winningRev(metadata);
       rev = opts.rev ? opts.rev : rev;
+      var seq = metadata.rev_map[rev];
 
       stores[BY_SEQ_STORE].get(seq, function(err, doc) {
         if (!doc) {
