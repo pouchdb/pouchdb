@@ -123,6 +123,13 @@ var webSqlPouch = function(opts, callback) {
       return newDoc;
     });
 
+    var docInfoErrors = docInfos.filter(function(docInfo) {
+      return docInfo.error;
+    });
+    if (docInfoErrors.length) {
+      return call(callback, docInfoErrors[0]);
+    }
+
     var tx;
     var results = [];
     var docs = [];

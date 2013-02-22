@@ -350,6 +350,14 @@ LevelPouch = module.exports = function(opts, callback) {
       return newDoc;
     });
 
+    var infoErrors = info.filter(function(doc) {
+      return doc.error;
+    });
+    if (infoErrors.length) {
+      return call(callback, infoErrors[0]);
+    }
+
+
     // group multiple edits to the same document
     info.forEach(function(info) {
       if (info.error) {
