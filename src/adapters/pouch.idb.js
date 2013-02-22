@@ -266,7 +266,7 @@ var IdbPouch = function(opts, callback) {
 
       var docv = 0;
       docInfos.forEach(function(docInfo) {
-        var attachments = docInfo.data._attachments ?
+        var attachments = docInfo.data && docInfo.data._attachments ?
           Object.keys(docInfo.data._attachments) : [];
 
         if (!attachments.length) {
