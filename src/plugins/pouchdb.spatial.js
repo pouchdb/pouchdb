@@ -48,12 +48,12 @@ var Spatial = function(db) {
 
       return coords.reduce(function (acc, coord) {
         // The first element isn't a bbox yet
-        if (acc.length === 1) {
+        if (typeof acc[0] === "number") {//acc will never be of length 1
           acc = [[acc[0], acc[0]], [acc[1], acc[1]]];
         }
         var minX = Math.min(acc[0][0], coord[0]);
-        var minY = Math.min(acc[0][1], coord[1]);
-        var maxX = Math.max(acc[1][0], coord[0]);
+        var minY = Math.min(acc[1][0], coord[1]);
+        var maxX = Math.max(acc[0][1], coord[0]);
         var maxY = Math.max(acc[1][1], coord[1]);
         return [[minX, maxX], [minY, maxY]];
       });
