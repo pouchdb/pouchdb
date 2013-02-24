@@ -10,7 +10,7 @@ var http_proxy = require("http-proxy");
 
 var srcFiles = [
   "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
-  "src/pouch.replicate.js", "src/pouch.utils.js",
+  "src/pouch.replicate.js", "src/pouch.utils.js", "src/pouch.adapter.js",
   "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js",
   "src/adapters/pouch.websql.js", "src/plugins/pouchdb.mapreduce.js"
 ];
@@ -49,7 +49,7 @@ module.exports = function(grunt) {
       top:  "\n(function() {\n ",
       bottom:"\n })(this);",
       amd:{
-        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " + 
+        top : "define('pouchdb',[ 'simple-uuid', 'md5'], function(uuid, md5) { " +
           "Math.uuid = uuid.uuid; Crypto = {MD5 : md5.hex}; $ = jquery;",
         bottom : " return Pouch });"
       }
@@ -100,7 +100,7 @@ module.exports = function(grunt) {
     },
 
     lint: {
-      files: ["src/*/*.js", "tests/*.js"]
+      files: ["src/adapter/*.js", "tests/*.js", "src/*.js"]
     },
 
     jshint: {
@@ -115,13 +115,15 @@ module.exports = function(grunt) {
         undef: true,
         eqnull: true,
         browser: true,
-        strict: true
+        strict: true,
+        globalstrict: true
       },
       globals: {
           // Tests.
         _: true,
         QUnit: true,
         asyncTest: true,
+        test: true,
         DB: true,
         deepEqual: true,
         equal: true,
@@ -135,7 +137,11 @@ module.exports = function(grunt) {
         start: true,
         stop: true,
         unescape: true,
-        process: true
+        process: true,
+        global: true,
+        require: true,
+        console: true,
+        Pouch: true
       }
     },
 
@@ -232,7 +238,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-qunit');
 
   grunt.registerTask("build", "concat:amd concat:all min:dist");
-  grunt.registerTask("test", "build server cors-server node-qunit " +
+  grunt.registerTask("test", "lint build server cors-server node-qunit " +
                      "saucelabs-qunit publish-results");
   grunt.registerTask("full", "concat min");
   grunt.registerTask("spatial", "concat:spatial min:spatial");

@@ -1,15 +1,19 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true */
+
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  this.Pouch = require('../src/pouch.js');
-  this.LevelPouch = require('../src/adapters/pouch.leveldb.js');
-  this.utils = require('./test.utils.js');
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
 
-  for (var k in this.utils) {
-    global[k] = global[k] || this.utils[k];
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
 }
@@ -159,8 +163,7 @@ adapters.map(function(adapter) {
         continuous: true,
         include_docs: true,
         onChange: function(change){
-          console.log(change);
-          if(change.seq == 2){
+          if (change.seq === 2){
             ok(change.doc._deleted, 'Doc deleted properly');
             changes.cancel();
             start();
@@ -354,7 +357,10 @@ adapters.map(function(adapter) {
           ok(!err && info2.rev !== info._rev, 'updated a doc with put');
           db.get(info.id, {rev: info.rev}, function(err, oldRev) {
             equal(oldRev.version, 'first', 'Fetched old revision');
-            start();
+            db.get(info.id, {rev: '1-nonexistentRev'}, function(err, doc){
+              ok(err, 'Non existent row error correctly reported');
+              start();
+            });
           });
         });
       });
@@ -365,7 +371,7 @@ adapters.map(function(adapter) {
     var name = generateAdapterUrl(adapter);
     initTestDB(name, function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
-        Pouch(name, function(err, db) {
+        new Pouch(name, function(err, db) {
           db.info(function(err, info) {
             equal(info.update_seq, 1, 'Update seq persisted');
             equal(info.doc_count, 1, 'Doc Count persists');
@@ -375,4 +381,29 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+
+  asyncTest('deletions persists', 1, function() {
+    var doc = {_id: 'staticId', contents: 'stuff'};
+    function writeAndDelete(db, cb) {
+      db.put(doc, function(err, info) {
+        db.remove({_id:info.id, _rev:info.rev}, function(doc) {
+          cb();
+        });
+      });
+    }
+    initTestDB(this.name, function(err, db) {
+      writeAndDelete(db, function() {
+        writeAndDelete(db, function() {
+          db.put(doc, function() {
+            db.get(doc._id, {conflicts: true}, function(err, details) {
+              equal(false, '_conflicts' in details, 'Should not have conflicts');
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
 });

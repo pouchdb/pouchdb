@@ -1,19 +1,25 @@
-var adapters = ['local-1', 'http-1']
-  , repl_adapters = [['local-1', 'http-1'],
-         ['http-1', 'http-2'],
-         ['http-1', 'local-1'],
-         ['local-1', 'local-2']]
-  , qunit = module;
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true, makeDocs: false */
+
+"use strict";
+
+var adapters = ['local-1', 'http-1'];
+var repl_adapters = [['local-1', 'http-1'],
+                     ['http-1', 'http-2'],
+                     ['http-1', 'local-1'],
+                     ['local-1', 'local-2']];
+var qunit = module;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  this.Pouch = require('../src/pouch.js');
-  this.LevelPouch = require('../src/adapters/pouch.leveldb.js');
-  this.utils = require('./test.utils.js');
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
 
-  for (var k in this.utils) {
-    global[k] = global[k] || this.utils[k];
+  for (var k in utils) {
+    global[k] = global[k] || utils[k];
   }
   qunit = QUnit.module;
 }
@@ -49,7 +55,7 @@ adapters.map(function(adapter) {
         data: ""
       }
     }
-  }
+  };
 
   // json string doc
   var jsonDoc = {
@@ -60,7 +66,7 @@ adapters.map(function(adapter) {
         data: btoa('{"Hello":"world"}')
       }
     }
-  }
+  };
 
   asyncTest("Test some attachments", function() {
     var db;
@@ -94,8 +100,7 @@ adapters.map(function(adapter) {
           });
         });
       });
-    };
-
+    }
   });
 
   asyncTest("Test put attachment on a doc without attachments", function() {
@@ -104,7 +109,7 @@ adapters.map(function(adapter) {
         db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
           ok(res.ok);
           start();
-        })
+        });
       });
     });
   });
@@ -132,8 +137,8 @@ adapters.map(function(adapter) {
       db.put(jsonDoc, function(err, results) {
         ok(!err, 'saved doc with attachment');
         db.get(results.id, function(err, doc) {
-          ok(!err, 'fetched doc')
-          ok(doc._attachments, 'doc has attachment')
+          ok(!err, 'fetched doc');
+          ok(doc._attachments, 'doc has attachment');
           db.get(results.id + '/' + 'foo.json', function(err, attachment) {
             equal(attachment, atob(jsonDoc._attachments['foo.json'].data), 'correct data');
             start();
@@ -163,7 +168,7 @@ adapters.map(function(adapter) {
       ok(!err, 'opened the pouch');
       var doc = {_id: 'doc/attachment', test: true};
       db.put(doc, function(err, info) {
-        ok(!err, 'saved doc')
+        ok(!err, 'saved doc');
         equal(info.id, 'doc', '_id got truncated');
         db.get('doc', {attachments: true}, function(err, doc2) {
           ok(!err, 'retreived the doc');
@@ -181,10 +186,9 @@ adapters.map(function(adapter) {
             start();
           });
         });
-
       });
     });
-  })
+  });
 });
 
 

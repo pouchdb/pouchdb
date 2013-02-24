@@ -1,3 +1,5 @@
+/*globals PouchAdapter: true */
+
 "use strict";
 
 var Pouch = function Pouch(name, opts, callback) {
@@ -10,7 +12,7 @@ var Pouch = function Pouch(name, opts, callback) {
     callback = opts;
     opts = {};
   }
-  
+
   if (typeof name === 'object') {
     opts = name;
     name = undefined;
@@ -28,9 +30,11 @@ var Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = Pouch.adapters[opts.adapter](opts, function(err, db) {
+  var adapter = new PouchAdapter(opts, function(err, db) {
     if (err) {
-      if (callback) callback(err);
+      if (callback) {
+        callback(err);
+      }
       return;
     }
     for (var plugin in Pouch.plugins) {
@@ -47,6 +51,7 @@ var Pouch = function Pouch(name, opts, callback) {
     }
     callback(null, db);
   });
+
   for (var j in adapter) {
     this[j] = adapter[j];
   }
@@ -79,8 +84,6 @@ Pouch.parseAdapter = function(name) {
     name: name,
     adapter: rankedAdapter
   };
-
-  throw 'No Valid Adapter.';
 };
 
 
@@ -154,6 +157,11 @@ Pouch.Errors = {
     status: 400,
     error: 'query_parse_error',
     reason: 'Some query parameter is invalid'
+  },
+  BAD_REQUEST: {
+    status: 400,
+    error: 'bad_request',
+    reason: 'Something wrong with the request'
   }
 };
 
@@ -165,6 +173,7 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.utils = require('./pouch.utils.js');
   module.exports = Pouch;
 
+  var PouchAdapter = require('./pouch.adapter.js');
   // load adapters known to work under node
   var adapters = ['leveldb', 'http'];
   adapters.map(function(adapter) {
@@ -173,5 +182,5 @@ if (typeof module !== 'undefined' && module.exports) {
   });
   require('./plugins/pouchdb.mapreduce.js');
 } else {
-  this.Pouch = Pouch;
+  window.Pouch = Pouch;
 }

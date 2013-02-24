@@ -1,3 +1,7 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true */
+
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
@@ -5,9 +9,9 @@ var qunit = module;
 var is_browser = true;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -137,7 +141,9 @@ adapters.map(function(adapter) {
             count += 1;
             equal(count, 1, 'Received a single change');
             changes.cancel();
-            tab && tab.close();
+            if (tab) { 
+              tab.close();
+            }
             start();
           },
           continuous: true
@@ -258,11 +264,11 @@ adapters.map(function(adapter) {
 
                 start();
               }
-            })
-          })
-        })
-      })
-    })
+            });
+          });
+        });
+      });
+    });
   });
 
   asyncTest("Changes with conflicts are handled correctly", function() {
@@ -293,9 +299,9 @@ adapters.map(function(adapter) {
               localdb.put({_id: "3", _rev: rev2, integer: 20}, function(err, resp) {
                 var rev3local = resp.rev;
                 localdb.put({_id: "3", _rev: rev3local, integer: 30}, function(err, resp) {
-                  var rev4local = resp.rev
+                  var rev4local = resp.rev;
                   remotedb.put({_id: "3", _rev: rev2, integer: 100}, function(err, resp) {
-                    var remoterev = resp.rev
+                    var remoterev = resp.rev;
                     Pouch.replicate(remotedb, localdb, function(err, done) {
                       localdb.changes({
                         include_docs: true,
@@ -304,25 +310,25 @@ adapters.map(function(adapter) {
                           ok(changes, "got changes");
                           ok(changes.results, "changes has results array");
                           equal(changes.results.length, 4, "should get only 4 changes");
-                          var ch = changes.results[3]
+                          var ch = changes.results[3];
                           equal(ch.id, "3");
                           equal(ch.changes.length, 2, "Should include both conflicting revisions");
                           equal(ch.doc.integer, 30, "Includes correct value of the doc");
                           equal(ch.doc._rev, rev4local, "Includes correct revision of the doc");
-                          deepEqual(ch.changes, [{rev:rev4local}, {rev:remoterev}], "Includes correct changes array")
+                          deepEqual(ch.changes, [{rev:rev4local}, {rev:remoterev}], "Includes correct changes array");
 
                           start();
                         }
-                      })
-                    })
-                  })
-                })
-              })
-            })
-          })
-        })
-      })
-    })
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
   asyncTest("Change entry for a deleted doc", function() {
@@ -344,14 +350,14 @@ adapters.map(function(adapter) {
               equal(changes.results.length, 4, "should get only 4 changes");
               var ch = changes.results[3];
               equal(ch.id, "3", "Have correct doc");
-              equal(ch.seq, 5, "Have correct sequence")
+              equal(ch.seq, 5, "Have correct sequence");
               equal(ch.deleted, true, "Shows doc as deleted");
               start();
             }
-          })
-        })
-      })
-    })
+          });
+        });
+      });
+    });
   });
 
 });

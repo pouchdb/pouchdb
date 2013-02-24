@@ -1,3 +1,5 @@
+/*globals $:false, console: false */
+
 "use strict";
 
 // use query parameter testFiles if present,
@@ -32,7 +34,7 @@ testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
   'dev': ['../src/deps/uuid.js',
-          '../src/pouch.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
+          '../src/pouch.js', '../src/pouch.adapter.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
           '../src/adapters/pouch.websql.js',

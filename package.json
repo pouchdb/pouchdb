@@ -28,7 +28,7 @@
     "assert": "*",
     "nano": "*",
     "send": "*",
-    "grunt": "*",
+    "grunt": "0.3",
     "grunt-saucelabs": "*",
     "grunt-node-qunit": "*",
     "corsproxy": "*",

@@ -1,3 +1,7 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals ajax: true, LevelPouch: true, makeDocs: false */
+
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
@@ -6,9 +10,9 @@ var qunit = module;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-    , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-    , utils = require('./test.utils.js')
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -146,8 +150,8 @@ adapters.map(function(adapter) {
             ok(deleted.ok, 'deleted');
             db.changes({
               complete: function(err, changes) {
-                ok(changes.results.length == 4);
-                ok(changes.results[3].id == "1");
+                ok(changes.results.length === 4);
+                ok(changes.results[3].id === "1");
                 ok(changes.results[3].deleted);
                 start();
               }
@@ -213,7 +217,7 @@ adapters.map(function(adapter) {
                 complete: function(err, changes) {
                   var result = changes.results[3];
                   ok("3" === result.id, 'changes are ordered');
-                  ok(3 === result.changes.length, 'correct number of changes');
+                  equal(3, result.changes.length, 'correct number of changes');
                   ok(result.doc._rev === conflictDoc2._rev,
                      'correct winning revision');
                   equal("3", result.doc._id, 'correct doc id');
@@ -221,9 +225,7 @@ adapters.map(function(adapter) {
                         'include doc has correct rev');
                   equal(true, result.doc._conflicts instanceof Array,
                         'include docs contains conflicts');
-                  ok(result.doc._conflicts &&
-                     2 === result.doc._conflicts.length,
-                     'correct number of changes');
+                  equal(2, result.doc._conflicts.length, 'correct number of changes');
                   db.allDocs({include_docs: true, conflicts: true}, function(err, res) {
                     var row = res.rows[3];
                     equal(4, res.rows.length, 'correct number of changes');
@@ -233,10 +235,79 @@ adapters.map(function(adapter) {
                     equal(row.doc._rev, winRev._rev, 'correct rev');
                     equal("3", row.doc._id, 'correct order');
                     ok(row.doc._conflicts instanceof Array);
-                    ok(row.doc._conflicts && 2 === row.doc._conflicts.length);
+                    equal(2, row.doc._conflicts.length, 'Correct number of conflicts');
                     start();
                   });
                 }
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing get with rev', function() {
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        db.get("3", function(err, parent){
+          // add conflicts
+          var pRevId = parent._rev.split('-')[1];
+          var conflicts = [
+            {_id: "3", _rev: "2-aaa", value: "x", _revisions: {start: 2, ids: ["aaa", pRevId]}},
+            {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", pRevId]}},
+            {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", pRevId]}}
+          ];
+          db.put(conflicts[0], {new_edits: false}, function(err, doc) {
+            db.put(conflicts[1], {new_edits: false}, function(err, doc) {
+              db.put(conflicts[2], {new_edits: false}, function(err, doc) {
+                db.get("3", {rev: "2-aaa"}, function(err, doc){
+                  ok(doc._rev === "2-aaa" && doc.value === "x", 'rev ok');
+                  db.get("3", {rev: "3-bbb"}, function(err, doc){
+                    ok(doc._rev === "3-bbb" && doc.value === "y", 'rev ok');
+                    db.get("3", {rev: "4-ccc"}, function(err, doc){
+                      ok(doc._rev === "4-ccc" && doc.value === "z", 'rev ok');
+                      start();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing get with open_revs', function() {
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        db.get("3", function(err, parent){
+          // add conflicts
+          var pRevId = parent._rev.split('-')[1];
+          var conflicts = [
+            {_id: "3", _rev: "2-aaa", value: "x", _revisions: {start: 2, ids: ["aaa", pRevId]}},
+            {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", pRevId]}},
+            {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", pRevId]}}
+          ];
+          db.put(conflicts[0], {new_edits: false}, function(err, doc) {
+            db.put(conflicts[1], {new_edits: false}, function(err, doc) {
+              db.put(conflicts[2], {new_edits: false}, function(err, doc) {
+                db.get("3", {open_revs: "all", revs: true}, function(err, res){
+                  var i;
+                  res = res.map(function(row){
+                    return row.ok;
+                  });
+                  res.sort(function(a, b){
+                    return a._rev === b._rev ? 0 : a._rev < b._rev ? -1 : 1;
+                  });
+
+                  ok(res.length === conflicts.length, 'correct number of open_revs');
+                  for (i = 0; i < conflicts.length; i++){
+                    ok(conflicts[i]._rev === res[i]._rev, 'correct rev');
+                  }
+                  start();
+                });
               });
             });
           });
