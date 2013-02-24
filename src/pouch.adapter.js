@@ -139,7 +139,7 @@ var PouchAdapter = function(opts, callback) {
     }
     return customApi._get(id, opts, callback);
 
-  }
+  };
 
   api.getAttachment = function(id, opts, callback) {
     if (opts instanceof Function) {
@@ -151,7 +151,7 @@ var PouchAdapter = function(opts, callback) {
     }
 
     return customApi._getAttachment(id, opts, callback);
-  }
+  };
 
   api.allDocs = function(opts, callback) {
     if (typeof opts === 'function') {
@@ -174,19 +174,19 @@ var PouchAdapter = function(opts, callback) {
     }
 
     return customApi._allDocs(opts, callback);
-  }
+  };
 
   api.changes = function(opts) {
     return customApi._changes(opts);
-  }
+  };
 
   api.close = function(callback) {
     return customApi._close(callback);
-  }
+  };
 
   api.info = function(callback) {
     return customApi._info(callback);
-  }
+  };
 
   api.bulkDocs = function(req, opts, callback) {
     if (typeof opts === 'function') {
@@ -202,7 +202,7 @@ var PouchAdapter = function(opts, callback) {
     }
 
     if (!Array.isArray(req.docs)) {
-      return error(callback, new Error("docs should be an array of documents"));
+      return call(callback, Pouch.Errors.QUERY_PARSE_ERROR);
     }
 
     return customApi._bulkDocs(req, opts, callback)
