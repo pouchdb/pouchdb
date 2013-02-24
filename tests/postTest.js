@@ -1,3 +1,7 @@
+/*globals openTestDB: false */
+
+"use strict";
+
 module("misc", {
   setup : function () {
     var dbname = location.search.match(/[?&]dbname=([^&]+)/);

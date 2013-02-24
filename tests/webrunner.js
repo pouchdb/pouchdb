@@ -1,3 +1,5 @@
+/*globals $:false, console: false */
+
 "use strict";
 
 // use query parameter testFiles if present,

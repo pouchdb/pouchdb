@@ -1,4 +1,4 @@
-['idb-1'].map(function(adapter) {
+["idb-1"].map(function(adapter) {
 
   module('attachment performance: ' + adapter, {
     setup : function () {

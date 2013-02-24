@@ -241,7 +241,7 @@ LevelPouch = module.exports = function(opts, callback) {
         }
 
         if (opts.conflicts) {
-          var conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+          var conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
           if (conflicts.length) {
             doc._conflicts = conflicts;
           }
@@ -311,72 +311,6 @@ LevelPouch = module.exports = function(opts, callback) {
     });
   }
 
-  api.put = function(doc, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
-    if (!doc || !('_id' in doc)) {
-      return call(callback, Pouch.Errors.MISSING_ID);
-    }
-    return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
-  }
-
-  api.post = function(doc, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {}
-    }
-    return api.bulkDocs({docs: [doc]}, opts, Pouch.utils.yankError(callback));
-  }
-
-  api.putAttachment = function(id, rev, data, type, callback) {
-    id = Pouch.utils.parseDocId(id);
-
-    api.get(id.docId, {attachments: true}, function(err, obj) {
-      obj._attachments || (obj._attachments = {});
-      obj._attachments[id.attachmentId] = {
-        content_type: type,
-        data: data instanceof Buffer ? data : Pouch.utils.btoa(data)
-      }
-      api.put(obj, callback);
-    });
-  }
-
-  api.remove = function(doc, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {}
-    }
-    if (opts === undefined) {
-      opts = {}
-    }
-    opts.was_delete = true;
-    var newDoc = extend(true, {}, doc);
-    newDoc._deleted = true;
-    return api.bulkDocs({docs: [newDoc]}, opts, Pouch.utils.yankError(callback));
-  }
-
-  api.removeAttachment = function(id, rev, callback) {
-    id = parseDocId(id);
-    api.get(id.docId, function(err, obj) {
-      if (err) {
-        call(callback, err);
-        return;
-      }
-
-      if (obj._rev != rev) {
-        call(callback, Pouch.Errors.REV_CONFLICT);
-        return;
-      }
-
-      obj._attachments || (obj._attachments = {});
-      delete obj._attachments[id.attachmentId];
-      api.put(obj, callback);
-    });
-  };
-
   api.bulkDocs = function(bulk, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
@@ -415,6 +349,14 @@ LevelPouch = module.exports = function(opts, callback) {
 
       return newDoc;
     });
+
+    var infoErrors = info.filter(function(doc) {
+      return doc.error;
+    });
+    if (infoErrors.length) {
+      return call(callback, infoErrors[0]);
+    }
+
 
     // group multiple edits to the same document
     info.forEach(function(info) {
@@ -462,6 +404,8 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo, callback) {
+      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
+
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
       var conflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
@@ -679,7 +623,7 @@ LevelPouch = module.exports = function(opts, callback) {
           doc.doc = data;
           doc.doc._rev = doc.value.rev;
           if (opts.conflicts) {
-            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
           }
         }
         if ('keys' in opts) {
@@ -728,39 +672,6 @@ LevelPouch = module.exports = function(opts, callback) {
       return call(callback, null, {
         total_rows: results.length,
         rows: results
-      }); 
-    });
-  }
-
-  api.revsDiff = function(req, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-
-    var ids = Object.keys(req)
-      , count = 0
-      , missing = {};
-
-    function readDoc(err, doc, id) {
-      req[id].map(function(revId) {
-        var matches = function(x) { return x.rev !== revId };
-        if (!doc || doc._revs_info.every(matches)) {
-          if (!missing[id]) {
-            missing[id] = {missing: []};
-          }
-          missing[id].missing.push(revId);
-        }
-      });
-
-      if (++count === ids.length) {
-        return call(callback, null, missing);
-      }
-    }
-
-    ids.map(function(id) {
-      api.get(id, {revs_info: true}, function(err, doc) {
-        readDoc(err, doc, id);
       });
     });
   }
@@ -821,7 +732,7 @@ LevelPouch = module.exports = function(opts, callback) {
               change.deleted = true;
             }
             if (opts.conflicts) {
-              change.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+              change.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
             }
 
             // dedupe changes (TODO: more efficient way to accomplish this?)

@@ -100,7 +100,7 @@ module.exports = function(grunt) {
     },
 
     lint: {
-      files: ["src/*/*.js", "tests/*.js"]
+      files: ["src/adapter/*.js", "tests/*.js", "src/*.js"]
     },
 
     jshint: {
@@ -115,13 +115,15 @@ module.exports = function(grunt) {
         undef: true,
         eqnull: true,
         browser: true,
-        strict: true
+        strict: true,
+        globalstrict: true
       },
       globals: {
           // Tests.
         _: true,
         QUnit: true,
         asyncTest: true,
+        test: true,
         DB: true,
         deepEqual: true,
         equal: true,
@@ -135,7 +137,11 @@ module.exports = function(grunt) {
         start: true,
         stop: true,
         unescape: true,
-        process: true
+        process: true,
+        global: true,
+        require: true,
+        console: true,
+        Pouch: true
       }
     },
 
@@ -232,7 +238,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-qunit');
 
   grunt.registerTask("build", "concat:amd concat:all min:dist");
-  grunt.registerTask("test", "build server cors-server node-qunit " +
+  grunt.registerTask("test", "lint build server cors-server node-qunit " +
                      "saucelabs-qunit publish-results");
   grunt.registerTask("full", "concat min");
   grunt.registerTask("spatial", "concat:spatial min:spatial");
