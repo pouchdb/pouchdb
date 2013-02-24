@@ -8,7 +8,7 @@
 var PouchAdapter = function(opts, callback) {
 
 
-  var api = {}
+  var api = {};
   var customApi = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
       if (callback) {
@@ -22,7 +22,7 @@ var PouchAdapter = function(opts, callback) {
         db[j] = api[j];
       }
     }
-    callback(err, db)
+    callback(err, db);
   });
 
 
@@ -137,7 +137,7 @@ var PouchAdapter = function(opts, callback) {
     if (id.attachmentId !== '') {
       return customApi.getAttachment(id, {decode: true}, callback);
     }
-    return customApi._get(id, opts, callback)
+    return customApi._get(id, opts, callback);
 
   }
 
@@ -181,11 +181,11 @@ var PouchAdapter = function(opts, callback) {
   }
 
   api.close = function(callback) {
-    return customApi._close(callback)
+    return customApi._close(callback);
   }
 
   api.info = function(callback) {
-    return customApi._info(callback)
+    return customApi._info(callback);
   }
 
   api.bulkDocs = function(req, opts, callback) {
