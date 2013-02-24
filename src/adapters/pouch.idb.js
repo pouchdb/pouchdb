@@ -137,19 +137,7 @@ var IdbPouch = function(opts, callback) {
     return instanceId;
   };
 
-  api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
-
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    if (!opts) {
-      opts = {};
-    }
-
-    if (!req.docs) {
-      return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
-    }
+  api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
     var newEdits = 'new_edits' in opts ? opts.new_edits : true;
     var userDocs = extend(true, [], req.docs);
@@ -372,17 +360,7 @@ var IdbPouch = function(opts, callback) {
 
   // First we look up the metadata in the ids database, then we fetch the
   // current revision(s) from the by sequence store
-  api.get = function idb_get(id, opts, callback) {
-
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
-    id = parseDocId(id);
-    if (id.attachmentId !== '') {
-      return api.getAttachment(id, {decode: true}, callback);
-    }
+  api._get = function idb_get(id, opts, callback) {
 
     var result;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
@@ -494,15 +472,7 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  api.getAttachment = function(id, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    if (typeof id === 'string') {
-      id = parseDocId(id);
-    }
-
+  api._getAttachment = function(id, opts, callback) {
     var result;
     var txn;
 
@@ -542,26 +512,7 @@ var IdbPouch = function(opts, callback) {
     return;
   }
 
-  api.allDocs = function idb_allDocs(opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    if ('keys' in opts) {
-      if ('startkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `start_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-      if ('endkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `end_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-    }
-
+  api._allDocs = function idb_allDocs(opts, callback) {
     var start = 'startkey' in opts ? opts.startkey : false;
     var end = 'endkey' in opts ? opts.endkey : false;
 
@@ -652,7 +603,7 @@ var IdbPouch = function(opts, callback) {
 
   // Looping through all the documents in the database is a terrible idea
   // easiest to implement though, should probably keep a counter
-  api.info = function idb_info(callback) {
+  api._info = function idb_info(callback) {
     var count = 0;
     var result;
     var txn = idb.transaction([DOC_STORE], 'readonly');
@@ -678,7 +629,7 @@ var IdbPouch = function(opts, callback) {
       };
   };
 
-  api.changes = function idb_changes(opts) {
+  api._changes = function idb_changes(opts) {
 
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
@@ -823,7 +774,7 @@ var IdbPouch = function(opts, callback) {
     }
   };
 
-  api.close = function(callback) {
+  api._close = function(callback) {
     if (idb === null) {
       return call(callback, Pouch.Errors.NOT_OPEN);
     }
