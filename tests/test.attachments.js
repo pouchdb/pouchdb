@@ -30,9 +30,9 @@ adapters.map(function(adapter) {
       //this.name = generateAdapterUrl(adapter);
     },
     teardown: function() {
-      /*if (!PERSIST_DATABASES) {
+      if (!PERSIST_DATABASES) {
         Pouch.destroy(this.name);
-      }*/
+      }
     }
   });
 

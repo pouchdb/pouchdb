@@ -35,10 +35,10 @@ adapters.map(function(adapters) {
       //this.remote = generateAdapterUrl(adapters[1]);
     },
     teardown: function() {
-      /*if (!PERSIST_DATABASES) {
+      if (!PERSIST_DATABASES) {
         Pouch.destroy(this.name);
         Pouch.destroy(this.remote);
-      }*/
+      }
     }
   });
 
@@ -51,9 +51,11 @@ adapters.map(function(adapters) {
   asyncTest("Test basic pull replication", function() {
     console.info('Starting Test: Test basic pull replication');
     var self = this;
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
-        db.replicate.from(self.remote, function(err, result) {
+        db.replicate.from(second, function(err, result) {
           ok(result.ok, 'replication was ok');
           ok(result.docs_written === docs.length, 'correct # docs written');
           start();
@@ -65,10 +67,12 @@ adapters.map(function(adapters) {
   asyncTest("Local DB contains documents", function() {
     console.info('Starting Test: Local DB contains documents');
     var self = this;
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, _) {
         db.bulkDocs({docs: docs}, {}, function(err, _) {
-          db.replicate.from(self.remote, function(err, _) {
+          db.replicate.from(second, function(err, _) {
             db.allDocs(function(err, result) {
               ok(result.rows.length === docs.length, 'correct # docs exist');
               start();
@@ -82,9 +86,11 @@ adapters.map(function(adapters) {
   asyncTest("Test basic push replication", function() {
     console.info('Starting Test: Test basic push replication');
     var self = this;
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, results) {
-        db.replicate.to(self.remote, function(err, result) {
+        db.replicate.to(second, function(err, result) {
           ok(result.ok, 'replication was ok');
           ok(result.docs_written === docs.length, 'correct # docs written');
           start();
@@ -96,9 +102,11 @@ adapters.map(function(adapters) {
   asyncTest("Test basic push replication take 2", function() {
     console.info('Starting Test: Test basic push replication take 2');
     var self = this;
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, _) {
-        db.replicate.to(self.remote, function(err, _) {
+        db.replicate.to(second, function(err, _) {
           remote.allDocs(function(err, result) {
             console.log(result);
             ok(result.rows.length === docs.length, 'correct # docs written');
@@ -112,14 +120,16 @@ adapters.map(function(adapters) {
   asyncTest("Test basic push replication sequence tracking", function() {
     console.info('Starting Test: Test basic push replication sequence tracking');
     var self = this;
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       var doc1 = {_id: 'adoc', foo:'bar'};
       db.put(doc1, function(err, result) {
-        db.replicate.to(self.remote, function(err, result) {
+        db.replicate.to(second, function(err, result) {
           ok(result.docs_read === 1, 'correct # changed docs read (1) on first replication');
-          db.replicate.to(self.remote, function(err, result) {
+          db.replicate.to(second, function(err, result) {
             ok(result.docs_read === 0, 'correct # changed docs read (0) on second replication');
-            db.replicate.to(self.remote, function(err, result) {
+            db.replicate.to(second, function(err, result) {
               ok(result.docs_read === 0, 'correct # changed docs read (0) on third replication');
               start();
             });
@@ -132,12 +142,14 @@ adapters.map(function(adapters) {
   asyncTest("Test checkpoint", function() {
     console.info('Starting Test: Test checkpoint');
     var self = this;
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
-        db.replicate.from(self.remote, function(err, result) {
+        db.replicate.from(second, function(err, result) {
           ok(result.ok, 'replication was ok');
           ok(result.docs_written === docs.length, 'correct # docs written');
-          db.replicate.from(self.remote, function(err, result) {
+          db.replicate.from(second, function(err, result) {
             ok(result.ok, 'replication was ok');
             equal(result.docs_written, 0, 'correct # docs written');
             equal(result.docs_read, 0, 'no docs read');
@@ -152,9 +164,11 @@ adapters.map(function(adapters) {
     console.info('Starting Test: Test checkpoint 2');
     var self = this;
     var doc = {_id: "3", count: 0};
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.put(doc, {}, function(err, results) {
-        db.replicate.from(self.remote, function(err, result) {
+        db.replicate.from(second, function(err, result) {
           ok(result.ok, 'replication was ok');
           doc._rev = results.rev;
           doc.count++;
@@ -162,7 +176,7 @@ adapters.map(function(adapters) {
             doc._rev = results.rev;
             doc.count++;
             remote.put(doc, {}, function(err, results) {
-              db.replicate.from(self.remote, function(err, result) {
+              db.replicate.from(second, function(err, result) {
                 ok(result.ok, 'replication was ok');
                 equal(result.docs_written, 1, 'correct # docs written');
                 start();
@@ -178,7 +192,9 @@ adapters.map(function(adapters) {
     console.info('Starting Test: Test checkpoint 3 :)');
     var self = this;
     var doc = {_id: "3", count: 0};
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       db.put(doc, {}, function(err, results) {
         Pouch.replicate(db, remote, {}, function(err, result) {
           ok(result.ok, 'replication was ok');
@@ -208,10 +224,12 @@ adapters.map(function(adapters) {
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'adoc', bar:'baz'};
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       db.put(doc1, function(err, localres) {
         remote.put(doc2, function(err, remoteres) {
-          db.replicate.to(self.remote, function(err, _) {
+          db.replicate.to(second, function(err, _) {
             remote.get('adoc', {conflicts: true}, function(err, result) {
               ok(result._conflicts, 'result has a conflict');
               start();
@@ -229,10 +247,12 @@ adapters.map(function(adapters) {
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'adoc', bar:'baz'};
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       db.put(doc1, function(err, localres) {
         remote.put(doc2, function(err, remoteres) {
-          db.replicate.to(self.remote, function(err, _) {
+          db.replicate.to(second, function(err, _) {
 
             var queryFun = {
               map: function(doc) {
@@ -258,10 +278,12 @@ adapters.map(function(adapters) {
     console.info('Starting Test: Test basic continous pull replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
         var count = 0;
-        var rep = db.replicate.from(self.remote, {continuous: true});
+        var rep = db.replicate.from(second, {continuous: true});
         var changes = db.changes({
           onChange: function(change) {
             ++count;
@@ -285,7 +307,9 @@ adapters.map(function(adapters) {
     console.info('Starting Test: Test basic continous push replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, results) {
         var count = 0;
         var rep = remote.replicate.from(db, {continuous: true});
@@ -313,10 +337,12 @@ adapters.map(function(adapters) {
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'anotherdoc', foo:'baz'};
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
         var count = 0;
-        var replicate = db.replicate.from(self.remote, {continuous: true});
+        var replicate = db.replicate.from(second, {continuous: true});
         var changes = db.changes({
           continuous: true,
           onChange: function(change) {
@@ -348,8 +374,10 @@ adapters.map(function(adapters) {
       {_id: "2", integer: 2},
       {_id: "3", integer: 3}
     ];
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
 
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs1}, function(err, info) {
         var replicate = db.replicate.from(remote, {
           filter: function(doc) { return doc.integer % 2 === 0; }
@@ -371,8 +399,10 @@ adapters.map(function(adapters) {
       {_id: '3', integer: 3, string: '3'},
       {_id: '4', integer: 4, string: '4'}
     ];
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
 
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, function(err, info) {
         db.replicate.from(remote, {
           filter: function(doc) { return doc.integer % 2 === 0; }
@@ -394,8 +424,10 @@ adapters.map(function(adapters) {
       {_id: '3', integer: 3, string: '3'},
       {_id: '4', integer: 4, string: '4'}
     ];
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
 
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, function(err, info) {
         db.replicate.from(remote, {
           filter: function(doc) { return doc.integer % 2 === 0; }
@@ -424,8 +456,10 @@ adapters.map(function(adapters) {
       {_id: "3", integer: 3},
       {_id: "4", integer: 4, _deleted: true}
     ];
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
 
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs1}, function(err, info) {
         var replicate = db.replicate.from(remote, function() {
           db.allDocs(function(err, res) {
@@ -449,9 +483,11 @@ adapters.map(function(adapters) {
         start();
       }
     }
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
-        db.replicate.from(self.remote, {onChange: onChange});
+        db.replicate.from(second, {onChange: onChange});
       });
     });
   });
@@ -460,7 +496,9 @@ adapters.map(function(adapters) {
     var doc = {_id: 'test', test: "Remote 1"},
         winningRev;
 
-    initDBPair(generateAdapterUrl(adapters[0]), generateAdapterUrl(adapters[1]), function(db, remote) {
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
+    initDBPair(first, second, function(db, remote) {
       remote.post(doc, function(err, resp) {
         doc._rev = resp.rev;
         Pouch.replicate(remote, db, function(err, resp) {
@@ -507,6 +545,8 @@ deletedDocAdapters.map(function(adapters) {
   asyncTest("doc count after multiple replications with deleted revisions.", function() {
     var self = this;
     var runs = 2;
+	var first = generateAdapterUrl(adapters[0]);
+	var second = generateAdapterUrl(adapters[1]);
 
     // helper. remove each document in db and bulk load docs into same
     function rebuildDocuments(db, docs, callback) {
@@ -584,9 +624,9 @@ deletedDocAdapters.map(function(adapters) {
     };
 
     // new pouch and couch
-    initDBPair(self.name, self.remote, function(){
+    initDBPair(first, second, function(){
       // Rinse, repeat our workflow...
-      workflow(self.name, self.remote, runs);
+      workflow(first, second, runs);
     });
   });
 });

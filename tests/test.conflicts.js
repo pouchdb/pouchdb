@@ -27,9 +27,9 @@ adapters.map(function(adapter) {
       //generateAdapterUrl(adapter) = generateAdapterUrl(adapter);
     },
     teardown: function() {
-      /*if (!PERSIST_DATABASES) {
+      if (!PERSIST_DATABASES) {
         Pouch.destroy(generateAdapterUrl(adapter));
-      }*/
+      }
     }
   });
 

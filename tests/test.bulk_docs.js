@@ -28,9 +28,9 @@ adapters.map(function(adapter) {
       //generateAdapterUrl(adapter) = generateAdapterUrl(adapter);
     },
     teardown: function() {
-      /*if (!PERSIST_DATABASES) {
+      if (!PERSIST_DATABASES) {
         Pouch.destroy(generateAdapterUrl(adapter));
-      }*/
+      }
     }
   });
 
@@ -98,7 +98,8 @@ adapters.map(function(adapter) {
     var docs = [
       {'_id': '_invalid', foo: 'bar'}
     ];
-    initTestDB(this.name, function(err, db) {
+	var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
         equal(err.error, 'bad_request', 'correct error returned');
         ok(!info, 'info is empty');
@@ -112,7 +113,8 @@ adapters.map(function(adapter) {
       {'_id': '_invalid', foo: 'bar'},
       {'_id': 123, foo: 'bar'}
     ];
-    initTestDB(this.name, function(err, db) {
+	var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
         equal(err.error, 'bad_request', 'correct error returned');
         equal(err.reason, Pouch.Errors.RESERVED_ID.reason, 'correct error message returned');

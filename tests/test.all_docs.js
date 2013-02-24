@@ -27,9 +27,9 @@ adapters.map(function(adapter) {
       //generateAdapterUrl(adapter) = generateAdapterUrl(adapter);
     },
     teardown: function() {
-      /*if (!PERSIST_DATABASES) {
+      if (!PERSIST_DATABASES) {
         Pouch.destroy(generateAdapterUrl(adapter));
-      }*/
+      }
     }
   });
 
@@ -248,7 +248,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with rev', function() {
-    initTestDB(this.name, function(err, db) {
+    var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
           // add conflicts
@@ -280,7 +281,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with open_revs', function() {
-    initTestDB(this.name, function(err, db) {
+    var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
           // add conflicts

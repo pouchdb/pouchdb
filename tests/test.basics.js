@@ -25,9 +25,9 @@ adapters.map(function(adapter) {
       //this.name = generateAdapterUrl(adapter);
     },
     teardown: function() {
-      /*if (!PERSIST_DATABASES) {
+      if (!PERSIST_DATABASES) {
         Pouch.destroy(this.name);
-      }*/
+      }
     }
   });
 
@@ -385,6 +385,7 @@ adapters.map(function(adapter) {
 
   asyncTest('deletions persists', 1, function() {
     var doc = {_id: 'staticId', contents: 'stuff'};
+    var name = generateAdapterUrl(adapter);
     function writeAndDelete(db, cb) {
       db.put(doc, function(err, info) {
         db.remove({_id:info.id, _rev:info.rev}, function(doc) {
@@ -392,7 +393,7 @@ adapters.map(function(adapter) {
         });
       });
     }
-    initTestDB(this.name, function(err, db) {
+    initTestDB(name, function(err, db) {
       writeAndDelete(db, function() {
         writeAndDelete(db, function() {
           db.put(doc, function() {

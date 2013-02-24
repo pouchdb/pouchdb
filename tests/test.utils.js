@@ -1,6 +1,6 @@
 "use strict";
 
-var PERSIST_DATABASES = false;
+var PERSIST_DATABASES = true;
 
 function uuid() {
   var S4 = function() {
