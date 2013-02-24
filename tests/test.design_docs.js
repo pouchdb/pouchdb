@@ -47,7 +47,7 @@ adapters.map(function(adapter) {
   };
 
   asyncTest("Test writing design doc", function () {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post(doc, function (err, info) {
         ok(!err, 'Wrote design doc');
         db.get('_design/foo', function (err, info) {
@@ -75,14 +75,14 @@ adapters.map(function(adapter) {
       {_id: "7", integer: 7}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var count = 0;
       db.bulkDocs({docs: docs1}, function(err, info) {
         var changes = db.changes({
           filter: 'foo/even',
           onChange: function(change) {
             count += 1;
-            if (count === 4) {
+            if (count === 2) {
               ok(true, 'We got all the changes');
               changes.cancel();
               start();
@@ -105,7 +105,7 @@ adapters.map(function(adapter) {
       {_id: "nuno", score: 3}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.bulkDocs({docs: docs1}, function(err, info) {
         db.query('foo/scores', {reduce: false}, function(err, result) {
           equal(result.rows.length, 4, 'Correct # of results');
@@ -119,7 +119,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Concurrent queries", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.bulkDocs({docs: [doc, {_id: "dale", score: 3}]}, function(err, info) {
         var cnt = 0;
         db.query('foo/scores', {reduce: false}, function(err, result) {

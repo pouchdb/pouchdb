@@ -27,7 +27,7 @@ if (typeof module !== undefined && module.exports) {
 adapters.map(function(adapter) {
   qunit('attachments: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      //this.name = generateAdapterUrl(adapter);
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
@@ -70,7 +70,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Test some attachments", function() {
     var db;
-    initTestDB(this.name, function(err, _db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, _db) {
       db = _db;
       db.put(binAttDoc, function(err, write) {
         ok(!err, 'saved doc with attachment');
@@ -104,7 +104,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test put attachment on a doc without attachments", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
         db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
           ok(res.ok);
@@ -115,7 +115,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test delete attachment from a doc", function() {
-    initTestDB(this.name, function(erro, db) {
+    initTestDB(generateAdapterUrl(adapter), function(erro, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
         db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
           ok(res.ok);
@@ -133,7 +133,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test a document with a json string attachment", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.put(jsonDoc, function(err, results) {
         ok(!err, 'saved doc with attachment');
         db.get(results.id, function(err, doc) {
@@ -149,7 +149,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test remove doc with attachment", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
         db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
           db.get('mydoc',{attachments:false},function(err,doc){
@@ -164,7 +164,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Insert a doc with a / in the _id", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       ok(!err, 'opened the pouch');
       var doc = {_id: 'doc/attachment', test: true};
       db.put(doc, function(err, info) {

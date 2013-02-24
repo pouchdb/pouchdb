@@ -24,7 +24,7 @@ adapters.map(function(adapter) {
 
   QUnit.module("changes: " + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      //this.name = generateAdapterUrl(adapter);
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
@@ -34,7 +34,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("All changes", function () {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
         db.changes({
           onChange: function (change) {
@@ -54,7 +54,7 @@ adapters.map(function(adapter) {
       {_id: "2", integer: 2},
       {_id: "3", integer: 3}
     ];
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
         db.changes({
           since: 2,
@@ -70,7 +70,7 @@ adapters.map(function(adapter) {
   // Note for the following test that CouchDB's implementation of /_changes
   // with `descending=true` ignores any `since` parameter.
   asyncTest("Descending changes", function () {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({ _id: "0", test: "ing" }, function (err, res) {
         db.post({ _id: "1", test: "ing" }, function (err, res) {
           db.post({ _id: "2", test: "ing" }, function (err, res) {
@@ -93,7 +93,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Changes doc", function () {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
         db.changes({
           include_docs: true,
@@ -109,7 +109,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Continuous changes", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var count = 0;
       var changes = db.changes({
         onChange: function(change) {
@@ -127,12 +127,13 @@ adapters.map(function(adapter) {
 
   if (is_browser) {
     asyncTest("Continuous changes across windows", function() {
+      var name = generateAdapterUrl(adapter);
       var search = window.location.search
         .replace(/[?&]testFiles=[^&]+/, '')
         .replace(/[?&]testNumber=[^&]+/, '')
         .replace(/[?&]dbname=[^&]+/, '') + 
-          '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
-      initTestDB(this.name, function(err, db) {
+        '&testFiles=postTest.js&dbname=' + encodeURIComponent(name);
+      initTestDB(name, function(err, db) {
         var count = 0;
         var tab;
         var changes = db.changes({
@@ -156,7 +157,7 @@ adapters.map(function(adapter) {
   }
 
   asyncTest("Continuous changes doc", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var changes = db.changes({
         onChange: function(change) {
           ok(change.doc, 'doc included');
@@ -172,7 +173,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Cancel changes", function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var count = 0;
       var changes = db.changes({
         onChange: function(change) {
@@ -211,7 +212,7 @@ adapters.map(function(adapter) {
       {_id: "7", integer: 7}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var count = 0;
       db.bulkDocs({docs: docs1}, function(err, info) {
         var changes = db.changes({
@@ -244,7 +245,7 @@ adapters.map(function(adapter) {
       {_id: "3", integer: 12}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.bulkDocs({docs: docs1}, function(err, info) {
         docs2[0]._rev = info[2].rev;
         docs2[1]._rev = info[3].rev;
@@ -283,7 +284,7 @@ adapters.map(function(adapter) {
       {_id: "3", integer: 12}
     ];
 
-    var localname = this.name, remotename = this.name + "-remote";
+    var localname = generateAdapterUrl(adapter), remotename = localname + "-remote";
 
     initDBPair(localname, remotename, function(localdb, remotedb) {
 
@@ -338,7 +339,7 @@ adapters.map(function(adapter) {
       {_id: "3", integer: 3}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.bulkDocs({docs: docs1}, function(err, info) {
         var rev = info[3].rev;
         db.remove({_id: "3", _rev: rev}, function(err, info) {

@@ -1,6 +1,6 @@
 "use strict";
 
-var PERSIST_DATABASES = false;
+var PERSIST_DATABASES = true;
 
 function uuid() {
   var S4 = function() {
@@ -47,14 +47,15 @@ function openTestDB(name, callback) {
 
 function initTestDB(name, callback) {
   // ignore errors, the database might not exist
-  Pouch.destroy(name, function(err) {
-    if (err && err.status !== 404 && err.statusText !== 'timeout') {
+  /*Pouch.destroy(name, function(err) {
+    if (err && err.status !== 404 && err.statusText != 'timeout') {
       console.error(err);
       ok(false, 'failed to open database');
       return start();
     }
     openTestDB(name, callback);
-  });
+  });*/
+  openTestDB(name, callback);
 }
 
 function initDBPair(local, remote, callback) {
@@ -65,9 +66,9 @@ function initDBPair(local, remote, callback) {
   });
 }
 
-var testId = uuid();
 
 function generateAdapterUrl(id) {
+  var testId = uuid();
   var opt = id.split('-');
   if (opt[0] === 'local') {
     return 'testdb_' + testId + '_' + opt[1];

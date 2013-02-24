@@ -24,11 +24,11 @@ adapters.map(function(adapter) {
 
   qunit('all_docs: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      //generateAdapterUrl(adapter) = generateAdapterUrl(adapter);
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
+        Pouch.destroy(generateAdapterUrl(adapter));
       }
     }
   });
@@ -52,7 +52,7 @@ adapters.map(function(adapter) {
   }
 
   asyncTest('Testing all docs', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.allDocs(function(err, result) {
           var rows = result.rows;
@@ -94,7 +94,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing allDocs opts.keys', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         var keys = ["3", "1"];
         db.allDocs({keys: keys}, function(err, result) {
@@ -143,7 +143,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing deleting in changes', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get('1', function(err, doc) {
           db.remove(doc, function(err, deleted) {
@@ -163,7 +163,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing updating in changes', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get('3', function(err, doc) {
           doc.updated = 'totally';
@@ -182,7 +182,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing include docs', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.changes({
           include_docs: true,
@@ -196,7 +196,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing conflicts', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         // add conflicts
         var conflictDoc1 = {
@@ -248,7 +248,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with rev', function() {
-    initTestDB(this.name, function(err, db) {
+    var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
           // add conflicts
@@ -280,7 +281,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with open_revs', function() {
-    initTestDB(this.name, function(err, db) {
+    var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
           // add conflicts
@@ -317,7 +319,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Test basic collation', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var docs = {docs: [{_id: "Z", foo: "Z"}, {_id: "a", foo: "a"}]};
       db.bulkDocs(docs, function(err, res) {
         db.allDocs({startkey: 'Z', endkey: 'Z'}, function(err, result) {

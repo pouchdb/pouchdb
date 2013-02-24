@@ -25,11 +25,11 @@ adapters.map(function(adapter) {
 
   qunit('bulk_docs: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      //generateAdapterUrl(adapter) = generateAdapterUrl(adapter);
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
+        Pouch.destroy(generateAdapterUrl(adapter));
       }
     }
   });
@@ -42,7 +42,7 @@ adapters.map(function(adapter) {
   ];
 
   asyncTest('Testing bulk docs', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var docs = makeDocs(5);
       db.bulkDocs({docs: docs}, function(err, results) {
         ok(results.length === 5, 'results length matches');
@@ -78,7 +78,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('No id in bulk docs', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var newdoc = {"_id": "foobar", "body": "baz"};
       db.put(newdoc, function(err, doc) {
         ok(doc.ok);
@@ -98,7 +98,8 @@ adapters.map(function(adapter) {
     var docs = [
       {'_id': '_invalid', foo: 'bar'}
     ];
-    initTestDB(this.name, function(err, db) {
+	var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
         equal(err.error, 'bad_request', 'correct error returned');
         ok(!info, 'info is empty');
@@ -112,7 +113,8 @@ adapters.map(function(adapter) {
       {'_id': '_invalid', foo: 'bar'},
       {'_id': 123, foo: 'bar'}
     ];
-    initTestDB(this.name, function(err, db) {
+	var name = generateAdapterUrl(adapter);
+    initTestDB(name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
         equal(err.error, 'bad_request', 'correct error returned');
         equal(err.reason, Pouch.Errors.RESERVED_ID.reason, 'correct error message returned');
@@ -123,7 +125,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('No docs', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.bulkDocs({"doc": [{"foo":"bar"}]}, function(err, result) {
         ok(err.status === 400);
         ok(err.error === 'bad_request');
@@ -134,7 +136,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Jira 911', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       var docs = [
         {"_id":"0", "a" : 0},
         {"_id":"1", "a" : 1},
@@ -152,7 +154,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Test multiple bulkdocs', function() {
-    initTestDB(this.name, function(err, db) {
+    initTestDB(generateAdapterUrl(adapter), function(err, db) {
       db.bulkDocs({docs: authors}, function (err, res) {
         db.bulkDocs({docs: authors}, function (err, res) {
           db.allDocs(function(err, result) {
