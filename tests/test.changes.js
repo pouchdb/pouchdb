@@ -131,8 +131,8 @@ adapters.map(function(adapter) {
       var search = window.location.search
         .replace(/[?&]testFiles=[^&]+/, '')
         .replace(/[?&]testNumber=[^&]+/, '')
-        .replace(/[?&]dbname=[^&]+/, '')
-        + '&testFiles=postTest.js&dbname=' + encodeURIComponent(name);
+        .replace(/[?&]dbname=[^&]+/, '') + 
+        '&testFiles=postTest.js&dbname=' + encodeURIComponent(name);
       initTestDB(name, function(err, db) {
         var count = 0;
         var tab;

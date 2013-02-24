@@ -482,7 +482,7 @@ adapters.map(function(adapters) {
         ok(true, 'Got all change notification');
         start();
       }
-    }
+    };
 	var first = generateAdapterUrl(adapters[0]);
 	var second = generateAdapterUrl(adapters[1]);
     initDBPair(first, second, function(db, remote) {
