@@ -74,6 +74,12 @@ module.exports = function(grunt) {
           "src/deps/polyfill.js", srcFiles,"src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
         ]),
         dest: 'dist/pouchdb.spatial-<%= pkg.release %>.js'
+      },
+      gql: {
+        src: grunt.utils._.flatten([
+          "<banner>","<banner:meta.top>", srcFiles,"src/plugins/pouchdb.gql.js", "<banner:meta.bottom>"
+        ]),
+        dest: 'dist/pouchdb.gql-<%= pkg.release %>.js'
       }
     },
 
@@ -85,6 +91,10 @@ module.exports = function(grunt) {
       spatial: {
         src:  'dist/pouchdb.spatial-<%= pkg.release %>.js',
         dest:  'dist/pouchdb.spatial-<%= pkg.release %>.min.js'
+      },
+      gql: {
+        src:  'dist/pouchdb.gql-<%= pkg.release %>.js',
+        dest:  'dist/pouchdb.gql-<%= pkg.release %>.min.js'
       }
     },
 
@@ -242,5 +252,6 @@ module.exports = function(grunt) {
                      "saucelabs-qunit publish-results");
   grunt.registerTask("full", "concat min");
   grunt.registerTask("spatial", "concat:spatial min:spatial");
+  grunt.registerTask("gql", "concat:gql min:gql");
   grunt.registerTask('default', 'build');
 };
