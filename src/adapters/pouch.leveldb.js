@@ -241,7 +241,7 @@ LevelPouch = module.exports = function(opts, callback) {
         }
 
         if (opts.conflicts) {
-          var conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+          var conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
           if (conflicts.length) {
             doc._conflicts = conflicts;
           }
@@ -350,6 +350,14 @@ LevelPouch = module.exports = function(opts, callback) {
       return newDoc;
     });
 
+    var infoErrors = info.filter(function(doc) {
+      return doc.error;
+    });
+    if (infoErrors.length) {
+      return call(callback, infoErrors[0]);
+    }
+
+
     // group multiple edits to the same document
     info.forEach(function(info) {
       if (info.error) {
@@ -396,6 +404,8 @@ LevelPouch = module.exports = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo, callback) {
+      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
+
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
       var conflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
@@ -613,7 +623,7 @@ LevelPouch = module.exports = function(opts, callback) {
           doc.doc = data;
           doc.doc._rev = doc.value.rev;
           if (opts.conflicts) {
-            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
           }
         }
         if ('keys' in opts) {
@@ -722,7 +732,7 @@ LevelPouch = module.exports = function(opts, callback) {
               change.deleted = true;
             }
             if (opts.conflicts) {
-              change.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree);
+              change.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
             }
 
             // dedupe changes (TODO: more efficient way to accomplish this?)

@@ -167,6 +167,13 @@ var IdbPouch = function(opts, callback) {
       return newDoc;
     });
 
+    var docInfoErrors = docInfos.filter(function(docInfo) {
+      return docInfo.error;
+    });
+    if (docInfoErrors.length) {
+      return call(callback, docInfoErrors[0]);
+    }
+
     var results = [];
     var docs = [];
 
@@ -292,6 +299,8 @@ var IdbPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
+      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
+
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
       var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
@@ -455,7 +464,7 @@ var IdbPouch = function(opts, callback) {
           }, []);
         }
         if (opts.conflicts) {
-          var conflicts = collectConflicts(metadata.rev_tree);
+          var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
           if (conflicts.length) {
             doc._conflicts = conflicts;
           }
@@ -611,7 +620,7 @@ var IdbPouch = function(opts, callback) {
           doc.doc = data;
           doc.doc._rev = Pouch.merge.winningRev(metadata);
           if (opts.conflicts) {
-            doc.doc._conflicts = collectConflicts(metadata.rev_tree);
+            doc.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
           }
         }
         if ('keys' in opts) {
@@ -760,7 +769,7 @@ var IdbPouch = function(opts, callback) {
             change.deleted = true;
           }
           if (opts.conflicts) {
-            change.doc._conflicts = collectConflicts(metadata.rev_tree);
+            change.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
           }
 
           // Dedupe the changes feed

@@ -123,6 +123,13 @@ var webSqlPouch = function(opts, callback) {
       return newDoc;
     });
 
+    var docInfoErrors = docInfos.filter(function(docInfo) {
+      return docInfo.error;
+    });
+    if (docInfoErrors.length) {
+      return call(callback, docInfoErrors[0]);
+    }
+
     var tx;
     var results = [];
     var docs = [];
@@ -247,6 +254,8 @@ var webSqlPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
+      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
+
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
       var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
         (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
@@ -393,7 +402,7 @@ var webSqlPouch = function(opts, callback) {
           }
 
           if (opts.conflicts) {
-            var conflicts = collectConflicts(metadata.rev_tree);
+            var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
             if (conflicts.length) {
               doc._conflicts = conflicts;
             }
@@ -511,7 +520,7 @@ var webSqlPouch = function(opts, callback) {
               doc.doc = data;
               doc.doc._rev = Pouch.merge.winningRev(metadata);
               if (opts.conflicts) {
-                doc.doc._conflicts = collectConflicts(metadata.rev_tree);
+                doc.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
               }
             }
             if ('keys' in opts) {
@@ -601,7 +610,7 @@ var webSqlPouch = function(opts, callback) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = collectConflicts(metadata.rev_tree);
+                change.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
               }
               results.push(change);
             }
