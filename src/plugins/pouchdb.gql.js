@@ -164,7 +164,6 @@
           }
           addToken("(end)");
 
-          console.log(tokens);
           return tokens;
         }());
 
@@ -321,7 +320,6 @@
           parseTree.push(expression(0));
         } while (peekToken().type !== "(end)");
 
-        console.log(parseTree);
         return parseTree;
       };
 
@@ -341,7 +339,6 @@
         var parsedTokens= (function() {
 
           var statementToString= function(statement){
-            console.log(statement);
             var result= [];
 
             var recur= function(node){
@@ -363,8 +360,6 @@
                   for (var i = 0; i < node.args.length; i++){
                     tempArgs.push(recur(node.args[i]));
                   }
-                  console.log("temp args: " + tempArgs);
-                  console.log(node.name+"("+tempArgs.join(', ') + ")");
                   return node.name+"("+tempArgs.join(', ') + ")";
 
                 case "identifier":
@@ -373,10 +368,10 @@
                 default:
                   var returnString= "";
                   if(node.left){
-                    returnString+= parseNode(node.left) + " ";
+                    returnString+= recur(node.left) + " ";
                   }
                   returnString += node.type + " ";
-                  return returnString+=parseNode(node.right);
+                  return returnString+=recur(node.right);
               }
             };
 
@@ -395,10 +390,8 @@
               labels[statementToString(labelTokens[i-1])] = labelTokens[i].value;
             }
           }
-          console.log("Label tokens: " +JSON.stringify(labels));
           var tokens= parse(query.select);
           tokens.forEach(function(tok){
-            console.log("goioig lkjsdf");
             var key= statementToString(tok);
             if (labels[key]){
               tok["label"]= labels[key];
@@ -515,7 +508,6 @@
               }
               //unaggregated identifiers are allowed if they are in the groupBy clause
               if (node.type === "identifier"){
-                console.log (node.value);
                 var re= new RegExp("\\b"+node.value+"\\b");
                 if(query.groupBy && re.test(query.groupBy)){
                   return false;
@@ -547,10 +539,6 @@
             parsedTokens.forEach(function(node){
               recur(node); 
             });
-
-            console.log(pivotingColumns);
-            console.log(selectColumns);
-            console.log(groupByColumns);
 
             for (var i=0; i< pivotingColumns.length; i++){
               if (groupByColumns.indexOf(pivotingColumns[i]) !== -1 ||
@@ -619,9 +607,9 @@
 
             if (!containsAggregator() && !query.pivot){
               return function(values){
-                var viewRow= {};
                 var result= [];
                 values.forEach(function(doc){
+                  var viewRow= {};
                   parsedTokens.forEach(function(statement, i){
                     viewRow[statement.label]= parseNode(statement, doc);
                   });
@@ -715,14 +703,13 @@
             "is": function(a, b) { return a === b; },
             "<": function(a, b) { return a < b; },
             "<=": function(a, b) { return a <= b; },
-            ">": function(a, b) { 
-              return a > b; },
-              ">=": function(a, b) { return a >= b; },
-              "!=": function(a, b) { return a !== b; },
-              "<>": function(a, b) { return a !== b; },
-              "and": function(a, b) { return a && b; },
-              "or": function(a, b) { return a || b; },
-              "not": function(a) { return !a; }
+            ">": function(a, b) { return a > b; },
+            ">=": function(a, b) { return a >= b; },
+            "!=": function(a, b) { return a !== b; },
+            "<>": function(a, b) { return a !== b; },
+            "and": function(a, b) { return a && b; },
+            "or": function(a, b) { return a || b; },
+            "not": function(a) { return !a; }
           };
 
           var parseNode= function(node){
@@ -769,7 +756,7 @@
 
       var groupByFun= (function(){
         if(!query.groupBy){
-          return function(doc){return null;};
+          return function(doc){return "";};
         }
 
         var columns= getIdentifierList(query.groupBy);
@@ -833,8 +820,6 @@
           });
         });
 
-        console.log(flattenedOutput);
-
         options.complete(null, {rows: flattenedOutput});
       };
 
@@ -867,7 +852,6 @@
         try {
           return viewQuery(fun, opts);
         } catch (err) {
-          console.log(err);
           return opts.complete(err);
         }
       }

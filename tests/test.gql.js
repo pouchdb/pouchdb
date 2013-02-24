@@ -14,8 +14,7 @@ if (typeof module !== undefined && module.exports) {
     global[k] = global[k] || utils[k];
   }
   adapters = ['leveldb-1', 'http-1']
-  qunit = QUnit.module;
-}
+  qunit = QUnit.module; }
 
 adapters.map(function(adapter) { 
   qunit('gql: ' + adapter, {
@@ -119,13 +118,66 @@ adapters.map(function(adapter) {
         {docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
-            select: "foo(, what, _id",
+            select: "foo(, what, _id"
           };
           db.gql(queryFun, function(error, res) {
             equal(error.error, "parsing_error", "Correct error received");
             equal(res, undefined, "Result is not defined");
           });
           start(); });
+    });
+  });
+
+  asyncTest("Test select with backquotes", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs(
+        {docs: [{"name!": "pencil", price: 2, discount: 0.7, vendor: "store1"},
+          {"name!": "pen", price:3, discount: 2, vendor: "store2"} ]},{},
+          function() {
+            var queryFun = {
+              select: "`name!`, price-discount, upper(vendor)"
+            };
+            db.gql(queryFun, function(error, res){
+              equal(res.rows.length, 2, "Correct number of rows");
+              res.rows.forEach(function(x, i) {
+                equal(Object.keys(x).length, 3, "correct number of columns in row");
+                if (x['name!'] === "pen") {
+                  equal(x["price - discount"], 1, "Correct value for price-discount");
+                  equal(x["upper(vendor)"], "STORE2", "Correct value for upper(vendor)");
+                } else {
+                  equal(x["price - discount"], 1.3, "Correct value for price-discount");
+                  equal(x["upper(vendor)"], "STORE1", "Correct value for upper(vendor)");
+                }
+              });
+              start();
+            });
+          });
+    });
+  });
+
+  asyncTest("Test not null and select *", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs(
+        {docs: [{name: "charmander", type: "Fire"},
+          {type: "Fire", attack:"tail whip"},
+          {name: "charizard", type: "Fire", attack:"slash"} ]},{},
+          function() {
+            var queryFun = {
+              select: "*",
+              where: "type='Fire' and name is not null"
+            };
+            db.gql(queryFun, function(error, res){
+              equal(res.rows.length, 2, "Correct number of rows");
+              res.rows.forEach(function(x, i) {
+                if (x['name'] === "charizard") {
+                  equal(x["attack"], "slash", "Correct value for charizard attack");
+                } else {
+                  ok(!x["attack"], "Charmander has no attack");
+                }
+              });
+              start();
+            });
+          });
     });
   });
 
@@ -141,7 +193,6 @@ adapters.map(function(adapter) {
               pivot: "lunch"
             };
             db.gql(queryFun, function(error, res) {
-              console.log(error);
               equal(error.error, "select_error", "Correct error received");
               equal(res, undefined, "Result is not defined");
             });
@@ -296,7 +347,6 @@ adapters.map(function(adapter) {
             select: "max(charizard), min(charizard), average(charizard), count(charizard), sum(charizard)",
           };
           db.gql(queryFun, function(_, res) {
-            console.log(res);
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               equal(x["max(charizard)"], 50, "Max computed correctly");
@@ -393,7 +443,7 @@ adapters.map(function(adapter) {
           db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 1, "Correct number of rows");
             res.rows.forEach(function(x, i) {
-              if(x["hello, 3 max-charizard"]){
+              if(x["hello, 3 max(charizard)"]){
                 equal(x["hello, 3 max(charizard)"], 99, "Correct aggregate value for charizard, "+
                 "charmeleon is 'hello', abra is 3");
                 equal(x["world, 3 max(charizard)"], 7, "Correct aggregate value for charizard, "+
@@ -427,7 +477,6 @@ adapters.map(function(adapter) {
               pivot: "lunch"
             };
             db.gql(queryFun, function(error, res) {
-              console.log(error);
               equal(error.error, "pivot_error", "Correct error received");
               equal(res, undefined, "Result is not defined");
             });
@@ -474,7 +523,6 @@ adapters.map(function(adapter) {
             label: "upper(dept) 'Department', charizard 'Maximum Charizard!'"
           };
           db.gql(queryFun, function(_, res) {
-            console.log(res);
             equal(res.rows.length, 4, "Correct number of rows");
             res.rows.forEach(function(x, i) {
               ok(x.Department, "Department label applied correctly");
