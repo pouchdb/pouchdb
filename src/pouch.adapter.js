@@ -205,8 +205,8 @@ var PouchAdapter = function(opts, callback) {
       return call(callback, Pouch.Errors.QUERY_PARSE_ERROR);
     }
 
-    return customApi._bulkDocs(req, opts, callback)
-  }
+    return customApi._bulkDocs(req, opts, callback);
+  };
 
   /* End Wrappers */
 
