@@ -81,7 +81,7 @@ var webSqlPouch = function(opts, callback) {
     return id;
   };
 
-  api.info = function(callback) {
+  api._info = function(callback) {
     db.transaction(function(tx) {
       var sql = 'SELECT COUNT(id) AS count FROM ' + DOC_STORE;
       tx.executeSql(sql, [], function(tx, result) {
@@ -94,18 +94,7 @@ var webSqlPouch = function(opts, callback) {
     });
   };
 
-  api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    if (!opts) {
-      opts = {};
-    }
-
-    if (!req.docs) {
-      return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
-    }
+  api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
     var newEdits = 'new_edits' in opts ? opts.new_edits : true;
     var userDocs = extend(true, [], req.docs);
@@ -337,17 +326,7 @@ var webSqlPouch = function(opts, callback) {
     }, unknownError(callback));
   };
 
-  api.get = function(id, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
-    id = parseDocId(id);
-    if (id.attachmentId !== '') {
-      return api.getAttachment(id, {decode: true}, callback);
-    }
-
+  api._get = function(id, opts, callback) {
     var result;
     var leaves;
     db.transaction(function(tx) {
@@ -460,26 +439,7 @@ var webSqlPouch = function(opts, callback) {
     }
   };
 
-  api.allDocs = function(opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    if ('keys' in opts) {
-      if ('startkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `start_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-      if ('endkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `end_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-    }
-
+  api._allDocs = function(opts, callback) {
     var results = [];
     var resultsMap = {};
     var start = 'startkey' in opts ? opts.startkey : false;
@@ -559,7 +519,7 @@ var webSqlPouch = function(opts, callback) {
     });
   }
 
-  api.changes = function idb_changes(opts) {
+  api._changes = function idb_changes(opts) {
 
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
@@ -654,15 +614,7 @@ var webSqlPouch = function(opts, callback) {
     }
   };
 
-  api.getAttachment = function(id, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    if (typeof id === 'string') {
-      id = parseDocId(id);
-    }
-
+  api._getAttachment = function(id, opts, callback) {
     var res;
     // This can be called while we are in a current transaction, pass the context
     // along and dont wait for the transaction to complete here.
