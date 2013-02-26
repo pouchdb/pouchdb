@@ -239,7 +239,7 @@ LevelPouch = module.exports = function(opts, callback) {
           var recv = 0;
 
           attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, function(err, data) {
+            api.getAttachment(doc._id + '/' + key, {encode: true}, function(err, data) {
               doc._attachments[key].data = data;
 
               if (++recv === attachments.length) {
@@ -282,10 +282,10 @@ LevelPouch = module.exports = function(opts, callback) {
           if (err) {
             return call(callback, err);
           }
-          var data = opts.decode
-            ? Pouch.utils.atob(attach.body.toString())
-            : attach.body.toString();
-
+          var data = opts.encode
+            ? Pouch.utils.btoa(attach.body)
+            : new Buffer(attach.body);
+          
           call(callback, null, data);
         });
       });
@@ -405,8 +405,8 @@ LevelPouch = module.exports = function(opts, callback) {
         var key = attachments[i];
         if (!doc.data._attachments[key].stub) {
           var data = doc.data._attachments[key].data
-          // if data is an object, it's likely to actually be a Buffer that got JSON.stringified
-          if (typeof data === 'object') data = new Buffer(data);
+          // if data is a string, it's likely to actually be base64 encoded
+          if (typeof data === 'string') data = Pouch.utils.atob(data);
           var digest = 'md5-' + crypto.createHash('md5')
                 .update(data || '')
                 .digest('hex');
