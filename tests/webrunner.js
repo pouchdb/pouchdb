@@ -33,7 +33,7 @@ if (!testFiles.length) {
 testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
-  'dev': ['../src/deps/uuid.js',
+  'dev': ['../src/deps/uuid.js', '../src/deps/extend.js',
           '../src/pouch.js', '../src/pouch.adapter.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
