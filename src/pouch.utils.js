@@ -340,9 +340,9 @@ var ajax = function ajax(options, callback) {
       options.headers.Authorization = 'Basic ' + token;
   }
   var onSuccess = function(obj, resp, cb){
-    if (!options.json && typeof obj !== 'string') {
+    if (!options.binary && !options.json && typeof obj !== 'string') {
           obj = JSON.stringify(obj);
-    } else if (options.json && typeof obj === 'string') {
+    } else if (!options.binary && options.json && typeof obj === 'string') {
           obj = JSON.parse(obj);
     }
     call(cb, null, obj, resp);
@@ -406,8 +406,13 @@ var ajax = function ajax(options, callback) {
     return {abort:abortReq};
   } else {
     if (options.json) {
-      options.headers.Accept = 'application/json';
+      if (!options.binary) {
+        options.headers.Accept = 'application/json';
+      }
       options.headers['Content-Type'] = 'application/json';
+    }
+    if (options.binary) {
+      options.setEncoding = null;
     }
     return request(options, function(err, response, body) {
       if (err) {
@@ -420,12 +425,12 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (options.json && typeof data !== 'object' &&
+      if (!options.binary && options.json && typeof data !== 'object' &&
           (/json/.test(content_type) ||
            (/^[\s]*\{/.test(data) && /\}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
-
+      
       if (data.error) {
         data.status = response.statusCode;
         call(onError, data, callback);
