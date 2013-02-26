@@ -188,4 +188,21 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest("No reduce function", function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({foo: 'bar'}, function(err, res) {
+        var queryFun = {
+          map: function(doc) {
+            emit('key', 'val');
+          }
+        };
+        db.query(queryFun, function(err, res) {
+          expect(0);
+          start();
+        });
+      });
+    });
+  });
+
 });
