@@ -554,7 +554,9 @@ var extend = function() {
   // Return the modified object
   return target;
 };
-
+Pouch.error = function(error,reason){
+  return extend({reason:reason},error);
+};
 // Basic wrapper for localStorage
 var win = this;
 var localJSON = (function(){
