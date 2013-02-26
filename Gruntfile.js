@@ -65,40 +65,42 @@ module.exports = function(grunt) {
         src: grunt.util._.flatten([
           "<banner:meta.amd.top>", srcFiles,"<banner:meta.amd.bottom>"
         ]),
-        dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
+        dest: 'dist/pouchdb.amd-nightly.js'
       },
       all: {
         src: grunt.util._.flatten([
           "<banner>","<banner:meta.top>","src/deps/uuid.js",
           "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
         ]),
-        dest: 'dist/pouchdb-<%= pkg.release %>.js'
+        dest: 'dist/pouchdb-nightly.js'
       },
       spatial: {
         src: grunt.util._.flatten([
           "<banner>","<banner:meta.top>","src/deps/uuid.js",
           "src/deps/polyfill.js", srcFiles,"src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
         ]),
-        dest: 'dist/pouchdb.spatial-<%= pkg.release %>.js'
+        dest: 'dist/pouchdb.spatial-nightly.js'
       }
     },
 
     uglify: {
       dist: {
-        src: "./dist/pouchdb-<%= pkg.release %>.js",
-        dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+        src: "./dist/pouchdb-nightly.js",
+        dest: 'dist/pouchdb-nightly.min.js'
       },
       spatial: {
-        src:  'dist/pouchdb.spatial-<%= pkg.release %>.js',
-        dest:  'dist/pouchdb.spatial-<%= pkg.release %>.min.js'
+        src:  'dist/pouchdb.spatial-nightly.js',
+        dest:  'dist/pouchdb.spatial-nightly.min.js'
       }
     },
 
     // Servers
     connect : {
       server: {
-        base: '.',
-        port: 8000
+        options: {
+          base: '.',
+          port: 8000
+        }
       }
     },
 
@@ -152,7 +154,6 @@ module.exports = function(grunt) {
         Pouch: true
       }
     },
-
     'node-qunit': {
       all: {
         deps: './src/pouch.js',
@@ -197,6 +198,10 @@ module.exports = function(grunt) {
   });
 
   // Custom tasks
+  grunt.registerTask("forever", 'Runs forever', function(){
+    this.async();
+  })
+
   grunt.registerTask("cors-server", "Runs a CORS proxy", function(){
     var corsPort = arguments[0] || grunt.config("cors-server.port");
     var couchUrl = grunt.util._.toArray(arguments).slice(1).join(":") ||
@@ -205,10 +210,6 @@ module.exports = function(grunt) {
 
     cors_proxy.options = {target: couchUrl};
     http_proxy.createServer(cors_proxy).listen(corsPort);
-  });
-
-  grunt.registerTask("forever", "Runs a task forever, exits only on Ctrl+C", function(){
-    this.async();
   });
 
   grunt.registerTask("publish-results",
@@ -250,6 +251,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
   
