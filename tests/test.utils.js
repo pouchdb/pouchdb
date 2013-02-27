@@ -34,6 +34,17 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 
+function openTestAsyncDB(name) {
+  return new Pouch(this.name + '_' + uuid(), function(err) {
+    if (err) {
+      console.error(err);
+      ok(false, 'failed to open database');
+      return start();
+    }
+  });
+
+}
+
 function openTestDB(name, callback) {
   new Pouch(name, function(err, db) {
     if (err) {
@@ -44,6 +55,7 @@ function openTestDB(name, callback) {
     callback.apply(this, arguments);
   });
 }
+
 
 function initTestDB(name, callback) {
   // ignore errors, the database might not exist

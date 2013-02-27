@@ -228,6 +228,11 @@ var HttpPouch = function(opts, callback) {
   // The id could be solely the _id in the database, or it may be a
   // _design/ID or _local/ID path
   api.get = function(id, opts, callback) {
+
+    if (!Pouch.taskqueue.ready) {
+      Pouch.taskqueue.addJob('get', arguments);
+      return;
+    }
     // If no options were given, set the callback to the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -427,6 +432,11 @@ var HttpPouch = function(opts, callback) {
   // Update/create multiple documents given by req in the database
   // given by host.
   api.bulkDocs = function(req, opts, callback) {
+
+    if (!Pouch.taskqueue.ready) {
+      Pouch.taskqueue.addJob('bulkDocs', arguments);
+      return;
+    }
     // If no options were given, set the callback to be the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -458,6 +468,10 @@ var HttpPouch = function(opts, callback) {
   // by host and ordered by increasing id.
   api.allDocs = function(opts, callback) {
     // If no options were given, set the callback to be the second parameter
+    if (!Pouch.taskqueue.ready) {
+      Pouch.taskqueue.addJob('allDocs', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
