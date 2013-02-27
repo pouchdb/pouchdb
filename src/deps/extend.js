@@ -125,3 +125,9 @@ var extend = function() {
   // Return the modified object
   return target;
 };
+
+if (typeof module !== undefined && module.exports) {
+  global.extend = extend;
+} else {
+  window.extend = extend;
+}
