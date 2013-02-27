@@ -155,7 +155,7 @@ LevelPouch = module.exports = function(opts, callback) {
     return opts.name;
   }
 
-  api.info = function(callback) {
+  api._info = function(callback) {
     return call(callback, null, {
       name: opts.name,
       doc_count: doc_count,
@@ -163,17 +163,7 @@ LevelPouch = module.exports = function(opts, callback) {
     });
   }
 
-  api.get = function(id, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-
-    id = Pouch.utils.parseDocId(id);
-    if (id.attachmentId !== '') {
-      return api.getAttachment(id, {decode: true}, callback);
-    }
-
+  api._get = function(id, opts, callback) {
     stores[DOC_STORE].get(id.docId, function(err, metadata) {
       if (err || !metadata || (isDeleted(metadata) && !opts.rev)) {
         return call(callback, Pouch.Errors.MISSING_DOC);
@@ -271,13 +261,7 @@ LevelPouch = module.exports = function(opts, callback) {
   }
 
   // not technically part of the spec, but if putAttachment has its own method...
-  api.getAttachment = function(id, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-
-    id = id.docId ? id : Pouch.utils.parseDocId(id);
+  api._getAttachment = function(id, opts, callback) {
     if (id.attachmentId === '') {
       return api.get(id, opts, callback);
     }
@@ -308,21 +292,7 @@ LevelPouch = module.exports = function(opts, callback) {
     });
   }
 
-  api.bulkDocs = function(bulk, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    if (!opts) {
-      opts = {};
-    }
-
-    if (!bulk || !bulk.docs || bulk.docs.length < 1) {
-      return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
-    }
-    if (!Array.isArray(bulk.docs)) {
-      return error(callback, new Error("docs should be an array of documents"));
-    }
+  api._bulkDocs = function(req, opts, callback) {
 
     var newEdits = opts.new_edits !== undefined ? opts.new_edits : true
       , info = []
@@ -330,7 +300,7 @@ LevelPouch = module.exports = function(opts, callback) {
       , results = []
 
     // parse the docs and give each a sequence number
-    var userDocs = extend(true, [], bulk.docs);
+    var userDocs = extend(true, [], req.docs);
     info = userDocs.map(function(doc, i) {
       var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
@@ -346,6 +316,14 @@ LevelPouch = module.exports = function(opts, callback) {
 
       return newDoc;
     });
+
+    var infoErrors = info.filter(function(doc) {
+      return doc.error;
+    });
+    if (infoErrors.length) {
+      return call(callback, infoErrors[0]);
+    }
+
 
     // group multiple edits to the same document
     info.forEach(function(info) {
@@ -561,25 +539,7 @@ LevelPouch = module.exports = function(opts, callback) {
     }
   }
 
-  api.allDocs = function(opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    if ('keys' in opts) {
-      if ('startkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `start_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-      if ('endkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `end_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-    }
+  api._allDocs = function(opts, callback) {
 
     var readstreamOpts = {
       reverse: false,
@@ -666,7 +626,7 @@ LevelPouch = module.exports = function(opts, callback) {
     });
   }
 
-  api.changes = function(opts) {
+  api._changes = function(opts) {
 
     var descending = 'descending' in opts ? opts.descending : false
       , results = []
@@ -759,7 +719,7 @@ LevelPouch = module.exports = function(opts, callback) {
     }
   }
 
-  api.close = function(callback) {
+  api._close = function(callback) {
     if (!opened) {
       return call(callback, Pouch.Errors.NOT_OPEN);
     }

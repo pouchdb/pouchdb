@@ -21,6 +21,10 @@ var MapReduce = function(db) {
       return;
     }
 
+    if (!fun.reduce) {
+      options.reduce = false;
+    }
+
     function sum(values) {
       return values.reduce(function(a, b) { return a + b; }, 0);
     }

@@ -6,8 +6,16 @@
   "version": "0.0.0",
   "main": "./src/pouch.js",
   "homepage": "https://github.com/daleharvey/pouchdb",
-  "keywords": [ "db", "couchdb", "pouchdb" ],
-  "tags": [ "db", "couchdb", "pouchdb" ],
+  "keywords": [
+    "db",
+    "couchdb",
+    "pouchdb"
+  ],
+  "tags": [
+    "db",
+    "couchdb",
+    "pouchdb"
+  ],
   "dependencies": {
     "levelup": "*",
     "request": "*",
@@ -15,7 +23,11 @@
   },
   "jam": {
     "main": "dist/pouch.amd-nightly.js",
-    "include": ["dist/pouch.amd-nightly.js", "README.md", "LICENSE"],
+    "include": [
+      "dist/pouch.amd-nightly.js",
+      "README.md",
+      "LICENSE"
+    ],
     "dependencies": {
       "simple-uuid": null,
       "md5": null
@@ -28,26 +40,32 @@
     "assert": "*",
     "nano": "*",
     "send": "*",
-    "grunt": "0.3",
-    "grunt-saucelabs": "*",
-    "grunt-node-qunit": "*",
+    "grunt": "~0.4",
+    "grunt-saucelabs": "~3.0",
+    "grunt-node-qunit": "~2.0",
     "corsproxy": "*",
-    "http-proxy": "*"
+    "http-proxy": "*",
+    "grunt-contrib-connect": "~0.1.2",
+    "grunt-contrib-concat": "~0.1.3",
+    "grunt-contrib-uglify": "~0.1.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-watch": "~0.2.0"
   },
   "maintainers": [
     {
       "name": "Dale Harvey",
-      "web" : "https://github.com/daleharvey"
+      "web": "https://github.com/daleharvey"
     },
     {
-      "name":"Ryan Ramage",
-      "web":"https://github.com/ryanramage"
+      "name": "Ryan Ramage",
+      "web": "https://github.com/ryanramage"
     }
   ],
   "repositories": [
     {
-      "type":"git",
-      "url":"https://github.com/daleharvey/pouchdb"
+      "type": "git",
+      "url": "https://github.com/daleharvey/pouchdb"
     }
   ],
   "scripts": {

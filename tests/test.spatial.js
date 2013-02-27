@@ -1,5 +1,5 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false */
+/*globals PERSIST_DATABASES: false, Spatial: false */
 
 "use strict";
 
@@ -32,6 +32,74 @@ adapters.map(function(adapter) {
     }
   });
 
+  // some geometries are based on the GeoJSON specification
+  // http://geojson.org/geojson-spec.html (2010-08-17)
+  var GEOJSON_GEOMS = [
+    { "type": "Point", "coordinates": [100.0, 0.0] },
+    { "type": "LineString", "coordinates":[
+      [100.0, 0.0], [101.0, 1.0]
+      ]},
+    { "type": "Polygon", "coordinates": [
+      [ [100.0, 0.0], [101.0, 0.0], [100.0, 1.0], [100.0, 0.0] ]
+      ]},
+    { "type": "Polygon", "coordinates": [
+      [ [100.0, 0.0], [101.0, 0.0], [100.0, 1.0], [100.0, 0.0] ],
+      [ [100.2, 0.2], [100.6, 0.2], [100.2, 0.6], [100.2, 0.2] ]
+    ]},
+    { "type": "MultiPoint", "coordinates": [
+      [100.0, 0.0], [101.0, 1.0]
+    ]},
+    { "type": "MultiLineString", "coordinates": [
+      [ [100.0, 0.0], [101.0, 1.0] ],
+      [ [102.0, 2.0], [103.0, 3.0] ]
+    ]},
+    { "type": "MultiPolygon", "coordinates": [
+      [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],
+      [
+        [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+        [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+      ]
+    ]},
+    { "type": "GeometryCollection", "geometries": [
+      { "type": "Point", "coordinates": [100.0, 0.0] },
+      { "type": "LineString", "coordinates": [ [101.0, 0.0], [102.0, 1.0] ]}
+    ]}
+  ];
+
+
+  test("Test bounding box calculation", function() {
+    var bbox = Spatial.calculateBbox(GEOJSON_GEOMS[0]);
+    deepEqual(bbox, [[100.0, 100.0], [0.0, 0.0]],
+              "Bounding box of a Point");
+
+    bbox = Spatial.calculateBbox(GEOJSON_GEOMS[1]);
+    deepEqual(bbox, [[100.0, 101.0], [0.0, 1.0]],
+              "Bounding box of a LineString");
+
+    bbox = Spatial.calculateBbox(GEOJSON_GEOMS[2]);
+    deepEqual(bbox, [[100.0, 101.0], [0.0, 1.0]],
+              "Bounding box of a Polygon");
+
+    bbox = Spatial.calculateBbox(GEOJSON_GEOMS[3]);
+    deepEqual(bbox, [[100.0, 101.0], [0.0, 1.0]],
+              "Bounding box of a Polygon with whole");
+
+    bbox = Spatial.calculateBbox(GEOJSON_GEOMS[4]);
+    deepEqual(bbox, [[100.0, 101.0], [0.0, 1.0]],
+              "Bounding box of a MultiPoint");
+
+    bbox = Spatial.calculateBbox(GEOJSON_GEOMS[5]);
+    deepEqual(bbox, [[100.0, 103.0], [0.0, 3.0]],
+              "Bounding box of a MultiLineString");
+
+    bbox = Spatial.calculateBbox(GEOJSON_GEOMS[6]);
+    deepEqual(bbox, [[100.0, 103.0], [0.0, 3.0]],
+              "Bounding box of a MultiPolygon");
+
+    bbox = Spatial.calculateBbox(GEOJSON_GEOMS[7]);
+    deepEqual(bbox, [[100.0, 102.0], [0.0, 1.0]],
+              "Bounding box of a GeometryCollection");
+  });
 
   asyncTest("Test basic spatial view", function() {
     var designDoc = {
@@ -88,40 +156,6 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Basic tests from GeoCouch test suite", 9, function() {
-    // some geometries are based on the GeoJSON specification
-    // http://geojson.org/geojson-spec.html (2010-08-17)
-    var values = [
-      { "type": "Point", "coordinates": [100.0, 0.0] },
-      { "type": "LineString", "coordinates":[
-        [100.0, 0.0], [101.0, 1.0]
-        ]},
-      { "type": "Polygon", "coordinates": [
-        [ [100.0, 0.0], [101.0, 0.0], [100.0, 1.0], [100.0, 0.0] ]
-        ]},
-      { "type": "Polygon", "coordinates": [
-        [ [100.0, 0.0], [101.0, 0.0], [100.0, 1.0], [100.0, 0.0] ],
-        [ [100.2, 0.2], [100.6, 0.2], [100.2, 0.6], [100.2, 0.2] ]
-      ]},
-      { "type": "MultiPoint", "coordinates": [
-        [100.0, 0.0], [101.0, 1.0]
-      ]},
-      { "type": "MultiLineString", "coordinates": [
-        [ [100.0, 0.0], [101.0, 1.0] ],
-        [ [102.0, 2.0], [103.0, 3.0] ]
-      ]},
-      { "type": "MultiPolygon", "coordinates": [
-        [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],
-        [
-          [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
-          [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
-        ]
-      ]},
-      { "type": "GeometryCollection", "geometries": [
-        { "type": "Point", "coordinates": [100.0, 0.0] },
-        { "type": "LineString", "coordinates": [ [101.0, 0.0], [102.0, 1.0] ]}
-      ]}
-    ];
-
     var designDoc = {
       _id: '_design/geojson',
       spatial: {
@@ -130,18 +164,18 @@ adapters.map(function(adapter) {
     };
 
     initTestDB(this.name, function(err, db) {
-      var docs = values.map(function(x, i) {
+      var docs = GEOJSON_GEOMS.map(function(x, i) {
         return {_id: (i).toString(), geom: x};
       });
       docs.push(designDoc);
 
       db.bulkDocs({docs: docs}, {}, function() {
         db.spatial('geojson/test', function(_, res) {
-          equal(res.rows.length, values.length,
+          equal(res.rows.length, GEOJSON_GEOMS.length,
                 "The same number of returned geometries is correct");
 
           res.rows.forEach(function(x, i) {
-            var found = values.filter(function(value) {
+            var found = GEOJSON_GEOMS.filter(function(value) {
               if (JSON.stringify(x.geometry) === JSON.stringify(value)) {
                 return true;
               }
