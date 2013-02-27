@@ -128,6 +128,4 @@ var extend = function() {
 
 if (typeof module !== undefined && module.exports) {
   global.extend = extend;
-} else {
-  window.extend = extend;
 }
