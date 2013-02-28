@@ -62,7 +62,7 @@ adapters.map(function(adapter) {
     _id: 'json_doc',
     _attachments: {
       "foo.json": {
-        content_type: "text/plain",
+        content_type: "application/json",
         data: btoa('{"Hello":"world"}')
       }
     }
@@ -74,16 +74,21 @@ adapters.map(function(adapter) {
       db = _db;
       db.put(binAttDoc, function(err, write) {
         ok(!err, 'saved doc with attachment');
-        db.get('bin_doc/foo.txt', function(err, res) {
-          readBlob(res, function(data) {
-            equal(data, 'This is a base64 encoded text',
-              'Correct data returned');
-            db.put(binAttDoc2, function(err, rev) {
-              db.get('bin_doc2/foo.txt', function(err, res, xhr) {
-                readBlob(res, function(data) {
-                  equal(data, '', 'Correct data returned');
-                  moreTests(rev.rev);
-                })
+        db.get('bin_doc', function(err, doc) {
+          ok(doc._attachments, 'doc has attachments field');
+          ok(doc._attachments['foo.txt'], 'doc has attachment');
+          equal(doc._attachments['foo.txt'].content_type, 'text/plain', 'doc has correct content type');
+          db.get('bin_doc/foo.txt', function(err, res) {
+            readBlob(res, function(data) {
+              equal(data, 'This is a base64 encoded text',
+                'Correct data returned');
+              db.put(binAttDoc2, function(err, rev) {
+                db.get('bin_doc2/foo.txt', function(err, res, xhr) {
+                  readBlob(res, function(data) {
+                    equal(data, '', 'Correct data returned');
+                    moreTests(rev.rev);
+                  })
+                });
               });
             });
           });
@@ -102,6 +107,8 @@ adapters.map(function(adapter) {
               ok(res._attachments, 'Result has attachments field');
               equal(res._attachments['foo2.txt'].data,
                 btoa('This is no base64 encoded text'));
+              equal(res._attachments['foo2.txt'].content_type, 'text/plain',
+                'Attachment was stored with correct content type');
               equal(res._attachments['foo.txt'].data, '');
               start();
             });
@@ -158,7 +165,9 @@ adapters.map(function(adapter) {
         ok(!err, 'saved doc with attachment');
         db.get(results.id, function(err, doc) {
           ok(!err, 'fetched doc');
-          ok(doc._attachments, 'doc has attachment');
+          ok(doc._attachments, 'doc has attachments field');
+          ok(doc._attachments['foo.json'], 'doc has attachment');
+          equal(doc._attachments['foo.json'].content_type, 'application/json', 'doc has correct content type');
           db.get(results.id + '/' + 'foo.json', function(err, attachment) {
             readBlob(attachment, function(data) {
               equal(data, atob(jsonDoc._attachments['foo.json'].data),
