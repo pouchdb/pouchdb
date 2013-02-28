@@ -174,11 +174,21 @@ var visualizeRevTree = function(db) {
         var nodeEl = circ(x, y, r, isLeaf, rev in deleted, rev === winner);
         var pos = rev.split('-')[0];
         var id = rev.split('-')[1];
-        var div = document.createElement('div');
         var opened = false;
 
         nodeEl.rev = rev;
         nodeEl.onclick = function() {
+          var div = document.createElement('div');
+          div.style.background = "#ddd";
+          div.style.padding = "8px";
+          div.style.border = "#aaa";
+          div.style.borderRadius = "7px";
+          div.style.position = "absolute";
+          div.style.left = scale * (x + 3 * r) + "px";
+          div.style.top = scale * (y - 2) + "px";
+          div.style.zIndex = 1000;
+          box.appendChild(div);
+
           if (opened) return;
           opened = true;
           var that = this;
@@ -203,29 +213,38 @@ var visualizeRevTree = function(db) {
                 console.log(key.nextSibling.getValue());
                 newDoc[key.getValue()] = JSON.parse(key.nextSibling.getValue());
               });
-              // revision should have pos one greater than previous
-              
               putAfter(newDoc, doc._rev, function(err, ok){
                 console.log(err, ok);
               });
+            };
+            var cancelButton = document.createElement('button');
+            cancelButton.appendChild(document.createTextNode('cancel'));
+            div.appendChild(cancelButton);
+            cancelButton.onclick = function() {
+              div.parentNode.removeChild(div);
+              opened = false;
             };
           });
         };
         nodeEl.onmouseover = function() {
           this.setAttribute('r', 1.2);
-        }
+          //text.style.display = "block";
+        };
         nodeEl.onmouseout = function() {
           this.setAttribute('r', 1);
-        }
+          //text.style.display = "none";
+        };
 
-        var text = div;
-        text.style.background = "#bbb";
+        var text = document.createElement('div');
+        //text.style.display = "none";
+        text.style.background = "#ddd";
         text.style.padding = "8px";
         text.style.border = "#aaa";
         text.style.borderRadius = "7px";
         text.style.position = "absolute";
+        text.style.fontSize = "10px";
         text.style.left = scale * (x + 3 * r) + "px";
-        text.style.top = scale * y + "px";
+        text.style.top = scale * (y - 2) + "px";
         text.short = pos + '-' + id.substr(0, shortDescLen);
         text.long = pos + '-' + id;
         text.appendChild(document.createTextNode(text.short));
