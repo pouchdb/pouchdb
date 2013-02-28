@@ -159,12 +159,26 @@ var visualizeRevTree = function(db) {
             console.log(that.rev, err, doc);
           });
         };
+        nodeEl.onmouseover = function() {
+          this.setAttribute('r', 1.2);
+        }
+        nodeEl.onmouseout = function() {
+          this.setAttribute('r', 1);
+        }
 
         var text = document.createElementNS(svgNS, "text");
         text.setAttributeNS(null, "x", x + 1);
         text.setAttributeNS(null, "y", y - 0.5);
         text.setAttributeNS(null, "font-size", "1");
-        text.appendChild(document.createTextNode(pos + '-' + id.substr(0, minUniq)));
+        text.short = pos + '-' + id.substr(0, minUniq);
+        text.long = pos + '-' + id;
+        text.appendChild(document.createTextNode(text.short));
+        text.onmouseover = function() {
+          this.textContent = this.long; 
+        };
+        text.onmouseout = function() {
+          this.textContent = this.short;
+        };
         textsBox.appendChild(text);
 
         if (ctx) {
