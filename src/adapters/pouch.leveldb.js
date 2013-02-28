@@ -30,6 +30,7 @@ var error = function(callback, message) {
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
 var ATTACH_STORE = 'attach-store';
+var ATTACH_BINARY_STORE = 'attach-binary-store';
 
 // leveldb barks if we try to open a db multiple times
 // so we cache opened connections here for initstore()
@@ -81,6 +82,7 @@ LevelPouch = module.exports = function(opts, callback) {
       initstore(DOC_STORE, 'json');
       initstore(BY_SEQ_STORE, 'json');
       initstore(ATTACH_STORE, 'json');
+      initstore(ATTACH_BINARY_STORE, 'binary');
     }
   });
 
@@ -110,7 +112,8 @@ LevelPouch = module.exports = function(opts, callback) {
 
       if (!stores[DOC_STORE] ||
           !stores[BY_SEQ_STORE] ||
-          !stores[ATTACH_STORE]) {
+          !stores[ATTACH_STORE] ||
+          !stores[ATTACH_BINARY_STORE]) {
         return;
       }
 
@@ -278,13 +281,13 @@ LevelPouch = module.exports = function(opts, callback) {
         var digest = doc._attachments[id.attachmentId].digest
           , type = doc._attachments[id.attachmentId].content_type
 
-        stores[ATTACH_STORE].get(digest, function(err, attach) {
+        stores[ATTACH_BINARY_STORE].get(digest, function(err, attach) {
           if (err) {
             return call(callback, err);
           }
           var data = opts.encode
-            ? Pouch.utils.btoa(attach.body)
-            : new Buffer(attach.body);
+            ? Pouch.utils.btoa(attach)
+            : attach;
           
           call(callback, null, data);
         });
@@ -473,7 +476,7 @@ LevelPouch = module.exports = function(opts, callback) {
         }
 
         var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
-        var newAtt = {body: data};
+        var newAtt = {};
 
         if (oldAtt) {
           if (oldAtt.refs) {
@@ -489,10 +492,15 @@ LevelPouch = module.exports = function(opts, callback) {
         }
 
         stores[ATTACH_STORE].put(digest, newAtt, function(err) {
-          callback(err);
           if (err) {
             return console.error(err);
           }
+          stores[ATTACH_BINARY_STORE].put(digest, data, function(err) {
+            callback(err);
+            if (err) {
+              return console.error(err);
+            }
+          });
         });
       });
     }
@@ -729,6 +737,7 @@ LevelPouch = module.exports = function(opts, callback) {
       path.join(dbpath, DOC_STORE),
       path.join(dbpath, BY_SEQ_STORE),
       path.join(dbpath, ATTACH_STORE),
+      path.join(dbpath, ATTACH_BINARY_STORE),
     ];
     var closed = 0;
     stores.map(function(path) {
@@ -768,6 +777,7 @@ LevelPouch.destroy = function(name, callback) {
     path.join(dbpath, DOC_STORE),
     path.join(dbpath, BY_SEQ_STORE),
     path.join(dbpath, ATTACH_STORE),
+    path.join(dbpath, ATTACH_BINARY_STORE),
   ];
   var closed = 0;
   stores.map(function(path) {
