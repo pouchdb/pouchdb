@@ -1,5 +1,9 @@
 "use strict";
 var visualizeRevTree = function(db) {
+  var grid = 10;
+  var scale = 7;
+  var r = 1;
+
   // see: pouch.utils.js
   var traverseRevTree = function(revs, callback) {
     var toVisit = [];
@@ -49,6 +53,18 @@ var visualizeRevTree = function(db) {
     return com;
   };
 
+  var putAfter = function(doc, prevRev, callback){
+    var newDoc = JSON.parse(JSON.stringify(doc));
+    newDoc._revisions = {
+      start: +newDoc._rev.split('-')[0],
+      ids: [
+        newDoc._rev.split('-')[1],
+        prevRev.split('-')[1]
+      ]
+    };
+    db.put(newDoc, {new_edits: false}, callback);
+  };
+
   var visualize = function(docId, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
@@ -82,7 +98,10 @@ var visualizeRevTree = function(db) {
       return el;
     };
     var svgNS = "http://www.w3.org/2000/svg";
+    var box = document.createElement('div');
+    box.setAttribute('position', 'relative');
     var svg = document.createElementNS(svgNS, "svg");
+    box.appendChild(svg);
     var linesBox = document.createElementNS(svgNS, "g");
     svg.appendChild(linesBox);
     var circlesBox = document.createElementNS(svgNS, "g");
@@ -130,12 +149,99 @@ var visualizeRevTree = function(db) {
       });
     });
 
+    function input(text){
+      var div = document.createElement('div');
+      var span = document.createElement('span');
+      div.appendChild(span);
+      span.appendChild(document.createTextNode(text));
+      var clicked = false;
+      var input;
+
+      div.ondblclick = function() {
+        clicked = true;
+        div.removeChild(span);
+        input = document.createElement('input');
+        div.appendChild(input);
+        input.value = text;
+      };
+      div.getValue = function() {
+        return clicked ? input.value : text;
+      };
+      return div;
+    }
+
+    function node(x, y, rev, isLeaf, isDeleted, isWinner, shortDescLen){
+        var nodeEl = circ(x, y, r, isLeaf, rev in deleted, rev === winner);
+        var pos = rev.split('-')[0];
+        var id = rev.split('-')[1];
+        var div = document.createElement('div');
+        var opened = false;
+
+        nodeEl.rev = rev;
+        nodeEl.onclick = function() {
+          if (opened) return;
+          opened = true;
+          var that = this;
+          db.get(docId, {rev: this.rev}, function(err, doc){
+            var newValues = {};
+            var keys = [];
+            for (var i in doc) {
+              if (doc.hasOwnProperty(i)) {
+                var key = input(i);
+                keys.push(key);
+                div.appendChild(key);
+                var value = input(JSON.stringify(doc[i]));
+                div.appendChild(value);
+              }
+            }
+            var okButton = document.createElement('button');
+            okButton.appendChild(document.createTextNode('ok'));
+            div.appendChild(okButton);
+            okButton.onclick = function() {
+              var newDoc = {};
+              keys.forEach(function(key){
+                console.log(key.nextSibling.getValue());
+                newDoc[key.getValue()] = JSON.parse(key.nextSibling.getValue());
+              });
+              // revision should have pos one greater than previous
+              
+              putAfter(newDoc, doc._rev, function(err, ok){
+                console.log(err, ok);
+              });
+            };
+          });
+        };
+        nodeEl.onmouseover = function() {
+          this.setAttribute('r', 1.2);
+        }
+        nodeEl.onmouseout = function() {
+          this.setAttribute('r', 1);
+        }
+
+        var text = div;
+        text.style.background = "#bbb";
+        text.style.padding = "8px";
+        text.style.border = "#aaa";
+        text.style.borderRadius = "7px";
+        text.style.position = "absolute";
+        text.style.left = scale * (x + 3 * r) + "px";
+        text.style.top = scale * y + "px";
+        text.short = pos + '-' + id.substr(0, shortDescLen);
+        text.long = pos + '-' + id;
+        text.appendChild(document.createTextNode(text.short));
+        text.onmouseover = function() {
+          this.style.zIndex = 1000;
+        };
+        text.onmouseout = function() {
+          this.style.zIndex = 1;
+        };
+        box.appendChild(text);
+    }
+
     function draw(forest){
       var minUniq = minUniqueLength(allRevs);
-      var grid = 10;
       var maxX = grid;
       var maxY = grid;
-      var r = 1;
       var levelCount = []; // numer of nodes on some level (pos)
       traverseRevTree(forest, function(isLeaf, pos, id, ctx) {
         if (!levelCount[pos]) {
@@ -150,36 +256,8 @@ var visualizeRevTree = function(db) {
         maxX = Math.max(maxX, x);
         maxY = Math.max(maxY, y);
 
-        var nodeEl = circ(x, y, r, isLeaf, rev in deleted, rev === winner);
-        nodeEl.rev = rev;
-        nodeEl.pos = pos;
-        nodeEl.onclick = function() {
-          var that = this;
-          db.get(docId, {rev: this.rev}, function(err, doc){
-            console.log(that.rev, err, doc);
-          });
-        };
-        nodeEl.onmouseover = function() {
-          this.setAttribute('r', 1.2);
-        }
-        nodeEl.onmouseout = function() {
-          this.setAttribute('r', 1);
-        }
+        node(x, y, rev, isLeaf, rev in deleted, rev === winner, minUniq);
 
-        var text = document.createElementNS(svgNS, "text");
-        text.setAttributeNS(null, "x", x + 1);
-        text.setAttributeNS(null, "y", y - 0.5);
-        text.setAttributeNS(null, "font-size", "1");
-        text.short = pos + '-' + id.substr(0, minUniq);
-        text.long = pos + '-' + id;
-        text.appendChild(document.createTextNode(text.short));
-        text.onmouseover = function() {
-          this.textContent = this.long; 
-        };
-        text.onmouseout = function() {
-          this.textContent = this.short;
-        };
-        textsBox.appendChild(text);
 
         if (ctx) {
           line(x, y, ctx.x, ctx.y); 
@@ -187,7 +265,9 @@ var visualizeRevTree = function(db) {
         return {x: x, y: y};
       });
       svg.setAttribute('viewBox', '0 0 ' + (maxX + grid) + ' ' + (maxY + grid));
-      callback(null, svg);
+      svg.style.width = scale * (maxX + grid) + 'px';
+      svg.style.height = scale * (maxY + grid) + 'px';
+      callback(null, box);
     }
   };
   return {'visualizeRevTree': visualize};
