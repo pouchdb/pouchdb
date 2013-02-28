@@ -177,7 +177,7 @@ var visualizeRevTree = function(db) {
         var opened = false;
 
         nodeEl.rev = rev;
-        nodeEl.onclick = function() {
+        var click = function() {
           var div = document.createElement('div');
           div.style.background = "#ddd";
           div.style.padding = "8px";
@@ -188,6 +188,11 @@ var visualizeRevTree = function(db) {
           div.style.top = scale * (y - 2) + "px";
           div.style.zIndex = 1000;
           box.appendChild(div);
+
+          var close = function() {
+            div.parentNode.removeChild(div);
+            opened = false;
+          };
 
           if (opened) return;
           opened = true;
@@ -213,19 +218,23 @@ var visualizeRevTree = function(db) {
                 console.log(key.nextSibling.getValue());
                 newDoc[key.getValue()] = JSON.parse(key.nextSibling.getValue());
               });
+              console.log(newDoc);
               putAfter(newDoc, doc._rev, function(err, ok){
                 console.log(err, ok);
+                if (!err) {
+                  close();
+                } else {
+                  alert("error occured, see console");
+                }
               });
             };
             var cancelButton = document.createElement('button');
             cancelButton.appendChild(document.createTextNode('cancel'));
             div.appendChild(cancelButton);
-            cancelButton.onclick = function() {
-              div.parentNode.removeChild(div);
-              opened = false;
-            };
+            cancelButton.onclick = close;
           });
         };
+        nodeEl.onclick = click;
         nodeEl.onmouseover = function() {
           this.setAttribute('r', 1.2);
           //text.style.display = "block";
@@ -254,6 +263,7 @@ var visualizeRevTree = function(db) {
         text.onmouseout = function() {
           this.style.zIndex = 1;
         };
+        text.onclick = click;
         box.appendChild(text);
     }
 
@@ -276,7 +286,6 @@ var visualizeRevTree = function(db) {
         maxY = Math.max(maxY, y);
 
         node(x, y, rev, isLeaf, rev in deleted, rev === winner, minUniq);
-
 
         if (ctx) {
           line(x, y, ctx.x, ctx.y); 
