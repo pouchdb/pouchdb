@@ -409,10 +409,11 @@ var ajax = function ajax(options, callback) {
       if (!options.binary) {
         options.headers.Accept = 'application/json';
       }
-      options.headers['Content-Type'] = 'application/json';
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
     }
     if (options.binary) {
       options.encoding = null;
+      options.json = false;
     }
     return request(options, function(err, response, body) {
       if (err) {
@@ -422,6 +423,12 @@ var ajax = function ajax(options, callback) {
 
       var content_type = response.headers['content-type'];
       var data = (body || '');
+
+      // in case of standalone attachments we don't want objects,
+      // event if its content type is application/json
+      if (options.binary && typeof data === 'object' && !data instanceof Buffer) {
+        data = JSON.stringify(data);
+      }
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
