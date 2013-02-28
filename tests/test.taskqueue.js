@@ -21,6 +21,7 @@ adapters.map(function(adapter) {
   qunit("taskqueue: " + adapter, {
     setup: function() {
       this.name = generateAdapterUrl(adapter);
+      Pouch.destroy(this.name);
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
@@ -28,10 +29,40 @@ adapters.map(function(adapter) {
       }
     }
   });
+
+  var origDocs = [
+    {_id:"0",a:1,b:1},
+    {_id:"3",a:4,b:16},
+    {_id:"1",a:2,b:4},
+    {_id:"2",a:3,b:9}
+  ];
+
+  function writeDocs(db, docs, callback) {
+    if (!docs.length) {
+      return callback();
+    }
+    var doc = docs.shift();
+    db.put(doc, function(err, doc) {
+      ok(doc.ok, 'docwrite returned ok');
+      writeDocs(db, docs, callback);
+    });
+  }
+
   asyncTest("Add a doc", 1, function() {
     var db = openTestAsyncDB(this.name);
     db.post({test:"somestuff"}, function (err, info) {
       ok(!err, 'saved a doc with post');
+      start();
+    });
+  });
+
+  asyncTest("Add a doc", 1, function() {
+    var db = openTestAsyncDB(this.name);
+    var queryFun = {
+      map: function(doc) { emit(doc.key, doc); }
+    };
+    db.query(queryFun, { reduce: false, startkey: 'notfound' }, function (_, res) {
+      equal(res.rows.length, 0);
       start();
     });
   });
@@ -46,7 +77,25 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Bulk docs", 2, function() {
+  asyncTest("Get", 2, function() {
+    var db = openTestAsyncDB(this.name);
+
+    db.get('0', function(err, res) {
+      ok(err);
+      start();
+    });
+  });
+
+  asyncTest("Get", 2, function() {
+    var db = openTestAsyncDB(this.name);
+
+    db.get('0', function(err, res) {
+      ok(err);
+      start();
+    });
+  });
+
+  asyncTest("Info", 2, function() {
     var db = openTestAsyncDB(this.name);
 
     db.info(function(err, info) {
