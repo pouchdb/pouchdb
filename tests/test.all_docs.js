@@ -40,6 +40,7 @@ adapters.map(function(adapter) {
     {_id:"2",a:3,b:9}
   ];
 
+
   function writeDocs(db, docs, callback) {
     if (!docs.length) {
       return callback();

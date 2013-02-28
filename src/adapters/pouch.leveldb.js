@@ -195,12 +195,9 @@ LevelPouch = module.exports = function(opts, callback) {
         return; // open_revs can be used only with revs
       }
 
-      var seq = opts.rev
-        ? metadata.rev_map[opts.rev]
-        : metadata.seq;
-
       var rev = Pouch.merge.winningRev(metadata);
       rev = opts.rev ? opts.rev : rev;
+      var seq = metadata.rev_map[rev];
 
       stores[BY_SEQ_STORE].get(seq, function(err, doc) {
         if (!doc) {
@@ -592,14 +589,15 @@ LevelPouch = module.exports = function(opts, callback) {
           }
         }
       }
+      var metadata = entry.value;
       if (opts.include_docs) {
-        var seq = entry.value.seq;
+        var seq = metadata.rev_map[Pouch.merge.winningRev(metadata)];
         stores[BY_SEQ_STORE].get(seq, function(err, data) {
-          allDocsInner(entry.value, data);
+          allDocsInner(metadata, data);
         });
       }
       else {
-        allDocsInner(entry.value);
+        allDocsInner(metadata);
       }
     });
     docstream.on('error', function(err) {
