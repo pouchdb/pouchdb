@@ -97,8 +97,8 @@ adapters.map(function(adapter) {
     });
 
     function moreTests(rev) {
-      var blob = makeBlob('This is no base64 encoded text', 'text/plain');
-      db.putAttachment('bin_doc2/foo2.txt', rev, blob, function() {
+      var blob = makeBlob('This is no base64 encoded text');
+      db.putAttachment('bin_doc2/foo2.txt', rev, blob, 'text/plain', function() {
         db.get('bin_doc2/foo2.txt', function(err, res, xhr) {
           readBlob(res, function(data) {
             ok(data === 'This is no base64 encoded text',
@@ -131,8 +131,8 @@ adapters.map(function(adapter) {
   asyncTest("Test put attachment on a doc without attachments", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        var blob = makeBlob('Mytext', 'text/plain');
-        db.putAttachment('mydoc/mytext', resp.rev, blob, function(err, res) {
+        var blob = makeBlob('Mytext');
+        db.putAttachment('mydoc/mytext', resp.rev, blob, 'text/plain', function(err, res) {
           ok(res.ok);
           start();
         });
@@ -143,8 +143,8 @@ adapters.map(function(adapter) {
   asyncTest("Test delete attachment from a doc", function() {
     initTestDB(this.name, function(erro, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        var blob = makeBlob('Mytext', 'text/plain');
-        db.putAttachment('mydoc/mytext', resp.rev, blob, function(err, res) {
+        var blob = makeBlob('Mytext');
+        db.putAttachment('mydoc/mytext', resp.rev, blob, 'text/plain', function(err, res) {
           ok(res.ok);
           var rev = res.rev;
           db.removeAttachment('mydoc/mytext', 0, function(err, res) {
@@ -183,8 +183,8 @@ adapters.map(function(adapter) {
   asyncTest("Test remove doc with attachment", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        var blob = makeBlob('Mytext', 'text/plain');
-        db.putAttachment('mydoc/mytext', resp.rev, blob, function(err, res) {
+        var blob = makeBlob('Mytext');
+        db.putAttachment('mydoc/mytext', resp.rev, blob, 'text/plain', function(err, res) {
           db.get('mydoc',{attachments:false},function(err,doc){
             db.remove(doc, function(err, resp){
               ok(res.ok);

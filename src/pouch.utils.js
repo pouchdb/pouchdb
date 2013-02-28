@@ -362,7 +362,7 @@ var ajax = function ajax(options, callback) {
     xhr.open(options.method, options.url);
     if (options.json) {
       options.headers.Accept = 'application/json';
-      options.headers['Content-Type'] = 'application/json';
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
       if (options.body && options.processData && typeof options.body !== "string") {
         options.body = JSON.stringify(options.body);
       }

@@ -348,13 +348,17 @@ var HttpPouch = function(opts, callback) {
   // Add the attachment given by blob and its contentType property
   // to the document with the given id, the revision given by rev, and
   // add it to the database given by host.
-  api.putAttachment = function(id, rev, blob, callback) {
+  api.putAttachment = function(id, rev, blob, type, callback) {
+    if (typeof type === 'function') {
+      callback = type;
+      type = undefined;
+    }
     // Add the attachment
     ajax({
       auth: host.auth,
       method:'PUT',
       url: genDBUrl(host, id) + '?rev=' + rev,
-      headers: {'Content-Type': blob.contentType},
+      headers: {'Content-Type': type || blob.type},
       processData: false,
       body: blob
     }, callback);
