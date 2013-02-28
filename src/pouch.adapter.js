@@ -53,7 +53,7 @@ var PouchAdapter = function(opts, callback) {
       type = undefined;
     }
     id = parseDocId(id);
-    api.get(id.docId, {attachments: true}, function(err, obj) {
+    api.get(id.docId, function(err, obj) {
       obj._attachments = obj._attachments || {};
       obj._attachments[id.attachmentId] = {
         content_type: type || doc.type,
@@ -139,7 +139,7 @@ var PouchAdapter = function(opts, callback) {
 
     id = parseDocId(id);
     if (id.attachmentId !== '') {
-      return customApi.getAttachment(id, {decode: true}, callback);
+      return customApi.getAttachment(id, callback);
     }
     return customApi._get(id, opts, callback);
 
