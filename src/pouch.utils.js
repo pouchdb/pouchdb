@@ -412,7 +412,7 @@ var ajax = function ajax(options, callback) {
       options.headers['Content-Type'] = 'application/json';
     }
     if (options.binary) {
-      options.setEncoding = null;
+      options.encoding = null;
     }
     return request(options, function(err, response, body) {
       if (err) {
