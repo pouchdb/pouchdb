@@ -1,5 +1,22 @@
 "use strict";
 var visualizeRevTree = function(db) {
+  var head = document.getElementsByTagName("head")[0];
+  if (head) {
+    var style = [
+      ".visualizeRevTree line{stroke: #000; stroke-width: .10}",
+      ".visualizeRevTree div{position: relative; }",
+      ".visualizeRevTree circle{stroke: #000; stroke-width: .10}",
+      ".visualizeRevTree circle.leaf{fill: green}",
+      ".visualizeRevTree circle.winner{fill: red}",
+      ".visualizeRevTree circle.deleted{fill: grey}",
+      ".visualizeRevTree circle{transition: 1s}",
+      ".visualizeRevTree circle.selected{stroke-width: .3}"
+    ];
+    var styleNode = document.createElement("style");
+    styleNode.appendChild(document.createTextNode(style.join("\n")));
+    head.appendChild(styleNode);
+  }
+
   var grid = 10;
   var scale = 7;
   var r = 1;
@@ -75,13 +92,13 @@ var visualizeRevTree = function(db) {
       el.setAttributeNS(null, "cy", y);
       el.setAttributeNS(null, "r", r);
       if (isLeaf) {
-        el.setAttributeNS(null, "fill", "green");
+        el.classList.add("leaf");
       }
       if (isWinner) {
-        el.setAttributeNS(null, "fill", "red");
+        el.classList.add("winner");
       }
       if (isDeleted) {
-        el.setAttributeNS(null, "stroke", "grey");
+        el.classList.add("deleted");
       }
       circlesBox.appendChild(el);
       return el;
@@ -92,14 +109,12 @@ var visualizeRevTree = function(db) {
       el.setAttributeNS(null, "y1", y1);
       el.setAttributeNS(null, "x2", x2);
       el.setAttributeNS(null, "y2", y2);
-      el.setAttributeNS(null, "stroke", "#000");
-      el.setAttributeNS(null, "stroke-width", ".25");
       linesBox.appendChild(el);
       return el;
     };
     var svgNS = "http://www.w3.org/2000/svg";
     var box = document.createElement('div');
-    box.setAttribute('position', 'relative');
+    box.className = "visualizeRevTree";
     var svg = document.createElementNS(svgNS, "svg");
     box.appendChild(svg);
     var linesBox = document.createElementNS(svgNS, "g");
@@ -237,10 +252,12 @@ var visualizeRevTree = function(db) {
         nodeEl.onclick = click;
         nodeEl.onmouseover = function() {
           this.setAttribute('r', 1.2);
+          this.classList.add("selected");
           //text.style.display = "block";
         };
         nodeEl.onmouseout = function() {
           this.setAttribute('r', 1);
+          this.classList.remove("selected");
           //text.style.display = "none";
         };
 
