@@ -3,7 +3,7 @@ var visualizeRevTree = function(db) {
   var head = document.getElementsByTagName("head")[0];
   if (head) {
     var style = [
-      ".visualizeRevTree {font-size: 10px}",
+      ".visualizeRevTree * {margin: 0; padding: 0; font-size: 10px}",
       ".visualizeRevTree line{stroke: #000; stroke-width: .10}",
       ".visualizeRevTree div{position: relative; }",
       ".visualizeRevTree circle{stroke: #000; stroke-width: .10}",
@@ -12,7 +12,11 @@ var visualizeRevTree = function(db) {
       ".visualizeRevTree circle.deleted{fill: grey}",
       ".visualizeRevTree circle{transition: .3s}",
       ".visualizeRevTree circle.selected{stroke-width: .3}",
-      ".visualizeRevTree div.box{background: #ddd; border: 1px solid #bbb; border-radius: 7px; padding: 7px; position: absolute;}"
+      ".visualizeRevTree div.box{background: #ddd; border: 1px solid #bbb; border-radius: 7px; padding: 7px; position: absolute;}",
+      ".visualizeRevTree .editor {width: 220px}",
+      ".visualizeRevTree .editor dt{width: 100px; height: 15px; float: left;}",
+      ".visualizeRevTree .editor dd{width: 100px; height: 15px; float: left;}",
+      ".visualizeRevTree .editor input{width: 100%; height: 100%}"
     ];
     var styleNode = document.createElement("style");
     styleNode.appendChild(document.createTextNode(style.join("\n")));
@@ -64,7 +68,7 @@ var visualizeRevTree = function(db) {
       }
     }
     var array = arr.slice(0);
-    var com = 0;
+    var com = 1;
     array.sort();
     for (var i = 1; i < array.length; i++){
       com = Math.max(com, strCommon(array[i], array[i - 1]));
@@ -195,7 +199,11 @@ var visualizeRevTree = function(db) {
 
         nodeEl.rev = rev;
         var click = function() {
+          if (opened) return;
+          opened = true;
+
           var div = document.createElement('div');
+          div.classList.add("editor");
           div.classList.add("box");
           div.style.left = scale * (x + 3 * r) + "px";
           div.style.top = scale * (y - 2) + "px";
@@ -207,29 +215,31 @@ var visualizeRevTree = function(db) {
             opened = false;
           };
 
-          if (opened) return;
-          opened = true;
-          var that = this;
           db.get(docId, {rev: this.rev}, function(err, doc){
-            var newValues = {};
+            var dl = document.createElement('dl');
             var keys = [];
             for (var i in doc) {
               if (doc.hasOwnProperty(i)) {
                 var key = input(i);
                 keys.push(key);
-                div.appendChild(key);
+                var dt = document.createElement('dt');
+                dt.appendChild(key);
+                dl.appendChild(dt);
                 var value = input(JSON.stringify(doc[i]));
-                div.appendChild(value);
+                key.valueInput = value;
+                var dd = document.createElement('dd');
+                dd.appendChild(value);
+                dl.appendChild(dd);
               }
             }
+            div.appendChild(dl);
             var okButton = document.createElement('button');
             okButton.appendChild(document.createTextNode('ok'));
             div.appendChild(okButton);
             okButton.onclick = function() {
               var newDoc = {};
               keys.forEach(function(key){
-                console.log(key.nextSibling.getValue());
-                newDoc[key.getValue()] = JSON.parse(key.nextSibling.getValue());
+                newDoc[key.getValue()] = JSON.parse(key.valueInput.getValue());
               });
               console.log(newDoc);
               putAfter(newDoc, doc._rev, function(err, ok){
@@ -274,6 +284,7 @@ var visualizeRevTree = function(db) {
         text.onclick = click;
         box.appendChild(text);
     }
+
 
     function draw(forest){
       var minUniq = minUniqueLength(allRevs);
