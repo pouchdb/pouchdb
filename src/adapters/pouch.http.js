@@ -304,7 +304,7 @@ var HttpPouch = function(opts, callback) {
     var parts = id.split('/');
     if ((parts.length > 1 && parts[0] !== '_design' && parts[0] !== '_local') ||
         (parts.length > 2 && parts[0] === '_design' && parts[0] !== '_local')) {
-      // Binariy is expected back from the server
+      // Binary is expected back from the server
       options.binary = true;
     }
 
