@@ -140,6 +140,26 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Testing with invalid rev", function() {
+    initTestDB(this.name, function(err, db) {
+      var doc = {_id: 'adoc'};
+      db.put(doc, function(err, resp) {
+        ok(!err, 'Doc has been saved');
+        doc._rev = resp.rev;
+        doc.foo = 'bar';
+        db.put(doc, function(err, resp) {
+          ok(!err, 'Doc has been updated');
+          var blob = makeBlob('bar');
+          db.putAttachment('adoc/foo.txt', doc._rev, blob, 'text/plain', function(err) {
+            ok(err, 'Attachment has not been saved');
+            equal(err.error, 'conflict', 'error is a conflict');
+            start();
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Test delete attachment from a doc", function() {
     initTestDB(this.name, function(erro, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
