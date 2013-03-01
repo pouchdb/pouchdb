@@ -214,7 +214,6 @@ var visualizeRevTree = function(db) {
             opened = false;
           };
 
-          console.log(this.rev);
           db.get(docId, {rev: rev}, function(err, doc){
             var dl = document.createElement('dl');
             var keys = [];
@@ -241,12 +240,11 @@ var visualizeRevTree = function(db) {
               keys.forEach(function(key){
                 newDoc[key.getValue()] = JSON.parse(key.valueInput.getValue());
               });
-              console.log(newDoc);
               putAfter(newDoc, doc._rev, function(err, ok){
-                console.log(err, ok);
                 if (!err) {
                   close();
                 } else {
+                  console.log(err);
                   alert("error occured, see console");
                 }
               });
