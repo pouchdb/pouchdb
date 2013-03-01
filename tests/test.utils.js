@@ -35,6 +35,26 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 
+function makeBlob(data, type) {
+  if (typeof module !== 'undefined' && module.exports) {
+    return new Buffer(data);
+  } else {
+    return new Blob([data], {type: type});
+  }
+}
+
+function readBlob(blob, callback) {
+  if (typeof module !== 'undefined' && module.exports) {
+    callback(blob.toString());
+  } else {
+    var reader = new FileReader();
+    reader.onloadend = function(e) {
+      callback(this.result);
+    };
+    reader.readAsBinaryString(blob);
+  }
+}
+
 function openTestDB(name, callback) {
   new Pouch(name, function(err, db) {
     if (err) {
@@ -97,6 +117,8 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch = require('../src/pouch.js');
   module.exports = {
     makeDocs: makeDocs,
+    makeBlob: makeBlob,
+    readBlob: readBlob,
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,

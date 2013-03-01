@@ -331,6 +331,7 @@ var ajax = function ajax(options, callback) {
     method : "GET",
     headers: {},
     json: true,
+    processData: true,
     timeout: 10000
   };
   options = extend(true, defaultOptions, options);
@@ -339,9 +340,9 @@ var ajax = function ajax(options, callback) {
       options.headers.Authorization = 'Basic ' + token;
   }
   var onSuccess = function(obj, resp, cb){
-    if (!options.json && typeof obj !== 'string') {
+    if (!options.binary && !options.json && options.processData && typeof obj !== 'string') {
           obj = JSON.stringify(obj);
-    } else if (options.json && typeof obj === 'string') {
+    } else if (!options.binary && options.json && typeof obj === 'string') {
           obj = JSON.parse(obj);
     }
     call(cb, null, obj, resp);
@@ -361,10 +362,13 @@ var ajax = function ajax(options, callback) {
     xhr.open(options.method, options.url);
     if (options.json) {
       options.headers.Accept = 'application/json';
-      options.headers['Content-Type'] = 'application/json';
-      if (options.body && typeof options.body !== "string") {
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+      if (options.body && options.processData && typeof options.body !== "string") {
         options.body = JSON.stringify(options.body);
       }
+    }
+    if (options.binary) {
+      xhr.responseType = 'arraybuffer';
     }
     for (var key in options.headers){
       xhr.setRequestHeader(key, options.headers[key]);
@@ -383,8 +387,14 @@ var ajax = function ajax(options, callback) {
         return;
       }
       clearTimeout(timer);
-      if (xhr.status >= 200 && xhr.status < 300){
-        call(onSuccess, xhr.responseText, xhr, callback);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var data;
+        if (options.binary) {
+          data = new Blob([xhr.response || ''], {type: xhr.getResponseHeader('Content-Type')});
+        } else {
+          data = xhr.responseText;
+        }
+        call(onSuccess, data, xhr, callback);
       } else {
          call(onError, xhr, callback);
       }
@@ -396,8 +406,17 @@ var ajax = function ajax(options, callback) {
     return {abort:abortReq};
   } else {
     if (options.json) {
-      options.headers.Accept = 'application/json';
-      options.headers['Content-Type'] = 'application/json';
+      if (!options.binary) {
+        options.headers.Accept = 'application/json';
+      }
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+    }
+    if (options.binary) {
+      options.encoding = null;
+      options.json = false;
+    }
+    if (!options.processData) {
+      options.json = false;
     }
     return request(options, function(err, response, body) {
       if (err) {
@@ -410,12 +429,12 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (options.json && typeof data !== 'object' &&
+      if (!options.binary && (options.json || !options.processData) && typeof data !== 'object' &&
           (/json/.test(content_type) ||
            (/^[\s]*\{/.test(data) && /\}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
-
+      
       if (data.error) {
         data.status = response.statusCode;
         call(onError, data, callback);

@@ -30,6 +30,7 @@ var error = function(callback, message) {
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
 var ATTACH_STORE = 'attach-store';
+var ATTACH_BINARY_STORE = 'attach-binary-store';
 
 // leveldb barks if we try to open a db multiple times
 // so we cache opened connections here for initstore()
@@ -81,6 +82,7 @@ LevelPouch = module.exports = function(opts, callback) {
       initstore(DOC_STORE, 'json');
       initstore(BY_SEQ_STORE, 'json');
       initstore(ATTACH_STORE, 'json');
+      initstore(ATTACH_BINARY_STORE, 'binary');
     }
   });
 
@@ -110,7 +112,8 @@ LevelPouch = module.exports = function(opts, callback) {
 
       if (!stores[DOC_STORE] ||
           !stores[BY_SEQ_STORE] ||
-          !stores[ATTACH_STORE]) {
+          !stores[ATTACH_STORE] ||
+          !stores[ATTACH_BINARY_STORE]) {
         return;
       }
 
@@ -239,7 +242,7 @@ LevelPouch = module.exports = function(opts, callback) {
           var recv = 0;
 
           attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, function(err, data) {
+            api.getAttachment(doc._id + '/' + key, {encode: true}, function(err, data) {
               doc._attachments[key].data = data;
 
               if (++recv === attachments.length) {
@@ -278,14 +281,19 @@ LevelPouch = module.exports = function(opts, callback) {
         var digest = doc._attachments[id.attachmentId].digest
           , type = doc._attachments[id.attachmentId].content_type
 
-        stores[ATTACH_STORE].get(digest, function(err, attach) {
+        stores[ATTACH_BINARY_STORE].get(digest, function(err, attach) {
+          // empty attachments
+          if (err && err.name === 'NotFoundError') {
+            return call(callback, null, new Buffer(''));
+          }
+
           if (err) {
             return call(callback, err);
           }
-          var data = opts.decode
-            ? Pouch.utils.atob(attach.body.toString())
-            : attach.body.toString();
-
+          var data = opts.encode
+            ? Pouch.utils.btoa(attach)
+            : attach;
+          
           call(callback, null, data);
         });
       });
@@ -405,8 +413,8 @@ LevelPouch = module.exports = function(opts, callback) {
         var key = attachments[i];
         if (!doc.data._attachments[key].stub) {
           var data = doc.data._attachments[key].data
-          // if data is an object, it's likely to actually be a Buffer that got JSON.stringified
-          if (typeof data === 'object') data = new Buffer(data);
+          // if data is a string, it's likely to actually be base64 encoded
+          if (typeof data === 'string') data = Pouch.utils.atob(data);
           var digest = 'md5-' + crypto.createHash('md5')
                 .update(data || '')
                 .digest('hex');
@@ -473,7 +481,7 @@ LevelPouch = module.exports = function(opts, callback) {
         }
 
         var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
-        var newAtt = {body: data};
+        var newAtt = {};
 
         if (oldAtt) {
           if (oldAtt.refs) {
@@ -489,10 +497,19 @@ LevelPouch = module.exports = function(opts, callback) {
         }
 
         stores[ATTACH_STORE].put(digest, newAtt, function(err) {
-          callback(err);
           if (err) {
             return console.error(err);
           }
+          // do not try to store empty attachments
+          if (data.length === 0) {
+            return callback(err);
+          }
+          stores[ATTACH_BINARY_STORE].put(digest, data, function(err) {
+            callback(err);
+            if (err) {
+              return console.error(err);
+            }
+          });
         });
       });
     }
@@ -729,6 +746,7 @@ LevelPouch = module.exports = function(opts, callback) {
       path.join(dbpath, DOC_STORE),
       path.join(dbpath, BY_SEQ_STORE),
       path.join(dbpath, ATTACH_STORE),
+      path.join(dbpath, ATTACH_BINARY_STORE),
     ];
     var closed = 0;
     stores.map(function(path) {
@@ -768,6 +786,7 @@ LevelPouch.destroy = function(name, callback) {
     path.join(dbpath, DOC_STORE),
     path.join(dbpath, BY_SEQ_STORE),
     path.join(dbpath, ATTACH_STORE),
+    path.join(dbpath, ATTACH_BINARY_STORE),
   ];
   var closed = 0;
   stores.map(function(path) {
