@@ -62,7 +62,7 @@ adapters.map(function(adapter) {
     _id: 'json_doc',
     _attachments: {
       "foo.json": {
-        content_type: "text/plain",
+        content_type: "application/json",
         data: btoa('{"Hello":"world"}')
       }
     }
@@ -74,12 +74,22 @@ adapters.map(function(adapter) {
       db = _db;
       db.put(binAttDoc, function(err, write) {
         ok(!err, 'saved doc with attachment');
-        db.get('bin_doc/foo.txt', function(err, res) {
-          equal(res, 'This is a base64 encoded text', 'Correct data returned');
-          db.put(binAttDoc2, function(err, rev) {
-            db.get('bin_doc2/foo.txt', function(err, res, xhr) {
-              equal(res, '', 'Correct data returned');
-              moreTests(rev.rev);
+        db.get('bin_doc', function(err, doc) {
+          ok(doc._attachments, 'doc has attachments field');
+          ok(doc._attachments['foo.txt'], 'doc has attachment');
+          equal(doc._attachments['foo.txt'].content_type, 'text/plain', 'doc has correct content type');
+          db.get('bin_doc/foo.txt', function(err, res) {
+            readBlob(res, function(data) {
+              equal(data, 'This is a base64 encoded text',
+                'Correct data returned');
+              db.put(binAttDoc2, function(err, rev) {
+                db.get('bin_doc2/foo.txt', function(err, res, xhr) {
+                  readBlob(res, function(data) {
+                    equal(data, '', 'Correct data returned');
+                    moreTests(rev.rev);
+                  })
+                });
+              });
             });
           });
         });
@@ -87,26 +97,42 @@ adapters.map(function(adapter) {
     });
 
     function moreTests(rev) {
-      var ndoc = 'This is no base64 encoded text';
-      db.putAttachment('bin_doc2/foo2.txt', rev, ndoc, "text/plain", function() {
+      var blob = makeBlob('This is no base64 encoded text');
+      db.putAttachment('bin_doc2/foo2.txt', rev, blob, 'text/plain', function() {
         db.get('bin_doc2/foo2.txt', function(err, res, xhr) {
-          ok(res === 'This is no base64 encoded text', 'Correct data returned');
-          db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
-            ok(res._attachments, 'Result has attachments field');
-            equal(res._attachments['foo2.txt'].data,
-                  btoa('This is no base64 encoded text', 'binary'));
-            equal(res._attachments['foo.txt'].data, '');
-            start();
+          readBlob(res, function(data) {
+            ok(data === 'This is no base64 encoded text',
+              'Correct data returned');
+            db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
+              ok(res._attachments, 'Result has attachments field');
+              equal(res._attachments['foo2.txt'].data,
+                btoa('This is no base64 encoded text'));
+              equal(res._attachments['foo2.txt'].content_type, 'text/plain',
+                'Attachment was stored with correct content type');
+              equal(res._attachments['foo.txt'].data, '');
+              start();
+            });
           });
         });
       });
     }
   });
 
+  asyncTest("Testing with invalid docs", function() {
+    var invalidDoc = {'_id': '_invalid', foo: 'bar'};
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [invalidDoc, binAttDoc]}, function(err, info) {
+        ok(err, 'bad request');
+        start();
+      });
+    });
+  });
+
   asyncTest("Test put attachment on a doc without attachments", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+        var blob = makeBlob('Mytext');
+        db.putAttachment('mydoc/mytext', resp.rev, blob, 'text/plain', function(err, res) {
           ok(res.ok);
           start();
         });
@@ -117,7 +143,8 @@ adapters.map(function(adapter) {
   asyncTest("Test delete attachment from a doc", function() {
     initTestDB(this.name, function(erro, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+        var blob = makeBlob('Mytext');
+        db.putAttachment('mydoc/mytext', resp.rev, blob, 'text/plain', function(err, res) {
           ok(res.ok);
           var rev = res.rev;
           db.removeAttachment('mydoc/mytext', 0, function(err, res) {
@@ -138,10 +165,15 @@ adapters.map(function(adapter) {
         ok(!err, 'saved doc with attachment');
         db.get(results.id, function(err, doc) {
           ok(!err, 'fetched doc');
-          ok(doc._attachments, 'doc has attachment');
+          ok(doc._attachments, 'doc has attachments field');
+          ok(doc._attachments['foo.json'], 'doc has attachment');
+          equal(doc._attachments['foo.json'].content_type, 'application/json', 'doc has correct content type');
           db.get(results.id + '/' + 'foo.json', function(err, attachment) {
-            equal(attachment, atob(jsonDoc._attachments['foo.json'].data), 'correct data');
-            start();
+            readBlob(attachment, function(data) {
+              equal(data, atob(jsonDoc._attachments['foo.json'].data),
+                'correct data');
+              start();
+            });
           });
         });
       });
@@ -151,7 +183,8 @@ adapters.map(function(adapter) {
   asyncTest("Test remove doc with attachment", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
-        db.putAttachment('mydoc/mytext', resp.rev, 'Mytext', 'text/plain', function(err, res) {
+        var blob = makeBlob('Mytext');
+        db.putAttachment('mydoc/mytext', resp.rev, blob, 'text/plain', function(err, res) {
           db.get('mydoc',{attachments:false},function(err,doc){
             db.remove(doc, function(err, resp){
               ok(res.ok);
@@ -178,12 +211,14 @@ adapters.map(function(adapter) {
 
           db.get('doc/attachment', function(err, response) {
             ok(!err, 'got the attachment');
-            equal(response, JSON.stringify(doc),
-                  'the attachment is returned as a JSON string');
-            var obj = JSON.parse(response);
-            equal(obj._id, doc._id, 'id matches');
-            equal(obj.test, doc.test, 'test matches');
-            start();
+            readBlob(response, function(data) {
+              equal(data, JSON.stringify(doc),
+                    'the attachment is returned as a JSON string');
+              var obj = JSON.parse(data);
+              equal(obj._id, doc._id, 'id matches');
+              equal(obj.test, doc.test, 'test matches');
+              start();
+            });
           });
         });
       });
