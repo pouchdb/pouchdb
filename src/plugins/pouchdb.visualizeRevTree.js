@@ -197,7 +197,6 @@ var visualizeRevTree = function(db) {
         var id = rev.split('-')[1];
         var opened = false;
 
-        nodeEl.rev = rev;
         var click = function() {
           if (opened) return;
           opened = true;
@@ -215,7 +214,8 @@ var visualizeRevTree = function(db) {
             opened = false;
           };
 
-          db.get(docId, {rev: this.rev}, function(err, doc){
+          console.log(this.rev);
+          db.get(docId, {rev: rev}, function(err, doc){
             var dl = document.createElement('dl');
             var keys = [];
             for (var i in doc) {
