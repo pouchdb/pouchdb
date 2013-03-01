@@ -48,10 +48,6 @@ var PouchAdapter = function(opts, callback) {
 
 
   api.putAttachment = api.putAttachment = function (id, rev, doc, type, callback) {
-    if (typeof type === 'function') {
-      callback = type;
-      type = undefined;
-    }
     id = parseDocId(id);
     api.get(id.docId, function(err, obj) {
       if (err) {
@@ -66,7 +62,7 @@ var PouchAdapter = function(opts, callback) {
 
       obj._attachments = obj._attachments || {};
       obj._attachments[id.attachmentId] = {
-        content_type: type || doc.type,
+        content_type: type,
         data: doc
       };
       api.put(obj, callback);
