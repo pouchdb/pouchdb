@@ -248,7 +248,10 @@ var visualizeRevTree = function(db) {
             okButton.onclick = function() {
               var newDoc = {};
               keys.forEach(function(key){
-                newDoc[key.getValue()] = JSON.parse(key.valueInput.getValue());
+                var value = key.valueInput.getValue();
+                if (value.replace(/^\s*|\s*$/g, '')){
+                  newDoc[key.getValue()] = JSON.parse(key.valueInput.getValue());
+                }
               });
               putAfter(newDoc, doc._rev, function(err, ok){
                 if (!err) {
