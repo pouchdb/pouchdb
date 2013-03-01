@@ -544,22 +544,28 @@ var Changes = function() {
   api.notify = function(db_name) {
     if (!listeners[db_name]) { return; }
     for (var i in listeners[db_name]) {
-      /*jshint loopfunc: true */
-      var opts = listeners[db_name][i].opts;
-      listeners[db_name][i].db.changes({
-        include_docs: opts.include_docs,
-        conflicts: opts.conflicts,
-        continuous: false,
-        filter: opts.filter,
-        since: opts.since,
-        onChange: function(c) {
-          if (c.seq > opts.since) {
-            opts.since = c.seq;
-            call(opts.onChange, c);
-          }
-        }
-      });
+      api.notifyListener(listeners[db_name][i]);
     }
+  };
+
+  api.notifyListener = function(listener) {
+    /*jshint loopfunc: true */
+    var opts = listener.opts;
+    listener.db.changes({
+      include_docs: opts.include_docs,
+      conflicts: opts.conflicts,
+      continuous: false,
+      filter: opts.filter,
+      since: opts.since,
+      style: opts.style,
+      query_params: opts.query_params,
+      onChange: function(c) {
+        if (c.seq > opts.since) {
+          opts.since = c.seq;
+          call(opts.onChange, c);
+        }
+      }
+    });
   };
 
   return api;
