@@ -3,14 +3,16 @@ var visualizeRevTree = function(db) {
   var head = document.getElementsByTagName("head")[0];
   if (head) {
     var style = [
+      ".visualizeRevTree {font-size: 10px}",
       ".visualizeRevTree line{stroke: #000; stroke-width: .10}",
       ".visualizeRevTree div{position: relative; }",
       ".visualizeRevTree circle{stroke: #000; stroke-width: .10}",
       ".visualizeRevTree circle.leaf{fill: green}",
       ".visualizeRevTree circle.winner{fill: red}",
       ".visualizeRevTree circle.deleted{fill: grey}",
-      ".visualizeRevTree circle{transition: 1s}",
-      ".visualizeRevTree circle.selected{stroke-width: .3}"
+      ".visualizeRevTree circle{transition: .3s}",
+      ".visualizeRevTree circle.selected{stroke-width: .3}",
+      ".visualizeRevTree div.box{background: #ddd; border: 1px solid #bbb; border-radius: 7px; padding: 7px; position: absolute;}"
     ];
     var styleNode = document.createElement("style");
     styleNode.appendChild(document.createTextNode(style.join("\n")));
@@ -194,11 +196,7 @@ var visualizeRevTree = function(db) {
         nodeEl.rev = rev;
         var click = function() {
           var div = document.createElement('div');
-          div.style.background = "#ddd";
-          div.style.padding = "8px";
-          div.style.border = "#aaa";
-          div.style.borderRadius = "7px";
-          div.style.position = "absolute";
+          div.classList.add("box");
           div.style.left = scale * (x + 3 * r) + "px";
           div.style.top = scale * (y - 2) + "px";
           div.style.zIndex = 1000;
@@ -251,24 +249,17 @@ var visualizeRevTree = function(db) {
         };
         nodeEl.onclick = click;
         nodeEl.onmouseover = function() {
-          this.setAttribute('r', 1.2);
           this.classList.add("selected");
           //text.style.display = "block";
         };
         nodeEl.onmouseout = function() {
-          this.setAttribute('r', 1);
           this.classList.remove("selected");
           //text.style.display = "none";
         };
 
         var text = document.createElement('div');
         //text.style.display = "none";
-        text.style.background = "#ddd";
-        text.style.padding = "8px";
-        text.style.border = "#aaa";
-        text.style.borderRadius = "7px";
-        text.style.position = "absolute";
-        text.style.fontSize = "10px";
+        text.classList.add("box");
         text.style.left = scale * (x + 3 * r) + "px";
         text.style.top = scale * (y - 2) + "px";
         text.short = pos + '-' + id.substr(0, shortDescLen);
