@@ -179,6 +179,7 @@ var visualizeRevTree = function(db) {
       var input;
 
       div.ondblclick = function() {
+        if(clicked) return;
         clicked = true;
         div.removeChild(span);
         input = document.createElement('input');
