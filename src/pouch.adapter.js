@@ -54,6 +54,16 @@ var PouchAdapter = function(opts, callback) {
     }
     id = parseDocId(id);
     api.get(id.docId, function(err, obj) {
+      if (err) {
+        call(callback, err);
+        return;
+      }
+
+      if (obj._rev !== rev) {
+        call(callback, Pouch.Errors.REV_CONFLICT);
+        return;
+      }
+
       obj._attachments = obj._attachments || {};
       obj._attachments[id.attachmentId] = {
         content_type: type || doc.type,
