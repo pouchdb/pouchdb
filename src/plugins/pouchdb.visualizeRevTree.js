@@ -217,21 +217,30 @@ var visualizeRevTree = function(db) {
           db.get(docId, {rev: rev}, function(err, doc){
             var dl = document.createElement('dl');
             var keys = [];
+            var addRow = function(key, value){
+              var key = input(key);
+              keys.push(key);
+              var dt = document.createElement('dt');
+              dt.appendChild(key);
+              dl.appendChild(dt);
+              var value = input(value);
+              key.valueInput = value;
+              var dd = document.createElement('dd');
+              dd.appendChild(value);
+              dl.appendChild(dd);
+            };
             for (var i in doc) {
               if (doc.hasOwnProperty(i)) {
-                var key = input(i);
-                keys.push(key);
-                var dt = document.createElement('dt');
-                dt.appendChild(key);
-                dl.appendChild(dt);
-                var value = input(JSON.stringify(doc[i]));
-                key.valueInput = value;
-                var dd = document.createElement('dd');
-                dd.appendChild(value);
-                dl.appendChild(dd);
+                addRow(i, JSON.stringify(doc[i]));
               }
             }
             div.appendChild(dl);
+            var addButton = document.createElement('button');
+            addButton.appendChild(document.createTextNode('add'));
+            div.appendChild(addButton);
+            addButton.onclick = function(){
+              addRow('key', 'value');
+            };
             var okButton = document.createElement('button');
             okButton.appendChild(document.createTextNode('ok'));
             div.appendChild(okButton);
