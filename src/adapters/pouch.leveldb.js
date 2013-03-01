@@ -282,6 +282,11 @@ LevelPouch = module.exports = function(opts, callback) {
           , type = doc._attachments[id.attachmentId].content_type
 
         stores[ATTACH_BINARY_STORE].get(digest, function(err, attach) {
+          // empty attachments
+          if (err && err.name === 'NotFoundError') {
+            return call(callback, null, new Buffer(''));
+          }
+
           if (err) {
             return call(callback, err);
           }
@@ -494,6 +499,10 @@ LevelPouch = module.exports = function(opts, callback) {
         stores[ATTACH_STORE].put(digest, newAtt, function(err) {
           if (err) {
             return console.error(err);
+          }
+          // do not try to store empty attachments
+          if (data.length === 0) {
+            return callback(err);
           }
           stores[ATTACH_BINARY_STORE].put(digest, data, function(err) {
             callback(err);
