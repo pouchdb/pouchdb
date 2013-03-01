@@ -126,6 +126,6 @@ var extend = function() {
   return target;
 };
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   global.extend = extend;
 }
