@@ -9,19 +9,20 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 
 ### API Methods
 
- * [Create a database](#create_a_database)
- * [Delete a database](#delete_a_database)
- * [Create a document](#create_a_document)
- * [Update a document](#update_a_document)
- * [Create a batch of documents](#create_a_batch_of_documents)
- * [Fetch a document](#fetch_a_document)
- * [Fetch documents](#fetch_documents)
- * [Query the database](#query_the_database)
- * [Delete a document](#delete_a_document)
- * [Get database information](#get_database_information)
- * [Listen to database changes](#listen_to_database_changes)
- * [Replicate a database](#replicate_a_database)
- * [Get document revision diffs](#document_revisions_diff)
+* [Create a database](#create_a_database)
+* [Delete a database](#delete_a_database)
+* [Create a document](#create_a_document)
+* [Update a document](#update_a_document)
+* [Save an attachment](#save_an_attachment)
+* [Create a batch of documents](#create_a_batch_of_documents)
+* [Fetch a document](#fetch_a_document)
+* [Fetch documents](#fetch_documents)
+* [Query the database](#query_the_database)
+* [Delete a document](#delete_a_document)
+* [Get database information](#get_database_information)
+* [Listen to database changes](#listen_to_database_changes)
+* [Replicate a database](#replicate_a_database)
+* [Get document revision diffs](#document_revisions_diff)
 
 ## Create a database
 
@@ -78,14 +79,14 @@ you must specify its revision (_rev), otherwise a conflict will occur.
       // }
     })
 
-## Save an attachment to a document
+## Save an attachment
 
      db.putAttachment(id, rev, doc, type, [callback])
 
 Create an attachment in an existing document.
 
     db.put({ _id: 'otherdoc', title: 'Legendary Hearts' }, function(err, response) {
-      var doc = 'Legendary hearts, tear us all apart\nMake our emotions bleed, crying out in need';
+      var doc = new Blob(['Legendary hearts, tear us all apart\nMake our emotions bleed, crying out in need']);
       db.putAttachment('otherdoc/text', response.rev, doc, 'text/plain', function(err, res) {
         // Response:
         // {
@@ -95,6 +96,30 @@ Create an attachment in an existing document.
         // }
       })
     })
+
+Within node you must use a Buffer:
+
+      var doc = new Buffer('Legendary hearts, tear us all apart\nMake our emotions bleed, crying out in need');
+
+
+### Save an inline attachment
+
+You can inline attachments inside the document.
+In this case the attachment data must be supplied as a base64 encoded string:
+
+    {
+      "_id": "otherdoc",
+      "title": "Legendary Hearts",
+      "_attachments": {
+        "text": {
+          "content_type": "text/plain",
+          "data": "TGVnZW5kYXJ5IGhlYXJ0cywgdGVhciB1cyBhbGwgYXBhcnQKTWFrZSBvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA=="
+        }
+      }
+    }
+
+See [Inline Attachments](http://wiki.apache.org/couchdb/HTTP_Document_API#Inline_Attachments)
+on the CouchDB Wiki.
 
 ## Create a batch of documents
 
@@ -106,7 +131,9 @@ To update a document you must include both an `_id` parameter and a `_rev` param
 which should match the ID and revision of the document on which to base your updates. Finally, to delete
 a document, include a `_deleted` parameter with the value `true`.
 
- * `options.new_edits`: Prevent the database from assigning new revision IDs to the documents.
+* `options.new_edits`: Prevent the database from assigning new revision IDs to the documents.
+
+<span></span>
 
     db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
       // Response array:
@@ -125,8 +152,9 @@ a document, include a `_deleted` parameter with the value `true`.
 
 Getrieves a document, specified by `docid`.
 
- * `options.revs`: Include revision history of the document
- * `options.revs_info`: Include a list of revisions of the document, and their availability.
+* `options.revs`: Include revision history of the document
+* `options.revs_info`: Include a list of revisions of the document, and their availability.
+* `options.attachments`: Include attachment data
 
 <span></span>
 
@@ -165,6 +193,7 @@ Fetch multiple documents, deleted document are only included if `options.keys` i
     - the rows are returned in the same order as the supplied "keys" array
     - the row for a deleted document will have the revision ID of the deletion, and an extra key "deleted":true in the "value" property 
     - the row for a nonexistent document will just contain an "error" property with the value "not_found"
+* `options.attachments`: Include attachment data
 
 <span></span>
 
@@ -411,9 +440,9 @@ If `options.continuous` is set it returns object with one method `cancel` which 
 
 Replicate one database to another.
 
- * `options.filter`: Reference a filter function from a design document to selectively get updates
- * `options.complete`: Function called when all changes have been processed, defaults to the callback
- * `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change)
+* `options.filter`: Reference a filter function from a design document to selectively get updates
+* `options.complete`: Function called when all changes have been processed, defaults to the callback
+* `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change)
 
 <span></span>
 

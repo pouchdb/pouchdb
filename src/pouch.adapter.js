@@ -48,12 +48,26 @@ var PouchAdapter = function(opts, callback) {
 
 
   api.putAttachment = api.putAttachment = function (id, rev, doc, type, callback) {
+    if (typeof type === 'function') {
+      callback = type;
+      type = undefined;
+    }
     id = parseDocId(id);
-    api.get(id.docId, {attachments: true}, function(err, obj) {
+    api.get(id.docId, function(err, obj) {
+      if (err) {
+        call(callback, err);
+        return;
+      }
+
+      if (obj._rev !== rev) {
+        call(callback, Pouch.Errors.REV_CONFLICT);
+        return;
+      }
+
       obj._attachments = obj._attachments || {};
       obj._attachments[id.attachmentId] = {
-        content_type: type,
-        data: btoa(doc)
+        content_type: type || doc.type,
+        data: doc
       };
       api.put(obj, callback);
     });
@@ -135,7 +149,7 @@ var PouchAdapter = function(opts, callback) {
 
     id = parseDocId(id);
     if (id.attachmentId !== '') {
-      return customApi.getAttachment(id, {decode: true}, callback);
+      return customApi.getAttachment(id, callback);
     }
     return customApi._get(id, opts, callback);
 
