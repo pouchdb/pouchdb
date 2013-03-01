@@ -9,6 +9,10 @@
 
 var Spatial = function(db) {
 
+  var isArray = Array.isArray || function(obj) {
+    return type(obj) === "array";
+  };
+  
   function viewQuery(fun, options) {
     if (!options.complete) {
       return;
@@ -28,14 +32,14 @@ var Spatial = function(db) {
       var geometry = null;
 
       // Whole key is one geometry
-      if (isPlainObject(key)) {
+      if (!isArray(key) && typeof key === "object") {
         return {
           key: Spatial.calculateBbox(key),
           geometry: key
         };
       }
 
-      if (isPlainObject(key[0])) {
+      if (!isArray(key[0]) && typeof key[0] === "object") {
         newKey = Spatial.calculateBbox(key[0]);
         geometry = key[0];
         key = key.slice(1);
@@ -191,9 +195,8 @@ var Spatial = function(db) {
     }
 
     if (typeof fun !== 'string') {
-        var error = extend({reason: 'Querying with a function is not ' +
-         'supported for Spatial Views'}, Pouch.Errors.INVALID_REQUEST);
-      return call(callback, error);
+        var error = Pouch.error( Pouch.Errors.INVALID_REQUEST, 'Querying with a function is not supported for Spatial Views');
+      return callback ? callback(error) : undefined;
     }
 
     if (db.type() === 'http') {
