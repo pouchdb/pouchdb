@@ -140,7 +140,7 @@ var PouchAdapter = function(opts, callback) {
   };
 
 
-  /* Begin api wrappers. Specific funtionality to storage belongs in the _[method] */
+  /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
