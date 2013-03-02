@@ -170,8 +170,10 @@ var visualizeRevTree = function(db) {
       });
     });
 
+    var focusedInput;
     function input(text){
       var div = document.createElement('div');
+      div.classList.add('input');
       var span = document.createElement('span');
       div.appendChild(span);
       span.appendChild(document.createTextNode(text));
@@ -185,6 +187,17 @@ var visualizeRevTree = function(db) {
         input = document.createElement('input');
         div.appendChild(input);
         input.value = text;
+        input.focus();
+
+        input.onkeydown = function(e){
+          if(e.keyCode === 9){
+            var next;
+            if(next = this.parentNode.parentNode.nextSibling){
+              next.firstChild.ondblclick();
+              e.preventDefault();
+            }
+          }
+        };
       };
       div.getValue = function() {
         return clicked ? input.value : text;
