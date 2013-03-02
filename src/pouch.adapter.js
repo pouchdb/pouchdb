@@ -201,6 +201,14 @@ var PouchAdapter = function(opts, callback) {
   api.info = function(callback) {
     return customApi._info(callback);
   };
+  
+  api.id = function(callback) {
+    return customApi._id(callback);
+  };
+  
+  api.type = function() {
+    return (typeof customApi._type === 'function') ? customApi._type() : opts.adapter;
+  };
 
   api.bulkDocs = function(req, opts, callback) {
     if (typeof opts === 'function') {
