@@ -73,7 +73,7 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-   api.removeAttachment = function (id, rev, callback) {
+  api.removeAttachment = function (id, rev, callback) {
     id = parseDocId(id);
     api.get(id.docId, function(err, obj) {
       if (err) {
