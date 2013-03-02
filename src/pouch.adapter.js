@@ -47,29 +47,46 @@ var PouchAdapter = function(opts, callback) {
   };
 
 
-  api.putAttachment = api.putAttachment = function (id, rev, doc, type, callback) {
+  api.putAttachment = function (id, rev, blob, type, callback) {
     if (typeof type === 'function') {
       callback = type;
-      type = undefined;
+      type = blob;
+      blob = rev;
+      rev = null;
+    }
+    if (typeof type === 'undefined') {
+      type = blob;
+      blob = rev;
+      rev = null;
     }
     id = parseDocId(id);
-    api.get(id.docId, function(err, obj) {
+
+    function createAttachment(doc) {
+      doc._attachments = doc._attachments || {};
+      doc._attachments[id.attachmentId] = {
+        content_type: type,
+        data: blob
+      };
+      api.put(doc, callback);
+    }
+
+    api.get(id.docId, function(err, doc) {
+      // create new doc
+      if (err && err.error === Pouch.Errors.MISSING_DOC.error) {
+        createAttachment({_id: id.docId});
+        return;
+      }
       if (err) {
         call(callback, err);
         return;
       }
 
-      if (obj._rev !== rev) {
+      if (doc._rev !== rev) {
         call(callback, Pouch.Errors.REV_CONFLICT);
         return;
       }
 
-      obj._attachments = obj._attachments || {};
-      obj._attachments[id.attachmentId] = {
-        content_type: type || doc.type,
-        data: doc
-      };
-      api.put(obj, callback);
+      createAttachment(doc);
     });
   };
 

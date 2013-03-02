@@ -128,6 +128,65 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test create attachment and doc in one go", function() {
+    initTestDB(this.name, function(err, db) {
+      var blob = makeBlob('Mytext');
+      db.putAttachment('anotherdoc/mytext', blob, 'text/plain', function(err, res) {
+        ok(res.ok);
+        start();
+      });
+    });
+  });
+
+  asyncTest("Test create attachment and doc in one go without callback", function() {
+    initTestDB(this.name, function(err, db) {
+      var changes = db.changes({
+        continuous: true,
+        onChange: function(change){
+          if (change.seq === 1){
+            equal(change.id, 'anotherdoc2', 'Doc has been created');
+            db.get(change.id, {attachments: true}, function(err, doc) {
+              equal(typeof doc._attachments, 'object', 'doc has attachments object');
+              ok(doc._attachments.mytext, 'doc has attachments attachment');
+              equal(doc._attachments.mytext.data, btoa('Mytext'), 'doc has attachments attachment');
+              changes.cancel();
+              start();
+            });
+          }
+        }
+      });
+      var blob = makeBlob('Mytext');
+      db.putAttachment('anotherdoc2/mytext', blob, 'text/plain');
+    });
+  });
+
+  asyncTest("Test create attachment without callback", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({ _id: 'anotherdoc3' }, function(err, resp) {
+        ok(!err, 'doc was saved');
+        var changes = db.changes({
+          continuous: true,
+          include_docs: true,
+          onChange: function(change){
+            if (change.seq === 2){
+              equal(change.id, 'anotherdoc3', 'Doc has been created');
+              db.get(change.id, {attachments: true}, function(err, doc) {
+                equal(typeof doc._attachments, 'object', 'doc has attachments object');
+                ok(doc._attachments.mytext, 'doc has attachments attachment');
+                equal(doc._attachments.mytext.data, btoa('Mytext'), 'doc has attachments attachment');
+                changes.cancel();
+                start();
+              });
+            }
+          }
+        });
+        var blob = makeBlob('Mytext');
+        db.putAttachment('anotherdoc3/mytext', resp.rev, blob, 'text/plain');
+      });
+    });
+  });
+
+
   asyncTest("Test put attachment on a doc without attachments", function() {
     initTestDB(this.name, function(err, db) {
       db.put({ _id: 'mydoc' }, function(err, resp) {
