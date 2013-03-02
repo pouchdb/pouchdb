@@ -550,10 +550,11 @@ var Changes = function() {
         include_docs: opts.include_docs,
         conflicts: opts.conflicts,
         continuous: false,
+        descending: false,
         filter: opts.filter,
         since: opts.since,
         onChange: function(c) {
-          if (c.seq > opts.since) {
+          if (c.seq > opts.since && !opts.cancelled) {
             opts.since = c.seq;
             call(opts.onChange, c);
           }
