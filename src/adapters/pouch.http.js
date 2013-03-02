@@ -351,14 +351,25 @@ var HttpPouch = function(opts, callback) {
   api.putAttachment = function(id, rev, blob, type, callback) {
     if (typeof type === 'function') {
       callback = type;
-      type = undefined;
+      type = blob;
+      blob = rev;
+      rev = null;
+    }
+    if (typeof type === 'undefined') {
+      type = blob;
+      blob = rev;
+      rev = null;
+    }
+    var url = genDBUrl(host, id);
+    if (rev) {
+      url += '?rev=' + rev;
     }
     // Add the attachment
     ajax({
       auth: host.auth,
       method:'PUT',
-      url: genDBUrl(host, id) + '?rev=' + rev,
-      headers: {'Content-Type': type || blob.type},
+      url: url,
+      headers: {'Content-Type': type},
       processData: false,
       body: blob
     }, callback);
