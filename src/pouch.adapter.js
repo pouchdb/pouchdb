@@ -202,8 +202,8 @@ var PouchAdapter = function(opts, callback) {
     return customApi._info(callback);
   };
   
-  api.id = function(callback) {
-    return customApi._id(callback);
+  api.id = function() {
+    return customApi._id();
   };
   
   api.type = function() {
