@@ -28,13 +28,14 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 
 ## Create a database
 
-    Pouch('idb://dbname', [options], [callback])
+    Pouch('dbname', [options], [callback])
+    Pouch('http://localhost:5984/dbname', [options], [callback])
 
-This method gets an existing database if one exists or creates a new one if one does not exist. The protocol field denotes which backend you want to use (current options are `idb`, `http` and `leveldb`)
+This method gets an existing database if one exists or creates a new one if one does not exist. You may also explicitly specify which backend you want to use for local database (e.g. `idb://dbname` or `leveldb://dbname`) but usually it is convenient to let PouchDB choose the best backend by itself.
 
     var pouchdb;
-    Pouch('idb://test', function(err, db) {
-       pouchdb = db;
+    Pouch('test', function(err, db) {
+      pouchdb = db;
       // Use pouchdb to call further functions
       pouchdb.post(....
     })
@@ -45,7 +46,7 @@ This method gets an existing database if one exists or creates a new one if one 
 
 Delete database with given name
 
-    Pouch.destroy('idb://test', function(err, info) {
+    Pouch.destroy('test', function(err, info) {
       // database deleted
     })
 
@@ -482,7 +483,7 @@ Replicate one database to another.
 
 <span></span>
 
-    Pouch.replicate('idb://mydb', 'http://localhost:5984/mydb', function(err, changes) {
+    Pouch.replicate('mydb', 'http://localhost:5984/mydb', function(err, changes) {
       //
     })
 

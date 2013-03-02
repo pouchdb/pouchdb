@@ -75,15 +75,17 @@ Pouch.parseAdapter = function(name) {
     return {name: name, adapter: match[1]};
   }
 
-  var rank = {'idb': 1, 'leveldb': 2, 'websql': 3, 'http': 4, 'https': 4};
-  var rankedAdapter = Object.keys(Pouch.adapters).sort(function(a, b) {
-    return rank[a] - rank[b];
-  })[0];
+  var preferredAdapters = ['idb', 'leveldb', 'websql'];
+  for (var i = 0; i < preferredAdapters.length; ++i) {
+    if (preferredAdapters[i] in Pouch.adapters) {
+      return {
+        name: name,
+        adapter: preferredAdapters[i]
+      };
+    }
+  }
 
-  return {
-    name: name,
-    adapter: rankedAdapter
-  };
+  throw 'No valid adapter found';
 };
 
 
