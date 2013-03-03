@@ -341,20 +341,26 @@ var ajax = function ajax(options, callback) {
   }
   var onSuccess = function(obj, resp, cb){
     if (!options.binary && !options.json && options.processData && typeof obj !== 'string') {
-          obj = JSON.stringify(obj);
+      obj = JSON.stringify(obj);
     } else if (!options.binary && options.json && typeof obj === 'string') {
-          obj = JSON.parse(obj);
+      try {
+        obj = JSON.parse(obj);
+      } catch (e) {
+        // Probably a malformed JSON from server
+        call(cb, e);
+        return;
+      }
     }
     call(cb, null, obj, resp);
   };
   var onError = function(err, cb){
     var errParsed;
     var errObj = err.responseText ? {status: err.status} : err; //this seems too clever
-         try{
-          errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
-          errObj = extend(true, {}, errObj, errParsed);
-         } catch(e){}
-         call(cb, errObj);
+    try{
+      errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
+      errObj = extend(true, {}, errObj, errParsed);
+    } catch(e){}
+    call(cb, errObj);
   };
   if (typeof window !== 'undefined' && window.XMLHttpRequest) {
     var timer,timedout  = false;
