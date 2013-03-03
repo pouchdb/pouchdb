@@ -3,6 +3,7 @@ var visualizeRevTree = function(db) {
   var head = document.getElementsByTagName("head")[0];
   if (head) {
     var style = [
+      ".visualizeRevTree{position: relative}",
       ".visualizeRevTree * {margin: 0; padding: 0; font-size: 10px}",
       ".visualizeRevTree line{stroke: #000; stroke-width: .10}",
       ".visualizeRevTree div{position: relative; }",
@@ -181,7 +182,10 @@ var visualizeRevTree = function(db) {
       var input;
 
       div.ondblclick = function() {
-        if(clicked) return;
+        if(clicked){
+          input.focus();
+          return;
+        }
         clicked = true;
         div.removeChild(span);
         input = document.createElement('input');
@@ -190,7 +194,7 @@ var visualizeRevTree = function(db) {
         input.focus();
 
         input.onkeydown = function(e){
-          if(e.keyCode === 9){
+          if(e.keyCode === 9 && !e.shiftKey){
             var next;
             if(next = this.parentNode.parentNode.nextSibling){
               next.firstChild.ondblclick();
