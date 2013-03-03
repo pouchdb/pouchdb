@@ -18,7 +18,6 @@ var PouchAdapter = function(opts, callback) {
 
   api.taskqueue = {};
 
-  api.taskqueue.queue = function() { return taskqueue.queue };
   api.taskqueue.execute = function (db) {
     if (taskqueue.ready) {
       taskqueue.queue.forEach(function(d) {
@@ -26,7 +25,6 @@ var PouchAdapter = function(opts, callback) {
       })
     }
   }
-
 
   var customApi = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
@@ -41,7 +39,6 @@ var PouchAdapter = function(opts, callback) {
         db[j] = api[j];
       }
     }
-
     callback(err, db);
   });
 
@@ -229,8 +226,6 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.bulkDocs = function(req, opts, callback) {
-    console.log("here")
-    console.log(api.taskqueue.ready())
     if (!api.taskqueue.ready()) {
       api.taskqueue.addJob('bulkDocs', arguments);
       return;
@@ -291,6 +286,7 @@ var PouchAdapter = function(opts, callback) {
     }
   }
 
+  // Http adapter can skip setup so we force the db to be ready and execute any jobs
   if (opts.skipSetup) {
     api.taskqueue.ready(true);
     api.taskqueue.execute(api);

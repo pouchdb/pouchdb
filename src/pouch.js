@@ -53,13 +53,11 @@ var Pouch = function Pouch(name, opts, callback) {
     db.taskqueue.execute(db);
     callback(null, db);
   });
+
+  // Repeated from above so that returned db has plugin apis
   for (var plugin in Pouch.plugins) {
-    // In future these will likely need to be async to allow the plugin
-    // to initialise
     var pluginObj = Pouch.plugins[plugin](this);
     for (var api in pluginObj) {
-      // We let things like the http adapter use its own implementation
-      // as it shares a lot of code
       if (!(api in this)) {
         this[api] = pluginObj[api];
       }
@@ -185,7 +183,6 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   Pouch.utils = require('./pouch.utils.js');
-  Pouch.taskQueue = require('./pouch.taskQueue.js');
   module.exports = Pouch;
 
   var PouchAdapter = require('./pouch.adapter.js');

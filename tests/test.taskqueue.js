@@ -30,24 +30,6 @@ adapters.map(function(adapter) {
     }
   });
 
-  var origDocs = [
-    {_id:"0",a:1,b:1},
-    {_id:"3",a:4,b:16},
-    {_id:"1",a:2,b:4},
-    {_id:"2",a:3,b:9}
-  ];
-
-  function writeDocs(db, docs, callback) {
-    if (!docs.length) {
-      return callback();
-    }
-    var doc = docs.shift();
-    db.put(doc, function(err, doc) {
-      ok(doc.ok, 'docwrite returned ok');
-      writeDocs(db, docs, callback);
-    });
-  }
-
   asyncTest("Add a doc", 1, function() {
     var db = openTestAsyncDB(this.name);
     db.post({test:"somestuff"}, function (err, info) {
