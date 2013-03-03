@@ -78,4 +78,4 @@ adapters.map(function(adapter) {
       start();
     });
   });
-})
+});
