@@ -79,7 +79,7 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-   api.removeAttachment = function (id, rev, callback) {
+  api.removeAttachment = function (id, rev, callback) {
     id = parseDocId(id);
     api.get(id.docId, function(err, obj) {
       if (err) {
@@ -290,6 +290,12 @@ var PouchAdapter = function(opts, callback) {
       customApi[j] = api[j];
     }
   }
+
+  if (opts.skipSetup) {
+    api.taskqueue.ready(true);
+    api.taskqueue.execute(api);
+  }
+
   return customApi;
 };
 
