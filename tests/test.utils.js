@@ -96,6 +96,7 @@ if (typeof module !== 'undefined' && module.exports) {
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,
+    openTestAsyncDB: openTestAsyncDB,
     generateAdapterUrl: generateAdapterUrl,
     PERSIST_DATABASES: PERSIST_DATABASES
   };
