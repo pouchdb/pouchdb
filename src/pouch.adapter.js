@@ -90,7 +90,7 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-   api.removeAttachment = function (id, rev, callback) {
+  api.removeAttachment = function (id, rev, callback) {
     id = parseDocId(id);
     api.get(id.docId, function(err, obj) {
       if (err) {
@@ -157,7 +157,7 @@ var PouchAdapter = function(opts, callback) {
   };
 
 
-  /* Begin api wrappers. Specific funtionality to storage belongs in the _[method] */
+  /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
@@ -217,6 +217,14 @@ var PouchAdapter = function(opts, callback) {
 
   api.info = function(callback) {
     return customApi._info(callback);
+  };
+  
+  api.id = function() {
+    return customApi._id();
+  };
+  
+  api.type = function() {
+    return (typeof customApi._type === 'function') ? customApi._type() : opts.adapter;
   };
 
   api.bulkDocs = function(req, opts, callback) {
