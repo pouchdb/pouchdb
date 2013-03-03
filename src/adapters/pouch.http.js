@@ -173,8 +173,6 @@ var HttpPouch = function(opts, callback) {
   };
   if (!opts.skipSetup) {
     // Skipping setup so force db to be ready
-    //api.taskqueue.ready(true);
-    //api.taskqueue.execute(api);
     ajax({auth: host.auth, method: 'GET', url: db_url}, function(err, ret) {
       //check if the db exists
       if (err) {
