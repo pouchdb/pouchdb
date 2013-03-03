@@ -49,10 +49,22 @@ var Pouch = function Pouch(name, opts, callback) {
         }
       }
     }
-    Pouch.taskqueue.ready = true;
-    Pouch.taskqueue.execute(db);
+    db.taskqueue.ready(true);
+    db.taskqueue.execute(db);
     callback(null, db);
   });
+  for (var plugin in Pouch.plugins) {
+    // In future these will likely need to be async to allow the plugin
+    // to initialise
+    var pluginObj = Pouch.plugins[plugin](this);
+    for (var api in pluginObj) {
+      // We let things like the http adapter use its own implementation
+      // as it shares a lot of code
+      if (!(api in this)) {
+        this[api] = pluginObj[api];
+      }
+    }
+  }
 
   for (var j in adapter) {
     this[j] = adapter[j];

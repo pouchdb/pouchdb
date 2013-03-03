@@ -10,6 +10,24 @@ var PouchAdapter = function(opts, callback) {
 
   var api = {};
 
+  var taskqueue = {};
+
+  taskqueue.ready = false;
+  taskqueue.queue = [];
+
+
+  api.taskqueue = {};
+
+  api.taskqueue.queue = function() { return taskqueue.queue };
+  api.taskqueue.execute = function (db) {
+    if (taskqueue.ready) {
+      taskqueue.queue.forEach(function(d) {
+        db[d.job].apply(null, d.parameters);
+      })
+    }
+  }
+
+
   var customApi = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
       if (callback) {
@@ -130,8 +148,8 @@ var PouchAdapter = function(opts, callback) {
 
   /* Begin api wrappers. Specific funtionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
-    if (!Pouch.taskqueue.ready) {
-      Pouch.taskqueue.addJob('get', arguments);
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('get', arguments);
       return;
     }
     if (typeof opts === 'function') {
@@ -160,8 +178,8 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.allDocs = function(opts, callback) {
-    if (!Pouch.taskqueue.ready) {
-      Pouch.taskqueue.addJob('allDocs', arguments);
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('allDocs', arguments);
       return;
     }
     if (typeof opts === 'function') {
@@ -187,20 +205,34 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.changes = function(opts) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('changes', arguments);
+      return;
+    }
     return customApi._changes(opts);
   };
 
   api.close = function(callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('close', arguments);
+      return;
+    }
     return customApi._close(callback);
   };
 
   api.info = function(callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('info', arguments);
+      return;
+    }
     return customApi._info(callback);
   };
 
   api.bulkDocs = function(req, opts, callback) {
-    if (!Pouch.taskqueue.ready) {
-      Pouch.taskqueue.addJob('bulkDocs', arguments);
+    console.log("here")
+    console.log(api.taskqueue.ready())
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('bulkDocs', arguments);
       return;
     }
     if (typeof opts === 'function') {
@@ -223,6 +255,17 @@ var PouchAdapter = function(opts, callback) {
   };
 
   /* End Wrappers */
+
+  api.taskqueue.ready = function() {
+    if (arguments.length === 0) {
+      return taskqueue.ready;
+    }
+    taskqueue.ready = arguments[0];
+  }
+
+  api.taskqueue.addJob = function(job, parameters) {
+    taskqueue.queue.push({ job: job, parameters: parameters });
+  }
 
   api.replicate = {};
 
