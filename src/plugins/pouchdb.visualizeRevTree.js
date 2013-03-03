@@ -1,5 +1,32 @@
 "use strict";
 var visualizeRevTree = function(db) {
+  var head = document.getElementsByTagName("head")[0];
+  if (head) {
+    var style = [
+      ".visualizeRevTree * {margin: 0; padding: 0; font-size: 10px}",
+      ".visualizeRevTree line{stroke: #000; stroke-width: .10}",
+      ".visualizeRevTree div{position: relative; }",
+      ".visualizeRevTree circle{stroke: #000; stroke-width: .10}",
+      ".visualizeRevTree circle.leaf{fill: green}",
+      ".visualizeRevTree circle.winner{fill: red}",
+      ".visualizeRevTree circle.deleted{fill: grey}",
+      ".visualizeRevTree circle{transition: .3s}",
+      ".visualizeRevTree circle.selected{stroke-width: .3}",
+      ".visualizeRevTree div.box{background: #ddd; border: 1px solid #bbb; border-radius: 7px; padding: 7px; position: absolute;}",
+      ".visualizeRevTree .editor {width: 220px}",
+      ".visualizeRevTree .editor dt{width: 100px; height: 15px; float: left;}",
+      ".visualizeRevTree .editor dd{width: 100px; height: 15px; float: left;}",
+      ".visualizeRevTree .editor input{width: 100%; height: 100%}"
+    ];
+    var styleNode = document.createElement("style");
+    styleNode.appendChild(document.createTextNode(style.join("\n")));
+    head.appendChild(styleNode);
+  }
+
+  var grid = 10;
+  var scale = 7;
+  var r = 1;
+
   // see: pouch.utils.js
   var traverseRevTree = function(revs, callback) {
     var toVisit = [];
@@ -41,12 +68,24 @@ var visualizeRevTree = function(db) {
       }
     }
     var array = arr.slice(0);
-    var com = 0;
+    var com = 1;
     array.sort();
     for (var i = 1; i < array.length; i++){
       com = Math.max(com, strCommon(array[i], array[i - 1]));
     }
     return com;
+  };
+
+  var putAfter = function(doc, prevRev, callback){
+    var newDoc = JSON.parse(JSON.stringify(doc));
+    newDoc._revisions = {
+      start: +newDoc._rev.split('-')[0],
+      ids: [
+        newDoc._rev.split('-')[1],
+        prevRev.split('-')[1]
+      ]
+    };
+    db.put(newDoc, {new_edits: false}, callback);
   };
 
   var visualize = function(docId, opts, callback) {
@@ -59,13 +98,13 @@ var visualizeRevTree = function(db) {
       el.setAttributeNS(null, "cy", y);
       el.setAttributeNS(null, "r", r);
       if (isLeaf) {
-        el.setAttributeNS(null, "fill", "green");
+        el.classList.add("leaf");
       }
       if (isWinner) {
-        el.setAttributeNS(null, "fill", "red");
+        el.classList.add("winner");
       }
       if (isDeleted) {
-        el.setAttributeNS(null, "stroke", "grey");
+        el.classList.add("deleted");
       }
       circlesBox.appendChild(el);
       return el;
@@ -76,13 +115,14 @@ var visualizeRevTree = function(db) {
       el.setAttributeNS(null, "y1", y1);
       el.setAttributeNS(null, "x2", x2);
       el.setAttributeNS(null, "y2", y2);
-      el.setAttributeNS(null, "stroke", "#000");
-      el.setAttributeNS(null, "stroke-width", ".25");
       linesBox.appendChild(el);
       return el;
     };
     var svgNS = "http://www.w3.org/2000/svg";
+    var box = document.createElement('div');
+    box.className = "visualizeRevTree";
     var svg = document.createElementNS(svgNS, "svg");
+    box.appendChild(svg);
     var linesBox = document.createElementNS(svgNS, "g");
     svg.appendChild(linesBox);
     var circlesBox = document.createElementNS(svgNS, "g");
@@ -130,12 +170,150 @@ var visualizeRevTree = function(db) {
       });
     });
 
+    var focusedInput;
+    function input(text){
+      var div = document.createElement('div');
+      div.classList.add('input');
+      var span = document.createElement('span');
+      div.appendChild(span);
+      span.appendChild(document.createTextNode(text));
+      var clicked = false;
+      var input;
+
+      div.ondblclick = function() {
+        if(clicked) return;
+        clicked = true;
+        div.removeChild(span);
+        input = document.createElement('input');
+        div.appendChild(input);
+        input.value = text;
+        input.focus();
+
+        input.onkeydown = function(e){
+          if(e.keyCode === 9){
+            var next;
+            if(next = this.parentNode.parentNode.nextSibling){
+              next.firstChild.ondblclick();
+              e.preventDefault();
+            }
+          }
+        };
+      };
+      div.getValue = function() {
+        return clicked ? input.value : text;
+      };
+      return div;
+    }
+
+    function node(x, y, rev, isLeaf, isDeleted, isWinner, shortDescLen){
+        var nodeEl = circ(x, y, r, isLeaf, rev in deleted, rev === winner);
+        var pos = rev.split('-')[0];
+        var id = rev.split('-')[1];
+        var opened = false;
+
+        var click = function() {
+          if (opened) return;
+          opened = true;
+
+          var div = document.createElement('div');
+          div.classList.add("editor");
+          div.classList.add("box");
+          div.style.left = scale * (x + 3 * r) + "px";
+          div.style.top = scale * (y - 2) + "px";
+          div.style.zIndex = 1000;
+          box.appendChild(div);
+
+          var close = function() {
+            div.parentNode.removeChild(div);
+            opened = false;
+          };
+
+          db.get(docId, {rev: rev}, function(err, doc){
+            var dl = document.createElement('dl');
+            var keys = [];
+            var addRow = function(key, value){
+              var key = input(key);
+              keys.push(key);
+              var dt = document.createElement('dt');
+              dt.appendChild(key);
+              dl.appendChild(dt);
+              var value = input(value);
+              key.valueInput = value;
+              var dd = document.createElement('dd');
+              dd.appendChild(value);
+              dl.appendChild(dd);
+            };
+            for (var i in doc) {
+              if (doc.hasOwnProperty(i)) {
+                addRow(i, JSON.stringify(doc[i]));
+              }
+            }
+            div.appendChild(dl);
+            var addButton = document.createElement('button');
+            addButton.appendChild(document.createTextNode('add'));
+            div.appendChild(addButton);
+            addButton.onclick = function(){
+              addRow('key', 'value');
+            };
+            var okButton = document.createElement('button');
+            okButton.appendChild(document.createTextNode('ok'));
+            div.appendChild(okButton);
+            okButton.onclick = function() {
+              var newDoc = {};
+              keys.forEach(function(key){
+                var value = key.valueInput.getValue();
+                if (value.replace(/^\s*|\s*$/g, '')){
+                  newDoc[key.getValue()] = JSON.parse(key.valueInput.getValue());
+                }
+              });
+              putAfter(newDoc, doc._rev, function(err, ok){
+                if (!err) {
+                  close();
+                } else {
+                  console.log(err);
+                  alert("error occured, see console");
+                }
+              });
+            };
+            var cancelButton = document.createElement('button');
+            cancelButton.appendChild(document.createTextNode('cancel'));
+            div.appendChild(cancelButton);
+            cancelButton.onclick = close;
+          });
+        };
+        nodeEl.onclick = click;
+        nodeEl.onmouseover = function() {
+          this.classList.add("selected");
+          //text.style.display = "block";
+        };
+        nodeEl.onmouseout = function() {
+          this.classList.remove("selected");
+          //text.style.display = "none";
+        };
+
+        var text = document.createElement('div');
+        //text.style.display = "none";
+        text.classList.add("box");
+        text.style.left = scale * (x + 3 * r) + "px";
+        text.style.top = scale * (y - 2) + "px";
+        text.short = pos + '-' + id.substr(0, shortDescLen);
+        text.long = pos + '-' + id;
+        text.appendChild(document.createTextNode(text.short));
+        text.onmouseover = function() {
+          this.style.zIndex = 1000;
+        };
+        text.onmouseout = function() {
+          this.style.zIndex = 1;
+        };
+        text.onclick = click;
+        box.appendChild(text);
+    }
+
+
     function draw(forest){
       var minUniq = minUniqueLength(allRevs);
-      var grid = 10;
       var maxX = grid;
       var maxY = grid;
-      var r = 1;
       var levelCount = []; // numer of nodes on some level (pos)
       traverseRevTree(forest, function(isLeaf, pos, id, ctx) {
         if (!levelCount[pos]) {
@@ -150,22 +328,7 @@ var visualizeRevTree = function(db) {
         maxX = Math.max(maxX, x);
         maxY = Math.max(maxY, y);
 
-        var nodeEl = circ(x, y, r, isLeaf, rev in deleted, rev === winner);
-        nodeEl.rev = rev;
-        nodeEl.pos = pos;
-        nodeEl.onclick = function() {
-          var that = this;
-          db.get(docId, {rev: this.rev}, function(err, doc){
-            console.log(that.rev, err, doc);
-          });
-        };
-
-        var text = document.createElementNS(svgNS, "text");
-        text.setAttributeNS(null, "x", x + 1);
-        text.setAttributeNS(null, "y", y - 0.5);
-        text.setAttributeNS(null, "font-size", "1");
-        text.appendChild(document.createTextNode(pos + '-' + id.substr(0, minUniq)));
-        textsBox.appendChild(text);
+        node(x, y, rev, isLeaf, rev in deleted, rev === winner, minUniq);
 
         if (ctx) {
           line(x, y, ctx.x, ctx.y); 
@@ -173,7 +336,9 @@ var visualizeRevTree = function(db) {
         return {x: x, y: y};
       });
       svg.setAttribute('viewBox', '0 0 ' + (maxX + grid) + ' ' + (maxY + grid));
-      callback(null, svg);
+      svg.style.width = scale * (maxX + grid) + 'px';
+      svg.style.height = scale * (maxY + grid) + 'px';
+      callback(null, box);
     }
   };
   return {'visualizeRevTree': visualize};
