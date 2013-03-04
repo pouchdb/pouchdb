@@ -16,7 +16,7 @@ if (!testFiles.length) {
 
   // Temporarily disable auth replication
   // 'test.auth_replication.js',
-  testFiles = ['test.basics.js', 'test.changes.js',
+  testFiles = ['test.basics.js', 'test.all_dbs.js', 'test.changes.js',
                'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
                'test.merge_rev_tree.js',  'test.revs_diff.js',
                'test.replication.js', 'test.views.js', 'test.taskqueue.js',
