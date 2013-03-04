@@ -49,8 +49,20 @@ var Pouch = function Pouch(name, opts, callback) {
         }
       }
     }
+    db.taskqueue.ready(true);
+    db.taskqueue.execute(db);
     callback(null, db);
   });
+
+  // Repeated from above so that returned db has plugin apis
+  for (var plugin in Pouch.plugins) {
+    var pluginObj = Pouch.plugins[plugin](this);
+    for (var api in pluginObj) {
+      if (!(api in this)) {
+        this[api] = pluginObj[api];
+      }
+    }
+  }
 
   for (var j in adapter) {
     this[j] = adapter[j];

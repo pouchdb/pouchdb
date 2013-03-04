@@ -9,6 +9,22 @@ var PouchAdapter = function(opts, callback) {
 
 
   var api = {};
+
+  var taskqueue = {};
+
+  taskqueue.ready = false;
+  taskqueue.queue = [];
+
+  api.taskqueue = {};
+
+  api.taskqueue.execute = function (db) {
+    if (taskqueue.ready) {
+      taskqueue.queue.forEach(function(d) {
+        db[d.job].apply(null, d.parameters);
+      })
+    }
+  }
+
   var customApi = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
       if (callback) {
@@ -159,6 +175,10 @@ var PouchAdapter = function(opts, callback) {
 
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('get', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
@@ -185,6 +205,10 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.allDocs = function(opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('allDocs', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
@@ -208,14 +232,26 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.changes = function(opts) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('changes', arguments);
+      return;
+    }
     return customApi._changes(opts);
   };
 
   api.close = function(callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('close', arguments);
+      return;
+    }
     return customApi._close(callback);
   };
 
   api.info = function(callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('info', arguments);
+      return;
+    }
     return customApi._info(callback);
   };
   
@@ -228,6 +264,10 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.bulkDocs = function(req, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addJob('bulkDocs', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
@@ -248,6 +288,17 @@ var PouchAdapter = function(opts, callback) {
   };
 
   /* End Wrappers */
+
+  api.taskqueue.ready = function() {
+    if (arguments.length === 0) {
+      return taskqueue.ready;
+    }
+    taskqueue.ready = arguments[0];
+  }
+
+  api.taskqueue.addJob = function(job, parameters) {
+    taskqueue.queue.push({ job: job, parameters: parameters });
+  }
 
   api.replicate = {};
 
@@ -272,6 +323,13 @@ var PouchAdapter = function(opts, callback) {
       customApi[j] = api[j];
     }
   }
+
+  // Http adapter can skip setup so we force the db to be ready and execute any jobs
+  if (opts.skipSetup) {
+    api.taskqueue.ready(true);
+    api.taskqueue.execute(api);
+  }
+
   return customApi;
 };
 
