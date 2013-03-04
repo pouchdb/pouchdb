@@ -172,7 +172,6 @@ var HttpPouch = function(opts, callback) {
     });
   };
   if (!opts.skipSetup) {
-    // Skipping setup so force db to be ready
     ajax({auth: host.auth, method: 'GET', url: db_url}, function(err, ret) {
       //check if the db exists
       if (err) {
@@ -241,7 +240,6 @@ var HttpPouch = function(opts, callback) {
   // The id could be solely the _id in the database, or it may be a
   // _design/ID or _local/ID path
   api.get = function(id, opts, callback) {
-
     if (!api.taskqueue.ready()) {
       api.taskqueue.addJob('get', arguments);
       return;
@@ -465,7 +463,6 @@ var HttpPouch = function(opts, callback) {
   // Update/create multiple documents given by req in the database
   // given by host.
   api.bulkDocs = function(req, opts, callback) {
-
     if (!api.taskqueue.ready()) {
       api.taskqueue.addJob('bulkDocs', arguments);
       return;

@@ -45,7 +45,7 @@ function openTestAsyncDB(name) {
 }
 
 function openTestDB(name, callback) {
-  new Pouch(name, function(err) {
+  new Pouch(name, function(err, db) {
     if (err) {
       console.error(err);
       ok(false, 'failed to open database');
