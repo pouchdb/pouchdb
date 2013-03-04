@@ -214,7 +214,7 @@ var webSqlPouch = function(opts, callback) {
           });
         }
       });
-      
+
       function done() {
         docv++;
         if (docInfos.length === docv) {
@@ -575,15 +575,15 @@ var webSqlPouch = function(opts, callback) {
 
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
-    
+
     opts = extend(true, {}, opts);
-    
+
     if (!opts.since) opts.since = 0;
-    
+
     if (opts.continuous) {
       opts.cancelled = false;
-      IdbPouch.Changes.addListener(name, id, api, opts);
-      IdbPouch.Changes.notify(name);
+      webSqlPouch.Changes.addListener(name, id, api, opts);
+      webSqlPouch.Changes.notify(name);
       return {
         cancel: function() {
           if (Pouch.DEBUG) console.log(name + ': Cancel Changes Feed');
