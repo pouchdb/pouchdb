@@ -41,10 +41,9 @@ adapters.map(function(adapter) {
   asyncTest("Query", 1, function() {
     var db = openTestAsyncDB(this.name);
     var queryFun = {
-      map: function(doc) { emit(doc.key, doc); }
+      map: function(doc) { }
     };
-    db.query(queryFun, { reduce: false, startkey: 'notfound' }, function (_, res) {
-      console.log(db.taskqueue.queue());
+    db.query(queryFun, { reduce: false }, function (_, res) {
       equal(res.rows.length, 0);
       start();
     });
