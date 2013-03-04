@@ -715,7 +715,7 @@ var HttpPouch = function(opts, callback) {
       url: genDBUrl(host, '_revs_diff'),
       body: req
     }, function(err, res) {
-      call(callback, null, res);
+      call(callback, err, res);
     });
   };
 
