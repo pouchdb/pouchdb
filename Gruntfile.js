@@ -254,7 +254,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
-  
+
   grunt.registerTask("testSetup", ["jshint", "build", "connect", "cors-server"]);
   grunt.registerTask("test", ["testSetup", "node-qunit" ,"saucelabs-qunit", "publish-results"]);
   grunt.registerTask("full", ["concat", "uglify"]);

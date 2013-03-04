@@ -100,7 +100,6 @@ adapters.map(function(adapters) {
       db.bulkDocs({docs: docs}, {}, function(err, _) {
         db.replicate.to(self.remote, function(err, _) {
           remote.allDocs(function(err, result) {
-            console.log(result);
             ok(result.rows.length === docs.length, 'correct # docs written');
             start();
           });
@@ -116,11 +115,11 @@ adapters.map(function(adapters) {
       var doc1 = {_id: 'adoc', foo:'bar'};
       db.put(doc1, function(err, result) {
         db.replicate.to(self.remote, function(err, result) {
-          ok(result.docs_read === 1, 'correct # changed docs read (1) on first replication');
+          equal(result.docs_read, 1, 'correct # changed docs read on first replication');
           db.replicate.to(self.remote, function(err, result) {
-            ok(result.docs_read === 0, 'correct # changed docs read (0) on second replication');
+            equal(result.docs_read, 0, 'correct # changed docs read on second replication');
             db.replicate.to(self.remote, function(err, result) {
-              ok(result.docs_read === 0, 'correct # changed docs read (0) on third replication');
+              equal(result.docs_read, 0, 'correct # changed docs read on third replication');
               start();
             });
           });
@@ -538,6 +537,23 @@ adapters.map(function(adapters) {
     });
   });
 
+  asyncTest("Replicate large number of docs", function() {
+    var docs = [];
+    var num = 20;
+    for (var i = 0; i < num; i++) {
+      docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+    }
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, function(err, info) {
+        var replicate = db.replicate.from(remote, {}, function() {
+          db.allDocs(function(err, res) {
+            equal(res.total_rows, num, 'Replication with deleted docs');
+            start();
+          });
+        });
+      });
+    });
+  });
 
 });
 
