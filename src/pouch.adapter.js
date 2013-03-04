@@ -63,15 +63,46 @@ var PouchAdapter = function(opts, callback) {
   };
 
 
-  api.putAttachment = api.putAttachment = function (id, rev, doc, type, callback) {
+  api.putAttachment = function (id, rev, blob, type, callback) {
+    if (typeof type === 'function') {
+      callback = type;
+      type = blob;
+      blob = rev;
+      rev = null;
+    }
+    if (typeof type === 'undefined') {
+      type = blob;
+      blob = rev;
+      rev = null;
+    }
     id = parseDocId(id);
-    api.get(id.docId, {attachments: true}, function(err, obj) {
-      obj._attachments = obj._attachments || {};
-      obj._attachments[id.attachmentId] = {
+
+    function createAttachment(doc) {
+      doc._attachments = doc._attachments || {};
+      doc._attachments[id.attachmentId] = {
         content_type: type,
-        data: btoa(doc)
+        data: blob
       };
-      api.put(obj, callback);
+      api.put(doc, callback);
+    }
+
+    api.get(id.docId, function(err, doc) {
+      // create new doc
+      if (err && err.error === Pouch.Errors.MISSING_DOC.error) {
+        createAttachment({_id: id.docId});
+        return;
+      }
+      if (err) {
+        call(callback, err);
+        return;
+      }
+
+      if (doc._rev !== rev) {
+        call(callback, Pouch.Errors.REV_CONFLICT);
+        return;
+      }
+
+      createAttachment(doc);
     });
   };
 
@@ -142,7 +173,7 @@ var PouchAdapter = function(opts, callback) {
   };
 
 
-  /* Begin api wrappers. Specific funtionality to storage belongs in the _[method] */
+  /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addJob('get', arguments);
@@ -155,7 +186,7 @@ var PouchAdapter = function(opts, callback) {
 
     id = parseDocId(id);
     if (id.attachmentId !== '') {
-      return customApi.getAttachment(id, {decode: true}, callback);
+      return customApi.getAttachment(id, callback);
     }
     return customApi._get(id, opts, callback);
 
@@ -222,6 +253,14 @@ var PouchAdapter = function(opts, callback) {
       return;
     }
     return customApi._info(callback);
+  };
+  
+  api.id = function() {
+    return customApi._id();
+  };
+  
+  api.type = function() {
+    return (typeof customApi._type === 'function') ? customApi._type() : opts.adapter;
   };
 
   api.bulkDocs = function(req, opts, callback) {

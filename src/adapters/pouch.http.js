@@ -320,8 +320,8 @@ var HttpPouch = function(opts, callback) {
     var parts = id.split('/');
     if ((parts.length > 1 && parts[0] !== '_design' && parts[0] !== '_local') ||
         (parts.length > 2 && parts[0] === '_design' && parts[0] !== '_local')) {
-      // Nothing is expected back from the server
-      options.json = false;
+      // Binary is expected back from the server
+      options.binary = true;
     }
 
     // Get the document
@@ -369,21 +369,37 @@ var HttpPouch = function(opts, callback) {
     }, callback);
   };
 
-  // Add the attachment given by doc and the content type given by type
+  // Add the attachment given by blob and its contentType property
   // to the document with the given id, the revision given by rev, and
   // add it to the database given by host.
-  api.putAttachment = function(id, rev, doc, type, callback) {
+  api.putAttachment = function(id, rev, blob, type, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addJob('putAttachment', arguments);
       return;
+    }
+    if (typeof type === 'function') {
+      callback = type;
+      type = blob;
+      blob = rev;
+      rev = null;
+    }
+    if (typeof type === 'undefined') {
+      type = blob;
+      blob = rev;
+      rev = null;
+    }
+    var url = genDBUrl(host, id);
+    if (rev) {
+      url += '?rev=' + rev;
     }
     // Add the attachment
     ajax({
       auth: host.auth,
       method:'PUT',
-      url: genDBUrl(host, id) + '?rev=' + rev,
+      url: url,
       headers: {'Content-Type': type},
-      body: doc
+      processData: false,
+      body: blob
     }, callback);
   };
 

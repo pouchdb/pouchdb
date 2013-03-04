@@ -33,15 +33,15 @@ if (!testFiles.length) {
 testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
-  'dev': ['../src/deps/uuid.js',
+  'dev': ['../src/deps/uuid.js', '../src/deps/extend.js',
           '../src/pouch.js', '../src/pouch.adapter.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
           '../src/adapters/pouch.websql.js',
           '../src/plugins/pouchdb.mapreduce.js',
           '../src/plugins/pouchdb.spatial.js'],
-  'release': ['../dist/pouchdb-nightly.js'],
-  'release-min': ['../dist/pouchdb-nightly.min.js']
+  'release': ['../dist/pouchdb-nightly.js', '../src/deps/extend.js'],
+  'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js']
 };
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
