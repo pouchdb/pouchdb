@@ -15,7 +15,6 @@ var PouchAdapter = function(opts, callback) {
   taskqueue.ready = false;
   taskqueue.queue = [];
 
-
   api.taskqueue = {};
 
   api.taskqueue.execute = function (db) {
