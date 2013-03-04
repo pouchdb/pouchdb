@@ -51,6 +51,8 @@ var IdbPouch = function(opts, callback) {
   var ATTACH_STORE = 'attach-store';
   // Where we store meta data
   var META_STORE = 'meta-store';
+  // Where we detect blob support
+  var DETECT_BLOB_SUPPORT_STORE = 'detect-blob-support'
 
 
   var name = opts.name;
@@ -59,6 +61,8 @@ var IdbPouch = function(opts, callback) {
     id: 'meta-store',
     updateSeq: 0,
   };
+
+  var blobSupport = null;
 
   var instanceId = null;
   var api = {};
@@ -77,13 +81,14 @@ var IdbPouch = function(opts, callback) {
       .createIndex('_rev', '_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
     db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
+    db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
   };
 
   req.onsuccess = function(e) {
 
     idb = e.target.result;
 
-    var txn = idb.transaction([META_STORE], IDBTransaction.READ_WRITE);
+    var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE], IDBTransaction.READ_WRITE);
 
     idb.onversionchange = function() {
       idb.close();
@@ -121,7 +126,16 @@ var IdbPouch = function(opts, callback) {
         meta[name + '_id'] = instanceId;
         reqDBId = txn.objectStore(META_STORE).put(meta);
       }
-      call(callback, null, api);
+
+      // detect blob support
+      try {
+        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(new Blob(), "key");
+        blobSupport = true;
+      } catch (e) {
+        blobSupport = false;
+      } finally {
+        call(callback, null, api);
+      }
     }
   };
 
@@ -137,19 +151,7 @@ var IdbPouch = function(opts, callback) {
     return instanceId;
   };
 
-  api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
-
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    if (!opts) {
-      opts = {};
-    }
-
-    if (!req.docs) {
-      return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
-    }
+  api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
     var newEdits = 'new_edits' in opts ? opts.new_edits : true;
     var userDocs = extend(true, [], req.docs);
@@ -166,6 +168,13 @@ var IdbPouch = function(opts, callback) {
       }
       return newDoc;
     });
+
+    var docInfoErrors = docInfos.filter(function(docInfo) {
+      return docInfo.error;
+    });
+    if (docInfoErrors.length) {
+      return call(callback, docInfoErrors[0]);
+    }
 
     var results = [];
     var docs = [];
@@ -226,6 +235,63 @@ var IdbPouch = function(opts, callback) {
       call(callback, null, aresults);
     }
 
+    function preprocessAttachment(att, callback) {
+      if (att.stub) {
+        return callback();
+      }
+      if (typeof att.data === 'string') {
+        var data = atob(att.data);
+        att.digest = 'md5-' + Crypto.MD5(data);
+        if (blobSupport) {
+          var type = att.content_type;
+          att.data = new Blob([data], {type: type});
+        }
+        return callback();
+      }
+      var reader = new FileReader();
+      reader.onloadend = function(e) {
+        att.digest = 'md5-' + Crypto.MD5(this.result);
+        if (!blobSupport) {
+          att.data = btoa(this.result);
+        }
+        callback();
+      };
+      reader.readAsBinaryString(att.data);
+    }
+
+    function preprocessAttachments(callback) {
+      if (!docInfos.length) {
+        return callback();
+      }
+
+      var docv = 0;
+      docInfos.forEach(function(docInfo) {
+        var attachments = docInfo.data && docInfo.data._attachments ?
+          Object.keys(docInfo.data._attachments) : [];
+
+        if (!attachments.length) {
+          return done();
+        }
+
+        var recv = 0;
+        for (var key in docInfo.data._attachments) {
+          preprocessAttachment(docInfo.data._attachments[key], function() {
+            recv++;
+            if (recv == attachments.length) {
+              done();
+            }
+          });
+        }
+      });
+      
+      function done() {
+        docv++;
+        if (docInfos.length === docv) {
+          callback();
+        }
+      }
+    }
+
     function writeDoc(docInfo, callback) {
       var err = null;
       var recv = 0;
@@ -246,9 +312,8 @@ var IdbPouch = function(opts, callback) {
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
           var data = docInfo.data._attachments[key].data;
-          var digest = 'md5-' + Crypto.MD5(data);
           delete docInfo.data._attachments[key].data;
-          docInfo.data._attachments[key].digest = digest;
+          var digest = docInfo.data._attachments[key].digest;
           saveAttachment(docInfo, digest, data, function(err) {
             recv++;
             collectResults(err);
@@ -350,12 +415,15 @@ var IdbPouch = function(opts, callback) {
       getReq.onerror = getReq.ontimeout = idbError(callback);
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE], IDBTransaction.READ_WRITE);
-    txn.onerror = idbError(callback);
-    txn.ontimeout = idbError(callback);
-    txn.oncomplete = complete;
+    var txn;
+    preprocessAttachments(function() {
+      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE], IDBTransaction.READ_WRITE);
+      txn.onerror = idbError(callback);
+      txn.ontimeout = idbError(callback);
+      txn.oncomplete = complete;
 
-    processDocs();
+      processDocs();
+    });
 
   };
 
@@ -365,17 +433,7 @@ var IdbPouch = function(opts, callback) {
 
   // First we look up the metadata in the ids database, then we fetch the
   // current revision(s) from the by sequence store
-  api.get = function idb_get(id, opts, callback) {
-
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
-    id = parseDocId(id);
-    if (id.attachmentId !== '') {
-      return api.getAttachment(id, {decode: true}, callback);
-    }
+  api._get = function idb_get(id, opts, callback) {
 
     var result;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
@@ -467,7 +525,7 @@ var IdbPouch = function(opts, callback) {
           var recv = 0;
 
           attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, {txn: txn}, function(err, data) {
+            api.getAttachment(doc._id + '/' + key, {encode: true, txn: txn}, function(err, data) {
               doc._attachments[key].data = data;
 
               if (++recv === attachments.length) {
@@ -487,15 +545,7 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  api.getAttachment = function(id, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    if (typeof id === 'string') {
-      id = parseDocId(id);
-    }
-
+  api._getAttachment = function(id, opts, callback) {
     var result;
     var txn;
 
@@ -516,18 +566,35 @@ var IdbPouch = function(opts, callback) {
         var digest = attachment.digest;
         var type = attachment.content_type
 
-        function postProcessDoc(data) {
-          if (opts.decode) {
-            data = atob(data);
-          }
-          return data;
-        }
-
         txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
           var data = e.target.result.body;
-          result = postProcessDoc(data);
-          if ('txn' in opts) {
-            call(callback, null, result);
+          if (opts.encode) {
+            if (blobSupport) {
+              var reader = new FileReader();
+              reader.onloadend = function(e) {
+                result = btoa(this.result);
+
+                if ('txn' in opts) {
+                  call(callback, null, result);
+                }
+              }
+              reader.readAsBinaryString(data);
+            } else {
+              result = data;
+
+              if ('txn' in opts) {
+                call(callback, null, result);
+              }
+            }
+          } else {
+            if (blobSupport) {
+              result = data;
+            } else {
+              result = new Blob([atob(data)], {type: type});
+            }
+            if ('txn' in opts) {
+              call(callback, null, result);
+            }
           }
         }
       };
@@ -535,26 +602,7 @@ var IdbPouch = function(opts, callback) {
     return;
   }
 
-  api.allDocs = function idb_allDocs(opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    if ('keys' in opts) {
-      if ('startkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `start_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-      if ('endkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `end_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
-        return;
-      }
-    }
-
+  api._allDocs = function idb_allDocs(opts, callback) {
     var start = 'startkey' in opts ? opts.startkey : false;
     var end = 'endkey' in opts ? opts.endkey : false;
 
@@ -595,6 +643,7 @@ var IdbPouch = function(opts, callback) {
         return;
       }
       var cursor = e.target.result;
+      var metadata = cursor.value;
       // If opts.keys is set we want to filter here only those docs with
       // key in opts.keys. With no performance tests it is difficult to
       // guess if iteration with filter is faster than many single requests
@@ -633,10 +682,11 @@ var IdbPouch = function(opts, callback) {
       }
 
       if (!opts.include_docs) {
-        allDocsInner(cursor.value);
+        allDocsInner(metadata);
       } else {
-        var index = transaction.objectStore(BY_SEQ_STORE);
-        index.get(cursor.value.seq).onsuccess = function(event) {
+        var index = transaction.objectStore(BY_SEQ_STORE).index('_rev');
+        var mainRev = Pouch.merge.winningRev(metadata);
+        index.get(mainRev).onsuccess = function(event) {
           allDocsInner(cursor.value, event.target.result);
         };
       }
@@ -645,7 +695,7 @@ var IdbPouch = function(opts, callback) {
 
   // Looping through all the documents in the database is a terrible idea
   // easiest to implement though, should probably keep a counter
-  api.info = function idb_info(callback) {
+  api._info = function idb_info(callback) {
     var count = 0;
     var result;
     var txn = idb.transaction([DOC_STORE], 'readonly');
@@ -671,7 +721,7 @@ var IdbPouch = function(opts, callback) {
       };
   };
 
-  api.changes = function idb_changes(opts) {
+  api._changes = function idb_changes(opts) {
 
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
@@ -816,7 +866,7 @@ var IdbPouch = function(opts, callback) {
     }
   };
 
-  api.close = function(callback) {
+  api._close = function(callback) {
     if (idb === null) {
       return call(callback, Pouch.Errors.NOT_OPEN);
     }

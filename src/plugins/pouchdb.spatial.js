@@ -9,6 +9,10 @@
 
 var Spatial = function(db) {
 
+  var isArray = Array.isArray || function(obj) {
+    return type(obj) === "array";
+  };
+  
   function viewQuery(fun, options) {
     if (!options.complete) {
       return;
@@ -19,46 +23,6 @@ var Spatial = function(db) {
     var num_started= 0;
     var completed= false;
 
-    // NOTE vmx 2013-01-27: I wouldn't guarantee that this function is
-    // flawless
-    var calculateBbox = function (geom) {
-      var coords = geom.coordinates;
-      if (geom.type === 'Point') {
-        return [[coords[0], coords[0]], [coords[1], coords[1]]];
-      }
-      if (geom.type === 'GeometryCollection') {
-        coords = geom.geometries.map(function(g) {
-          return calculateBbox(g);
-        });
-        return coords.reduce(function (a, b) {
-          var minX = Math.min(a[0], b[0]);
-          var minY = Math.min(a[1], b[1]);
-          var maxX = Math.max(a[2], b[0]);
-          var maxY = Math.max(a[3], b[1]);
-          return [[minX, maxX], [minY, maxY]];
-        });
-      }
-
-      // Flatten coords as much as possible
-      while (Array.isArray(coords[0][0])) {
-        coords = coords.reduce(function(a, b) {
-          return a.concat(b);
-        });
-      };
-
-      return coords.reduce(function (acc, coord) {
-        // The first element isn't a bbox yet
-        if (acc.length === 1) {
-          acc = [[acc[0], acc[0]], [acc[1], acc[1]]];
-        }
-        var minX = Math.min(acc[0][0], coord[0]);
-        var minY = Math.min(acc[0][1], coord[1]);
-        var maxX = Math.max(acc[1][0], coord[0]);
-        var maxY = Math.max(acc[1][1], coord[1]);
-        return [[minX, maxX], [minY, maxY]];
-      });
-    };
-
     // Make the key a proper one. If a value is a single point, transform it
     // to a range. If the first element (or the whole key) is a geometry,
     // calculate its bounding box.
@@ -68,15 +32,15 @@ var Spatial = function(db) {
       var geometry = null;
 
       // Whole key is one geometry
-      if (isPlainObject(key)) {
+      if (!isArray(key) && typeof key === "object") {
         return {
-          key: calculateBbox(key),
+          key: Spatial.calculateBbox(key),
           geometry: key
         };
       }
 
-      if (isPlainObject(key[0])) {
-        newKey = calculateBbox(key[0]);
+      if (!isArray(key[0]) && typeof key[0] === "object") {
+        newKey = Spatial.calculateBbox(key[0]);
         geometry = key[0];
         key = key.slice(1);
       }
@@ -231,9 +195,8 @@ var Spatial = function(db) {
     }
 
     if (typeof fun !== 'string') {
-        var error = extend({reason: 'Querying with a function is not ' +
-         'supported for Spatial Views'}, Pouch.Errors.INVALID_REQUEST);
-      return call(callback, error);
+        var error = Pouch.error( Pouch.Errors.INVALID_REQUEST, 'Querying with a function is not supported for Spatial Views');
+      return callback ? callback(error) : undefined;
     }
 
     if (db.type() === 'http') {
@@ -251,6 +214,47 @@ var Spatial = function(db) {
   }
 
   return {spatial: query};
+};
+
+// Store it in the Spatial object, so we can test it
+Spatial.calculateBbox = function (geom) {
+  var coords = geom.coordinates;
+  if (geom.type === 'Point') {
+    return [[coords[0], coords[0]], [coords[1], coords[1]]];
+  }
+  if (geom.type === 'GeometryCollection') {
+    coords = geom.geometries.map(function(g) {
+      return Spatial.calculateBbox(g);
+    });
+
+    // Merge all bounding boxes into one big one that encloses all
+    return coords.reduce(function (acc, bbox) {
+      var minX = Math.min(acc[0][0], bbox[0][0]);
+      var minY = Math.min(acc[1][0], bbox[1][0]);
+      var maxX = Math.max(acc[0][1], bbox[0][1]);
+      var maxY = Math.max(acc[1][1], bbox[1][1]);
+      return [[minX, maxX], [minY, maxY]];
+    });
+  }
+
+  // Flatten coords as much as possible
+  while (Array.isArray(coords[0][0])) {
+    coords = coords.reduce(function(a, b) {
+      return a.concat(b);
+    });
+  };
+
+  // Calculate the enclosing bounding box of all coordinates
+  return coords.reduce(function (acc, coord) {
+    if (acc === null) {
+      return [[coord[0], coord[0]], [coord[1], coord[1]]];
+    }
+    var minX = Math.min(acc[0][0], coord[0]);
+    var minY = Math.min(acc[1][0], coord[1]);
+    var maxX = Math.max(acc[0][1], coord[0]);
+    var maxY = Math.max(acc[1][1], coord[1]);
+    return [[minX, maxX], [minY, maxY]];
+  }, null);
 };
 
 // Deletion is a noop since we dont store the results of the view

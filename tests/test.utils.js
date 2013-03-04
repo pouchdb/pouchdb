@@ -1,3 +1,4 @@
+/*globals extend: false */
 "use strict";
 
 var PERSIST_DATABASES = false;
@@ -32,6 +33,36 @@ function makeDocs(start, end, templateDoc) {
     docs.push(newDoc);
   }
   return docs;
+}
+
+function openTestAsyncDB(name) {
+  return new Pouch(name, function(err,db) {
+    if (err) {
+      console.error(err);
+      ok(false, 'failed to open database');
+      return start();
+    }
+  });
+}
+
+function makeBlob(data, type) {
+  if (typeof module !== 'undefined' && module.exports) {
+    return new Buffer(data);
+  } else {
+    return new Blob([data], {type: type});
+  }
+}
+
+function readBlob(blob, callback) {
+  if (typeof module !== 'undefined' && module.exports) {
+    callback(blob.toString());
+  } else {
+    var reader = new FileReader();
+    reader.onloadend = function(e) {
+      callback(this.result);
+    };
+    reader.readAsBinaryString(blob);
+  }
 }
 
 function openTestDB(name, callback) {
@@ -79,14 +110,31 @@ function generateAdapterUrl(id) {
   }
 }
 
+
+function putAfter(db, doc, prevRev, callback){
+  var newDoc = extend({}, doc);
+  newDoc._revisions = {
+    start: +newDoc._rev.split('-')[0],
+    ids: [
+      newDoc._rev.split('-')[1],
+      prevRev.split('-')[1]
+    ]
+  };
+  db.put(newDoc, {new_edits: false}, callback);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   Pouch = require('../src/pouch.js');
   module.exports = {
     makeDocs: makeDocs,
+    makeBlob: makeBlob,
+    readBlob: readBlob,
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,
+    openTestAsyncDB: openTestAsyncDB,
     generateAdapterUrl: generateAdapterUrl,
+    putAfter: putAfter,
     PERSIST_DATABASES: PERSIST_DATABASES
   };
 }

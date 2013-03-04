@@ -237,10 +237,10 @@ var collectConflicts = function(revs, deletions) {
   var leaves = collectLeaves(revs);
   for(var i = 0; i < leaves.length; i++){
     var leaf = leaves.shift();
-    var rev = leaf.rev.split("-")[1]; 
+    var rev = leaf.rev.split("-")[1];
     if(deletions && !deletions[rev]){
       leaves.push(leaf);
-    } 
+    }
   }
 
   // First is current rev
@@ -331,6 +331,7 @@ var ajax = function ajax(options, callback) {
     method : "GET",
     headers: {},
     json: true,
+    processData: true,
     timeout: 10000
   };
   options = extend(true, defaultOptions, options);
@@ -339,21 +340,27 @@ var ajax = function ajax(options, callback) {
       options.headers.Authorization = 'Basic ' + token;
   }
   var onSuccess = function(obj, resp, cb){
-    if (!options.json && typeof obj !== 'string') {
-          obj = JSON.stringify(obj);
-    } else if (options.json && typeof obj === 'string') {
-          obj = JSON.parse(obj);
+    if (!options.binary && !options.json && options.processData && typeof obj !== 'string') {
+      obj = JSON.stringify(obj);
+    } else if (!options.binary && options.json && typeof obj === 'string') {
+      try {
+        obj = JSON.parse(obj);
+      } catch (e) {
+        // Probably a malformed JSON from server
+        call(cb, e);
+        return;
+      }
     }
     call(cb, null, obj, resp);
   };
   var onError = function(err, cb){
     var errParsed;
     var errObj = err.responseText ? {status: err.status} : err; //this seems too clever
-         try{
-          errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
-          errObj = extend(true, {}, errObj, errParsed);
-         } catch(e){}
-         call(cb, errObj);
+    try{
+      errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
+      errObj = extend(true, {}, errObj, errParsed);
+    } catch(e){}
+    call(cb, errObj);
   };
   if (typeof window !== 'undefined' && window.XMLHttpRequest) {
     var timer,timedout  = false;
@@ -361,10 +368,13 @@ var ajax = function ajax(options, callback) {
     xhr.open(options.method, options.url);
     if (options.json) {
       options.headers.Accept = 'application/json';
-      options.headers['Content-Type'] = 'application/json';
-      if (options.body && typeof options.body !== "string") {
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+      if (options.body && options.processData && typeof options.body !== "string") {
         options.body = JSON.stringify(options.body);
       }
+    }
+    if (options.binary) {
+      xhr.responseType = 'arraybuffer';
     }
     for (var key in options.headers){
       xhr.setRequestHeader(key, options.headers[key]);
@@ -383,8 +393,14 @@ var ajax = function ajax(options, callback) {
         return;
       }
       clearTimeout(timer);
-      if (xhr.status >= 200 && xhr.status < 300){
-        call(onSuccess, xhr.responseText, xhr, callback);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var data;
+        if (options.binary) {
+          data = new Blob([xhr.response || ''], {type: xhr.getResponseHeader('Content-Type')});
+        } else {
+          data = xhr.responseText;
+        }
+        call(onSuccess, data, xhr, callback);
       } else {
          call(onError, xhr, callback);
       }
@@ -396,8 +412,17 @@ var ajax = function ajax(options, callback) {
     return {abort:abortReq};
   } else {
     if (options.json) {
-      options.headers.Accept = 'application/json';
-      options.headers['Content-Type'] = 'application/json';
+      if (!options.binary) {
+        options.headers.Accept = 'application/json';
+      }
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+    }
+    if (options.binary) {
+      options.encoding = null;
+      options.json = false;
+    }
+    if (!options.processData) {
+      options.json = false;
     }
     return request(options, function(err, response, body) {
       if (err) {
@@ -410,12 +435,12 @@ var ajax = function ajax(options, callback) {
 
       // CouchDB doesn't always return the right content-type for JSON data, so
       // we check for ^{ and }$ (ignoring leading/trailing whitespace)
-      if (options.json && typeof data !== 'object' &&
+      if (!options.binary && (options.json || !options.processData) && typeof data !== 'object' &&
           (/json/.test(content_type) ||
            (/^[\s]*\{/.test(data) && /\}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
-
+      
       if (data.error) {
         data.status = response.statusCode;
         call(onError, data, callback);
@@ -425,134 +450,6 @@ var ajax = function ajax(options, callback) {
       }
     });
   }
-};
-
-// Extends method
-// (taken from http://code.jquery.com/jquery-1.9.0.js)
-// Populate the class2type map
-var class2type = {};
-
-var types = ["Boolean", "Number", "String", "Function", "Array", "Date", "RegExp", "Object", "Error"];
-for (var i = 0; i < types.length; i++) {
-  var typename = types[i];
-  class2type[ "[object " + typename + "]" ] = typename.toLowerCase();
-}
-
-var core_toString = class2type.toString;
-var core_hasOwn = class2type.hasOwnProperty;
-
-var type = function(obj) {
-  if (obj === null) {
-    return String( obj );
-  }
-  return typeof obj === "object" || typeof obj === "function" ?
-    class2type[core_toString.call(obj)] || "object" :
-    typeof obj;
-};
-
-var isWindow = function(obj) {
-  return obj !== null && obj === obj.window;
-};
-
-var isPlainObject = function( obj ) {
-  // Must be an Object.
-  // Because of IE, we also have to check the presence of the constructor property.
-  // Make sure that DOM nodes and window objects don't pass through, as well
-  if ( !obj || type(obj) !== "object" || obj.nodeType || isWindow( obj ) ) {
-    return false;
-  }
-
-  try {
-    // Not own constructor property must be Object
-    if ( obj.constructor &&
-      !core_hasOwn.call(obj, "constructor") &&
-      !core_hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
-      return false;
-    }
-  } catch ( e ) {
-    // IE8,9 Will throw exceptions on certain host objects #9897
-    return false;
-  }
-
-  // Own properties are enumerated firstly, so to speed up,
-  // if last one is own, then all properties are own.
-
-  var key;
-  for ( key in obj ) {}
-
-  return key === undefined || core_hasOwn.call( obj, key );
-};
-
-var isFunction = function(obj) {
-  return type(obj) === "function";
-};
-
-var isArray = Array.isArray || function(obj) {
-  return type(obj) === "array";
-};
-
-var extend = function() {
-  var options, name, src, copy, copyIsArray, clone,
-    target = arguments[0] || {},
-    i = 1,
-    length = arguments.length,
-    deep = false;
-
-  // Handle a deep copy situation
-  if ( typeof target === "boolean" ) {
-    deep = target;
-    target = arguments[1] || {};
-    // skip the boolean and the target
-    i = 2;
-  }
-
-  // Handle case when target is a string or something (possible in deep copy)
-  if ( typeof target !== "object" && !isFunction(target) ) {
-    target = {};
-  }
-
-  // extend jQuery itself if only one argument is passed
-  if ( length === i ) {
-    target = this;
-    --i;
-  }
-
-  for ( ; i < length; i++ ) {
-    // Only deal with non-null/undefined values
-    if ((options = arguments[ i ]) != null) {
-      // Extend the base object
-      for ( name in options ) {
-        src = target[ name ];
-        copy = options[ name ];
-
-        // Prevent never-ending loop
-        if ( target === copy ) {
-          continue;
-        }
-
-        // Recurse if we're merging plain objects or arrays
-        if ( deep && copy && ( isPlainObject(copy) || (copyIsArray = isArray(copy)) ) ) {
-          if ( copyIsArray ) {
-            copyIsArray = false;
-            clone = src && isArray(src) ? src : [];
-
-          } else {
-            clone = src && isPlainObject(src) ? src : {};
-          }
-
-          // Never move original objects, clone them
-          target[ name ] = extend( deep, clone, copy );
-
-        // Don't bring in undefined values
-        } else if ( copy !== undefined ) {
-          target[ name ] = copy;
-        }
-      }
-    }
-  }
-
-  // Return the modified object
-  return target;
 };
 
 // Basic wrapper for localStorage
@@ -620,8 +517,6 @@ if (typeof module !== 'undefined' && module.exports) {
     extend: extend,
     traverseRevTree: traverseRevTree,
     rootToLeaf: rootToLeaf,
-    isPlainObject: isPlainObject,
-    isArray: isArray
   };
 }
 

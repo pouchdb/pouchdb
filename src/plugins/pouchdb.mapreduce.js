@@ -21,6 +21,10 @@ var MapReduce = function(db) {
       return;
     }
 
+    if (!fun.reduce) {
+      options.reduce = false;
+    }
+
     function sum(values) {
       return values.reduce(function(a, b) { return a + b; }, 0);
     }
@@ -35,7 +39,7 @@ var MapReduce = function(db) {
         id: current.doc._id,
         key: key,
         value: val
-      }; 
+      };
 
       if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
       if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;

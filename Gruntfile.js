@@ -54,44 +54,56 @@ module.exports = function(grunt) {
         bottom : " return Pouch });"
       }
     },
+
+    clean: {
+      build : ["./dist"],
+      "node-qunit": ["./testdb_*"]
+    },
+
     concat: {
       amd: {
-        src: grunt.utils._.flatten([
+        src: grunt.util._.flatten([
           "<banner:meta.amd.top>", srcFiles,"<banner:meta.amd.bottom>"
         ]),
-        dest: 'dist/pouchdb.amd-<%= pkg.release %>.js'
+        dest: 'dist/pouchdb.amd-nightly.js'
       },
       all: {
-        src: grunt.utils._.flatten([
+        src: grunt.util._.flatten([
           "<banner>","<banner:meta.top>","src/deps/uuid.js",
-          "src/deps/polyfill.js", srcFiles, "<banner:meta.bottom>"
+          "src/deps/polyfill.js", "src/deps/extend.js", srcFiles,
+          "<banner:meta.bottom>"
         ]),
-        dest: 'dist/pouchdb-<%= pkg.release %>.js'
+        dest: 'dist/pouchdb-nightly.js'
       },
       spatial: {
-        src: grunt.utils._.flatten([
+        src: grunt.util._.flatten([
           "<banner>","<banner:meta.top>","src/deps/uuid.js",
-          "src/deps/polyfill.js", srcFiles,"src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
+          "src/deps/polyfill.js", "src/deps/extend.js", srcFiles,
+          "src/plugins/pouchdb.spatial.js", "<banner:meta.bottom>"
         ]),
-        dest: 'dist/pouchdb.spatial-<%= pkg.release %>.js'
+        dest: 'dist/pouchdb.spatial-nightly.js'
       }
     },
 
-    min: {
+    uglify: {
       dist: {
-        src: "./dist/pouchdb-<%= pkg.release %>.js",
-        dest: 'dist/pouchdb-<%= pkg.release %>.min.js'
+        src: "./dist/pouchdb-nightly.js",
+        dest: 'dist/pouchdb-nightly.min.js'
       },
       spatial: {
-        src:  'dist/pouchdb.spatial-<%= pkg.release %>.js',
-        dest:  'dist/pouchdb.spatial-<%= pkg.release %>.min.js'
+        src:  'dist/pouchdb.spatial-nightly.js',
+        dest:  'dist/pouchdb.spatial-nightly.min.js'
       }
     },
 
     // Servers
-    server: {
-      base: '.',
-      port: 8000
+    connect : {
+      server: {
+        options: {
+          base: '.',
+          port: 8000
+        }
+      }
     },
 
     'cors-server': {
@@ -99,7 +111,7 @@ module.exports = function(grunt) {
       port: 2020
     },
 
-    lint: {
+    jshint: {
       files: ["src/adapter/*.js", "tests/*.js", "src/*.js"]
     },
 
@@ -144,10 +156,9 @@ module.exports = function(grunt) {
         Pouch: true
       }
     },
-
     'node-qunit': {
       all: {
-        deps: './src/pouch.js',
+        deps: ['./src/deps/extend.js', './src/pouch.js'],
         code: './src/adapters/pouch.leveldb.js',
         tests: testFiles.map(function (n) { return "./tests/" + n; }),
         done: function(err, res) {
@@ -189,18 +200,18 @@ module.exports = function(grunt) {
   });
 
   // Custom tasks
+  grunt.registerTask("forever", 'Runs forever', function(){
+    this.async();
+  })
+
   grunt.registerTask("cors-server", "Runs a CORS proxy", function(){
     var corsPort = arguments[0] || grunt.config("cors-server.port");
-    var couchUrl = grunt.utils._.toArray(arguments).slice(1).join(":") ||
+    var couchUrl = grunt.util._.toArray(arguments).slice(1).join(":") ||
       grunt.config("cors-server.base");
     grunt.log.writeln("Starting CORS server " + corsPort + " => " + couchUrl);
 
     cors_proxy.options = {target: couchUrl};
     http_proxy.createServer(cors_proxy).listen(corsPort);
-  });
-
-  grunt.registerTask("forever", "Runs a task forever, exits only on Ctrl+C", function(){
-    this.async();
   });
 
   grunt.registerTask("publish-results",
@@ -236,11 +247,19 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask("build", "concat:amd concat:all min:dist");
-  grunt.registerTask("test", "lint build server cors-server node-qunit " +
-                     "saucelabs-qunit publish-results");
-  grunt.registerTask("full", "concat min");
-  grunt.registerTask("spatial", "concat:spatial min:spatial");
+  grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
+  
+  grunt.registerTask("testSetup", ["jshint", "build", "connect", "cors-server"]);
+  grunt.registerTask("test", ["testSetup", "node-qunit" ,"saucelabs-qunit", "publish-results"]);
+  grunt.registerTask("full", ["concat", "uglify"]);
+  grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
   grunt.registerTask('default', 'build');
 };

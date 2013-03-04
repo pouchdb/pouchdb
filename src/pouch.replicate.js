@@ -76,8 +76,12 @@ function replicate(src, target, opts, callback, replicateRet) {
         });
       },
       complete: function(err, res) {
-        completed = true;
-        isCompleted();
+        if (err) {
+          call(callback, err, null);
+        } else {
+          completed = true;
+          isCompleted(err);
+        }
       }
     };
 
