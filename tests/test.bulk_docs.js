@@ -175,11 +175,12 @@ adapters.map(function(adapter) {
         }
       ];
       db.bulkDocs({docs: docs}, {new_edits: false}, function(err, res){
-        res.forEach(function(row){
-          ok(!row.error, "no conflict found");
+        //ok(res.length === 0, "empty array returned");
+        db.get("foo", {open_revs: "all"}, function(err, res){
+          ok(res[0].ok._rev === "2-x", "doc1 ok");
+          ok(res[1].ok._rev === "2-y", "doc2 ok");
+          start();
         });
-        ok(true, "ok");
-        start();
       });
     });
   });
