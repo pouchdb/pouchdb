@@ -338,7 +338,7 @@ LevelPouch = module.exports = function(opts, callback) {
       if (info.error) {
         return results.push(info);
       }
-      if (!docs.length || info.metadata.id !== docs[docs.length-1].metadata.id) {
+      if (!docs.length || !newEdits || info.metadata.id !== docs[docs.length-1].metadata.id) {
         return docs.push(info);
       }
       results.push(makeErr(Pouch.Errors.REV_CONFLICT, info._bulk_seq));
