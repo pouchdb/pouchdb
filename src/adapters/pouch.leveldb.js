@@ -286,9 +286,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
           if (err && err.name === 'NotFoundError') {
             // Empty attachment
-            data = opts.encode
-              ? Pouch.utils.btoa(new Buffer(''))
-              : new Buffer('');
+            data = opts.encode ? '' : new Buffer('');
             return call(callback, null, data);
           }
 
@@ -297,7 +295,7 @@ LevelPouch = module.exports = function(opts, callback) {
           }
 
           data = opts.encode
-            ? Pouch.utils.btoa(attach)
+            ? btoa(attach)
             : attach;
           
           call(callback, null, data);
