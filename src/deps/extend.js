@@ -127,5 +127,5 @@ var extend = function() {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  global.extend = extend;
+  module.exports = extend;
 }
