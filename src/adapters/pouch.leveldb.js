@@ -302,7 +302,7 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api._bulkDocs = function(req, opts, callback) {
 
-    var newEdits = opts.new_edits !== undefined ? opts.new_edits : true
+    var newEdits = opts.new_edits
       , info = []
       , docs = []
       , results = []
