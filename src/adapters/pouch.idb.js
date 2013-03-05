@@ -722,9 +722,25 @@ var IdbPouch = function(opts, callback) {
   };
 
   api._changes = function idb_changes(opts) {
-
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
+
+    opts = extend(true, {}, opts);
+    
+    if (!opts.since) opts.since = 0;
+
+    if (opts.continuous) {
+      opts.cancelled = false;
+      IdbPouch.Changes.addListener(name, id, api, opts);
+      IdbPouch.Changes.notify(name);
+      return {
+        cancel: function() {
+          if (Pouch.DEBUG) console.log(name + ': Cancel Changes Feed');
+          opts.cancelled = true;
+          IdbPouch.Changes.removeListener(name, id);
+        }
+      };
+    }
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
@@ -762,10 +778,6 @@ var IdbPouch = function(opts, callback) {
 
     function onsuccess(event) {
       if (!event.target.result) {
-        if (opts.continuous && !opts.cancelled) {
-          IdbPouch.Changes.addListener(name, id, api, opts);
-        }
-
         // Filter out null results casued by deduping
         for (var i = 0, l = results.length; i < l; i++ ) {
           var result = results[i];
@@ -835,35 +847,16 @@ var IdbPouch = function(opts, callback) {
         if (!opts.include_docs) {
           delete c.doc;
         }
-        if (c.seq > opts.since) {
-          opts.since = c.seq;
-          call(opts.onChange, c);
-        }
+        call(opts.onChange, c);
       });
-      if (!opts.continuous || (opts.continuous && !opts.cancelled)) {
-        call(opts.complete, null, {results: dedupResults});
-      }
+      call(opts.complete, null, {results: dedupResults});
     };
 
     function onerror(error) {
-      if (opts.continuous && !opts.cancelled) {
-        IdbPouch.Changes.addListener(name, id, opts);
-      }
-      else {
-        call(opts.complete);
-      }
+      // TODO: shouldn't we pass some params here?
+      call(opts.complete);
     };
-
-    if (opts.continuous) {
-      return {
-        cancel: function() {
-          if (Pouch.DEBUG)
-            console.log(name + ': Cancel Changes Feed');
-          opts.cancelled = true;
-          IdbPouch.Changes.removeListener(name, id);
-        }
-      }
-    }
+  
   };
 
   api._close = function(callback) {

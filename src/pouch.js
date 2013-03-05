@@ -46,6 +46,7 @@ var Pouch = function Pouch(name, opts, callback) {
         }
         return;
       }
+
       for (var plugin in Pouch.plugins) {
         // In future these will likely need to be async to allow the plugin
         // to initialise
@@ -58,8 +59,6 @@ var Pouch = function Pouch(name, opts, callback) {
           }
         }
       }
-      db.taskqueue.ready(true);
-      db.taskqueue.execute(db);
       callback(null, db);
     });
     for (var j in adapter) {

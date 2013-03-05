@@ -214,7 +214,7 @@ var webSqlPouch = function(opts, callback) {
           });
         }
       });
-      
+
       function done() {
         docv++;
         if (docInfos.length === docv) {
@@ -576,6 +576,23 @@ var webSqlPouch = function(opts, callback) {
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
+    opts = extend(true, {}, opts);
+
+    if (!opts.since) opts.since = 0;
+
+    if (opts.continuous) {
+      opts.cancelled = false;
+      webSqlPouch.Changes.addListener(name, id, api, opts);
+      webSqlPouch.Changes.notify(name);
+      return {
+        cancel: function() {
+          if (Pouch.DEBUG) console.log(name + ': Cancel Changes Feed');
+          opts.cancelled = true;
+          webSqlPouch.Changes.removeListener(name, id);
+        }
+      };
+    }
+
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
 
@@ -638,31 +655,12 @@ var webSqlPouch = function(opts, callback) {
             if (!opts.include_docs) {
               delete c.doc;
             }
-            if (c.seq > opts.since) {
-              opts.since = c.seq;
-              call(opts.onChange, c);
-            }
+            call(opts.onChange, c);
           });
 
-          if (opts.continuous && !opts.cancelled) {
-            webSqlPouch.Changes.addListener(name, id, api, opts);
-          }
-          else {
-              call(opts.complete, null, {results: dedupResults});
-          }
+          call(opts.complete, null, {results: dedupResults});
         });
       });
-    }
-
-    if (opts.continuous) {
-      return {
-        cancel: function() {
-          if (Pouch.DEBUG)
-            console.log(name + ': Cancel Changes Feed');
-          opts.cancelled = true;
-          webSqlPouch.Changes.removeListener(name, id);
-        }
-      }
     }
   };
 

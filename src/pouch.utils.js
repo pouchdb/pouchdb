@@ -237,10 +237,10 @@ var collectConflicts = function(revs, deletions) {
   var leaves = collectLeaves(revs);
   for(var i = 0; i < leaves.length; i++){
     var leaf = leaves.shift();
-    var rev = leaf.rev.split("-")[1];
+    var rev = leaf.rev.split("-")[1]; 
     if(deletions && !deletions[rev]){
       leaves.push(leaf);
-    }
+    } 
   }
 
   // First is current rev
@@ -556,10 +556,11 @@ var Changes = function() {
         include_docs: opts.include_docs,
         conflicts: opts.conflicts,
         continuous: false,
+        descending: false,
         filter: opts.filter,
         since: opts.since,
         onChange: function(c) {
-          if (c.seq > opts.since) {
+          if (c.seq > opts.since && !opts.cancelled) {
             opts.since = c.seq;
             call(opts.onChange, c);
           }

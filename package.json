@@ -17,7 +17,7 @@
     "pouchdb"
   ],
   "dependencies": {
-    "levelup": "*",
+    "levelup": "0.6.1",
     "request": "*",
     "underscore": "*"
   },
