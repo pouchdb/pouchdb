@@ -486,6 +486,7 @@ if (typeof module !== 'undefined' && module.exports) {
       return crypto.createHash('md5').update(str).digest('hex');
     }
   };
+  var extend = require('./deps/extend');
   request = require('request');
   _ = require('underscore');
   $ = _;
