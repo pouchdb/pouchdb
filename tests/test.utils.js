@@ -35,16 +35,6 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 
-function openTestAsyncDB(name) {
-  return new Pouch(name, function(err,db) {
-    if (err) {
-      console.error(err);
-      ok(false, 'failed to open database');
-      return start();
-    }
-  });
-}
-
 function makeBlob(data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data);
@@ -132,7 +122,6 @@ if (typeof module !== 'undefined' && module.exports) {
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,
-    openTestAsyncDB: openTestAsyncDB,
     generateAdapterUrl: generateAdapterUrl,
     putAfter: putAfter,
     PERSIST_DATABASES: PERSIST_DATABASES
