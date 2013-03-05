@@ -184,7 +184,7 @@ var IdbPouch = function(opts, callback) {
       if (docInfo.error) {
         return results.push(docInfo);
       }
-      if (!docs.length || docInfo.metadata.id !== docs[0].metadata.id) {
+      if (!docs.length || !newEdits || docInfo.metadata.id !== docs[0].metadata.id) {
         return docs.unshift(docInfo);
       }
       // We mark subsequent bulk docs with a duplicate id as conflicts
@@ -232,6 +232,10 @@ var IdbPouch = function(opts, callback) {
         IdbPouch.Changes.notify(name);
         localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
       });
+      // couchdb returns empty array when new_edits=false
+      if (!newEdits) {
+        aresults = [];
+      }
       call(callback, null, aresults);
     }
 
