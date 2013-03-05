@@ -153,7 +153,7 @@ var IdbPouch = function(opts, callback) {
 
   api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
-    var newEdits = 'new_edits' in opts ? opts.new_edits : true;
+    var newEdits = opts.new_edits;
     var userDocs = extend(true, [], req.docs);
 
     // Parse the docs, give them a sequence number for the result
@@ -232,10 +232,6 @@ var IdbPouch = function(opts, callback) {
         IdbPouch.Changes.notify(name);
         localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
       });
-      // couchdb returns empty array when new_edits=false
-      if (!newEdits) {
-        aresults = [];
-      }
       call(callback, null, aresults);
     }
 
