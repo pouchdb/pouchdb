@@ -282,15 +282,21 @@ LevelPouch = module.exports = function(opts, callback) {
           , type = doc._attachments[id.attachmentId].content_type
 
         stores[ATTACH_BINARY_STORE].get(digest, function(err, attach) {
-          // empty attachments
+          var data;
+
           if (err && err.name === 'NotFoundError') {
-            return call(callback, null, new Buffer(''));
+            // Empty attachment
+            data = opts.encode
+              ? Pouch.utils.btoa(new Buffer(''))
+              : new Buffer('');
+            return call(callback, null, data);
           }
 
           if (err) {
             return call(callback, err);
           }
-          var data = opts.encode
+
+          data = opts.encode
             ? Pouch.utils.btoa(attach)
             : attach;
           
