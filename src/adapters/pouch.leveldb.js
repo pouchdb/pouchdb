@@ -414,7 +414,11 @@ LevelPouch = module.exports = function(opts, callback) {
         if (!doc.data._attachments[key].stub) {
           var data = doc.data._attachments[key].data
           // if data is a string, it's likely to actually be base64 encoded
-          if (typeof data === 'string') data = Pouch.utils.atob(data);
+          if (typeof data === 'string') {
+            try {
+              data = Pouch.utils.atob(data);
+            } catch (e) {}
+          }
           var digest = 'md5-' + crypto.createHash('md5')
                 .update(data || '')
                 .digest('hex');
