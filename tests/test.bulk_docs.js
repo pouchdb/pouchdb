@@ -164,4 +164,23 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Bulk with new_edits=false', function() {
+    initTestDB(this.name, function(err, db) {
+      var docs = [
+        {"_id":"foo","_rev":"2-x","_revisions":
+          {"start":2,"ids":["x","a"]}
+        },
+        {"_id":"foo","_rev":"2-y","_revisions":
+          {"start":2,"ids":["y","a"]}
+        }
+      ];
+      db.bulkDocs({docs: docs}, {new_edits: false}, function(err, res){
+        res.forEach(function(row){
+          ok(!row.error, "no conflict found");
+        });
+        ok(true, "ok");
+        start();
+      });
+    });
+  });
 });
