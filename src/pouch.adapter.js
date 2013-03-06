@@ -156,6 +156,39 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
+  var compactDocument = function(docId, callback) {
+    customApi._getRevisionTree(docId, function(rev_tree){
+      console.log(rev_tree);
+
+      var nonLeaves = [];
+      traverseRevTree(rev_tree, function(isLeaf, pos, id) {
+        var rev = pos + '-' + id;
+        if (!isLeaf) {
+          nonLeaves.push(rev);
+        }
+      });
+      console.log('going to remove', docId, nonLeaves);
+      customApi._removeDocRevisions(docId, nonLeaves, callback);
+    });
+  };
+  api.compact = function(callback) {
+    api.allDocs(function(err, res) {
+      var count = res.rows.length;
+      if (!count) {
+        call(callback);
+        return;
+      }
+      res.rows.forEach(function(row) {
+        compactDocument(row.key, function() {
+          count--;
+          if (!count) {
+            call(callback);
+          }
+        });
+      });
+    });
+  };
+
 
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
