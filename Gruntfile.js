@@ -69,14 +69,14 @@ module.exports = function(grunt) {
       all: {
         src: grunt.util._.flatten([
           "src/deps/uuid.js",
-          "src/deps/polyfill.js", "src/deps/extend.js", srcFiles
+          "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles
         ]),
         dest: 'dist/pouchdb-nightly.js'
       },
       spatial: {
         src: grunt.util._.flatten([
           "src/deps/uuid.js",
-          "src/deps/polyfill.js", "src/deps/extend.js", srcFiles,
+          "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles,
           "src/plugins/pouchdb.spatial.js"
         ]),
         dest: 'dist/pouchdb.spatial-nightly.js'
@@ -156,7 +156,7 @@ module.exports = function(grunt) {
     },
     'node-qunit': {
       all: {
-        deps: ['./src/deps/extend.js', './src/pouch.js'],
+        deps: ['./src/deps/extend.js','./src/deps/ajax.js','./src/pouch.js'],
         code: './src/adapters/pouch.leveldb.js',
         tests: testFiles.map(function (n) { return "./tests/" + n; }),
         done: function(err, res) {
