@@ -33,10 +33,12 @@ qunit("http-adapter", {
 
 asyncTest("Create a pouch without DB setup", function() {
   var instantDB;
-  instantDB = new Pouch(this.name, {skipSetup: true});
-  instantDB.post({test:"abc"}, function(err, info) {
-    ok(err && err.error === 'not_found', 'Skipped setup of database');
-    start();
+  Pouch.destroy(this.name, function() {
+    instantDB = new Pouch(this.name, {skipSetup: true});
+    instantDB.post({test:"abc"}, function(err, info) {
+      ok(err && err.error === 'not_found', 'Skipped setup of database');
+      start();
+    });
   });
 });
 
