@@ -870,6 +870,38 @@ var IdbPouch = function(opts, callback) {
     call(callback, null);
   };
 
+  // compaction internal functions
+  api._getRevisionTree = function(docId, callback) {
+    var txn = idb.transaction([DOC_STORE], 'readonly');
+    var req = txn.objectStore(DOC_STORE).get(docId);
+    req.onsuccess = function (event) {
+      var doc = event.target.result;
+      callback(doc.rev_tree);
+    };
+  };
+
+  api._removeDocRevisions = function(docId, revs, callback) {
+    var txn = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ_WRITE);
+    function removeRevs() {
+      var rev = revs.pop();
+      var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+      index.getKey(rev).onsuccess = function(e) {
+        var seq = e.target.result;
+        var req = txn.objectStore(BY_SEQ_STORE).delete(seq);
+        req.onsuccess = function() {
+          if (revs.length) {
+            removeRevs();
+          }
+        };
+      };
+    }
+    removeRevs();
+    txn.oncomplete = function() {
+      callback();
+    };
+  };
+  // end of compaction internal functions
+
   return api;
 };
 
