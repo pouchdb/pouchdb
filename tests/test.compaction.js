@@ -56,3 +56,74 @@ asyncTest('Simple compation test', function() {
   });
 });
 
+// docs will be inserted one after another
+// starting from root
+var insertBranch = function(db, rootRev, docs, callback) {
+  function insert(i) {
+    var prev = i > 0 ? docs[i-1]._rev : rootRev;
+    putAfter(db, docs[i], prev, function() {
+      if (i < docs.length - 1) {
+        insert(i+1);
+      } else {
+        callback();
+      }
+    });
+  }
+  insert(0);
+};
+
+var checkBranch = function(db, docs, callback) {
+  function check(i) {
+    var doc = docs[i];
+    db.get(doc._id, {rev: doc._rev}, function(err, doc) {
+      if (i < docs.length - 1) {
+        ok(err.status === 404, "compacted!");
+        check(i+1);
+      } else {
+        ok(!err, "not compacted!");
+        callback();
+      }
+    });
+  }
+  check(0);
+};
+
+asyncTest('Compact more complicated tree', function() {
+  initTestDB(this.name, function(err, db) {
+    var root = 
+      {_id: "foo", _rev: "1-a", value: "foo a"};
+    var branch1 = [
+      {_id: "foo", _rev: "2-b", value: "foo b"},
+      {_id: "foo", _rev: "3-c", value: "foo c"}
+    ];
+    var branch2 = [
+      {_id: "foo", _rev: "2-d", value: "foo d"},
+      {_id: "foo", _rev: "3-e", value: "foo e"},
+      {_id: "foo", _rev: "4-f", value: "foo f"}
+    ];
+    var branch3 = [
+      {_id: "foo", _rev: "2-g", value: "foo g"},
+      {_id: "foo", _rev: "3-h", value: "foo h"},
+      {_id: "foo", _rev: "4-i", value: "foo i"},
+      {_id: "foo", _rev: "5-j", _deleted: true, value: "foo j"}
+    ];
+    db.put(root, function() {
+      insertBranch(db, "1-a", branch1, function() {
+        insertBranch(db, "1-a", branch2, function() {
+          insertBranch(db, "1-a", branch3, function() {
+            db.compact(function() {
+              checkBranch(db, branch1, function() {
+                checkBranch(db, branch2, function() {
+                  checkBranch(db, branch3, function() {
+                    ok(1, "checks finished");
+                    start();
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+});
