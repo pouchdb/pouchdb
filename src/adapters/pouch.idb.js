@@ -883,15 +883,20 @@ var IdbPouch = function(opts, callback) {
   api._removeDocRevisions = function(docId, revs, callback) {
     var txn = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ_WRITE);
     function removeRevs() {
+      if (!revs.length) {
+        return;
+      }
       var rev = revs.pop();
       var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
       index.getKey(rev).onsuccess = function(e) {
         var seq = e.target.result;
+        if (!seq) {
+          removeRevs();
+          return;
+        }
         var req = txn.objectStore(BY_SEQ_STORE).delete(seq);
         req.onsuccess = function() {
-          if (revs.length) {
-            removeRevs();
-          }
+          removeRevs();
         };
       };
     }
