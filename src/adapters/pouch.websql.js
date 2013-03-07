@@ -703,6 +703,27 @@ var webSqlPouch = function(opts, callback) {
       });
     }
   }
+  // comapction internal functions
+  api._getRevisionTree = function(docId, callback) {
+    db.transaction(function (tx) {
+      var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
+      tx.executeSql(sql, [docId], function(tx, result) {
+        var data = JSON.parse(result.rows.item(0).metadata);
+        callback(data.rev_tree);
+      });
+    });
+  };
+  api._removeDocRevisions = function(docId, revs, callback) {
+    db.transaction(function (tx) {
+      var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE rev IN (' +
+        revs.map(function(rev){return quote(rev);}).join(',') + ')';
+      tx.executeSql(sql, [], function(tx, result) {
+        callback();
+      });
+    });
+  };
+  // end of compaction internal functions
+
   return api;
 }
 
