@@ -21,6 +21,10 @@ var MapReduce = function(db) {
       return;
     }
 
+    if (!fun.reduce) {
+      options.reduce = false;
+    }
+
     function sum(values) {
       return values.reduce(function(a, b) { return a + b; }, 0);
     }
@@ -122,6 +126,8 @@ var MapReduce = function(db) {
 
     // List of parameters to add to the PUT request
     var params = [];
+    var body = undefined;
+    var method = 'GET';
 
     // If opts.reduce exists and is defined, then add it to the list
     // of parameters.
@@ -149,6 +155,13 @@ var MapReduce = function(db) {
       params.push('key=' + encodeURIComponent(JSON.stringify(opts.key)));
     }
 
+    // If keys are supplied, issue a POST request to circumvent GET query string limits
+    // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
+    if (typeof opts.keys !== 'undefined') {
+      method = 'POST';
+      body = JSON.stringify({keys:opts.keys});
+    }
+
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     params = params === '' ? '' : '?' + params;
@@ -157,8 +170,9 @@ var MapReduce = function(db) {
     if (typeof fun === 'string') {
       var parts = fun.split('/');
       db.request({
-        method:'GET',
-        url: '_design/' + parts[0] + '/_view/' + parts[1] + params
+        method: method,
+        url: '_design/' + parts[0] + '/_view/' + parts[1] + params,
+        body: body
       }, callback);
       return;
     }

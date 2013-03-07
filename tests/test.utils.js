@@ -1,6 +1,7 @@
+/*globals extend: false */
 "use strict";
 
-var PERSIST_DATABASES = false;
+var PERSIST_DATABASES = true;
 
 function uuid() {
   var S4 = function() {
@@ -24,7 +25,7 @@ function makeDocs(start, end, templateDoc) {
   }
   var docs = [];
   for (var i = start; i < end; i++) {
-    /* jshint: evil */
+    /*jshint evil:true */
     var newDoc = eval("(" + templateDocSrc + ")");
     newDoc._id = (i).toString();
     newDoc.integer = i;
@@ -32,6 +33,26 @@ function makeDocs(start, end, templateDoc) {
     docs.push(newDoc);
   }
   return docs;
+}
+
+function makeBlob(data, type) {
+  if (typeof module !== 'undefined' && module.exports) {
+    return new Buffer(data);
+  } else {
+    return new Blob([data], {type: type});
+  }
+}
+
+function readBlob(blob, callback) {
+  if (typeof module !== 'undefined' && module.exports) {
+    callback(blob.toString());
+  } else {
+    var reader = new FileReader();
+    reader.onloadend = function(e) {
+      callback(this.result);
+    };
+    reader.readAsBinaryString(blob);
+  }
 }
 
 function openTestDB(name, callback) {
@@ -48,7 +69,7 @@ function openTestDB(name, callback) {
 function initTestDB(name, callback) {
   // ignore errors, the database might not exist
   Pouch.destroy(name, function(err) {
-    if (err && err.status !== 404 && err.statusText != 'timeout') {
+    if (err && err.status !== 404 && err.statusText !== 'timeout') {
       console.error(err);
       ok(false, 'failed to open database');
       return start();
@@ -73,21 +94,36 @@ function generateAdapterUrl(id) {
     return 'testdb_' + testId + '_' + opt[1];
   }
   if (opt[0] === 'http') {
-    return 'http://localhost:2020/testdb_' + testId + '_' + opt[1];
-  }
-  if (opt[0] === 'leveldb') {
-    return 'leveldb://testdb_' + testId + '_' + opt[1];
+    return (typeof module !== 'undefined' && module.exports) ?
+      'http://localhost:5984/testdb_' + testId + '_' + opt[1] :
+      'http://localhost:2020/testdb_' + testId + '_' + opt[1];
   }
 }
 
+
+function putAfter(db, doc, prevRev, callback){
+  var newDoc = extend({}, doc);
+  newDoc._revisions = {
+    start: +newDoc._rev.split('-')[0],
+    ids: [
+      newDoc._rev.split('-')[1],
+      prevRev.split('-')[1]
+    ]
+  };
+  db.put(newDoc, {new_edits: false}, callback);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  var Pouch = require('../src/pouch.js');
+  Pouch = require('../src/pouch.js');
   module.exports = {
     makeDocs: makeDocs,
+    makeBlob: makeBlob,
+    readBlob: readBlob,
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,
     generateAdapterUrl: generateAdapterUrl,
+    putAfter: putAfter,
     PERSIST_DATABASES: PERSIST_DATABASES
-  }
+  };
 }

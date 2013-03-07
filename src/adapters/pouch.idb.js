@@ -51,6 +51,8 @@ var IdbPouch = function(opts, callback) {
   var ATTACH_STORE = 'attach-store';
   // Where we store meta data
   var META_STORE = 'meta-store';
+  // Where we detect blob support
+  var DETECT_BLOB_SUPPORT_STORE = 'detect-blob-support'
 
 
   var name = opts.name;
@@ -60,13 +62,9 @@ var IdbPouch = function(opts, callback) {
     updateSeq: 0,
   };
 
+  var blobSupport = null;
+
   var instanceId = null;
-
-  // var storeAttachmentsInIDB = !(window.storageInfo && window.requestFileSystem);
-  // We cant store attachments on the filesystem due to a limitation in the
-  // indexeddb api, it will close a transaction when we yield to the event loop
-  var storeAttachmentsInIDB = true;
-
   var api = {};
   var idb = null;
 
@@ -83,13 +81,14 @@ var IdbPouch = function(opts, callback) {
       .createIndex('_rev', '_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
     db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
+    db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
   };
 
   req.onsuccess = function(e) {
 
     idb = e.target.result;
 
-    var txn = idb.transaction([META_STORE], IDBTransaction.READ_WRITE);
+    var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE], IDBTransaction.READ_WRITE);
 
     idb.onversionchange = function() {
       idb.close();
@@ -127,7 +126,16 @@ var IdbPouch = function(opts, callback) {
         meta[name + '_id'] = instanceId;
         reqDBId = txn.objectStore(META_STORE).put(meta);
       }
-      call(callback, null, api);
+
+      // detect blob support
+      try {
+        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(new Blob(), "key");
+        blobSupport = true;
+      } catch (e) {
+        blobSupport = false;
+      } finally {
+        call(callback, null, api);
+      }
     }
   };
 
@@ -143,19 +151,7 @@ var IdbPouch = function(opts, callback) {
     return instanceId;
   };
 
-  api.bulkDocs = function idb_bulkDocs(req, opts, callback) {
-
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    if (!opts) {
-      opts = {};
-    }
-
-    if (!req.docs) {
-      return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
-    }
+  api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
     var newEdits = 'new_edits' in opts ? opts.new_edits : true;
     var userDocs = extend(true, [], req.docs);
@@ -172,6 +168,13 @@ var IdbPouch = function(opts, callback) {
       }
       return newDoc;
     });
+
+    var docInfoErrors = docInfos.filter(function(docInfo) {
+      return docInfo.error;
+    });
+    if (docInfoErrors.length) {
+      return call(callback, docInfoErrors[0]);
+    }
 
     var results = [];
     var docs = [];
@@ -214,7 +217,7 @@ var IdbPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
-        var rev = winningRev(metadata);
+        var rev = Pouch.merge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -222,21 +225,71 @@ var IdbPouch = function(opts, callback) {
           rev: rev
         });
 
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return;
         }
 
-        var change = {
-          id: metadata.id,
-          seq: metadata.seq,
-          changes: collectLeaves(metadata.rev_tree),
-          doc: result.data
-        };
-        change.doc._rev = rev;
-
-        IdbPouch.Changes.emitChange(name, change);
+        IdbPouch.Changes.notify(name);
+        localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
       });
       call(callback, null, aresults);
+    }
+
+    function preprocessAttachment(att, callback) {
+      if (att.stub) {
+        return callback();
+      }
+      if (typeof att.data === 'string') {
+        var data = atob(att.data);
+        att.digest = 'md5-' + Crypto.MD5(data);
+        if (blobSupport) {
+          var type = att.content_type;
+          att.data = new Blob([data], {type: type});
+        }
+        return callback();
+      }
+      var reader = new FileReader();
+      reader.onloadend = function(e) {
+        att.digest = 'md5-' + Crypto.MD5(this.result);
+        if (!blobSupport) {
+          att.data = btoa(this.result);
+        }
+        callback();
+      };
+      reader.readAsBinaryString(att.data);
+    }
+
+    function preprocessAttachments(callback) {
+      if (!docInfos.length) {
+        return callback();
+      }
+
+      var docv = 0;
+      docInfos.forEach(function(docInfo) {
+        var attachments = docInfo.data && docInfo.data._attachments ?
+          Object.keys(docInfo.data._attachments) : [];
+
+        if (!attachments.length) {
+          return done();
+        }
+
+        var recv = 0;
+        for (var key in docInfo.data._attachments) {
+          preprocessAttachment(docInfo.data._attachments[key], function() {
+            recv++;
+            if (recv == attachments.length) {
+              done();
+            }
+          });
+        }
+      });
+      
+      function done() {
+        docv++;
+        if (docInfos.length === docv) {
+          callback();
+        }
+      }
     }
 
     function writeDoc(docInfo, callback) {
@@ -259,9 +312,8 @@ var IdbPouch = function(opts, callback) {
       for (var key in docInfo.data._attachments) {
         if (!docInfo.data._attachments[key].stub) {
           var data = docInfo.data._attachments[key].data;
-          var digest = 'md5-' + Crypto.MD5(data);
           delete docInfo.data._attachments[key].data;
-          docInfo.data._attachments[key].digest = digest;
+          var digest = docInfo.data._attachments[key].digest;
           saveAttachment(docInfo, digest, data, function(err) {
             recv++;
             collectResults(err);
@@ -305,6 +357,8 @@ var IdbPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
+      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
+
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
       var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
@@ -335,44 +389,41 @@ var IdbPouch = function(opts, callback) {
     }
 
     function saveAttachment(docInfo, digest, data, callback) {
-      if (storeAttachmentsInIDB) {
-        var objectStore = txn.objectStore(ATTACH_STORE);
-        var getReq = objectStore.get(digest).onsuccess = function(e) {
-          var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
-          var newAtt = {digest: digest, body: data};
+      var objectStore = txn.objectStore(ATTACH_STORE);
+      var getReq = objectStore.get(digest).onsuccess = function(e) {
+        var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
+        var newAtt = {digest: digest, body: data};
 
-          if (e.target.result) {
-            if (e.target.result.refs) {
-              // only update references if this attachment already has them
-              // since we cannot migrate old style attachments here without
-              // doing a full db scan for references
-              newAtt.refs = e.target.result.refs;
-              newAtt.refs[ref] = true;
-            }
-          } else {
-            newAtt.refs = {};
+        if (e.target.result) {
+          if (e.target.result.refs) {
+            // only update references if this attachment already has them
+            // since we cannot migrate old style attachments here without
+            // doing a full db scan for references
+            newAtt.refs = e.target.result.refs;
             newAtt.refs[ref] = true;
           }
+        } else {
+          newAtt.refs = {};
+          newAtt.refs[ref] = true;
+        }
 
-          var putReq = objectStore.put(newAtt).onsuccess = function(e) {
-            call(callback);
-          };
-          putReq.onerror = putReq.ontimeout = idbError(callback);
+        var putReq = objectStore.put(newAtt).onsuccess = function(e) {
+          call(callback);
         };
-        getReq.onerror = getReq.ontimeout = idbError(callback);
-      } else {
-        // right now fire and forget, needs cleaned
-        writeAttachmentToFile(digest,data);
-        call(callback);
-      }
+        putReq.onerror = putReq.ontimeout = idbError(callback);
+      };
+      getReq.onerror = getReq.ontimeout = idbError(callback);
     }
 
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE], IDBTransaction.READ_WRITE);
-    txn.onerror = idbError(callback);
-    txn.ontimeout = idbError(callback);
-    txn.oncomplete = complete;
+    var txn;
+    preprocessAttachments(function() {
+      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE], IDBTransaction.READ_WRITE);
+      txn.onerror = idbError(callback);
+      txn.ontimeout = idbError(callback);
+      txn.oncomplete = complete;
 
-    processDocs();
+      processDocs();
+    });
 
   };
 
@@ -382,28 +433,44 @@ var IdbPouch = function(opts, callback) {
 
   // First we look up the metadata in the ids database, then we fetch the
   // current revision(s) from the by sequence store
-  api.get = function idb_get(id, opts, callback) {
-
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
-    id = parseDocId(id);
-    if (id.attachmentId !== '') {
-      return api.getAttachment(id, {decode: true}, callback);
-    }
+  api._get = function idb_get(id, opts, callback) {
 
     var result;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
     txn.oncomplete = function() {
+      // Leaves are set when we ask about open_revs
+      // Using this approach they can be quite easily abstracted out to some
+      // generic api.get
+      if (leaves) {
+        result = [];
+        var count = leaves.length;
+        leaves.forEach(function(leaf){
+          api.get(id.docId, {rev: leaf}, function(err, doc){
+            if (!err) {
+              result.push({ok: doc});
+            } else {
+              result.push({missing: leaf});
+            }
+            count--;
+            if(!count) {
+              finish();
+            }
+          });
+        });
+      } else {
+        finish();
+      }
+    };
+
+    function finish() {
       if ('error' in result) {
         call(callback, result);
       } else {
         call(callback, null, result);
       }
-    };
+    }
 
+    var leaves;
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
       if (!e.target.result || (isDeleted(metadata, opts.rev) && !opts.rev)) {
@@ -411,13 +478,28 @@ var IdbPouch = function(opts, callback) {
         return;
       }
 
-      var rev = winningRev(metadata);
+      if (opts.open_revs) {
+        if (opts.open_revs === "all") {
+          leaves = collectLeaves(metadata.rev_tree).map(function(leaf){
+            return leaf.rev;
+          });
+        } else {
+          leaves = opts.open_revs; // should be some validation here
+        }
+        return; // open_revs can be used only with revs
+      }
+
+      var rev = Pouch.merge.winningRev(metadata);
       var key = opts.rev ? opts.rev : rev;
       var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
 
       index.get(key).onsuccess = function(e) {
         var doc = e.target.result;
-        if (opts.revs) {
+        if (!doc) {
+          result = Pouch.Errors.MISSING_DOC;
+          return;
+        }
+        if (opts.revs) { // FIXME: if rev is given it should return ids from root to rev (don't include newer)
           var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
             return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
           });
@@ -427,24 +509,23 @@ var IdbPouch = function(opts, callback) {
             ids: path.ids
           };
         }
-        if (opts.revs_info) {
+        if (opts.revs_info) { // FIXME: this returns revs for whole tree and should return only branch for winner
           doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
             return prev.concat(collectRevs(current));
           }, []);
         }
         if (opts.conflicts) {
-          var conflicts = collectConflicts(metadata.rev_tree);
+          var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
           if (conflicts.length) {
             doc._conflicts = conflicts;
           }
         }
-
         if (opts.attachments && doc._attachments) {
           var attachments = Object.keys(doc._attachments);
           var recv = 0;
 
           attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, {txn: txn}, function(err, data) {
+            api.getAttachment(doc._id + '/' + key, {encode: true, txn: txn}, function(err, data) {
               doc._attachments[key].data = data;
 
               if (++recv === attachments.length) {
@@ -464,15 +545,7 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  api.getAttachment = function(id, opts, callback) {
-    if (opts instanceof Function) {
-      callback = opts;
-      opts = {};
-    }
-    if (typeof id === 'string') {
-      id = parseDocId(id);
-    }
-
+  api._getAttachment = function(id, opts, callback) {
     var result;
     var txn;
 
@@ -493,161 +566,127 @@ var IdbPouch = function(opts, callback) {
         var digest = attachment.digest;
         var type = attachment.content_type
 
-        function postProcessDoc(data) {
-          if (opts.decode) {
-            data = atob(data);
-          }
-          return data;
-        }
+        txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+          var data = e.target.result.body;
+          if (opts.encode) {
+            if (blobSupport) {
+              var reader = new FileReader();
+              reader.onloadend = function(e) {
+                result = btoa(this.result);
 
-        if (storeAttachmentsInIDB) {
-          txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
-            var data = e.target.result.body;
-            result = postProcessDoc(data);
+                if ('txn' in opts) {
+                  call(callback, null, result);
+                }
+              }
+              reader.readAsBinaryString(data);
+            } else {
+              result = data;
+
+              if ('txn' in opts) {
+                call(callback, null, result);
+              }
+            }
+          } else {
+            if (blobSupport) {
+              result = data;
+            } else {
+              result = new Blob([atob(data)], {type: type});
+            }
             if ('txn' in opts) {
               call(callback, null, result);
             }
           }
-        } else {
-          // This will be buggy, it will cause the transaction to be closed
-          // as we will be returning to the event loop waiting on the file to
-          // read, switch back to idb asap
-          readAttachmentFromFile(digest, function(data) {
-            result = postProcessDoc(data);
-            if ('txn' in opts) {
-              call(callback, null, result);
-            }
-          });
         }
       };
     }
     return;
   }
 
-  api.put = function(doc, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
-    if (!doc || !('_id' in doc)) {
-      return call(callback, Pouch.Errors.MISSING_ID);
-    }
-    return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
-  }
-
-  api.post = function idb_put(doc, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    return api.bulkDocs({docs: [doc]}, opts, yankError(callback));
-  };
-
-  api.putAttachment = function idb_putAttachment(id, rev, doc, type, callback) {
-    id = parseDocId(id);
-    api.get(id.docId, {attachments: true}, function(err, obj) {
-      obj._attachments || (obj._attachments = {});
-      obj._attachments[id.attachmentId] = {
-        content_type: type,
-        data: btoa(doc)
-      }
-      api.put(obj, callback);
-    });
-  };
-
-  api.remove = function idb_remove(doc, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    opts.was_delete = true;
-    var newDoc = extend(true, {}, doc);
-    newDoc._deleted = true;
-    return api.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
-  };
-
-  api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
-    id = parseDocId(id);
-    api.get(id.docId, function(err, obj) {
-      if (err) {
-        call(callback, err);
-        return;
-      }
-
-      if (obj._rev != rev) {
-        call(callback, Pouch.Errors.REV_CONFLICT);
-        return;
-      }
-
-      obj._attachments || (obj._attachments = {});
-      delete obj._attachments[id.attachmentId];
-      api.put(obj, callback);
-    });
-  };
-
-  api.allDocs = function idb_allDocs(opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-
+  api._allDocs = function idb_allDocs(opts, callback) {
     var start = 'startkey' in opts ? opts.startkey : false;
     var end = 'endkey' in opts ? opts.endkey : false;
 
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
 
-    var keyRange = start && end ? IDBKeyRange.bound(start, end, false, false)
-      : start ? IDBKeyRange.lowerBound(start, true)
+    var keyRange = start && end ? IDBKeyRange.bound(start, end)
+      : start ? IDBKeyRange.lowerBound(start)
       : end ? IDBKeyRange.upperBound(end) : null;
 
-    var result;
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
-    transaction.oncomplete = function() { callback(null, result); };
+    transaction.oncomplete = function() {
+      if ('keys' in opts) {
+        opts.keys.forEach(function(key) {
+          if (key in resultsMap) {
+            results.push(resultsMap[key]);
+          } else {
+            results.push({"key": key, "error": "not_found"});
+          }
+        });
+        if (opts.descending) {
+          results.reverse();
+        }
+      }
+      call(callback, null, {
+        total_rows: results.length,
+        rows: results
+      });
+    };
 
     var oStore = transaction.objectStore(DOC_STORE);
     var oCursor = descending ? oStore.openCursor(keyRange, descending)
       : oStore.openCursor(keyRange);
     var results = [];
+    var resultsMap = {};
     oCursor.onsuccess = function(e) {
       if (!e.target.result) {
-        result = {
-          total_rows: results.length,
-          rows: results
-        };
         return;
       }
       var cursor = e.target.result;
+      var metadata = cursor.value;
+      // If opts.keys is set we want to filter here only those docs with
+      // key in opts.keys. With no performance tests it is difficult to
+      // guess if iteration with filter is faster than many single requests
       function allDocsInner(metadata, data) {
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
-        if (!isDeleted(metadata)) {
-          var doc = {
-            id: metadata.id,
-            key: metadata.id,
-            value: {
-              rev: winningRev(metadata)
-            }
-          };
-          if (opts.include_docs) {
-            doc.doc = data;
-            doc.doc._rev = winningRev(metadata);
-            if (opts.conflicts) {
-              doc.doc._conflicts = collectConflicts(metadata.rev_tree);
-            }
+        var doc = {
+          id: metadata.id,
+          key: metadata.id,
+          value: {
+            rev: Pouch.merge.winningRev(metadata)
           }
-          results.push(doc);
+        };
+        if (opts.include_docs) {
+          doc.doc = data;
+          doc.doc._rev = Pouch.merge.winningRev(metadata);
+          if (opts.conflicts) {
+            doc.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
+          }
+        }
+        if ('keys' in opts) {
+          if (opts.keys.indexOf(metadata.id) > -1) {
+            if (isDeleted(metadata)) {
+              doc.value.deleted = true;
+              doc.doc = null;
+            }
+            resultsMap[doc.id] = doc;
+          }
+        } else {
+          if(!isDeleted(metadata)) {
+            results.push(doc);
+          }
         }
         cursor['continue']();
       }
 
       if (!opts.include_docs) {
-        allDocsInner(cursor.value);
+        allDocsInner(metadata);
       } else {
-        var index = transaction.objectStore(BY_SEQ_STORE);
-        index.get(cursor.value.seq).onsuccess = function(event) {
+        var index = transaction.objectStore(BY_SEQ_STORE).index('_rev');
+        var mainRev = Pouch.merge.winningRev(metadata);
+        index.get(mainRev).onsuccess = function(event) {
           allDocsInner(cursor.value, event.target.result);
         };
       }
@@ -656,7 +695,7 @@ var IdbPouch = function(opts, callback) {
 
   // Looping through all the documents in the database is a terrible idea
   // easiest to implement though, should probably keep a counter
-  api.info = function idb_info(callback) {
+  api._info = function idb_info(callback) {
     var count = 0;
     var result;
     var txn = idb.transaction([DOC_STORE], 'readonly');
@@ -682,52 +721,32 @@ var IdbPouch = function(opts, callback) {
       };
   };
 
-  api.revsDiff = function idb_revsDiff(req, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    var ids = Object.keys(req);
-    var count = 0;
-    var missing = {};
-
-    function readDoc(err, doc, id) {
-      req[id].map(function(revId) {
-        var matches = function(x) { return x.rev !== revId; };
-        if (!doc || doc._revs_info.every(matches)) {
-          if (!missing[id]) {
-            missing[id] = {missing: []};
-          }
-          missing[id].missing.push(revId);
-        }
-      });
-
-      if (++count === ids.length) {
-        return call(callback, null, missing);
-      }
-    }
-
-    ids.map(function(id) {
-      api.get(id, {revs_info: true}, function(err, doc) {
-        readDoc(err, doc, id);
-      });
-    });
-  };
-
-  api.changes = function idb_changes(opts) {
-
-    if (!opts.seq) {
-      opts.seq = 0;
-    }
-    if (opts.since) {
-      opts.seq = opts.since;
-    }
-
+  api._changes = function idb_changes(opts) {
     if (Pouch.DEBUG)
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
+    opts = extend(true, {}, opts);
+    
+    if (!opts.since) opts.since = 0;
+
+    if (opts.continuous) {
+      opts.cancelled = false;
+      IdbPouch.Changes.addListener(name, id, api, opts);
+      IdbPouch.Changes.notify(name);
+      return {
+        cancel: function() {
+          if (Pouch.DEBUG) console.log(name + ': Cancel Changes Feed');
+          opts.cancelled = true;
+          IdbPouch.Changes.removeListener(name, id);
+        }
+      };
+    }
+
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
+
+    // Ignore the `since` parameter when `descending` is true
+    opts.since = opts.since && !descending ? opts.since : 0;
 
     var results = [], resultIndices = {}, dedupResults = [];
     var id = name + ':' + Math.uuid();
@@ -750,19 +769,15 @@ var IdbPouch = function(opts, callback) {
       txn.oncomplete = onTxnComplete;
       var req = descending
         ? txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true), descending)
+          .openCursor(IDBKeyRange.lowerBound(opts.since, true), descending)
         : txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.seq, true));
+          .openCursor(IDBKeyRange.lowerBound(opts.since, true));
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }
 
     function onsuccess(event) {
       if (!event.target.result) {
-        if (opts.continuous && !opts.cancelled) {
-          IdbPouch.Changes.addListener(name, id, opts);
-        }
-
         // Filter out null results casued by deduping
         for (var i = 0, l = results.length; i < l; i++ ) {
           var result = results[i];
@@ -786,11 +801,11 @@ var IdbPouch = function(opts, callback) {
       var index = txn.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
         var metadata = event.target.result;
-        if (/_local/.test(metadata.id)) {
+        if (isLocalId(metadata.id)) {
           return cursor['continue']();
         }
 
-        var mainRev = winningRev(metadata);
+        var mainRev = Pouch.merge.winningRev(metadata);
         var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
         index.get(mainRev).onsuccess = function(docevent) {
           var doc = docevent.target.result;
@@ -809,7 +824,7 @@ var IdbPouch = function(opts, callback) {
             change.deleted = true;
           }
           if (opts.conflicts) {
-            change.doc._conflicts = collectConflicts(metadata.rev_tree);
+            change.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
           }
 
           // Dedupe the changes feed
@@ -834,164 +849,17 @@ var IdbPouch = function(opts, callback) {
         }
         call(opts.onChange, c);
       });
-      if (!opts.continuous || (opts.continuous && !opts.cancelled)) {
-        call(opts.complete, null, {results: dedupResults});
-      }
+      call(opts.complete, null, {results: dedupResults});
     };
 
     function onerror(error) {
-      if (opts.continuous && !opts.cancelled) {
-        IdbPouch.Changes.addListener(name, id, opts);
-      }
-      else {
-        call(opts.complete);
-      }
+      // TODO: shouldn't we pass some params here?
+      call(opts.complete);
     };
-
-    if (opts.continuous) {
-      return {
-        cancel: function() {
-          if (Pouch.DEBUG)
-            console.log(name + ': Cancel Changes Feed');
-          opts.cancelled = true;
-          IdbPouch.Changes.removeListener(name, id);
-        }
-      }
-    }
+  
   };
 
-  api.replicate = {};
-
-  api.replicate.from = function idb_replicate_from(url, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(url, api, opts, callback);
-  };
-
-  api.replicate.to = function idb_replicate_to(dbName, opts, callback) {
-    if (typeof opts === 'function') {
-      callback = opts;
-      opts = {};
-    }
-    return Pouch.replicate(api, dbName, opts, callback);
-  };
-
-  // Functions for reading and writing an attachment in the html5 file system
-  // instead of idb
-  function toArray(list) {
-    return Array.prototype.slice.call(list || [], 0);
-  }
-  function fileErrorHandler(e) {
-    console.error('File system error',e);
-  }
-
-  //Delete attachments that are no longer referenced by any existing documents
-  function deleteOrphanedFiles(currentQuota){
-    api.allDocs({include_docs:true},function(err, response) {
-      window.requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
-      var dirReader = fs.root.createReader();
-      var entries = [];
-      var docRows = response.rows;
-
-      // Call the reader.readEntries() until no more results are returned.
-      var readEntries = function() {
-        dirReader.readEntries (function(results) {
-          if (!results.length) {
-            for (var i in entries){
-              var entryIsReferenced = false;
-              for (var k in docRows){
-                if (docRows[k].doc){
-                  var aDoc = docRows[k].doc;
-                  if (aDoc._attachments) {
-                    for (var j in aDoc._attachments) {
-                      if (aDoc._attachments[j].digest==entries[i].name) {
-                        entryIsReferenced = true;
-                      }
-                    };
-                  }
-                  if (entryIsReferenced) break;
-                }
-              };
-              if (!entryIsReferenced){
-                entries[i].remove(function() {
-                  if (Pouch.DEBUG)
-                    console.log("Removed orphaned attachment: "+entries[i].name);
-                }, fileErrorHandler);
-              }
-            };
-          } else {
-            entries = entries.concat(toArray(results));
-            readEntries();
-          }
-        }, fileErrorHandler);
-      };
-
-      readEntries(); // Start reading dirs.
-
-      }, fileErrorHandler);
-    });
-  }
-
-  function writeAttachmentToFile(digest, data, type){
-    //Check the current file quota and increase it if necessary
-    window.storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
-      var newQuota = currentQuota;
-      if (currentQuota == 0){
-        newQuota = 1000*1024*1024; //start with 1GB
-      }else if ((currentUsage/currentQuota) > 0.8){
-        deleteOrphanedFiles(currentQuota); //delete old attachments when we hit 80% usage
-      }else if ((currentUsage/currentQuota) > 0.9){
-        newQuota=2*currentQuota; //double the quota when we hit 90% usage
-      }
-
-      if (Pouch.DEBUG)
-        console.log("Current file quota: "+currentQuota+", current usage:"+currentUsage+", new quota will be: "+newQuota);
-
-      //Ask for file quota. This does nothing if the proper quota size has already been granted.
-      window.storageInfo.requestQuota(window.PERSISTENT, newQuota, function(grantedBytes) {
-        window.storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
-          window.requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
-            fs.root.getFile(digest, {create: true}, function(fileEntry) {
-              fileEntry.createWriter(function(fileWriter) {
-                fileWriter.onwriteend = function(e) {
-                  if (Pouch.DEBUG)
-                    console.log('Wrote attachment');
-                };
-                fileWriter.onerror = function(e) {
-                  console.error('File write failed: ' + e.toString());
-                };
-                var blob = new Blob([data], {type: type});
-                fileWriter.write(blob);
-              }, fileErrorHandler);
-            }, fileErrorHandler);
-          }, fileErrorHandler);
-        }, fileErrorHandler);
-      }, fileErrorHandler);
-    },fileErrorHandler);
-  }
-
-  function readAttachmentFromFile(digest, callback){
-    window.storageInfo.queryUsageAndQuota(window.PERSISTENT, function(currentUsage, currentQuota) {
-      window.requestFileSystem(window.PERSISTENT, currentQuota, function(fs){
-        fs.root.getFile(digest, {}, function(fileEntry) {
-          fileEntry.file(function(file) {
-            var reader = new FileReader();
-            reader.onloadend = function(e) {
-              data = this.result;
-              if (Pouch.DEBUG)
-                console.log("Read attachment");
-              callback(data);
-            };
-            reader.readAsBinaryString(file);
-          }, fileErrorHandler);
-        }, fileErrorHandler);
-      }, fileErrorHandler);
-    }, fileErrorHandler);
-  }
-
-  api.close = function(callback) {
+  api._close = function(callback) {
     if (idb === null) {
       return call(callback, Pouch.Errors.NOT_OPEN);
     }
@@ -1025,43 +893,6 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
   req.onerror = idbError(callback);
 };
 
-IdbPouch.Changes = (function() {
-
-  var api = {};
-  var listeners = {};
-
-  api.addListener = function(db, id, opts) {
-    if (!listeners[db]) {
-      listeners[db] = {};
-    }
-    listeners[db][id] = opts;
-  }
-
-  api.removeListener = function(db, id) {
-    delete listeners[db][id];
-  }
-
-  api.clearListeners = function(db) {
-    delete listeners[db];
-  }
-
-  api.emitChange = function(db, change) {
-    if (!listeners[db]) {
-      return;
-    }
-    for (var i in listeners[db]) {
-      var opts = listeners[db][i];
-      if (opts.filter && !opts.filter.apply(this, [change.doc])) {
-        return;
-      }
-      if (!opts.include_docs) {
-        delete change.doc;
-      }
-      opts.onChange.apply(opts.onChange, [change]);
-    }
-  }
-
-  return api;
-})();
+IdbPouch.Changes = Changes();
 
 Pouch.adapter('idb', IdbPouch);
