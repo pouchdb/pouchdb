@@ -34,7 +34,7 @@ if (!testFiles.length) {
 testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
-  'dev': ['../src/deps/uuid.js', '../src/deps/extend.js',
+  'dev': ['../src/deps/uuid.js', '../src/deps/extend.js', '../src/deps/ajax.js',
           '../src/pouch.js', '../src/pouch.adapter.js', '../src/pouch.merge.js', '../src/pouch.replicate.js',
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
@@ -42,8 +42,8 @@ var sourceFiles = {
           '../src/plugins/pouchdb.gql.js',
           '../src/plugins/pouchdb.mapreduce.js',
           '../src/plugins/pouchdb.spatial.js'],
-  'release': ['../dist/pouchdb-nightly.js', '../src/deps/extend.js'],
-  'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js']
+  'release': ['../dist/pouchdb-nightly.js', '../src/deps/extend.js', '../src/deps/ajax.js'],
+  'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js', '../src/deps/ajax.js']
 };
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
