@@ -13,8 +13,7 @@ if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
   utils = require('./test.utils.js');
-  ajax = Pouch.utils.ajax;
-
+  
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
