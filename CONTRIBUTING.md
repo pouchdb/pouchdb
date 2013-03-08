@@ -34,7 +34,7 @@ Building PouchDB
 All dependancies installed? great, now building PouchDB itself is a breeze:
 
     $ cd pouchdb
-    $ npm install -g grunt
+    $ npm install -g grunt-cli
     $ npm install
     $ grunt
 
