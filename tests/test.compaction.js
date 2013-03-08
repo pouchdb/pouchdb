@@ -58,9 +58,9 @@ asyncTest('Simple compation test', function() {
 
 // docs will be inserted one after another
 // starting from root
-var insertBranch = function(db, rootRev, docs, callback) {
+var insertBranch = function(db, docs, callback) {
   function insert(i) {
-    var prev = i > 0 ? docs[i-1]._rev : rootRev;
+    var prev = i > 0 ? docs[i-1]._rev : null;
     putAfter(db, docs[i], prev, function() {
       if (i < docs.length - 1) {
         insert(i+1);
@@ -88,40 +88,60 @@ var checkBranch = function(db, docs, callback) {
   check(0);
 };
 
+var checkTree = function(db, tree, callback) {
+  function check(i) {
+    checkBranch(db, tree[i], function() {
+      if (i < tree.length - 1) {
+        check(i + 1);
+      } else {
+        callback();
+      }
+    });
+  }
+  check(0);
+};
+
+var putTree = function(db, tree, callback) {
+  function insert(i) {
+    var branch = tree[i];
+    insertBranch(db, branch, function() {
+      if (i < tree.length - 1) {
+        insert(i+1);
+      } else {
+        callback();
+      }
+    });
+  }
+  insert(0);
+};
+
 asyncTest('Compact more complicated tree', function() {
   initTestDB(this.name, function(err, db) {
-    var root = 
-      {_id: "foo", _rev: "1-a", value: "foo a"};
-    var branch1 = [
-      {_id: "foo", _rev: "2-b", value: "foo b"},
-      {_id: "foo", _rev: "3-c", value: "foo c"}
+    var tree = [ 
+      [
+        {_id: "foo", _rev: "1-a", value: "foo a"},
+        {_id: "foo", _rev: "2-b", value: "foo b"},
+        {_id: "foo", _rev: "3-c", value: "foo c"}
+      ],
+      [
+        {_id: "foo", _rev: "1-a", value: "foo a"},
+        {_id: "foo", _rev: "2-d", value: "foo d"},
+        {_id: "foo", _rev: "3-e", value: "foo e"},
+        {_id: "foo", _rev: "4-f", value: "foo f"}
+      ],
+      [
+        {_id: "foo", _rev: "1-a", value: "foo a"},
+        {_id: "foo", _rev: "2-g", value: "foo g"},
+        {_id: "foo", _rev: "3-h", value: "foo h"},
+        {_id: "foo", _rev: "4-i", value: "foo i"},
+        {_id: "foo", _rev: "5-j", _deleted: true, value: "foo j"}
+      ]
     ];
-    var branch2 = [
-      {_id: "foo", _rev: "2-d", value: "foo d"},
-      {_id: "foo", _rev: "3-e", value: "foo e"},
-      {_id: "foo", _rev: "4-f", value: "foo f"}
-    ];
-    var branch3 = [
-      {_id: "foo", _rev: "2-g", value: "foo g"},
-      {_id: "foo", _rev: "3-h", value: "foo h"},
-      {_id: "foo", _rev: "4-i", value: "foo i"},
-      {_id: "foo", _rev: "5-j", _deleted: true, value: "foo j"}
-    ];
-    db.put(root, function() {
-      insertBranch(db, "1-a", branch1, function() {
-        insertBranch(db, "1-a", branch2, function() {
-          insertBranch(db, "1-a", branch3, function() {
-            db.compact(function() {
-              checkBranch(db, branch1, function() {
-                checkBranch(db, branch2, function() {
-                  checkBranch(db, branch3, function() {
-                    ok(1, "checks finished");
-                    start();
-                  });
-                });
-              });
-            });
-          });
+    putTree(db, tree, function() {
+      db.compact(function() {
+        checkTree(db, tree, function() {
+          ok(1, "checks finished");
+          start();
         });
       });
     });
