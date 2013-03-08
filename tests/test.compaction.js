@@ -136,6 +136,25 @@ var exampleTree = [
   ]
 ];
 
+var exampleTree2 = [
+  [
+    {_id: "bar", _rev: "1-m", value: "bar m"},
+    {_id: "bar", _rev: "2-n", value: "bar n"},
+    {_id: "bar", _rev: "3-o", _deleted: true, value: "foo o"}
+  ],
+  [
+    {_id: "bar", _rev: "2-n", value: "bar n"},
+    {_id: "bar", _rev: "3-p", value: "bar p"},
+    {_id: "bar", _rev: "4-r", value: "bar r"},
+    {_id: "bar", _rev: "5-s", value: "bar s"}
+  ],
+  [
+    {_id: "bar", _rev: "3-p", value: "bar p"},
+    {_id: "bar", _rev: "4-t", value: "bar t"},
+    {_id: "bar", _rev: "5-u", value: "bar u"}
+  ]
+];
+
 asyncTest('Compact more complicated tree', function() {
   initTestDB(this.name, function(err, db) {
     putTree(db, exampleTree, function() {
@@ -157,6 +176,23 @@ asyncTest('Compact two times more complicated tree', function() {
           checkTree(db, exampleTree, function() {
             ok(1, "checks finished");
             start();
+          });
+        });
+      });
+    });
+  });
+});
+
+asyncTest('Compact database with at least two documents', function() {
+  initTestDB(this.name, function(err, db) {
+    putTree(db, exampleTree, function() {
+      putTree(db, exampleTree2, function() {
+        db.compact(function() {
+          checkTree(db, exampleTree, function() {
+            checkTree(db, exampleTree2, function() {
+              ok(1, "checks finished");
+              start();
+            });
           });
         });
       });
