@@ -17,7 +17,8 @@ var srcFiles = [
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){
   return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
-    name !== 'test.spatial.js' && name !== 'test.auth_replication.js';
+    name !== 'test.spatial.js' && name !== 'test.auth_replication.js' &&
+    name !== 'test.gql.js';
 });
 
 var browserConfig = [{
@@ -80,6 +81,12 @@ module.exports = function(grunt) {
           "src/plugins/pouchdb.spatial.js"
         ]),
         dest: 'dist/pouchdb.spatial-nightly.js'
+      },
+      gql: {
+        src: grunt.util._.flatten([
+           srcFiles, "src/plugins/pouchdb.gql.js"
+        ]),
+        dest: 'dist/pouchdb.gql-nightly.js'
       }
     },
 
@@ -91,6 +98,10 @@ module.exports = function(grunt) {
       spatial: {
         src:  'dist/pouchdb.spatial-nightly.js',
         dest:  'dist/pouchdb.spatial-nightly.min.js'
+      },
+      gql: {
+        src:  'dist/pouchdb.gql-nightly.js',
+        dest:  'dist/pouchdb.gql-nightly.min.js'
       }
     },
 
@@ -259,5 +270,6 @@ module.exports = function(grunt) {
   grunt.registerTask("test", ["testSetup", "node-qunit" ,"saucelabs-qunit", "publish-results"]);
   grunt.registerTask("full", ["concat", "uglify"]);
   grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
+  grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
   grunt.registerTask('default', 'build');
 };
