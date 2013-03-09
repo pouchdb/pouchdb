@@ -164,4 +164,24 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Bulk with new_edits=false', function() {
+    initTestDB(this.name, function(err, db) {
+      var docs = [
+        {"_id":"foo","_rev":"2-x","_revisions":
+          {"start":2,"ids":["x","a"]}
+        },
+        {"_id":"foo","_rev":"2-y","_revisions":
+          {"start":2,"ids":["y","a"]}
+        }
+      ];
+      db.bulkDocs({docs: docs}, {new_edits: false}, function(err, res){
+        //ok(res.length === 0, "empty array returned");
+        db.get("foo", {open_revs: "all"}, function(err, res){
+          ok(res[0].ok._rev === "2-x", "doc1 ok");
+          ok(res[1].ok._rev === "2-y", "doc2 ok");
+          start();
+        });
+      });
+    });
+  });
 });

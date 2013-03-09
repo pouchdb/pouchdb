@@ -1,4 +1,4 @@
-/*globals extend: false */
+/*globals extend: false, Buffer: false */
 "use strict";
 
 var PERSIST_DATABASES = true;
@@ -116,6 +116,7 @@ function putAfter(db, doc, prevRev, callback){
 if (typeof module !== 'undefined' && module.exports) {
   Pouch = require('../src/pouch.js');
   module.exports = {
+    uuid: uuid,
     makeDocs: makeDocs,
     makeBlob: makeBlob,
     readBlob: readBlob,

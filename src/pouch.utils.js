@@ -248,42 +248,6 @@ var collectConflicts = function(revs, deletions) {
   return leaves.map(function(x) { return x.rev; });
 };
 
-var fetchCheckpoint = function(src, target, opts, callback) {
-  var filter_func = '';
-  if (typeof opts.filter !== "undefined") {
-    filter_func = opts.filter.toString();
-  }
-
-  var id = Crypto.MD5(src.id() + target.id() + filter_func);
-  src.get('_local/' + id, function(err, doc) {
-    if (err && err.status === 404) {
-      callback(0);
-    } else {
-      callback(doc.last_seq);
-    }
-  });
-};
-
-var writeCheckpoint = function(src, target, opts, checkpoint, callback) {
-  var filter_func = '';
-  if (typeof opts.filter !== "undefined") {
-    filter_func = opts.filter.toString();
-  }
-
-  var check = {
-    _id: '_local/' + Crypto.MD5(src.id() + target.id() + filter_func),
-    last_seq: checkpoint
-  };
-  src.get(check._id, function(err, doc) {
-    if (doc && doc._rev) {
-      check._rev = doc._rev;
-    }
-    src.put(check, function(err, doc) {
-      callback();
-    });
-  });
-};
-
 // returns first element of arr satisfying callback predicate
 var arrayFirst = function(arr, callback) {
   for (var i = 0; i < arr.length; i++) {
@@ -376,8 +340,6 @@ if (typeof module !== 'undefined' && module.exports) {
     collectRevs: collectRevs,
     collectLeaves: collectLeaves,
     collectConflicts: collectConflicts,
-    fetchCheckpoint: fetchCheckpoint,
-    writeCheckpoint: writeCheckpoint,
     arrayFirst: arrayFirst,
     filterChange: filterChange,
     atob: function(str) {
@@ -389,7 +351,7 @@ if (typeof module !== 'undefined' && module.exports) {
     extend: extend,
     ajax: ajax,
     traverseRevTree: traverseRevTree,
-    rootToLeaf: rootToLeaf,
+    rootToLeaf: rootToLeaf
   };
 }
 

@@ -3,18 +3,6 @@
 (function (){ 
   "use strict";
 
-  // This is the first implementation of a basic plugin, we register the
-  // plugin object with pouch and it is mixin'd to each database created
-  // (regardless of adapter), adapters can override plugins by providing
-  // their own implementation. functions on the plugin object that start
-  // with _ are reserved function that are called by pouchdb for special
-  // notifications.
-
-  // If we wanted to store incremental views we can do it here by listening
-  // to the changes feed (keeping track of our last update_seq between page loads)
-  // and storing the result of the map function (possibly using the upcoming
-  // extracted adapter functions)
-
   var GQL= function(db) {
 
     var viewQuery= function(query, options) {
