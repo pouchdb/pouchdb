@@ -244,6 +244,10 @@ var PouchAdapter = function(opts, callback) {
       return call(callback, Pouch.Errors.QUERY_PARSE_ERROR);
     }
 
+    if (!('new_edits' in opts)) {
+      opts.new_edits = true;
+    }
+
     return customApi._bulkDocs(req, opts, callback);
   };
 

@@ -153,7 +153,7 @@ var IdbPouch = function(opts, callback) {
 
   api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
-    var newEdits = 'new_edits' in opts ? opts.new_edits : true;
+    var newEdits = opts.new_edits;
     var userDocs = extend(true, [], req.docs);
 
     // Parse the docs, give them a sequence number for the result
@@ -184,7 +184,7 @@ var IdbPouch = function(opts, callback) {
       if (docInfo.error) {
         return results.push(docInfo);
       }
-      if (!docs.length || docInfo.metadata.id !== docs[0].metadata.id) {
+      if (!docs.length || !newEdits || docInfo.metadata.id !== docs[0].metadata.id) {
         return docs.unshift(docInfo);
       }
       // We mark subsequent bulk docs with a duplicate id as conflicts
