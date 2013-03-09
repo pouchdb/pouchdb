@@ -156,7 +156,21 @@ module.exports = function(grunt) {
       all: {
         deps: ['./src/deps/extend.js','./src/deps/ajax.js','./src/pouch.js'],
         code: './src/adapters/pouch.leveldb.js',
-        tests: testFiles.map(function (n) { return "./tests/" + n; }),
+        tests: (function() {
+          var testFilesToRun = testFiles;
+
+          // takes in an optional --test=<regex> flag
+          // to allow running specific test files
+          var testFileRegex = grunt.option('test');
+          if (testFileRegex) {
+            testFilesToRun = testFilesToRun.filter(function (n) {
+              return new RegExp(testFileRegex, "i").test(n);
+            });
+          }
+          return testFilesToRun.map(function (n) {
+            return "./tests/" + n;
+          });
+        })(),
         done: function(err, res) {
           !err && (testResults['node'] = res);
           return true;
