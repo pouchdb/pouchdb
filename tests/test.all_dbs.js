@@ -17,6 +17,13 @@ if (typeof module !== undefined && module.exports) {
   qunit = QUnit.module;
 }
 
+// async method takes an array of functions of signature:
+// `function(cb) {}`
+// each function is called and `callback` is called when all functions are done.
+// each function calls `cb` to signal completion
+// cb is called with error as the first arguments (if any)
+// Once all functions are completed (or upon err)
+// callback is called `callback(err)`
 function async(functions, callback) {
   callback = callback || function() {};
 
