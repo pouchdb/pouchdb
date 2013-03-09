@@ -351,7 +351,7 @@ if (typeof module !== 'undefined' && module.exports) {
     extend: extend,
     ajax: ajax,
     traverseRevTree: traverseRevTree,
-    rootToLeaf: rootToLeaf,
+    rootToLeaf: rootToLeaf
   };
 }
 

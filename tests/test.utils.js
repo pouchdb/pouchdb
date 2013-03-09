@@ -1,4 +1,4 @@
-/*globals extend: false */
+/*globals extend: false, Buffer: false */
 "use strict";
 
 var PERSIST_DATABASES = true;

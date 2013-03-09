@@ -1,7 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true */
-/*globals Pouch, QUnit, uuid, asyncTest, ok, start*/
+/*globals Pouch: true, QUnit, uuid, asyncTest, ok, start*/
 "use strict";
 
 var qunit = module;
