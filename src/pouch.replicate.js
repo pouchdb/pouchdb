@@ -1,4 +1,4 @@
-/*globals call: false */
+/*globals call: false, Crypto: false*/
 
 'use strict';
 
@@ -41,14 +41,14 @@ var RequestManager = function() {
     processing = true;
     var task = queue.shift();
     task.fun.apply(null, task.args);
-  }
+  };
 
   // We need to be notified whenever a request is complete to process
   // the next request
   api.notifyRequestComplete = function() {
     processing = false;
     api.process();
-  }
+  };
 
   return api;
 };
@@ -58,7 +58,7 @@ var RequestManager = function() {
 var genReplicationId = function(src, target, opts) {
   var filterFun = opts.filter ? opts.filter.toString() : '';
   return '_local/' + Crypto.MD5(src.id() + target.id() + filterFun);
-}
+};
 
 // A checkpoint lets us restart replications from when they were last cancelled
 var fetchCheckpoint = function(src, id, callback) {
@@ -151,10 +151,12 @@ function replicate(src, target, opts, promise) {
       return;
     }
 
-    for (var id in diffs) {
-      diffs[id].missing.forEach(function(rev) {
+    var _enqueuer = function (rev) {
         requests.enqueue(eachRev, [id, rev]);
-      });
+    };
+
+    for (var id in diffs) {
+      diffs[id].missing.forEach(_enqueuer);
     }
   }
 
@@ -224,7 +226,7 @@ function replicate(src, target, opts, promise) {
     }
   });
 
-};
+}
 
 function toPouch(db, callback) {
   if (typeof db === 'string') {
