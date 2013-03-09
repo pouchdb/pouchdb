@@ -110,10 +110,7 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      files: ["src/adapter/*.js", "tests/*.js", "src/*.js"]
-    },
-
-    jshint: {
+      files: ["src/adapter/*.js", "tests/*.js", "src/*.js"],
       options: {
         curly: true,
         eqeqeq: true,
@@ -126,32 +123,32 @@ module.exports = function(grunt) {
         eqnull: true,
         browser: true,
         strict: true,
-        globalstrict: true
-      },
-      globals: {
-        // Tests.
-        _: true,
-        QUnit: true,
-        asyncTest: true,
-        test: true,
-        DB: true,
-        deepEqual: true,
-        equal: true,
-        expect: true,
-        fail: true,
-        module: true,
-        nextTest: true,
-        notEqual: true,
-        ok: true,
-        sample: true,
-        start: true,
-        stop: true,
-        unescape: true,
-        process: true,
-        global: true,
-        require: true,
-        console: true,
-        Pouch: true
+        globalstrict: true,
+        globals: {
+          // Tests.
+          _: true,
+          QUnit: true,
+          asyncTest: true,
+          test: true,
+          DB: true,
+          deepEqual: true,
+          equal: true,
+          expect: true,
+          fail: true,
+          module: true,
+          nextTest: true,
+          notEqual: true,
+          ok: true,
+          sample: true,
+          start: true,
+          stop: true,
+          unescape: true,
+          process: true,
+          global: true,
+          require: true,
+          console: true,
+          Pouch: true
+        }
       }
     },
 

@@ -1,6 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
+/*globals readBlob: false, makeBlob: false */
 
 "use strict";
 
@@ -87,7 +88,7 @@ adapters.map(function(adapter) {
                   readBlob(res, function(data) {
                     equal(data, '', 'Correct data returned');
                     moreTests(rev.rev);
-                  })
+                  });
                 });
               });
             });
