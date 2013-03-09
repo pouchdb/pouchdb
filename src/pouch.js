@@ -140,7 +140,6 @@ Pouch.destroy = function(name, callback) {
     }
     // check if db has been registered in Pouch.ALL_DBS
     var dbname = Pouch.DBName(opts.adapter, opts.name);
-    console.log(dbname);
     db.get(dbname, function(err, doc) {
       if (err) {
         if (err.status === 404) {
