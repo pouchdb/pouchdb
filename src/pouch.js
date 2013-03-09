@@ -210,7 +210,18 @@ Pouch.open = function(adapter, name, callback) {
 Pouch._all_dbs = function(callback) {
   var accumulate = function(adapters, all_dbs) {
     if (adapters.length === 0) {
-      callback(null, all_dbs);
+      // remove duplicates
+      var result = [];
+      all_dbs.forEach(function(doc) {
+        var exists = result.some(function(db) {
+          return db.id === doc.id;
+        });
+
+        if (!exists) {
+          result.push(doc);
+        }
+      });
+      callback(null, result);
       return;
     }
 
