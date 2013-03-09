@@ -1,3 +1,6 @@
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals PERSIST_DATABASES: false */
+
 "use strict";
 
 var adapters = ['local-1'];
@@ -6,14 +9,14 @@ var qunit = module;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js')
-  , LevelPouch = require('../src/adapters/pouch.leveldb.js')
-  , utils = require('./test.utils.js');
+  var Pouch = require('../src/pouch.js'),
+  LevelPouch = require('../src/adapters/pouch.leveldb.js'),
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
   }
-  adapters = ['leveldb-1', 'http-1']
+  adapters = ['leveldb-1', 'http-1'];
   qunit = QUnit.module; }
 
 adapters.map(function(adapter) { 
@@ -34,7 +37,7 @@ adapters.map(function(adapter) {
       what: "test" }]},{},
         function() {
           var queryFun = {
-            select: "*",
+            select: "*"
           };
           db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
@@ -55,7 +58,7 @@ adapters.map(function(adapter) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
-            select: "foo",
+            select: "foo"
           };
           db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
@@ -74,7 +77,7 @@ adapters.map(function(adapter) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
-            select: "foo, _id",
+            select: "foo, _id"
           };
           db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
@@ -94,7 +97,7 @@ adapters.map(function(adapter) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
-            select: "foo, what, _id",
+            select: "foo, what, _id"
           };
           db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 2, "Correct number of rows");
@@ -321,7 +324,7 @@ adapters.map(function(adapter) {
   asyncTest("Test where math", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmander: 24, charmeleon: 2, haunter:true},
-      {charizard: 40, charmeleon: .5, charmander: 50}, 
+      {charizard: 40, charmeleon: 0.5, charmander: 50},
       {charizard: 7, charmeleon: 20, charmander: 15}]},{},
         function() {
           var queryFun = {
@@ -344,7 +347,7 @@ adapters.map(function(adapter) {
       db.bulkDocs({docs: [{charizard: 50}, {charizard: 40}, {charizard: 7}]},{},
         function() {
           var queryFun = {
-            select: "max(charizard), min(charizard), average(charizard), count(charizard), sum(charizard)",
+            select: "max(charizard), min(charizard), average(charizard), count(charizard), sum(charizard)"
           };
           db.gql(queryFun, function(_, res) {
             equal(res.rows.length, 1, "Correct number of rows");
