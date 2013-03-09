@@ -107,6 +107,7 @@ function replicate(src, target, opts, promise) {
     requests.notifyRequestComplete();
     if (opts.onChange) {
       for (var i = 0; i < len; i++) {
+        /*jshint validthis:true */
         opts.onChange.apply(this, [result]);
       }
     }
