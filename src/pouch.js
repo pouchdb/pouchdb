@@ -30,30 +30,48 @@ var Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = new PouchAdapter(opts, function(err, db) {
+  var that = this;
+  var cb = function(err) {
     if (err) {
       if (callback) {
         callback(err);
       }
       return;
     }
-    for (var plugin in Pouch.plugins) {
-      // In future these will likely need to be async to allow the plugin
-      // to initialise
-      var pluginObj = Pouch.plugins[plugin](db);
-      for (var api in pluginObj) {
-        // We let things like the http adapter use its own implementation
-        // as it shares a lot of code
-        if (!(api in db)) {
-          db[api] = pluginObj[api];
+
+    var adapter = new PouchAdapter(opts, function(err, db) {
+      if (err) {
+        if (callback) {
+          callback(err);
+        }
+        return;
+      }
+
+      for (var plugin in Pouch.plugins) {
+        // In future these will likely need to be async to allow the plugin
+        // to initialise
+        var pluginObj = Pouch.plugins[plugin](db);
+        for (var api in pluginObj) {
+          // We let things like the http adapter use its own implementation
+          // as it shares a lot of code
+          if (!(api in db)) {
+            db[api] = pluginObj[api];
+          }
         }
       }
+      callback(null, db);
+    });
+    for (var j in adapter) {
+      that[j] = adapter[j];
     }
-    callback(null, db);
-  });
+  };
 
-  for (var j in adapter) {
-    this[j] = adapter[j];
+  // Don't call Pouch.open for ALL_DBS
+  // Pouch.open saves the db's name into ALL_DBS
+  if (name === Pouch.allDBName(opts.adapter)) {
+    cb();
+  } else {
+    Pouch.open(opts.adapter, opts.name, cb);
   }
 };
 
@@ -88,13 +106,54 @@ Pouch.parseAdapter = function(name) {
   throw 'No valid adapter found';
 };
 
-
 Pouch.destroy = function(name, callback) {
-  for (var plugin in Pouch.plugins) {
-    Pouch.plugins[plugin]._delete(name);
-  }
   var opts = Pouch.parseAdapter(name);
-  Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+  var cb = function(err, response) {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    for (var plugin in Pouch.plugins) {
+      Pouch.plugins[plugin]._delete(name);
+    }
+    if (Pouch.DEBUG) {
+      console.log(name + ': Delete Database');
+    }
+
+    // call destroy method of the particular adaptor
+    Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+  };
+
+  // skip http and https adaptors for _all_dbs
+  var adapter = opts.adapter;
+  if (adapter === "http" || adapter === "https") {
+    cb();
+    return;
+  }
+
+  // remove db from Pouch.ALL_DBS
+  new Pouch(Pouch.allDBName(opts.adapter), function(err, db) {
+    if (err) {
+      callback(err);
+      return;
+    }
+    // check if db has been registered in Pouch.ALL_DBS
+    var dbname = Pouch.DBName(opts.adapter, opts.name);
+    db.get(dbname, function(err, doc) {
+      if (err) {
+        if (err.status === 404) {
+          cb();
+        } else {
+          cb(err);
+        }
+      } else {
+        db.remove(doc, function(err, response) {
+            cb(err);
+        });
+      }
+    });
+  });
 };
 
 Pouch.adapter = function (id, obj) {
@@ -105,6 +164,102 @@ Pouch.adapter = function (id, obj) {
 
 Pouch.plugin = function(id, obj) {
   Pouch.plugins[id] = obj;
+};
+
+// name of database used to keep track of databases
+Pouch.ALL_DBS = "_all_dbs";
+Pouch.DBName = function(adapter, name) {
+  return [adapter, "-", name].join('');
+};
+Pouch.allDBName = function(adapter) {
+  return [adapter, "://", Pouch.ALL_DBS].join('');
+};
+
+Pouch.open = function(adapter, name, callback) {
+  // skip http and https adaptors for _all_dbs
+  if (adapter === "http" || adapter === "https") {
+    callback();
+    return;
+  }
+
+  new Pouch(Pouch.allDBName(adapter), function(err, db) {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    // check if db has been registered in Pouch.ALL_DBS
+    var dbname = Pouch.DBName(adapter, name);
+    db.get(dbname, function(err, response) {
+      if (err) {
+        if (err.status === 404) {
+          db.put({
+            _id: dbname
+          }, callback);
+        } else {
+          callback(err);
+        }
+      } else {
+        callback();
+      }
+    });
+  });
+};
+
+Pouch._all_dbs = function(callback) {
+  var accumulate = function(adapters, all_dbs) {
+    if (adapters.length === 0) {
+      // remove duplicates
+      var result = [];
+      all_dbs.forEach(function(doc) {
+        var exists = result.some(function(db) {
+          return db.id === doc.id;
+        });
+
+        if (!exists) {
+          result.push(doc);
+        }
+      });
+      callback(null, result);
+      return;
+    }
+
+    var adapter = adapters.shift();
+
+    // skip http and https adaptors for _all_dbs
+    if (adapter === "http" || adapter === "https") {
+      accumulate(adapters, all_dbs);
+      return;
+    }
+
+    new Pouch(Pouch.allDBName(adapter), function(err, db) {
+      if (err) {
+        callback(err);
+        return;
+      }
+      db.allDocs({include_docs: true}, function(err, response) {
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        // append from current adapter rows
+        all_dbs.unshift.apply(all_dbs, response.rows);
+
+        // code to clear _all_dbs.
+        // response.rows.forEach(function(row) {
+        //   db.remove(row.doc, function() {
+        //     console.log(arguments);
+        //   });
+        // });
+
+        // recurse
+        accumulate(adapters, all_dbs);
+      });
+    });
+  };
+  var adapters = Object.keys(Pouch.adapters);
+  accumulate(adapters, []);
 };
 
 // Enumerate errors, add the status code so we can reflect the HTTP api
