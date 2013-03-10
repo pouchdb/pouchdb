@@ -20,13 +20,14 @@ if (!testFiles.length) {
                'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
                'test.merge_rev_tree.js',  'test.revs_diff.js',
                'test.replication.js', 'test.views.js',
-               'test.design_docs.js', 'test.issue221.js', 'test.http.js'];
+               'test.design_docs.js', 'test.issue221.js', 'test.http.js',
+               'test.gql.js'];
 
   // attachments dont run well on the ci server yet.
   // if there is a hash, it is because the git rev is put on the url as a hash
   // take that as a sign not to run the attachment tests
   if (!window.location.hash || window.location.hash.length === 0) {
-    testFiles.push('test.attachments.js');
+    //testFiles.push('test.attachments.js');
   }
 }
 
@@ -39,6 +40,7 @@ var sourceFiles = {
           '../src/pouch.collate.js', '../src/pouch.utils.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
           '../src/adapters/pouch.websql.js',
+          '../src/plugins/pouchdb.gql.js',
           '../src/plugins/pouchdb.mapreduce.js',
           '../src/plugins/pouchdb.spatial.js'],
   'release': ['../dist/pouchdb-nightly.js', '../src/deps/extend.js', '../src/deps/ajax.js'],
