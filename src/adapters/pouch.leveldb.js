@@ -776,6 +776,35 @@ LevelPouch = module.exports = function(opts, callback) {
     }
   };
 
+  // compaction internal functions
+  api._getRevisionTree = function(docId, callback){
+    stores[DOC_STORE].get(docId, function(err, metadata) {
+      callback(metadata.rev_tree);
+    });
+  };
+  
+  api._removeDocRevisions = function(docId, revs, callback) {
+    stores[DOC_STORE].get(docId, function(err, metadata) {
+      var seqs = metadata.rev_map; // map from rev to seq
+
+      function removeRev() { 
+        if (!revs.length) {
+          callback();
+          return;
+        }
+        var rev = revs.pop();
+        var seq = seqs[rev];
+
+        stores[BY_SEQ_STORE].del(seq, function(err) {
+          removeRev();
+        });
+      }
+
+      removeRev();
+    });
+  };
+  // end of compaction internal functions
+
   return api;
 }
 
