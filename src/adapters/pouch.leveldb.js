@@ -794,7 +794,10 @@ LevelPouch = module.exports = function(opts, callback) {
         }
         var rev = revs.pop();
         var seq = seqs[rev];
-
+        if (!seq) {
+          removeRev();
+          return;
+        }
         stores[BY_SEQ_STORE].del(seq, function(err) {
           removeRev();
         });
@@ -806,7 +809,7 @@ LevelPouch = module.exports = function(opts, callback) {
   // end of compaction internal functions
 
   return api;
-}
+};
 
 LevelPouch.valid = function() {
   return typeof module !== undefined && module.exports;
