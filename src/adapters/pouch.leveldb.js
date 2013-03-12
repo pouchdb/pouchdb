@@ -786,24 +786,25 @@ LevelPouch = module.exports = function(opts, callback) {
   api._removeDocRevisions = function(docId, revs, callback) {
     stores[DOC_STORE].get(docId, function(err, metadata) {
       var seqs = metadata.rev_map; // map from rev to seq
+      var count = revs.count;
 
-      function removeRev() { 
-        if (!revs.length) {
+      function done() {
+        count--;
+        if (!count) {
           callback();
-          return;
         }
-        var rev = revs.pop();
+      }
+
+      revs.forEach(function(rev) {
         var seq = seqs[rev];
         if (!seq) {
-          removeRev();
+          done();
           return;
         }
         stores[BY_SEQ_STORE].del(seq, function(err) {
-          removeRev();
+          done();
         });
-      }
-
-      removeRev();
+      });
     });
   };
   // end of compaction internal functions
