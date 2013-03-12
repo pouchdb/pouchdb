@@ -164,10 +164,11 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
+  // compact one document and fire callback
+  // by compacting we mean removing all revisions which
+  // are not leaves in revision tree
   var compactDocument = function(docId, callback) {
     customApi._getRevisionTree(docId, function(rev_tree){
-      console.log(rev_tree);
-
       var nonLeaves = [];
       traverseRevTree(rev_tree, function(isLeaf, pos, id) {
         var rev = pos + '-' + id;
@@ -175,10 +176,11 @@ var PouchAdapter = function(opts, callback) {
           nonLeaves.push(rev);
         }
       });
-      console.log('going to remove', docId, nonLeaves);
       customApi._removeDocRevisions(docId, nonLeaves, callback);
     });
   };
+  // compact the whole database using single document
+  // compaction
   api.compact = function(callback) {
     api.allDocs(function(err, res) {
       var count = res.rows.length;
