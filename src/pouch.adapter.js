@@ -1,4 +1,4 @@
-/*globals yankError: false, extend: false, call: false, parseDocId: false */
+/*globals yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false */
 
 "use strict";
 
