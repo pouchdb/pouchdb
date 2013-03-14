@@ -31,6 +31,21 @@ qunit('compaction: ' + adapter, {
   }
 });
 
+asyncTest('Compation document with no revisions to remove', function() {
+  initTestDB(this.name, function(err, db) {
+    var doc = {_id: "foo", value: "bar"};
+    db.put(doc, function(err, res) {
+      db.compact(function(){
+        ok(true, "compaction finished");
+        db.get("foo", function(err, doc) {
+          ok(!err, "document not deleted");
+          start();
+        });
+      });
+    });
+  });
+});
+
 asyncTest('Simple compation test', function() {
   initTestDB(this.name, function(err, db) {
     var doc = {_id: "foo", value: "bar"};
