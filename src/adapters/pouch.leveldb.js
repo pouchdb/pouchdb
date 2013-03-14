@@ -784,6 +784,9 @@ LevelPouch = module.exports = function(opts, callback) {
   };
   
   api._removeDocRevisions = function(docId, revs, callback) {
+    if (!revs.length) {
+      callback();
+    }
     stores[DOC_STORE].get(docId, function(err, metadata) {
       var seqs = metadata.rev_map; // map from rev to seq
       var count = revs.count;
