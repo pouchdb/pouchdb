@@ -46,6 +46,15 @@ asyncTest('Compation document with no revisions to remove', function() {
   });
 });
 
+asyncTest('Compation on empty db', function() {
+  initTestDB(this.name, function(err, db) {
+    db.compact(function(){
+      ok(true, "compaction finished");
+      start();
+    });
+  });
+});
+
 asyncTest('Simple compation test', function() {
   initTestDB(this.name, function(err, db) {
     var doc = {_id: "foo", value: "bar"};
