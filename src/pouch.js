@@ -78,6 +78,7 @@ var Pouch = function Pouch(name, opts, callback) {
         }
       }
     }
+  }
 
   // Don't call Pouch.open for ALL_DBS
   // Pouch.open saves the db's name into ALL_DBS
@@ -341,7 +342,6 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   Pouch.utils = require('./pouch.utils.js');
-  Pouch.taskQueue = require('./pouch.taskQueue.js');
   module.exports = Pouch;
 
   var PouchAdapter = require('./pouch.adapter.js');

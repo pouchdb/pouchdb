@@ -193,10 +193,6 @@ var MapReduce = function(db) {
   }
 
   function query(fun, opts, callback) {
-    //if (!db.taskqueue.ready()) {
-    //  db.taskqueue.addJob('query', arguments);
-    //}
-
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
