@@ -193,9 +193,9 @@ var MapReduce = function(db) {
   }
 
   function query(fun, opts, callback) {
-    if (!Pouch.taskqueue.ready) {
-      Pouch.taskqueue.addJob('query', arguments);
-    }
+    //if (!db.taskqueue.ready()) {
+    //  db.taskqueue.addJob('query', arguments);
+    //}
 
     if (typeof opts === 'function') {
       callback = opts;

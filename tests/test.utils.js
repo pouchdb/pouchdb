@@ -55,7 +55,8 @@ function readBlob(blob, callback) {
   }
 
 function openTestAsyncDB(name) {
-  return new Pouch(this.name, function(err) {
+  return new Pouch(name, function(err,db) {
+    console.log(db)
     if (err) {
       console.error(err);
       ok(false, 'failed to open database');
@@ -65,7 +66,7 @@ function openTestAsyncDB(name) {
 }
 
 function openTestDB(name, callback) {
-  new Pouch(name, function(err, db) {
+  new Pouch(name, function(err) {
     if (err) {
       console.error(err);
       ok(false, 'failed to open database');

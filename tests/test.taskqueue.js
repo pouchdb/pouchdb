@@ -56,12 +56,13 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Add a doc", 1, function() {
+  asyncTest("Query", 1, function() {
     var db = openTestAsyncDB(this.name);
     var queryFun = {
       map: function(doc) { emit(doc.key, doc); }
     };
     db.query(queryFun, { reduce: false, startkey: 'notfound' }, function (_, res) {
+      console.log(db.taskqueue.queue());
       equal(res.rows.length, 0);
       start();
     });
@@ -77,16 +78,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Get", 2, function() {
-    var db = openTestAsyncDB(this.name);
-
-    db.get('0', function(err, res) {
-      ok(err);
-      start();
-    });
-  });
-
-  asyncTest("Get", 2, function() {
+  asyncTest("Get", 1, function() {
     var db = openTestAsyncDB(this.name);
 
     db.get('0', function(err, res) {
@@ -100,7 +92,7 @@ adapters.map(function(adapter) {
 
     db.info(function(err, info) {
       ok(info.doc_count === 0);
-      ok(info.updateSeq === 0);
+      ok(info.update_seq === 0);
       start();
     });
   });

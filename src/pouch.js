@@ -66,7 +66,18 @@ var Pouch = function Pouch(name, opts, callback) {
     for (var j in adapter) {
       that[j] = adapter[j];
     }
-  };
+    for (var plugin in Pouch.plugins) {
+      // In future these will likely need to be async to allow the plugin
+      // to initialise
+      var pluginObj = Pouch.plugins[plugin](that);
+      for (var api in pluginObj) {
+        // We let things like the http adapter use its own implementation
+        // as it shares a lot of code
+        if (!(api in that)) {
+          that[api] = pluginObj[api];
+        }
+      }
+    }
 
   // Don't call Pouch.open for ALL_DBS
   // Pouch.open saves the db's name into ALL_DBS
