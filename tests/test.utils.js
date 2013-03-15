@@ -53,6 +53,15 @@ function readBlob(blob, callback) {
     };
     reader.readAsBinaryString(blob);
   }
+
+function openTestAsyncDB(name) {
+  return new Pouch(this.name + '_' + uuid(), function(err) {
+    if (err) {
+      console.error(err);
+      ok(false, 'failed to open database');
+      return start();
+    }
+  });
 }
 
 function openTestDB(name, callback) {
@@ -65,6 +74,7 @@ function openTestDB(name, callback) {
     callback.apply(this, arguments);
   });
 }
+
 
 function initTestDB(name, callback) {
   // ignore errors, the database might not exist

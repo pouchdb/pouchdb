@@ -19,7 +19,7 @@ if (!testFiles.length) {
   testFiles = ['test.basics.js', 'test.all_dbs.js', 'test.changes.js',
                'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
                'test.merge_rev_tree.js',  'test.revs_diff.js',
-               'test.replication.js', 'test.views.js',
+               'test.replication.js', 'test.views.js', 'test.taskqueue.js',
                'test.design_docs.js', 'test.issue221.js', 'test.http.js',
                'test.gql.js'];
 
@@ -37,7 +37,7 @@ var sourceFiles = {
   'dev': ['../src/deps/uuid.js', '../src/deps/extend.js', '../src/deps/ajax.js',
           '../src/pouch.js', '../src/pouch.adapter.js', '../src/pouch.merge.js',
           '../src/pouch.replicate.js',
-          '../src/pouch.collate.js', '../src/pouch.utils.js',
+          '../src/pouch.collate.js', '../src/pouch.utils.js', '../src/pouch.taskqueue.js',
           '../src/adapters/pouch.http.js', '../src/adapters/pouch.idb.js',
           '../src/adapters/pouch.websql.js',
           '../src/plugins/pouchdb.gql.js',

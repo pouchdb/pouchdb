@@ -59,6 +59,8 @@ var Pouch = function Pouch(name, opts, callback) {
           }
         }
       }
+      Pouch.taskqueue.ready = true;
+      Pouch.taskqueue.execute(db);
       callback(null, db);
     });
     for (var j in adapter) {
@@ -328,6 +330,7 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   Pouch.utils = require('./pouch.utils.js');
+  Pouch.taskQueue = require('./pouch.taskQueue.js');
   module.exports = Pouch;
 
   var PouchAdapter = require('./pouch.adapter.js');

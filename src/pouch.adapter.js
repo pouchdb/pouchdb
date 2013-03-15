@@ -9,6 +9,7 @@ var PouchAdapter = function(opts, callback) {
 
 
   var api = {};
+
   var customApi = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
       if (callback) {
@@ -22,6 +23,7 @@ var PouchAdapter = function(opts, callback) {
         db[j] = api[j];
       }
     }
+
     callback(err, db);
   });
 
@@ -159,6 +161,10 @@ var PouchAdapter = function(opts, callback) {
 
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
+    if (!Pouch.taskqueue.ready) {
+      Pouch.taskqueue.addJob('get', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
@@ -185,6 +191,10 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.allDocs = function(opts, callback) {
+    if (!Pouch.taskqueue.ready) {
+      Pouch.taskqueue.addJob('allDocs', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
@@ -228,6 +238,10 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.bulkDocs = function(req, opts, callback) {
+    if (!Pouch.taskqueue.ready) {
+      Pouch.taskqueue.addJob('bulkDocs', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};

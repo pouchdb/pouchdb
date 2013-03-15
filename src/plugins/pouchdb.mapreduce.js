@@ -39,7 +39,7 @@ var MapReduce = function(db) {
         id: current.doc._id,
         key: key,
         value: val
-      }; 
+      };
 
       if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
       if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
@@ -193,6 +193,10 @@ var MapReduce = function(db) {
   }
 
   function query(fun, opts, callback) {
+    if (!Pouch.taskqueue.ready) {
+      Pouch.taskqueue.addJob('query', arguments);
+    }
+
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
