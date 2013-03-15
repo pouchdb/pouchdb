@@ -391,6 +391,7 @@ var HttpPouch = function(opts, callback) {
     var url = genDBUrl(host, id);
     if (rev) {
       url += '?rev=' + rev;
+    }
 
     // Add the attachment
     ajax({

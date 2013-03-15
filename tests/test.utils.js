@@ -53,6 +53,7 @@ function readBlob(blob, callback) {
     };
     reader.readAsBinaryString(blob);
   }
+}
 
 function openTestAsyncDB(name) {
   return new Pouch(name, function(err,db) {

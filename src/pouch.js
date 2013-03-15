@@ -59,8 +59,8 @@ var Pouch = function Pouch(name, opts, callback) {
           }
         }
       }
-      Pouch.taskqueue.ready = true;
-      Pouch.taskqueue.execute(db);
+      db.taskqueue.ready(true);
+      db.taskqueue.execute(db);
       callback(null, db);
     });
     for (var j in adapter) {
