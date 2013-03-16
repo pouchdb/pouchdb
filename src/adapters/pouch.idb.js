@@ -56,6 +56,7 @@ var IdbPouch = function(opts, callback) {
 
 
   var name = opts.name;
+  console.log(name)
   var req = indexedDB.open(name, POUCH_VERSION);
   var meta = {
     id: 'meta-store',
@@ -74,6 +75,7 @@ var IdbPouch = function(opts, callback) {
   // TODO: before we release, make sure we write upgrade needed
   // in a way that supports a future upgrade path
   req.onupgradeneeded = function(e) {
+    console.log("upgrade")
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique: true});
@@ -85,6 +87,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   req.onsuccess = function(e) {
+    console.log("success")
 
     idb = e.target.result;
 
@@ -111,6 +114,7 @@ var IdbPouch = function(opts, callback) {
     var req = txn.objectStore(META_STORE).get('meta-store');
 
     req.onsuccess = function(e) {
+      console.log("meta-success")
       var reqDBId,
           result;
 
@@ -283,7 +287,7 @@ var IdbPouch = function(opts, callback) {
           });
         }
       });
-      
+
       function done() {
         docv++;
         if (docInfos.length === docv) {
@@ -726,7 +730,7 @@ var IdbPouch = function(opts, callback) {
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     opts = extend(true, {}, opts);
-    
+
     if (!opts.since) opts.since = 0;
 
     if (opts.continuous) {
@@ -856,7 +860,7 @@ var IdbPouch = function(opts, callback) {
       // TODO: shouldn't we pass some params here?
       call(opts.complete);
     };
-  
+
   };
 
   api._close = function(callback) {

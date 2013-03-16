@@ -31,50 +31,60 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Add a doc", 1, function() {
-    var db = openTestAsyncDB(this.name);
-    db.post({test:"somestuff"}, function (err, info) {
-      ok(!err, 'saved a doc with post');
-      start();
-    });
+    Pouch.destroy(this.name, function() {
+      var db = openTestAsyncDB(this.name);
+      db.post({test:"somestuff"}, function (err, info) {
+        ok(!err, 'saved a doc with post');
+        start();
+      });
+    })
   });
 
   asyncTest("Query", 1, function() {
-    var db = openTestAsyncDB(this.name);
-    var queryFun = {
-      map: function(doc) { }
-    };
-    db.query(queryFun, { reduce: false }, function (_, res) {
-      equal(res.rows.length, 0);
-      start();
-    });
+    Pouch.destroy(this.name, function() {
+      var db = openTestAsyncDB(this.name);
+      var queryFun = {
+        map: function(doc) { }
+      };
+      db.query(queryFun, { reduce: false }, function (_, res) {
+        equal(res.rows.length, 0);
+        start();
+      });
+    })
   });
 
   asyncTest("Bulk docs", 2, function() {
-    var db = openTestAsyncDB(this.name);
+    Pouch.destroy(this.name, function() {
+      var db = openTestAsyncDB(this.name);
 
-    db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
-      ok(!infos[0].error);
-      ok(!infos[1].error);
-      start();
-    });
+      db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
+        ok(!infos[0].error);
+        ok(!infos[1].error);
+        start();
+      });
+    })
   });
 
   asyncTest("Get", 1, function() {
-    var db = openTestAsyncDB(this.name);
+    Pouch.destroy(this.name, function() {
+      var db = openTestAsyncDB(this.name);
 
-    db.get('0', function(err, res) {
-      ok(err);
-      start();
-    });
+      db.get('0', function(err, res) {
+        ok(err);
+        start();
+      });
+    })
   });
 
   asyncTest("Info", 2, function() {
-    var db = openTestAsyncDB(this.name);
+    Pouch.destroy(this.name, function() {
+      var db = openTestAsyncDB(this.name);
 
-    db.info(function(err, info) {
-      ok(info.doc_count === 0);
-      ok(info.update_seq === 0);
-      start();
-    });
+      db.info(function(err, info) {
+        ok(info.doc_count === 0);
+        ok(info.update_seq === 0);
+        start();
+      });
+    })
   });
 });

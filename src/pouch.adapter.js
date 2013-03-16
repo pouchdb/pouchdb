@@ -25,6 +25,8 @@ var PouchAdapter = function(opts, callback) {
     }
   }
 
+  api.taskqueue.queue = function() { return taskqueue.queue }
+
   var customApi = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
       if (callback) {
@@ -38,7 +40,19 @@ var PouchAdapter = function(opts, callback) {
         db[j] = api[j];
       }
     }
-    callback(err, db);
+
+    // Don't call Pouch.open for ALL_DBS
+    // Pouch.open saves the db's name into ALL_DBS
+    console.log("comp")
+    console.log(Pouch.DBName(opts.adapter, opts.name))
+    console.log(Pouch.allDBName(opts.adapter))
+    if (opts.name === Pouch.ALL_DBS) {
+      console.log("calling callback")
+      callback(err, db);
+    } else {
+      console.log("opening all_db")
+      Pouch.open(opts.adapter, opts.name, function(aerr) { callback(aerr, db) });
+    }
   });
 
 
@@ -254,11 +268,11 @@ var PouchAdapter = function(opts, callback) {
     }
     return customApi._info(callback);
   };
-  
+
   api.id = function() {
     return customApi._id();
   };
-  
+
   api.type = function() {
     return (typeof customApi._type === 'function') ? customApi._type() : opts.adapter;
   };
