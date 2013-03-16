@@ -24,8 +24,7 @@ qunit("http-adapter", {
   },
   teardown: function() {
     if (!PERSIST_DATABASES) {
-      stop();
-      Pouch.destroy(this.name, function() { start(); });
+      Pouch.destroy(this.name);
     }
   }
 });

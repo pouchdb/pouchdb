@@ -21,11 +21,11 @@ adapters.map(function(adapter) {
   qunit("taskqueue: " + adapter, {
     setup: function() {
       this.name = generateAdapterUrl(adapter);
+      Pouch.destroy(this.name);
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
-        stop();
-        Pouch.destroy(this.name, function() { start(); });
+        Pouch.destroy(this.name);
       }
     }
   });

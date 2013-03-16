@@ -28,8 +28,7 @@ adapters.map(function(adapter) {
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
-        stop();
-        Pouch.destroy(this.name, function() { start(); });
+        Pouch.destroy(this.name);
       }
     }
   });
@@ -125,7 +124,7 @@ adapters.map(function(adapter) {
         var cnt = 0;
         db.query('foo/scores', {reduce: false}, function(err, result) {
           equal(result.rows.length, 1, 'Correct # of results');
-          if (cnt++ === 1) {
+          if (cnt++ === 1) { 
             start();
           }
         });

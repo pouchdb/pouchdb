@@ -28,8 +28,7 @@ adapters.map(function(adapter) {
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
-        stop();
-        Pouch.destroy(this.name, function() { start(); });
+        Pouch.destroy(this.name);
       }
     }
   });
@@ -131,7 +130,7 @@ adapters.map(function(adapter) {
       var search = window.location.search
         .replace(/[?&]testFiles=[^&]+/, '')
         .replace(/[?&]testNumber=[^&]+/, '')
-        .replace(/[?&]dbname=[^&]+/, '') +
+        .replace(/[?&]dbname=[^&]+/, '') + 
           '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
       initTestDB(this.name, function(err, db) {
         var count = 0;
@@ -141,7 +140,7 @@ adapters.map(function(adapter) {
             count += 1;
             equal(count, 1, 'Received a single change');
             changes.cancel();
-            if (tab) {
+            if (tab) { 
               tab.close();
             }
             start();
