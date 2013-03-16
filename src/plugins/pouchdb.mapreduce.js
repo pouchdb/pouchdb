@@ -203,11 +203,18 @@ var MapReduce = function(db) {
     }
 
     if (db.type() === 'http') {
-      return httpQuery(fun, opts, callback);
+	  if (typeof fun === 'function'){
+	    return httpQuery({map: fun}, opts, callback);
+	  }
+	  return httpQuery(fun, opts, callback);
     }
 
     if (typeof fun === 'object') {
       return viewQuery(fun, opts);
+    }
+
+    if (typeof fun === 'function') {
+      return viewQuery({map: fun}, opts);
     }
 
     var parts = fun.split('/');

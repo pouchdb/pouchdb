@@ -57,6 +57,30 @@ adapters.map(function(adapter) {
       });
     });
   });
+  
+  asyncTest("Test passing just a function", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {
+        var queryFun = function(doc) { emit(doc.foo, doc); };
+        db.get('volatile', function(_, doc) {
+          db.remove(doc, function(_, resp) {
+            db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+              equal(res.rows.length, 1, 'Dont include deleted documents');
+              res.rows.forEach(function(x, i) {
+                ok(x.id, 'emitted row has id');
+                ok(x.key, 'emitted row has key');
+                ok(x.value, 'emitted row has value');
+                ok(x.value._rev, 'emitted doc has rev');
+                ok(x.doc, 'doc included');
+                ok(x.doc && x.doc._rev, 'included doc has rev');
+              });
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
 
   asyncTest("Test opts.startkey/opts.endkey", function() {
     initTestDB(this.name, function(err, db) {
@@ -197,6 +221,18 @@ adapters.map(function(adapter) {
             emit('key', 'val');
           }
         };
+        db.query(queryFun, function(err, res) {
+          expect(0);
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("No reduce function, passing just a  function", function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({foo: 'bar'}, function(err, res) {
+        var queryFun = function(doc) { emit('key', 'val'); };
         db.query(queryFun, function(err, res) {
           expect(0);
           start();
