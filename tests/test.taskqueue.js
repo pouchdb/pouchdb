@@ -31,8 +31,9 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Add a doc", 1, function() {
-    Pouch.destroy(this.name, function() {
-      var db = openTestAsyncDB(this.name);
+    var name = this.name;
+    Pouch.destroy(name, function() {
+      var db = openTestAsyncDB(name);
       db.post({test:"somestuff"}, function (err, info) {
         ok(!err, 'saved a doc with post');
         start();
@@ -41,8 +42,9 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Query", 1, function() {
-    Pouch.destroy(this.name, function() {
-      var db = openTestAsyncDB(this.name);
+    var name = this.name;
+    Pouch.destroy(name, function() {
+      var db = openTestAsyncDB(name);
       var queryFun = {
         map: function(doc) { }
       };
@@ -54,8 +56,9 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Bulk docs", 2, function() {
-    Pouch.destroy(this.name, function() {
-      var db = openTestAsyncDB(this.name);
+    var name = this.name;
+    Pouch.destroy(name, function() {
+      var db = openTestAsyncDB(name);
 
       db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
         ok(!infos[0].error);
@@ -66,8 +69,9 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Get", 1, function() {
-    Pouch.destroy(this.name, function() {
-      var db = openTestAsyncDB(this.name);
+    var name = this.name;
+    Pouch.destroy(name, function() {
+      var db = openTestAsyncDB(name);
 
       db.get('0', function(err, res) {
         ok(err);
@@ -77,8 +81,9 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Info", 2, function() {
-    Pouch.destroy(this.name, function() {
-      var db = openTestAsyncDB(this.name);
+    var name = this.name;
+    Pouch.destroy(name, function() {
+      var db = openTestAsyncDB(name);
 
       db.info(function(err, info) {
         ok(info.doc_count === 0);
