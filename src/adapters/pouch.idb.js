@@ -56,7 +56,6 @@ var IdbPouch = function(opts, callback) {
 
 
   var name = opts.name;
-
   var req = indexedDB.open(name, POUCH_VERSION);
   var meta = {
     id: 'meta-store',
@@ -86,6 +85,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   req.onsuccess = function(e) {
+
     idb = e.target.result;
 
     var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE], IDBTransaction.READ_WRITE);
@@ -283,7 +283,7 @@ var IdbPouch = function(opts, callback) {
           });
         }
       });
-
+      
       function done() {
         docv++;
         if (docInfos.length === docv) {
@@ -726,7 +726,7 @@ var IdbPouch = function(opts, callback) {
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     opts = extend(true, {}, opts);
-
+    
     if (!opts.since) opts.since = 0;
 
     if (opts.continuous) {
@@ -856,7 +856,7 @@ var IdbPouch = function(opts, callback) {
       // TODO: shouldn't we pass some params here?
       call(opts.complete);
     };
-
+  
   };
 
   api._close = function(callback) {
