@@ -1,7 +1,7 @@
 
 "use strict"
 
-var adapters = ['http-1', 'local-1']
+var adapters = ['http-1', 'local-1'];
 
 var qunit = module;
 
