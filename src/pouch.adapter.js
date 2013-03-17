@@ -10,21 +10,6 @@ var PouchAdapter = function(opts, callback) {
 
   var api = {};
 
-  var taskqueue = {};
-
-  taskqueue.ready = false;
-  taskqueue.queue = [];
-
-  api.taskqueue = {};
-
-  api.taskqueue.execute = function (db) {
-    if (taskqueue.ready) {
-      taskqueue.queue.forEach(function(d) {
-        db[d.task].apply(null, d.parameters);
-      })
-    }
-  }
-
   var customApi = Pouch.adapters[opts.adapter](opts, function(err, db) {
     if (err) {
       if (callback) {
@@ -299,6 +284,20 @@ var PouchAdapter = function(opts, callback) {
   };
 
   /* End Wrappers */
+  var taskqueue = {};
+
+  taskqueue.ready = false;
+  taskqueue.queue = [];
+
+  api.taskqueue = {};
+
+  api.taskqueue.execute = function (db) {
+    if (taskqueue.ready) {
+      taskqueue.queue.forEach(function(d) {
+        db[d.task].apply(null, d.parameters);
+      })
+    }
+  }
 
   api.taskqueue.ready = function() {
     if (arguments.length === 0) {
