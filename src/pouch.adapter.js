@@ -29,7 +29,7 @@ var PouchAdapter = function(opts, callback) {
     if (opts.name === Pouch.ALL_DBS) {
       callback(err, db);
     } else {
-      Pouch.open(opts.adapter, opts.name, function(err) { callback(err, db) });
+      Pouch.open(opts.adapter, opts.name, function(err) { callback(err, db); });
     }
   });
 
@@ -295,20 +295,20 @@ var PouchAdapter = function(opts, callback) {
     if (taskqueue.ready) {
       taskqueue.queue.forEach(function(d) {
         db[d.task].apply(null, d.parameters);
-      })
+      });
     }
-  }
+  };
 
   api.taskqueue.ready = function() {
     if (arguments.length === 0) {
       return taskqueue.ready;
     }
     taskqueue.ready = arguments[0];
-  }
+  };
 
   api.taskqueue.addTask = function(task, parameters) {
     taskqueue.queue.push({ task: task, parameters: parameters });
-  }
+  };
 
   api.replicate = {};
 

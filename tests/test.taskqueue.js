@@ -1,5 +1,5 @@
 
-"use strict"
+"use strict";
 
 var adapters = ['http-1', 'local-1'];
 
@@ -38,7 +38,7 @@ adapters.map(function(adapter) {
         ok(!err, 'saved a doc with post');
         start();
       });
-    })
+    });
   });
 
   asyncTest("Query", 1, function() {
@@ -52,7 +52,7 @@ adapters.map(function(adapter) {
         equal(res.rows.length, 0);
         start();
       });
-    })
+    });
   });
 
   asyncTest("Bulk docs", 2, function() {
@@ -65,7 +65,7 @@ adapters.map(function(adapter) {
         ok(!infos[1].error);
         start();
       });
-    })
+    });
   });
 
   asyncTest("Get", 1, function() {
@@ -77,7 +77,7 @@ adapters.map(function(adapter) {
         ok(err);
         start();
       });
-    })
+    });
   });
 
   asyncTest("Info", 2, function() {
@@ -90,6 +90,6 @@ adapters.map(function(adapter) {
         ok(info.update_seq === 0);
         start();
       });
-    })
+    });
   });
 });
