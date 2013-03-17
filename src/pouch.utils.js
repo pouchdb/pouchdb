@@ -384,8 +384,8 @@ var Changes = function() {
 
   api.notify = function(db_name) {
     if (!listeners[db_name]) { return; }
-    for (var i in listeners[db_name]) {
-      /*jshint loopfunc: true */
+    
+    Object.keys(listeners[db_name]).forEach(function (i) {
       var opts = listeners[db_name][i].opts;
       listeners[db_name][i].db.changes({
         include_docs: opts.include_docs,
@@ -401,7 +401,7 @@ var Changes = function() {
           }
         }
       });
-    }
+    });
   };
 
   return api;

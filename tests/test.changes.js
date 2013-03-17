@@ -125,6 +125,39 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Multiple watchers", function() {
+    initTestDB(this.name, function(err, db) {
+      var count = 0;
+      function checkCount() {
+        equal(count, 2, 'Should have received exactly one change per listener');
+        start();
+      }
+      var changes1 = db.changes({
+        onChange: function(change) {
+          count += 1;
+          changes1.cancel();
+          changes1 = null;
+          if (!changes2) {
+            checkCount();
+          }
+        },
+        continuous: true
+      });
+      var changes2 = db.changes({
+        onChange: function(change) {
+          count += 1;
+          changes2.cancel();
+          changes2 = null;
+          if (!changes1) {
+            checkCount();
+          }
+        },
+        continuous: true
+      });
+      db.post({test:"adoc"});
+    });
+  });
+
   if (is_browser) {
     asyncTest("Continuous changes across windows", function() {
       var search = window.location.search
