@@ -20,7 +20,7 @@ var PouchAdapter = function(opts, callback) {
   api.taskqueue.execute = function (db) {
     if (taskqueue.ready) {
       taskqueue.queue.forEach(function(d) {
-        db[d.job].apply(null, d.parameters);
+        db[d.task].apply(null, d.parameters);
       })
     }
   }
@@ -183,7 +183,7 @@ var PouchAdapter = function(opts, callback) {
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addJob('get', arguments);
+      api.taskqueue.addTask('get', arguments);
       return;
     }
     if (typeof opts === 'function') {
@@ -213,7 +213,7 @@ var PouchAdapter = function(opts, callback) {
 
   api.allDocs = function(opts, callback) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addJob('allDocs', arguments);
+      api.taskqueue.addTask('allDocs', arguments);
       return;
     }
     if (typeof opts === 'function') {
@@ -240,7 +240,7 @@ var PouchAdapter = function(opts, callback) {
 
   api.changes = function(opts) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addJob('changes', arguments);
+      api.taskqueue.addTask('changes', arguments);
       return;
     }
     return customApi._changes(opts);
@@ -248,7 +248,7 @@ var PouchAdapter = function(opts, callback) {
 
   api.close = function(callback) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addJob('close', arguments);
+      api.taskqueue.addTask('close', arguments);
       return;
     }
     return customApi._close(callback);
@@ -256,7 +256,7 @@ var PouchAdapter = function(opts, callback) {
 
   api.info = function(callback) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addJob('info', arguments);
+      api.taskqueue.addTask('info', arguments);
       return;
     }
     return customApi._info(callback);
@@ -272,7 +272,7 @@ var PouchAdapter = function(opts, callback) {
 
   api.bulkDocs = function(req, opts, callback) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addJob('bulkDocs', arguments);
+      api.taskqueue.addTask('bulkDocs', arguments);
       return;
     }
     if (typeof opts === 'function') {
@@ -307,8 +307,8 @@ var PouchAdapter = function(opts, callback) {
     taskqueue.ready = arguments[0];
   }
 
-  api.taskqueue.addJob = function(job, parameters) {
-    taskqueue.queue.push({ job: job, parameters: parameters });
+  api.taskqueue.addTask = function(task, parameters) {
+    taskqueue.queue.push({ task: task, parameters: parameters });
   }
 
   api.replicate = {};
