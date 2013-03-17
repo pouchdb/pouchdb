@@ -9,6 +9,7 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 
 ### API Methods
 
+* [List all databases](#list_all_databases)
 * [Create a database](#create_a_database)
 * [Delete a database](#delete_a_database)
 * [Create a document](#create_a_document)
@@ -25,6 +26,38 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 * [Listen to database changes](#listen_to_database_changes)
 * [Replicate a database](#replicate_a_database)
 * [Get document revision diffs](#document_revisions_diff)
+
+## List all databases
+
+    Pouch._all_dbs(callback)
+
+Retrieves all databases from PouchDB.
+
+    Pouch._all_dbs(function(err, response) {
+        // Response:
+        // [
+        //    {
+        //      "doc": {
+        //        "_id": "idb-test",
+        //        "_rev": "1-1795609403689f4386a031145bcec277",
+        //        "dbname": "idb://test"
+        //      },
+        //      "id": "idb-test",
+        //      "key": "idb-test",
+        //      "value": Object
+        //    },
+        //    {
+        //      "doc": {
+        //        "_id": "idb-test2",
+        //        "_rev": "1-e4012976487ce83d664b4406b23d079a",
+        //        "dbname": "idb://test2"
+        //      },
+        //      "id": "idb-test2",
+        //      "key": "idb-test2",
+        //      "value": Object
+        //    }
+        // ]
+    })
 
 ## Create a database
 
