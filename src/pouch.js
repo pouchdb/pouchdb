@@ -171,6 +171,9 @@ Pouch.ALL_DBS = "_all_dbs";
 Pouch.DBName = function(adapter, name) {
   return [adapter, "-", name].join('');
 };
+Pouch.RealDBName = function(adapter, name) {
+  return [adapter, "://", name].join('');
+};
 Pouch.allDBName = function(adapter) {
   return [adapter, "://", Pouch.ALL_DBS].join('');
 };
@@ -194,7 +197,8 @@ Pouch.open = function(adapter, name, callback) {
       if (err) {
         if (err.status === 404) {
           db.put({
-            _id: dbname
+            _id: dbname,
+            dbname: Pouch.RealDBName(adapter, name)
           }, callback);
         } else {
           callback(err);
