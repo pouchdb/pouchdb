@@ -198,6 +198,10 @@ var HttpPouch = function(opts, callback) {
   };
 
   api.request = function(options, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('request', arguments);
+      return;
+    }
     options.auth = host.auth;
     options.url = genDBUrl(host, options.url);
     ajax(options, callback);
@@ -206,6 +210,10 @@ var HttpPouch = function(opts, callback) {
   // Sends a POST request to the host calling the couchdb _compact function
   //    version: The version of CouchDB it is running
   api.compact = function(callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('compact', arguments);
+      return;
+    }
     ajax({
       auth: host.auth,
       url: genDBUrl(host, '_compact'),
@@ -217,6 +225,10 @@ var HttpPouch = function(opts, callback) {
   //    couchdb: A welcome string
   //    version: The version of CouchDB it is running
   api.info = function(callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('info', arguments);
+      return;
+    }
     ajax({
       auth: host.auth,
       method:'GET',
@@ -228,6 +240,10 @@ var HttpPouch = function(opts, callback) {
   // The id could be solely the _id in the database, or it may be a
   // _design/ID or _local/ID path
   api.get = function(id, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('get', arguments);
+      return;
+    }
     // If no options were given, set the callback to the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -322,6 +338,10 @@ var HttpPouch = function(opts, callback) {
 
   // Delete the document given by doc from the database given by host.
   api.remove = function(doc, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('remove', arguments);
+      return;
+    }
     // If no options were given, set the callback to be the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -338,6 +358,10 @@ var HttpPouch = function(opts, callback) {
 
   // Remove the attachment given by the id and rev
   api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('removeAttachment', arguments);
+      return;
+    }
     ajax({
       auth: host.auth,
       method: 'DELETE',
@@ -349,6 +373,10 @@ var HttpPouch = function(opts, callback) {
   // to the document with the given id, the revision given by rev, and
   // add it to the database given by host.
   api.putAttachment = function(id, rev, blob, type, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('putAttachment', arguments);
+      return;
+    }
     if (typeof type === 'function') {
       callback = type;
       type = blob;
@@ -364,6 +392,7 @@ var HttpPouch = function(opts, callback) {
     if (rev) {
       url += '?rev=' + rev;
     }
+
     // Add the attachment
     ajax({
       auth: host.auth,
@@ -378,6 +407,10 @@ var HttpPouch = function(opts, callback) {
   // Add the document given by doc (in JSON string format) to the database
   // given by host. This fails if the doc has no _id field.
   api.put = function(doc, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('put', arguments);
+      return;
+    }
     // If no options were given, set the callback to be the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -417,6 +450,10 @@ var HttpPouch = function(opts, callback) {
   // given by host. This does not assume that doc is a new document (i.e. does not
   // have a _id or a _rev field.
   api.post = function(doc, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('post', arguments);
+      return;
+    }
     // If no options were given, set the callback to be the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -443,6 +480,10 @@ var HttpPouch = function(opts, callback) {
   // Update/create multiple documents given by req in the database
   // given by host.
   api.bulkDocs = function(req, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('bulkDocs', arguments);
+      return;
+    }
     // If no options were given, set the callback to be the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -474,6 +515,10 @@ var HttpPouch = function(opts, callback) {
   // by host and ordered by increasing id.
   api.allDocs = function(opts, callback) {
     // If no options were given, set the callback to be the second parameter
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('allDocs', arguments);
+      return;
+    }
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
@@ -544,6 +589,10 @@ var HttpPouch = function(opts, callback) {
   // TODO According to the README, there should be two other methods here,
   // api.changes.addListener and api.changes.removeListener.
   api.changes = function(opts) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('changes', arguments);
+      return;
+    }
 
     if (Pouch.DEBUG) {
       console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
@@ -702,6 +751,10 @@ var HttpPouch = function(opts, callback) {
   // those that do NOT correspond to revisions stored in the database.
   // See http://wiki.apache.org/couchdb/HttpPostRevsDiff
   api.revsDiff = function(req, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('revsDiff', arguments);
+      return;
+    }
     // If no options were given, set the callback to be the second parameter
     if (typeof opts === 'function') {
       callback = opts;
@@ -720,6 +773,10 @@ var HttpPouch = function(opts, callback) {
   };
 
   api.close = function(callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('close', arguments);
+      return;
+    }
     call(callback, null);
   };
 
