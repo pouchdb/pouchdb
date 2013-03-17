@@ -56,7 +56,7 @@ var IdbPouch = function(opts, callback) {
 
 
   var name = opts.name;
-  console.log(name)
+
   var req = indexedDB.open(name, POUCH_VERSION);
   var meta = {
     id: 'meta-store',
@@ -75,7 +75,6 @@ var IdbPouch = function(opts, callback) {
   // TODO: before we release, make sure we write upgrade needed
   // in a way that supports a future upgrade path
   req.onupgradeneeded = function(e) {
-    console.log("upgrade")
     var db = e.target.result;
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique: true});
@@ -87,8 +86,6 @@ var IdbPouch = function(opts, callback) {
   };
 
   req.onsuccess = function(e) {
-    console.log("success")
-
     idb = e.target.result;
 
     var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE], IDBTransaction.READ_WRITE);
@@ -114,7 +111,6 @@ var IdbPouch = function(opts, callback) {
     var req = txn.objectStore(META_STORE).get('meta-store');
 
     req.onsuccess = function(e) {
-      console.log("meta-success")
       var reqDBId,
           result;
 

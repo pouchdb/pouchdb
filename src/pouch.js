@@ -30,7 +30,6 @@ var Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var that = this;
   var adapter = new PouchAdapter(opts, function(err, db) {
     if (err) {
       if (callback) {
@@ -56,17 +55,17 @@ var Pouch = function Pouch(name, opts, callback) {
     callback(null, db);
   });
   for (var j in adapter) {
-    that[j] = adapter[j];
+    this[j] = adapter[j];
   }
   for (var plugin in Pouch.plugins) {
     // In future these will likely need to be async to allow the plugin
     // to initialise
-    var pluginObj = Pouch.plugins[plugin](that);
+    var pluginObj = Pouch.plugins[plugin](this);
     for (var api in pluginObj) {
       // We let things like the http adapter use its own implementation
       // as it shares a lot of code
-      if (!(api in that)) {
-        that[api] = pluginObj[api];
+      if (!(api in this)) {
+        this[api] = pluginObj[api];
       }
     }
   }
