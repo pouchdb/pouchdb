@@ -480,6 +480,11 @@ var IdbPouch = function(opts, callback) {
     var leaves;
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
+      // we can determine the result here if:
+      // 1. there is no such document
+      // 2. the document is deleted and we don't ask about specific rev
+      // When we ask with opts.rev we expect the answer to be either
+      // doc (possibly with _deleted=true) or missing error
       if (!e.target.result || (isDeleted(metadata, opts.rev) && !opts.rev)) {
         if (isDeleted(metadata, opts.rev)) {
           result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
