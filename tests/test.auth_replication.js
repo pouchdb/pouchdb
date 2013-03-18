@@ -29,7 +29,8 @@ qunit('auth_replication', {
   },
   teardown: function() {
     if (!PERSIST_DATABASES) {
-      Pouch.destroy(this.name);
+      stop();
+      Pouch.destroy(this.name, function() { start(); });
       Pouch.destroy(this.remote);
     }
   }
@@ -181,7 +182,7 @@ asyncTest("Replicate from DB as non-admin user", function() {
         console.error(err);
       }
       logout(function (err) {
-        if (err) { 
+        if (err) {
           console.error(err);
         }
         start();
@@ -202,7 +203,7 @@ asyncTest("Replicate from DB as non-admin user", function() {
     self.adminuser = adminuser;
 
     login('adminuser', 'password', function (err) {
-      if (err) { 
+      if (err) {
         console.error(err);
       }
         remote.bulkDocs({docs: docs}, {}, function(err, results) {

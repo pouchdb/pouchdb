@@ -36,7 +36,8 @@ adapters.map(function(adapters) {
     },
     teardown: function() {
       if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
+        stop();
+        Pouch.destroy(this.name, function() { start(); });
         Pouch.destroy(this.remote);
       }
     }
