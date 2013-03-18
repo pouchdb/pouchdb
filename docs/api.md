@@ -29,33 +29,15 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 
 ## List all databases
 
-    Pouch._all_dbs(callback)
+    Pouch.allDbs(callback)
 
 Retrieves all databases from PouchDB.
 
-    Pouch._all_dbs(function(err, response) {
+    Pouch.allDbs(function(err, response) {
         // Response:
         // [
-        //    {
-        //      "doc": {
-        //        "_id": "idb-test",
-        //        "_rev": "1-1795609403689f4386a031145bcec277",
-        //        "dbname": "idb://test"
-        //      },
-        //      "id": "idb-test",
-        //      "key": "idb-test",
-        //      "value": Object
-        //    },
-        //    {
-        //      "doc": {
-        //        "_id": "idb-test2",
-        //        "_rev": "1-e4012976487ce83d664b4406b23d079a",
-        //        "dbname": "idb://test2"
-        //      },
-        //      "id": "idb-test2",
-        //      "key": "idb-test2",
-        //      "value": Object
-        //    }
+        //    "idb://testdb",
+        //    "idb://testdb2"
         // ]
     })
 
