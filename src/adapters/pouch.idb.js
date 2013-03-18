@@ -200,8 +200,10 @@ var IdbPouch = function(opts, callback) {
       req.onsuccess = function process_docRead(event) {
         var oldDoc = event.target.result;
         if (!oldDoc) {
+          console.log('insert');
           insertDoc(currentDoc);
         } else {
+          console.log('update');
           updateDoc(oldDoc, currentDoc);
         }
       };
@@ -340,6 +342,7 @@ var IdbPouch = function(opts, callback) {
       }
 
       function finish() {
+        console.log(docInfo.data);
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           if (Pouch.DEBUG)
@@ -352,6 +355,10 @@ var IdbPouch = function(opts, callback) {
             results.push(docInfo);
             call(callback);
           };
+        };
+        dataReq.onerror = function(e,f ) {
+
+          console.log(e);
         };
       }
     }
@@ -474,7 +481,11 @@ var IdbPouch = function(opts, callback) {
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
       if (!e.target.result || (isDeleted(metadata, opts.rev) && !opts.rev)) {
-        result = Pouch.Errors.MISSING_DOC;
+        if (isDeleted(metadata, opts.rev)) {
+          result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
+        } else {
+          result = Pouch.Errors.MISSING_DOC;
+        }
         return;
       }
 
