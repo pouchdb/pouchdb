@@ -1,6 +1,7 @@
 /*jshint strict: false */
 /*global request: true, Buffer: true, escape: true, $:true */
 /*global extend: true, Crypto: true */
+/*global chrome*/
 
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
@@ -289,27 +290,57 @@ var rootToLeaf = function(tree) {
 // Basic wrapper for localStorage
 var win = this;
 var localJSON = (function(){
-  if (!win.localStorage) {
-    return false;
-  }
-  return {
-    set: function(prop, val) {
-      localStorage.setItem(prop, JSON.stringify(val));
-    },
-    get: function(prop, def) {
-      try {
-        if (localStorage.getItem(prop) === null) {
+  if (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined"){
+    return {
+      set: function(prop, val){
+        chrome.storage.local.set({prop: JSON.stringify(val)});
+      },
+      get: function(prop, def){
+        try {
+          var item;
+          if (chrome.storage.local.get(prop, function(items){
+            if (items) {
+              item = items[prop];
+              return false;
+            }
+            return true;
+          })){
+            return def;
+          } else {
+            return JSON.parse(item || 'false');
+          }
+        } catch (err) {
           return def;
         }
-        return JSON.parse((localStorage.getItem(prop) || 'false'));
-      } catch(err) {
-        return def;
+      },
+      remove: function(prop){
+        chrome.storage.local.remove(prop);
       }
-    },
-    remove: function(prop) {
-      localStorage.removeItem(prop);
+    };
+  }
+  else {
+    if (!win.localStorage) {
+      return false;
     }
-  };
+    return {
+      set: function(prop, val) {
+        localStorage.setItem(prop, JSON.stringify(val));
+      },
+      get: function(prop, def) {
+        try {
+          if (localStorage.getItem(prop) === null) {
+            return def;
+          }
+          return JSON.parse((localStorage.getItem(prop) || 'false'));
+        } catch(err) {
+          return def;
+        }
+      },
+      remove: function(prop) {
+        localStorage.removeItem(prop);
+      }
+    };
+  }
 })();
 
 if (typeof module !== 'undefined' && module.exports) {
