@@ -312,7 +312,7 @@ var HttpPouch = function(opts, callback) {
     ajax(options, function(err, doc, xhr) {
       // If the document does not exist, send an error to the callback
       if (err) {
-        return call(callback, Pouch.Errors.MISSING_DOC);
+        return call(callback, err);
       }
 
       // Send the document to the callback
