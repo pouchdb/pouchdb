@@ -55,6 +55,16 @@ function readBlob(blob, callback) {
   }
 }
 
+function openTestAsyncDB(name) {
+  return new Pouch(name, function(err,db) {
+    if (err) {
+      console.error(err);
+      ok(false, 'failed to open database');
+      return start();
+    }
+  });
+}
+
 function openTestDB(name, callback) {
   new Pouch(name, function(err, db) {
     if (err) {
@@ -123,6 +133,7 @@ if (typeof module !== 'undefined' && module.exports) {
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,
+    openTestAsyncDB: openTestAsyncDB,
     generateAdapterUrl: generateAdapterUrl,
     putAfter: putAfter,
     PERSIST_DATABASES: PERSIST_DATABASES
