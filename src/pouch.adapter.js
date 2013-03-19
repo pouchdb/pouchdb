@@ -211,6 +211,35 @@ var PouchAdapter = function(opts, callback) {
       opts = {};
     }
 
+    if (opts.open_revs) {
+      customApi._getRevisionTree(id, function(rev_tree){
+        var leaves = [];
+        if (opts.open_revs === "all") {
+          leaves = collectLeaves(rev_tree).map(function(leaf){
+            return leaf.rev;
+          });
+        } else {
+          leaves = opts.open_revs; // should be some validation here
+        }
+        var result = [];
+        var count = leaves.length;
+        leaves.forEach(function(leaf){
+          api.get(id, {rev: leaf}, function(err, doc){
+            if (!err) {
+              result.push({ok: doc});
+            } else {
+              result.push({missing: leaf});
+            }
+            count--;
+            if(!count) {
+              call(callback, null, result);
+            }
+          });
+        });
+      });
+      return;
+    }
+
     id = parseDocId(id);
     if (id.attachmentId !== '') {
       return customApi.getAttachment(id, callback);

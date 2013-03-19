@@ -172,32 +172,6 @@ LevelPouch = module.exports = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
 
-      if (opts.open_revs) {
-        if (opts.open_revs === "all") {
-          leaves = collectLeaves(metadata.rev_tree).map(function(leaf){
-            return leaf.rev;
-          });
-        } else {
-          leaves = opts.open_revs; // should be some validation here
-        }
-        var result = [];
-        var count = leaves.length;
-        leaves.forEach(function(leaf){
-          api.get(id.docId, {rev: leaf}, function(err, doc){
-            if (!err) {
-              result.push({ok: doc});
-            } else {
-              result.push({missing: leaf});
-            }
-            count--;
-            if(!count) {
-              call(callback, null, result);
-            }
-          });
-        });
-        return; // open_revs can be used only with revs
-      }
-
       var rev = Pouch.merge.winningRev(metadata);
       rev = opts.rev ? opts.rev : rev;
       var seq = metadata.rev_map[rev];
