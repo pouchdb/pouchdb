@@ -445,37 +445,12 @@ var IdbPouch = function(opts, callback) {
     var result;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
     txn.oncomplete = function() {
-      // Leaves are set when we ask about open_revs
-      // Using this approach they can be quite easily abstracted out to some
-      // generic api.get
-      if (leaves) {
-        result = [];
-        var count = leaves.length;
-        leaves.forEach(function(leaf){
-          api.get(id.docId, {rev: leaf}, function(err, doc){
-            if (!err) {
-              result.push({ok: doc});
-            } else {
-              result.push({missing: leaf});
-            }
-            count--;
-            if(!count) {
-              finish();
-            }
-          });
-        });
-      } else {
-        finish();
-      }
-    };
-
-    function finish() {
       if ('error' in result) {
         call(callback, result);
       } else {
         call(callback, null, result);
       }
-    }
+    };
 
     var leaves;
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
@@ -492,17 +467,6 @@ var IdbPouch = function(opts, callback) {
           result = Pouch.Errors.MISSING_DOC;
         }
         return;
-      }
-
-      if (opts.open_revs) {
-        if (opts.open_revs === "all") {
-          leaves = collectLeaves(metadata.rev_tree).map(function(leaf){
-            return leaf.rev;
-          });
-        } else {
-          leaves = opts.open_revs; // should be some validation here
-        }
-        return; // open_revs can be used only with revs
       }
 
       var rev = Pouch.merge.winningRev(metadata);
