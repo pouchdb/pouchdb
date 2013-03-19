@@ -460,12 +460,12 @@ var IdbPouch = function(opts, callback) {
       // 2. the document is deleted and we don't ask about specific rev
       // When we ask with opts.rev we expect the answer to be either
       // doc (possibly with _deleted=true) or missing error
-      if (!e.target.result || (isDeleted(metadata, opts.rev) && !opts.rev)) {
-        if (isDeleted(metadata, opts.rev)) {
-          result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
-        } else {
-          result = Pouch.Errors.MISSING_DOC;
-        }
+      if (!metadata) {
+        result = Pouch.Errors.MISSING_DOC;
+        return;
+      }
+      if (isDeleted(metadata, opts.rev) && !opts.rev) {
+        result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
         return;
       }
 
