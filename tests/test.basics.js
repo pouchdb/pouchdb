@@ -123,7 +123,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Check error of deleted document", 1, function() {
+  asyncTest("Check error of deleted document", 2, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         db.remove({_id:info.id, _rev:info.rev}, function(err, res) {
