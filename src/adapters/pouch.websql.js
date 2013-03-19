@@ -392,7 +392,7 @@ var webSqlPouch = function(opts, callback) {
         }
         var metadata = JSON.parse(results.rows.item(0).json);
         if (isDeleted(metadata, opts.rev) && !opts.rev) {
-          result = Pouch.Errors.MISSING_DOC;
+          result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
           return;
         }
 
