@@ -121,7 +121,7 @@ Pouch.destroy = function(name, callback) {
     Pouch.adapters[opts.adapter].destroy(opts.name, callback);
   };
 
-  // skip http and https adaptors for _all_dbs
+  // skip http and https adaptors for allDbs
   var adapter = opts.adapter;
   if (adapter === "http" || adapter === "https") {
     cb();
@@ -135,7 +135,7 @@ Pouch.destroy = function(name, callback) {
       return;
     }
     // check if db has been registered in Pouch.ALL_DBS
-    var dbname = Pouch.DBName(opts.adapter, opts.name);
+    var dbname = Pouch.dbName(opts.adapter, opts.name);
     db.get(dbname, function(err, doc) {
       if (err) {
         if (err.status === 404) {
@@ -163,16 +163,19 @@ Pouch.plugin = function(id, obj) {
 };
 
 // name of database used to keep track of databases
-Pouch.ALL_DBS = "_all_dbs";
-Pouch.DBName = function(adapter, name) {
+Pouch.ALL_DBS = "_allDbs";
+Pouch.dbName = function(adapter, name) {
   return [adapter, "-", name].join('');
+};
+Pouch.realDBName = function(adapter, name) {
+  return [adapter, "://", name].join('');
 };
 Pouch.allDBName = function(adapter) {
   return [adapter, "://", Pouch.ALL_DBS].join('');
 };
 
 Pouch.open = function(adapter, name, callback) {
-  // skip http and https adaptors for _all_dbs
+  // skip http and https adaptors for allDbs
   if (adapter === "http" || adapter === "https") {
     callback();
     return;
@@ -185,12 +188,13 @@ Pouch.open = function(adapter, name, callback) {
     }
 
     // check if db has been registered in Pouch.ALL_DBS
-    var dbname = Pouch.DBName(adapter, name);
+    var dbname = Pouch.dbName(adapter, name);
     db.get(dbname, function(err, response) {
       if (err) {
         if (err.status === 404) {
           db.put({
-            _id: dbname
+            _id: dbname,
+            dbname: Pouch.realDBName(adapter, name)
           }, callback);
         } else {
           callback(err);
@@ -202,7 +206,7 @@ Pouch.open = function(adapter, name, callback) {
   });
 };
 
-Pouch._all_dbs = function(callback) {
+Pouch.allDbs = function(callback) {
   var accumulate = function(adapters, all_dbs) {
     if (adapters.length === 0) {
       // remove duplicates
@@ -216,13 +220,17 @@ Pouch._all_dbs = function(callback) {
           result.push(doc);
         }
       });
-      callback(null, result);
+
+      // return an array of dbname
+      callback(null, result.map(function(row) {
+          return row.doc.dbname;
+      }));
       return;
     }
 
     var adapter = adapters.shift();
 
-    // skip http and https adaptors for _all_dbs
+    // skip http and https adaptors for allDbs
     if (adapter === "http" || adapter === "https") {
       accumulate(adapters, all_dbs);
       return;
@@ -242,7 +250,7 @@ Pouch._all_dbs = function(callback) {
         // append from current adapter rows
         all_dbs.unshift.apply(all_dbs, response.rows);
 
-        // code to clear _all_dbs.
+        // code to clear allDbs.
         // response.rows.forEach(function(row) {
         //   db.remove(row.doc, function() {
         //     console.log(arguments);
