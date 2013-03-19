@@ -5,4 +5,5 @@ sauce_connect.log*
 node_modules
 test_suite_db
 testdb_*
-_all_dbs/
+_allDbs/
+docs/_site
