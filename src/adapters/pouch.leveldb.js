@@ -168,8 +168,11 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api._get = function(id, opts, callback) {
     stores[DOC_STORE].get(id.docId, function(err, metadata) {
-      if (err || !metadata || (isDeleted(metadata) && !opts.rev)) {
+      if (err || !metadata){
         return call(callback, Pouch.Errors.MISSING_DOC);
+      }
+      if (isDeleted(metadata, opts.rev) && !opts.rev) {
+        return call(callback, extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"}));
       }
 
       var rev = Pouch.merge.winningRev(metadata);
