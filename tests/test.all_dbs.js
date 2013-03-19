@@ -69,7 +69,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
   });
 
   asyncTest("new Pouch registered in allDbs", 2, function() {
-    var pouchName = this.pouchNames[0]
+    var pouchName = this.pouchNames[0];
 
     // create db
     new Pouch(pouchName, function(err, db) {
