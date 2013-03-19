@@ -171,7 +171,7 @@ LevelPouch = module.exports = function(opts, callback) {
       if (err || !metadata){
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
-      if (isDeleted(metadata, opts.rev) && !opts.rev) {
+      if (isDeleted(metadata) && !opts.rev) {
         return call(callback, extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"}));
       }
 

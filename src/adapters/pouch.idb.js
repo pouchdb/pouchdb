@@ -464,7 +464,7 @@ var IdbPouch = function(opts, callback) {
         result = Pouch.Errors.MISSING_DOC;
         return;
       }
-      if (isDeleted(metadata, opts.rev) && !opts.rev) {
+      if (isDeleted(metadata) && !opts.rev) {
         result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
         return;
       }
