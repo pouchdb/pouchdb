@@ -123,6 +123,20 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Check error of deleted document", 2, function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({test:"somestuff"}, function(err, info) {
+        db.remove({_id:info.id, _rev:info.rev}, function(err, res) {
+          db.get(info.id, function(err, res) {
+            ok(err.error === "not_found", "correct error");
+            ok(err.reason === "deleted", "correct reason");
+            start();
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Remove doc", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {

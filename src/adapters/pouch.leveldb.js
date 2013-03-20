@@ -168,34 +168,11 @@ LevelPouch = module.exports = function(opts, callback) {
 
   api._get = function(id, opts, callback) {
     stores[DOC_STORE].get(id.docId, function(err, metadata) {
-      if (err || !metadata || (isDeleted(metadata) && !opts.rev)) {
+      if (err || !metadata){
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
-
-      if (opts.open_revs) {
-        if (opts.open_revs === "all") {
-          leaves = collectLeaves(metadata.rev_tree).map(function(leaf){
-            return leaf.rev;
-          });
-        } else {
-          leaves = opts.open_revs; // should be some validation here
-        }
-        var result = [];
-        var count = leaves.length;
-        leaves.forEach(function(leaf){
-          api.get(id.docId, {rev: leaf}, function(err, doc){
-            if (!err) {
-              result.push({ok: doc});
-            } else {
-              result.push({missing: leaf});
-            }
-            count--;
-            if(!count) {
-              call(callback, null, result);
-            }
-          });
-        });
-        return; // open_revs can be used only with revs
+      if (isDeleted(metadata) && !opts.rev) {
+        return call(callback, extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"}));
       }
 
       var rev = Pouch.merge.winningRev(metadata);
@@ -776,8 +753,44 @@ LevelPouch = module.exports = function(opts, callback) {
     }
   };
 
+  // compaction internal functions
+  api._getRevisionTree = function(docId, callback){
+    stores[DOC_STORE].get(docId, function(err, metadata) {
+      callback(metadata.rev_tree);
+    });
+  };
+  
+  api._removeDocRevisions = function(docId, revs, callback) {
+    if (!revs.length) {
+      callback();
+    }
+    stores[DOC_STORE].get(docId, function(err, metadata) {
+      var seqs = metadata.rev_map; // map from rev to seq
+      var count = revs.count;
+
+      function done() {
+        count--;
+        if (!count) {
+          callback();
+        }
+      }
+
+      revs.forEach(function(rev) {
+        var seq = seqs[rev];
+        if (!seq) {
+          done();
+          return;
+        }
+        stores[BY_SEQ_STORE].del(seq, function(err) {
+          done();
+        });
+      });
+    });
+  };
+  // end of compaction internal functions
+
   return api;
-}
+};
 
 LevelPouch.valid = function() {
   return typeof module !== undefined && module.exports;

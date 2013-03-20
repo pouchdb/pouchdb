@@ -1,4 +1,4 @@
-/*globals yankError: false, extend: false, call: false, parseDocId: false */
+/*globals yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
 
 "use strict";
 
@@ -164,6 +164,41 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
+  // compact one document and fire callback
+  // by compacting we mean removing all revisions which
+  // are not leaves in revision tree
+  var compactDocument = function(docId, callback) {
+    customApi._getRevisionTree(docId, function(rev_tree){
+      var nonLeaves = [];
+      traverseRevTree(rev_tree, function(isLeaf, pos, id) {
+        var rev = pos + '-' + id;
+        if (!isLeaf) {
+          nonLeaves.push(rev);
+        }
+      });
+      customApi._removeDocRevisions(docId, nonLeaves, callback);
+    });
+  };
+  // compact the whole database using single document
+  // compaction
+  api.compact = function(callback) {
+    api.allDocs(function(err, res) {
+      var count = res.rows.length;
+      if (!count) {
+        call(callback);
+        return;
+      }
+      res.rows.forEach(function(row) {
+        compactDocument(row.key, function() {
+          count--;
+          if (!count) {
+            call(callback);
+          }
+        });
+      });
+    });
+  };
+
 
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
@@ -174,6 +209,35 @@ var PouchAdapter = function(opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
+    }
+
+    if (opts.open_revs) {
+      customApi._getRevisionTree(id, function(rev_tree){
+        var leaves = [];
+        if (opts.open_revs === "all") {
+          leaves = collectLeaves(rev_tree).map(function(leaf){
+            return leaf.rev;
+          });
+        } else {
+          leaves = opts.open_revs; // should be some validation here
+        }
+        var result = [];
+        var count = leaves.length;
+        leaves.forEach(function(leaf){
+          api.get(id, {rev: leaf}, function(err, doc){
+            if (!err) {
+              result.push({ok: doc});
+            } else {
+              result.push({missing: leaf});
+            }
+            count--;
+            if(!count) {
+              call(callback, null, result);
+            }
+          });
+        });
+      });
+      return;
     }
 
     id = parseDocId(id);
