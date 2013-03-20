@@ -584,6 +584,7 @@ var webSqlPouch = function(opts, callback) {
     if (!opts.since) opts.since = 0;
 
     if (opts.continuous) {
+      var id = name + ':' + Math.uuid();
       opts.cancelled = false;
       webSqlPouch.Changes.addListener(name, id, api, opts);
       webSqlPouch.Changes.notify(name);
@@ -603,7 +604,6 @@ var webSqlPouch = function(opts, callback) {
     opts.since = opts.since && !descending ? opts.since : 0;
 
     var results = [], resultIndices = {}, dedupResults = [];
-    var id = name + ':' + Math.uuid();
     var txn;
 
     if (opts.filter && typeof opts.filter === 'string') {
