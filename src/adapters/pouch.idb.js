@@ -230,19 +230,7 @@ var IdbPouch = function(opts, callback) {
         }
 
         IdbPouch.Changes.notify(name);
-        if (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined"){
-          var cb = function(items){
-            if (items[name]){
-              return items[name] === "a";
-            }
-            return false;
-          };
-          var ab = chrome.storage.local.get(name, cb) ? "b" : "a";
-          chrome.storage.local.set({name: ab});
-        }
-        else if (localStorage){
-          localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
-        }
+        localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
       });
       call(callback, null, aresults);
     }
