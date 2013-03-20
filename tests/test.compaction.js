@@ -84,12 +84,22 @@ asyncTest('Simple compation test', function() {
 // starting from root
 var insertBranch = function(db, docs, callback) {
   function insert(i) {
+    var doc = docs[i];
     var prev = i > 0 ? docs[i-1]._rev : null;
-    putAfter(db, docs[i], prev, function() {
+    function next() {
       if (i < docs.length - 1) {
         insert(i+1);
       } else {
         callback();
+      }
+    }
+    db.get(doc._id, {rev: doc._rev}, function(err, ok){
+      if(err){
+        putAfter(db, docs[i], prev, function() {
+          next();
+        });
+      }else{
+        next();
       }
     });
   }
@@ -101,7 +111,7 @@ var checkBranch = function(db, docs, callback) {
     var doc = docs[i];
     db.get(doc._id, {rev: doc._rev}, function(err, doc) {
       if (i < docs.length - 1) {
-        ok(err.status === 404, "compacted!");
+        ok(err && err.status === 404, "compacted!");
         check(i+1);
       } else {
         ok(!err, "not compacted!");
