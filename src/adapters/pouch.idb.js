@@ -200,10 +200,8 @@ var IdbPouch = function(opts, callback) {
       req.onsuccess = function process_docRead(event) {
         var oldDoc = event.target.result;
         if (!oldDoc) {
-          console.log('insert');
           insertDoc(currentDoc);
         } else {
-          console.log('update');
           updateDoc(oldDoc, currentDoc);
         }
       };
@@ -342,7 +340,6 @@ var IdbPouch = function(opts, callback) {
       }
 
       function finish() {
-        console.log(docInfo.data);
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           if (Pouch.DEBUG)
@@ -355,10 +352,6 @@ var IdbPouch = function(opts, callback) {
             results.push(docInfo);
             call(callback);
           };
-        };
-        dataReq.onerror = function(e,f ) {
-
-          console.log(e);
         };
       }
     }
