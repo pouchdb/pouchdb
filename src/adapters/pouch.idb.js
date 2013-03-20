@@ -874,10 +874,7 @@ var IdbPouch = function(opts, callback) {
 };
 
 IdbPouch.valid = function idb_valid() {
-  if (!document.location.host) {
-    console.error('indexedDB cannot be used in pages served from the filesystem');
-  }
-  return !!window.indexedDB && !!document.location.host;
+  return !!window.indexedDB;
 };
 
 IdbPouch.destroy = function idb_destroy(name, callback) {
