@@ -163,7 +163,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Test opts.revs=true with no winning rev", 5, function() {
+  asyncTest("Test opts.revs=true with rev other than winning", 5, function() {
     initTestDB(this.name, function(err, db) {
       var docs = [
         {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -229,7 +229,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Retrieve old revision", 5, function() {
+  asyncTest("Retrieve old revision", 6, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({version: "first"}, function (err, info) {

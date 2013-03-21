@@ -251,10 +251,11 @@ var PouchAdapter = function(opts, callback) {
       }
 
       var doc = result;
-      if (opts.revs) { // FIXME: if rev is given it should return ids from root to rev (don't include newer)
+      if (opts.revs) {
         var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
           return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
         });
+        path.ids.splice(path.ids.indexOf(doc._rev.split('-')[1]) + 1);
         path.ids.reverse();
         doc._revisions = {
           start: (path.pos + path.ids.length) - 1,
