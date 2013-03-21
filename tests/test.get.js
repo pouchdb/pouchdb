@@ -84,8 +84,8 @@ adapters.map(function(adapter) {
       db.post({test:"somestuff"}, function(err, info) {
         db.remove({_id:info.id, _rev:info.rev}, function(err, res) {
           db.get(info.id, function(err, res) {
-            ok(err.error === "not_found", "correct error");
-            ok(err.reason === "deleted", "correct reason");
+            strictEqual(err.error, "not_found", "correct error");
+            strictEqual(err.reason, "deleted", "correct reason");
             start();
           });
         });
@@ -107,7 +107,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest('Testing get with rev', function() {
+  asyncTest('Testing get with rev', 10, function() {
     initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
@@ -122,11 +122,14 @@ adapters.map(function(adapter) {
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
                 db.get("3", {rev: "2-aaa"}, function(err, doc){
-                  ok(doc._rev === "2-aaa" && doc.value === "x", 'rev ok');
+                  strictEqual(doc._rev, "2-aaa", "rev ok");
+                  strictEqual(doc.value, "x", "value ok");
                   db.get("3", {rev: "3-bbb"}, function(err, doc){
-                    ok(doc._rev === "3-bbb" && doc.value === "y", 'rev ok');
+                    strictEqual(doc._rev, "3-bbb", "rev ok");
+                    strictEqual(doc.value, "y", "value ok");
                     db.get("3", {rev: "4-ccc"}, function(err, doc){
-                      ok(doc._rev === "4-ccc" && doc.value === "z", 'rev ok');
+                      strictEqual(doc._rev, "4-ccc", "rev ok");
+                      strictEqual(doc.value, "z", "value ok");
                       start();
                     });
                   });
@@ -139,7 +142,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Testing rev format (revs)", 2, function() {
+  asyncTest("Testing rev format", 2, function() {
     console.info('testing: Rev format');
     var revs = [];
     initTestDB(this.name, function(err, db) {
@@ -150,11 +153,61 @@ adapters.map(function(adapter) {
           db.put({_id: info.id, _rev: info2.rev, last: 'test2'}, function(err, info3) {
             revs.unshift(info3.rev.split('-')[1]);
             db.get(info.id, {revs:true}, function(err, doc) {
-              ok(doc._revisions.start === 3, 'correct starting position');
+              strictEqual(doc._revisions.start, 3, 'correct starting position');
               deepEqual(revs, doc._revisions.ids, 'correct revs returned');
               start();
             });
           });
+        });
+      });
+    });
+  });
+
+  asyncTest("Test opts.revs=true with no winning rev", 5, function() {
+    initTestDB(this.name, function(err, db) {
+      var docs = [
+        {_id: "foo", _rev: "1-a", value: "foo a"},
+        {_id: "foo", _rev: "2-b", value: "foo b"},
+        {_id: "foo", _rev: "3-c", value: "foo c"},
+        {_id: "foo", _rev: "4-d", value: "foo d"}
+      ];
+      putBranch(db, docs, function() {
+        db.get("foo", {rev: "3-c", revs: true}, function(err, doc) {
+          strictEqual(doc._revisions.ids.length, 3, "correct revisions length");
+          strictEqual(doc._revisions.start, 3, "correct revisions start");
+          strictEqual(doc._revisions.ids[0], "c", "correct rev");
+          strictEqual(doc._revisions.ids[1], "b", "correct rev");
+          strictEqual(doc._revisions.ids[2], "a", "correct rev");
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Test opts.revs=true return only winning branch", 6, function() {
+    initTestDB(this.name, function(err, db) {
+      var docs = [
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-b", value: "foo d"},
+          {_id: "foo", _rev: "3-c", value: "foo c"},
+        ],
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-d", value: "foo d"},
+          {_id: "foo", _rev: "3-e", value: "foo e"},
+          {_id: "foo", _rev: "4-f", value: "foo f"}
+        ]
+      ];
+      putTree(db, docs, function() {
+        db.get("foo", {revs: true}, function(err, doc) {
+          strictEqual(doc._revisions.ids.length, 4, "correct revisions length");
+          strictEqual(doc._revisions.start, 4, "correct revisions start");
+          strictEqual(doc._revisions.ids[0], "f", "correct rev");
+          strictEqual(doc._revisions.ids[1], "e", "correct rev");
+          strictEqual(doc._revisions.ids[2], "d", "correct rev");
+          strictEqual(doc._revisions.ids[3], "a", "correct rev");
+          start();
         });
       });
     });
@@ -167,7 +220,7 @@ adapters.map(function(adapter) {
         db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
           db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
             db.get(info.id, {revs_info:true}, function(err, doc) {
-              ok(doc._revs_info.length === 3, 'updated a doc with put');
+              strictEqual(doc._revs_info.length, 3, 'updated a doc with put');
               start();
             });
           });
@@ -176,14 +229,15 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Retrieve old revision", function() {
+  asyncTest("Retrieve old revision", 5, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({version: "first"}, function (err, info) {
         var firstrev = info.rev;
         ok(!err, 'saved a doc with post');
         db.put({_id: info.id, _rev: info.rev, version: 'second'}, function(err, info2) {
-          ok(!err && info2.rev !== info._rev, 'updated a doc with put');
+          ok(!err, 'no error');
+          notStrictEqual(info2.rev, info._rev, 'updated a doc with put');
           db.get(info.id, {rev: info.rev}, function(err, oldRev) {
             equal(oldRev.version, 'first', 'Fetched old revision');
             db.get(info.id, {rev: '1-nonexistentRev'}, function(err, doc){
@@ -196,7 +250,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest('testing get with open_revs', function() {
+  asyncTest('testing get with open_revs', 8, function() {
     initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
@@ -219,9 +273,9 @@ adapters.map(function(adapter) {
                     return a._rev === b._rev ? 0 : a._rev < b._rev ? -1 : 1;
                   });
 
-                  ok(res.length === conflicts.length, 'correct number of open_revs');
+                  strictEqual(res.length, conflicts.length, 'correct number of open_revs');
                   for (i = 0; i < conflicts.length; i++){
-                    ok(conflicts[i]._rev === res[i]._rev, 'correct rev');
+                    strictEqual(conflicts[i]._rev, res[i]._rev, 'correct rev');
                   }
                   start();
                 });
