@@ -296,9 +296,6 @@ var isChromeApp = function(){
 // Basic wrapper for localStorage
 var win = this;
 var localJSON = (function(){
-  if (!win.localStorage) {
-    return false;
-  }
   if (isChromeApp()){
     return {
       set: function(prop, val){
@@ -326,25 +323,30 @@ var localJSON = (function(){
         chrome.storage.local.remove(prop);
       }
     };
-  }
-  return {
-    set: function(prop, val) {
-      localStorage.setItem(prop, JSON.stringify(val));
-    },
-    get: function(prop, def) {
-      try {
-        if (localStorage.getItem(prop) === null) {
+  } 
+  else {
+    if (!win.localStorage) {
+      return false;
+    }
+    return {
+      set: function(prop, val) {
+        localStorage.setItem(prop, JSON.stringify(val));
+      },
+      get: function(prop, def) {
+        try {
+          if (localStorage.getItem(prop) === null) {
+            return def;
+          }
+          return JSON.parse((localStorage.getItem(prop) || 'false'));
+        } catch(err) {
           return def;
         }
-        return JSON.parse((localStorage.getItem(prop) || 'false'));
-      } catch(err) {
-        return def;
+      },
+      remove: function(prop) {
+        localStorage.removeItem(prop);
       }
-    },
-    remove: function(prop) {
-      localStorage.removeItem(prop);
-    }
-  };
+    };
+  }
 })();
 
 if (typeof module !== 'undefined' && module.exports) {

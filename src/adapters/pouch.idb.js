@@ -126,6 +126,16 @@ var IdbPouch = function(opts, callback) {
         meta[name + '_id'] = instanceId;
         reqDBId = txn.objectStore(META_STORE).put(meta);
       }
+      if (isChromeApp()){
+        if (meta.aorb && meta.aorb === "a"){
+          IdbPouch.Changes.notify(name);
+          meta.aorb = "b";
+        }
+        else {
+          IdbPouch.Changes.notify(name);
+          meta.aorb = "a";
+        }
+      }
 
       // detect blob support
       try {
@@ -230,9 +240,9 @@ var IdbPouch = function(opts, callback) {
         }
 
         IdbPouch.Changes.notify(name);
-		if (!isChromeApp()){
+        if (!isChromeApp()){
           localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
-		}
+        }
       });
       call(callback, null, aresults);
     }

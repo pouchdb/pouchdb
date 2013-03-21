@@ -1,0 +1,13 @@
+{
+	"name": "Pouchdb Tests",
+	"description": "Pouchdb chrome app tests",
+	"version": "0.1",
+	"app": {
+		"background": {
+			"scripts": ["chromeappbackground.js"]
+		}
+	},
+	"permissions": [
+		"storage"
+	]
+}
