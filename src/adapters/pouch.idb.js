@@ -111,7 +111,6 @@ var IdbPouch = function(opts, callback) {
     var req = txn.objectStore(META_STORE).get('meta-store');
 
     req.onsuccess = function(e) {
-      console.log(e);
       var reqDBId,
           result;
 
@@ -127,15 +126,6 @@ var IdbPouch = function(opts, callback) {
         meta[name + '_id'] = instanceId;
         reqDBId = txn.objectStore(META_STORE).put(meta);
       }
-
-      if (meta.aorb && meta.aorb === "a"){
-        meta.aorb = "b";
-      } 
-      else {
-        meta.aorb = "a";
-      }
-      IdbPouch.Changes.notify(name);
-
 
       // detect blob support
       try {
@@ -240,9 +230,9 @@ var IdbPouch = function(opts, callback) {
         }
 
         IdbPouch.Changes.notify(name);
-        if (isChromeApp()){
+		if (!isChromeApp()){
           localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
-        }
+		}
       });
       call(callback, null, aresults);
     }

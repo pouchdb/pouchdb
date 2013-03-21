@@ -291,7 +291,7 @@ var isChromeApp = function(){
     return true;
   }
   return false;
-}
+};
 
 // Basic wrapper for localStorage
 var win = this;
@@ -403,7 +403,6 @@ var Changes = function() {
   }
   else {
     window.addEventListener("storage", function(e) {
-      console.log(e);
       api.notify(e.key);
     });
   }
@@ -431,8 +430,6 @@ var Changes = function() {
     
     Object.keys(listeners[db_name]).forEach(function (i) {
       var opts = listeners[db_name][i].opts;
-      console.log("opts: ");
-      console.log(opts);
       listeners[db_name][i].db.changes({
         include_docs: opts.include_docs,
         conflicts: opts.conflicts,
@@ -442,7 +439,6 @@ var Changes = function() {
         since: opts.since,
         onChange: function(c) {
           if (c.seq > opts.since && !opts.cancelled) {
-            console.log("onChange wrapper thing called!");
             opts.since = c.seq;
             call(opts.onChange, c);
           }
