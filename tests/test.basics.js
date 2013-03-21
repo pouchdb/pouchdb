@@ -86,53 +86,11 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Get doc", 2, function() {
-    initTestDB(this.name, function(err, db) {
-      db.post({test:"somestuff"}, function(err, info) {
-        db.get(info.id, function(err, doc) {
-          ok(doc.test);
-          db.get(info.id+'asdf', function(err) {
-            ok(err.error);
-            start();
-          });
-        });
-      });
-    });
-  });
-
   asyncTest("Add a doc with leading underscore in id", function() {
     initTestDB(this.name, function(err, db) {
       db.post({_id: '_testing', value: 42}, function(err, info) {
         ok(err);
         start();
-      });
-    });
-  });
-
-  asyncTest("Get revisions of removed doc", 1, function() {
-    initTestDB(this.name, function(err, db) {
-      db.post({test:"somestuff"}, function(err, info) {
-        var rev = info.rev;
-        db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
-          db.get(info.id, {rev: rev}, function(err, doc) {
-            ok(!err, 'Recieved deleted doc with rev');
-            start();
-          });
-        });
-      });
-    });
-  });
-
-  asyncTest("Check error of deleted document", 2, function() {
-    initTestDB(this.name, function(err, db) {
-      db.post({test:"somestuff"}, function(err, info) {
-        db.remove({_id:info.id, _rev:info.rev}, function(err, res) {
-          db.get(info.id, function(err, res) {
-            ok(err.error === "not_found", "correct error");
-            ok(err.reason === "deleted", "correct reason");
-            start();
-          });
-        });
       });
     });
   });
@@ -192,20 +150,6 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Get design doc", 2, function() {
-    initTestDB(this.name, function(err, db) {
-      db.put({_id: '_design/someid', test:"somestuff"}, function(err, info) {
-        db.get(info.id, function(err, doc) {
-          ok(doc.test);
-          db.get(info.id+'asdf', function(err) {
-            ok(err.error);
-            start();
-          });
-        });
-      });
-    });
-  });
-
   asyncTest("Delete document without id", 1, function () {
     initTestDB(this.name, function(err, db) {
       db.remove({test:'ing'}, function(err) {
@@ -251,21 +195,6 @@ adapters.map(function(adapter) {
   });
   */
 
-  asyncTest("Check revisions", 1, function() {
-    initTestDB(this.name, function(err, db) {
-      db.post({test: "somestuff"}, function (err, info) {
-        db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
-          db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
-            db.get(info.id, {revs_info:true}, function(err, doc) {
-              ok(doc._revs_info.length === 3, 'updated a doc with put');
-              start();
-            });
-          });
-        });
-      });
-    });
-  });
-
   // From here we are copying over tests from CouchDB
   // https://github.com/apache/couchdb/blob/master/share/www/script/test/basics.js
   /*
@@ -296,27 +225,6 @@ adapters.map(function(adapter) {
                 ok(doc._revs_info[0].status === 'available');
                 start();
               });
-            });
-          });
-        });
-      });
-    });
-  });
-
-  asyncTest("Testing Rev format", 2, function() {
-    console.info('testing: Rev format');
-    var revs = [];
-    initTestDB(this.name, function(err, db) {
-      db.post({test: "somestuff"}, function (err, info) {
-        revs.unshift(info.rev.split('-')[1]);
-        db.put({_id: info.id, _rev: info.rev, another: 'test1'}, function(err, info2) {
-          revs.unshift(info2.rev.split('-')[1]);
-          db.put({_id: info.id, _rev: info2.rev, last: 'test2'}, function(err, info3) {
-            revs.unshift(info3.rev.split('-')[1]);
-            db.get(info.id, {revs:true}, function(err, doc) {
-              ok(doc._revisions.start === 3, 'correct starting position');
-              deepEqual(revs, doc._revisions.ids, 'correct revs returned');
-              start();
             });
           });
         });
@@ -362,26 +270,6 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Retrieve old revision", function() {
-    initTestDB(this.name, function(err, db) {
-      ok(!err, 'opened the pouch');
-      db.post({version: "first"}, function (err, info) {
-        var firstrev = info.rev;
-        ok(!err, 'saved a doc with post');
-        db.put({_id: info.id, _rev: info.rev, version: 'second'}, function(err, info2) {
-          ok(!err && info2.rev !== info._rev, 'updated a doc with put');
-          db.get(info.id, {rev: info.rev}, function(err, oldRev) {
-            equal(oldRev.version, 'first', 'Fetched old revision');
-            db.get(info.id, {rev: '1-nonexistentRev'}, function(err, doc){
-              ok(err, 'Non existent row error correctly reported');
-              start();
-            });
-          });
-        });
-      });
-    });
-  });
-
   asyncTest('update_seq persists', 2, function() {
     var name = this.name;
     initTestDB(name, function(err, db) {
@@ -396,7 +284,6 @@ adapters.map(function(adapter) {
       });
     });
   });
-
 
   asyncTest('deletions persists', 1, function() {
     var doc = {_id: 'staticId', contents: 'stuff'};

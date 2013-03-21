@@ -81,32 +81,6 @@ adapters.map(function(adapter) {
     });
   });
 
-  // docs will be inserted one after another
-  // starting from root
-  var insertBranch = function(db, docs, callback) {
-    function insert(i) {
-      var doc = docs[i];
-      var prev = i > 0 ? docs[i-1]._rev : null;
-      function next() {
-        if (i < docs.length - 1) {
-          insert(i+1);
-        } else {
-          callback();
-        }
-      }
-      db.get(doc._id, {rev: doc._rev}, function(err, ok){
-        if(err){
-          putAfter(db, docs[i], prev, function() {
-            next();
-          });
-        }else{
-          next();
-        }
-      });
-    }
-    insert(0);
-  };
-
   var checkBranch = function(db, docs, callback) {
     function check(i) {
       var doc = docs[i];
@@ -136,39 +110,25 @@ adapters.map(function(adapter) {
     check(0);
   };
 
-  var putTree = function(db, tree, callback) {
-    function insert(i) {
-      var branch = tree[i];
-      insertBranch(db, branch, function() {
-        if (i < tree.length - 1) {
-          insert(i+1);
-        } else {
-          callback();
-        }
-      });
-    }
-    insert(0);
-  };
-
   var exampleTree = [ 
     [
       {_id: "foo", _rev: "1-a", value: "foo a"},
       {_id: "foo", _rev: "2-b", value: "foo b"},
       {_id: "foo", _rev: "3-c", value: "foo c"}
-  ],
-  [
-    {_id: "foo", _rev: "1-a", value: "foo a"},
-    {_id: "foo", _rev: "2-d", value: "foo d"},
-    {_id: "foo", _rev: "3-e", value: "foo e"},
-    {_id: "foo", _rev: "4-f", value: "foo f"}
-  ],
-  [
-    {_id: "foo", _rev: "1-a", value: "foo a"},
-    {_id: "foo", _rev: "2-g", value: "foo g"},
-    {_id: "foo", _rev: "3-h", value: "foo h"},
-    {_id: "foo", _rev: "4-i", value: "foo i"},
-    {_id: "foo", _rev: "5-j", _deleted: true, value: "foo j"}
-  ]
+    ],
+    [
+      {_id: "foo", _rev: "1-a", value: "foo a"},
+      {_id: "foo", _rev: "2-d", value: "foo d"},
+      {_id: "foo", _rev: "3-e", value: "foo e"},
+      {_id: "foo", _rev: "4-f", value: "foo f"}
+    ],
+    [
+      {_id: "foo", _rev: "1-a", value: "foo a"},
+      {_id: "foo", _rev: "2-g", value: "foo g"},
+      {_id: "foo", _rev: "3-h", value: "foo h"},
+      {_id: "foo", _rev: "4-i", value: "foo i"},
+      {_id: "foo", _rev: "5-j", _deleted: true, value: "foo j"}
+    ]
   ];
 
   var exampleTree2 = [
