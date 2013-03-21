@@ -286,30 +286,67 @@ var rootToLeaf = function(tree) {
   return paths;
 };
 
+var isChromeApp = function(){
+  if (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined"){
+    return true;
+  }
+  return false;
+};
+
 // Basic wrapper for localStorage
 var win = this;
 var localJSON = (function(){
-  if (!win.localStorage) {
-    return false;
-  }
-  return {
-    set: function(prop, val) {
-      localStorage.setItem(prop, JSON.stringify(val));
-    },
-    get: function(prop, def) {
-      try {
-        if (localStorage.getItem(prop) === null) {
+  if (isChromeApp()){
+    return {
+      set: function(prop, val){
+        chrome.storage.local.set({prop: JSON.stringify(val)});
+      },
+      get: function(prop, def){
+        try {
+          var item;
+          if (chrome.storage.local.get(prop, function(items){
+            if (items) {
+              item = items[prop];
+              return false;
+            }
+            return true;
+          })){
+            return def;
+          } else {
+            return JSON.parse(item || 'false');
+          }
+        } catch (err) {
           return def;
         }
-        return JSON.parse((localStorage.getItem(prop) || 'false'));
-      } catch(err) {
-        return def;
+      },
+      remove: function(prop){
+        chrome.storage.local.remove(prop);
       }
-    },
-    remove: function(prop) {
-      localStorage.removeItem(prop);
+    };
+  } 
+  else {
+    if (!win.localStorage) {
+      return false;
     }
-  };
+    return {
+      set: function(prop, val) {
+        localStorage.setItem(prop, JSON.stringify(val));
+      },
+      get: function(prop, def) {
+        try {
+          if (localStorage.getItem(prop) === null) {
+            return def;
+          }
+          return JSON.parse((localStorage.getItem(prop) || 'false'));
+        } catch(err) {
+          return def;
+        }
+      },
+      remove: function(prop) {
+        localStorage.removeItem(prop);
+      }
+    };
+  }
 })();
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -351,7 +388,8 @@ if (typeof module !== 'undefined' && module.exports) {
     extend: extend,
     ajax: ajax,
     traverseRevTree: traverseRevTree,
-    rootToLeaf: rootToLeaf
+    rootToLeaf: rootToLeaf,
+    isChromeApp: isChromeApp
   };
 }
 
@@ -360,9 +398,16 @@ var Changes = function() {
   var api = {};
   var listeners = {};
 
-  window.addEventListener("storage", function(e) {
-    api.notify(e.key);
-  });
+  if (isChromeApp()){
+    chrome.storage.onChanged.addListener(function(e){
+      api.notify(e.newValue);//object only has oldValue, newValue members
+    });
+  }
+  else {
+    window.addEventListener("storage", function(e) {
+      api.notify(e.key);
+    });
+  }
 
   api.addListener = function(db_name, id, db, opts) {
     if (!listeners[db_name]) {
