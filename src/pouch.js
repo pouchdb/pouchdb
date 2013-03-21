@@ -18,6 +18,10 @@ var Pouch = function Pouch(name, opts, callback) {
     name = undefined;
   }
 
+  if (typeof callback === 'undefined') {
+    callback = function() {};
+  }
+
   var backend = Pouch.parseAdapter(opts.name || name);
   opts.name = opts.name || backend.name;
   opts.adapter = opts.adapter || backend.adapter;
