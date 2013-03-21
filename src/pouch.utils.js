@@ -46,7 +46,7 @@ var parseDocId = function(id) {
 
 // check if a specific revision of a doc has been deleted
 //  - metadata: the metadata object from the doc store
-//  - rev: (optional) the revision to check. defaults to metadata.rev
+//  - rev: (optional) the revision to check. defaults to winning revision
 var isDeleted = function(metadata, rev) {
   if (!metadata || !metadata.deletions) {
     return false;

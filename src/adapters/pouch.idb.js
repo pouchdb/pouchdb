@@ -438,55 +438,28 @@ var IdbPouch = function(opts, callback) {
     var result;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
     txn.oncomplete = function() {
-      // Leaves are set when we ask about open_revs
-      // Using this approach they can be quite easily abstracted out to some
-      // generic api.get
-      if (leaves) {
-        result = [];
-        var count = leaves.length;
-        leaves.forEach(function(leaf){
-          api.get(id.docId, {rev: leaf}, function(err, doc){
-            if (!err) {
-              result.push({ok: doc});
-            } else {
-              result.push({missing: leaf});
-            }
-            count--;
-            if(!count) {
-              finish();
-            }
-          });
-        });
-      } else {
-        finish();
-      }
-    };
-
-    function finish() {
       if ('error' in result) {
         call(callback, result);
       } else {
         call(callback, null, result);
       }
-    }
+    };
 
     var leaves;
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       var metadata = e.target.result;
-      if (!e.target.result || (isDeleted(metadata, opts.rev) && !opts.rev)) {
+      // we can determine the result here if:
+      // 1. there is no such document
+      // 2. the document is deleted and we don't ask about specific rev
+      // When we ask with opts.rev we expect the answer to be either
+      // doc (possibly with _deleted=true) or missing error
+      if (!metadata) {
         result = Pouch.Errors.MISSING_DOC;
         return;
       }
-
-      if (opts.open_revs) {
-        if (opts.open_revs === "all") {
-          leaves = collectLeaves(metadata.rev_tree).map(function(leaf){
-            return leaf.rev;
-          });
-        } else {
-          leaves = opts.open_revs; // should be some validation here
-        }
-        return; // open_revs can be used only with revs
+      if (isDeleted(metadata) && !opts.rev) {
+        result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
+        return;
       }
 
       var rev = Pouch.merge.winningRev(metadata);
@@ -869,6 +842,34 @@ var IdbPouch = function(opts, callback) {
     idb.close();
     call(callback, null);
   };
+
+  // compaction internal functions
+  api._getRevisionTree = function(docId, callback) {
+    var txn = idb.transaction([DOC_STORE], 'readonly');
+    var req = txn.objectStore(DOC_STORE).get(docId);
+    req.onsuccess = function (event) {
+      var doc = event.target.result;
+      callback(doc.rev_tree);
+    };
+  };
+
+  api._removeDocRevisions = function(docId, revs, callback) {
+    var txn = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ_WRITE);
+    var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+    revs.forEach(function(rev) {
+      index.getKey(rev).onsuccess = function(e) {
+        var seq = e.target.result;
+        if (!seq) {
+          return;
+        }
+        var req = txn.objectStore(BY_SEQ_STORE).delete(seq);
+      };
+    });
+    txn.oncomplete = function() {
+      callback();
+    };
+  };
+  // end of compaction internal functions
 
   return api;
 };
