@@ -434,20 +434,15 @@ var IdbPouch = function(opts, callback) {
   // First we look up the metadata in the ids database, then we fetch the
   // current revision(s) from the by sequence store
   api._get = function idb_get(id, opts, callback) {
-
     var result;
+    var metadata;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
     txn.oncomplete = function() {
-      if ('error' in result) {
-        call(callback, result);
-      } else {
-        call(callback, null, result);
-      }
+      call(callback, result, metadata);
     };
 
-    var leaves;
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
-      var metadata = e.target.result;
+      metadata = e.target.result;
       // we can determine the result here if:
       // 1. there is no such document
       // 2. the document is deleted and we don't ask about specific rev
@@ -471,27 +466,6 @@ var IdbPouch = function(opts, callback) {
         if (!doc) {
           result = Pouch.Errors.MISSING_DOC;
           return;
-        }
-        if (opts.revs) { // FIXME: if rev is given it should return ids from root to rev (don't include newer)
-          var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
-            return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
-          });
-          path.ids.reverse();
-          doc._revisions = {
-            start: (path.pos + path.ids.length) - 1,
-            ids: path.ids
-          };
-        }
-        if (opts.revs_info) { // FIXME: this returns revs for whole tree and should return only branch for winner
-          doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
-            return prev.concat(collectRevs(current));
-          }, []);
-        }
-        if (opts.conflicts) {
-          var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
-          if (conflicts.length) {
-            doc._conflicts = conflicts;
-          }
         }
         if (opts.attachments && doc._attachments) {
           var attachments = Object.keys(doc._attachments);

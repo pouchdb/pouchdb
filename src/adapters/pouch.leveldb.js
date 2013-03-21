@@ -187,33 +187,6 @@ LevelPouch = module.exports = function(opts, callback) {
         doc._id = metadata.id;
         doc._rev = rev;
 
-        if (opts.revs) {
-          var path = Pouch.utils.arrayFirst(
-            Pouch.utils.rootToLeaf(metadata.rev_tree),
-            function(arr) {
-              return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1
-            }
-          );
-          path.ids.reverse();
-          doc._revisions = {
-            start: (path.pos + path.ids.length) - 1,
-            ids: path.ids
-          };
-        }
-
-        if (opts.revs_info) {
-          doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
-            return prev.concat(Pouch.utils.collectRevs(current));
-          }, []);
-        }
-
-        if (opts.conflicts) {
-          var conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
-          if (conflicts.length) {
-            doc._conflicts = conflicts;
-          }
-        }
-
         if (opts.attachments && doc._attachments) {
           var attachments = Object.keys(doc._attachments);
           var recv = 0;
@@ -223,7 +196,7 @@ LevelPouch = module.exports = function(opts, callback) {
               doc._attachments[key].data = data;
 
               if (++recv === attachments.length) {
-                callback(null, doc);
+                callback(doc, metadata);
               }
             });
           });
@@ -234,7 +207,7 @@ LevelPouch = module.exports = function(opts, callback) {
               doc._attachments[key].stub = true;
             }
           }
-          callback(null, doc);
+          callback(doc, metadata);
         }
       });
     });
