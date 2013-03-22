@@ -1,4 +1,4 @@
-/*globals PouchAdapter: true */
+/*globals PouchAdapter: true, extend: true */
 
 "use strict";
 
@@ -329,7 +329,9 @@ Pouch.Errors = {
     reason: 'Something wrong with the request'
   }
 };
-
+Pouch.error = function(error, reason){
+ return utils.extend({}, error, {reason: reason});
+};
 if (typeof module !== 'undefined' && module.exports) {
   global.Pouch = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
