@@ -223,6 +223,7 @@ var PouchAdapter = function(opts, callback) {
         }
         var result = [];
         var count = leaves.length;
+        // order with open_revs is unspecified
         leaves.forEach(function(leaf){
           api.get(id, {rev: leaf}, function(err, doc){
             if (!err) {

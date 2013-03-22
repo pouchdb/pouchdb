@@ -220,6 +220,9 @@ adapters.map(function(adapter) {
         db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
           db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
             db.get(info.id, {revs_info:true}, function(err, doc) {
+
+              console.log(err, doc);
+
               strictEqual(doc._revs_info.length, 3, 'updated a doc with put');
               start();
             });
@@ -250,7 +253,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest('testing get with open_revs', 8, function() {
+  asyncTest('Testing get open_revs="all"', 8, function() {
     initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
@@ -277,6 +280,55 @@ adapters.map(function(adapter) {
                   for (i = 0; i < conflicts.length; i++){
                     strictEqual(conflicts[i]._rev, res[i]._rev, 'correct rev');
                   }
+                  start();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing get with some open_revs', 11, function() {
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        db.get("3", function(err, parent){
+          // add conflicts
+          var previd = parent._rev.split('-')[1];
+          var conflicts = [
+            {_id: "3", _rev: "2-aaa", value: "x", _revisions: {start: 2, ids: ["aaa", previd]}},
+            {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", previd]}},
+            {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", previd]}}
+          ];
+          db.put(conflicts[0], {new_edits: false}, function(err, doc) {
+            db.put(conflicts[1], {new_edits: false}, function(err, doc) {
+              db.put(conflicts[2], {new_edits: false}, function(err, doc) {
+                db.get("3", {open_revs: ["2-aaa", "5-nonexistent", "3-bbb"], revs: true}, function(err, res){
+                  var i;
+                  res.sort(function(a, b){
+                    if (a.ok) {
+                      if (b.ok) {
+                        var x = a.ok._rev, y = b.ok._rev;
+                        return x === y ? 0 : x < y ? -1 : 1;
+                      } else {
+                        return -1;
+                      }
+                    }
+                    return 1;
+                  });
+
+                  strictEqual(res.length, 3, 'correct number of open_revs');
+
+                  ok(res[0].ok, "first key has ok");
+                  strictEqual(res[0].ok._rev, "2-aaa", "ok");
+
+                  ok(res[1].ok, "second key has ok");
+                  strictEqual(res[1].ok._rev, "3-bbb", "ok");
+
+                  ok(res[2].missing, "third key has missing");
+                  strictEqual(res[2].missing, "5-nonexistent", "ok");
+
                   start();
                 });
               });
