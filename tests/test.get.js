@@ -297,6 +297,34 @@ adapters.map(function(adapter) {
 //    });
 //  });
 //
+
+  asyncTest("Test get with conflicts", 3, function() {
+    initTestDB(this.name, function(err, db) {
+      var simpleTree = [
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-b", value: "foo b"}
+        ],
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-c", value: "foo c"}
+        ],
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-d", value: "foo d", _deleted: true}
+        ]
+      ];
+      putTree(db, simpleTree, function() {
+        db.get("foo", {conflicts: true}, function(err, doc) {
+          strictEqual(doc._rev, "2-c", "correct rev");
+          strictEqual(doc._conflicts.length, 1, "just one conflict");
+          strictEqual(doc._conflicts[0], "2-b", "just one conflict");
+          start();
+        });
+      });
+    });
+  });
+
   asyncTest("Retrieve old revision", 6, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');

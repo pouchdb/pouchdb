@@ -609,7 +609,7 @@ var IdbPouch = function(opts, callback) {
           doc.doc = data;
           doc.doc._rev = Pouch.merge.winningRev(metadata);
           if (opts.conflicts) {
-            doc.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
+            doc.doc._conflicts = collectConflicts(metadata);
           }
         }
         if ('keys' in opts) {
@@ -771,7 +771,7 @@ var IdbPouch = function(opts, callback) {
             change.deleted = true;
           }
           if (opts.conflicts) {
-            change.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
+            change.doc._conflicts = collectConflicts(metadata);
           }
 
           // Dedupe the changes feed

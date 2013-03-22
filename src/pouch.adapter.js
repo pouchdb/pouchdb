@@ -273,7 +273,7 @@ var PouchAdapter = function(opts, callback) {
       }
 
       if (opts.conflicts) {
-        var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
+        var conflicts = collectConflicts(metadata);
         if (conflicts.length) {
           doc._conflicts = conflicts;
         }

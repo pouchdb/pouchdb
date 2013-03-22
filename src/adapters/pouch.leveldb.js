@@ -543,7 +543,7 @@ LevelPouch = module.exports = function(opts, callback) {
           doc.doc = data;
           doc.doc._rev = doc.value.rev;
           if (opts.conflicts) {
-            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
+            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata);
           }
         }
         if ('keys' in opts) {
@@ -653,7 +653,7 @@ LevelPouch = module.exports = function(opts, callback) {
               change.deleted = true;
             }
             if (opts.conflicts) {
-              change.doc._conflicts = Pouch.utils.collectConflicts(metadata.rev_tree, metadata.deletions);
+              change.doc._conflicts = Pouch.utils.collectConflicts(metadata);
             }
 
             // dedupe changes (TODO: more efficient way to accomplish this?)
