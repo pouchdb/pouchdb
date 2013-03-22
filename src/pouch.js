@@ -1,4 +1,4 @@
-/*globals PouchAdapter: true, extend: true */
+/*globals PouchAdapter: true, extend: false */
 
 "use strict";
 
