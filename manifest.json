@@ -2,11 +2,17 @@
 	"name": "Pouchdb Tests",
 	"description": "Pouchdb chrome app tests",
 	"version": "0.1",
+	"manifest_version": 1,
 	"app": {
-		"background": {
-			"scripts": ["chromeappbackground.js"]
+		"urls":[
+			"*://localhost/*",
+			"*://127.0.0.1*/*"
+		],
+		"launch":{
+			"web_url": "http://127.0.0.1:8000/tests/test.html"
 		}
 	},
+	"content_security_policy": "default-src 'none' ; script-src 'self' 'http://localhost' 'unsafe-eval'; object-src 'self' 'http://localhost'",
 	"permissions": [
 		"storage"
 	]
