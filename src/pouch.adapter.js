@@ -1,4 +1,5 @@
 /*globals yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
+/*globals collectConflicts: false, arrayFirst: false, rootToLeaf: false */
 
 "use strict";
 
@@ -219,10 +220,26 @@ var PouchAdapter = function(opts, callback) {
             return leaf.rev;
           });
         } else {
-          leaves = opts.open_revs; // should be some validation here
+          if (Array.isArray(opts.open_revs)) {
+            leaves = opts.open_revs;
+            for (var i = 0; i < leaves.length; i++) {
+              var l = leaves[i];
+              // looks like it's the only thing couchdb checks
+              if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
+                return call(callback, extend({}, Pouch.Errors.BAD_REQUEST, {
+                  reason: "Invalid rev format"
+                }));
+              }
+            }
+          } else {
+            return call(callback, extend({}, Pouch.Errors.UNKNOWN_ERROR, {
+              reason: 'function_clause'
+            }));
+          }
         }
         var result = [];
         var count = leaves.length;
+        // order with open_revs is unspecified
         leaves.forEach(function(leaf){
           api.get(id, {rev: leaf}, function(err, doc){
             if (!err) {
@@ -240,12 +257,74 @@ var PouchAdapter = function(opts, callback) {
       return;
     }
 
+
     id = parseDocId(id);
     if (id.attachmentId !== '') {
       return customApi.getAttachment(id, callback);
     }
-    return customApi._get(id, opts, callback);
+    return customApi._get(id, opts, function(result, metadata) {
+      if ('error' in result) {
+        return call(callback, result);
+      }
 
+      var doc = result;
+      function finish() {
+        call(callback, null, doc);
+      }
+
+      if (opts.conflicts) {
+        var conflicts = collectConflicts(metadata);
+        if (conflicts.length) {
+          doc._conflicts = conflicts;
+        }
+      }
+
+      if (opts.revs || opts.revs_info) {
+        var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
+          return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
+        });
+        path.ids.splice(path.ids.indexOf(doc._rev.split('-')[1]) + 1);
+        path.ids.reverse();
+
+        if (opts.revs) {
+          doc._revisions = {
+            start: (path.pos + path.ids.length) - 1,
+            ids: path.ids
+          };
+        }
+        if (opts.revs_info) {
+          // TODO: it could be slow to test status like this
+          var count = path.ids.length;
+          var pos = path.pos + path.ids.length - 1;
+          doc._revs_info = [];
+
+          path.ids.forEach(function(hash) {
+            var rev = pos + '-' + hash;
+            var info = {
+              rev: rev,
+              status: "available"
+            };
+            pos--;
+            doc._revs_info.push(info);
+
+            api.get(id.docId, {rev: rev}, function(err, ok) {
+              if (err) {
+                info.status = "missing";
+              }
+              count--;
+              if (!count) {
+                finish();
+              }
+            });
+          });
+        } else {
+          finish();
+        }
+      } else {
+        finish();
+      }
+      
+    });
   };
 
   api.getAttachment = function(id, opts, callback) {

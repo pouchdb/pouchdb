@@ -383,6 +383,7 @@ var webSqlPouch = function(opts, callback) {
 
   api._get = function(id, opts, callback) {
     var result;
+    var metadata;
     db.transaction(function(tx) {
       var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
       tx.executeSql(sql, [id.docId], function(tx, results) {
@@ -390,7 +391,7 @@ var webSqlPouch = function(opts, callback) {
           result = Pouch.Errors.MISSING_DOC;
           return;
         }
-        var metadata = JSON.parse(results.rows.item(0).json);
+        metadata = JSON.parse(results.rows.item(0).json);
         if (isDeleted(metadata) && !opts.rev) {
           result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
           return;
@@ -405,30 +406,6 @@ var webSqlPouch = function(opts, callback) {
             return;
           }
           var doc = JSON.parse(results.rows.item(0).json);
-
-          if (opts.revs) {
-            var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
-              return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
-            });
-            path.ids.reverse();
-            doc._revisions = {
-              start: (path.pos + path.ids.length) - 1,
-              ids: path.ids
-            };
-          }
-
-          if (opts.revs_info) {
-            doc._revs_info = metadata.rev_tree.reduce(function(prev, current) {
-              return prev.concat(collectRevs(current));
-            }, []);
-          }
-
-          if (opts.conflicts) {
-            var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
-            if (conflicts.length) {
-              doc._conflicts = conflicts;
-            }
-          }
 
           if (opts.attachments && doc._attachments) {
             var attachments = Object.keys(doc._attachments);
@@ -452,11 +429,7 @@ var webSqlPouch = function(opts, callback) {
         });
       });
     }, unknownError(callback), function () {
-      if ('error' in result) {
-        call(callback, result);
-      } else {
-        call(callback, null, result);
-      }
+      call(callback, result, metadata);
     });
   };
 
@@ -501,7 +474,7 @@ var webSqlPouch = function(opts, callback) {
               doc.doc = data;
               doc.doc._rev = Pouch.merge.winningRev(metadata);
               if (opts.conflicts) {
-                doc.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
+                doc.doc._conflicts = collectConflicts(metadata);
               }
             }
             if ('keys' in opts) {
@@ -608,7 +581,7 @@ var webSqlPouch = function(opts, callback) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
+                change.doc._conflicts = collectConflicts(metadata);
               }
               results.push(change);
             }

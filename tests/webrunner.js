@@ -21,7 +21,7 @@ if (!testFiles.length) {
                'test.merge_rev_tree.js',  'test.revs_diff.js',
                'test.replication.js', 'test.views.js', 'test.taskqueue.js',
                'test.design_docs.js', 'test.issue221.js', 'test.http.js',
-               'test.gql.js', 'test.compaction.js'];
+               'test.gql.js', 'test.compaction.js', 'test.get.js'];
 
   // attachments dont run well on the ci server yet.
   // if there is a hash, it is because the git rev is put on the url as a hash
