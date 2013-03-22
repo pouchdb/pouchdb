@@ -173,7 +173,7 @@ var webSqlPouch = function(opts, callback) {
         var sql = 'UPDATE ' + META_STORE + ' SET update_seq=?';
         tx.executeSql(sql, [update_seq], function() {
           webSqlPouch.Changes.notify(name);
-          localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
+          webSqlPouch.Changes.notifyLocalWindows(name);
         });
       });
       call(callback, null, aresults);

@@ -288,10 +288,7 @@ var rootToLeaf = function(tree) {
 };
 
 var isChromeApp = function(){
-  if (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined"){
-    return true;
-  }
-  return false;
+  return (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined");
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -345,7 +342,7 @@ var Changes = function() {
 
   if (isChromeApp()){
     chrome.storage.onChanged.addListener(function(e){
-      api.notify(e.newValue);//object only has oldValue, newValue members
+      api.notify(e.db_name.newValue);//object only has oldValue, newValue members
     });
   }
   else {
@@ -371,6 +368,16 @@ var Changes = function() {
   api.clearListeners = function(db_name) {
     delete listeners[db_name];
   };
+
+  api.notifyLocalWindows = function(db_name){
+    //do a useless change on a storage thing
+    //in order to get other windows's listeners to activate
+    if (!isChromeApp()){
+      localStorage[db_name] = (localStorage[db_name] === "a") ? "b" : "a";
+    } else {
+      chrome.storage.local.set({db_name: db_name});
+    }
+  }
 
   api.notify = function(db_name) {
     if (!listeners[db_name]) { return; }
