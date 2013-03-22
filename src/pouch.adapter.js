@@ -219,7 +219,22 @@ var PouchAdapter = function(opts, callback) {
             return leaf.rev;
           });
         } else {
-          leaves = opts.open_revs; // should be some validation here
+          if (Array.isArray(opts.open_revs)) {
+            leaves = opts.open_revs;
+            for (var i = 0; i < leaves.length; i++) {
+              var l = leaves[i];
+              // looks like it's the only thing couchdb checks
+              if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
+                return call(callback, extend({}, Pouch.Errors.BAD_REQUEST, {
+                  reason: "Invalid rev format"
+                }));
+              }
+            }
+          } else {
+            return call(callback, extend({}, Pouch.Errors.UNKNOWN_ERROR, {
+              reason: 'function_clause'
+            }));
+          }
         }
         var result = [];
         var count = leaves.length;

@@ -339,4 +339,21 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Testing get with open_revs with wrong params', 4, function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({_id: "foo"}, function(err, res) {
+        db.get("foo", {open_revs: {"whatever": "which is", "not an array": "or all string"}}, function(err, res) {
+          ok(err, "got error");
+          strictEqual(err.error, "unknown_error", "correct error"); // unfortunately!
+
+          db.get("foo", {open_revs: ["1-almost", "2-correct", "keys"]}, function(err, res) {
+            ok(err, "got error");
+            strictEqual(err.error, "bad_request", "correct error");
+            start();
+          });
+        });
+      });
+    });
+  });
+
 });
