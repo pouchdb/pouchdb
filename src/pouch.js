@@ -1,4 +1,4 @@
-/*globals PouchAdapter: true, extend: false */
+/*globals PouchAdapter: true, extend: true */
 
 "use strict";
 
@@ -330,7 +330,7 @@ Pouch.Errors = {
   }
 };
 Pouch.error = function(error, reason){
- return utils.extend({}, error, {reason: reason});
+ return extend({}, error, {reason: reason});
 };
 if (typeof module !== 'undefined' && module.exports) {
   global.Pouch = Pouch;
@@ -338,8 +338,8 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   Pouch.utils = require('./pouch.utils.js');
+  extend = Pouch.utils.extend
   module.exports = Pouch;
-
   var PouchAdapter = require('./pouch.adapter.js');
   // load adapters known to work under node
   var adapters = ['leveldb', 'http'];
