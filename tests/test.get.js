@@ -40,6 +40,7 @@ adapters.map(function(adapter) {
     {_id:"2",a:3,b:9}
   ];
 
+
   function writeDocs(db, docs, callback) {
     if (!docs.length) {
       return callback();
@@ -186,7 +187,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Test opts.revs=true return only winning branch", 6, function() {
     initTestDB(this.name, function(err, db) {
-      var docs = [
+      var simpleTree = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
           {_id: "foo", _rev: "2-b", value: "foo d"},
@@ -199,7 +200,7 @@ adapters.map(function(adapter) {
           {_id: "foo", _rev: "4-f", value: "foo f"}
         ]
       ];
-      putTree(db, docs, function() {
+      putTree(db, simpleTree, function() {
         db.get("foo", {revs: true}, function(err, doc) {
           strictEqual(doc._revisions.ids.length, 4, "correct revisions length");
           strictEqual(doc._revisions.start, 4, "correct revisions start");
@@ -213,20 +214,43 @@ adapters.map(function(adapter) {
     });
   });
 
-
-  asyncTest("Check revisions", 1, function() {
+  asyncTest("Test get with simple revs_info", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
         db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
           db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
             db.get(info.id, {revs_info:true}, function(err, doc) {
-
-              console.log(err, doc);
-
               strictEqual(doc._revs_info.length, 3, 'updated a doc with put');
               start();
             });
           });
+        });
+      });
+    });
+  });
+
+  asyncTest("Test get with revs_info on tree", 4, function() {
+    initTestDB(this.name, function(err, db) {
+      var simpleTree = [
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-b", value: "foo d"},
+          {_id: "foo", _rev: "3-c", value: "foo c"},
+        ],
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-d", value: "foo d"},
+          {_id: "foo", _rev: "3-e", _deleted: true}
+        ]
+      ];
+      putTree(db, simpleTree, function() {
+        db.get("foo", {revs_info: true}, function(err, doc) {
+          var revs = doc._revs_info;
+          strictEqual(revs.length, 3, "correct number of revs");
+          strictEqual(revs[0].rev, "3-c", "rev ok");
+          strictEqual(revs[1].rev, "2-b", "rev ok");
+          strictEqual(revs[2].rev, "1-a", "rev ok");
+          start();
         });
       });
     });
