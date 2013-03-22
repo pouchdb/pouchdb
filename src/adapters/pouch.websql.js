@@ -31,6 +31,7 @@ var webSqlPouch = function(opts, callback) {
 
   var api = {};
   var update_seq = 0;
+  var instanceId = null;
   var name = opts.name;
 
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
@@ -44,7 +45,7 @@ var webSqlPouch = function(opts, callback) {
 
   db.transaction(function (tx) {
     var meta = 'CREATE TABLE IF NOT EXISTS ' + META_STORE +
-      ' (update_seq)';
+      ' (update_seq, dbid)';
     var attach = 'CREATE TABLE IF NOT EXISTS ' + ATTACH_STORE +
       ' (digest, json, body BLOB)';
     var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
@@ -57,14 +58,25 @@ var webSqlPouch = function(opts, callback) {
     tx.executeSql(seq);
     tx.executeSql(meta);
 
-    var sql = 'SELECT update_seq FROM ' + META_STORE;
-    tx.executeSql(sql, [], function(tx, result) {
+    var updateseq = 'SELECT update_seq FROM ' + META_STORE;
+    tx.executeSql(updateseq, [], function(tx, result) {
       if (!result.rows.length) {
         var initSeq = 'INSERT INTO ' + META_STORE + ' (update_seq) VALUES (?)';
+        var newId = Math.uuid();
         tx.executeSql(initSeq, [0]);
         return;
       }
       update_seq = result.rows.item(0).update_seq;
+    });
+    var dbid = 'SELECT dbid FROM ' + META_STORE;
+    tx.executeSql(dbid, [], function(tx, result) {
+      if (!result.rows.length) {
+        var initDb = 'INSERT INTO ' + META_STORE + ' (dbid) VALUES (?)';
+        var newId = Math.uuid();
+        tx.executeSql(initDb, [newId]);
+        return;
+      }
+      instanceId = result.rows.item(0).dbid;
     });
   }, unknownError(callback), dbCreated);
 
@@ -73,12 +85,7 @@ var webSqlPouch = function(opts, callback) {
   };
 
   api.id = function() {
-    var id = localJSON.get(name + '_id', null);
-    if (id === null) {
-      id = Math.uuid();
-      localJSON.set(name + '_id', id);
-    }
-    return id;
+    return instanceId;
   };
 
   api._info = function(callback) {
@@ -699,7 +706,6 @@ webSqlPouch.valid = function() {
 
 webSqlPouch.destroy = function(name, callback) {
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
-  localJSON.set(name + '_id', null);
   db.transaction(function (tx) {
     tx.executeSql('DROP TABLE IF EXISTS ' + DOC_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + BY_SEQ_STORE, []);

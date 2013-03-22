@@ -230,7 +230,9 @@ var IdbPouch = function(opts, callback) {
         }
 
         IdbPouch.Changes.notify(name);
-        localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
+        if (!isChromeApp()){
+          localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
+        }
       });
       call(callback, null, aresults);
     }

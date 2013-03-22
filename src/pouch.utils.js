@@ -1,6 +1,7 @@
 /*jshint strict: false */
 /*global request: true, Buffer: true, escape: true, $:true */
 /*global extend: true, Crypto: true */
+/*global chrome*/
 
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
@@ -286,31 +287,12 @@ var rootToLeaf = function(tree) {
   return paths;
 };
 
-// Basic wrapper for localStorage
-var win = this;
-var localJSON = (function(){
-  if (!win.localStorage) {
-    return false;
+var isChromeApp = function(){
+  if (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined"){
+    return true;
   }
-  return {
-    set: function(prop, val) {
-      localStorage.setItem(prop, JSON.stringify(val));
-    },
-    get: function(prop, def) {
-      try {
-        if (localStorage.getItem(prop) === null) {
-          return def;
-        }
-        return JSON.parse((localStorage.getItem(prop) || 'false'));
-      } catch(err) {
-        return def;
-      }
-    },
-    remove: function(prop) {
-      localStorage.removeItem(prop);
-    }
-  };
-})();
+  return false;
+};
 
 if (typeof module !== 'undefined' && module.exports) {
   // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
@@ -351,7 +333,8 @@ if (typeof module !== 'undefined' && module.exports) {
     extend: extend,
     ajax: ajax,
     traverseRevTree: traverseRevTree,
-    rootToLeaf: rootToLeaf
+    rootToLeaf: rootToLeaf,
+    isChromeApp: isChromeApp
   };
 }
 
@@ -360,9 +343,16 @@ var Changes = function() {
   var api = {};
   var listeners = {};
 
-  window.addEventListener("storage", function(e) {
-    api.notify(e.key);
-  });
+  if (isChromeApp()){
+    chrome.storage.onChanged.addListener(function(e){
+      api.notify(e.newValue);//object only has oldValue, newValue members
+    });
+  }
+  else {
+    window.addEventListener("storage", function(e) {
+      api.notify(e.key);
+    });
+  }
 
   api.addListener = function(db_name, id, db, opts) {
     if (!listeners[db_name]) {
