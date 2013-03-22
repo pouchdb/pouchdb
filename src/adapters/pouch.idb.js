@@ -230,7 +230,7 @@ var IdbPouch = function(opts, callback) {
         }
 
         IdbPouch.Changes.notify(name);
-        localStorage[name] = (localStorage[name] === "a") ? "b" : "a";
+        IdbPouch.Changes.notifyLocalWindows(name);
       });
       call(callback, null, aresults);
     }
