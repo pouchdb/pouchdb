@@ -1,4 +1,4 @@
-/*globals PouchAdapter: true */
+/*globals PouchAdapter: true, extend: true */
 
 "use strict";
 
@@ -329,17 +329,19 @@ Pouch.Errors = {
     reason: 'Something wrong with the request'
   }
 };
-
+Pouch.error = function(error, reason){
+ return extend({}, error, {reason: reason});
+};
 if (typeof module !== 'undefined' && module.exports) {
   global.Pouch = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   Pouch.utils = require('./pouch.utils.js');
+  extend = Pouch.utils.extend;
   module.exports = Pouch;
-
   var PouchAdapter = require('./pouch.adapter.js');
-  // load adapters known to work under node
+  //load adapters known to work under node
   var adapters = ['leveldb', 'http'];
   adapters.map(function(adapter) {
     var adapter_path = './adapters/pouch.'+adapter+'.js';
