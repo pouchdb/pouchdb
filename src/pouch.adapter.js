@@ -266,6 +266,13 @@ var PouchAdapter = function(opts, callback) {
         return call(callback, result);
       }
 
+      if (opts.conflicts) {
+        var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
+        if (conflicts.length) {
+          doc._conflicts = conflicts;
+        }
+      }
+
       var doc = result;
       if (opts.revs || opts.revs_info) {
         var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
@@ -281,25 +288,38 @@ var PouchAdapter = function(opts, callback) {
           };
         }
         if (opts.revs_info) {
+          // TODO: it could be slow to test status like this
+          var count = path.ids.length;
           var pos = path.pos + path.ids.length - 1;
-          doc._revs_info = path.ids.map(function(rev) {
+          doc._revs_info = [];
+
+          path.ids.forEach(function(hash) {
+            var rev = pos + '-' + hash;
             var info = {
-              rev: pos + '-' + rev,
-              status: "available" // FIXME
+              rev: rev,
+              status: "available"
             };
             pos--;
-            return info;
+            doc._revs_info.push(info);
+
+            api.get(id.docId, {rev: rev}, function(err, ok) {
+              if (err) {
+                info.status = "missing";
+              }
+              count--;
+              if (!count) finish();
+            });
           });
+        } else {
+          finish();
         }
-      }
-      if (opts.conflicts) {
-        var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
-        if (conflicts.length) {
-          doc._conflicts = conflicts;
-        }
+      } else {
+        finish();
       }
       
-      call(callback, null, doc);
+      function finish() {
+        call(callback, null, doc);
+      }
     });
   };
 
