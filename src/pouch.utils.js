@@ -377,7 +377,7 @@ var Changes = function() {
     } else {
       chrome.storage.local.set({db_name: db_name});
     }
-  }
+  };
 
   api.notify = function(db_name) {
     if (!listeners[db_name]) { return; }
