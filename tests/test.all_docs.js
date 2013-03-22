@@ -248,11 +248,11 @@ adapters.map(function(adapter) {
     });
   });
 
-  asynctest('test basic collation', function() {
-    inittestdb(this.name, function(err, db) {
+  asyncTest('test basic collation', function() {
+    initTestDB(this.name, function(err, db) {
       var docs = {docs: [{_id: "z", foo: "z"}, {_id: "a", foo: "a"}]};
-      db.bulkdocs(docs, function(err, res) {
-        db.alldocs({startkey: 'z', endkey: 'z'}, function(err, result) {
+      db.bulkDocs(docs, function(err, res) {
+        db.allDocs({startkey: 'z', endkey: 'z'}, function(err, result) {
           equal(result.rows.length, 1, 'Exclude a result');
           start();
         });

@@ -1,4 +1,5 @@
 /*globals yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
+/*globals collectConflicts: false, arrayFirst: false, rootToLeaf: false */
 
 "use strict";
 
@@ -266,6 +267,11 @@ var PouchAdapter = function(opts, callback) {
         return call(callback, result);
       }
 
+      var doc = result;
+      function finish() {
+        call(callback, null, doc);
+      }
+
       if (opts.conflicts) {
         var conflicts = collectConflicts(metadata.rev_tree, metadata.deletions);
         if (conflicts.length) {
@@ -273,7 +279,6 @@ var PouchAdapter = function(opts, callback) {
         }
       }
 
-      var doc = result;
       if (opts.revs || opts.revs_info) {
         var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
           return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
@@ -307,7 +312,9 @@ var PouchAdapter = function(opts, callback) {
                 info.status = "missing";
               }
               count--;
-              if (!count) finish();
+              if (!count) {
+                finish();
+              }
             });
           });
         } else {
@@ -317,9 +324,6 @@ var PouchAdapter = function(opts, callback) {
         finish();
       }
       
-      function finish() {
-        call(callback, null, doc);
-      }
     });
   };
 

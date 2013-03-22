@@ -1,5 +1,5 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, putAfter: false */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, putTree: false */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
 
 "use strict";
