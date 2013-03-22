@@ -232,20 +232,20 @@ var collectLeaves = function(revs) {
   return leaves;
 };
 
-var collectConflicts = function(revs, deletions) {
-  // Remove all deleted leaves
-  var leaves = collectLeaves(revs);
-  for(var i = 0; i < leaves.length; i++){
-    var leaf = leaves.shift();
+// returns all conflicts that is leaves such that
+// 1. are not deleted and
+// 2. are different than winning revision
+var collectConflicts = function(metadata) {
+  var win = Pouch.merge.winningRev(metadata);
+  var leaves = collectLeaves(metadata.rev_tree);
+  var conflicts = [];
+  leaves.forEach(function(leaf) {
     var rev = leaf.rev.split("-")[1]; 
-    if(deletions && !deletions[rev]){
-      leaves.push(leaf);
+    if ((!metadata.deletions || !metadata.deletions[rev]) && leaf.rev !== win) {
+      conflicts.push(leaf.rev);
     } 
-  }
-
-  // First is current rev
-  leaves.shift();
-  return leaves.map(function(x) { return x.rev; });
+  });
+  return conflicts;
 };
 
 // returns first element of arr satisfying callback predicate
