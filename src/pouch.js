@@ -341,7 +341,7 @@ if (typeof module !== 'undefined' && module.exports) {
   extend = Pouch.utils.extend;
   module.exports = Pouch;
   var PouchAdapter = require('./pouch.adapter.js');
-  // load adapters known to work under node
+  //load adapters known to work under node
   var adapters = ['leveldb', 'http'];
   adapters.map(function(adapter) {
     var adapter_path = './adapters/pouch.'+adapter+'.js';
