@@ -338,7 +338,7 @@ if (typeof module !== 'undefined' && module.exports) {
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   Pouch.utils = require('./pouch.utils.js');
-  extend = Pouch.utils.extend
+  extend = Pouch.utils.extend;
   module.exports = Pouch;
   var PouchAdapter = require('./pouch.adapter.js');
   // load adapters known to work under node
