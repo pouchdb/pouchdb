@@ -169,7 +169,10 @@ var PouchAdapter = function(opts, callback) {
   // by compacting we mean removing all revisions which
   // are not leaves in revision tree
   var compactDocument = function(docId, callback) {
-    customApi._getRevisionTree(docId, function(rev_tree){
+    customApi._getRevisionTree(docId, function(err, rev_tree){
+      if (err) {
+        return call(callback);
+      }
       var nonLeaves = [];
       traverseRevTree(rev_tree, function(isLeaf, pos, id) {
         var rev = pos + '-' + id;
@@ -212,51 +215,63 @@ var PouchAdapter = function(opts, callback) {
       opts = {};
     }
 
+    var leaves = [];
+    function finishOpenRevs() {
+      var result = [];
+      var count = leaves.length;
+      if (!count) {
+        return call(callback, null, result);
+      }
+      // order with open_revs is unspecified
+      leaves.forEach(function(leaf){
+        api.get(id, {rev: leaf}, function(err, doc){
+          if (!err) {
+            result.push({ok: doc});
+          } else {
+            result.push({missing: leaf});
+          }
+          count--;
+          if(!count) {
+            call(callback, null, result);
+          }
+        });
+      });
+    }
+
     if (opts.open_revs) {
-      customApi._getRevisionTree(id, function(rev_tree){
-        var leaves = [];
-        if (opts.open_revs === "all") {
+      if (opts.open_revs === "all") {
+        customApi._getRevisionTree(id, function(err, rev_tree){
+          if (err) {
+            // if there's no such document we should treat this
+            // situation the same way as if revision tree was empty
+            rev_tree = [];
+          }
           leaves = collectLeaves(rev_tree).map(function(leaf){
             return leaf.rev;
           });
-        } else {
-          if (Array.isArray(opts.open_revs)) {
-            leaves = opts.open_revs;
-            for (var i = 0; i < leaves.length; i++) {
-              var l = leaves[i];
-              // looks like it's the only thing couchdb checks
-              if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
-                return call(callback, extend({}, Pouch.Errors.BAD_REQUEST, {
-                  reason: "Invalid rev format"
-                }));
-              }
-            }
-          } else {
-            return call(callback, extend({}, Pouch.Errors.UNKNOWN_ERROR, {
-              reason: 'function_clause'
-            }));
-          }
-        }
-        var result = [];
-        var count = leaves.length;
-        // order with open_revs is unspecified
-        leaves.forEach(function(leaf){
-          api.get(id, {rev: leaf}, function(err, doc){
-            if (!err) {
-              result.push({ok: doc});
-            } else {
-              result.push({missing: leaf});
-            }
-            count--;
-            if(!count) {
-              call(callback, null, result);
-            }
-          });
+          finishOpenRevs();
         });
-      });
-      return;
+      } else {
+        if (Array.isArray(opts.open_revs)) {
+          leaves = opts.open_revs;
+          for (var i = 0; i < leaves.length; i++) {
+            var l = leaves[i];
+            // looks like it's the only thing couchdb checks
+            if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
+              return call(callback, extend({}, Pouch.Errors.BAD_REQUEST, {
+                reason: "Invalid rev format"
+              }));
+            }
+          }
+          finishOpenRevs();
+        } else {
+          return call(callback, extend({}, Pouch.Errors.UNKNOWN_ERROR, {
+            reason: 'function_clause'
+          }));
+        }
+      }
+      return; // open_revs does not like other options
     }
-
 
     id = parseDocId(id);
     if (id.attachmentId !== '') {

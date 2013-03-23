@@ -654,8 +654,12 @@ var webSqlPouch = function(opts, callback) {
     db.transaction(function (tx) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
       tx.executeSql(sql, [docId], function(tx, result) {
-        var data = JSON.parse(result.rows.item(0).metadata);
-        callback(data.rev_tree);
+        if (!result.rows.length) {
+          call(callback, Pouch.Errors.MISSING_DOC);
+        } else {
+          var data = JSON.parse(result.rows.item(0).metadata);
+          call(callback, null, data.rev_tree);
+        }
       });
     });
   };
