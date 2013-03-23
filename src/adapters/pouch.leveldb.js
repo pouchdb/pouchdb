@@ -729,7 +729,11 @@ LevelPouch = module.exports = function(opts, callback) {
   // compaction internal functions
   api._getRevisionTree = function(docId, callback){
     stores[DOC_STORE].get(docId, function(err, metadata) {
-      callback(metadata.rev_tree);
+      if (err) {
+        call(callback, Pouch.Errors.MISSING_DOC);
+      } else {
+        call(callback, null, metadata.rev_tree);
+      }
     });
   };
   

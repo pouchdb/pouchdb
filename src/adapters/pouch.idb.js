@@ -823,7 +823,11 @@ var IdbPouch = function(opts, callback) {
     var req = txn.objectStore(DOC_STORE).get(docId);
     req.onsuccess = function (event) {
       var doc = event.target.result;
-      callback(doc.rev_tree);
+      if (!doc) {
+        call(callback, Pouch.Errors.MISSING_DOC);
+      } else {
+        call(callback, null, doc.rev_tree);
+      }
     };
   };
 
