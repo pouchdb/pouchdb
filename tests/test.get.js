@@ -256,47 +256,38 @@ adapters.map(function(adapter) {
     });
   });
 
-// uncomment once issue #583 is fixed
-//  asyncTest("Test get with revs_info on compacted tree", 7, function() {
-//    console.log("compacted");
-//    initTestDB(this.name, function(err, db) {
-//      var simpleTree = [
-//        [
-//          {_id: "foo", _rev: "1-a", value: "foo a"},
-//          {_id: "foo", _rev: "2-b", value: "foo d"},
-//          {_id: "foo", _rev: "3-c", value: "foo c"}
-//        ],
-//        [
-//          {_id: "foo", _rev: "1-a", value: "foo a"},
-//          {_id: "foo", _rev: "2-d", value: "foo d"},
-//          {_id: "foo", _rev: "3-e", _deleted: true}
-//        ]
-//      ];
-//      putTree(db, simpleTree, function() {
-//        db.compact(function(err, ok) {
-//          setTimeout(function(){
-//          db.get("foo", {revs_info: true}, function(err, doc) {
-//
-//            var revs = doc._revs_info;
-//
-//            console.log("revs", revs, revs[0].status, revs[1].status, revs[2].status);
-//            console.log(revs[1].status === "missing");
-//
-//            strictEqual(revs.length, 3, "correct number of revs");
-//            strictEqual(revs[0].rev, "3-c", "rev ok");
-//            strictEqual(revs[0].status, "available", "not compacted");
-//            strictEqual(revs[1].rev, "2-b", "rev ok");
-//            strictEqual(revs[1].status, "missing", "compacted");
-//            strictEqual(revs[2].rev, "1-a", "rev ok");
-//            strictEqual(revs[2].status, "missing", "compacted");
-//            start();
-//          });
-//          }, 1000);
-//        });
-//      });
-//    });
-//  });
-//
+  asyncTest("Test get with revs_info on compacted tree", 7, function() {
+    initTestDB(this.name, function(err, db) {
+      var simpleTree = [
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-b", value: "foo d"},
+          {_id: "foo", _rev: "3-c", value: "foo c"}
+        ],
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-d", value: "foo d"},
+          {_id: "foo", _rev: "3-e", _deleted: true}
+        ]
+      ];
+      putTree(db, simpleTree, function() {
+        db.compact(function(err, ok) {
+          db.get("foo", {revs_info: true}, function(err, doc) {
+            var revs = doc._revs_info;
+            strictEqual(revs.length, 3, "correct number of revs");
+            strictEqual(revs[0].rev, "3-c", "rev ok");
+            strictEqual(revs[0].status, "available", "not compacted");
+            strictEqual(revs[1].rev, "2-b", "rev ok");
+            strictEqual(revs[1].status, "missing", "compacted");
+            strictEqual(revs[2].rev, "1-a", "rev ok");
+            strictEqual(revs[2].status, "missing", "compacted");
+            start();
+          });
+        });
+      });
+    });
+  });
+
 
   asyncTest("Test get with conflicts", 3, function() {
     initTestDB(this.name, function(err, db) {
@@ -361,7 +352,6 @@ adapters.map(function(adapter) {
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
                 db.get("3", {open_revs: "all"}, function(err, res){
-                  console.log(res);
                   var i;
                   res = res.map(function(row){
                     return row.ok;
