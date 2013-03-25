@@ -360,7 +360,8 @@ adapters.map(function(adapter) {
           db.put(conflicts[0], {new_edits: false}, function(err, doc) {
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
-                db.get("3", {open_revs: "all", revs: true}, function(err, res){
+                db.get("3", {open_revs: "all"}, function(err, res){
+                  console.log(res);
                   var i;
                   res = res.map(function(row){
                     return row.ok;
@@ -397,7 +398,7 @@ adapters.map(function(adapter) {
           db.put(conflicts[0], {new_edits: false}, function(err, doc) {
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
-                db.get("3", {open_revs: ["2-aaa", "5-nonexistent", "3-bbb"], revs: true}, function(err, res){
+                db.get("3", {open_revs: ["2-aaa", "5-nonexistent", "3-bbb"]}, function(err, res){
                   var i;
                   res.sort(function(a, b){
                     if (a.ok) {
@@ -427,6 +428,20 @@ adapters.map(function(adapter) {
               });
             });
           });
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing get with open_revs on nonexistent doc', 3, function() {
+    initTestDB(this.name, function(err, db) {
+      db.get("nonexistent", {open_revs: ["2-whatever"]}, function(err, res) {
+        strictEqual(res.length, 1, "just one result");
+        strictEqual(res[0].missing, "2-whatever", "just one result");
+
+        db.get("nonexistent", {open_revs: "all"}, function(err, res) {
+          strictEqual(res.length, 0, "no open revisions");
+          start();
         });
       });
     });
