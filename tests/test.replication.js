@@ -68,7 +68,7 @@ adapters.map(function(adapters) {
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
-        Pouch.replicate(self.name, self.remote, {}, function(err, result) {
+        Pouch.replicate(self.remote, self.name, {}, function(err, result) {
           ok(result.ok, 'replication was ok');
           equal(result.docs_written, docs.length, 'correct # docs written');
           start();
