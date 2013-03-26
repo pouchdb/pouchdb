@@ -25,7 +25,6 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 * [Get database information](#get_database_information)
 * [Listen to database changes](#listen_to_database_changes)
 * [Replicate a database](#replicate_a_database)
-* [Compact the database](#compact_the_database)
 * [Get document revision diffs](#document_revisions_diff)
 
 ## List all databases
@@ -499,14 +498,6 @@ Replicate one database to another.
     Pouch.replicate('mydb', 'http://localhost:5984/mydb', function(err, changes) {
       //
     })
-
-## Compact the database
-
-    db.compact([opts], [callback])
-
-Runs compaction of the database. Fires callback when compaction is done. If you use http adapter and have specified callback Pouch will ping the remote database in regular intervals unless the compaction is finished.
-
-* `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Only for http adapter.
 
 ## Document Revisions Diff
 
