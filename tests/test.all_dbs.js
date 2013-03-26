@@ -176,7 +176,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
             });
 
             if (!exists) {
-              ok(false, "pouch name not found in all_dbs");
+              ok(false, "pouch name not found in allDbs");
               return start();
             }
           });
@@ -189,7 +189,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
               };
             }),
             function(err) {
-              ok(true, "all pouches created registered in all_dbs");
+              ok(true, "all pouches created registered in allDbs");
               start();
             }
           );
@@ -232,12 +232,12 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
             });
 
             if (!exists) {
-              ok(false, "pouch name not found in all_dbs");
+              ok(false, "pouch name not found in allDbs");
               return start();
             }
           });
 
-          ok(true, "all pouches created registered in all_dbs");
+          ok(true, "all pouches created registered in allDbs");
 
           //
           // Destroy all Pouches
@@ -269,12 +269,12 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
                   });
 
                   if (exists) {
-                    ok(false, "pouch name found in all_dbs after its destroyed");
+                    ok(false, "pouch name found in allDbs after its destroyed");
                     return start();
                   }
                 });
 
-                ok(true, "all pouches destroyed no longer registered in all_dbs");
+                ok(true, "all pouches destroyed no longer registered in allDbs");
                 start();
               });
             }
@@ -283,4 +283,117 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
       }
     );
   });
+});
+
+// Test for return value of allDbs
+// The format should follow the following rules:
+// 1. if an adapter is specified upon Pouch creation, the dbname will include the adapter prefix
+//   - eg. "idb://testdb"
+// 2. Otherwise, the dbname will just contain the dbname (without the adapter prefix)
+qunit("allDbs return value", {
+  setup: function() {
+    // DummyDB Names
+    var pouchNames = [];
+
+    // Create some pouches with adapter prefix
+    var pouchName;
+    Object.keys(Pouch.adapters).forEach(function(adapter) {
+      // allDbs method only works for local adapters
+      if (adapter === "http" || adapter === "https") {
+        return;
+      }
+
+      pouchName = 'testdb_' + uuid();
+      pouchNames.push([adapter, "://", pouchName].join(''));
+    });
+
+    // Create some pouches without adapter prefix
+    for (var i = 0; i < 3; i++) {
+      pouchName = 'testdb_' + uuid();
+      pouchNames.push(pouchName);
+    }
+
+    this.pouchNames = pouchNames;
+  },
+  teardown: function() {
+  }
+});
+
+asyncTest("Create and Destroy Pouches with and without adapter prefixes", 2, function() {
+  var pouchNames = this.pouchNames;
+  async(
+    // Create Pouches from pouchNames array
+    pouchNames.map(function(name) {
+      return function(callback) {
+        new Pouch(name, callback);
+      };
+    }), function(err) {
+      if (err) {
+        console.error(err);
+        ok(false, 'failed to open database');
+        return start();
+      }
+
+      // check allDbs output
+      Pouch.allDbs(function(err, dbs) {
+        if (err) {
+          console.error(err);
+          ok(false, err);
+          return start();
+        }
+
+        pouchNames.forEach(function(pouch) {
+          // check if pouchName exists in allDbs
+          var exists = dbs.some(function(dbname) {
+            return dbname === pouch;
+          });
+
+          if (!exists) {
+            ok(false, "pouch name not found in allDbs");
+            return start();
+          }
+        });
+
+        ok(true, "All pouches registered in allDbs in the correct format");
+
+        // destroy pouches
+        async(
+          pouchNames.map(function(db) {
+            return function(callback) {
+              Pouch.destroy(db, callback);
+            };
+          }),
+          function(err) {
+            if (err) {
+              console.log(err);
+              ok(false, err);
+              return start();
+            }
+
+            // Check that pouches no longer exist in allDbs
+            Pouch.allDbs(function(err, dbs) {
+              if (err) {
+                console.log(err);
+                ok(false, err);
+                return start();
+              }
+              // check if pouchName exists in _all_db
+              pouchNames.forEach(function(pouch) {
+                var exists = dbs.some(function(dbname) {
+                  return dbname === pouch;
+                });
+
+                if (exists) {
+                  ok(false, "pouch name found in allDbs after its destroyed");
+                  return start();
+                }
+              });
+
+              ok(true, "all pouches destroyed no longer registered in allDbs");
+              start();
+            });
+          }
+        );
+      });
+    });
 });
