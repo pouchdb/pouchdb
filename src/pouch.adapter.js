@@ -35,13 +35,43 @@ var PouchAdapter = function(opts, callback) {
     }
   });
 
+  var auto_compaction = (opts.auto_compaction === true);
+
+  // wraps a callback with a function that runs compaction after each edit
+  var autoCompact = function(callback) {
+    if (!auto_compaction) {
+      return callback;
+    }
+    return function(err, res) {
+      if (err) {
+        call(callback, err);
+      } else {
+        var count = res.length;
+        var decCount = function() {
+          count--;
+          if (!count) {
+            call(callback, null, res);
+          }
+        };
+        res.forEach(function(doc) {
+          if (doc.ok) {
+            // TODO: we need better error handling
+            compactDocument(doc.id, 1, decCount);
+          } else {
+            decCount();
+          }
+        });
+      }
+    };
+  }
 
   api.post = function (doc, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
     }
-    return customApi.bulkDocs({docs: [doc]}, opts, yankError(callback));
+    return customApi.bulkDocs({docs: [doc]}, opts,
+        autoCompact(yankError(callback)));
   };
 
   api.put = function(doc, opts, callback) {
@@ -53,7 +83,8 @@ var PouchAdapter = function(opts, callback) {
     if (!doc || !('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
-    return customApi.bulkDocs({docs: [doc]}, opts, yankError(callback));
+    return customApi.bulkDocs({docs: [doc]}, opts,
+        autoCompact(yankError(callback)));
   };
 
   api.putAttachment = function (id, rev, blob, type, callback) {
@@ -166,22 +197,23 @@ var PouchAdapter = function(opts, callback) {
 
   // compact one document and fire callback
   // by compacting we mean removing all revisions which
-  // are not leaves in revision tree
-  var compactDocument = function(docId, callback) {
+  // are further from the leaf in revision tree than max_height
+  var compactDocument = function(docId, max_height, callback) {
     customApi._getRevisionTree(docId, function(err, rev_tree){
       if (err) {
         return call(callback);
       }
+      var height = computeHeight(rev_tree);
       var nonLeaves = [];
-      traverseRevTree(rev_tree, function(isLeaf, pos, id) {
-        var rev = pos + '-' + id;
-        if (!isLeaf) {
+      Object.keys(height).forEach(function(rev) {
+        if (height[rev] > max_height) {
           nonLeaves.push(rev);
         }
       });
       customApi._removeDocRevisions(docId, nonLeaves, callback);
     });
   };
+
   // compact the whole database using single document
   // compaction
   api.compact = function(callback) {
@@ -192,7 +224,7 @@ var PouchAdapter = function(opts, callback) {
         return;
       }
       res.rows.forEach(function(row) {
-        compactDocument(row.key, function() {
+        compactDocument(row.key, 0, function() {
           count--;
           if (!count) {
             call(callback);
@@ -438,7 +470,7 @@ var PouchAdapter = function(opts, callback) {
       opts.new_edits = true;
     }
 
-    return customApi._bulkDocs(req, opts, callback);
+    return customApi._bulkDocs(req, opts, autoCompact(callback));
   };
 
   /* End Wrappers */
