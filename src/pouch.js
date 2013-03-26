@@ -23,6 +23,7 @@ var Pouch = function Pouch(name, opts, callback) {
   }
 
   var backend = Pouch.parseAdapter(opts.name || name);
+  opts.originalName = name;
   opts.name = opts.name || backend.name;
   opts.adapter = opts.adapter || backend.adapter;
 
@@ -178,7 +179,8 @@ Pouch.allDBName = function(adapter) {
   return [adapter, "://", Pouch.ALL_DBS].join('');
 };
 
-Pouch.open = function(adapter, name, callback) {
+Pouch.open = function(opts, callback) {
+  var adapter = opts.adapter;
   // skip http and https adaptors for allDbs
   if (adapter === "http" || adapter === "https") {
     callback();
@@ -192,13 +194,13 @@ Pouch.open = function(adapter, name, callback) {
     }
 
     // check if db has been registered in Pouch.ALL_DBS
-    var dbname = Pouch.dbName(adapter, name);
+    var dbname = Pouch.dbName(adapter, opts.name);
     db.get(dbname, function(err, response) {
       if (err) {
         if (err.status === 404) {
           db.put({
             _id: dbname,
-            dbname: Pouch.realDBName(adapter, name)
+            dbname: opts.originalName 
           }, callback);
         } else {
           callback(err);

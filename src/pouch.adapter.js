@@ -1,4 +1,4 @@
-/*globals yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
+/*globals Pouch:true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
 /*globals collectConflicts: false, arrayFirst: false, rootToLeaf: false */
 
 "use strict";
@@ -7,7 +7,6 @@
  * A generic pouch adapter
  */
 var PouchAdapter = function(opts, callback) {
-
 
   var api = {};
 
@@ -30,7 +29,9 @@ var PouchAdapter = function(opts, callback) {
     if (opts.name === Pouch.ALL_DBS) {
       callback(err, db);
     } else {
-      Pouch.open(opts.adapter, opts.name, function(err) { callback(err, db); });
+      Pouch.open(opts, function(err) {
+        callback(err, db);
+      });
     }
   });
 
@@ -54,7 +55,6 @@ var PouchAdapter = function(opts, callback) {
     }
     return customApi.bulkDocs({docs: [doc]}, opts, yankError(callback));
   };
-
 
   api.putAttachment = function (id, rev, blob, type, callback) {
     if (typeof type === 'function') {
@@ -132,7 +132,6 @@ var PouchAdapter = function(opts, callback) {
     return customApi.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
   };
 
-
   api.revsDiff = function (req, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
@@ -202,7 +201,6 @@ var PouchAdapter = function(opts, callback) {
       });
     });
   };
-
 
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
   api.get = function (id, opts, callback) {
