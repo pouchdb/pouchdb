@@ -31,12 +31,12 @@ Most of the Pouch API is exposed as `fun(arg, [options], [callback])` Where both
 
     Pouch.allDbs(callback)
 
-Retrieves all databases from PouchDB.
+Retrieves all databases from PouchDB. (Adapter prefix of database is included if it was created with a prefix.)
 
     Pouch.allDbs(function(err, response) {
         // Response:
         // [
-        //    "idb://testdb",
+        //    "testdb",
         //    "idb://testdb2"
         // ]
     })
