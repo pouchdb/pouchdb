@@ -249,6 +249,33 @@ var collectConflicts = function(metadata) {
   return conflicts;
 };
 
+
+// for every node in a revision tree computes its distance from the closest
+// leaf
+var computeHeight = function(revs) {
+  var height = {};
+  var edges = [];
+  traverseRevTree(revs, function(isLeaf, pos, id, prnt) {
+    var rev = pos + "-" + id;
+    if (isLeaf) {
+      height[rev] = 0;
+    }
+    if (!(prnt === undefined)) {
+      edges.push({from: prnt, to: rev});
+    }
+    return rev;
+  });
+  edges.reverse();
+  edges.forEach(function(edge) {
+    if (height[edge.from] === undefined) {
+      height[edge.from] = 1 + height[edge.to];
+    } else {
+      height[edge.from] = Math.min(height[edge.from], 1 + height[edge.to]);
+    }
+  });
+  return height;
+}
+
 // returns first element of arr satisfying callback predicate
 var arrayFirst = function(arr, callback) {
   for (var i = 0; i < arr.length; i++) {
@@ -319,6 +346,7 @@ if (typeof module !== 'undefined' && module.exports) {
     collectRevs: collectRevs,
     collectLeaves: collectLeaves,
     collectConflicts: collectConflicts,
+    computeHeight: computeHeight,
     arrayFirst: arrayFirst,
     filterChange: filterChange,
     atob: function(str) {
