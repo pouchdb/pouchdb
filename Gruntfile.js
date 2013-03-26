@@ -222,6 +222,7 @@ module.exports = function(grunt) {
 
   // Custom tasks
   grunt.registerTask("forever", 'Runs forever', function(){
+    console.log("Visit http://127.0.0.1:8000/tests/test.html in your browser to run tests.");
     this.async();
   });
 
@@ -277,7 +278,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
-
+  grunt.registerTask("browser", ["connect", "cors-server", "forever"])
   grunt.registerTask("testSetup", ["jshint", "build", "connect", "cors-server"]);
   grunt.registerTask("test", ["testSetup", "node-qunit" ,"saucelabs-qunit", "publish-results"]);
   grunt.registerTask("full", ["concat", "uglify"]);
