@@ -144,7 +144,6 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Testing rev format", 2, function() {
-    console.info('testing: Rev format');
     var revs = [];
     initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
@@ -190,7 +189,7 @@ adapters.map(function(adapter) {
       var simpleTree = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
-          {_id: "foo", _rev: "2-b", value: "foo d"},
+          {_id: "foo", _rev: "2-b", value: "foo b"},
           {_id: "foo", _rev: "3-c", value: "foo c"}
         ],
         [
@@ -361,7 +360,6 @@ adapters.map(function(adapter) {
             db.put(conflicts[1], {new_edits: false}, function(err, doc) {
               db.put(conflicts[2], {new_edits: false}, function(err, doc) {
                 db.get("3", {open_revs: "all"}, function(err, res){
-                  console.log(res);
                   var i;
                   res = res.map(function(row){
                     return row.ok;
@@ -428,6 +426,31 @@ adapters.map(function(adapter) {
               });
             });
           });
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing get with open_revs and revs', 4, function() {
+    initTestDB(this.name, function(err, db) {
+      var docs = [
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-b", value: "foo b"}
+        ],
+        [
+          {_id: "foo", _rev: "1-a", value: "foo a"},
+          {_id: "foo", _rev: "2-c", value: "foo c"}
+        ]
+      ];
+      putTree(db, docs, function() {
+        db.get("foo", {open_revs: ["2-b"], revs: true}, function(err, res) {
+          var doc = res[0].ok;
+          ok(doc, "got doc");
+          ok(doc._revisions, "got revisions");
+          strictEqual(doc._revisions.ids.length, 2, "got two revs");
+          strictEqual(doc._revisions.ids[0], "b", "got correct rev");
+          start();
         });
       });
     });
