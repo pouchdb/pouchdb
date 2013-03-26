@@ -57,7 +57,7 @@ Run single test file `test.basics.js` with:
 
 ### Browser Tests
 
-    $ grunt connect cors-server forever
+    $ grunt browser 
     # Now visit http://127.0.0.1:8000/tests/test.html in your browser
     # add ?testFiles=test.basics.js to run single test file
 
