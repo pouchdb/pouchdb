@@ -462,7 +462,6 @@ adapters.map(function(adapters) {
         db.replicate.from(remote, {
           filter: function(doc) { return doc.integer % 2 === 0; }
         }, function(err, response){
-          db.allDocs(function(err, docs) {console.log(docs);});
           remote.bulkDocs({docs:more_docs}, function(err, info) {
             db.replicate.from(remote, {
               filter: function(doc) { return doc.integer % 2 === 0; }
