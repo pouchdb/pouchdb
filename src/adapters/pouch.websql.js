@@ -108,7 +108,7 @@ var webSqlPouch = function(opts, callback) {
   api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
     var newEdits = opts.new_edits;
-    var userDocs = extend(true, [], req.docs);
+    var userDocs = req.docs;
 
     // Parse the docs, give them a sequence number for the result
     var docInfos = userDocs.map(function(doc, i) {
@@ -410,7 +410,7 @@ var webSqlPouch = function(opts, callback) {
         }
         metadata = JSON.parse(results.rows.item(0).json);
         if (isDeleted(metadata) && !opts.rev) {
-          result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
+          result = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
           return;
         }
 
@@ -535,8 +535,6 @@ var webSqlPouch = function(opts, callback) {
     if (Pouch.DEBUG) {
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
     }
-
-    opts = extend(true, {}, opts);
 
     if (!opts.since) {
       opts.since = 0;
