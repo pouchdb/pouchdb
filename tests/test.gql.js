@@ -19,7 +19,7 @@ if (typeof module !== undefined && module.exports) {
   adapters = ['leveldb-1', 'http-1'];
   qunit = QUnit.module; }
 
-adapters.map(function(adapter) { 
+adapters.map(function(adapter) {
   qunit('gql: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
@@ -33,7 +33,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Test select *", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz", 
+      db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz",
       what: "test" }]},{},
         function() {
           var queryFun = {
@@ -187,7 +187,7 @@ adapters.map(function(adapter) {
   asyncTest("Test unwrapped identifier in select", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs(
-        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
           function() {
             var queryFun = {
@@ -198,8 +198,8 @@ adapters.map(function(adapter) {
             db.gql(queryFun, function(error, res) {
               equal(error.error, "select_error", "Correct error received");
               equal(res, undefined, "Result is not defined");
+              start();
             });
-            start();
           });
     });
   });
@@ -222,7 +222,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Test where boolean operators and precedence (no parenthesis)", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: true }, 
+      db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: true },
       {charmeleon: true, charmander: true, charizard: false}]},{},
         function() {
           var queryFun = {
@@ -234,15 +234,15 @@ adapters.map(function(adapter) {
             res.rows.forEach(function(x, i) {
               ok(x.charmeleon, "emitted row has charmeleon");
             });
+            start();
           });
-          start();
         });
     });
   });
 
   asyncTest("Test where boolean operators and precedence (with parenthesis)", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: true }, 
+      db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: true },
       {charmeleon: true, charmander: true, charizard: false}]},{},
         function() {
           var queryFun = {
@@ -254,16 +254,16 @@ adapters.map(function(adapter) {
             res.rows.forEach(function(x, i) {
               ok(x.charizard, "emitted row has charizard");
             });
+            start();
           });
-          start();
         });
     });
   });
 
   asyncTest("Test where boolean operators with not", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: false}, 
-      {charmeleon: true, charmander: false, charizard: true, bulbasaur: false}, 
+      db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: false},
+      {charmeleon: true, charmander: false, charizard: true, bulbasaur: false},
       {charmeleon: true, charmander: false, charizard: true, bulbasaur: true}]},{},
         function() {
           var queryFun = {
@@ -276,15 +276,15 @@ adapters.map(function(adapter) {
               ok(x.charizard, "emitted row has charizard");
               ok(!x.bulbasaur, "emitted row has no bulbasaur");
             });
+            start();
           });
-          start();
         });
     });
   });
 
   asyncTest("Test where inequalities", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: 50, charmander: 30, haunter: true}, {charizard: 40, charmander: 50}, 
+      db.bulkDocs({docs: [{charizard: 50, charmander: 30, haunter: true}, {charizard: 40, charmander: 50},
       {charizard: 700, charmander: 22}]},{},
         function() {
           var queryFun = {
@@ -296,8 +296,8 @@ adapters.map(function(adapter) {
             res.rows.forEach(function(x, i) {
               ok(x.haunter, "emitted row has haunter");
             });
+            start();
           });
-          start();
         });
     });
   });
@@ -315,8 +315,8 @@ adapters.map(function(adapter) {
             res.rows.forEach(function(x, i) {
               equal(x.charizard, 50, "Correct value for charizard selected");
             });
+            start();
           });
-          start();
         });
     });
   });
@@ -336,8 +336,8 @@ adapters.map(function(adapter) {
             res.rows.forEach(function(x, i) {
               ok(x.haunter, "emitted row has haunter");
             });
+            start();
           });
-          start();
         });
     });
   });
@@ -358,8 +358,8 @@ adapters.map(function(adapter) {
               equal(x["count(charizard)"], 3, "Count computed correctly");
               equal(x["sum(charizard)"], 97, "Sum computed correctly");
             });
+            start();
           });
-          start();
         });
     });
   });
@@ -381,18 +381,18 @@ adapters.map(function(adapter) {
                 equal(x.charizard, false, "Correct row selected");
               }
             });
+            start();
           });
-          start();
         });
     });
   });
-  
+
   asyncTest("Test basic group by", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmander: 24, charmeleon: 2, haunter:true},
       {charizard: 40, charmeleon: 2, charmander: 50}, {charizard: 7, charmeleon: 20, charmander: 15}]},{},
         function() {
-          var queryFun = { 
+          var queryFun = {
             select: "max(charizard), charmeleon",
             groupBy: "charmeleon"
           };
@@ -405,18 +405,18 @@ adapters.map(function(adapter) {
                 equal(x["max(charizard)"], 7, "Correct aggregate value for charizard when charmeleon is 20");
               }
             });
+            start();
           });
-          start();
         });
     });
   });
 
   asyncTest("Test basic pivot", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello"}, {charizard: 40, charmeleon: "hello"}, 
+      db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello"}, {charizard: 40, charmeleon: "hello"},
       {charizard: 7, charmeleon: "world", charmander: 15}]},{},
         function() {
-          var queryFun = { 
+          var queryFun = {
             select: "max(charizard)",
             pivot: "charmeleon"
           };
@@ -426,20 +426,20 @@ adapters.map(function(adapter) {
               equal(x["hello max(charizard)"],50, "Correct aggregate value for charizard, charmeleon is 'hello'");
               equal(x["world max(charizard)"],7, "Correct aggregate value for charizard, charmeleon is 'world'");
             });
+            start();
           });
-          start();
         });
     });
   });
 
   asyncTest("Test double pivot", function() {
     initTestDB(this.name, function(err, db) {
-      db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello", abra: 2}, 
-      {charizard: 40, charmeleon: "hello", abra: 3}, 
-      {charizard: 99, charmeleon: "hello", abra: 3}, 
+      db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello", abra: 2},
+      {charizard: 40, charmeleon: "hello", abra: 3},
+      {charizard: 99, charmeleon: "hello", abra: 3},
       {charizard: 7, charmeleon: "world", charmander: 15, abra: 3}]},{},
         function() {
-          var queryFun = { 
+          var queryFun = {
             select: "max(charizard)",
             pivot: "charmeleon, abra"
           };
@@ -462,8 +462,8 @@ adapters.map(function(adapter) {
                 "charmeleon is 'hello', abra is 2");
               }
             });
+            start();
           });
-          start();
         });
     });
   });
@@ -471,7 +471,7 @@ adapters.map(function(adapter) {
   asyncTest("Test pivot clause that shares identifiers with select", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs(
-        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
           function() {
             var queryFun = {
@@ -482,8 +482,8 @@ adapters.map(function(adapter) {
             db.gql(queryFun, function(error, res) {
               equal(error.error, "pivot_error", "Correct error received");
               equal(res, undefined, "Result is not defined");
+              start();
             });
-            start();
           });
     });
   });
@@ -491,10 +491,10 @@ adapters.map(function(adapter) {
   asyncTest("Test group by and pivot together", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs(
-        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
         function() {
-          var queryFun = { 
+          var queryFun = {
             select: "dept, max(charizard)",
             groupBy: "dept",
             pivot: "lunch"
@@ -509,8 +509,8 @@ adapters.map(function(adapter) {
                 equal(x["1 max(charizard)"], 40, "Correct aggregate value for charizard where lunch is 1");
               }
             });
+            start();
           });
-          start();
         });
     });
   });
@@ -518,10 +518,10 @@ adapters.map(function(adapter) {
   asyncTest("Test basic label", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs(
-        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"}, 
+        {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
         function() {
-          var queryFun = { 
+          var queryFun = {
             select: 'upper(dept), charizard',
             label: "upper(dept) 'Department', charizard 'Maximum Charizard!'"
           };
@@ -532,8 +532,8 @@ adapters.map(function(adapter) {
               ok(x["Maximum Charizard!"], "Maximum Charizard! label applied correctly");
               ok(!x.charizard, "Regular charizard label not present.");
             });
+            start();
           });
-          start();
         });
     });
   });
