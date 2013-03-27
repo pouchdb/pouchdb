@@ -222,18 +222,21 @@ var HttpPouch = function(opts, callback) {
       auth: host.auth,
       url: genDBUrl(host, '_compact'),
       method: 'POST'
-    });
-    if (typeof callback === "function") {
-      // Ping the http if it's finished compaction
-      var id = setInterval(function() {
+    }, function() {
+      function ping() {
         api.info(function(err, res) {
           if (!res.compact_running) {
-            clearInterval(id);
             call(callback, null);
+          } else {
+            setTimeout(ping, opts.interval || 200);
           }
         });
-      }, opts.interval || 200);
-    }
+      }
+      // Ping the http if it's finished compaction
+      if (typeof callback === "function") {
+        ping();
+      }
+    });
   };
 
   // Calls GET on the host, which gets back a JSON string containing
