@@ -5,6 +5,7 @@
 
 var adapters = ['local-1', 'http-1'];
 var qunit = module;
+var LevelPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -57,7 +58,7 @@ adapters.map(function(adapter) {
       });
     });
   });
-  
+
   asyncTest("Test passing just a function", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {

@@ -6,6 +6,7 @@
 
 var adapters = ['local-1', 'http-1'];
 var qunit = module;
+var LevelPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -124,7 +125,7 @@ adapters.map(function(adapter) {
         var cnt = 0;
         db.query('foo/scores', {reduce: false}, function(err, result) {
           equal(result.rows.length, 1, 'Correct # of results');
-          if (cnt++ === 1) { 
+          if (cnt++ === 1) {
             start();
           }
         });

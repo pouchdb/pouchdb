@@ -7,6 +7,7 @@
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
 var is_browser = true;
+var LevelPouch;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
@@ -163,7 +164,7 @@ adapters.map(function(adapter) {
       var search = window.location.search
         .replace(/[?&]testFiles=[^&]+/, '')
         .replace(/[?&]testNumber=[^&]+/, '')
-        .replace(/[?&]dbname=[^&]+/, '') + 
+        .replace(/[?&]dbname=[^&]+/, '') +
           '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
       initTestDB(this.name, function(err, db) {
         var count = 0;
@@ -173,7 +174,7 @@ adapters.map(function(adapter) {
             count += 1;
             equal(count, 1, 'Received a single change');
             changes.cancel();
-            if (tab) { 
+            if (tab) {
               tab.close();
             }
             start();
