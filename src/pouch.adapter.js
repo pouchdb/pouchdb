@@ -222,7 +222,7 @@ var PouchAdapter = function(opts, callback) {
       }
       // order with open_revs is unspecified
       leaves.forEach(function(leaf){
-        api.get(id, {rev: leaf}, function(err, doc){
+        api.get(id, {rev: leaf, revs: opts.revs}, function(err, doc){
           if (!err) {
             result.push({ok: doc});
           } else {
