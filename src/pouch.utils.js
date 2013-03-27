@@ -260,7 +260,7 @@ var computeHeight = function(revs) {
     if (isLeaf) {
       height[rev] = 0;
     }
-    if (!(prnt === undefined)) {
+    if (prnt !== undefined) {
       edges.push({from: prnt, to: rev});
     }
     return rev;
@@ -274,7 +274,7 @@ var computeHeight = function(revs) {
     }
   });
   return height;
-}
+};
 
 // returns first element of arr satisfying callback predicate
 var arrayFirst = function(arr, callback) {
