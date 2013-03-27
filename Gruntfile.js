@@ -28,7 +28,7 @@ var browserConfig = [{
   'chrome.switches' : ['disable-file-system']
 }, {
   browserName: 'firefox',
-  version: '17',
+  version: '19',
   platform: 'Windows 2003',
   name: 'win2003/firefox'
 // }, {
