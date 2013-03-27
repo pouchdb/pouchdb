@@ -6,6 +6,7 @@
 
 var adapters = ['local-1'];
 var qunit = module;
+var LevelPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -110,7 +111,7 @@ adapters.map(function(adapter) {
     check(0);
   };
 
-  var exampleTree = [ 
+  var exampleTree = [
     [
       {_id: "foo", _rev: "1-a", value: "foo a"},
       {_id: "foo", _rev: "2-b", value: "foo b"},

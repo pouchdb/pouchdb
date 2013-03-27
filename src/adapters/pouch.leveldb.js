@@ -1,31 +1,27 @@
-/*
- * A LevelDB adapter for Pouchdb
- * based heavily on the pouch.idb.js IndexedDB adapter
- *
- * John Chesley <john@chesl.es>
- * September 2012
- */
+/*globals extend: true, isDeleted: true, isLocalId: true */
+/*globals Buffer: true */
 
-var pouchdir = '../'
-  , Pouch = require(pouchdir + 'pouch.js')
+'use strict';
 
+var pouchdir = '../';
+var Pouch = require(pouchdir + 'pouch.js');
 var call = Pouch.utils.call;
 
 // TODO: this adds the Math.uuid function used in pouch.utils
 // possibly not the best place for it, but it works for now
 require(pouchdir + 'deps/uuid.js');
 
-var path = require('path')
-  , fs = require('fs')
-  , crypto = require('crypto')
-  , EventEmitter = require('events').EventEmitter
-  , levelup = require('levelup')
+var path = require('path');
+var fs = require('fs');
+var crypto = require('crypto');
+var EventEmitter = require('events').EventEmitter;
+var levelup = require('levelup');
 
 var error = function(callback, message) {
   return process.nextTick(function() {
     callback({error: message});
   });
-}
+};
 
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
@@ -50,58 +46,34 @@ function dbError(callback) {
     call(callback, {
       status: 500,
       error: err,
-      reason: err.message,
+      reason: err.message
     });
-  }
+  };
 }
 
-LevelPouch = module.exports = function(opts, callback) {
-  var opened = false
-    , api = {}
-    , update_seq = 0
-    , doc_count = 0
-    , stores = {}
-    , name = opts.name
-    , change_emitter = CHANGES[name] || new EventEmitter();
+var LevelPouch = function(opts, callback) {
+  var opened = false;
+  var api = {};
+  var update_seq = 0;
+  var doc_count = 0;
+  var stores = {};
+  var name = opts.name;
+  var change_emitter = CHANGES[name] || new EventEmitter();
 
   CHANGES[name] = change_emitter;
-
-  fs.stat(opts.name, function(err, stats) {
-    if (err && err.code == 'ENOENT') {
-      // db directory doesn't exist
-      fs.mkdir(opts.name, initstores);
-    }
-    else if (stats.isDirectory()) {
-      initstores();
-    }
-    else {
-      // error
-    }
-
-    function initstores() {
-      initstore(DOC_STORE, 'json');
-      initstore(BY_SEQ_STORE, 'json');
-      initstore(ATTACH_STORE, 'json');
-      initstore(ATTACH_BINARY_STORE, 'binary');
-    }
-  });
 
   function initstore(store_name, encoding) {
     var dbpath = path.resolve(path.join(opts.name, store_name));
     opts.valueEncoding = encoding || 'json';
 
     // createIfMissing = true by default
-    opts.createIfMissing = opts.createIfMissing === undefined ? true : opts.createIfMissing;
-
-    if (STORES[dbpath] !== undefined) {
-      setup_store(null, STORES[dbpath]);
-    }
-    else {
-      levelup(dbpath, opts, setup_store);
-    }
+    opts.createIfMissing = opts.createIfMissing === undefined ?
+      true : opts.createIfMissing;
 
     function setup_store(err, ldb) {
-      if (stores.err) return;
+      if (stores.err) {
+        return;
+      }
       if (err) {
         stores.err = err;
         return call(callback, err);
@@ -118,6 +90,13 @@ LevelPouch = module.exports = function(opts, callback) {
       }
 
       update_seq = doc_count = -1;
+
+      function finish() {
+        if (doc_count >= 0 && update_seq >= 0) {
+          opened = true;
+          process.nextTick(function() { call(callback, null, api); });
+        }
+      }
 
       stores[BY_SEQ_STORE].get(DOC_COUNT_KEY, function(err, value) {
         if (!err) {
@@ -138,16 +117,34 @@ LevelPouch = module.exports = function(opts, callback) {
         }
         finish();
       });
+    }
 
-      function finish() {
-        if (doc_count >= 0 && update_seq >= 0) {
-          opened = true;
-          process.nextTick(function() { call(callback, null, api) });
-        }
-      }
-    };
+    if (STORES[dbpath] !== undefined) {
+      setup_store(null, STORES[dbpath]);
+    }
+    else {
+      levelup(dbpath, opts, setup_store);
+    }
   }
 
+  fs.stat(opts.name, function(err, stats) {
+    function initstores() {
+      initstore(DOC_STORE, 'json');
+      initstore(BY_SEQ_STORE, 'json');
+      initstore(ATTACH_STORE, 'json');
+      initstore(ATTACH_BINARY_STORE, 'binary');
+    }
+    if (err && err.code === 'ENOENT') {
+      // db directory doesn't exist
+      fs.mkdir(opts.name, initstores);
+    }
+    else if (stats.isDirectory()) {
+      initstores();
+    }
+    else {
+      // error
+    }
+  });
 
   api.type = function() {
     return 'leveldb';
@@ -156,15 +153,15 @@ LevelPouch = module.exports = function(opts, callback) {
   // the db's id is just the path to the leveldb directory
   api.id = function() {
     return opts.name;
-  }
+  };
 
   api._info = function(callback) {
     return call(callback, null, {
       name: opts.name,
       doc_count: doc_count,
-      update_seq: update_seq,
+      update_seq: update_seq
     });
-  }
+  };
 
   api._get = function(id, opts, callback) {
     stores[DOC_STORE].get(id.docId, function(err, metadata) {
@@ -211,7 +208,7 @@ LevelPouch = module.exports = function(opts, callback) {
         }
       });
     });
-  }
+  };
 
   // not technically part of the spec, but if putAttachment has its own method...
   api._getAttachment = function(id, opts, callback) {
@@ -228,8 +225,8 @@ LevelPouch = module.exports = function(opts, callback) {
         if (err) {
           return call(callback, err);
         }
-        var digest = doc._attachments[id.attachmentId].digest
-          , type = doc._attachments[id.attachmentId].content_type
+        var digest = doc._attachments[id.attachmentId].digest;
+        var type = doc._attachments[id.attachmentId].content_type;
 
         stores[ATTACH_BINARY_STORE].get(digest, function(err, attach) {
           var data;
@@ -244,22 +241,19 @@ LevelPouch = module.exports = function(opts, callback) {
             return call(callback, err);
           }
 
-          data = opts.encode
-            ? btoa(attach)
-            : attach;
-          
+          data = opts.encode ? btoa(attach) : attach;
           call(callback, null, data);
         });
       });
     });
-  }
+  };
 
   api._bulkDocs = function(req, opts, callback) {
 
-    var newEdits = opts.new_edits
-      , info = []
-      , docs = []
-      , results = []
+    var newEdits = opts.new_edits;
+    var info = [];
+    var docs = [];
+    var results = [];
 
     // parse the docs and give each a sequence number
     var userDocs = extend(true, [], req.docs);
@@ -298,15 +292,13 @@ LevelPouch = module.exports = function(opts, callback) {
       results.push(makeErr(Pouch.Errors.REV_CONFLICT, info._bulk_seq));
     });
 
-    processDocs();
-
     function processDocs() {
       if (docs.length === 0) {
         return complete();
       }
       var currentDoc = docs.pop();
       stores[DOC_STORE].get(currentDoc.metadata.id, function(err, oldDoc) {
-        if (err && err.name == 'NotFoundError') {
+        if (err && err.name === 'NotFoundError') {
           insertDoc(currentDoc, processDocs);
         }
         else {
@@ -328,7 +320,7 @@ LevelPouch = module.exports = function(opts, callback) {
             // TODO: handle error
           }
           return callback();
-        })
+        });
       });
     }
 
@@ -360,42 +352,43 @@ LevelPouch = module.exports = function(opts, callback) {
         doc.data._deleted = true;
       }
 
-      var attachments = doc.data._attachments
-        ? Object.keys(doc.data._attachments)
-        : [];
-      for (var i=0; i<attachments.length; i++) {
-        var key = attachments[i];
-        if (!doc.data._attachments[key].stub) {
-          var data = doc.data._attachments[key].data
-          // if data is a string, it's likely to actually be base64 encoded
-          if (typeof data === 'string') data = Pouch.utils.atob(data);
-          var digest = 'md5-' + crypto.createHash('md5')
-                .update(data || '')
-                .digest('hex');
-          delete doc.data._attachments[key].data;
-          doc.data._attachments[key].digest = digest;
-          saveAttachment(doc, digest, data, function (err) {
-            recv++;
-            collectResults(err);
-          });
-        } else {
-          recv++;
-          collectResults();
-        }
-      }
-
-      if(!attachments.length) {
-        finish();
-      }
+      var attachments = doc.data._attachments ?
+        Object.keys(doc.data._attachments) :
+        [];
 
       function collectResults(attachmentErr) {
         if (!err) {
           if (attachmentErr) {
             err = attachmentErr;
             call(callback, err);
-          } else if (recv == attachments.length) {
+          } else if (recv === attachments.length) {
             finish();
           }
+        }
+      }
+
+      function attachmentSaved(err) {
+        recv++;
+        collectResults(err);
+      }
+
+      for (var i=0; i<attachments.length; i++) {
+        var key = attachments[i];
+        if (!doc.data._attachments[key].stub) {
+          var data = doc.data._attachments[key].data;
+          // if data is a string, it's likely to actually be base64 encoded
+          if (typeof data === 'string') {
+            data = Pouch.utils.atob(data);
+          }
+          var digest = 'md5-' + crypto.createHash('md5')
+                .update(data || '')
+                .digest('hex');
+          delete doc.data._attachments[key].data;
+          doc.data._attachments[key].digest = digest;
+          saveAttachment(doc, digest, data, attachmentSaved);
+        } else {
+          recv++;
+          collectResults();
         }
       }
 
@@ -415,6 +408,10 @@ LevelPouch = module.exports = function(opts, callback) {
           });
         });
       }
+
+      if(!attachments.length) {
+        finish();
+      }
     }
 
     function saveUpdateSeq(callback) {
@@ -429,8 +426,9 @@ LevelPouch = module.exports = function(opts, callback) {
     function saveAttachment(docInfo, digest, data, callback) {
       stores[ATTACH_STORE].get(digest, function(err, oldAtt) {
         if (err && err.name !== 'NotFoundError') {
-          if (Pouch.DEBUG)
+          if (Pouch.DEBUG) {
             console.error(err);
+          }
           return call(callback, err);
         }
 
@@ -446,7 +444,7 @@ LevelPouch = module.exports = function(opts, callback) {
             newAtt.refs[ref] = true;
           }
         } else {
-          newAtt.refs = {}
+          newAtt.refs = {};
           newAtt.refs[ref] = true;
         }
 
@@ -470,20 +468,20 @@ LevelPouch = module.exports = function(opts, callback) {
 
     function complete() {
       var aresults = [];
-      results.sort(function(a, b) { return a._bulk_seq - b._bulk_seq });
+      results.sort(function(a, b) { return a._bulk_seq - b._bulk_seq; });
 
       results.forEach(function(result) {
         delete result._bulk_seq;
         if (result.error) {
           return aresults.push(result);
         }
-        var metadata = result.metadata
-          , rev = Pouch.merge.winningRev(metadata);
+        var metadata = result.metadata;
+        var rev = Pouch.merge.winningRev(metadata);
 
         aresults.push({
           ok: true,
           id: metadata.id,
-          rev: rev,
+          rev: rev
         });
 
         if (Pouch.utils.isLocalId(metadata.id)) {
@@ -495,7 +493,7 @@ LevelPouch = module.exports = function(opts, callback) {
           seq: metadata.seq,
           changes: Pouch.utils.collectLeaves(metadata.rev_tree),
           doc: result.data
-        }
+        };
         change.doc._rev = rev;
 
         change_emitter.emit('change', change);
@@ -508,21 +506,26 @@ LevelPouch = module.exports = function(opts, callback) {
       err._bulk_seq = seq;
       return err;
     }
-  }
+
+    processDocs();
+  };
 
   api._allDocs = function(opts, callback) {
 
     var readstreamOpts = {
       reverse: false,
-      start: '-1',
-    }
+      start: '-1'
+    };
 
-    if ('startkey' in opts && opts.startkey)
+    if ('startkey' in opts && opts.startkey) {
       readstreamOpts.start = opts.startkey;
-    if ('endkey' in opts && opts.endkey)
+    }
+    if ('endkey' in opts && opts.endkey) {
       readstreamOpts.end = opts.endkey;
-    if ('descending' in opts && opts.descending)
+    }
+    if ('descending' in opts && opts.descending) {
       readstreamOpts.reverse = true;
+    }
 
     var results = [];
     var resultsMap = {};
@@ -595,27 +598,13 @@ LevelPouch = module.exports = function(opts, callback) {
         rows: results
       });
     });
-  }
+  };
 
   api._changes = function(opts) {
 
-    var descending = 'descending' in opts ? opts.descending : false
-      , results = []
-      , changeListener
-
-    // fetch a filter from a design doc
-    if (opts.filter && typeof opts.filter === 'string') {
-      var filtername = opts.filter.split('/');
-      api.get('_design/'+filtername[0], function(err, design) {
-        var filter = eval('(function() { return ' +
-                          design.filters[filtername[1]] + '})()');
-        opts.filter = filter;
-        fetchChanges();
-      });
-    }
-    else {
-      fetchChanges();
-    }
+    var descending = 'descending' in opts ? opts.descending : false;
+    var results = [];
+    var changeListener;
 
     function fetchChanges() {
       var streamOpts = {
@@ -623,9 +612,7 @@ LevelPouch = module.exports = function(opts, callback) {
       };
 
       if (!streamOpts.reverse) {
-        streamOpts.start = opts.since
-          ? opts.since + 1
-          : 0;
+        streamOpts.start = opts.since ? opts.since + 1 : 0;
       }
 
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
@@ -668,27 +655,43 @@ LevelPouch = module.exports = function(opts, callback) {
           console.error(err);
         })
         .on('close', function() {
-          changeListener = Pouch.utils.filterChange(opts)
+          changeListener = Pouch.utils.filterChange(opts);
           if (opts.continuous && !opts.cancelled) {
             change_emitter.on('change', changeListener);
           }
           // filters changes in-place, calling opts.onChange on matching changes
           results.map(Pouch.utils.filterChange(opts));
           call(opts.complete, null, {results: results});
-        })
+        });
+    }
+
+    // fetch a filter from a design doc
+    if (opts.filter && typeof opts.filter === 'string') {
+      var filtername = opts.filter.split('/');
+      api.get('_design/'+filtername[0], function(err, design) {
+        /*jshint evil: true */
+        var filter = eval('(function() { return ' +
+                          design.filters[filtername[1]] + '})()');
+        opts.filter = filter;
+        fetchChanges();
+      });
+    }
+    else {
+      fetchChanges();
     }
 
     if (opts.continuous) {
       return {
         cancel: function() {
-          if (Pouch.DEBUG)
+          if (Pouch.DEBUG) {
             console.log(name + ': Cancel Changes Feed');
+          }
           opts.cancelled = true;
           change_emitter.removeListener('change', changeListener);
         }
-      }
+      };
     }
-  }
+  };
 
   api._close = function(callback) {
     if (!opened) {
@@ -700,11 +703,11 @@ LevelPouch = module.exports = function(opts, callback) {
       path.join(dbpath, DOC_STORE),
       path.join(dbpath, BY_SEQ_STORE),
       path.join(dbpath, ATTACH_STORE),
-      path.join(dbpath, ATTACH_BINARY_STORE),
+      path.join(dbpath, ATTACH_BINARY_STORE)
     ];
     var closed = 0;
     stores.map(function(path) {
-      var store = STORES[path]
+      var store = STORES[path];
       if (store) {
         store.close(function() {
           delete STORES[path];
@@ -736,7 +739,7 @@ LevelPouch = module.exports = function(opts, callback) {
       }
     });
   };
-  
+
   api._removeDocRevisions = function(docId, revs, callback) {
     if (!revs.length) {
       callback();
@@ -771,6 +774,36 @@ LevelPouch = module.exports = function(opts, callback) {
 
 LevelPouch.valid = function() {
   return typeof module !== undefined && module.exports;
+};
+
+// recursive fs.rmdir for Pouch.destroy. Use with care.
+function rmdir(dir, callback) {
+  fs.readdir(dir, function rmfiles(err, files) {
+    if (err) {
+      if (err.code === 'ENOTDIR') {
+        return fs.unlink(dir, callback);
+      }
+      else if (callback) {
+        return callback(err);
+      }
+      else {
+        return;
+      }
+    }
+    var count = files.length;
+    if (count === 0) {
+      return fs.rmdir(dir, callback);
+    }
+    files.forEach(function(file) {
+      var todel = path.join(dir, file);
+      rmdir(todel, function(err) {
+        count--;
+        if (count <= 0) {
+          fs.rmdir(dir, callback);
+        }
+      });
+    });
+  });
 }
 
 // close and delete open leveldb stores
@@ -780,11 +813,11 @@ LevelPouch.destroy = function(name, callback) {
     path.join(dbpath, DOC_STORE),
     path.join(dbpath, BY_SEQ_STORE),
     path.join(dbpath, ATTACH_STORE),
-    path.join(dbpath, ATTACH_BINARY_STORE),
+    path.join(dbpath, ATTACH_BINARY_STORE)
   ];
   var closed = 0;
   stores.map(function(path) {
-    var store = STORES[path]
+    var store = STORES[path];
     if (store) {
       store.close(function() {
         delete STORES[path];
@@ -810,38 +843,9 @@ LevelPouch.destroy = function(name, callback) {
       return call(callback, err);
     });
   }
-
-}
+};
 
 Pouch.adapter('ldb', LevelPouch);
 Pouch.adapter('leveldb', LevelPouch);
 
-// recursive fs.rmdir for Pouch.destroy. Use with care.
-function rmdir(dir, callback) {
-  fs.readdir(dir, function rmfiles(err, files) {
-    if (err) {
-      if (err.code == 'ENOTDIR') {
-        return fs.unlink(dir, callback);
-      }
-      else if (callback) {
-        return callback(err);
-      }
-      else {
-        return;
-      }
-    }
-    var count = files.length;
-    if (count == 0) {
-      return fs.rmdir(dir, callback);
-    }
-    files.forEach(function(file) {
-      var todel = path.join(dir, file);
-      rmdir(todel, function(err) {
-        count--;
-        if (count <= 0) {
-          fs.rmdir(dir, callback);
-        }
-      });
-    })
-  });
-}
+module.exports = LevelPouch;

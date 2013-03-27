@@ -11,6 +11,7 @@ var repl_adapters = [['local-1', 'http-1'],
                      ['http-1', 'local-1'],
                      ['local-1', 'local-2']];
 var qunit = module;
+var LevelPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter

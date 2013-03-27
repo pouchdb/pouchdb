@@ -121,7 +121,7 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      files: ["src/adapter/*.js", "tests/*.js", "src/*.js", "src/plugins/pouchdb.gql.js"],
+      files: ["src/adapters/*.js", "tests/*.js", "src/*.js", "src/plugins/pouchdb.gql.js"],
       options: {
         curly: true,
         eqeqeq: true,
