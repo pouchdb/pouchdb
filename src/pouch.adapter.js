@@ -1,5 +1,5 @@
-/*globals Pouch:true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
-/*globals collectConflicts: false, arrayFirst: false, rootToLeaf: false */
+/*globals Pouch: true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
+/*globals collectConflicts: false, arrayFirst: false, rootToLeaf: false, computeHeight: false */
 
 "use strict";
 
@@ -63,7 +63,7 @@ var PouchAdapter = function(opts, callback) {
         });
       }
     };
-  }
+  };
 
   api.post = function (doc, opts, callback) {
     if (typeof opts === 'function') {
