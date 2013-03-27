@@ -85,7 +85,7 @@ var IdbPouch = function(opts, callback) {
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique: true});
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
-      .createIndex('_rev', '_rev', {unique: true});
+      .createIndex('_doc_id_rev', '_doc_id_rev', {unique: true});
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
     db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
     db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
@@ -348,6 +348,7 @@ var IdbPouch = function(opts, callback) {
       }
 
       function finish() {
+        docInfo.data._doc_id_rev = docInfo.data._id + "::" + docInfo.data._rev;
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function(e) {
           if (Pouch.DEBUG) {
@@ -461,11 +462,14 @@ var IdbPouch = function(opts, callback) {
       }
 
       var rev = Pouch.merge.winningRev(metadata);
-      var key = opts.rev ? opts.rev : rev;
-      var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+      var key = metadata.id + '::' + (opts.rev ? opts.rev : rev);
+      var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
 
       index.get(key).onsuccess = function(e) {
         var doc = e.target.result;
+        if(doc && doc._doc_id_rev) {
+          delete(doc._doc_id_rev);
+        }
         if (!doc) {
           result = Pouch.Errors.MISSING_DOC;
           return;
@@ -611,6 +615,9 @@ var IdbPouch = function(opts, callback) {
         if (opts.include_docs) {
           doc.doc = data;
           doc.doc._rev = Pouch.merge.winningRev(metadata);
+          if (doc.doc._doc_id_rev) {
+              delete(doc.doc._doc_id_rev);
+          }
           if (opts.conflicts) {
             doc.doc._conflicts = collectConflicts(metadata);
           }
@@ -634,9 +641,10 @@ var IdbPouch = function(opts, callback) {
       if (!opts.include_docs) {
         allDocsInner(metadata);
       } else {
-        var index = transaction.objectStore(BY_SEQ_STORE).index('_rev');
+        var index = transaction.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
         var mainRev = Pouch.merge.winningRev(metadata);
-        index.get(mainRev).onsuccess = function(event) {
+        var key = metadata.id + "::" + mainRev;
+        index.get(key).onsuccess = function(event) {
           allDocsInner(cursor.value, event.target.result);
         };
       }
@@ -764,8 +772,9 @@ var IdbPouch = function(opts, callback) {
         }
 
         var mainRev = Pouch.merge.winningRev(metadata);
-        var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
-        index.get(mainRev).onsuccess = function(docevent) {
+        var key = metadata.id + "::" + mainRev;
+        var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
+        index.get(key).onsuccess = function(docevent) {
           var doc = docevent.target.result;
           var changeList = [{rev: mainRev}];
           if (opts.style === 'all_docs') {
@@ -843,9 +852,10 @@ var IdbPouch = function(opts, callback) {
 
   api._removeDocRevisions = function(docId, revs, callback) {
     var txn = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ_WRITE);
-    var index = txn.objectStore(BY_SEQ_STORE).index('_rev');
+    var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
     revs.forEach(function(rev) {
-      index.getKey(rev).onsuccess = function(e) {
+      var key = docId + "::" + rev;
+      index.getKey(key).onsuccess = function(e) {
         var seq = e.target.result;
         if (!seq) {
           return;
