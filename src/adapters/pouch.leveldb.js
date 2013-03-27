@@ -169,7 +169,7 @@ var LevelPouch = function(opts, callback) {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
       if (isDeleted(metadata) && !opts.rev) {
-        return call(callback, extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"}));
+        return call(callback, Pouch.error(Pouch.Errors.MISSING_DOC, "deleted"));
       }
 
       var rev = Pouch.merge.winningRev(metadata);
@@ -256,7 +256,7 @@ var LevelPouch = function(opts, callback) {
     var results = [];
 
     // parse the docs and give each a sequence number
-    var userDocs = extend(true, [], req.docs);
+    var userDocs = req.docs;
     info = userDocs.map(function(doc, i) {
       var newDoc = Pouch.utils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;

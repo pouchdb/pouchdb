@@ -256,16 +256,14 @@ var PouchAdapter = function(opts, callback) {
             var l = leaves[i];
             // looks like it's the only thing couchdb checks
             if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
-              return call(callback, extend({}, Pouch.Errors.BAD_REQUEST, {
-                reason: "Invalid rev format"
-              }));
+              return call(callback, Pouch.error(Pouch.Errors.BAD_REQUEST,
+                "Invalid rev format" ));
             }
           }
           finishOpenRevs();
         } else {
-          return call(callback, extend({}, Pouch.Errors.UNKNOWN_ERROR, {
-            reason: 'function_clause'
-          }));
+          return call(callback, Pouch.error(Pouch.Errors.UNKNOWN_ERROR,
+            'function_clause'));
         }
       }
       return; // open_revs does not like other options
@@ -363,15 +361,15 @@ var PouchAdapter = function(opts, callback) {
     }
     if ('keys' in opts) {
       if ('startkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `start_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        call(callback, Pouch.error(Pouch.Errors.QUERY_PARSE_ERROR,
+          'Query parameter `start_key` is not compatible with multi-get'
+        ));
         return;
       }
       if ('endkey' in opts) {
-        call(callback, extend({
-          reason: 'Query parameter `end_key` is not compatible with multi-get'
-        }, Pouch.Errors.QUERY_PARSE_ERROR));
+        call(callback, Pouch.error(Pouch.Errors.QUERY_PARSE_ERROR,
+          'Query parameter `end_key` is not compatible with multi-get'
+        ));
         return;
       }
     }
@@ -384,6 +382,7 @@ var PouchAdapter = function(opts, callback) {
       api.taskqueue.addTask('changes', arguments);
       return;
     }
+    opts = extend(true, {}, opts);
     return customApi._changes(opts);
   };
 
@@ -422,6 +421,8 @@ var PouchAdapter = function(opts, callback) {
     }
     if (!opts) {
       opts = {};
+    } else {
+      opts = extend(true, {}, opts);
     }
 
     if (!req || !req.docs || req.docs.length < 1) {
@@ -432,6 +433,7 @@ var PouchAdapter = function(opts, callback) {
       return call(callback, Pouch.Errors.QUERY_PARSE_ERROR);
     }
 
+    req = extend(true, {}, req);
     if (!('new_edits' in opts)) {
       opts.new_edits = true;
     }
