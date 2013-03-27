@@ -55,7 +55,7 @@ var webSqlPouch = function(opts, callback) {
     var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
       ' (id unique, seq, json, winningseq)';
     var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE +
-      ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, rev UNIQUE, json)';
+      ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, doc_id_rev UNIQUE, json)';
 
     tx.executeSql(attach);
     tx.executeSql(doc);
@@ -241,8 +241,9 @@ var webSqlPouch = function(opts, callback) {
 
       function finish() {
         var data = docInfo.data;
-        var sql = 'INSERT INTO ' + BY_SEQ_STORE + ' (rev, json) VALUES (?, ?);';
-        tx.executeSql(sql, [data._rev, JSON.stringify(data)], dataWritten);
+        var sql = 'INSERT INTO ' + BY_SEQ_STORE + ' (doc_id_rev, json) VALUES (?, ?);';
+        tx.executeSql(sql, [data._id + "::" + data._rev,
+                            JSON.stringify(data)], dataWritten);
       }
 
       function collectResults(attachmentErr) {
@@ -297,11 +298,14 @@ var webSqlPouch = function(opts, callback) {
         var mainRev = Pouch.merge.winningRev(docInfo.metadata);
 
         var sql = isUpdate ?
-          'UPDATE ' + DOC_STORE + ' SET seq=?, json=?, winningseq=(SELECT seq FROM ' + BY_SEQ_STORE + ' WHERE rev=?) WHERE id=?' :
+          'UPDATE ' + DOC_STORE + ' SET seq=?, json=?, winningseq=(SELECT seq FROM ' +
+          BY_SEQ_STORE + ' WHERE doc_id_rev=?) WHERE id=?' :
           'INSERT INTO ' + DOC_STORE + ' (id, seq, winningseq, json) VALUES (?, ?, ?, ?);';
+        var metadataStr = JSON.stringify(docInfo.metadata);
+        var key = docInfo.metadata.id + "::" + mainRev;
         var params = isUpdate ?
-          [seq, JSON.stringify(docInfo.metadata), mainRev, docInfo.metadata.id] :
-          [docInfo.metadata.id, seq, seq, JSON.stringify(docInfo.metadata)];
+          [seq, metadataStr, key, docInfo.metadata.id] :
+          [docInfo.metadata.id, seq, seq, metadataStr];
         tx.executeSql(sql, params, function(tx, result) {
           results.push(docInfo);
           call(callback, null);
@@ -416,7 +420,8 @@ var webSqlPouch = function(opts, callback) {
 
         var rev = Pouch.merge.winningRev(metadata);
         var key = opts.rev ? opts.rev : rev;
-        var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE rev=?';
+        key = metadata.id + '::' + key;
+        var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
         tx.executeSql(sql, [key], function(tx, results) {
           if (!results.rows.length) {
             result = Pouch.Errors.MISSING_DOC;
@@ -682,8 +687,9 @@ var webSqlPouch = function(opts, callback) {
   };
   api._removeDocRevisions = function(docId, revs, callback) {
     db.transaction(function (tx) {
-      var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE rev IN (' +
-        revs.map(function(rev){return quote(rev);}).join(',') + ')';
+      var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev IN (' +
+        revs.map(function(rev){return quote(docId + '::' + rev);}).join(',') + ')';
+      console.log(sql);
       tx.executeSql(sql, [], function(tx, result) {
         callback();
       });
