@@ -404,28 +404,18 @@ var IdbPouch = function(opts, callback) {
     function saveAttachment(docInfo, digest, data, callback) {
       var objectStore = txn.objectStore(ATTACH_STORE);
       var getReq = objectStore.get(digest).onsuccess = function(e) {
+        var originalRefs = e.target.result && e.target.result.refs || {};
         var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
-        var newAtt = {digest: digest, body: data};
-
-        if (e.target.result) {
-          if (e.target.result.refs) {
-            // only update references if this attachment already has them
-            // since we cannot migrate old style attachments here without
-            // doing a full db scan for references
-            newAtt.refs = e.target.result.refs;
-            newAtt.refs[ref] = true;
-          }
-        } else {
-          newAtt.refs = {};
-          newAtt.refs[ref] = true;
-        }
-
+        var newAtt = {
+          digest: digest,
+          body: data,
+          refs: originalRefs
+        };
+        newAtt.refs[ref] = true;
         var putReq = objectStore.put(newAtt).onsuccess = function(e) {
           call(callback);
         };
-        putReq.onerror = putReq.ontimeout = idbError(callback);
       };
-      getReq.onerror = getReq.ontimeout = idbError(callback);
     }
 
     var txn;
@@ -438,7 +428,6 @@ var IdbPouch = function(opts, callback) {
 
       processDocs();
     });
-
   };
 
   function sortByBulkSeq(a, b) {
