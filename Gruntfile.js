@@ -29,8 +29,8 @@ var browserConfig = [{
 }, {
   browserName: 'firefox',
   version: '19',
-  platform: 'Windows 2003',
-  name: 'win2003/firefox'
+  platform: 'Linux',
+  name: 'linux/firefox'
 // }, {
 //   browserName: 'opera',
 //   version: '12',
