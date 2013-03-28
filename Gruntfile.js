@@ -215,7 +215,7 @@ module.exports = function(grunt) {
       }
     },
     'publish-results': {
-      server: 'http://pouchdb.iriscouch.com',
+      server: 'http://couchdb.pouchdb.com',
       db: 'test_results'
     }
   });
