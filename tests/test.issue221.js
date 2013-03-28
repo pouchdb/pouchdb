@@ -43,33 +43,26 @@ adapters.map(function(adapters) {
 
   asyncTest('Testing issue #221', function() {
     var self = this;
-    // Feature detection for pouchdb-server
-    ajax({ url: 'http://localhost:2020/' }, function (err, ret) {
-      if (!ret.couchdb) {
-        ok(true, 'Test not applicable to backend.');
-        return start();
-      }
-      // Create databases.
-      initDBPair(self.local, self.remote, function(local, remote) {
-        // Write a doc in CouchDB.
+    // Create databases.
+    initDBPair(self.local, self.remote, function(local, remote) {
+      // Write a doc in CouchDB.
+      remote.put(doc, function(err, results) {
+        // Update the doc.
+        doc._rev = results.rev;
+        doc.integer = 1;
         remote.put(doc, function(err, results) {
-          // Update the doc.
-          doc._rev = results.rev;
-          doc.integer = 1;
-          remote.put(doc, function(err, results) {
-            // Compact the db.
-            remote.compact(function() {
-              remote.get(doc._id, {revs_info:true},function(err, data) {
-                var correctRev = data._revs_info[0];
-                local.replicate.from(remote, function(err, results) {
-                  // Check the PouchDB doc.
-                  local.get(doc._id, function(err, results) {
-                    strictEqual(results._rev, correctRev.rev,
-                       'correct rev stored after replication');
-                    strictEqual(results.integer, 1,
-                       'correct content stored after replication');
-                    start();
-                  });
+          // Compact the db.
+          remote.compact(function() {
+            remote.get(doc._id, {revs_info:true},function(err, data) {
+              var correctRev = data._revs_info[0];
+              local.replicate.from(remote, function(err, results) {
+                // Check the PouchDB doc.
+                local.get(doc._id, function(err, results) {
+                  strictEqual(results._rev, correctRev.rev,
+                              'correct rev stored after replication');
+                  strictEqual(results.integer, 1,
+                              'correct content stored after replication');
+                  start();
                 });
               });
             });
@@ -81,30 +74,23 @@ adapters.map(function(adapters) {
 
   asyncTest('Testing issue #221 again', function() {
     var self = this;
-    // Feature detection for pouchdb-server
-    ajax({ url: 'http://localhost:2020/' }, function (err, ret) {
-      if (!ret.couchdb) {
-        ok(true, 'Test not applicable to backend.');
-        return start();
-      }
-      // Create databases.
-      initDBPair(self.local, self.remote, function(local, remote) {
-        // Write a doc in CouchDB.
+    // Create databases.
+    initDBPair(self.local, self.remote, function(local, remote) {
+      // Write a doc in CouchDB.
+      remote.put(doc, function(err, results) {
+        doc._rev = results.rev;
+        // Second doc so we get 2 revisions from replicate.
         remote.put(doc, function(err, results) {
           doc._rev = results.rev;
-          // Second doc so we get 2 revisions from replicate.
-          remote.put(doc, function(err, results) {
-            doc._rev = results.rev;
-            local.replicate.from(remote, function(err, results) {
-              doc.integer = 1;
-              // One more change
-              remote.put(doc, function(err, results) {
-                // Testing if second replications fails now
-                local.replicate.from(remote, function(err, results) {
-                  local.get(doc._id, function(err, results) {
-                    strictEqual(results.integer, 1, 'correct content stored after replication');
-                    start();
-                  });
+          local.replicate.from(remote, function(err, results) {
+            doc.integer = 1;
+            // One more change
+            remote.put(doc, function(err, results) {
+              // Testing if second replications fails now
+              local.replicate.from(remote, function(err, results) {
+                local.get(doc._id, function(err, results) {
+                  strictEqual(results.integer, 1, 'correct content stored after replication');
+                  start();
                 });
               });
             });
