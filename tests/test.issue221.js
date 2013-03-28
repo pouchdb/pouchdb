@@ -1,4 +1,4 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals initTestDB: false, emit: true, generateAdapterUrl: false, strictEqual: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true */
 
