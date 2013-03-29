@@ -61,8 +61,8 @@ var genReplicationId = function(src, target, opts) {
 };
 
 // A checkpoint lets us restart replications from when they were last cancelled
-var fetchCheckpoint = function(src, id, callback) {
-  src.get(id, function(err, doc) {
+var fetchCheckpoint = function(target, id, callback) {
+  target.get(id, function(err, doc) {
     if (err && err.status === 404) {
       callback(null, 0);
     } else {
@@ -71,16 +71,16 @@ var fetchCheckpoint = function(src, id, callback) {
   });
 };
 
-var writeCheckpoint = function(src, id, checkpoint, callback) {
+var writeCheckpoint = function(target, id, checkpoint, callback) {
   var check = {
     _id: id,
     last_seq: checkpoint
   };
-  src.get(check._id, function(err, doc) {
+  target.get(check._id, function(err, doc) {
     if (doc && doc._rev) {
       check._rev = doc._rev;
     }
-    src.put(check, function(err, doc) {
+    target.put(check, function(err, doc) {
       callback();
     });
   });
@@ -183,13 +183,13 @@ function replicate(src, target, opts, promise) {
   function isCompleted() {
     if (completed && pending === 0) {
       result.end_time = Date.now();
-      writeCheckpoint(src, repId, last_seq, function(err, res) {
+      writeCheckpoint(target, repId, last_seq, function(err, res) {
         call(opts.complete, err, result);
       });
     }
   }
 
-  fetchCheckpoint(src, repId, function(err, checkpoint) {
+  fetchCheckpoint(target, repId, function(err, checkpoint) {
 
     if (err) {
       return call(opts.complete, err);
