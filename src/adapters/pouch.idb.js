@@ -77,10 +77,18 @@ var IdbPouch = function(opts, callback) {
     console.log(name + ': Open Database');
   }
 
-  // TODO: before we release, make sure we write upgrade needed
-  // in a way that supports a future upgrade path
   req.onupgradeneeded = function(e) {
     var db = e.target.result;
+    var currentVersion = e.oldVersion;
+    while (currentVersion !== e.newVersion) {
+      if (currentVersion === 0) {
+        createSchema(db);
+      }
+      currentVersion++;
+    }
+  };
+
+  function createSchema(db) {
     db.createObjectStore(DOC_STORE, {keyPath : 'id'})
       .createIndex('seq', 'seq', {unique: true});
     db.createObjectStore(BY_SEQ_STORE, {autoIncrement : true})
@@ -88,7 +96,7 @@ var IdbPouch = function(opts, callback) {
     db.createObjectStore(ATTACH_STORE, {keyPath: 'digest'});
     db.createObjectStore(META_STORE, {keyPath: 'id', autoIncrement: false});
     db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
-  };
+  }
 
   req.onsuccess = function(e) {
 
