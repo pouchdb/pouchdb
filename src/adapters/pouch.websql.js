@@ -1,6 +1,5 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
-/*globals isLocalId: false, isDeleted: false, collectConflicts: false */
-/*globals collectLeaves: false, Changes: false */
+/*globals isLocalId: false, isDeleted: false, Changes: false */
 
 'use strict';
 
@@ -114,12 +113,6 @@ var webSqlPouch = function(opts, callback) {
     var docInfos = userDocs.map(function(doc, i) {
       var newDoc = parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
-      if (doc._deleted) {
-        if (!newDoc.metadata.deletions) {
-          newDoc.metadata.deletions = {};
-        }
-        newDoc.metadata.deletions[doc._rev.split('-')[1]] = true;
-      }
       return newDoc;
     });
 
@@ -314,8 +307,6 @@ var webSqlPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
-      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
-
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
       var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
         (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
@@ -455,6 +446,13 @@ var webSqlPouch = function(opts, callback) {
     });
   };
 
+  function makeRevs(arr) {
+    return arr.map(function(x) { return {rev: x.rev}; });
+  }
+  function makeIds(arr) {
+    return arr.map(function(x) { return x.id; });
+  }
+
   api._allDocs = function(opts, callback) {
     var results = [];
     var resultsMap = {};
@@ -496,7 +494,7 @@ var webSqlPouch = function(opts, callback) {
               doc.doc = data;
               doc.doc._rev = Pouch.merge.winningRev(metadata);
               if (opts.conflicts) {
-                doc.doc._conflicts = collectConflicts(metadata);
+                doc.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
               }
             }
             if ('keys' in opts) {
@@ -586,7 +584,7 @@ var webSqlPouch = function(opts, callback) {
               var change = {
                 id: metadata.id,
                 seq: doc.seq,
-                changes: collectLeaves(metadata.rev_tree),
+                changes: makeRevs(Pouch.merge.collectLeaves(metadata.rev_tree)),
                 doc: JSON.parse(doc.data)
               };
               change.doc._rev = Pouch.merge.winningRev(metadata);
@@ -594,7 +592,7 @@ var webSqlPouch = function(opts, callback) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = collectConflicts(metadata);
+                change.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
               }
               results.push(change);
             }

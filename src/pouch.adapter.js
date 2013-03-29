@@ -1,5 +1,5 @@
-/*globals Pouch: true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false, collectLeaves: false */
-/*globals collectConflicts: false, arrayFirst: false, rootToLeaf: false, computeHeight: false */
+/*globals Pouch: true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false */
+/*globals arrayFirst: false, rootToLeaf: false, computeHeight: false */
 
 "use strict";
 
@@ -276,7 +276,7 @@ var PouchAdapter = function(opts, callback) {
             // situation the same way as if revision tree was empty
             rev_tree = [];
           }
-          leaves = collectLeaves(rev_tree).map(function(leaf){
+          leaves = Pouch.merge.collectLeaves(rev_tree).map(function(leaf){
             return leaf.rev;
           });
           finishOpenRevs();
@@ -316,14 +316,18 @@ var PouchAdapter = function(opts, callback) {
       }
 
       if (opts.conflicts) {
-        var conflicts = collectConflicts(metadata);
+        var conflicts = Pouch.merge.collectConflicts(metadata);
         if (conflicts.length) {
           doc._conflicts = conflicts;
         }
       }
 
       if (opts.revs || opts.revs_info) {
-        var path = arrayFirst(rootToLeaf(metadata.rev_tree), function(arr) {
+        var paths = rootToLeaf(metadata.rev_tree);
+        paths.map(function(path, i) {
+          paths[i].ids = path.ids.map(function(x) { return x.id; });
+        });
+        var path = arrayFirst(paths, function(arr) {
           return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
         });
         path.ids.splice(path.ids.indexOf(doc._rev.split('-')[1]) + 1);
@@ -366,7 +370,7 @@ var PouchAdapter = function(opts, callback) {
       } else {
         finish();
       }
-      
+
     });
   };
 

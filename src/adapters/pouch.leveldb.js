@@ -263,13 +263,6 @@ var LevelPouch = function(opts, callback) {
       if (newDoc.metadata && !newDoc.metadata.rev_map) {
         newDoc.metadata.rev_map = {};
       }
-      if (doc._deleted) {
-        if (!newDoc.metadata.deletions) {
-          newDoc.metadata.deletions = {};
-        }
-        newDoc.metadata.deletions[doc._rev.split('-')[1]] = true;
-      }
-
       return newDoc;
     });
 
@@ -325,8 +318,6 @@ var LevelPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo, callback) {
-      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
-
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
       var conflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
@@ -491,7 +482,7 @@ var LevelPouch = function(opts, callback) {
         var change = {
           id: metadata.id,
           seq: metadata.seq,
-          changes: Pouch.utils.collectLeaves(metadata.rev_tree),
+          changes: Pouch.merge.collectLeaves(metadata.rev_tree),
           doc: result.data
         };
         change.doc._rev = rev;
@@ -546,7 +537,7 @@ var LevelPouch = function(opts, callback) {
           doc.doc = data;
           doc.doc._rev = doc.value.rev;
           if (opts.conflicts) {
-            doc.doc._conflicts = Pouch.utils.collectConflicts(metadata);
+            doc.doc._conflicts = Pouch.merge.collectConflicts(metadata);
           }
         }
         if ('keys' in opts) {
@@ -630,7 +621,8 @@ var LevelPouch = function(opts, callback) {
             var change = {
               id: metadata.id,
               seq: metadata.seq,
-              changes: Pouch.utils.collectLeaves(metadata.rev_tree),
+              changes: Pouch.merge.collectLeaves(metadata.rev_tree)
+                .map(function(x) { return {rev: x.rev}; }),
               doc: data.value
             };
 
@@ -640,7 +632,7 @@ var LevelPouch = function(opts, callback) {
               change.deleted = true;
             }
             if (opts.conflicts) {
-              change.doc._conflicts = Pouch.utils.collectConflicts(metadata);
+              change.doc._conflicts = Pouch.merge.collectConflicts(metadata);
             }
 
             // dedupe changes (TODO: more efficient way to accomplish this?)

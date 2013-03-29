@@ -210,9 +210,9 @@ adapters.map(function(adapter) {
           db.post(doc, function(err, res) {
             var rev3 = res.rev;
             db.get("doc", {rev: rev1}, function(err, doc) {
-              ok(err.status === 404 && err.error === "not_found", 
+              ok(err.status === 404 && err.error === "not_found",
                 "compacted document is missing");
-              db.get("doc", {rev: rev2}, function(err, doc) { 
+              db.get("doc", {rev: rev2}, function(err, doc) {
                 ok(!err, "leaf's parent does not get compacted");
                 db.get("doc", {rev: rev3}, function(err, doc) {
                   ok(!err, "leaf revision does not get compacted");
