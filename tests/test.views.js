@@ -242,4 +242,40 @@ adapters.map(function(adapter) {
     });
   });
 
+
+  asyncTest('Views should include _conflict by default', function() {
+    var self = this;
+    var doc1 = {_id: '1', foo: 'bar'};
+    var doc2 = {_id: '1', foo: 'baz'};
+    var queryFun = function(doc) { emit(doc._conflicts); };
+    initDBPair(this.name, this.remote, function(db, remote) {
+      db.post(doc1, function(err, res) {
+        remote.post(doc2, function(err, res) {
+          db.replicate.from(remote, function(err, res) {
+            db.get(doc1._id, {conflicts: true}, function(err, res) {
+              ok(res._conflicts,'Conflict exists in db');
+
+              // Default behaviour
+              db.query(queryFun, function(err, res) {
+                equal(res.rows[0].key.length, 1, 'Conflicts included');
+              });
+
+              // conflicts:  true
+              db.query(queryFun, {conflicts: true}, function(err, res) {
+                equal(res.rows[0].key.length, 1, 'Conflicts included');
+              });
+
+              // conflicts: false
+              db.query(queryFun, {conflicts: false}, function(err, res) {
+                equal(res.rows[0].key, undefined,'Conflicts excluded');
+              });
+
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
 });
