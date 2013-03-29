@@ -744,9 +744,11 @@ var IdbPouch = function(opts, callback) {
       var cursor = event.target.result;
 
       // Try to pre-emptively dedup to save us a bunch of idb calls
-      var changeId = cursor.value._id, changeIdIndex = resultIndices[changeId];
+      var changeId = cursor.value._id;
+      var changeIdIndex = resultIndices[changeId];
       if (changeIdIndex !== undefined) {
-        results[changeIdIndex].seq = cursor.key; // update so it has the later sequence number
+        results[changeIdIndex].seq = cursor.key;
+        // update so it has the later sequence number
         results.push(results[changeIdIndex]);
         results[changeIdIndex] = null;
         resultIndices[changeId] = results.length - 1;
@@ -776,6 +778,7 @@ var IdbPouch = function(opts, callback) {
             changes: changeList,
             doc: doc
           };
+
           if (isDeleted(metadata, mainRev)) {
             change.deleted = true;
           }

@@ -628,18 +628,17 @@ var LevelPouch = function(opts, callback) {
 
             change.doc._rev = Pouch.merge.winningRev(metadata);
 
-            if (isDeleted(metadata)) {
+           if (isDeleted(metadata)) {
               change.deleted = true;
             }
             if (opts.conflicts) {
               change.doc._conflicts = Pouch.merge.collectConflicts(metadata);
             }
 
-            // dedupe changes (TODO: more efficient way to accomplish this?)
-            results = results.filter(function(doc) {
-              return doc.id !== change.id;
-            });
-            results.push(change);
+            // Ensure duplicated dont overwrite winning rev
+            if (+data.key === metadata.rev_map[change.doc._rev]) {
+              results.push(change);
+            }
           });
         })
         .on('error', function(err) {
