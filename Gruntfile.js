@@ -278,11 +278,16 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
-  grunt.registerTask("browser", ["connect", "cors-server", "forever"])
-  grunt.registerTask("testSetup", ["jshint", "build", "connect", "cors-server"]);
-  grunt.registerTask("test", ["testSetup", "node-qunit" ,"saucelabs-qunit", "publish-results"]);
+  grunt.registerTask("browser", ["connect", "cors-server", "forever"]);
   grunt.registerTask("full", ["concat", "uglify"]);
+
   grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
   grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
+
+  grunt.registerTask("test", ["jshint", "cors-server"]);
+  grunt.registerTask("test-travis", ["jshint", "build", "connect", "cors-server",
+                                     "node-qunit", "saucelabs-qunit",
+                                     "publish-results"]);
+
   grunt.registerTask('default', 'build');
 };
