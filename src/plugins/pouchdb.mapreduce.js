@@ -25,6 +25,9 @@ var MapReduce = function(db) {
       options.reduce = false;
     }
 
+    // Including conflicts
+    options.conflicts = true;
+
     function sum(values) {
       return values.reduce(function(a, b) { return a + b; }, 0);
     }
@@ -39,11 +42,12 @@ var MapReduce = function(db) {
         id: current.doc._id,
         key: key,
         value: val
-      }; 
+      };
 
       if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
       if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
       if (options.key && Pouch.collate(key, options.key) !== 0) return;
+
       num_started++;
       if (options.include_docs) {
         //in this special case, join on _id (issue #106)
