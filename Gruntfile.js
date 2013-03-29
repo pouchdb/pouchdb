@@ -284,7 +284,7 @@ module.exports = function(grunt) {
   grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
   grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
 
-  grunt.registerTask("test", ["jshint", "cors-server"]);
+  grunt.registerTask("test", ["jshint", "node-qunit"]);
   grunt.registerTask("test-travis", ["jshint", "build", "connect", "cors-server",
                                      "node-qunit", "saucelabs-qunit",
                                      "publish-results"]);
