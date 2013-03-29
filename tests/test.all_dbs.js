@@ -47,6 +47,15 @@ function async(functions, callback) {
   series(functions);
 }
 
+// Remove old allDbs to prevent DOM exception
+Object.keys(Pouch.adapters).forEach(function(adapter) {
+  if (adapter === "http" || adapter === "https") {
+    return;
+  }
+
+  Pouch.destroy(Pouch.allDBName(adapter), function(){});
+});
+
 // Loop through all availible adapters
 Object.keys(Pouch.adapters).forEach(function(adapter) {
   // allDbs method only works for local adapters
@@ -56,16 +65,20 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
 
   qunit('allDbs: ' + adapter, {
     setup: function() {
-        // DummyDB Names
-        this.pouchNames = [];
+      // enable allDbs
+      Pouch.enableAllDbs = true;
 
-        var pouchName;
-        for (var i = 0; i < 5; i++) {
-          pouchName = 'testdb_' + uuid();
-          this.pouchNames.push([adapter, "://", pouchName].join(''));
-        }
+      // DummyDB Names
+      this.pouchNames = [];
+
+      var pouchName;
+      for (var i = 0; i < 5; i++) {
+        pouchName = 'testdb_' + uuid();
+        this.pouchNames.push([adapter, "://", pouchName].join(''));
+      }
     },
     teardown: function() {
+      Pouch.enableAllDbs = false;
     }
   });
 
@@ -293,6 +306,9 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
 // 2. Otherwise, the dbname will just contain the dbname (without the adapter prefix)
 qunit("allDbs return value", {
   setup: function() {
+    // enable allDbs
+    Pouch.enableAllDbs = true;
+
     // DummyDB Names
     var pouchNames = [];
 
@@ -317,6 +333,7 @@ qunit("allDbs return value", {
     this.pouchNames = pouchNames;
   },
   teardown: function() {
+    Pouch.enableAllDbs = false;
   }
 });
 
