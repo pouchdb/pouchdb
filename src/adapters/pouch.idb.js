@@ -1,6 +1,5 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
-/*globals isLocalId: false, isDeleted: false, collectConflicts: false */
-/*globals collectLeaves: false, Changes: false */
+/*globals isLocalId: false, isDeleted: false, Changes: false */
 
 'use strict';
 
@@ -160,7 +159,6 @@ var IdbPouch = function(opts, callback) {
   };
 
   api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
-
     var newEdits = opts.new_edits;
     var userDocs = req.docs;
 
@@ -168,12 +166,6 @@ var IdbPouch = function(opts, callback) {
     var docInfos = userDocs.map(function(doc, i) {
       var newDoc = parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
-      if (doc._deleted) {
-        if (!newDoc.metadata.deletions) {
-          newDoc.metadata.deletions = {};
-        }
-        newDoc.metadata.deletions[doc._rev.split('-')[1]] = true;
-      }
       return newDoc;
     });
 
@@ -371,12 +363,10 @@ var IdbPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
-      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
-
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
-
-      var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
-        (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
+      var wasPreviouslyDeleted = isDeleted(oldDoc);
+      var inConflict = (wasPreviouslyDeleted && isDeleted(docInfo.metadata)) ||
+        (!wasPreviouslyDeleted && newEdits && merged.conflicts !== 'new_leaf');
 
       if (inConflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
@@ -619,7 +609,8 @@ var IdbPouch = function(opts, callback) {
               delete(doc.doc._doc_id_rev);
           }
           if (opts.conflicts) {
-            doc.doc._conflicts = collectConflicts(metadata);
+            doc.doc._conflicts = Pouch.merge.collectConflicts(metadata)
+              .map(function(x) { return x.id; });
           }
         }
         if ('keys' in opts) {
@@ -776,8 +767,8 @@ var IdbPouch = function(opts, callback) {
           var doc = docevent.target.result;
           var changeList = [{rev: mainRev}];
           if (opts.style === 'all_docs') {
-          //  console.log('all docs', changeList, collectLeaves(metadata.rev_tree));
-            changeList = collectLeaves(metadata.rev_tree);
+            changeList = Pouch.merge.collectLeaves(metadata.rev_tree)
+              .map(function(x) { return {rev: x.rev}; });
           }
           var change = {
             id: metadata.id,
@@ -789,7 +780,8 @@ var IdbPouch = function(opts, callback) {
             change.deleted = true;
           }
           if (opts.conflicts) {
-            change.doc._conflicts = collectConflicts(metadata);
+            change.doc._conflicts = Pouch.merge.collectConflicts(metadata)
+              .map(function(x) { return x.id; });
           }
 
           // Dedupe the changes feed

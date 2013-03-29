@@ -115,7 +115,7 @@ function generateAdapterUrl(id) {
 }
 
 // Put doc after prevRev (so that doc is a child of prevDoc
-// in rev_tree). Doc must have _rev. If prevRev is not specified 
+// in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
 function putAfter(db, doc, prevRev, callback){
   var newDoc = extend({}, doc);
@@ -148,7 +148,7 @@ var putBranch = function(db, docs, callback) {
     }
     db.get(doc._id, {rev: doc._rev}, function(err, ok){
       if(err){
-        putAfter(db, docs[i], prev, function() {
+        putAfter(db, docs[i], prev, function(err, doc) {
           next();
         });
       }else{

@@ -1,4 +1,4 @@
-/*globals rootToLeaf: false, extend: false, traverseRevTree: false */
+/*globals rootToLeaf: false, extend: false */
 
 'use strict';
 
@@ -20,17 +20,19 @@ if (typeof module !== 'undefined' && module.exports) {
 //
 // KeyTree = [Path ... ]
 // Path = {pos: position_from_root, ids: Tree}
-// Tree = [Key, [Tree, ...]], in particular single node: [Key, []]
+// Tree = [Key, Opts, [Tree, ...]], in particular single node: [Key, []]
 
 // Turn a path as a flat array into a tree with a single branch
 function pathToTree(path) {
-  var root = [path.shift(), []];
+  var doc = path.shift();
+  var root = [doc.id, doc.opts, []];
   var leaf = root;
   var nleaf;
 
   while (path.length) {
-    nleaf = [path.shift(), []];
-    leaf[1].push(nleaf);
+    doc = path.shift();
+    nleaf = [doc.id, doc.opts, []];
+    leaf[2].push(nleaf);
     leaf = nleaf;
   }
   return root;
@@ -46,24 +48,24 @@ function mergeTree(in_tree1, in_tree2) {
     var tree1 = item.tree1;
     var tree2 = item.tree2;
 
-    for (var i = 0; i < tree2[1].length; i++) {
-      if (!tree1[1][0]) {
+    for (var i = 0; i < tree2[2].length; i++) {
+      if (!tree1[2][0]) {
         conflicts = 'new_leaf';
-        tree1[1][0] = tree2[1][i];
+        tree1[2][0] = tree2[2][i];
         continue;
       }
 
       var merged = false;
-      for (var j = 0; j < tree1[1].length; j++) {
-        if (tree1[1][j][0] === tree2[1][i][0]) {
-          queue.push({tree1: tree1[1][j], tree2: tree2[1][i]});
+      for (var j = 0; j < tree1[2].length; j++) {
+        if (tree1[2][j][0] === tree2[2][i][0]) {
+          queue.push({tree1: tree1[2][j], tree2: tree2[2][i]});
           merged = true;
         }
       }
       if (!merged) {
         conflicts = 'new_branch';
-        tree1[1].push(tree2[1][i]);
-        tree1[1].sort();
+        tree1[2].push(tree2[2][i]);
+        tree1[2].sort();
       }
     }
   }
@@ -114,7 +116,7 @@ function doMerge(tree, path, dontExpand) {
           continue;
         }
         /*jshint loopfunc:true */
-        item.ids[1].forEach(function(el, idx) {
+        item.ids[2].forEach(function(el, idx) {
           trees.push({ids: el, diff: item.diff-1, parent: item.ids, parentIdx: idx});
         });
       }
@@ -125,7 +127,7 @@ function doMerge(tree, path, dontExpand) {
         restree.push(branch);
       } else {
         res = mergeTree(el.ids, t2.ids);
-        el.parent[1][el.parentIdx] = res.tree;
+        el.parent[2][el.parentIdx] = res.tree;
         restree.push({pos: t1.pos, ids: t1.ids});
         conflicts = conflicts || res.conflicts;
         merged = true;
@@ -185,19 +187,13 @@ Pouch.merge = function(tree, path, depth) {
 // The final sort algorithm is slightly documented in a sidebar here:
 // http://guide.couchdb.org/draft/conflicts.html
 Pouch.merge.winningRev = function(metadata) {
-  var deletions = metadata.deletions || {};
   var leafs = [];
-
-  traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id) {
+  Pouch.merge.traverseRevTree(metadata.rev_tree,
+                              function(isLeaf, pos, id, something, opts) {
     if (isLeaf) {
-      leafs.push({pos: pos, id: id});
+      leafs.push({pos: pos, id: id, deleted: !!opts.deleted});
     }
   });
-
-  leafs.forEach(function(leaf) {
-    leaf.deleted = leaf.id in deletions;
-  });
-
   leafs.sort(function(a, b) {
     if (a.deleted !== b.deleted) {
       return a.deleted > b.deleted ? 1 : -1;
@@ -207,6 +203,59 @@ Pouch.merge.winningRev = function(metadata) {
     }
     return a.id < b.id ? 1 : -1;
   });
+
   return leafs[0].pos + '-' + leafs[0].id;
+};
+
+// Pretty much all below can be combined into a higher order function to
+// traverse revisions
+// Callback has signature function(isLeaf, pos, id, [context])
+// The return value from the callback will be passed as context to all
+// children of that node
+Pouch.merge.traverseRevTree = function(revs, callback) {
+  var toVisit = [];
+
+  revs.forEach(function(tree) {
+    toVisit.push({pos: tree.pos, ids: tree.ids});
+  });
+  while (toVisit.length > 0) {
+    var node = toVisit.pop();
+    var pos = node.pos;
+    var tree = node.ids;
+    var newCtx = callback(tree[2].length === 0, pos, tree[0], node.ctx, tree[1]);
+    /*jshint loopfunc: true */
+    tree[2].forEach(function(branch) {
+      toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
+    });
+  }
+};
+
+Pouch.merge.collectLeaves = function(revs) {
+  var leaves = [];
+  Pouch.merge.traverseRevTree(revs, function(isLeaf, pos, id, acc, opts) {
+    if (isLeaf) {
+      leaves.unshift({rev: pos + "-" + id, pos: pos, opts: opts});
+    }
+  });
+  leaves.sort(function(a, b) {
+    return b.pos - a.pos;
+  });
+  leaves.map(function(leaf) { delete leaf.pos; });
+  return leaves;
+};
+
+// returns all conflicts that is leaves such that
+// 1. are not deleted and
+// 2. are different than winning revision
+Pouch.merge.collectConflicts = function(metadata) {
+  var win = Pouch.merge.winningRev(metadata);
+  var leaves = Pouch.merge.collectLeaves(metadata.rev_tree);
+  var conflicts = [];
+  leaves.forEach(function(leaf) {
+    if (leaf.rev !== win && !leaf.opts.deleted) {
+      conflicts.push(leaf.rev);
+    }
+  });
+  return conflicts;
 };
 
