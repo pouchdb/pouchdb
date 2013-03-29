@@ -39,7 +39,7 @@ var MapReduce = function(db) {
         id: current.doc._id,
         key: key,
         value: val
-      }; 
+      };
 
       if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
       if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
@@ -70,10 +70,6 @@ var MapReduce = function(db) {
     if (fun.reduce) {
       eval('fun.reduce = ' + fun.reduce.toString() + ';');
     }
-
-    // exclude  _conflicts key by default
-    // or to use options.conflicts if it's set when called by db.query
-    var conflicts = ('conflicts' in options ? options.conflicts : false);
 
     //only proceed once all documents are mapped and joined
     var checkComplete= function(){
@@ -107,7 +103,7 @@ var MapReduce = function(db) {
     }
 
     db.changes({
-      conflicts: conflicts,
+      conflicts: options.conflicts,
       include_docs: true,
       onChange: function(doc) {
         if (!('deleted' in doc)) {
@@ -201,6 +197,9 @@ var MapReduce = function(db) {
     if (callback) {
       opts.complete = callback;
     }
+
+    // Including conflicts by default
+    opts.conflicts = opts.conflicts || true;
 
     if (db.type() === 'http') {
 	  if (typeof fun === 'function'){
