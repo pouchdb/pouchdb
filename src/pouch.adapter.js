@@ -217,21 +217,25 @@ var PouchAdapter = function(opts, callback) {
   // compact the whole database using single document
   // compaction
   api.compact = function(callback) {
-    api.allDocs(function(err, res) {
-      var count = res.rows.length;
+    api.changes({complete: function(err, res) {
+      if (err) {
+        call(callback); // TODO: silently fail
+        return;
+      }
+      var count = res.results.length;
       if (!count) {
         call(callback);
         return;
       }
-      res.rows.forEach(function(row) {
-        compactDocument(row.key, 0, function() {
+      res.results.forEach(function(row) {
+        compactDocument(row.id, 0, function() {
           count--;
           if (!count) {
             call(callback);
           }
         });
       });
-    });
+    }});
   };
 
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
