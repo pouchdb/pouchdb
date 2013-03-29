@@ -684,6 +684,26 @@ deletedDocAdapters.map(function(adapters) {
       });
     });
   });
+
+  asyncTest("issue #585 Store checkpoint on target db.", function() {
+    console.info('Starting Test: Local DB contains documents');
+    var docs = [{_id: "a"}, {_id: "b"}];
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+        db.bulkDocs({docs: docs}, {}, function(err, _) {
+          db.replicate.to(self.remote, function(err, result) {
+            ok(result.docs_written === docs.length, 'docs replicated ok');
+            Pouch.destroy(self.remote, function (err, result) {
+              ok(result.ok === true, 'remote was deleted');
+              db.replicate.to(self.remote, function (err, result) {
+                ok(result.docs_written === docs.length, 'docs were written again because target was deleted.');
+                start();
+              });
+            });
+          });
+        });
+    });
+  });
 });
 
 // This test only needs to run for one configuration, and it slows stuff
