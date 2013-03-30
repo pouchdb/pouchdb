@@ -27,10 +27,10 @@ var browserConfig = [{
   name: 'win2003/chrome',
   'chrome.switches' : ['disable-file-system']
 }, {
-  browserName: 'firefox',
-  version: '19',
-  platform: 'Linux',
-  name: 'linux/firefox'
+  browserName: 'safari',
+  version: '6',
+  platform: 'Mac 10.8',
+  name: 'mac/safari'
 // }, {
 //   browserName: 'opera',
 //   version: '12',
