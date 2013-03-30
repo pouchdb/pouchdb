@@ -1,5 +1,5 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
-/*globals isLocalId: false, isDeleted: false, Changes: false */
+/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false */
 
 'use strict';
 
@@ -603,15 +603,7 @@ var webSqlPouch = function(opts, callback) {
               dedupResults.push(result);
             }
           }
-          dedupResults.map(function(c) {
-            if (opts.filter && !opts.filter.apply(this, [c.doc])) {
-              return;
-            }
-            if (!opts.include_docs) {
-              delete c.doc;
-            }
-            call(opts.onChange, c);
-          });
+          dedupResults.map(filterChange(opts));
 
           call(opts.complete, null, {results: dedupResults});
         });
