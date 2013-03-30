@@ -1,5 +1,6 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false */
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
@@ -23,12 +24,9 @@ adapters.map(function(adapter) {
   qunit('gql: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   asyncTest("Test select *", function() {

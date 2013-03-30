@@ -1,10 +1,12 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, Spatial: false */
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
 var qunit = module;
+var LevelPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -24,12 +26,9 @@ adapters.map(function(adapter) {
   qunit('spatial: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   // some geometries are based on the GeoJSON specification

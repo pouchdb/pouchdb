@@ -1,5 +1,6 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
@@ -26,13 +27,9 @@ adapters.map(function(adapter) {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
       this.remote = generateAdapterUrl('local-2');
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-        Pouch.destroy(this.remote);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   asyncTest("Test basic view", function() {

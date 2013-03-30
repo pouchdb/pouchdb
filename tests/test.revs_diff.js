@@ -1,10 +1,12 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false */
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
+var LevelPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -24,12 +26,9 @@ adapters.map(function(adapter) {
   qunit("revs diff:" + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   asyncTest("Test revs diff", function() {
