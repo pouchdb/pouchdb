@@ -26,16 +26,16 @@ var browserConfig = [{
   platform: 'Windows 2003',
   name: 'win2003/chrome',
   'chrome.switches' : ['disable-file-system']
-}, {
-  browserName: 'firefox',
-  version: '19',
-  platform: 'Linux',
-  name: 'linux/firefox'
 // }, {
-//   browserName: 'opera',
-//   version: '12',
-//   platform: 'Windows 2008',
-//   name: 'win2008/opera'
+//   browserName: 'firefox',
+//   version: '19',
+//   platform: 'Linux',
+//   name: 'linux/firefox'
+}, {
+  browserName: 'opera',
+  version: '12',
+  platform: 'Linux',
+  name: 'linux/opera'
 }];
 
 module.exports = function(grunt) {
