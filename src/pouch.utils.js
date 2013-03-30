@@ -241,10 +241,10 @@ var collectConflicts = function(metadata) {
   var leaves = collectLeaves(metadata.rev_tree);
   var conflicts = [];
   leaves.forEach(function(leaf) {
-    var rev = leaf.rev.split("-")[1]; 
+    var rev = leaf.rev.split("-")[1];
     if ((!metadata.deletions || !metadata.deletions[rev]) && leaf.rev !== win) {
       conflicts.push(leaf.rev);
-    } 
+    }
   });
   return conflicts;
 };
@@ -261,7 +261,9 @@ var arrayFirst = function(arr, callback) {
 
 var filterChange = function(opts) {
   return function(change) {
-    if (opts.filter && !opts.filter.call(this, change.doc)) {
+    var req = {};
+    req.query = opts.query_params;
+    if (opts.filter && !opts.filter.call(this, change.doc, req)) {
       return;
     }
     if (!opts.include_docs) {
@@ -381,7 +383,7 @@ var Changes = function() {
 
   api.notify = function(db_name) {
     if (!listeners[db_name]) { return; }
-    
+
     Object.keys(listeners[db_name]).forEach(function (i) {
       var opts = listeners[db_name][i].opts;
       listeners[db_name][i].db.changes({
@@ -391,6 +393,7 @@ var Changes = function() {
         descending: false,
         filter: opts.filter,
         since: opts.since,
+        query_params: opts.query_params,
         onChange: function(c) {
           if (c.seq > opts.since && !opts.cancelled) {
             opts.since = c.seq;

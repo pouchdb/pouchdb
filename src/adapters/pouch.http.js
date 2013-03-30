@@ -693,7 +693,9 @@ var HttpPouch = function(opts, callback) {
         // For each change
         res.results.forEach(function(c) {
           var hasFilter = opts.filter && typeof opts.filter === 'function';
-          if (opts.aborted || hasFilter && !opts.filter.apply(this, [c.doc])) {
+          var req = {};
+          req.query = opts.query_params;
+          if (opts.aborted || hasFilter && !opts.filter.apply(this, [c.doc, req])) {
             return;
           }
 
