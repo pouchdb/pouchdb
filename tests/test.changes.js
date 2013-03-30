@@ -263,6 +263,51 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Changes filter with query params", function() {
+
+    var docs1 = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+
+    var docs2 = [
+      {_id: "4", integer: 4},
+      {_id: "5", integer: 5},
+      {_id: "6", integer: 6},
+      {_id: "7", integer: 7}
+    ];
+
+    var params = {
+      "abc": true
+    };
+
+    initTestDB(this.name, function(err, db) {
+      var count = 0;
+      db.bulkDocs({docs: docs1}, function(err, info) {
+        var changes = db.changes({
+          filter: function(doc, req) {
+            if (req.query.abc) {
+              return doc.integer % 2 === 0;
+            }
+          },
+          query_params: params,
+          onChange: function(change) {
+            count += 1;
+            if (count === 4) {
+              ok(true, 'We got all the docs');
+              changes.cancel();
+              start();
+            }
+          },
+          continuous: true
+        });
+        db.bulkDocs({docs: docs2});
+      });
+    });
+  });
+
   asyncTest("Changes to same doc are grouped", function() {
     var docs1 = [
       {_id: "0", integer: 0},

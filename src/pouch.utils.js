@@ -189,6 +189,7 @@ var computeHeight = function(revs) {
     }
     return rev;
   });
+
   edges.reverse();
   edges.forEach(function(edge) {
     if (height[edge.from] === undefined) {
@@ -212,7 +213,9 @@ var arrayFirst = function(arr, callback) {
 
 var filterChange = function(opts) {
   return function(change) {
-    if (opts.filter && !opts.filter.call(this, change.doc)) {
+    var req = {};
+    req.query = opts.query_params;
+    if (opts.filter && !opts.filter.call(this, change.doc, req)) {
       return;
     }
     if (!opts.include_docs) {
@@ -359,6 +362,7 @@ var Changes = function() {
         descending: false,
         filter: opts.filter,
         since: opts.since,
+        query_params: opts.query_params,
         onChange: function(c) {
           if (c.seq > opts.since && !opts.cancelled) {
             opts.since = c.seq;
