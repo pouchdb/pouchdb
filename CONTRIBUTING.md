@@ -10,6 +10,7 @@ Guide to Contributions
   * Looking for something to work on? look for bugs marked [goodfirstbug](https://github.com/daleharvey/pouchdb/issues?labels=goodfirstbug&page=1&state=open)
   * We follow [Felix's Node.js Style Guide](http://nodeguide.com/style.html)
   * Almost all Pull Requests for features or bug fixes will need tests (seriously, its really important)
+  * Before opening a pull request run `$ grunt test` to lint test the changes and run node tests. Preferably run the browser tests as well.
   * Commit messages should follow the following style:
 
 ```
@@ -57,7 +58,7 @@ Run single test file `test.basics.js` with:
 
 ### Browser Tests
 
-    $ grunt browser 
+    $ grunt browser
     # Now visit http://127.0.0.1:8000/tests/test.html in your browser
     # add ?testFiles=test.basics.js to run single test file
 

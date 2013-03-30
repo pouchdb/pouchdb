@@ -45,23 +45,6 @@ var parseDocId = function(id) {
   };
 };
 
-// check if a specific revision of a doc has been deleted
-//  - metadata: the metadata object from the doc store
-//  - rev: (optional) the revision to check. defaults to winning revision
-var isDeleted = function(metadata, rev) {
-  if (!metadata || !metadata.deletions) {
-    return false;
-  }
-  if (!rev) {
-    rev = Pouch.merge.winningRev(metadata);
-  }
-  if (rev.indexOf('-') >= 0) {
-    rev = rev.split('-')[1];
-  }
-
-  return metadata.deletions[rev] === true;
-};
-
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
 //   - any other string value is a valid id
@@ -96,6 +79,10 @@ var parseDoc = function(doc, newEdits) {
   var nRevNum;
   var newRevId;
   var revInfo;
+  var opts = {};
+  if (doc._deleted) {
+    opts.deleted = true;
+  }
 
   if (newEdits) {
     if (!doc._id) {
@@ -109,13 +96,13 @@ var parseDoc = function(doc, newEdits) {
       }
       doc._rev_tree = [{
         pos: parseInt(revInfo[1], 10),
-        ids: [revInfo[2], [[newRevId, []]]]
+        ids: [revInfo[2], {}, [[newRevId, opts, []]]]
       }];
       nRevNum = parseInt(revInfo[1], 10) + 1;
     } else {
       doc._rev_tree = [{
         pos: 1,
-        ids : [newRevId, []]
+        ids : [newRevId, opts, []]
       }];
       nRevNum = 1;
     }
@@ -125,9 +112,9 @@ var parseDoc = function(doc, newEdits) {
         pos: doc._revisions.start - doc._revisions.ids.length + 1,
         ids: doc._revisions.ids.reduce(function(acc, x) {
           if (acc === null) {
-            return [x, []];
+            return [x, opts, []];
           } else {
-            return [x, [acc]];
+            return [x, {}, [acc]];
           }
         }, null)
       }];
@@ -140,7 +127,7 @@ var parseDoc = function(doc, newEdits) {
       newRevId = revInfo[2];
       doc._rev_tree = [{
         pos: parseInt(revInfo[1], 10),
-        ids: [revInfo[2], []]
+        ids: [revInfo[2], {}, []]
       }];
     }
   }
@@ -186,67 +173,32 @@ var compareRevs = function(a, b) {
   return (a.rev_tree[0].start < b.rev_tree[0].start ? -1 : 1);
 };
 
-// Pretty much all below can be combined into a higher order function to
-// traverse revisions
-// Callback has signature function(isLeaf, pos, id, [context])
-// The return value from the callback will be passed as context to all children of that node
-var traverseRevTree = function(revs, callback) {
-  var toVisit = [];
 
-  revs.forEach(function(tree) {
-    toVisit.push({pos: tree.pos, ids: tree.ids});
-  });
-
-  while (toVisit.length > 0) {
-    var node = toVisit.pop();
-    var pos = node.pos;
-    var tree = node.ids;
-    var newCtx = callback(tree[1].length === 0, pos, tree[0], node.ctx);
-    /*jshint loopfunc: true */
-    tree[1].forEach(function(branch) {
-      toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
-    });
-  }
-};
-
-var collectRevs = function(path) {
-  var revs = [];
-
-  traverseRevTree([path], function(isLeaf, pos, id) {
-    revs.push({rev: pos + "-" + id, status: 'available'});
-  });
-
-  return revs;
-};
-
-var collectLeaves = function(revs) {
-  var leaves = [];
-  traverseRevTree(revs, function(isLeaf, pos, id) {
+// for every node in a revision tree computes its distance from the closest
+// leaf
+var computeHeight = function(revs) {
+  var height = {};
+  var edges = [];
+  Pouch.merge.traverseRevTree(revs, function(isLeaf, pos, id, prnt) {
+    var rev = pos + "-" + id;
     if (isLeaf) {
-      leaves.unshift({rev: pos + "-" + id, pos: pos});
+      height[rev] = 0;
     }
+    if (prnt !== undefined) {
+      edges.push({from: prnt, to: rev});
+    }
+    return rev;
   });
-  leaves.sort(function(a, b) {
-    return b.pos - a.pos;
-  });
-  leaves.map(function(leaf) { delete leaf.pos; });
-  return leaves;
-};
 
-// returns all conflicts that is leaves such that
-// 1. are not deleted and
-// 2. are different than winning revision
-var collectConflicts = function(metadata) {
-  var win = Pouch.merge.winningRev(metadata);
-  var leaves = collectLeaves(metadata.rev_tree);
-  var conflicts = [];
-  leaves.forEach(function(leaf) {
-    var rev = leaf.rev.split("-")[1];
-    if ((!metadata.deletions || !metadata.deletions[rev]) && leaf.rev !== win) {
-      conflicts.push(leaf.rev);
+  edges.reverse();
+  edges.forEach(function(edge) {
+    if (height[edge.from] === undefined) {
+      height[edge.from] = 1 + height[edge.to];
+    } else {
+      height[edge.from] = Math.min(height[edge.from], 1 + height[edge.to]);
     }
   });
-  return conflicts;
+  return height;
 };
 
 // returns first element of arr satisfying callback predicate
@@ -277,9 +229,9 @@ var filterChange = function(opts) {
 // [[id, ...], ...]
 var rootToLeaf = function(tree) {
   var paths = [];
-  traverseRevTree(tree, function(isLeaf, pos, id, history) {
+  Pouch.merge.traverseRevTree(tree, function(isLeaf, pos, id, history, opts) {
     history = history ? history.slice(0) : [];
-    history.push(id);
+    history.push({id: id, opts: opts});
     if (isLeaf) {
       var rootPos = pos + 1 - history.length;
       paths.unshift({pos: rootPos, ids: history});
@@ -287,6 +239,26 @@ var rootToLeaf = function(tree) {
     return history;
   });
   return paths;
+};
+
+// check if a specific revision of a doc has been deleted
+//  - metadata: the metadata object from the doc store
+//  - rev: (optional) the revision to check. defaults to winning revision
+var isDeleted = function(metadata, rev) {
+  if (!rev) {
+    rev = Pouch.merge.winningRev(metadata);
+  }
+  if (rev.indexOf('-') >= 0) {
+    rev = rev.split('-')[1];
+  }
+  var deleted = false;
+  Pouch.merge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id, acc, opts) {
+    if (id === rev) {
+      deleted = !!opts.deleted;
+    }
+  });
+
+  return deleted;
 };
 
 var isChromeApp = function(){
@@ -318,9 +290,7 @@ if (typeof module !== 'undefined' && module.exports) {
     parseDoc: parseDoc,
     isDeleted: isDeleted,
     compareRevs: compareRevs,
-    collectRevs: collectRevs,
-    collectLeaves: collectLeaves,
-    collectConflicts: collectConflicts,
+    computeHeight: computeHeight,
     arrayFirst: arrayFirst,
     filterChange: filterChange,
     atob: function(str) {
@@ -331,7 +301,6 @@ if (typeof module !== 'undefined' && module.exports) {
     },
     extend: extend,
     ajax: ajax,
-    traverseRevTree: traverseRevTree,
     rootToLeaf: rootToLeaf,
     isChromeApp: isChromeApp
   };

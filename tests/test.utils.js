@@ -65,8 +65,12 @@ function openTestAsyncDB(name) {
   });
 }
 
-function openTestDB(name, callback) {
-  new Pouch(name, function(err, db) {
+function openTestDB(name, opts, callback) {
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = {};
+  }
+  new Pouch(name, opts, function(err, db) {
     if (err) {
       console.error(err);
       ok(false, 'failed to open database');
@@ -76,7 +80,7 @@ function openTestDB(name, callback) {
   });
 }
 
-function initTestDB(name, callback) {
+function initTestDB(name, opts, callback) {
   // ignore errors, the database might not exist
   Pouch.destroy(name, function(err) {
     if (err && err.status !== 404 && err.statusText !== 'timeout') {
@@ -84,7 +88,7 @@ function initTestDB(name, callback) {
       ok(false, 'failed to open database');
       return start();
     }
-    openTestDB(name, callback);
+    openTestDB(name, opts, callback);
   });
 }
 
@@ -111,7 +115,7 @@ function generateAdapterUrl(id) {
 }
 
 // Put doc after prevRev (so that doc is a child of prevDoc
-// in rev_tree). Doc must have _rev. If prevRev is not specified 
+// in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
 function putAfter(db, doc, prevRev, callback){
   var newDoc = extend({}, doc);
@@ -144,7 +148,7 @@ var putBranch = function(db, docs, callback) {
     }
     db.get(doc._id, {rev: doc._rev}, function(err, ok){
       if(err){
-        putAfter(db, docs[i], prev, function() {
+        putAfter(db, docs[i], prev, function(err, doc) {
           next();
         });
       }else{

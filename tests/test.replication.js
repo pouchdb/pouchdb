@@ -667,6 +667,43 @@ deletedDocAdapters.map(function(adapters) {
       workflow(self.name, self.remote, runs);
     });
   });
+
+  asyncTest("issue #300 rev id unique per doc", 3, function() {
+    var docs = [{_id: "a"}, {_id: "b"}];
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, _){
+        db.replicate.from(self.remote, function(err, _){
+          db.allDocs(function(err, result){
+            ok(result.rows.length === 2, "correct number of rows");
+            ok(result.rows[0].id === "a", "first doc ok");
+            ok(result.rows[1].id === "b", "second doc ok");
+            start();
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("issue #585 Store checkpoint on target db.", function() {
+    console.info('Starting Test: Local DB contains documents');
+    var docs = [{_id: "a"}, {_id: "b"}];
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+        db.bulkDocs({docs: docs}, {}, function(err, _) {
+          db.replicate.to(self.remote, function(err, result) {
+            ok(result.docs_written === docs.length, 'docs replicated ok');
+            Pouch.destroy(self.remote, function (err, result) {
+              ok(result.ok === true, 'remote was deleted');
+              db.replicate.to(self.remote, function (err, result) {
+                ok(result.docs_written === docs.length, 'docs were written again because target was deleted.');
+                start();
+              });
+            });
+          });
+        });
+    });
+  });
 });
 
 // This test only needs to run for one configuration, and it slows stuff

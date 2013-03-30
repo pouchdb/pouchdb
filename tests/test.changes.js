@@ -365,7 +365,6 @@ adapters.map(function(adapter) {
     var localname = this.name, remotename = this.name + "-remote";
 
     initDBPair(localname, remotename, function(localdb, remotedb) {
-
       localdb.bulkDocs({docs: docs1}, function(err, info) {
         docs2[0]._rev = info[2].rev;
         var rev1 = docs2[1]._rev = info[3].rev;
@@ -373,7 +372,8 @@ adapters.map(function(adapter) {
           localdb.put(docs2[1], function(err, info) {
             var rev2 = info.rev;
             Pouch.replicate(localdb, remotedb, function(err, done) {
-              // update remote once, local twice, then replicate from remote to local so the remote losing conflict is later in the tree
+              // update remote once, local twice, then replicate from
+              // remote to local so the remote losing conflict is later in the tree
               localdb.put({_id: "3", _rev: rev2, integer: 20}, function(err, resp) {
                 var rev3local = resp.rev;
                 localdb.put({_id: "3", _rev: rev3local, integer: 30}, function(err, resp) {

@@ -195,4 +195,34 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest('Auto-compaction test', function() {
+    initTestDB(this.name, {auto_compaction: true}, function(err, db) {
+      var doc = {_id: "doc", val: "1"};
+      db.post(doc, function(err, res) {
+        var rev1 = res.rev;
+        doc._rev = rev1;
+        doc.val = "2";
+        db.post(doc, function(err, res) {
+          var rev2 = res.rev;
+          doc._rev = rev2;
+          doc.val = "3";
+          db.post(doc, function(err, res) {
+            var rev3 = res.rev;
+            db.get("doc", {rev: rev1}, function(err, doc) {
+              ok(err.status === 404 && err.error === "not_found",
+                "compacted document is missing");
+              db.get("doc", {rev: rev2}, function(err, doc) {
+                ok(!err, "leaf's parent does not get compacted");
+                db.get("doc", {rev: rev3}, function(err, doc) {
+                  ok(!err, "leaf revision does not get compacted");
+                  start();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });

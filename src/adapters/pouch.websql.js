@@ -1,6 +1,5 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
-/*globals isLocalId: false, isDeleted: false, collectConflicts: false */
-/*globals collectLeaves: false, Changes: false, filterChange: false */
+/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false */
 
 'use strict';
 
@@ -55,7 +54,7 @@ var webSqlPouch = function(opts, callback) {
     var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
       ' (id unique, seq, json, winningseq)';
     var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE +
-      ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, rev UNIQUE, json)';
+      ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, doc_id_rev UNIQUE, json)';
 
     tx.executeSql(attach);
     tx.executeSql(doc);
@@ -108,18 +107,12 @@ var webSqlPouch = function(opts, callback) {
   api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
 
     var newEdits = opts.new_edits;
-    var userDocs = extend(true, [], req.docs);
+    var userDocs = req.docs;
 
     // Parse the docs, give them a sequence number for the result
     var docInfos = userDocs.map(function(doc, i) {
       var newDoc = parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
-      if (doc._deleted) {
-        if (!newDoc.metadata.deletions) {
-          newDoc.metadata.deletions = {};
-        }
-        newDoc.metadata.deletions[doc._rev.split('-')[1]] = true;
-      }
       return newDoc;
     });
 
@@ -241,8 +234,9 @@ var webSqlPouch = function(opts, callback) {
 
       function finish() {
         var data = docInfo.data;
-        var sql = 'INSERT INTO ' + BY_SEQ_STORE + ' (rev, json) VALUES (?, ?);';
-        tx.executeSql(sql, [data._rev, JSON.stringify(data)], dataWritten);
+        var sql = 'INSERT INTO ' + BY_SEQ_STORE + ' (doc_id_rev, json) VALUES (?, ?);';
+        tx.executeSql(sql, [data._id + "::" + data._rev,
+                            JSON.stringify(data)], dataWritten);
       }
 
       function collectResults(attachmentErr) {
@@ -297,11 +291,14 @@ var webSqlPouch = function(opts, callback) {
         var mainRev = Pouch.merge.winningRev(docInfo.metadata);
 
         var sql = isUpdate ?
-          'UPDATE ' + DOC_STORE + ' SET seq=?, json=?, winningseq=(SELECT seq FROM ' + BY_SEQ_STORE + ' WHERE rev=?) WHERE id=?' :
+          'UPDATE ' + DOC_STORE + ' SET seq=?, json=?, winningseq=(SELECT seq FROM ' +
+          BY_SEQ_STORE + ' WHERE doc_id_rev=?) WHERE id=?' :
           'INSERT INTO ' + DOC_STORE + ' (id, seq, winningseq, json) VALUES (?, ?, ?, ?);';
+        var metadataStr = JSON.stringify(docInfo.metadata);
+        var key = docInfo.metadata.id + "::" + mainRev;
         var params = isUpdate ?
-          [seq, JSON.stringify(docInfo.metadata), mainRev, docInfo.metadata.id] :
-          [docInfo.metadata.id, seq, seq, JSON.stringify(docInfo.metadata)];
+          [seq, metadataStr, key, docInfo.metadata.id] :
+          [docInfo.metadata.id, seq, seq, metadataStr];
         tx.executeSql(sql, params, function(tx, result) {
           results.push(docInfo);
           call(callback, null);
@@ -310,8 +307,6 @@ var webSqlPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
-      docInfo.metadata.deletions = extend(docInfo.metadata.deletions, oldDoc.deletions);
-
       var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
       var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
         (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
@@ -410,13 +405,14 @@ var webSqlPouch = function(opts, callback) {
         }
         metadata = JSON.parse(results.rows.item(0).json);
         if (isDeleted(metadata) && !opts.rev) {
-          result = extend({}, Pouch.Errors.MISSING_DOC, {reason:"deleted"});
+          result = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
           return;
         }
 
         var rev = Pouch.merge.winningRev(metadata);
         var key = opts.rev ? opts.rev : rev;
-        var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE rev=?';
+        key = metadata.id + '::' + key;
+        var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
         tx.executeSql(sql, [key], function(tx, results) {
           if (!results.rows.length) {
             result = Pouch.Errors.MISSING_DOC;
@@ -449,6 +445,13 @@ var webSqlPouch = function(opts, callback) {
       call(callback, result, metadata);
     });
   };
+
+  function makeRevs(arr) {
+    return arr.map(function(x) { return {rev: x.rev}; });
+  }
+  function makeIds(arr) {
+    return arr.map(function(x) { return x.id; });
+  }
 
   api._allDocs = function(opts, callback) {
     var results = [];
@@ -491,7 +494,7 @@ var webSqlPouch = function(opts, callback) {
               doc.doc = data;
               doc.doc._rev = Pouch.merge.winningRev(metadata);
               if (opts.conflicts) {
-                doc.doc._conflicts = collectConflicts(metadata);
+                doc.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
               }
             }
             if ('keys' in opts) {
@@ -535,8 +538,6 @@ var webSqlPouch = function(opts, callback) {
     if (Pouch.DEBUG) {
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
     }
-
-    opts = extend(true, {}, opts);
 
     if (!opts.since) {
       opts.since = 0;
@@ -583,7 +584,7 @@ var webSqlPouch = function(opts, callback) {
               var change = {
                 id: metadata.id,
                 seq: doc.seq,
-                changes: collectLeaves(metadata.rev_tree),
+                changes: makeRevs(Pouch.merge.collectLeaves(metadata.rev_tree)),
                 doc: JSON.parse(doc.data)
               };
               change.doc._rev = Pouch.merge.winningRev(metadata);
@@ -591,7 +592,7 @@ var webSqlPouch = function(opts, callback) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = collectConflicts(metadata);
+                change.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
               }
               results.push(change);
             }
@@ -676,8 +677,9 @@ var webSqlPouch = function(opts, callback) {
   };
   api._removeDocRevisions = function(docId, revs, callback) {
     db.transaction(function (tx) {
-      var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE rev IN (' +
-        revs.map(function(rev){return quote(rev);}).join(',') + ')';
+      var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev IN (' +
+        revs.map(function(rev){return quote(docId + '::' + rev);}).join(',') + ')';
+      console.log(sql);
       tx.executeSql(sql, [], function(tx, result) {
         callback();
       });

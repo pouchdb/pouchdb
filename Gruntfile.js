@@ -29,8 +29,8 @@ var browserConfig = [{
 }, {
   browserName: 'firefox',
   version: '19',
-  platform: 'Windows 2003',
-  name: 'win2003/firefox'
+  platform: 'Linux',
+  name: 'linux/firefox'
 // }, {
 //   browserName: 'opera',
 //   version: '12',
@@ -215,7 +215,7 @@ module.exports = function(grunt) {
       }
     },
     'publish-results': {
-      server: 'http://pouchdb.iriscouch.com',
+      server: 'http://couchdb.pouchdb.com',
       db: 'test_results'
     }
   });
@@ -278,11 +278,16 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
-  grunt.registerTask("browser", ["connect", "cors-server", "forever"])
-  grunt.registerTask("testSetup", ["jshint", "build", "connect", "cors-server"]);
-  grunt.registerTask("test", ["testSetup", "node-qunit" ,"saucelabs-qunit", "publish-results"]);
+  grunt.registerTask("browser", ["connect", "cors-server", "forever"]);
   grunt.registerTask("full", ["concat", "uglify"]);
+
   grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
   grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
+
+  grunt.registerTask("test", ["jshint", "node-qunit"]);
+  grunt.registerTask("test-travis", ["jshint", "build", "connect", "cors-server",
+                                     "node-qunit", "saucelabs-qunit",
+                                     "publish-results"]);
+
   grunt.registerTask('default', 'build');
 };

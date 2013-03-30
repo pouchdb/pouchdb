@@ -209,16 +209,34 @@ var HttpPouch = function(opts, callback) {
 
   // Sends a POST request to the host calling the couchdb _compact function
   //    version: The version of CouchDB it is running
-  api.compact = function(callback) {
+  api.compact = function(opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('compact', arguments);
       return;
+    }
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
     }
     ajax({
       auth: host.auth,
       url: genDBUrl(host, '_compact'),
       method: 'POST'
-    }, callback);
+    }, function() {
+      function ping() {
+        api.info(function(err, res) {
+          if (!res.compact_running) {
+            call(callback, null);
+          } else {
+            setTimeout(ping, opts.interval || 200);
+          }
+        });
+      }
+      // Ping the http if it's finished compaction
+      if (typeof callback === "function") {
+        ping();
+      }
+    });
   };
 
   // Calls GET on the host, which gets back a JSON string containing
