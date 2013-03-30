@@ -2,6 +2,7 @@
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true */
 /*globals Pouch: true, QUnit, uuid, asyncTest, ok, start*/
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
@@ -24,13 +25,9 @@ adapters.map(function(adapter) {
   qunit("taskqueue: " + adapter, {
     setup: function() {
       this.name = generateAdapterUrl(adapter);
-      Pouch.destroy(this.name);
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   asyncTest("Add a doc", 1, function() {

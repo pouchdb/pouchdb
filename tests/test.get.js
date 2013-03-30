@@ -1,6 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false, putTree: false, putBranch: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true, makeDocs: false, strictEqual: false, notStrictEqual: false */
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
@@ -26,12 +27,9 @@ adapters.map(function(adapter) {
   qunit('get: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   var origDocs = [

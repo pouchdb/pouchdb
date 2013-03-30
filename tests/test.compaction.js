@@ -1,6 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, putTree: false */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
@@ -25,12 +26,9 @@ adapters.map(function(adapter) {
   qunit('compaction: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   asyncTest('Compation document with no revisions to remove', function() {

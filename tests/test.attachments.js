@@ -2,6 +2,7 @@
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
 /*globals readBlob: false, makeBlob: false */
+/*globals cleanupTestDatabases: false */
 
 "use strict";
 
@@ -30,12 +31,9 @@ adapters.map(function(adapter) {
   qunit('attachments: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
+      Pouch.enableAllDbs = true;
     },
-    teardown: function() {
-      if (!PERSIST_DATABASES) {
-        Pouch.destroy(this.name);
-      }
-    }
+    teardown: cleanupTestDatabases
   });
 
   var binAttDoc = {
