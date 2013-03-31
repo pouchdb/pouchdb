@@ -715,11 +715,23 @@ var IdbPouch = function(opts, callback) {
     function fetchChanges() {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE]);
       txn.oncomplete = onTxnComplete;
-      var req = descending ?
-        txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.since, true), descending) :
-        txn.objectStore(BY_SEQ_STORE)
-          .openCursor(IDBKeyRange.lowerBound(opts.since, true));
+
+      var req;
+
+      if (opts.limit && descending) {
+        req = txn.objectStore(BY_SEQ_STORE)
+            .openCursor(IDBKeyRange.bound(opts.since, opts.since + opts.limit, true), descending);
+      } else if (opts.limit && !descending) {
+        req = txn.objectStore(BY_SEQ_STORE)
+            .openCursor(IDBKeyRange.bound(opts.since, opts.since + opts.limit, true));
+      } else if (descending) {
+        req = txn.objectStore(BY_SEQ_STORE)
+            .openCursor(IDBKeyRange.lowerBound(opts.since, true), descending);
+      } else {
+        req = txn.objectStore(BY_SEQ_STORE)
+            .openCursor(IDBKeyRange.lowerBound(opts.since, true));
+      }
+
       req.onsuccess = onsuccess;
       req.onerror = onerror;
     }

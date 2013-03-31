@@ -646,6 +646,10 @@ var HttpPouch = function(opts, callback) {
       params.push('conflicts=true');
     }
 
+    if (opts.limit || opts.limit === 0) {
+      params.push('limit=' + opts.limit);
+    }
+
     // If opts.descending exists, add the descending value to the query string.
     // if descending=true then the change results are returned in
     // descending order (most recent change first).
