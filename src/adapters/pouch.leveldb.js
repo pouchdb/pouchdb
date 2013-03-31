@@ -606,6 +606,10 @@ var LevelPouch = function(opts, callback) {
         streamOpts.start = opts.since ? opts.since + 1 : 0;
       }
 
+      if (opts.limit) {
+        streamOpts.limit = opts.limit;
+      }
+
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
