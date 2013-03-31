@@ -539,6 +539,7 @@ var PouchAdapter = function(opts, callback) {
   }
 
   if (opts.cordova || opts.phonegap) {
+    //to inform websql adapter that we can use api
     cordova.fireWindowEvent(opts.name + "_pouch", {});
   }
   return customApi;
