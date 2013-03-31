@@ -46,42 +46,50 @@ var webSqlPouch = function(opts, callback) {
     callback(null, api);
   }
 
-  db.transaction(function (tx) {
-    var meta = 'CREATE TABLE IF NOT EXISTS ' + META_STORE +
-      ' (update_seq, dbid)';
-    var attach = 'CREATE TABLE IF NOT EXISTS ' + ATTACH_STORE +
-      ' (digest, json, body BLOB)';
-    var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
-      ' (id unique, seq, json, winningseq)';
-    var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE +
-      ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, doc_id_rev UNIQUE, json)';
+  function setup(){
+    db.transaction(function (tx) {
+      var meta = 'CREATE TABLE IF NOT EXISTS ' + META_STORE +
+        ' (update_seq, dbid)';
+      var attach = 'CREATE TABLE IF NOT EXISTS ' + ATTACH_STORE +
+        ' (digest, json, body BLOB)';
+      var doc = 'CREATE TABLE IF NOT EXISTS ' + DOC_STORE +
+        ' (id unique, seq, json, winningseq)';
+      var seq = 'CREATE TABLE IF NOT EXISTS ' + BY_SEQ_STORE +
+        ' (seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, doc_id_rev UNIQUE, json)';
 
-    tx.executeSql(attach);
-    tx.executeSql(doc);
-    tx.executeSql(seq);
-    tx.executeSql(meta);
+      tx.executeSql(attach);
+      tx.executeSql(doc);
+      tx.executeSql(seq);
+      tx.executeSql(meta);
 
-    var updateseq = 'SELECT update_seq FROM ' + META_STORE;
-    tx.executeSql(updateseq, [], function(tx, result) {
-      if (!result.rows.length) {
-        var initSeq = 'INSERT INTO ' + META_STORE + ' (update_seq) VALUES (?)';
-        var newId = Math.uuid();
-        tx.executeSql(initSeq, [0]);
-        return;
-      }
-      update_seq = result.rows.item(0).update_seq;
-    });
-    var dbid = 'SELECT dbid FROM ' + META_STORE;
-    tx.executeSql(dbid, [], function(tx, result) {
-      if (!result.rows.length) {
-        var initDb = 'INSERT INTO ' + META_STORE + ' (dbid) VALUES (?)';
-        var newId = Math.uuid();
-        tx.executeSql(initDb, [newId]);
-        return;
-      }
-      instanceId = result.rows.item(0).dbid;
-    });
-  }, unknownError(callback), dbCreated);
+      var updateseq = 'SELECT update_seq FROM ' + META_STORE;
+      tx.executeSql(updateseq, [], function(tx, result) {
+        if (!result.rows.length) {
+          var initSeq = 'INSERT INTO ' + META_STORE + ' (update_seq) VALUES (?)';
+          var newId = Math.uuid();
+          tx.executeSql(initSeq, [0]);
+          return;
+        }
+        update_seq = result.rows.item(0).update_seq;
+      });
+      var dbid = 'SELECT dbid FROM ' + META_STORE;
+      tx.executeSql(dbid, [], function(tx, result) {
+        if (!result.rows.length) {
+          var initDb = 'INSERT INTO ' + META_STORE + ' (dbid) VALUES (?)';
+          var newId = Math.uuid();
+          tx.executeSql(initDb, [newId]);
+          return;
+        }
+        instanceId = result.rows.item(0).dbid;
+      });
+    }, unknownError(callback), dbCreated);
+  }
+  if (opts.cordova || opts.phonegap){
+    window.addEventListener(name + "_pouch", setup, false);
+  } else {
+    setup();
+  }
+
 
   api.type = function() {
     return 'websql';

@@ -534,6 +534,9 @@ var PouchAdapter = function(opts, callback) {
     api.taskqueue.execute(api);
   }
 
+  if (opts.cordova || opts.phonegap) {
+    cordova.fireWindowEvent(opts.name + "_pouch", {});
+  }
   return customApi;
 };
 
