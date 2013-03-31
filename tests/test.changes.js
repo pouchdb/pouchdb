@@ -66,6 +66,47 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Changes Since and limit", function () {
+      var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, function(err, info) {
+        db.changes({
+          since: 2,
+          limit: 1,
+          complete: function(err, results) {
+            equal(results.results.length, 1, 'Partial results');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes limit = 0", function () {
+      var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, function(err, info) {
+        db.changes({
+          limit: 0,
+          complete: function(err, results) {
+            equal(results.results.length, 1, 'Partial results');
+            start();
+          }
+        });
+      });
+    });
+  });
+
   // Note for the following test that CouchDB's implementation of /_changes
   // with `descending=true` ignores any `since` parameter.
   asyncTest("Descending changes", function () {

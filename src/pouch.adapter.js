@@ -420,6 +420,9 @@ var PouchAdapter = function(opts, callback) {
       return;
     }
     opts = extend(true, {}, opts);
+
+    // 0 and 1 should return 1 document
+    opts.limit = opts.limit === 0 ? 1 : opts.limit;
     return customApi._changes(opts);
   };
 

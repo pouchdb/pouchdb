@@ -584,6 +584,10 @@ var webSqlPouch = function(opts, callback) {
         DOC_STORE + '.winningseq WHERE ' + DOC_STORE + '.seq > ' + opts.since +
         ' ORDER BY ' + DOC_STORE + '.seq ' + (descending ? 'DESC' : 'ASC');
 
+      if (opts.limit) {
+        sql += ' LIMIT ' + opts.limit;
+      }
+
       db.transaction(function(tx) {
         tx.executeSql(sql, [], function(tx, result) {
           for (var i = 0, l = result.rows.length; i < l; i++ ) {
