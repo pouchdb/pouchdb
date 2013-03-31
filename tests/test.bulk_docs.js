@@ -183,4 +183,15 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest('656 regression in handling deleted docs', function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: [{_id: "foo", _rev: "1-a", _deleted: true}]}, {new_edits: false}, function(err, res){
+        db.get("foo", function(err, res){
+          ok(err, "deleted");
+          start();
+        });
+      });
+    });
+  });
 });
