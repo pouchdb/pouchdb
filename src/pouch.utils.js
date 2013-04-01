@@ -127,7 +127,7 @@ var parseDoc = function(doc, newEdits) {
       newRevId = revInfo[2];
       doc._rev_tree = [{
         pos: parseInt(revInfo[1], 10),
-        ids: [revInfo[2], {}, []]
+        ids: [revInfo[2], opts, []]
       }];
     }
   }
