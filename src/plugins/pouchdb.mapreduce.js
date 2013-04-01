@@ -26,7 +26,7 @@ var MapReduce = function(db) {
     }
 
     // Including conflicts
-    options.conflicts = true;
+    options.conflicts = options.conflicts || true;
 
     function sum(values) {
       return values.reduce(function(a, b) { return a + b; }, 0);
