@@ -257,7 +257,9 @@ var visualizeRevTree = function(db) {
                 if (!err) {
                   close();
                 } else {
-                  console.log(err);
+                  if (Pouch.DEBUG) {
+                    console.log(err);
+                  }
                   alert("error occured, see console");
                 }
               });
@@ -318,7 +320,7 @@ var visualizeRevTree = function(db) {
         node(x, y, rev, isLeaf, rev in deleted, rev === winner, minUniq);
 
         if (ctx) {
-          line(x, y, ctx.x, ctx.y); 
+          line(x, y, ctx.x, ctx.y);
         }
         return {x: x, y: y};
       });

@@ -125,7 +125,7 @@ Pouch.destroy = function(name, callback) {
     // call destroy method of the particular adaptor
     Pouch.adapters[opts.adapter].destroy(opts.name, callback);
   };
- 
+
   // remove Pouch from allDBs
   Pouch.removeFromAllDbs(opts, cb);
 };
@@ -148,7 +148,9 @@ Pouch.removeFromAllDbs = function(opts, callback) {
   new Pouch(Pouch.allDBName(opts.adapter), function(err, db) {
     if (err) {
       // don't fail when allDbs fail
-      console.log(err);
+      if (Pouch.DEBUG) {
+        console.log(err);
+      }
       callback();
       return;
     }
@@ -167,7 +169,7 @@ Pouch.removeFromAllDbs = function(opts, callback) {
       }
     });
   });
- 
+
 };
 
 Pouch.adapter = function (id, obj) {
@@ -212,7 +214,9 @@ Pouch.open = function(opts, callback) {
   new Pouch(Pouch.allDBName(adapter), function(err, db) {
     if (err) {
       // don't fail when allDb registration fails
-      console.log(err);
+      if (Pouch.DEBUG) {
+        console.log(err);
+      }
       callback();
       return;
     }
@@ -223,7 +227,7 @@ Pouch.open = function(opts, callback) {
       if (err && err.status === 404) {
         db.put({
           _id: dbname,
-          dbname: opts.originalName 
+          dbname: opts.originalName
         }, function(err) {
             if (err) {
                 console.log(err);
