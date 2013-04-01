@@ -25,11 +25,6 @@ var MapReduce = function(db) {
       options.reduce = false;
     }
 
-    // Including conflicts by default
-    var conflicts = 'conflicts' in options
-      ? options.conflicts
-      : true;
-
     function sum(values) {
       return values.reduce(function(a, b) { return a + b; }, 0);
     }
@@ -109,7 +104,7 @@ var MapReduce = function(db) {
     }
 
     db.changes({
-      conflicts: conflicts,
+      conflicts: true,
       include_docs: true,
       onChange: function(doc) {
         if (!('deleted' in doc)) {

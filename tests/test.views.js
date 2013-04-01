@@ -242,7 +242,7 @@ adapters.map(function(adapter) {
   });
 
 
-  asyncTest('Views should include _conflict by default', function() {
+  asyncTest('Views should include _conflicts', function() {
     var self = this;
     var doc1 = {_id: '1', foo: 'bar'};
     var doc2 = {_id: '1', foo: 'baz'};
@@ -253,21 +253,9 @@ adapters.map(function(adapter) {
           db.replicate.from(remote, function(err, res) {
             db.get(doc1._id, {conflicts: true}, function(err, res) {
               ok(res._conflicts,'Conflict exists in db');
-
-              // Default behaviour
               db.query(queryFun, function(err, res) {
                 ok(res.rows[0].value, 'Conflicts included.');
-
-                // conflicts:  true
-                db.query(queryFun, {conflicts: true}, function(err, res) {
-                  ok(res.rows[0].value, 'Conflicts included.');
-
-                  // conflicts: false
-                  db.query(queryFun, {conflicts: false}, function(err, res) {
-                    ok(!res.rows[0].value, 'Conflicts excluded.');
-                    start();
-                  });
-                });
+                start();
               });
             });
           });
