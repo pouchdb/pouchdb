@@ -89,7 +89,10 @@ var MapReduce = function(db) {
           results.reverse();
         }
         if (options.reduce === false) {
-          return options.complete(null, {rows: results});
+          return options.complete(null, {
+            rows: results,
+            total_rows: results.length
+          });
         }
 
         var groups = [];
@@ -106,7 +109,7 @@ var MapReduce = function(db) {
           e.value = fun.reduce(e.key, e.value) || null;
           e.key = e.key[0][0];
         });
-        options.complete(null, {rows: groups});
+        options.complete(null, {rows: groups, total_rows: groups.length});
       }
     }
 
