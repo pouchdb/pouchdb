@@ -683,7 +683,9 @@ var webSqlPouch = function(opts, callback) {
     db.transaction(function (tx) {
       var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev IN (' +
         revs.map(function(rev){return quote(docId + '::' + rev);}).join(',') + ')';
-      console.log(sql);
+      if (Pouch.DEBUG) {
+        console.log(sql);
+      }
       tx.executeSql(sql, [], function(tx, result) {
         callback();
       });
