@@ -157,7 +157,7 @@ var LevelPouch = function(opts, callback) {
 
   api._info = function(callback) {
     return call(callback, null, {
-      name: opts.name,
+      db_name: opts.name,
       doc_count: doc_count,
       update_seq: update_seq
     });
