@@ -246,7 +246,7 @@ adapters.map(function(adapter) {
     var self = this;
     var doc1 = {_id: '1', foo: 'bar'};
     var doc2 = {_id: '1', foo: 'baz'};
-    var queryFun = function(doc) { emit(doc._conflicts); };
+    var queryFun = function(doc) { emit(doc._id, !!doc._conflicts); };
     initDBPair(this.name, this.remote, function(db, remote) {
       db.post(doc1, function(err, res) {
         remote.post(doc2, function(err, res) {
@@ -256,15 +256,15 @@ adapters.map(function(adapter) {
 
               // Default behaviour
               db.query(queryFun, function(err, res) {
-                equal(res.rows[0].key.length, 1, 'Conflicts included');
+                ok(res.rows[0].value, 'Conflicts included.');
 
                 // conflicts:  true
                 db.query(queryFun, {conflicts: true}, function(err, res) {
-                  equal(res.rows[0].key.length, 1, 'Conflicts included');
+                  ok(res.rows[0].value, 'Conflicts included.');
 
                   // conflicts: false
                   db.query(queryFun, {conflicts: false}, function(err, res) {
-                    equal(res.rows[0].key.length, 1,'Conflicts excluded');
+                    ok(!res.rows[0].value, 'Conflicts excluded.');
                     start();
                   });
                 });

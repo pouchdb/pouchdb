@@ -25,8 +25,10 @@ var MapReduce = function(db) {
       options.reduce = false;
     }
 
-    // Including conflicts
-    options.conflicts = options.conflicts || true;
+    // Including conflicts by default
+    var conflicts = 'conflicts' in options
+      ? options.conflicts
+      : true;
 
     function sum(values) {
       return values.reduce(function(a, b) { return a + b; }, 0);
@@ -74,10 +76,6 @@ var MapReduce = function(db) {
     if (fun.reduce) {
       eval('fun.reduce = ' + fun.reduce.toString() + ';');
     }
-
-    // exclude  _conflicts key by default
-    // or to use options.conflicts if it's set when called by db.query
-    var conflicts = ('conflicts' in options ? options.conflicts : false);
 
     //only proceed once all documents are mapped and joined
     var checkComplete= function(){
