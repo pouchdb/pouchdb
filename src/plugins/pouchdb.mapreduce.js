@@ -83,7 +83,9 @@ var MapReduce = function(db) {
         }
         if (options.reduce === false) {
           return options.complete(null, {
-            rows: results,
+            rows: ('limit' in options)
+              ? results.slice(0, options.limit)
+              : results,
             total_rows: results.length
           });
         }
@@ -102,7 +104,12 @@ var MapReduce = function(db) {
           e.value = fun.reduce(e.key, e.value) || null;
           e.key = e.key[0][0];
         });
-        options.complete(null, {rows: groups, total_rows: groups.length});
+        options.complete(null, {
+          rows: ('limit' in options)
+            ? groups.slice(0, options.limit)
+            : groups,
+          total_rows: groups.length
+        });
       }
     }
 

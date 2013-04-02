@@ -265,4 +265,28 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test view querying with limit option", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { foo: 'bar' },
+          { foo: 'bar' },
+          { foo: 'baz' },
+        ]
+      }, null, function() {
+
+        db.query(function (doc) {
+          if (doc.foo == 'bar') {
+            emit(doc.foo);
+          }
+        }, { limit: 1 }, function (err, res) {
+          equal(res.total_rows, 2, 'Correctly returns total rows');
+          equal(res.rows.length, 1, 'Correctly limits returned rows');
+          start();
+        });
+
+      });
+    });
+  });
+
 });
