@@ -274,9 +274,7 @@ var visualizeRevTree = function(db) {
                 if (!err) {
                   close();
                 } else {
-                  if (Pouch.DEBUG) {
-                    console.log(err);
-                  }
+                  console.error(err);
                   alert("error occured, see console");
                 }
               });

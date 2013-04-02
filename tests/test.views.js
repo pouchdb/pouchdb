@@ -204,7 +204,6 @@ adapters.map(function(adapter) {
           }
         };
         db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
-          console.log(res);
           ok(res.rows[0].doc, 'doc included');
           equal(res.rows[0].doc._id, 'mydoc', 'mydoc included');
           start();

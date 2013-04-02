@@ -383,7 +383,7 @@ asyncTest("Create and Destroy Pouches with and without adapter prefixes", 2, fun
           }),
           function(err) {
             if (err) {
-              console.log(err);
+              console.error(err);
               ok(false, err);
               return start();
             }
@@ -391,7 +391,7 @@ asyncTest("Create and Destroy Pouches with and without adapter prefixes", 2, fun
             // Check that pouches no longer exist in allDbs
             Pouch.allDbs(function(err, dbs) {
               if (err) {
-                console.log(err);
+                console.error(err);
                 ok(false, err);
                 return start();
               }
