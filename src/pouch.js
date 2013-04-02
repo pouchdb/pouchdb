@@ -148,9 +148,7 @@ Pouch.removeFromAllDbs = function(opts, callback) {
   new Pouch(Pouch.allDBName(opts.adapter), function(err, db) {
     if (err) {
       // don't fail when allDbs fail
-      if (Pouch.DEBUG) {
-        console.log(err);
-      }
+      console.error(err);
       callback();
       return;
     }
@@ -162,7 +160,7 @@ Pouch.removeFromAllDbs = function(opts, callback) {
       } else {
         db.remove(doc, function(err, response) {
           if (err) {
-            console.log(err);
+            console.error(err);
           }
           callback();
         });
@@ -214,9 +212,7 @@ Pouch.open = function(opts, callback) {
   new Pouch(Pouch.allDBName(adapter), function(err, db) {
     if (err) {
       // don't fail when allDb registration fails
-      if (Pouch.DEBUG) {
-        console.log(err);
-      }
+      console.error(err);
       callback();
       return;
     }
@@ -230,7 +226,7 @@ Pouch.open = function(opts, callback) {
           dbname: opts.originalName
         }, function(err) {
             if (err) {
-                console.log(err);
+                console.error(err);
             }
 
             callback();

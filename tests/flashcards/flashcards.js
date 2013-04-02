@@ -17,15 +17,17 @@ var COUCH_RESULTS_DB_PATH = "127.0.0.1:5984/flashcards_test_results";
 var replic = function() {
   Pouch.destroy("idb://replic_test", function() {
     Pouch("idb://replic_test", function(err, db) {
-      console.info("Pouch")
-      console.info(err);
+      if (err) {
+        console.error(err);
+      }
       db.replicate.from("http://127.0.0.1:2020/perf-flashcards_tests/", function(err, result) {
-        console.info("replicate from")
-        console.info(err);
+        if (err) {
+          console.error(err);
+        }
         db.info(function(err, info) {
-          console.info("info");
-          console.info(err);
-          console.log(info);
+          if (err) {
+            console.error(err);
+          }
         });
       });
     });
@@ -71,7 +73,6 @@ var replot = function() {
 };
 
 var logMessage = function(message) {
-  console.info(message);
   $("#messages>ul").append("<li>" + message + "</li>")
 }
 
@@ -83,8 +84,9 @@ var test = function() {
     Pouch(POUCH_DB_NAME, function(err, db) {
     db.replicate.from(CORS_PROXY_URL + COUCH_DATASET, function(err, result) {
 
-      console.log(err);
-      console.log(result);
+      if (err) {
+        console.error(err);
+      }
 
       logMessage("replicated dataset from Couch");
       logMessage("running the test suite... this can take a while");
