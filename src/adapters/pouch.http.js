@@ -582,6 +582,11 @@ var HttpPouch = function(opts, callback) {
       params.push('endkey=' + encodeURIComponent(JSON.stringify(opts.endkey)));
     }
 
+    // If opts.limit exists, add the limit value to the parameter list.
+    if (opts.limit) {
+      params.push('limit=' + opts.limit);
+    }
+
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     if (params !== '') {

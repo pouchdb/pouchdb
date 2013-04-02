@@ -586,7 +586,9 @@ var LevelPouch = function(opts, callback) {
       }
       return call(callback, null, {
         total_rows: results.length,
-        rows: results
+        rows: ('limit' in opts)
+          ? results.slice(0, opts.limit)
+          : results
       });
     });
   };
