@@ -538,7 +538,7 @@ var PouchAdapter = function(opts, callback) {
     api.taskqueue.execute(api);
   }
 
-  if (opts.cordova || opts.phonegap) {
+  if (isCordova()){
     //to inform websql adapter that we can use api
     cordova.fireWindowEvent(opts.name + "_pouch", {});
   }
