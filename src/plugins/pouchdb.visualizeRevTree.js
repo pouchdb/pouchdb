@@ -29,29 +29,12 @@ var visualizeRevTree = function(db) {
   var r = 1;
 
   // see: pouch.utils.js
-  var traverseRevTree = function(revs, callback) {
-    var toVisit = [];
-
-    revs.forEach(function(tree) {
-      toVisit.push({pos: tree.pos, ids: tree.ids});
-    });
-
-    while (toVisit.length > 0) {
-      var node = toVisit.pop(),
-      pos = node.pos,
-      tree = node.ids;
-      var newCtx = callback(tree[1].length === 0, pos, tree[0], node.ctx);
-      tree[1].forEach(function(branch) {
-        toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
-      });
-    }
-  };
   var revisionsToPath = function(revisions){
-    var tree = [revisions.ids[0], []];
+    var tree = [revisions.ids[0], {}, []];
     var i, rev;
     for(i = 1; i < revisions.ids.length; i++){
       rev = revisions.ids[i];
-      tree = [rev, [tree]];
+      tree = [rev, {}, [tree]];
     }
     return {
       pos: revisions.start - revisions.ids.length + 1,
@@ -319,7 +302,7 @@ var visualizeRevTree = function(db) {
       var maxX = grid;
       var maxY = grid;
       var levelCount = []; // numer of nodes on some level (pos)
-      traverseRevTree(forest, function(isLeaf, pos, id, ctx) {
+      Pouch.merge.traverseRevTree(forest, function(isLeaf, pos, id, ctx) {
         if (!levelCount[pos]) {
           levelCount[pos] = 1;
         } else {
