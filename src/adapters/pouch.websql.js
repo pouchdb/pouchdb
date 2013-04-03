@@ -1,5 +1,6 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
 /*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false */
+/*global isCordova*/
 
 'use strict';
 
@@ -84,7 +85,7 @@ var webSqlPouch = function(opts, callback) {
       });
     }, unknownError(callback), dbCreated);
   }
-  if (opts.cordova || opts.phonegap){
+  if (isCordova()){
     //to wait until custom api is made in pouch.adapters before doing setup
     window.addEventListener(name + "_pouch", setup, false);
   } else {
