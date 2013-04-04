@@ -1,5 +1,6 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
 /*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false */
+/*global isCordova*/
 
 'use strict';
 

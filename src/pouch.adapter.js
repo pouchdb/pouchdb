@@ -1,6 +1,6 @@
 /*globals Pouch: true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false */
 /*globals arrayFirst: false, rootToLeaf: false, computeHeight: false */
-/*global cordova */
+/*globals cordova, isCordova */
 
 "use strict";
 
