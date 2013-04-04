@@ -79,7 +79,7 @@ var parseDoc = function(doc, newEdits) {
   var nRevNum;
   var newRevId;
   var revInfo;
-  var opts = {};
+  var opts = {status: 'available'};
   if (doc._deleted) {
     opts.deleted = true;
   }
@@ -96,7 +96,7 @@ var parseDoc = function(doc, newEdits) {
       }
       doc._rev_tree = [{
         pos: parseInt(revInfo[1], 10),
-        ids: [revInfo[2], {}, [[newRevId, opts, []]]]
+        ids: [revInfo[2], {status: 'missing'}, [[newRevId, opts, []]]]
       }];
       nRevNum = parseInt(revInfo[1], 10) + 1;
     } else {
@@ -114,7 +114,7 @@ var parseDoc = function(doc, newEdits) {
           if (acc === null) {
             return [x, opts, []];
           } else {
-            return [x, {}, [acc]];
+            return [x, {status: 'missing'}, [acc]];
           }
         }, null)
       }];
