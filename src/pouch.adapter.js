@@ -315,9 +315,6 @@ var PouchAdapter = function(opts, callback) {
       }
 
       var doc = result;
-      function finish() {
-        call(callback, null, doc);
-      }
 
       if (opts.conflicts) {
         var conflicts = Pouch.merge.collectConflicts(metadata);
@@ -328,53 +325,35 @@ var PouchAdapter = function(opts, callback) {
 
       if (opts.revs || opts.revs_info) {
         var paths = rootToLeaf(metadata.rev_tree);
-        paths.map(function(path, i) {
-          paths[i].ids = path.ids.map(function(x) { return x.id; });
-        });
         var path = arrayFirst(paths, function(arr) {
-          return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
+          return arr.ids.map(function(x) { return x.id; })
+            .indexOf(doc._rev.split('-')[1]) !== -1;
         });
-        path.ids.splice(path.ids.indexOf(doc._rev.split('-')[1]) + 1);
+
+        path.ids.splice(path.ids.map(function(x) {return x.id;})
+                        .indexOf(doc._rev.split('-')[1]) + 1);
         path.ids.reverse();
 
         if (opts.revs) {
           doc._revisions = {
             start: (path.pos + path.ids.length) - 1,
-            ids: path.ids
+            ids: path.ids.map(function(rev) {
+              return rev.id;
+            })
           };
         }
         if (opts.revs_info) {
-          // TODO: it could be slow to test status like this
-          var count = path.ids.length;
-          var pos = path.pos + path.ids.length - 1;
-          doc._revs_info = [];
-
-          path.ids.forEach(function(hash) {
-            var rev = pos + '-' + hash;
-            var info = {
-              rev: rev,
-              status: "available"
-            };
+          var pos =  path.pos + path.ids.length;
+          doc._revs_info = path.ids.map(function(rev) {
             pos--;
-            doc._revs_info.push(info);
-
-            api.get(id.docId, {rev: rev}, function(err, ok) {
-              if (err) {
-                info.status = "missing";
-              }
-              count--;
-              if (!count) {
-                finish();
-              }
-            });
+            return {
+              rev: pos + '-' + rev.id,
+              status: rev.opts.status
+            };
           });
-        } else {
-          finish();
         }
-      } else {
-        finish();
       }
-
+      call(callback, null, doc);
     });
   };
 
