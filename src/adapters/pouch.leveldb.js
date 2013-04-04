@@ -724,7 +724,6 @@ var LevelPouch = function(opts, callback) {
     }
   };
 
-  // compaction internal functions
   api._getRevisionTree = function(docId, callback){
     stores[DOC_STORE].get(docId, function(err, metadata) {
       if (err) {
@@ -735,14 +734,21 @@ var LevelPouch = function(opts, callback) {
     });
   };
 
-  api._removeDocRevisions = function(docId, revs, callback) {
-    if (!revs.length) {
-      callback();
-    }
-    stores[DOC_STORE].get(docId, function(err, metadata) {
-      var seqs = metadata.rev_map; // map from rev to seq
-      var count = revs.count;
+  api._compactDocument = function(docId, callback) {
 
+    stores[DOC_STORE].get(docId, function(err, metadata) {
+
+      var seqs = metadata.rev_map; // map from rev to seq
+
+      var revs = [];
+      Pouch.merge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
+        if (!isLeaf && opts.status == 'available') {
+          revs.push(pos + '-' + revHash);
+          opts.status = 'missing';
+        }
+      });
+
+      var count = revs.length;
       function done() {
         count--;
         if (!count) {
@@ -750,19 +756,25 @@ var LevelPouch = function(opts, callback) {
         }
       }
 
-      revs.forEach(function(rev) {
-        var seq = seqs[rev];
-        if (!seq) {
-          done();
-          return;
-        }
-        stores[BY_SEQ_STORE].del(seq, function(err) {
-          done();
+      if (!count) {
+        callback();
+      }
+
+      stores[DOC_STORE].put(metadata.id, metadata, function() {
+        revs.forEach(function(rev) {
+          var seq = seqs[rev];
+          if (!seq) {
+            done();
+            return;
+          }
+
+          stores[BY_SEQ_STORE].del(seq, function(err) {
+            done();
+          });
         });
       });
     });
   };
-  // end of compaction internal functions
 
   return api;
 };

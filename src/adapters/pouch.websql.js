@@ -665,7 +665,7 @@ var webSqlPouch = function(opts, callback) {
       });
     }
   };
-  // comapction internal functions
+
   api._getRevisionTree = function(docId, callback) {
     db.transaction(function (tx) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
@@ -679,16 +679,39 @@ var webSqlPouch = function(opts, callback) {
       });
     });
   };
-  api._removeDocRevisions = function(docId, revs, callback) {
+
+  api._compactDocument = function(docId, callback) {
     db.transaction(function (tx) {
-      var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev IN (' +
-        revs.map(function(rev){return quote(docId + '::' + rev);}).join(',') + ')';
-      tx.executeSql(sql, [], function(tx, result) {
-        callback();
+      var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
+      tx.executeSql(sql, [docId], function(tx, result) {
+        if (!result.rows.length) {
+          return call(callback);
+        }
+        var metadata = JSON.parse(result.rows.item(0).metadata);
+        var revs = [];
+
+        Pouch.merge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
+          if (!isLeaf && opts.status == 'available') {
+            revs.push(pos + '-' + revHash);
+            opts.status = 'missing';
+          }
+        });
+
+        var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev IN (' +
+          revs.map(function(rev){return quote(docId + '::' + rev);}).join(',') + ')';
+
+        tx.executeSql(sql, [], function(tx, result) {
+          var sql = 'UPDATE ' + DOC_STORE + ' SET json = ? WHERE id = ?';
+
+          tx.executeSql(sql, [JSON.stringify(metadata), docId], function(tx, result) {
+            callback();
+          }, function(tx, res){
+            console.log(res);
+          });
+        });
       });
     });
   };
-  // end of compaction internal functions
 
   return api;
 };
