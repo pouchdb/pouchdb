@@ -680,7 +680,7 @@ var webSqlPouch = function(opts, callback) {
     });
   };
 
-  api._compactDocument = function(docId, callback) {
+  api._doCompaction = function(docId, rev_tree, revs, callback) {
     db.transaction(function (tx) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
       tx.executeSql(sql, [docId], function(tx, result) {
@@ -688,14 +688,7 @@ var webSqlPouch = function(opts, callback) {
           return call(callback);
         }
         var metadata = JSON.parse(result.rows.item(0).metadata);
-        var revs = [];
-
-        Pouch.merge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
-          if (!isLeaf && opts.status == 'available') {
-            revs.push(pos + '-' + revHash);
-            opts.status = 'missing';
-          }
-        });
+        metadata.rev_tree = rev_tree;
 
         var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev IN (' +
           revs.map(function(rev){return quote(docId + '::' + rev);}).join(',') + ')';

@@ -734,19 +734,10 @@ var LevelPouch = function(opts, callback) {
     });
   };
 
-  api._compactDocument = function(docId, callback) {
-
+  api._doCompaction = function(docId, rev_tree, revs, callback) {
     stores[DOC_STORE].get(docId, function(err, metadata) {
-
       var seqs = metadata.rev_map; // map from rev to seq
-
-      var revs = [];
-      Pouch.merge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
-        if (!isLeaf && opts.status == 'available') {
-          revs.push(pos + '-' + revHash);
-          opts.status = 'missing';
-        }
-      });
+      metadata.rev_tree = rev_tree;
 
       var count = revs.length;
       function done() {
