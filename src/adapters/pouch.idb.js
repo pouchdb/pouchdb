@@ -581,9 +581,7 @@ var IdbPouch = function(opts, callback) {
       }
       call(callback, null, {
         total_rows: results.length,
-        rows: ('limit' in opts)
-          ? results.slice(0, opts.limit)
-          : results
+        rows: ('limit' in opts) ? results.slice(0, opts.limit) : results
       });
     };
 

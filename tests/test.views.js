@@ -271,12 +271,12 @@ adapters.map(function(adapter) {
         docs: [
           { foo: 'bar' },
           { foo: 'bar' },
-          { foo: 'baz' },
+          { foo: 'baz' }
         ]
       }, null, function() {
 
         db.query(function (doc) {
-          if (doc.foo == 'bar') {
+          if (doc.foo === 'bar') {
             emit(doc.foo);
           }
         }, { limit: 1 }, function (err, res) {
