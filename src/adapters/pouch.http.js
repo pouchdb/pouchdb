@@ -721,6 +721,9 @@ var HttpPouch = function(opts, callback) {
             return;
           }
 
+          if (opts.doc_ids && opts.doc_ids.indexOf(c.id) !== -1) {
+            return;
+          }
           // Process the change
           call(opts.onChange, c);
         });

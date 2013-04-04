@@ -96,6 +96,7 @@ function replicate(src, target, opts, promise) {
   var pending = 0;
   var last_seq = 0;
   var continuous = opts.continuous || false;
+  var doc_ids = opts.doc_ids;
   var result = {
     ok: true,
     start_time: new Date(),
@@ -209,7 +210,8 @@ function replicate(src, target, opts, promise) {
       since: last_seq,
       style: 'all_docs',
       onChange: onChange,
-      complete: complete
+      complete: complete,
+      doc_ids: doc_ids
     };
 
     if (opts.filter) {
