@@ -56,7 +56,7 @@ var PouchAdapter = function(opts, callback) {
         res.forEach(function(doc) {
           if (doc.ok) {
             // TODO: we need better error handling
-            compactDocument(doc.id, 1, decCount);
+            customApi._compactDocument(doc.id, decCount);
           } else {
             decCount();
           }
@@ -195,25 +195,6 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-  // compact one document and fire callback
-  // by compacting we mean removing all revisions which
-  // are further from the leaf in revision tree than max_height
-  var compactDocument = function(docId, max_height, callback) {
-    customApi._getRevisionTree(docId, function(err, rev_tree){
-      if (err) {
-        return call(callback);
-      }
-      var height = computeHeight(rev_tree);
-      var nonLeaves = [];
-      Object.keys(height).forEach(function(rev) {
-        if (height[rev] > max_height) {
-          nonLeaves.push(rev);
-        }
-      });
-      customApi._removeDocRevisions(docId, nonLeaves, callback);
-    });
-  };
-
   // compact the whole database using single document
   // compaction
   api.compact = function(callback) {
@@ -228,7 +209,7 @@ var PouchAdapter = function(opts, callback) {
         return;
       }
       res.results.forEach(function(row) {
-        compactDocument(row.id, 0, function() {
+        customApi._compactDocument(row.id, function() {
           count--;
           if (!count) {
             call(callback);

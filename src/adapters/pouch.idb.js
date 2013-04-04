@@ -841,7 +841,6 @@ var IdbPouch = function(opts, callback) {
     call(callback, null);
   };
 
-  // compaction internal functions
   api._getRevisionTree = function(docId, callback) {
     var txn = idb.transaction([DOC_STORE], 'readonly');
     var req = txn.objectStore(DOC_STORE).get(docId);
@@ -855,24 +854,39 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  api._removeDocRevisions = function(docId, revs, callback) {
-    var txn = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ_WRITE);
-    var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
-    revs.forEach(function(rev) {
-      var key = docId + "::" + rev;
-      index.getKey(key).onsuccess = function(e) {
-        var seq = e.target.result;
-        if (!seq) {
-          return;
+  api._compactDocument = function(docId, callback) {
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ_WRITE);
+
+    var index = txn.objectStore(DOC_STORE);
+    index.get(docId).onsuccess = function(event) {
+      var metadata = event.target.result;
+
+      var count = 0;
+      Pouch.merge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
+        if (!isLeaf && opts.status == 'available') {
+          count++;
+          var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
+          var key = docId + "::" + pos + '-' + revHash;
+          index.getKey(key).onsuccess = function(e) {
+            var seq = e.target.result;
+            if (!seq) {
+              return;
+            }
+            var req = txn.objectStore(BY_SEQ_STORE)['delete'](seq);
+            opts.status = 'missing';
+
+            count--;
+            if (!count) {
+              txn.objectStore(DOC_STORE).put(metadata);
+            }
+          };
         }
-        var req = txn.objectStore(BY_SEQ_STORE)['delete'](seq);
-      };
-    });
+      });
+    };
     txn.oncomplete = function() {
       callback();
     };
   };
-  // end of compaction internal functions
 
   return api;
 };
