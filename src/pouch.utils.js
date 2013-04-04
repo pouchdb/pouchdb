@@ -218,6 +218,9 @@ var filterChange = function(opts) {
     if (opts.filter && !opts.filter.call(this, change.doc, req)) {
       return;
     }
+    if (opts.doc_ids && opts.doc_ids.indexOf(change.id) !== -1) {
+      return;
+    }
     if (!opts.include_docs) {
       delete change.doc;
     }

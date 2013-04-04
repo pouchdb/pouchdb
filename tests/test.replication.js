@@ -1,6 +1,6 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, openTestDB: false, putAfter: false */
-/*globals cleanupTestDatabases: false */
+/*globals cleanupTestDatabases: false, strictEqual: false */
 
 "use strict";
 
@@ -442,6 +442,26 @@ adapters.map(function(adapters) {
               start();
             });
           });
+        });
+      });
+    });
+  });
+
+  asyncTest("Replication doc ids", function() {
+    console.info('Starting Test: Replication with doc_ids');
+    var thedocs = [
+      {_id: '3', integer: 3, string: '3'},
+      {_id: '4', integer: 4, string: '4'},
+      {_id: '5', integer: 5, string: '5'}
+    ];
+
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: thedocs}, function(err, info) {
+        db.replicate.from(remote, {
+          doc_ids: ['3', '4']
+        }, function(err, response){
+          strictEqual(response.docs_written, 1, 'correct # of docs replicated');
+          start();
         });
       });
     });
