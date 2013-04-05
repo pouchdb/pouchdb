@@ -10,3 +10,5 @@ branches:
 
 before_script:
   - npm install -g grunt-cli
+  - rm -r node_modules/pouchdb-server/node_modules/pouchdb
+  - cd node_modules/pouchdb-server/node_modules; ln -s ../../.. pouchdb; cd -
