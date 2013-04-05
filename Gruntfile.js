@@ -214,10 +214,19 @@ module.exports = function(grunt) {
         }
       }
     },
+
     'publish-results': {
       server: 'http://couchdb.pouchdb.com',
       db: 'test_results'
+    },
+
+    'couchdb-test': {
+      port: 5985,
+      files: [
+        'basics'
+      ]
     }
+
   });
 
   // Custom tasks
@@ -264,6 +273,19 @@ module.exports = function(grunt) {
           console.log(testStartTime.getTime(), err ? err.message : body);
           done(results.passed && err === null);
         });
+    });
+  });
+
+  grunt.registerTask("couchdb-test",
+                     "Run the CouchDB test harness against PouchDB.", function () {
+    var done = this.async();
+    var pouchdbServer = require('pouchdb-server');
+    var couchdbHarness = require('couchdb-harness');
+    var port = grunt.config('couchdb-test.port');
+    var files = grunt.config('couchdb-test.files');
+    pouchdbServer.listen(port);
+    couchdbHarness.run(port, files, function (exitCode) {
+      done(exitCode);
     });
   });
 
