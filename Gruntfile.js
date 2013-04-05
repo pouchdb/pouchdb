@@ -308,7 +308,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask("test", ["jshint", "node-qunit"]);
   grunt.registerTask("test-travis", ["jshint", "build", "connect", "cors-server",
-                                     "node-qunit", "saucelabs-qunit",
+                                     "node-qunit", "couchdb-test", "saucelabs-qunit",
                                      "publish-results"]);
 
   grunt.registerTask('default', 'build');
