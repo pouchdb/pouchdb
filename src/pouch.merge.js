@@ -48,10 +48,9 @@ function mergeTree(in_tree1, in_tree2) {
     var tree1 = item.tree1;
     var tree2 = item.tree2;
 
-    if (tree1[1].status === 'available' || tree2[1].status === 'available') {
-      tree1[1].status = 'available';
-    } else {
-      tree1[1].status = 'missing';
+    if (tree1[1].status || tree2[1].status) {
+      tree1[1].status = (tree1[1].status ===  'available' || 
+                         tree2[1].status === 'available') ? 'available' : 'missing';
     }
 
     for (var i = 0; i < tree2[2].length; i++) {

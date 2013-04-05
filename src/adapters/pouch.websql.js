@@ -698,8 +698,6 @@ var webSqlPouch = function(opts, callback) {
 
           tx.executeSql(sql, [JSON.stringify(metadata), docId], function(tx, result) {
             callback();
-          }, function(tx, res){
-            console.log(res);
           });
         });
       });
