@@ -724,7 +724,6 @@ var LevelPouch = function(opts, callback) {
     }
   };
 
-  // compaction internal functions
   api._getRevisionTree = function(docId, callback){
     stores[DOC_STORE].get(docId, function(err, metadata) {
       if (err) {
@@ -735,14 +734,12 @@ var LevelPouch = function(opts, callback) {
     });
   };
 
-  api._removeDocRevisions = function(docId, revs, callback) {
-    if (!revs.length) {
-      callback();
-    }
+  api._doCompaction = function(docId, rev_tree, revs, callback) {
     stores[DOC_STORE].get(docId, function(err, metadata) {
       var seqs = metadata.rev_map; // map from rev to seq
-      var count = revs.count;
+      metadata.rev_tree = rev_tree;
 
+      var count = revs.length;
       function done() {
         count--;
         if (!count) {
@@ -750,19 +747,25 @@ var LevelPouch = function(opts, callback) {
         }
       }
 
-      revs.forEach(function(rev) {
-        var seq = seqs[rev];
-        if (!seq) {
-          done();
-          return;
-        }
-        stores[BY_SEQ_STORE].del(seq, function(err) {
-          done();
+      if (!count) {
+        callback();
+      }
+
+      stores[DOC_STORE].put(metadata.id, metadata, function() {
+        revs.forEach(function(rev) {
+          var seq = seqs[rev];
+          if (!seq) {
+            done();
+            return;
+          }
+
+          stores[BY_SEQ_STORE].del(seq, function(err) {
+            done();
+          });
         });
       });
     });
   };
-  // end of compaction internal functions
 
   return api;
 };

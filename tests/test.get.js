@@ -232,7 +232,7 @@ adapters.map(function(adapter) {
       var simpleTree = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
-          {_id: "foo", _rev: "2-b", value: "foo d"},
+          {_id: "foo", _rev: "2-b", value: "foo b"},
           {_id: "foo", _rev: "3-c", value: "foo c"}
         ],
         [

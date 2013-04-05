@@ -196,6 +196,23 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Compact deleted document', function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({_id: "foo"}, function(err, res) {
+        var firstRev = res.rev;
+        db.remove({_id: "foo", _rev: firstRev}, function(err, res) {
+          db.compact(function() {
+            db.get("foo", {rev: firstRev}, function(err, res) {
+              ok(err, "got error");
+              strictEqual(err.reason, "missing", "correct reason");
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
   if (autoCompactionAdapters.indexOf(adapter) > -1) {
     asyncTest('Auto-compaction test', function() {
       initTestDB(this.name, {auto_compaction: true}, function(err, db) {

@@ -841,7 +841,6 @@ var IdbPouch = function(opts, callback) {
     call(callback, null);
   };
 
-  // compaction internal functions
   api._getRevisionTree = function(docId, callback) {
     var txn = idb.transaction([DOC_STORE], 'readonly');
     var req = txn.objectStore(DOC_STORE).get(docId);
@@ -855,24 +854,39 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  api._removeDocRevisions = function(docId, revs, callback) {
-    var txn = idb.transaction([BY_SEQ_STORE], IDBTransaction.READ_WRITE);
-    var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
-    revs.forEach(function(rev) {
-      var key = docId + "::" + rev;
-      index.getKey(key).onsuccess = function(e) {
-        var seq = e.target.result;
-        if (!seq) {
-          return;
-        }
-        var req = txn.objectStore(BY_SEQ_STORE)['delete'](seq);
-      };
-    });
+  // This function removes revisions of document docId
+  // which are listed in revs and sets this document 
+  // revision to to rev_tree
+  api._doCompaction = function(docId, rev_tree, revs, callback) {
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ_WRITE);
+
+    var index = txn.objectStore(DOC_STORE);
+    index.get(docId).onsuccess = function(event) {
+      var metadata = event.target.result;
+      metadata.rev_tree = rev_tree;
+
+      var count = revs.length;
+      revs.forEach(function(rev) {
+        var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
+        var key = docId + "::" + rev;
+        index.getKey(key).onsuccess = function(e) {
+          var seq = e.target.result;
+          if (!seq) {
+            return;
+          }
+          var req = txn.objectStore(BY_SEQ_STORE)['delete'](seq);
+
+          count--;
+          if (!count) {
+            txn.objectStore(DOC_STORE).put(metadata);
+          }
+        };
+      });
+    };
     txn.oncomplete = function() {
-      callback();
+      call(callback);
     };
   };
-  // end of compaction internal functions
 
   return api;
 };

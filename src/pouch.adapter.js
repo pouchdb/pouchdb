@@ -204,34 +204,47 @@ var PouchAdapter = function(opts, callback) {
         return call(callback);
       }
       var height = computeHeight(rev_tree);
-      var nonLeaves = [];
+      var candidates = [];
+      var revs = [];
       Object.keys(height).forEach(function(rev) {
         if (height[rev] > max_height) {
-          nonLeaves.push(rev);
+          candidates.push(rev);
         }
       });
-      customApi._removeDocRevisions(docId, nonLeaves, callback);
+
+      Pouch.merge.traverseRevTree(rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
+        var rev = pos + '-' + revHash;
+        if (opts.status === 'available' && candidates.indexOf(rev) !== -1) {
+          opts.status = 'missing';
+          revs.push(rev);
+        }
+      });
+      customApi._doCompaction(docId, rev_tree, revs, callback);
     });
   };
 
   // compact the whole database using single document
   // compaction
   api.compact = function(callback) {
-    api.allDocs(function(err, res) {
-      var count = res.rows.length;
+    api.changes({complete: function(err, res) {
+      if (err) {
+        call(callback); // TODO: silently fail
+        return;
+      }
+      var count = res.results.length;
       if (!count) {
         call(callback);
         return;
       }
-      res.rows.forEach(function(row) {
-        compactDocument(row.key, 0, function() {
+      res.results.forEach(function(row) {
+        compactDocument(row.id, 0, function() {
           count--;
           if (!count) {
             call(callback);
           }
         });
       });
-    });
+    }});
   };
 
   /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
@@ -311,9 +324,6 @@ var PouchAdapter = function(opts, callback) {
       }
 
       var doc = result;
-      function finish() {
-        call(callback, null, doc);
-      }
 
       if (opts.conflicts) {
         var conflicts = Pouch.merge.collectConflicts(metadata);
@@ -324,53 +334,35 @@ var PouchAdapter = function(opts, callback) {
 
       if (opts.revs || opts.revs_info) {
         var paths = rootToLeaf(metadata.rev_tree);
-        paths.map(function(path, i) {
-          paths[i].ids = path.ids.map(function(x) { return x.id; });
-        });
         var path = arrayFirst(paths, function(arr) {
-          return arr.ids.indexOf(doc._rev.split('-')[1]) !== -1;
+          return arr.ids.map(function(x) { return x.id; })
+            .indexOf(doc._rev.split('-')[1]) !== -1;
         });
-        path.ids.splice(path.ids.indexOf(doc._rev.split('-')[1]) + 1);
+
+        path.ids.splice(path.ids.map(function(x) {return x.id;})
+                        .indexOf(doc._rev.split('-')[1]) + 1);
         path.ids.reverse();
 
         if (opts.revs) {
           doc._revisions = {
             start: (path.pos + path.ids.length) - 1,
-            ids: path.ids
+            ids: path.ids.map(function(rev) {
+              return rev.id;
+            })
           };
         }
         if (opts.revs_info) {
-          // TODO: it could be slow to test status like this
-          var count = path.ids.length;
-          var pos = path.pos + path.ids.length - 1;
-          doc._revs_info = [];
-
-          path.ids.forEach(function(hash) {
-            var rev = pos + '-' + hash;
-            var info = {
-              rev: rev,
-              status: "available"
-            };
+          var pos =  path.pos + path.ids.length;
+          doc._revs_info = path.ids.map(function(rev) {
             pos--;
-            doc._revs_info.push(info);
-
-            api.get(id.docId, {rev: rev}, function(err, ok) {
-              if (err) {
-                info.status = "missing";
-              }
-              count--;
-              if (!count) {
-                finish();
-              }
-            });
+            return {
+              rev: pos + '-' + rev.id,
+              status: rev.opts.status
+            };
           });
-        } else {
-          finish();
         }
-      } else {
-        finish();
       }
-
+      call(callback, null, doc);
     });
   };
 
