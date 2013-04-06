@@ -202,22 +202,14 @@ a document, include a `_deleted` parameter with the value `true`.
 
 Getrieves a document, specified by `docid`.
 
+* `options.rev`: Fetch specific revision of a document. Defaults to winning revision (see [couchdb guide](http://guide.couchdb.org/draft/conflicts.html).
 * `options.revs`: Include revision history of the document
 * `options.revs_info`: Include a list of revisions of the document, and their availability.
+* `options.open_revs`: Fetch all leaf revisions if open_revs="all" or fetch all leaf revisions specified in open_revs array. Leaves will be returned in the same order as specified in input array
+* `options.conflicts`: If specified conflicting leaf revisions will be attached in `_conflicts` array
 * `options.attachments`: Include attachment data
 
 <span></span>
-
-    db.bulkDocs({ docs: [{ title: 'Lisa Says' }] }, function(err, response) {
-      // Response array:
-      // [
-      //   {
-      //     "ok": true,
-      //     "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
-      //     "rev": "1-A8BC08745E62E58830CA066D99E5F457"
-      //   }
-      // ]
-    })
 
     db.get('mydoc', function(err, doc) {
       // Document:
@@ -227,6 +219,64 @@ Getrieves a document, specified by `docid`.
       //   "_rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
       // }
     })
+
+
+    db.get("foo", {revs: true, revs_info: true}, function(err, res) {
+      // Result: 
+      // {
+      //   "_id": "foo",
+      //   "_rev": "2-7051cbe5c8faecd085a3fa619e6e6337",
+      //   "_revisions": {
+      //     "start": 2,
+      //     "ids": [
+      //       "7051cbe5c8faecd085a3fa619e6e6337",
+      //       "967a00dff5e02add41819138abb3284d"
+      //     ]
+      //   },
+      //   "_revs_info": [
+      //     {
+      //       "rev": "2-7051cbe5c8faecd085a3fa619e6e6337",
+      //       "status": "available"
+      //     },
+      //     {
+      //       "rev": "1-967a00dff5e02add41819138abb3284d",
+      //       "status": "available"
+      //     }
+      //   ]
+      // }
+    })
+
+
+    db.get("foo", {open_revs: ["2-7051cbe5c8faecd085a3fa619e6e6337", "2-nonexistent"]}, function(err, res) {
+      // Result:
+      // [
+      //   {
+      //     "ok": {
+      //       "_id": "foo",
+      //       "_rev": "2-7051cbe5c8faecd085a3fa619e6e6337",
+      //       "value": "some document value"
+      //     }
+      //   },
+      //   {
+      //     "missing": "2-nonexistent"
+      //   }
+      // ]
+    })
+
+
+    db.get("foo", {conflicts: true}, function(err, res) {
+      // Result:
+      // {
+      //   "_id": "foo",
+      //   "_rev": "1-winning",
+      //   "value": "my document with conflicts",
+      //   "_conflicts": [
+      //     "1-conflict1"
+      //     "1-conflict2"
+      //   ]
+      // }
+    })
+
 
 ## Fetch documents
 
