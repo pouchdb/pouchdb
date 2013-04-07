@@ -49,6 +49,8 @@ Retrieves all databases from PouchDB. (Adapter prefix of database is included if
 
 This method gets an existing database if one exists or creates a new one if one does not exist. You may also explicitly specify which backend you want to use for local database (e.g. `idb://dbname` or `leveldb://dbname`) but usually it is convenient to let PouchDB choose the best backend by itself.
 
+Note: Pouch reserves the prefix '_pouch' for the creation of local databases -- all local databases will automatically be preprended with '_pouch'.
+
     var pouchdb = Pouch('test');
 
     pouchdb.post(...;
