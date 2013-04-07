@@ -81,8 +81,9 @@ Pouch.DEBUG = false;
 Pouch.adapters = {};
 Pouch.plugins = {};
 
-Pouch.parseAdapter = function(name) {
+Pouch.prefix = '_pouch';
 
+Pouch.parseAdapter = function(name) {
   var match = name.match(/([a-z\-]*):\/\/(.*)/);
   if (match) {
     // the http adapter expects the fully qualified name
@@ -98,7 +99,7 @@ Pouch.parseAdapter = function(name) {
   for (var i = 0; i < preferredAdapters.length; ++i) {
     if (preferredAdapters[i] in Pouch.adapters) {
       return {
-        name: name,
+        name: Pouch.prefix + name,
         adapter: preferredAdapters[i]
       };
     }
@@ -192,7 +193,7 @@ Pouch.realDBName = function(adapter, name) {
   return [adapter, "://", name].join('');
 };
 Pouch.allDBName = function(adapter) {
-  return [adapter, "://", Pouch.ALL_DBS].join('');
+  return [adapter, "://", Pouch.prefix + Pouch.ALL_DBS].join('');
 };
 
 Pouch.open = function(opts, callback) {

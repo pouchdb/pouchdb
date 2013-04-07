@@ -26,7 +26,7 @@ var PouchAdapter = function(opts, callback) {
 
     // Don't call Pouch.open for ALL_DBS
     // Pouch.open saves the db's name into ALL_DBS
-    if (opts.name === Pouch.ALL_DBS) {
+    if (opts.name === Pouch.prefix + Pouch.ALL_DBS) {
       callback(err, db);
     } else {
       Pouch.open(opts, function(err) {
