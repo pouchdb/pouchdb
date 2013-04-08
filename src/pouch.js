@@ -81,7 +81,7 @@ Pouch.DEBUG = false;
 Pouch.adapters = {};
 Pouch.plugins = {};
 
-Pouch.prefix = '_pouch';
+Pouch.prefix = '_pouch_';
 
 Pouch.parseAdapter = function(name) {
   var match = name.match(/([a-z\-]*):\/\/(.*)/);
