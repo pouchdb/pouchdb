@@ -158,7 +158,7 @@ var PouchAdapter = function(opts, callback) {
       opts = {};
     }
     opts.was_delete = true;
-    var newDoc = extend(true, {}, doc);
+    var newDoc = {_id: doc._id, _rev: doc._rev};
     newDoc._deleted = true;
     return customApi.bulkDocs({docs: [newDoc]}, opts, yankError(callback));
   };
