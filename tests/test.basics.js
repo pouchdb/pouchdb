@@ -106,6 +106,21 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Doc removal leaves only stub", 1, function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({_id: "foo", value: "test"}, function(err, res) {
+        db.get("foo", function(err, doc) {
+          db.remove(doc, function(err, res) {
+            db.get("foo", {rev: res.rev}, function(err, doc) {
+              deepEqual(doc, {_id: res.id, _rev: res.rev, _deleted: true}, "removal left only stub");
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Remove doc twice with specified id", 4, function() {
     initTestDB(this.name, function(err, db) {
       db.put({_id:"specifiedId", test:"somestuff"}, function(err, info) {
