@@ -303,6 +303,26 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest("Try to insert a doc with unencoded attachment", function() {
+    initTestDB(this.name, function(err, db) {
+      var doc = {
+        _id: "foo",
+        _attachments: {
+          "foo.txt": {
+            content_type: "text/plain",
+            data: "this should have been encoded!"
+          }
+        }
+      };
+      db.put(doc, function(err, res) {
+        ok(err, "error returned");
+        strictEqual(err.status, 500, "correct error");
+        strictEqual(err.error, "badarg", "correct error");
+        start();
+      });
+    });
+  });
 });
 
 
