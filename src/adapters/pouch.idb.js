@@ -243,18 +243,22 @@ var IdbPouch = function(opts, callback) {
       call(callback, null, aresults);
     }
 
-    function preprocessAttachment(att, callback) {
+    function preprocessAttachment(att, finish) {
       if (att.stub) {
-        return callback();
+        return finish();
       }
       if (typeof att.data === 'string') {
-        var data = atob(att.data);
+        try {
+          var data = atob(att.data);
+        } catch(e) {
+          return call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
+        }
         att.digest = 'md5-' + Crypto.MD5(data);
         if (blobSupport) {
           var type = att.content_type;
           att.data = new Blob([data], {type: type});
         }
-        return callback();
+        return finish();
       }
       var reader = new FileReader();
       reader.onloadend = function(e) {
@@ -262,7 +266,7 @@ var IdbPouch = function(opts, callback) {
         if (!blobSupport) {
           att.data = btoa(this.result);
         }
-        callback();
+        finish();
       };
       reader.readAsBinaryString(att.data);
     }
