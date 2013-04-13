@@ -248,8 +248,9 @@ var IdbPouch = function(opts, callback) {
         return finish();
       }
       if (typeof att.data === 'string') {
+        var data;
         try {
-          var data = atob(att.data);
+          data = atob(att.data);
         } catch(e) {
           return call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
         }

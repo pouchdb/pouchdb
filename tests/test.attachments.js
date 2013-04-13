@@ -1,5 +1,5 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, strictEqual: false */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
 /*globals readBlob: false, makeBlob: false */
 /*globals cleanupTestDatabases: false */
@@ -316,6 +316,8 @@ adapters.map(function(adapter) {
         }
       };
       db.put(doc, function(err, res) {
+        console.log(err);
+
         ok(err, "error returned");
         strictEqual(err.status, 500, "correct error");
         strictEqual(err.error, "badarg", "correct error");

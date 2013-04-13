@@ -361,7 +361,7 @@ Pouch.Errors = {
     status: 400,
     error: 'bad_request',
     reason: 'Something wrong with the request'
-  },
+  }
 };
 Pouch.error = function(error, reason){
  return extend({}, error, {reason: reason});
