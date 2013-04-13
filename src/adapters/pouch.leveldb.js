@@ -333,7 +333,7 @@ var LevelPouch = function(opts, callback) {
       writeDoc(docInfo, callback);
     }
 
-    function writeDoc(doc, callback) {
+    function writeDoc(doc, callback2) {
       var err = null;
       var recv = 0;
 
@@ -351,7 +351,7 @@ var LevelPouch = function(opts, callback) {
         if (!err) {
           if (attachmentErr) {
             err = attachmentErr;
-            call(callback, err);
+            call(callback2, err);
           } else if (recv === attachments.length) {
             finish();
           }
@@ -369,7 +369,12 @@ var LevelPouch = function(opts, callback) {
           var data = doc.data._attachments[key].data;
           // if data is a string, it's likely to actually be base64 encoded
           if (typeof data === 'string') {
-            data = Pouch.utils.atob(data);
+            try {
+              data = Pouch.utils.atob(data);
+            } catch(e) {
+              call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
+              return;
+            }
           }
           var digest = 'md5-' + crypto.createHash('md5')
                 .update(data || '')
@@ -395,7 +400,7 @@ var LevelPouch = function(opts, callback) {
 
           stores[DOC_STORE].put(doc.metadata.id, doc.metadata, function(err) {
             results.push(doc);
-            return saveUpdateSeq(callback);
+            return saveUpdateSeq(callback2);
           });
         });
       }
