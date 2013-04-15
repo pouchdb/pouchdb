@@ -1,5 +1,6 @@
 /*globals Pouch: true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false */
 /*globals arrayFirst: false, rootToLeaf: false, computeHeight: false */
+/*globals cordova, isCordova */
 
 "use strict";
 
@@ -529,6 +530,10 @@ var PouchAdapter = function(opts, callback) {
     api.taskqueue.execute(api);
   }
 
+  if (isCordova()){
+    //to inform websql adapter that we can use api
+    cordova.fireWindowEvent(opts.name + "_pouch", {});
+  }
   return customApi;
 };
 
