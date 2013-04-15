@@ -176,20 +176,24 @@ var webSqlPouch = function(opts, callback) {
       call(callback, null, aresults);
     }
 
-    function preprocessAttachment(att, callback) {
+    function preprocessAttachment(att, finish) {
       if (att.stub) {
-        return callback();
+        return finish();
       }
       if (typeof att.data === 'string') {
-        att.data = atob(att.data);
+        try {
+          att.data = atob(att.data);
+        } catch(e) {
+          return call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
+        }
         att.digest = 'md5-' + Crypto.MD5(att.data);
-        return callback();
+        return finish();
       }
       var reader = new FileReader();
       reader.onloadend = function(e) {
         att.data = this.result;
         att.digest = 'md5-' + Crypto.MD5(this.result);
-        callback();
+        finish();
       };
       reader.readAsBinaryString(att.data);
     }
