@@ -118,6 +118,20 @@ adapters.map(function(adapter) {
     }
   });
 
+  asyncTest("Test getAttachment", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put(binAttDoc, function(err, res) {
+        db.getAttachment("bin_doc/foo.txt", function(err, res) {
+          ok(!err, "Attachment read");
+          readBlob(res, function(data) {
+            strictEqual(data, "This is a base64 encoded text", "correct data");
+            start();
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Testing with invalid docs", function() {
     var invalidDoc = {'_id': '_invalid', foo: 'bar'};
     initTestDB(this.name, function(err, db) {
