@@ -330,8 +330,6 @@ adapters.map(function(adapter) {
         }
       };
       db.put(doc, function(err, res) {
-        console.log(err);
-
         ok(err, "error returned");
         strictEqual(err.status, 500, "correct error");
         strictEqual(err.error, "badarg", "correct error");

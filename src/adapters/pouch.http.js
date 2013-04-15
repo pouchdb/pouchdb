@@ -529,6 +529,12 @@ var HttpPouch = function(opts, callback) {
     }, callback);
   };
 
+  api._getAttachment = function (id, opts, callback) {
+    api.get(id.docId + "/" + id.attachmentId, function(err, res) {
+      callback(err, res);
+    });
+  };
+
   // Get a listing of the documents in the database given
   // by host and ordered by increasing id.
   api.allDocs = function(opts, callback) {
