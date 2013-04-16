@@ -621,8 +621,7 @@ var webSqlPouch = function(opts, callback) {
               dedupResults.push(result);
             }
           }
-          dedupResults.map(filterChange(opts));
-
+          dedupResults = dedupResults.filter(filterChange(opts));
           call(opts.complete, null, {results: dedupResults});
         });
       });

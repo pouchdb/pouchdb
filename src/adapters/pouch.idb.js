@@ -825,7 +825,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     function onTxnComplete() {
-      dedupResults.map(filterChange(opts));
+      dedupResults = dedupResults.filter(filterChange(opts));
       call(opts.complete, null, {results: dedupResults});
     }
 

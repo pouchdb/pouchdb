@@ -216,15 +216,16 @@ var filterChange = function(opts) {
     var req = {};
     req.query = opts.query_params;
     if (opts.filter && !opts.filter.call(this, change.doc, req)) {
-      return;
+      return false;
     }
     if (opts.doc_ids && opts.doc_ids.indexOf(change.id) !== -1) {
-      return;
+      return false;
     }
     if (!opts.include_docs) {
       delete change.doc;
     }
     call(opts.onChange, change);
+    return true;
   };
 };
 

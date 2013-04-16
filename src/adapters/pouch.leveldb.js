@@ -660,7 +660,7 @@ var LevelPouch = function(opts, callback) {
             change_emitter.on('change', changeListener);
           }
           // filters changes in-place, calling opts.onChange on matching changes
-          results.map(Pouch.utils.filterChange(opts));
+          results = results.filter(Pouch.utils.filterChange(opts));
           call(opts.complete, null, {results: results});
         });
     }
