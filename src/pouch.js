@@ -85,10 +85,11 @@ Pouch.prefix = '_pouch_';
 
 Pouch.parseAdapter = function(name) {
   var match = name.match(/([a-z\-]*):\/\/(.*)/);
+  var adapter;
   if (match) {
     // the http adapter expects the fully qualified name
     name = /http(s?)/.test(match[1]) ? match[1] + '://' + match[2] : match[2];
-    var adapter = match[1];
+    adapter = match[1];
     if (!Pouch.adapters[adapter].valid()) {
       throw 'Invalid adapter';
     }
@@ -98,8 +99,11 @@ Pouch.parseAdapter = function(name) {
   var preferredAdapters = ['idb', 'leveldb', 'websql'];
   for (var i = 0; i < preferredAdapters.length; ++i) {
     if (preferredAdapters[i] in Pouch.adapters) {
+      adapter = Pouch.adapters[preferredAdapters[i]];
+      var use_prefix = 'use_prefix' in adapter ? adapter.use_prefix : true;
+
       return {
-        name: Pouch.prefix + name,
+        name: use_prefix ? Pouch.prefix + name : name,
         adapter: preferredAdapters[i]
       };
     }
