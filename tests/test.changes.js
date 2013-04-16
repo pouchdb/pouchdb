@@ -349,6 +349,31 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Non-continuous changes filter", function() {
+
+    var docs1 = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs1}, function(err, info) {
+        db.changes({
+          filter: function (doc) {
+            return doc.integer % 2 === 0;
+          },
+          complete: function (err, changes) {
+            // Should get docs 0 and 2 if the filter has been applied correctly.
+            equal(changes.results.length, 2, "should only get 2 changes");
+            start();
+          }
+        });
+      });
+    });
+  });
+
   asyncTest("Changes to same doc are grouped", function() {
     var docs1 = [
       {_id: "0", integer: 0},
