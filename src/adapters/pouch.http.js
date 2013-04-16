@@ -724,19 +724,19 @@ var HttpPouch = function(opts, callback) {
       // If the result of the ajax call (res) contains changes (res.results)
       if (res && res.results) {
         // For each change
-        res.results.forEach(function(c) {
-          var hasFilter = opts.filter && typeof opts.filter === 'function';
-          var req = {};
-          req.query = opts.query_params;
+        var hasFilter = opts.filter && typeof opts.filter === 'function';
+        var req = {};
+        req.query = opts.query_params;
+        res.results = res.results.filter(function(c) {
           if (opts.aborted || hasFilter && !opts.filter.apply(this, [c.doc, req])) {
-            return;
+            return false;
           }
-
           if (opts.doc_ids && opts.doc_ids.indexOf(c.id) !== -1) {
-            return;
+            return false;
           }
           // Process the change
           call(opts.onChange, c);
+          return true;
         });
       }
       // The changes feed may have timed out with no results
