@@ -317,8 +317,20 @@ var PouchAdapter = function(opts, callback) {
 
     id = parseDocId(id);
     if (id.attachmentId !== '') {
-      return customApi.getAttachment(id, callback);
+      return customApi._get(id, {attachment: id.attachmentId, encode: false}, function(result, metadata){
+        if ('error' in result) {
+          return call(callback, result);
+        }
+
+        if (result._attachments && result._attachments[id.attachmentId]) {
+          return call(callback, null, result._attachments[id.attachmentId].data);
+        } else {
+          return call(callback, Pouch.Errors.MISSING_DOC);
+        }
+      });
     }
+
+    opts.encode = true;
     return customApi._get(id, opts, function(result, metadata) {
       if ('error' in result) {
         return call(callback, result);
@@ -372,11 +384,9 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    if (typeof id === 'string') {
-      id = parseDocId(id);
-    }
-
-    return customApi._getAttachment(id, opts, callback);
+    customApi.get(id, function(err, res) {
+      callback(err, res);
+    });
   };
 
   api.allDocs = function(opts, callback) {
