@@ -477,17 +477,21 @@ var IdbPouch = function(opts, callback) {
           result = Pouch.Errors.MISSING_DOC;
           return;
         }
-        if (opts.attachments && doc._attachments) {
-          var attachments = Object.keys(doc._attachments);
-          var recv = 0;
+        result = doc;
+        if ((opts.attachment || opts.attachments) && doc._attachments) {
+          var attachments = doc._attachments;
+          var keys = Object.keys(attachments);
+          if (opts.attachment) {
+            if (keys.indexOf(opts.attachment) > -1) {
+              keys = [opts.attachment];
+            } else {
+              keys = [];
+            }
+          }
 
-          attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, {encode: true, txn: txn}, function(err, data) {
+          keys.forEach(function(key) {
+            api._getAttachment(attachments[key], {encode: opts.encode,  txn: txn}, function(err, data) {
               doc._attachments[key].data = data;
-
-              if (++recv === attachments.length) {
-                result = doc;
-              }
             });
           });
         } else {
@@ -496,65 +500,44 @@ var IdbPouch = function(opts, callback) {
               doc._attachments[key].stub = true;
             }
           }
-          result = doc;
         }
       };
     };
   };
 
-  api._getAttachment = function(id, opts, callback) {
+  api._getAttachment = function(attachment, opts, callback) {
     var result;
-    var txn;
+    var txn = opts.txn;
 
-    // This can be called while we are in a current transaction, pass the context
-    // along and dont wait for the transaction to complete here.
-    if ('txn' in opts) {
-      txn = opts.txn;
-    } else {
-      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
-      txn.oncomplete = function() { call(callback, null, result); };
+    if (!txn) {
+      return; // fail miserably. FIXME!
     }
 
-    txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
-      var metadata = e.target.result;
-      var bySeq = txn.objectStore(BY_SEQ_STORE);
-      bySeq.get(metadata.seq).onsuccess = function(e) {
-        var attachment = e.target.result._attachments[id.attachmentId];
-        var digest = attachment.digest;
-        var type = attachment.content_type;
+    var digest = attachment.digest;
+    var type = attachment.content_type;
 
-        txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
-          var data = e.target.result.body;
-          if (opts.encode) {
-            if (blobSupport) {
-              var reader = new FileReader();
-              reader.onloadend = function(e) {
-                result = btoa(this.result);
-
-                if ('txn' in opts) {
-                  call(callback, null, result);
-                }
-              };
-              reader.readAsBinaryString(data);
-            } else {
-              result = data;
-
-              if ('txn' in opts) {
-                call(callback, null, result);
-              }
-            }
-          } else {
-            if (blobSupport) {
-              result = data;
-            } else {
-              result = new Blob([atob(data)], {type: type});
-            }
-            if ('txn' in opts) {
-              call(callback, null, result);
-            }
-          }
-        };
-      };
+    txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+      var data = e.target.result.body;
+      if (opts.encode) {
+        if (blobSupport) {
+          var reader = new FileReader();
+          reader.onloadend = function(e) {
+            result = btoa(this.result);
+            call(callback, null, result);
+          };
+          reader.readAsBinaryString(data);
+        } else {
+          result = data;
+          call(callback, null, result);
+        }
+      } else {
+        if (blobSupport) {
+          result = data;
+        } else {
+          result = new Blob([atob(data)], {type: type});
+        }
+        call(callback, null, result);
+      }
     };
     return;
   };
