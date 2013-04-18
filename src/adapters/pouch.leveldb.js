@@ -184,15 +184,24 @@ var LevelPouch = function(opts, callback) {
         doc._id = metadata.id;
         doc._rev = rev;
 
-        if (opts.attachments && doc._attachments) {
-          var attachments = Object.keys(doc._attachments);
-          var recv = 0;
-
-          attachments.forEach(function(key) {
-            api.getAttachment(doc._id + '/' + key, {encode: true}, function(err, data) {
+        if ((opts.attachment || opts.attachments) && doc._attachments) {
+          var attachments = doc._attachments;
+          var keys = Object.keys(attachments);
+          if (opts.attachment) {
+            if (keys.indexOf(opts.attachment) > -1) {
+              keys = [opts.attachment];
+            } else {
+              keys = [];
+            }
+          }
+          var count = keys.length;
+          if (!count) {
+            callback(doc, metadata);
+          }
+          keys.forEach(function(key) {
+            api._getAttachment(attachments[key], {encode: opts.encode}, function(err, data) {
               doc._attachments[key].data = data;
-
-              if (++recv === attachments.length) {
+              if (!--count) {
                 callback(doc, metadata);
               }
             });
@@ -211,40 +220,25 @@ var LevelPouch = function(opts, callback) {
   };
 
   // not technically part of the spec, but if putAttachment has its own method...
-  api._getAttachment = function(id, opts, callback) {
-    if (id.attachmentId === '') {
-      return api.get(id, opts, callback);
-    }
+  api._getAttachment = function(attachment, opts, callback) {
+    var digest = attachment.digest;
+    var type = attachment.content_type;
 
-    stores[DOC_STORE].get(id.docId, function(err, metadata) {
+    stores[ATTACH_BINARY_STORE].get(digest, function(err, attach) {
+      var data;
+
+      if (err && err.name === 'NotFoundError') {
+        // Empty attachment
+        data = opts.encode ? '' : new Buffer('');
+        return call(callback, null, data);
+      }
+
       if (err) {
         return call(callback, err);
       }
-      var seq = metadata.seq;
-      stores[BY_SEQ_STORE].get(seq, function(err, doc) {
-        if (err) {
-          return call(callback, err);
-        }
-        var digest = doc._attachments[id.attachmentId].digest;
-        var type = doc._attachments[id.attachmentId].content_type;
 
-        stores[ATTACH_BINARY_STORE].get(digest, function(err, attach) {
-          var data;
-
-          if (err && err.name === 'NotFoundError') {
-            // Empty attachment
-            data = opts.encode ? '' : new Buffer('');
-            return call(callback, null, data);
-          }
-
-          if (err) {
-            return call(callback, err);
-          }
-
-          data = opts.encode ? btoa(attach) : attach;
-          call(callback, null, data);
-        });
-      });
+      data = opts.encode ? btoa(attach) : attach;
+      call(callback, null, data);
     });
   };
 
