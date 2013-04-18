@@ -434,15 +434,20 @@ var webSqlPouch = function(opts, callback) {
           }
           var doc = JSON.parse(results.rows.item(0).json);
 
-          if (opts.attachments && doc._attachments) {
-            var attachments = Object.keys(doc._attachments);
-            var recv = 0;
-            attachments.forEach(function(key) {
-              api.getAttachment(doc._id + '/' + key, {encode: true, txn: tx}, function(err, data) {
+          if ((opts.attachment || opts.attachments) && doc._attachments) {
+            var attachments = doc._attachments;
+            var keys = Object.keys(attachments);
+            if (opts.attachment) {
+              if (keys.indexOf(opts.attachment) > -1) {
+                keys = [opts.attachment];
+              } else {
+                keys = [];
+              }
+            }
+
+            keys.forEach(function(key) {
+              api._getAttachment(attachments[key], {encode: opts.encode, txn: tx}, function(err, data) {
                 doc._attachments[key].data = data;
-                if (++recv === attachments.length) {
-                  result = doc;
-                }
               });
             });
           } else {
@@ -451,8 +456,8 @@ var webSqlPouch = function(opts, callback) {
                 doc._attachments[key].stub = true;
               }
             }
-            result = doc;
           }
+          result = doc;
         });
       });
     }, unknownError(callback), function () {
@@ -641,42 +646,21 @@ var webSqlPouch = function(opts, callback) {
     }
   };
 
-  api._getAttachment = function(id, opts, callback) {
-
+  api._getAttachment = function(attachment, opts, callback) {
     var res;
-    function fetchAttachment(tx) {
-      var sql = 'SELECT ' + BY_SEQ_STORE + '.json AS data FROM ' + DOC_STORE +
-        ' JOIN ' + BY_SEQ_STORE + ' ON ' + BY_SEQ_STORE + '.seq = ' + DOC_STORE +
-        '.seq WHERE ' + DOC_STORE + '.id = "' + id.docId + '"' ;
-      tx.executeSql(sql, [], function(tx, result) {
-        var doc = JSON.parse(result.rows.item(0).data);
-        var attachment = doc._attachments[id.attachmentId];
-        var digest = attachment.digest;
-        var type = attachment.content_type;
-        var sql = 'SELECT body FROM ' + ATTACH_STORE + ' WHERE digest=?';
-        tx.executeSql(sql, [digest], function(tx, result) {
-          var data = result.rows.item(0).body;
-          if (opts.encode) {
-            res = btoa(data);
-          } else {
-            res = new Blob([data], {type: type});
-          }
-          if ('txn' in opts) {
-            call(callback, null, res);
-          }
-        });
-      });
-    }
-
-    // This can be called while we are in a current transaction, pass the context
-    // along and dont wait for the transaction to complete here.
-    if ('txn' in opts) {
-      fetchAttachment(opts.txn);
-    } else {
-      db.transaction(fetchAttachment, unknownError(callback), function() {
-        call(callback, null, res);
-      });
-    }
+    var tx = opts.txn;
+    var digest = attachment.digest;
+    var type = attachment.content_type;
+    var sql = 'SELECT body FROM ' + ATTACH_STORE + ' WHERE digest=?';
+    tx.executeSql(sql, [digest], function(tx, result) {
+      var data = result.rows.item(0).body;
+      if (opts.encode) {
+        res = btoa(data);
+      } else {
+        res = new Blob([data], {type: type});
+      }
+      call(callback, null, res);
+    });
   };
 
   api._getRevisionTree = function(docId, callback) {
