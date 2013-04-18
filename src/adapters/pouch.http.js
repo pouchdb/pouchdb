@@ -100,8 +100,15 @@ function genDBUrl(opts, path) {
 // Generate a URL with the host data given by opts and the given path
 function genUrl(opts, path) {
   if (opts.remote) {
-    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + path;
+    // If the host already has a path, then we need to have a path delimiter
+    // Otherwise, the path delimiter is the empty string
+    var pathDel = !opts.path ? '' : '/';
+    
+    // If the host already has a path, then we need to have a path delimiter
+    // Otherwise, the path delimiter is the empty string
+    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path + pathDel + path;
   }
+  
   return '/' + path;
 }
 
