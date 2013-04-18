@@ -337,6 +337,30 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest("Try to get attachment of unexistent doc", function() {
+    initTestDB(this.name, function(err, db) {
+      db.getAttachment("unexistent", function(err, res) {
+        ok(err, "Correctly returned error");
+        db.getAttachment("unexistent/attachment", function(err, res) {
+          ok(err, "Correctly returned error");
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Try to get unexistent attachment of some doc", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put({_id: "foo"}, function(err, res) {
+        ok(!err, "doc inserted");
+        db.getAttachment("foo/unexistentAttachment", function(err, res) {
+          ok(err, "Correctly returned error");
+          start();
+        });
+      });
+    });
+  });
 });
 
 

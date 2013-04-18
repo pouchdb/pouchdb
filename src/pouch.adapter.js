@@ -314,17 +314,33 @@ var PouchAdapter = function(opts, callback) {
       }
       return; // open_revs does not like other options
     }
-
     id = parseDocId(id);
     if (id.attachmentId !== '') {
-      return customApi.getAttachment(id, callback);
+      return customApi._get(id, {
+        attachments: true,
+        attachmentsFilter: function(name){return name === id.attachmentId;},
+        encode: false
+      }, function(err, result){
+        if (err) {
+          return call(callback, err);
+        }
+        if (result.doc._attachments && result.doc._attachments[id.attachmentId]) {
+          return call(callback, null, result.doc._attachments[id.attachmentId].data);
+        } else {
+          return call(callback, Pouch.Errors.MISSING_DOC);
+        }
+      });
     }
-    return customApi._get(id, opts, function(result, metadata) {
-      if ('error' in result) {
-        return call(callback, result);
+
+    opts.encode = true;
+    opts.attachmentsFilter = function(){ return true; };
+    return customApi._get(id, opts, function(err, result) {
+      if (err) {
+        return call(callback, err);
       }
 
-      var doc = result;
+      var doc = result.doc;
+      var metadata = result.metadata;
 
       if (opts.conflicts) {
         var conflicts = Pouch.merge.collectConflicts(metadata);
@@ -372,11 +388,9 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    if (typeof id === 'string') {
-      id = parseDocId(id);
-    }
-
-    return customApi._getAttachment(id, opts, callback);
+    customApi.get(id, function(err, res) {
+      callback(err, res);
+    });
   };
 
   api.allDocs = function(opts, callback) {

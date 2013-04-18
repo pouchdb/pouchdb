@@ -37,7 +37,7 @@ var ajax = function ajax(options, callback) {
   };
   var onError = function(err, cb){
     var errParsed;
-    var errObj = err.responseText ? {status: err.status} : err; //this seems too clever
+    var errObj = {status: err.status};
     try{
       errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
       errObj = extend(true, {}, errObj, errParsed);
@@ -122,13 +122,16 @@ var ajax = function ajax(options, callback) {
            (/^[\s]*\{/.test(data) && /\}[\s]*$/.test(data)))) {
         data = JSON.parse(data);
       }
-      
-      if (data.error) {
-        data.status = response.statusCode;
-        call(onError, data, callback);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        call(onSuccess, data, response, callback);
       }
       else {
-        call(onSuccess, data, response, callback);
+        if (options.binary) {
+          var data = JSON.parse(data.toString());
+        }
+        data.status = response.statusCode;
+        call(callback, data);
       }
     });
   }
