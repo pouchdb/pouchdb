@@ -184,25 +184,18 @@ var LevelPouch = function(opts, callback) {
         doc._id = metadata.id;
         doc._rev = rev;
 
-        if ((opts.attachment || opts.attachments) && doc._attachments) {
+        if (opts.attachments && doc._attachments) {
           var attachments = doc._attachments;
-          var keys = Object.keys(attachments);
-          if (opts.attachment) {
-            if (keys.indexOf(opts.attachment) > -1) {
-              keys = [opts.attachment];
-            } else {
-              keys = [];
-            }
-          }
+          var keys = Object.keys(attachments).filter(opts.attachmentsFilter);
           var count = keys.length;
           if (!count) {
-            callback(doc, metadata);
+            callback(null, {doc: doc, metadata: metadata});
           }
           keys.forEach(function(key) {
             api._getAttachment(attachments[key], {encode: opts.encode}, function(err, data) {
               doc._attachments[key].data = data;
               if (!--count) {
-                callback(doc, metadata);
+                callback(null, {doc: doc, metadata: metadata});
               }
             });
           });
@@ -213,7 +206,7 @@ var LevelPouch = function(opts, callback) {
               doc._attachments[key].stub = true;
             }
           }
-          callback(doc, metadata);
+          callback(null, {doc: doc, metadata: metadata});
         }
       });
     });
