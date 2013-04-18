@@ -441,11 +441,12 @@ var IdbPouch = function(opts, callback) {
   // First we look up the metadata in the ids database, then we fetch the
   // current revision(s) from the by sequence store
   api._get = function idb_get(id, opts, callback) {
-    var result;
+    var doc;
     var metadata;
+    var err;
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
     txn.oncomplete = function() {
-      call(callback, result, metadata);
+      call(callback, err, {doc: doc, metadata: metadata});
     };
 
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
@@ -456,11 +457,11 @@ var IdbPouch = function(opts, callback) {
       // When we ask with opts.rev we expect the answer to be either
       // doc (possibly with _deleted=true) or missing error
       if (!metadata) {
-        result = Pouch.Errors.MISSING_DOC;
+        err = Pouch.Errors.MISSING_DOC;
         return;
       }
       if (isDeleted(metadata) && !opts.rev) {
-        result = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
+        err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
         return;
       }
 
@@ -469,27 +470,17 @@ var IdbPouch = function(opts, callback) {
       var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
 
       index.get(key).onsuccess = function(e) {
-        var doc = e.target.result;
+        doc = e.target.result;
         if(doc && doc._doc_id_rev) {
           delete(doc._doc_id_rev);
         }
         if (!doc) {
-          result = Pouch.Errors.MISSING_DOC;
+          err = Pouch.Errors.MISSING_DOC;
           return;
         }
-        result = doc;
-        if ((opts.attachment || opts.attachments) && doc._attachments) {
+        if (opts.attachments && doc._attachments) {
           var attachments = doc._attachments;
-          var keys = Object.keys(attachments);
-          if (opts.attachment) {
-            if (keys.indexOf(opts.attachment) > -1) {
-              keys = [opts.attachment];
-            } else {
-              keys = [];
-            }
-          }
-
-          keys.forEach(function(key) {
+          Object.keys(attachments).filter(opts.attachmentsFilter).forEach(function(key) {
             api._getAttachment(attachments[key], {encode: opts.encode,  txn: txn}, function(err, data) {
               doc._attachments[key].data = data;
             });
@@ -508,11 +499,6 @@ var IdbPouch = function(opts, callback) {
   api._getAttachment = function(attachment, opts, callback) {
     var result;
     var txn = opts.txn;
-
-    if (!txn) {
-      return; // fail miserably. FIXME!
-    }
-
     var digest = attachment.digest;
     var type = attachment.content_type;
 
@@ -539,7 +525,6 @@ var IdbPouch = function(opts, callback) {
         call(callback, null, result);
       }
     };
-    return;
   };
 
   api._allDocs = function idb_allDocs(opts, callback) {

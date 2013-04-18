@@ -408,18 +408,19 @@ var webSqlPouch = function(opts, callback) {
   };
 
   api._get = function(id, opts, callback) {
-    var result;
+    var doc;
     var metadata;
+    var err;
     db.transaction(function(tx) {
       var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
       tx.executeSql(sql, [id.docId], function(tx, results) {
         if (!results.rows.length) {
-          result = Pouch.Errors.MISSING_DOC;
+          err = Pouch.Errors.MISSING_DOC;
           return;
         }
         metadata = JSON.parse(results.rows.item(0).json);
         if (isDeleted(metadata) && !opts.rev) {
-          result = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
+          err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
           return;
         }
 
@@ -429,23 +430,14 @@ var webSqlPouch = function(opts, callback) {
         var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
         tx.executeSql(sql, [key], function(tx, results) {
           if (!results.rows.length) {
-            result = Pouch.Errors.MISSING_DOC;
+            err = Pouch.Errors.MISSING_DOC;
             return;
           }
-          var doc = JSON.parse(results.rows.item(0).json);
+          doc = JSON.parse(results.rows.item(0).json);
 
-          if ((opts.attachment || opts.attachments) && doc._attachments) {
+          if (opts.attachments && doc._attachments) {
             var attachments = doc._attachments;
-            var keys = Object.keys(attachments);
-            if (opts.attachment) {
-              if (keys.indexOf(opts.attachment) > -1) {
-                keys = [opts.attachment];
-              } else {
-                keys = [];
-              }
-            }
-
-            keys.forEach(function(key) {
+            Object.keys(attachments).filter(opts.attachmentsFilter).forEach(function(key) {
               api._getAttachment(attachments[key], {encode: opts.encode, txn: tx}, function(err, data) {
                 doc._attachments[key].data = data;
               });
@@ -457,11 +449,10 @@ var webSqlPouch = function(opts, callback) {
               }
             }
           }
-          result = doc;
         });
       });
     }, unknownError(callback), function () {
-      call(callback, result, metadata);
+      call(callback, err, {doc: doc, metadata: metadata});
     });
   };
 
