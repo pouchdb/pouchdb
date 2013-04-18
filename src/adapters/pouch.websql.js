@@ -408,18 +408,19 @@ var webSqlPouch = function(opts, callback) {
   };
 
   api._get = function(id, opts, callback) {
-    var result;
+    var doc;
     var metadata;
+    var err;
     db.transaction(function(tx) {
       var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
       tx.executeSql(sql, [id.docId], function(tx, results) {
         if (!results.rows.length) {
-          result = Pouch.Errors.MISSING_DOC;
+          err = Pouch.Errors.MISSING_DOC;
           return;
         }
         metadata = JSON.parse(results.rows.item(0).json);
         if (isDeleted(metadata) && !opts.rev) {
-          result = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
+          err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
           return;
         }
 
@@ -429,20 +430,16 @@ var webSqlPouch = function(opts, callback) {
         var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
         tx.executeSql(sql, [key], function(tx, results) {
           if (!results.rows.length) {
-            result = Pouch.Errors.MISSING_DOC;
+            err = Pouch.Errors.MISSING_DOC;
             return;
           }
-          var doc = JSON.parse(results.rows.item(0).json);
+          doc = JSON.parse(results.rows.item(0).json);
 
           if (opts.attachments && doc._attachments) {
-            var attachments = Object.keys(doc._attachments);
-            var recv = 0;
-            attachments.forEach(function(key) {
-              api.getAttachment(doc._id + '/' + key, {encode: true, txn: tx}, function(err, data) {
+            var attachments = doc._attachments;
+            Object.keys(attachments).filter(opts.attachmentsFilter).forEach(function(key) {
+              api._getAttachment(attachments[key], {encode: opts.encode, txn: tx}, function(err, data) {
                 doc._attachments[key].data = data;
-                if (++recv === attachments.length) {
-                  result = doc;
-                }
               });
             });
           } else {
@@ -451,12 +448,11 @@ var webSqlPouch = function(opts, callback) {
                 doc._attachments[key].stub = true;
               }
             }
-            result = doc;
           }
         });
       });
     }, unknownError(callback), function () {
-      call(callback, result, metadata);
+      call(callback, err, {doc: doc, metadata: metadata});
     });
   };
 
@@ -641,42 +637,21 @@ var webSqlPouch = function(opts, callback) {
     }
   };
 
-  api._getAttachment = function(id, opts, callback) {
-
+  api._getAttachment = function(attachment, opts, callback) {
     var res;
-    function fetchAttachment(tx) {
-      var sql = 'SELECT ' + BY_SEQ_STORE + '.json AS data FROM ' + DOC_STORE +
-        ' JOIN ' + BY_SEQ_STORE + ' ON ' + BY_SEQ_STORE + '.seq = ' + DOC_STORE +
-        '.seq WHERE ' + DOC_STORE + '.id = "' + id.docId + '"' ;
-      tx.executeSql(sql, [], function(tx, result) {
-        var doc = JSON.parse(result.rows.item(0).data);
-        var attachment = doc._attachments[id.attachmentId];
-        var digest = attachment.digest;
-        var type = attachment.content_type;
-        var sql = 'SELECT body FROM ' + ATTACH_STORE + ' WHERE digest=?';
-        tx.executeSql(sql, [digest], function(tx, result) {
-          var data = result.rows.item(0).body;
-          if (opts.encode) {
-            res = btoa(data);
-          } else {
-            res = new Blob([data], {type: type});
-          }
-          if ('txn' in opts) {
-            call(callback, null, res);
-          }
-        });
-      });
-    }
-
-    // This can be called while we are in a current transaction, pass the context
-    // along and dont wait for the transaction to complete here.
-    if ('txn' in opts) {
-      fetchAttachment(opts.txn);
-    } else {
-      db.transaction(fetchAttachment, unknownError(callback), function() {
-        call(callback, null, res);
-      });
-    }
+    var tx = opts.txn;
+    var digest = attachment.digest;
+    var type = attachment.content_type;
+    var sql = 'SELECT body FROM ' + ATTACH_STORE + ' WHERE digest=?';
+    tx.executeSql(sql, [digest], function(tx, result) {
+      var data = result.rows.item(0).body;
+      if (opts.encode) {
+        res = btoa(data);
+      } else {
+        res = new Blob([data], {type: type});
+      }
+      call(callback, null, res);
+    });
   };
 
   api._getRevisionTree = function(docId, callback) {
