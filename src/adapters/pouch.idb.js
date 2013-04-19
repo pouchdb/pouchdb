@@ -23,12 +23,6 @@ var IDBTransaction = (window.IDBTransaction && window.IDBTransaction.READ_WRITE)
 var IDBKeyRange = window.IDBKeyRange ||
   window.webkitIDBKeyRange;
 
-window.storageInfo = window.storageInfo ||
-  window.webkitStorageInfo;
-
-window.requestFileSystem = window.requestFileSystem ||
-    window.webkitRequestFileSystem;
-
 var idbError = function(callback) {
   return function(event) {
     call(callback, {
@@ -828,7 +822,7 @@ var IdbPouch = function(opts, callback) {
   };
 
   // This function removes revisions of document docId
-  // which are listed in revs and sets this document 
+  // which are listed in revs and sets this document
   // revision to to rev_tree
   api._doCompaction = function(docId, rev_tree, revs, callback) {
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ_WRITE);
