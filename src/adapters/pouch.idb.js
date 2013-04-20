@@ -438,10 +438,16 @@ var IdbPouch = function(opts, callback) {
     var doc;
     var metadata;
     var err;
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
-    txn.oncomplete = function() {
-      call(callback, err, {doc: doc, metadata: metadata});
-    };
+    var txn;
+    if (opts.ctx) {
+      txn = opts.ctx;
+    } else {
+      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
+    }
+
+    function finish(){
+      call(callback, err, {doc: doc, metadata: metadata, ctx: txn});
+    }
 
     txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
       metadata = e.target.result;
@@ -452,11 +458,11 @@ var IdbPouch = function(opts, callback) {
       // doc (possibly with _deleted=true) or missing error
       if (!metadata) {
         err = Pouch.Errors.MISSING_DOC;
-        return;
+        return finish();
       }
       if (isDeleted(metadata) && !opts.rev) {
         err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
-        return;
+        return finish();
       }
 
       var rev = Pouch.merge.winningRev(metadata);
@@ -470,29 +476,16 @@ var IdbPouch = function(opts, callback) {
         }
         if (!doc) {
           err = Pouch.Errors.MISSING_DOC;
-          return;
+          return finish();
         }
-        if (opts.attachments && doc._attachments) {
-          var attachments = doc._attachments;
-          Object.keys(attachments).filter(opts.attachmentsFilter).forEach(function(key) {
-            api._getAttachment(attachments[key], {encode: opts.encode,  txn: txn}, function(err, data) {
-              doc._attachments[key].data = data;
-            });
-          });
-        } else {
-          if (doc._attachments){
-            for (var key in doc._attachments) {
-              doc._attachments[key].stub = true;
-            }
-          }
-        }
+        finish();
       };
     };
   };
 
   api._getAttachment = function(attachment, opts, callback) {
     var result;
-    var txn = opts.txn;
+    var txn = opts.ctx;
     var digest = attachment.digest;
     var type = attachment.content_type;
 
