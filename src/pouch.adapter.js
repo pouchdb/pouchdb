@@ -314,26 +314,24 @@ var PouchAdapter = function(opts, callback) {
       }
       return; // open_revs does not like other options
     }
+
     id = parseDocId(id);
     if (id.attachmentId !== '') {
-      return customApi._get(id, {
-        attachments: true,
-        attachmentsFilter: function(name){return name === id.attachmentId;},
-        encode: false
-      }, function(err, result){
+      return customApi._get(id, opts, function(err, result){
         if (err) {
           return call(callback, err);
         }
         if (result.doc._attachments && result.doc._attachments[id.attachmentId]) {
-          return call(callback, null, result.doc._attachments[id.attachmentId].data);
+          customApi._getAttachment(result.doc._attachments[id.attachmentId],
+                                   {encode: false, ctx: result.ctx}, function(err, data) {
+            return call(callback, null, data);
+          });
         } else {
           return call(callback, Pouch.Errors.MISSING_DOC);
         }
       });
     }
 
-    opts.encode = true;
-    opts.attachmentsFilter = function(){ return true; };
     return customApi._get(id, opts, function(err, result) {
       if (err) {
         return call(callback, err);
@@ -341,6 +339,7 @@ var PouchAdapter = function(opts, callback) {
 
       var doc = result.doc;
       var metadata = result.metadata;
+      var ctx = result.ctx;
 
       if (opts.conflicts) {
         var conflicts = Pouch.merge.collectConflicts(metadata);
@@ -379,7 +378,26 @@ var PouchAdapter = function(opts, callback) {
           });
         }
       }
-      call(callback, null, doc);
+
+      if (opts.attachments && doc._attachments) {
+        var attachments = doc._attachments;
+        var count = Object.keys(attachments).length;
+        Object.keys(attachments).forEach(function(key) {
+          customApi._getAttachment(attachments[key], {encode: true, ctx: ctx}, function(err, data) {
+            doc._attachments[key].data = data;
+            if (!--count){
+              call(callback, null, doc);
+            }
+          });
+        });
+      } else {
+        if (doc._attachments){
+          for (var key in doc._attachments) {
+            doc._attachments[key].stub = true;
+          }
+        }
+        call(callback, null, doc);
+      }
     });
   };
 

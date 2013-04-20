@@ -184,30 +184,7 @@ var LevelPouch = function(opts, callback) {
         doc._id = metadata.id;
         doc._rev = rev;
 
-        if (opts.attachments && doc._attachments) {
-          var attachments = doc._attachments;
-          var keys = Object.keys(attachments).filter(opts.attachmentsFilter);
-          var count = keys.length;
-          if (!count) {
-            callback(null, {doc: doc, metadata: metadata});
-          }
-          keys.forEach(function(key) {
-            api._getAttachment(attachments[key], {encode: opts.encode}, function(err, data) {
-              doc._attachments[key].data = data;
-              if (!--count) {
-                callback(null, {doc: doc, metadata: metadata});
-              }
-            });
-          });
-        }
-        else {
-          if (doc._attachments){
-            for (var key in doc._attachments) {
-              doc._attachments[key].stub = true;
-            }
-          }
-          callback(null, {doc: doc, metadata: metadata});
-        }
+        return call(callback, null, {doc: doc, metadata: metadata});
       });
     });
   };
