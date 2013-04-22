@@ -92,6 +92,17 @@ var IdbPouch = function(opts, callback) {
     db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
   }
 
+  // From http://stackoverflow.com/questions/14967647/encode-decode-image-with-base64-breaks-image (2013-04-21)
+  function fixBinary(bin) {
+    var length = bin.length;
+    var buf = new ArrayBuffer(length);
+    var arr = new Uint8Array(buf);
+    for (var i = 0; i < length; i++) {
+      arr[i] = bin.charCodeAt(i);
+    }
+    return buf;
+  }
+
   req.onsuccess = function(e) {
 
     idb = e.target.result;
@@ -251,6 +262,7 @@ var IdbPouch = function(opts, callback) {
         att.digest = 'md5-' + Crypto.MD5(data);
         if (blobSupport) {
           var type = att.content_type;
+          data = fixBinary(data);
           att.data = new Blob([data], {type: type});
         }
         return finish();
@@ -514,7 +526,8 @@ var IdbPouch = function(opts, callback) {
         if (blobSupport) {
           result = data;
         } else {
-          result = new Blob([atob(data)], {type: type});
+          data = fixBinary(atob(data));
+          result = new Blob([data], {type: type});
         }
         call(callback, null, result);
       }

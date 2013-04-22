@@ -120,6 +120,19 @@ function readBlob(blob, callback) {
   }
 }
 
+function base64Blob(blob, callback) {
+  if (typeof module !== 'undefined' && module.exports) {
+    callback(blob.toString('base64'));
+  } else {
+    var reader = new FileReader();
+    reader.onloadend = function(e) {
+      var base64 = this.result.replace(/data:.*;base64,/, '');
+      callback(base64);
+    };
+    reader.readAsDataURL(blob);
+  }
+}
+
 function openTestAsyncDB(name) {
   return new Pouch(name, function(err,db) {
     if (err) {
@@ -246,6 +259,7 @@ if (typeof module !== 'undefined' && module.exports) {
     makeDocs: makeDocs,
     makeBlob: makeBlob,
     readBlob: readBlob,
+    base64Blob: base64Blob,
     initTestDB: initTestDB,
     initDBPair: initDBPair,
     openTestDB: openTestDB,

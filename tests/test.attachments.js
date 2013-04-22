@@ -1,7 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, strictEqual: false */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
-/*globals readBlob: false, makeBlob: false */
+/*globals readBlob: false, makeBlob: false, base64Blob: false */
 /*globals cleanupTestDatabases: false */
 
 "use strict";
@@ -68,6 +68,16 @@ adapters.map(function(adapter) {
     }
   };
 
+  var pngAttDoc = {
+    _id: "png_doc",
+    _attachments: {
+      "foo.png": {
+        content_type: "image/png",
+        data: "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAMFBMVEX+9+j+9OD+7tL95rr93qT80YD7x2L6vkn6syz5qRT4ogT4nwD4ngD4nQD4nQD4nQDT2nT/AAAAcElEQVQY002OUQLEQARDw1D14f7X3TCdbfPnhQTqI5UqvGOWIz8gAIXFH9zmC63XRyTsOsCWk2A9Ga7wCXlA9m2S6G4JlVwQkpw/YmxrUgNoMoyxBwSMH/WnAzy5cnfLFu+dK2l5gMvuPGLGJd1/9AOiBQiEgkzOpgAAAABJRU5ErkJggg=="
+      }
+    }
+  };
+
   asyncTest("Test some attachments", function() {
     var db;
     initTestDB(this.name, function(err, _db) {
@@ -125,6 +135,21 @@ adapters.map(function(adapter) {
           ok(!err, "Attachment read");
           readBlob(res, function(data) {
             strictEqual(data, "This is a base64 encoded text", "correct data");
+            start();
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("Test getAttachment with PNG", function() {
+    initTestDB(this.name, function(err, db) {
+      db.put(pngAttDoc, function(err, res) {
+        db.getAttachment("png_doc/foo.png", function(err, res) {
+          ok(!err, "Attachment read");
+          base64Blob(res, function(data) {
+            strictEqual(data, pngAttDoc._attachments['foo.png'].data,
+                        "correct data");
             start();
           });
         });

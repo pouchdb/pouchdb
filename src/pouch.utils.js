@@ -302,10 +302,16 @@ if (typeof module !== 'undefined' && module.exports) {
     arrayFirst: arrayFirst,
     filterChange: filterChange,
     atob: function(str) {
-      return decodeURIComponent(escape(new Buffer(str, 'base64').toString('binary')));
+      var base64 = new Buffer(str, 'base64');
+      // Node.js will just skip the characters it can't encode instead of
+      // throwing and exception
+      if (base64.toString('base64') !== str) {
+        throw("Cannot base64 encode full string");
+      }
+      return base64.toString('binary');
     },
     btoa: function(str) {
-      return new Buffer(unescape(encodeURIComponent(str)), 'binary').toString('base64');
+      return new Buffer(str, 'binary').toString('base64');
     },
     extend: extend,
     ajax: ajax,
