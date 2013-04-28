@@ -571,7 +571,7 @@ adapters.map(function(adapters) {
 
   asyncTest("Replicate large number of docs", function() {
     var docs = [];
-    var num = 20;
+    var num = 50;
     for (var i = 0; i < num; i++) {
       docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
     }
