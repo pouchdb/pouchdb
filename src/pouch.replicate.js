@@ -205,7 +205,6 @@ function replicate(src, target, opts, promise) {
     }
 
     var repOpts = {
-      limit: 25,
       continuous: continuous,
       since: last_seq,
       style: 'all_docs',

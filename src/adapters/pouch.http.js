@@ -103,12 +103,12 @@ function genUrl(opts, path) {
     // If the host already has a path, then we need to have a path delimiter
     // Otherwise, the path delimiter is the empty string
     var pathDel = !opts.path ? '' : '/';
-    
+
     // If the host already has a path, then we need to have a path delimiter
     // Otherwise, the path delimiter is the empty string
     return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path + pathDel + path;
   }
-  
+
   return '/' + path;
 }
 
@@ -615,10 +615,18 @@ var HttpPouch = function(opts, callback) {
       body: body
     }, callback);
   };
+
   // Get a list of changes made to documents in the database given by host.
   // TODO According to the README, there should be two other methods here,
   // api.changes.addListener and api.changes.removeListener.
   api.changes = function(opts) {
+
+    // We internally page the results of a changes request, this means
+    // if there is a large set of changes to be returned we can start
+    // processing them quicker instead of waiting on the entire
+    // set of changes to return and attempting to process them at once
+    var CHANGES_LIMIT = 25;
+
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('changes', arguments);
       return;
@@ -628,54 +636,36 @@ var HttpPouch = function(opts, callback) {
       console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
     }
 
-    // Query string of all the parameters to add to the GET request
-    var params = [],
-        paramsStr;
+    var params = {};
+    var limit = (typeof opts.limit !== 'undefined') ? opts.limit : false;
+    if (limit === 0) {
+      limit = 1;
+    }
+    //
+    var leftToFetch = limit;
 
     if (opts.style) {
-      params.push('style='+opts.style);
+      params.style = opts.style;
     }
 
-    // If opts.include_docs exists, opts.filter exists, and opts.filter is a
-    // function, add the include_docs value to the query string.
-    // If include_docs=true then include the associated document with each
-    // result.
     if (opts.include_docs || opts.filter && typeof opts.filter === 'function') {
-      params.push('include_docs=true');
+      params.include_docs = true;
     }
 
-    // If opts.continuous exists, add the feed value to the query string.
-    // If feed=longpoll then it waits for either a timeout or a change to
-    // occur before returning.
     if (opts.continuous) {
-      params.push('feed=longpoll');
+      params.feed = 'longpoll';
     }
 
-    // If opts.conflicts exists, add the conflicts value to the query string.
-    // TODO I can't find documentation of what conflicts=true does. See
-    // http://wiki.apache.org/couchdb/HTTP_database_API#Changes
     if (opts.conflicts) {
-      params.push('conflicts=true');
+      params.conflicts = true;
     }
 
-    if (opts.limit || opts.limit === 0) {
-      params.push('limit=' + opts.limit);
-    }
-
-    // If opts.descending exists, add the descending value to the query string.
-    // if descending=true then the change results are returned in
-    // descending order (most recent change first).
     if (opts.descending) {
-      params.push('descending=true');
+      params.descending = true;
     }
 
-    // If opts.filter exists and is a string then add the filter value
-    // to the query string.
-    // If filter is given a string containing the name of a filter in
-    // the design, then only documents passing through the filter will
-    // be returned.
     if (opts.filter && typeof opts.filter === 'string') {
-      params.push('filter=' + opts.filter);
+      params.filter = opts.filter;
     }
 
     // If opts.query_params exists, pass it through to the changes request.
@@ -683,30 +673,35 @@ var HttpPouch = function(opts, callback) {
     if (opts.query_params && typeof opts.query_params === 'object') {
       for (var param_name in opts.query_params) {
         if (opts.query_params.hasOwnProperty(param_name)) {
-          params.push(param_name+'='+opts.query_params[param_name]);
+          params[param_name] = opts.query_params[param_name];
         }
       }
     }
 
-    paramsStr = '?';
-
-    if (params.length > 0) {
-      paramsStr += params.join('&');
-    }
-
     var xhr;
-    var last_seq;
+    var lastFetchedSeq;
+    var remoteLastSeq;
 
     // Get all the changes starting wtih the one immediately after the
     // sequence number given by since.
     var fetch = function(since, callback) {
+
+      params.since = since;
+      params.limit = (!limit || leftToFetch > CHANGES_LIMIT) ?
+        CHANGES_LIMIT : leftToFetch;
+
+      var paramStr = '?' + Object.keys(params).map(function(k) {
+        return k + '=' + params[k];
+      }).join('&');
+
       // Set the options for the ajax call
       var xhrOpts = {
         auth: host.auth, method:'GET',
-        url: genDBUrl(host, '_changes' + paramsStr + '&since=' + since),
-        timeout: null          // _changes can take a long time to generate, especially when filtered
+        url: genDBUrl(host, '_changes' + paramStr),
+        // _changes can take a long time to generate, especially when filtered
+        timeout: null
       };
-      last_seq = since;
+      lastFetchedSeq = since;
 
       if (opts.aborted) {
         return;
@@ -721,6 +716,7 @@ var HttpPouch = function(opts, callback) {
     // from the sequence number 0.
     var fetchTimeout = 10;
     var fetchRetryCount = 0;
+
     var fetched = function(err, res) {
       // If the result of the ajax call (res) contains changes (res.results)
       if (res && res.results) {
@@ -729,24 +725,29 @@ var HttpPouch = function(opts, callback) {
         var req = {};
         req.query = opts.query_params;
         res.results = res.results.filter(function(c) {
+          leftToFetch--;
           if (opts.aborted || hasFilter && !opts.filter.apply(this, [c.doc, req])) {
             return false;
           }
           if (opts.doc_ids && opts.doc_ids.indexOf(c.id) !== -1) {
             return false;
           }
-          // Process the change
           call(opts.onChange, c);
           return true;
         });
       }
+
       // The changes feed may have timed out with no results
       // if so reuse last update sequence
       if (res && res.last_seq) {
-        last_seq = res.last_seq;
+        lastFetchedSeq = res.last_seq;
       }
 
-      if (opts.continuous) {
+      var finished = (limit && leftToFetch <= 0) ||
+        (!limit && lastFetchedSeq === remoteLastSeq) ||
+        (opts.descending && lastFetchedSeq !== 0);
+
+      if (opts.continuous || !finished) {
         // Increase retry delay exponentially as long as errors persist
         if (err) {
           fetchRetryCount += 1;
@@ -754,25 +755,32 @@ var HttpPouch = function(opts, callback) {
           fetchRetryCount = 0;
         }
         var timeoutMultiplier = 1 << fetchRetryCount;
-        // i.e. Math.pow(2, fetchRetryCount)
-
         var retryWait = fetchTimeout * timeoutMultiplier;
         var maximumWait = opts.maximumWait || 30000;
+
         if (retryWait > maximumWait) {
           call(opts.complete, err || Pouch.Errors.UNKNOWN_ERROR, null);
         }
 
         // Queue a call to fetch again with the newest sequence number
-        setTimeout(function () {
-          fetch(last_seq, fetched);
-        }, retryWait);
+        setTimeout(function() { fetch(lastFetchedSeq, fetched); }, retryWait);
       } else {
         // We're done, call the callback
         call(opts.complete, null, res);
       }
     };
 
-    fetch(opts.since || 0, fetched);
+    // If we arent doing a continuous changes request we need to know
+    // the current update_seq so we know when to stop processing the
+    // changes
+    if (opts.continuous) {
+      fetch(opts.since || 0, fetched);
+    } else {
+      api.info(function(err, res) {
+        remoteLastSeq = res.update_seq;
+        fetch(opts.since || 0, fetched);
+      });
+    }
 
     // Return a method to cancel this method from processing any more
     return {
