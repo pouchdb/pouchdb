@@ -89,7 +89,7 @@ function asyncParForEach(array, fn, callback) {
 var source = window.location.search.match(/[?&]test=([^&]+)/);
 source = source && source[1] || 'dev';
 
-QUnit.config.testTimeout = 30000;
+QUnit.config.testTimeout = 60000;
 
 /**** Test Result Support ***************/
 function submitResults() {
