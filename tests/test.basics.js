@@ -70,6 +70,13 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Read db id", function() {
+    initTestDB(this.name, function(err, db) {
+      ok(typeof(db.id()) === 'string' && db.id() !== '', "got id");
+      start();
+    });
+  });
+
   asyncTest("Modify a doc with incorrect rev", 3, function() {
     initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');

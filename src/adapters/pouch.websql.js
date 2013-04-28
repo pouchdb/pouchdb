@@ -77,8 +77,8 @@ var webSqlPouch = function(opts, callback) {
       tx.executeSql(dbid, [], function(tx, result) {
         if (!result.rows.length) {
           var initDb = 'INSERT INTO ' + META_STORE + ' (dbid) VALUES (?)';
-          var newId = Math.uuid();
-          tx.executeSql(initDb, [newId]);
+          instanceId = Math.uuid();
+          tx.executeSql(initDb, [instanceId]);
           return;
         }
         instanceId = result.rows.item(0).dbid;
