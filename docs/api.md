@@ -42,6 +42,9 @@ Retrieves all databases from PouchDB. (Adapter prefix of database is included if
         // ]
     })
 
+By default, this feature is turned off and this function will return an empty list.  To enable this feature and obtain a list of all the databases, set `Pouch.enableAllDbs` to true before creating any databases.
+
+
 ## Create a database
 
     var pouchdb = Pouch('dbname', [options])
