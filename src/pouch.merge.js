@@ -49,7 +49,7 @@ function mergeTree(in_tree1, in_tree2) {
     var tree2 = item.tree2;
 
     if (tree1[1].status || tree2[1].status) {
-      tree1[1].status = (tree1[1].status ===  'available' || 
+      tree1[1].status = (tree1[1].status ===  'available' ||
                          tree2[1].status === 'available') ? 'available' : 'missing';
     }
 
@@ -214,7 +214,6 @@ Pouch.merge.winningRev = function(metadata) {
 
 // Pretty much all below can be combined into a higher order function to
 // traverse revisions
-// Callback has signature function(isLeaf, pos, id, [context])
 // The return value from the callback will be passed as context to all
 // children of that node
 Pouch.merge.traverseRevTree = function(revs, callback) {
