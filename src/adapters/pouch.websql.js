@@ -545,10 +545,6 @@ var webSqlPouch = function(opts, callback) {
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
     }
 
-    if (!opts.since) {
-      opts.since = 0;
-    }
-
     if (opts.continuous) {
       var id = name + ':' + Math.uuid();
       opts.cancelled = false;
@@ -565,8 +561,7 @@ var webSqlPouch = function(opts, callback) {
       };
     }
 
-    var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? 'prev' : null;
+    var descending = opts.descending;
 
     // Ignore the `since` parameter when `descending` is true
     opts.since = opts.since && !descending ? opts.since : 0;
@@ -587,10 +582,14 @@ var webSqlPouch = function(opts, callback) {
 
       db.transaction(function(tx) {
         tx.executeSql(sql, [], function(tx, result) {
+          var last_seq = 0;
           for (var i = 0, l = result.rows.length; i < l; i++ ) {
             var doc = result.rows.item(i);
             var metadata = JSON.parse(doc.metadata);
             if (!isLocalId(metadata.id)) {
+              if (last_seq < doc.seq) {
+                last_seq = doc.seq;
+              }
               var change = {
                 id: metadata.id,
                 seq: doc.seq,
@@ -614,7 +613,7 @@ var webSqlPouch = function(opts, callback) {
             }
           }
           dedupResults = dedupResults.filter(filterChange(opts));
-          call(opts.complete, null, {results: dedupResults});
+          call(opts.complete, null, {results: dedupResults, last_seq: last_seq});
         });
       });
     }

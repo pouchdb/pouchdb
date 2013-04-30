@@ -1,7 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true */
-/*globals cleanupTestDatabases: false */
+/*globals cleanupTestDatabases: false, strictEqual: false */
 
 "use strict";
 
@@ -83,6 +83,43 @@ adapters.map(function(adapter) {
             start();
           }
         });
+      });
+    });
+  });
+
+  asyncTest("Changes last_seq", function() {
+    var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3},
+
+      {_id: '_design/foo', integer: 4, filters: {
+         even: 'function(doc) { return doc.integer % 2 === 1; }'
+       }
+      }
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      db.changes({
+        complete: function(err, results) {
+          strictEqual(results.last_seq, 0, 'correct last_seq');
+          db.bulkDocs({docs: docs}, function(err, info) {
+            db.changes({
+              complete: function(err, results) {
+                strictEqual(results.last_seq, 5, 'correct last_seq');
+                db.changes({
+                  filter: 'foo/even',
+                  complete: function(err, results) {
+                    strictEqual(results.last_seq, 5, 'filter does not change last_seq');
+                    strictEqual(results.results.length, 2, 'correct # of changes'); 
+                    start();
+                  }
+                });
+              }
+            });
+          });
+        }
       });
     });
   });

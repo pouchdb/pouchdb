@@ -445,6 +445,14 @@ var PouchAdapter = function(opts, callback) {
     }
     opts = extend(true, {}, opts);
 
+    if (!opts.since) {
+      opts.since = 0;
+    }
+
+    if (!('descending' in opts)) {
+      opts.descending = false;
+    }
+
     // 0 and 1 should return 1 document
     opts.limit = opts.limit === 0 ? 1 : opts.limit;
     return customApi._changes(opts);
