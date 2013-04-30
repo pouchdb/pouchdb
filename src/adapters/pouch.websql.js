@@ -566,7 +566,7 @@ var webSqlPouch = function(opts, callback) {
     // Ignore the `since` parameter when `descending` is true
     opts.since = opts.since && !descending ? opts.since : 0;
 
-    var results = [], resultIndices = {}, dedupResults = [];
+    var results = [];
     var txn;
 
     function fetchChanges() {
@@ -606,14 +606,8 @@ var webSqlPouch = function(opts, callback) {
               results.push(change);
             }
           }
-          for (i = 0, l = results.length; i < l; i++ ) {
-            result = results[i];
-            if (result) {
-              dedupResults.push(result);
-            }
-          }
-          dedupResults = dedupResults.filter(filterChange(opts));
-          call(opts.complete, null, {results: dedupResults, last_seq: last_seq});
+          results = results.filter(filterChange(opts));
+          call(opts.complete, null, {results: results, last_seq: last_seq});
         });
       });
     }
