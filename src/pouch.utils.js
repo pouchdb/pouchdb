@@ -229,8 +229,6 @@ var filterChange = function(opts) {
   };
 };
 
-// returns array of all branches from root to leaf in the ids form:
-// [[id, ...], ...]
 var rootToLeaf = function(tree) {
   var paths = [];
   Pouch.merge.traverseRevTree(tree, function(isLeaf, pos, id, history, opts) {
