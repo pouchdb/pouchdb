@@ -562,9 +562,10 @@ var LevelPouch = function(opts, callback) {
 
   api._changes = function(opts) {
 
-    var descending = 'descending' in opts ? opts.descending : false;
+    var descending = opts.descending;
     var results = [];
     var changeListener;
+    var last_seq = 0;
 
     function fetchChanges() {
       var streamOpts = {
@@ -599,6 +600,10 @@ var LevelPouch = function(opts, callback) {
               doc: data.value
             };
 
+            if (last_seq < metadata.seq) {
+              last_seq = metadata.seq;
+            }
+
             change.doc._rev = Pouch.merge.winningRev(metadata);
 
            if (isDeleted(metadata)) {
@@ -625,7 +630,7 @@ var LevelPouch = function(opts, callback) {
           }
           // filters changes in-place, calling opts.onChange on matching changes
           results = results.filter(Pouch.utils.filterChange(opts));
-          call(opts.complete, null, {results: results});
+          call(opts.complete, null, {results: results, last_seq: last_seq});
         });
     }
 

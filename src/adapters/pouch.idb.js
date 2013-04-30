@@ -656,10 +656,6 @@ var IdbPouch = function(opts, callback) {
       console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
     }
 
-    if (!opts.since) {
-      opts.since = 0;
-    }
-
     if (opts.continuous) {
       var id = name + ':' + Math.uuid();
       opts.cancelled = false;
@@ -676,8 +672,8 @@ var IdbPouch = function(opts, callback) {
       };
     }
 
-    var descending = 'descending' in opts ? opts.descending : false;
-    descending = descending ? 'prev' : null;
+    var descending = opts.descending ? 'prev' : null;
+    var last_seq = 0;
 
     // Ignore the `since` parameter when `descending` is true
     opts.since = opts.since && !descending ? opts.since : 0;
@@ -755,6 +751,10 @@ var IdbPouch = function(opts, callback) {
           return cursor['continue']();
         }
 
+        if(last_seq < metadata.seq){
+          last_seq = metadata.seq;
+        }
+
         var mainRev = Pouch.merge.winningRev(metadata);
         var key = metadata.id + "::" + mainRev;
         var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
@@ -794,7 +794,7 @@ var IdbPouch = function(opts, callback) {
 
     function onTxnComplete() {
       dedupResults = dedupResults.filter(filterChange(opts));
-      call(opts.complete, null, {results: dedupResults});
+      call(opts.complete, null, {results: dedupResults, last_seq: last_seq});
     }
 
     function onerror(error) {
