@@ -269,7 +269,6 @@ adapters.map(function(adapter) {
       };
       db.bulkDocs(docs, function(err, res) {
         db.allDocs({ startkey: 'a', limit: 1 }, function (err, res) {
-          console.log(res);
           equal(res.total_rows, 2, 'Accurately return total_rows count');
           equal(res.rows.length, 1, 'Correctly limit the returned rows.');
           start();
