@@ -73,9 +73,6 @@ function asyncLoadScript(url, callback) {
 
 function startQUnit() {
   QUnit.config.reorder = false;
-  QUnit.begin = function() {
-    console.log('running!!!');
-  };
 }
 
 function asyncParForEach(array, fn, callback) {

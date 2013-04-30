@@ -260,8 +260,11 @@ module.exports = function(grunt) {
       }
       nano(grunt.config("publish-results.server"))
         .use(grunt.config("publish-results.db"))
-        .insert(results, testStartTime.getTime() + "", function(err, body){
-          console.log(testStartTime.getTime(), err ? err.message : body);
+        .insert(results, testStartTime.getTime() + "", function(err, body) {
+          var url = grunt.config("publish-results.server") +
+            '/_utils/document.html?' + grunt.config("publish-results.db") +
+            '/' + testStartTime.getTime();
+          console.log('View test output:'.yellow, url);
           done(results.passed && err === null);
         });
     });

@@ -46,7 +46,6 @@ adapters.map(function(adapters) {
   ];
 
   asyncTest("Test basic pull replication", function() {
-    console.info('Starting Test: Test basic pull replication');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
@@ -61,7 +60,6 @@ adapters.map(function(adapters) {
 
 
   asyncTest("Test basic pull replication plain api", function() {
-    console.info('Starting Test: Test basic pull replication plain api');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
@@ -76,7 +74,6 @@ adapters.map(function(adapters) {
 
 
   asyncTest("Local DB contains documents", function() {
-    console.info('Starting Test: Local DB contains documents');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, _) {
@@ -93,7 +90,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test basic push replication", function() {
-    console.info('Starting Test: Test basic push replication');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, results) {
@@ -107,7 +103,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test basic push replication take 2", function() {
-    console.info('Starting Test: Test basic push replication take 2');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       db.bulkDocs({docs: docs}, {}, function(err, _) {
@@ -122,7 +117,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test basic push replication sequence tracking", function() {
-    console.info('Starting Test: Test basic push replication sequence tracking');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       var doc1 = {_id: 'adoc', foo:'bar'};
@@ -142,7 +136,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test checkpoint", function() {
-    console.info('Starting Test: Test checkpoint');
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
@@ -161,7 +154,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test checkpoint 2", function() {
-    console.info('Starting Test: Test checkpoint 2');
     var self = this;
     var doc = {_id: "3", count: 0};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -187,7 +179,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test checkpoint 3 :)", function() {
-    console.info('Starting Test: Test checkpoint 3 :)');
     var self = this;
     var doc = {_id: "3", count: 0};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -263,7 +254,6 @@ adapters.map(function(adapters) {
   // method to generate the revision number, however we cannot copy its
   // method as it depends on erlangs internal data representation
   asyncTest("Test basic conflict", function() {
-    console.info('Starting Test: Test basic conflict');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'adoc', bar:'baz'};
@@ -283,8 +273,6 @@ adapters.map(function(adapters) {
 
 
   asyncTest("Test _conflicts key", function() {
-    console.info("Starting Test: Testing _conflicts key");
-
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'adoc', bar:'baz'};
@@ -314,7 +302,6 @@ adapters.map(function(adapters) {
 
 
   asyncTest("Test basic continous pull replication", function() {
-    console.info('Starting Test: Test basic continous pull replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -341,7 +328,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test basic continous push replication", function() {
-    console.info('Starting Test: Test basic continous push replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -368,7 +354,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Test cancel pull replication", function() {
-    console.info('Starting Test: Test cancel pull replication');
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'anotherdoc', foo:'baz'};
@@ -400,7 +385,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Replication filter", function() {
-    console.info('Starting Test: Replication filter');
     var docs1 = [
       {_id: "0", integer: 0},
       {_id: "1", integer: 1},
@@ -425,7 +409,6 @@ adapters.map(function(adapters) {
 
 
   asyncTest("Replication with different filters", function() {
-    console.info('Starting Test: Replication with different filters');
     var more_docs = [
       {_id: '3', integer: 3, string: '3'},
       {_id: '4', integer: 4, string: '4'}
@@ -448,7 +431,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Replication doc ids", function() {
-    console.info('Starting Test: Replication with doc_ids');
     var thedocs = [
       {_id: '3', integer: 3, string: '3'},
       {_id: '4', integer: 4, string: '4'},
@@ -468,7 +450,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Replication with same filters", function() {
-    console.info('Starting Test: Replication with same filters');
     var more_docs = [
       {_id: '3', integer: 3, string: '3'},
       {_id: '4', integer: 4, string: '4'}
@@ -493,8 +474,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Replication with deleted doc", function() {
-    console.info('Starting Test: Replication with deleted doc');
-
     var docs1 = [
       {_id: "0", integer: 0},
       {_id: "1", integer: 1},
@@ -516,7 +495,6 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Replication notifications", function() {
-    console.info('Starting Test: replication notifications');
     var self = this;
     var changes = 0;
     var onChange = function(c) {
@@ -613,9 +591,6 @@ deletedDocAdapters.map(function(adapters) {
         }
         response.rows.forEach(function(doc) {
           db.remove(doc, function(err, response) {
-            if (err) {
-              console.error(err);
-            }
             ++count;
             if (count === limit){
               bulkLoad(db, docs, callback);
@@ -703,7 +678,6 @@ deletedDocAdapters.map(function(adapters) {
   });
 
   asyncTest("issue #585 Store checkpoint on target db.", function() {
-    console.info('Starting Test: Local DB contains documents');
     var docs = [{_id: "a"}, {_id: "b"}];
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
