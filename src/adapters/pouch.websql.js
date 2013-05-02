@@ -584,24 +584,29 @@ var webSqlPouch = function(opts, callback) {
         tx.executeSql(sql, [], function(tx, result) {
           var last_seq = 0;
           for (var i = 0, l = result.rows.length; i < l; i++ ) {
-            var doc = result.rows.item(i);
-            var metadata = JSON.parse(doc.metadata);
+            var res = result.rows.item(i);
+            var metadata = JSON.parse(res.metadata);
             if (!isLocalId(metadata.id)) {
-              if (last_seq < doc.seq) {
-                last_seq = doc.seq;
+              if (last_seq < res.seq) {
+                last_seq = res.seq;
+              }
+              var doc = JSON.parse(res.data);
+              var mainRev = doc._rev;
+              var changeList = [{rev: mainRev}];
+              if (opts.style === 'all_docs') {
+                changeList = makeRevs(Pouch.merge.collectLeaves(metadata.rev_tree));
               }
               var change = {
                 id: metadata.id,
-                seq: doc.seq,
-                changes: makeRevs(Pouch.merge.collectLeaves(metadata.rev_tree)),
-                doc: JSON.parse(doc.data)
+                seq: res.seq,
+                changes: changeList,
+                doc: doc
               };
-              change.doc._rev = Pouch.merge.winningRev(metadata);
-              if (isDeleted(metadata, change.doc._rev)) {
+              if (isDeleted(metadata, mainRev)) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
+                change.res._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
               }
               results.push(change);
             }

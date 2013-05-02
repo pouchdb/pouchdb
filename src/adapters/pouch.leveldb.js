@@ -592,21 +592,24 @@ var LevelPouch = function(opts, callback) {
               return;
             }
 
+            var mainRev = Pouch.merge.winningRev(metadata);
+            var changeList = [{rev: mainRev}];
+            if (opts.style === 'all_docs') {
+              changeList = Pouch.merge.collectLeaves(metadata.rev_tree)
+                .map(function(x) { return {rev: x.rev}; });
+            }
             var change = {
               id: metadata.id,
               seq: metadata.seq,
-              changes: Pouch.merge.collectLeaves(metadata.rev_tree)
-                .map(function(x) { return {rev: x.rev}; }),
+              changes: changeList,
               doc: data.value
             };
+            change.doc._rev = mainRev;
 
             if (last_seq < metadata.seq) {
               last_seq = metadata.seq;
             }
-
-            change.doc._rev = Pouch.merge.winningRev(metadata);
-
-           if (isDeleted(metadata)) {
+            if (isDeleted(metadata, mainRev)) {
               change.deleted = true;
             }
             if (opts.conflicts) {
