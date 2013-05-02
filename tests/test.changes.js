@@ -1,6 +1,6 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, LevelPouch: true */
+/*globals ajax: true, LevelPouch: true, putTree: false, deepEqual: false */
 /*globals cleanupTestDatabases: false, strictEqual: false */
 
 "use strict";
@@ -120,6 +120,56 @@ adapters.map(function(adapter) {
             });
           });
         }
+      });
+    });
+  });
+
+  asyncTest("Changes with style = all_docs", function() {
+    var simpleTree = [
+      [
+        {_id: "foo", _rev: "1-a", value: "foo a"},
+        {_id: "foo", _rev: "2-b", value: "foo b"},
+        {_id: "foo", _rev: "3-c", value: "foo c"}
+    ],
+    [
+      {_id: "foo", _rev: "1-a", value: "foo a"},
+      {_id: "foo", _rev: "2-d", value: "foo d"},
+      {_id: "foo", _rev: "3-e", value: "foo e"},
+      {_id: "foo", _rev: "4-f", value: "foo f"}
+    ],
+    [
+      {_id: "foo", _rev: "1-a", value: "foo a"},
+      {_id: "foo", _rev: "2-g", value: "foo g", _deleted: true}
+    ]
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      putTree(db, simpleTree, function() {
+        db.changes({
+          // without specifying all_docs it should return only winning rev
+          complete: function(err, res) {
+            strictEqual(res.results[0].changes.length, 1, 'only one el in changes');
+            strictEqual(res.results[0].changes[0].rev, '4-f', 'which is winning rev');
+
+            db.changes({
+              style: "all_docs",
+              complete: function(err, res) {
+                strictEqual(res.results[0].changes.length, 3, 'correct changes size');
+
+                var changes = res.results[0].changes;
+                changes.sort(function(a, b){
+                  return a.rev < b.rev;
+                });
+
+                deepEqual(changes[0], {rev: "4-f"}, 'correct rev');
+                deepEqual(changes[1], {rev: "3-c"}, 'correct rev');
+                deepEqual(changes[2], {rev: "2-g"}, 'correct rev');
+
+                start();
+              }
+            });
+          }
+        });
       });
     });
   });
