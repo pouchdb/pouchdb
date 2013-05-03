@@ -21,21 +21,21 @@ var testFiles = fs.readdirSync("./tests").filter(function(name){
     name !== 'test.gql.js';
 });
 
-var browserConfig = [{
-  browserName: 'chrome',
-  platform: 'Windows 2003',
-  name: 'win2003/chrome',
-  'chrome.switches' : ['disable-file-system']
-}, {
-  browserName: 'firefox',
-  version: '19',
-  platform: 'Linux',
-  name: 'linux/firefox'
+ var browserConfig = [{
+//   browserName: 'chrome',
+//   platform: 'Windows 2003',
+//   name: 'win2003/chrome',
+//   'chrome.switches' : ['disable-file-system']
 // }, {
-//   browserName: 'opera',
-//   version: '12',
-//   platform: 'Windows 2008',
-//   name: 'win2008/opera'
+//   browserName: 'firefox',
+//   version: '19',
+//   platform: 'Linux',
+//   name: 'linux/firefox'
+// }, {
+  browserName: 'opera',
+  version: '12',
+  platform: 'Windows 2008',
+  name: 'win2008/opera'
 }];
 
 module.exports = function(grunt) {
@@ -195,9 +195,10 @@ module.exports = function(grunt) {
         key: '97de9ee0-2712-49f0-9b17-4b9751d79073',
         testname: 'PouchDB Tests',
         tags: [process.env.TRAVIS_BRANCH || "unknown"],
-        testTimeout: 1000 * 60 * 15, // 15 minutes
+        detailedError: true, 
+        testTimeout: 1000 * 60 * 20, // 20 minutes
         testInterval: 1000 * 30, // 30 seconds
-        tunnelTimeout: 1000 * 60 * 15, // 15 minutes
+        tunnelTimeout: 1000 * 60 * 20, // 20 minutes
         urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
                      testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
         browsers: browserConfig,
@@ -208,6 +209,7 @@ module.exports = function(grunt) {
           (function getResults() {
             browser.eval("window.testReport", function(err, val) {
               testResults[config.name] = err ? "No results" : val;
+              grunt.log.writeln("Test Results - ", status, browser);
               done(true);
             });
           }());
