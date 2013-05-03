@@ -52,7 +52,7 @@ function findPos(obj) {
 }
 
 window.setInterval(function(){
-  window.scroll(0,findPos(document.getElementsByClassName('running')[0]));  
+  window.scroll(0,findPos(document.getElementsByClassName('running')[0]) - 100);  
 }, 2000);
 
 
