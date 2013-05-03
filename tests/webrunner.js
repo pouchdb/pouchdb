@@ -42,13 +42,13 @@ var sourceFiles = {
 };
 
 function findPos(obj) {
-    var curtop = 0;
-    if (obj.offsetParent) {
-        do {
-            curtop += obj.offsetTop;
-        } while ((obj = obj.offsetParent));
+  var curtop = 0;
+  if (obj.offsetParent) {
+    do {
+      curtop += obj.offsetTop;
+    } while ((obj = obj.offsetParent));
     return [curtop];
-    }
+  }
 }
 
 window.setInterval(function(){
