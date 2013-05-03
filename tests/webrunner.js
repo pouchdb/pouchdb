@@ -41,6 +41,21 @@ var sourceFiles = {
   'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js', '../src/deps/ajax.js']
 };
 
+function findPos(obj) {
+    var curtop = 0;
+    if (obj.offsetParent) {
+        do {
+            curtop += obj.offsetTop;
+        } while ((obj = obj.offsetParent));
+    return [curtop];
+    }
+}
+
+window.setInterval(function(){
+  window.scroll(0,findPos(document.getElementsByClassName('running')[0]));  
+}, 2000);
+
+
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 function asyncLoadScript(url, callback) {
 
