@@ -135,20 +135,7 @@ var webSqlPouch = function(opts, callback) {
 
     var tx;
     var results = [];
-    var docs = [];
     var fetchedDocs = {};
-
-    // Group multiple edits to the same document
-    docInfos.forEach(function(docInfo) {
-      if (docInfo.error) {
-        return results.push(docInfo);
-      }
-      if (!docs.length || !newEdits || docInfo.metadata.id !== docs[0].metadata.id) {
-        return docs.unshift(docInfo);
-      }
-      // We mark subsequent bulk docs with a duplicate id as conflicts
-      results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
-    });
 
     function sortByBulkSeq(a, b) {
       return a._bulk_seq - b._bulk_seq;
@@ -344,10 +331,10 @@ var webSqlPouch = function(opts, callback) {
     }
 
     function processDocs() {
-      if (!docs.length) {
+      if (!docInfos.length) {
         return complete();
       }
-      var currentDoc = docs.shift();
+      var currentDoc = docInfos.shift();
       var id = currentDoc.metadata.id;
       if (id in fetchedDocs) {
         updateDoc(fetchedDocs[id], currentDoc);
@@ -398,7 +385,7 @@ var webSqlPouch = function(opts, callback) {
     preprocessAttachments(function() {
       db.transaction(function(txn) {
         tx = txn;
-        var ids = '(' + docs.map(function(d) {
+        var ids = '(' + docInfos.map(function(d) {
           return quote(d.metadata.id);
         }).join(',') + ')';
         var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id IN ' + ids;

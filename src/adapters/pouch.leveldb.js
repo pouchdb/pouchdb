@@ -216,7 +216,6 @@ var LevelPouch = function(opts, callback) {
 
     var newEdits = opts.new_edits;
     var info = [];
-    var docs = [];
     var results = [];
 
     // parse the docs and give each a sequence number
@@ -237,23 +236,11 @@ var LevelPouch = function(opts, callback) {
       return call(callback, infoErrors[0]);
     }
 
-
-    // group multiple edits to the same document
-    info.forEach(function(info) {
-      if (info.error) {
-        return results.push(info);
-      }
-      if (!docs.length || !newEdits || info.metadata.id !== docs[docs.length-1].metadata.id) {
-        return docs.push(info);
-      }
-      results.push(makeErr(Pouch.Errors.REV_CONFLICT, info._bulk_seq));
-    });
-
     function processDocs() {
-      if (docs.length === 0) {
+      if (info.length === 0) {
         return complete();
       }
-      var currentDoc = docs.pop();
+      var currentDoc = info.shift();
       stores[DOC_STORE].get(currentDoc.metadata.id, function(err, oldDoc) {
         if (err && err.name === 'NotFoundError') {
           insertDoc(currentDoc, processDocs);
