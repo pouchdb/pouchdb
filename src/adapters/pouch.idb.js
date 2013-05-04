@@ -190,25 +190,12 @@ var IdbPouch = function(opts, callback) {
     }
 
     var results = [];
-    var docs = [];
-
-    // Group multiple edits to the same document
-    docInfos.forEach(function(docInfo) {
-      if (docInfo.error) {
-        return results.push(docInfo);
-      }
-      if (!docs.length || !newEdits || docInfo.metadata.id !== docs[0].metadata.id) {
-        return docs.unshift(docInfo);
-      }
-      // We mark subsequent bulk docs with a duplicate id as conflicts
-      results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
-    });
 
     function processDocs() {
-      if (!docs.length) {
+      if (!docInfos.length) {
         return;
       }
-      var currentDoc = docs.shift();
+      var currentDoc = docInfos.shift();
       var req = txn.objectStore(DOC_STORE).get(currentDoc.metadata.id);
       req.onsuccess = function process_docRead(event) {
         var oldDoc = event.target.result;
