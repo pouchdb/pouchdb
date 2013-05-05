@@ -93,6 +93,18 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('No _rev and new_edits=false', function() {
+    initTestDB(this.name, function(err, db) {
+      var docs = [
+        {_id: "foo", integer: 1}
+      ];
+      db.bulkDocs({docs: docs}, {new_edits: false}, function(err, res) {
+        ok(err, "error reported");
+        start();
+      });
+    });
+  });
+
   asyncTest("Test errors on invalid doc id", function() {
     var docs = [
       {'_id': '_invalid', foo: 'bar'}
