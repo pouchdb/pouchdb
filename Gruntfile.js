@@ -122,44 +122,8 @@ module.exports = function(grunt) {
 
     jshint: {
       files: ["src/adapters/*.js", "tests/*.js", "src/*.js", "src/plugins/pouchdb.gql.js"],
-      options: {
-        curly: true,
-        eqeqeq: true,
-        immed: true,
-        latedef: true,
-        newcap: true,
-        noarg: true,
-        sub: true,
-        undef: true,
-        eqnull: true,
-        browser: true,
-        strict: true,
-        globalstrict: true,
-        globals: {
-          // Tests.
-          _: true,
-          QUnit: true,
-          asyncTest: true,
-          test: true,
-          DB: true,
-          deepEqual: true,
-          equal: true,
-          expect: true,
-          fail: true,
-          module: true,
-          nextTest: true,
-          notEqual: true,
-          ok: true,
-          sample: true,
-          start: true,
-          stop: true,
-          unescape: true,
-          process: true,
-          global: true,
-          require: true,
-          console: true,
-          Pouch: true
-        }
+      options : {
+        jshintrc: '.jshintrc'
       }
     },
 
@@ -191,26 +155,29 @@ module.exports = function(grunt) {
 
     'saucelabs-qunit': {
       all: {
-        username: 'pouchdb',
-        key: '97de9ee0-2712-49f0-9b17-4b9751d79073',
-        testname: 'PouchDB Tests',
-        tags: [process.env.TRAVIS_BRANCH || "unknown"],
-        testTimeout: 1000 * 60 * 15, // 15 minutes
-        testInterval: 1000 * 30, // 30 seconds
-        tunnelTimeout: 1000 * 60 * 15, // 15 minutes
-        urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
-                     testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
-        browsers: browserConfig,
-        onTestComplete: function(status, page, config, browser) {
-          var done = this.async();
-          var browserDB = nano('http://127.0.0.1:5984').use('test_results');
-                var retries = 0;
-          (function getResults() {
-            browser.eval("window.testReport", function(err, val) {
-              testResults[config.name] = err ? "No results" : val;
-              done(true);
-            });
-          }());
+        options: {
+          username: 'pouchdb',
+          key: '97de9ee0-2712-49f0-9b17-4b9751d79073',
+          testname: 'PouchDB Tests',
+          tags: [process.env.TRAVIS_BRANCH || "unknown"],
+          testTimeout: 1000 * 60 * 15, // 15 minutes
+          testInterval: 1000 * 30, // 30 seconds
+          tunnelTimeout: 1000 * 60 * 15, // 15 minutes
+          urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
+                       testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
+          browsers: browserConfig,
+          detailedError : true,
+          onTestComplete: function(status, page, config, browser) {
+            var done = this.async();
+            var browserDB = nano('http://127.0.0.1:5984').use('test_results');
+                  var retries = 0;
+            (function getResults() {
+              browser.eval("window.testReport", function(err, val) {
+                testResults[config.name] = err ? "No results" : val;
+                done(true);
+              });
+            }());
+          }
         }
       }
     },
