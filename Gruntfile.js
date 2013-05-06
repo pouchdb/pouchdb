@@ -164,7 +164,7 @@ module.exports = function(grunt) {
           testInterval: 1000 * 30, // 30 seconds
           tunnelTimeout: 1000 * 60 * 15, // 15 minutes
           urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
-                       testStartTime.getTime() + "&testFiles=" + testFiles.join(',')],
+                       testStartTime.getTime() + "&scroll=true&testFiles=" + testFiles.join(',')],
           browsers: browserConfig,
           detailedError : true,
           onTestComplete: function(status, page, config, browser) {
