@@ -41,6 +41,33 @@ var sourceFiles = {
   'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js', '../src/deps/ajax.js']
 };
 
+// Logic to automatically scoll qunit tests. Required for saucelabs output, to exactly see whta is happening
+(function() {
+  var scroll = window.location.search.match(/[?&]scroll=true/);
+  if (!scroll) {
+    return;
+  }
+
+  function findPos(obj) {
+    var curtop = 0;
+    if (obj.offsetParent) {
+      do {
+        curtop += obj.offsetTop;
+      } while ((obj = obj.offsetParent));
+      return [curtop];
+    }
+  }
+
+  window.setInterval(function() {
+    try {
+      var running = document.getElementsByClassName('running')[0];
+      window.scroll(0, findPos(running) - 100);
+    } catch (e) {
+      // dont do anything here
+    }
+  }, 2000);
+}());
+
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 function asyncLoadScript(url, callback) {
 
