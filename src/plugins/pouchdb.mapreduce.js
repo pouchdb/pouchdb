@@ -161,6 +161,12 @@ var MapReduce = function(db) {
     if (typeof opts.key !== 'undefined') {
       params.push('key=' + encodeURIComponent(JSON.stringify(opts.key)));
     }
+    if (typeof opts.group !== 'undefined') {
+      params.push('group=' + opts.group);
+    }
+    if (typeof opts.group_level !== 'undefined') {
+      params.push('group_level=' opts.group_level);
+    }
 
     // If keys are supplied, issue a POST request to circumvent GET query string limits
     // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
