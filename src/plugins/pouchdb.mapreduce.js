@@ -165,7 +165,7 @@ var MapReduce = function(db) {
       params.push('group=' + opts.group);
     }
     if (typeof opts.group_level !== 'undefined') {
-      params.push('group_level=' opts.group_level);
+      params.push('group_level=' + opts.group_level);
     }
 
     // If keys are supplied, issue a POST request to circumvent GET query string limits
