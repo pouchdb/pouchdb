@@ -252,6 +252,21 @@ var putTree = function(db, tree, callback) {
   insert(0);
 };
 
+var writeDocs = function(db, docs, callback, res) {
+  if (!res) {
+    res = [];
+  }
+  if (!docs.length) {
+    return callback(null, res);
+  }
+  var doc = docs.shift();
+  db.put(doc, function(err, doc) {
+    ok(doc.ok, 'docwrite returned ok');
+    res.push(doc);
+    writeDocs(db, docs, callback, res);
+  });
+};
+
 if (typeof module !== 'undefined' && module.exports) {
   Pouch = require('../src/pouch.js');
   module.exports = {
@@ -268,6 +283,7 @@ if (typeof module !== 'undefined' && module.exports) {
     putAfter: putAfter,
     putBranch: putBranch,
     putTree: putTree,
+    writeDocs: writeDocs,
     cleanupTestDatabases: cleanupTestDatabases,
     PERSIST_DATABASES: PERSIST_DATABASES
   };

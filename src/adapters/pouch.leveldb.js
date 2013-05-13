@@ -563,10 +563,6 @@ var LevelPouch = function(opts, callback) {
         streamOpts.start = opts.since ? opts.since + 1 : 0;
       }
 
-      if (opts.limit) {
-        streamOpts.limit = opts.limit;
-      }
-
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
@@ -614,13 +610,16 @@ var LevelPouch = function(opts, callback) {
           console.error(err);
         })
         .on('close', function() {
-          changeListener = Pouch.utils.filterChange(opts);
+          var filter = Pouch.utils.filterChange(opts);
+          changeListener = function(change){
+            if (filter(change)) {
+              call(opts.onChange, change);
+            }
+          };
           if (opts.continuous && !opts.cancelled) {
             change_emitter.on('change', changeListener);
           }
-          // filters changes in-place, calling opts.onChange on matching changes
-          results = results.filter(Pouch.utils.filterChange(opts));
-          call(opts.complete, null, {results: results, last_seq: last_seq});
+          Pouch.utils.processChanges(opts, results, last_seq);
         });
     }
 

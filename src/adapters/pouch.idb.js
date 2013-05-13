@@ -1,5 +1,5 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
-/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false */
+/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false, processChanges: false */
 
 'use strict';
 
@@ -674,13 +674,7 @@ var IdbPouch = function(opts, callback) {
 
       var req;
 
-      if (opts.limit && descending) {
-        req = txn.objectStore(BY_SEQ_STORE)
-            .openCursor(IDBKeyRange.bound(opts.since, opts.since + opts.limit, true), descending);
-      } else if (opts.limit && !descending) {
-        req = txn.objectStore(BY_SEQ_STORE)
-            .openCursor(IDBKeyRange.bound(opts.since, opts.since + opts.limit, true));
-      } else if (descending) {
+      if (descending) {
         req = txn.objectStore(BY_SEQ_STORE)
             .openCursor(IDBKeyRange.lowerBound(opts.since, true), descending);
       } else {
@@ -780,8 +774,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     function onTxnComplete() {
-      dedupResults = dedupResults.filter(filterChange(opts));
-      call(opts.complete, null, {results: dedupResults, last_seq: last_seq});
+      processChanges(opts, dedupResults, last_seq);
     }
 
     function onerror(error) {
