@@ -1,7 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true, putTree: false, deepEqual: false */
-/*globals cleanupTestDatabases: false, strictEqual: false */
+/*globals cleanupTestDatabases: false, strictEqual: false, writeDocs: false */
 
 "use strict";
 
@@ -80,6 +80,94 @@ adapters.map(function(adapter) {
           limit: 1,
           complete: function(err, results) {
             equal(results.results.length, 1, 'Partial results');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes limit", function () {
+    var docs1 = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+
+    var docs2 = [
+      {_id: "2", integer: 11},
+      {_id: "3", integer: 12}
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      // we use writeDocs since bulkDocs looks to have undefined
+      // order of doing insertions
+      writeDocs(db, docs1, function(err, info) {
+        docs2[0]._rev = info[2].rev;
+        docs2[1]._rev = info[3].rev;
+        db.put(docs2[0], function(err, info) {
+          db.put(docs2[1], function(err, info) {
+            db.changes({
+              limit: 2,
+              since: 2,
+              include_docs: true,
+              complete: function(err, results) {
+                strictEqual(results.last_seq, 6, 'correct last_seq');
+
+                results = results.results;
+
+                strictEqual(results.length, 2, '2 results');
+
+                strictEqual(results[0].id, '2', 'correct first id');
+                strictEqual(results[0].seq, 5, 'correct first seq');
+                strictEqual(results[0].doc.integer, 11, 'correct first integer');
+
+                strictEqual(results[1].id, '3', 'correct second id');
+                strictEqual(results[1].seq, 6, 'correct second seq');
+                strictEqual(results[1].doc.integer, 12, 'correct second integer');
+
+                start();
+              }
+            });
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes limit and filter", function(){
+    var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3},
+      {_id: "4", integer: 4},
+      {_id: "5", integer: 5},
+
+      {_id: '_design/foo', integer: 4, filters: {
+         even: 'function(doc) { return doc.integer % 2 === 1; }'
+       }
+      }
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, docs, function(err, info) {
+        db.changes({
+          filter: 'foo/even',
+          limit: 2,
+          since: 2,
+          include_docs: true,
+          complete: function(err, results) {
+            strictEqual(results.results.length, 2, 'correct # results');
+
+            strictEqual(results.results[0].id, '3', 'correct first id');
+            strictEqual(results.results[0].seq, 4, 'correct first seq');
+            strictEqual(results.results[0].doc.integer, 3, 'correct first integer');
+
+            strictEqual(results.results[1].id, '5', 'correct second id');
+            strictEqual(results.results[1].seq, 6, 'correct second seq');
+            strictEqual(results.results[1].doc.integer, 5, 'correct second integer');
             start();
           }
         });

@@ -1,5 +1,5 @@
 /*globals call: false, extend: false, parseDoc: false, Crypto: false */
-/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false */
+/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false, processChanges: false */
 /*global isCordova*/
 
 'use strict';
@@ -563,10 +563,6 @@ var webSqlPouch = function(opts, callback) {
         DOC_STORE + '.winningseq WHERE ' + DOC_STORE + '.seq > ' + opts.since +
         ' ORDER BY ' + DOC_STORE + '.seq ' + (descending ? 'DESC' : 'ASC');
 
-      if (opts.limit) {
-        sql += ' LIMIT ' + opts.limit;
-      }
-
       db.transaction(function(tx) {
         tx.executeSql(sql, [], function(tx, result) {
           var last_seq = 0;
@@ -598,8 +594,7 @@ var webSqlPouch = function(opts, callback) {
               results.push(change);
             }
           }
-          results = results.filter(filterChange(opts));
-          call(opts.complete, null, {results: results, last_seq: last_seq});
+          processChanges(opts, results, last_seq);
         });
       });
     }

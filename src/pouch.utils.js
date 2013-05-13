@@ -227,9 +227,22 @@ var filterChange = function(opts) {
     if (!opts.include_docs) {
       delete change.doc;
     }
-    call(opts.onChange, change);
     return true;
   };
+};
+
+var processChanges = function(opts, changes, last_seq) {
+  // TODO: we should try to filter and limit as soon as possible
+  changes = changes.filter(filterChange(opts));
+  if (opts.limit) {
+    if (opts.limit < changes.length) {
+      changes.length = opts.limit;
+    }
+  }
+  changes.forEach(function(change){
+    call(opts.onChange, change);
+  });
+  call(opts.complete, null, {results: changes, last_seq: last_seq});
 };
 
 var rootToLeaf = function(tree) {
@@ -302,6 +315,7 @@ if (typeof module !== 'undefined' && module.exports) {
     computeHeight: computeHeight,
     arrayFirst: arrayFirst,
     filterChange: filterChange,
+    processChanges: processChanges,
     atob: function(str) {
       var base64 = new Buffer(str, 'base64');
       // Node.js will just skip the characters it can't encode instead of

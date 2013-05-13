@@ -1,7 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
-/*globals cleanupTestDatabases: false */
+/*globals cleanupTestDatabases: false, writeDocs: false */
 
 "use strict";
 
@@ -38,18 +38,6 @@ adapters.map(function(adapter) {
     {_id:"1",a:2,b:4},
     {_id:"2",a:3,b:9}
   ];
-
-
-  function writeDocs(db, docs, callback) {
-    if (!docs.length) {
-      return callback();
-    }
-    var doc = docs.shift();
-    db.put(doc, function(err, doc) {
-      ok(doc.ok, 'docwrite returned ok');
-      writeDocs(db, docs, callback);
-    });
-  }
 
   asyncTest('Testing all docs', function() {
     initTestDB(this.name, function(err, db) {
