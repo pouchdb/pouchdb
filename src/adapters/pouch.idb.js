@@ -56,6 +56,11 @@ var IdbPouch = function(opts, callback) {
 
   var name = opts.name;
   var req = indexedDB.open(name, POUCH_VERSION);
+
+  if (Pouch.openReqList) {
+    Pouch.openReqList[name] = req;
+  }
+
   var meta = {
     id: 'meta-store',
     updateSeq: 0
@@ -860,9 +865,18 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
     console.log(name + ': Delete Database');
   }
   IdbPouch.Changes.clearListeners(name);
+
+  //Close open request for "name" database to fix ie delay.
+  if (Pouch.openReqList[name] && Pouch.openReqList[name].result) {
+    Pouch.openReqList[name].result.close();
+  }
   var req = indexedDB.deleteDatabase(name);
 
   req.onsuccess = function() {
+    //Remove open request from the list.
+    if (Pouch.openReqList[name]) {
+      Pouch.openReqList[name] = null;
+    }
     call(callback, null);
   };
 
