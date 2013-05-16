@@ -1,4 +1,4 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
+/*globals initTestDB: false, openTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true */
 /*globals cleanupTestDatabases: false */
@@ -74,6 +74,28 @@ adapters.map(function(adapter) {
     initTestDB(this.name, function(err, db) {
       ok(typeof(db.id()) === 'string' && db.id() !== '', "got id");
       start();
+    });
+  });
+
+  asyncTest("Close db", function() {
+    initTestDB(this.name, function(err, db) {
+      db.close(function(error){
+        ok(!err, 'close called back with an error');
+        start();
+      });
+    });
+  });
+
+  asyncTest("Read db id after closing", function() {
+    var dbName = this.name;
+    initTestDB(dbName, function(err, db) {
+      db.close(function(error){
+        ok(!err, 'close called back with an error');
+        openTestDB(dbName, function(err, db){
+          ok(typeof(db.id()) === 'string' && db.id() !== '', "got id");
+          start();
+        });
+      });
     });
   });
 
