@@ -73,10 +73,10 @@ var webSqlPouch = function(opts, callback) {
         }
         update_seq = result.rows.item(0).update_seq;
       });
-      var dbid = 'SELECT dbid FROM ' + META_STORE;
+      var dbid = 'SELECT dbid FROM ' + META_STORE + ' WHERE dbid IS NOT NULL';
       tx.executeSql(dbid, [], function(tx, result) {
         if (!result.rows.length) {
-          var initDb = 'INSERT INTO ' + META_STORE + ' (dbid) VALUES (?)';
+          var initDb = 'UPDATE ' + META_STORE + ' SET dbid=?';
           instanceId = Math.uuid();
           tx.executeSql(initDb, [instanceId]);
           return;
@@ -611,6 +611,11 @@ var webSqlPouch = function(opts, callback) {
     } else {
       fetchChanges();
     }
+  };
+
+  api._close = function(callback) {
+    //WebSQL databases do not need to be closed
+    call(callback, null);
   };
 
   api._getAttachment = function(attachment, opts, callback) {
