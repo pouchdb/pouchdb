@@ -548,6 +548,7 @@ Replicate one database to another.
 * `options.filter`: Reference a filter function from a design document to selectively get updates
 * `options.complete`: Function called when all changes have been processed, defaults to the callback
 * `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document), not called as a callback but called as onChange(change)
+* `options.continious`: If true starts subscribing to changes in the first database and replicating them to the second.
 
 <span></span>
 
