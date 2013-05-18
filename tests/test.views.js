@@ -288,4 +288,25 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Query non existing view returns error", function() {
+    initTestDB(this.name, function(err, db) {
+      var doc = {
+        _id: '_design/barbar',
+        views: {
+          scores: {
+            map: 'function(doc) { if (doc.score) { emit(null, doc.score); } }'
+          }
+        }
+      };
+      db.post(doc, function (err, info) {
+        db.query('barbar/dontExist',{key: 'bar'}, function(err, res) {
+          equal(err.error, 'not_found');
+          equal(err.reason, 'missing_named_view');
+          start();
+        });
+      });
+    });
+  });
+
+
 });
