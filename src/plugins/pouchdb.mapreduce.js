@@ -236,6 +236,12 @@ var MapReduce = function(db) {
         if (callback) callback(err);
         return;
       }
+
+      if (!doc.views[parts[1]]) {
+        if (callback) callback({ error: 'not_found', reason: 'missing_named_view' });
+        return;
+      }
+
       viewQuery({
         map: doc.views[parts[1]].map,
         reduce: doc.views[parts[1]].reduce
