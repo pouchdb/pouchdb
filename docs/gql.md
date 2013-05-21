@@ -1,19 +1,19 @@
 ---
-layout: default
+layout: learn
 title: PouchDB, the JavaScript Database that Syncs!
 ---
 
 # GQL Documentation
 
-The Google Query Language (GQL) interface provides an alternative method for accessing data. 
-The version of GQL implemented here is based on the Google Visualization API Query Language 
-(https://developers.google.com/chart/interactive/docs/querylanguage). 
-The syntax of GQL queries should be familiar to those who have used SQL, 
+The Google Query Language (GQL) interface provides an alternative method for accessing data.
+The version of GQL implemented here is based on the Google Visualization API Query Language
+(https://developers.google.com/chart/interactive/docs/querylanguage).
+The syntax of GQL queries should be familiar to those who have used SQL,
 but the capabilities of GQL are much more limited.
 
-GQL queries are performed by passing a query object to the gql method along with a callback. 
-Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined 
-unless there is an error, and further arguments specify the result. 
+GQL queries are performed by passing a query object to the gql method along with a callback.
+Callbacks are in the node.js idiom of `function(err, data)` Where the first argument will be undefined
+unless there is an error, and further arguments specify the result.
 Note that only identifiers and string literals are case-sensitive.
 
 ### Language Syntax
@@ -36,7 +36,7 @@ Note that only identifiers and string literals are case-sensitive.
 
     db.gql(query, [options], [callback])
 
-Although only the query is mandatory, the callback is required to access the query result. 
+Although only the query is mandatory, the callback is required to access the query result.
 Currently no query options are implemented.
 
     var pouchdb;
@@ -54,10 +54,10 @@ Currently no query options are implemented.
 
     db.gql({select: "`name!`, price-discount, upper(vendor)"}, callback)
 
-Select returns an object for each document in the database (unless limited by another clause). 
-Each of these objects will be populated with the properties specified in the select clause. 
-Arithmetic operators, aggregation functions, and scalar functions are all fair game. 
-Properties that are missing from an object in the database are assigned null. 
+Select returns an object for each document in the database (unless limited by another clause).
+Each of these objects will be populated with the properties specified in the select clause.
+Arithmetic operators, aggregation functions, and scalar functions are all fair game.
+Properties that are missing from an object in the database are assigned null.
 
 With these documents in the database
 
@@ -74,12 +74,12 @@ The above query will return
 
     db.gql({select: "*", where: "type='Fire' and name is not null"}, callback)
 
-Where allows filtering of the objects that are passed to the select clause.  In this way, unwanted documents 
-can be excluded from the query result.  The where clause is composed of conditions which are joined by the 
+Where allows filtering of the objects that are passed to the select clause.  In this way, unwanted documents
+can be excluded from the query result.  The where clause is composed of conditions which are joined by the
 logical operators AND and OR.  An additional operator, NOT, provides negation.
 
-Comparison operators can be used in conditions to perform comparisons.  The supported comparison operators are 
-<=, <, >, >=, !=, and <>.  != and <> are equivalent.  Null is treated slightly differently; to check if 
+Comparison operators can be used in conditions to perform comparisons.  The supported comparison operators are
+<=, <, >, >=, !=, and <>.  != and <> are equivalent.  Null is treated slightly differently; to check if
 something is null IS NULL is used.  To check if something is not null, IS NOT NULL is used.
 
 With these documents in the database
@@ -103,7 +103,7 @@ desired fields explicitly.
     db.gql({select: "max(charizard), charmeleon", groupBy: "charmeleon"}, callback)
 
 Group by creates one object for each unique combination of values in the group by clause. For the query above,
-if every document in the database had the value "Level 22" for the property "charmeleon", only a single 
+if every document in the database had the value "Level 22" for the property "charmeleon", only a single
 object would be generated.
 
 If a group by clause is present, every identifier in the select clause must either be the argument of an
@@ -113,7 +113,7 @@ clause could have multiple values for some identifiers.
 With these documents in the database
 
     {charizard: 50, charmander: 24, charmeleon: 2, haunter:true},
-    {charizard: 40, charmeleon: 2, charmander: 50}, 
+    {charizard: 40, charmeleon: 2, charmander: 50},
     {charizard: 7, charmeleon: 20, charmander: 15}
 
 The above query will return
@@ -125,12 +125,12 @@ The above query will return
 
      db.gql({select: "max(charizard)", pivot: "charmeleon"}, callback)
 
-Pivot is essentially group by for properties.  Each distinct value in the pivot clause gets its own property. 
+Pivot is essentially group by for properties.  Each distinct value in the pivot clause gets its own property.
 Unless used with group by, the result will have only a single document.
 
-The same restriction for group by applies here; every identifier in the select clause must either be the 
+The same restriction for group by applies here; every identifier in the select clause must either be the
 argument of an aggregation function or preset in the group by clause.  Additionally, identifiers in the pivot
-clause may not be used in the group by clause. 
+clause may not be used in the group by clause.
 
 Note that using pivot will generate novel property names.  See below for an example.
 
@@ -146,7 +146,7 @@ The above query will return
 
 ## Label
 
-     db.gql({select: 'upper(dept), charizard', 
+     db.gql({select: 'upper(dept), charizard',
      label: "upper(dept) 'Department', charizard 'Maximum Charizard!'"}, callback)
 
 Label is used to transform cryptic identifiers into something that can be displayed directly to the end user.
@@ -156,7 +156,7 @@ the select clause and the label is a string literal.
 
 With these documents in the database
 
-    {charizard: 50, dept: "eng", lunch:"2"}, 
+    {charizard: 50, dept: "eng", lunch:"2"},
     {charizard: 40, lunch: "1", dept: "market"},·
     {charizard: 99, dept: "eng", lunch: 1},
     {charizard: 7, dept: "eng", lunch: 2}
@@ -178,20 +178,20 @@ GQL contains a number of operators and functions that can operate on retrived do
     callback)
 
 The currently supported aggregation functions are avg, count, max, min, and sum.  Each of these takes a single
-statement as an argument.  A statement can be composed of one or more identifiers joined by operators. 
+statement as an argument.  A statement can be composed of one or more identifiers joined by operators.
 Avg and sum expect their arguments to evaluate to numbers; the other aggregators will accept any type of input.
 Aggregation functions operate on entire identifiers, returning only a single property. Aggregation functions
 may only appear in the select and label clauses.
 
 With these documents in the database
 
-    {charizard: 50}, 
-    {charizard: 40}, 
+    {charizard: 50},
+    {charizard: 40},
     {charizard: 7}
 
 The above query will return
 
-    {average(charizard): 32.333333333333336, count(charizard): 3, max(charizard): 50, 
+    {average(charizard): 32.333333333333336, count(charizard): 3, max(charizard): 50,
     min(charizard): 7, sum(charizard): 97}
 
 ### Scalar Functions
@@ -218,7 +218,7 @@ The above query will return
     db.gql({select: "*", where: "charizard <=charmander * charmeleon + 2 and (charmander - 7 !=  24/3)"},
     callback)
 
-Arithmetic operators are used to perform basic math on the values from documents.  Their arguments must be 
+Arithmetic operators are used to perform basic math on the values from documents.  Their arguments must be
 numbers.  Arithmetic operators may only appear in the select, label, and where clauses.  The arguments are
 implicitly upcast to floats if necessary. The supported arithmetic operators are:
 
@@ -252,8 +252,8 @@ Literals are used for comparison or arithmetic.  These are the supported literal
 
 ### Identifiers
 
-Identifiers correspond to the properties of documents in the database.  There are strict rules governing the 
-way that identifiers can be expressed in queries.  If your identifier has spaces, is a reserved word, contains 
+Identifiers correspond to the properties of documents in the database.  There are strict rules governing the
+way that identifiers can be expressed in queries.  If your identifier has spaces, is a reserved word, contains
 any characters that are not letters or numbers or underscores, or starts with a digit, it must be surrounded
 by backquotes \(\`identifier\`\).
 
