@@ -18,6 +18,7 @@
   ],
   "dependencies": {
     "levelup": "*",
+    "leveldown": "*",
     "request": "*",
     "underscore": "*"
   },
