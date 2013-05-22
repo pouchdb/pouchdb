@@ -394,3 +394,27 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
   window.Pouch = Pouch;
 }
+
+Pouch.uuids = function (count, options) {
+  if (typeof(options) !== 'object') {
+    options = {};
+  }
+
+  var method = options.method || 'Fast';
+
+  /* This can be useful for us to specify a pattern different
+     from the RFC4122. Might be used in utils for generating:
+     new rev ids
+     > newRevId = Math.uuid(32, 16).toLowerCase()
+
+     But currently, all the methods don't support this.
+  */
+  // var pattern = options.pattern || '';
+
+  var uuids = [];
+
+  while (uuids.push(Math['uuid' + method]()) < count) {
+  }
+
+  return uuids;
+};

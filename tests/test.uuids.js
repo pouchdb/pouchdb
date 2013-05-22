@@ -14,31 +14,32 @@ if (typeof module !== undefined && module.exports) {
   qunit = QUnit.module;
 }
 
-test('UUID generation count', 1, function() {
-  var count = 10;
+var uuidMethods = [
+  null,      // The default
+  '',        // Math.uuid
+  'Fast',    // Math.uuidFast
+  'Compact'  // Math.uuidCompact
+];
 
-  equal(Pouch.uuids(count).length, count, "Correct number of uuids generated.");
-});
+var rfcRegexp = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
-test('UUID generation uniqueness', 1, function() {
-  var count = 1000;
-  var uuids = Pouch.uuids(count);
+uuidMethods.map(function(method) {
+  test('UUID generation count', 1, function() {
+    var count = 10;
 
-  equal($.unique(uuids).length, count, "Generated UUIDS are unique.");
-});
+    equal(Pouch.uuids(count, {method: method}).length, count,
+          "Correct number of uuids generated.");
+  });
 
-test('UUID seeded generation uniqueness', 1, function() {
-  var count = 1000;
-  var uuids = Pouch.uuids(count, 0.4);
+  test('UUID RFC4122 test', 1, function() {
+    var uuid = Pouch.uuids(1, {method: method})[0];
+    equal(rfcRegexp.test(uuid), true, "UUID complies with RFC4122.");
+  });
 
-  equal($.unique(uuids).length, count, "Generated UUIDS are unique.");
-});
+  test('UUID generation uniqueness', 1, function() {
+    var count = 5000;
+    var uuids = Pouch.uuids(count, {method: method});
 
-test('UUID generator seed argument parsing', 4, function() {
-  var count = 10;
-
-  equal(Pouch.uuids().length, 1, "No argument.");
-  equal(Pouch.uuids(count).length, count, "Only count as argument");
-  equal(Pouch.uuids(0.4).length, 1, "Only seed as argument.");
-  equal(Pouch.uuids(count, 0.4).length, count, "Both count and seed as argument.");
+    equal($.unique(uuids).length, count, "Generated UUIDS are unique.");
+  });
 });
