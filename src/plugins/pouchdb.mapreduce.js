@@ -29,6 +29,36 @@ var MapReduce = function(db) {
       return values.reduce(function(a, b) { return a + b; }, 0);
     }
 
+    var builtInReduce = {
+      "_sum": function(keys, values){
+        return sum(values);
+      },
+
+      "_count": function(keys, values, rereduce){
+        if (rereduce){
+          return sum(values);
+        } else {
+          return values.length;
+        }
+      },
+
+      "_stats": function(keys, values, rereduce){
+        return {
+          'sum': sum(values),
+          'min': Math.min.apply(null, values),
+          'max': Math.max.apply(null, values),
+          'count': values.length,
+          'sumsqr': (function(){
+            var _sumsqr = 0;
+            for(var idx in values){
+              _sumsqr += values[idx] * values[idx];
+            }
+            return _sumsqr;
+          })()
+        };
+      }
+    };
+
     var results = [];
     var current = null;
     var num_started= 0;
@@ -69,6 +99,10 @@ var MapReduce = function(db) {
     // above emit
     eval('fun.map = ' + fun.map.toString() + ';');
     if (fun.reduce) {
+      if (builtInReduce[fun.reduce]) {
+        fun.reduce = builtInReduce[fun.reduce];
+      }
+
       eval('fun.reduce = ' + fun.reduce.toString() + ';');
     }
 

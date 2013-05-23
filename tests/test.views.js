@@ -229,7 +229,85 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("No reduce function, passing just a  function", function() {
+  asyncTest("Built in _sum reduce function", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { val: 'bar' },
+          { val: 'bar' },
+          { val: 'baz' }
+        ]
+      }, null, function() {
+        var queryFun = {
+          map: function(doc) {
+            emit(doc.val, 1);
+          },
+          reduce: "_sum"
+        };
+        db.query(queryFun, {reduce: true, group_level:999}, function(err, res) {
+          equal(res.rows.length, 2);
+          equal(res.rows[0].value,2);
+          equal(res.rows[1].value,1);
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Built in _count reduce function", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { val: 'bar' },
+          { val: 'bar' },
+          { val: 'baz' }
+        ]
+      }, null, function() {
+        var queryFun = {
+          map: function(doc) {
+            emit(doc.val, doc.val);
+          },
+          reduce: "_count"
+        };
+        db.query(queryFun, {reduce: true, group_level:999}, function(err, res) {
+          equal(res.rows.length, 2);
+          equal(res.rows[0].value,2);
+          equal(res.rows[1].value,1);
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Built in _stats reduce function", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { val: 'bar' },
+          { val: 'bar' },
+          { val: 'baz' }
+        ]
+      }, null, function() {
+        var queryFun = {
+          map: function(doc) {
+            emit(doc.val, 1);
+          },
+          reduce: "_stats"
+        };
+        db.query(queryFun, {reduce: true, group_level:999}, function(err, res) {
+          var stats = res.rows[0].value;
+          equal(stats.sum, 2);
+          equal(stats.count, 2);
+          equal(stats.min, 1);
+          equal(stats.max, 1);
+          equal(stats.sumsqr, 2);
+          start();
+        });
+      });
+    });
+  });
+
+ asyncTest("No reduce function, passing just a  function", function() {
     initTestDB(this.name, function(err, db) {
       db.post({foo: 'bar'}, function(err, res) {
         var queryFun = function(doc) { emit('key', 'val'); };
