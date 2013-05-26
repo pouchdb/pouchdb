@@ -428,3 +428,8 @@ Pouch.uuids = function (count, options) {
 
   return uuids;
 };
+
+// Give back one UUID
+Pouch.uuid = function (options) {
+  return Pouch.uuids(1, options)[0];
+};
