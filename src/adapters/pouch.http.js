@@ -293,6 +293,9 @@ var HttpPouch = function(opts, callback) {
       params.push('revs_info=true');
     }
 
+    if (opts.local_seq) {
+      params.push('local_seq=true');
+    }
     // If it exists, add the opts.open_revs value to the list of parameters.
     // If open_revs=all then the resulting JSON will include all the leaf
     // revisions. If open_revs=["rev1", "rev2",...] then the resulting JSON

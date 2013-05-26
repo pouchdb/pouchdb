@@ -379,6 +379,10 @@ var PouchAdapter = function(opts, callback) {
         }
       }
 
+      if (opts.local_seq) {
+        doc._local_seq = result.metadata.seq;
+      }
+
       if (opts.attachments && doc._attachments) {
         var attachments = doc._attachments;
         var count = Object.keys(attachments).length;

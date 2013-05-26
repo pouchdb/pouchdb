@@ -205,7 +205,7 @@ a document, include a `_deleted` parameter with the value `true`.
 
     db.get(docid, [options], [callback])
 
-Getrieves a document, specified by `docid`.
+Retrieves a document, specified by `docid`.
 
 * `options.rev`: Fetch specific revision of a document. Defaults to winning revision (see [couchdb guide](http://guide.couchdb.org/draft/conflicts.html).
 * `options.revs`: Include revision history of the document
@@ -213,6 +213,7 @@ Getrieves a document, specified by `docid`.
 * `options.open_revs`: Fetch all leaf revisions if open_revs="all" or fetch all leaf revisions specified in open_revs array. Leaves will be returned in the same order as specified in input array
 * `options.conflicts`: If specified conflicting leaf revisions will be attached in `_conflicts` array
 * `options.attachments`: Include attachment data
+* `options.local_seq`: Include sequence number of the revision in the database
 
 <span></span>
 
