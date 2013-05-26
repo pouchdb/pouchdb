@@ -267,6 +267,25 @@ var writeDocs = function(db, docs, callback, res) {
   });
 };
 
+
+// Borrowed from: http://stackoverflow.com/a/840849
+function eliminateDuplicates(arr) {
+  var i, element,
+      len = arr.length,
+      out = [],
+      obj = {};
+
+  for (i=0; i<len; i++) {
+    obj[arr[i]]=0;
+  }
+
+  for (element in obj) {
+    out.push(element);
+  }
+
+  return out;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   Pouch = require('../src/pouch.js');
   module.exports = {
@@ -285,6 +304,7 @@ if (typeof module !== 'undefined' && module.exports) {
     putTree: putTree,
     writeDocs: writeDocs,
     cleanupTestDatabases: cleanupTestDatabases,
-    PERSIST_DATABASES: PERSIST_DATABASES
+    PERSIST_DATABASES: PERSIST_DATABASES,
+    eliminateDuplicates: eliminateDuplicates
   };
 }
