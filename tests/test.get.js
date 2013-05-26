@@ -93,6 +93,24 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Get local_seq of document", function() {
+    initTestDB(this.name, function(err, db) {
+      db.post({test:"somestuff"}, function(err, info1) {
+        db.get(info1.id, {local_seq: true}, function(err, res) {
+          ok(res);
+          strictEqual(res._local_seq, 1);
+          db.post({test:"someotherstuff"}, function(err, info2) {
+            db.get(info2.id, {local_seq: true}, function(err, res) {
+              ok(res);
+              strictEqual(res._local_seq, 2);
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Get revisions of removed doc", 1, function() {
     initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
