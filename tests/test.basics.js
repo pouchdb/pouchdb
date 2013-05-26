@@ -1,6 +1,6 @@
 /*globals initTestDB: false, openTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, LevelPouch: true */
+/*globals ajax: true, LevelPouch: true, strictEqual: false */
 /*globals cleanupTestDatabases: false */
 
 "use strict";
@@ -272,6 +272,24 @@ adapters.map(function(adapter) {
         });
       });
     });
+  });
+
+  asyncTest("Doc validation", function() {
+    var bad_docs = [
+      {"_zing": 4},
+      {"_zoom": "hello"},
+      {"zane": "goldfish", "_fan": "something smells delicious"},
+      {"_bing": {"wha?": "soda can"}}
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: bad_docs}, function(err, res) {
+        strictEqual(err.status, 500);
+        strictEqual(err.error, 'doc_validation');
+        start();
+      });
+    });
+
   });
 
   asyncTest("Testing issue #48", 1, function() {

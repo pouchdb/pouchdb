@@ -361,6 +361,11 @@ Pouch.Errors = {
     error: 'query_parse_error',
     reason: 'Some query parameter is invalid'
   },
+  DOC_VALIDATION: {
+    status: 500,
+    error: 'doc_validation',
+    reason: 'Bad special document member'
+  },
   BAD_REQUEST: {
     status: 400,
     error: 'bad_request',
