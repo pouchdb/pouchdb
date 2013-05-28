@@ -5,7 +5,7 @@
 	"manifest_version": 1,
 	"app": {
 		"background": {
-			"scripts": ["chromeappbackground.js"]
+			"scripts": ["./tests/chromeappbackground.js"]
 		}
 	},
 	"content_security_policy": "default-src 'none' ; script-src 'self' 'http://localhost' 'unsafe-eval'; object-src 'self' 'http://localhost'",
