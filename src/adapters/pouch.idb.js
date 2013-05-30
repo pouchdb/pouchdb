@@ -146,7 +146,7 @@ var IdbPouch = function(opts, callback) {
       if (name + '_id' in meta) {
         instanceId = meta[name + '_id'];
       } else {
-        instanceId = Math.uuid();
+        instanceId = Pouch.uuid();
 
         meta[name + '_id'] = instanceId;
         reqDBId = txn.objectStore(META_STORE).put(meta);
@@ -649,7 +649,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     if (opts.continuous) {
-      var id = name + ':' + Math.uuid();
+      var id = name + ':' + Pouch.uuid();
       opts.cancelled = false;
       IdbPouch.Changes.addListener(name, id, api, opts);
       IdbPouch.Changes.notify(name);

@@ -67,7 +67,7 @@ var webSqlPouch = function(opts, callback) {
       tx.executeSql(updateseq, [], function(tx, result) {
         if (!result.rows.length) {
           var initSeq = 'INSERT INTO ' + META_STORE + ' (update_seq) VALUES (?)';
-          var newId = Math.uuid();
+          var newId = Pouch.uuid();
           tx.executeSql(initSeq, [0]);
           return;
         }
@@ -77,7 +77,7 @@ var webSqlPouch = function(opts, callback) {
       tx.executeSql(dbid, [], function(tx, result) {
         if (!result.rows.length) {
           var initDb = 'UPDATE ' + META_STORE + ' SET dbid=?';
-          instanceId = Math.uuid();
+          instanceId = Pouch.uuid();
           tx.executeSql(initDb, [instanceId]);
           return;
         }
@@ -533,7 +533,7 @@ var webSqlPouch = function(opts, callback) {
     }
 
     if (opts.continuous) {
-      var id = name + ':' + Math.uuid();
+      var id = name + ':' + Pouch.uuid();
       opts.cancelled = false;
       webSqlPouch.Changes.addListener(name, id, api, opts);
       webSqlPouch.Changes.notify(name);
