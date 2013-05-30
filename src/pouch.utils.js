@@ -100,9 +100,9 @@ var parseDoc = function(doc, newEdits) {
 
   if (newEdits) {
     if (!doc._id) {
-      doc._id = Math.uuid();
+      doc._id = Pouch.uuid();
     }
-    newRevId = Math.uuid(32, 16).toLowerCase();
+    newRevId = Pouch.uuid({length: 32, radix: 16}).toLowerCase();
     if (doc._rev) {
       revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
       if (!revInfo) {

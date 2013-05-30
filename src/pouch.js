@@ -395,6 +395,7 @@ if (typeof module !== 'undefined' && module.exports) {
   window.Pouch = Pouch;
 }
 
+require('./deps/uuid.js');
 /*
   Examples:
 

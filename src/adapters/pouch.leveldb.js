@@ -7,10 +7,6 @@ var pouchdir = '../';
 var Pouch = require(pouchdir + 'pouch.js');
 var call = Pouch.utils.call;
 
-// TODO: this adds the Math.uuid function used in pouch.utils
-// possibly not the best place for it, but it works for now
-require(pouchdir + 'deps/uuid.js');
-
 var path = require('path');
 var fs = require('fs');
 var crypto = require('crypto');
