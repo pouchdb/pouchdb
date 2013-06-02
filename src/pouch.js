@@ -376,6 +376,7 @@ Pouch.error = function(error, reason){
  return extend({}, error, {reason: reason});
 };
 if (typeof module !== 'undefined' && module.exports) {
+  require('./deps/uuid.js');
   global.Pouch = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
   Pouch.collate = require('./pouch.collate.js').collate;
@@ -395,7 +396,6 @@ if (typeof module !== 'undefined' && module.exports) {
   window.Pouch = Pouch;
 }
 
-require('./deps/uuid.js');
 /*
   Examples:
 
