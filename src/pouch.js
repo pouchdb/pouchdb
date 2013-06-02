@@ -112,7 +112,12 @@ Pouch.parseAdapter = function(name) {
   throw 'No valid adapter found';
 };
 
-Pouch.destroy = function(name, callback) {
+Pouch.destroy = function(name, options, callback) {
+  if(typeof options === 'function'){
+    callback = options;
+    options = {};
+  }
+
   var opts = Pouch.parseAdapter(name);
   var cb = function(err, response) {
     if (err) {
@@ -128,7 +133,11 @@ Pouch.destroy = function(name, callback) {
     }
 
     // call destroy method of the particular adaptor
-    Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+    if(opts.adapter === 'http' || opts.adapter === 'https'){
+      Pouch.adapters[opts.adapter].destroy(opts.name, options, callback);
+    } else {
+      Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+    }
   };
 
   // remove Pouch from allDBs
@@ -376,6 +385,7 @@ Pouch.error = function(error, reason){
  return extend({}, error, {reason: reason});
 };
 if (typeof module !== 'undefined' && module.exports) {
+  require('./deps/uuid.js');
   global.Pouch = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
   Pouch.collate = require('./pouch.collate.js').collate;
@@ -395,7 +405,14 @@ if (typeof module !== 'undefined' && module.exports) {
   window.Pouch = Pouch;
 }
 
-require('./deps/uuid.js');
+//Delete the stored auth cookie
+Pouch.deleteCookieAuth = function(name, options, callback) {
+  var opts = Pouch.parseAdapter(name);
+
+  // call destroy method of the particular adaptor
+  Pouch.adapters[opts.adapter].deleteCookieAuth(opts.name, options, callback);
+};
+
 /*
   Examples:
 
@@ -434,3 +451,5 @@ Pouch.uuids = function (count, options) {
 Pouch.uuid = function (options) {
   return Pouch.uuids(1, options)[0];
 };
+
+
