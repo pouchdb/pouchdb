@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
 var ajax = function ajax(options, callback) {
-  if (typeof options === "function") {
+  if (typeof options === 'function') {
     callback = options;
     options = {};
   }
@@ -10,22 +10,22 @@ var ajax = function ajax(options, callback) {
     if (typeof fun === typeof Function) {
       fun.apply(this, args);
     }
-  }; 
+  };
   var defaultOptions = {
-    method : "GET",
+    method: 'GET',
     headers: {},
     json: true,
     processData: true,
     timeout: 10000,
-    withCredentials:false,
-    async:true
+    withCredentials: false,
+    async: true
   };
   options = extend(true, defaultOptions, options);
   if (options.auth) {
       var token = btoa(options.auth.username + ':' + options.auth.password);
       options.headers.Authorization = 'Basic ' + token;
   }
-  var onSuccess = function(obj, resp, cb){
+  var onSuccess = function(obj, resp, cb) {
     if (!options.binary && !options.json && options.processData && typeof obj !== 'string') {
       obj = JSON.stringify(obj);
     } else if (!options.binary && options.json && typeof obj === 'string') {
@@ -39,41 +39,41 @@ var ajax = function ajax(options, callback) {
     }
     call(cb, null, obj, resp);
   };
-  var onError = function(err, cb){
+  var onError = function(err, cb) {
     var errParsed;
     var errObj = {status: err.status};
-    try{
+    try {
       errParsed = JSON.parse(err.responseText); //would prefer not to have a try/catch clause
       errObj = extend(true, {}, errObj, errParsed);
-    } catch(e){}
+    } catch (e) {}
     call(cb, errObj);
   };
   if (typeof window !== 'undefined' && window.XMLHttpRequest) { //if we are in the browser
-    var timer,timedout  = false;
+    var timer, timedout = false;
     var xhr = new XMLHttpRequest();
     xhr.open(options.method, options.url, options.async);
-   if(options.withCredentials){
+    if (options.withCredentials) {
         xhr.withCredentials = true;
     }
     if (options.json) {
       options.headers.Accept = 'application/json';
       options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
-      if (options.body && options.processData && typeof options.body !== "string") {
+      if (options.body && options.processData && typeof options.body !== 'string') {
         options.body = JSON.stringify(options.body);
       }
     }
     if (options.binary) {
       xhr.responseType = 'arraybuffer';
     }
-    for (var key in options.headers){
+    for (var key in options.headers) {
       xhr.setRequestHeader(key, options.headers[key]);
     }
-    if (!("body" in options)) {
+    if (!('body' in options)) {
       options.body = null;
     }
 
     var abortReq = function() {
-        timedout=true;
+        timedout = true;
         xhr.abort();
         call(onError, xhr, callback);
     };
@@ -98,7 +98,7 @@ var ajax = function ajax(options, callback) {
       timer = setTimeout(abortReq, options.timeout);
     }
     xhr.send(options.body);
-    return {abort:abortReq};
+    return {abort: abortReq};
   } else {
     if (options.json) {
       if (!options.binary) {
