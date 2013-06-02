@@ -1,3 +1,5 @@
+"use strict";
+
 var ajax = function ajax(options, callback) {
   if (typeof options === "function") {
     callback = options;
@@ -14,7 +16,9 @@ var ajax = function ajax(options, callback) {
     headers: {},
     json: true,
     processData: true,
-    timeout: 10000
+    timeout: 10000,
+    withCredentials:false,
+    async:true
   };
   options = extend(true, defaultOptions, options);
   if (options.auth) {
@@ -44,10 +48,13 @@ var ajax = function ajax(options, callback) {
     } catch(e){}
     call(cb, errObj);
   };
-  if (typeof window !== 'undefined' && window.XMLHttpRequest) {
+  if (typeof window !== 'undefined' && window.XMLHttpRequest) { //if we are in the browser
     var timer,timedout  = false;
     var xhr = new XMLHttpRequest();
-    xhr.open(options.method, options.url);
+    xhr.open(options.method, options.url, options.async);
+   if(options.withCredentials){
+        xhr.withCredentials = true;
+    }
     if (options.json) {
       options.headers.Accept = 'application/json';
       options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
@@ -128,7 +135,7 @@ var ajax = function ajax(options, callback) {
       }
       else {
         if (options.binary) {
-          var data = JSON.parse(data.toString());
+          data = JSON.parse(data.toString());
         }
         data.status = response.statusCode;
         call(callback, data);
