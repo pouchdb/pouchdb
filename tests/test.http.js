@@ -41,7 +41,7 @@ var call = function(fun) {
 }; 
 
 //enable CORS on server
-function EnableCORS(dburl, callback){
+function enableCORS(dburl, callback){
   var host = dburl.split("/")[0]+ "//"+dburl.split("/")[2] + "/";
 
   //get the current config
@@ -60,7 +60,7 @@ function EnableCORS(dburl, callback){
 }
 
 //enable CORS Credentials on server
-function EnableCORSCredentials(dburl, callback){
+function enableCORSCredentials(dburl, callback){
   var host = dburl.split("/")[0]+ "//"+dburl.split("/")[2] + "/";
 
   //get the current config
@@ -92,7 +92,7 @@ function EnableCORSCredentials(dburl, callback){
 }
 
 //disable CORS
-function DisableCORS(dburl, callback){
+function disableCORS(dburl, callback){
   var host = dburl.split("/")[0]+ "//"+dburl.split("/")[2] + "/";
 
   //get the current config
@@ -111,7 +111,7 @@ function DisableCORS(dburl, callback){
 }
 
 //disable CORS Credentials
-function DisableCORSCredentials(dburl, callback){
+function disableCORSCredentials(dburl, callback){
   var host = dburl.split("/")[0]+ "//"+dburl.split("/")[2] + "/";
 
   //get the current config
@@ -143,7 +143,7 @@ function DisableCORSCredentials(dburl, callback){
 }
 
 //create admin user and member user
-function SetupAdminAndMemberConfig(dburl, callback){
+function setupAdminAndMemberConfig(dburl, callback){
   var host = dburl.split("/")[0]+ "//"+dburl.split("/")[2] + "/";
 
   //setup member
@@ -176,7 +176,7 @@ function SetupAdminAndMemberConfig(dburl, callback){
 }
 
 //delete admin and member user
-function TearDownAdminAndMemberConfig(dburl, callback){
+function tearDownAdminAndMemberConfig(dburl, callback){
   var host = dburl.split("/")[0]+ "//"+dburl.split("/")[2] + "/";
 
   //setup member
@@ -247,7 +247,7 @@ asyncTest("Cookie Authentication with Admin.", function() {
   testDB.put({_id:'_security',"admins":{"names":['TestAdmin'],"roles":[]},"members":{"names":['TestUser'],"roles":[]}}, 
     function(err, res){
       //add an admin and user
-      SetupAdminAndMemberConfig(name, function(err, info){
+      setupAdminAndMemberConfig(name, function(err, info){
 
         //--Run tests (NOTE: because of how this is run, COR's credentials must be sent so that the server recieves the auth cookie)
         var instantDB = new Pouch(name, {cookieAuth:{username:'TestAdmin',password:'admin'}, withCredentials:true}, function(err, info){
@@ -259,7 +259,7 @@ asyncTest("Cookie Authentication with Admin.", function() {
           //get rid of cookie used for auth
           Pouch.deleteCookieAuth(name, function(err, ret, res){
             //get rid of admin and user
-            TearDownAdminAndMemberConfig(name,function(err, info){start();});
+            tearDownAdminAndMemberConfig(name,function(err, info){start();});
           });
         });
       });
@@ -275,7 +275,7 @@ asyncTest("Cookie Authentication with User.", 3, function() {
   testDB.put({_id:'_security',"admins":{"names":['TestAdmin'],"roles":[]},"members":{"names":['TestUser'],"roles":[]}}, 
     function(err, res){
       //add an admin and user
-      SetupAdminAndMemberConfig(name, function(err, info){
+      setupAdminAndMemberConfig(name, function(err, info){
         
         //--Run tests (NOTE: because of how this is run, COR's credentials must be sent so that the server recieves the auth cookie)
         var instantDB = new Pouch(name, {cookieAuth:{username:'TestUser',password:'user'}, withCredentials:true}, function(err, info){
@@ -291,7 +291,7 @@ asyncTest("Cookie Authentication with User.", 3, function() {
           //get rid of cookie used for auth
           Pouch.deleteCookieAuth(name, function(err, ret, res){
             //get rid of admin and user
-            TearDownAdminAndMemberConfig(name,function(err, info){start();});
+            tearDownAdminAndMemberConfig(name,function(err, info){start();});
           });
         });
       });
@@ -305,14 +305,14 @@ asyncTest("Create a pouchDB with CORS", 1, function() {
   var name = this.name.replace('2020','5984');  //change ports simulating non-same host
 
   //--Do Test Prep
-  EnableCORS(this.name, function(err, res){
+  enableCORS(this.name, function(err, res){
 
     //--Run Tests
     var instantDB = new Pouch(name, function(err, info){
       ok(err === null, 'DB created.');
 
       //--Do Reset
-      DisableCORS(old_name, function(err, res){start();});
+      disableCORS(old_name, function(err, res){start();});
     });
   });
 });
@@ -322,7 +322,7 @@ asyncTest("Add a doc using CORS", 2, function() {
   var name = this.name.replace('2020','5984');  //change ports simulating non-same host
 
   //--Do Test Prep
-  EnableCORS(this.name, function(err, res){
+  enableCORS(this.name, function(err, res){
 
     //--Run Tests
     var instantDB = new Pouch(name, function(err, info){
@@ -332,7 +332,7 @@ asyncTest("Add a doc using CORS", 2, function() {
       ok(err === null, 'Doc inserted.');
       
       //--Do Reset
-      DisableCORS(old_name, function(err, res){start();});
+      disableCORS(old_name, function(err, res){start();});
     });
   });
 });
@@ -342,7 +342,7 @@ asyncTest("Delete a DB using CORS", 2, function() {
   var name = this.name.replace('2020','5984');  //change ports simulating non-same host
 
   //--Do Test Prep
-  EnableCORS(this.name, function(err, res){
+  enableCORS(this.name, function(err, res){
 
     //--Run Tests
     var instantDB = new Pouch(name, function(err, info){
@@ -351,7 +351,7 @@ asyncTest("Delete a DB using CORS", 2, function() {
         ok(err === null, 'DB destroyed.');
         
         //--Do Reset
-        DisableCORS(old_name, function(err, res){start();});
+        disableCORS(old_name, function(err, res){start();});
       });
     });
   });
@@ -364,10 +364,10 @@ asyncTest("Create DB as Admin with CORS Credentials.", 2, function() {
   var name = this.name.replace('2020','5984');  //simulates a CORS request
 
   //--Do Test Prep
-  EnableCORS(old_name, function(err, res){
-    EnableCORSCredentials(old_name, function(err, res){
+  enableCORS(old_name, function(err, res){
+    enableCORSCredentials(old_name, function(err, res){
       //add an admin and user
-      SetupAdminAndMemberConfig(old_name, function(err, info){
+      setupAdminAndMemberConfig(old_name, function(err, info){
 
         //--Run tests
         var instantDB = new Pouch(name, {cookieAuth:{username:'TestAdmin',password:'admin'}, withCredentials:true}, function(err, info){
@@ -378,9 +378,9 @@ asyncTest("Create DB as Admin with CORS Credentials.", 2, function() {
           
           //--Do Reset
           Pouch.deleteCookieAuth(old_name,function(err, ret, res){
-            TearDownAdminAndMemberConfig(old_name,function(err, info){
-              DisableCORSCredentials(old_name, function(err, res){
-                DisableCORS(old_name, function(err, res){
+            tearDownAdminAndMemberConfig(old_name,function(err, info){
+              disableCORSCredentials(old_name, function(err, res){
+                disableCORS(old_name, function(err, res){
                   start();
                 });
               });
@@ -397,10 +397,10 @@ asyncTest("Add Doc to DB as User with CORS Credentials.", 2, function() {
   var name = this.name.replace('2020','5984');  //simulates a CORS request
 
   //--Do Test Prep
-  EnableCORS(old_name, function(err, res){
-    EnableCORSCredentials(old_name, function(err, res){
+  enableCORS(old_name, function(err, res){
+    enableCORSCredentials(old_name, function(err, res){
       //add an admin and user
-      SetupAdminAndMemberConfig(old_name, function(err, info){
+      setupAdminAndMemberConfig(old_name, function(err, info){
 
         //--Run tests
         var instantDB = new Pouch(name, {cookieAuth:{username:'TestAdmin',password:'admin'}, withCredentials:true}, function(err, info){
@@ -411,9 +411,9 @@ asyncTest("Add Doc to DB as User with CORS Credentials.", 2, function() {
           
           //--Do Reset
           Pouch.deleteCookieAuth(old_name, {withCredentials: true}, function(err, ret, res){
-            TearDownAdminAndMemberConfig(old_name,function(err, info){
-              DisableCORSCredentials(old_name, function(err, res){
-                DisableCORS(old_name, function(err, res){
+            tearDownAdminAndMemberConfig(old_name,function(err, info){
+              disableCORSCredentials(old_name, function(err, res){
+                disableCORS(old_name, function(err, res){
                   start();
                 });
               });
@@ -430,10 +430,10 @@ asyncTest("Delete DB as Admin with CORS Credentials.", 3, function() {
   var name = this.name.replace('2020','5984');  //simulates a CORS request
 
   //--Do Test Prep
-  EnableCORS(old_name, function(err, res){
-    EnableCORSCredentials(old_name, function(err, res){
+  enableCORS(old_name, function(err, res){
+    enableCORSCredentials(old_name, function(err, res){
       //add an admin and user
-      SetupAdminAndMemberConfig(old_name, function(err, info){
+      setupAdminAndMemberConfig(old_name, function(err, info){
 
         //--Run tests
         var instantDB = new Pouch(name, {cookieAuth:{username:'TestAdmin',password:'admin'}, withCredentials:true}, function(err, instance){
@@ -447,9 +447,9 @@ asyncTest("Delete DB as Admin with CORS Credentials.", 3, function() {
             
             //--Do Reset
             Pouch.deleteCookieAuth(old_name, {withCredentials: true}, function(err, ret, res){
-              TearDownAdminAndMemberConfig(old_name,function(err, info){
-                DisableCORSCredentials(old_name, function(err, res){
-                  DisableCORS(old_name, function(err, res){
+              tearDownAdminAndMemberConfig(old_name,function(err, info){
+                disableCORSCredentials(old_name, function(err, res){
+                  disableCORS(old_name, function(err, res){
                     start();
                   });
                 });

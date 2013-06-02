@@ -1,5 +1,5 @@
 /*globals Pouch: true, call: false, ajax: true */
-/*globals require: false, console: false */
+/*globals require: false, console: false, extend: true */
 
 "use strict";
 
@@ -171,7 +171,7 @@ var HttpPouch = function(mainOpts, callback) {
             } else {
               //go do stuff with the db
               call(callback, null, api);
-              }
+            }
           });
         }
       }
