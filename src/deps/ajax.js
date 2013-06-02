@@ -17,8 +17,7 @@ var ajax = function ajax(options, callback) {
     json: true,
     processData: true,
     timeout: 10000,
-    withCredentials: false,
-    async: true
+    withCredentials: false
   };
   options = extend(true, defaultOptions, options);
   if (options.auth) {
@@ -51,7 +50,7 @@ var ajax = function ajax(options, callback) {
   if (typeof window !== 'undefined' && window.XMLHttpRequest) { //if we are in the browser
     var timer, timedout = false;
     var xhr = new XMLHttpRequest();
-    xhr.open(options.method, options.url, options.async);
+    xhr.open(options.method, options.url, true);
     if (options.withCredentials) {
         xhr.withCredentials = true;
     }

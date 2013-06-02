@@ -44,181 +44,76 @@ var call = function(fun) {
 function enableCORS(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
-  //get the current config
-  var xhr = new XMLHttpRequest();
-
-  //events
-  xhr.addEventListener('load', function(evt) {
-    call(callback, null, evt);
-  }, false);
-  xhr.addEventListener('error', function(evt) {
-    call(callback, evt, null);
-  }, false);
-
-  xhr.open('PUT', host + '_config/httpd/enable_cors', true);
-  xhr.send('"true"');
+  ajax({url: host + '_config/httpd/enable_cors', json: false,
+    method: 'PUT', body: '"true"'}, function(err, res, resBody) {
+    call(callback, err, res);
+  });
 }
 
 //enable CORS Credentials on server
 function enableCORSCredentials(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
-  //get the current config
-  var xhr = new XMLHttpRequest();
-
-  //events
-  xhr.addEventListener('load', function(evt) {
-    //setup admin
-    var xhr2 = new XMLHttpRequest();
-
-    //events
-    xhr2.addEventListener('load', function(evt) {
-      call(callback, null, evt);
-    },false);
-    xhr2.addEventListener('error', function(evt) {
-      call(callback, evt, null);
-    });
-
-    xhr2.open('PUT', host + '_config/cors/origins', true);
-    xhr2.send('"http://127.0.0.1:8000"');
-  }, false);
-  xhr.addEventListener('error', function(evt) {
-    call(callback, evt, null);
-  }, false);
-
-  xhr.open('PUT', host + '_config/cors/credentials', true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.send('"true"');
+  ajax({url: host + '_config/cors/credentials',
+    method: 'PUT', body: '"true"'}, function(err, res, resBody) {
+      ajax({url: host + '_config/cors/origins', json: false,
+        method: 'PUT', body: '"http://127.0.0.1:8000"'}, function(err, res, resBody) {
+          call(callback, err, res);
+      });
+  });
 }
 
 //disable CORS
 function disableCORS(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
-  //get the current config
-  var xhr = new XMLHttpRequest();
-
-  //events
-  xhr.addEventListener('load', function(evt) {
-    call(callback, null, evt);
-  }, false);
-  xhr.addEventListener('error', function(evt) {
-    call(callback, evt, null);
-  }, false);
-
-  xhr.open('PUT', host + '_config/httpd/enable_cors', true);
-  xhr.send('"false"');
+  ajax({url: host + '_config/httpd/enable_cors', json: false,
+    method: 'PUT', body: '"false"'}, function(err, res, resBody) {
+    call(callback, err, res);
+  });
 }
 
 //disable CORS Credentials
 function disableCORSCredentials(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
-  //get the current config
-  var xhr = new XMLHttpRequest();
-
-  //events
-  xhr.addEventListener('load', function(evt) {
-    //setup admin
-    var xhr2 = new XMLHttpRequest();
-
-    //events
-    xhr2.addEventListener('load', function(evt) {
-      call(callback, null, evt);
-    },false);
-    xhr2.addEventListener('error', function(evt) {
-      call(callback, evt, null);
-    });
-
-    xhr2.open('PUT', host + '_config/cors/origins', true);
-    xhr2.send('"*"');
-  }, false);
-  xhr.addEventListener('error', function(evt) {
-    call(callback, evt, null);
-  }, false);
-
-  xhr.open('PUT', host + '_config/cors/credentials', true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.send('"false"');
+  ajax({url: host + '_config/cors/credentials',
+    method: 'PUT', body: '"false"'}, function(err, res, resBody) {
+      ajax({url: host + '_config/cors/origins', json: false,
+        method: 'PUT', body: '"*"'}, function(err, res, resBody) {
+          call(callback, err, res);
+      });
+  });
 }
 
 //create admin user and member user
 function setupAdminAndMemberConfig(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
-  //setup member
-  var xhr = new XMLHttpRequest();
-
-  //events
-  xhr.addEventListener('load', function(evet) {
-    //setup admin
-    var xhr2 = new XMLHttpRequest();
-
-    //events
-    xhr2.addEventListener('load', function(evt) {
-      call(callback, null, evt);
-    },false);
-    xhr2.addEventListener('error', function(evt) {
-      call(callback, evt, null);
-    });
-
-    xhr2.open('PUT', host + '_config/admins/TestAdmin', true);
-    xhr2.send('"admin"');
-
-  },false);
-  xhr.addEventListener('error', function(evt) {
-    call(callback, evt, null);
+  ajax({url: host + '_users/org.couchdb.user:TestUser',
+    method: 'PUT', body: {_id: 'org.couchdb.user:TestUser', name: 'TestUser',
+    password: 'user', roles: [], type: 'user'}}, function(err, res, resBody) {
+      ajax({url: host + '_config/admins/TestAdmin', json: false,
+        method: 'PUT', body: '"admin"'}, function(err, res, resBody) {
+          call(callback, err, res);
+      });
   });
-
-  xhr.open('PUT', host + '_users/org.couchdb.user:TestUser', true);
-  xhr.setRequestHeader('Content-Type', ' application/json');
-  xhr.send(JSON.stringify({_id: 'org.couchdb.user:TestUser', name: 'TestUser', password: 'user', roles: [], type: 'user'}));
 }
 
 //delete admin and member user
 function tearDownAdminAndMemberConfig(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
-  //setup member
-  var xhr = new XMLHttpRequest();
-
-  //events
-  xhr.addEventListener('load', function(evet) {
-    //setup admin
-    var xhr2 = new XMLHttpRequest();
-
-    //events
-    xhr2.addEventListener('load', function(evt) {
-      var rev = JSON.parse(evt.currentTarget.response)['_rev'];
-      var xhr3 = new XMLHttpRequest();
-
-      //events
-      xhr3.addEventListener('load', function(evt) {
-        call(callback, null, evt);
-      },false);
-      xhr3.addEventListener('error', function(evt) {
-        call(callback, evt, null);
-      }, false);
-
-      xhr3.open('DELETE', host + '_users/org.couchdb.user:TestUser?rev=' + rev, true);
-      xhr3.send();
-
-    },false);
-    xhr2.addEventListener('error', function(evt) {
-      call(callback, evt, null);
-    }, false);
-
-    xhr2.open('GET', host + '_users/org.couchdb.user:TestUser', true);
-    xhr2.send();
-
-  },false);
-  xhr.addEventListener('error', function(evt) {
-    call(callback, evt, null);
-  }, false);
-  xhr.open('DELETE', host + '_config/admins/TestAdmin', true);
-  var token = btoa('TestAdmin:admin');
-  xhr.setRequestHeader('Authorization', 'Basic ' + token);
-  xhr.send();
+  ajax({url: host + '_config/admins/TestAdmin',
+    method: 'DELETE', auth: {username: 'TestAdmin', password: 'admin'}}, function(err, res, resBody) {
+      ajax({url: host + '_users/org.couchdb.user:TestUser',
+        method: 'GET', body: '"admin"'}, function(err, res, resBody) {
+          ajax({url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody['_rev'],
+            method: 'DELETE'}, function(err, res, resBody) {
+              call(callback, err, res);
+          });
+      });
+  });
 }
 
 
