@@ -303,6 +303,45 @@ Pouch.allDbs = function(callback) {
   accumulate(adapters, []);
 };
 
+/*
+  Examples:
+
+  >>> Pouch.uuids()
+  "92329D39-6F5C-4520-ABFC-AAB64544E172"]
+
+  >>> Pouch.uuids(10, {length: 32, radix: 5})
+  [ '04422200002240221333300140323100',
+    '02304411022101001312440440020110',
+    '41432430322114143303343433433030',
+    '21234330022303431304443100330401',
+    '23044133434242034101422131301213',
+    '43142032223224403322031032232041',
+    '41121132424023141101403324200330',
+    '00341042023103204342124004122342',
+    '01001141433040113422403034004214',
+    '30221232324132303123433131020020' ]
+ */
+Pouch.uuids = function (count, options) {
+  if (typeof(options) !== 'object') {
+    options = {};
+  }
+
+  var length = options.length;
+  var radix = options.radix;
+
+  var uuids = [];
+
+  while (uuids.push(Math.uuid(length, radix)) < count) {
+  }
+
+  return uuids;
+};
+
+// Give back one UUID
+Pouch.uuid = function (options) {
+  return Pouch.uuids(1, options)[0];
+};
+
 // Enumerate errors, add the status code so we can reflect the HTTP api
 // in future
 Pouch.Errors = {
@@ -391,46 +430,7 @@ if (typeof module !== 'undefined' && module.exports) {
     require(adapter_path);
   });
   require('./plugins/pouchdb.mapreduce.js');
+  require('./deps/uuid.js');
 } else {
   window.Pouch = Pouch;
 }
-
-require('./deps/uuid.js');
-/*
-  Examples:
-
-  >>> Pouch.uuids()
-  "92329D39-6F5C-4520-ABFC-AAB64544E172"]
-
-  >>> Pouch.uuids(10, {length: 32, radix: 5})
-  [ '04422200002240221333300140323100',
-    '02304411022101001312440440020110',
-    '41432430322114143303343433433030',
-    '21234330022303431304443100330401',
-    '23044133434242034101422131301213',
-    '43142032223224403322031032232041',
-    '41121132424023141101403324200330',
-    '00341042023103204342124004122342',
-    '01001141433040113422403034004214',
-    '30221232324132303123433131020020' ]
- */
-Pouch.uuids = function (count, options) {
-  if (typeof(options) !== 'object') {
-    options = {};
-  }
-
-  var length = options.length;
-  var radix = options.radix;
-
-  var uuids = [];
-
-  while (uuids.push(Math.uuid(length, radix)) < count) {
-  }
-
-  return uuids;
-};
-
-// Give back one UUID
-Pouch.uuid = function (options) {
-  return Pouch.uuids(1, options)[0];
-};
