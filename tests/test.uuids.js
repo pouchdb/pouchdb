@@ -39,8 +39,8 @@ test('UUID generation uniqueness', 1, function() {
 });
 
 test('Test small uuid uniqness', 1, function() {
-  var length = 4;
-  var count = 1000;
+  var length = 8;
+  var count = 2000;
 
   var uuids = Pouch.uuids(count, {length: length});
   equal(eliminateDuplicates(uuids).length, count,
