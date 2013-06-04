@@ -76,7 +76,7 @@ var Pouch = function Pouch(name, opts, callback) {
   }
 };
 
-Pouch.DEBUG = true;
+Pouch.DEBUG = false;
 Pouch.openReqList = {};
 Pouch.adapters = {};
 Pouch.plugins = {};

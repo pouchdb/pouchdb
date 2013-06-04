@@ -1,4 +1,4 @@
-/*globals call: false, Crypto: false*/
+/*globals call: false, Crypto: false, extend: true*/
 
 'use strict';
 

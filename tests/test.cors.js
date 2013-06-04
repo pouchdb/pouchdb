@@ -1,8 +1,8 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, utils: true */
+/*globals PERSIST_DATABASES: false, utils: true, extend: true */
 /*globals ajax: true, HTTPPouch: true*/
-/*globals cleanupTestDatabases: false, strictEqual: false
-/*globals openTestDB: false, putAfter: false */
+/*globals cleanupTestDatabases: false, strictEqual: false */
+/*globals openTestDB: true, putAfter: false */
 
 'use strict';
 
@@ -124,6 +124,57 @@ function tearDownAdminAndMemberConfig(dburl, callback) {
   });
 }
 
+function initCORSTestDB(name, opts, callback) {
+  // ignore errors, the database might not exist
+  Pouch.destroy(name, function(err) {
+    if (err && err.status !== 404 &&
+      err.statusText !== 'timeout' && err.status !== 401) {
+      console.error(err);
+      ok(false, 'failed to open database');
+      return start();
+    }
+    openTestDB(name, opts, callback);
+  });
+}
+
+function initCorsRemoteDB(remote, opts, localDB, callback) {
+  var local = localDB;
+  if (remote.split('/')[0] === 'http:' || remote.split('/')[0] === 'https:') {
+    if (opts.remoteWithCORS) {
+      enableCORS(remote, function(err, res) {
+        remote = remote.replace('2020', '5984');
+        if (opts.remoteWithCORSCredentials) {
+            enableCORSCredentials(remote, function(err, res) {
+              if (opts.remoteWithCookieAuth) {
+                setupAdminAndMemberConfig(remote, function(err, res) {
+                  initCORSTestDB(remote, {withCredentials: true, cookieAuth: {username: 'TestAdmin', password: 'admin'}}, function(err, remoteDb) {
+                    callback(local, remoteDb);
+                  });
+                });
+              } else {
+                initCORSTestDB(remote, {withCredentials: true}, function(err, remoteDb) {
+                  callback(local, remoteDb);
+                });
+              }
+            });
+        } else {
+          initCORSTestDB(remote, function(err, remoteDb) {
+            callback(local, remoteDb);
+          });
+        }
+      });
+    } else {
+      initCORSTestDB(remote, function(err, remoteDb) {
+        callback(local, remoteDb);
+      });
+    }
+  } else {
+    initCORSTestDB(remote, function(err, remoteDb) {
+      callback(local, remoteDb);
+    });
+  }
+}
+
 function initCorsDBPair(local, remote, opts, callback) {
   if (typeof opts === 'function') {
     callback = opts;
@@ -176,58 +227,6 @@ function initCorsDBPair(local, remote, opts, callback) {
     });
   }
 }
-
-function initCorsRemoteDB(remote, opts, localDB, callback) {
-  var local = localDB;
-  if (remote.split('/')[0] === 'http:' || remote.split('/')[0] === 'https:') {
-    if (opts.remoteWithCORS) {
-      enableCORS(remote, function(err, res) {
-        remote = remote.replace('2020', '5984');
-        if (opts.remoteWithCORSCredentials) {
-            enableCORSCredentials(remote, function(err, res) {
-              if (opts.remoteWithCookieAuth) {
-                setupAdminAndMemberConfig(remote, function(err, res) {
-                  initCORSTestDB(remote, {withCredentials: true, cookieAuth: {username: 'TestAdmin', password: 'admin'}}, function(err, remoteDb) {
-                    callback(local, remoteDb);
-                  });
-                });
-              } else {
-                initCORSTestDB(remote, {withCredentials: true}, function(err, remoteDb) {
-                  callback(local, remoteDb);
-                });
-              }
-            });
-        } else {
-          initCORSTestDB(remote, function(err, remoteDb) {
-            callback(local, remoteDb);
-          });
-        }
-      });
-    } else {
-      initCORSTestDB(remote, function(err, remoteDb) {
-        callback(local, remoteDb);
-      });
-    }
-  } else {
-    initCORSTestDB(remote, function(err, remoteDb) {
-      callback(local, remoteDb);
-    });
-  }
-}
-
-function initCORSTestDB(name, opts, callback) {
-  // ignore errors, the database might not exist
-  Pouch.destroy(name, function(err) {
-    if (err && err.status !== 404 &&
-      err.statusText !== 'timeout' && err.status !== 401) {
-      console.error(err);
-      ok(false, 'failed to open database');
-      return start();
-    }
-    openTestDB(name, opts, callback);
-  });
-}
-
 
 //-------Cookie Auth Tests-----------//
 asyncTest('Cookie Authentication with Admin.', function() {
