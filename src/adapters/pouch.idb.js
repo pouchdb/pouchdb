@@ -427,6 +427,9 @@ var IdbPouch = function(opts, callback) {
       txn.onerror = idbError(callback);
       txn.ontimeout = idbError(callback);
       txn.oncomplete = complete;
+      txn.onblocked = function(err){
+        console.log(err)
+      };
 
       processDocs();
     });

@@ -8,18 +8,18 @@ var HTTP_TIMEOUT = 10000;
 // parseUri 1.2.2
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
-function parseUri (str) {
+function parseUri(str) {
   var o = parseUri.options;
-  var m = o.parser[o.strictMode ? "strict" : "loose"].exec(str);
+  var m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(str);
   var uri = {};
   var i = 14;
 
   while (i--) {
-    uri[o.key[i]] = m[i] || "";
+    uri[o.key[i]] = m[i] || '';
   }
 
   uri[o.q.name] = {};
-  uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+  uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) {
     if ($1) {
       uri[o.q.name][$1] = $2;
     }
@@ -30,15 +30,15 @@ function parseUri (str) {
 
 parseUri.options = {
   strictMode: false,
-  key: ["source","protocol","authority","userInfo","user","password","host",
-        "port","relative","path","directory","file","query","anchor"],
-  q:   {
-    name:   "queryKey",
+  key: ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host',
+        'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'],
+  q: {
+    name: 'queryKey',
     parser: /(?:^|&)([^&=]*)=?([^&]*)/g
   },
   parser: {
     strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+    loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
   }
 };
 
@@ -144,7 +144,6 @@ var HttpPouch = function(mainOpts, callback) {
       json: false,
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: 'name=' + opts.cookieAuth.username + '&password=' + opts.cookieAuth.password,
-      async: false,
       withCredentials: opts.withCredentials
     }, callback);
   };
@@ -189,7 +188,7 @@ var HttpPouch = function(mainOpts, callback) {
           call(callback, err || Pouch.Errors.UNKNOWN_ERROR);
         } else {
           uuids.list = uuids.list.concat(body.uuids);
-          call(callback, null, "OK");
+          call(callback, null, 'OK');
         }
       };
       var params = '?count=' + opts.count;
@@ -262,6 +261,7 @@ var HttpPouch = function(mainOpts, callback) {
     }
     options.auth = host.auth;
     options.url = genDBUrl(host, options.url);
+    options.withCredentials = mainOpts.withCredentials;
     ajax(options, callback);
   };
 
@@ -292,7 +292,7 @@ var HttpPouch = function(mainOpts, callback) {
         });
       }
       // Ping the http if it's finished compaction
-      if (typeof callback === "function") {
+      if (typeof callback === 'function') {
         ping();
       }
     });
@@ -354,7 +354,7 @@ var HttpPouch = function(mainOpts, callback) {
     // revisions. If open_revs=["rev1", "rev2",...] then the resulting JSON
     // will contain an array of objects containing data of all revisions
     if (opts.open_revs) {
-      if (opts.open_revs !== "all") {
+      if (opts.open_revs !== 'all') {
         opts.open_revs = JSON.stringify(opts.open_revs);
       }
       params.push('open_revs=' + opts.open_revs);
@@ -545,7 +545,7 @@ var HttpPouch = function(mainOpts, callback) {
       callback = opts;
       opts = {};
     }
-    if (! ("_id" in doc)) {
+    if (! ('_id' in doc)) {
       if (uuids.list.length > 0) {
         doc._id = uuids.list.pop();
         api.put(doc, opts, callback);
@@ -931,8 +931,7 @@ HttpPouch.deleteCookieAuth = function(name, opts, callback) {
     method: 'DELETE',
     url: genUrl(host, '_session'),
     withCredentials: opts.withCredentials,
-    json: false,
-    async: true
+    json: false
   }, callback);
 };
 
