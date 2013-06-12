@@ -746,6 +746,7 @@ var IdbPouch = function(opts, callback) {
         var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
         index.get(key).onsuccess = function(docevent) {
           var doc = docevent.target.result;
+          delete doc['_doc_id_rev'];
           var changeList = [{rev: mainRev}];
           if (opts.style === 'all_docs') {
             changeList = Pouch.merge.collectLeaves(metadata.rev_tree)
