@@ -386,5 +386,24 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Special document member _doc_id_rev should never leak outside", function() {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { foo: 'bar' }
+        ]
+      }, null, function() {
+
+        db.query(function (doc) {
+          if (doc.foo === 'bar') {
+            emit(doc.foo);
+          }
+        }, { include_docs: true }, function (err, res) {
+          ok((typeof res.rows[0].doc._doc_id_rev === 'undefined'), '_doc_id_rev is leaking but should not');
+          start();
+        });
+      });
+    });
+  });
 
 });
