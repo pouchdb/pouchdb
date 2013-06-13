@@ -589,7 +589,7 @@ var webSqlPouch = function(opts, callback) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
+                change.doc._conflicts = Pouch.merge.collectConflicts(metadata);
               }
               results.push(change);
             }

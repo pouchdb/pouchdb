@@ -583,7 +583,7 @@ var IdbPouch = function(opts, callback) {
           }
           if (opts.conflicts) {
             doc.doc._conflicts = Pouch.merge.collectConflicts(metadata)
-              .map(function(x) { return x.id; });
+              .map(function(x) { return x; });
           }
         }
         if ('keys' in opts) {
@@ -764,7 +764,7 @@ var IdbPouch = function(opts, callback) {
           }
           if (opts.conflicts) {
             change.doc._conflicts = Pouch.merge.collectConflicts(metadata)
-              .map(function(x) { return x.id; });
+              .map(function(x) { return x; });
           }
 
           // Dedupe the changes feed
