@@ -87,18 +87,15 @@ adapters.map(function(adapter) {
         db.get('bin_doc', function(err, doc) {
           ok(doc._attachments, 'doc has attachments field');
           ok(doc._attachments['foo.txt'], 'doc has attachment');
-          equal(doc._attachments['foo.txt'].content_type, 'text/plain', 'doc has correct content type');
-          db.get('bin_doc/foo.txt', function(err, res) {
-            readBlob(res, function(data) {
-              equal(data, 'This is a base64 encoded text',
-                'Correct data returned');
-              db.put(binAttDoc2, function(err, rev) {
-                db.get('bin_doc2/foo.txt', function(err, res, xhr) {
-                  readBlob(res, function(data) {
-                    equal(data, '', 'Correct data returned');
-                    moreTests(rev.rev);
-                  });
-                });
+          equal(doc._attachments['foo.txt'].content_type, 'text/plain',
+                'doc has correct content type');
+          db.getAttachment('bin_doc/foo.txt', {encode: true}, function(err, res) {
+            console.log('wtf3', res);
+            equal(res, 'This is a base64 encoded text', 'Correct data returned');
+            db.put(binAttDoc2, function(err, rev) {
+              db.getAttachment('bin_doc2/foo.txt', function(err, res, xhr) {
+                equal(res, '', 'Correct data returned');
+                moreTests(rev.rev);
               });
             });
           });
@@ -108,20 +105,17 @@ adapters.map(function(adapter) {
 
     function moreTests(rev) {
       var blob = makeBlob('This is no base64 encoded text');
-      db.putAttachment('bin_doc2/foo2.txt', rev, blob, 'text/plain', function() {
-        db.get('bin_doc2/foo2.txt', function(err, res, xhr) {
-          readBlob(res, function(data) {
-            ok(data === 'This is no base64 encoded text',
-              'Correct data returned');
-            db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
-              ok(res._attachments, 'Result has attachments field');
-              equal(res._attachments['foo2.txt'].data,
-                btoa('This is no base64 encoded text'));
-              equal(res._attachments['foo2.txt'].content_type, 'text/plain',
-                'Attachment was stored with correct content type');
-              equal(res._attachments['foo.txt'].data, '');
-              start();
-            });
+      db.putAttachment('bin_doc2/foo2.txt', rev, blob, 'text/plain', function(err, wtf) {
+        db.getAttachment('bin_doc2/foo2.txt', function(err, res, xhr) {
+          ok(res === 'This is no base64 encoded text', 'Correct data returned');
+          db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
+            ok(res._attachments, 'Result has attachments field');
+            equal(res._attachments['foo2.txt'].data,
+                  btoa('This is no base64 encoded text'));
+            equal(res._attachments['foo2.txt'].content_type, 'text/plain',
+                  'Attachment was stored with correct content type');
+            equal(res._attachments['foo.txt'].data, '');
+            start();
           });
         });
       });

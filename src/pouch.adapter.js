@@ -320,24 +320,7 @@ var PouchAdapter = function(opts, callback) {
       return; // open_revs does not like other options
     }
 
-    id = parseDocId(id);
-    if (id.attachmentId !== '') {
-      return customApi._get(id, opts, function(err, result){
-        if (err) {
-          return call(callback, err);
-        }
-        if (result.doc._attachments && result.doc._attachments[id.attachmentId]) {
-          customApi._getAttachment(result.doc._attachments[id.attachmentId],
-                                   {encode: false, ctx: result.ctx}, function(err, data) {
-            return call(callback, null, data);
-          });
-        } else {
-          return call(callback, Pouch.Errors.MISSING_DOC);
-        }
-      });
-    }
-
-    return customApi._get(id, opts, function(err, result) {
+    return customApi._get({docId: id}, opts, function(err, result) {
       if (err) {
         return call(callback, err);
       }
@@ -415,8 +398,11 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    customApi.get(id, function(err, res) {
-      callback(err, res);
+    var keys = id.split('/');
+    customApi.get(keys[0], function(err, res) {
+      customApi._getAttachment(res._attachments[keys[1]], opts, function(err, data) {
+        callback(err, data);
+      });
     });
   };
 

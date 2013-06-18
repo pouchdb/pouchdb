@@ -76,18 +76,18 @@ var parseDoc = function(doc, newEdits) {
 
   // check for an attachment id and add attachments as needed
   if (doc._id) {
-    var id = parseDocId(doc._id);
-    if (id.attachmentId !== '') {
-      var attachment = btoa(JSON.stringify(doc));
-      doc = {_id: id.docId};
-      if (!doc._attachments) {
-        doc._attachments = {};
-      }
-      doc._attachments[id.attachmentId] = {
-        content_type: 'application/json',
-        data: attachment
-      };
-    }
+    //var id = parseDocId(doc._id);
+    // if (id.attachmentId !== '') {
+    //   var attachment = btoa(JSON.stringify(doc));
+    //   doc = {_id: id.docId};
+    //   if (!doc._attachments) {
+    //     doc._attachments = {};
+    //   }
+    //   doc._attachments[id.attachmentId] = {
+    //     content_type: 'application/json',
+    //     data: attachment
+    //   };
+    // }
   }
 
   var nRevNum;

@@ -28,6 +28,13 @@ function parseUri (str) {
   return uri;
 }
 
+function encodeDocId(id) {
+  if (/_design/.test(id)) {
+    return id;
+  }
+  return encodeURIComponent(id);
+}
+
 parseUri.options = {
   strictMode: false,
   key: ["source","protocol","authority","userInfo","user","password","host",
@@ -335,7 +342,7 @@ var HttpPouch = function(opts, callback) {
     var options = {
       auth: host.auth,
       method: 'GET',
-      url: genDBUrl(host, id + params)
+      url: genDBUrl(host, encodeDocId(id) + params)
     };
 
     // If the given id contains at least one '/' and the part before the '/'
@@ -345,12 +352,12 @@ var HttpPouch = function(opts, callback) {
     // '/' is "_design".
     // TODO This second condition seems strange since if parts[0] === '_design'
     // then we already know that parts[0] !== '_local'.
-    var parts = id.split('/');
-    if ((parts.length > 1 && parts[0] !== '_design' && parts[0] !== '_local') ||
-        (parts.length > 2 && parts[0] === '_design' && parts[0] !== '_local')) {
-      // Binary is expected back from the server
-      options.binary = true;
-    }
+    // var parts = id.split('/');
+    // if ((parts.length > 1 && parts[0] !== '_design' && parts[0] !== '_local') ||
+    //     (parts.length > 2 && parts[0] === '_design' && parts[0] !== '_local')) {
+    //   // Binary is expected back from the server
+    //   options.binary = true;
+    // }
 
     // Get the document
     ajax(options, function(err, doc, xhr) {
@@ -471,7 +478,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       method: 'PUT',
-      url: genDBUrl(host, doc._id) + params,
+      url: genDBUrl(host, encodeDocId(doc._id)) + params,
       body: doc
     }, callback);
   };
