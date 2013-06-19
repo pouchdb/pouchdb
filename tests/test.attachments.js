@@ -323,13 +323,16 @@ adapters.map(function(adapter) {
       var doc = {_id: docId, test: true};
       db.put(doc, function(err, info) {
         ok(!err, 'saved doc');
-        strictEqual(info.id, 'doc/with/slashes', '_id got truncated');
-
+        strictEqual(info.id, 'doc/with/slashes', 'id is the same as inserted');
         db.putAttachment(docId, attachmentId, info.rev, blob, 'text/plain', function(err, res) {
           db.getAttachment(docId, attachmentId, function(err, res) {
             readBlob(res, function(data) {
-              strictEqual(data, blobData);
-              start();
+              db.allDocs({include_docs: true}, function(err, res){
+                strictEqual(res.rows[0].id, docId);
+                strictEqual(res.rows[0].key, docId);
+                ok(attachmentId in res.rows[0].doc._attachments, 'contains correct attachment');
+                start();
+              });
             });
           });
         });
