@@ -397,12 +397,13 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    customApi.get(docId, function(err, res) {
+    customApi._get({docId: docId}, opts, function(err, res) {
       if (err) {
         return call(callback, err);
       }
-      if (res._attachments && res._attachments[attachmentId]) {
-        customApi._getAttachment(res._attachments[attachmentId], opts, callback);
+      if (res.doc._attachments && res.doc._attachments[attachmentId]) {
+        opts.ctx = res.ctx;
+        customApi._getAttachment(res.doc._attachments[attachmentId], opts, callback);
       } else {
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
