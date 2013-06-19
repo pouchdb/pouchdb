@@ -360,12 +360,12 @@ var HttpPouch = function(opts, callback) {
     // '/' is "_design".
     // TODO This second condition seems strange since if parts[0] === '_design'
     // then we already know that parts[0] !== '_local'.
-    // var parts = id.split('/');
-    // if ((parts.length > 1 && parts[0] !== '_design' && parts[0] !== '_local') ||
-    //     (parts.length > 2 && parts[0] === '_design' && parts[0] !== '_local')) {
-    //   // Binary is expected back from the server
-    //   options.binary = true;
-    // }
+    var parts = id.split('/');
+    if ((parts.length > 1 && parts[0] !== '_design' && parts[0] !== '_local') ||
+        (parts.length > 2 && parts[0] === '_design' && parts[0] !== '_local')) {
+      // Binary is expected back from the server
+      options.binary = true;
+    }
 
     // Get the document
     ajax(options, function(err, doc, xhr) {
@@ -401,6 +401,10 @@ var HttpPouch = function(opts, callback) {
 
   // Get the attachment
   api.getAttachment = function (docId, attachmentId, opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
+    }
     if (opts.auto_encode === undefined) {
       opts.auto_encode = true;
     }
@@ -408,7 +412,7 @@ var HttpPouch = function(opts, callback) {
       docId = encodeDocId(docId);
     }
     opts.auto_encode = false;
-    api.get(encodeDocId(docId) + '/' + attachmentId, opts, callback);
+    api.get(docId + '/' + attachmentId, opts, callback);
   };
 
   // Remove the attachment given by the id and rev
@@ -427,7 +431,7 @@ var HttpPouch = function(opts, callback) {
   // Add the attachment given by blob and its contentType property
   // to the document with the given id, the revision given by rev, and
   // add it to the database given by host.
-  api.putAttachment = function(id, rev, blob, type, callback) {
+  api.putAttachment = function(docId, attachmentId, rev, blob, type, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('putAttachment', arguments);
       return;
@@ -443,11 +447,11 @@ var HttpPouch = function(opts, callback) {
       blob = rev;
       rev = null;
     }
+    var id = encodeDocId(docId) + '/' + attachmentId;
     var url = genDBUrl(host, id);
     if (rev) {
       url += '?rev=' + rev;
     }
-
     // Add the attachment
     ajax({
       auth: host.auth,
