@@ -93,7 +93,7 @@ var PouchAdapter = function(opts, callback) {
         autoCompact(yankError(callback)));
   };
 
-  api.putAttachment = function (id, rev, blob, type, callback) {
+  api.putAttachment = function (docId, attachmentId, rev, blob, type, callback) {
     if (typeof type === 'function') {
       callback = type;
       type = blob;
@@ -105,21 +105,20 @@ var PouchAdapter = function(opts, callback) {
       blob = rev;
       rev = null;
     }
-    id = parseDocId(id);
 
     function createAttachment(doc) {
       doc._attachments = doc._attachments || {};
-      doc._attachments[id.attachmentId] = {
+      doc._attachments[attachmentId] = {
         content_type: type,
         data: blob
       };
       api.put(doc, callback);
     }
 
-    api.get(id.docId, function(err, doc) {
+    api.get(docId, function(err, doc) {
       // create new doc
       if (err && err.error === Pouch.Errors.MISSING_DOC.error) {
-        createAttachment({_id: id.docId});
+        createAttachment({_id: docId});
         return;
       }
       if (err) {
@@ -393,16 +392,20 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-  api.getAttachment = function(id, opts, callback) {
+  api.getAttachment = function(docId, attachmentId, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
     }
-    var keys = id.split('/');
-    customApi.get(keys[0], function(err, res) {
-      customApi._getAttachment(res._attachments[keys[1]], opts, function(err, data) {
-        callback(err, data);
-      });
+    customApi.get(docId, function(err, res) {
+      if (err) {
+        return call(callback, err);
+      }
+      if (res._attachments && res._attachments[attachmentId]) {
+        customApi._getAttachment(res._attachments[attachmentId], opts, callback);
+      } else {
+        return call(callback, Pouch.Errors.MISSING_DOC);
+      }
     });
   };
 

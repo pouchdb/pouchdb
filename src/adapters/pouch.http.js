@@ -282,6 +282,10 @@ var HttpPouch = function(opts, callback) {
       opts = {};
     }
 
+    if (opts.auto_encode === undefined) {
+      opts.auto_encode = true;
+    }
+
     // List of parameters to add to the GET request
     var params = [];
 
@@ -338,11 +342,15 @@ var HttpPouch = function(opts, callback) {
     params = params.join('&');
     params = params === '' ? '' : '?' + params;
 
+    if (opts.auto_encode) {
+      id = encodeDocId(id);
+    }
+
     // Set the options for the ajax call
     var options = {
       auth: host.auth,
       method: 'GET',
-      url: genDBUrl(host, encodeDocId(id) + params)
+      url: genDBUrl(host, id + params)
     };
 
     // If the given id contains at least one '/' and the part before the '/'
@@ -391,8 +399,20 @@ var HttpPouch = function(opts, callback) {
     }, callback);
   };
 
+  // Get the attachment
+  api.getAttachment = function (docId, attachmentId, opts, callback) {
+    if (opts.auto_encode === undefined) {
+      opts.auto_encode = true;
+    }
+    if (opts.auto_encode) {
+      docId = encodeDocId(docId);
+    }
+    opts.auto_encode = false;
+    api.get(encodeDocId(docId) + '/' + attachmentId, opts, callback);
+  };
+
   // Remove the attachment given by the id and rev
-  api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
+  api.removeAttachment = function(id, rev, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('removeAttachment', arguments);
       return;
