@@ -395,7 +395,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       method:'DELETE',
-      url: genDBUrl(host, doc._id) + '?rev=' + doc._rev
+      url: genDBUrl(host, encodeDocId(doc._id)) + '?rev=' + doc._rev
     }, callback);
   };
 
@@ -555,6 +555,14 @@ var HttpPouch = function(opts, callback) {
     }
     if (!opts) {
       opts = {};
+    }
+
+    if (req.docs) {
+      req.docs.forEach(function(doc, i) {
+        if (req.docs[i]._id !== undefined) {
+          req.docs[i]._id = encodeDocId(req.docs[i]._id);
+        }
+      });
     }
 
     // If opts.new_edits exists add it to the document data to be
