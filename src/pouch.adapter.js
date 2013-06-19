@@ -135,21 +135,23 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-  api.removeAttachment = function (id, rev, callback) {
-    id = parseDocId(id);
-    api.get(id.docId, function(err, obj) {
+  api.removeAttachment = function (docId, attachmentId, rev, callback) {
+    api.get(docId, function(err, obj) {
       if (err) {
         call(callback, err);
         return;
       }
-
       if (obj._rev !== rev) {
         call(callback, Pouch.Errors.REV_CONFLICT);
         return;
       }
-
-      obj._attachments = obj._attachments || {};
-      delete obj._attachments[id.attachmentId];
+      if (!obj._attachments) {
+        return call(callback, null);
+      }
+      delete obj._attachments[attachmentId];
+      if (Object.keys(obj._attachments).length === 0){
+        delete obj._attachments;
+      }
       api.put(obj, callback);
     });
   };
@@ -373,6 +375,9 @@ var PouchAdapter = function(opts, callback) {
       if (opts.attachments && doc._attachments) {
         var attachments = doc._attachments;
         var count = Object.keys(attachments).length;
+        if (count === 0) {
+          return call(callback, null, doc);
+        }
         Object.keys(attachments).forEach(function(key) {
           customApi._getAttachment(attachments[key], {encode: true, ctx: ctx}, function(err, data) {
             doc._attachments[key].data = data;

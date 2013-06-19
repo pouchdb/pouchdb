@@ -416,7 +416,7 @@ var HttpPouch = function(opts, callback) {
   };
 
   // Remove the attachment given by the id and rev
-  api.removeAttachment = function(id, rev, callback) {
+  api.removeAttachment = function(docId, attachmentId, rev, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('removeAttachment', arguments);
       return;
@@ -424,7 +424,7 @@ var HttpPouch = function(opts, callback) {
     ajax({
       auth: host.auth,
       method: 'DELETE',
-      url: genDBUrl(host, id) + '?rev=' + rev
+      url: genDBUrl(host, encodeDocId(docId) + '/' + attachmentId) + '?rev=' + rev
     }, callback);
   };
 

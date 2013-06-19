@@ -89,19 +89,19 @@ adapters.map(function(adapter) {
           ok(doc._attachments['foo.txt'], 'doc has attachment');
           equal(doc._attachments['foo.txt'].content_type, 'text/plain',
                 'doc has correct content type');
-          db.getAttachment('bin_doc', 'foo.txt', function(err, res) {
-            readBlob(res, function(data) {
-              strictEqual(data, 'This is a base64 encoded text', 'Correct data returned');
-              db.put(binAttDoc2, function(err, rev) {
-                db.getAttachment('bin_doc2', 'foo.txt', function(err, res, xhr) {
+                db.getAttachment('bin_doc', 'foo.txt', function(err, res) {
                   readBlob(res, function(data) {
-                    strictEqual(data, '', 'Correct data returned');
-                    moreTests(rev.rev);
+                    strictEqual(data, 'This is a base64 encoded text', 'Correct data returned');
+                    db.put(binAttDoc2, function(err, rev) {
+                      db.getAttachment('bin_doc2', 'foo.txt', function(err, res, xhr) {
+                        readBlob(res, function(data) {
+                          strictEqual(data, '', 'Correct data returned');
+                          moreTests(rev.rev);
+                        });
+                      });
+                    });
                   });
                 });
-              });
-            });
-          });
         });
       });
     });
@@ -116,10 +116,10 @@ adapters.map(function(adapter) {
               ok(res._attachments, 'Result has attachments field');
               equal(res._attachments['foo2.txt'].data,
                     btoa('This is no base64 encoded text'));
-              equal(res._attachments['foo2.txt'].content_type, 'text/plain',
-                    'Attachment was stored with correct content type');
-              equal(res._attachments['foo.txt'].data, '');
-              start();
+                    equal(res._attachments['foo2.txt'].content_type, 'text/plain',
+                          'Attachment was stored with correct content type');
+                          equal(res._attachments['foo.txt'].data, '');
+                          start();
             });
           });
         });
@@ -149,7 +149,7 @@ adapters.map(function(adapter) {
           base64Blob(res, function(data) {
             strictEqual(data, pngAttDoc._attachments['foo.png'].data,
                         "correct data");
-            start();
+                        start();
           });
         });
       });
@@ -257,18 +257,45 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Test get with attachments: true if empty attachments', function() {
+    initTestDB(this.name, function(erro, db) {
+      db.put({_id: 'foo', _attachments: {}}, function(err, resp) {
+        db.get('foo', {attachments: true}, function(err, res) {
+          strictEqual(res._id, 'foo');
+          start();
+        });
+      });
+    });
+  });
+
   asyncTest("Test delete attachment from a doc", function() {
     initTestDB(this.name, function(erro, db) {
-      db.put({ _id: 'mydoc' }, function(err, resp) {
-        var blob = makeBlob('Mytext');
-        db.putAttachment('mydoc', 'mytext', resp.rev, blob, 'text/plain', function(err, res) {
-          ok(res.ok);
-          var rev = res.rev;
-          db.removeAttachment('mydoc/mytext', 0, function(err, res) {
-            ok(err);
-            db.removeAttachment('mydoc/mytext', rev, function(err, res) {
-              ok(res.ok);
-              start();
+      db.put({_id: 'mydoc', _attachments: {
+        'mytext1': {
+          content_type: 'text/plain',
+          data: btoa('Mytext1')
+        },
+        'mytext2': {
+          content_type: 'text/plain',
+          data: btoa('Mytext2')
+        }
+      }}, function(err, res) {
+        var rev = res.rev;
+        db.get('mydoc', {attachments: true}, function(err, res) {
+          ok('mytext1' in res._attachments, 'attachment 1 correctly added');
+          ok('mytext1' in res._attachments, 'attachment 2 correctly added');
+          db.removeAttachment('mydoc', 'mytext1', 0, function(err, res) {
+            ok(err, 'removal should fail due to broken rev');
+            db.removeAttachment('mydoc', 'mytext1', rev, function(err, res) {
+              db.get('mydoc', {attachments: true}, function(err, res) {
+                ok(!('mytext1' in res._attachments), 'attachment 1 correctly removed');
+                ok('mytext2' in res._attachments, 'attachment 2 still there');
+                db.removeAttachment('mydoc', 'mytext2', res._rev, function(err, res) {
+                  ok(res._attachments === undefined || !('mytext1' in res._attachments), 'attachment 1 correctly removed');
+                  ok(res._attachments === undefined || !('mytext2' in res._attachments), 'attachment 2 correctly removed');
+                  start();
+                });
+              });
             });
           });
         });
