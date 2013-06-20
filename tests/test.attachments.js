@@ -340,33 +340,6 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Insert a doc with a / in the _id", function() {
-    initTestDB(this.name, function(err, db) {
-      ok(!err, 'opened the pouch');
-      var docId = 'doc/with/slashes';
-      var attachmentId = 'attachment/with/slashes';
-      var blobData = 'attachment content';
-      var blob = makeBlob(blobData);
-      var doc = {_id: docId, test: true};
-      db.put(doc, function(err, info) {
-        ok(!err, 'saved doc');
-        strictEqual(info.id, 'doc/with/slashes', 'id is the same as inserted');
-        db.putAttachment(docId, attachmentId, info.rev, blob, 'text/plain', function(err, res) {
-          db.getAttachment(docId, attachmentId, function(err, res) {
-            readBlob(res, function(data) {
-              db.allDocs({include_docs: true}, function(err, res){
-                strictEqual(res.rows[0].id, docId);
-                strictEqual(res.rows[0].key, docId);
-                ok(attachmentId in res.rows[0].doc._attachments, 'contains correct attachment');
-                start();
-              });
-            });
-          });
-        });
-      });
-    });
-  });
-
   asyncTest("Try to insert a doc with unencoded attachment", function() {
     initTestDB(this.name, function(err, db) {
       var doc = {
