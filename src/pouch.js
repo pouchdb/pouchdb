@@ -409,6 +409,11 @@ Pouch.Errors = {
     status: 400,
     error: 'bad_request',
     reason: 'Something wrong with the request'
+  },
+  NOT_AN_OBJECT: {
+    status: 400,
+    error: 'bad_request',
+    reason: 'Document must be a JSON object'
   }
 };
 Pouch.error = function(error, reason){

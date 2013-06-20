@@ -444,8 +444,10 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-
-    if (!doc || !('_id' in doc)) {
+    if (typeof doc !== 'object') {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    } 
+    if (!('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
 
@@ -487,6 +489,9 @@ var HttpPouch = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (typeof doc !== 'object') {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    } 
     if (! ("_id" in doc)) {
       if (uuids.list.length > 0) {
         doc._id = uuids.list.pop();
