@@ -36,14 +36,14 @@ var isAttachmentId = function(id) {
 //   - /attachid is optional, and can have slashes in it too
 //   - int ids and strings beginning with _design or _local are not split
 // returns an object: { docId: docid, attachmentId: attachid }
-var parseDocId = function(id) {
-  var ids = (typeof id === 'string') && !(/^_(design|local)\//.test(id)) ?
-    id.split('/') : [id];
-  return {
-    docId: ids[0],
-    attachmentId: ids.splice(1).join('/').replace(/^\/+/, '')
-  };
-};
+//var parseDocId = function(id) {
+//  var ids = (typeof id === 'string') && !(/^_(design|local)\//.test(id)) ?
+//    id.split('/') : [id];
+//  return {
+//    docId: ids[0],
+//    attachmentId: ids.splice(1).join('/').replace(/^\/+/, '')
+//  };
+//};
 
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
@@ -75,20 +75,20 @@ var parseDoc = function(doc, newEdits) {
   var error = null;
 
   // check for an attachment id and add attachments as needed
-  if (doc._id) {
-    //var id = parseDocId(doc._id);
-    // if (id.attachmentId !== '') {
-    //   var attachment = btoa(JSON.stringify(doc));
-    //   doc = {_id: id.docId};
-    //   if (!doc._attachments) {
-    //     doc._attachments = {};
-    //   }
-    //   doc._attachments[id.attachmentId] = {
-    //     content_type: 'application/json',
-    //     data: attachment
-    //   };
-    // }
-  }
+  //if (doc._id) {
+  //  //var id = parseDocId(doc._id);
+  //  // if (id.attachmentId !== '') {
+  //  //   var attachment = btoa(JSON.stringify(doc));
+  //  //   doc = {_id: id.docId};
+  //  //   if (!doc._attachments) {
+  //  //     doc._attachments = {};
+  //  //   }
+  //  //   doc._attachments[id.attachmentId] = {
+  //  //     content_type: 'application/json',
+  //  //     data: attachment
+  //  //   };
+  //  // }
+  //}
 
   var nRevNum;
   var newRevId;
@@ -329,7 +329,7 @@ if (typeof module !== 'undefined' && module.exports) {
     yankError: yankError,
     isLocalId: isLocalId,
     isAttachmentId: isAttachmentId,
-    parseDocId: parseDocId,
+    //parseDocId: parseDocId,
     parseDoc: parseDoc,
     isDeleted: isDeleted,
     compareRevs: compareRevs,

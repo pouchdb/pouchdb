@@ -96,7 +96,6 @@ adapters.map(function(adapter) {
           strictEqual('attachment/with/slash' in res.rows[1].doc._attachments, true, 'doc2 has attachment');
           db.changes({
             complete: function(err, res) {
-              console.log(res);
               res.results.sort(function(a, b){return a.id.localeCompare(b.id);});
               for(var i = 0; i < 3; i++){
                 strictEqual(res.results[i].id, docs[i]._id, '(changes) correctly inserted ' + docs[i]._id);
