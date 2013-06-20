@@ -557,14 +557,6 @@ var HttpPouch = function(opts, callback) {
       opts = {};
     }
 
-    if (req.docs) {
-      req.docs.forEach(function(doc, i) {
-        if (req.docs[i]._id !== undefined) {
-          req.docs[i]._id = encodeDocId(req.docs[i]._id);
-        }
-      });
-    }
-
     // If opts.new_edits exists add it to the document data to be
     // send to the database.
     // If new_edits=false then it prevents the database from creating
