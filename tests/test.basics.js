@@ -367,6 +367,31 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest('Error when document is not an object', 5, function() {
+    initTestDB(this.name, function(err, db) {
+      var doc1 = [{_id: 'foo'}, {_id: 'bar'}];
+      var doc2 = "this is not an object";
+ 
+      var count = 5;
+      var callback = function(err, resp) {
+        console.log(err);
+        console.log(resp);
+        ok(err, 'doc must be an object');
+        count--;
+        if (count === 0) {
+          start();
+        }
+      };
+
+      db.post(doc1, callback);
+      db.post(doc2, callback);
+      db.put(doc1, callback);
+      db.put(doc2, callback);
+      db.bulkDocs({docs: [doc1, doc2]}, callback);
+   });
+  });
+
   test('Error works', 1, function() {
     deepEqual(Pouch.error(Pouch.Errors.BAD_REQUEST, "love needs no reason"),
       {status: 400, error: "bad_request", reason: "love needs no reason"},

@@ -71,6 +71,9 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (typeof doc !== 'object' || Array.isArray(doc)) {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    }
     return customApi.bulkDocs({docs: [doc]}, opts,
         autoCompact(yankError(callback)));
   };
@@ -80,8 +83,10 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-
-    if (!doc || !('_id' in doc)) {
+    if (typeof doc !== 'object') {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    }
+    if (!('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
     return customApi.bulkDocs({docs: [doc]}, opts,
@@ -507,6 +512,12 @@ var PouchAdapter = function(opts, callback) {
 
     if (!Array.isArray(req.docs)) {
       return call(callback, Pouch.Errors.QUERY_PARSE_ERROR);
+    }
+
+    for (var i = 0; i < req.docs.length; ++i) {
+      if (typeof req.docs[i] !== 'object' || Array.isArray(req.docs[i])) {
+        return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+      }
     }
 
     req = extend(true, {}, req);
