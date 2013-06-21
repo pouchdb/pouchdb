@@ -451,7 +451,7 @@ var IdbPouch = function(opts, callback) {
       call(callback, err, {doc: doc, metadata: metadata, ctx: txn});
     }
 
-    txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
+    txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
       metadata = e.target.result;
       // we can determine the result here if:
       // 1. there is no such document

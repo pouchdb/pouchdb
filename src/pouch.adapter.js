@@ -321,7 +321,7 @@ var PouchAdapter = function(opts, callback) {
       return; // open_revs does not like other options
     }
 
-    return customApi._get({docId: id}, opts, function(err, result) {
+    return customApi._get(id, opts, function(err, result) {
       if (err) {
         return call(callback, err);
       }

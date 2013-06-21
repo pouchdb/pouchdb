@@ -412,7 +412,7 @@ var webSqlPouch = function(opts, callback) {
     }
 
     var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
-    tx.executeSql(sql, [id.docId], function(a, results) {
+    tx.executeSql(sql, [id], function(a, results) {
       if (!results.rows.length) {
         err = Pouch.Errors.MISSING_DOC;
         return finish();
