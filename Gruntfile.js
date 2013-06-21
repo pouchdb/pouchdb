@@ -241,6 +241,14 @@ module.exports = function(grunt) {
     });
   });
 
+  // A ping task to ensure travis doesnt die when running
+  // saucelabs tests
+  grunt.registerTask('ping', function() {
+    setInterval(function() {
+      console.log('ping');
+    }, 1000 * 60);
+  });
+
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
   grunt.loadNpmTasks('grunt-contrib-connect');
@@ -260,6 +268,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask("test", ["jshint", "node-qunit"]);
   grunt.registerTask("test-travis", [
+    'ping',
     "jshint",
     "build",
     "connect",
