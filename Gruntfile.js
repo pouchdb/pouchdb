@@ -259,9 +259,17 @@ module.exports = function(grunt) {
   grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
 
   grunt.registerTask("test", ["jshint", "node-qunit"]);
-  grunt.registerTask("test-travis", ["jshint", "build", "connect", "cors-server",
-                                     "node-qunit", "saucelabs-qunit",
-                                     "publish-results"]);
+  grunt.registerTask("test-travis", [
+    "jshint",
+    "build",
+    "connect",
+    "cors-server",
+    // Temporarily disabling node tests
+    // (https://github.com/daleharvey/pouchdb/issues/816)
+    // "node-qunit",
+    "saucelabs-qunit",
+    "publish-results"
+  ]);
 
   grunt.registerTask('default', 'build');
 };
