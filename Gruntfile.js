@@ -162,9 +162,9 @@ module.exports = function(grunt) {
           key: '97de9ee0-2712-49f0-9b17-4b9751d79073',
           testname: 'PouchDB Tests',
           tags: [process.env.TRAVIS_BRANCH || "unknown"],
-          testTimeout: 1000 * 60 * 15, // 15 minutes
-          testInterval: 1000 * 30, // 30 seconds
-          tunnelTimeout: 1000 * 60 * 15, // 15 minutes
+          testTimeout: 1000 * 60 * 20,
+          testInterval: 1000 * 30,
+          tunnelTimeout: 1000 * 60 * 15,
           urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
                  testStartTime.getTime() + "&scroll=true&testFiles=" +
                  testFiles.join(',')],
@@ -241,6 +241,14 @@ module.exports = function(grunt) {
     });
   });
 
+  // A ping task to ensure travis doesnt die when running
+  // saucelabs tests
+  grunt.registerTask('ping', function() {
+    setInterval(function() {
+      console.log('ping');
+    }, 1000 * 60);
+  });
+
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
   grunt.loadNpmTasks('grunt-contrib-connect');
@@ -259,9 +267,18 @@ module.exports = function(grunt) {
   grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
 
   grunt.registerTask("test", ["jshint", "node-qunit"]);
-  grunt.registerTask("test-travis", ["jshint", "build", "connect", "cors-server",
-                                     "node-qunit", "saucelabs-qunit",
-                                     "publish-results"]);
+  grunt.registerTask("test-travis", [
+    'ping',
+    "jshint",
+    "build",
+    "connect",
+    "cors-server",
+    // Temporarily disabling node tests
+    // (https://github.com/daleharvey/pouchdb/issues/816)
+    // "node-qunit",
+    "saucelabs-qunit",
+    "publish-results"
+  ]);
 
   grunt.registerTask('default', 'build');
 };
