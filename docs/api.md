@@ -47,14 +47,14 @@ By default, this feature is turned off and this function will return an empty li
 
 ## Create a database
 
-    var pouchdb = Pouch('dbname', [options])
-    var pouchdb = Pouch('http://localhost:5984/dbname', [options])
+    var pouchdb = new Pouch('dbname', [options])
+    var pouchdb = new Pouch('http://localhost:5984/dbname', [options])
 
 This method gets an existing database if one exists or creates a new one if one does not exist. You may also explicitly specify which backend you want to use for local database (e.g. `idb://dbname` or `leveldb://dbname`) but usually it is convenient to let PouchDB choose the best backend by itself.
 
 Note: Pouch reserves the prefix '_pouch_' for the creation of local databases -- all local databases will automatically be preprended with '_pouch_'.
 
-    var pouchdb = Pouch('test');
+    var pouchdb = new Pouch('test');
 
     pouchdb.post(...;
 
