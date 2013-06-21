@@ -400,7 +400,7 @@ var HttpPouch = function(opts, callback) {
   };
 
   // Get the attachment
-  api.getAttachment = function (docId, attachmentId, opts, callback) {
+  api.getAttachment = function(docId, attachmentId, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};

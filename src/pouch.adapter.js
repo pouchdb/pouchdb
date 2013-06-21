@@ -402,7 +402,7 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-    customApi._get({docId: docId}, opts, function(err, res) {
+    customApi._get(docId, opts, function(err, res) {
       if (err) {
         return call(callback, err);
       }

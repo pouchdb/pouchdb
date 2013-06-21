@@ -89,19 +89,19 @@ adapters.map(function(adapter) {
           ok(doc._attachments['foo.txt'], 'doc has attachment');
           equal(doc._attachments['foo.txt'].content_type, 'text/plain',
                 'doc has correct content type');
-                db.getAttachment('bin_doc', 'foo.txt', function(err, res) {
+          db.getAttachment('bin_doc', 'foo.txt', function(err, res) {
+            readBlob(res, function(data) {
+              strictEqual(data, 'This is a base64 encoded text', 'Correct data returned');
+              db.put(binAttDoc2, function(err, rev) {
+                db.getAttachment('bin_doc2', 'foo.txt', function(err, res, xhr) {
                   readBlob(res, function(data) {
-                    strictEqual(data, 'This is a base64 encoded text', 'Correct data returned');
-                    db.put(binAttDoc2, function(err, rev) {
-                      db.getAttachment('bin_doc2', 'foo.txt', function(err, res, xhr) {
-                        readBlob(res, function(data) {
-                          strictEqual(data, '', 'Correct data returned');
-                          moreTests(rev.rev);
-                        });
-                      });
-                    });
+                    strictEqual(data, '', 'Correct data returned');
+                    moreTests(rev.rev);
                   });
                 });
+              });
+            });
+          });
         });
       });
     });
@@ -116,10 +116,10 @@ adapters.map(function(adapter) {
               ok(res._attachments, 'Result has attachments field');
               equal(res._attachments['foo2.txt'].data,
                     btoa('This is no base64 encoded text'));
-                    equal(res._attachments['foo2.txt'].content_type, 'text/plain',
-                          'Attachment was stored with correct content type');
-                          equal(res._attachments['foo.txt'].data, '');
-                          start();
+              equal(res._attachments['foo2.txt'].content_type, 'text/plain',
+                    'Attachment was stored with correct content type');
+              equal(res._attachments['foo.txt'].data, '');
+              start();
             });
           });
         });
@@ -149,7 +149,7 @@ adapters.map(function(adapter) {
           base64Blob(res, function(data) {
             strictEqual(data, pngAttDoc._attachments['foo.png'].data,
                         "correct data");
-                        start();
+            start();
           });
         });
       });
