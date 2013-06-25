@@ -412,7 +412,7 @@ var webSqlPouch = function(opts, callback) {
     }
 
     var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
-    tx.executeSql(sql, [id.docId], function(a, results) {
+    tx.executeSql(sql, [id], function(a, results) {
       if (!results.rows.length) {
         err = Pouch.Errors.MISSING_DOC;
         return finish();
@@ -589,7 +589,7 @@ var webSqlPouch = function(opts, callback) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
+                change.doc._conflicts = Pouch.merge.collectConflicts(metadata);
               }
               results.push(change);
             }

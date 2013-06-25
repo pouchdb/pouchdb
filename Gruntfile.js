@@ -22,21 +22,14 @@ var testFiles = fs.readdirSync("./tests").filter(function(name){
 });
 
 var browserConfig = [{
-//   browserName: 'chrome',
-//   platform: 'Windows 2003',
-//   name: 'win2003/chrome',
-//   'chrome.switches' : ['disable-file-system']
-// }, {
   browserName: 'firefox',
   version: '19',
   platform: 'Linux',
   name: 'linux/firefox'
-// }, {
-//   browserName: 'opera',
-//   version: '12',
-//   platform: 'Windows 2008',
-//   name: 'win2008/opera'
 }];
+
+var fileHeader = '// <%= pkg.name %>.<%= pkg.release %> - ' +
+  '<%= grunt.template.today("isoDateTime") %>\n';
 
 module.exports = function(grunt) {
 
@@ -44,7 +37,8 @@ module.exports = function(grunt) {
   var testResults = {};
 
   grunt.initConfig({
-    'pkg': '<json:package.json>',
+
+    'pkg': grunt.file.readJSON('package.json'),
 
     'clean': {
       build : ["./dist"],
@@ -53,8 +47,8 @@ module.exports = function(grunt) {
 
     'concat': {
       options: {
-        banner: "/*PouchDB*/\n(function() {\n ",
-        footer: "\n })(this);"
+        banner: fileHeader + '\n(function() {\n ',
+        footer: '\n })(this);'
       },
       amd: {
         options: {
@@ -91,6 +85,9 @@ module.exports = function(grunt) {
     },
 
     'uglify': {
+      options: {
+        banner: fileHeader
+      },
       dist: {
         src: "./dist/pouchdb-nightly.js",
         dest: 'dist/pouchdb-nightly.min.js'
@@ -121,7 +118,12 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      files: ["src/adapters/*.js", "tests/*.js", "src/*.js", "src/plugins/pouchdb.gql.js"],
+      files: [
+        'src/adapters/*.js',
+        'tests/*.js',
+        'src/*.js',
+        'src/plugins/pouchdb.gql.js'
+      ],
       options : {
         jshintrc: '.jshintrc'
       }
@@ -164,7 +166,8 @@ module.exports = function(grunt) {
           testInterval: 1000 * 30, // 30 seconds
           tunnelTimeout: 1000 * 60 * 15, // 15 minutes
           urls: ["http://127.0.0.1:8000/tests/test.html?test=release-min&id=" +
-                       testStartTime.getTime() + "&scroll=true&testFiles=" + testFiles.join(',')],
+                 testStartTime.getTime() + "&scroll=true&testFiles=" +
+                 testFiles.join(',')],
           browsers: browserConfig,
           detailedError : true,
           onTestComplete: function(status, page, config, browser) {
@@ -189,7 +192,8 @@ module.exports = function(grunt) {
 
   // Custom tasks
   grunt.registerTask("forever", 'Runs forever', function(){
-    console.log("Visit http://127.0.0.1:8000/tests/test.html in your browser to run tests.");
+    console.log("Visit http://127.0.0.1:8000/tests/test.html " +
+                "in your browser to run tests.");
     this.async();
   });
 

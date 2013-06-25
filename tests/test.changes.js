@@ -623,6 +623,7 @@ adapters.map(function(adapter) {
                       localdb.changes({
                         include_docs: true,
                         style: 'all_docs',
+                        conflicts: true,
                         complete: function(err, changes) {
                           ok(changes, "got changes");
                           ok(changes.results, "changes has results array");
@@ -633,6 +634,9 @@ adapters.map(function(adapter) {
                           equal(ch.doc.integer, 30, "Includes correct value of the doc");
                           equal(ch.doc._rev, rev4local, "Includes correct revision of the doc");
                           deepEqual(ch.changes, [{rev:rev4local}, {rev:remoterev}], "Includes correct changes array");
+                          ok(ch.doc._conflicts, "Includes conflicts");
+                          equal(ch.doc._conflicts.length, 1, "Should have 1 conflict");
+                          equal(ch.doc._conflicts[0], remoterev, "Conflict should be remote rev");
 
                           start();
                         }

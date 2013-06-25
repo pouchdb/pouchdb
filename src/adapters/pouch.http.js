@@ -28,6 +28,13 @@ function parseUri(str) {
   return uri;
 }
 
+function encodeDocId(id) {
+  if (/^_design/.test(id)) {
+    return id;
+  }
+  return encodeURIComponent(id);
+}
+
 parseUri.options = {
   strictMode: false,
   key: ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host',
@@ -328,6 +335,10 @@ var HttpPouch = function(mainOpts, callback) {
       opts = {};
     }
 
+    if (opts.auto_encode === undefined) {
+      opts.auto_encode = true;
+    }
+
     // List of parameters to add to the GET request
     var params = [];
 
@@ -384,6 +395,10 @@ var HttpPouch = function(mainOpts, callback) {
     params = params.join('&');
     params = params === '' ? '' : '?' + params;
 
+    if (opts.auto_encode) {
+      id = encodeDocId(id);
+    }
+
     // Set the options for the ajax call
     var options = {
       auth: host.auth,
@@ -434,13 +449,29 @@ var HttpPouch = function(mainOpts, callback) {
     ajax({
       auth: host.auth,
       method: 'DELETE',
-      url: genDBUrl(host, doc._id) + '?rev=' + doc._rev,
+      url: genDBUrl(host, encodeDocId(doc._id)) + '?rev=' + doc._rev,
       withCredentials: mainOpts.withCredentials
     }, callback);
   };
 
+  // Get the attachment
+  api.getAttachment = function(docId, attachmentId, opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
+    }
+    if (opts.auto_encode === undefined) {
+      opts.auto_encode = true;
+    }
+    if (opts.auto_encode) {
+      docId = encodeDocId(docId);
+    }
+    opts.auto_encode = false;
+    api.get(docId + '/' + attachmentId, opts, callback);
+  };
+
   // Remove the attachment given by the id and rev
-  api.removeAttachment = function idb_removeAttachment(id, rev, callback) {
+  api.removeAttachment = function(docId, attachmentId, rev, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('removeAttachment', arguments);
       return;
@@ -448,7 +479,7 @@ var HttpPouch = function(mainOpts, callback) {
     ajax({
       auth: host.auth,
       method: 'DELETE',
-      url: genDBUrl(host, id) + '?rev=' + rev,
+      url: genDBUrl(host, encodeDocId(docId) + '/' + attachmentId) + '?rev=' + rev,
       withCredentials: mainOpts.withCredentials
     }, callback);
   };
@@ -456,7 +487,7 @@ var HttpPouch = function(mainOpts, callback) {
   // Add the attachment given by blob and its contentType property
   // to the document with the given id, the revision given by rev, and
   // add it to the database given by host.
-  api.putAttachment = function(id, rev, blob, type, callback) {
+  api.putAttachment = function(docId, attachmentId, rev, blob, type, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('putAttachment', arguments);
       return;
@@ -472,11 +503,11 @@ var HttpPouch = function(mainOpts, callback) {
       blob = rev;
       rev = null;
     }
+    var id = encodeDocId(docId) + '/' + attachmentId;
     var url = genDBUrl(host, id);
     if (rev) {
       url += '?rev=' + rev;
     }
-
     // Add the attachment
     ajax({
       auth: host.auth,
@@ -501,8 +532,10 @@ var HttpPouch = function(mainOpts, callback) {
       callback = opts;
       opts = {};
     }
-
-    if (!doc || !('_id' in doc)) {
+    if (typeof doc !== 'object') {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    }
+    if (!('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
 
@@ -526,7 +559,7 @@ var HttpPouch = function(mainOpts, callback) {
     ajax({
       auth: host.auth,
       method: 'PUT',
-      url: genDBUrl(host, doc._id) + params,
+      url: genDBUrl(host, encodeDocId(doc._id)) + params,
       body: doc,
       withCredentials: mainOpts.withCredentials
     }, callback);
@@ -545,7 +578,11 @@ var HttpPouch = function(mainOpts, callback) {
       callback = opts;
       opts = {};
     }
-    if (! ('_id' in doc)) {
+
+    if (typeof doc !== 'object') {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    }
+    if (! ("_id" in doc)) {
       if (uuids.list.length > 0) {
         doc._id = uuids.list.pop();
         api.put(doc, opts, callback);

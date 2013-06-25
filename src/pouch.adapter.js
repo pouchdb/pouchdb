@@ -71,6 +71,9 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
+    if (typeof doc !== 'object' || Array.isArray(doc)) {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    }
     return customApi.bulkDocs({docs: [doc]}, opts,
         autoCompact(yankError(callback)));
   };
@@ -80,15 +83,17 @@ var PouchAdapter = function(opts, callback) {
       callback = opts;
       opts = {};
     }
-
-    if (!doc || !('_id' in doc)) {
+    if (typeof doc !== 'object') {
+      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+    }
+    if (!('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
     return customApi.bulkDocs({docs: [doc]}, opts,
         autoCompact(yankError(callback)));
   };
 
-  api.putAttachment = function (id, rev, blob, type, callback) {
+  api.putAttachment = function (docId, attachmentId, rev, blob, type, callback) {
     if (typeof type === 'function') {
       callback = type;
       type = blob;
@@ -100,21 +105,20 @@ var PouchAdapter = function(opts, callback) {
       blob = rev;
       rev = null;
     }
-    id = parseDocId(id);
 
     function createAttachment(doc) {
       doc._attachments = doc._attachments || {};
-      doc._attachments[id.attachmentId] = {
+      doc._attachments[attachmentId] = {
         content_type: type,
         data: blob
       };
       api.put(doc, callback);
     }
 
-    api.get(id.docId, function(err, doc) {
+    api.get(docId, function(err, doc) {
       // create new doc
       if (err && err.error === Pouch.Errors.MISSING_DOC.error) {
-        createAttachment({_id: id.docId});
+        createAttachment({_id: docId});
         return;
       }
       if (err) {
@@ -131,21 +135,23 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-  api.removeAttachment = function (id, rev, callback) {
-    id = parseDocId(id);
-    api.get(id.docId, function(err, obj) {
+  api.removeAttachment = function (docId, attachmentId, rev, callback) {
+    api.get(docId, function(err, obj) {
       if (err) {
         call(callback, err);
         return;
       }
-
       if (obj._rev !== rev) {
         call(callback, Pouch.Errors.REV_CONFLICT);
         return;
       }
-
-      obj._attachments = obj._attachments || {};
-      delete obj._attachments[id.attachmentId];
+      if (!obj._attachments) {
+        return call(callback, null);
+      }
+      delete obj._attachments[attachmentId];
+      if (Object.keys(obj._attachments).length === 0){
+        delete obj._attachments;
+      }
       api.put(obj, callback);
     });
   };
@@ -315,23 +321,6 @@ var PouchAdapter = function(opts, callback) {
       return; // open_revs does not like other options
     }
 
-    id = parseDocId(id);
-    if (id.attachmentId !== '') {
-      return customApi._get(id, opts, function(err, result){
-        if (err) {
-          return call(callback, err);
-        }
-        if (result.doc._attachments && result.doc._attachments[id.attachmentId]) {
-          customApi._getAttachment(result.doc._attachments[id.attachmentId],
-                                   {encode: false, ctx: result.ctx}, function(err, data) {
-            return call(callback, null, data);
-          });
-        } else {
-          return call(callback, Pouch.Errors.MISSING_DOC);
-        }
-      });
-    }
-
     return customApi._get(id, opts, function(err, result) {
       if (err) {
         return call(callback, err);
@@ -386,6 +375,9 @@ var PouchAdapter = function(opts, callback) {
       if (opts.attachments && doc._attachments) {
         var attachments = doc._attachments;
         var count = Object.keys(attachments).length;
+        if (count === 0) {
+          return call(callback, null, doc);
+        }
         Object.keys(attachments).forEach(function(key) {
           customApi._getAttachment(attachments[key], {encode: true, ctx: ctx}, function(err, data) {
             doc._attachments[key].data = data;
@@ -405,13 +397,21 @@ var PouchAdapter = function(opts, callback) {
     });
   };
 
-  api.getAttachment = function(id, opts, callback) {
+  api.getAttachment = function(docId, attachmentId, opts, callback) {
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
     }
-    customApi.get(id, function(err, res) {
-      callback(err, res);
+    customApi._get(docId, opts, function(err, res) {
+      if (err) {
+        return call(callback, err);
+      }
+      if (res.doc._attachments && res.doc._attachments[attachmentId]) {
+        opts.ctx = res.ctx;
+        customApi._getAttachment(res.doc._attachments[attachmentId], opts, callback);
+      } else {
+        return call(callback, Pouch.Errors.MISSING_DOC);
+      }
     });
   };
 
@@ -507,6 +507,12 @@ var PouchAdapter = function(opts, callback) {
 
     if (!Array.isArray(req.docs)) {
       return call(callback, Pouch.Errors.QUERY_PARSE_ERROR);
+    }
+
+    for (var i = 0; i < req.docs.length; ++i) {
+      if (typeof req.docs[i] !== 'object' || Array.isArray(req.docs[i])) {
+        return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+      }
     }
 
     req = extend(true, {}, req);

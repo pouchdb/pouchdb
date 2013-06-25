@@ -1,6 +1,6 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, utils: true, extend: true */
-/*globals ajax: true, HTTPPouch: true*/
+/*globals ajax: true */
 /*globals cleanupTestDatabases: false, strictEqual: false */
 /*globals openTestDB: true, putAfter: false */
 
@@ -8,12 +8,11 @@
 
 var adapter = 'http-1';
 var qunit = module;
-var HTTPPouch;
 
 
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../src/pouch.js');
-  HTTPPouch = require('../src/adapters/pouch.http.js');
+  var HTTPPouch = require('../src/adapters/pouch.http.js');
   var LevelPouch = require('../src/adapters/pouch.leveldb.js');
   var utils = require('./test.utils.js');
 
@@ -62,7 +61,7 @@ function enableCORSCredentials(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
   ajax({url: host + '_config/cors/credentials',
-    method: 'PUT', body: '"true"'}, function(err, resBody, req) {
+    method: 'PUT', body: '"true"', json: false}, function(err, resBody, req) {
       call(callback, err, req);
   });
 }
@@ -85,7 +84,7 @@ function disableCORSCredentials(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
   ajax({url: host + '_config/cors/credentials',
-    method: 'PUT', body: '"false"'}, function(err, resBody, req) {
+    method: 'PUT', body: '"false"', json: false}, function(err, resBody, req) {
       call(callback, err, req);
   });
 }
@@ -109,12 +108,13 @@ function tearDownAdminAndMemberConfig(dburl, callback) {
   var host = dburl.split('/')[0] + '//' + dburl.split('/')[2] + '/';
 
   ajax({url: host + '_config/admins/TestAdmin',
-    method: 'DELETE', auth: {username: 'TestAdmin', password: 'admin'}}, function(err, resBody, req) {
+    method: 'DELETE', auth: {username: 'TestAdmin', password: 'admin'}, json: false}, function(err, resBody, req) {
       ajax({url: host + '_users/org.couchdb.user:TestUser',
-        method: 'GET', body: '"admin"'}, function(err, resBody, req) {
+        method: 'GET', body: '"admin"', json: false}, function(err, resBody, req) {
+
           if (resBody) {
             ajax({url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody['_rev'],
-              method: 'DELETE'}, function(err, resBody, req) {
+              method: 'DELETE', json: false}, function(err, resBody, req) {
                 call(callback, err, req);
             });
           } else {
@@ -228,7 +228,7 @@ function initCorsDBPair(local, remote, opts, callback) {
   }
 }
 
-//-------Cookie Auth Tests-----------//
+// //-------Cookie Auth Tests-----------//
 asyncTest('Cookie Authentication with Admin.', function() {
   var name = this.name;
 
@@ -237,6 +237,7 @@ asyncTest('Cookie Authentication with Admin.', function() {
   var testDB = new Pouch(name);
   testDB.put({_id: '_security', 'admins': {'names': ['TestAdmin'], 'roles': []}, 'members': {'names': ['TestUser'], 'roles': []}},
     function(err, res) {
+
       //add an admin and user
       setupAdminAndMemberConfig(name, function(err, info) {
 
@@ -472,18 +473,20 @@ adapters2.map(function(adapters) {
     teardown: function() {
       var self = this;
       stop();
-      self.name = self.name.replace('5984', '2020');
-      self.remote = self.remote.replace('5984', '2020');
+      if (typeof module !== undefined && !module.exports) {
+        self.name = self.name.replace('5984', '2020');
+        self.remote = self.remote.replace('5984', '2020');
+      }
       if (adapters[0] === 'http-1' && adapters[1] === 'http-2') {
         Pouch.deleteCookieAuth(self.name, function(err, ret, res) {
           tearDownAdminAndMemberConfig(self.name, function(err, info) {
             disableCORSCredentials(self.name, function(err, res) {
               disableCORS(self.name, function(err, res) {
-                Pouch.deleteCookieAuth(self.remote, function(err, ret, res) {
-                  tearDownAdminAndMemberConfig(self.remote, function(err, info) {
-                    disableCORSCredentials(self.remote, function(err, res) {
-                      disableCORS(self.remote, function(err, res) {
-                        Pouch.destroy(self.name, function(err, res) {
+                Pouch.destroy(self.name, function(err, res) {
+                  Pouch.deleteCookieAuth(self.remote, function(err, ret, res) {
+                    tearDownAdminAndMemberConfig(self.remote, function(err, info) {
+                      disableCORSCredentials(self.remote, function(err, res) {
+                        disableCORS(self.remote, function(err, res) {
                           Pouch.destroy(self.remote, function(err, res) {
                             start();
                           });
@@ -985,7 +988,7 @@ adapters2.map(function(adapters) {
 
   //---------CORS with Credentials Replication Tests----------//
   //These tests primarily concern turning enable_cors on, on the couchdb http server
-  //Setting the folloing cors settings on the couchdb http server: origins=http://127.0.0.1:8000 credentials=true
+  //Setting the following cors settings on the couchdb http server: origins=http://127.0.0.1:8000 credentials=true
   //Note: these tests are always executed with a server admin user session
   asyncTest('Test basic pull replication (from CORS remote with Credentials)', 2, function() {
     //--Do Test Prep
@@ -1000,7 +1003,6 @@ adapters2.map(function(adapters) {
 
     initCorsDBPair(this.name, this.remote, opts, function(db, remote) {
       self.remote = self.remote.replace('2020', '5984');
-
       //used for http-1 to http-2 because both use the same server
       if (adapters[1] === 'http-2') {
         self.name = self.name.replace('2020', '5984');
@@ -1649,8 +1651,10 @@ deletedDocAdapters2.map(function(adapters) {
     teardown: function() {
       var self = this;
       stop();
-      self.name = self.name.replace('5984', '2020');
-      self.remote = self.remote.replace('5984', '2020');
+      if (typeof module !== undefined && !module.exports) {
+        self.name = self.name.replace('5984', '2020');
+        self.remote = self.remote.replace('5984', '2020');
+      }
       if (adapters[1] === 'http-1') {
         Pouch.deleteCookieAuth(self.remote, function(err, ret, res) {
           tearDownAdminAndMemberConfig(self.remote, function(err, info) {
@@ -1690,7 +1694,6 @@ deletedDocAdapters2.map(function(adapters) {
               bulkLoad(db, docs, callback);
             }
           });
-
         });
       });
     }

@@ -160,7 +160,7 @@ var LevelPouch = function(opts, callback) {
   };
 
   api._get = function(id, opts, callback) {
-    stores[DOC_STORE].get(id.docId, function(err, metadata) {
+    stores[DOC_STORE].get(id, function(err, metadata) {
       if (err || !metadata){
         return call(callback, Pouch.Errors.MISSING_DOC);
       }

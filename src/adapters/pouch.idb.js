@@ -179,7 +179,6 @@ var IdbPouch = function(opts, callback) {
   api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
     var newEdits = opts.new_edits;
     var userDocs = req.docs;
-
     // Parse the docs, give them a sequence number for the result
     var docInfos = userDocs.map(function(doc, i) {
       var newDoc = parseDoc(doc, newEdits);
@@ -308,7 +307,6 @@ var IdbPouch = function(opts, callback) {
     function writeDoc(docInfo, callback) {
       var err = null;
       var recv = 0;
-
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
 
@@ -453,7 +451,7 @@ var IdbPouch = function(opts, callback) {
       call(callback, err, {doc: doc, metadata: metadata, ctx: txn});
     }
 
-    txn.objectStore(DOC_STORE).get(id.docId).onsuccess = function(e) {
+    txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
       metadata = e.target.result;
       // we can determine the result here if:
       // 1. there is no such document
@@ -489,7 +487,12 @@ var IdbPouch = function(opts, callback) {
 
   api._getAttachment = function(attachment, opts, callback) {
     var result;
-    var txn = opts.ctx;
+    var txn;
+    if (opts.ctx) {
+      txn = opts.ctx;
+    } else {
+      txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
+    }
     var digest = attachment.digest;
     var type = attachment.content_type;
 
@@ -583,7 +586,7 @@ var IdbPouch = function(opts, callback) {
           }
           if (opts.conflicts) {
             doc.doc._conflicts = Pouch.merge.collectConflicts(metadata)
-              .map(function(x) { return x.id; });
+              .map(function(x) { return x; });
           }
         }
         if ('keys' in opts) {
@@ -746,6 +749,7 @@ var IdbPouch = function(opts, callback) {
         var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
         index.get(key).onsuccess = function(docevent) {
           var doc = docevent.target.result;
+          delete doc['_doc_id_rev'];
           var changeList = [{rev: mainRev}];
           if (opts.style === 'all_docs') {
             changeList = Pouch.merge.collectLeaves(metadata.rev_tree)
@@ -763,7 +767,7 @@ var IdbPouch = function(opts, callback) {
           }
           if (opts.conflicts) {
             change.doc._conflicts = Pouch.merge.collectConflicts(metadata)
-              .map(function(x) { return x.id; });
+              .map(function(x) { return x; });
           }
 
           // Dedupe the changes feed
