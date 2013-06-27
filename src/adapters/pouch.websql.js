@@ -442,9 +442,6 @@ var webSqlPouch = function(opts, callback) {
   function makeRevs(arr) {
     return arr.map(function(x) { return {rev: x.rev}; });
   }
-  function makeIds(arr) {
-    return arr.map(function(x) { return x.id; });
-  }
 
   api._allDocs = function(opts, callback) {
     var results = [];
@@ -487,7 +484,7 @@ var webSqlPouch = function(opts, callback) {
               doc.doc = data;
               doc.doc._rev = Pouch.merge.winningRev(metadata);
               if (opts.conflicts) {
-                doc.doc._conflicts = makeIds(Pouch.merge.collectConflicts(metadata));
+                doc.doc._conflicts = Pouch.merge.collectConflicts(metadata);
               }
             }
             if ('keys' in opts) {

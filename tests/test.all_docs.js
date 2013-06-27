@@ -225,7 +225,7 @@ adapters.map(function(adapter) {
                     equal("3", row.doc._id, 'correct order');
                     ok(row.doc._conflicts instanceof Array);
                     equal(2, row.doc._conflicts.length, 'Correct number of conflicts');
-                    equal(conflictDoc1._rev, result.doc._conflicts[0], 'correct conflict rev');
+                    equal(conflictDoc1._rev, res.rows[3].doc._conflicts[0], 'correct conflict rev');
                     start();
                   });
                 }

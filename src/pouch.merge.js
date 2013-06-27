@@ -248,7 +248,7 @@ Pouch.merge.collectLeaves = function(revs) {
   return leaves;
 };
 
-// returns all conflicts that is leaves such that
+// returns revs of all conflicts that is leaves such that
 // 1. are not deleted and
 // 2. are different than winning revision
 Pouch.merge.collectConflicts = function(metadata) {
