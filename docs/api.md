@@ -299,7 +299,6 @@ Fetch multiple documents, deleted document are only included if `options.keys` i
     - the rows are returned in the same order as the supplied "keys" array
     - the row for a deleted document will have the revision ID of the deletion, and an extra key "deleted":true in the "value" property
     - the row for a nonexistent document will just contain an "error" property with the value "not_found"
-* `options.attachments`: Include attachment data
 
 <span></span>
 

@@ -587,6 +587,9 @@ var IdbPouch = function(opts, callback) {
           if (opts.conflicts) {
             doc.doc._conflicts = Pouch.merge.collectConflicts(metadata);
           }
+          for (var att in doc.doc._attachments) {
+            doc.doc._attachments[att].stub = true;
+          }
         }
         if ('keys' in opts) {
           if (opts.keys.indexOf(metadata.id) > -1) {

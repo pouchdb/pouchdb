@@ -141,6 +141,49 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test attachments in allDocs", function() {
+    initTestDB(this.name, function(err, db) {
+      var docs = [
+        {
+          _id: 'doc0'
+        },
+        {
+          _id: 'doc1',
+          _attachments: {
+            'att0': {
+              data: btoa('attachment0'),
+              content_type: 'text/plain'
+            }
+          }
+        },
+        {
+          _id: 'doc2',
+          _attachments: {
+            'att0': {
+              data: btoa('attachment0'),
+              content_type: 'text/plain'
+            },
+            'att1': {
+              data: btoa('attachment1'),
+              content_type: 'text/plain'
+            }
+          }
+        }
+      ];
+      db.bulkDocs({docs: docs}, function(err, res) {
+        db.allDocs({include_docs: true}, function(err, res){
+          for(var i = 0; i < 3; i++){
+            for(var j = 0; j < i; j++){
+              strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, 'doc'+i+' contains att'+j+' stub');
+            }
+          }
+          strictEqual(res.rows[0].doc._attachments, undefined, 'doc0 contains no attachments');
+          start();
+        });
+      });
+    });
+  });
+
   asyncTest("Test getAttachment with PNG", function() {
     initTestDB(this.name, function(err, db) {
       db.put(pngAttDoc, function(err, res) {
