@@ -141,7 +141,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Test attachments in allDocs", function() {
+  asyncTest("Test attachments in allDocs/changes", function() {
     initTestDB(this.name, function(err, db) {
       var docs = [
         {
@@ -170,15 +170,40 @@ adapters.map(function(adapter) {
           }
         }
       ];
+      function sort(a, b){
+        return a.id.localeCompare(b.id);
+      }
       db.bulkDocs({docs: docs}, function(err, res) {
         db.allDocs({include_docs: true}, function(err, res){
           for(var i = 0; i < 3; i++){
             for(var j = 0; j < i; j++){
-              strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, 'doc'+i+' contains att'+j+' stub');
+              strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, '(allDocs) doc'+i+' contains att'+j+' stub');
             }
           }
-          strictEqual(res.rows[0].doc._attachments, undefined, 'doc0 contains no attachments');
-          start();
+          strictEqual(res.rows[0].doc._attachments, undefined, '(allDocs) doc0 contains no attachments');
+          db.changes({
+            include_docs: true,
+            onChange: function(change) {
+              var i = +change.id.substr(3);
+              if (i === 0) {
+                strictEqual(res.rows[0].doc._attachments, undefined, '(onChange) doc0 contains no attachments');
+              } else {
+                for(var j = 0; j < i; j++){
+                  strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, '(onChange) doc'+i+' contains att'+j+' stub');
+                }
+              }
+            },
+            complete: function(err, res) {
+              res.results.sort(sort);
+              for(var i = 0; i < 3; i++){
+                for(var j = 0; j < i; j++){
+                  strictEqual(res.results[i].doc._attachments['att' + j].stub, true, '(complete) doc'+i+' contains att'+j+' stub');
+                }
+              }
+              strictEqual(res.results[0].doc._attachments, undefined, '(complete) doc0 contains no attachments');
+              start();
+            }
+          });
         });
       });
     });
