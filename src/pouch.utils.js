@@ -217,6 +217,10 @@ var filterChange = function(opts) {
     }
     if (!opts.include_docs) {
       delete change.doc;
+    } else {
+      for (var att in change.doc._attachments) {
+        change.doc._attachments[att].stub = true;
+      }
     }
     return true;
   };
