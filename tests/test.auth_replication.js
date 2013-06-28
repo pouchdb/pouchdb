@@ -9,10 +9,15 @@ var remote = {
 };
 var local = 'test_suite_db';
 var qunit = module;
+var LevelPouch;
+var HttpPouch;
+var CorsPouch;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  HttpPouch = require('../src/adapters/pouch.http.js');
+  CorsPouch = require('../src/adapters/pouch.cors.js');
   utils = require('./test.utils.js');
   ajax = Pouch.utils.ajax;
 
@@ -181,7 +186,7 @@ asyncTest("Replicate from DB as non-admin user", function() {
         console.error(err);
       }
       logout(function (err) {
-        if (err) { 
+        if (err) {
           console.error(err);
         }
         start();
@@ -202,7 +207,7 @@ asyncTest("Replicate from DB as non-admin user", function() {
     self.adminuser = adminuser;
 
     login('adminuser', 'password', function (err) {
-      if (err) { 
+      if (err) {
         console.error(err);
       }
         remote.bulkDocs({docs: docs}, {}, function(err, results) {

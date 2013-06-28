@@ -12,7 +12,8 @@ var srcFiles = [
   "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
   "src/pouch.replicate.js", "src/pouch.utils.js", "src/pouch.adapter.js",
   "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js",
-  "src/adapters/pouch.websql.js", "src/plugins/pouchdb.mapreduce.js"
+  "src/adapters/pouch.websql.js", "src/plugins/pouchdb.mapreduce.js",
+  "src/adapters/pouch.cors.js"
 ];
 
 var testFiles = fs.readdirSync("./tests").filter(function(name){

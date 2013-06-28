@@ -54,10 +54,15 @@ parseUri.options = {
 // Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
 
-function getHost(name) {
-  // If the given name contains "http:"
-  if (/http(s?):/.test(name)) {
+function getCorsHost(name) {
+  // If the given name contains "cors:"
+  if (/(s?)cors:/.test(name)) {
     // Prase the URI into all its little bits
+    if (/scors:/.test(name)) {
+      name = name.replace('scors:', 'https:');
+    } else {
+      name = name.replace('cors:', 'http:');
+    }
     var uri = parseUri(name);
 
     // Store the fact that it is a remote URI
@@ -132,26 +137,73 @@ function genUrl(opts, path) {
   return '/' + path;
 }
 
-// Implements the PouchDB API for dealing with CouchDB instances over HTTP
-var HttpPouch = function (mainOpts, callback) {
+// Implements the PouchDB API for dealing with CouchDB instances over HTTP with CORS
+var CorsPouch = function (mainOpts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
-  var host = getHost(mainOpts.name);
+  var host = getCorsHost(mainOpts.name);
 
   // Generate the database URL based on the host
   var db_url = genDBUrl(host, '');
 
   var defaultOpts = {
+    cookieAuth: null,
     auth: null,
     headers: null
   };
   mainOpts = extend(true, defaultOpts, mainOpts);
 
-  // The functions that will be publically available for HttpPouch
+  // The functions that will be publically available for CorsPouch
   var api = {};
+
+  api.cookieAuth = function (opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = mainOpts;
+    }
+
+    ajax({
+      method: 'POST',
+      url: genUrl(host, '_session'),
+      json: false,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'name=' + opts.cookieAuth.username + '&password=' + opts.cookieAuth.password,
+      withCredentials: true
+    }, callback);
+  };
 
   if (mainOpts.auth) {
     host.auth = mainOpts.auth;
+  } else if (mainOpts.cookieAuth) { //get the cookie auth from server before proceeding
+    api.cookieAuth(mainOpts, function (err, ret, res) {
+      if (err) {
+        // Give the error to the callback to deal with
+        call(callback, err);
+      } else {
+        if (!mainOpts.skipSetup) {
+          ajax({
+            method: 'GET',
+            url: db_url,
+            withCredentials: true
+          }, function (err, ret) {
+            //check if the db exists
+            if (err) {
+              if (err.status === 404) {
+                //if it doesn't, create it
+                createDB();
+              } else {
+                call(callback, err);
+              }
+            } else {
+              //go do stuff with the db
+              call(callback, null, api);
+            }
+          });
+        }
+      }
+    });
   }
 
   var uuids = {
@@ -175,7 +227,8 @@ var HttpPouch = function (mainOpts, callback) {
       ajax({
         auth: host.auth,
         method: 'GET',
-        url: genUrl(host, '_uuids') + params
+        url: genUrl(host, '_uuids') + params,
+        withCredentials: true
       }, cb);
     }
   };
@@ -185,7 +238,8 @@ var HttpPouch = function (mainOpts, callback) {
     ajax({
       auth: host.auth,
       method: 'PUT',
-      url: db_url
+      url: db_url,
+      withCredentials: true
     }, function (err, ret) {
       // If we get an "Unauthorized" error
       if (err && err.status === 401) {
@@ -193,7 +247,8 @@ var HttpPouch = function (mainOpts, callback) {
         ajax({
           auth: host.auth,
           method: 'HEAD',
-          url: db_url
+          url: db_url,
+          withCredentials: true
         }, function (err2, ret2) {
           // If there is still an error
           if (err2) {
@@ -215,11 +270,12 @@ var HttpPouch = function (mainOpts, callback) {
       }
     });
   };
-  if (!mainOpts.skipSetup) {
+  if (!mainOpts.skipSetup && !mainOpts.cookieAuth) {
     ajax({
       auth: host.auth,
       method: 'GET',
-      url: db_url
+      url: db_url,
+      withCredentials: true
     }, function (err, ret) {
       //check if the db exists
       if (err) {
@@ -240,7 +296,7 @@ var HttpPouch = function (mainOpts, callback) {
     return 'http';
   };
 
-  // The HttpPouch's ID is its URL
+  // The CorsPouch's ID is its URL
   api.id = function () {
     return genDBUrl(host, '');
   };
@@ -252,6 +308,7 @@ var HttpPouch = function (mainOpts, callback) {
     }
     options.auth = host.auth;
     options.url = genDBUrl(host, options.url);
+    options.withCredentials = true;
     ajax(options, callback);
   };
 
@@ -269,7 +326,8 @@ var HttpPouch = function (mainOpts, callback) {
     ajax({
       auth: host.auth,
       url: genDBUrl(host, '_compact'),
-      method: 'POST'
+      method: 'POST',
+      withCredentials: true
     }, function () {
       function ping() {
         api.info(function (err, res) {
@@ -298,7 +356,8 @@ var HttpPouch = function (mainOpts, callback) {
     ajax({
       auth: host.auth,
       method: 'GET',
-      url: genDBUrl(host, '')
+      url: genDBUrl(host, ''),
+      withCredentials: true
     }, callback);
   };
 
@@ -384,7 +443,8 @@ var HttpPouch = function (mainOpts, callback) {
     var options = {
       auth: host.auth,
       method: 'GET',
-      url: genDBUrl(host, id + params)
+      url: genDBUrl(host, id + params),
+      withCredentials: true
     };
 
     // If the given id contains at least one '/' and the part before the '/'
@@ -429,7 +489,8 @@ var HttpPouch = function (mainOpts, callback) {
     ajax({
       auth: host.auth,
       method: 'DELETE',
-      url: genDBUrl(host, encodeDocId(doc._id)) + '?rev=' + doc._rev
+      url: genDBUrl(host, encodeDocId(doc._id)) + '?rev=' + doc._rev,
+      withCredentials: true
     }, callback);
   };
 
@@ -458,7 +519,8 @@ var HttpPouch = function (mainOpts, callback) {
     ajax({
       auth: host.auth,
       method: 'DELETE',
-      url: genDBUrl(host, encodeDocId(docId) + '/' + attachmentId) + '?rev=' + rev
+      url: genDBUrl(host, encodeDocId(docId) + '/' + attachmentId) + '?rev=' + rev,
+      withCredentials: true
     }, callback);
   };
 
@@ -495,7 +557,8 @@ var HttpPouch = function (mainOpts, callback) {
         'Content-Type': type
       },
       processData: false,
-      body: blob
+      body: blob,
+      withCredentials: true
     }, callback);
   };
 
@@ -539,7 +602,8 @@ var HttpPouch = function (mainOpts, callback) {
       auth: host.auth,
       method: 'PUT',
       url: genDBUrl(host, encodeDocId(doc._id)) + params,
-      body: doc
+      body: doc,
+      withCredentials: true
     }, callback);
   };
 
@@ -608,7 +672,8 @@ var HttpPouch = function (mainOpts, callback) {
       auth: host.auth,
       method: 'POST',
       url: genDBUrl(host, '_bulk_docs'),
-      body: req
+      body: req,
+      withCredentials: true
     }, callback);
   };
 
@@ -690,7 +755,8 @@ var HttpPouch = function (mainOpts, callback) {
       auth: host.auth,
       method: method,
       url: genDBUrl(host, '_all_docs' + params),
-      body: body
+      body: body,
+      withCredentials: true
     }, callback);
   };
 
@@ -778,7 +844,8 @@ var HttpPouch = function (mainOpts, callback) {
         method: 'GET',
         url: genDBUrl(host, '_changes' + paramStr),
         // _changes can take a long time to generate, especially when filtered
-        timeout: null
+        timeout: null,
+        withCredentials: true
       };
       lastFetchedSeq = since;
 
@@ -894,7 +961,8 @@ var HttpPouch = function (mainOpts, callback) {
       auth: host.auth,
       method: 'POST',
       url: genDBUrl(host, '_revs_diff'),
-      body: req
+      body: req,
+      withCredentials: true
     }, function (err, res) {
       call(callback, err, res);
     });
@@ -911,10 +979,12 @@ var HttpPouch = function (mainOpts, callback) {
   return api;
 };
 
-// Delete the HttpPouch specified by the given name.
-HttpPouch.destroy = function (name, opts, callback) {
-  var host = getHost(name);
-  var defaultOpts = {};
+// Delete the CorsPouch specified by the given name.
+CorsPouch.destroy = function (name, opts, callback) {
+  var host = getCorsHost(name);
+  var defaultOpts = {
+    auth: null
+  };
   if (typeof opts === 'function') {
     callback = opts;
     opts = {};
@@ -922,15 +992,38 @@ HttpPouch.destroy = function (name, opts, callback) {
 
   opts = extend(true, defaultOpts, opts);
   ajax({
-    auth: host.auth,
+    auth: opts.auth,
     method: 'DELETE',
-    url: genDBUrl(host, '')
+    url: genDBUrl(host, ''),
+    withCredentials: true
   }, callback);
 };
 
-// HttpPouch is a valid adapter.
-HttpPouch.valid = function () {
+// CorsPouch is a valid adapter.
+CorsPouch.valid = function () {
   return true;
+};
+
+//Delete the Cookie used for authentication
+CorsPouch.deleteCookieAuth = function (name, opts, callback) {
+  var host = getCorsHost(name);
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = {};
+  }
+
+  var defaultOpts = {
+    auth: null
+  };
+  opts = extend(true, defaultOpts, opts);
+
+  ajax({
+    auth: opts.auth,
+    method: 'DELETE',
+    url: genUrl(host, '_session'),
+    withCredentials: true,
+    json: false
+  }, callback);
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -940,6 +1033,6 @@ if (typeof module !== 'undefined' && module.exports) {
   ajax = Pouch.utils.ajax;
 }
 
-// Set HttpPouch to be the adapter used with the http scheme.
-Pouch.adapter('http', HttpPouch);
-Pouch.adapter('https', HttpPouch);
+// Set CorsPouch to be the adapter used with the http scheme.
+Pouch.adapter('cors', CorsPouch);
+Pouch.adapter('scors', CorsPouch);

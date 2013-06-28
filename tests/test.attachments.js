@@ -1,24 +1,34 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, strictEqual: false */
-/*globals ajax: true, LevelPouch: true, makeDocs: false */
+/*globals ajax: true, makeDocs: false, Pouch: true */
 /*globals readBlob: false, makeBlob: false, base64Blob: false */
-/*globals cleanupTestDatabases: false */
+/*globals cleanupTestDatabases: false, cleanUpDB: false */
 
 "use strict";
 
-var adapters = ['local-1', 'http-1'];
+var adapters = ['local-1', 'http-1', 'cors-1'];
 var repl_adapters = [['local-1', 'http-1'],
                      ['http-1', 'http-2'],
                      ['http-1', 'local-1'],
-                     ['local-1', 'local-2']];
+                     ['local-1', 'local-2'],
+                     ['local-1', 'cors-1'],
+                     ['http-1', 'cors-2'],
+                     ['cors-1', 'local-1'],
+                     ['cors-1', 'http-2'],
+                     ['cors-1', 'cors-2']
+                    ];
 var qunit = module;
 var LevelPouch;
+var HttpPouch;
+var CorsPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  HttpPouch = require('../src/adapters/pouch.http.js');
+  CorsPouch = require('../src/adapters/pouch.cors.js');
   utils = require('./test.utils.js');
 
   for (var k in utils) {
@@ -30,10 +40,20 @@ if (typeof module !== undefined && module.exports) {
 adapters.map(function(adapter) {
   qunit('attachments: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      stop();
+      var self = this;
+      generateAdapterUrl(adapter, function(name){
+        self.name = name;
+        Pouch.enableAllDbs = true;
+        start();
+      });
     },
-    teardown: cleanupTestDatabases
+    teardown: function() {
+      stop();
+      cleanUpDB(this.name, function(){
+        cleanupTestDatabases();
+      });
+    }
   });
 
   var binAttDoc = {
@@ -382,13 +402,28 @@ adapters.map(function(adapter) {
   });
 });
 
-
 repl_adapters.map(function(adapters) {
 
   qunit('replication: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
-      this.name = generateAdapterUrl(adapters[0]);
-      this.remote = generateAdapterUrl(adapters[1]);
+      stop();
+      var self = this;
+      generateAdapterUrl(adapters[0], function(name) {
+        self.name = name;
+        generateAdapterUrl(adapters[1], function(remote) {
+          self.remote = remote;
+          start();
+        });
+      });
+    },
+    teardown: function() {
+      stop();
+      var self = this;
+      cleanUpDB(self.name, function(){
+        cleanUpDB(self.remote, function(){
+          cleanupTestDatabases();
+        });
+      });
     }
   });
 

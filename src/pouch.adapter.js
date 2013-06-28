@@ -558,11 +558,6 @@ var PouchAdapter = function(opts, callback) {
       opts = {};
     }
 
-    if (opts.hasOwnProperty('withCredentials')) {
-      delete opts['withCredentials'];
-      opts['srcWithCredentials'] = true;
-    }
-
     if (opts.hasOwnProperty('cookieAuth')) {
       opts['srcWithCookieAuth'] = opts['cookieAuth'];
       delete opts['cookieAuth'];
@@ -575,11 +570,6 @@ var PouchAdapter = function(opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
-    }
-
-    if (opts.hasOwnProperty('withCredentials')) {
-      delete opts['withCredentials'];
-      opts['targetWithCredentials'] = true;
     }
 
     if (opts.hasOwnProperty('cookieAuth')) {

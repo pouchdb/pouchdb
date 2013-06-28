@@ -1,4 +1,4 @@
-/*globals extend: false, Buffer: false, Pouch: true */
+/*globals extend: false, Buffer: false, Pouch: true, ajax:false, call:false */
 "use strict";
 
 var PERSIST_DATABASES = false;
@@ -7,7 +7,7 @@ function cleanupAllDbs() {
 
   var deleted = 0;
   var adapters = Object.keys(Pouch.adapters).filter(function(adapter) {
-    return adapter !== 'http' && adapter !== 'https';
+    return adapter !== 'http' && adapter !== 'https' && adapter !== 'cors' && adapter !== 'scors';
   });
 
   function finished() {
@@ -28,7 +28,7 @@ function cleanupAllDbs() {
 
   // Remove old allDbs to prevent DOM exception
   adapters.forEach(function(adapter) {
-    if (adapter === "http" || adapter === "https") {
+    if (adapter === "http" || adapter === "https" || adapter === 'cors' || adapter === 'scors') {
       return;
     }
     Pouch.destroy(Pouch.allDBName(adapter), dbDeleted);
@@ -42,7 +42,7 @@ function cleanupTestDatabases() {
   }
 
   // Stop the tests from executing
-  stop();
+  //stop();
 
   var dbCount;
   var deleted = 0;
@@ -161,7 +161,7 @@ function openTestDB(name, opts, callback) {
 function initTestDB(name, opts, callback) {
   // ignore errors, the database might not exist
   Pouch.destroy(name, function(err) {
-    if (err && err.status !== 404 && err.statusText !== 'timeout') {
+    if (err && err.status !== 404 && err.statusText !== 'timeout' && err.error !== 'not_found') {
       console.error(err);
       ok(false, 'failed to open database');
       return start();
@@ -180,15 +180,141 @@ function initDBPair(local, remote, callback) {
 
 var testId = uuid();
 
-function generateAdapterUrl(id) {
+// ---- CORS Specific Utils ---- //
+//enable CORS on server
+function enableCORS(dburl, callback) {
+  var host = 'http://' + dburl.split('/')[2] + '/';
+
+  ajax({url: host + '_config/httpd/enable_cors', json: false,
+    method: 'PUT', body: '"true"'}, function(err, resBody, req) {
+      ajax({url: host + '_config/cors/origins', json: false,
+        method: 'PUT', body: '"http://127.0.0.1:8000"'}, function(err, resBody, req) {
+          call(callback, err, req);
+      });
+  });
+}
+
+//enable CORS Credentials on server
+function enableCORSCredentials(dburl, callback) {
+  var host = 'http://' + dburl.split('/')[2] + '/';
+
+  ajax({url: host + '_config/cors/credentials',
+    method: 'PUT', body: '"true"', json: false}, function(err, resBody, req) {
+      call(callback, err, req);
+  });
+}
+
+//disable CORS
+function disableCORS(dburl, callback) {
+  var host = 'http://' + dburl.split('/')[2] + '/';
+
+  ajax({
+    url: host + '_config/cors/origins',
+    json: false,
+    method: 'PUT',
+    body: '"*"'
+  }, function (err, resBody, req) {
+    ajax({
+      url: host + '_config/httpd/enable_cors',
+      json: false,
+      method: 'PUT',
+      body: '"false"'
+    }, function (err, resBody, req) {
+      call(callback, err, req);
+    });
+  });
+}
+
+//disable CORS Credentials
+function disableCORSCredentials(dburl, callback) {
+  var host = 'http://' + dburl.split('/')[2] + '/';
+
+  ajax({
+    url: host + '_config/cors/credentials',
+    method: 'PUT',
+    body: '"false"',
+    json: false
+  }, function (err, resBody, req) {
+    call(callback, err, req);
+  });
+}
+
+//create admin user and member user
+function setupAdminAndMemberConfig(dburl, callback) {
+  var host = 'http://' + dburl.split('/')[2] + '/';
+
+  ajax({url: host + '_users/org.couchdb.user:TestUser',
+    method: 'PUT', body: {_id: 'org.couchdb.user:TestUser', name: 'TestUser',
+    password: 'user', roles: [], type: 'user'}}, function(err, resBody, req) {
+      ajax({url: host + '_config/admins/TestAdmin', json: false,
+        method: 'PUT', body: '"admin"'}, function(err, resBody, req) {
+          call(callback, err, req);
+      });
+  });
+}
+
+//delete admin and member user
+function tearDownAdminAndMemberConfig(dburl, callback) {
+  var host = 'http://' + dburl.split('/')[2] + '/';
+
+  ajax({url: host + '_config/admins/TestAdmin',
+    method: 'DELETE', auth: {username: 'TestAdmin', password: 'admin'}, json: false}, function(err, resBody, req) {
+      ajax({url: host + '_users/org.couchdb.user:TestUser',
+        method: 'GET', body: '"admin"'}, function(err, resBody, req) {
+          if (resBody) {
+            ajax({url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody['_rev'],
+              method: 'DELETE', json: false}, function(err, resBody, req) {
+                call(callback, err, req);
+            });
+          } else {
+            call(callback, err, req);
+          }
+      });
+  });
+}
+
+function cleanUpDB(dburl, callback_) {
+  if (PERSIST_DATABASES) {
+    return;
+  }
+
+  if (/(s?)cors:/.test(dburl)) {
+    if (typeof module !== 'undefined' && module.exports) {
+      disableCORS(dburl, function() {
+        Pouch.destroy(dburl, callback_);
+      });
+    } else {
+      disableCORS(dburl.replace('5984','2020'), function() {
+        Pouch.destroy(dburl.replace('5984','2020'), callback_);
+      });
+    }
+  } else {
+    Pouch.destroy(dburl, callback_);
+  }
+}
+// ---- END CORS Specific Utils ---- //
+
+function generateAdapterUrl(id, callback_) {
   var opt = id.split('-');
   if (opt[0] === 'local') {
-    return 'testdb_' + testId + '_' + opt[1];
+    call(callback_, 'testdb_' + testId + '_' + opt[1]);
   }
   if (opt[0] === 'http') {
-    return (typeof module !== 'undefined' && module.exports) ?
+    call(callback_, (typeof module !== 'undefined' && module.exports) ?
       'http://localhost:5984/testdb_' + testId + '_' + opt[1] :
-      'http://localhost:2020/testdb_' + testId + '_' + opt[1];
+      'http://localhost:2020/testdb_' + testId + '_' + opt[1]);
+  }
+  if (opt[0] === 'cors') {
+    var dburl = 'cors://localhost:5984/testdb_' + testId + '_' + opt[1];
+    if (typeof module !== 'undefined' && module.exports) {
+      enableCORS(dburl, function(){
+        call(callback_, dburl);
+      });
+    } else {
+      enableCORS(dburl.replace('5984','2020'), function(){
+        call(callback_, dburl);
+      });
+    }
   }
 }
 
@@ -305,6 +431,14 @@ if (typeof module !== 'undefined' && module.exports) {
     writeDocs: writeDocs,
     cleanupTestDatabases: cleanupTestDatabases,
     PERSIST_DATABASES: PERSIST_DATABASES,
-    eliminateDuplicates: eliminateDuplicates
+    eliminateDuplicates: eliminateDuplicates,
+    call: call,
+    enableCORS: enableCORS,
+    enableCORSCredentials: enableCORSCredentials,
+    setupAdminAndMemberConfig: setupAdminAndMemberConfig,
+    tearDownAdminAndMemberConfig: tearDownAdminAndMemberConfig,
+    disableCORS: disableCORS,
+    disableCORSCredentials: disableCORSCredentials,
+    cleanUpDB: cleanUpDB
   };
 }

@@ -1,16 +1,17 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false */
-/*globals cleanupTestDatabases: false */
+/*globals PERSIST_DATABASES: false, Pouch: true, utils: true */
+/*globals cleanupTestDatabases: false, cleanUpDB: false */
 
 "use strict";
 
 var adapters = ['local-1'];
 var qunit = module;
+var LevelPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js'),
+  Pouch = require('../src/pouch.js'),
   LevelPouch = require('../src/adapters/pouch.leveldb.js'),
   utils = require('./test.utils.js');
 
@@ -23,10 +24,20 @@ if (typeof module !== undefined && module.exports) {
 adapters.map(function(adapter) {
   qunit('gql: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      stop();
+      var self = this;
+      generateAdapterUrl(adapter, function(name) {
+        self.name = name;
+        Pouch.enableAllDbs = true;
+        start();
+      });
     },
-    teardown: cleanupTestDatabases
+    teardown: function () {
+      stop();
+      cleanUpDB(this.name, function () {
+        cleanupTestDatabases();
+      });
+    }
   });
 
   asyncTest("Test select *", function() {

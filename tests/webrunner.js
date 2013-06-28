@@ -23,7 +23,7 @@ if (!testFiles.length) {
                'test.design_docs.js', 'test.issue221.js', 'test.http.js',
                'test.gql.js', 'test.compaction.js', 'test.get.js',
                'test.attachments.js', 'test.uuids.js', 'test.cors.js',
-               'test.shash_id.js'];
+               'test.slash_id.js'];
 }
 
 testFiles.unshift('test.utils.js');
@@ -37,7 +37,8 @@ var sourceFiles = {
           '../src/adapters/pouch.websql.js',
           '../src/plugins/pouchdb.gql.js',
           '../src/plugins/pouchdb.mapreduce.js',
-          '../src/plugins/pouchdb.spatial.js'],
+          '../src/plugins/pouchdb.spatial.js',
+          '../src/adapters/pouch.cors.js'],
   'release': ['../dist/pouchdb-nightly.js', '../src/deps/extend.js', '../src/deps/ajax.js'],
   'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js', '../src/deps/ajax.js']
 };

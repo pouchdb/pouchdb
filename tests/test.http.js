@@ -1,17 +1,18 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, HTTPPouch: true */
+/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, Pouch: true */
+/*globals ajax: true, cleanupTestDatabases: false, cleanUpDB:false */
+/*globals setupAdminAndMemberConfig:false, tearDownAdminAndMemberConfig:false */
 
 'use strict';
 
 var adapter = 'http-1';
 var qunit = module;
-var HTTPPouch;
+var HttpPouch;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js');
-  HTTPPouch = require('../src/adapters/pouch.http.js');
-  var utils = require('./test.utils.js');
+  Pouch = require('../src/pouch.js');
+  HttpPouch = require('../src/adapters/pouch.http.js');
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -21,13 +22,18 @@ if (typeof module !== undefined && module.exports) {
 
 qunit('http-adapter', {
   setup: function() {
-    this.name = generateAdapterUrl(adapter);
+    stop();
+      var self = this;
+      generateAdapterUrl(adapter, function(name) {
+        self.name = name;
+        start();
+      });
   },
   teardown: function() {
-    if (!PERSIST_DATABASES) {
-      stop();
-      Pouch.destroy(this.name, function(err, info) {start();});
-    }
+    stop();
+    cleanUpDB(this.name, function () {
+      cleanupTestDatabases();
+    });
   }
 });
 

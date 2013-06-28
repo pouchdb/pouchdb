@@ -1,18 +1,22 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true, putTree: false, deepEqual: false */
-/*globals cleanupTestDatabases: false, strictEqual: false, writeDocs: false */
+/*globals cleanupTestDatabases: false, strictEqual: false, writeDocs: false, cleanUpDB: false */
 
 "use strict";
 
-var adapters = ['http-1', 'local-1'];
+var adapters = ['http-1', 'local-1', 'cors-1'];
 var qunit = module;
 var is_browser = true;
 var LevelPouch;
+var HttpPouch;
+var CorsPouch;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  HttpPouch = require('../src/adapters/pouch.http.js');
+  CorsPouch = require('../src/adapters/pouch.cors.js');
   utils = require('./test.utils.js');
 
   for (var k in utils) {
@@ -26,10 +30,23 @@ adapters.map(function(adapter) {
 
   QUnit.module("changes: " + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      stop();
+      var self = this;
+      generateAdapterUrl(adapter, function(name) {
+        self.name = name;
+        Pouch.enableAllDbs = true;
+        start();
+      });
     },
-    teardown: cleanupTestDatabases
+    teardown: function () {
+      stop();
+      var self = this;
+      cleanUpDB(self.name, function() {
+        cleanUpDB(self.name + "-remote", function() {
+          cleanupTestDatabases();
+        });
+      });
+    }
   });
 
   asyncTest("All changes", function () {
@@ -200,7 +217,7 @@ adapters.map(function(adapter) {
                   filter: 'foo/even',
                   complete: function(err, results) {
                     strictEqual(results.last_seq, 5, 'filter does not change last_seq');
-                    strictEqual(results.results.length, 2, 'correct # of changes'); 
+                    strictEqual(results.results.length, 2, 'correct # of changes');
                     start();
                   }
                 });

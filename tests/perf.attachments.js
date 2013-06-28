@@ -2,7 +2,12 @@
 
   module('attachment performance: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter)
+      stop();
+      var self = this;
+      generateAdapterUrl(adapter, function(name){
+        self.name = name;
+        start();
+      });
     }
   });
 
