@@ -88,7 +88,7 @@ Pouch.parseAdapter = function(name) {
   var adapter;
   if (match) {
     // the http adapter expects the fully qualified name
-    name = /http(s?)/.test(match[1]) ? match[1] + '://' + match[2] : match[2];
+    name = (/http(s?)/.test(match[1]) || /(s?)cors/.test(match[1])) ? match[1] + '://' + match[2] : match[2];
     adapter = match[1];
     if (!Pouch.adapters[adapter].valid()) {
       throw 'Invalid adapter';
@@ -112,7 +112,12 @@ Pouch.parseAdapter = function(name) {
   throw 'No valid adapter found';
 };
 
-Pouch.destroy = function(name, callback) {
+Pouch.destroy = function(name, options, callback) {
+  if(typeof options === 'function'){
+    callback = options;
+    options = {};
+  }
+
   var opts = Pouch.parseAdapter(name);
   var cb = function(err, response) {
     if (err) {
@@ -128,7 +133,11 @@ Pouch.destroy = function(name, callback) {
     }
 
     // call destroy method of the particular adaptor
-    Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+    if(opts.adapter === 'http' || opts.adapter === 'https' || opts.adapter === 'cors' || opts.adapter === 'scors'){
+      Pouch.adapters[opts.adapter].destroy(opts.name, options, callback);
+    } else {
+      Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+    }
   };
 
   // remove Pouch from allDBs
@@ -144,7 +153,7 @@ Pouch.removeFromAllDbs = function(opts, callback) {
 
   // skip http and https adaptors for allDbs
   var adapter = opts.adapter;
-  if (adapter === "http" || adapter === "https") {
+  if (adapter === "http" || adapter === "https" || adapter === "cors" || adapter === "scors") {
     callback();
     return;
   }
@@ -209,7 +218,7 @@ Pouch.open = function(opts, callback) {
 
   var adapter = opts.adapter;
   // skip http and https adaptors for allDbs
-  if (adapter === "http" || adapter === "https") {
+  if (adapter === "http" || adapter === "https" || adapter === "cors" || adapter === "scors") {
     callback();
     return;
   }
@@ -268,7 +277,7 @@ Pouch.allDbs = function(callback) {
     var adapter = adapters.shift();
 
     // skip http and https adaptors for allDbs
-    if (adapter === "http" || adapter === "https") {
+    if (adapter === "http" || adapter === "https" || adapter === "cors" || adapter === "scors") {
       accumulate(adapters, all_dbs);
       return;
     }
@@ -419,6 +428,15 @@ Pouch.Errors = {
 Pouch.error = function(error, reason){
  return extend({}, error, {reason: reason});
 };
+
+//Delete the stored auth cookie
+Pouch.deleteCookieAuth = function(name, options, callback) {
+  var opts = Pouch.parseAdapter(name);
+
+  // call destroy method of the particular adaptor
+  Pouch.adapters[opts.adapter].deleteCookieAuth(opts.name, options, callback);
+};
+
 if (typeof module !== 'undefined' && module.exports) {
   global.Pouch = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
@@ -429,7 +447,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = Pouch;
   var PouchAdapter = require('./pouch.adapter.js');
   //load adapters known to work under node
-  var adapters = ['leveldb', 'http'];
+  var adapters = ['leveldb', 'http', 'cors'];
   adapters.map(function(adapter) {
     var adapter_path = './adapters/pouch.'+adapter+'.js';
     require(adapter_path);
@@ -439,3 +457,6 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
   window.Pouch = Pouch;
 }
+
+
+

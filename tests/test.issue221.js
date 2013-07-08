@@ -1,7 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false, strictEqual: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals ajax: true, LevelPouch: true */
-/*globals cleanupTestDatabases: false */
+/*globals cleanupTestDatabases: false, cleanUpDB:false */
 
 "use strict";
 
@@ -9,14 +9,23 @@ var adapters = [
   ['local-1', 'http-1'],
   ['http-1', 'http-2'],
   ['http-1', 'local-1'],
-  ['local-1', 'local-2']
+  ['local-1', 'local-2'],
+  ['local-1', 'cors-1'],
+  ['http-1', 'cors-2'],
+  ['cors-1', 'local-1'],
+  ['cors-1', 'http-2'],
+  ['cors-1', 'cors-2']
 ];
 var qunit = module;
 var LevelPouch;
+var HttpPouch;
+var CorsPouch;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  HttpPouch = require('../src/adapters/pouch.http.js');
+  CorsPouch = require('../src/adapters/pouch.cors.js');
   utils = require('./test.utils.js');
 
   for (var k in utils) {
@@ -29,11 +38,26 @@ adapters.map(function(adapters) {
 
   qunit('replication + compaction: ' + adapters[0] + ':' + adapters[1], {
     setup: function() {
-      this.local = generateAdapterUrl(adapters[0]);
-      this.remote = generateAdapterUrl(adapters[1]);
-      Pouch.enableAllDbs = true;
+      stop();
+      var self = this;
+      generateAdapterUrl(adapters[0], function(local) {
+        self.local = local;
+        generateAdapterUrl(adapters[1], function(remote){
+          self.remote = remote;
+          Pouch.enableAllDbs = true;
+          start();
+        });
+      });
     },
-    teardown: cleanupTestDatabases
+    teardown: function () {
+      stop();
+      var self = this;
+      cleanUpDB(self.local, function() {
+        cleanUpDB(self.remote, function() {
+          cleanupTestDatabases();
+        });
+      });
+    }
   });
 
   var doc = { _id: '0', integer: 0 };

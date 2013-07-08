@@ -49,7 +49,7 @@ function async(functions, callback) {
 
 // Remove old allDbs to prevent DOM exception
 Object.keys(Pouch.adapters).forEach(function(adapter) {
-  if (adapter === "http" || adapter === "https") {
+  if (adapter === "http" || adapter === "https" || adapter === "cors" || adapter === "scors") {
     return;
   }
 
@@ -59,7 +59,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
 // Loop through all availible adapters
 Object.keys(Pouch.adapters).forEach(function(adapter) {
   // allDbs method only works for local adapters
-  if (adapter === "http" || adapter === "https") {
+  if (adapter === "http" || adapter === "https" || adapter === "cors" || adapter === "scors") {
     return;
   }
 
@@ -316,7 +316,7 @@ qunit("allDbs return value", {
     var pouchName;
     Object.keys(Pouch.adapters).forEach(function(adapter) {
       // allDbs method only works for local adapters
-      if (adapter === "http" || adapter === "https") {
+      if (adapter === "http" || adapter === "https" || adapter === "cors" || adapter === "scors") {
         return;
       }
 

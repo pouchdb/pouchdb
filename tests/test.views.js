@@ -1,19 +1,23 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals cleanupTestDatabases: false */
+/*globals cleanupTestDatabases: false, cleanUpDB: false */
 
 "use strict";
 
-var adapters = ['local-1', 'http-1'];
+var adapters = ['local-1', 'http-1', 'cors-1'];
 var qunit = module;
 var LevelPouch;
+var HttpPouch;
+var CorsPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js');
-  var LevelPouch = require('../src/adapters/pouch.leveldb.js');
-  var utils = require('./test.utils.js');
+  Pouch = require('../src/pouch.js');
+  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  HttpPouch = require('../src/adapters/pouch.http.js');
+  CorsPouch = require('../src/adapters/pouch.cors.js');
+  utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];
@@ -25,11 +29,26 @@ adapters.map(function(adapter) {
 
   qunit('views: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
-      this.remote = generateAdapterUrl('local-2');
-      Pouch.enableAllDbs = true;
+      stop();
+      var self = this;
+      generateAdapterUrl(adapter, function(name) {
+        self.name = name;
+        generateAdapterUrl('local-2', function(remote){
+          self.remote = remote;
+          Pouch.enableAllDbs = true;
+          start();
+        });
+      });
     },
-    teardown: cleanupTestDatabases
+    teardown: function () {
+      stop();
+      var self = this;
+      cleanUpDB(self.name, function() {
+        cleanUpDB(self.remote, function() {
+          cleanupTestDatabases();
+        });
+      });
+    }
   });
 
   asyncTest("Test basic view", function() {

@@ -1,19 +1,23 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, LevelPouch: true */
-/*globals cleanupTestDatabases: false */
+/*globals ajax: true, Pouch: true */
+/*globals cleanupTestDatabases: false, cleanUpDB: false */
 
 "use strict";
 
-var adapters = ['http-1', 'local-1'];
+var adapters = ['http-1', 'local-1', 'cors-1'];
 var qunit = module;
 var LevelPouch;
+var HttpPouch;
+var CorsPouch;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  HttpPouch = require('../src/adapters/pouch.http.js');
+  CorsPouch = require('../src/adapters/pouch.cors.js');
   utils = require('./test.utils.js');
 
   for (var k in utils) {
@@ -26,10 +30,20 @@ adapters.map(function(adapter) {
 
   qunit('conflicts: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      stop();
+      var self = this;
+      generateAdapterUrl(adapter, function(name) {
+        self.name = name;
+        Pouch.enableAllDbs = true;
+        start();
+      });
     },
-    teardown: cleanupTestDatabases
+    teardown: function () {
+      stop();
+      cleanUpDB(this.name, function() {
+        cleanupTestDatabases();
+      });
+    }
   });
 
   asyncTest('Testing conflicts', function() {

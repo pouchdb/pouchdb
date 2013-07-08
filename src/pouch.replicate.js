@@ -1,4 +1,4 @@
-/*globals call: false, Crypto: false*/
+/*globals call: false, Crypto: false, extend: true*/
 
 'use strict';
 
@@ -153,7 +153,7 @@ function replicate(src, target, opts, promise) {
       return;
     }
 
-    var _enqueuer = function (rev) {
+    var _enqueuer = function(rev) {
         requests.enqueue(eachRev, [id, rev]);
     };
 
@@ -230,9 +230,9 @@ function replicate(src, target, opts, promise) {
 
 }
 
-function toPouch(db, callback) {
+function toPouch(db, opts, callback) {
   if (typeof db === 'string') {
-    return new Pouch(db, callback);
+    return new Pouch(db, opts, callback);
   }
   callback(null, db);
 }
@@ -245,13 +245,42 @@ Pouch.replicate = function(src, target, opts, callback) {
   if (opts === undefined) {
     opts = {};
   }
+
+  var defaultOpts = {
+    srcWithCredentials: false,
+    targetWithCredentials: false,
+    srcWithCookieAuth: null,
+    targetWithCookieAuth: null
+  };
+  opts = extend(true, defaultOpts, opts);
+
   opts.complete = callback;
   var replicateRet = new Promise();
-  toPouch(src, function(err, src) {
+
+  var srcOpts = {};
+  if (opts.srcWithCredentials) {
+    srcOpts['withCredentials'] = true;
+  }
+
+  if (opts.srcWithCookieAuth) {
+    srcOpts['cookieAuth'] = opts.srcWithCookieAuth;
+  }
+
+  toPouch(src, srcOpts, function(err, src) {
     if (err) {
       return call(callback, err);
     }
-    toPouch(target, function(err, target) {
+
+    var targetOpts = {};
+    if (opts.targetWithCredentials) {
+      targetOpts['withCredentials'] = true;
+    }
+
+    if (opts.targetWithCookieAuth) {
+      targetOpts['cookieAuth'] = opts.targetWithCookieAuth;
+    }
+
+    toPouch(target, targetOpts, function(err, target) {
       if (err) {
         return call(callback, err);
       }
