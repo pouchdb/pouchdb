@@ -477,7 +477,7 @@ var HttpPouch = function(opts, callback) {
     }
     if (typeof doc !== 'object') {
       return call(callback, Pouch.Errors.NOT_AN_OBJECT);
-    } 
+    }
     if (!('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
@@ -522,7 +522,7 @@ var HttpPouch = function(opts, callback) {
     }
     if (typeof doc !== 'object') {
       return call(callback, Pouch.Errors.NOT_AN_OBJECT);
-    } 
+    }
     if (! ("_id" in doc)) {
       if (uuids.list.length > 0) {
         doc._id = uuids.list.pop();
@@ -783,7 +783,8 @@ var HttpPouch = function(opts, callback) {
       }
 
       var finished = (limit && leftToFetch <= 0) ||
-        (!limit && lastFetchedSeq === remoteLastSeq) ||
+        (!limit && (lastFetchedSeq === remoteLastSeq ||
+        (res && res.results && res.results.length === 0))) ||
         (opts.descending && lastFetchedSeq !== 0);
 
       if (opts.continuous || !finished) {
