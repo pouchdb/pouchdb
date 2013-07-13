@@ -421,6 +421,7 @@ Pouch.error = function(error, reason){
 };
 if (typeof module !== 'undefined' && module.exports) {
   global.Pouch = Pouch;
+  global.PouchDB = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
@@ -438,4 +439,5 @@ if (typeof module !== 'undefined' && module.exports) {
   require('./deps/uuid.js');
 } else {
   window.Pouch = Pouch;
+  window.PouchDB = Pouch;
 }
