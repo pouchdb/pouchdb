@@ -26,6 +26,10 @@ var browserConfig = [{
   version: '19',
   platform: 'Linux',
   name: 'linux/firefox'
+},{
+  browserName: 'chrome',
+  platform: 'Windows 8',
+  name: 'chrome/firefox'
 }];
 
 var fileHeader = '// <%= pkg.name %>.<%= pkg.release %> - ' +
@@ -160,7 +164,6 @@ module.exports = function(grunt) {
         options: {
           username: 'pouchdb',
           key: '97de9ee0-2712-49f0-9b17-4b9751d79073',
-          testname: 'PouchDB Tests',
           tags: [process.env.TRAVIS_BRANCH || "unknown"],
           testTimeout: 1000 * 60 * 15, // 15 minutes
           testInterval: 1000 * 30, // 30 seconds
