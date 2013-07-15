@@ -153,7 +153,7 @@ function todoBlurred(todo, event) {
 
 # Installing CouchDB
 
-Now we will implement the syncing, you need to have an CouchDB instance, you can either install [CouchDB(1.3+) locally](http://couchdb.com) or use an online provider like [IrisCouch](http://iriscouch.com).
+Now we will implement the syncing, you need to have an CouchDB instance, you can either install [CouchDB(1.3+) locally](http://couchdb.apache.org/) or use an online provider like [IrisCouch](http://iriscouch.com).
 
 # Enabling CORS
 
