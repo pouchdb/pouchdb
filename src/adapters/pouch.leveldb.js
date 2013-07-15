@@ -341,7 +341,7 @@ var LevelPouch = function(opts, callback) {
         doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
 
         stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function(err) {
-          if (err) {
+          if (err && Pouch.DEBUG) {
             return console.error(err);
           }
 
@@ -392,7 +392,7 @@ var LevelPouch = function(opts, callback) {
         }
 
         stores[ATTACH_STORE].put(digest, newAtt, function(err) {
-          if (err) {
+          if (err && Pouch.DEBUG) {
             return console.error(err);
           }
           // do not try to store empty attachments
@@ -401,7 +401,7 @@ var LevelPouch = function(opts, callback) {
           }
           stores[ATTACH_BINARY_STORE].put(digest, data, function(err) {
             callback(err);
-            if (err) {
+            if (err && Pouch.DEBUG) {
               return console.error(err);
             }
           });
@@ -522,7 +522,9 @@ var LevelPouch = function(opts, callback) {
     });
     docstream.on('error', function(err) {
       // TODO: handle error
-      console.error(err);
+      if (Pouch.DEBUG) {
+        console.error(err);
+      }
     });
     docstream.on('end', function() {
     });
@@ -606,7 +608,9 @@ var LevelPouch = function(opts, callback) {
         })
         .on('error', function(err) {
           // TODO: handle errors
-          console.error(err);
+          if (Pouch.DEBUG) {
+            console.error(err);
+          }
         })
         .on('close', function() {
           var filter = Pouch.utils.filterChange(opts);
