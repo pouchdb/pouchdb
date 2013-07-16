@@ -245,7 +245,9 @@ Pouch.replicate = function(src, target, opts, callback) {
   if (opts === undefined) {
     opts = {};
   }
-  opts.complete = callback;
+  if (!opts.complete) {
+    opts.complete = callback;
+  }
   var replicateRet = new Promise();
   toPouch(src, function(err, src) {
     if (err) {
