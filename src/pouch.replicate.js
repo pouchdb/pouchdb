@@ -183,7 +183,7 @@ function replicate(src, target, opts, promise) {
 
   function isCompleted() {
     if (completed && pending === 0) {
-      result.end_time = Date.now();
+      result.end_time = new Date();
       writeCheckpoint(target, repId, last_seq, function(err, res) {
         call(opts.complete, err, result);
       });
