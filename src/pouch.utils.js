@@ -6,8 +6,8 @@
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
 var call = function(fun) {
-  var args = Array.prototype.slice.call(arguments, 1);
   if (typeof fun === typeof Function) {
+    var args = Array.prototype.slice.call(arguments, 1);
     fun.apply(this, args);
   }
 };
