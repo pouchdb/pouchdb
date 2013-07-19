@@ -11,7 +11,7 @@ var path = require('path');
 var fs = require('fs');
 var crypto = require('crypto');
 var EventEmitter = require('events').EventEmitter;
-var levelup = require('levelup');
+var levelup = require('level');
 
 var error = function(callback, message) {
   return process.nextTick(function() {
