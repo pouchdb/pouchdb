@@ -1,16 +1,17 @@
-/*globals initTestDB: false, openTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, LevelPouch: true, strictEqual: false */
-/*globals cleanupTestDatabases: false */
+/*globals initTestDB, openTestDB, emit, generateAdapterUrl, cleanupTestDatabases */
+/*globals PERSIST_DATABASES, initDBPair, ajax, strictEqual */
+/*globals utils: true, LevelPouch: true */
 
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
 var LevelPouch;
+var PouchDB;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
+  PouchDB = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
   utils = require('./test.utils.js');
 
@@ -25,7 +26,7 @@ adapters.map(function(adapter) {
   qunit("basics: " + adapter, {
     setup: function() {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      Pouch.enableAllDbs = false;
     },
     teardown: cleanupTestDatabases
   });
@@ -334,7 +335,7 @@ adapters.map(function(adapter) {
     var name = this.name;
     initTestDB(name, function(err, db) {
       db.post({test:"somestuff"}, function (err, info) {
-        new Pouch(name, function(err, db) {
+        new PouchDB(name, function(err, db) {
           db.info(function(err, info) {
             equal(info.update_seq, 1, 'Update seq persisted');
             equal(info.doc_count, 1, 'Doc Count persists');
@@ -388,6 +389,20 @@ adapters.map(function(adapter) {
       db.put(doc2, callback);
       db.bulkDocs({docs: [doc1, doc2]}, callback);
    });
+  });
+
+  asyncTest('Test instance update_seq updates correctly', function() {
+    var db1 = new PouchDB(this.name);
+    var db2 = new PouchDB(this.name);
+    db1.post({a:'doc'}, function() {
+      db1.info(function(err, db1Info) {
+        db2.info(function(err, db2Info) {
+          notEqual(db1Info.update_seq, 0, 'Update seqs arent 0');
+          equal(db1Info.update_seq, db2Info.update_seq, 'Update seqs match');
+          start();
+        });
+      });
+    });
   });
 
   test('Error works', 1, function() {

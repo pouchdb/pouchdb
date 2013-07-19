@@ -34,7 +34,6 @@ var unknownError = function(callback) {
 var webSqlPouch = function(opts, callback) {
 
   var api = {};
-  var update_seq = 0;
   var instanceId = null;
   var name = opts.name;
 
@@ -67,12 +66,11 @@ var webSqlPouch = function(opts, callback) {
       tx.executeSql(updateseq, [], function(tx, result) {
         if (!result.rows.length) {
           var initSeq = 'INSERT INTO ' + META_STORE + ' (update_seq) VALUES (?)';
-          var newId = Pouch.uuid();
           tx.executeSql(initSeq, [0]);
           return;
         }
-        update_seq = result.rows.item(0).update_seq;
       });
+
       var dbid = 'SELECT dbid FROM ' + META_STORE + ' WHERE dbid IS NOT NULL';
       tx.executeSql(dbid, [], function(tx, result) {
         if (!result.rows.length) {
@@ -105,10 +103,15 @@ var webSqlPouch = function(opts, callback) {
     db.transaction(function(tx) {
       var sql = 'SELECT COUNT(id) AS count FROM ' + DOC_STORE;
       tx.executeSql(sql, [], function(tx, result) {
-        callback(null, {
-          db_name: name,
-          doc_count: result.rows.item(0).count,
-          update_seq: update_seq
+        var doc_count = result.rows.item(0).count;
+        var updateseq = 'SELECT update_seq FROM ' + META_STORE;
+        tx.executeSql(updateseq, [], function(tx, result) {
+          var update_seq = result.rows.item(0).update_seq;
+          callback(null, {
+            db_name: name,
+            doc_count: doc_count,
+            update_seq: update_seq
+          });
         });
       });
     });
@@ -118,6 +121,7 @@ var webSqlPouch = function(opts, callback) {
 
     var newEdits = opts.new_edits;
     var userDocs = req.docs;
+    var docsWritten = 0;
 
     // Parse the docs, give them a sequence number for the result
     var docInfos = userDocs.map(function(doc, i) {
@@ -163,14 +167,20 @@ var webSqlPouch = function(opts, callback) {
           return;
         }
 
-        update_seq++;
+        docsWritten++;
+
+        webSqlPouch.Changes.notify(name);
+        webSqlPouch.Changes.notifyLocalWindows(name);
+      });
+
+      var updateseq = 'SELECT update_seq FROM ' + META_STORE;
+      tx.executeSql(updateseq, [], function(tx, result) {
+        var update_seq = result.rows.item(0).update_seq + docsWritten;
         var sql = 'UPDATE ' + META_STORE + ' SET update_seq=?';
         tx.executeSql(sql, [update_seq], function() {
-          webSqlPouch.Changes.notify(name);
-          webSqlPouch.Changes.notifyLocalWindows(name);
+          call(callback, null, aresults);
         });
       });
-      call(callback, null, aresults);
     }
 
     function preprocessAttachment(att, finish) {
@@ -180,8 +190,10 @@ var webSqlPouch = function(opts, callback) {
       if (typeof att.data === 'string') {
         try {
           att.data = atob(att.data);
-        } catch(e) {
-          return call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
+        } catch (e) {
+          var err = Pouch.error(Pouch.Errors.BAD_ARG,
+                                "Attachments need to be base64 encoded");
+          return call(callback, err);
         }
         att.digest = 'md5-' + Crypto.MD5(att.data);
         return finish();

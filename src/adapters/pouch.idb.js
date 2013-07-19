@@ -61,11 +61,6 @@ var IdbPouch = function(opts, callback) {
     Pouch.openReqList[name] = req;
   }
 
-  var meta = {
-    id: 'meta-store',
-    updateSeq: 0
-  };
-
   var blobSupport = null;
 
   var instanceId = null;
@@ -133,23 +128,16 @@ var IdbPouch = function(opts, callback) {
       return;
     }
 
-    var req = txn.objectStore(META_STORE).get('meta-store');
+    var req = txn.objectStore(META_STORE).get(META_STORE);
 
     req.onsuccess = function(e) {
-      var reqDBId,
-          result;
-
-      if (e.target.result) {
-        meta = e.target.result;
-      }
-
+      var meta = e.target.result || {id: META_STORE};
       if (name + '_id' in meta) {
         instanceId = meta[name + '_id'];
       } else {
         instanceId = Pouch.uuid();
-
         meta[name + '_id'] = instanceId;
-        reqDBId = txn.objectStore(META_STORE).put(meta);
+        txn.objectStore(META_STORE).put(meta);
       }
 
       // detect blob support
@@ -194,9 +182,17 @@ var IdbPouch = function(opts, callback) {
     }
 
     var results = [];
+    var docsWritten = 0;
+
+    function writeMetaData(e) {
+      var meta = e.target.result;
+      meta.updateSeq = (meta.updateSeq || 0) + docsWritten;
+      txn.objectStore(META_STORE).put(meta);
+    }
 
     function processDocs() {
       if (!docInfos.length) {
+        txn.objectStore(META_STORE).get(META_STORE).onsuccess = writeMetaData;
         return;
       }
       var currentDoc = docInfos.shift();
@@ -247,8 +243,10 @@ var IdbPouch = function(opts, callback) {
         var data;
         try {
           data = atob(att.data);
-        } catch(e) {
-          return call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
+        } catch (e) {
+          var err = Pouch.error(Pouch.Errors.BAD_ARG,
+                                "Attachments need to be base64 encoded");
+          return call(callback, err);
         }
         att.digest = 'md5-' + Crypto.MD5(data);
         if (blobSupport) {
@@ -310,8 +308,7 @@ var IdbPouch = function(opts, callback) {
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
 
-      meta.updateSeq++;
-      var req = txn.objectStore(META_STORE).put(meta);
+      docsWritten++;
 
       if (isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
         docInfo.data._deleted = true;
@@ -620,32 +617,36 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  // Looping through all the documents in the database is a terrible idea
-  // easiest to implement though, should probably keep a counter
   api._info = function idb_info(callback) {
     var count = 0;
-    var result;
-    var txn = idb.transaction([DOC_STORE], 'readonly');
+    var update_seq = 0;
+    var txn = idb.transaction([DOC_STORE, META_STORE], 'readonly');
+
+    function fetchUpdateSeq(e) {
+      update_seq = e.target.result && e.target.result.updateSeq || 0;
+    }
+
+    function countDocs(e) {
+      var cursor = e.target.result;
+      if (!cursor) {
+        txn.objectStore(META_STORE).get(META_STORE).onsuccess = fetchUpdateSeq;
+        return;
+      }
+      if (cursor.value.deleted !== true) {
+        count++;
+      }
+      cursor['continue']();
+    }
 
     txn.oncomplete = function() {
-      callback(null, result);
+      callback(null, {
+        db_name: name,
+        doc_count: count,
+        update_seq: update_seq
+      });
     };
 
-    txn.objectStore(DOC_STORE).openCursor().onsuccess = function(e) {
-        var cursor = e.target.result;
-        if (!cursor) {
-          result = {
-            db_name: name,
-            doc_count: count,
-            update_seq: meta.updateSeq
-          };
-          return;
-        }
-        if (cursor.value.deleted !== true) {
-          count++;
-        }
-        cursor['continue']();
-      };
+    txn.objectStore(DOC_STORE).openCursor().onsuccess = countDocs;
   };
 
   api._changes = function idb_changes(opts) {
