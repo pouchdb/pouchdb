@@ -186,9 +186,10 @@ function generateAdapterUrl(id) {
     return 'testdb_' + testId + '_' + opt[1];
   }
   if (opt[0] === 'http') {
-    return (typeof module !== 'undefined' && module.exports) ?
-      'http://localhost:5984/testdb_' + testId + '_' + opt[1] :
-      'http://localhost:2020/testdb_' + testId + '_' + opt[1];
+    var host = (typeof module !== 'undefined' && module.exports) ?
+      process.env.COUCH_HOST || 'http://localhost:5984/' :
+      'http://localhost:2020/';
+    return host + 'testdb_' + testId + '_' + opt[1];
   }
 }
 

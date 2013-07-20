@@ -244,6 +244,10 @@ module.exports = function(grunt) {
     });
   });
 
+  if (grunt.option('couch-host')) {
+    process.env.COUCH_HOST = grunt.option('couch-host');
+  }
+
   grunt.loadNpmTasks('grunt-saucelabs');
   grunt.loadNpmTasks('grunt-node-qunit');
   grunt.loadNpmTasks('grunt-contrib-connect');
