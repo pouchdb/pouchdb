@@ -24,12 +24,10 @@ var testFiles = fs.readdirSync("./tests").filter(function(name){
 var browserConfig = [{
   browserName: 'firefox',
   version: '19',
-  platform: 'Linux',
-  name: 'linux/firefox'
+  platform: 'Linux'
 },{
   browserName: 'chrome',
-  platform: 'Windows 8',
-  name: 'chrome/firefox'
+  platform: 'Windows 8'
 }];
 
 var fileHeader = '// <%= pkg.name %>.<%= pkg.release %> - ' +
