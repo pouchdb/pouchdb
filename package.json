@@ -64,6 +64,6 @@
     }
   ],
   "scripts": {
-    "test": "grunt test-travis"
+    "test": "grunt test-travis --verbose"
   }
 }
