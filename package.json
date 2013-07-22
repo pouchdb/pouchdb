@@ -1,5 +1,5 @@
 {
-  "name": "PouchDB",
+  "name": "pouchdb",
   "release": "nightly",
   "description": "PouchDB is a pocket-sized database.",
   "author": "Dale Harvey",
