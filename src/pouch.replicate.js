@@ -99,6 +99,7 @@ function replicate(src, target, opts, promise) {
   var doc_ids = opts.doc_ids;
   var result = {
     ok: true,
+    id: repId,
     start_time: new Date(),
     docs_read: 0,
     docs_written: 0
