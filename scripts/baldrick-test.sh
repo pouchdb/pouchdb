@@ -8,7 +8,7 @@
 
 # tmp directory to store CouchDB data files
 TMP=./tmp
-COUCH_URI_FILE=./$TMP/couch.uri
+COUCH_URI_FILE=$TMP/couch.uri
 
 # Install PouchDB dependancies
 npm install
