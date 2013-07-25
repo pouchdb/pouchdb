@@ -577,6 +577,29 @@ adapters.map(function(adapters) {
     });
   });
 
+  asyncTest("Ensure checkpoint after deletion", function() {
+    var db1name = this.name;
+    var adoc = {'_id' :'adoc'};
+    var newdoc = {'_id' :'newdoc'};
+    initDBPair(this.name, this.remote, function(db1, db2) {
+      db1.post(adoc, function() {
+        Pouch.replicate(db1, db2, {complete: function() {
+          Pouch.destroy(db1name, function() {
+            var fresh = new PouchDB(db1name);
+            fresh.post(newdoc, function() {
+              Pouch.replicate(fresh, db2, {complete: function() {
+                db2.allDocs(function(err, docs) {
+                  equal(docs.rows.length, 2, 'Woot, got both');
+                  start();
+                });
+              }});
+            });
+          });
+        }});
+      });
+    });
+  });
+
 });
 
 // test a basic "initialize pouch" scenario when couch instance contains deleted revisions
