@@ -9,9 +9,9 @@ title: PouchDB, the JavaScript Database that Syncs!
 
 <section>
 
-<p>PouchDB was written to help web developers build applications that work as well offline as well as they do online, applications save data locally so the user can use all the features of an app even while offline and synchronise the data between clients so they have up to date data wherever they go.</p>
+<p>PouchDB is an Open Source JavaScript Database inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a> that is designed to run well within the browser.</p>
 
-<p>PouchDB is Open Source, written in Javascript and inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a>, it is designed to be lightweight and easily embeddable.</p>
+<p>PouchDB was created to help web developers build applications that work equally as well offline as they do online. It enables applications to store data locally while offline, and synchronise it with CouchDB and compatible servers when the application is back online, keeping the user's data in sync no matter where they next login.</p>
 
 <!--<ul id="news">
   {% for post in site.posts %}
