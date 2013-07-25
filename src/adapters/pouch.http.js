@@ -124,8 +124,15 @@ var HttpPouch = function(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
   var host = getHost(opts.name);
+
+  host.headers = opts.headers || {};
   if (opts.auth) {
-    host.auth = opts.auth;
+    var token = btoa(opts.auth.username + ':' + opts.auth.password);
+    host.headers.Authorization = 'Basic ' + token;
+  }
+
+  if (opts.headers) {
+    host.headers = opts.headers;
   }
 
   // Generate the database URL based on the host
@@ -151,7 +158,7 @@ var HttpPouch = function(opts, callback) {
       };
       var params = '?count=' + opts.count;
       ajax({
-        auth: host.auth,
+        headers: host.headers,
         method: 'GET',
         url: genUrl(host, '_uuids') + params
       }, cb);
@@ -160,11 +167,11 @@ var HttpPouch = function(opts, callback) {
 
   // Create a new CouchDB database based on the given opts
   var createDB = function(){
-    ajax({auth: host.auth, method: 'PUT', url: db_url}, function(err, ret) {
+    ajax({headers: host.headers, method: 'PUT', url: db_url}, function(err, ret) {
       // If we get an "Unauthorized" error
       if (err && err.status === 401) {
         // Test if the database already exists
-        ajax({auth: host.auth, method: 'HEAD', url: db_url}, function (err, ret) {
+        ajax({headers: host.headers, method: 'HEAD', url: db_url}, function (err, ret) {
           // If there is still an error
           if (err) {
             // Give the error to the callback to deal with
@@ -186,7 +193,7 @@ var HttpPouch = function(opts, callback) {
     });
   };
   if (!opts.skipSetup) {
-    ajax({auth: host.auth, method: 'GET', url: db_url}, function(err, ret) {
+    ajax({headers: host.headers, method: 'GET', url: db_url}, function(err, ret) {
       //check if the db exists
       if (err) {
         if (err.status === 404) {
@@ -216,7 +223,7 @@ var HttpPouch = function(opts, callback) {
       api.taskqueue.addTask('request', arguments);
       return;
     }
-    options.auth = host.auth;
+    options.headers = host.headers;
     options.url = genDBUrl(host, options.url);
     ajax(options, callback);
   };
@@ -233,7 +240,7 @@ var HttpPouch = function(opts, callback) {
       opts = {};
     }
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       url: genDBUrl(host, '_compact'),
       method: 'POST'
     }, function() {
@@ -262,7 +269,7 @@ var HttpPouch = function(opts, callback) {
       return;
     }
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       method:'GET',
       url: genDBUrl(host, '')
     }, callback);
@@ -348,7 +355,7 @@ var HttpPouch = function(opts, callback) {
 
     // Set the options for the ajax call
     var options = {
-      auth: host.auth,
+      headers: host.headers,
       method: 'GET',
       url: genDBUrl(host, id + params)
     };
@@ -393,7 +400,7 @@ var HttpPouch = function(opts, callback) {
 
     // Delete the document
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       method:'DELETE',
       url: genDBUrl(host, encodeDocId(doc._id)) + '?rev=' + doc._rev
     }, callback);
@@ -422,7 +429,7 @@ var HttpPouch = function(opts, callback) {
       return;
     }
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       method: 'DELETE',
       url: genDBUrl(host, encodeDocId(docId) + '/' + attachmentId) + '?rev=' + rev
     }, callback);
@@ -452,15 +459,17 @@ var HttpPouch = function(opts, callback) {
     if (rev) {
       url += '?rev=' + rev;
     }
-    // Add the attachment
-    ajax({
-      auth: host.auth,
+
+    var opts = {
+      headers: host.headers,
       method:'PUT',
       url: url,
-      headers: {'Content-Type': type},
       processData: false,
       body: blob
-    }, callback);
+    };
+    opts.headers['Content-Type'] = type;
+    // Add the attachment
+    ajax(opts, callback);
   };
 
   // Add the document given by doc (in JSON string format) to the database
@@ -477,7 +486,7 @@ var HttpPouch = function(opts, callback) {
     }
     if (typeof doc !== 'object') {
       return call(callback, Pouch.Errors.NOT_AN_OBJECT);
-    } 
+    }
     if (!('_id' in doc)) {
       return call(callback, Pouch.Errors.MISSING_ID);
     }
@@ -500,7 +509,7 @@ var HttpPouch = function(opts, callback) {
 
     // Add the document
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       method: 'PUT',
       url: genDBUrl(host, encodeDocId(doc._id)) + params,
       body: doc
@@ -522,7 +531,7 @@ var HttpPouch = function(opts, callback) {
     }
     if (typeof doc !== 'object') {
       return call(callback, Pouch.Errors.NOT_AN_OBJECT);
-    } 
+    }
     if (! ("_id" in doc)) {
       if (uuids.list.length > 0) {
         doc._id = uuids.list.pop();
@@ -568,7 +577,7 @@ var HttpPouch = function(opts, callback) {
 
     // Update/create the documents
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       method:'POST',
       url: genDBUrl(host, '_bulk_docs'),
       body: req
@@ -648,7 +657,7 @@ var HttpPouch = function(opts, callback) {
 
     // Get the document listing
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       method: method,
       url: genDBUrl(host, '_all_docs' + params),
       body: body
@@ -735,7 +744,7 @@ var HttpPouch = function(opts, callback) {
 
       // Set the options for the ajax call
       var xhrOpts = {
-        auth: host.auth, method:'GET',
+        headers: host.headers, method:'GET',
         url: genDBUrl(host, '_changes' + paramStr),
         // _changes can take a long time to generate, especially when filtered
         timeout: null
@@ -849,7 +858,7 @@ var HttpPouch = function(opts, callback) {
 
     // Get the missing document/revision IDs
     ajax({
-      auth: host.auth,
+      headers: host.headers,
       method:'POST',
       url: genDBUrl(host, '_revs_diff'),
       body: req
@@ -872,7 +881,7 @@ var HttpPouch = function(opts, callback) {
 // Delete the HttpPouch specified by the given name.
 HttpPouch.destroy = function(name, callback) {
   var host = getHost(name);
-  ajax({auth: host.auth, method: 'DELETE', url: genDBUrl(host, '')}, callback);
+  ajax({headers: host.headers, method: 'DELETE', url: genDBUrl(host, '')}, callback);
 };
 
 // HttpPouch is a valid adapter.
