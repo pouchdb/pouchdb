@@ -792,7 +792,8 @@ var HttpPouch = function(opts, callback) {
       }
 
       var finished = (limit && leftToFetch <= 0) ||
-        (!limit && lastFetchedSeq === remoteLastSeq) ||
+        (!limit && (lastFetchedSeq === remoteLastSeq ||
+        (res && res.results && res.results.length === 0))) ||
         (opts.descending && lastFetchedSeq !== 0);
 
       if (opts.continuous || !finished) {
