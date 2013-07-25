@@ -69,8 +69,24 @@ var ajax = function ajax(options, callback) {
       xhr.responseType = 'arraybuffer';
     }
 
+    function createCookie(name,value,days) {
+      if (days) {
+	var date = new Date();
+	date.setTime(date.getTime()+(days*24*60*60*1000));
+	var expires = "; expires="+date.toGMTString();
+      } else {
+        var expires = "";
+      }
+      document.cookie = name+"="+value+expires+"; path=/";
+    }
+
     for (var key in options.headers) {
-      xhr.setRequestHeader(key, options.headers[key]);
+      if (key === 'Cookie') {
+        var cookie = options.headers[key].split('=');
+        createCookie(cookie[0], cookie[1], 10);
+      } else {
+        xhr.setRequestHeader(key, options.headers[key]);
+      }
     }
 
     if (!("body" in options)) {
