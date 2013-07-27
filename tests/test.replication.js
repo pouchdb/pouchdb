@@ -165,6 +165,54 @@ adapters.map(function(adapters) {
     });
   });
 
+  asyncTest("Test continuous pull checkpoint", function() {
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        var changeCount = docs.length;
+        var changes = db.changes({
+          continuous: true,
+          onChange: function(change) {
+            if (--changeCount) {
+              return;
+            }
+            replication.cancel();
+            changes.cancel();
+            db.replicate.from(self.remote, {complete: function(err, details) {
+              equal(details.docs_read, 0, 'We restarted from checkpoint');
+              start();
+            }});
+          }
+        });
+        var replication = db.replicate.from(self.remote, {continuous: true});
+      });
+    });
+  });
+
+  asyncTest("Test continuous push checkpoint", function() {
+    var self = this;
+    initDBPair(this.name, this.remote, function(db, remote) {
+      db.bulkDocs({docs: docs}, {}, function(err, results) {
+        var changeCount = docs.length;
+        var changes = remote.changes({
+          continuous: true,
+          onChange: function(change) {
+            if (--changeCount) {
+              return;
+            }
+            replication.cancel();
+            changes.cancel();
+            db.replicate.to(self.remote, {complete: function(err, details) {
+              equal(details.docs_read, 0, 'We restarted from checkpoint');
+              start();
+            }});
+          }
+        });
+        var replication = db.replicate.to(self.remote, {continuous: true});
+      });
+    });
+  });
+
   asyncTest("Test checkpoint 2", function() {
     var self = this;
     var doc = {_id: "3", count: 0};

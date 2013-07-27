@@ -118,7 +118,6 @@ function replicate(src, target, opts, promise) {
   };
 
   function docsWritten(err, res, len) {
-    requests.notifyRequestComplete();
     if (opts.onChange) {
       for (var i = 0; i < len; i++) {
         /*jshint validthis:true */
@@ -127,7 +126,11 @@ function replicate(src, target, opts, promise) {
     }
     pending -= len;
     result.docs_written += len;
-    isCompleted();
+
+    writeCheckpoint(src, target, repId, last_seq, function(err, res) {
+      requests.notifyRequestComplete();
+      isCompleted();
+    });
   }
 
   function writeDocs() {
@@ -197,9 +200,7 @@ function replicate(src, target, opts, promise) {
   function isCompleted() {
     if (completed && pending === 0) {
       result.end_time = new Date();
-      writeCheckpoint(src, target, repId, last_seq, function(err, res) {
-        call(opts.complete, err, result);
-      });
+      call(opts.complete, null, result);
     }
   }
 

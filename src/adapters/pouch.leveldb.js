@@ -644,6 +644,13 @@ var LevelPouch = function(opts, callback) {
           if (opts.continuous && !opts.cancelled) {
             change_emitter.on('change', changeListener);
           }
+          results = results.sort(function(a, b) {
+            if (descending) {
+              return b.seq - a.seq;
+            } else {
+              return a.seq - b.seq;
+            }
+          });
           Pouch.utils.processChanges(opts, results, last_seq);
         });
     }
