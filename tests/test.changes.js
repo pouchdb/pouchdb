@@ -1,7 +1,7 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, LevelPouch: true, putTree: false, deepEqual: false */
-/*globals cleanupTestDatabases: false, strictEqual: false, writeDocs: false */
+/*globals initTestDB, emit: true, generateAdapterUrl */
+/*globals PERSIST_DATABASES, initDBPair, utils: true */
+/*globals ajax: true, LevelPouch: true, putTree, deepEqual */
+/*globals cleanupTestDatabases, strictEqual, writeDocs, PouchDB */
 
 "use strict";
 
@@ -200,7 +200,7 @@ adapters.map(function(adapter) {
                   filter: 'foo/even',
                   complete: function(err, results) {
                     strictEqual(results.last_seq, 5, 'filter does not change last_seq');
-                    strictEqual(results.results.length, 2, 'correct # of changes'); 
+                    strictEqual(results.results.length, 2, 'correct # of changes');
                     start();
                   }
                 });
@@ -681,4 +681,15 @@ adapters.map(function(adapter) {
     });
   });
 
+});
+
+asyncTest("Changes reports errors", function (){
+  expect(1);
+  var db = new PouchDB('http://infiniterequest.com', {skipSetup: true});
+  db.changes({
+    complete: function(err, changes) {
+      ok(err, 'got error');
+      start();
+    }
+  });
 });

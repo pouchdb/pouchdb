@@ -733,7 +733,6 @@ var HttpPouch = function(opts, callback) {
     // Get all the changes starting wtih the one immediately after the
     // sequence number given by since.
     var fetch = function(since, callback) {
-
       params.since = since;
       params.limit = (!limit || leftToFetch > CHANGES_LIMIT) ?
         CHANGES_LIMIT : leftToFetch;
@@ -825,6 +824,9 @@ var HttpPouch = function(opts, callback) {
       fetch(opts.since || 0, fetched);
     } else {
       api.info(function(err, res) {
+        if (err) {
+          return call(opts.complete, err);
+        }
         remoteLastSeq = res.update_seq;
         fetch(opts.since || 0, fetched);
       });
