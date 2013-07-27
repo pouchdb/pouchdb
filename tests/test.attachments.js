@@ -1,5 +1,5 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, strictEqual: false */
+/*globals initTestDB, emit: true, generateAdapterUrl, PouchDB */
+/*globals PERSIST_DATABASES, initDBPair, utils: true, strictEqual */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
 /*globals readBlob: false, makeBlob: false, base64Blob: false */
 /*globals cleanupTestDatabases: false */

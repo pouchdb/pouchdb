@@ -1,6 +1,6 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, openTestDB: false, putAfter: false */
-/*globals cleanupTestDatabases: false, strictEqual: false */
+/*globals initTestDB, emit, generateAdapterUrl, PouchDB */
+/*globals PERSIST_DATABASES, initDBPair, openTestDB, putAfter */
+/*globals cleanupTestDatabases, strictEqual */
 
 "use strict";
 

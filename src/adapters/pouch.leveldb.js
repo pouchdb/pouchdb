@@ -11,6 +11,7 @@ var path = require('path');
 var fs = require('fs');
 var crypto = require('crypto');
 var EventEmitter = require('events').EventEmitter;
+
 var levelup = require('level');
 
 var error = function(callback, message) {
@@ -48,17 +49,28 @@ function dbError(callback) {
 }
 
 var LevelPouch = function(opts, callback) {
+
   var opened = false;
   var api = {};
   var update_seq = 0;
   var doc_count = 0;
   var stores = {};
   var name = opts.name;
+  var uuid;
   var change_emitter = CHANGES[name] || new EventEmitter();
 
   CHANGES[name] = change_emitter;
 
+  var uuidPath = opts.name + '.uuid';
+  if (!fs.existsSync(uuidPath)) {
+    uuid = Pouch.uuid();
+    fs.writeFileSync(uuidPath, uuid);
+  } else {
+    uuid = fs.readFileSync(uuidPath);
+  }
+
   function initstore(store_name, encoding) {
+
     var dbpath = path.resolve(path.join(opts.name, store_name));
     opts.valueEncoding = encoding || 'json';
 
@@ -809,6 +821,11 @@ LevelPouch.destroy = function(name, callback) {
   });
 
   function done() {
+    var uuidPath = name + '.uuid';
+    if (fs.existsSync(uuidPath)) {
+      fs.unlinkSync(uuidPath);
+    }
+
     rmdir(name, function(err) {
       if (err && err.code === 'ENOENT') {
         // TODO: MISSING_DOC name is somewhat misleading in this context
