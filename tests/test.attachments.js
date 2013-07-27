@@ -437,6 +437,22 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test synchronous getAttachment", function() {
+    var db = new PouchDB(this.name);
+    db.getAttachment('unexistent', 'attachment', function(err, res) {
+      ok(err, "Correctly returned error");
+      start();
+    });
+  });
+
+  asyncTest("Test synchronous putAttachment", function() {
+    var db = new PouchDB(this.name);
+    db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function(err) {
+      ok(!err, "Correctly wrote attachment");
+      start();
+    });
+  });
+
   asyncTest("Try to get unexistent attachment of some doc", function() {
     initTestDB(this.name, function(err, db) {
       db.put({_id: "foo"}, function(err, res) {

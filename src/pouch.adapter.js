@@ -94,6 +94,10 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.putAttachment = function (docId, attachmentId, rev, blob, type, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('putAttachment', arguments);
+      return;
+    }
     if (typeof type === 'function') {
       callback = type;
       type = blob;
@@ -398,6 +402,10 @@ var PouchAdapter = function(opts, callback) {
   };
 
   api.getAttachment = function(docId, attachmentId, opts, callback) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('getAttachment', arguments);
+      return;
+    }
     if (opts instanceof Function) {
       callback = opts;
       opts = {};
