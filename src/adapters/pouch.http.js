@@ -465,7 +465,8 @@ var HttpPouch = function(opts, callback) {
       method:'PUT',
       url: url,
       processData: false,
-      body: blob
+      body: blob,
+      timeout: 60000
     };
     opts.headers['Content-Type'] = type;
     // Add the attachment
