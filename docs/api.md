@@ -284,7 +284,7 @@ db.changes({complete: function(err, response) { }});
 ## Replicate a database<a id="replication"></a>
 
 {% highlight js %}
-Pouch.replicate(source, target, [options])
+PouchDB.replicate(source, target, [options])
 {% endhighlight %}
 
 Replicate data from `source` to `target`, both the `source` and `target` can be strings used to represent a database of a PouchDB object. If `options.continuous` is `true` then this will track future changes and also replicate them.
@@ -298,13 +298,13 @@ If you want to sync data in both directions you can call this twice reversing th
 
 #### Example Usage:
 {% highlight js %}
-Pouch.replicate('mydb', 'http://localhost:5984/mydb', {
+PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
   onChange: onChange,
   complete: onComplete
 });;
 {% endhighlight %}
 
-There are also shorthands for replication given existing PouchDB objects, these behave the same as `Pouch.replicate()`:
+There are also shorthands for replication given existing PouchDB objects, these behave the same as `PouchDB.replicate()`:
 
 {% highlight js %}
 db.replicate.to(remoteDB, [options]);
@@ -526,15 +526,15 @@ db.revsDiff({
 ## List all databases<a id="list_databasese"></a>
 
 {% highlight js %}
-Pouch.allDbs(callback)
+PouchDB.allDbs(callback)
 {% endhighlight %}
 
-Retrieves all databases from PouchDB. By default, this feature is turned off and this function will return an empty list.  To enable this feature and obtain a list of all the databases, set `Pouch.enableAllDbs` to true before creating any databases.
+Retrieves all databases from PouchDB. By default, this feature is turned off and this function will return an empty list.  To enable this feature and obtain a list of all the databases, set `PouchDB.enableAllDbs` to true before creating any databases.
 
 #### Example Usage:
 {% highlight js %}
-Pouch.enableAllDbs = true;
-Pouch.allDbs(function(err, response) {});
+PouchDB.enableAllDbs = true;
+PouchDB.allDbs(function(err, response) {});
 {% endhighlight %}
 
 #### Example Response:

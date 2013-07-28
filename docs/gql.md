@@ -40,7 +40,7 @@ Although only the query is mandatory, the callback is required to access the que
 Currently no query options are implemented.
 
     var pouchdb;
-    Pouch('idb://test', function(err, db) {
+    PouchDB('idb://test', function(err, db) {
        pouchdb = db;
       // Use pouchdb to call further functions
         db.gql({select: "*", where: "type='Fire' and name is not null"}, function(err, result){
