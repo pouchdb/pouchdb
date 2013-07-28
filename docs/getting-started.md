@@ -89,7 +89,7 @@ you have entered.
 
 # Update the UI
 
-We dont want to refresh the page to see new items, more typically you would update the UI manually when you write data to it, however in PouchDB you may be syncing data remotely and want to make sure you update when the remote data changes to do this we will call `db.changes` which subscribes to updates to the database wherever they come from. You can enter this code between the `remoteCouch` and `showTodos` declaration:
+We dont want to refresh the page to see new items, more typically you would update the UI manually when you write data to it, however in PouchDB you may be syncing data remotely and want to make sure you update when the remote data changes to do this we will call `db.changes` which subscribes to updates to the database wherever they come from. You can enter this code between the `remoteCouch` and `addTodo` declaration:
 
 {% highlight js %}
 var remoteCouch = false;
@@ -103,7 +103,7 @@ db.info(function(err, info) {
 });
 
 // Show the current list of todos by reading them from the database
-function showTodos() {
+function addTodo() {
 {% endhighlight %}
 
 So every time an update happens to the database we will redraw the UI showing the new data, the `continuous` flag means this function will continue to run indefinitely. Now try entering a new todo and it should appear immediately.

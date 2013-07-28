@@ -1,27 +1,7 @@
-/*globals call: false, extend: false, parseDoc: false, Crypto: false */
+/*globals call: false, extend: false, parseDoc: false, Crypto: false, window */
 /*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false, processChanges: false */
 
 'use strict';
-
-// While most of the IDB behaviors match between implementations a
-// lot of the names still differ. This section tries to normalize the
-// different objects & methods.
-var indexedDB = window.indexedDB ||
-  window.mozIndexedDB ||
-  window.webkitIndexedDB;
-
-// still needed for R/W transactions in Android Chrome. follow MDN example:
-// https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#transaction
-// note though that Chrome Canary fails on undefined READ_WRITE constants
-// on the native IDBTransaction object
-var IDBTransaction = (window.IDBTransaction && window.IDBTransaction.READ_WRITE) ?
-  window.IDBTransaction :
-  (window.webkitIDBTransaction && window.webkitIDBTransaction.READ_WRITE) ?
-    window.webkitIDBTransaction :
-    { READ_WRITE: 'readwrite' };
-
-var IDBKeyRange = window.IDBKeyRange ||
-  window.webkitIDBKeyRange;
 
 var idbError = function(callback) {
   return function(event) {
@@ -55,7 +35,7 @@ var IdbPouch = function(opts, callback) {
 
 
   var name = opts.name;
-  var req = indexedDB.open(name, POUCH_VERSION);
+  var req = window.indexedDB.open(name, POUCH_VERSION);
 
   if (Pouch.openReqList) {
     Pouch.openReqList[name] = req;
@@ -108,7 +88,7 @@ var IdbPouch = function(opts, callback) {
     idb = e.target.result;
 
     var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE],
-                              IDBTransaction.READ_WRITE);
+                              'readwrite');
 
     idb.onversionchange = function() {
       idb.close();
@@ -418,7 +398,7 @@ var IdbPouch = function(opts, callback) {
     var txn;
     preprocessAttachments(function() {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE],
-                            IDBTransaction.READ_WRITE);
+                            'readwrite');
       txn.onerror = idbError(callback);
       txn.ontimeout = idbError(callback);
       txn.oncomplete = complete;
@@ -526,9 +506,9 @@ var IdbPouch = function(opts, callback) {
     var descending = 'descending' in opts ? opts.descending : false;
     descending = descending ? 'prev' : null;
 
-    var keyRange = start && end ? IDBKeyRange.bound(start, end)
-      : start ? IDBKeyRange.lowerBound(start)
-      : end ? IDBKeyRange.upperBound(end) : null;
+    var keyRange = start && end ? window.IDBKeyRange.bound(start, end)
+      : start ? window.IDBKeyRange.lowerBound(start)
+      : end ? window.IDBKeyRange.upperBound(end) : null;
 
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
     transaction.oncomplete = function() {
@@ -687,10 +667,10 @@ var IdbPouch = function(opts, callback) {
 
       if (descending) {
         req = txn.objectStore(BY_SEQ_STORE)
-            .openCursor(IDBKeyRange.lowerBound(opts.since, true), descending);
+            .openCursor(window.IDBKeyRange.lowerBound(opts.since, true), descending);
       } else {
         req = txn.objectStore(BY_SEQ_STORE)
-            .openCursor(IDBKeyRange.lowerBound(opts.since, true));
+            .openCursor(window.IDBKeyRange.lowerBound(opts.since, true));
       }
 
       req.onsuccess = onsuccess;
@@ -822,7 +802,7 @@ var IdbPouch = function(opts, callback) {
   // which are listed in revs and sets this document
   // revision to to rev_tree
   api._doCompaction = function(docId, rev_tree, revs, callback) {
-    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], IDBTransaction.READ_WRITE);
+    var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readwrite');
 
     var index = txn.objectStore(DOC_STORE);
     index.get(docId).onsuccess = function(event) {
@@ -856,7 +836,7 @@ var IdbPouch = function(opts, callback) {
 };
 
 IdbPouch.valid = function idb_valid() {
-  return !!indexedDB;
+  return !!window.indexedDB;
 };
 
 IdbPouch.destroy = function idb_destroy(name, callback) {
@@ -869,7 +849,7 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
   if (Pouch.openReqList[name] && Pouch.openReqList[name].result) {
     Pouch.openReqList[name].result.close();
   }
-  var req = indexedDB.deleteDatabase(name);
+  var req = window.indexedDB.deleteDatabase(name);
 
   req.onsuccess = function() {
     //Remove open request from the list.

@@ -1,7 +1,7 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, LevelPouch: true, putTree: false, deepEqual: false */
-/*globals cleanupTestDatabases: false, strictEqual: false, writeDocs: false */
+/*globals initTestDB, emit: true, generateAdapterUrl */
+/*globals PERSIST_DATABASES, initDBPair, utils: true */
+/*globals ajax: true, LevelPouch: true, putTree, deepEqual */
+/*globals cleanupTestDatabases, strictEqual, writeDocs, PouchDB */
 
 "use strict";
 
@@ -200,7 +200,7 @@ adapters.map(function(adapter) {
                   filter: 'foo/even',
                   complete: function(err, results) {
                     strictEqual(results.last_seq, 5, 'filter does not change last_seq');
-                    strictEqual(results.results.length, 2, 'correct # of changes'); 
+                    strictEqual(results.results.length, 2, 'correct # of changes');
                     start();
                   }
                 });
@@ -589,6 +589,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Changes with conflicts are handled correctly", function() {
+
     var docs1 = [
       {_id: "0", integer: 0},
       {_id: "1", integer: 1},
@@ -601,7 +602,8 @@ adapters.map(function(adapter) {
       {_id: "3", integer: 12}
     ];
 
-    var localname = this.name, remotename = this.name + "-remote";
+    var localname = this.name;
+    var remotename = this.name + "-remote";
 
     initDBPair(localname, remotename, function(localdb, remotedb) {
       localdb.bulkDocs({docs: docs1}, function(err, info) {
@@ -614,10 +616,11 @@ adapters.map(function(adapter) {
               // update remote once, local twice, then replicate from
               // remote to local so the remote losing conflict is later in the tree
               localdb.put({_id: "3", _rev: rev2, integer: 20}, function(err, resp) {
-                var rev3local = resp.rev;
-                localdb.put({_id: "3", _rev: rev3local, integer: 30}, function(err, resp) {
+                var rev3Doc = {_id: "3", _rev: resp.rev, integer: 30};
+                localdb.put(rev3Doc, function(err, resp) {
                   var rev4local = resp.rev;
-                  remotedb.put({_id: "3", _rev: rev2, integer: 100}, function(err, resp) {
+                  var rev4Doc = {_id: "3", _rev: rev2, integer: 100};
+                  remotedb.put(rev4Doc, function(err, resp) {
                     var remoterev = resp.rev;
                     Pouch.replicate(remotedb, localdb, function(err, done) {
                       localdb.changes({
@@ -630,14 +633,18 @@ adapters.map(function(adapter) {
                           equal(changes.results.length, 4, "should get only 4 changes");
                           var ch = changes.results[3];
                           equal(ch.id, "3");
-                          equal(ch.changes.length, 2, "Should include both conflicting revisions");
-                          equal(ch.doc.integer, 30, "Includes correct value of the doc");
-                          equal(ch.doc._rev, rev4local, "Includes correct revision of the doc");
-                          deepEqual(ch.changes, [{rev:rev4local}, {rev:remoterev}], "Includes correct changes array");
+                          equal(ch.changes.length, 2,
+                                "Should include both conflicting revisions");
+                          equal(ch.doc.integer, 30,
+                                "Includes correct value of the doc");
+                          equal(ch.doc._rev, rev4local,
+                                "Includes correct revision of the doc");
+                          deepEqual(ch.changes, [{rev:rev4local}, {rev:remoterev}],
+                                    "Includes correct changes array");
                           ok(ch.doc._conflicts, "Includes conflicts");
                           equal(ch.doc._conflicts.length, 1, "Should have 1 conflict");
-                          equal(ch.doc._conflicts[0], remoterev, "Conflict should be remote rev");
-
+                          equal(ch.doc._conflicts[0], remoterev,
+                                "Conflict should be remote rev");
                           start();
                         }
                       });
@@ -681,4 +688,15 @@ adapters.map(function(adapter) {
     });
   });
 
+});
+
+asyncTest("Changes reports errors", function (){
+  expect(1);
+  var db = new PouchDB('http://infiniterequest.com', {skipSetup: true});
+  db.changes({
+    complete: function(err, changes) {
+      ok(err, 'got error');
+      start();
+    }
+  });
 });

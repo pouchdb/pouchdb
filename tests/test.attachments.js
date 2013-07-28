@@ -1,5 +1,5 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, strictEqual: false */
+/*globals initTestDB, emit: true, generateAdapterUrl, PouchDB */
+/*globals PERSIST_DATABASES, initDBPair, utils: true, strictEqual */
 /*globals ajax: true, LevelPouch: true, makeDocs: false */
 /*globals readBlob: false, makeBlob: false, base64Blob: false */
 /*globals cleanupTestDatabases: false */
@@ -114,6 +114,7 @@ adapters.map(function(adapter) {
             ok(data, 'This is no base64 encoded text', 'Correct data returned');
             db.get('bin_doc2', {attachments: true}, function(err, res, xhr) {
               ok(res._attachments, 'Result has attachments field');
+              ok(!res._attachments['foo2.txt'].stub, 'stub is false');
               equal(res._attachments['foo2.txt'].data,
                     btoa('This is no base64 encoded text'));
               equal(res._attachments['foo2.txt'].content_type, 'text/plain',
@@ -433,6 +434,33 @@ adapters.map(function(adapter) {
       db.getAttachment('unexistent', 'attachment', function(err, res) {
         ok(err, "Correctly returned error");
         start();
+      });
+    });
+  });
+
+  asyncTest("Test synchronous getAttachment", function() {
+    var db = new PouchDB(this.name);
+    db.getAttachment('unexistent', 'attachment', function(err, res) {
+      ok(err, "Correctly returned error");
+      start();
+    });
+  });
+
+  asyncTest("Test synchronous putAttachment", function() {
+    var db = new PouchDB(this.name);
+    db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function(err) {
+      ok(!err, "Correctly wrote attachment");
+      start();
+    });
+  });
+
+  asyncTest("Test stubs", function() {
+    initTestDB(this.name, function(err, db) {
+      db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function(err) {
+        db.allDocs({include_docs: true}, function(err, docs) {
+          ok(!docs.rows[0].stub, 'no stub');
+          start();
+        });
       });
     });
   });
