@@ -116,7 +116,9 @@ var extend = function() {
 
         // Don't bring in undefined values
         } else if ( copy !== undefined ) {
-          target[ name ] = copy;
+          if (!(isArray(options) && isFunction(copy))) {
+            target[ name ] = copy;
+          }
         }
       }
     }

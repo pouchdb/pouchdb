@@ -3,6 +3,8 @@
 
 var PERSIST_DATABASES = false;
 
+Array.prototype.wtf = function() { };
+
 function cleanupAllDbs() {
 
   var deleted = 0;
