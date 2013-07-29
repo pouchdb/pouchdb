@@ -76,6 +76,16 @@ Workflows can vary, but here is a very simple workflow for contributing a bug fi
     $ git commit -m "(#121) - A brief description of what I changed"
     $ git push origin 121-issue-keyword
 
+Building PouchDB Documentation
+--------------------------------------
+
+The source for the website http://pouchdb.com is stored inside the `docs` directory of the PouchDB repository, you can make changes and submit pull requests as with any other patch. To build and view the website locally you will need to install [jekyll](http://jekyllrb.com/) then:
+
+    $ cd docs
+    $ jekyll -w serve
+
+You should now find the documentation at http://127.0.0.1:4000
+
 Questions?
 ----------
 
