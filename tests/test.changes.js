@@ -688,6 +688,24 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("changes large number of docs", function() {
+    var docs = [];
+    var num = 30;
+    for (var i = 0; i < num; i++) {
+      docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+    }
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, function(err, info) {
+        db.changes({
+          complete: function(err, res) {
+            equal(res.results.length, num, 'Replication with deleted docs');
+            start();
+          }
+        });
+      });
+    });
+  });
+
 });
 
 asyncTest("Changes reports errors", function (){

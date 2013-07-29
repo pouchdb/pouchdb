@@ -175,12 +175,13 @@ adapters.map(function(adapter) {
 
   asyncTest("Remove doc, no callback", 2, function() {
     initTestDB(this.name, function(err, db) {
+      var changesCount = 2;
       var changes = db.changes({
         continuous: true,
         include_docs: true,
-        onChange: function(change){
-          if (change.seq === 2){
-            ok(change.doc._deleted, 'Doc deleted properly');
+        onChange: function(change) {
+          if (change.doc._deleted) {
+            ok(true, 'doc deleted');
             changes.cancel();
             start();
           }
