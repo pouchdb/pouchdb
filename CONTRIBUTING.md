@@ -44,7 +44,10 @@ You will now have various distributions of PouchDB in your `dist` folder, congra
 Running PouchDB Tests
 --------------------------------------
 
-The PouchDB test suite expects an instance of CouchDB running on http://127.0.0.1:5984 and it will need to be in Admin Party.
+The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can override this by passing a flag with the CouchDB host (and basic auth credentials if needed)
+
+    `$ grunt browser --couch-host=http://user:pass@myname.iriscouch.com`
+    `$ grunt test --couch-host=http://user:pass@myname.iriscouch.com`
 
 ### Node Tests
 
