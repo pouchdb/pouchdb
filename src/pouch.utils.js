@@ -12,18 +12,6 @@ var call = function(fun) {
   }
 };
 
-// Wrapper for functions that call the bulkdocs api with a single doc,
-// if the first result is an error, return an error
-var yankError = function(callback) {
-  return function(err, results) {
-    if (err || results[0].error) {
-      call(callback, err || results[0]);
-    } else {
-      call(callback, null, results[0]);
-    }
-  };
-};
-
 var isLocalId = function(id) {
   return (/^_local/).test(id);
 };

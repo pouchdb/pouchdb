@@ -1,5 +1,5 @@
-/*globals Pouch: true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false */
-/*globals arrayFirst: false, rootToLeaf: false, computeHeight: false */
+/*globals Pouch: true, extend, call, parseDocId, traverseRevTree */
+/*globals arrayFirst, rootToLeaf, computeHeight */
 /*globals cordova, isCordova */
 
 "use strict";
@@ -7,6 +7,19 @@
 /*
  * A generic pouch adapter
  */
+
+// Wrapper for functions that call the bulkdocs api with a single doc,
+// if the first result is an error, return an error
+function yankError(callback) {
+  return function(err, results) {
+    if (err || results[0].error) {
+      call(callback, err || results[0]);
+    } else {
+      call(callback, null, results[0]);
+    }
+  };
+}
+
 var PouchAdapter = function(opts, callback) {
 
   var api = {};
