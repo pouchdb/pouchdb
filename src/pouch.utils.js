@@ -288,7 +288,6 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     Crypto: Crypto,
     call: call,
-    yankError: yankError,
     isLocalId: isLocalId,
     isAttachmentId: isAttachmentId,
     parseDoc: parseDoc,
