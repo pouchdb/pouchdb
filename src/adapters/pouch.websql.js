@@ -1,5 +1,4 @@
-/*globals call, extend, parseDoc, Crypto */
-/*globals isLocalId, isDeleted, PouchUtils, filterChange, processChanges */
+/*globals PouchUtils, PouchMerge */
 
 'use strict';
 
@@ -22,7 +21,7 @@ var META_STORE = quote('metadata-store');
 
 var unknownError = function(callback) {
   return function(event) {
-    call(callback, {
+    PouchUtils.call(callback, {
       status: 500,
       error: event.type,
       reason: event.target
@@ -38,7 +37,7 @@ var webSqlPouch = function(opts, callback) {
 
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
   if (!db) {
-    return call(callback, Pouch.Errors.UNKNOWN_ERROR);
+    return PouchUtils.call(callback, Pouch.Errors.UNKNOWN_ERROR);
   }
 
   function dbCreated() {
@@ -133,7 +132,7 @@ var webSqlPouch = function(opts, callback) {
       return docInfo.error;
     });
     if (docInfoErrors.length) {
-      return call(callback, docInfoErrors[0]);
+      return PouchUtils.call(callback, docInfoErrors[0]);
     }
 
     var tx;
@@ -154,7 +153,7 @@ var webSqlPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
-        var rev = Pouch.merge.winningRev(metadata);
+        var rev = PouchMerge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -162,7 +161,7 @@ var webSqlPouch = function(opts, callback) {
           rev: rev
         });
 
-        if (isLocalId(metadata.id)) {
+        if (PouchUtils.isLocalId(metadata.id)) {
           return;
         }
 
@@ -177,7 +176,7 @@ var webSqlPouch = function(opts, callback) {
         var update_seq = result.rows.item(0).update_seq + docsWritten;
         var sql = 'UPDATE ' + META_STORE + ' SET update_seq=?';
         tx.executeSql(sql, [update_seq], function() {
-          call(callback, null, aresults);
+          PouchUtils.call(callback, null, aresults);
         });
       });
     }
@@ -192,15 +191,15 @@ var webSqlPouch = function(opts, callback) {
         } catch (e) {
           var err = Pouch.error(Pouch.Errors.BAD_ARG,
                                 "Attachments need to be base64 encoded");
-          return call(callback, err);
+          return PouchUtils.call(callback, err);
         }
-        att.digest = 'md5-' + Crypto.MD5(att.data);
+        att.digest = 'md5-' + PouchUtils.Crypto.MD5(att.data);
         return finish();
       }
       var reader = new FileReader();
       reader.onloadend = function(e) {
         att.data = this.result;
-        att.digest = 'md5-' + Crypto.MD5(this.result);
+        att.digest = 'md5-' + PouchUtils.Crypto.MD5(this.result);
         finish();
       };
       reader.readAsBinaryString(att.data);
@@ -255,7 +254,7 @@ var webSqlPouch = function(opts, callback) {
         if (!err) {
           if (attachmentErr) {
             err = attachmentErr;
-            call(callback, err);
+            PouchUtils.call(callback, err);
           } else if (recv === attachments.length) {
             finish();
           }
@@ -268,7 +267,7 @@ var webSqlPouch = function(opts, callback) {
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
 
-      if (isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
+      if (PouchUtils.isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
         docInfo.data._deleted = true;
       }
 
@@ -300,7 +299,7 @@ var webSqlPouch = function(opts, callback) {
         var seq = docInfo.metadata.seq = result.insertId;
         delete docInfo.metadata.rev;
 
-        var mainRev = Pouch.merge.winningRev(docInfo.metadata);
+        var mainRev = PouchMerge.winningRev(docInfo.metadata);
 
         var sql = isUpdate ?
           'UPDATE ' + DOC_STORE + ' SET seq=?, json=?, winningseq=(SELECT seq FROM ' +
@@ -313,15 +312,17 @@ var webSqlPouch = function(opts, callback) {
           [docInfo.metadata.id, seq, seq, metadataStr];
         tx.executeSql(sql, params, function(tx, result) {
           results.push(docInfo);
-          call(callback, null);
+          PouchUtils.call(callback, null);
         });
       }
     }
 
     function updateDoc(oldDoc, docInfo) {
-      var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
-      var inConflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
-        (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
+      var merged = PouchMerge.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
+      var inConflict = (PouchUtils.isDeleted(oldDoc) &&
+                        PouchUtils.isDeleted(docInfo.metadata)) ||
+        (!PouchUtils.isDeleted(oldDoc) &&
+         newEdits && merged.conflicts !== 'new_leaf');
 
       if (inConflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
@@ -334,7 +335,7 @@ var webSqlPouch = function(opts, callback) {
 
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
-      if ('was_delete' in opts && isDeleted(docInfo.metadata)) {
+      if ('was_delete' in opts && PouchUtils.isDeleted(docInfo.metadata)) {
         results.push(Pouch.Errors.MISSING_DOC);
         return processDocs();
       }
@@ -373,13 +374,13 @@ var webSqlPouch = function(opts, callback) {
           newAtt.refs[ref] = true;
           sql = 'INSERT INTO ' + ATTACH_STORE + '(digest, json, body) VALUES (?, ?, ?)';
           tx.executeSql(sql, [digest, JSON.stringify(newAtt), data], function() {
-            call(callback, null);
+            PouchUtils.call(callback, null);
           });
         } else {
           newAtt.refs = JSON.parse(result.rows.item(0).json).refs;
           sql = 'UPDATE ' + ATTACH_STORE + ' SET json=?, body=? WHERE digest=?';
           tx.executeSql(sql, [JSON.stringify(newAtt), data, digest], function() {
-            call(callback, null);
+            PouchUtils.call(callback, null);
           });
         }
       });
@@ -419,7 +420,7 @@ var webSqlPouch = function(opts, callback) {
     var tx = opts.ctx;
 
     function finish() {
-      call(callback, err, {doc: doc, metadata: metadata, ctx: tx});
+      PouchUtils.call(callback, err, {doc: doc, metadata: metadata, ctx: tx});
     }
 
     var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
@@ -429,12 +430,12 @@ var webSqlPouch = function(opts, callback) {
         return finish();
       }
       metadata = JSON.parse(results.rows.item(0).json);
-      if (isDeleted(metadata) && !opts.rev) {
+      if (PouchUtils.isDeleted(metadata) && !opts.rev) {
         err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
         return finish();
       }
 
-      var rev = Pouch.merge.winningRev(metadata);
+      var rev = PouchMerge.winningRev(metadata);
       var key = opts.rev ? opts.rev : rev;
       key = metadata.id + '::' + key;
       var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
@@ -485,17 +486,17 @@ var webSqlPouch = function(opts, callback) {
           var doc = result.rows.item(i);
           var metadata = JSON.parse(doc.metadata);
           var data = JSON.parse(doc.data);
-          if (!(isLocalId(metadata.id))) {
+          if (!(PouchUtils.isLocalId(metadata.id))) {
             doc = {
               id: metadata.id,
               key: metadata.id,
-              value: {rev: Pouch.merge.winningRev(metadata)}
+              value: {rev: PouchMerge.winningRev(metadata)}
             };
             if (opts.include_docs) {
               doc.doc = data;
-              doc.doc._rev = Pouch.merge.winningRev(metadata);
+              doc.doc._rev = PouchMerge.winningRev(metadata);
               if (opts.conflicts) {
-                doc.doc._conflicts = Pouch.merge.collectConflicts(metadata);
+                doc.doc._conflicts = PouchMerge.collectConflicts(metadata);
               }
               for (var att in doc.doc._attachments) {
                 doc.doc._attachments[att].stub = true;
@@ -503,14 +504,14 @@ var webSqlPouch = function(opts, callback) {
             }
             if ('keys' in opts) {
               if (opts.keys.indexOf(metadata.id) > -1) {
-                if (isDeleted(metadata)) {
+                if (PouchUtils.isDeleted(metadata)) {
                   doc.value.deleted = true;
                   doc.doc = null;
                 }
                 resultsMap[doc.id] = doc;
               }
             } else {
-              if(!isDeleted(metadata)) {
+              if(!PouchUtils.isDeleted(metadata)) {
                 results.push(doc);
               }
             }
@@ -530,7 +531,7 @@ var webSqlPouch = function(opts, callback) {
           results.reverse();
         }
       }
-      call(callback, null, {
+      PouchUtils.call(callback, null, {
         total_rows: results.length,
         rows: ('limit' in opts) ? results.slice(0, opts.limit) : results
       });
@@ -580,7 +581,7 @@ var webSqlPouch = function(opts, callback) {
           for (var i = 0, l = result.rows.length; i < l; i++ ) {
             var res = result.rows.item(i);
             var metadata = JSON.parse(res.metadata);
-            if (!isLocalId(metadata.id)) {
+            if (!PouchUtils.isLocalId(metadata.id)) {
               if (last_seq < res.seq) {
                 last_seq = res.seq;
               }
@@ -588,7 +589,7 @@ var webSqlPouch = function(opts, callback) {
               var mainRev = doc._rev;
               var changeList = [{rev: mainRev}];
               if (opts.style === 'all_docs') {
-                changeList = makeRevs(Pouch.merge.collectLeaves(metadata.rev_tree));
+                changeList = makeRevs(PouchMerge.collectLeaves(metadata.rev_tree));
               }
               var change = {
                 id: metadata.id,
@@ -596,16 +597,16 @@ var webSqlPouch = function(opts, callback) {
                 changes: changeList,
                 doc: doc
               };
-              if (isDeleted(metadata, mainRev)) {
+              if (PouchUtils.isDeleted(metadata, mainRev)) {
                 change.deleted = true;
               }
               if (opts.conflicts) {
-                change.doc._conflicts = Pouch.merge.collectConflicts(metadata);
+                change.doc._conflicts = PouchMerge.collectConflicts(metadata);
               }
               results.push(change);
             }
           }
-          processChanges(opts, results, last_seq);
+          PouchUtils.processChanges(opts, results, last_seq);
         });
       });
     }
@@ -626,7 +627,7 @@ var webSqlPouch = function(opts, callback) {
 
   api._close = function(callback) {
     //WebSQL databases do not need to be closed
-    call(callback, null);
+    PouchUtils.call(callback, null);
   };
 
   api._getAttachment = function(attachment, opts, callback) {
@@ -642,7 +643,7 @@ var webSqlPouch = function(opts, callback) {
       } else {
         res = new Blob([data], {type: type});
       }
-      call(callback, null, res);
+      PouchUtils.call(callback, null, res);
     });
   };
 
@@ -651,10 +652,10 @@ var webSqlPouch = function(opts, callback) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
       tx.executeSql(sql, [docId], function(tx, result) {
         if (!result.rows.length) {
-          call(callback, Pouch.Errors.MISSING_DOC);
+          PouchUtils.call(callback, Pouch.Errors.MISSING_DOC);
         } else {
           var data = JSON.parse(result.rows.item(0).metadata);
-          call(callback, null, data.rev_tree);
+          PouchUtils.call(callback, null, data.rev_tree);
         }
       });
     });
@@ -665,7 +666,7 @@ var webSqlPouch = function(opts, callback) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
       tx.executeSql(sql, [docId], function(tx, result) {
         if (!result.rows.length) {
-          return call(callback);
+          return PouchUtils.call(callback);
         }
         var metadata = JSON.parse(result.rows.item(0).metadata);
         metadata.rev_tree = rev_tree;
@@ -699,7 +700,7 @@ webSqlPouch.destroy = function(name, callback) {
     tx.executeSql('DROP TABLE IF EXISTS ' + ATTACH_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + META_STORE, []);
   }, unknownError(callback), function() {
-    call(callback, null);
+    PouchUtils.call(callback, null);
   });
 };
 

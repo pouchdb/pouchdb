@@ -1,11 +1,10 @@
-/*globals call, extend, parseDoc, Crypto, window */
-/*globals isLocalId, isDeleted, PouchUtils, filterChange, processChanges */
+/*globals PouchUtils, PouchMerge */
 
 'use strict';
 
 var idbError = function(callback) {
   return function(event) {
-    call(callback, {
+    PouchUtils.call(callback, {
       status: 500,
       error: event.type,
       reason: event.target
@@ -127,7 +126,7 @@ var IdbPouch = function(opts, callback) {
       } catch (err) {
         blobSupport = false;
       } finally {
-        call(callback, null, api);
+        PouchUtils.call(callback, null, api);
       }
     };
   };
@@ -158,7 +157,7 @@ var IdbPouch = function(opts, callback) {
       return docInfo.error;
     });
     if (docInfoErrors.length) {
-      return call(callback, docInfoErrors[0]);
+      return PouchUtils.call(callback, docInfoErrors[0]);
     }
 
     var results = [];
@@ -197,7 +196,7 @@ var IdbPouch = function(opts, callback) {
           return;
         }
         var metadata = result.metadata;
-        var rev = Pouch.merge.winningRev(metadata);
+        var rev = PouchMerge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -205,14 +204,14 @@ var IdbPouch = function(opts, callback) {
           rev: rev
         });
 
-        if (isLocalId(metadata.id)) {
+        if (PouchUtils.isLocalId(metadata.id)) {
           return;
         }
 
         IdbPouch.Changes.notify(name);
         IdbPouch.Changes.notifyLocalWindows(name);
       });
-      call(callback, null, aresults);
+      PouchUtils.call(callback, null, aresults);
     }
 
     function preprocessAttachment(att, finish) {
@@ -226,9 +225,9 @@ var IdbPouch = function(opts, callback) {
         } catch (e) {
           var err = Pouch.error(Pouch.Errors.BAD_ARG,
                                 "Attachments need to be base64 encoded");
-          return call(callback, err);
+          return PouchUtils.call(callback, err);
         }
-        att.digest = 'md5-' + Crypto.MD5(data);
+        att.digest = 'md5-' + PouchUtils.Crypto.MD5(data);
         if (blobSupport) {
           var type = att.content_type;
           data = fixBinary(data);
@@ -238,7 +237,7 @@ var IdbPouch = function(opts, callback) {
       }
       var reader = new FileReader();
       reader.onloadend = function(e) {
-        att.digest = 'md5-' + Crypto.MD5(this.result);
+        att.digest = 'md5-' + PouchUtils.Crypto.MD5(this.result);
         if (!blobSupport) {
           att.data = btoa(this.result);
         }
@@ -290,7 +289,7 @@ var IdbPouch = function(opts, callback) {
 
       docsWritten++;
 
-      if (isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
+      if (PouchUtils.isDeleted(docInfo.metadata, docInfo.metadata.rev)) {
         docInfo.data._deleted = true;
       }
 
@@ -301,7 +300,7 @@ var IdbPouch = function(opts, callback) {
         if (!err) {
           if (attachmentErr) {
             err = attachmentErr;
-            call(callback, err);
+            PouchUtils.call(callback, err);
           } else if (recv === attachments.length) {
             finish();
           }
@@ -338,7 +337,7 @@ var IdbPouch = function(opts, callback) {
           var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
           metaDataReq.onsuccess = function() {
             results.push(docInfo);
-            call(callback);
+            PouchUtils.call(callback);
           };
         };
       }
@@ -349,9 +348,10 @@ var IdbPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo) {
-      var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
-      var wasPreviouslyDeleted = isDeleted(oldDoc);
-      var inConflict = (wasPreviouslyDeleted && isDeleted(docInfo.metadata)) ||
+      var merged = PouchMerge.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
+      var wasPreviouslyDeleted = PouchUtils.isDeleted(oldDoc);
+      var inConflict = (wasPreviouslyDeleted &&
+                        PouchUtils.isDeleted(docInfo.metadata)) ||
         (!wasPreviouslyDeleted && newEdits && merged.conflicts !== 'new_leaf');
 
       if (inConflict) {
@@ -365,7 +365,7 @@ var IdbPouch = function(opts, callback) {
 
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
-      if ('was_delete' in opts && isDeleted(docInfo.metadata)) {
+      if ('was_delete' in opts && PouchUtils.isDeleted(docInfo.metadata)) {
         results.push(Pouch.Errors.MISSING_DOC);
         return processDocs();
       }
@@ -390,7 +390,7 @@ var IdbPouch = function(opts, callback) {
         };
         newAtt.refs[ref] = true;
         var putReq = objectStore.put(newAtt).onsuccess = function(e) {
-          call(callback);
+          PouchUtils.call(callback);
         };
       };
     }
@@ -425,7 +425,7 @@ var IdbPouch = function(opts, callback) {
     }
 
     function finish(){
-      call(callback, err, {doc: doc, metadata: metadata, ctx: txn});
+      PouchUtils.call(callback, err, {doc: doc, metadata: metadata, ctx: txn});
     }
 
     txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
@@ -439,12 +439,12 @@ var IdbPouch = function(opts, callback) {
         err = Pouch.Errors.MISSING_DOC;
         return finish();
       }
-      if (isDeleted(metadata) && !opts.rev) {
+      if (PouchUtils.isDeleted(metadata) && !opts.rev) {
         err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
         return finish();
       }
 
-      var rev = Pouch.merge.winningRev(metadata);
+      var rev = PouchMerge.winningRev(metadata);
       var key = metadata.id + '::' + (opts.rev ? opts.rev : rev);
       var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
 
@@ -480,12 +480,12 @@ var IdbPouch = function(opts, callback) {
           var reader = new FileReader();
           reader.onloadend = function(e) {
             result = btoa(this.result);
-            call(callback, null, result);
+            PouchUtils.call(callback, null, result);
           };
           reader.readAsBinaryString(data);
         } else {
           result = data;
-          call(callback, null, result);
+          PouchUtils.call(callback, null, result);
         }
       } else {
         if (blobSupport) {
@@ -494,7 +494,7 @@ var IdbPouch = function(opts, callback) {
           data = fixBinary(atob(data));
           result = new Blob([data], {type: type});
         }
-        call(callback, null, result);
+        PouchUtils.call(callback, null, result);
       }
     };
   };
@@ -524,7 +524,7 @@ var IdbPouch = function(opts, callback) {
           results.reverse();
         }
       }
-      call(callback, null, {
+      PouchUtils.call(callback, null, {
         total_rows: results.length,
         rows: ('limit' in opts) ? results.slice(0, opts.limit) : results
       });
@@ -545,24 +545,24 @@ var IdbPouch = function(opts, callback) {
       // key in opts.keys. With no performance tests it is difficult to
       // guess if iteration with filter is faster than many single requests
       function allDocsInner(metadata, data) {
-        if (isLocalId(metadata.id)) {
+        if (PouchUtils.isLocalId(metadata.id)) {
           return cursor['continue']();
         }
         var doc = {
           id: metadata.id,
           key: metadata.id,
           value: {
-            rev: Pouch.merge.winningRev(metadata)
+            rev: PouchMerge.winningRev(metadata)
           }
         };
         if (opts.include_docs) {
           doc.doc = data;
-          doc.doc._rev = Pouch.merge.winningRev(metadata);
+          doc.doc._rev = PouchMerge.winningRev(metadata);
           if (doc.doc._doc_id_rev) {
               delete(doc.doc._doc_id_rev);
           }
           if (opts.conflicts) {
-            doc.doc._conflicts = Pouch.merge.collectConflicts(metadata);
+            doc.doc._conflicts = PouchMerge.collectConflicts(metadata);
           }
           for (var att in doc.doc._attachments) {
             doc.doc._attachments[att].stub = true;
@@ -570,14 +570,14 @@ var IdbPouch = function(opts, callback) {
         }
         if ('keys' in opts) {
           if (opts.keys.indexOf(metadata.id) > -1) {
-            if (isDeleted(metadata)) {
+            if (PouchUtils.isDeleted(metadata)) {
               doc.value.deleted = true;
               doc.doc = null;
             }
             resultsMap[doc.id] = doc;
           }
         } else {
-          if(!isDeleted(metadata)) {
+          if (!PouchUtils.isDeleted(metadata)) {
             results.push(doc);
           }
         }
@@ -588,7 +588,7 @@ var IdbPouch = function(opts, callback) {
         allDocsInner(metadata);
       } else {
         var index = transaction.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
-        var mainRev = Pouch.merge.winningRev(metadata);
+        var mainRev = PouchMerge.winningRev(metadata);
         var key = metadata.id + "::" + mainRev;
         index.get(key).onsuccess = function(event) {
           allDocsInner(cursor.value, event.target.result);
@@ -719,7 +719,7 @@ var IdbPouch = function(opts, callback) {
       var index = txn.objectStore(DOC_STORE);
       index.get(cursor.value._id).onsuccess = function(event) {
         var metadata = event.target.result;
-        if (isLocalId(metadata.id)) {
+        if (PouchUtils.isLocalId(metadata.id)) {
           return cursor['continue']();
         }
 
@@ -727,7 +727,7 @@ var IdbPouch = function(opts, callback) {
           last_seq = metadata.seq;
         }
 
-        var mainRev = Pouch.merge.winningRev(metadata);
+        var mainRev = PouchMerge.winningRev(metadata);
         var key = metadata.id + "::" + mainRev;
         var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
         index.get(key).onsuccess = function(docevent) {
@@ -735,7 +735,7 @@ var IdbPouch = function(opts, callback) {
           delete doc['_doc_id_rev'];
           var changeList = [{rev: mainRev}];
           if (opts.style === 'all_docs') {
-            changeList = Pouch.merge.collectLeaves(metadata.rev_tree)
+            changeList = PouchMerge.collectLeaves(metadata.rev_tree)
               .map(function(x) { return {rev: x.rev}; });
           }
           var change = {
@@ -745,11 +745,11 @@ var IdbPouch = function(opts, callback) {
             doc: doc
           };
 
-          if (isDeleted(metadata, mainRev)) {
+          if (PouchUtils.isDeleted(metadata, mainRev)) {
             change.deleted = true;
           }
           if (opts.conflicts) {
-            change.doc._conflicts = Pouch.merge.collectConflicts(metadata);
+            change.doc._conflicts = PouchMerge.collectConflicts(metadata);
           }
 
           // Dedupe the changes feed
@@ -765,24 +765,24 @@ var IdbPouch = function(opts, callback) {
     }
 
     function onTxnComplete() {
-      processChanges(opts, dedupResults, last_seq);
+      PouchUtils.processChanges(opts, dedupResults, last_seq);
     }
 
     function onerror(error) {
       // TODO: shouldn't we pass some params here?
-      call(opts.complete);
+      PouchUtils.call(opts.complete);
     }
   };
 
   api._close = function(callback) {
     if (idb === null) {
-      return call(callback, Pouch.Errors.NOT_OPEN);
+      return PouchUtils.call(callback, Pouch.Errors.NOT_OPEN);
     }
 
     // https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#close
     // "Returns immediately and closes the connection in a separate thread..."
     idb.close();
-    call(callback, null);
+    PouchUtils.call(callback, null);
   };
 
   api._getRevisionTree = function(docId, callback) {
@@ -791,9 +791,9 @@ var IdbPouch = function(opts, callback) {
     req.onsuccess = function (event) {
       var doc = event.target.result;
       if (!doc) {
-        call(callback, Pouch.Errors.MISSING_DOC);
+        PouchUtils.call(callback, Pouch.Errors.MISSING_DOC);
       } else {
-        call(callback, null, doc.rev_tree);
+        PouchUtils.call(callback, null, doc.rev_tree);
       }
     };
   };
@@ -828,7 +828,7 @@ var IdbPouch = function(opts, callback) {
       });
     };
     txn.oncomplete = function() {
-      call(callback);
+      PouchUtils.call(callback);
     };
   };
 
@@ -856,7 +856,7 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
     if (Pouch.openReqList[name]) {
       Pouch.openReqList[name] = null;
     }
-    call(callback, null);
+    PouchUtils.call(callback, null);
   };
 
   req.onerror = idbError(callback);

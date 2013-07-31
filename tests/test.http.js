@@ -7,6 +7,7 @@
 var adapter = 'http-1';
 var qunit = module;
 var LevelPouch;
+var utils;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');

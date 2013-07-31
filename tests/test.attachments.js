@@ -13,12 +13,15 @@ var repl_adapters = [['local-1', 'http-1'],
                      ['local-1', 'local-2']];
 var qunit = module;
 var LevelPouch;
+var PouchUtils;
+var utils;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  PouchUtils = require('../src/pouch.utils.js');
   utils = require('./test.utils.js');
 
   for (var k in utils) {
@@ -63,7 +66,7 @@ adapters.map(function(adapter) {
     _attachments: {
       "foo.json": {
         content_type: "application/json",
-        data: btoa('{"Hello":"world"}')
+        data: PouchUtils.btoa('{"Hello":"world"}')
       }
     }
   };
@@ -116,7 +119,7 @@ adapters.map(function(adapter) {
               ok(res._attachments, 'Result has attachments field');
               ok(!res._attachments['foo2.txt'].stub, 'stub is false');
               equal(res._attachments['foo2.txt'].data,
-                    btoa('This is no base64 encoded text'));
+                    PouchUtils.btoa('This is no base64 encoded text'));
               equal(res._attachments['foo2.txt'].content_type, 'text/plain',
                     'Attachment was stored with correct content type');
               equal(res._attachments['foo.txt'].data, '');
@@ -152,7 +155,7 @@ adapters.map(function(adapter) {
           _id: 'doc1',
           _attachments: {
             'att0': {
-              data: btoa('attachment0'),
+              data: PouchUtils.btoa('attachment0'),
               content_type: 'text/plain'
             }
           }
@@ -161,11 +164,11 @@ adapters.map(function(adapter) {
           _id: 'doc2',
           _attachments: {
             'att0': {
-              data: btoa('attachment0'),
+              data: PouchUtils.btoa('attachment0'),
               content_type: 'text/plain'
             },
             'att1': {
-              data: btoa('attachment1'),
+              data: PouchUtils.btoa('attachment1'),
               content_type: 'text/plain'
             }
           }
@@ -255,7 +258,8 @@ adapters.map(function(adapter) {
             db.get(change.id, {attachments: true}, function(err, doc) {
               equal(typeof doc._attachments, 'object', 'doc has attachments object');
               ok(doc._attachments.mytext, 'doc has attachments attachment');
-              equal(doc._attachments.mytext.data, btoa('Mytext'), 'doc has attachments attachment');
+              equal(doc._attachments.mytext.data,
+                    PouchUtils.btoa('Mytext'), 'doc has attachments attachment');
               changes.cancel();
               start();
             });
@@ -280,7 +284,8 @@ adapters.map(function(adapter) {
               db.get(change.id, {attachments: true}, function(err, doc) {
                 equal(typeof doc._attachments, 'object', 'doc has attachments object');
                 ok(doc._attachments.mytext, 'doc has attachments attachment');
-                equal(doc._attachments.mytext.data, btoa('Mytext'), 'doc has attachments attachment');
+                equal(doc._attachments.mytext.data,
+                      PouchUtils.btoa('Mytext'), 'doc has attachments attachment');
                 changes.cancel();
                 start();
               });
@@ -342,11 +347,11 @@ adapters.map(function(adapter) {
       db.put({_id: 'mydoc', _attachments: {
         'mytext1': {
           content_type: 'text/plain',
-          data: btoa('Mytext1')
+          data: PouchUtils.btoa('Mytext1')
         },
         'mytext2': {
           content_type: 'text/plain',
-          data: btoa('Mytext2')
+          data: PouchUtils.btoa('Mytext2')
         }
       }}, function(err, res) {
         var rev = res.rev;
@@ -383,7 +388,7 @@ adapters.map(function(adapter) {
           equal(doc._attachments['foo.json'].content_type, 'application/json', 'doc has correct content type');
           db.getAttachment(results.id, 'foo.json', function(err, attachment) {
             readBlob(attachment, function(data) {
-              equal(data, atob(jsonDoc._attachments['foo.json'].data),
+              equal(data, PouchUtils.atob(jsonDoc._attachments['foo.json'].data),
                 'correct data');
               start();
             });

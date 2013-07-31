@@ -18,7 +18,7 @@ var srcFiles = [
 var testFiles = fs.readdirSync("./tests").filter(function(name){
   return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
     name !== 'test.spatial.js' && name !== 'test.auth_replication.js' &&
-    name !== 'test.gql.js';
+    name !== 'test.gql.js' && name !== 'test.cors.js';
 });
 
 var browserConfig = [{

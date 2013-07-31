@@ -13,12 +13,13 @@ var repl_adapters = [['local-1', 'http-1'],
                      ['local-1', 'local-2']];
 var qunit = module;
 var LevelPouch;
+var PouchUtils;
+var utils;
 
-// if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  PouchUtils = require('../src/pouch.utils.js');
   utils = require('./test.utils.js');
 
   for (var k in utils) {
@@ -79,7 +80,7 @@ adapters.map(function(adapter) {
         {_id: 'part/doc2', int: 2, _attachments: {
           'attachment/with/slash': {
             content_type: 'text/plain',
-            data: btoa('some data')
+            data: PouchUtils.btoa('some data')
           }
         }},
         {_id: 'part/doc3', int: 3}

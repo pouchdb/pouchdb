@@ -1,9 +1,12 @@
-/*globals call: false, Crypto: false*/
+/*globals Crypto: false, PouchUtils: true */
 
 'use strict';
 
+var PouchUtils;
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Pouch;
+  PouchUtils = require('./pouch.utils.js');
 }
 
 // We create a basic promise so the caller can cancel the replication possibly
@@ -57,7 +60,7 @@ var RequestManager = function() {
 // to this replication
 var genReplicationId = function(src, target, opts) {
   var filterFun = opts.filter ? opts.filter.toString() : '';
-  return '_local/' + Crypto.MD5(src.id() + target.id() + filterFun);
+  return '_local/' + PouchUtils.Crypto.MD5(src.id() + target.id() + filterFun);
 };
 
 // A checkpoint lets us restart replications from when they were last cancelled
@@ -158,7 +161,7 @@ function replicate(src, target, opts, promise) {
       if (continuous) {
         promise.cancel();
       }
-      call(opts.complete, err, null);
+      PouchUtils.call(opts.complete, err, null);
       return;
     }
 
@@ -200,14 +203,14 @@ function replicate(src, target, opts, promise) {
   function isCompleted() {
     if (completed && pending === 0) {
       result.end_time = new Date();
-      call(opts.complete, null, result);
+      PouchUtils.call(opts.complete, null, result);
     }
   }
 
   fetchCheckpoint(src, target, repId, function(err, checkpoint) {
 
     if (err) {
-      return call(opts.complete, err);
+      return PouchUtils.call(opts.complete, err);
     }
 
     last_seq = checkpoint;
@@ -265,11 +268,11 @@ Pouch.replicate = function(src, target, opts, callback) {
   var replicateRet = new Promise();
   toPouch(src, function(err, src) {
     if (err) {
-      return call(callback, err);
+      return PouchUtils.call(callback, err);
     }
     toPouch(target, function(err, target) {
       if (err) {
-        return call(callback, err);
+        return PouchUtils.call(callback, err);
       }
       replicate(src, target, opts, replicateRet);
     });

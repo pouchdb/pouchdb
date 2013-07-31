@@ -1,6 +1,11 @@
-/*globals PouchAdapter: true, extend: true */
+/*globals PouchAdapter: true, PouchUtils: true */
 
 "use strict";
+
+var PouchUtils;
+if (typeof module !== 'undefined' && module.exports) {
+  PouchUtils = require('./pouch.utils.js');
+}
 
 var Pouch = function Pouch(name, opts, callback) {
 
@@ -416,17 +421,17 @@ Pouch.Errors = {
     reason: 'Document must be a JSON object'
   }
 };
-Pouch.error = function(error, reason){
- return extend({}, error, {reason: reason});
+
+Pouch.error = function(error, reason) {
+  return PouchUtils.extend({}, error, {reason: reason});
 };
+
 if (typeof module !== 'undefined' && module.exports) {
   global.Pouch = Pouch;
   global.PouchDB = Pouch;
   Pouch.merge = require('./pouch.merge.js').merge;
   Pouch.collate = require('./pouch.collate.js').collate;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
-  Pouch.utils = require('./pouch.utils.js');
-  extend = Pouch.utils.extend;
   module.exports = Pouch;
   var PouchAdapter = require('./pouch.adapter.js');
   //load adapters known to work under node

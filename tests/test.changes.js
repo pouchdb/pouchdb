@@ -9,6 +9,7 @@ var adapters = ['http-1', 'local-1'];
 var qunit = module;
 var is_browser = true;
 var LevelPouch;
+var utils;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');

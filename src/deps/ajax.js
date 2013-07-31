@@ -1,3 +1,8 @@
+
+if (typeof module !== 'undefined' && module.exports) {
+  extend = require('./extend.js');
+}
+
 var ajax = function ajax(options, callback) {
 
   if (typeof options === "function") {

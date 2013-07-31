@@ -6,7 +6,7 @@ var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
-  utils = require('./test.utils.js');
+  var utils = require('./test.utils.js');
 
   for (var k in utils) {
     global[k] = global[k] || utils[k];

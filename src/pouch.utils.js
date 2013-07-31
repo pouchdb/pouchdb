@@ -1,32 +1,12 @@
 /*jshint strict: false */
-/*global request: true, Buffer: true, escape: true */
-/*global extend: true, Crypto: true */
-/*global chrome*/
+/*global request: true, Buffer: true, escape: true, PouchMerge: true */
+/*global extend: true, Crypto: true, chrome, ajax, btoa, atob */
 
 var PouchUtils = {};
 
-// Pretty dumb name for a function, just wraps callback calls so we dont
-// to if (callback) callback() everywhere
-var call = function(fun) {
-  if (typeof fun === typeof Function) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    fun.apply(this, args);
-  }
-};
-
-var isLocalId = function(id) {
-  return (/^_local/).test(id);
-};
-
-// Determine id an ID is valid
-//   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
-//   - any other string value is a valid id
-var isValidId = function(id) {
-  if (/^_/.test(id)) {
-    return (/^_(design|local)/).test(id);
-  }
-  return true;
-};
+if (typeof module !== 'undefined' && module.exports) {
+  PouchMerge = require('./pouch.merge.js');
+}
 
 // List of top level reserved words for doc
 var reservedWords = [
@@ -41,6 +21,92 @@ var reservedWords = [
   '_local_seq',
   '_rev_tree'
 ];
+
+// Determine id an ID is valid
+//   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
+//   - any other string value is a valid id
+var isValidId = function(id) {
+  if (/^_/.test(id)) {
+    return (/^_(design|local)/).test(id);
+  }
+  return true;
+};
+
+var isChromeApp = function(){
+  return (typeof chrome !== "undefined" &&
+          typeof chrome.storage !== "undefined" &&
+          typeof chrome.storage.local !== "undefined");
+};
+
+// Pretty dumb name for a function, just wraps callback calls so we dont
+// to if (callback) callback() everywhere
+PouchUtils.call = function(fun) {
+  if (typeof fun === typeof Function) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    fun.apply(this, args);
+  }
+};
+
+PouchUtils.isLocalId = function(id) {
+  return (/^_local/).test(id);
+};
+
+// check if a specific revision of a doc has been deleted
+//  - metadata: the metadata object from the doc store
+//  - rev: (optional) the revision to check. defaults to winning revision
+PouchUtils.isDeleted = function(metadata, rev) {
+  if (!rev) {
+    rev = PouchMerge.winningRev(metadata);
+  }
+  if (rev.indexOf('-') >= 0) {
+    rev = rev.split('-')[1];
+  }
+  var deleted = false;
+  PouchMerge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id, acc, opts) {
+    if (id === rev) {
+      deleted = !!opts.deleted;
+    }
+  });
+
+  return deleted;
+};
+
+PouchUtils.filterChange = function(opts) {
+  return function(change) {
+    var req = {};
+    var hasFilter = opts.filter && typeof opts.filter === 'function';
+
+    req.query = opts.query_params;
+    if (opts.filter && hasFilter && !opts.filter.call(this, change.doc, req)) {
+      return false;
+    }
+    if (opts.doc_ids && opts.doc_ids.indexOf(change.id) === -1) {
+      return false;
+    }
+    if (!opts.include_docs) {
+      delete change.doc;
+    } else {
+      for (var att in change.doc._attachments) {
+        change.doc._attachments[att].stub = true;
+      }
+    }
+    return true;
+  };
+};
+
+PouchUtils.processChanges = function(opts, changes, last_seq) {
+  // TODO: we should try to filter and limit as soon as possible
+  changes = changes.filter(PouchUtils.filterChange(opts));
+  if (opts.limit) {
+    if (opts.limit < changes.length) {
+      changes.length = opts.limit;
+    }
+  }
+  changes.forEach(function(change){
+    PouchUtils.call(opts.onChange, change);
+  });
+  PouchUtils.call(opts.complete, null, {results: changes, last_seq: last_seq});
+};
 
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
@@ -136,142 +202,10 @@ PouchUtils.parseDoc = function(doc, newEdits) {
   }, {metadata : {}, data : {}});
 };
 
-var compareRevs = function(a, b) {
-  // Sort by id
-  if (a.id !== b.id) {
-    return (a.id < b.id ? -1 : 1);
-  }
-  // Then by deleted
-  if (a.deleted ^ b.deleted) {
-    return (a.deleted ? -1 : 1);
-  }
-  // Then by rev id
-  if (a.rev_tree[0].pos === b.rev_tree[0].pos) {
-    return (a.rev_tree[0].ids < b.rev_tree[0].ids ? -1 : 1);
-  }
-  // Then by depth of edits
-  return (a.rev_tree[0].start < b.rev_tree[0].start ? -1 : 1);
-};
-
-
-// for every node in a revision tree computes its distance from the closest
-// leaf
-var computeHeight = function(revs) {
-  var height = {};
-  var edges = [];
-  Pouch.merge.traverseRevTree(revs, function(isLeaf, pos, id, prnt) {
-    var rev = pos + "-" + id;
-    if (isLeaf) {
-      height[rev] = 0;
-    }
-    if (prnt !== undefined) {
-      edges.push({from: prnt, to: rev});
-    }
-    return rev;
-  });
-
-  edges.reverse();
-  edges.forEach(function(edge) {
-    if (height[edge.from] === undefined) {
-      height[edge.from] = 1 + height[edge.to];
-    } else {
-      height[edge.from] = Math.min(height[edge.from], 1 + height[edge.to]);
-    }
-  });
-  return height;
-};
-
-// returns first element of arr satisfying callback predicate
-var arrayFirst = function(arr, callback) {
-  for (var i = 0; i < arr.length; i++) {
-    if (callback(arr[i], i) === true) {
-      return arr[i];
-    }
-  }
-  return false;
-};
-
-var filterChange = function(opts) {
-  return function(change) {
-    var req = {};
-    var hasFilter = opts.filter && typeof opts.filter === 'function';
-
-    req.query = opts.query_params;
-    if (opts.filter && hasFilter && !opts.filter.call(this, change.doc, req)) {
-      return false;
-    }
-    if (opts.doc_ids && opts.doc_ids.indexOf(change.id) === -1) {
-      return false;
-    }
-    if (!opts.include_docs) {
-      delete change.doc;
-    } else {
-      for (var att in change.doc._attachments) {
-        change.doc._attachments[att].stub = true;
-      }
-    }
-    return true;
-  };
-};
-
-var processChanges = function(opts, changes, last_seq) {
-  // TODO: we should try to filter and limit as soon as possible
-  changes = changes.filter(filterChange(opts));
-  if (opts.limit) {
-    if (opts.limit < changes.length) {
-      changes.length = opts.limit;
-    }
-  }
-  changes.forEach(function(change){
-    call(opts.onChange, change);
-  });
-  call(opts.complete, null, {results: changes, last_seq: last_seq});
-};
-
-var rootToLeaf = function(tree) {
-  var paths = [];
-  Pouch.merge.traverseRevTree(tree, function(isLeaf, pos, id, history, opts) {
-    history = history ? history.slice(0) : [];
-    history.push({id: id, opts: opts});
-    if (isLeaf) {
-      var rootPos = pos + 1 - history.length;
-      paths.unshift({pos: rootPos, ids: history});
-    }
-    return history;
-  });
-  return paths;
-};
-
-// check if a specific revision of a doc has been deleted
-//  - metadata: the metadata object from the doc store
-//  - rev: (optional) the revision to check. defaults to winning revision
-var isDeleted = function(metadata, rev) {
-  if (!rev) {
-    rev = Pouch.merge.winningRev(metadata);
-  }
-  if (rev.indexOf('-') >= 0) {
-    rev = rev.split('-')[1];
-  }
-  var deleted = false;
-  Pouch.merge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id, acc, opts) {
-    if (id === rev) {
-      deleted = !!opts.deleted;
-    }
-  });
-
-  return deleted;
-};
-
 PouchUtils.isCordova = function(){
   return (typeof cordova !== "undefined" ||
           typeof PhoneGap !== "undefined" ||
           typeof phonegap !== "undefined");
-};
-
-var isChromeApp = function(){
-  return (typeof chrome !== "undefined" &&
-          typeof chrome.storage !== "undefined" &&
-          typeof chrome.storage.local !== "undefined");
 };
 
 PouchUtils.Changes = function() {
@@ -334,7 +268,7 @@ PouchUtils.Changes = function() {
         onChange: function(c) {
           if (c.seq > opts.since && !opts.cancelled) {
             opts.since = c.seq;
-            call(opts.onChange, c);
+            PouchUtils.call(opts.onChange, c);
           }
         }
       });
@@ -345,41 +279,40 @@ PouchUtils.Changes = function() {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
+
   var crypto = require('crypto');
-  var Crypto = {
+
+  PouchUtils.Crypto = {
     MD5: function(str) {
       return crypto.createHash('md5').update(str).digest('hex');
     }
   };
 
+  PouchUtils.atob = function(str) {
+    var base64 = new Buffer(str, 'base64');
+    // Node.js will just skip the characters it can't encode instead of
+    // throwing and exception
+    if (base64.toString('base64') !== str) {
+      throw("Cannot base64 encode full string");
+    }
+    return base64.toString('binary');
+  };
+
+  PouchUtils.btoa = function(str) {
+    return new Buffer(str, 'binary').toString('base64');
+  };
+
+  PouchUtils.extend = require('./deps/extend');
+  PouchUtils.ajax = require('./deps/ajax');
   request = require('request');
 
-  module.exports = {
-    Crypto: Crypto,
-    call: call,
-    isLocalId: isLocalId,
-    parseDoc: PouchUtils.parseDoc,
-    isDeleted: isDeleted,
-    compareRevs: compareRevs,
-    computeHeight: computeHeight,
-    arrayFirst: arrayFirst,
-    filterChange: filterChange,
-    processChanges: processChanges,
-    atob: function(str) {
-      var base64 = new Buffer(str, 'base64');
-      // Node.js will just skip the characters it can't encode instead of
-      // throwing and exception
-      if (base64.toString('base64') !== str) {
-        throw("Cannot base64 encode full string");
-      }
-      return base64.toString('binary');
-    },
-    btoa: function(str) {
-      return new Buffer(str, 'binary').toString('base64');
-    },
-    extend: require('./deps/extend'),
-    ajax: require('./deps/ajax'),
-    rootToLeaf: rootToLeaf
-  };
+  module.exports = PouchUtils;
+
+} else {
+  PouchUtils.Crypto = Crypto;
+  PouchUtils.extend = extend;
+  PouchUtils.ajax = ajax;
+
+  PouchUtils.atob = atob.bind(null);
+  PouchUtils.btoa = btoa.bind(null);
 }

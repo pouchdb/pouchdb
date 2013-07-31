@@ -1,15 +1,10 @@
-/*globals rootToLeaf: false, extend: false */
-
 'use strict';
 
-// a few hacks to get things in the right place for node.js
+var extend;
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Pouch;
-  var utils = require('./pouch.utils.js');
-  for (var k in utils) {
-    global[k] = utils[k];
-  }
+  extend = require('./deps/extend');
 }
+
 
 // for a better overview of what this is doing, read:
 // https://github.com/apache/couchdb/blob/master/src/couchdb/couch_key_tree.erl
@@ -161,7 +156,7 @@ function doMerge(tree, path, dontExpand) {
 function stem(tree, depth) {
   // First we break out the tree into a complete list of root to leaf paths,
   // we cut off the start of the path and generate a new set of flat trees
-  var stemmedPaths = rootToLeaf(tree).map(function(path) {
+  var stemmedPaths = PouchMerge.rootToLeaf(tree).map(function(path) {
     var stemmed = path.ids.slice(-depth);
     return {
       pos: path.pos + (path.ids.length - stemmed.length),
@@ -175,7 +170,9 @@ function stem(tree, depth) {
   }, [stemmedPaths.shift()]);
 }
 
-Pouch.merge = function(tree, path, depth) {
+var PouchMerge = {};
+
+PouchMerge.merge = function(tree, path, depth) {
   // Ugh, nicer way to not modify arguments in place?
   tree = extend(true, [], tree);
   path = extend(true, {}, path);
@@ -191,9 +188,9 @@ Pouch.merge = function(tree, path, depth) {
 // tree (most edits) win
 // The final sort algorithm is slightly documented in a sidebar here:
 // http://guide.couchdb.org/draft/conflicts.html
-Pouch.merge.winningRev = function(metadata) {
+PouchMerge.winningRev = function(metadata) {
   var leafs = [];
-  Pouch.merge.traverseRevTree(metadata.rev_tree,
+  PouchMerge.traverseRevTree(metadata.rev_tree,
                               function(isLeaf, pos, id, something, opts) {
     if (isLeaf) {
       leafs.push({pos: pos, id: id, deleted: !!opts.deleted});
@@ -216,7 +213,7 @@ Pouch.merge.winningRev = function(metadata) {
 // traverse revisions
 // The return value from the callback will be passed as context to all
 // children of that node
-Pouch.merge.traverseRevTree = function(revs, callback) {
+PouchMerge.traverseRevTree = function(revs, callback) {
   var toVisit = [];
 
   revs.forEach(function(tree) {
@@ -234,9 +231,9 @@ Pouch.merge.traverseRevTree = function(revs, callback) {
   }
 };
 
-Pouch.merge.collectLeaves = function(revs) {
+PouchMerge.collectLeaves = function(revs) {
   var leaves = [];
-  Pouch.merge.traverseRevTree(revs, function(isLeaf, pos, id, acc, opts) {
+  PouchMerge.traverseRevTree(revs, function(isLeaf, pos, id, acc, opts) {
     if (isLeaf) {
       leaves.unshift({rev: pos + "-" + id, pos: pos, opts: opts});
     }
@@ -251,9 +248,9 @@ Pouch.merge.collectLeaves = function(revs) {
 // returns revs of all conflicts that is leaves such that
 // 1. are not deleted and
 // 2. are different than winning revision
-Pouch.merge.collectConflicts = function(metadata) {
-  var win = Pouch.merge.winningRev(metadata);
-  var leaves = Pouch.merge.collectLeaves(metadata.rev_tree);
+PouchMerge.collectConflicts = function(metadata) {
+  var win = PouchMerge.winningRev(metadata);
+  var leaves = PouchMerge.collectLeaves(metadata.rev_tree);
   var conflicts = [];
   leaves.forEach(function(leaf) {
     if (leaf.rev !== win && !leaf.opts.deleted) {
@@ -263,3 +260,21 @@ Pouch.merge.collectConflicts = function(metadata) {
   return conflicts;
 };
 
+PouchMerge.rootToLeaf = function(tree) {
+  var paths = [];
+  PouchMerge.traverseRevTree(tree, function(isLeaf, pos, id, history, opts) {
+    history = history ? history.slice(0) : [];
+    history.push({id: id, opts: opts});
+    if (isLeaf) {
+      var rootPos = pos + 1 - history.length;
+      paths.unshift({pos: rootPos, ids: history});
+    }
+    return history;
+  });
+  return paths;
+};
+
+// a few hacks to get things in the right place for node.js
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PouchMerge;
+}

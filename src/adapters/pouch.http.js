@@ -1,7 +1,15 @@
-/*globals Pouch: true, filterChange, call, ajax: true */
-/*globals require, console */
+/*globals Pouch: true, PouchUtils: true, require, console */
 
 "use strict";
+
+var PouchUtils;
+
+if (typeof module !== 'undefined' && module.exports) {
+  Pouch = require('../pouch.js');
+  PouchUtils = require('../pouch.utils.js');
+}
+
+var ajax = PouchUtils.ajax;
 
 var HTTP_TIMEOUT = 10000;
 
@@ -127,7 +135,7 @@ var HttpPouch = function(opts, callback) {
 
   host.headers = opts.headers || {};
   if (opts.auth) {
-    var token = btoa(opts.auth.username + ':' + opts.auth.password);
+    var token = PouchUtils.btoa(opts.auth.username + ':' + opts.auth.password);
     host.headers.Authorization = 'Basic ' + token;
   }
 
@@ -150,10 +158,10 @@ var HttpPouch = function(opts, callback) {
       }
       var cb = function(err, body) {
         if (err || !('uuids' in body)) {
-          call(callback, err || Pouch.Errors.UNKNOWN_ERROR);
+          PouchUtils.call(callback, err || Pouch.Errors.UNKNOWN_ERROR);
         } else {
           uuids.list = uuids.list.concat(body.uuids);
-          call(callback, null, "OK");
+          PouchUtils.call(callback, null, "OK");
         }
       };
       var params = '?count=' + opts.count;
@@ -175,10 +183,10 @@ var HttpPouch = function(opts, callback) {
           // If there is still an error
           if (err) {
             // Give the error to the callback to deal with
-            call(callback, err);
+            PouchUtils.call(callback, err);
           } else {
             // Continue as if there had been no errors
-            call(callback, null, api);
+            PouchUtils.call(callback, null, api);
           }
         });
         // If there were no errros or if the only error is "Precondition Failed"
@@ -186,9 +194,9 @@ var HttpPouch = function(opts, callback) {
         // that already exists)
       } else if (!err || err.status === 412) {
         // Continue as if there had been no errors
-        call(callback, null, api);
+        PouchUtils.call(callback, null, api);
       } else {
-        call(callback, Pouch.Errors.UNKNOWN_ERROR);
+        PouchUtils.call(callback, Pouch.Errors.UNKNOWN_ERROR);
       }
     });
   };
@@ -200,12 +208,12 @@ var HttpPouch = function(opts, callback) {
           //if it doesn't, create it
           createDB();
         } else {
-          call(callback, err);
+          PouchUtils.call(callback, err);
         }
       } else {
         //go do stuff with the db
-        call(callback, null, api);
-        }
+        PouchUtils.call(callback, null, api);
+      }
     });
   }
 
@@ -247,7 +255,7 @@ var HttpPouch = function(opts, callback) {
       function ping() {
         api.info(function(err, res) {
           if (!res.compact_running) {
-            call(callback, null);
+            PouchUtils.call(callback, null);
           } else {
             setTimeout(ping, opts.interval || 200);
           }
@@ -378,11 +386,11 @@ var HttpPouch = function(opts, callback) {
     ajax(options, function(err, doc, xhr) {
       // If the document does not exist, send an error to the callback
       if (err) {
-        return call(callback, err);
+        return PouchUtils.call(callback, err);
       }
 
       // Send the document to the callback
-      call(callback, null, doc, xhr);
+      PouchUtils.call(callback, null, doc, xhr);
     });
   };
 
@@ -486,10 +494,10 @@ var HttpPouch = function(opts, callback) {
       opts = {};
     }
     if (typeof doc !== 'object') {
-      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+      return PouchUtils.call(callback, Pouch.Errors.NOT_AN_OBJECT);
     }
     if (!('_id' in doc)) {
-      return call(callback, Pouch.Errors.MISSING_ID);
+      return PouchUtils.call(callback, Pouch.Errors.MISSING_ID);
     }
 
     // List of parameter to add to the PUT request
@@ -531,7 +539,7 @@ var HttpPouch = function(opts, callback) {
       opts = {};
     }
     if (typeof doc !== 'object') {
-      return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+      return PouchUtils.call(callback, Pouch.Errors.NOT_AN_OBJECT);
     }
     if (! ("_id" in doc)) {
       if (uuids.list.length > 0) {
@@ -540,7 +548,7 @@ var HttpPouch = function(opts, callback) {
       }else {
         uuids.get(function(err, resp) {
           if (err) {
-            return call(callback, Pouch.Errors.UNKNOWN_ERROR);
+            return PouchUtils.call(callback, Pouch.Errors.UNKNOWN_ERROR);
           }
           doc._id = uuids.list.pop();
           api.put(doc, opts, callback);
@@ -776,10 +784,10 @@ var HttpPouch = function(opts, callback) {
         req.query = opts.query_params;
         res.results = res.results.filter(function(c) {
           leftToFetch--;
-          var ret = filterChange(opts)(c);
+          var ret = PouchUtils.filterChange(opts)(c);
           if (ret) {
             results.results.push(c);
-            call(opts.onChange, c);
+            PouchUtils.call(opts.onChange, c);
           }
           return ret;
         });
@@ -809,14 +817,14 @@ var HttpPouch = function(opts, callback) {
         var maximumWait = opts.maximumWait || 30000;
 
         if (retryWait > maximumWait) {
-          call(opts.complete, err || Pouch.Errors.UNKNOWN_ERROR, null);
+          PouchUtils.call(opts.complete, err || Pouch.Errors.UNKNOWN_ERROR, null);
         }
 
         // Queue a call to fetch again with the newest sequence number
         setTimeout(function() { fetch(lastFetchedSeq, fetched); }, retryWait);
       } else {
         // We're done, call the callback
-        call(opts.complete, null, results);
+        PouchUtils.call(opts.complete, null, results);
       }
     };
 
@@ -828,7 +836,7 @@ var HttpPouch = function(opts, callback) {
     } else {
       api.info(function(err, res) {
         if (err) {
-          return call(opts.complete, err);
+          return PouchUtils.call(opts.complete, err);
         }
         remoteLastSeq = res.update_seq;
         fetch(opts.since || 0, fetched);
@@ -868,7 +876,7 @@ var HttpPouch = function(opts, callback) {
       url: genDBUrl(host, '_revs_diff'),
       body: req
     }, function(err, res) {
-      call(callback, err, res);
+      PouchUtils.call(callback, err, res);
     });
   };
 
@@ -877,7 +885,7 @@ var HttpPouch = function(opts, callback) {
       api.taskqueue.addTask('close', arguments);
       return;
     }
-    call(callback, null);
+    PouchUtils.call(callback, null);
   };
 
   return api;
@@ -893,13 +901,6 @@ HttpPouch.destroy = function(name, callback) {
 HttpPouch.valid = function() {
   return true;
 };
-
-if (typeof module !== 'undefined' && module.exports) {
-  // running in node
-  var pouchdir = '../';
-  Pouch = require(pouchdir + 'pouch.js');
-  ajax = Pouch.utils.ajax;
-}
 
 // Set HttpPouch to be the adapter used with the http scheme.
 Pouch.adapter('http', HttpPouch);

@@ -1,6 +1,6 @@
-/*global Pouch: true */
+/*global Pouch: true, pouchCollate */
 
-(function (){ 
+(function (){
   "use strict";
 
   var GQL= function(db) {
@@ -144,7 +144,7 @@
               }
 
               //end of some token
-            } else if (isWhiteSpace(c)) { 
+            } else if (isWhiteSpace(c)) {
               handleDelimitedCharacters();
             } else {
               currentString += c;
@@ -398,7 +398,7 @@
               if (typeof b === "undefined") {return -a;}
               return a - b;
             },
-            "*": function(a, b) { return a * b; }, 
+            "*": function(a, b) { return a * b; },
             "/": function(a, b) { return a / b; },
             "=": function(a, b) { return a === b; },
             "<": function(a, b) { return a < b; },
@@ -417,12 +417,12 @@
             lower: function(str){return str.toLowerCase();},
             max: function(values, label) {
               return values.reduce(function(max, a) {
-                if(a[label] && (!max || a[label] > max)){max= a[label];} 
+                if(a[label] && (!max || a[label] > max)){max= a[label];}
                 return max;
               }, null); },
               min: function(values, label) {
                 return values.reduce(function(min, a) {
-                  if(a[label] && (!min || a[label] < min)){min= a[label];} 
+                  if(a[label] && (!min || a[label] < min)){min= a[label];}
                   return min;
                 }, null); },
                 average: function(values, label) {
@@ -432,7 +432,7 @@
                         throw GQL.Errors.SELECT_ERROR("All values being averaged must be numbers, but "+
                                                       a[label] + " is not.");
                       }
-                      return {count: ++tracker.count, total: tracker.total+a[label]}; 
+                      return {count: ++tracker.count, total: tracker.total+a[label]};
                     }
                     return tracker; }, {count: 0, total: 0});
                     return v.total/v.count;
@@ -446,7 +446,7 @@
                   }, 0);
                 },
                 sum: function(values, label) {
-                  return values.reduce(function(sum, a) { 
+                  return values.reduce(function(sum, a) {
                     if(a[label]){
                       if(typeof a[label] !== "number"){
                         throw GQL.Errors.SELECT_ERROR("All values being summed must be numbers, but "+ a[label] +
@@ -525,7 +525,7 @@
             };
 
             parsedTokens.forEach(function(node){
-              recur(node); 
+              recur(node);
             });
 
             for (var i=0; i< pivotingColumns.length; i++){
@@ -562,7 +562,7 @@
               throw GQL.Errors.PARSING_ERROR("Unrecognized function: " + node.name);
 
               case "identifier":
-                //handle the case where a column in the group-by is present in the 
+                //handle the case where a column in the group-by is present in the
                 //select without and aggregate function (all cells will have the same value)
                 if (Array.isArray(doc)){
                 if(doc[0][node.value] === undefined){
@@ -777,7 +777,7 @@
       //only proceed once all documents are mapped and joined
       var checkComplete= function(){
         results.sort(function(a, b) {
-          return Pouch.collate(a.key, b.key);
+          return pouchCollate(a.key, b.key);
         });
         if (options.descending) {
           results.reverse();
@@ -786,7 +786,7 @@
         var groups= [];
         results.forEach(function(e) {
           var last= groups[groups.length-1] || null;
-          if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
+          if (last && pouchCollate(last.key[0][0], e.key) === 0) {
             last.key.push([e.key, e.id]);
             last.value.push(e.value);
             return;

@@ -1,11 +1,29 @@
-/*globals Pouch: true, extend, call, parseDocId, traverseRevTree */
-/*globals arrayFirst, rootToLeaf, computeHeight, cordova, PouchUtils */
+/*globals Pouch: true, cordova, PouchUtils: true, PouchMerge */
 
 "use strict";
+
+var PouchAdapter;
+var PouchUtils;
+
+if (typeof module !== 'undefined' && module.exports) {
+  PouchUtils = require('./pouch.utils.js');
+}
+
+var call = PouchUtils.call;
 
 /*
  * A generic pouch adapter
  */
+
+// returns first element of arr satisfying callback predicate
+function arrayFirst(arr, callback) {
+  for (var i = 0; i < arr.length; i++) {
+    if (callback(arr[i], i) === true) {
+      return arr[i];
+    }
+  }
+  return false;
+}
 
 // Wrapper for functions that call the bulkdocs api with a single doc,
 // if the first result is an error, return an error
@@ -19,7 +37,34 @@ function yankError(callback) {
   };
 }
 
-var PouchAdapter = function(opts, callback) {
+// for every node in a revision tree computes its distance from the closest
+// leaf
+function computeHeight(revs) {
+  var height = {};
+  var edges = [];
+  PouchMerge.traverseRevTree(revs, function(isLeaf, pos, id, prnt) {
+    var rev = pos + "-" + id;
+    if (isLeaf) {
+      height[rev] = 0;
+    }
+    if (prnt !== undefined) {
+      edges.push({from: prnt, to: rev});
+    }
+    return rev;
+  });
+
+  edges.reverse();
+  edges.forEach(function(edge) {
+    if (height[edge.from] === undefined) {
+      height[edge.from] = 1 + height[edge.to];
+    } else {
+      height[edge.from] = Math.min(height[edge.from], 1 + height[edge.to]);
+    }
+  });
+  return height;
+}
+
+PouchAdapter = function(opts, callback) {
 
   var api = {};
 
@@ -235,7 +280,7 @@ var PouchAdapter = function(opts, callback) {
         }
       });
 
-      Pouch.merge.traverseRevTree(rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
+      PouchMerge.traverseRevTree(rev_tree, function(isLeaf, pos, revHash, ctx, opts) {
         var rev = pos + '-' + revHash;
         if (opts.status === 'available' && candidates.indexOf(rev) !== -1) {
           opts.status = 'missing';
@@ -312,7 +357,7 @@ var PouchAdapter = function(opts, callback) {
             // situation the same way as if revision tree was empty
             rev_tree = [];
           }
-          leaves = Pouch.merge.collectLeaves(rev_tree).map(function(leaf){
+          leaves = PouchMerge.collectLeaves(rev_tree).map(function(leaf){
             return leaf.rev;
           });
           finishOpenRevs();
@@ -347,14 +392,14 @@ var PouchAdapter = function(opts, callback) {
       var ctx = result.ctx;
 
       if (opts.conflicts) {
-        var conflicts = Pouch.merge.collectConflicts(metadata);
+        var conflicts = PouchMerge.collectConflicts(metadata);
         if (conflicts.length) {
           doc._conflicts = conflicts;
         }
       }
 
       if (opts.revs || opts.revs_info) {
-        var paths = rootToLeaf(metadata.rev_tree);
+        var paths = PouchMerge.rootToLeaf(metadata.rev_tree);
         var path = arrayFirst(paths, function(arr) {
           return arr.ids.map(function(x) { return x.id; })
             .indexOf(doc._rev.split('-')[1]) !== -1;
@@ -467,7 +512,7 @@ var PouchAdapter = function(opts, callback) {
       api.taskqueue.addTask('changes', arguments);
       return;
     }
-    opts = extend(true, {}, opts);
+    opts = PouchUtils.extend(true, {}, opts);
 
     if (!opts.since) {
       opts.since = 0;
@@ -518,7 +563,7 @@ var PouchAdapter = function(opts, callback) {
     if (!opts) {
       opts = {};
     } else {
-      opts = extend(true, {}, opts);
+      opts = PouchUtils.extend(true, {}, opts);
     }
 
     if (!req || !req.docs || req.docs.length < 1) {
@@ -535,7 +580,7 @@ var PouchAdapter = function(opts, callback) {
       }
     }
 
-    req = extend(true, {}, req);
+    req = PouchUtils.extend(true, {}, req);
     if (!('new_edits' in opts)) {
       opts.new_edits = true;
     }
@@ -600,7 +645,7 @@ var PouchAdapter = function(opts, callback) {
     api.taskqueue.execute(api);
   }
 
-  if (typeof PouchUtils !== 'undefined' && PouchUtils.isCordova()){
+  if (PouchUtils.isCordova()) {
     //to inform websql adapter that we can use api
     cordova.fireWindowEvent(opts.name + "_pouch", {});
   }

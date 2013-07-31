@@ -1,6 +1,11 @@
-/*global Pouch: true */
+/*global Pouch: true, pouchCollate: true */
 
 "use strict";
+
+var pouchCollate;
+if (typeof module !== 'undefined' && module.exports) {
+  pouchCollate = require('../pouch.collate.js');
+}
 
 // This is the first implementation of a basic plugin, we register the
 // plugin object with pouch and it is mixin'd to each database created
@@ -73,9 +78,9 @@ var MapReduce = function(db) {
         value: val
       };
 
-      if (options.startkey && Pouch.collate(key, options.startkey) < 0) return;
-      if (options.endkey && Pouch.collate(key, options.endkey) > 0) return;
-      if (options.key && Pouch.collate(key, options.key) !== 0) return;
+      if (options.startkey && pouchCollate(key, options.startkey) < 0) return;
+      if (options.endkey && pouchCollate(key, options.endkey) > 0) return;
+      if (options.key && pouchCollate(key, options.key) !== 0) return;
 
       num_started++;
       if (options.include_docs) {
@@ -112,7 +117,7 @@ var MapReduce = function(db) {
     var checkComplete= function(){
       if (completed && results.length == num_started){
         results.sort(function(a, b) {
-          return Pouch.collate(a.key, b.key);
+          return pouchCollate(a.key, b.key);
         });
         if (options.descending) {
           results.reverse();
@@ -129,7 +134,7 @@ var MapReduce = function(db) {
         var groups = [];
         results.forEach(function(e) {
           var last = groups[groups.length-1] || null;
-          if (last && Pouch.collate(last.key[0][0], e.key) === 0) {
+          if (last && pouchCollate(last.key[0][0], e.key) === 0) {
             last.key.push([e.key, e.id]);
             last.value.push(e.value);
             return;

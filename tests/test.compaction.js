@@ -10,6 +10,7 @@ var autoCompactionAdapters = ['local-1'];
 
 var qunit = module;
 var LevelPouch;
+var utils;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter

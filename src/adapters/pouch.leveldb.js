@@ -1,11 +1,11 @@
-/*globals extend: true, isDeleted: true, isLocalId: true */
 /*globals Buffer: true */
 
 'use strict';
 
-var pouchdir = '../';
-var Pouch = require(pouchdir + 'pouch.js');
-var call = Pouch.utils.call;
+var Pouch = require('../pouch.js');
+var PouchMerge = require('../pouch.merge.js');
+var PouchUtils = require('../pouch.utils.js');
+var call = PouchUtils.call;
 
 var path = require('path');
 var fs = require('fs');
@@ -25,7 +25,7 @@ var BY_SEQ_STORE = 'by-sequence';
 var ATTACH_STORE = 'attach-store';
 var ATTACH_BINARY_STORE = 'attach-binary-store';
 
-// leveldb barks if we try to open a db multiple times
+// leveldb barks if we try to open a db mZultiple times
 // so we cache opened connections here for initstore()
 var STORES = {};
 
@@ -186,11 +186,11 @@ var LevelPouch = function(opts, callback) {
       if (err || !metadata){
         return call(callback, Pouch.Errors.MISSING_DOC);
       }
-      if (isDeleted(metadata) && !opts.rev) {
+      if (PouchUtils.isDeleted(metadata) && !opts.rev) {
         return call(callback, Pouch.error(Pouch.Errors.MISSING_DOC, "deleted"));
       }
 
-      var rev = Pouch.merge.winningRev(metadata);
+      var rev = PouchMerge.winningRev(metadata);
       rev = opts.rev ? opts.rev : rev;
       var seq = metadata.rev_map[rev];
 
@@ -225,7 +225,7 @@ var LevelPouch = function(opts, callback) {
         return call(callback, err);
       }
 
-      data = opts.encode ? btoa(attach) : attach;
+      data = opts.encode ? PouchUtils.btoa(attach) : attach;
       call(callback, null, data);
     });
   };
@@ -239,7 +239,7 @@ var LevelPouch = function(opts, callback) {
     // parse the docs and give each a sequence number
     var userDocs = req.docs;
     info = userDocs.map(function(doc, i) {
-      var newDoc = Pouch.utils.parseDoc(doc, newEdits);
+      var newDoc = PouchUtils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       if (newDoc.metadata && !newDoc.metadata.rev_map) {
         newDoc.metadata.rev_map = {};
@@ -271,7 +271,7 @@ var LevelPouch = function(opts, callback) {
 
     function insertDoc(doc, callback) {
       // Can't insert new deleted documents
-      if ('was_delete' in opts && isDeleted(doc.metadata)) {
+      if ('was_delete' in opts && PouchUtils.isDeleted(doc.metadata)) {
         results.push(makeErr(Pouch.Errors.MISSING_DOC, doc._bulk_seq));
         return callback();
       }
@@ -287,10 +287,12 @@ var LevelPouch = function(opts, callback) {
     }
 
     function updateDoc(oldDoc, docInfo, callback) {
-      var merged = Pouch.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
+      var merged = PouchMerge.merge(oldDoc.rev_tree, docInfo.metadata.rev_tree[0], 1000);
 
-      var conflict = (isDeleted(oldDoc) && isDeleted(docInfo.metadata)) ||
-        (!isDeleted(oldDoc) && newEdits && merged.conflicts !== 'new_leaf');
+      var conflict = (PouchUtils.isDeleted(oldDoc) &&
+                      PouchUtils.isDeleted(docInfo.metadata)) ||
+        (!PouchUtils.isDeleted(oldDoc) &&
+         newEdits && merged.conflicts !== 'new_leaf');
 
       if (conflict) {
         results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
@@ -308,7 +310,7 @@ var LevelPouch = function(opts, callback) {
 
       doc.data._id = doc.metadata.id;
 
-      if (isDeleted(doc.metadata)) {
+      if (PouchUtils.isDeleted(doc.metadata)) {
         doc.data._deleted = true;
       }
 
@@ -339,7 +341,7 @@ var LevelPouch = function(opts, callback) {
           // if data is a string, it's likely to actually be base64 encoded
           if (typeof data === 'string') {
             try {
-              data = Pouch.utils.atob(data);
+              data = PouchUtils.atob(data);
             } catch(e) {
               call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
               return;
@@ -441,7 +443,7 @@ var LevelPouch = function(opts, callback) {
           return aresults.push(result);
         }
         var metadata = result.metadata;
-        var rev = Pouch.merge.winningRev(metadata);
+        var rev = PouchMerge.winningRev(metadata);
 
         aresults.push({
           ok: true,
@@ -449,14 +451,14 @@ var LevelPouch = function(opts, callback) {
           rev: rev
         });
 
-        if (Pouch.utils.isLocalId(metadata.id)) {
+        if (PouchUtils.isLocalId(metadata.id)) {
           return;
         }
 
         var change = {
           id: metadata.id,
           seq: metadata.seq,
-          changes: Pouch.merge.collectLeaves(metadata.rev_tree),
+          changes: PouchMerge.collectLeaves(metadata.rev_tree),
           doc: result.data
         };
         change.doc._rev = rev;
@@ -497,21 +499,21 @@ var LevelPouch = function(opts, callback) {
     var docstream = stores[DOC_STORE].readStream(readstreamOpts);
     docstream.on('data', function(entry) {
       function allDocsInner(metadata, data) {
-        if (Pouch.utils.isLocalId(metadata.id)) {
+        if (PouchUtils.isLocalId(metadata.id)) {
           return;
         }
         var doc = {
           id: metadata.id,
           key: metadata.id,
           value: {
-            rev: Pouch.merge.winningRev(metadata)
+            rev: PouchMerge.winningRev(metadata)
           }
         };
         if (opts.include_docs) {
           doc.doc = data;
           doc.doc._rev = doc.value.rev;
           if (opts.conflicts) {
-            doc.doc._conflicts = Pouch.merge.collectConflicts(metadata);
+            doc.doc._conflicts = PouchMerge.collectConflicts(metadata);
           }
           for (var att in doc.doc._attachments) {
             doc.doc._attachments[att].stub = true;
@@ -519,21 +521,21 @@ var LevelPouch = function(opts, callback) {
         }
         if ('keys' in opts) {
           if (opts.keys.indexOf(metadata.id) > -1) {
-            if (isDeleted(metadata)) {
+            if (PouchUtils.isDeleted(metadata)) {
               doc.value.deleted = true;
               doc.doc = null;
             }
             resultsMap[doc.id] = doc;
           }
         } else {
-          if(!isDeleted(metadata)) {
+          if(!PouchUtils.isDeleted(metadata)) {
             results.push(doc);
           }
         }
       }
       var metadata = entry.value;
       if (opts.include_docs) {
-        var seq = metadata.rev_map[Pouch.merge.winningRev(metadata)];
+        var seq = metadata.rev_map[PouchMerge.winningRev(metadata)];
         stores[BY_SEQ_STORE].get(seq, function(err, data) {
           allDocsInner(metadata, data);
         });
@@ -589,19 +591,19 @@ var LevelPouch = function(opts, callback) {
       var changeStream = stores[BY_SEQ_STORE].readStream(streamOpts);
       changeStream
         .on('data', function(data) {
-          if (Pouch.utils.isLocalId(data.key)) {
+          if (PouchUtils.isLocalId(data.key)) {
             return;
           }
 
           stores[DOC_STORE].get(data.value._id, function(err, metadata) {
-            if (Pouch.utils.isLocalId(metadata.id)) {
+            if (PouchUtils.isLocalId(metadata.id)) {
               return;
             }
 
-            var mainRev = Pouch.merge.winningRev(metadata);
+            var mainRev = PouchMerge.winningRev(metadata);
             var changeList = [{rev: mainRev}];
             if (opts.style === 'all_docs') {
-              changeList = Pouch.merge.collectLeaves(metadata.rev_tree)
+              changeList = PouchMerge.collectLeaves(metadata.rev_tree)
                 .map(function(x) { return {rev: x.rev}; });
             }
             var change = {
@@ -615,11 +617,11 @@ var LevelPouch = function(opts, callback) {
             if (last_seq < metadata.seq) {
               last_seq = metadata.seq;
             }
-            if (isDeleted(metadata, mainRev)) {
+            if (PouchUtils.isDeleted(metadata, mainRev)) {
               change.deleted = true;
             }
             if (opts.conflicts) {
-              change.doc._conflicts = Pouch.merge.collectConflicts(metadata);
+              change.doc._conflicts = PouchMerge.collectConflicts(metadata);
             }
 
             // Ensure duplicated dont overwrite winning rev
@@ -635,7 +637,7 @@ var LevelPouch = function(opts, callback) {
           }
         })
         .on('close', function() {
-          var filter = Pouch.utils.filterChange(opts);
+          var filter = PouchUtils.filterChange(opts);
           changeListener = function(change){
             if (filter(change)) {
               call(opts.onChange, change);
@@ -651,7 +653,7 @@ var LevelPouch = function(opts, callback) {
               return a.seq - b.seq;
             }
           });
-          Pouch.utils.processChanges(opts, results, last_seq);
+          PouchUtils.processChanges(opts, results, last_seq);
         });
     }
 
