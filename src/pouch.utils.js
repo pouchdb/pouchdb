@@ -1,7 +1,9 @@
 /*jshint strict: false */
-/*global request: true, Buffer: true, escape: true, $:true */
+/*global request: true, Buffer: true, escape: true */
 /*global extend: true, Crypto: true */
 /*global chrome*/
+
+var PouchUtils = {};
 
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
@@ -14,10 +16,6 @@ var call = function(fun) {
 
 var isLocalId = function(id) {
   return (/^_local/).test(id);
-};
-
-var isAttachmentId = function(id) {
-  return (/\//.test(id) && !isLocalId(id) && !/^_design/.test(id));
 };
 
 // Determine id an ID is valid
@@ -46,7 +44,7 @@ var reservedWords = [
 
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
-var parseDoc = function(doc, newEdits) {
+PouchUtils.parseDoc = function(doc, newEdits) {
   var error = null;
   var nRevNum;
   var newRevId;
@@ -264,62 +262,19 @@ var isDeleted = function(metadata, rev) {
   return deleted;
 };
 
+PouchUtils.isCordova = function(){
+  return (typeof cordova !== "undefined" ||
+          typeof PhoneGap !== "undefined" ||
+          typeof phonegap !== "undefined");
+};
+
 var isChromeApp = function(){
-  return (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined");
+  return (typeof chrome !== "undefined" &&
+          typeof chrome.storage !== "undefined" &&
+          typeof chrome.storage.local !== "undefined");
 };
 
-var isCordova = function(){
-  return (typeof cordova !== "undefined" || typeof PhoneGap !== "undefined" || typeof phonegap !== "undefined");
-};
-
-if (typeof module !== 'undefined' && module.exports) {
-  // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
-  var crypto = require('crypto');
-  var Crypto = {
-    MD5: function(str) {
-      return crypto.createHash('md5').update(str).digest('hex');
-    }
-  };
-  var extend = require('./deps/extend');
-  var ajax = require('./deps/ajax');
-
-  request = require('request');
-  _ = require('underscore');
-  $ = _;
-
-  module.exports = {
-    Crypto: Crypto,
-    call: call,
-    isLocalId: isLocalId,
-    isAttachmentId: isAttachmentId,
-    parseDoc: parseDoc,
-    isDeleted: isDeleted,
-    compareRevs: compareRevs,
-    computeHeight: computeHeight,
-    arrayFirst: arrayFirst,
-    filterChange: filterChange,
-    processChanges: processChanges,
-    atob: function(str) {
-      var base64 = new Buffer(str, 'base64');
-      // Node.js will just skip the characters it can't encode instead of
-      // throwing and exception
-      if (base64.toString('base64') !== str) {
-        throw("Cannot base64 encode full string");
-      }
-      return base64.toString('binary');
-    },
-    btoa: function(str) {
-      return new Buffer(str, 'binary').toString('base64');
-    },
-    extend: extend,
-    ajax: ajax,
-    rootToLeaf: rootToLeaf,
-    isChromeApp: isChromeApp,
-    isCordova: isCordova
-  };
-}
-
-var Changes = function() {
+PouchUtils.Changes = function() {
 
   var api = {};
   var listeners = {};
@@ -388,3 +343,43 @@ var Changes = function() {
 
   return api;
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  // use node.js's crypto library instead of the Crypto object created by deps/uuid.js
+  var crypto = require('crypto');
+  var Crypto = {
+    MD5: function(str) {
+      return crypto.createHash('md5').update(str).digest('hex');
+    }
+  };
+
+  request = require('request');
+
+  module.exports = {
+    Crypto: Crypto,
+    call: call,
+    isLocalId: isLocalId,
+    parseDoc: PouchUtils.parseDoc,
+    isDeleted: isDeleted,
+    compareRevs: compareRevs,
+    computeHeight: computeHeight,
+    arrayFirst: arrayFirst,
+    filterChange: filterChange,
+    processChanges: processChanges,
+    atob: function(str) {
+      var base64 = new Buffer(str, 'base64');
+      // Node.js will just skip the characters it can't encode instead of
+      // throwing and exception
+      if (base64.toString('base64') !== str) {
+        throw("Cannot base64 encode full string");
+      }
+      return base64.toString('binary');
+    },
+    btoa: function(str) {
+      return new Buffer(str, 'binary').toString('base64');
+    },
+    extend: require('./deps/extend'),
+    ajax: require('./deps/ajax'),
+    rootToLeaf: rootToLeaf
+  };
+}

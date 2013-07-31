@@ -1,5 +1,5 @@
-/*globals Pouch: true, call: false, ajax: true */
-/*globals require: false, console: false */
+/*globals Pouch: true, filterChange, call, ajax: true */
+/*globals require, console */
 
 "use strict";
 

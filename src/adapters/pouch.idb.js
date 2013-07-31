@@ -1,5 +1,5 @@
-/*globals call: false, extend: false, parseDoc: false, Crypto: false, window */
-/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false, processChanges: false */
+/*globals call, extend, parseDoc, Crypto, window */
+/*globals isLocalId, isDeleted, PouchUtils, filterChange, processChanges */
 
 'use strict';
 
@@ -149,7 +149,7 @@ var IdbPouch = function(opts, callback) {
     var userDocs = req.docs;
     // Parse the docs, give them a sequence number for the result
     var docInfos = userDocs.map(function(doc, i) {
-      var newDoc = parseDoc(doc, newEdits);
+      var newDoc = PouchUtils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;
     });
@@ -862,6 +862,6 @@ IdbPouch.destroy = function idb_destroy(name, callback) {
   req.onerror = idbError(callback);
 };
 
-IdbPouch.Changes = new Changes();
+IdbPouch.Changes = new PouchUtils.Changes();
 
 Pouch.adapter('idb', IdbPouch);
