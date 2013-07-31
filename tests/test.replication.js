@@ -502,7 +502,7 @@ adapters.map(function(adapters) {
         db.replicate.from(remote, {
           doc_ids: ['3', '4']
         }, function(err, response){
-          strictEqual(response.docs_written, 1, 'correct # of docs replicated');
+          strictEqual(response.docs_written, 2, 'correct # of docs replicated');
           start();
         });
       });

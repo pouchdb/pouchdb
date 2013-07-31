@@ -196,11 +196,13 @@ var arrayFirst = function(arr, callback) {
 var filterChange = function(opts) {
   return function(change) {
     var req = {};
+    var hasFilter = opts.filter && typeof opts.filter === 'function';
+
     req.query = opts.query_params;
-    if (opts.filter && !opts.filter.call(this, change.doc, req)) {
+    if (opts.filter && hasFilter && !opts.filter.call(this, change.doc, req)) {
       return false;
     }
-    if (opts.doc_ids && opts.doc_ids.indexOf(change.id) !== -1) {
+    if (opts.doc_ids && opts.doc_ids.indexOf(change.id) === -1) {
       return false;
     }
     if (!opts.include_docs) {
