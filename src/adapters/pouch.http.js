@@ -1,5 +1,5 @@
-/*globals Pouch: true, call: false, ajax: true */
-/*globals require: false, console: false */
+/*globals Pouch: true, filterChange, call, ajax: true */
+/*globals require, console */
 
 "use strict";
 
@@ -765,23 +765,23 @@ var HttpPouch = function(opts, callback) {
     var fetchTimeout = 10;
     var fetchRetryCount = 0;
 
+    var results = {results: []};
+
     var fetched = function(err, res) {
       // If the result of the ajax call (res) contains changes (res.results)
       if (res && res.results) {
+        results.last_seq = res.last_seq;
         // For each change
-        var hasFilter = opts.filter && typeof opts.filter === 'function';
         var req = {};
         req.query = opts.query_params;
         res.results = res.results.filter(function(c) {
           leftToFetch--;
-          if (opts.aborted || hasFilter && !opts.filter.apply(this, [c.doc, req])) {
-            return false;
+          var ret = filterChange(opts)(c);
+          if (ret) {
+            results.results.push(c);
+            call(opts.onChange, c);
           }
-          if (opts.doc_ids && opts.doc_ids.indexOf(c.id) !== -1) {
-            return false;
-          }
-          call(opts.onChange, c);
-          return true;
+          return ret;
         });
       }
 
@@ -791,8 +791,10 @@ var HttpPouch = function(opts, callback) {
         lastFetchedSeq = res.last_seq;
       }
 
+      var resultsLength = res && res.results.length || 0;
       var finished = (limit && leftToFetch <= 0) ||
-        (!limit && lastFetchedSeq === remoteLastSeq) ||
+        (res && !resultsLength) ||
+        (resultsLength && res.last_seq === remoteLastSeq) ||
         (opts.descending && lastFetchedSeq !== 0);
 
       if (opts.continuous || !finished) {
@@ -814,7 +816,7 @@ var HttpPouch = function(opts, callback) {
         setTimeout(function() { fetch(lastFetchedSeq, fetched); }, retryWait);
       } else {
         // We're done, call the callback
-        call(opts.complete, null, res);
+        call(opts.complete, null, results);
       }
     };
 

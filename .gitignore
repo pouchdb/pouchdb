@@ -1,4 +1,5 @@
 dist
+tmp
 .*
 !.gitignore
 sauce_connect.log*

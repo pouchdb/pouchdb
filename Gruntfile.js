@@ -202,10 +202,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask("cors-server", "Runs a CORS proxy", function(){
     var corsPort = arguments[0] || grunt.config("cors-server.port");
-    var couchUrl = grunt.util._.toArray(arguments).slice(1).join(":") ||
-      grunt.config("cors-server.base");
+    var couchUrl = grunt.option('couch-host') || grunt.config("cors-server.base");
     grunt.log.writeln("Starting CORS server " + corsPort + " => " + couchUrl);
-
     cors_proxy.options = {target: couchUrl};
     http_proxy.createServer(cors_proxy).listen(corsPort);
   });

@@ -44,7 +44,10 @@ You will now have various distributions of PouchDB in your `dist` folder, congra
 Running PouchDB Tests
 --------------------------------------
 
-The PouchDB test suite expects an instance of CouchDB running on http://127.0.0.1:5984 and it will need to be in Admin Party.
+The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can override this by passing a flag with the CouchDB host (and basic auth credentials if needed)
+
+    `$ grunt browser --couch-host=http://user:pass@myname.iriscouch.com`
+    `$ grunt test --couch-host=http://user:pass@myname.iriscouch.com`
 
 ### Node Tests
 
@@ -75,6 +78,16 @@ Workflows can vary, but here is a very simple workflow for contributing a bug fi
     $ git add src/afile.js
     $ git commit -m "(#121) - A brief description of what I changed"
     $ git push origin 121-issue-keyword
+
+Building PouchDB Documentation
+--------------------------------------
+
+The source for the website http://pouchdb.com is stored inside the `docs` directory of the PouchDB repository, you can make changes and submit pull requests as with any other patch. To build and view the website locally you will need to install [jekyll](http://jekyllrb.com/) then:
+
+    $ cd docs
+    $ jekyll -w serve
+
+You should now find the documentation at http://127.0.0.1:4000
 
 Questions?
 ----------

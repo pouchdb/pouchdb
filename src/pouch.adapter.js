@@ -1,12 +1,24 @@
-/*globals Pouch: true, yankError: false, extend: false, call: false, parseDocId: false, traverseRevTree: false */
-/*globals arrayFirst: false, rootToLeaf: false, computeHeight: false */
-/*globals cordova, isCordova */
+/*globals Pouch: true, extend, call, parseDocId, traverseRevTree */
+/*globals arrayFirst, rootToLeaf, computeHeight, cordova, PouchUtils */
 
 "use strict";
 
 /*
  * A generic pouch adapter
  */
+
+// Wrapper for functions that call the bulkdocs api with a single doc,
+// if the first result is an error, return an error
+function yankError(callback) {
+  return function(err, results) {
+    if (err || results[0].error) {
+      call(callback, err || results[0]);
+    } else {
+      call(callback, null, results[0]);
+    }
+  };
+}
+
 var PouchAdapter = function(opts, callback) {
 
   var api = {};
@@ -588,7 +600,7 @@ var PouchAdapter = function(opts, callback) {
     api.taskqueue.execute(api);
   }
 
-  if (isCordova()){
+  if (typeof PouchUtils !== 'undefined' && PouchUtils.isCordova()){
     //to inform websql adapter that we can use api
     cordova.fireWindowEvent(opts.name + "_pouch", {});
   }

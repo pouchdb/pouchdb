@@ -1,6 +1,5 @@
-/*globals call: false, extend: false, parseDoc: false, Crypto: false */
-/*globals isLocalId: false, isDeleted: false, Changes: false, filterChange: false, processChanges: false */
-/*global isCordova*/
+/*globals call, extend, parseDoc, Crypto */
+/*globals isLocalId, isDeleted, PouchUtils, filterChange, processChanges */
 
 'use strict';
 
@@ -83,7 +82,7 @@ var webSqlPouch = function(opts, callback) {
       });
     }, unknownError(callback), dbCreated);
   }
-  if (isCordova()){
+  if (PouchUtils.isCordova()) {
     //to wait until custom api is made in pouch.adapters before doing setup
     window.addEventListener(name + "_pouch", setup, false);
   } else {
@@ -125,7 +124,7 @@ var webSqlPouch = function(opts, callback) {
 
     // Parse the docs, give them a sequence number for the result
     var docInfos = userDocs.map(function(doc, i) {
-      var newDoc = parseDoc(doc, newEdits);
+      var newDoc = PouchUtils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;
     });
@@ -704,6 +703,6 @@ webSqlPouch.destroy = function(name, callback) {
   });
 };
 
-webSqlPouch.Changes = new Changes();
+webSqlPouch.Changes = new PouchUtils.Changes();
 
 Pouch.adapter('websql', webSqlPouch);

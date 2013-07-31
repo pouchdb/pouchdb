@@ -42,7 +42,7 @@ var MapReduce = function(db) {
         }
       },
 
-      "_stats": function(keys, values, rereduce){
+      "_stats": function(keys, values, rereduce) {
         return {
           'sum': sum(values),
           'min': Math.min.apply(null, values),
@@ -50,8 +50,10 @@ var MapReduce = function(db) {
           'count': values.length,
           'sumsqr': (function(){
             var _sumsqr = 0;
-            for(var idx in values){
+            for(var idx in values) {
+              if (typeof values[idx] === 'number') {
               _sumsqr += values[idx] * values[idx];
+              }
             }
             return _sumsqr;
           })()
@@ -138,6 +140,7 @@ var MapReduce = function(db) {
           e.value = fun.reduce(e.key, e.value) || null;
           e.key = e.key[0][0];
         });
+
         options.complete(null, {
           rows: ('limit' in options)
             ? groups.slice(0, options.limit)
@@ -145,7 +148,7 @@ var MapReduce = function(db) {
           total_rows: groups.length
         });
       }
-    }
+    };
 
     db.changes({
       conflicts: true,

@@ -19,8 +19,7 @@
   ],
   "dependencies": {
     "level": "*",
-    "request": "*",
-    "underscore": "*"
+    "request": "*"
   },
   "jam": {
     "main": "dist/pouchdb.amd-nightly.js",
