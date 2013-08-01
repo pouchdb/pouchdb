@@ -93,6 +93,8 @@ var writeCheckpoint = function(src, target, id, checkpoint, callback) {
       src.get(check._id, function(err, doc) {
         if (doc && doc._rev) {
           check._rev = doc._rev;
+        } else {
+          delete check._rev;
         }
         src.put(check, function(err, doc) {
           callback();
