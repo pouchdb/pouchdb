@@ -67,14 +67,14 @@ module.exports = function(grunt) {
       },
       all: {
         src: grunt.util._.flatten([
-          "src/deps/uuid.js",
+          "src/deps/uuid.js", "src/deps/md5.js",
           "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles
         ]),
         dest: 'dist/pouchdb-nightly.js'
       },
       spatial: {
         src: grunt.util._.flatten([
-          "src/deps/uuid.js",
+          "src/deps/uuid.js", "src/deps/md5.js",
           "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles,
           "src/plugins/pouchdb.spatial.js"
         ]),

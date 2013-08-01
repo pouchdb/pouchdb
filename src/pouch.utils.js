@@ -1,6 +1,6 @@
 /*jshint strict: false */
 /*global request: true, Buffer: true, escape: true, PouchMerge: true */
-/*global extend: true, Crypto: true, chrome, ajax, btoa, atob */
+/*global extend: true, Crypto: true, chrome, ajax, btoa, atob, uuid */
 
 var PouchUtils = {};
 
@@ -304,6 +304,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
   PouchUtils.extend = require('./deps/extend');
   PouchUtils.ajax = require('./deps/ajax');
+  PouchUtils.uuid = require('./deps/uuid');
 
   module.exports = PouchUtils;
 
@@ -311,6 +312,7 @@ if (typeof module !== 'undefined' && module.exports) {
   PouchUtils.Crypto = Crypto;
   PouchUtils.extend = extend;
   PouchUtils.ajax = ajax;
+  PouchUtils.uuid = uuid;
 
   PouchUtils.atob = atob.bind(null);
   PouchUtils.btoa = btoa.bind(null);

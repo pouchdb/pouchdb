@@ -29,7 +29,10 @@ if (!testFiles.length) {
 testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
-  'dev': ['../src/deps/uuid.js', '../src/deps/extend.js', '../src/deps/ajax.js',
+  'dev': ['../src/deps/md5.js',
+          '../src/deps/uuid.js',
+          '../src/deps/extend.js',
+          '../src/deps/ajax.js',
           '../src/pouch.utils.js',
           '../src/pouch.collate.js',
           '../src/pouch.merge.js',

@@ -3,6 +3,7 @@
 "use strict";
 
 var PouchUtils;
+
 if (typeof module !== 'undefined' && module.exports) {
   PouchUtils = require('./pouch.utils.js');
 }
@@ -327,17 +328,16 @@ Pouch.allDbs = function(callback) {
     '30221232324132303123433131020020' ]
  */
 Pouch.uuids = function (count, options) {
+
   if (typeof(options) !== 'object') {
     options = {};
   }
 
   var length = options.length;
   var radix = options.radix;
-
   var uuids = [];
 
-  while (uuids.push(Math.uuid(length, radix)) < count) {
-  }
+  while (uuids.push(PouchUtils.uuid(length, radix)) < count) { }
 
   return uuids;
 };
@@ -438,7 +438,6 @@ if (typeof module !== 'undefined' && module.exports) {
     require('./adapters/pouch.' + adapter + '.js');
   });
   require('./plugins/pouchdb.mapreduce.js');
-  require('./deps/uuid.js');
 } else {
   window.Pouch = Pouch;
   window.PouchDB = Pouch;
