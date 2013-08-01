@@ -1,4 +1,4 @@
-/*globals Crypto: false, PouchUtils: true */
+/*globals PouchUtils: true */
 
 'use strict';
 

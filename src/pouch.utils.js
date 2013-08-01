@@ -304,7 +304,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
   PouchUtils.extend = require('./deps/extend');
   PouchUtils.ajax = require('./deps/ajax');
-  request = require('request');
 
   module.exports = PouchUtils;
 

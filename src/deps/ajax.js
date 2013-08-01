@@ -1,5 +1,8 @@
+var request;
+var extend;
 
 if (typeof module !== 'undefined' && module.exports) {
+  request = require('request');
   extend = require('./extend.js');
 }
 
