@@ -85,19 +85,9 @@ var writeCheckpoint = function(src, target, id, checkpoint, callback) {
     _id: id,
     last_seq: checkpoint
   };
-  target.get(check._id, function(err, doc) {
-    if (doc && doc._rev) {
-      check._rev = doc._rev;
-    }
-    target.put(check, function(err, doc) {
-      src.get(check._id, function(err, doc) {
-        if (doc && doc._rev) {
-          check._rev = doc._rev;
-        }
-        src.put(check, function(err, doc) {
-          callback();
-        });
-      });
+  target.put(check, function(err, doc) {
+    src.put(check, function(err, doc) {
+      callback();
     });
   });
 };
