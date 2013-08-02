@@ -80,7 +80,7 @@ db.put({
 db.post(doc, [options], [callback])
 {% endhighlight %}
 
-Create a new document and let PouchDB generate an _id for it.
+Create a new document and let PouchDB generate an `_id` for it.
 
 #### Example Usage:
 {% highlight js %}
