@@ -42,6 +42,21 @@ PouchDB.destroy('dbname', function(err, info) { });
 
 ## Create / Update a document<a id="create_document"></a>
 
+### Using db.post()
+{% highlight js %}
+db.post(doc, [options], [callback])
+{% endhighlight %}
+
+Create a new document and let PouchDB generate an _id for it.
+
+#### Example Usage:
+{% highlight js %}
+db.post({
+  title: 'Heroes'
+}, function (err, response) { });
+{% endhighlight %}
+
+### Using db.put()
 {% highlight js %}
 db.put(doc, [options], [callback])
 {% endhighlight %}
