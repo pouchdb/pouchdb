@@ -23,6 +23,18 @@ For CORS support PouchDB requires CouchDB > 1.3.0, however if you serve your web
 
 PouchDB is one of multiple projects that implement the CouchDB protocol and these can all be used to sync the same set of data. For desktop applications you may want to look into embedding CouchDB (or [rcouch](https://github.com/refuge/rcouch)), for mobile applications you can use PouchDB within [Apache Cordova](http://cordova.apache.org/) or you can look at [Couchbase lite for iOS](https://github.com/couchbase/couchbase-lite-ios) and [Android](https://github.com/couchbase/couchbase-lite-android).
 
+### Browsers have storage limitations, how much data can PouchDB store?
+
+In Firefox PouchDB uses IndexedDB, this will ask the user if data can be stored the first it is attempted then every 50MB after, the amount that can be stored is not limited.
+
+Chrome calculates the amount of storage left available on the users hard drive and uses [that to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary).
+
+Mobile Safari on iOS has a hard 50MB limit, desktop Safari will prompt users wanting to store more than 5MB up to a limit of 500MB.
+
+Opera has no known limit.
+
+Internet Exporer 10 has a hard 250MB limit.
+
 ### CouchDB Differences
 
 PouchDB is also a CouchDB client and you should be able to switch between a local database or an online CouchDB instance changing any of your applications code, there are some minor differences to note:
