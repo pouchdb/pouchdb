@@ -43,4 +43,4 @@ For a HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-tho
 
 # Using PouchDB
 
-To get started using PouchDB check out our [Getting Started Tutorial](getting-started.html) and the [API Documentation](api.html).
+To get started using PouchDB check out our [Getting Started Tutorial](http://pouchdb.com/getting-started.html) and the [API Documentation](http://pouchdb.com/api.html).
