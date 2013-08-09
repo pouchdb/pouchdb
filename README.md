@@ -1,8 +1,3 @@
----
-layout: learn
-title: PouchDB, the JavaScript Database that Syncs!
----
-
 # About PouchDB
 
 PouchDB was written to help web developers build applications that work as well offline as well as they do online, applications save data locally so the user can use all the features of an app even while offline and synchronise the data between clients so they have up to date data wherever they go.
@@ -33,11 +28,11 @@ PouchDB in Node.js is currently alpha and an upgrade to the library can break cu
 
 PouchDB is designed to be a minimal library that is suitable for mobile devices, to start using PouchDB in your website you simply [Download](http://download.pouchdb.com) and include it in your webpage.
 
-{% highlight html %}<script src="pouchdb-nightly.min.js"></script>{% endhighlight %}
+    <script src="pouchdb-nightly.min.js"></script>
 
 If you are using Node.js then
 
-{% highlight bash %}$ npm install pouchdb{% endhighlight %}
+    $ npm install pouchdb
 
 For a HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-thompson/pouchdb-server)
 
