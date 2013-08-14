@@ -293,7 +293,11 @@ PouchAdapter = function(opts, callback) {
 
   // compact the whole database using single document
   // compaction
-  api.compact = function(callback) {
+  api.compact = function(opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
+    }
     api.changes({complete: function(err, res) {
       if (err) {
         call(callback); // TODO: silently fail
