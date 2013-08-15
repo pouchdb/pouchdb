@@ -538,7 +538,7 @@ db.revsDiff({
 }
 {% endhighlight %}
 
-## List all databases<a id="list_databasese"></a>
+## List all databases<a id="list_databases"></a>
 
 {% highlight js %}
 PouchDB.allDbs(callback)
