@@ -40,7 +40,7 @@ var uuid;
   var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
     'abcdefghijklmnopqrstuvwxyz'.split('');
 
-  uuid = function uuid(len, radix) {
+  uuid = function uuid_inner(len, radix) {
     var chars = CHARS;
     var uuidInner = [];
     var i;
