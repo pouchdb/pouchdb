@@ -79,6 +79,13 @@ module.exports = function(grunt) {
           "src/plugins/pouchdb.spatial.js"
         ]),
         dest: 'dist/pouchdb.spatial-nightly.js'
+      },search: {
+        src: grunt.util._.flatten([
+          "src/deps/uuid.js", "src/deps/md5.js",
+          "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles,
+          "src/plugins/pouchdb.search.js"
+        ]),
+        dest: 'dist/pouchdb.search-nightly.js'
       },
       gql: {
         src: grunt.util._.flatten([
@@ -99,6 +106,10 @@ module.exports = function(grunt) {
       spatial: {
         src:  'dist/pouchdb.spatial-nightly.js',
         dest:  'dist/pouchdb.spatial-nightly.min.js'
+      },
+      search: {
+        src:  'dist/pouchdb.search-nightly.js',
+        dest:  'dist/pouchdb.search-nightly.min.js'
       },
       gql: {
         src:  'dist/pouchdb.gql-nightly.js',
@@ -259,7 +270,7 @@ module.exports = function(grunt) {
   grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
   grunt.registerTask("browser", ["connect", "cors-server", "forever"]);
   grunt.registerTask("full", ["concat", "uglify"]);
-
+  grunt.registerTask("spatial", ["concat:search", "uglify:search"]);
   grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
   grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
 
