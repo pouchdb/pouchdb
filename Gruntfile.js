@@ -270,7 +270,7 @@ module.exports = function(grunt) {
   grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
   grunt.registerTask("browser", ["connect", "cors-server", "forever"]);
   grunt.registerTask("full", ["concat", "uglify"]);
-  grunt.registerTask("spatial", ["concat:search", "uglify:search"]);
+  grunt.registerTask("search", ["concat:search", "uglify:search"]);
   grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
   grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
 
