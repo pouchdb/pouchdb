@@ -795,8 +795,9 @@
         });
 
         groups.forEach(function(e) {
-          e.value= reduce(e.key, e.value) || null;
-          e.key= e.key[0][0];
+          e.value = reduce(e.key, e.value);
+          e.value = (typeof e.value === 'undefined') ? null : e.value;
+          e.key = e.key[0][0];
         });
 
         var flattenedOutput= [];

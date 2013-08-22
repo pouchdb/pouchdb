@@ -142,7 +142,8 @@ var MapReduce = function(db) {
           groups.push({key: [[e.key, e.id]], value: [e.value]});
         });
         groups.forEach(function(e) {
-          e.value = fun.reduce(e.key, e.value) || null;
+          e.value = fun.reduce(e.key, e.value);
+          e.value = (typeof e.value === 'undefined') ? null : e.value;
           e.key = e.key[0][0];
         });
 
