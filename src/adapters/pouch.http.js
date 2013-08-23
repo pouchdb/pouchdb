@@ -688,6 +688,14 @@ var HttpPouch = function(opts, callback) {
       api.taskqueue.addTask('changes', arguments);
       return;
     }
+    
+    if (opts.since === 'latest') {
+      api.info(function (err, info) {
+        opts.since = info.update_seq - 1;
+        api.changes(opts);
+      });
+      return;
+    }
 
     if (Pouch.DEBUG) {
       console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);

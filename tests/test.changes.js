@@ -706,6 +706,24 @@ adapters.map(function(adapter) {
       });
     });
   });
+  
+  asyncTest('Calling db.changes({since: \'latest\'', function () {
+    expect(2);
+    initTestDB(this.name, function (err, db) {
+      db.bulkDocs({docs: [
+        { foo: 'bar' }
+      ]}, function (err, data) {
+        ok(!err, 'bulkDocs passed');
+        db.changes({
+          since: 'latest',
+          complete: function(err, res) {
+            ok(!err, 'completed db.changes({since: \'latest\'}): ' + JSON.stringify(res));
+            start();
+          }
+        });
+      });
+    });
+  });
 
 });
 
