@@ -521,6 +521,13 @@ PouchAdapter = function(opts, callback) {
     if (!opts.since) {
       opts.since = 0;
     }
+    if (opts.since === 'latest') {
+      api.info(function (err, info) {
+        opts.since = info.update_seq  - 1;
+        api.changes(opts);
+      });
+      return;
+    }
 
     if (!('descending' in opts)) {
       opts.descending = false;
