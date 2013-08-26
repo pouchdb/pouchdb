@@ -18,7 +18,7 @@ if (!testFiles.length) {
   // 'test.auth_replication.js',
   testFiles = ['test.basics.js', 'test.all_dbs.js', 'test.changes.js',
                'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
-               'test.merge_rev_tree.js',  'test.revs_diff.js',
+               'test.revs_diff.js',
                'test.replication.js', 'test.views.js', 'test.taskqueue.js',
                'test.design_docs.js', 'test.issue221.js', 'test.http.js',
                'test.gql.js', 'test.compaction.js', 'test.get.js',
