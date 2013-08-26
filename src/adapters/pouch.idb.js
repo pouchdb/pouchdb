@@ -2,6 +2,12 @@
 
 'use strict';
 
+var PouchUtils;
+
+if (typeof module !== 'undefined' && module.exports) {
+  PouchUtils = require('../pouch.utils.js');
+}
+
 var idbError = function(callback) {
   return function(event) {
     PouchUtils.call(callback, {
