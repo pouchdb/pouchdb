@@ -432,11 +432,10 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = Pouch;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   var PouchAdapter = require('./pouch.adapter.js');
-  //load adapters known to work under node
-  var adapters = ['leveldb', 'http'];
-  adapters.map(function(adapter) {
-    require('./adapters/pouch.' + adapter + '.js');
-  });
+  require('./adapters/pouch.http.js');
+  require('./adapters/pouch.idb.js');
+  require('./adapters/pouch.websql.js');
+  require('./adapters/pouch.leveldb.js');
   require('./plugins/pouchdb.mapreduce.js');
 } else {
   window.Pouch = Pouch;

@@ -1,4 +1,4 @@
-/*globals PouchUtils, PouchMerge */
+/*globals PouchUtils: true, PouchMerge */
 
 'use strict';
 
@@ -842,7 +842,7 @@ var IdbPouch = function(opts, callback) {
 };
 
 IdbPouch.valid = function idb_valid() {
-  return !!window.indexedDB;
+  return typeof window !== 'undefined' && !!window.indexedDB;
 };
 
 IdbPouch.destroy = function idb_destroy(name, callback) {

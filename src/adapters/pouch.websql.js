@@ -1,6 +1,12 @@
-/*globals PouchUtils, PouchMerge */
+/*globals PouchUtils: true, PouchMerge */
 
 'use strict';
+
+var PouchUtils;
+
+if (typeof module !== 'undefined' && module.exports) {
+  PouchUtils = require('../pouch.utils.js');
+}
 
 function quote(str) {
   return "'" + str + "'";
@@ -81,7 +87,7 @@ var webSqlPouch = function(opts, callback) {
       });
     }, unknownError(callback), dbCreated);
   }
-  if (PouchUtils.isCordova()) {
+  if (PouchUtils.isCordova() && typeof window !== 'undefined') {
     //to wait until custom api is made in pouch.adapters before doing setup
     window.addEventListener(name + '_pouch', function cordova_init() {
       window.removeEventListener(name + '_pouch', cordova_init, false);
@@ -692,7 +698,7 @@ var webSqlPouch = function(opts, callback) {
 };
 
 webSqlPouch.valid = function() {
-  return !!window.openDatabase;
+  return typeof window !== 'undefined' && !!window.openDatabase;
 };
 
 webSqlPouch.destroy = function(name, callback) {

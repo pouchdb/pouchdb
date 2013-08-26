@@ -64,5 +64,14 @@
   ],
   "scripts": {
     "test": "grunt test-travis"
+  },
+  "browser": {
+    "request": false,
+    "./adapters/pouch.leveldb.js": false,
+    "level": false,
+    "path": false,
+    "fs": false,
+    "events": false,
+    "crypto": false
   }
 }
