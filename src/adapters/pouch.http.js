@@ -103,7 +103,7 @@ function genDBUrl(opts, path) {
     var pathDel = !opts.path ? '' : '/';
 
     // Return the URL made up of all the host's information and the given path
-    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' +
+    return opts.protocol + '://' + opts.userInfo + '@' + opts.host + ':' + opts.port + '/' +
       opts.path + pathDel + opts.db + '/' + path;
   }
 
@@ -121,7 +121,7 @@ function genUrl(opts, path) {
 
     // If the host already has a path, then we need to have a path delimiter
     // Otherwise, the path delimiter is the empty string
-    return opts.protocol + '://' + opts.host + ':' + opts.port + '/' + opts.path + pathDel + path;
+    return opts.protocol + '://' + opts.userInfo + '@' + opts.host + ':' + opts.port + '/' + opts.path + pathDel + path;
   }
 
   return '/' + path;
