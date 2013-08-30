@@ -507,6 +507,9 @@ PouchAdapter = function(opts, callback) {
         return;
       }
     }
+    if (typeof opts.skip === 'undefined') {
+      opts.skip = 0;
+    }
 
     return customApi._allDocs(opts, callback);
   };

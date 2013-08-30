@@ -26,6 +26,10 @@ var MapReduce = function(db) {
       return;
     }
 
+    if (!options.skip) {
+      options.skip = 0;
+    }
+
     if (!fun.reduce) {
       options.reduce = false;
     }
@@ -124,10 +128,10 @@ var MapReduce = function(db) {
         }
         if (options.reduce === false) {
           return options.complete(null, {
-            rows: ('limit' in options)
-              ? results.slice(0, options.limit)
-              : results,
-            total_rows: results.length
+            total_rows: results.length,
+            offset: options.skip,
+            rows: ('limit' in options) ? results.slice(options.skip, options.limit + options.skip) :
+              (options.skip > 0) ? results.slice(options.skip) : results
           });
         }
 
@@ -148,10 +152,10 @@ var MapReduce = function(db) {
         });
 
         options.complete(null, {
-          rows: ('limit' in options)
-            ? groups.slice(0, options.limit)
-            : groups,
-          total_rows: groups.length
+          total_rows: groups.length,
+          offset: options.skip,
+          rows: ('limit' in options) ? groups.slice(options.skip, options.limit + options.skip) :
+            (options.skip > 0) ? groups.slice(options.skip) : groups
         });
       }
     };
@@ -209,6 +213,9 @@ var MapReduce = function(db) {
     }
     if (typeof opts.group_level !== 'undefined') {
       params.push('group_level=' + opts.group_level);
+    }
+    if (typeof opts.skip !== 'undefined') {
+      params.push('skip=' + opts.skip);
     }
 
     // If keys are supplied, issue a POST request to circumvent GET query string limits

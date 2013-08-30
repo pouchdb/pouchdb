@@ -428,4 +428,42 @@ adapters.map(function(adapter) {
     });
   });
   
+  asyncTest('Testing skip with a view', function () {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { foo: 'bar' },
+          { foo: 'baz' },
+          { foo: 'baf' }
+        ]
+      }, null, function () {
+        db.query(function (doc) {
+          emit(doc.foo, null);
+        }, {skip: 1}, function (err, data) {
+          ok(!err, 'Error:' + JSON.stringify(err));
+          equal(data.rows.length, 2);
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing skip with allDocs', function () {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { foo: 'bar' },
+          { foo: 'baz' },
+          { foo: 'baf' }
+        ]
+      }, null, function () {
+        db.allDocs({skip: 1}, function (err, data) {
+          ok(!err, 'Error:' + JSON.stringify(err));
+          equal(data.rows.length, 2);
+          start();
+        });
+      });
+    });
+  });
+
 });
