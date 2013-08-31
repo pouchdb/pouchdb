@@ -542,11 +542,9 @@ var webSqlPouch = function(opts, callback) {
       }
       PouchUtils.call(callback, null, {
         total_rows: results.length,
-        rows: ('limit' in opts) ?
-          results.slice(opts.skip, opts.limit + opts.skip)
-          : (opts.skip > 0) ?
-          results.slice(opts.skip)
-          : results
+        offset: opts.skip,
+        rows: ('limit' in opts) ? results.slice(opts.skip, opts.limit + opts.skip) :
+          (opts.skip > 0) ? results.slice(opts.skip) : results
       });
     });
   };

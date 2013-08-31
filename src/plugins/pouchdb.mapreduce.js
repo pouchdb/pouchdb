@@ -128,12 +128,10 @@ var MapReduce = function(db) {
         }
         if (options.reduce === false) {
           return options.complete(null, {
-            rows: ('limit' in options)
-              ? results.slice(options.skip, options.limit + options.skip)
-              : (options.skip > 0)
-              ? results.slice(options.skip)
-              : results,
-            total_rows: results.length
+            total_rows: results.length,
+            offset: options.skip,
+            rows: ('limit' in options) ? results.slice(options.skip, options.limit + options.skip) :
+              (options.skip > 0) ? results.slice(options.skip) : results
           });
         }
 
@@ -154,12 +152,10 @@ var MapReduce = function(db) {
         });
 
         options.complete(null, {
-          rows: ('limit' in options)
-            ? results.slice(options.skip, options.limit + options.skip)
-            : (options.skip > 0)
-            ? results.slice(options.skip)
-            : results,
-          total_rows: groups.length
+          total_rows: groups.length,
+          offset: options.skip,
+          rows: ('limit' in options) ? groups.slice(options.skip, options.limit + options.skip) :
+            (options.skip > 0) ? groups.slice(options.skip) : groups
         });
       }
     };

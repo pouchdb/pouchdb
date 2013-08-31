@@ -441,7 +441,7 @@ adapters.map(function(adapter) {
           emit(doc.foo, null);
         }, {skip: 1}, function (err, data) {
           ok(!err, 'Error:' + JSON.stringify(err));
-          ok(data.rows.length === 2, 'Too many rows: ' + data.rows.length);
+          equal(data.rows.length, 2);
           start();
         });
       });
@@ -459,7 +459,7 @@ adapters.map(function(adapter) {
       }, null, function () {
         db.allDocs({skip: 1}, function (err, data) {
           ok(!err, 'Error:' + JSON.stringify(err));
-          ok(data.rows.length === 2, 'Too many rows: ' + data.rows.length);
+          equal(data.rows.length, 2);
           start();
         });
       });
