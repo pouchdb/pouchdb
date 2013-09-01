@@ -8,19 +8,6 @@ var nano = require('nano');
 var cors_proxy = require("corsproxy");
 var http_proxy = require("http-proxy");
 
-var srcFiles = [
-  "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
-  "src/pouch.replicate.js", "src/pouch.utils.js", "src/pouch.adapter.js",
-  "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js",
-  "src/adapters/pouch.websql.js", "src/plugins/pouchdb.mapreduce.js"
-];
-
-var testFiles = fs.readdirSync("./tests").filter(function(name){
-  return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
-    name !== 'test.spatial.js' && name !== 'test.auth_replication.js' &&
-    name !== 'test.gql.js' && name !== 'test.cors.js';
-});
-
 var browserConfig = [{
   browserName: 'firefox',
   version: '19',
@@ -39,6 +26,55 @@ module.exports = function(grunt) {
 
   var testStartTime = new Date();
   var testResults = {};
+
+  var adapters = grunt.option('adapters') || ['http', 'idb', 'websql'];
+  if (typeof adapters === 'string') {
+    adapters = adapters.split(/[\s,]+/);
+  }
+
+  var plugins = grunt.option('plugins') || ['mapreduce'];
+  if (typeof plugins === 'string') {
+    plugins = plugins.split(/[\s,]+/);
+  }
+
+  function stripName(name) {
+    return name.replace(/(.+\.)?(\w+)\.js$/, function(match, $1, $2) {
+      return $2;
+    });
+  }
+
+  var allAdapters = fs.readdirSync('./src/adapters').map(stripName);
+  var allPlugins = fs.readdirSync('./src/plugins').map(stripName);
+  var allModules = allAdapters.concat(allPlugins);
+  var modules = adapters.concat(plugins);
+
+  var excludedTests = ['auth_replication', 'cors'];
+  allModules.forEach(function(module) {
+    if (modules.indexOf(module) === -1) {
+      excludedTests.push(module);
+    }
+  });
+  excludedTests = excludedTests.map(function (module) {
+    return 'test.' + module + '.js';
+  });
+
+  var testFiles = fs.readdirSync("./tests").filter(function(name){
+    return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
+      (excludedTests.indexOf(name) === -1);
+  });
+
+  var srcFiles = [
+    "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
+    "src/pouch.replicate.js", "src/pouch.utils.js", "src/pouch.adapter.js"
+  ];
+
+  adapters.map(function(adapter) {
+    srcFiles.push("src/adapters/pouch." + adapter + ".js");
+  });
+
+  plugins.map(function(plugin) {
+    srcFiles.push("src/plugins/pouch." + plugin + ".js");
+  });
 
   grunt.initConfig({
 
