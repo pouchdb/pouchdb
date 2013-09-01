@@ -1,11 +1,20 @@
 /*jshint strict: false */
-/*global request: true, Buffer: true, escape: true, PouchMerge: true */
-/*global extend: true, Crypto: true, chrome, ajax, btoa, atob, uuid */
+/*global Buffer: true, escape: true, module, window, Crypto */
+/*global chrome, extend, ajax, btoa, atob, uuid, require, PouchMerge: true */
 
 var PouchUtils = {};
 
 if (typeof module !== 'undefined' && module.exports) {
   PouchMerge = require('./pouch.merge.js');
+  PouchUtils.extend = require('./deps/extend');
+  PouchUtils.ajax = require('./deps/ajax');
+  PouchUtils.uuid = require('./deps/uuid');
+  PouchUtils.Crypto = require('./deps/md5.js');
+} else {
+  PouchUtils.Crypto = Crypto;
+  PouchUtils.extend = extend;
+  PouchUtils.ajax = ajax;
+  PouchUtils.uuid = uuid;
 }
 
 // List of top level reserved words for doc
@@ -277,16 +286,7 @@ PouchUtils.Changes = function() {
   return api;
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-
-  var crypto = require('crypto');
-
-  PouchUtils.Crypto = {
-    MD5: function(str) {
-      return crypto.createHash('md5').update(str).digest('hex');
-    }
-  };
-
+if (typeof window === 'undefined' || !('atob' in window)) {
   PouchUtils.atob = function(str) {
     var base64 = new Buffer(str, 'base64');
     // Node.js will just skip the characters it can't encode instead of
@@ -296,23 +296,18 @@ if (typeof module !== 'undefined' && module.exports) {
     }
     return base64.toString('binary');
   };
+} else {
+  PouchUtils.atob = atob.bind(null);
+}
 
+if (typeof window === 'undefined' || !('btoa' in window)) {
   PouchUtils.btoa = function(str) {
     return new Buffer(str, 'binary').toString('base64');
   };
-
-  PouchUtils.extend = require('./deps/extend');
-  PouchUtils.ajax = require('./deps/ajax');
-  PouchUtils.uuid = require('./deps/uuid');
-
-  module.exports = PouchUtils;
-
 } else {
-  PouchUtils.Crypto = Crypto;
-  PouchUtils.extend = extend;
-  PouchUtils.ajax = ajax;
-  PouchUtils.uuid = uuid;
-
-  PouchUtils.atob = atob.bind(null);
   PouchUtils.btoa = btoa.bind(null);
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PouchUtils;
 }
