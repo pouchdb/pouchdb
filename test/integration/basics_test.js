@@ -6,15 +6,16 @@
 
 'use strict';
 
-var db1Name = 'testdb';
-
 var PouchDB = require('../../');
-var testUtils = require('../test.utils.js');
-var test = require('wrapping-tape')(testUtils.setupDb(db1Name));
+var utils = require('../test.utils.js');
+var opts = require('browserify-getopts');
+
+var db1 = opts.db1 || 'testdb';
+var test = require('wrapping-tape')(utils.setupDb(db1));
 
 test('Post a document', function(t) {
   t.plan(1);
-  var db = new PouchDB(db1Name);
+  var db = new PouchDB(db1);
   db.post({a: 'doc'}, function(err, res) {
     t.notOk(err, 'No error posting docs');
   });
