@@ -189,7 +189,7 @@ PouchUtils.parseDoc = function(doc, newEdits) {
 
   for (var key in doc) {
     if (doc.hasOwnProperty(key) && key[0] === '_' && reservedWords.indexOf(key) === -1) {
-      error = extend({}, Pouch.Errors.DOC_VALIDATION);
+      error = PouchUtils.extend({}, Pouch.Errors.DOC_VALIDATION);
       error.reason += ': ' + key;
     }
   }
