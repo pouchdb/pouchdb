@@ -134,8 +134,8 @@ var HttpPouch = function(opts, callback) {
   var host = getHost(opts.name);
 
   host.headers = opts.headers || {};
-  if (opts.auth) {
-    var token = PouchUtils.btoa(opts.auth.username + ':' + opts.auth.password);
+  if (host.auth) {
+    var token = PouchUtils.btoa(opts.auth.username + ':' + host.auth.password);
     host.headers.Authorization = 'Basic ' + token;
   }
 
