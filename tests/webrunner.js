@@ -49,33 +49,6 @@ var sourceFiles = {
   'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js', '../src/deps/ajax.js']
 };
 
-// Logic to automatically scoll qunit tests. Required for saucelabs output, to exactly see whta is happening
-(function() {
-  var scroll = window.location.search.match(/[?&]scroll=true/);
-  if (!scroll) {
-    return;
-  }
-
-  function findPos(obj) {
-    var curtop = 0;
-    if (obj.offsetParent) {
-      do {
-        curtop += obj.offsetTop;
-      } while ((obj = obj.offsetParent));
-      return [curtop];
-    }
-  }
-
-  window.setInterval(function() {
-    try {
-      var running = document.getElementsByClassName('running')[0];
-      window.scroll(0, findPos(running) - 100);
-    } catch (e) {
-      // dont do anything here
-    }
-  }, 2000);
-}());
-
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 function asyncLoadScript(url, callback) {
 
@@ -126,38 +99,8 @@ source = source && source[1] || 'dev';
 
 QUnit.config.testTimeout = 60000;
 
-/**** Test Result Support ***************/
-function submitResults() {
-  var notice = document.createElement('p');
-  var button = document.getElementById('submit-results');
-  button.textContent = 'uploading...';
-  button.setAttribute('disabled', 'disabled');
-  $.ajax({
-    type: 'POST',
-    url: 'http://localhost:2020/_replicate',
-    data: JSON.stringify({
-      source: 'test_suite_db1',
-      target: 'http://reupholster.iriscouch.com/pouch_tests'
-    }),
-    success: function() {
-      document.body.classList.add('completed');
-      button.style.display = 'none';
-      notice.appendChild(document.createTextNode('Submission Complete'));
-      document.body.appendChild(notice);
-    },
-    error: function() {
-      document.body.classList.add('completed');
-    },
-    headers: {
-      Accept: 'application/json'
-    },
-    dataType: 'json',
-    contentType: 'application/json'
-  });
-}
-
-document.getElementById('submit-results').addEventListener('click', submitResults);
 QUnit.jUnitReport = function(report) {
+  document.body.classList.add('testsComplete');
   report.started = started;
   report.completed = new Date();
   report.passed = (report.results.failed === 0);
