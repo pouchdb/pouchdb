@@ -224,7 +224,10 @@ PouchUtils.Changes = function() {
 
   if (isChromeApp()){
     chrome.storage.onChanged.addListener(function(e){
-      api.notify(e.db_name.newValue);//object only has oldValue, newValue members
+      // make sure it's event addressed to us
+      if (e.db_name != null) {
+        api.notify(e.db_name.newValue);//object only has oldValue, newValue members
+      }
     });
   } else if (typeof window !== 'undefined') {
     window.addEventListener("storage", function(e) {
