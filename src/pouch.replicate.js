@@ -99,7 +99,7 @@ function replicate(src, target, opts, promise) {
   var repId = genReplicationId(src, target, opts);
   var results = [];
   var completed = false;
-  var pending = 0;
+  var pendingRevs = 0;
   var last_seq = 0;
   var continuous = opts.continuous || false;
   var doc_ids = opts.doc_ids;
@@ -117,7 +117,7 @@ function replicate(src, target, opts, promise) {
         opts.onChange.apply(this, [result]);
       }
     }
-    pending -= len;
+    pendingRevs -= len;
     result.docs_written += len;
 
     writeCheckpoint(src, target, repId, last_seq, function(err, res) {
@@ -139,50 +139,58 @@ function replicate(src, target, opts, promise) {
 
   function eachRev(id, rev) {
     src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
+      result.docs_read++;
       requests.notifyRequestComplete();
       writeQueue.push(doc);
       requests.enqueue(writeDocs);
     });
   }
 
-  function onRevsDiff(err, diffs) {
-    requests.notifyRequestComplete();
-    if (err) {
-      if (continuous) {
-        promise.cancel();
+  function onRevsDiff(diffCounts) {
+    return function (err, diffs) {
+      requests.notifyRequestComplete();
+      if (err) {
+        if (continuous) {
+          promise.cancel();
+        }
+        PouchUtils.call(opts.complete, err, null);
+        return;
       }
-      PouchUtils.call(opts.complete, err, null);
-      return;
-    }
 
-    // We already have the full document stored
-    if (Object.keys(diffs).length === 0) {
-      pending--;
-      isCompleted();
-      return;
-    }
+      // We already have all diffs passed in `diffCounts`
+      if (Object.keys(diffs).length === 0) {
+        for (var docid in diffCounts) {
+          pendingRevs -= diffCounts[docid];
+        }
+        isCompleted();
+        return;
+      }
 
-    var _enqueuer = function (rev) {
+      var _enqueuer = function (rev) {
         requests.enqueue(eachRev, [id, rev]);
-    };
+      };
 
-    for (var id in diffs) {
-      diffs[id].missing.forEach(_enqueuer);
-    }
+      for (var id in diffs) {
+        var diffsAlreadyHere = diffCounts[id] - diffs[id].missing.length;
+        pendingRevs -= diffsAlreadyHere;
+        diffs[id].missing.forEach(_enqueuer);
+      }
+    };
   }
 
-  function fetchRevsDiff(diff) {
-    target.revsDiff(diff, onRevsDiff);
+  function fetchRevsDiff(diff, diffCounts) {
+    target.revsDiff(diff, onRevsDiff(diffCounts));
   }
 
   function onChange(change) {
     last_seq = change.seq;
     results.push(change);
-    result.docs_read++;
-    pending++;
     var diff = {};
     diff[change.id] = change.changes.map(function(x) { return x.rev; });
-    requests.enqueue(fetchRevsDiff, [diff]);
+    var counts = {};
+    counts[change.id] = change.changes.length;
+    pendingRevs += change.changes.length;
+    requests.enqueue(fetchRevsDiff, [diff, counts]);
   }
 
   function complete() {
@@ -191,7 +199,7 @@ function replicate(src, target, opts, promise) {
   }
 
   function isCompleted() {
-    if (completed && pending === 0) {
+    if (completed && pendingRevs === 0) {
       result.end_time = new Date();
       PouchUtils.call(opts.complete, null, result);
     }
