@@ -607,6 +607,38 @@ adapters.map(function(adapters) {
     });
   });
 
+  asyncTest("Replication of multiple remote conflicts (#789)", function() {
+    var doc = {_id: '789', _rev: '1-a', value: 'test'};
+
+    function createConflicts(db, callback) {
+      db.put(doc, {new_edits: false}, function(err, res) {
+        putAfter(db, {_id: '789', _rev: '2-a', value: 'v1'}, '1-a',
+          function(err, res) {
+            putAfter(db, {_id: '789', _rev: '2-b', value: 'v2'}, '1-a',
+              function(err, res) {
+                putAfter(db, {_id: '789', _rev: '2-c', value: 'v3'}, '1-a',
+                  function(err, res) {
+                    callback();
+                  });
+              });
+          });
+      });
+    }
+
+    initDBPair(this.name, this.remote, function(db, remote) {
+      createConflicts(remote, function() {
+        db.replicate.from(remote, function(err, result) {
+          ok(result.ok, 'replication was ok');
+          // in this situation, all the conflicting revisions should be read and
+          // written to the target database (this is consistent with CouchDB)
+          ok(result.docs_written === 3, 'correct # docs written');
+          ok(result.docs_read === 3, 'correct # docs read');
+          start();
+        });
+      });
+    });
+  });
+
   asyncTest("Replicate large number of docs", function() {
     var docs = [];
     var num = 30;
