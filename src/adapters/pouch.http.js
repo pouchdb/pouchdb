@@ -651,6 +651,10 @@ var HttpPouch = function(opts, callback) {
       params.push('limit=' + opts.limit);
     }
 
+    if (typeof opts.skip !== 'undefined') {
+      params.push('skip=' + opts.skip);
+    }
+
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     if (params !== '') {

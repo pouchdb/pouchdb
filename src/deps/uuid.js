@@ -37,8 +37,10 @@ var uuid;
 
 (function() {
 
-  var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-    'abcdefghijklmnopqrstuvwxyz'.split('');
+  var CHARS = (
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+    'abcdefghijklmnopqrstuvwxyz'
+    ).split('');
 
   uuid = function uuid_inner(len, radix) {
     var chars = CHARS;

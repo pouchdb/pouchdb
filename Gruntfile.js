@@ -8,19 +8,6 @@ var nano = require('nano');
 var cors_proxy = require("corsproxy");
 var http_proxy = require("http-proxy");
 
-var srcFiles = [
-  "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
-  "src/pouch.replicate.js", "src/pouch.utils.js", "src/pouch.adapter.js",
-  "src/adapters/pouch.http.js", "src/adapters/pouch.idb.js",
-  "src/adapters/pouch.websql.js", "src/plugins/pouchdb.mapreduce.js"
-];
-
-var testFiles = fs.readdirSync("./tests").filter(function(name){
-  return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
-    name !== 'test.spatial.js' && name !== 'test.auth_replication.js' &&
-    name !== 'test.gql.js' && name !== 'test.cors.js';
-});
-
 var browserConfig = [{
   browserName: 'firefox',
   version: '19',
@@ -39,6 +26,58 @@ module.exports = function(grunt) {
 
   var testStartTime = new Date();
   var testResults = {};
+  var buildName = '-nightly';
+
+  var adapters = grunt.option('adapters') || ['http', 'idb', 'websql'];
+  if (typeof adapters === 'string') {
+    adapters = adapters.split(/[\s,]+/);
+    buildName = '-' + adapters.join('-') + buildName;
+  }
+
+  var plugins = grunt.option('plugins') || ['mapreduce'];
+  if (typeof plugins === 'string') {
+    plugins = plugins.split(/[\s,]+/);
+    buildName = '.' + plugins.join('-') + buildName;
+  }
+
+  function stripName(name) {
+    return name.replace(/(.+\.)?(\w+)\.js$/, function(match, $1, $2) {
+      return $2;
+    });
+  }
+
+  var allAdapters = fs.readdirSync('./src/adapters').map(stripName);
+  var allPlugins = fs.readdirSync('./src/plugins').map(stripName);
+  var allModules = allAdapters.concat(allPlugins);
+  var modules = adapters.concat(plugins);
+
+  var excludedTests = ['auth_replication', 'cors'];
+  allModules.forEach(function(module) {
+    if (modules.indexOf(module) === -1) {
+      excludedTests.push(module);
+    }
+  });
+  excludedTests = excludedTests.map(function (module) {
+    return 'test.' + module + '.js';
+  });
+
+  var testFiles = fs.readdirSync("./tests").filter(function(name){
+    return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
+      (excludedTests.indexOf(name) === -1);
+  });
+
+  var srcFiles = [
+    "src/pouch.js", "src/pouch.collate.js", "src/pouch.merge.js",
+    "src/pouch.replicate.js", "src/pouch.utils.js", "src/pouch.adapter.js"
+  ];
+
+  adapters.map(function(adapter) {
+    srcFiles.push("src/adapters/pouch." + adapter + ".js");
+  });
+
+  plugins.map(function(plugin) {
+    srcFiles.push("src/plugins/pouchdb." + plugin + ".js");
+  });
 
   grunt.initConfig({
 
@@ -63,29 +102,15 @@ module.exports = function(grunt) {
         src: grunt.util._.flatten([
           "<banner:meta.amd.top>", srcFiles,"<banner:meta.amd.bottom>"
         ]),
-        dest: 'dist/pouchdb.amd-nightly.js'
+        dest: 'dist/pouchdb.amd' + buildName + '.js'
       },
       all: {
         src: grunt.util._.flatten([
           "src/deps/uuid.js", "src/deps/md5.js",
           "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles
         ]),
-        dest: 'dist/pouchdb-nightly.js'
+        dest: 'dist/pouchdb' + buildName + '.js'
       },
-      spatial: {
-        src: grunt.util._.flatten([
-          "src/deps/uuid.js", "src/deps/md5.js",
-          "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles,
-          "src/plugins/pouchdb.spatial.js"
-        ]),
-        dest: 'dist/pouchdb.spatial-nightly.js'
-      },
-      gql: {
-        src: grunt.util._.flatten([
-           srcFiles, "src/plugins/pouchdb.gql.js"
-        ]),
-        dest: 'dist/pouchdb.gql-nightly.js'
-      }
     },
 
     'uglify': {
@@ -93,17 +118,9 @@ module.exports = function(grunt) {
         banner: fileHeader
       },
       dist: {
-        src: "./dist/pouchdb-nightly.js",
-        dest: 'dist/pouchdb-nightly.min.js'
+        src: './dist/pouchdb' + buildName + '.js',
+        dest: 'dist/pouchdb' + buildName + '.min.js'
       },
-      spatial: {
-        src:  'dist/pouchdb.spatial-nightly.js',
-        dest:  'dist/pouchdb.spatial-nightly.min.js'
-      },
-      gql: {
-        src:  'dist/pouchdb.gql-nightly.js',
-        dest:  'dist/pouchdb.gql-nightly.min.js'
-      }
     },
 
     // Servers
@@ -260,8 +277,16 @@ module.exports = function(grunt) {
   grunt.registerTask("browser", ["connect", "cors-server", "forever"]);
   grunt.registerTask("full", ["concat", "uglify"]);
 
-  grunt.registerTask("spatial", ["concat:spatial", "uglify:spatial"]);
-  grunt.registerTask("gql", ["concat:gql", "uglify:gql"]);
+  grunt.registerTask("spatial", function() {
+    grunt.warn(
+      'This task is no longer supported. Use `grunt --plugins=spatial` instead.'
+    );
+  });
+  grunt.registerTask("gql", function() {
+    grunt.warn(
+      'This task is no longer supported. Use `grunt --plugins=gql` instead.'
+    );
+  });
 
   grunt.registerTask("test", ["jshint", "node-qunit"]);
   grunt.registerTask("test-travis", ["jshint", "build", "connect", "cors-server",
