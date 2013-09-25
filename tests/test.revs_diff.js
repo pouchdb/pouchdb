@@ -52,6 +52,19 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Missing docs should be returned with all revisions being asked for',
+    function() {
+      initTestDB(this.name, function(err, db) {
+        // empty database
+        var revs = ['1-a', '2-a', '2-b'];
+        db.revsDiff({'foo': revs}, function(err, results) {
+          ok('foo' in results, 'listed missing revs');
+          deepEqual(results.foo.missing, revs, 'listed all revs');
+          start();
+        });
+      });
+  });
+
   asyncTest('Conflicting revisions that are available should not be marked as' +
     ' missing (#939)', function() {
     var doc = {_id: '939', _rev: '1-a'};

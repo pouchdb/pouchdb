@@ -285,18 +285,21 @@ PouchAdapter = function(opts, callback) {
       missingForId.forEach(function(rev) {
         addToMissing(id, rev);
       });
-
-      if (++count === ids.length) {
-        return call(callback, null, missing);
-      }
     }
 
     ids.map(function(id) {
       customApi._getRevisionTree(id, function(err, rev_tree) {
-        if (err) {
+        if (err && err.error === 'not_found' && err.reason === 'missing') {
+          missing[id] = {missing: req[id]};
+        } else if (err) {
           return call(callback, err);
+        } else {
+          processDoc(id, rev_tree);
         }
-        processDoc(id, rev_tree);
+
+        if (++count === ids.length) {
+          return call(callback, null, missing);
+        }
       });
     });
   };
