@@ -240,10 +240,20 @@ PouchAdapter = function(opts, callback) {
     var count = 0;
     var missing = {};
 
-    function readDoc(err, doc, id) {
+    function readDoc(err, revs, id) {
+      var seq;
       req[id].map(function(revId) {
-        var matches = function(x) { return x.rev !== revId; };
-        if (!doc || doc._revs_info.every(matches)) {
+        var matches = function(x) {
+          if(!seq)
+          {
+            seq = revs[0].ok._revisions.start;
+          }
+          var existing = seq + "-" + x;
+          seq--;
+          return existing !== revId;
+        };
+
+        if (!revs || !revs[0] || !revs[0].ok || !revs[0].ok._revisions || !revs[0].ok._revisions.ids || revs[0].ok._revisions.ids.every(matches)) {
           if (!missing[id]) {
             missing[id] = {missing: []};
           }
@@ -254,11 +264,11 @@ PouchAdapter = function(opts, callback) {
       if (++count === ids.length) {
         return call(callback, null, missing);
       }
-    }
+    };
 
     ids.map(function(id) {
-      api.get(id, {revs_info: true}, function(err, doc) {
-        readDoc(err, doc, id);
+      api.get(id, {revs: true, open_revs: 'all', local_seq:true}, function(err, revs) {
+        readDoc(err, revs, id);
       });
     });
   };

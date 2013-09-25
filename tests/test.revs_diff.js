@@ -52,4 +52,20 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Test deleted revs diff", function() {
+    var revs = [];
+    initTestDB(this.name, function(err, db) {
+      db.post({test: "somestufftodelete", _id: 'somestufftodelete'}, function (err, info) {
+        revs.push(info.rev);
+        db.put({_id: info.id, _rev: info.rev, test: "somestufftodelete", _deleted:true}, function(err, info2) {
+          revs.push(info2.rev);
+          db.revsDiff({'somestufftodelete': revs}, function(err, results) {
+            ok(!('somestufftodelete' in results), 'should not return the deleted revs');
+            start();
+          });
+        });
+      });
+    });
+  });
+
 });
