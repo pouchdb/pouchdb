@@ -240,25 +240,50 @@ PouchAdapter = function(opts, callback) {
     var count = 0;
     var missing = {};
 
-    function readDoc(err, doc, id) {
-      req[id].map(function(revId) {
-        var matches = function(x) { return x.rev !== revId; };
-        if (!doc || doc._revs_info.every(matches)) {
-          if (!missing[id]) {
-            missing[id] = {missing: []};
+    function addToMissing(id, revId) {
+      if (!missing[id]) {
+        missing[id] = {missing: []};
+      }
+      missing[id].missing.push(revId);
+    }
+
+    function processDoc(id, rev_tree) {
+      // Is this fast enough? Maybe we should switch to a set simulated by a map
+      var missingForId = req[id].slice(0);
+      PouchMerge.traverseRevTree(rev_tree, function(isLeaf, pos, revHash, ctx,
+        opts) {
+          var rev = pos + '-' + revHash;
+          var idx = missingForId.indexOf(rev);
+          if (idx === -1) {
+            return;
           }
-          missing[id].missing.push(revId);
-        }
+
+          missingForId.splice(idx, 1);
+          if (opts.status !== 'available') {
+            addToMissing(id, rev);
+          }
       });
 
-      if (++count === ids.length) {
-        return call(callback, null, missing);
-      }
+      // Traversing the tree is synchronous, so now `missingForId` contains
+      // revisions that were not found in the tree
+      missingForId.forEach(function(rev) {
+        addToMissing(id, rev);
+      });
     }
 
     ids.map(function(id) {
-      api.get(id, {revs_info: true}, function(err, doc) {
-        readDoc(err, doc, id);
+      customApi._getRevisionTree(id, function(err, rev_tree) {
+        if (err && err.error === 'not_found' && err.reason === 'missing') {
+          missing[id] = {missing: req[id]};
+        } else if (err) {
+          return call(callback, err);
+        } else {
+          processDoc(id, rev_tree);
+        }
+
+        if (++count === ids.length) {
+          return call(callback, null, missing);
+        }
       });
     });
   };
