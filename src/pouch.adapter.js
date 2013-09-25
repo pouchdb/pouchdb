@@ -252,6 +252,7 @@ PouchAdapter = function(opts, callback) {
           seq--;
           return existing !== revId;
         };
+
         if (!revs || !revs[0] || !revs[0].ok || !revs[0].ok._revisions || !revs[0].ok._revisions.ids || revs[0].ok._revisions.ids.every(matches)) {
           if (!missing[id]) {
             missing[id] = {missing: []};
@@ -263,7 +264,7 @@ PouchAdapter = function(opts, callback) {
       if (++count === ids.length) {
         return call(callback, null, missing);
       }
-    }
+    };
 
     ids.map(function(id) {
       api.get(id, {revs: true, open_revs: 'all', local_seq:true}, function(err, revs) {
