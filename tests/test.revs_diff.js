@@ -1,5 +1,5 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false */
+/*globals PERSIST_DATABASES: false, putAfter */
 /*globals cleanupTestDatabases: false */
 
 "use strict";
@@ -52,4 +52,44 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Conflicting revisions that are available should not be marked as' +
+    ' missing (#939)', function() {
+    var doc = {_id: '939', _rev: '1-a'};
+
+    function createConflicts(db, callback) {
+      db.put(doc, {new_edits: false}, function(err, res) {
+        putAfter(db, {_id: '939', _rev: '2-a'}, '1-a', function(err, res) {
+            putAfter(db, {_id: '939', _rev: '2-b'}, '1-a', callback);
+        });
+      });
+    }
+
+    initTestDB(this.name, function(err, db) {
+      createConflicts(db, function() {
+        db.revsDiff({'939': ['1-a', '2-a', '2-b']}, function(err, results) {
+          ok(!('939' in results), 'no missing revs');
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest('Deleted revisions that are available should not be marked as' +
+    ' missing (#935)', function() {
+
+    function createDeletedRevision(db, callback) {
+      db.put({_id: '935', _rev: '1-a'}, {new_edits: false}, function (err, info) {
+        putAfter(db, {_id: '935', _rev: '2-a', _deleted: true}, '1-a', callback);
+      });
+    }
+
+    initTestDB(this.name, function(err, db) {
+      createDeletedRevision(db, function() {
+        db.revsDiff({'935': ['1-a', '2-a']}, function(err, results) {
+          ok(!('935' in results), 'should not return the deleted revs');
+          start();
+        });
+      });
+    });
+  });
 });
