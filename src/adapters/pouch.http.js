@@ -59,7 +59,7 @@ parseUri.options = {
 
 // Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
-function getHost(name) {
+function getHost(name, opts) {
   // If the given name contains "http:"
   if (/http(s?):/.test(name)) {
     // Prase the URI into all its little bits
@@ -84,6 +84,18 @@ function getHost(name) {
     // Restore the path by joining all the remaining parts (all the parts
     // except for the database name) with '/'s
     uri.path = parts.join('/');
+    opts = opts || {};
+    uri.headers = opts.headers || {};
+    
+    if (opts.auth || uri.auth) { 
+      var nAuth = opts.auth || uri.auth;
+      var token = PouchUtils.btoa(nAuth.username + ':' + nAuth.password);
+      uri.headers.Authorization = 'Basic ' + token; 
+    }
+
+    if (opts.headers) {
+      uri.headers = opts.headers;
+    }
 
     return uri;
   }
@@ -131,18 +143,7 @@ function genUrl(opts, path) {
 var HttpPouch = function(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
-  var host = getHost(opts.name);
-
-  host.headers = opts.headers || {};
-  if (opts.auth || host.auth) { 
-    var nAuth = opts.auth || host.auth;
-    var token = PouchUtils.btoa(nAuth.username + ':' + nAuth.password);
-    host.headers.Authorization = 'Basic ' + token; 
-  }
-
-  if (opts.headers) {
-    host.headers = opts.headers;
-  }
+  var host = getHost(opts.name, opts);
 
   // Generate the database URL based on the host
   var db_url = genDBUrl(host, '');
