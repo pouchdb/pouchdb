@@ -127,7 +127,7 @@ var IdbPouch = function(opts, callback) {
 
       // detect blob support
       try {
-        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(new Blob(), "key");
+        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(PouchUtils.createBlob(), "key");
         blobSupport = true;
       } catch (err) {
         blobSupport = false;
@@ -237,7 +237,7 @@ var IdbPouch = function(opts, callback) {
         if (blobSupport) {
           var type = att.content_type;
           data = fixBinary(data);
-          att.data = new Blob([data], {type: type});
+          att.data = PouchUtils.createBlob([data], {type: type});
         }
         return finish();
       }
@@ -498,7 +498,7 @@ var IdbPouch = function(opts, callback) {
           result = data;
         } else {
           data = fixBinary(atob(data));
-          result = new Blob([data], {type: type});
+          result = PouchUtils.createBlob([data], {type: type});
         }
         PouchUtils.call(callback, null, result);
       }

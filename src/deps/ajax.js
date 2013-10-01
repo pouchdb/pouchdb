@@ -1,9 +1,11 @@
 var request;
 var extend;
+var createBlob;
 
 if (typeof module !== 'undefined' && module.exports) {
   request = require('request');
   extend = require('./extend.js');
+  createBlob = require('./blob.js');
 }
 
 var ajax = function ajax(options, callback) {
@@ -115,7 +117,7 @@ var ajax = function ajax(options, callback) {
       if (xhr.status >= 200 && xhr.status < 300) {
         var data;
         if (options.binary) {
-          data = new Blob([xhr.response || ''], {
+          data = createBlob([xhr.response || ''], {
             type: xhr.getResponseHeader('Content-Type')
           });
         } else {

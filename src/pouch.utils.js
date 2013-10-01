@@ -1,6 +1,6 @@
 /*jshint strict: false */
 /*global Buffer: true, escape: true, module, window, Crypto */
-/*global chrome, extend, ajax, btoa, atob, uuid, require, PouchMerge: true */
+/*global chrome, extend, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
 
 var PouchUtils = {};
 
@@ -8,12 +8,14 @@ if (typeof module !== 'undefined' && module.exports) {
   PouchMerge = require('./pouch.merge.js');
   PouchUtils.extend = require('./deps/extend');
   PouchUtils.ajax = require('./deps/ajax');
+  PouchUtils.createBlob = require('./deps/blob');
   PouchUtils.uuid = require('./deps/uuid');
   PouchUtils.Crypto = require('./deps/md5.js');
 } else {
   PouchUtils.Crypto = Crypto;
   PouchUtils.extend = extend;
   PouchUtils.ajax = ajax;
+  PouchUtils.createBlob = createBlob;
   PouchUtils.uuid = uuid;
 }
 
@@ -300,7 +302,9 @@ if (typeof window === 'undefined' || !('atob' in window)) {
     return base64.toString('binary');
   };
 } else {
-  PouchUtils.atob = atob.bind(null);
+  PouchUtils.atob = function(str) {
+    return atob(str);
+  };
 }
 
 if (typeof window === 'undefined' || !('btoa' in window)) {
@@ -308,7 +312,9 @@ if (typeof window === 'undefined' || !('btoa' in window)) {
     return new Buffer(str, 'binary').toString('base64');
   };
 } else {
-  PouchUtils.btoa = btoa.bind(null);
+  PouchUtils.btoa = function(str) {
+    return btoa(str);
+  };
 }
 
 if (typeof module !== 'undefined' && module.exports) {

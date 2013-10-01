@@ -30,7 +30,9 @@ testFiles.unshift('test.utils.js');
 
 var sourceFiles = {
   'dev': ['../src/deps/md5.js',
+          '../src/deps/blob.js',
           '../src/deps/uuid.js',
+          '../src/deps/blob.js',
           '../src/deps/extend.js',
           '../src/deps/ajax.js',
           '../src/pouch.utils.js',
