@@ -1,9 +1,11 @@
 var request;
 var extend;
+var PouchUtils;
 
 if (typeof module !== 'undefined' && module.exports) {
   request = require('request');
   extend = require('./extend.js');
+  PouchUtils = require('../pouch.utils.js');
 }
 
 var ajax = function ajax(options, callback) {
@@ -115,7 +117,7 @@ var ajax = function ajax(options, callback) {
       if (xhr.status >= 200 && xhr.status < 300) {
         var data;
         if (options.binary) {
-          data = new Blob([xhr.response || ''], {
+          data = PouchUtils.createBlob([xhr.response || ''], {
             type: xhr.getResponseHeader('Content-Type')
           });
         } else {

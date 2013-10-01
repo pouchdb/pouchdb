@@ -652,7 +652,7 @@ var webSqlPouch = function(opts, callback) {
       if (opts.encode) {
         res = btoa(data);
       } else {
-        res = new Blob([data], {type: type});
+        res = PouchUtils.createBlob([data], {type: type});
       }
       PouchUtils.call(callback, null, res);
     });

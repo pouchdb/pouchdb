@@ -289,6 +289,27 @@ PouchUtils.Changes = function() {
   return api;
 };
 
+//Abstracts constructing a Blob object, so it also works in older
+//browsers that don't support the native Blob constructor. (i.e.
+//old QtWebKit versions, at least).
+PouchUtils.createBlob = function(parts, properties) {
+	parts = parts || [];
+	properties = properties || {};
+	try {
+		return new Blob(parts, properties);
+	} catch (e) {
+		if (e.name !== "TypeError") {
+			throw(e);
+		}
+		var BlobBuilder = window.BlobBuilder || window.MSBlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder;
+		var builder = new BlobBuilder();
+		for (var i = 0; i < parts.length; i += 1) {
+			builder.append(parts[i]);
+		}
+		return builder.getBlob(properties.type);
+	}
+};
+
 if (typeof window === 'undefined' || !('atob' in window)) {
   PouchUtils.atob = function(str) {
     var base64 = new Buffer(str, 'base64');
@@ -300,7 +321,9 @@ if (typeof window === 'undefined' || !('atob' in window)) {
     return base64.toString('binary');
   };
 } else {
-  PouchUtils.atob = atob.bind(null);
+  PouchUtils.atob = function(str) {
+    return atob(str);
+  };
 }
 
 if (typeof window === 'undefined' || !('btoa' in window)) {
@@ -308,7 +331,9 @@ if (typeof window === 'undefined' || !('btoa' in window)) {
     return new Buffer(str, 'binary').toString('base64');
   };
 } else {
-  PouchUtils.btoa = btoa.bind(null);
+  PouchUtils.btoa = function(str) {
+    return btoa(str);
+  };
 }
 
 if (typeof module !== 'undefined' && module.exports) {
