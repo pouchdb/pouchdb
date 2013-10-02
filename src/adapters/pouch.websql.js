@@ -703,7 +703,7 @@ webSqlPouch.valid = function() {
   return typeof window !== 'undefined' && !!window.openDatabase;
 };
 
-webSqlPouch.destroy = function(name, callback) {
+webSqlPouch.destroy = function(name, opts, callback) {
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
   db.transaction(function (tx) {
     tx.executeSql('DROP TABLE IF EXISTS ' + DOC_STORE, []);
