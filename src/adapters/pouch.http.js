@@ -906,8 +906,8 @@ var HttpPouch = function(opts, callback) {
 };
 
 // Delete the HttpPouch specified by the given name.
-HttpPouch.destroy = function(name, callback) {
-  var host = getHost(name);
+HttpPouch.destroy = function(name, opts, callback) {
+  var host = getHost(name, opts);
   ajax({headers: host.headers, method: 'DELETE', url: genDBUrl(host, '')}, callback);
 };
 

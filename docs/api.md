@@ -30,7 +30,7 @@ var db = new PouchDB('http://localhost:5984/dbname');
 ## Delete database<a id="delete_database"></a>
 
 {% highlight js %}
-PouchDB.destroy(name, [callback])
+PouchDB.destroy(name, [options], [callback])
 {% endhighlight %}
 
 Delete database with given name
