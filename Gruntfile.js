@@ -106,7 +106,7 @@ module.exports = function(grunt) {
       },
       all: {
         src: grunt.util._.flatten([
-          "src/deps/uuid.js", "src/deps/md5.js",
+          "src/deps/uuid.js", "src/deps/md5.js", "src/deps/blob.js",
           "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles
         ]),
         dest: 'dist/pouchdb' + buildName + '.js'
@@ -152,7 +152,7 @@ module.exports = function(grunt) {
 
     'node-qunit': {
       all: {
-        deps: ['./src/deps/extend.js','./src/deps/ajax.js','./src/pouch.js'],
+        deps: ['./src/deps/extend.js','./src/deps/blob.js','./src/deps/ajax.js', './src/pouch.js'],
         code: './src/adapters/pouch.leveldb.js',
         tests: (function() {
           var testFilesToRun = testFiles;

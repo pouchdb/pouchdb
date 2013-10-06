@@ -1,6 +1,6 @@
 /*jshint strict: false */
 /*global Buffer: true, escape: true, module, window, Crypto */
-/*global chrome, extend, ajax, btoa, atob, uuid, require, PouchMerge: true */
+/*global chrome, extend, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
 
 var PouchUtils = {};
 
@@ -8,12 +8,14 @@ if (typeof module !== 'undefined' && module.exports) {
   PouchMerge = require('./pouch.merge.js');
   PouchUtils.extend = require('./deps/extend');
   PouchUtils.ajax = require('./deps/ajax');
+  PouchUtils.createBlob = require('./deps/blob');
   PouchUtils.uuid = require('./deps/uuid');
   PouchUtils.Crypto = require('./deps/md5.js');
 } else {
   PouchUtils.Crypto = Crypto;
   PouchUtils.extend = extend;
   PouchUtils.ajax = ajax;
+  PouchUtils.createBlob = createBlob;
   PouchUtils.uuid = uuid;
 }
 
@@ -287,27 +289,6 @@ PouchUtils.Changes = function() {
   };
 
   return api;
-};
-
-//Abstracts constructing a Blob object, so it also works in older
-//browsers that don't support the native Blob constructor. (i.e.
-//old QtWebKit versions, at least).
-PouchUtils.createBlob = function(parts, properties) {
-	parts = parts || [];
-	properties = properties || {};
-	try {
-		return new Blob(parts, properties);
-	} catch (e) {
-		if (e.name !== "TypeError") {
-			throw(e);
-		}
-		var BlobBuilder = window.BlobBuilder || window.MSBlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder;
-		var builder = new BlobBuilder();
-		for (var i = 0; i < parts.length; i += 1) {
-			builder.append(parts[i]);
-		}
-		return builder.getBlob(properties.type);
-	}
 };
 
 if (typeof window === 'undefined' || !('atob' in window)) {
