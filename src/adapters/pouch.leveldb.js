@@ -804,7 +804,7 @@ function rmdir(dir, callback) {
 }
 
 // close and delete open leveldb stores
-LevelPouch.destroy = function(name, callback) {
+LevelPouch.destroy = function(name, opts, callback) {
   var dbpath = path.resolve(name);
   var stores = [
     path.join(dbpath, DOC_STORE),

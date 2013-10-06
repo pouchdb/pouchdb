@@ -118,8 +118,22 @@ Pouch.parseAdapter = function(name) {
   throw 'No valid adapter found';
 };
 
-Pouch.destroy = function(name, callback) {
-  var opts = Pouch.parseAdapter(name);
+Pouch.destroy = function(name, opts, callback) {
+  if (typeof opts === 'function' || typeof opts === 'undefined') {
+    callback = opts;
+    opts = {};
+  }
+
+  if (typeof name === 'object') {
+    opts = name;
+    name = undefined;
+  }
+
+  if (typeof callback === 'undefined') {
+    callback = function() {};
+  }
+  var backend = Pouch.parseAdapter(opts.name || name);
+
   var cb = function(err, response) {
     if (err) {
       callback(err);
@@ -127,18 +141,18 @@ Pouch.destroy = function(name, callback) {
     }
 
     for (var plugin in Pouch.plugins) {
-      Pouch.plugins[plugin]._delete(name);
+      Pouch.plugins[plugin]._delete(backend.name);
     }
     if (Pouch.DEBUG) {
-      console.log(name + ': Delete Database');
+      console.log(backend.name + ': Delete Database');
     }
 
     // call destroy method of the particular adaptor
-    Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+    Pouch.adapters[backend.adapter].destroy(backend.name, opts, callback);
   };
 
   // remove Pouch from allDBs
-  Pouch.removeFromAllDbs(opts, cb);
+  Pouch.removeFromAllDbs(backend, cb);
 };
 
 Pouch.removeFromAllDbs = function(opts, callback) {

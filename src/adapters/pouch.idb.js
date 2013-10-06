@@ -847,7 +847,7 @@ IdbPouch.valid = function idb_valid() {
   return typeof window !== 'undefined' && !!window.indexedDB;
 };
 
-IdbPouch.destroy = function idb_destroy(name, callback) {
+IdbPouch.destroy = function idb_destroy(name, opts, callback) {
   if (Pouch.DEBUG) {
     console.log(name + ': Delete Database');
   }
