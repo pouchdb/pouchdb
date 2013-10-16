@@ -680,6 +680,31 @@ adapters.map(function(adapters) {
     });
   });
 
+  asyncTest("issue #909 Filtered replication bails at paging limit", function() {
+    var self = this;
+    var docs = [];
+    var num = 100;
+    for (var i = 0; i < num; i++) {
+      docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+    }
+    num = 100;
+    var docList = [];
+    for (i = 0; i < num; i+=5) {
+      docList.push('doc_' + i);
+    }
+    // uncomment this line to test only docs higher than paging limit
+    docList = ['doc_33', 'doc_60', 'doc_90'];
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        db.replicate.from(self.remote, {continuous: false, doc_ids: docList}, function(err, result) {
+          ok(result.ok, 'replication was ok');
+          ok(result.docs_written === docList.length, 'correct # docs written');
+          start();
+        });
+      });
+    });
+  });
+
 });
 
 // test a basic "initialize pouch" scenario when couch instance contains deleted revisions

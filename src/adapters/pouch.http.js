@@ -752,11 +752,15 @@ var HttpPouch = function(opts, callback) {
     var xhr;
     var lastFetchedSeq;
     var remoteLastSeq;
+    var pagingCount;
 
     // Get all the changes starting wtih the one immediately after the
     // sequence number given by since.
     var fetch = function(since, callback) {
       params.since = since;
+      if (!opts.continuous && !pagingCount) {
+        pagingCount = remoteLastSeq;
+      }
       params.limit = (!limit || leftToFetch > CHANGES_LIMIT) ?
         CHANGES_LIMIT : leftToFetch;
 
@@ -814,8 +818,11 @@ var HttpPouch = function(opts, callback) {
       }
 
       var resultsLength = res && res.results.length || 0;
+
+      pagingCount -= CHANGES_LIMIT;
+
       var finished = (limit && leftToFetch <= 0) ||
-        (res && !resultsLength) ||
+        (res && !resultsLength && pagingCount <= 0) ||
         (resultsLength && res.last_seq === remoteLastSeq) ||
         (opts.descending && lastFetchedSeq !== 0);
 
