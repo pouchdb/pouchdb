@@ -9,7 +9,7 @@ if (typeof module !== 'undefined' && module.exports) {
   PouchUtils = require('../pouch.utils.js');
 }
 
-var ajax = PouchUtils.ajax;
+
 
 var HTTP_TIMEOUT = 10000;
 
@@ -140,7 +140,7 @@ function genUrl(opts, path) {
 }
 
 // Implements the PouchDB API for dealing with CouchDB instances over HTTP
-var HttpPouch = function(opts, callback) {
+function HttpPouch(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
   var host = getHost(opts.name, opts);
@@ -150,7 +150,10 @@ var HttpPouch = function(opts, callback) {
 
   // The functions that will be publically available for HttpPouch
   var api = {};
-
+  var ajaxOpts = opts.ajax || {};
+  function ajax(options, callback){
+    return PouchUtils.ajax(PouchUtils.extend({}, ajaxOpts, options), callback);
+  }
   var uuids = {
     list: [],
     get: function(opts, callback) {
@@ -910,12 +913,12 @@ var HttpPouch = function(opts, callback) {
   };
 
   return api;
-};
+}
 
 // Delete the HttpPouch specified by the given name.
 HttpPouch.destroy = function(name, opts, callback) {
   var host = getHost(name, opts);
-  ajax({headers: host.headers, method: 'DELETE', url: genDBUrl(host, '')}, callback);
+  PouchUtils.ajax({headers: host.headers, method: 'DELETE', url: genDBUrl(host, '')}, callback);
 };
 
 // HttpPouch is a valid adapter.
