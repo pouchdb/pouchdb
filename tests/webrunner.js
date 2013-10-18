@@ -22,7 +22,7 @@ if (!testFiles.length) {
                'test.replication.js', 'test.views.js', 'test.taskqueue.js',
                'test.design_docs.js', 'test.issue221.js', 'test.http.js',
                'test.gql.js', 'test.compaction.js', 'test.get.js',
-               'test.attachments.js', 'test.uuids.js', 'test.shash_id.js',
+               'test.attachments.js', 'test.uuids.js', 'test.slash_id.js',
                'test.cors.js'];
 }
 

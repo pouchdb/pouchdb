@@ -177,7 +177,7 @@ var ajax = function ajax(options, callback) {
       }
       else {
         if (options.binary) {
-          var data = JSON.parse(data.toString());
+          data = JSON.parse(data.toString());
         }
         data.status = response.statusCode;
         call(callback, data);
