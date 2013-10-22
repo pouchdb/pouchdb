@@ -708,18 +708,21 @@ adapters.map(function(adapter) {
   });
   
   asyncTest('Calling db.changes({since: \'latest\'', function () {
-    expect(2);
+    expect(3);
     initTestDB(this.name, function (err, db) {
       db.bulkDocs({docs: [
         { foo: 'bar' }
       ]}, function (err, data) {
         ok(!err, 'bulkDocs passed');
-        db.changes({
-          since: 'latest',
-          complete: function(err, res) {
-            ok(!err, 'completed db.changes({since: \'latest\'}): ' + JSON.stringify(res));
-            start();
-          }
+        db.info(function(err, info) { 
+          db.changes({
+            since: 'latest',
+            complete: function(err, res) {
+              ok(!err, 'completed db.changes({since: \'latest\'}): ' + JSON.stringify(res));
+              equal(res.last_seq, info.update_seq, 'db.changes({since: \'latest\'}) listens since update_seq'); 
+              start();
+            }
+          });
         });
       });
     });
