@@ -691,16 +691,40 @@ var HttpPouch = function(opts, callback) {
     var CHANGES_LIMIT = 25;
 
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addTask('changes', arguments);
-      return;
+      var task = api.taskqueue.addTask('changes', arguments);
+      return {
+        cancel: function() {
+          if (task.task) {
+            return task.task.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log(db_url + ': Cancel Changes Feed');
+          }
+          task.parameters[0].aborted = true;
+        }
+      };
     }
     
     if (opts.since === 'latest') {
+      var changes;
       api.info(function (err, info) {
-        opts.since = info.update_seq;
-        api.changes(opts);
+        if (!opts.aborted) {
+          opts.since = info.update_seq;
+          changes = api.changes(opts);
+        }
       });
-      return;
+      // Return a method to cancel this method from processing any more
+      return {
+        cancel: function() {
+          if (changes) {
+            return changes.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log(db_url + ': Cancel Changes Feed');
+          }
+          opts.aborted = true;
+        }
+      };
     }
 
     if (Pouch.DEBUG) {

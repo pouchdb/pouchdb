@@ -708,14 +708,14 @@ adapters.map(function(adapter) {
   });
   
   asyncTest('Calling db.changes({since: \'latest\'', function () {
-    expect(3);
+    expect(5);
     initTestDB(this.name, function (err, db) {
       db.bulkDocs({docs: [
         { foo: 'bar' }
       ]}, function (err, data) {
         ok(!err, 'bulkDocs passed');
         db.info(function(err, info) { 
-          db.changes({
+          var api = db.changes({
             since: 'latest',
             complete: function(err, res) {
               ok(!err, 'completed db.changes({since: \'latest\'}): ' + JSON.stringify(res));
@@ -723,6 +723,8 @@ adapters.map(function(adapter) {
               start();
             }
           });
+          equal(typeof api, 'object', 'db.changes({since: \'latest\'}) returns object');
+          equal(typeof api.cancel, 'function', 'db.changes({since: \'latest\'}) returns object with cancel function');
         });
       });
     });
