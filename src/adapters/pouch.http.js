@@ -697,7 +697,7 @@ var HttpPouch = function(opts, callback) {
     
     if (opts.since === 'latest') {
       api.info(function (err, info) {
-        opts.since = info.update_seq - 1;
+        opts.since = info.update_seq;
         api.changes(opts);
       });
       return;
