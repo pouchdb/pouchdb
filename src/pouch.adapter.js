@@ -541,8 +541,18 @@ PouchAdapter = function(opts, callback) {
 
   api.changes = function(opts) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addTask('changes', arguments);
-      return;
+      var task = api.taskqueue.addTask('changes', arguments);
+      return {
+        cancel: function() {
+          if (task.task) {
+            return task.task.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log(db_url + ': Cancel Changes Feed');
+          }
+          task.parameters[0].aborted = true;
+        }
+      };
     }
     opts = PouchUtils.extend(true, {}, opts);
 
@@ -550,11 +560,25 @@ PouchAdapter = function(opts, callback) {
       opts.since = 0;
     }
     if (opts.since === 'latest') {
+      var changes;
       api.info(function (err, info) {
-        opts.since = info.update_seq  - 1;
-        api.changes(opts);
+        if (!opts.aborted) {
+          opts.since = info.update_seq  - 1;
+          api.changes(opts);
+        }
       });
-      return;
+      // Return a method to cancel this method from processing any more
+      return {
+        cancel: function() {
+          if (changes) {
+            return changes.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log(db_url + ': Cancel Changes Feed');
+          }
+          opts.aborted = true;
+        }
+      };
     }
 
     if (!('descending' in opts)) {
@@ -638,7 +662,7 @@ PouchAdapter = function(opts, callback) {
   api.taskqueue.execute = function (db) {
     if (taskqueue.ready) {
       taskqueue.queue.forEach(function(d) {
-        db[d.task].apply(null, d.parameters);
+        d.task = db[d.name].apply(null, d.parameters);
       });
     }
   };
@@ -650,8 +674,10 @@ PouchAdapter = function(opts, callback) {
     taskqueue.ready = arguments[0];
   };
 
-  api.taskqueue.addTask = function(task, parameters) {
-    taskqueue.queue.push({ task: task, parameters: parameters });
+  api.taskqueue.addTask = function(name, parameters) {
+    var task = { name: name, parameters: parameters };
+    taskqueue.queue.push(task);
+    return task;
   };
 
   api.replicate = {};
