@@ -912,6 +912,89 @@ function HttpPouch(opts, callback) {
     PouchUtils.call(callback, null);
   };
 
+  api.replicateOnServer = function(target, opts, promise) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('replicateOnServer', arguments);
+      return promise;
+    }
+    
+    var targetHost = getHost(target.id());
+    var params = {
+      source: host.db,
+      target: targetHost.protocol === host.protocol && targetHost.authority === host.authority ? targetHost.db : targetHost.source
+    };
+
+    if (opts.continuous) {
+      params.continuous = true;
+    }
+
+    if (opts.create_target) {
+      params.create_target = true;
+    }
+
+    if (opts.doc_ids) {
+      params.doc_ids = opts.doc_ids;
+    }
+
+    if (opts.filter && typeof opts.filter === 'string') {
+      params.filter = opts.filter;
+    }
+
+    if (opts.query_params) {
+      params.query_params = opts.query_params;
+    }
+
+    var result = {};
+    var repOpts = {
+      headers: host.headers,
+      method: 'POST',
+      url: host.protocol + '://' + host.host + (host.port === 80 ? '' : (':' + host.port)) + '/_replicate',
+      body: params
+    };
+    var xhr;
+    promise.cancel = function() {
+      this.cancelled = true;
+      if (xhr && !result.ok) {
+        xhr.abort();
+      }
+      if (result._local_id) {
+        repOpts.body = {
+          replication_id: result._local_id
+        };
+      }
+      repOpts.body.cancel = true;
+      ajax(repOpts, function(err, resp, xhr) {
+        // If the replication cancel request fails, send an error to the callback
+        if (err) {
+          return PouchUtils.call(callback, err);
+        }
+        // Send the replication cancel result to the complete callback
+        PouchUtils.call(opts.complete, null, result, xhr);
+      });
+    };
+
+    if (promise.cancelled) {
+      return;
+    }
+
+    xhr = ajax(repOpts, function(err, resp, xhr) {
+      // If the replication fails, send an error to the callback
+      if (err) {
+        return PouchUtils.call(callback, err);
+      }
+
+      result.ok = true;
+
+      // Provided by CouchDB from 1.2.0 onward to cancel replication
+      if (resp._local_id) {
+        result._local_id = resp._local_id;
+      }
+
+      // Send the replication result to the complete callback
+      PouchUtils.call(opts.complete, null, resp, xhr);
+    });
+  };
+
   return api;
 }
 

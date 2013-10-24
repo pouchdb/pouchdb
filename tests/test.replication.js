@@ -13,6 +13,7 @@ var qunit = module;
 
 var downAdapters = ['local-1'];
 var deletedDocAdapters = [['local-1', 'http-1']];
+var interHTTPAdapters = [['http-1', 'http-2']];
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -361,7 +362,7 @@ adapters.map(function(adapters) {
   });
 
 
-  asyncTest("Test basic continous pull replication", function() {
+  asyncTest("Test basic continuous pull replication", function() {
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -387,7 +388,7 @@ adapters.map(function(adapters) {
     });
   });
 
-  asyncTest("Test basic continous push replication", function() {
+  asyncTest("Test basic continuous push replication", function() {
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -853,6 +854,66 @@ downAdapters.map(function(adapter) {
       db.replicate.to('http://infiniterequest.com', function (err, changes) {
         ok(err);
         start();
+      });
+    });
+  });
+});
+
+// Server side replication via `server: true` between http
+interHTTPAdapters.map(function(adapters) {
+  qunit('server side replication: ' + adapters[0] + ':' + adapters[1], {
+    setup : function () {
+      this.name = generateAdapterUrl(adapters[0]);
+      this.remote = generateAdapterUrl(adapters[1]);
+    }
+  });
+
+  var docs = [
+    {_id: "0", integer: 0, string: '0'},
+    {_id: "1", integer: 1, string: '1'},
+    {_id: "2", integer: 2, string: '2'}
+  ];
+
+  asyncTest("Test basic replication", function() {
+    var self = this;
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, {}, function(err, results) {
+        Pouch.replicate(self.name, self.remote, {server: true}, function(err, result) {
+          ok(result.ok, 'replication was ok');
+          equal(result.history[0].docs_written, docs.length, 'correct # docs written');
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Test cancel continuous replication", function() {
+    var self = this;
+    var doc1 = {_id: 'adoc', foo:'bar'};
+    var doc2 = {_id: 'anotherdoc', foo:'baz'};
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        var count = 0;
+        var replicate = db.replicate.from(self.remote, {server: true, continuous: true});
+        var changes = db.changes({
+          continuous: true,
+          onChange: function(change) {
+            ++count;
+            if (count === 3) {
+              remote.put(doc1);
+            }
+            if (count === 4) {
+              replicate.cancel();
+              remote.put(doc2);
+              // This setTimeout is needed to ensure no further changes come through
+              setTimeout(function() {
+                ok(count === 4, 'got no more docs');
+                changes.cancel();
+                start();
+              }, 500);
+            }
+          }
+        });
       });
     });
   });

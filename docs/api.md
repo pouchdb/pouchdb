@@ -313,9 +313,13 @@ Replicate data from `source` to `target`, both the `source` and `target` can be 
 If you want to sync data in both directions you can call this twice reversing the `source` and `target` arguments.
 
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
+* `options.query_params`: Query params send to the filter function.
+* `options.doc_ids`: Only replicate docs with these ids.
 * `options.complete`: Function called when all changes have been processed.
 * `options.onChange`: Function called on each change processed..
 * `options.continuous`: If true starts subscribing to future changes in the `source` database and continue replicating them.
+* `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
+* `options.create_target`: Create target database if it does not exist. Only for server replications.
 
 #### Example Usage:
 {% highlight js %}
@@ -343,6 +347,7 @@ db.replicate.from(remoteDB, [options]);
   'end_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)"
 }
 {% endhighlight %}
+Note that the response for server replications (via `options.server`) is slightly different. See the (CouchDB Wiki)(http://wiki.apache.org/couchdb/Replication).
 
 ## Save an attachment<a id="save_attachment"></a>
 

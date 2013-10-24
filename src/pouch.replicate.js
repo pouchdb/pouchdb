@@ -272,7 +272,17 @@ Pouch.replicate = function(src, target, opts, callback) {
       if (err) {
         return PouchUtils.call(callback, err);
       }
-      replicate(src, target, opts, replicateRet);
+      if (opts.server) {
+        if (typeof src.replicateOnServer !== 'function') {
+          return PouchUtils.call(callback, { error: 'Server replication not supported for ' + src.type() + ' adapter' });
+        }
+        if (src.type() !== target.type()) {
+          return PouchUtils.call(callback, { error: 'Server replication for different adapter types (' + src.type() + ' and ' + target.type() + ') is not supported' });
+        }
+        src.replicateOnServer(target, opts, replicateRet);
+      } else {
+        replicate(src, target, opts, replicateRet);
+      }
     });
   });
   return replicateRet;
