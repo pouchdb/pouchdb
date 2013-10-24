@@ -918,7 +918,15 @@ function HttpPouch(opts, callback) {
 // Delete the HttpPouch specified by the given name.
 HttpPouch.destroy = function(name, opts, callback) {
   var host = getHost(name, opts);
-  PouchUtils.ajax({headers: host.headers, method: 'DELETE', url: genDBUrl(host, '')}, callback);
+  opts = opts || {}
+  if(typeof opts === 'function'){
+    callback = opts;
+    opts = {};
+  }
+  opts.headers = host.headers;
+  opts.method = 'DELETE';
+  opts.url = genDBUrl(host, '');
+  PouchUtils.ajax(opts, callback);
 };
 
 // HttpPouch is a valid adapter.
