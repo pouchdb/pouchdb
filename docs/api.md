@@ -15,10 +15,14 @@ new PouchDB([name], [options])
 
 This method creates a database or opens an existing one. If you use a `http://domain.com/dbname` then PouchDB will work as a client to an online CouchDB instance, otherwise it will create a local database using a backend that is present.
 
-**Note:** If you are also using indexedDB directly, PouchDB will use `_pouch_` to prefix the internal database names, dont manually create databases with the same prefix.
+**Notes:** 
+
+1. If you are also using indexedDB directly, PouchDB will use `_pouch_` to prefix the internal database names, dont manually create databases with the same prefix.
+2. When acting as a client on Node any other options given will be passed to [request](https://github.com/mikeal/request).
 
 * `options.name`: You can omit the name argument and specify it via options.
 * `options.auto_compaction`: This turns on auto compaction (experimental).
+
 
 #### Example Usage:
 {% highlight js %}
@@ -34,6 +38,8 @@ PouchDB.destroy(name, [options], [callback])
 {% endhighlight %}
 
 Delete database with given name
+
+**Notes:** With a remote couch on node options are passed to [request](https://github.com/mikeal/request).
 
 #### Example Usage:
 {% highlight js %}
