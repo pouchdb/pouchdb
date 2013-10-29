@@ -835,15 +835,16 @@ LevelPouch.destroy = function(name, opts, callback) {
     var uuidPath = name + '.uuid';
     if (fs.existsSync(uuidPath)) {
       fs.unlinkSync(uuidPath);
+      rmdir(name, function(err) {
+        if (err && err.code === 'ENOENT') {
+          // TODO: MISSING_DOC name is somewhat misleading in this context
+          return call(callback, Pouch.Errors.MISSING_DOC);
+        }
+        return call(callback, err);
+      });
+    } else {
+      return call(callback, Pouch.Errors.DB_MISSING);
     }
-
-    rmdir(name, function(err) {
-      if (err && err.code === 'ENOENT') {
-        // TODO: MISSING_DOC name is somewhat misleading in this context
-        return call(callback, Pouch.Errors.MISSING_DOC);
-      }
-      return call(callback, err);
-    });
   }
 };
 

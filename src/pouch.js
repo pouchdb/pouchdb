@@ -433,6 +433,11 @@ Pouch.Errors = {
     status: 400,
     error: 'bad_request',
     reason: 'Document must be a JSON object'
+  },
+  DB_MISSING: {
+    status: 404,
+    error: 'not_found',
+    reason: 'Database not found'
   }
 };
 
