@@ -248,7 +248,9 @@ PouchUtils.Changes = function() {
   };
 
   api.removeListener = function(db_name, id) {
-    delete listeners[db_name][id];
+    if (listeners[db_name]) {
+      delete listeners[db_name][id];
+    }
   };
 
   api.clearListeners = function(db_name) {

@@ -444,6 +444,27 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Kill database while listening to continuous changes", function() {
+    var name = this.name;
+    initTestDB(this.name, function(err, db) {
+      var count = 0;
+      var changes = db.changes({
+        onChange: function(change) {
+          count += 1;
+          if (count === 1) {
+            PouchDB.destroy(name, function(err, resp) {
+              changes.cancel();
+              ok(true);
+              start();
+            });
+          }
+        },
+        continuous: true
+      });
+      db.post({test:"adoc"});
+    });
+  });
+
   asyncTest("Changes filter", function() {
 
     var docs1 = [
