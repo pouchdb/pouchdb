@@ -548,7 +548,7 @@ PouchAdapter = function(opts, callback) {
             return task.task.cancel();
           }
           if (Pouch.DEBUG) {
-            console.log(db_url + ': Cancel Changes Feed');
+            console.log('Cancel Changes Feed');
           }
           task.parameters[0].aborted = true;
         }
@@ -574,7 +574,7 @@ PouchAdapter = function(opts, callback) {
             return changes.cancel();
           }
           if (Pouch.DEBUG) {
-            console.log(db_url + ': Cancel Changes Feed');
+            console.log('Cancel Changes Feed');
           }
           opts.aborted = true;
         }
