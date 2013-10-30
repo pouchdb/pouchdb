@@ -125,17 +125,20 @@ var IdbPouch = function(opts, callback) {
         txn.objectStore(META_STORE).put(meta);
       }
 
-      // detect blob support
-      try {
-        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(PouchUtils.createBlob(), "key");
-        blobSupport = true;
-      } catch (err) {
-        blobSupport = false;
-      } finally {
-        PouchUtils.call(callback, null, api);
-      }
+            // detect blob support
+            //YSG Add BlobSupport Property to PouchDB API
+            try {
+                txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(PouchUtils.createBlob(), "key");
+                blobSupport = true;
+                PouchDB.BlobSupport = "Binary";
+            } catch (err) {
+                blobSupport = false;
+                PouchDB.BlobSupport = "Base64";
+            } finally {
+                PouchUtils.call(callback, null, api);
+            }
+        };
     };
-  };
 
   req.onerror = idbError(callback);
 
@@ -220,37 +223,53 @@ var IdbPouch = function(opts, callback) {
       PouchUtils.call(callback, null, aresults);
     }
 
-    function preprocessAttachment(att, finish) {
-      if (att.stub) {
-        return finish();
-      }
-      if (typeof att.data === 'string') {
-        var data;
-        try {
-          data = atob(att.data);
-        } catch (e) {
-          var err = Pouch.error(Pouch.Errors.BAD_ARG,
-                                "Attachments need to be base64 encoded");
-          return PouchUtils.call(callback, err);
+        //YSG - Use Uint8Array for MD5 algorithm, Use FastMD5 algorithm
+        function preprocessAttachment(att, finish) {
+            if (att.stub) {
+                return finish();
+            }
+            if (typeof att.data === 'string') {
+                var data;
+                try {
+                    data = atob(att.data);
+                } catch (e) {
+                    var err = Pouch.error(Pouch.Errors.BAD_ARG,
+                                          "Attachments need to be base64 encoded");
+                    return PouchUtils.call(callback, err);
+                }
+                var buffer = new Uint8Array(data);
+                att.digest = 'md5-' + PouchUtils.Crypto.FastMD5(buffer);
+                if (blobSupport) {
+                    var type = att.content_type;
+                    data = fixBinary(data);
+                    att.data = new Blob([data], { type: type });
+                }
+                return finish();
+            }
+            var reader = new FileReader();
+            reader.onloadend = function (e) {
+                var buffer = new Uint8Array(this.result);
+                att.digest = 'md5-' + PouchUtils.Crypto.FastMD5(buffer);
+                att.data.md5 = att.digest; //YSG - no-cost debug to see if md5 is correct
+                if (!blobSupport) {
+                    att.data = arrayBufferToBase64(this.result);
+                }
+                finish();
+            };
+            reader.readAsArrayBuffer(att.data);
         }
-        att.digest = 'md5-' + PouchUtils.Crypto.MD5(data);
-        if (blobSupport) {
-          var type = att.content_type;
-          data = fixBinary(data);
-          att.data = PouchUtils.createBlob([data], {type: type});
+        
+        // convert array buffer to base64 byte array (needed for chrome gets binary blobs 
+        // issue 108012 which will be fixed in a few months: https://code.google.com/p/chromium/issues/detail?id=108012
+        function arrayBufferToBase64(buffer) {
+            var binary = '';
+            var bytes = new Uint8Array(buffer);
+            var len = bytes.byteLength;
+            for (var i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
         }
-        return finish();
-      }
-      var reader = new FileReader();
-      reader.onloadend = function(e) {
-        att.digest = 'md5-' + PouchUtils.Crypto.MD5(this.result);
-        if (!blobSupport) {
-          att.data = btoa(this.result);
-        }
-        finish();
-      };
-      reader.readAsBinaryString(att.data);
-    }
 
     function preprocessAttachments(callback) {
       if (!docInfos.length) {
