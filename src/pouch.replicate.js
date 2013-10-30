@@ -12,16 +12,17 @@ if (typeof module !== 'undefined' && module.exports) {
 // We create a basic promise so the caller can cancel the replication possibly
 // before we have actually started listening to changes etc
 var Promise = function() {
+  var that = this;
   this.cancelled = false;
   this.cancel = function() {
-    this.cancelled = true;
+    that.cancelled = true;
   };
 };
 
 // The RequestManager ensures that only one database request is active at
 // at time, it ensures we dont max out simultaneous HTTP requests and makes
 // the replication process easier to reason about
-var RequestManager = function() {
+var RequestManager = function(promise) {
 
   var queue = [];
   var api = {};
@@ -38,7 +39,7 @@ var RequestManager = function() {
 
   // Process the next request
   api.process = function() {
-    if (processing || !queue.length) {
+    if (processing || !queue.length || promise.cancelled) {
       return;
     }
     processing = true;
@@ -94,7 +95,7 @@ var writeCheckpoint = function(src, target, id, checkpoint, callback) {
 
 function replicate(src, target, opts, promise) {
 
-  var requests = new RequestManager();
+  var requests = new RequestManager(promise);
   var writeQueue = [];
   var repId = genReplicationId(src, target, opts);
   var results = [];
@@ -239,7 +240,11 @@ function replicate(src, target, opts, promise) {
     var changes = src.changes(repOpts);
 
     if (opts.continuous) {
-      promise.cancel = changes.cancel;
+      var cancel = promise.cancel;
+      promise.cancel = function() {
+        cancel();
+        changes.cancel();
+      };
     }
   });
 
