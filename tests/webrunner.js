@@ -14,7 +14,8 @@ if (!testFiles.length) {
   //  'perf.attachments.js'
   //];
 
-  // Temporarily disable auth replication
+  // Temporarily disable tests that can leave CouchDB in non Admin Party
+  // 'test.cors.js'
   // 'test.auth_replication.js',
   testFiles = ['test.basics.js', 'test.all_dbs.js', 'test.changes.js',
                'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
@@ -22,8 +23,7 @@ if (!testFiles.length) {
                'test.replication.js', 'test.views.js', 'test.taskqueue.js',
                'test.design_docs.js', 'test.issue221.js', 'test.http.js',
                'test.gql.js', 'test.compaction.js', 'test.get.js',
-               'test.attachments.js', 'test.uuids.js', 'test.slash_id.js',
-               'test.cors.js'];
+               'test.attachments.js', 'test.uuids.js', 'test.slash_id.js'];
 }
 
 testFiles.unshift('test.utils.js');
