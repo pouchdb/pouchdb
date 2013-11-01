@@ -137,6 +137,75 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest(" (Cloudant) Changes limit", function () {
+    var docs1 = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3}
+    ];
+
+    var docs2 = [
+      {_id: "2", integer: 11},
+      {_id: "3", integer: 12}
+    ];
+
+    var lastSeq = 0;
+    var returnedDocs = {};
+
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, docs1, function(err, info) {
+        docs2[0]._rev = info[2].rev;
+        docs2[1]._rev = info[3].rev;
+          db.changes({
+            limit: 4,
+            since: lastSeq,
+            complete: function(err, results) {
+              strictEqual(results.results.length, 4);
+              // Now remember the check point so we can use later because 
+              // the checkpoint can not be pre calcualted.
+              lastSeq = results.last_seq;
+              db.put(docs2[0], function(err, info){
+                db.put(docs2[1], function(err, info){
+                  db.changes({
+                    limit: 1,
+                    since: lastSeq,
+                    include_docs: true,
+                    complete: function(err, results) {
+                      lastSeq = results.last_seq;
+                      results = results.results;
+                      strictEqual(results.length, 1, "Results length");
+                      // Which doc is returned first is not deterministic, so
+                      // we wait to get second doc then we check both doc have
+                      // been returned correctly, and we dot not care about the 
+                      // order
+                      returnedDocs[results[0].id] = results[0].doc; 
+                      db.changes({
+                        limit: 1, 
+                        since: lastSeq,
+                        include_docs: true,
+                        complete: function(err, results) {
+
+                          results = results.results;
+                          strictEqual(results.length, 1, "Results length");
+                          returnedDocs[results[0].id] = results[0].doc; 
+
+                          strictEqual(returnedDocs["2"].integer, 11, "Correct doc's integer");
+                          strictEqual(returnedDocs["3"].integer, 12, "Correct doc's integer");
+
+                          start();
+                        }
+                      });
+                    }
+                  });
+                });
+              });
+            }
+          });
+      });
+    });
+  });
+
   asyncTest("Changes limit and filter", function(){
     var docs = [
       {_id: "0", integer: 0},
