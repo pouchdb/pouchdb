@@ -95,6 +95,7 @@ var writeCheckpoint = function(src, target, id, checkpoint, callback) {
 function replicate(src, target, opts, promise) {
 
   var requests = new RequestManager();
+  var revsDiffQueue = [];
   var writeQueue = [];
   var repId = genReplicationId(src, target, opts);
   var results = [];
@@ -178,19 +179,32 @@ function replicate(src, target, opts, promise) {
     };
   }
 
-  function fetchRevsDiff(diff, diffCounts) {
-    target.revsDiff(diff, onRevsDiff(diffCounts));
+  function fetchRevsDiff() {
+    if (!revsDiffQueue.length) {
+      return requests.notifyRequestComplete();
+    }
+    var diff = {};
+    var counts = {};
+    var change;
+    function pluckRev(change) {
+      return change.rev;
+    }
+    for (var i = 0; i < revsDiffQueue.length; i++) {
+      change = revsDiffQueue.pop();
+      diff[change.id] = diff[change.id] || [];
+      diff[change.id] = diff[change.id].concat(change.changes.map(pluckRev));
+      counts[change.id] = counts[change.id] || 0;
+      counts[change.id] += change.changes.length;
+    }
+    target.revsDiff(diff, onRevsDiff(counts));
   }
 
   function onChange(change) {
     last_seq = change.seq;
     results.push(change);
-    var diff = {};
-    diff[change.id] = change.changes.map(function(x) { return x.rev; });
-    var counts = {};
-    counts[change.id] = change.changes.length;
+    revsDiffQueue.push(change);
     pendingRevs += change.changes.length;
-    requests.enqueue(fetchRevsDiff, [diff, counts]);
+    requests.enqueue(fetchRevsDiff);
   }
 
   function complete() {
