@@ -95,6 +95,7 @@ var writeCheckpoint = function(src, target, id, checkpoint, callback) {
 function replicate(src, target, opts, promise) {
 
   var requests = new RequestManager();
+  var readQueue = [];
   var writeQueue = [];
   var repId = genReplicationId(src, target, opts);
   var results = [];
@@ -137,6 +138,28 @@ function replicate(src, target, opts, promise) {
     writeQueue = [];
   }
 
+  function readDocs() {
+    if (!readQueue.length) {
+      return requests.notifyRequestComplete();
+    }
+    src.allDocs({keys: readQueue, include_docs: true, attachments: true}, function(err, res) {
+      requests.notifyRequestComplete();
+      result.docs_read += res.rows.length;
+      res.rows.forEach(function(row) {
+        if (row.value.deleted) {
+          return writeQueue.push({
+            _id: row.id,
+            _rev: row.value.rev,
+            _deleted: true
+          });
+        }
+        writeQueue.push(row.doc);
+      });
+      requests.enqueue(writeDocs);
+    });
+    readQueue = [];
+  }
+
   function eachRev(id, rev) {
     src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
       result.docs_read++;
@@ -173,7 +196,12 @@ function replicate(src, target, opts, promise) {
       for (var id in diffs) {
         var diffsAlreadyHere = diffCounts[id] - diffs[id].missing.length;
         pendingRevs -= diffsAlreadyHere;
-        diffs[id].missing.forEach(_enqueuer);
+        if (diffs[id].missing.length === 1 && parseInt(diffs[id].missing[0], 10) === 1) {
+          readQueue.push(id);
+          requests.enqueue(readDocs);
+        } else {
+          diffs[id].missing.forEach(_enqueuer);
+        }
       }
     };
   }
