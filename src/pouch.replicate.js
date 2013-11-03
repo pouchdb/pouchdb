@@ -95,6 +95,7 @@ var writeCheckpoint = function(src, target, id, checkpoint, callback) {
 function replicate(src, target, opts, promise) {
 
   var requests = new RequestManager();
+  var readQueue = [];
   var writeQueue = [];
   var repId = genReplicationId(src, target, opts);
   var results = [];
@@ -137,6 +138,31 @@ function replicate(src, target, opts, promise) {
     writeQueue = [];
   }
 
+  function readDocs() {
+    if (!readQueue.length) {
+      return requests.notifyRequestComplete();
+    }
+    var ids = readQueue.map(function(doc) { return doc.id; });
+    var revs = readQueue.map(function(doc) { return doc.rev; });
+    src.allDocs({keys: ids, include_docs: true, attachments: true}, function(err, res) {
+      requests.notifyRequestComplete();
+      res.rows.forEach(function(row, i) {
+        if (row.value.deleted) {
+          // fetch deleted document (could have data)
+          return requests.enqueue(eachRev, [row.id, row.value.rev]);
+        }
+        if (parseInt(row.value.rev, 10) > 0) {
+          // fetch specific revision if this is no longer generation 1
+          return requests.enqueue(eachRev, [row.id, revs[i]]);
+        }
+        result.docs_read++;
+        writeQueue.push(row.doc);
+      });
+      requests.enqueue(writeDocs);
+    });
+    readQueue = [];
+  }
+
   function eachRev(id, rev) {
     src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
       result.docs_read++;
@@ -173,7 +199,12 @@ function replicate(src, target, opts, promise) {
       for (var id in diffs) {
         var diffsAlreadyHere = diffCounts[id] - diffs[id].missing.length;
         pendingRevs -= diffsAlreadyHere;
-        diffs[id].missing.forEach(_enqueuer);
+        if (diffs[id].missing.length === 1 && parseInt(diffs[id].missing[0], 10) === 1) {
+          readQueue.push({id: id, rev: diffs[id].missing[0]});
+          requests.enqueue(readDocs);
+        } else {
+          diffs[id].missing.forEach(_enqueuer);
+        }
       }
     };
   }
