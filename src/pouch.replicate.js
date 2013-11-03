@@ -142,11 +142,18 @@ function replicate(src, target, opts, promise) {
     if (!readQueue.length) {
       return requests.notifyRequestComplete();
     }
-    src.allDocs({keys: readQueue, include_docs: true, attachments: true}, function(err, res) {
+    var ids = readQueue.map(function(doc) { return doc.id; });
+    var revs = readQueue.map(function(doc) { return doc.rev; });
+    src.allDocs({keys: ids, include_docs: true, attachments: true}, function(err, res) {
       requests.notifyRequestComplete();
-      res.rows.forEach(function(row) {
+      res.rows.forEach(function(row, i) {
         if (row.value.deleted) {
+          // fetch deleted document (could have data)
           return requests.enqueue(eachRev, [row.id, row.value.rev]);
+        }
+        if (parseInt(row.value.rev, 10) > 0) {
+          // fetch specific revision if this is no longer generation 1
+          return requests.enqueue(eachRev, [row.id, revs[i]]);
         }
         result.docs_read++;
         writeQueue.push(row.doc);
@@ -193,7 +200,7 @@ function replicate(src, target, opts, promise) {
         var diffsAlreadyHere = diffCounts[id] - diffs[id].missing.length;
         pendingRevs -= diffsAlreadyHere;
         if (diffs[id].missing.length === 1 && parseInt(diffs[id].missing[0], 10) === 1) {
-          readQueue.push(id);
+          readQueue.push({id: id, rev: diffs[id].missing[0]});
           requests.enqueue(readDocs);
         } else {
           diffs[id].missing.forEach(_enqueuer);
