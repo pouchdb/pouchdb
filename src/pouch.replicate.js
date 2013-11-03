@@ -144,15 +144,11 @@ function replicate(src, target, opts, promise) {
     }
     src.allDocs({keys: readQueue, include_docs: true, attachments: true}, function(err, res) {
       requests.notifyRequestComplete();
-      result.docs_read += res.rows.length;
       res.rows.forEach(function(row) {
         if (row.value.deleted) {
-          return writeQueue.push({
-            _id: row.id,
-            _rev: row.value.rev,
-            _deleted: true
-          });
+          return requests.enqueue(eachRev, [row.id, row.value.rev]);
         }
+        result.docs_read++;
         writeQueue.push(row.doc);
       });
       requests.enqueue(writeDocs);
