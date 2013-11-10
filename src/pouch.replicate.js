@@ -12,16 +12,17 @@ if (typeof module !== 'undefined' && module.exports) {
 // We create a basic promise so the caller can cancel the replication possibly
 // before we have actually started listening to changes etc
 var Promise = function() {
+  var that = this;
   this.cancelled = false;
   this.cancel = function() {
-    this.cancelled = true;
+    that.cancelled = true;
   };
 };
 
 // The RequestManager ensures that only one database request is active at
 // at time, it ensures we dont max out simultaneous HTTP requests and makes
 // the replication process easier to reason about
-var RequestManager = function() {
+var RequestManager = function(promise) {
 
   var queue = [];
   var api = {};
@@ -38,7 +39,7 @@ var RequestManager = function() {
 
   // Process the next request
   api.process = function() {
-    if (processing || !queue.length) {
+    if (processing || !queue.length || promise.cancelled) {
       return;
     }
     processing = true;
@@ -94,12 +95,12 @@ var writeCheckpoint = function(src, target, id, checkpoint, callback) {
 
 function replicate(src, target, opts, promise) {
 
-  var requests = new RequestManager();
+  var requests = new RequestManager(promise);
   var writeQueue = [];
   var repId = genReplicationId(src, target, opts);
   var results = [];
   var completed = false;
-  var pending = 0;
+  var pendingRevs = 0;
   var last_seq = 0;
   var continuous = opts.continuous || false;
   var doc_ids = opts.doc_ids;
@@ -117,7 +118,7 @@ function replicate(src, target, opts, promise) {
         opts.onChange.apply(this, [result]);
       }
     }
-    pending -= len;
+    pendingRevs -= len;
     result.docs_written += len;
 
     writeCheckpoint(src, target, repId, last_seq, function(err, res) {
@@ -139,50 +140,58 @@ function replicate(src, target, opts, promise) {
 
   function eachRev(id, rev) {
     src.get(id, {revs: true, rev: rev, attachments: true}, function(err, doc) {
+      result.docs_read++;
       requests.notifyRequestComplete();
       writeQueue.push(doc);
       requests.enqueue(writeDocs);
     });
   }
 
-  function onRevsDiff(err, diffs) {
-    requests.notifyRequestComplete();
-    if (err) {
-      if (continuous) {
-        promise.cancel();
+  function onRevsDiff(diffCounts) {
+    return function (err, diffs) {
+      requests.notifyRequestComplete();
+      if (err) {
+        if (continuous) {
+          promise.cancel();
+        }
+        PouchUtils.call(opts.complete, err, null);
+        return;
       }
-      PouchUtils.call(opts.complete, err, null);
-      return;
-    }
 
-    // We already have the full document stored
-    if (Object.keys(diffs).length === 0) {
-      pending--;
-      isCompleted();
-      return;
-    }
+      // We already have all diffs passed in `diffCounts`
+      if (Object.keys(diffs).length === 0) {
+        for (var docid in diffCounts) {
+          pendingRevs -= diffCounts[docid];
+        }
+        isCompleted();
+        return;
+      }
 
-    var _enqueuer = function (rev) {
+      var _enqueuer = function (rev) {
         requests.enqueue(eachRev, [id, rev]);
-    };
+      };
 
-    for (var id in diffs) {
-      diffs[id].missing.forEach(_enqueuer);
-    }
+      for (var id in diffs) {
+        var diffsAlreadyHere = diffCounts[id] - diffs[id].missing.length;
+        pendingRevs -= diffsAlreadyHere;
+        diffs[id].missing.forEach(_enqueuer);
+      }
+    };
   }
 
-  function fetchRevsDiff(diff) {
-    target.revsDiff(diff, onRevsDiff);
+  function fetchRevsDiff(diff, diffCounts) {
+    target.revsDiff(diff, onRevsDiff(diffCounts));
   }
 
   function onChange(change) {
     last_seq = change.seq;
     results.push(change);
-    result.docs_read++;
-    pending++;
     var diff = {};
     diff[change.id] = change.changes.map(function(x) { return x.rev; });
-    requests.enqueue(fetchRevsDiff, [diff]);
+    var counts = {};
+    counts[change.id] = change.changes.length;
+    pendingRevs += change.changes.length;
+    requests.enqueue(fetchRevsDiff, [diff, counts]);
   }
 
   function complete() {
@@ -191,7 +200,7 @@ function replicate(src, target, opts, promise) {
   }
 
   function isCompleted() {
-    if (completed && pending === 0) {
+    if (completed && pendingRevs === 0) {
       result.end_time = new Date();
       PouchUtils.call(opts.complete, null, result);
     }
@@ -231,7 +240,11 @@ function replicate(src, target, opts, promise) {
     var changes = src.changes(repOpts);
 
     if (opts.continuous) {
-      promise.cancel = changes.cancel;
+      var cancel = promise.cancel;
+      promise.cancel = function() {
+        cancel();
+        changes.cancel();
+      };
     }
   });
 
@@ -264,7 +277,17 @@ Pouch.replicate = function(src, target, opts, callback) {
       if (err) {
         return PouchUtils.call(callback, err);
       }
-      replicate(src, target, opts, replicateRet);
+      if (opts.server) {
+        if (typeof src.replicateOnServer !== 'function') {
+          return PouchUtils.call(callback, { error: 'Server replication not supported for ' + src.type() + ' adapter' });
+        }
+        if (src.type() !== target.type()) {
+          return PouchUtils.call(callback, { error: 'Server replication for different adapter types (' + src.type() + ' and ' + target.type() + ') is not supported' });
+        }
+        src.replicateOnServer(target, opts, replicateRet);
+      } else {
+        replicate(src, target, opts, replicateRet);
+      }
     });
   });
   return replicateRet;

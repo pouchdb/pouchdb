@@ -567,7 +567,9 @@ var LevelPouch = function(opts, callback) {
       }
       return call(callback, null, {
         total_rows: results.length,
-        rows: ('limit' in opts) ? results.slice(0, opts.limit) : results
+        offset: opts.skip,
+        rows: ('limit' in opts) ? results.slice(opts.skip, opts.limit + opts.skip) :
+          (opts.skip > 0) ? results.slice(opts.skip) : results
       });
     });
   };
@@ -802,7 +804,7 @@ function rmdir(dir, callback) {
 }
 
 // close and delete open leveldb stores
-LevelPouch.destroy = function(name, callback) {
+LevelPouch.destroy = function(name, opts, callback) {
   var dbpath = path.resolve(name);
   var stores = [
     path.join(dbpath, DOC_STORE),
@@ -833,15 +835,16 @@ LevelPouch.destroy = function(name, callback) {
     var uuidPath = name + '.uuid';
     if (fs.existsSync(uuidPath)) {
       fs.unlinkSync(uuidPath);
+      rmdir(name, function(err) {
+        if (err && err.code === 'ENOENT') {
+          // TODO: MISSING_DOC name is somewhat misleading in this context
+          return call(callback, Pouch.Errors.MISSING_DOC);
+        }
+        return call(callback, err);
+      });
+    } else {
+      return call(callback, Pouch.Errors.DB_MISSING);
     }
-
-    rmdir(name, function(err) {
-      if (err && err.code === 'ENOENT') {
-        // TODO: MISSING_DOC name is somewhat misleading in this context
-        return call(callback, Pouch.Errors.MISSING_DOC);
-      }
-      return call(callback, err);
-    });
   }
 };
 

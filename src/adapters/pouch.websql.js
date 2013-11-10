@@ -1,6 +1,12 @@
-/*globals PouchUtils, PouchMerge */
+/*globals PouchUtils: true, PouchMerge */
 
 'use strict';
+
+var PouchUtils;
+
+if (typeof module !== 'undefined' && module.exports) {
+  PouchUtils = require('../pouch.utils.js');
+}
 
 function quote(str) {
   return "'" + str + "'";
@@ -81,9 +87,12 @@ var webSqlPouch = function(opts, callback) {
       });
     }, unknownError(callback), dbCreated);
   }
-  if (PouchUtils.isCordova()) {
+  if (PouchUtils.isCordova() && typeof window !== 'undefined') {
     //to wait until custom api is made in pouch.adapters before doing setup
-    window.addEventListener(name + "_pouch", setup, false);
+    window.addEventListener(name + '_pouch', function cordova_init() {
+      window.removeEventListener(name + '_pouch', cordova_init, false);
+      setup();
+    }, false);
   } else {
     setup();
   }
@@ -533,7 +542,9 @@ var webSqlPouch = function(opts, callback) {
       }
       PouchUtils.call(callback, null, {
         total_rows: results.length,
-        rows: ('limit' in opts) ? results.slice(0, opts.limit) : results
+        offset: opts.skip,
+        rows: ('limit' in opts) ? results.slice(opts.skip, opts.limit + opts.skip) :
+          (opts.skip > 0) ? results.slice(opts.skip) : results
       });
     });
   };
@@ -641,7 +652,7 @@ var webSqlPouch = function(opts, callback) {
       if (opts.encode) {
         res = btoa(data);
       } else {
-        res = new Blob([data], {type: type});
+        res = PouchUtils.createBlob([data], {type: type});
       }
       PouchUtils.call(callback, null, res);
     });
@@ -689,10 +700,10 @@ var webSqlPouch = function(opts, callback) {
 };
 
 webSqlPouch.valid = function() {
-  return !!window.openDatabase;
+  return typeof window !== 'undefined' && !!window.openDatabase;
 };
 
-webSqlPouch.destroy = function(name, callback) {
+webSqlPouch.destroy = function(name, opts, callback) {
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
   db.transaction(function (tx) {
     tx.executeSql('DROP TABLE IF EXISTS ' + DOC_STORE, []);

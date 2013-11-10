@@ -13,6 +13,7 @@ var qunit = module;
 
 var downAdapters = ['local-1'];
 var deletedDocAdapters = [['local-1', 'http-1']];
+var interHTTPAdapters = [['http-1', 'http-2']];
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
@@ -361,7 +362,7 @@ adapters.map(function(adapters) {
   });
 
 
-  asyncTest("Test basic continous pull replication", function() {
+  asyncTest("Test basic continuous pull replication", function() {
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -387,7 +388,7 @@ adapters.map(function(adapters) {
     });
   });
 
-  asyncTest("Test basic continous push replication", function() {
+  asyncTest("Test basic continuous push replication", function() {
     var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -607,6 +608,38 @@ adapters.map(function(adapters) {
     });
   });
 
+  asyncTest("Replication of multiple remote conflicts (#789)", function() {
+    var doc = {_id: '789', _rev: '1-a', value: 'test'};
+
+    function createConflicts(db, callback) {
+      db.put(doc, {new_edits: false}, function(err, res) {
+        putAfter(db, {_id: '789', _rev: '2-a', value: 'v1'}, '1-a',
+          function(err, res) {
+            putAfter(db, {_id: '789', _rev: '2-b', value: 'v2'}, '1-a',
+              function(err, res) {
+                putAfter(db, {_id: '789', _rev: '2-c', value: 'v3'}, '1-a',
+                  function(err, res) {
+                    callback();
+                  });
+              });
+          });
+      });
+    }
+
+    initDBPair(this.name, this.remote, function(db, remote) {
+      createConflicts(remote, function() {
+        db.replicate.from(remote, function(err, result) {
+          ok(result.ok, 'replication was ok');
+          // in this situation, all the conflicting revisions should be read and
+          // written to the target database (this is consistent with CouchDB)
+          ok(result.docs_written === 3, 'correct # docs written');
+          ok(result.docs_read === 3, 'correct # docs read');
+          start();
+        });
+      });
+    });
+  });
+
   asyncTest("Replicate large number of docs", function() {
     var docs = [];
     var num = 30;
@@ -644,6 +677,31 @@ adapters.map(function(adapters) {
             });
           });
         }});
+      });
+    });
+  });
+
+  asyncTest("issue #909 Filtered replication bails at paging limit", function() {
+    var self = this;
+    var docs = [];
+    var num = 100;
+    for (var i = 0; i < num; i++) {
+      docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+    }
+    num = 100;
+    var docList = [];
+    for (i = 0; i < num; i+=5) {
+      docList.push('doc_' + i);
+    }
+    // uncomment this line to test only docs higher than paging limit
+    docList = ['doc_33', 'doc_60', 'doc_90'];
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        db.replicate.from(self.remote, {continuous: false, doc_ids: docList}, function(err, result) {
+          ok(result.ok, 'replication was ok');
+          ok(result.docs_written === docList.length, 'correct # docs written');
+          start();
+        });
       });
     });
   });
@@ -796,6 +854,66 @@ downAdapters.map(function(adapter) {
       db.replicate.to('http://infiniterequest.com', function (err, changes) {
         ok(err);
         start();
+      });
+    });
+  });
+});
+
+// Server side replication via `server: true` between http
+interHTTPAdapters.map(function(adapters) {
+  qunit('server side replication: ' + adapters[0] + ':' + adapters[1], {
+    setup : function () {
+      this.name = generateAdapterUrl(adapters[0]);
+      this.remote = generateAdapterUrl(adapters[1]);
+    }
+  });
+
+  var docs = [
+    {_id: "0", integer: 0, string: '0'},
+    {_id: "1", integer: 1, string: '1'},
+    {_id: "2", integer: 2, string: '2'}
+  ];
+
+  asyncTest("Test basic replication", function() {
+    var self = this;
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: docs}, {}, function(err, results) {
+        Pouch.replicate(self.name, self.remote, {server: true}, function(err, result) {
+          ok(result.ok, 'replication was ok');
+          equal(result.history[0].docs_written, docs.length, 'correct # docs written');
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Test cancel continuous replication", function() {
+    var self = this;
+    var doc1 = {_id: 'adoc', foo:'bar'};
+    var doc2 = {_id: 'anotherdoc', foo:'baz'};
+    initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        var count = 0;
+        var replicate = db.replicate.from(self.remote, {server: true, continuous: true});
+        var changes = db.changes({
+          continuous: true,
+          onChange: function(change) {
+            ++count;
+            if (count === 3) {
+              remote.put(doc1);
+            }
+            if (count === 4) {
+              replicate.cancel();
+              remote.put(doc2);
+              // This setTimeout is needed to ensure no further changes come through
+              setTimeout(function() {
+                ok(count === 4, 'got no more docs');
+                changes.cancel();
+                start();
+              }, 500);
+            }
+          }
+        });
       });
     });
   });

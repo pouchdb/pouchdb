@@ -11,6 +11,7 @@
 **/
 
 var Crypto = {};
+
 (function() {
   Crypto.MD5 = function(string) {
 
@@ -187,3 +188,7 @@ var Crypto = {};
     return temp.toLowerCase();
   }
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Crypto;
+}

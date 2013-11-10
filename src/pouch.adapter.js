@@ -240,25 +240,50 @@ PouchAdapter = function(opts, callback) {
     var count = 0;
     var missing = {};
 
-    function readDoc(err, doc, id) {
-      req[id].map(function(revId) {
-        var matches = function(x) { return x.rev !== revId; };
-        if (!doc || doc._revs_info.every(matches)) {
-          if (!missing[id]) {
-            missing[id] = {missing: []};
+    function addToMissing(id, revId) {
+      if (!missing[id]) {
+        missing[id] = {missing: []};
+      }
+      missing[id].missing.push(revId);
+    }
+
+    function processDoc(id, rev_tree) {
+      // Is this fast enough? Maybe we should switch to a set simulated by a map
+      var missingForId = req[id].slice(0);
+      PouchMerge.traverseRevTree(rev_tree, function(isLeaf, pos, revHash, ctx,
+        opts) {
+          var rev = pos + '-' + revHash;
+          var idx = missingForId.indexOf(rev);
+          if (idx === -1) {
+            return;
           }
-          missing[id].missing.push(revId);
-        }
+
+          missingForId.splice(idx, 1);
+          if (opts.status !== 'available') {
+            addToMissing(id, rev);
+          }
       });
 
-      if (++count === ids.length) {
-        return call(callback, null, missing);
-      }
+      // Traversing the tree is synchronous, so now `missingForId` contains
+      // revisions that were not found in the tree
+      missingForId.forEach(function(rev) {
+        addToMissing(id, rev);
+      });
     }
 
     ids.map(function(id) {
-      api.get(id, {revs_info: true}, function(err, doc) {
-        readDoc(err, doc, id);
+      customApi._getRevisionTree(id, function(err, rev_tree) {
+        if (err && err.error === 'not_found' && err.reason === 'missing') {
+          missing[id] = {missing: req[id]};
+        } else if (err) {
+          return call(callback, err);
+        } else {
+          processDoc(id, rev_tree);
+        }
+
+        if (++count === ids.length) {
+          return call(callback, null, missing);
+        }
       });
     });
   };
@@ -293,7 +318,11 @@ PouchAdapter = function(opts, callback) {
 
   // compact the whole database using single document
   // compaction
-  api.compact = function(callback) {
+  api.compact = function(opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
+    }
     api.changes({complete: function(err, res) {
       if (err) {
         call(callback); // TODO: silently fail
@@ -503,19 +532,53 @@ PouchAdapter = function(opts, callback) {
         return;
       }
     }
+    if (typeof opts.skip === 'undefined') {
+      opts.skip = 0;
+    }
 
     return customApi._allDocs(opts, callback);
   };
 
   api.changes = function(opts) {
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addTask('changes', arguments);
-      return;
+      var task = api.taskqueue.addTask('changes', arguments);
+      return {
+        cancel: function() {
+          if (task.task) {
+            return task.task.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log('Cancel Changes Feed');
+          }
+          task.parameters[0].aborted = true;
+        }
+      };
     }
     opts = PouchUtils.extend(true, {}, opts);
 
     if (!opts.since) {
       opts.since = 0;
+    }
+    if (opts.since === 'latest') {
+      var changes;
+      api.info(function (err, info) {
+        if (!opts.aborted) {
+          opts.since = info.update_seq  - 1;
+          api.changes(opts);
+        }
+      });
+      // Return a method to cancel this method from processing any more
+      return {
+        cancel: function() {
+          if (changes) {
+            return changes.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log('Cancel Changes Feed');
+          }
+          opts.aborted = true;
+        }
+      };
     }
 
     if (!('descending' in opts)) {
@@ -599,7 +662,7 @@ PouchAdapter = function(opts, callback) {
   api.taskqueue.execute = function (db) {
     if (taskqueue.ready) {
       taskqueue.queue.forEach(function(d) {
-        db[d.task].apply(null, d.parameters);
+        d.task = db[d.name].apply(null, d.parameters);
       });
     }
   };
@@ -611,8 +674,10 @@ PouchAdapter = function(opts, callback) {
     taskqueue.ready = arguments[0];
   };
 
-  api.taskqueue.addTask = function(task, parameters) {
-    taskqueue.queue.push({ task: task, parameters: parameters });
+  api.taskqueue.addTask = function(name, parameters) {
+    var task = { name: name, parameters: parameters };
+    taskqueue.queue.push(task);
+    return task;
   };
 
   api.replicate = {};

@@ -405,5 +405,65 @@ adapters.map(function(adapter) {
       });
     });
   });
+  
+  asyncTest('If reduce function returns 0, resulting value should not be null', function () {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { foo: 'bar' }
+        ]
+      }, null, function () {
+        db.query({
+          map: function (doc) {
+            emit(doc.foo);
+          },
+          reduce: function (key, values, rereduce) {
+            return 0;
+          }
+        }, function (err, data) {
+          ok(data.rows[0].value !== null, 'value is null');
+          start();
+        });
+      });
+    });
+  });
+  
+  asyncTest('Testing skip with a view', function () {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { foo: 'bar' },
+          { foo: 'baz' },
+          { foo: 'baf' }
+        ]
+      }, null, function () {
+        db.query(function (doc) {
+          emit(doc.foo, null);
+        }, {skip: 1}, function (err, data) {
+          ok(!err, 'Error:' + JSON.stringify(err));
+          equal(data.rows.length, 2);
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest('Testing skip with allDocs', function () {
+    initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs: [
+          { foo: 'bar' },
+          { foo: 'baz' },
+          { foo: 'baf' }
+        ]
+      }, null, function () {
+        db.allDocs({skip: 1}, function (err, data) {
+          ok(!err, 'Error:' + JSON.stringify(err));
+          equal(data.rows.length, 2);
+          start();
+        });
+      });
+    });
+  });
 
 });

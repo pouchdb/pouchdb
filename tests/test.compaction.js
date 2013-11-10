@@ -58,6 +58,15 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Compation on empty db with interval option', function() {
+    initTestDB(this.name, function(err, db) {
+      db.compact({interval: 199}, function(){
+        ok(true, "compaction finished");
+        start();
+      });
+    });
+  });
+
   asyncTest('Simple compation test', function() {
     initTestDB(this.name, function(err, db) {
       var doc = {_id: "foo", value: "bar"};

@@ -9,7 +9,7 @@ if (typeof module !== 'undefined' && module.exports) {
   PouchUtils = require('../pouch.utils.js');
 }
 
-var ajax = PouchUtils.ajax;
+
 
 var HTTP_TIMEOUT = 10000;
 
@@ -59,7 +59,7 @@ parseUri.options = {
 
 // Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
-function getHost(name) {
+function getHost(name, opts) {
   // If the given name contains "http:"
   if (/http(s?):/.test(name)) {
     // Prase the URI into all its little bits
@@ -84,6 +84,18 @@ function getHost(name) {
     // Restore the path by joining all the remaining parts (all the parts
     // except for the database name) with '/'s
     uri.path = parts.join('/');
+    opts = opts || {};
+    uri.headers = opts.headers || {};
+    
+    if (opts.auth || uri.auth) { 
+      var nAuth = opts.auth || uri.auth;
+      var token = PouchUtils.btoa(nAuth.username + ':' + nAuth.password);
+      uri.headers.Authorization = 'Basic ' + token; 
+    }
+
+    if (opts.headers) {
+      uri.headers = opts.headers;
+    }
 
     return uri;
   }
@@ -128,27 +140,20 @@ function genUrl(opts, path) {
 }
 
 // Implements the PouchDB API for dealing with CouchDB instances over HTTP
-var HttpPouch = function(opts, callback) {
+function HttpPouch(opts, callback) {
 
   // Parse the URI given by opts.name into an easy-to-use object
-  var host = getHost(opts.name);
-
-  host.headers = opts.headers || {};
-  if (opts.auth) {
-    var token = PouchUtils.btoa(opts.auth.username + ':' + opts.auth.password);
-    host.headers.Authorization = 'Basic ' + token;
-  }
-
-  if (opts.headers) {
-    host.headers = opts.headers;
-  }
+  var host = getHost(opts.name, opts);
 
   // Generate the database URL based on the host
   var db_url = genDBUrl(host, '');
 
   // The functions that will be publically available for HttpPouch
   var api = {};
-
+  var ajaxOpts = opts.ajax || {};
+  function ajax(options, callback) {
+    return PouchUtils.ajax(PouchUtils.extend({}, ajaxOpts, options), callback);
+  }
   var uuids = {
     list: [],
     get: function(opts, callback) {
@@ -651,6 +656,10 @@ var HttpPouch = function(opts, callback) {
       params.push('limit=' + opts.limit);
     }
 
+    if (typeof opts.skip !== 'undefined') {
+      params.push('skip=' + opts.skip);
+    }
+
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
     if (params !== '') {
@@ -685,8 +694,40 @@ var HttpPouch = function(opts, callback) {
     var CHANGES_LIMIT = 25;
 
     if (!api.taskqueue.ready()) {
-      api.taskqueue.addTask('changes', arguments);
-      return;
+      var task = api.taskqueue.addTask('changes', arguments);
+      return {
+        cancel: function() {
+          if (task.task) {
+            return task.task.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log(db_url + ': Cancel Changes Feed');
+          }
+          task.parameters[0].aborted = true;
+        }
+      };
+    }
+    
+    if (opts.since === 'latest') {
+      var changes;
+      api.info(function (err, info) {
+        if (!opts.aborted) {
+          opts.since = info.update_seq;
+          changes = api.changes(opts);
+        }
+      });
+      // Return a method to cancel this method from processing any more
+      return {
+        cancel: function() {
+          if (changes) {
+            return changes.cancel();
+          }
+          if (Pouch.DEBUG) {
+            console.log(db_url + ': Cancel Changes Feed');
+          }
+          opts.aborted = true;
+        }
+      };
     }
 
     if (Pouch.DEBUG) {
@@ -738,11 +779,15 @@ var HttpPouch = function(opts, callback) {
     var xhr;
     var lastFetchedSeq;
     var remoteLastSeq;
+    var pagingCount;
 
     // Get all the changes starting wtih the one immediately after the
     // sequence number given by since.
     var fetch = function(since, callback) {
       params.since = since;
+      if (!opts.continuous && !pagingCount) {
+        pagingCount = remoteLastSeq;
+      }
       params.limit = (!limit || leftToFetch > CHANGES_LIMIT) ?
         CHANGES_LIMIT : leftToFetch;
 
@@ -800,8 +845,11 @@ var HttpPouch = function(opts, callback) {
       }
 
       var resultsLength = res && res.results.length || 0;
+
+      pagingCount -= CHANGES_LIMIT;
+
       var finished = (limit && leftToFetch <= 0) ||
-        (res && !resultsLength) ||
+        (res && !resultsLength && pagingCount <= 0) ||
         (resultsLength && res.last_seq === remoteLastSeq) ||
         (opts.descending && lastFetchedSeq !== 0);
 
@@ -888,13 +936,104 @@ var HttpPouch = function(opts, callback) {
     PouchUtils.call(callback, null);
   };
 
+  api.replicateOnServer = function(target, opts, promise) {
+    if (!api.taskqueue.ready()) {
+      api.taskqueue.addTask('replicateOnServer', arguments);
+      return promise;
+    }
+    
+    var targetHost = getHost(target.id());
+    var params = {
+      source: host.db,
+      target: targetHost.protocol === host.protocol && targetHost.authority === host.authority ? targetHost.db : targetHost.source
+    };
+
+    if (opts.continuous) {
+      params.continuous = true;
+    }
+
+    if (opts.create_target) {
+      params.create_target = true;
+    }
+
+    if (opts.doc_ids) {
+      params.doc_ids = opts.doc_ids;
+    }
+
+    if (opts.filter && typeof opts.filter === 'string') {
+      params.filter = opts.filter;
+    }
+
+    if (opts.query_params) {
+      params.query_params = opts.query_params;
+    }
+
+    var result = {};
+    var repOpts = {
+      headers: host.headers,
+      method: 'POST',
+      url: host.protocol + '://' + host.host + (host.port === 80 ? '' : (':' + host.port)) + '/_replicate',
+      body: params
+    };
+    var xhr;
+    promise.cancel = function() {
+      this.cancelled = true;
+      if (xhr && !result.ok) {
+        xhr.abort();
+      }
+      if (result._local_id) {
+        repOpts.body = {
+          replication_id: result._local_id
+        };
+      }
+      repOpts.body.cancel = true;
+      ajax(repOpts, function(err, resp, xhr) {
+        // If the replication cancel request fails, send an error to the callback
+        if (err) {
+          return PouchUtils.call(callback, err);
+        }
+        // Send the replication cancel result to the complete callback
+        PouchUtils.call(opts.complete, null, result, xhr);
+      });
+    };
+
+    if (promise.cancelled) {
+      return;
+    }
+
+    xhr = ajax(repOpts, function(err, resp, xhr) {
+      // If the replication fails, send an error to the callback
+      if (err) {
+        return PouchUtils.call(callback, err);
+      }
+
+      result.ok = true;
+
+      // Provided by CouchDB from 1.2.0 onward to cancel replication
+      if (resp._local_id) {
+        result._local_id = resp._local_id;
+      }
+
+      // Send the replication result to the complete callback
+      PouchUtils.call(opts.complete, null, resp, xhr);
+    });
+  };
+
   return api;
-};
+}
 
 // Delete the HttpPouch specified by the given name.
-HttpPouch.destroy = function(name, callback) {
-  var host = getHost(name);
-  ajax({headers: host.headers, method: 'DELETE', url: genDBUrl(host, '')}, callback);
+HttpPouch.destroy = function(name, opts, callback) {
+  var host = getHost(name, opts);
+  opts = opts || {};
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = {};
+  }
+  opts.headers = host.headers;
+  opts.method = 'DELETE';
+  opts.url = genDBUrl(host, '');
+  PouchUtils.ajax(opts, callback);
 };
 
 // HttpPouch is a valid adapter.

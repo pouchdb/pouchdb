@@ -118,8 +118,22 @@ Pouch.parseAdapter = function(name) {
   throw 'No valid adapter found';
 };
 
-Pouch.destroy = function(name, callback) {
-  var opts = Pouch.parseAdapter(name);
+Pouch.destroy = function(name, opts, callback) {
+  if (typeof opts === 'function' || typeof opts === 'undefined') {
+    callback = opts;
+    opts = {};
+  }
+
+  if (typeof name === 'object') {
+    opts = name;
+    name = undefined;
+  }
+
+  if (typeof callback === 'undefined') {
+    callback = function() {};
+  }
+  var backend = Pouch.parseAdapter(opts.name || name);
+
   var cb = function(err, response) {
     if (err) {
       callback(err);
@@ -127,18 +141,18 @@ Pouch.destroy = function(name, callback) {
     }
 
     for (var plugin in Pouch.plugins) {
-      Pouch.plugins[plugin]._delete(name);
+      Pouch.plugins[plugin]._delete(backend.name);
     }
     if (Pouch.DEBUG) {
-      console.log(name + ': Delete Database');
+      console.log(backend.name + ': Delete Database');
     }
 
     // call destroy method of the particular adaptor
-    Pouch.adapters[opts.adapter].destroy(opts.name, callback);
+    Pouch.adapters[backend.adapter].destroy(backend.name, opts, callback);
   };
 
   // remove Pouch from allDBs
-  Pouch.removeFromAllDbs(opts, cb);
+  Pouch.removeFromAllDbs(backend, cb);
 };
 
 Pouch.removeFromAllDbs = function(opts, callback) {
@@ -419,6 +433,11 @@ Pouch.Errors = {
     status: 400,
     error: 'bad_request',
     reason: 'Document must be a JSON object'
+  },
+  DB_MISSING: {
+    status: 404,
+    error: 'not_found',
+    reason: 'Database not found'
   }
 };
 
@@ -432,11 +451,10 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = Pouch;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   var PouchAdapter = require('./pouch.adapter.js');
-  //load adapters known to work under node
-  var adapters = ['leveldb', 'http'];
-  adapters.map(function(adapter) {
-    require('./adapters/pouch.' + adapter + '.js');
-  });
+  require('./adapters/pouch.http.js');
+  require('./adapters/pouch.idb.js');
+  require('./adapters/pouch.websql.js');
+  require('./adapters/pouch.leveldb.js');
   require('./plugins/pouchdb.mapreduce.js');
 } else {
   window.Pouch = Pouch;

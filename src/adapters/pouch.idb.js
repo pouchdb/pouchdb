@@ -1,6 +1,12 @@
-/*globals PouchUtils, PouchMerge */
+/*globals PouchUtils: true, PouchMerge */
 
 'use strict';
+
+var PouchUtils;
+
+if (typeof module !== 'undefined' && module.exports) {
+  PouchUtils = require('../pouch.utils.js');
+}
 
 var idbError = function(callback) {
   return function(event) {
@@ -121,7 +127,7 @@ var IdbPouch = function(opts, callback) {
 
       // detect blob support
       try {
-        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(new Blob(), "key");
+        txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(PouchUtils.createBlob(), "key");
         blobSupport = true;
       } catch (err) {
         blobSupport = false;
@@ -231,7 +237,7 @@ var IdbPouch = function(opts, callback) {
         if (blobSupport) {
           var type = att.content_type;
           data = fixBinary(data);
-          att.data = new Blob([data], {type: type});
+          att.data = PouchUtils.createBlob([data], {type: type});
         }
         return finish();
       }
@@ -492,7 +498,7 @@ var IdbPouch = function(opts, callback) {
           result = data;
         } else {
           data = fixBinary(atob(data));
-          result = new Blob([data], {type: type});
+          result = PouchUtils.createBlob([data], {type: type});
         }
         PouchUtils.call(callback, null, result);
       }
@@ -526,7 +532,9 @@ var IdbPouch = function(opts, callback) {
       }
       PouchUtils.call(callback, null, {
         total_rows: results.length,
-        rows: ('limit' in opts) ? results.slice(0, opts.limit) : results
+        offset: opts.skip,
+        rows: ('limit' in opts) ? results.slice(opts.skip, opts.limit + opts.skip) :
+          (opts.skip > 0) ? results.slice(opts.skip) : results
       });
     };
 
@@ -836,10 +844,10 @@ var IdbPouch = function(opts, callback) {
 };
 
 IdbPouch.valid = function idb_valid() {
-  return !!window.indexedDB;
+  return typeof window !== 'undefined' && !!window.indexedDB;
 };
 
-IdbPouch.destroy = function idb_destroy(name, callback) {
+IdbPouch.destroy = function idb_destroy(name, opts, callback) {
   if (Pouch.DEBUG) {
     console.log(name + ': Delete Database');
   }

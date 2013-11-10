@@ -444,6 +444,27 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Kill database while listening to continuous changes", function() {
+    var name = this.name;
+    initTestDB(this.name, function(err, db) {
+      var count = 0;
+      var changes = db.changes({
+        onChange: function(change) {
+          count += 1;
+          if (count === 1) {
+            PouchDB.destroy(name, function(err, resp) {
+              changes.cancel();
+              ok(true);
+              start();
+            });
+          }
+        },
+        continuous: true
+      });
+      db.post({test:"adoc"});
+    });
+  });
+
   asyncTest("Changes filter", function() {
 
     var docs1 = [
@@ -702,6 +723,29 @@ adapters.map(function(adapter) {
             equal(res.results.length, num, 'Replication with deleted docs');
             start();
           }
+        });
+      });
+    });
+  });
+  
+  asyncTest('Calling db.changes({since: \'latest\'', function () {
+    expect(5);
+    initTestDB(this.name, function (err, db) {
+      db.bulkDocs({docs: [
+        { foo: 'bar' }
+      ]}, function (err, data) {
+        ok(!err, 'bulkDocs passed');
+        db.info(function(err, info) { 
+          var api = db.changes({
+            since: 'latest',
+            complete: function(err, res) {
+              ok(!err, 'completed db.changes({since: \'latest\'}): ' + JSON.stringify(res));
+              equal(res.last_seq, info.update_seq, 'db.changes({since: \'latest\'}) listens since update_seq'); 
+              start();
+            }
+          });
+          equal(typeof api, 'object', 'db.changes({since: \'latest\'}) returns object');
+          equal(typeof api.cancel, 'function', 'db.changes({since: \'latest\'}) returns object with cancel function');
         });
       });
     });
