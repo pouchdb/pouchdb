@@ -82,12 +82,17 @@ var fetchCheckpoint = function(src, target, id, callback) {
 };
 
 var writeCheckpoint = function(src, target, id, checkpoint, callback) {
-  var check = {
-    _id: id,
-    last_seq: checkpoint
+  var updateCheckpoint = function (db, callback) {
+    db.get(id, function(err, doc) {
+      if (err && err.status === 404) {
+          doc = {_id: id};
+      }
+      doc.last_seq = checkpoint;
+      db.put(doc, callback);
+    });
   };
-  target.put(check, function(err, doc) {
-    src.put(check, function(err, doc) {
+  updateCheckpoint(target, function(err, doc) {
+    updateCheckpoint(src, function(err, doc) {
       callback();
     });
   });
