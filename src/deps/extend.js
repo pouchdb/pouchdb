@@ -128,6 +128,24 @@ var extend = function() {
   return target;
 };
 
+var copy = function (object, deep){
+  var ret = object, idx;
+  switch(type(object)){
+    case "array":
+      ret = object.slice();
+      if(deep){
+        idx = ret.length;
+        while ( idx-- ) { ret[idx] = copy( ret[idx], true ); }
+      }
+      break;
+    case "object":
+      ret = {};
+      for(var key in object) { ret[key] = deep? copy(object[key], true) : object[key]; }
+  }
+  return ret;
+};
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = extend;
+  module.exports.extend = extend;
+  module.exports.copy = copy;
 }

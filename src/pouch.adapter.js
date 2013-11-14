@@ -643,7 +643,7 @@ PouchAdapter = function(opts, callback) {
       }
     }
 
-    req = PouchUtils.extend(true, {}, req);
+    req = PouchUtils.copy(req, true);
     if (!('new_edits' in opts)) {
       opts.new_edits = true;
     }
