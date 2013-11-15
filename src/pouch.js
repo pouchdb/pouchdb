@@ -2,11 +2,7 @@
 
 "use strict";
 
-var PouchUtils;
-
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('./pouch.utils.js');
-}
+var PouchUtils = require('./pouch.utils');
 
 var Pouch = function Pouch(name, opts, callback) {
 
@@ -445,18 +441,11 @@ Pouch.error = function(error, reason) {
   return PouchUtils.extend({}, error, {reason: reason});
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  global.Pouch = Pouch;
-  global.PouchDB = Pouch;
-  module.exports = Pouch;
-  Pouch.replicate = require('./pouch.replicate.js').replicate;
-  var PouchAdapter = require('./pouch.adapter.js');
-  require('./adapters/pouch.http.js');
-  require('./adapters/pouch.idb.js');
-  require('./adapters/pouch.websql.js');
-  require('./adapters/pouch.leveldb.js');
-  require('./plugins/pouchdb.mapreduce.js');
-} else {
-  window.Pouch = Pouch;
-  window.PouchDB = Pouch;
-}
+module.exports = Pouch;
+Pouch.replicate = require('./pouch.replicate').replicate;
+var PouchAdapter = require('./pouch.adapter')(Pouch);
+require('./adapters/pouch.http')(Pouch);
+require('./adapters/pouch.idb')(Pouch);
+require('./adapters/pouch.websql')(Pouch);
+require('./adapters/pouch.leveldb')(Pouch);
+require('./plugins/pouchdb.mapreduce')(Pouch);

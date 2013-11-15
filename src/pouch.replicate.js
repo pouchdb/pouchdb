@@ -1,13 +1,6 @@
-/*globals PouchUtils: true */
-
 'use strict';
 
-var PouchUtils;
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Pouch;
-  PouchUtils = require('./pouch.utils.js');
-}
+var PouchUtils = require('./pouch.utils');
 
 // We create a basic promise so the caller can cancel the replication possibly
 // before we have actually started listening to changes etc
@@ -257,7 +250,7 @@ function toPouch(db, callback) {
   callback(null, db);
 }
 
-Pouch.replicate = function(src, target, opts, callback) {
+exports.replicate = function(src, target, opts, callback) {
   if (opts instanceof Function) {
     callback = opts;
     opts = {};

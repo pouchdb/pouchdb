@@ -1,12 +1,8 @@
-var request;
-var extend;
-var createBlob;
 
-if (typeof module !== 'undefined' && module.exports) {
-  request = require('request');
-  extend = require('./extend.js');
-  createBlob = require('./blob.js');
-}
+var request = require('request');
+var extend = require('./extend');
+var createBlob = require('./blob');
+
 
 var ajax = function ajax(options, callback) {
 
@@ -59,7 +55,7 @@ var ajax = function ajax(options, callback) {
     call(cb, errObj);
   };
 
-  if (typeof window !== 'undefined' && window.XMLHttpRequest) {
+  if (process.browser) {
     var timer, timedout = false;
     var xhr = new XMLHttpRequest();
 
@@ -186,6 +182,6 @@ var ajax = function ajax(options, callback) {
   }
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ajax;
-}
+
+module.exports = ajax;
+

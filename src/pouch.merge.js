@@ -1,9 +1,6 @@
 'use strict';
 
-var extend;
-if (typeof module !== 'undefined' && module.exports) {
-  extend = require('./deps/extend');
-}
+var extend = require('./deps/extend');
 
 
 // for a better overview of what this is doing, read:
@@ -274,7 +271,5 @@ PouchMerge.rootToLeaf = function(tree) {
   return paths;
 };
 
-// a few hacks to get things in the right place for node.js
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PouchMerge;
-}
+
+module.exports = PouchMerge;

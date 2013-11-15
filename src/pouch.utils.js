@@ -2,22 +2,13 @@
 /*global Buffer: true, escape: true, module, window, Crypto */
 /*global chrome, extend, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
 
-var PouchUtils = {};
+var PouchMerge = require('./pouch.merge.js');
+exports.extend = require('./deps/extend');
+exports.ajax = require('./deps/ajax');
+exports.createBlob = require('./deps/blob');
+exports.uuid = require('./deps/uuid');
+exports.Crypto = require('./deps/md5.js');
 
-if (typeof module !== 'undefined' && module.exports) {
-  PouchMerge = require('./pouch.merge.js');
-  PouchUtils.extend = require('./deps/extend');
-  PouchUtils.ajax = require('./deps/ajax');
-  PouchUtils.createBlob = require('./deps/blob');
-  PouchUtils.uuid = require('./deps/uuid');
-  PouchUtils.Crypto = require('./deps/md5.js');
-} else {
-  PouchUtils.Crypto = Crypto;
-  PouchUtils.extend = extend;
-  PouchUtils.ajax = ajax;
-  PouchUtils.createBlob = createBlob;
-  PouchUtils.uuid = uuid;
-}
 
 // List of top level reserved words for doc
 var reservedWords = [
@@ -51,21 +42,21 @@ var isChromeApp = function(){
 
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
-PouchUtils.call = function(fun) {
+exports.call = function(fun) {
   if (typeof fun === typeof Function) {
     var args = Array.prototype.slice.call(arguments, 1);
     fun.apply(this, args);
   }
 };
 
-PouchUtils.isLocalId = function(id) {
+exports.isLocalId = function(id) {
   return (/^_local/).test(id);
 };
 
 // check if a specific revision of a doc has been deleted
 //  - metadata: the metadata object from the doc store
 //  - rev: (optional) the revision to check. defaults to winning revision
-PouchUtils.isDeleted = function(metadata, rev) {
+exports.isDeleted = function(metadata, rev) {
   if (!rev) {
     rev = PouchMerge.winningRev(metadata);
   }
@@ -82,7 +73,7 @@ PouchUtils.isDeleted = function(metadata, rev) {
   return deleted;
 };
 
-PouchUtils.filterChange = function(opts) {
+exports.filterChange = function(opts) {
   return function(change) {
     var req = {};
     var hasFilter = opts.filter && typeof opts.filter === 'function';
@@ -105,23 +96,23 @@ PouchUtils.filterChange = function(opts) {
   };
 };
 
-PouchUtils.processChanges = function(opts, changes, last_seq) {
+exports.processChanges = function(opts, changes, last_seq) {
   // TODO: we should try to filter and limit as soon as possible
-  changes = changes.filter(PouchUtils.filterChange(opts));
+  changes = changes.filter(exports.filterChange(opts));
   if (opts.limit) {
     if (opts.limit < changes.length) {
       changes.length = opts.limit;
     }
   }
   changes.forEach(function(change){
-    PouchUtils.call(opts.onChange, change);
+    exports.call(opts.onChange, change);
   });
-  PouchUtils.call(opts.complete, null, {results: changes, last_seq: last_seq});
+  exports.call(opts.complete, null, {results: changes, last_seq: last_seq});
 };
 
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
-PouchUtils.parseDoc = function(doc, newEdits) {
+exports.parseDoc = function(doc, newEdits) {
   var error = null;
   var nRevNum;
   var newRevId;
@@ -191,7 +182,7 @@ PouchUtils.parseDoc = function(doc, newEdits) {
 
   for (var key in doc) {
     if (doc.hasOwnProperty(key) && key[0] === '_' && reservedWords.indexOf(key) === -1) {
-      error = PouchUtils.extend({}, Pouch.Errors.DOC_VALIDATION);
+      error = exports.extend({}, Pouch.Errors.DOC_VALIDATION);
       error.reason += ': ' + key;
     }
   }
@@ -213,13 +204,13 @@ PouchUtils.parseDoc = function(doc, newEdits) {
   }, {metadata : {}, data : {}});
 };
 
-PouchUtils.isCordova = function(){
+exports.isCordova = function(){
   return (typeof cordova !== "undefined" ||
           typeof PhoneGap !== "undefined" ||
           typeof phonegap !== "undefined");
 };
 
-PouchUtils.Changes = function() {
+exports.Changes = function() {
 
   var api = {};
   var listeners = {};
@@ -283,7 +274,7 @@ PouchUtils.Changes = function() {
         onChange: function(c) {
           if (c.seq > opts.since && !opts.cancelled) {
             opts.since = c.seq;
-            PouchUtils.call(opts.onChange, c);
+            exports.call(opts.onChange, c);
           }
         }
       });
@@ -293,8 +284,8 @@ PouchUtils.Changes = function() {
   return api;
 };
 
-if (typeof window === 'undefined' || !('atob' in window)) {
-  PouchUtils.atob = function(str) {
+if (!process.browser) {
+  exports.atob = function(str) {
     var base64 = new Buffer(str, 'base64');
     // Node.js will just skip the characters it can't encode instead of
     // throwing and exception
@@ -304,21 +295,17 @@ if (typeof window === 'undefined' || !('atob' in window)) {
     return base64.toString('binary');
   };
 } else {
-  PouchUtils.atob = function(str) {
+  exports.atob = function(str) {
     return atob(str);
   };
 }
 
-if (typeof window === 'undefined' || !('btoa' in window)) {
-  PouchUtils.btoa = function(str) {
+if (!process.browser) {
+  exports.btoa = function(str) {
     return new Buffer(str, 'binary').toString('base64');
   };
 } else {
-  PouchUtils.btoa = function(str) {
+  exports.btoa = function(str) {
     return btoa(str);
   };
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PouchUtils;
 }
