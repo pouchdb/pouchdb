@@ -444,8 +444,18 @@ Pouch.error = function(error, reason) {
 module.exports = Pouch;
 Pouch.replicate = require('./pouch.replicate').replicate;
 var PouchAdapter = require('./pouch.adapter')(Pouch);
-require('./adapters/pouch.http')(Pouch);
-require('./adapters/pouch.idb')(Pouch);
-require('./adapters/pouch.websql')(Pouch);
-require('./adapters/pouch.leveldb')(Pouch);
-require('./plugins/pouchdb.mapreduce')(Pouch);
+var HttpPouch = require('./adapters/pouch.http');
+// Set HttpPouch to be the adapter used with the http scheme.
+Pouch.adapter('http', HttpPouch);
+Pouch.adapter('https', HttpPouch);
+var LevelPouch;
+if(process.browser){
+  Pouch.adapter('idb', require('./adapters/pouch.idb'));
+  Pouch.adapter('websql', require('./adapters/pouch.websql'));
+} else {
+  LevelPouch = require('./adapters/pouch.leveldb');
+  Pouch.adapter('ldb', LevelPouch);
+  Pouch.adapter('leveldb', LevelPouch);
+}
+Pouch.plugin('mapreduce', require('./plugins/pouchdb.mapreduce'));
+

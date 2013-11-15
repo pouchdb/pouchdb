@@ -2,6 +2,7 @@
 
 "use strict";
 var pouchCollate = require('../pouch.collate');
+var Pouch = require('../pouch');
 module.exports = function(Pouch){
   var GQL= function(db) {
 
