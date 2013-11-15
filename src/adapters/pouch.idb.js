@@ -2,13 +2,10 @@
 
 'use strict';
 
-var PouchUtils;
-
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('../pouch.utils.js');
-}
-
-var idbError = function(callback) {
+var PouchUtils = require('../pouch.utils');
+var PouchMerge = require('../pouch.merge')
+var Pouch = require('../pouch');
+function idbError(callback) {
   return function(event) {
     PouchUtils.call(callback, {
       status: 500,
@@ -18,7 +15,7 @@ var idbError = function(callback) {
   };
 };
 
-var IdbPouch = function(opts, callback) {
+function IdbPouch(opts, callback) {
 
   // IndexedDB requires a versioned database structure, this is going to make
   // it hard to dynamically create object stores if we needed to for things
@@ -871,5 +868,4 @@ IdbPouch.destroy = function idb_destroy(name, opts, callback) {
 };
 
 IdbPouch.Changes = new PouchUtils.Changes();
-
-Pouch.adapter('idb', IdbPouch);
+module.exports = IdbPouch;

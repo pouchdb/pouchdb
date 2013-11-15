@@ -1,13 +1,12 @@
-/*global Pouch: true */
 
 "use strict";
-
+var Pouch = require('../pouch');
 // If we wanted to store incremental views we can do it here by listening
 // to the changes feed (keeping track of our last update_seq between page loads)
 // and storing the result of the map function (possibly using the upcoming
 // extracted adapter functions)
 
-var Spatial = function(db) {
+function Spatial(db) {
 
   var isArray = Array.isArray || function(obj) {
     return type(obj) === "array";
@@ -259,5 +258,3 @@ Spatial.calculateBbox = function (geom) {
 
 // Deletion is a noop since we dont store the results of the view
 Spatial._delete = function() { };
-
-Pouch.plugin('spatial', Spatial);

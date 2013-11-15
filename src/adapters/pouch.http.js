@@ -1,14 +1,10 @@
-/*globals Pouch: true, PouchUtils: true, require, console */
-
+/*globals console: true */
 "use strict";
 
-var PouchUtils;
 
-if (typeof module !== 'undefined' && module.exports) {
-  Pouch = require('../pouch.js');
-  PouchUtils = require('../pouch.utils.js');
-}
-
+var PouchUtils = require('../pouch.utils');
+var ajax = require('../deps/ajax');
+var Pouch = require('../pouch');
 
 
 var HTTP_TIMEOUT = 10000;
@@ -700,7 +696,7 @@ function HttpPouch(opts, callback) {
           if (task.task) {
             return task.task.cancel();
           }
-          if (Pouch.DEBUG) {
+          if (Pouch.DEBUG && typeof console !== 'undefined') {
             console.log(db_url + ': Cancel Changes Feed');
           }
           task.parameters[0].aborted = true;
@@ -1040,7 +1036,4 @@ HttpPouch.destroy = function(name, opts, callback) {
 HttpPouch.valid = function() {
   return true;
 };
-
-// Set HttpPouch to be the adapter used with the http scheme.
-Pouch.adapter('http', HttpPouch);
-Pouch.adapter('https', HttpPouch);
+module.exports = HttpPouch;

@@ -1,11 +1,8 @@
-/*global Pouch: true, pouchCollate: true */
 
 "use strict";
 
-var pouchCollate;
-if (typeof module !== 'undefined' && module.exports) {
-  pouchCollate = require('../pouch.collate.js');
-}
+var pouchCollate = require('../pouch.collate.js');
+var Pouch = require('../pouch');
 
 // This is the first implementation of a basic plugin, we register the
 // plugin object with pouch and it is mixin'd to each database created
@@ -19,7 +16,7 @@ if (typeof module !== 'undefined' && module.exports) {
 // and storing the result of the map function (possibly using the upcoming
 // extracted adapter functions)
 
-var MapReduce = function(db) {
+function MapReduce(db) {
 
   function viewQuery(fun, options) {
     if (!options.complete) {
@@ -304,5 +301,3 @@ var MapReduce = function(db) {
 
 // Deletion is a noop since we dont store the results of the view
 MapReduce._delete = function() { };
-
-Pouch.plugin('mapreduce', MapReduce);

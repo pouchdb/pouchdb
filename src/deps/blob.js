@@ -19,6 +19,5 @@ function createBlob(parts, properties) {
   }
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = createBlob;
-}
+
+module.exports = createBlob;

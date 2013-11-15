@@ -1,5 +1,6 @@
 "use strict";
-var visualizeRevTree = function(db) {
+var Pouch = require('../pouch');
+function visualizeRevTree(db) {
   var head = document.getElementsByTagName("head")[0];
   if (head) {
     var style = [
@@ -331,4 +332,3 @@ var visualizeRevTree = function(db) {
   return {'visualizeRevTree': visualize};
 };
 visualizeRevTree._delete = function(){};
-Pouch.plugin('visualizeRevTree', visualizeRevTree);

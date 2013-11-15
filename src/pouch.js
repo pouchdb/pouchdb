@@ -2,11 +2,7 @@
 
 "use strict";
 
-var PouchUtils;
-
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('./pouch.utils.js');
-}
+var PouchUtils = require('./pouch.utils');
 
 var Pouch = function Pouch(name, opts, callback) {
 
@@ -445,18 +441,21 @@ Pouch.error = function(error, reason) {
   return PouchUtils.extend({}, error, {reason: reason});
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  global.Pouch = Pouch;
-  global.PouchDB = Pouch;
-  module.exports = Pouch;
-  Pouch.replicate = require('./pouch.replicate.js').replicate;
-  var PouchAdapter = require('./pouch.adapter.js');
-  require('./adapters/pouch.http.js');
-  require('./adapters/pouch.idb.js');
-  require('./adapters/pouch.websql.js');
-  require('./adapters/pouch.leveldb.js');
-  require('./plugins/pouchdb.mapreduce.js');
+module.exports = Pouch;
+Pouch.replicate = require('./pouch.replicate').replicate;
+var PouchAdapter = require('./pouch.adapter')(Pouch);
+var HttpPouch = require('./adapters/pouch.http');
+// Set HttpPouch to be the adapter used with the http scheme.
+Pouch.adapter('http', HttpPouch);
+Pouch.adapter('https', HttpPouch);
+var LevelPouch;
+if(process.browser){
+  Pouch.adapter('idb', require('./adapters/pouch.idb'));
+  Pouch.adapter('websql', require('./adapters/pouch.websql'));
 } else {
-  window.Pouch = Pouch;
-  window.PouchDB = Pouch;
+  LevelPouch = require('./adapters/pouch.leveldb');
+  Pouch.adapter('ldb', LevelPouch);
+  Pouch.adapter('leveldb', LevelPouch);
 }
+Pouch.plugin('mapreduce', require('./plugins/pouchdb.mapreduce'));
+

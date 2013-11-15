@@ -1,17 +1,12 @@
-/*globals PouchUtils: true, PouchMerge */
 
 'use strict';
 
-var PouchUtils;
-
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('../pouch.utils.js');
-}
-
+var PouchUtils = require('../pouch.utils');
+var PouchMerge = require('../pouch.merge');
+var Pouch = require('../pouch');
 function quote(str) {
   return "'" + str + "'";
 }
-
 var POUCH_VERSION = 1;
 var POUCH_SIZE = 5 * 1024 * 1024;
 
@@ -25,7 +20,7 @@ var BY_SEQ_STORE = quote('by-sequence');
 var ATTACH_STORE = quote('attach-store');
 var META_STORE = quote('metadata-store');
 
-var unknownError = function(callback) {
+function unknownError(callback) {
   return function(event) {
     PouchUtils.call(callback, {
       status: 500,
@@ -33,9 +28,9 @@ var unknownError = function(callback) {
       reason: event.target
     });
   };
-};
+}
 
-var webSqlPouch = function(opts, callback) {
+function webSqlPouch(opts, callback) {
 
   var api = {};
   var instanceId = null;
@@ -697,7 +692,7 @@ var webSqlPouch = function(opts, callback) {
   };
 
   return api;
-};
+}
 
 webSqlPouch.valid = function() {
   return typeof window !== 'undefined' && !!window.openDatabase;
@@ -716,5 +711,4 @@ webSqlPouch.destroy = function(name, opts, callback) {
 };
 
 webSqlPouch.Changes = new PouchUtils.Changes();
-
-Pouch.adapter('websql', webSqlPouch);
+module.exports = webSqlPouch;

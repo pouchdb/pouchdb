@@ -1,8 +1,9 @@
 /*global Pouch: true, pouchCollate */
 
-(function (){
-  "use strict";
-
+"use strict";
+var pouchCollate = require('../pouch.collate');
+var Pouch = require('../pouch');
+module.exports = function(Pouch){
   var GQL= function(db) {
 
     var viewQuery= function(query, options) {
@@ -891,5 +892,4 @@
   GQL._delete = function() { };
 
   Pouch.plugin('gql', GQL);
-
-}());
+}
