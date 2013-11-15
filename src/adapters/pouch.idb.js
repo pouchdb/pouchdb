@@ -2,10 +2,11 @@
 
 'use strict';
 
-var PouchUtils;
+var PouchUtils, Pouch;
 
 if (typeof module !== 'undefined' && module.exports) {
   PouchUtils = require('../pouch.utils.js');
+  Pouch = require('../pouch.js');
 }
 
 var idbError = function(callback) {
@@ -871,5 +872,6 @@ IdbPouch.destroy = function idb_destroy(name, opts, callback) {
 };
 
 IdbPouch.Changes = new PouchUtils.Changes();
-
-Pouch.adapter('idb', IdbPouch);
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = IdbPouch;
+}

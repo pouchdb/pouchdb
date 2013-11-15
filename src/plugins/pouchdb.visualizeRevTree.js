@@ -331,4 +331,4 @@ var visualizeRevTree = function(db) {
   return {'visualizeRevTree': visualize};
 };
 visualizeRevTree._delete = function(){};
-Pouch.plugin('visualizeRevTree', visualizeRevTree);
+module.exports = visualizeRevTree;

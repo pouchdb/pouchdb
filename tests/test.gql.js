@@ -19,7 +19,7 @@ if (typeof module !== undefined && module.exports) {
   }
   adapters = ['leveldb-1', 'http-1'];
   qunit = QUnit.module; }
-
+Pouch.plugin('gql', require('../src/plugins/pouchdb.gql.js'));
 adapters.map(function(adapter) {
   qunit('gql: ' + adapter, {
     setup : function () {

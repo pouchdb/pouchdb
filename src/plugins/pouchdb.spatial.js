@@ -260,4 +260,4 @@ Spatial.calculateBbox = function (geom) {
 // Deletion is a noop since we dont store the results of the view
 Spatial._delete = function() { };
 
-Pouch.plugin('spatial', Spatial);
+module.exports = Spatial;
