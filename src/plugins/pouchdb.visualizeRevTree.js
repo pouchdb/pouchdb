@@ -28,19 +28,6 @@ var visualizeRevTree = function(db) {
   var scale = 7;
   var r = 1;
 
-  // see: pouch.utils.js
-  var revisionsToPath = function(revisions){
-    var tree = [revisions.ids[0], {}, []];
-    var i, rev;
-    for(i = 1; i < revisions.ids.length; i++){
-      rev = revisions.ids[i];
-      tree = [rev, {}, [tree]];
-    }
-    return {
-      pos: revisions.start - revisions.ids.length + 1,
-      ids: tree
-    };
-  };
   // returns minimal number i such that prefixes of lenght i are unique
   // ex: ["xyaaa", "xybbb", "xybccc"] -> 4
   var minUniqueLength = function(arr, len){
@@ -115,42 +102,41 @@ var visualizeRevTree = function(db) {
     svg.appendChild(textsBox);
 
     // first we need to download all data using public API
-    var tree = [];
     var deleted = {};
     var winner;
     var allRevs = [];
 
-    // consider using revs=true&open_revs=all to get everything in one query
     db.get(docId, function(err, doc){ // get winning revision here
       if (err) {
         callback(err);
         return;
       }
       winner = doc._rev;
-      db.get(docId, {open_revs: "all"}, function(err, results){ // get all leaves
+      db.get(docId, {revs: true, open_revs: "all"}, function(err, results){
         if(err){
           callback(err);
           return;
         }
-        var len = results.length;
-        results.forEach(function(res){
-          if (res.ok._deleted) {
-            deleted[res.ok._rev] = true;
+        var paths = [];
+        results.forEach(function(res) {
+          res = res.ok; // TODO: what about missing
+          if (res._deleted) {
+            deleted[res._rev] = true;
           }
-          db.get(docId, {rev: res.ok._rev, revs: true}, function(err, res){ // get the whole branch of current leaf
-            res._revisions.ids.forEach(function(rev){
-              if (allRevs.indexOf(rev) === -1) {
-                allRevs.push(rev);
-              }
-            });
-            var path = revisionsToPath(res._revisions);
-            tree = Pouch.merge(tree, path).tree;
-            len--;
-            if (len === 0){
-              draw(tree);
+          var revs = res._revisions;
+          revs.ids.forEach(function(id, i) {
+            var rev = (revs.start-i) + '-' + id;
+            if (allRevs.indexOf(rev) === -1) {
+              allRevs.push(rev);
             }
+            i--;
           });
+          var path = revs.ids.map(function(id, i) {
+            return (revs.start-i) + '-' + id;
+          });
+          paths.push(path);
         });
+        draw(paths);
       });
     });
 
@@ -297,31 +283,51 @@ var visualizeRevTree = function(db) {
     }
 
 
-    function draw(forest){
+    function draw(paths){
       var minUniq = minUniqueLength(allRevs);
       var maxX = grid;
       var maxY = grid;
       var levelCount = []; // numer of nodes on some level (pos)
-      Pouch.merge.traverseRevTree(forest, function(isLeaf, pos, id, ctx) {
-        if (!levelCount[pos]) {
-          levelCount[pos] = 1;
-        } else {
+
+      var map = {}; // map from rev to position
+      var levelCount = [];
+
+      function drawPath(path) {
+        for (var i = 0; i < path.length; i++) {
+          var rev = path[i];
+          var isLeaf = i === 0;
+          var pos = +rev.split('-')[0];
+
+          if (!levelCount[pos]) {
+            levelCount[pos] = 1;
+          }
+          var x = levelCount[pos] * grid;
+          var y = pos * grid;
+
+          if (!isLeaf) {
+            var nextRev = path[i-1];
+            var nextX = map[nextRev][0];
+            var nextY = map[nextRev][1];
+
+            if (map[rev]) {
+              x = map[rev][0];
+              y = map[rev][1];
+            }
+
+            line(x, y, nextX, nextY);
+          }
+          if (map[rev]) {
+            break;
+          }
+          maxX = Math.max(x, maxX);
+          maxY = Math.max(y, maxY);
           levelCount[pos]++;
+          node(x, y, rev, isLeaf, rev in deleted, rev === winner, minUniq);
+          map[rev] = [x, y];
         }
+      }
+      paths.forEach(drawPath);
 
-        var rev = pos + '-' + id;
-        var x = levelCount[pos] * grid;
-        var y = pos * grid;
-        maxX = Math.max(maxX, x);
-        maxY = Math.max(maxY, y);
-
-        node(x, y, rev, isLeaf, rev in deleted, rev === winner, minUniq);
-
-        if (ctx) {
-          line(x, y, ctx.x, ctx.y);
-        }
-        return {x: x, y: y};
-      });
       svg.setAttribute('viewBox', '0 0 ' + (maxX + grid) + ' ' + (maxY + grid));
       svg.style.width = scale * (maxX + grid) + 'px';
       svg.style.height = scale * (maxY + grid) + 'px';
