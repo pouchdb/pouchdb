@@ -3,7 +3,7 @@
 /*global chrome, extend, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
 
 var PouchUtils = {};
-
+var buffer;
 if (typeof module !== 'undefined' && module.exports) {
   PouchMerge = require('./pouch.merge.js');
   PouchUtils.extend = require('./deps/extend');
@@ -11,6 +11,7 @@ if (typeof module !== 'undefined' && module.exports) {
   PouchUtils.createBlob = require('./deps/blob');
   PouchUtils.uuid = require('./deps/uuid');
   PouchUtils.Crypto = require('./deps/md5.js');
+  buffer = require('./deps/buffer');
 } else {
   PouchUtils.Crypto = Crypto;
   PouchUtils.extend = extend;
@@ -295,7 +296,7 @@ PouchUtils.Changes = function() {
 
 if (typeof window === 'undefined' || !('atob' in window)) {
   PouchUtils.atob = function(str) {
-    var base64 = new Buffer(str, 'base64');
+    var base64 = new buffer(str, 'base64');
     // Node.js will just skip the characters it can't encode instead of
     // throwing and exception
     if (base64.toString('base64') !== str) {
@@ -311,7 +312,7 @@ if (typeof window === 'undefined' || !('atob' in window)) {
 
 if (typeof window === 'undefined' || !('btoa' in window)) {
   PouchUtils.btoa = function(str) {
-    return new Buffer(str, 'binary').toString('base64');
+    return new buffer(str, 'binary').toString('base64');
   };
 } else {
   PouchUtils.btoa = function(str) {

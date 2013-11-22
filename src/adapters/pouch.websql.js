@@ -2,10 +2,11 @@
 
 'use strict';
 
-var PouchUtils;
+var PouchUtils, Pouch;
 
 if (typeof module !== 'undefined' && module.exports) {
   PouchUtils = require('../pouch.utils.js');
+  Pouch = require('../pouch.js');
 }
 
 function quote(str) {
@@ -717,4 +718,7 @@ webSqlPouch.destroy = function(name, opts, callback) {
 
 webSqlPouch.Changes = new PouchUtils.Changes();
 
-Pouch.adapter('websql', webSqlPouch);
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = webSqlPouch;
+}
+

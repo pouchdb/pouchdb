@@ -1,6 +1,6 @@
 /*global Pouch: true, pouchCollate */
 
-(function (){
+  
   "use strict";
 
   var GQL= function(db) {
@@ -890,6 +890,6 @@
   // Deletion is a noop since we dont store the results of the view
   GQL._delete = function() { };
 
-  Pouch.plugin('gql', GQL);
+  module.exports = GQL;
 
-}());
+

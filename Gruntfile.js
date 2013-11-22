@@ -104,18 +104,12 @@ module.exports = function(grunt) {
         ]),
         dest: 'dist/pouchdb.amd' + buildName + '.js'
       },
-      all: {
-        src: grunt.util._.flatten([
-          "src/deps/uuid.js", "src/deps/md5.js", "src/deps/blob.js",
-          "src/deps/polyfill.js", "src/deps/extend.js","src/deps/ajax.js", srcFiles
-        ]),
-        dest: 'dist/pouchdb' + buildName + '.js'
-      },
     },
 
     'uglify': {
       options: {
-        banner: fileHeader
+        banner: fileHeader,
+        report: 'gzip'
       },
       dist: {
         src: './dist/pouchdb' + buildName + '.js',
@@ -207,6 +201,17 @@ module.exports = function(grunt) {
     'publish-results': {
       server: 'http://couchdb.pouchdb.com',
       db: 'test_results'
+    },
+    browserify: {
+      build: {
+        files: {
+          'dist/pouchdb-nightly.js': ['src/pouch.js']
+        },
+        options: {
+          standalone: 'Pouch',
+          ignore:['./adapters/pouch.leveldb.js','./deps/buffer']
+        }
+      }
     }
   });
 
@@ -272,8 +277,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
-
-  grunt.registerTask("build", ["concat:amd", "concat:all" , "uglify:dist"]);
+  grunt.loadNpmTasks('grunt-browserify');
+  grunt.registerTask("build", ["concat:amd", "browserify" , "uglify:dist"]);
   grunt.registerTask("browser", ["connect", "cors-server", "forever"]);
   grunt.registerTask("full", ["concat", "uglify"]);
 

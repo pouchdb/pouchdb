@@ -304,5 +304,7 @@ var MapReduce = function(db) {
 
 // Deletion is a noop since we dont store the results of the view
 MapReduce._delete = function() { };
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = MapReduce;
+}
 
-Pouch.plugin('mapreduce', MapReduce);

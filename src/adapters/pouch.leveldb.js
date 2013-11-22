@@ -850,7 +850,6 @@ LevelPouch.destroy = function(name, opts, callback) {
 
 LevelPouch.use_prefix = false;
 
-Pouch.adapter('ldb', LevelPouch);
-Pouch.adapter('leveldb', LevelPouch);
+
 
 module.exports = LevelPouch;

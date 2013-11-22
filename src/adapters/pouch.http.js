@@ -2,7 +2,7 @@
 
 "use strict";
 
-var PouchUtils;
+var PouchUtils,Pouch;
 
 if (typeof module !== 'undefined' && module.exports) {
   Pouch = require('../pouch.js');
@@ -1042,5 +1042,6 @@ HttpPouch.valid = function() {
 };
 
 // Set HttpPouch to be the adapter used with the http scheme.
-Pouch.adapter('http', HttpPouch);
-Pouch.adapter('https', HttpPouch);
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = HttpPouch;
+}

@@ -2,10 +2,10 @@
 
 'use strict';
 
-var PouchUtils;
+var PouchUtils,Pouch;
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Pouch;
+  Pouch = require('./pouch');
   PouchUtils = require('./pouch.utils.js');
 }
 
@@ -262,7 +262,7 @@ function toPouch(db, callback) {
   callback(null, db);
 }
 
-Pouch.replicate = function(src, target, opts, callback) {
+exports.replicate = function(src, target, opts, callback) {
   if (opts instanceof Function) {
     callback = opts;
     opts = {};

@@ -1,14 +1,13 @@
-/*globals PouchAdapter: true, PouchUtils: true */
+/*globals PouchAdapter: true, Pouch.utils: true */
 
 "use strict";
 
-var PouchUtils;
 
 if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('./pouch.utils.js');
+  Pouch.utils = require('./pouch.utils.js');
 }
 
-var Pouch = function Pouch(name, opts, callback) {
+function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
     return new Pouch(name, opts, callback);
@@ -351,7 +350,7 @@ Pouch.uuids = function (count, options) {
   var radix = options.radix;
   var uuids = [];
 
-  while (uuids.push(PouchUtils.uuid(length, radix)) < count) { }
+  while (uuids.push(Pouch.utils.uuid(length, radix)) < count) { }
 
   return uuids;
 };
@@ -442,21 +441,27 @@ Pouch.Errors = {
 };
 
 Pouch.error = function(error, reason) {
-  return PouchUtils.extend({}, error, {reason: reason});
+  return Pouch.utils.extend({}, error, {reason: reason});
 };
-
+var HttpPouch, LevelPouch;
 if (typeof module !== 'undefined' && module.exports) {
-  global.Pouch = Pouch;
-  global.PouchDB = Pouch;
   module.exports = Pouch;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   var PouchAdapter = require('./pouch.adapter.js');
-  require('./adapters/pouch.http.js');
-  require('./adapters/pouch.idb.js');
-  require('./adapters/pouch.websql.js');
-  require('./adapters/pouch.leveldb.js');
-  require('./plugins/pouchdb.mapreduce.js');
+  HttpPouch = require('./adapters/pouch.http.js');
+  Pouch.adapter('http', HttpPouch);
+  Pouch.adapter('https', HttpPouch);
+  LevelPouch = require('./adapters/pouch.leveldb.js');
+  Pouch.plugin('mapreduce', require('./plugins/pouchdb.mapreduce.js'));
 } else {
   window.Pouch = Pouch;
   window.PouchDB = Pouch;
+}
+
+if(!process.browser){
+  Pouch.adapter('ldb', LevelPouch);
+  Pouch.adapter('leveldb', LevelPouch);
+}else if(typeof module !== 'undefined' && module.exports){
+  Pouch.adapter('idb', require('./adapters/pouch.idb.js'));
+  Pouch.adapter('websql', require('./adapters/pouch.websql.js'));
 }
