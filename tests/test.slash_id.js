@@ -80,7 +80,7 @@ adapters.map(function(adapter) {
         {_id: 'part/doc2', int: 2, _attachments: {
           'attachment/with/slash': {
             content_type: 'text/plain',
-            data: PouchUtils.btoa('some data')
+            data: 'c29tZSBkYXRh'
           }
         }},
         {_id: 'part/doc3', int: 3}
