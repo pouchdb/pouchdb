@@ -1041,6 +1041,6 @@ HttpPouch.valid = function() {
   return true;
 };
 
-// Set HttpPouch to be the adapter used with the http scheme.
-Pouch.adapter('http', HttpPouch);
-Pouch.adapter('https', HttpPouch);
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = HttpPouch;
+}
