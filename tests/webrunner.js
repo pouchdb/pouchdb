@@ -28,27 +28,12 @@ if (!testFiles.length) {
 
 testFiles.unshift('test.utils.js');
 
-var sourceFiles = {
-  'dev': ['../src/deps/md5.js',
-          '../src/deps/blob.js',
-          '../src/deps/uuid.js',
-          '../src/deps/extend.js',
-          '../src/deps/ajax.js',
-          '../src/pouch.utils.js',
-          '../src/pouch.collate.js',
-          '../src/pouch.merge.js',
-          '../src/pouch.js',
-          '../src/pouch.adapter.js',
-          '../src/adapters/pouch.http.js',
-          '../src/adapters/pouch.idb.js',
-          '../src/adapters/pouch.websql.js',
-          '../src/pouch.replicate.js',
-          '../src/plugins/pouchdb.gql.js',
-          '../src/plugins/pouchdb.mapreduce.js',
-          '../src/plugins/pouchdb.spatial.js'],
-  'release': ['../dist/pouchdb-nightly.js', '../src/deps/extend.js', '../src/deps/ajax.js'],
-  'release-min': ['../dist/pouchdb-nightly.min.js', '../src/deps/extend.js', '../src/deps/ajax.js']
-};
+// The tests use extend and ajax directly (for now)
+var sourceFiles = [
+  '../dist/pouchdb-nightly.js',
+  '../src/deps/extend.js',
+  '../src/deps/ajax.js'
+];
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 function asyncLoadScript(url, callback) {
@@ -95,9 +80,6 @@ function asyncParForEach(array, fn, callback) {
   });
 }
 
-var source = window.location.search.match(/[?&]test=([^&]+)/);
-source = source && source[1] || 'dev';
-
 QUnit.config.testTimeout = 60000;
 
 QUnit.jUnitReport = function(report) {
@@ -108,7 +90,7 @@ QUnit.jUnitReport = function(report) {
   window.testReport = report;
 };
 
-asyncParForEach(sourceFiles[source], asyncLoadScript, function() {
+asyncParForEach(sourceFiles, asyncLoadScript, function() {
   asyncParForEach(testFiles, asyncLoadScript, function() {
     startQUnit();
   });
