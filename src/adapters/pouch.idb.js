@@ -871,5 +871,6 @@ IdbPouch.destroy = function idb_destroy(name, opts, callback) {
 };
 
 IdbPouch.Changes = new PouchUtils.Changes();
-
-Pouch.adapter('idb', IdbPouch);
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = IdbPouch;
+}

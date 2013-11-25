@@ -451,12 +451,18 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = Pouch;
   Pouch.replicate = require('./pouch.replicate.js').replicate;
   var PouchAdapter = require('./pouch.adapter.js');
-  require('./adapters/pouch.http.js');
-  require('./adapters/pouch.idb.js');
-  require('./adapters/pouch.websql.js');
-  require('./adapters/pouch.leveldb.js');
-  require('./plugins/pouchdb.mapreduce.js');
+  var httpAdapter = require('./adapters/pouch.http.js');
+  Pouch.adapter('http', httpAdapter);
+  Pouch.adapter('https', httpAdapter);
+  Pouch.adapter('idb', require('./adapters/pouch.idb.js'));
+  Pouch.adapter('websql', require('./adapters/pouch.websql.js'));
+  Pouch.plugin('mapreduce', require('./plugins/pouchdb.mapreduce.js'));
 } else {
   window.Pouch = Pouch;
   window.PouchDB = Pouch;
+}
+if(!process.browser){
+  var ldbAdapter = require('./adapters/pouch.leveldb.js');
+  Pouch.adapter('ldb', ldbAdapter);
+  Pouch.adapter('leveldb', ldbAdapter);
 }
