@@ -10,6 +10,7 @@
   "browser": true,
   "strict": true,
   "globalstrict": true,
+  "node":true,
   "predef": [
     "QUnit",
     "asyncTest",
