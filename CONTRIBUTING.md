@@ -94,3 +94,15 @@ Questions?
 
 If you have any questions, please feel free to ask on the
 [PouchDB Mailing List](https://groups.google.com/forum/#!forum/pouchdb) or in #pouchdb on irc.freenode.net.
+
+Committers!
+--------------
+
+With great power comes great responsibility yada yada yada:
+
+ * Code is peer reviewed, you should (almost) never push your own code.
+ * Please dont accidently force push to master.
+ * Cherry Pick / Rebase commits, dont use the big green button.
+ * Ensure reviewed code follows the above contribution guidelines, if it doesnt feel free to ammend and make note.
+ * Please try to watch when Pull Requests are made and review and / or commit them in a timely manner.
+ * Thanks, you are all awesome human beings.
