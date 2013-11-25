@@ -10,6 +10,7 @@
   "browser": true,
   "strict": true,
   "globalstrict": true,
+  "globals": { "Pouch": true},
   "predef": [
     "QUnit",
     "asyncTest",
@@ -30,7 +31,6 @@
     "process",
     "global",
     "require",
-    "console",
-    "Pouch"
+    "console"
   ]
 }

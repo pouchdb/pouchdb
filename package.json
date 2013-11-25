@@ -63,7 +63,8 @@
     }
   ],
   "scripts": {
-    "test": "grunt test-travis"
+    "jshint": "jshint -c .jshintrc src/*.js src/adapters/*.js tests/*.js",
+    "test": "npm run jshint"
   },
   "browser": {
     "request": false,
