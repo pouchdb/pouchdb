@@ -1,13 +1,14 @@
 /*jshint strict: false */
 /*global Buffer: true, escape: true, module, window, Crypto */
-/*global chrome, extend, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
+/*global chrome, extend, copy, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
 
 var PouchUtils = {};
 var buffer;
 
 if (typeof module !== 'undefined' && module.exports) {
   PouchMerge = require('./pouch.merge.js');
-  PouchUtils.extend = require('./deps/extend');
+  PouchUtils.extend = require('./deps/extend').extend;
+  PouchUtils.copy = require('./deps/extend').copy;
   PouchUtils.ajax = require('./deps/ajax');
   PouchUtils.createBlob = require('./deps/blob');
   PouchUtils.uuid = require('./deps/uuid');
@@ -16,6 +17,7 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
   PouchUtils.Crypto = Crypto;
   PouchUtils.extend = extend;
+  PouchUtils.copy = copy;
   PouchUtils.ajax = ajax;
   PouchUtils.createBlob = createBlob;
   PouchUtils.uuid = uuid;
