@@ -54,7 +54,7 @@
   ],
   "scripts": {
     "jshint": "jshint -c .jshintrc src/*.js src/adapters/*.js tests/*.js",
-    "build-js": "browserify src/pouch.js -i ./adapters/pouch.leveldb.js -i ./deps/buffer > dist/pouchdb-nightly.js",
+    "build-js": "browserify src/pouch.js > dist/pouchdb-nightly.js",
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "mkdir -p dist && npm run build-js && npm run uglify",
     "test-node": "./bin/test-node.js",
@@ -62,8 +62,9 @@
     "test": "npm run jshint && npm run test-node"
   },
   "browser": {
-    "request": false,
     "./adapters/pouch.leveldb.js": false,
+    "./deps/buffer": false,
+    "request": false,
     "level": false,
     "path": false,
     "fs": false,
