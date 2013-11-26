@@ -1,6 +1,6 @@
 /*globals openTestAsyncDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals ajax: true, LevelPouch: true */
+/*globals Pouch.ajax: true, LevelPouch: true */
 /*globals Pouch: true, QUnit, uuid, asyncTest, ok, start*/
 /*globals cleanupTestDatabases: false */
 

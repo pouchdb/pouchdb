@@ -28,11 +28,9 @@ if (!testFiles.length) {
 
 testFiles.unshift('test.utils.js');
 
-// The tests use extend and ajax directly (for now)
+// The tests use Pouch.extend and Pouch.ajax directly (for now)
 var sourceFiles = [
-  '../dist/pouchdb-nightly.js',
-  '../src/deps/extend.js',
-  '../src/deps/ajax.js'
+  '../dist/pouchdb-nightly.js'
 ];
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/

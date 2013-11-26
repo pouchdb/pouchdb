@@ -33,48 +33,42 @@ Dual licensed under the MIT and GPL licenses.
  *   >>> Math.uuid(8, 16) // 8 character ID (base=16)
  *   "098F4D35"
  */
-var uuid;
 
-(function () {
 
-  var CHARS = (
-    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-    'abcdefghijklmnopqrstuvwxyz'
-    ).split('');
+function uuid(len, radix) {
+  var chars = uuid.CHARS 
+  var uuidInner = [];
+  var i;
 
-  uuid = function uuid_inner(len, radix) {
-    var chars = CHARS;
-    var uuidInner = [];
-    var i;
+  radix = radix || chars.length;
 
-    radix = radix || chars.length;
+  if (len) {
+    // Compact form
+    for (i = 0; i < len; i++) uuidInner[i] = chars[0 | Math.random()*radix];
+  } else {
+    // rfc4122, version 4 form
+    var r;
 
-    if (len) {
-      // Compact form
-      for (i = 0; i < len; i++) uuidInner[i] = chars[0 | Math.random()*radix];
-    } else {
-      // rfc4122, version 4 form
-      var r;
+    // rfc4122 requires these characters
+    uuidInner[8] = uuidInner[13] = uuidInner[18] = uuidInner[23] = '-';
+    uuidInner[14] = '4';
 
-      // rfc4122 requires these characters
-      uuidInner[8] = uuidInner[13] = uuidInner[18] = uuidInner[23] = '-';
-      uuidInner[14] = '4';
-
-      // Fill in random data.  At i==19 set the high bits of clock sequence as
-      // per rfc4122, sec. 4.1.5
-      for (i = 0; i < 36; i++) {
-        if (!uuidInner[i]) {
-          r = 0 | Math.random()*16;
-          uuidInner[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
-        }
+    // Fill in random data.  At i==19 set the high bits of clock sequence as
+    // per rfc4122, sec. 4.1.5
+    for (i = 0; i < 36; i++) {
+      if (!uuidInner[i]) {
+        r = 0 | Math.random()*16;
+        uuidInner[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
       }
     }
+  }
 
-    return uuidInner.join('');
-  };
+  return uuidInner.join('');
+};
+uuid.CHARS = (
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+  'abcdefghijklmnopqrstuvwxyz'
+).split('');
 
-})();
+module.exports = uuid;
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = uuid;
-}

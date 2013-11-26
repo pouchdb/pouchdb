@@ -14,11 +14,11 @@ var EventEmitter = require('events').EventEmitter;
 
 var levelup = require('level');
 
-var error = function (callback, message) {
+function error(callback, message) {
   return process.nextTick(function () {
     callback({error: message});
   });
-};
+}
 
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
@@ -48,7 +48,7 @@ function dbError(callback) {
   };
 }
 
-var LevelPouch = function (opts, callback) {
+function LevelPouch(opts, callback) {
 
   var opened = false;
   var api = {};
@@ -767,7 +767,7 @@ var LevelPouch = function (opts, callback) {
   };
 
   return api;
-};
+}
 
 LevelPouch.valid = function () {
   return typeof module !== undefined && module.exports;
@@ -849,8 +849,5 @@ LevelPouch.destroy = function (name, opts, callback) {
 };
 
 LevelPouch.use_prefix = false;
-
-Pouch.adapter('ldb', LevelPouch);
-Pouch.adapter('leveldb', LevelPouch);
 
 module.exports = LevelPouch;

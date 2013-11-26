@@ -1,14 +1,11 @@
-/*globals PouchUtils: true, PouchMerge */
+/*globals PouchUtils: true */
 
 'use strict';
 
-var PouchUtils;
+var PouchUtils = require('../pouch.utils.js');
+var PouchMerge = require('../pouch.merge');
 
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('../pouch.utils.js');
-}
-
-var idbError = function (callback) {
+function idbError(callback) {
   return function (event) {
     PouchUtils.call(callback, {
       status: 500,
@@ -16,9 +13,10 @@ var idbError = function (callback) {
       reason: event.target
     });
   };
-};
+}
 
-var IdbPouch = function (opts, callback) {
+
+function IdbPouch(opts, callback) {
 
   // IndexedDB requires a versioned database structure, this is going to make
   // it hard to dynamically create object stores if we needed to for things
@@ -841,7 +839,7 @@ var IdbPouch = function (opts, callback) {
   };
 
   return api;
-};
+}
 
 IdbPouch.valid = function idb_valid() {
   return typeof window !== 'undefined' && !!window.indexedDB;
@@ -871,6 +869,6 @@ IdbPouch.destroy = function idb_destroy(name, opts, callback) {
 };
 
 IdbPouch.Changes = new PouchUtils.Changes();
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = IdbPouch;
-}
+
+module.exports = IdbPouch;
+

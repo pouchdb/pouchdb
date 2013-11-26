@@ -5,7 +5,7 @@
 var PouchUtils = require('./pouch.utils.js');
 
 
-var Pouch = function Pouch(name, opts, callback) {
+function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
     return new Pouch(name, opts, callback);
@@ -77,7 +77,7 @@ var Pouch = function Pouch(name, opts, callback) {
       }
     }
   }
-};
+}
 
 Pouch.DEBUG = false;
 Pouch.openReqList = {};
@@ -441,23 +441,20 @@ Pouch.Errors = {
 Pouch.error = function (error, reason) {
   return PouchUtils.extend({}, error, {reason: reason});
 };
+Pouch.ajax = require('./deps/ajax');
+Pouch.extend = require('./deps/extend');
+global.Pouch = Pouch;
+global.PouchDB = Pouch;
+module.exports = Pouch;
+Pouch.replicate = require('./pouch.replicate.js').replicate;
+var PouchAdapter = require('./pouch.adapter.js');
+var httpAdapter = require('./adapters/pouch.http.js');
+Pouch.adapter('http', httpAdapter);
+Pouch.adapter('https', httpAdapter);
+Pouch.adapter('idb', require('./adapters/pouch.idb.js'));
+Pouch.adapter('websql', require('./adapters/pouch.websql.js'));
+Pouch.plugin('mapreduce', require('./plugins/pouchdb.mapreduce.js'));
 
-if (typeof module !== 'undefined' && module.exports) {
-  global.Pouch = Pouch;
-  global.PouchDB = Pouch;
-  module.exports = Pouch;
-  Pouch.replicate = require('./pouch.replicate.js').replicate;
-  var PouchAdapter = require('./pouch.adapter.js');
-  var httpAdapter = require('./adapters/pouch.http.js');
-  Pouch.adapter('http', httpAdapter);
-  Pouch.adapter('https', httpAdapter);
-  Pouch.adapter('idb', require('./adapters/pouch.idb.js'));
-  Pouch.adapter('websql', require('./adapters/pouch.websql.js'));
-  Pouch.plugin('mapreduce', require('./plugins/pouchdb.mapreduce.js'));
-} else {
-  window.Pouch = Pouch;
-  window.PouchDB = Pouch;
-}
 if (!process.browser) {
   var ldbAdapter = require('./adapters/pouch.leveldb.js');
   Pouch.adapter('ldb', ldbAdapter);

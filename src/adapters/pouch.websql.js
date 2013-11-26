@@ -1,12 +1,9 @@
-/*globals PouchUtils: true, PouchMerge */
+/*globals PouchUtils: true */
 
 'use strict';
 
-var PouchUtils;
-
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('../pouch.utils.js');
-}
+var PouchUtils = require('../pouch.utils.js');
+var PouchMerge = require('../pouch.merge');
 
 function quote(str) {
   return "'" + str + "'";
@@ -25,7 +22,7 @@ var BY_SEQ_STORE = quote('by-sequence');
 var ATTACH_STORE = quote('attach-store');
 var META_STORE = quote('metadata-store');
 
-var unknownError = function (callback) {
+function unknownError(callback) {
   return function (event) {
     PouchUtils.call(callback, {
       status: 500,
@@ -33,9 +30,9 @@ var unknownError = function (callback) {
       reason: event.target
     });
   };
-};
+}
 
-var webSqlPouch = function (opts, callback) {
+function webSqlPouch(opts, callback) {
 
   var api = {};
   var instanceId = null;
@@ -124,7 +121,7 @@ var webSqlPouch = function (opts, callback) {
     });
   };
 
-  api._bulkDocs = function idb_bulkDocs(req, opts, callback) {
+  api._bulkDocs = function (req, opts, callback) {
 
     var newEdits = opts.new_edits;
     var userDocs = req.docs;
@@ -697,7 +694,7 @@ var webSqlPouch = function (opts, callback) {
   };
 
   return api;
-};
+}
 
 webSqlPouch.valid = function () {
   return typeof window !== 'undefined' && !!window.openDatabase;
@@ -717,6 +714,5 @@ webSqlPouch.destroy = function (name, opts, callback) {
 
 webSqlPouch.Changes = new PouchUtils.Changes();
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = webSqlPouch;
-}
+module.exports = webSqlPouch;
+
