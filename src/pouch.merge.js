@@ -82,7 +82,7 @@ function doMerge(tree, path, dontExpand) {
     return {tree: [path], conflicts: 'new_leaf'};
   }
 
-  tree.forEach(function(branch) {
+  tree.forEach(function (branch) {
     if (branch.pos === path.pos && branch.ids[0] === path.ids[0]) {
       // Paths start at the same position and have the same root, so they need
       // merged
@@ -116,8 +116,8 @@ function doMerge(tree, path, dontExpand) {
           continue;
         }
         /*jshint loopfunc:true */
-        item.ids[2].forEach(function(el, idx) {
-          trees.push({ids: el, diff: item.diff-1, parent: item.ids, parentIdx: idx});
+        item.ids[2].forEach(function (el, idx) {
+          trees.push({ids: el, diff: item.diff - 1, parent: item.ids, parentIdx: idx});
         });
       }
 
@@ -142,7 +142,7 @@ function doMerge(tree, path, dontExpand) {
     restree.push(path);
   }
 
-  restree.sort(function(a, b) {
+  restree.sort(function (a, b) {
     return a.pos - b.pos;
   });
 
@@ -156,7 +156,7 @@ function doMerge(tree, path, dontExpand) {
 function stem(tree, depth) {
   // First we break out the tree into a complete list of root to leaf paths,
   // we cut off the start of the path and generate a new set of flat trees
-  var stemmedPaths = PouchMerge.rootToLeaf(tree).map(function(path) {
+  var stemmedPaths = PouchMerge.rootToLeaf(tree).map(function (path) {
     var stemmed = path.ids.slice(-depth);
     return {
       pos: path.pos + (path.ids.length - stemmed.length),
@@ -165,14 +165,14 @@ function stem(tree, depth) {
   });
   // Then we remerge all those flat trees together, ensuring that we dont
   // connect trees that would go beyond the depth limit
-  return stemmedPaths.reduce(function(prev, current, i, arr) {
+  return stemmedPaths.reduce(function (prev, current, i, arr) {
     return doMerge(prev, current, true).tree;
   }, [stemmedPaths.shift()]);
 }
 
 var PouchMerge = {};
 
-PouchMerge.merge = function(tree, path, depth) {
+PouchMerge.merge = function (tree, path, depth) {
   // Ugh, nicer way to not modify arguments in place?
   tree = extend(true, [], tree);
   path = extend(true, {}, path);
@@ -188,15 +188,15 @@ PouchMerge.merge = function(tree, path, depth) {
 // tree (most edits) win
 // The final sort algorithm is slightly documented in a sidebar here:
 // http://guide.couchdb.org/draft/conflicts.html
-PouchMerge.winningRev = function(metadata) {
+PouchMerge.winningRev = function (metadata) {
   var leafs = [];
   PouchMerge.traverseRevTree(metadata.rev_tree,
-                              function(isLeaf, pos, id, something, opts) {
+                              function (isLeaf, pos, id, something, opts) {
     if (isLeaf) {
       leafs.push({pos: pos, id: id, deleted: !!opts.deleted});
     }
   });
-  leafs.sort(function(a, b) {
+  leafs.sort(function (a, b) {
     if (a.deleted !== b.deleted) {
       return a.deleted > b.deleted ? 1 : -1;
     }
@@ -213,10 +213,10 @@ PouchMerge.winningRev = function(metadata) {
 // traverse revisions
 // The return value from the callback will be passed as context to all
 // children of that node
-PouchMerge.traverseRevTree = function(revs, callback) {
+PouchMerge.traverseRevTree = function (revs, callback) {
   var toVisit = [];
 
-  revs.forEach(function(tree) {
+  revs.forEach(function (tree) {
     toVisit.push({pos: tree.pos, ids: tree.ids});
   });
   while (toVisit.length > 0) {
@@ -225,34 +225,34 @@ PouchMerge.traverseRevTree = function(revs, callback) {
     var tree = node.ids;
     var newCtx = callback(tree[2].length === 0, pos, tree[0], node.ctx, tree[1]);
     /*jshint loopfunc: true */
-    tree[2].forEach(function(branch) {
-      toVisit.push({pos: pos+1, ids: branch, ctx: newCtx});
+    tree[2].forEach(function (branch) {
+      toVisit.push({pos: pos + 1, ids: branch, ctx: newCtx});
     });
   }
 };
 
-PouchMerge.collectLeaves = function(revs) {
+PouchMerge.collectLeaves = function (revs) {
   var leaves = [];
-  PouchMerge.traverseRevTree(revs, function(isLeaf, pos, id, acc, opts) {
+  PouchMerge.traverseRevTree(revs, function (isLeaf, pos, id, acc, opts) {
     if (isLeaf) {
       leaves.unshift({rev: pos + "-" + id, pos: pos, opts: opts});
     }
   });
-  leaves.sort(function(a, b) {
+  leaves.sort(function (a, b) {
     return b.pos - a.pos;
   });
-  leaves.map(function(leaf) { delete leaf.pos; });
+  leaves.map(function (leaf) { delete leaf.pos; });
   return leaves;
 };
 
 // returns revs of all conflicts that is leaves such that
 // 1. are not deleted and
 // 2. are different than winning revision
-PouchMerge.collectConflicts = function(metadata) {
+PouchMerge.collectConflicts = function (metadata) {
   var win = PouchMerge.winningRev(metadata);
   var leaves = PouchMerge.collectLeaves(metadata.rev_tree);
   var conflicts = [];
-  leaves.forEach(function(leaf) {
+  leaves.forEach(function (leaf) {
     if (leaf.rev !== win && !leaf.opts.deleted) {
       conflicts.push(leaf.rev);
     }
@@ -260,9 +260,9 @@ PouchMerge.collectConflicts = function(metadata) {
   return conflicts;
 };
 
-PouchMerge.rootToLeaf = function(tree) {
+PouchMerge.rootToLeaf = function (tree) {
   var paths = [];
-  PouchMerge.traverseRevTree(tree, function(isLeaf, pos, id, history, opts) {
+  PouchMerge.traverseRevTree(tree, function (isLeaf, pos, id, history, opts) {
     history = history ? history.slice(0) : [];
     history.push({id: id, opts: opts});
     if (isLeaf) {

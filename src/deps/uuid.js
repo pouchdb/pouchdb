@@ -35,7 +35,7 @@ Dual licensed under the MIT and GPL licenses.
  */
 var uuid;
 
-(function() {
+(function () {
 
   var CHARS = (
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +

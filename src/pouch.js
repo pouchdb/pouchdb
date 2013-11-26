@@ -25,7 +25,7 @@ var Pouch = function Pouch(name, opts, callback) {
   }
 
   if (typeof callback === 'undefined') {
-    callback = function() {};
+    callback = function () {};
   }
 
   var backend = Pouch.parseAdapter(opts.name || name);
@@ -41,7 +41,7 @@ var Pouch = function Pouch(name, opts, callback) {
     throw 'Invalid Adapter';
   }
 
-  var adapter = new PouchAdapter(opts, function(err, db) {
+  var adapter = new PouchAdapter(opts, function (err, db) {
     if (err) {
       if (callback) {
         callback(err);
@@ -89,7 +89,7 @@ Pouch.plugins = {};
 
 Pouch.prefix = '_pouch_';
 
-Pouch.parseAdapter = function(name) {
+Pouch.parseAdapter = function (name) {
   var match = name.match(/([a-z\-]*):\/\/(.*)/);
   var adapter;
   if (match) {
@@ -118,7 +118,7 @@ Pouch.parseAdapter = function(name) {
   throw 'No valid adapter found';
 };
 
-Pouch.destroy = function(name, opts, callback) {
+Pouch.destroy = function (name, opts, callback) {
   if (typeof opts === 'function' || typeof opts === 'undefined') {
     callback = opts;
     opts = {};
@@ -130,11 +130,11 @@ Pouch.destroy = function(name, opts, callback) {
   }
 
   if (typeof callback === 'undefined') {
-    callback = function() {};
+    callback = function () {};
   }
   var backend = Pouch.parseAdapter(opts.name || name);
 
-  var cb = function(err, response) {
+  var cb = function (err, response) {
     if (err) {
       callback(err);
       return;
@@ -155,7 +155,7 @@ Pouch.destroy = function(name, opts, callback) {
   Pouch.removeFromAllDbs(backend, cb);
 };
 
-Pouch.removeFromAllDbs = function(opts, callback) {
+Pouch.removeFromAllDbs = function (opts, callback) {
   // Only execute function if flag is enabled
   if (!Pouch.enableAllDbs) {
     callback();
@@ -170,7 +170,7 @@ Pouch.removeFromAllDbs = function(opts, callback) {
   }
 
   // remove db from Pouch.ALL_DBS
-  new Pouch(Pouch.allDBName(opts.adapter), function(err, db) {
+  new Pouch(Pouch.allDBName(opts.adapter), function (err, db) {
     if (err) {
       // don't fail when allDbs fail
       console.error(err);
@@ -179,11 +179,11 @@ Pouch.removeFromAllDbs = function(opts, callback) {
     }
     // check if db has been registered in Pouch.ALL_DBS
     var dbname = Pouch.dbName(opts.adapter, opts.name);
-    db.get(dbname, function(err, doc) {
+    db.get(dbname, function (err, doc) {
       if (err) {
         callback();
       } else {
-        db.remove(doc, function(err, response) {
+        db.remove(doc, function (err, response) {
           if (err) {
             console.error(err);
           }
@@ -201,7 +201,7 @@ Pouch.adapter = function (id, obj) {
   }
 };
 
-Pouch.plugin = function(id, obj) {
+Pouch.plugin = function (id, obj) {
   Pouch.plugins[id] = obj;
 };
 
@@ -210,17 +210,17 @@ Pouch.enableAllDbs = false;
 
 // name of database used to keep track of databases
 Pouch.ALL_DBS = "_allDbs";
-Pouch.dbName = function(adapter, name) {
+Pouch.dbName = function (adapter, name) {
   return [adapter, "-", name].join('');
 };
-Pouch.realDBName = function(adapter, name) {
+Pouch.realDBName = function (adapter, name) {
   return [adapter, "://", name].join('');
 };
-Pouch.allDBName = function(adapter) {
+Pouch.allDBName = function (adapter) {
   return [adapter, "://", Pouch.prefix + Pouch.ALL_DBS].join('');
 };
 
-Pouch.open = function(opts, callback) {
+Pouch.open = function (opts, callback) {
   // Only register pouch with allDbs if flag is enabled
   if (!Pouch.enableAllDbs) {
     callback();
@@ -234,7 +234,7 @@ Pouch.open = function(opts, callback) {
     return;
   }
 
-  new Pouch(Pouch.allDBName(adapter), function(err, db) {
+  new Pouch(Pouch.allDBName(adapter), function (err, db) {
     if (err) {
       // don't fail when allDb registration fails
       console.error(err);
@@ -244,18 +244,18 @@ Pouch.open = function(opts, callback) {
 
     // check if db has been registered in Pouch.ALL_DBS
     var dbname = Pouch.dbName(adapter, opts.name);
-    db.get(dbname, function(err, response) {
+    db.get(dbname, function (err, response) {
       if (err && err.status === 404) {
         db.put({
           _id: dbname,
           dbname: opts.originalName
-        }, function(err) {
+        }, function (err) {
             if (err) {
-                console.error(err);
+              console.error(err);
             }
 
             callback();
-        });
+          });
       } else {
         callback();
       }
@@ -263,13 +263,13 @@ Pouch.open = function(opts, callback) {
   });
 };
 
-Pouch.allDbs = function(callback) {
-  var accumulate = function(adapters, all_dbs) {
+Pouch.allDbs = function (callback) {
+  var accumulate = function (adapters, all_dbs) {
     if (adapters.length === 0) {
       // remove duplicates
       var result = [];
-      all_dbs.forEach(function(doc) {
-        var exists = result.some(function(db) {
+      all_dbs.forEach(function (doc) {
+        var exists = result.some(function (db) {
           return db.id === doc.id;
         });
 
@@ -279,9 +279,9 @@ Pouch.allDbs = function(callback) {
       });
 
       // return an array of dbname
-      callback(null, result.map(function(row) {
+      callback(null, result.map(function (row) {
           return row.doc.dbname;
-      }));
+        }));
       return;
     }
 
@@ -293,12 +293,12 @@ Pouch.allDbs = function(callback) {
       return;
     }
 
-    new Pouch(Pouch.allDBName(adapter), function(err, db) {
+    new Pouch(Pouch.allDBName(adapter), function (err, db) {
       if (err) {
         callback(err);
         return;
       }
-      db.allDocs({include_docs: true}, function(err, response) {
+      db.allDocs({include_docs: true}, function (err, response) {
         if (err) {
           callback(err);
           return;
@@ -308,8 +308,8 @@ Pouch.allDbs = function(callback) {
         all_dbs.unshift.apply(all_dbs, response.rows);
 
         // code to clear allDbs.
-        // response.rows.forEach(function(row) {
-        //   db.remove(row.doc, function() {
+        // response.rows.forEach(function (row) {
+        //   db.remove(row.doc, function () {
         //     console.log(arguments);
         //   });
         // });
@@ -441,7 +441,7 @@ Pouch.Errors = {
   }
 };
 
-Pouch.error = function(error, reason) {
+Pouch.error = function (error, reason) {
   return PouchUtils.extend({}, error, {reason: reason});
 };
 
@@ -461,7 +461,7 @@ if (typeof module !== 'undefined' && module.exports) {
   window.Pouch = Pouch;
   window.PouchDB = Pouch;
 }
-if(!process.browser){
+if (!process.browser) {
   var ldbAdapter = require('./adapters/pouch.leveldb.js');
   Pouch.adapter('ldb', ldbAdapter);
   Pouch.adapter('leveldb', ldbAdapter);

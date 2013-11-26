@@ -25,8 +25,8 @@ var BY_SEQ_STORE = quote('by-sequence');
 var ATTACH_STORE = quote('attach-store');
 var META_STORE = quote('metadata-store');
 
-var unknownError = function(callback) {
-  return function(event) {
+var unknownError = function (callback) {
+  return function (event) {
     PouchUtils.call(callback, {
       status: 500,
       error: event.type,
@@ -35,7 +35,7 @@ var unknownError = function(callback) {
   };
 };
 
-var webSqlPouch = function(opts, callback) {
+var webSqlPouch = function (opts, callback) {
 
   var api = {};
   var instanceId = null;
@@ -50,7 +50,7 @@ var webSqlPouch = function(opts, callback) {
     callback(null, api);
   }
 
-  function setup(){
+  function setup() {
     db.transaction(function (tx) {
       var meta = 'CREATE TABLE IF NOT EXISTS ' + META_STORE +
         ' (update_seq, dbid)';
@@ -67,7 +67,7 @@ var webSqlPouch = function(opts, callback) {
       tx.executeSql(meta);
 
       var updateseq = 'SELECT update_seq FROM ' + META_STORE;
-      tx.executeSql(updateseq, [], function(tx, result) {
+      tx.executeSql(updateseq, [], function (tx, result) {
         if (!result.rows.length) {
           var initSeq = 'INSERT INTO ' + META_STORE + ' (update_seq) VALUES (?)';
           tx.executeSql(initSeq, [0]);
@@ -76,7 +76,7 @@ var webSqlPouch = function(opts, callback) {
       });
 
       var dbid = 'SELECT dbid FROM ' + META_STORE + ' WHERE dbid IS NOT NULL';
-      tx.executeSql(dbid, [], function(tx, result) {
+      tx.executeSql(dbid, [], function (tx, result) {
         if (!result.rows.length) {
           var initDb = 'UPDATE ' + META_STORE + ' SET dbid=?';
           instanceId = Pouch.uuid();
@@ -98,21 +98,21 @@ var webSqlPouch = function(opts, callback) {
   }
 
 
-  api.type = function() {
+  api.type = function () {
     return 'websql';
   };
 
-  api.id = function() {
+  api.id = function () {
     return instanceId;
   };
 
-  api._info = function(callback) {
-    db.transaction(function(tx) {
+  api._info = function (callback) {
+    db.transaction(function (tx) {
       var sql = 'SELECT COUNT(id) AS count FROM ' + DOC_STORE;
-      tx.executeSql(sql, [], function(tx, result) {
+      tx.executeSql(sql, [], function (tx, result) {
         var doc_count = result.rows.item(0).count;
         var updateseq = 'SELECT update_seq FROM ' + META_STORE;
-        tx.executeSql(updateseq, [], function(tx, result) {
+        tx.executeSql(updateseq, [], function (tx, result) {
           var update_seq = result.rows.item(0).update_seq;
           callback(null, {
             db_name: name,
@@ -131,13 +131,13 @@ var webSqlPouch = function(opts, callback) {
     var docsWritten = 0;
 
     // Parse the docs, give them a sequence number for the result
-    var docInfos = userDocs.map(function(doc, i) {
+    var docInfos = userDocs.map(function (doc, i) {
       var newDoc = PouchUtils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;
     });
 
-    var docInfoErrors = docInfos.filter(function(docInfo) {
+    var docInfoErrors = docInfos.filter(function (docInfo) {
       return docInfo.error;
     });
     if (docInfoErrors.length) {
@@ -155,7 +155,7 @@ var webSqlPouch = function(opts, callback) {
     function complete(event) {
       var aresults = [];
       results.sort(sortByBulkSeq);
-      results.forEach(function(result) {
+      results.forEach(function (result) {
         delete result._bulk_seq;
         if (result.error) {
           aresults.push(result);
@@ -181,10 +181,10 @@ var webSqlPouch = function(opts, callback) {
       });
 
       var updateseq = 'SELECT update_seq FROM ' + META_STORE;
-      tx.executeSql(updateseq, [], function(tx, result) {
+      tx.executeSql(updateseq, [], function (tx, result) {
         var update_seq = result.rows.item(0).update_seq + docsWritten;
         var sql = 'UPDATE ' + META_STORE + ' SET update_seq=?';
-        tx.executeSql(sql, [update_seq], function() {
+        tx.executeSql(sql, [update_seq], function () {
           PouchUtils.call(callback, null, aresults);
         });
       });
@@ -206,7 +206,7 @@ var webSqlPouch = function(opts, callback) {
         return finish();
       }
       var reader = new FileReader();
-      reader.onloadend = function(e) {
+      reader.onloadend = function (e) {
         att.data = this.result;
         att.digest = 'md5-' + PouchUtils.Crypto.MD5(this.result);
         finish();
@@ -222,7 +222,7 @@ var webSqlPouch = function(opts, callback) {
       var docv = 0;
       var recv = 0;
 
-      docInfos.forEach(function(docInfo) {
+      docInfos.forEach(function (docInfo) {
         var attachments = docInfo.data && docInfo.data._attachments ?
           Object.keys(docInfo.data._attachments) : [];
 
@@ -319,7 +319,7 @@ var webSqlPouch = function(opts, callback) {
         var params = isUpdate ?
           [seq, metadataStr, key, docInfo.metadata.id] :
           [docInfo.metadata.id, seq, seq, metadataStr];
-        tx.executeSql(sql, params, function(tx, result) {
+        tx.executeSql(sql, params, function (tx, result) {
           results.push(docInfo);
           PouchUtils.call(callback, null);
         });
@@ -377,18 +377,18 @@ var webSqlPouch = function(opts, callback) {
       var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
       var newAtt = {digest: digest};
       var sql = 'SELECT digest, json FROM ' + ATTACH_STORE + ' WHERE digest=?';
-      tx.executeSql(sql, [digest], function(tx, result) {
+      tx.executeSql(sql, [digest], function (tx, result) {
         if (!result.rows.length) {
           newAtt.refs = {};
           newAtt.refs[ref] = true;
           sql = 'INSERT INTO ' + ATTACH_STORE + '(digest, json, body) VALUES (?, ?, ?)';
-          tx.executeSql(sql, [digest, JSON.stringify(newAtt), data], function() {
+          tx.executeSql(sql, [digest, JSON.stringify(newAtt), data], function () {
             PouchUtils.call(callback, null);
           });
         } else {
           newAtt.refs = JSON.parse(result.rows.item(0).json).refs;
           sql = 'UPDATE ' + ATTACH_STORE + ' SET json=?, body=? WHERE digest=?';
-          tx.executeSql(sql, [JSON.stringify(newAtt), data, digest], function() {
+          tx.executeSql(sql, [JSON.stringify(newAtt), data, digest], function () {
             PouchUtils.call(callback, null);
           });
         }
@@ -396,17 +396,17 @@ var webSqlPouch = function(opts, callback) {
     }
 
     function metadataFetched(tx, results) {
-      for (var j=0; j<results.rows.length; j++) {
+      for (var j = 0; j < results.rows.length; j++) {
         var row = results.rows.item(j);
         fetchedDocs[row.id] = JSON.parse(row.json);
       }
       processDocs();
     }
 
-    preprocessAttachments(function() {
-      db.transaction(function(txn) {
+    preprocessAttachments(function () {
+      db.transaction(function (txn) {
         tx = txn;
-        var ids = '(' + docInfos.map(function(d) {
+        var ids = '(' + docInfos.map(function (d) {
           return quote(d.metadata.id);
         }).join(',') + ')';
         var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id IN ' + ids;
@@ -415,12 +415,12 @@ var webSqlPouch = function(opts, callback) {
     });
   };
 
-  api._get = function(id, opts, callback) {
+  api._get = function (id, opts, callback) {
     var doc;
     var metadata;
     var err;
     if (!opts.ctx) {
-      db.transaction(function(txn) {
+      db.transaction(function (txn) {
         opts.ctx = txn;
         api._get(id, opts, callback);
       });
@@ -433,7 +433,7 @@ var webSqlPouch = function(opts, callback) {
     }
 
     var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
-    tx.executeSql(sql, [id], function(a, results) {
+    tx.executeSql(sql, [id], function (a, results) {
       if (!results.rows.length) {
         err = Pouch.Errors.MISSING_DOC;
         return finish();
@@ -448,7 +448,7 @@ var webSqlPouch = function(opts, callback) {
       var key = opts.rev ? opts.rev : rev;
       key = metadata.id + '::' + key;
       var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
-      tx.executeSql(sql, [key], function(tx, results) {
+      tx.executeSql(sql, [key], function (tx, results) {
         if (!results.rows.length) {
           err = Pouch.Errors.MISSING_DOC;
           return finish();
@@ -461,10 +461,10 @@ var webSqlPouch = function(opts, callback) {
   };
 
   function makeRevs(arr) {
-    return arr.map(function(x) { return {rev: x.rev}; });
+    return arr.map(function (x) { return {rev: x.rev}; });
   }
 
-  api._allDocs = function(opts, callback) {
+  api._allDocs = function (opts, callback) {
     var results = [];
     var resultsMap = {};
     var start = 'startkey' in opts ? opts.startkey : false;
@@ -476,7 +476,7 @@ var webSqlPouch = function(opts, callback) {
       DOC_STORE + '.winningseq';
 
     if ('keys' in opts) {
-      sql += ' WHERE ' + DOC_STORE + '.id IN (' + opts.keys.map(function(key){
+      sql += ' WHERE ' + DOC_STORE + '.id IN (' + opts.keys.map(function (key) {
         return quote(key);
       }).join(',') + ')';
     } else {
@@ -489,9 +489,9 @@ var webSqlPouch = function(opts, callback) {
       sql += ' ORDER BY ' + DOC_STORE + '.id ' + (descending ? 'DESC' : 'ASC');
     }
 
-    db.transaction(function(tx) {
-      tx.executeSql(sql, [], function(tx, result) {
-        for (var i = 0, l = result.rows.length; i < l; i++ ) {
+    db.transaction(function (tx) {
+      tx.executeSql(sql, [], function (tx, result) {
+        for (var i = 0, l = result.rows.length; i < l; i++) {
           var doc = result.rows.item(i);
           var metadata = JSON.parse(doc.metadata);
           var data = JSON.parse(doc.data);
@@ -520,16 +520,16 @@ var webSqlPouch = function(opts, callback) {
                 resultsMap[doc.id] = doc;
               }
             } else {
-              if(!PouchUtils.isDeleted(metadata)) {
+              if (!PouchUtils.isDeleted(metadata)) {
                 results.push(doc);
               }
             }
           }
         }
       });
-    }, unknownError(callback), function() {
+    }, unknownError(callback), function () {
       if ('keys' in opts) {
-        opts.keys.forEach(function(key) {
+        opts.keys.forEach(function (key) {
           if (key in resultsMap) {
             results.push(resultsMap[key]);
           } else {
@@ -561,7 +561,7 @@ var webSqlPouch = function(opts, callback) {
       webSqlPouch.Changes.addListener(name, id, api, opts);
       webSqlPouch.Changes.notify(name);
       return {
-        cancel: function() {
+        cancel: function () {
           if (Pouch.DEBUG) {
             console.log(name + ': Cancel Changes Feed');
           }
@@ -586,10 +586,10 @@ var webSqlPouch = function(opts, callback) {
         DOC_STORE + '.winningseq WHERE ' + DOC_STORE + '.seq > ' + opts.since +
         ' ORDER BY ' + DOC_STORE + '.seq ' + (descending ? 'DESC' : 'ASC');
 
-      db.transaction(function(tx) {
-        tx.executeSql(sql, [], function(tx, result) {
+      db.transaction(function (tx) {
+        tx.executeSql(sql, [], function (tx, result) {
           var last_seq = 0;
-          for (var i = 0, l = result.rows.length; i < l; i++ ) {
+          for (var i = 0, l = result.rows.length; i < l; i++) {
             var res = result.rows.item(i);
             var metadata = JSON.parse(res.metadata);
             if (!PouchUtils.isLocalId(metadata.id)) {
@@ -624,9 +624,9 @@ var webSqlPouch = function(opts, callback) {
 
     if (opts.filter && typeof opts.filter === 'string') {
       var filterName = opts.filter.split('/');
-      api.get('_design/' + filterName[0], function(err, ddoc) {
+      api.get('_design/' + filterName[0], function (err, ddoc) {
         /*jshint evil: true */
-        var filter = eval('(function() { return ' +
+        var filter = eval('(function () { return ' +
                           ddoc.filters[filterName[1]] + ' })()');
         opts.filter = filter;
         fetchChanges();
@@ -636,18 +636,18 @@ var webSqlPouch = function(opts, callback) {
     }
   };
 
-  api._close = function(callback) {
+  api._close = function (callback) {
     //WebSQL databases do not need to be closed
     PouchUtils.call(callback, null);
   };
 
-  api._getAttachment = function(attachment, opts, callback) {
+  api._getAttachment = function (attachment, opts, callback) {
     var res;
     var tx = opts.ctx;
     var digest = attachment.digest;
     var type = attachment.content_type;
     var sql = 'SELECT body FROM ' + ATTACH_STORE + ' WHERE digest=?';
-    tx.executeSql(sql, [digest], function(tx, result) {
+    tx.executeSql(sql, [digest], function (tx, result) {
       var data = result.rows.item(0).body;
       if (opts.encode) {
         res = btoa(data);
@@ -658,10 +658,10 @@ var webSqlPouch = function(opts, callback) {
     });
   };
 
-  api._getRevisionTree = function(docId, callback) {
+  api._getRevisionTree = function (docId, callback) {
     db.transaction(function (tx) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
-      tx.executeSql(sql, [docId], function(tx, result) {
+      tx.executeSql(sql, [docId], function (tx, result) {
         if (!result.rows.length) {
           PouchUtils.call(callback, Pouch.Errors.MISSING_DOC);
         } else {
@@ -672,10 +672,10 @@ var webSqlPouch = function(opts, callback) {
     });
   };
 
-  api._doCompaction = function(docId, rev_tree, revs, callback) {
+  api._doCompaction = function (docId, rev_tree, revs, callback) {
     db.transaction(function (tx) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
-      tx.executeSql(sql, [docId], function(tx, result) {
+      tx.executeSql(sql, [docId], function (tx, result) {
         if (!result.rows.length) {
           return PouchUtils.call(callback);
         }
@@ -683,12 +683,12 @@ var webSqlPouch = function(opts, callback) {
         metadata.rev_tree = rev_tree;
 
         var sql = 'DELETE FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev IN (' +
-          revs.map(function(rev){return quote(docId + '::' + rev);}).join(',') + ')';
+          revs.map(function (rev) {return quote(docId + '::' + rev); }).join(',') + ')';
 
-        tx.executeSql(sql, [], function(tx, result) {
+        tx.executeSql(sql, [], function (tx, result) {
           var sql = 'UPDATE ' + DOC_STORE + ' SET json = ? WHERE id = ?';
 
-          tx.executeSql(sql, [JSON.stringify(metadata), docId], function(tx, result) {
+          tx.executeSql(sql, [JSON.stringify(metadata), docId], function (tx, result) {
             callback();
           });
         });
@@ -699,18 +699,18 @@ var webSqlPouch = function(opts, callback) {
   return api;
 };
 
-webSqlPouch.valid = function() {
+webSqlPouch.valid = function () {
   return typeof window !== 'undefined' && !!window.openDatabase;
 };
 
-webSqlPouch.destroy = function(name, opts, callback) {
+webSqlPouch.destroy = function (name, opts, callback) {
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
   db.transaction(function (tx) {
     tx.executeSql('DROP TABLE IF EXISTS ' + DOC_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + BY_SEQ_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + ATTACH_STORE, []);
     tx.executeSql('DROP TABLE IF EXISTS ' + META_STORE, []);
-  }, unknownError(callback), function() {
+  }, unknownError(callback), function () {
     PouchUtils.call(callback, null);
   });
 };
