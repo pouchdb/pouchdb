@@ -35,9 +35,8 @@ Building PouchDB
 All dependancies installed? great, now building PouchDB itself is a breeze:
 
     $ cd pouchdb
-    $ npm install -g grunt-cli
     $ npm install
-    $ grunt
+    $ npm run build
 
 You will now have various distributions of PouchDB in your `dist` folder, congratulations.
 
@@ -46,22 +45,18 @@ Running PouchDB Tests
 
 The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can override this by passing a flag with the CouchDB host (and basic auth credentials if needed)
 
-    $ grunt browser --couch-host=http://user:pass@myname.iriscouch.com
-    $ grunt test --couch-host=http://user:pass@myname.iriscouch.com
+    $ ./bin/dev-server -remote=http://user:pass@myname.host.com
 
 ### Node Tests
 
 Run all tests with:
 
-    $ grunt node-qunit
-
-Run single test file `test.basics.js` with:
-
-    $ grunt node-qunit --test=basics
+    $ npm test
 
 ### Browser Tests
 
-    $ grunt browser
+    $ npm build
+    $ npm run dev-server
     # Now visit http://127.0.0.1:8000/tests/test.html in your browser
     # add ?testFiles=test.basics.js to run single test file
 
