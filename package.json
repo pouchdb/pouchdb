@@ -64,6 +64,9 @@
   ],
   "scripts": {
     "jshint": "jshint -c .jshintrc src/*.js src/adapters/*.js tests/*.js",
+    "build-js": "browserify src/pouch.js -i ./adapters/pouch.leveldb.js -i ./deps/buffer > dist/pouchdb-nightly.js",
+    "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
+    "build": "mkdir -p dist && npm run build-js && npm run uglify",
     "test": "npm run jshint"
   },
   "browser": {
