@@ -7,9 +7,9 @@
 // and storing the result of the map function (possibly using the upcoming
 // extracted adapter functions)
 
-var Spatial = function(db) {
+var Spatial = function (db) {
 
-  var isArray = Array.isArray || function(obj) {
+  var isArray = Array.isArray || function (obj) {
     return type(obj) === "array";
   };
   
@@ -27,7 +27,7 @@ var Spatial = function(db) {
     // to a range. If the first element (or the whole key) is a geometry,
     // calculate its bounding box.
     // The geometry is also returned (`null` if there is none).
-    var normalizeKey = function(key) {
+    var normalizeKey = function (key) {
       var newKey = [];
       var geometry = null;
 
@@ -46,7 +46,7 @@ var Spatial = function(db) {
       }
 
       for(var i=0; i<key.length; i++) {
-        if(isArray(key[i])) {
+        if (isArray(key[i])) {
           newKey.push(key[i]);
         // If only a single point, not a range was emitted
         } else {
@@ -59,7 +59,7 @@ var Spatial = function(db) {
       };
     };
 
-    var within = function(key, start_range, end_range) {
+    var within = function (key, start_range, end_range) {
       var start;
       var end;
 
@@ -84,7 +84,7 @@ var Spatial = function(db) {
       return true;
     };
 
-    var emit = function(key, val) {
+    var emit = function (key, val) {
       var keyGeom = normalizeKey(key);
       var viewRow = {
         id: current.doc._id,
@@ -106,7 +106,7 @@ var Spatial = function(db) {
         //in this special case, join on _id (issue #106)
         if (val && typeof val === 'object' && val._id){
           db.get(val._id,
-              function(_, joined_doc){
+              function (_, joined_doc){
                 if (joined_doc) {
                   viewRow.doc = joined_doc;
                 }
@@ -130,7 +130,7 @@ var Spatial = function(db) {
     var conflicts = ('conflicts' in options ? options.conflicts : false);
 
     // only proceed once all documents are mapped and joined
-    var checkComplete= function() {
+    var checkComplete= function () {
       if (completed && results.length == num_started){
         return options.complete(null, {rows: results});
       }
@@ -139,14 +139,14 @@ var Spatial = function(db) {
     db.changes({
       conflicts: conflicts,
       include_docs: true,
-      onChange: function(doc) {
+      onChange: function (doc) {
         // Don't index deleted or design documents
         if (!('deleted' in doc) && doc.id.indexOf('_design/') !== 0) {
           current = {doc: doc.doc};
           fun.call(this, doc.doc);
         }
       },
-      complete: function() {
+      complete: function () {
         completed= true;
         checkComplete();
       }
@@ -204,7 +204,7 @@ var Spatial = function(db) {
     }
 
     var parts = fun.split('/');
-    db.get('_design/' + parts[0], function(err, doc) {
+    db.get('_design/' + parts[0], function (err, doc) {
       if (err) {
         if (callback) callback(err);
         return;
@@ -223,7 +223,7 @@ Spatial.calculateBbox = function (geom) {
     return [[coords[0], coords[0]], [coords[1], coords[1]]];
   }
   if (geom.type === 'GeometryCollection') {
-    coords = geom.geometries.map(function(g) {
+    coords = geom.geometries.map(function (g) {
       return Spatial.calculateBbox(g);
     });
 
@@ -239,7 +239,7 @@ Spatial.calculateBbox = function (geom) {
 
   // Flatten coords as much as possible
   while (Array.isArray(coords[0][0])) {
-    coords = coords.reduce(function(a, b) {
+    coords = coords.reduce(function (a, b) {
       return a.concat(b);
     });
   };
@@ -258,6 +258,6 @@ Spatial.calculateBbox = function (geom) {
 };
 
 // Deletion is a noop since we dont store the results of the view
-Spatial._delete = function() { };
+Spatial._delete = function () { };
 
 Pouch.plugin('spatial', Spatial);

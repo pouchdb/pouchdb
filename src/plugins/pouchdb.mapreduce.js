@@ -19,7 +19,7 @@ if (typeof module !== 'undefined' && module.exports) {
 // and storing the result of the map function (possibly using the upcoming
 // extracted adapter functions)
 
-var MapReduce = function(db) {
+var MapReduce = function (db) {
 
   function viewQuery(fun, options) {
     if (!options.complete) {
@@ -35,15 +35,15 @@ var MapReduce = function(db) {
     }
 
     function sum(values) {
-      return values.reduce(function(a, b) { return a + b; }, 0);
+      return values.reduce(function (a, b) { return a + b; }, 0);
     }
 
     var builtInReduce = {
-      "_sum": function(keys, values){
+      "_sum": function (keys, values){
         return sum(values);
       },
 
-      "_count": function(keys, values, rereduce){
+      "_count": function (keys, values, rereduce){
         if (rereduce){
           return sum(values);
         } else {
@@ -51,13 +51,13 @@ var MapReduce = function(db) {
         }
       },
 
-      "_stats": function(keys, values, rereduce) {
+      "_stats": function (keys, values, rereduce) {
         return {
           'sum': sum(values),
           'min': Math.min.apply(null, values),
           'max': Math.max.apply(null, values),
           'count': values.length,
-          'sumsqr': (function(){
+          'sumsqr': (function () {
             var _sumsqr = 0;
             for(var idx in values) {
               if (typeof values[idx] === 'number') {
@@ -75,7 +75,7 @@ var MapReduce = function(db) {
     var num_started= 0;
     var completed= false;
 
-    var emit = function(key, val) {
+    var emit = function (key, val) {
       var viewRow = {
         id: current.doc._id,
         key: key,
@@ -91,7 +91,7 @@ var MapReduce = function(db) {
         //in this special case, join on _id (issue #106)
         if (val && typeof val === 'object' && val._id){
           db.get(val._id,
-              function(_, joined_doc){
+              function (_, joined_doc){
                 if (joined_doc) {
                   viewRow.doc = joined_doc;
                 }
@@ -118,9 +118,9 @@ var MapReduce = function(db) {
     }
 
     //only proceed once all documents are mapped and joined
-    var checkComplete= function(){
+    var checkComplete= function () {
       if (completed && results.length == num_started){
-        results.sort(function(a, b) {
+        results.sort(function (a, b) {
           return pouchCollate(a.key, b.key);
         });
         if (options.descending) {
@@ -136,7 +136,7 @@ var MapReduce = function(db) {
         }
 
         var groups = [];
-        results.forEach(function(e) {
+        results.forEach(function (e) {
           var last = groups[groups.length-1] || null;
           if (last && pouchCollate(last.key[0][0], e.key) === 0) {
             last.key.push([e.key, e.id]);
@@ -145,7 +145,7 @@ var MapReduce = function(db) {
           }
           groups.push({key: [[e.key, e.id]], value: [e.value]});
         });
-        groups.forEach(function(e) {
+        groups.forEach(function (e) {
           e.value = fun.reduce(e.key, e.value);
           e.value = (typeof e.value === 'undefined') ? null : e.value;
           e.key = e.key[0][0];
@@ -163,13 +163,13 @@ var MapReduce = function(db) {
     db.changes({
       conflicts: true,
       include_docs: true,
-      onChange: function(doc) {
+      onChange: function (doc) {
         if (!('deleted' in doc)) {
           current = {doc: doc.doc};
           fun.map.call(this, doc.doc);
         }
       },
-      complete: function() {
+      complete: function () {
         completed= true;
         checkComplete();
       }
@@ -241,7 +241,7 @@ var MapReduce = function(db) {
     }
 
     // We are using a temporary view, terrible for performance but good for testing
-    var queryObject = JSON.parse(JSON.stringify(fun, function(key, val) {
+    var queryObject = JSON.parse(JSON.stringify(fun, function (key, val) {
       if (typeof val === 'function') {
         return val + ''; // implicitly `toString` it
       }
@@ -281,7 +281,7 @@ var MapReduce = function(db) {
     }
 
     var parts = fun.split('/');
-    db.get('_design/' + parts[0], function(err, doc) {
+    db.get('_design/' + parts[0], function (err, doc) {
       if (err) {
         if (callback) callback(err);
         return;
@@ -303,7 +303,7 @@ var MapReduce = function(db) {
 };
 
 // Deletion is a noop since we dont store the results of the view
-MapReduce._delete = function() { };
+MapReduce._delete = function () { };
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MapReduce;
 }

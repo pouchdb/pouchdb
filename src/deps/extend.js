@@ -12,7 +12,7 @@ for (var i = 0; i < types.length; i++) {
 var core_toString = class2type.toString;
 var core_hasOwn = class2type.hasOwnProperty;
 
-var type = function(obj) {
+var type = function (obj) {
   if (obj === null) {
     return String( obj );
   }
@@ -21,11 +21,11 @@ var type = function(obj) {
     typeof obj;
 };
 
-var isWindow = function(obj) {
+var isWindow = function (obj) {
   return obj !== null && obj === obj.window;
 };
 
-var isPlainObject = function( obj ) {
+var isPlainObject = function ( obj ) {
   // Must be an Object.
   // Because of IE, we also have to check the presence of the constructor property.
   // Make sure that DOM nodes and window objects don't pass through, as well
@@ -54,15 +54,15 @@ var isPlainObject = function( obj ) {
   return key === undefined || core_hasOwn.call( obj, key );
 };
 
-var isFunction = function(obj) {
+var isFunction = function (obj) {
   return type(obj) === "function";
 };
 
-var isArray = Array.isArray || function(obj) {
+var isArray = Array.isArray || function (obj) {
   return type(obj) === "array";
 };
 
-var extend = function() {
+var extend = function () {
   var options, name, src, copy, copyIsArray, clone,
     target = arguments[0] || {},
     i = 1,
@@ -78,7 +78,7 @@ var extend = function() {
   }
 
   // Handle case when target is a string or something (possible in deep copy)
-  if ( typeof target !== "object" && !isFunction(target) ) {
+  if ( typeof target !== "object" && !isFunction (target) ) {
     target = {};
   }
 
@@ -116,7 +116,7 @@ var extend = function() {
 
         // Don't bring in undefined values
         } else if ( copy !== undefined ) {
-          if (!(isArray(options) && isFunction(copy))) {
+          if (!(isArray(options) && isFunction (copy))) {
             target[ name ] = copy;
           }
         }

@@ -15,7 +15,7 @@ var ajax = function ajax(options, callback) {
     options = {};
   }
 
-  var call = function(fun) {
+  var call = function (fun) {
     var args = Array.prototype.slice.call(arguments, 1);
     if (typeof fun === typeof Function) {
       fun.apply(this, args);
@@ -32,7 +32,7 @@ var ajax = function ajax(options, callback) {
 
   options = extend(true, defaultOptions, options);
 
-  var onSuccess = function(obj, resp, cb){
+  var onSuccess = function (obj, resp, cb){
     if (!options.binary && !options.json && options.processData &&
         typeof obj !== 'string') {
       obj = JSON.stringify(obj);
@@ -48,7 +48,7 @@ var ajax = function ajax(options, callback) {
     call(cb, null, obj, resp);
   };
 
-  var onError = function(err, cb){
+  var onError = function (err, cb){
     var errParsed;
     var errObj = {status: err.status};
     try {
@@ -103,13 +103,13 @@ var ajax = function ajax(options, callback) {
       options.body = null;
     }
 
-    var abortReq = function() {
+    var abortReq = function () {
       timedout=true;
       xhr.abort();
       call(onError, xhr, callback);
     };
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState !== 4 || timedout) {
         return;
       }
@@ -154,7 +154,7 @@ var ajax = function ajax(options, callback) {
       options.json = false;
     }
 
-    return request(options, function(err, response, body) {
+    return request(options, function (err, response, body) {
       if (err) {
         err.status = response ? response.statusCode : 400;
         return call(onError, err, callback);

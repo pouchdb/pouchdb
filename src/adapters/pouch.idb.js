@@ -8,8 +8,8 @@ if (typeof module !== 'undefined' && module.exports) {
   PouchUtils = require('../pouch.utils.js');
 }
 
-var idbError = function(callback) {
-  return function(event) {
+var idbError = function (callback) {
+  return function (event) {
     PouchUtils.call(callback, {
       status: 500,
       error: event.type,
@@ -18,7 +18,7 @@ var idbError = function(callback) {
   };
 };
 
-var IdbPouch = function(opts, callback) {
+var IdbPouch = function (opts, callback) {
 
   // IndexedDB requires a versioned database structure, this is going to make
   // it hard to dynamically create object stores if we needed to for things
@@ -56,7 +56,7 @@ var IdbPouch = function(opts, callback) {
     console.log(name + ': Open Database');
   }
 
-  req.onupgradeneeded = function(e) {
+  req.onupgradeneeded = function (e) {
     var db = e.target.result;
     var currentVersion = e.oldVersion;
     while (currentVersion !== e.newVersion) {
@@ -88,14 +88,14 @@ var IdbPouch = function(opts, callback) {
     return buf;
   }
 
-  req.onsuccess = function(e) {
+  req.onsuccess = function (e) {
 
     idb = e.target.result;
 
     var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE],
                               'readwrite');
 
-    idb.onversionchange = function() {
+    idb.onversionchange = function () {
       idb.close();
     };
 
@@ -103,7 +103,7 @@ var IdbPouch = function(opts, callback) {
     // saucelabs moves to chrome 23
     if (idb.setVersion && Number(idb.version) !== POUCH_VERSION) {
       var versionReq = idb.setVersion(POUCH_VERSION);
-      versionReq.onsuccess = function(evt) {
+      versionReq.onsuccess = function (evt) {
         function setVersionComplete() {
           req.onsuccess(e);
         }
@@ -115,7 +115,7 @@ var IdbPouch = function(opts, callback) {
 
     var req = txn.objectStore(META_STORE).get(META_STORE);
 
-    req.onsuccess = function(e) {
+    req.onsuccess = function (e) {
       var meta = e.target.result || {id: META_STORE};
       if (name + '_id' in meta) {
         instanceId = meta[name + '_id'];
@@ -139,7 +139,7 @@ var IdbPouch = function(opts, callback) {
 
   req.onerror = idbError(callback);
 
-  api.type = function() {
+  api.type = function () {
     return 'idb';
   };
 
@@ -153,13 +153,13 @@ var IdbPouch = function(opts, callback) {
     var newEdits = opts.new_edits;
     var userDocs = req.docs;
     // Parse the docs, give them a sequence number for the result
-    var docInfos = userDocs.map(function(doc, i) {
+    var docInfos = userDocs.map(function (doc, i) {
       var newDoc = PouchUtils.parseDoc(doc, newEdits);
       newDoc._bulk_seq = i;
       return newDoc;
     });
 
-    var docInfoErrors = docInfos.filter(function(docInfo) {
+    var docInfoErrors = docInfos.filter(function (docInfo) {
       return docInfo.error;
     });
     if (docInfoErrors.length) {
@@ -195,7 +195,7 @@ var IdbPouch = function(opts, callback) {
     function complete(event) {
       var aresults = [];
       results.sort(sortByBulkSeq);
-      results.forEach(function(result) {
+      results.forEach(function (result) {
         delete result._bulk_seq;
         if (result.error) {
           aresults.push(result);
@@ -242,7 +242,7 @@ var IdbPouch = function(opts, callback) {
         return finish();
       }
       var reader = new FileReader();
-      reader.onloadend = function(e) {
+      reader.onloadend = function (e) {
         att.digest = 'md5-' + PouchUtils.Crypto.MD5(this.result);
         if (!blobSupport) {
           att.data = btoa(this.result);
@@ -258,7 +258,7 @@ var IdbPouch = function(opts, callback) {
       }
 
       var docv = 0;
-      docInfos.forEach(function(docInfo) {
+      docInfos.forEach(function (docInfo) {
         var attachments = docInfo.data && docInfo.data._attachments ?
           Object.keys(docInfo.data._attachments) : [];
 
@@ -333,7 +333,7 @@ var IdbPouch = function(opts, callback) {
       function finish() {
         docInfo.data._doc_id_rev = docInfo.data._id + "::" + docInfo.data._rev;
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
-        dataReq.onsuccess = function(e) {
+        dataReq.onsuccess = function (e) {
           if (Pouch.DEBUG) {
             console.log(name + ': Wrote Document ', docInfo.metadata.id);
           }
@@ -341,7 +341,7 @@ var IdbPouch = function(opts, callback) {
           // Current _rev is calculated from _rev_tree on read
           delete docInfo.metadata.rev;
           var metaDataReq = txn.objectStore(DOC_STORE).put(docInfo.metadata);
-          metaDataReq.onsuccess = function() {
+          metaDataReq.onsuccess = function () {
             results.push(docInfo);
             PouchUtils.call(callback);
           };
@@ -386,7 +386,7 @@ var IdbPouch = function(opts, callback) {
 
     function saveAttachment(docInfo, digest, data, callback) {
       var objectStore = txn.objectStore(ATTACH_STORE);
-      var getReq = objectStore.get(digest).onsuccess = function(e) {
+      var getReq = objectStore.get(digest).onsuccess = function (e) {
         var originalRefs = e.target.result && e.target.result.refs || {};
         var ref = [docInfo.metadata.id, docInfo.metadata.rev].join('@');
         var newAtt = {
@@ -395,14 +395,14 @@ var IdbPouch = function(opts, callback) {
           refs: originalRefs
         };
         newAtt.refs[ref] = true;
-        var putReq = objectStore.put(newAtt).onsuccess = function(e) {
+        var putReq = objectStore.put(newAtt).onsuccess = function (e) {
           PouchUtils.call(callback);
         };
       };
     }
 
     var txn;
-    preprocessAttachments(function() {
+    preprocessAttachments(function () {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE],
                             'readwrite');
       txn.onerror = idbError(callback);
@@ -430,11 +430,11 @@ var IdbPouch = function(opts, callback) {
       txn = idb.transaction([DOC_STORE, BY_SEQ_STORE, ATTACH_STORE], 'readonly');
     }
 
-    function finish(){
+    function finish() {
       PouchUtils.call(callback, err, {doc: doc, metadata: metadata, ctx: txn});
     }
 
-    txn.objectStore(DOC_STORE).get(id).onsuccess = function(e) {
+    txn.objectStore(DOC_STORE).get(id).onsuccess = function (e) {
       metadata = e.target.result;
       // we can determine the result here if:
       // 1. there is no such document
@@ -454,9 +454,9 @@ var IdbPouch = function(opts, callback) {
       var key = metadata.id + '::' + (opts.rev ? opts.rev : rev);
       var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
 
-      index.get(key).onsuccess = function(e) {
+      index.get(key).onsuccess = function (e) {
         doc = e.target.result;
-        if(doc && doc._doc_id_rev) {
+        if (doc && doc._doc_id_rev) {
           delete(doc._doc_id_rev);
         }
         if (!doc) {
@@ -468,7 +468,7 @@ var IdbPouch = function(opts, callback) {
     };
   };
 
-  api._getAttachment = function(attachment, opts, callback) {
+  api._getAttachment = function (attachment, opts, callback) {
     var result;
     var txn;
     if (opts.ctx) {
@@ -479,12 +479,12 @@ var IdbPouch = function(opts, callback) {
     var digest = attachment.digest;
     var type = attachment.content_type;
 
-    txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function(e) {
+    txn.objectStore(ATTACH_STORE).get(digest).onsuccess = function (e) {
       var data = e.target.result.body;
       if (opts.encode) {
         if (blobSupport) {
           var reader = new FileReader();
-          reader.onloadend = function(e) {
+          reader.onloadend = function (e) {
             result = btoa(this.result);
             PouchUtils.call(callback, null, result);
           };
@@ -517,9 +517,9 @@ var IdbPouch = function(opts, callback) {
       : end ? window.IDBKeyRange.upperBound(end) : null;
 
     var transaction = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readonly');
-    transaction.oncomplete = function() {
+    transaction.oncomplete = function () {
       if ('keys' in opts) {
-        opts.keys.forEach(function(key) {
+        opts.keys.forEach(function (key) {
           if (key in resultsMap) {
             results.push(resultsMap[key]);
           } else {
@@ -543,7 +543,7 @@ var IdbPouch = function(opts, callback) {
       : oStore.openCursor(keyRange);
     var results = [];
     var resultsMap = {};
-    oCursor.onsuccess = function(e) {
+    oCursor.onsuccess = function (e) {
       if (!e.target.result) {
         return;
       }
@@ -567,7 +567,7 @@ var IdbPouch = function(opts, callback) {
           doc.doc = data;
           doc.doc._rev = PouchMerge.winningRev(metadata);
           if (doc.doc._doc_id_rev) {
-              delete(doc.doc._doc_id_rev);
+            delete(doc.doc._doc_id_rev);
           }
           if (opts.conflicts) {
             doc.doc._conflicts = PouchMerge.collectConflicts(metadata);
@@ -598,7 +598,7 @@ var IdbPouch = function(opts, callback) {
         var index = transaction.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
         var mainRev = PouchMerge.winningRev(metadata);
         var key = metadata.id + "::" + mainRev;
-        index.get(key).onsuccess = function(event) {
+        index.get(key).onsuccess = function (event) {
           allDocsInner(cursor.value, event.target.result);
         };
       }
@@ -626,7 +626,7 @@ var IdbPouch = function(opts, callback) {
       cursor['continue']();
     }
 
-    txn.oncomplete = function() {
+    txn.oncomplete = function () {
       callback(null, {
         db_name: name,
         doc_count: count,
@@ -648,7 +648,7 @@ var IdbPouch = function(opts, callback) {
       IdbPouch.Changes.addListener(name, id, api, opts);
       IdbPouch.Changes.notify(name);
       return {
-        cancel: function() {
+        cancel: function () {
           if (Pouch.DEBUG) {
             console.log(name + ': Cancel Changes Feed');
           }
@@ -687,9 +687,9 @@ var IdbPouch = function(opts, callback) {
 
     if (opts.filter && typeof opts.filter === 'string') {
       var filterName = opts.filter.split('/');
-      api.get('_design/' + filterName[0], function(err, ddoc) {
+      api.get('_design/' + filterName[0], function (err, ddoc) {
         /*jshint evil: true */
-        var filter = eval('(function() { return ' +
+        var filter = eval('(function () { return ' +
                           ddoc.filters[filterName[1]] + ' })()');
         opts.filter = filter;
         fetchChanges();
@@ -701,7 +701,7 @@ var IdbPouch = function(opts, callback) {
     function onsuccess(event) {
       if (!event.target.result) {
         // Filter out null results casued by deduping
-        for (var i = 0, l = results.length; i < l; i++ ) {
+        for (var i = 0, l = results.length; i < l; i++) {
           var result = results[i];
           if (result) {
             dedupResults.push(result);
@@ -725,26 +725,26 @@ var IdbPouch = function(opts, callback) {
       }
 
       var index = txn.objectStore(DOC_STORE);
-      index.get(cursor.value._id).onsuccess = function(event) {
+      index.get(cursor.value._id).onsuccess = function (event) {
         var metadata = event.target.result;
         if (PouchUtils.isLocalId(metadata.id)) {
           return cursor['continue']();
         }
 
-        if(last_seq < metadata.seq){
+        if (last_seq < metadata.seq) {
           last_seq = metadata.seq;
         }
 
         var mainRev = PouchMerge.winningRev(metadata);
         var key = metadata.id + "::" + mainRev;
         var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
-        index.get(key).onsuccess = function(docevent) {
+        index.get(key).onsuccess = function (docevent) {
           var doc = docevent.target.result;
           delete doc['_doc_id_rev'];
           var changeList = [{rev: mainRev}];
           if (opts.style === 'all_docs') {
             changeList = PouchMerge.collectLeaves(metadata.rev_tree)
-              .map(function(x) { return {rev: x.rev}; });
+              .map(function (x) { return {rev: x.rev}; });
           }
           var change = {
             id: metadata.id,
@@ -782,7 +782,7 @@ var IdbPouch = function(opts, callback) {
     }
   };
 
-  api._close = function(callback) {
+  api._close = function (callback) {
     if (idb === null) {
       return PouchUtils.call(callback, Pouch.Errors.NOT_OPEN);
     }
@@ -793,7 +793,7 @@ var IdbPouch = function(opts, callback) {
     PouchUtils.call(callback, null);
   };
 
-  api._getRevisionTree = function(docId, callback) {
+  api._getRevisionTree = function (docId, callback) {
     var txn = idb.transaction([DOC_STORE], 'readonly');
     var req = txn.objectStore(DOC_STORE).get(docId);
     req.onsuccess = function (event) {
@@ -809,19 +809,19 @@ var IdbPouch = function(opts, callback) {
   // This function removes revisions of document docId
   // which are listed in revs and sets this document
   // revision to to rev_tree
-  api._doCompaction = function(docId, rev_tree, revs, callback) {
+  api._doCompaction = function (docId, rev_tree, revs, callback) {
     var txn = idb.transaction([DOC_STORE, BY_SEQ_STORE], 'readwrite');
 
     var index = txn.objectStore(DOC_STORE);
-    index.get(docId).onsuccess = function(event) {
+    index.get(docId).onsuccess = function (event) {
       var metadata = event.target.result;
       metadata.rev_tree = rev_tree;
 
       var count = revs.length;
-      revs.forEach(function(rev) {
+      revs.forEach(function (rev) {
         var index = txn.objectStore(BY_SEQ_STORE).index('_doc_id_rev');
         var key = docId + "::" + rev;
-        index.getKey(key).onsuccess = function(e) {
+        index.getKey(key).onsuccess = function (e) {
           var seq = e.target.result;
           if (!seq) {
             return;
@@ -835,7 +835,7 @@ var IdbPouch = function(opts, callback) {
         };
       });
     };
-    txn.oncomplete = function() {
+    txn.oncomplete = function () {
       PouchUtils.call(callback);
     };
   };
@@ -859,7 +859,7 @@ IdbPouch.destroy = function idb_destroy(name, opts, callback) {
   }
   var req = window.indexedDB.deleteDatabase(name);
 
-  req.onsuccess = function() {
+  req.onsuccess = function () {
     //Remove open request from the list.
     if (Pouch.openReqList[name]) {
       Pouch.openReqList[name] = null;

@@ -12,8 +12,8 @@
 
 var Crypto = {};
 
-(function() {
-  Crypto.MD5 = function(string) {
+(function () {
+  Crypto.MD5 = function (string) {
 
     function RotateLeft(lValue, iShiftBits) {
       return (lValue<<iShiftBits) | (lValue>>>(32-iShiftBits));
