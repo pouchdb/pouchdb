@@ -1,20 +1,20 @@
 /*global Pouch: true, pouchCollate */
 
-(function (){
+(function () {
   "use strict";
 
-  var GQL= function(db) {
+  var GQL= function (db) {
 
-    var viewQuery= function(query, options) {
+    var viewQuery= function (query, options) {
       if (!options.complete) {
         return;
       }
 
       var results = [];
 
-      var isAggregator= function(str){return (/max|average|min|sum|count/).test(str);};
+      var isAggregator= function (str){return (/max|average|min|sum|count/).test(str);};
 
-      var getIdentifierList= function(str){
+      var getIdentifierList= function (str){
         var columns;
         if (!str){
           return [];
@@ -28,31 +28,31 @@
         return columns.map(function (id){return id.replace(/`([^`]*)`/, "$1");});
       };
 
-      var parse= function(queryString){
+      var parse= function (queryString){
 
-        var lexedTokens= (function(){
+        var lexedTokens= (function () {
           var tokens = [], c, index = 0, currentString= "";
 
-          var isOperator= function(c) { return (/[=<>!+\-*\/(),]/).test(c); };
-          var isFullWordOperator= function(str) { return (/^and$|^or$|^not$|^is$/).test(str);};
-          var isBooleanLiteral= function(str) { return (/true|false/).test(str);};
-          var isDigit= function(c) { return (/[0-9.]/).test(c); };
-          var isWhiteSpace= function(c) { return (/\s/).test(c); };
-          var isConstant= function(str) {return (/null/).test(str);};
-          var isString= function(str) {return (/^".*"$|^'.*'$/).test(str);};
+          var isOperator= function (c) { return (/[=<>!+\-*\/(),]/).test(c); };
+          var isFullWordOperator= function (str) { return (/^and$|^or$|^not$|^is$/).test(str);};
+          var isBooleanLiteral= function (str) { return (/true|false/).test(str);};
+          var isDigit= function (c) { return (/[0-9.]/).test(c); };
+          var isWhiteSpace= function (c) { return (/\s/).test(c); };
+          var isConstant= function (str) {return (/null/).test(str);};
+          var isString= function (str) {return (/^".*"$|^'.*'$/).test(str);};
 
           //always ending with a space to simplify lexer parsing
           queryString += " ";
 
-          var advance= function (){
-            if(index < queryString.length) {
+          var advance= function () {
+            if (index < queryString.length) {
               c = queryString[index++];
               return true;
             }
             return false;
           };
 
-          var addToken= function(type, value) {
+          var addToken= function (type, value) {
             currentString= "";
             tokens.push({
               type: type,
@@ -60,7 +60,7 @@
             });
           };
 
-          var handleDelimitedCharacters= function(){
+          var handleDelimitedCharacters= function () {
             var normalizedString= currentString.toLowerCase();
             if (normalizedString !== ""){
               //full-word operators, e.g. not, where
@@ -83,12 +83,12 @@
             }
           };
 
-          var pairedOperator= function(){
+          var pairedOperator= function () {
             addToken(c + queryString[index]);
             advance();
           };
 
-          var quotedString= function(delimiter, label){
+          var quotedString= function (delimiter, label){
             while (advance()) {
               if (c !== delimiter){
                 currentString += c;
@@ -157,7 +157,7 @@
 
         var parseTree= [], symbolTable = {}, index= 0, token;
 
-        var advance= function() {
+        var advance= function () {
           if (index < lexedTokens.length){
             token= interpretToken(lexedTokens[index++]);
             return true;
@@ -165,7 +165,7 @@
           return false;
         };
 
-        var peekToken= function(n) {
+        var peekToken= function (n) {
           n= n || 0;
           if (index + n < lexedTokens.length){
             return interpretToken(lexedTokens[index+n]);
@@ -173,16 +173,16 @@
           return null;
         };
 
-        var interpretToken= function(token) {
+        var interpretToken= function (token) {
           var sym = Object.create(symbolTable[token.type]);
           sym.type= token.type;
           sym.value= token.value;
           return sym;
         };
 
-        var isFunction= function(name){ return isAggregator(name) || /lower|upper/.test(name.toLowerCase()); };
+        var isFunction= function (name){ return isAggregator(name) || /lower|upper/.test(name.toLowerCase()); };
 
-        var expression= function(rbp) {
+        var expression= function (rbp) {
           var left;
           advance();
           if (!token.nud) {throw GQL.Errors.PARSING_ERROR("Unexpected token: " + token.type);}
@@ -195,7 +195,7 @@
           return left;
         };
 
-        var symbol= function(id, nud, lbp, led) {
+        var symbol= function (id, nud, lbp, led) {
           var sym= symbolTable[id] || {};
           symbolTable[id]= {
             lbp: sym.lbp || lbp,
@@ -204,7 +204,7 @@
           };
         };
 
-        var infix= function(id, lbp, rbp, led) {
+        var infix= function (id, lbp, rbp, led) {
           rbp= rbp || lbp;
           symbol(id, null, lbp, led  || function (left) {
             return {
@@ -215,7 +215,7 @@
           });
         };
 
-        var prefix= function(id, rbp) {
+        var prefix= function (id, rbp) {
           symbol(id, function () {
             return {
               type: id,
@@ -253,20 +253,20 @@
           return value;
         });
 
-        symbol("number", function(number) {
+        symbol("number", function (number) {
           return number;
         });
-        symbol("boolean", function(bool) {
+        symbol("boolean", function (bool) {
           return bool;
         });
-        symbol("constant", function(c) {
+        symbol("constant", function (c) {
           return c;
         });
-        symbol("string", function(str) {
+        symbol("string", function (str) {
           return str;
         });
 
-        symbol(",", function() {
+        symbol(",", function () {
           //commas are used to separate independent statements
           return expression(20);
         });
@@ -285,12 +285,12 @@
           };
         });
 
-        symbol("identifier", function(tok) {
+        symbol("identifier", function (tok) {
           //here we allow for identifiers with the same name as functions
-          if (isFunction(tok.value) && peekToken().type === "(") {
+          if (isfunction (tok.value) && peekToken().type === "(") {
             var args= [];
             while(advance()){
-              if(token.type === ")"){
+              if (token.type === ")"){
                 return {
                   type: "call",
                   args: args,
@@ -311,25 +311,25 @@
         return parseTree;
       };
 
-      var selectFun= (function(){
+      var selectFun= (function () {
 
         //handle special "select all" case
-        if(!query.select || query.select.trim() === "*"){
+        if (!query.select || query.select.trim() === "*"){
           if (query.pivot || query.groupBy){
             throw GQL.Errors.SELECT_ERROR(
               "If a pivot or group by is present, select columns must be " + "specified explicitly.");
           } else {
-            return function(doc){return doc;};
+            return function (doc){return doc;};
           }
         }
 
         //parse the tokens and add appropriate labels to the top level tokens
-        var parsedTokens= (function() {
+        var parsedTokens= (function () {
 
-          var statementToString= function(statement){
+          var statementToString= function (statement){
             var result= [];
 
-            var recur= function(node){
+            var recur= function (node){
               switch (node.type) {
                 case "boolean":
                   return node.value.toString();
@@ -355,7 +355,7 @@
 
                 default:
                   var returnString= "";
-                  if(node.left){
+                  if (node.left){
                     returnString+= recur(node.left) + " ";
                   }
                   returnString += node.type + " ";
@@ -368,7 +368,7 @@
           };
 
           var labels= {};
-          if(query.label){
+          if (query.label){
             var labelTokens= parse(query.label);
             //make sure there is an even number of label/statement pairs
             if (labelTokens.length/2 !== 0 || labelTokens.length === 0){
@@ -379,7 +379,7 @@
             }
           }
           var tokens= parse(query.select);
-          tokens.forEach(function(tok){
+          tokens.forEach(function (tok){
             var key= statementToString(tok);
             if (labels[key]){
               tok["label"]= labels[key];
@@ -390,45 +390,45 @@
           return tokens;
         }());
 
-        return (function(){
+        return (function () {
 
           var operators = {
-            "+": function(a, b) { return a + b; },
-            "-": function(a, b) {
+            "+": function (a, b) { return a + b; },
+            "-": function (a, b) {
               if (typeof b === "undefined") {return -a;}
               return a - b;
             },
-            "*": function(a, b) { return a * b; },
-            "/": function(a, b) { return a / b; },
-            "=": function(a, b) { return a === b; },
-            "<": function(a, b) { return a < b; },
-            "<=": function(a, b) { return a <= b; },
-            ">": function(a, b) { return a > b; },
-            ">=": function(a, b) { return a >= b; },
-            "!=": function(a, b) { return a !== b; },
-            "<>": function(a, b) { return a !== b; },
-            "and": function(a, b) { return a && b; },
-            "or": function(a, b) { return a || b; },
-            "not": function(a) { return !a; }
+            "*": function (a, b) { return a * b; },
+            "/": function (a, b) { return a / b; },
+            "=": function (a, b) { return a === b; },
+            "<": function (a, b) { return a < b; },
+            "<=": function (a, b) { return a <= b; },
+            ">": function (a, b) { return a > b; },
+            ">=": function (a, b) { return a >= b; },
+            "!=": function (a, b) { return a !== b; },
+            "<>": function (a, b) { return a !== b; },
+            "and": function (a, b) { return a && b; },
+            "or": function (a, b) { return a || b; },
+            "not": function (a) { return !a; }
           };
 
           var functions= {
-            upper: function(str){return str.toUpperCase();},
-            lower: function(str){return str.toLowerCase();},
-            max: function(values, label) {
-              return values.reduce(function(max, a) {
-                if(a[label] && (!max || a[label] > max)){max= a[label];}
+            upper: function (str){return str.toUpperCase();},
+            lower: function (str){return str.toLowerCase();},
+            max: function (values, label) {
+              return values.reduce(function (max, a) {
+                if (a[label] && (!max || a[label] > max)){max= a[label];}
                 return max;
               }, null); },
-              min: function(values, label) {
-                return values.reduce(function(min, a) {
-                  if(a[label] && (!min || a[label] < min)){min= a[label];}
+              min: function (values, label) {
+                return values.reduce(function (min, a) {
+                  if (a[label] && (!min || a[label] < min)){min= a[label];}
                   return min;
                 }, null); },
-                average: function(values, label) {
-                  var v= values.reduce(function(tracker, a) {
-                    if(a[label]){
-                      if(typeof a[label] !== "number"){
+                average: function (values, label) {
+                  var v= values.reduce(function (tracker, a) {
+                    if (a[label]){
+                      if (typeof a[label] !== "number"){
                         throw GQL.Errors.SELECT_ERROR("All values being averaged must be numbers, but "+
                                                       a[label] + " is not.");
                       }
@@ -437,18 +437,18 @@
                     return tracker; }, {count: 0, total: 0});
                     return v.total/v.count;
                 },
-                count: function(values, label) {
-                  return values.reduce(function(count, a) {
-                    if(a[label]){
+                count: function (values, label) {
+                  return values.reduce(function (count, a) {
+                    if (a[label]){
                       return ++count;
                     }
                     return count;
                   }, 0);
                 },
-                sum: function(values, label) {
-                  return values.reduce(function(sum, a) {
-                    if(a[label]){
-                      if(typeof a[label] !== "number"){
+                sum: function (values, label) {
+                  return values.reduce(function (sum, a) {
+                    if (a[label]){
+                      if (typeof a[label] !== "number"){
                         throw GQL.Errors.SELECT_ERROR("All values being summed must be numbers, but "+ a[label] +
                                                       " is not.");
                       }
@@ -457,8 +457,8 @@
                     return sum;}, 0);}
           };
 
-          var parseTreeSearch= function(condition){
-            var recur= function(parentNode){
+          var parseTreeSearch= function (condition){
+            var recur= function (parentNode){
               if (!parentNode){
                 return false;
               }
@@ -474,7 +474,7 @@
             var matchesCondition= false;
 
             for (var i=0; i< parsedTokens.length; i++){
-              if(recur(parsedTokens[i])){
+              if (recur(parsedTokens[i])){
                 matchesCondition= true;
                 break;
               }
@@ -482,12 +482,12 @@
             return matchesCondition;
           };
 
-          var containsAggregator= function(){
-            return parseTreeSearch(function(node){return node.type === "call" && isAggregator(node.name);});
+          var containsAggregator= function () {
+            return parseTreeSearch(function (node){return node.type === "call" && isAggregator(node.name);});
           };
 
-          var containsIdentifierWithoutAggregator= function(){
-            return parseTreeSearch(function(node){
+          var containsIdentifierWithoutAggregator= function () {
+            return parseTreeSearch(function (node){
               if (node.type === "call"){
                 if (isAggregator(node.name)){
                   return false;
@@ -497,7 +497,7 @@
               //unaggregated identifiers are allowed if they are in the groupBy clause
               if (node.type === "identifier"){
                 var re= new RegExp("\\b"+node.value+"\\b");
-                if(query.groupBy && re.test(query.groupBy)){
+                if (query.groupBy && re.test(query.groupBy)){
                   return false;
                 }
                 return true;
@@ -505,11 +505,11 @@
             });
           };
 
-          var pivotOverlap= function(pivotingColumns){
+          var pivotOverlap= function (pivotingColumns){
             var groupByColumns= getIdentifierList(query.groupBy);
             var selectColumns= [];
 
-            var recur= function(parentNode){
+            var recur= function (parentNode){
               if (!parentNode){
                 return;
               }
@@ -524,7 +524,7 @@
               recur(parentNode.right);
             };
 
-            parsedTokens.forEach(function(node){
+            parsedTokens.forEach(function (node){
               recur(node);
             });
 
@@ -537,7 +537,7 @@
             return false;
           };
 
-          var parseNode= function(node, doc){
+          var parseNode= function (node, doc){
             switch (node.type) {
               case "boolean":
                 return node.value;
@@ -565,7 +565,7 @@
                 //handle the case where a column in the group-by is present in the
                 //select without and aggregate function (all cells will have the same value)
                 if (Array.isArray(doc)){
-                if(doc[0][node.value] === undefined){
+                if (doc[0][node.value] === undefined){
                   return null;
                 }
                 return doc[0][node.value];
@@ -577,7 +577,7 @@
 
               default:
                 if (operators[node.type]) {
-                if(node.left){
+                if (node.left){
                   return operators[node.type](parseNode(node.left, doc), parseNode(node.right, doc));
                 }
                 return operators[node.type](parseNode(node.right, doc));
@@ -587,21 +587,21 @@
           };
 
 
-          return (function (){
+          return (function () {
             //reduce special case checking
             if (!query.pivot){
               query.pivot= "";
             }
 
             if (!containsAggregator() && !query.pivot){
-              return function(values){
+              return function (values){
                 var result= [];
-                values.forEach(function(doc){
+                values.forEach(function (doc){
                   var viewRow= {};
-                  parsedTokens.forEach(function(statement, i){
+                  parsedTokens.forEach(function (statement, i){
                     viewRow[statement.label]= parseNode(statement, doc);
                   });
-                  if(Object.keys(viewRow).length !== 0){
+                  if (Object.keys(viewRow).length !== 0){
                     result.push(viewRow);
                   }
                 });
@@ -610,7 +610,7 @@
               };
             } else {
               //select in the presence of aggregators and/or pivot
-              if(containsIdentifierWithoutAggregator()){
+              if (containsIdentifierWithoutAggregator()){
                 throw GQL.Errors.SELECT_ERROR(
                   "If an aggregation function is used in the select clause, all identifiers " +
                   "in the select clause must be wrapped by an aggregation function or appear in the " +
@@ -619,16 +619,16 @@
               if (query.pivot){
                 //if there are pivoting columns
                 var pivotingColumns= getIdentifierList(query.pivot);
-                if(pivotOverlap(pivotingColumns)){
+                if (pivotOverlap(pivotingColumns)){
                   throw GQL.Errors.PIVOT_ERROR(
                     "Columns that appear in the pivot clause may not appear in the group by or " +
                     "select clauses.");
                 }
-                return function(values){
+                return function (values){
                   var viewRow= {};
                   var pivotGroups= {};
                   values.forEach(function (doc){
-                    var pivotKey= pivotingColumns.map(function(id){return doc[id];}).join(", ");
+                    var pivotKey= pivotingColumns.map(function (id){return doc[id];}).join(", ");
                     if (!pivotGroups[pivotKey]){
                       pivotGroups[pivotKey]= [doc];
                     } else {
@@ -636,8 +636,8 @@
                     }
                   });
 
-                  var processPivotGroups= function(statement){
-                    if(statement.type === "identifier"){
+                  var processPivotGroups= function (statement){
+                    if (statement.type === "identifier"){
                       viewRow[statement.label]= parseNode(statement, pivotGroups[pg]);
                     } else if (statement.type === "call" && isAggregator(statement.name)) {
                       //aggregate across entire pivot group
@@ -648,18 +648,18 @@
                   for (var pg in pivotGroups){
                     parsedTokens.forEach(processPivotGroups);
                   }
-                  if(Object.keys(viewRow).length !== 0){
+                  if (Object.keys(viewRow).length !== 0){
                     return [viewRow];
                   }
                 };
               } else {
-                return function(values){
+                return function (values){
                   var viewRow= {};
-                  parsedTokens.forEach(function(statement, i){
+                  parsedTokens.forEach(function (statement, i){
                     viewRow[statement.label]= parseNode(statement, values);
                   });
 
-                  if(Object.keys(viewRow).length !== 0){
+                  if (Object.keys(viewRow).length !== 0){
                     return [viewRow];
                   }
                 };
@@ -669,38 +669,38 @@
         }());
       }());
 
-      var whereFun= (function() {
+      var whereFun= (function () {
 
         if (!query.where) {
-          return function(){return true;};
+          return function () {return true;};
         }
 
         var parsedTokens= parse(query.where);
 
-        var interpreter= function(doc){
+        var interpreter= function (doc){
 
           var operators = {
-            "+": function(a, b) { return a + b; },
-            "-": function(a, b) {
+            "+": function (a, b) { return a + b; },
+            "-": function (a, b) {
               if (typeof b === "undefined") {return -a;}
               return a - b;
             },
-            "*": function(a, b) { return a * b; },
-            "/": function(a, b) { return a / b; },
-            "=": function(a, b) { return a === b; },
-            "is": function(a, b) { return a === b; },
-            "<": function(a, b) { return a < b; },
-            "<=": function(a, b) { return a <= b; },
-            ">": function(a, b) { return a > b; },
-            ">=": function(a, b) { return a >= b; },
-            "!=": function(a, b) { return a !== b; },
-            "<>": function(a, b) { return a !== b; },
-            "and": function(a, b) { return a && b; },
-            "or": function(a, b) { return a || b; },
-            "not": function(a) { return !a; }
+            "*": function (a, b) { return a * b; },
+            "/": function (a, b) { return a / b; },
+            "=": function (a, b) { return a === b; },
+            "is": function (a, b) { return a === b; },
+            "<": function (a, b) { return a < b; },
+            "<=": function (a, b) { return a <= b; },
+            ">": function (a, b) { return a > b; },
+            ">=": function (a, b) { return a >= b; },
+            "!=": function (a, b) { return a !== b; },
+            "<>": function (a, b) { return a !== b; },
+            "and": function (a, b) { return a && b; },
+            "or": function (a, b) { return a || b; },
+            "not": function (a) { return !a; }
           };
 
-          var parseNode= function(node){
+          var parseNode= function (node){
             switch (node.type) {
               case "boolean":
                 return node.value;
@@ -718,14 +718,14 @@
                 return node.value;
 
               case "identifier":
-                if(doc[node.value] === undefined){
+                if (doc[node.value] === undefined){
                 return null;
               }
               return doc[node.value];
 
               default:
                 if (operators[node.type]) {
-                if(node.left){
+                if (node.left){
                   var left= parseNode(node.left);
                   var right= parseNode(node.right);
                   return operators[node.type](left, right);
@@ -742,16 +742,16 @@
         return interpreter;
       }());
 
-      var groupByFun= (function(){
-        if(!query.groupBy){
-          return function(doc){return "";};
+      var groupByFun= (function () {
+        if (!query.groupBy){
+          return function (doc){return "";};
         }
 
         var columns= getIdentifierList(query.groupBy);
 
-        var interpreter= function(doc){
+        var interpreter= function (doc){
           var key= [];
-          columns.forEach(function(col){
+          columns.forEach(function (col){
             key.push(doc[col]);
           });
           return key;
@@ -760,13 +760,13 @@
         return interpreter;
       }());
 
-      var map= function(doc){
+      var map= function (doc){
         if (whereFun(doc)){
           results.push({id: doc._id, key: groupByFun(doc), value: doc});
         }
       };
 
-      var reduce= function(keys, values){
+      var reduce= function (keys, values){
         return selectFun(values);
       };
 
@@ -775,8 +775,8 @@
       var conflicts = ('conflicts' in options ? options.conflicts : false);
 
       //only proceed once all documents are mapped and joined
-      var checkComplete= function(){
-        results.sort(function(a, b) {
+      var checkComplete= function () {
+        results.sort(function (a, b) {
           return pouchCollate(a.key, b.key);
         });
         if (options.descending) {
@@ -784,7 +784,7 @@
         }
 
         var groups= [];
-        results.forEach(function(e) {
+        results.forEach(function (e) {
           var last= groups[groups.length-1] || null;
           if (last && pouchCollate(last.key[0][0], e.key) === 0) {
             last.key.push([e.key, e.id]);
@@ -794,7 +794,7 @@
           groups.push({key: [[e.key, e.id]], value: [e.value]});
         });
 
-        groups.forEach(function(e) {
+        groups.forEach(function (e) {
           e.value = reduce(e.key, e.value);
           e.value = (typeof e.value === 'undefined') ? null : e.value;
           e.key = e.key[0][0];
@@ -803,8 +803,8 @@
         var flattenedOutput= [];
 
         //this bit is to make the output palatable
-        groups.forEach(function(e){
-          e.value.forEach(function(f){
+        groups.forEach(function (e){
+          e.value.forEach(function (f){
             flattenedOutput.push(f);
           });
         });
@@ -815,18 +815,18 @@
       db.changes({
         conflicts: conflicts,
         include_docs: true,
-        onChange: function(doc) {
+        onChange: function (doc) {
           if (!('deleted' in doc)) {
             map(doc.doc);
           }
         },
-        complete: function() {
+        complete: function () {
           checkComplete();
         }
       });
     };
 
-    var query= function(fun, opts, callback) {
+    var query= function (fun, opts, callback) {
 
       if (typeof opts === 'function') {
         callback = opts;
@@ -857,28 +857,28 @@
       error: 'not_recognized',
       reason: 'Format of input query is not valid'
     },
-    LEXER_ERROR: function(message, index){
+    LEXER_ERROR: function (message, index){
       return {
         status: 400,
         error: "tokenizing_error",
         reason: message + " on character " + index + "."  || "Generic tokenizing error"
       };
     },
-    PARSING_ERROR: function(message){
+    PARSING_ERROR: function (message){
       return {
         status: 400,
         error: "parsing_error",
         reason: message || "Generic parsing error"
       };
     },
-    SELECT_ERROR: function(message){
+    SELECT_ERROR: function (message){
       return {
         status: 400,
         error: "select_error",
         reason: message || "Generic select error"
       };
     },
-    PIVOT_ERROR: function(message){
+    PIVOT_ERROR: function (message){
       return {
         status: 400,
         error: "pivot_error",
@@ -888,7 +888,7 @@
   };
 
   // Deletion is a noop since we dont store the results of the view
-  GQL._delete = function() { };
+  GQL._delete = function () { };
 
   Pouch.plugin('gql', GQL);
 

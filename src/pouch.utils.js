@@ -38,14 +38,14 @@ var reservedWords = [
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
 //   - any other string value is a valid id
-var isValidId = function(id) {
+var isValidId = function (id) {
   if (/^_/.test(id)) {
     return (/^_(design|local)/).test(id);
   }
   return true;
 };
 
-var isChromeApp = function(){
+var isChromeApp = function () {
   return (typeof chrome !== "undefined" &&
           typeof chrome.storage !== "undefined" &&
           typeof chrome.storage.local !== "undefined");
@@ -53,21 +53,21 @@ var isChromeApp = function(){
 
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
-PouchUtils.call = function(fun) {
+PouchUtils.call = function (fun) {
   if (typeof fun === typeof Function) {
     var args = Array.prototype.slice.call(arguments, 1);
     fun.apply(this, args);
   }
 };
 
-PouchUtils.isLocalId = function(id) {
+PouchUtils.isLocalId = function (id) {
   return (/^_local/).test(id);
 };
 
 // check if a specific revision of a doc has been deleted
 //  - metadata: the metadata object from the doc store
 //  - rev: (optional) the revision to check. defaults to winning revision
-PouchUtils.isDeleted = function(metadata, rev) {
+PouchUtils.isDeleted = function (metadata, rev) {
   if (!rev) {
     rev = PouchMerge.winningRev(metadata);
   }
@@ -75,7 +75,7 @@ PouchUtils.isDeleted = function(metadata, rev) {
     rev = rev.split('-')[1];
   }
   var deleted = false;
-  PouchMerge.traverseRevTree(metadata.rev_tree, function(isLeaf, pos, id, acc, opts) {
+  PouchMerge.traverseRevTree(metadata.rev_tree, function (isLeaf, pos, id, acc, opts) {
     if (id === rev) {
       deleted = !!opts.deleted;
     }
@@ -84,8 +84,8 @@ PouchUtils.isDeleted = function(metadata, rev) {
   return deleted;
 };
 
-PouchUtils.filterChange = function(opts) {
-  return function(change) {
+PouchUtils.filterChange = function (opts) {
+  return function (change) {
     var req = {};
     var hasFilter = opts.filter && typeof opts.filter === 'function';
 
@@ -107,7 +107,7 @@ PouchUtils.filterChange = function(opts) {
   };
 };
 
-PouchUtils.processChanges = function(opts, changes, last_seq) {
+PouchUtils.processChanges = function (opts, changes, last_seq) {
   // TODO: we should try to filter and limit as soon as possible
   changes = changes.filter(PouchUtils.filterChange(opts));
   if (opts.limit) {
@@ -115,7 +115,7 @@ PouchUtils.processChanges = function(opts, changes, last_seq) {
       changes.length = opts.limit;
     }
   }
-  changes.forEach(function(change){
+  changes.forEach(function (change) {
     PouchUtils.call(opts.onChange, change);
   });
   PouchUtils.call(opts.complete, null, {results: changes, last_seq: last_seq});
@@ -123,7 +123,7 @@ PouchUtils.processChanges = function(opts, changes, last_seq) {
 
 // Preprocess documents, parse their revisions, assign an id and a
 // revision for new writes that are missing them, etc
-PouchUtils.parseDoc = function(doc, newEdits) {
+PouchUtils.parseDoc = function (doc, newEdits) {
   var error = null;
   var nRevNum;
   var newRevId;
@@ -159,7 +159,7 @@ PouchUtils.parseDoc = function(doc, newEdits) {
     if (doc._revisions) {
       doc._rev_tree = [{
         pos: doc._revisions.start - doc._revisions.ids.length + 1,
-        ids: doc._revisions.ids.reduce(function(acc, x) {
+        ids: doc._revisions.ids.reduce(function (acc, x) {
           if (acc === null) {
             return [x, opts, []];
           } else {
@@ -205,7 +205,7 @@ PouchUtils.parseDoc = function(doc, newEdits) {
     return error;
   }
 
-  return Object.keys(doc).reduce(function(acc, key) {
+  return Object.keys(doc).reduce(function (acc, key) {
     if (/^_/.test(key) && key !== '_attachments') {
       acc.metadata[key.slice(1)] = doc[key];
     } else {
@@ -215,31 +215,31 @@ PouchUtils.parseDoc = function(doc, newEdits) {
   }, {metadata : {}, data : {}});
 };
 
-PouchUtils.isCordova = function(){
+PouchUtils.isCordova = function () {
   return (typeof cordova !== "undefined" ||
           typeof PhoneGap !== "undefined" ||
           typeof phonegap !== "undefined");
 };
 
-PouchUtils.Changes = function() {
+PouchUtils.Changes = function () {
 
   var api = {};
   var listeners = {};
 
-  if (isChromeApp()){
-    chrome.storage.onChanged.addListener(function(e){
+  if (isChromeApp()) {
+    chrome.storage.onChanged.addListener(function (e) {
       // make sure it's event addressed to us
       if (e.db_name != null) {
         api.notify(e.db_name.newValue);//object only has oldValue, newValue members
       }
     });
   } else if (typeof window !== 'undefined') {
-    window.addEventListener("storage", function(e) {
+    window.addEventListener("storage", function (e) {
       api.notify(e.key);
     });
   }
 
-  api.addListener = function(db_name, id, db, opts) {
+  api.addListener = function (db_name, id, db, opts) {
     if (!listeners[db_name]) {
       listeners[db_name] = {};
     }
@@ -249,27 +249,27 @@ PouchUtils.Changes = function() {
     };
   };
 
-  api.removeListener = function(db_name, id) {
+  api.removeListener = function (db_name, id) {
     if (listeners[db_name]) {
       delete listeners[db_name][id];
     }
   };
 
-  api.clearListeners = function(db_name) {
+  api.clearListeners = function (db_name) {
     delete listeners[db_name];
   };
 
-  api.notifyLocalWindows = function(db_name){
+  api.notifyLocalWindows = function (db_name) {
     //do a useless change on a storage thing
     //in order to get other windows's listeners to activate
-    if (!isChromeApp()){
+    if (!isChromeApp()) {
       localStorage[db_name] = (localStorage[db_name] === "a") ? "b" : "a";
     } else {
       chrome.storage.local.set({db_name: db_name});
     }
   };
 
-  api.notify = function(db_name) {
+  api.notify = function (db_name) {
     if (!listeners[db_name]) { return; }
 
     Object.keys(listeners[db_name]).forEach(function (i) {
@@ -282,7 +282,7 @@ PouchUtils.Changes = function() {
         filter: opts.filter,
         since: opts.since,
         query_params: opts.query_params,
-        onChange: function(c) {
+        onChange: function (c) {
           if (c.seq > opts.since && !opts.cancelled) {
             opts.since = c.seq;
             PouchUtils.call(opts.onChange, c);
@@ -296,27 +296,27 @@ PouchUtils.Changes = function() {
 };
 
 if (typeof window === 'undefined' || !('atob' in window)) {
-  PouchUtils.atob = function(str) {
+  PouchUtils.atob = function (str) {
     var base64 = new buffer(str, 'base64');
     // Node.js will just skip the characters it can't encode instead of
     // throwing and exception
     if (base64.toString('base64') !== str) {
-      throw("Cannot base64 encode full string");
+      throw ("Cannot base64 encode full string");
     }
     return base64.toString('binary');
   };
 } else {
-  PouchUtils.atob = function(str) {
+  PouchUtils.atob = function (str) {
     return atob(str);
   };
 }
 
 if (typeof window === 'undefined' || !('btoa' in window)) {
-  PouchUtils.btoa = function(str) {
+  PouchUtils.btoa = function (str) {
     return new buffer(str, 'binary').toString('base64');
   };
 } else {
-  PouchUtils.btoa = function(str) {
+  PouchUtils.btoa = function (str) {
     return btoa(str);
   };
 }

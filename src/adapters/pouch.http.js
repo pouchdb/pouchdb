@@ -16,7 +16,7 @@ var HTTP_TIMEOUT = 10000;
 // parseUri 1.2.2
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
-function parseUri (str) {
+function parseUri(str) {
   var o = parseUri.options;
   var m = o.parser[o.strictMode ? "strict" : "loose"].exec(str);
   var uri = {};
@@ -45,8 +45,8 @@ function encodeDocId(id) {
 
 parseUri.options = {
   strictMode: false,
-  key: ["source","protocol","authority","userInfo","user","password","host",
-        "port","relative","path","directory","file","query","anchor"],
+  key: ["source", "protocol", "authority", "userInfo", "user", "password", "host",
+        "port", "relative", "path", "directory", "file", "query", "anchor"],
   q:   {
     name:   "queryKey",
     parser: /(?:^|&)([^&=]*)=?([^&]*)/g
@@ -156,12 +156,12 @@ function HttpPouch(opts, callback) {
   }
   var uuids = {
     list: [],
-    get: function(opts, callback) {
+    get: function (opts, callback) {
       if (typeof opts === 'function') {
         callback = opts;
         opts = {count: 10};
       }
-      var cb = function(err, body) {
+      var cb = function (err, body) {
         if (err || !('uuids' in body)) {
           PouchUtils.call(callback, err || Pouch.Errors.UNKNOWN_ERROR);
         } else {
@@ -179,8 +179,8 @@ function HttpPouch(opts, callback) {
   };
 
   // Create a new CouchDB database based on the given opts
-  var createDB = function(){
-    ajax({headers: host.headers, method: 'PUT', url: db_url}, function(err, ret) {
+  var createDB = function () {
+    ajax({headers: host.headers, method: 'PUT', url: db_url}, function (err, ret) {
       // If we get an "Unauthorized" error
       if (err && err.status === 401) {
         // Test if the database already exists
@@ -206,7 +206,7 @@ function HttpPouch(opts, callback) {
     });
   };
   if (!opts.skipSetup) {
-    ajax({headers: host.headers, method: 'GET', url: db_url}, function(err, ret) {
+    ajax({headers: host.headers, method: 'GET', url: db_url}, function (err, ret) {
       //check if the db exists
       if (err) {
         if (err.status === 404) {
@@ -222,16 +222,16 @@ function HttpPouch(opts, callback) {
     });
   }
 
-  api.type = function() {
+  api.type = function () {
     return 'http';
   };
 
   // The HttpPouch's ID is its URL
-  api.id = function() {
+  api.id = function () {
     return genDBUrl(host, '');
   };
 
-  api.request = function(options, callback) {
+  api.request = function (options, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('request', arguments);
       return;
@@ -243,7 +243,7 @@ function HttpPouch(opts, callback) {
 
   // Sends a POST request to the host calling the couchdb _compact function
   //    version: The version of CouchDB it is running
-  api.compact = function(opts, callback) {
+  api.compact = function (opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('compact', arguments);
       return;
@@ -256,9 +256,9 @@ function HttpPouch(opts, callback) {
       headers: host.headers,
       url: genDBUrl(host, '_compact'),
       method: 'POST'
-    }, function() {
+    }, function () {
       function ping() {
-        api.info(function(err, res) {
+        api.info(function (err, res) {
           if (!res.compact_running) {
             PouchUtils.call(callback, null);
           } else {
@@ -276,14 +276,14 @@ function HttpPouch(opts, callback) {
   // Calls GET on the host, which gets back a JSON string containing
   //    couchdb: A welcome string
   //    version: The version of CouchDB it is running
-  api.info = function(callback) {
+  api.info = function (callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('info', arguments);
       return;
     }
     ajax({
       headers: host.headers,
-      method:'GET',
+      method: 'GET',
       url: genDBUrl(host, '')
     }, callback);
   };
@@ -291,7 +291,7 @@ function HttpPouch(opts, callback) {
   // Get the document with the given id from the database given by host.
   // The id could be solely the _id in the database, or it may be a
   // _design/ID or _local/ID path
-  api.get = function(id, opts, callback) {
+  api.get = function (id, opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('get', arguments);
       return;
@@ -388,7 +388,7 @@ function HttpPouch(opts, callback) {
     }
 
     // Get the document
-    ajax(options, function(err, doc, xhr) {
+    ajax(options, function (err, doc, xhr) {
       // If the document does not exist, send an error to the callback
       if (err) {
         return PouchUtils.call(callback, err);
@@ -400,7 +400,7 @@ function HttpPouch(opts, callback) {
   };
 
   // Delete the document given by doc from the database given by host.
-  api.remove = function(doc, opts, callback) {
+  api.remove = function (doc, opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('remove', arguments);
       return;
@@ -414,13 +414,13 @@ function HttpPouch(opts, callback) {
     // Delete the document
     ajax({
       headers: host.headers,
-      method:'DELETE',
+      method: 'DELETE',
       url: genDBUrl(host, encodeDocId(doc._id)) + '?rev=' + doc._rev
     }, callback);
   };
 
   // Get the attachment
-  api.getAttachment = function(docId, attachmentId, opts, callback) {
+  api.getAttachment = function (docId, attachmentId, opts, callback) {
     if (typeof opts === 'function') {
       callback = opts;
       opts = {};
@@ -436,7 +436,7 @@ function HttpPouch(opts, callback) {
   };
 
   // Remove the attachment given by the id and rev
-  api.removeAttachment = function(docId, attachmentId, rev, callback) {
+  api.removeAttachment = function (docId, attachmentId, rev, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('removeAttachment', arguments);
       return;
@@ -451,7 +451,7 @@ function HttpPouch(opts, callback) {
   // Add the attachment given by blob and its contentType property
   // to the document with the given id, the revision given by rev, and
   // add it to the database given by host.
-  api.putAttachment = function(docId, attachmentId, rev, blob, type, callback) {
+  api.putAttachment = function (docId, attachmentId, rev, blob, type, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('putAttachment', arguments);
       return;
@@ -475,7 +475,7 @@ function HttpPouch(opts, callback) {
 
     var opts = {
       headers: host.headers,
-      method:'PUT',
+      method: 'PUT',
       url: url,
       processData: false,
       body: blob,
@@ -488,7 +488,7 @@ function HttpPouch(opts, callback) {
 
   // Add the document given by doc (in JSON string format) to the database
   // given by host. This fails if the doc has no _id field.
-  api.put = function(doc, opts, callback) {
+  api.put = function (doc, opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('put', arguments);
       return;
@@ -533,7 +533,7 @@ function HttpPouch(opts, callback) {
   // Add the document given by doc (in JSON string format) to the database
   // given by host. This does not assume that doc is a new document (i.e. does not
   // have a _id or a _rev field.
-  api.post = function(doc, opts, callback) {
+  api.post = function (doc, opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('post', arguments);
       return;
@@ -550,8 +550,8 @@ function HttpPouch(opts, callback) {
       if (uuids.list.length > 0) {
         doc._id = uuids.list.pop();
         api.put(doc, opts, callback);
-      }else {
-        uuids.get(function(err, resp) {
+      } else {
+        uuids.get(function (err, resp) {
           if (err) {
             return PouchUtils.call(callback, Pouch.Errors.UNKNOWN_ERROR);
           }
@@ -566,7 +566,7 @@ function HttpPouch(opts, callback) {
 
   // Update/create multiple documents given by req in the database
   // given by host.
-  api.bulkDocs = function(req, opts, callback) {
+  api.bulkDocs = function (req, opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('bulkDocs', arguments);
       return;
@@ -592,7 +592,7 @@ function HttpPouch(opts, callback) {
     // Update/create the documents
     ajax({
       headers: host.headers,
-      method:'POST',
+      method: 'POST',
       url: genDBUrl(host, '_bulk_docs'),
       body: req
     }, callback);
@@ -600,7 +600,7 @@ function HttpPouch(opts, callback) {
 
   // Get a listing of the documents in the database given
   // by host and ordered by increasing id.
-  api.allDocs = function(opts, callback) {
+  api.allDocs = function (opts, callback) {
     // If no options were given, set the callback to be the second parameter
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('allDocs', arguments);
@@ -670,7 +670,7 @@ function HttpPouch(opts, callback) {
     // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
     if (typeof opts.keys !== 'undefined') {
       method = 'POST';
-      body = JSON.stringify({keys:opts.keys});
+      body = JSON.stringify({keys: opts.keys});
     }
 
     // Get the document listing
@@ -685,7 +685,7 @@ function HttpPouch(opts, callback) {
   // Get a list of changes made to documents in the database given by host.
   // TODO According to the README, there should be two other methods here,
   // api.changes.addListener and api.changes.removeListener.
-  api.changes = function(opts) {
+  api.changes = function (opts) {
 
     // We internally page the results of a changes request, this means
     // if there is a large set of changes to be returned we can start
@@ -696,7 +696,7 @@ function HttpPouch(opts, callback) {
     if (!api.taskqueue.ready()) {
       var task = api.taskqueue.addTask('changes', arguments);
       return {
-        cancel: function() {
+        cancel: function () {
           if (task.task) {
             return task.task.cancel();
           }
@@ -718,7 +718,7 @@ function HttpPouch(opts, callback) {
       });
       // Return a method to cancel this method from processing any more
       return {
-        cancel: function() {
+        cancel: function () {
           if (changes) {
             return changes.cancel();
           }
@@ -783,7 +783,7 @@ function HttpPouch(opts, callback) {
 
     // Get all the changes starting wtih the one immediately after the
     // sequence number given by since.
-    var fetch = function(since, callback) {
+    var fetch = function (since, callback) {
       params.since = since;
       if (!opts.continuous && !pagingCount) {
         pagingCount = remoteLastSeq;
@@ -791,13 +791,14 @@ function HttpPouch(opts, callback) {
       params.limit = (!limit || leftToFetch > CHANGES_LIMIT) ?
         CHANGES_LIMIT : leftToFetch;
 
-      var paramStr = '?' + Object.keys(params).map(function(k) {
+      var paramStr = '?' + Object.keys(params).map(function (k) {
         return k + '=' + params[k];
       }).join('&');
 
       // Set the options for the ajax call
       var xhrOpts = {
-        headers: host.headers, method:'GET',
+        headers: host.headers,
+        method: 'GET',
         url: genDBUrl(host, '_changes' + paramStr),
         // _changes can take a long time to generate, especially when filtered
         timeout: null
@@ -820,14 +821,14 @@ function HttpPouch(opts, callback) {
 
     var results = {results: []};
 
-    var fetched = function(err, res) {
+    var fetched = function (err, res) {
       // If the result of the ajax call (res) contains changes (res.results)
       if (res && res.results) {
         results.last_seq = res.last_seq;
         // For each change
         var req = {};
         req.query = opts.query_params;
-        res.results = res.results.filter(function(c) {
+        res.results = res.results.filter(function (c) {
           leftToFetch--;
           var ret = PouchUtils.filterChange(opts)(c);
           if (ret) {
@@ -869,7 +870,7 @@ function HttpPouch(opts, callback) {
         }
 
         // Queue a call to fetch again with the newest sequence number
-        setTimeout(function() { fetch(lastFetchedSeq, fetched); }, retryWait);
+        setTimeout(function () { fetch(lastFetchedSeq, fetched); }, retryWait);
       } else {
         // We're done, call the callback
         PouchUtils.call(opts.complete, null, results);
@@ -882,7 +883,7 @@ function HttpPouch(opts, callback) {
     if (opts.continuous) {
       fetch(opts.since || 0, fetched);
     } else {
-      api.info(function(err, res) {
+      api.info(function (err, res) {
         if (err) {
           return PouchUtils.call(opts.complete, err);
         }
@@ -893,7 +894,7 @@ function HttpPouch(opts, callback) {
 
     // Return a method to cancel this method from processing any more
     return {
-      cancel: function() {
+      cancel: function () {
         if (Pouch.DEBUG) {
           console.log(db_url + ': Cancel Changes Feed');
         }
@@ -906,7 +907,7 @@ function HttpPouch(opts, callback) {
   // Given a set of document/revision IDs (given by req), tets the subset of
   // those that do NOT correspond to revisions stored in the database.
   // See http://wiki.apache.org/couchdb/HttpPostRevsDiff
-  api.revsDiff = function(req, opts, callback) {
+  api.revsDiff = function (req, opts, callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('revsDiff', arguments);
       return;
@@ -920,15 +921,15 @@ function HttpPouch(opts, callback) {
     // Get the missing document/revision IDs
     ajax({
       headers: host.headers,
-      method:'POST',
+      method: 'POST',
       url: genDBUrl(host, '_revs_diff'),
       body: req
-    }, function(err, res) {
+    }, function (err, res) {
       PouchUtils.call(callback, err, res);
     });
   };
 
-  api.close = function(callback) {
+  api.close = function (callback) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('close', arguments);
       return;
@@ -936,7 +937,7 @@ function HttpPouch(opts, callback) {
     PouchUtils.call(callback, null);
   };
 
-  api.replicateOnServer = function(target, opts, promise) {
+  api.replicateOnServer = function (target, opts, promise) {
     if (!api.taskqueue.ready()) {
       api.taskqueue.addTask('replicateOnServer', arguments);
       return promise;
@@ -976,7 +977,7 @@ function HttpPouch(opts, callback) {
       body: params
     };
     var xhr;
-    promise.cancel = function() {
+    promise.cancel = function () {
       this.cancelled = true;
       if (xhr && !result.ok) {
         xhr.abort();
@@ -987,7 +988,7 @@ function HttpPouch(opts, callback) {
         };
       }
       repOpts.body.cancel = true;
-      ajax(repOpts, function(err, resp, xhr) {
+      ajax(repOpts, function (err, resp, xhr) {
         // If the replication cancel request fails, send an error to the callback
         if (err) {
           return PouchUtils.call(callback, err);
@@ -1001,7 +1002,7 @@ function HttpPouch(opts, callback) {
       return;
     }
 
-    xhr = ajax(repOpts, function(err, resp, xhr) {
+    xhr = ajax(repOpts, function (err, resp, xhr) {
       // If the replication fails, send an error to the callback
       if (err) {
         return PouchUtils.call(callback, err);
@@ -1023,7 +1024,7 @@ function HttpPouch(opts, callback) {
 }
 
 // Delete the HttpPouch specified by the given name.
-HttpPouch.destroy = function(name, opts, callback) {
+HttpPouch.destroy = function (name, opts, callback) {
   var host = getHost(name, opts);
   opts = opts || {};
   if (typeof opts === 'function') {
@@ -1037,7 +1038,7 @@ HttpPouch.destroy = function(name, opts, callback) {
 };
 
 // HttpPouch is a valid adapter.
-HttpPouch.valid = function() {
+HttpPouch.valid = function () {
   return true;
 };
 

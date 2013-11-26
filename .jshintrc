@@ -11,6 +11,8 @@
   "strict": true,
   "globalstrict": true,
   "globals": { "Pouch": true},
+  "white": true,
+  "indent": 2,
   "predef": [
     "QUnit",
     "asyncTest",
