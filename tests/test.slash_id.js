@@ -1,6 +1,6 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, strictEqual: false */
-/*globals ajax: true, LevelPouch: true, makeDocs: false */
+/*globals Pouch.ajax: true, LevelPouch: true, makeDocs: false */
 /*globals readBlob: false, makeBlob: false, base64Blob: false */
 /*globals cleanupTestDatabases: false */
 

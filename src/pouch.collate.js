@@ -1,6 +1,6 @@
 'use strict';
 
-var pouchCollate = function (a, b) {
+function pouchCollate(a, b) {
   var ai = collationIndex(a);
   var bi = collationIndex(b);
   if ((ai - bi) !== 0) {
@@ -24,16 +24,16 @@ var pouchCollate = function (a, b) {
   if (typeof a === 'object') {
     return objectCollate(a, b);
   }
-};
+}
 
-var stringCollate = function (a, b) {
+function stringCollate(a, b) {
   // See: https://github.com/daleharvey/pouchdb/issues/40
   // This is incompatible with the CouchDB implementation, but its the
   // best we can do for now
   return (a === b) ? 0 : ((a > b) ? 1 : -1);
-};
+}
 
-var objectCollate = function (a, b) {
+function objectCollate(a, b) {
   var ak = Object.keys(a), bk = Object.keys(b);
   var len = Math.min(ak.length, bk.length);
   for (var i = 0; i < len; i++) {
@@ -51,9 +51,9 @@ var objectCollate = function (a, b) {
   }
   return (ak.length === bk.length) ? 0 :
     (ak.length > bk.length) ? 1 : -1;
-};
+}
 
-var arrayCollate = function (a, b) {
+function arrayCollate(a, b) {
   var len = Math.min(a.length, b.length);
   for (var i = 0; i < len; i++) {
     var sort = pouchCollate(a[i], b[i]);
@@ -63,12 +63,12 @@ var arrayCollate = function (a, b) {
   }
   return (a.length === b.length) ? 0 :
     (a.length > b.length) ? 1 : -1;
-};
+}
 
 // The collation is defined by erlangs ordered terms
 // the atoms null, true, false come first, then numbers, strings,
 // arrays, then objects
-var collationIndex = function (x) {
+function collationIndex(x) {
   var id = ['boolean', 'number', 'string', 'object'];
   if (id.indexOf(typeof x) !== -1) {
     if (x === null) {
@@ -79,7 +79,7 @@ var collationIndex = function (x) {
   if (Array.isArray(x)) {
     return 4.5;
   }
-};
+}
 
 
 module.exports = pouchCollate;

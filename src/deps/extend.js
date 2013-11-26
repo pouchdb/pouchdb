@@ -12,7 +12,7 @@ for (var i = 0; i < types.length; i++) {
 var core_toString = class2type.toString;
 var core_hasOwn = class2type.hasOwnProperty;
 
-var type = function (obj) {
+ function type(obj) {
   if (obj === null) {
     return String( obj );
   }
@@ -21,11 +21,11 @@ var type = function (obj) {
     typeof obj;
 };
 
-var isWindow = function (obj) {
+function isWindow(obj) {
   return obj !== null && obj === obj.window;
-};
+}
 
-var isPlainObject = function ( obj ) {
+function isPlainObject( obj ) {
   // Must be an Object.
   // Because of IE, we also have to check the presence of the constructor property.
   // Make sure that DOM nodes and window objects don't pass through, as well
@@ -54,7 +54,8 @@ var isPlainObject = function ( obj ) {
   return key === undefined || core_hasOwn.call( obj, key );
 };
 
-var isFunction = function (obj) {
+
+function isFunction(obj) {
   return type(obj) === "function";
 };
 
@@ -62,7 +63,7 @@ var isArray = Array.isArray || function (obj) {
   return type(obj) === "array";
 };
 
-var extend = function () {
+function extend() {
   var options, name, src, copy, copyIsArray, clone,
     target = arguments[0] || {},
     i = 1,

@@ -1,10 +1,9 @@
-/*globals Pouch: true, cordova, PouchUtils: true, PouchMerge */
+/*globals Pouch: true, cordova, PouchUtils: true */
 
 "use strict";
 
-var PouchAdapter;
 var PouchUtils = require('./pouch.utils.js');
-
+var PouchMerge = require('./pouch.merge');
 
 var call = PouchUtils.call;
 
@@ -61,8 +60,8 @@ function computeHeight(revs) {
   return height;
 }
 
-PouchAdapter = function (opts, callback) {
 
+function PouchAdapter(opts, callback) {
   var api = {};
 
   var customApi = Pouch.adapters[opts.adapter](opts, function (err, db) {
@@ -93,7 +92,7 @@ PouchAdapter = function (opts, callback) {
   var auto_compaction = (opts.auto_compaction === true);
 
   // wraps a callback with a function that runs compaction after each edit
-  var autoCompact = function (callback) {
+  function autoCompact(callback) {
     if (!auto_compaction) {
       return callback;
     }
@@ -118,7 +117,7 @@ PouchAdapter = function (opts, callback) {
         });
       }
     };
-  };
+  }
 
   api.post = function (doc, opts, callback) {
     if (typeof opts === 'function') {
@@ -288,7 +287,7 @@ PouchAdapter = function (opts, callback) {
   // compact one document and fire callback
   // by compacting we mean removing all revisions which
   // are further from the leaf in revision tree than max_height
-  var compactDocument = function (docId, max_height, callback) {
+  function compactDocument(docId, max_height, callback) {
     customApi._getRevisionTree(docId, function (err, rev_tree) {
       if (err) {
         return call(callback);
@@ -311,7 +310,7 @@ PouchAdapter = function (opts, callback) {
       });
       customApi._doCompaction(docId, rev_tree, revs, callback);
     });
-  };
+  }
 
   // compact the whole database using single document
   // compaction
@@ -712,6 +711,6 @@ PouchAdapter = function (opts, callback) {
     cordova.fireWindowEvent(opts.name + "_pouch", {});
   }
   return customApi;
-};
+}
 
 module.exports = PouchAdapter;

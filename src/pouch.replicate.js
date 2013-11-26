@@ -6,19 +6,20 @@ var PouchUtils = require('./pouch.utils.js');
 var Pouch = require('./pouch');
 // We create a basic promise so the caller can cancel the replication possibly
 // before we have actually started listening to changes etc
-var Promise = function () {
+
+function Promise() {
   var that = this;
   this.cancelled = false;
   this.cancel = function () {
     that.cancelled = true;
   };
-};
+}
 
 // The RequestManager ensures that only one database request is active at
 // at time, it ensures we dont max out simultaneous HTTP requests and makes
 // the replication process easier to reason about
-var RequestManager = function (promise) {
 
+function RequestManager(promise) {
   var queue = [];
   var api = {};
   var processing = false;
@@ -50,17 +51,19 @@ var RequestManager = function (promise) {
   };
 
   return api;
-};
+}
 
 // TODO: check CouchDB's replication id generation, generate a unique id particular
 // to this replication
-var genReplicationId = function (src, target, opts) {
+
+function genReplicationId(src, target, opts) {
   var filterFun = opts.filter ? opts.filter.toString() : '';
   return '_local/' + PouchUtils.Crypto.MD5(src.id() + target.id() + filterFun);
-};
+}
 
 // A checkpoint lets us restart replications from when they were last cancelled
-var fetchCheckpoint = function (src, target, id, callback) {
+
+function fetchCheckpoint(src, target, id, callback) {
   target.get(id, function (err, targetDoc) {
     if (err && err.status === 404) {
       callback(null, 0);
@@ -74,10 +77,10 @@ var fetchCheckpoint = function (src, target, id, callback) {
       });
     }
   });
-};
+}
 
-var writeCheckpoint = function (src, target, id, checkpoint, callback) {
-  var updateCheckpoint = function (db, callback) {
+function writeCheckpoint(src, target, id, checkpoint, callback) {
+  function updateCheckpoint(db, callback) {
     db.get(id, function (err, doc) {
       if (err && err.status === 404) {
         doc = {_id: id};
@@ -85,13 +88,13 @@ var writeCheckpoint = function (src, target, id, checkpoint, callback) {
       doc.last_seq = checkpoint;
       db.put(doc, callback);
     });
-  };
+  }
   updateCheckpoint(target, function (err, doc) {
     updateCheckpoint(src, function (err, doc) {
       callback();
     });
   });
-};
+}
 
 function replicate(src, target, opts, promise) {
 
@@ -257,7 +260,7 @@ function toPouch(db, callback) {
   callback(null, db);
 }
 
-exports.replicate = function(src, target, opts, callback) {
+exports.replicate = function (src, target, opts, callback) {
   if (opts instanceof Function) {
     callback = opts;
     opts = {};

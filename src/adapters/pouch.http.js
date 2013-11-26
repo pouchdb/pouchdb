@@ -5,8 +5,6 @@
 var Pouch = require('../pouch.js');
 var PouchUtils = require('../pouch.utils.js');
 
-
-
 var HTTP_TIMEOUT = 10000;
 
 // parseUri 1.2.2
@@ -1038,6 +1036,5 @@ HttpPouch.valid = function () {
   return true;
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = HttpPouch;
-}
+module.exports = HttpPouch;
+

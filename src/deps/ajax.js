@@ -2,14 +2,14 @@ var request = require('request');
 var extend = require('./extend.js');
 var createBlob = require('./blob.js');
 
-var ajax = function ajax(options, callback) {
+function ajax(options, callback) {
 
   if (typeof options === "function") {
     callback = options;
     options = {};
   }
 
-  var call = function (fun) {
+  function call(fun) {
     var args = Array.prototype.slice.call(arguments, 1);
     if (typeof fun === typeof Function) {
       fun.apply(this, args);
@@ -26,7 +26,8 @@ var ajax = function ajax(options, callback) {
 
   options = extend(true, defaultOptions, options);
 
-  var onSuccess = function (obj, resp, cb){
+
+  function onSuccess(obj, resp, cb){
     if (!options.binary && !options.json && options.processData &&
         typeof obj !== 'string') {
       obj = JSON.stringify(obj);
@@ -42,7 +43,7 @@ var ajax = function ajax(options, callback) {
     call(cb, null, obj, resp);
   };
 
-  var onError = function (err, cb){
+  function onError(err, cb){
     var errParsed;
     var errObj = {status: err.status};
     try {
@@ -97,7 +98,7 @@ var ajax = function ajax(options, callback) {
       options.body = null;
     }
 
-    var abortReq = function () {
+    function abortReq() {
       timedout=true;
       xhr.abort();
       call(onError, xhr, callback);

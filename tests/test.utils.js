@@ -1,4 +1,4 @@
-/*globals extend: false, Buffer: false, Pouch: true, ajax:false */
+/*globals Pouch.extend: false, Buffer: false, Pouch: true, Pouch.ajax:false */
 "use strict";
 
 var PERSIST_DATABASES = false;
@@ -201,7 +201,7 @@ function generateAdapterUrl(id) {
 // in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
 function putAfter(db, doc, prevRev, callback){
-  var newDoc = extend({}, doc);
+  var newDoc = Pouch.extend({}, doc);
   if (!prevRev) {
     db.put(newDoc, {new_edits: false}, callback);
     return;
@@ -296,9 +296,9 @@ function eliminateDuplicates(arr) {
 function enableCORS(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  ajax({url: host + '_config/httpd/enable_cors', json: false,
+  Pouch.ajax({url: host + '_config/httpd/enable_cors', json: false,
     method: 'PUT', body: '"true"'}, function(err, resBody, req) {
-      ajax({url: host + '_config/cors/origins', json: false,
+      Pouch.ajax({url: host + '_config/cors/origins', json: false,
         method: 'PUT', body: '"http://127.0.0.1:8000"'}, function(err, resBody, req) {
           callback(err, req);
       });
@@ -309,7 +309,7 @@ function enableCORS(dburl, callback) {
 function enableCORSCredentials(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  ajax({url: host + '_config/cors/credentials',
+  Pouch.ajax({url: host + '_config/cors/credentials',
     method: 'PUT', body: '"true"', json: false}, function(err, resBody, req) {
       callback(err, req);
   });
@@ -319,13 +319,13 @@ function enableCORSCredentials(dburl, callback) {
 function disableCORS(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  ajax({
+  Pouch.ajax({
     url: host + '_config/cors/origins',
     json: false,
     method: 'PUT',
     body: '"*"'
   }, function (err, resBody, req) {
-    ajax({
+    Pouch.ajax({
       url: host + '_config/httpd/enable_cors',
       json: false,
       method: 'PUT',
@@ -340,7 +340,7 @@ function disableCORS(dburl, callback) {
 function disableCORSCredentials(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  ajax({
+  Pouch.ajax({
     url: host + '_config/cors/credentials',
     method: 'PUT',
     body: '"false"',
@@ -354,10 +354,10 @@ function disableCORSCredentials(dburl, callback) {
 function setupAdminAndMemberConfig(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  ajax({url: host + '_users/org.couchdb.user:TestUser',
+  Pouch.ajax({url: host + '_users/org.couchdb.user:TestUser',
     method: 'PUT', body: {_id: 'org.couchdb.user:TestUser', name: 'TestUser',
     password: 'user', roles: [], type: 'user'}}, function(err, resBody, req) {
-      ajax({url: host + '_config/admins/TestAdmin', json: false,
+      Pouch.ajax({url: host + '_config/admins/TestAdmin', json: false,
         method: 'PUT', body: '"admin"'}, function(err, resBody, req) {
           callback(err, req);
       });
@@ -370,12 +370,12 @@ function tearDownAdminAndMemberConfig(dburl, callback) {
   var headers = {};
   var token = btoa('TestAdmin:admin');
   headers.Authorization = 'Basic ' + token;
-  ajax({url: host + '_config/admins/TestAdmin',
+  Pouch.ajax({url: host + '_config/admins/TestAdmin',
     method: 'DELETE', headers:headers , json: false}, function(err, resBody, req) {
-      ajax({url: host + '_users/org.couchdb.user:TestUser',
+      Pouch.ajax({url: host + '_users/org.couchdb.user:TestUser',
         method: 'GET', body: '"admin"'}, function(err, resBody, req) {
           if (resBody) {
-            ajax({url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody['_rev'],
+            Pouch.ajax({url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody['_rev'],
               method: 'DELETE', json: false}, function(err, resBody, req) {
                 callback(err, req);
             });
@@ -389,7 +389,7 @@ function tearDownAdminAndMemberConfig(dburl, callback) {
 function deleteCookieAuth(dburl, callback_) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  ajax({
+  Pouch.ajax({
     method: 'DELETE',
     url: host + '_session',
     withCredentials: true,

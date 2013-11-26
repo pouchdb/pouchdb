@@ -1,6 +1,6 @@
 /*globals initTestDB, emit: true, generateAdapterUrl */
 /*globals PERSIST_DATABASES, initDBPair, utils: true */
-/*globals ajax: true, LevelPouch: true, putTree, deepEqual */
+/*globals Pouch.ajax: true, LevelPouch: true, putTree, deepEqual */
 /*globals cleanupTestDatabases, strictEqual, writeDocs, PouchDB */
 
 "use strict";

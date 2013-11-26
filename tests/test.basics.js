@@ -1,5 +1,5 @@
 /*globals initTestDB, openTestDB, emit, generateAdapterUrl, cleanupTestDatabases */
-/*globals PERSIST_DATABASES, initDBPair, ajax, strictEqual */
+/*globals PERSIST_DATABASES, initDBPair, Pouch.ajax, strictEqual */
 /*globals utils: true, LevelPouch: true */
 
 "use strict";

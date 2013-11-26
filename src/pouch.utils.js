@@ -29,18 +29,18 @@ var reservedWords = [
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
 //   - any other string value is a valid id
-var isValidId = function (id) {
+function isValidId(id) {
   if (/^_/.test(id)) {
     return (/^_(design|local)/).test(id);
   }
   return true;
-};
+}
 
-var isChromeApp = function () {
+function isChromeApp() {
   return (typeof chrome !== "undefined" &&
           typeof chrome.storage !== "undefined" &&
           typeof chrome.storage.local !== "undefined");
-};
+}
 
 // Pretty dumb name for a function, just wraps callback calls so we dont
 // to if (callback) callback() everywhere
