@@ -128,6 +128,6 @@ var extend = function () {
   return target;
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = extend;
-}
+
+module.exports = extend;
+

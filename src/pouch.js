@@ -2,11 +2,8 @@
 
 "use strict";
 
-var PouchUtils;
+var PouchUtils = require('./pouch.utils.js');
 
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('./pouch.utils.js');
-}
 
 var Pouch = function Pouch(name, opts, callback) {
 

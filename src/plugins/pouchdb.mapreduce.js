@@ -2,10 +2,8 @@
 
 "use strict";
 
-var pouchCollate;
-if (typeof module !== 'undefined' && module.exports) {
-  pouchCollate = require('../pouch.collate.js');
-}
+var pouchCollate = require('../pouch.collate.js');
+
 
 // This is the first implementation of a basic plugin, we register the
 // plugin object with pouch and it is mixin'd to each database created

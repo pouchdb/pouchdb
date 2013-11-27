@@ -1,12 +1,6 @@
-var request;
-var extend;
-var createBlob;
-
-if (typeof module !== 'undefined' && module.exports) {
-  request = require('request');
-  extend = require('./extend.js');
-  createBlob = require('./blob.js');
-}
+var request = require('request');
+var extend = require('./extend.js');
+var createBlob = require('./blob.js');
 
 var ajax = function ajax(options, callback) {
 
@@ -186,6 +180,4 @@ var ajax = function ajax(options, callback) {
   }
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ajax;
-}
+module.exports = ajax;
