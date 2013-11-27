@@ -3,23 +3,14 @@
 /*global chrome, extend, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
 
 var PouchUtils = {};
-var buffer;
 
-if (typeof module !== 'undefined' && module.exports) {
-  PouchMerge = require('./pouch.merge.js');
-  PouchUtils.extend = require('./deps/extend');
-  PouchUtils.ajax = require('./deps/ajax');
-  PouchUtils.createBlob = require('./deps/blob');
-  PouchUtils.uuid = require('./deps/uuid');
-  PouchUtils.Crypto = require('./deps/md5.js');
-  buffer = require('./deps/buffer');
-} else {
-  PouchUtils.Crypto = Crypto;
-  PouchUtils.extend = extend;
-  PouchUtils.ajax = ajax;
-  PouchUtils.createBlob = createBlob;
-  PouchUtils.uuid = uuid;
-}
+var PouchMerge = require('./pouch.merge.js');
+PouchUtils.extend = require('./deps/extend');
+PouchUtils.ajax = require('./deps/ajax');
+PouchUtils.createBlob = require('./deps/blob');
+PouchUtils.uuid = require('./deps/uuid');
+PouchUtils.Crypto = require('./deps/md5.js');
+var buffer = require('./deps/buffer');
 
 // List of top level reserved words for doc
 var reservedWords = [
@@ -321,6 +312,6 @@ if (typeof window === 'undefined' || !('btoa' in window)) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PouchUtils;
-}
+
+module.exports = PouchUtils;
+
