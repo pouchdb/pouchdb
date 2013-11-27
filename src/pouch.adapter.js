@@ -3,11 +3,8 @@
 "use strict";
 
 var PouchAdapter;
-var PouchUtils;
+var PouchUtils = require('./pouch.utils.js');
 
-if (typeof module !== 'undefined' && module.exports) {
-  PouchUtils = require('./pouch.utils.js');
-}
 
 var call = PouchUtils.call;
 
@@ -717,6 +714,4 @@ PouchAdapter = function (opts, callback) {
   return customApi;
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PouchAdapter;
-}
+module.exports = PouchAdapter;

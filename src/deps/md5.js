@@ -189,6 +189,5 @@ var Crypto = {};
   }
 })();
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Crypto;
-}
+
+module.exports = Crypto;
