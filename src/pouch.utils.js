@@ -7,9 +7,10 @@ var PouchMerge = require('./pouch.merge.js');
 PouchUtils.extend = require('./deps/extend');
 PouchUtils.ajax = require('./deps/ajax');
 PouchUtils.createBlob = require('./deps/blob');
-PouchUtils.uuid = require('./deps/uuid');
+var uuid = require('./deps/uuid');
 PouchUtils.Crypto = require('./deps/md5.js');
 var buffer = require('./deps/buffer');
+var errors = require('./deps/errors');
 
 // List of top level reserved words for doc
 var reservedWords = [
@@ -24,7 +25,25 @@ var reservedWords = [
   '_local_seq',
   '_rev_tree'
 ];
+PouchUtils.uuids = function (count, options) {
 
+  if (typeof(options) !== 'object') {
+    options = {};
+  }
+
+  var length = options.length;
+  var radix = options.radix;
+  var uuids = [];
+
+  while (uuids.push(uuid(length, radix)) < count) { }
+
+  return uuids;
+};
+
+// Give back one UUID
+PouchUtils.uuid = function (options) {
+  return PouchUtils.uuids(1, options)[0];
+};
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or '_local'
 //   - any other string value is a valid id
@@ -125,9 +144,9 @@ PouchUtils.parseDoc = function (doc, newEdits) {
 
   if (newEdits) {
     if (!doc._id) {
-      doc._id = Pouch.uuid();
+      doc._id = PouchUtils.uuid();
     }
-    newRevId = Pouch.uuid({length: 32, radix: 16}).toLowerCase();
+    newRevId = PouchUtils.uuid({length: 32, radix: 16}).toLowerCase();
     if (doc._rev) {
       revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
       if (!revInfo) {
@@ -163,7 +182,7 @@ PouchUtils.parseDoc = function (doc, newEdits) {
     if (!doc._rev_tree) {
       revInfo = /^(\d+)-(.+)$/.exec(doc._rev);
       if (!revInfo) {
-        return Pouch.Errors.BAD_ARG;
+        return errors.BAD_ARG;
       }
       nRevNum = parseInt(revInfo[1], 10);
       newRevId = revInfo[2];
@@ -175,15 +194,15 @@ PouchUtils.parseDoc = function (doc, newEdits) {
   }
 
   if (typeof doc._id !== 'string') {
-    error = Pouch.Errors.INVALID_ID;
+    error = errors.INVALID_ID;
   }
   else if (!isValidId(doc._id)) {
-    error = Pouch.Errors.RESERVED_ID;
+    error = errors.RESERVED_ID;
   }
 
   for (var key in doc) {
     if (doc.hasOwnProperty(key) && key[0] === '_' && reservedWords.indexOf(key) === -1) {
-      error = PouchUtils.extend({}, Pouch.Errors.DOC_VALIDATION);
+      error = PouchUtils.extend({}, errors.DOC_VALIDATION);
       error.reason += ': ' + key;
     }
   }

@@ -7,12 +7,10 @@
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
 var LevelPouch;
-var PouchDB;
 var utils;
 
 if (typeof module !== undefined && module.exports) {
   Pouch = require('../src/pouch.js');
-  PouchDB = require('../src/pouch.js');
   LevelPouch = require('../src/adapters/pouch.leveldb.js');
   utils = require('./test.utils.js');
 
@@ -21,7 +19,7 @@ if (typeof module !== undefined && module.exports) {
   }
   qunit = QUnit.module;
 }
-
+var PouchDB = Pouch;
 adapters.map(function(adapter) {
 
   qunit("basics: " + adapter, {

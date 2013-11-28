@@ -1,4 +1,4 @@
-/*globals initTestDB, emit: true, generateAdapterUrl, PouchDB */
+/*globals initTestDB, emit: true, generateAdapterUrl, Pouch */
 /*globals PERSIST_DATABASES, initDBPair, utils: true, strictEqual */
 /*globals Pouch.ajax: true, LevelPouch: true, makeDocs: false */
 /*globals readBlob: false, makeBlob: false, base64Blob: false */
@@ -444,7 +444,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test synchronous getAttachment", function() {
-    var db = new PouchDB(this.name);
+    var db = new Pouch(this.name);
     db.getAttachment('unexistent', 'attachment', function(err, res) {
       ok(err, "Correctly returned error");
       start();
@@ -452,7 +452,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test synchronous putAttachment", function() {
-    var db = new PouchDB(this.name);
+    var db = new Pouch(this.name);
     db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function(err) {
       ok(!err, "Correctly wrote attachment");
       start();
