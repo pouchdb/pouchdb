@@ -54,7 +54,7 @@
   ],
   "scripts": {
     "jshint": "jshint -c .jshintrc src/*.js src/adapters/*.js",
-    "build-js": "browserify src/pouch.js > dist/pouchdb-nightly.js",
+    "build-js": "browserify -s Pouch -e src/pouch.js -o dist/pouchdb-nightly.js",
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "mkdir -p dist && npm run build-js && npm run uglify",
     "test-node": "./bin/test-node.js",
