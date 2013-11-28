@@ -1,5 +1,3 @@
-/*globals Pouch: true, PouchUtils: true, require, console */
-
 "use strict";
 
 var Pouch = require('../pouch.js');
@@ -80,11 +78,11 @@ function getHost(name, opts) {
     uri.path = parts.join('/');
     opts = opts || {};
     uri.headers = opts.headers || {};
-    
-    if (opts.auth || uri.auth) { 
+
+    if (opts.auth || uri.auth) {
       var nAuth = opts.auth || uri.auth;
       var token = PouchUtils.btoa(nAuth.username + ':' + nAuth.password);
-      uri.headers.Authorization = 'Basic ' + token; 
+      uri.headers.Authorization = 'Basic ' + token;
     }
 
     if (opts.headers) {
@@ -701,7 +699,7 @@ function HttpPouch(opts, callback) {
         }
       };
     }
-    
+
     if (opts.since === 'latest') {
       var changes;
       api.info(function (err, info) {
@@ -936,7 +934,7 @@ function HttpPouch(opts, callback) {
       api.taskqueue.addTask('replicateOnServer', arguments);
       return promise;
     }
-    
+
     var targetHost = getHost(target.id());
     var params = {
       source: host.db,
@@ -1037,4 +1035,3 @@ HttpPouch.valid = function () {
 };
 
 module.exports = HttpPouch;
-

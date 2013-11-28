@@ -1,5 +1,3 @@
-/*globals PouchUtils: true */
-
 'use strict';
 
 var PouchUtils = require('../pouch.utils.js');
@@ -715,4 +713,3 @@ webSqlPouch.destroy = function (name, opts, callback) {
 webSqlPouch.Changes = new PouchUtils.Changes();
 
 module.exports = webSqlPouch;
-
