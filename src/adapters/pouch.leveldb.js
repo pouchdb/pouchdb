@@ -7,7 +7,7 @@ var EventEmitter = require('events').EventEmitter;
 
 var levelup = require('level');
 
-var Pouch = require('../pouch.js');
+var errors = require('../deps/errors');
 var PouchMerge = require('../pouch.merge.js');
 var PouchUtils = require('../pouch.utils.js');
 var call = PouchUtils.call;
@@ -61,7 +61,7 @@ function LevelPouch(opts, callback) {
 
   var uuidPath = opts.name + '.uuid';
   if (!fs.existsSync(uuidPath)) {
-    uuid = Pouch.uuid();
+    uuid = PouchUtils.uuid();
     fs.writeFileSync(uuidPath, uuid);
   } else {
     uuid = fs.readFileSync(uuidPath);
@@ -182,10 +182,10 @@ function LevelPouch(opts, callback) {
   api._get = function (id, opts, callback) {
     stores[DOC_STORE].get(id, function (err, metadata) {
       if (err || !metadata) {
-        return call(callback, Pouch.Errors.MISSING_DOC);
+        return call(callback, errors.MISSING_DOC);
       }
       if (PouchUtils.isDeleted(metadata) && !opts.rev) {
-        return call(callback, Pouch.error(Pouch.Errors.MISSING_DOC, "deleted"));
+        return call(callback, PouchUtils.extend({}, errors.MISSING_DOC, {reason: "deleted"}));
       }
 
       var rev = PouchMerge.winningRev(metadata);
@@ -194,7 +194,7 @@ function LevelPouch(opts, callback) {
 
       stores[BY_SEQ_STORE].get(seq, function (err, doc) {
         if (!doc) {
-          return call(callback, Pouch.Errors.MISSING_DOC);
+          return call(callback, errors.MISSING_DOC);
         }
 
         doc._id = metadata.id;
@@ -270,7 +270,7 @@ function LevelPouch(opts, callback) {
     function insertDoc(doc, callback) {
       // Can't insert new deleted documents
       if ('was_delete' in opts && PouchUtils.isDeleted(doc.metadata)) {
-        results.push(makeErr(Pouch.Errors.MISSING_DOC, doc._bulk_seq));
+        results.push(makeErr(errors.MISSING_DOC, doc._bulk_seq));
         return callback();
       }
       doc_count++;
@@ -293,7 +293,7 @@ function LevelPouch(opts, callback) {
          newEdits && merged.conflicts !== 'new_leaf');
 
       if (conflict) {
-        results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
+        results.push(makeErr(errors.REV_CONFLICT, docInfo._bulk_seq));
         return callback();
       }
 
@@ -341,7 +341,7 @@ function LevelPouch(opts, callback) {
             try {
               data = PouchUtils.atob(data);
             } catch (e) {
-              call(callback, Pouch.error(Pouch.Errors.BAD_ARG, "Attachments need to be base64 encoded"));
+              call(callback, PouchUtils.extend({}, errors.BAD_ARG, {reason: "Attachments need to be base64 encoded"}));
               return;
             }
           }
@@ -363,7 +363,7 @@ function LevelPouch(opts, callback) {
         doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
 
         stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function (err) {
-          if (err && Pouch.DEBUG) {
+          if (err && false) {
             return console.error(err);
           }
 
@@ -391,7 +391,7 @@ function LevelPouch(opts, callback) {
     function saveAttachment(docInfo, digest, data, callback) {
       stores[ATTACH_STORE].get(digest, function (err, oldAtt) {
         if (err && err.name !== 'NotFoundError') {
-          if (Pouch.DEBUG) {
+          if (false) {
             console.error(err);
           }
           return call(callback, err);
@@ -414,7 +414,7 @@ function LevelPouch(opts, callback) {
         }
 
         stores[ATTACH_STORE].put(digest, newAtt, function (err) {
-          if (err && Pouch.DEBUG) {
+          if (err && false) {
             return console.error(err);
           }
           // do not try to store empty attachments
@@ -423,7 +423,7 @@ function LevelPouch(opts, callback) {
           }
           stores[ATTACH_BINARY_STORE].put(digest, data, function (err) {
             callback(err);
-            if (err && Pouch.DEBUG) {
+            if (err && false) {
               return console.error(err);
             }
           });
@@ -544,7 +544,7 @@ function LevelPouch(opts, callback) {
     });
     docstream.on('error', function (err) {
       // TODO: handle error
-      if (Pouch.DEBUG) {
+      if (false) {
         console.error(err);
       }
     });
@@ -632,7 +632,7 @@ function LevelPouch(opts, callback) {
         })
         .on('error', function (err) {
           // TODO: handle errors
-          if (Pouch.DEBUG) {
+          if (false) {
             console.error(err);
           }
         })
@@ -675,7 +675,7 @@ function LevelPouch(opts, callback) {
     if (opts.continuous) {
       return {
         cancel: function () {
-          if (Pouch.DEBUG) {
+          if (false) {
             console.log(name + ': Cancel Changes Feed');
           }
           opts.cancelled = true;
@@ -687,7 +687,7 @@ function LevelPouch(opts, callback) {
 
   api._close = function (callback) {
     if (!opened) {
-      return call(callback, Pouch.Errors.NOT_OPEN);
+      return call(callback, errors.NOT_OPEN);
     }
 
     var dbpath = path.resolve(opts.name);
@@ -724,7 +724,7 @@ function LevelPouch(opts, callback) {
   api._getRevisionTree = function (docId, callback) {
     stores[DOC_STORE].get(docId, function (err, metadata) {
       if (err) {
-        call(callback, Pouch.Errors.MISSING_DOC);
+        call(callback, errors.MISSING_DOC);
       } else {
         call(callback, null, metadata.rev_tree);
       }
@@ -836,12 +836,12 @@ LevelPouch.destroy = function (name, opts, callback) {
       rmdir(name, function (err) {
         if (err && err.code === 'ENOENT') {
           // TODO: MISSING_DOC name is somewhat misleading in this context
-          return call(callback, Pouch.Errors.MISSING_DOC);
+          return call(callback, errors.MISSING_DOC);
         }
         return call(callback, err);
       });
     } else {
-      return call(callback, Pouch.Errors.DB_MISSING);
+      return call(callback, errors.DB_MISSING);
     }
   }
 };

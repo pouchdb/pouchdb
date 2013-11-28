@@ -1,7 +1,7 @@
 "use strict";
 
 var PouchUtils = require('./pouch.utils.js');
-var PouchAdapter = require('./pouch.adapter.js');
+var PouchAdapter = require('./pouch.adapter.js')(Pouch);
 
 function Pouch(name, opts, callback) {
 
@@ -318,130 +318,16 @@ Pouch.allDbs = function (callback) {
   accumulate(adapters, []);
 };
 
-/*
-  Examples:
-
-  >>> Pouch.uuids()
-  "92329D39-6F5C-4520-ABFC-AAB64544E172"]
-
-  >>> Pouch.uuids(10, {length: 32, radix: 5})
-  [ '04422200002240221333300140323100',
-    '02304411022101001312440440020110',
-    '41432430322114143303343433433030',
-    '21234330022303431304443100330401',
-    '23044133434242034101422131301213',
-    '43142032223224403322031032232041',
-    '41121132424023141101403324200330',
-    '00341042023103204342124004122342',
-    '01001141433040113422403034004214',
-    '30221232324132303123433131020020' ]
- */
-Pouch.uuids = function (count, options) {
-
-  if (typeof(options) !== 'object') {
-    options = {};
-  }
-
-  var length = options.length;
-  var radix = options.radix;
-  var uuids = [];
-
-  while (uuids.push(PouchUtils.uuid(length, radix)) < count) { }
-
-  return uuids;
-};
-
-// Give back one UUID
-Pouch.uuid = function (options) {
-  return Pouch.uuids(1, options)[0];
-};
-
+Pouch.uuid = PouchUtils.uuid;
+Pouch.uuids = PouchUtils.uuids;
 // Enumerate errors, add the status code so we can reflect the HTTP api
 // in future
-Pouch.Errors = {
-  MISSING_BULK_DOCS: {
-    status: 400,
-    error: 'bad_request',
-    reason: "Missing JSON list of 'docs'"
-  },
-  MISSING_DOC: {
-    status: 404,
-    error: 'not_found',
-    reason: 'missing'
-  },
-  REV_CONFLICT: {
-    status: 409,
-    error: 'conflict',
-    reason: 'Document update conflict'
-  },
-  INVALID_ID: {
-    status: 400,
-    error: 'invalid_id',
-    reason: '_id field must contain a string'
-  },
-  MISSING_ID: {
-    status: 412,
-    error: 'missing_id',
-    reason: '_id is required for puts'
-  },
-  RESERVED_ID: {
-    status: 400,
-    error: 'bad_request',
-    reason: 'Only reserved document ids may start with underscore.'
-  },
-  NOT_OPEN: {
-    status: 412,
-    error: 'precondition_failed',
-    reason: 'Database not open so cannot close'
-  },
-  UNKNOWN_ERROR: {
-    status: 500,
-    error: 'unknown_error',
-    reason: 'Database encountered an unknown error'
-  },
-  BAD_ARG: {
-    status: 500,
-    error: 'badarg',
-    reason: 'Some query argument is invalid'
-  },
-  INVALID_REQUEST: {
-    status: 400,
-    error: 'invalid_request',
-    reason: 'Request was invalid'
-  },
-  QUERY_PARSE_ERROR: {
-    status: 400,
-    error: 'query_parse_error',
-    reason: 'Some query parameter is invalid'
-  },
-  DOC_VALIDATION: {
-    status: 500,
-    error: 'doc_validation',
-    reason: 'Bad special document member'
-  },
-  BAD_REQUEST: {
-    status: 400,
-    error: 'bad_request',
-    reason: 'Something wrong with the request'
-  },
-  NOT_AN_OBJECT: {
-    status: 400,
-    error: 'bad_request',
-    reason: 'Document must be a JSON object'
-  },
-  DB_MISSING: {
-    status: 404,
-    error: 'not_found',
-    reason: 'Database not found'
-  }
-};
+Pouch.Errors = require('./deps/errors');
 
 Pouch.error = function (error, reason) {
   return PouchUtils.extend({}, error, {reason: reason});
 };
 
-global.Pouch = Pouch;
-global.PouchDB = Pouch;
 module.exports = Pouch;
 
 Pouch.ajax = require('./deps/ajax');
