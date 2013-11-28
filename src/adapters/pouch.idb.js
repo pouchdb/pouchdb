@@ -1,5 +1,3 @@
-/*globals PouchUtils: true */
-
 'use strict';
 
 var PouchUtils = require('../pouch.utils.js');
@@ -871,4 +869,3 @@ IdbPouch.destroy = function idb_destroy(name, opts, callback) {
 IdbPouch.Changes = new PouchUtils.Changes();
 
 module.exports = IdbPouch;
-

@@ -1,6 +1,5 @@
 /*jshint strict: false */
-/*global Buffer: true, escape: true, module, window, Crypto */
-/*global chrome, extend, ajax, createBlob, btoa, atob, uuid, require, PouchMerge: true */
+/*global chrome */
 
 var PouchUtils = {};
 
@@ -314,4 +313,3 @@ if (typeof window === 'undefined' || !('btoa' in window)) {
 
 
 module.exports = PouchUtils;
-

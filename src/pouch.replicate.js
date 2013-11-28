@@ -1,12 +1,10 @@
-/*globals PouchUtils: true */
-
 'use strict';
 
 var PouchUtils = require('./pouch.utils.js');
 var Pouch = require('./pouch');
+
 // We create a basic promise so the caller can cancel the replication possibly
 // before we have actually started listening to changes etc
-
 function Promise() {
   var that = this;
   this.cancelled = false;

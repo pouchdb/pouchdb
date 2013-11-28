@@ -1,4 +1,4 @@
-/*globals Pouch: true, cordova, PouchUtils: true */
+/*globals cordova */
 
 "use strict";
 

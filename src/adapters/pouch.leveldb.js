@@ -1,11 +1,4 @@
-/*globals Buffer: true */
-
 'use strict';
-
-var Pouch = require('../pouch.js');
-var PouchMerge = require('../pouch.merge.js');
-var PouchUtils = require('../pouch.utils.js');
-var call = PouchUtils.call;
 
 var path = require('path');
 var fs = require('fs');
@@ -13,6 +6,11 @@ var crypto = require('crypto');
 var EventEmitter = require('events').EventEmitter;
 
 var levelup = require('level');
+
+var Pouch = require('../pouch.js');
+var PouchMerge = require('../pouch.merge.js');
+var PouchUtils = require('../pouch.utils.js');
+var call = PouchUtils.call;
 
 function error(callback, message) {
   return process.nextTick(function () {
