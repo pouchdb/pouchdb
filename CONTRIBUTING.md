@@ -3,14 +3,30 @@
 
 Welcome, so you are thinking about contributing to PouchDB? awesome, this is a great place to start.
 
+Get in Touch
+------------
+
+The following documentation should answer most of the common questions about how to get starting contributing, if you have any questions, please feel free to ask on the
+[PouchDB Mailing List](https://groups.google.com/forum/#!forum/pouchdb) or in #pouchdb on irc.freenode.net.
+
+Most project discussions should happen on the Mailing list / Bug Tracker and IRC, however if you are a first time contributor and want some help getting started feel free to send a private email to any of the following maintainers:
+
+ * Dale Harvey (dale@arandomurl.com)
+
+
+Good First Patch
+----------------
+
+If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [goodfirstpatch](https://github.com/daleharvey/pouchdb/issues?labels=goodfirstpatch&state=open).
+
+
 Guide to Contributions
 --------------------------------------
 
   * Almost all Pull Requests for features or bug fixes will need tests
-  * Looking for something to work on? look for bugs marked [goodfirstbug](https://github.com/daleharvey/pouchdb/issues?labels=goodfirstbug&page=1&state=open)
   * We follow [Felix's Node.js Style Guide](http://nodeguide.com/style.html)
   * Almost all Pull Requests for features or bug fixes will need tests (seriously, its really important)
-  * Before opening a pull request run `$ grunt test` to lint test the changes and run node tests. Preferably run the browser tests as well.
+  * Before opening a pull request run `$ npm test` to lint test the changes and run node tests. Preferably run the browser tests as well.
   * Commit messages should follow the following style:
 
 ```
@@ -83,12 +99,6 @@ The source for the website http://pouchdb.com is stored inside the `docs` direct
     $ jekyll -w serve
 
 You should now find the documentation at http://127.0.0.1:4000
-
-Questions?
-----------
-
-If you have any questions, please feel free to ask on the
-[PouchDB Mailing List](https://groups.google.com/forum/#!forum/pouchdb) or in #pouchdb on irc.freenode.net.
 
 Committers!
 --------------
