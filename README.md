@@ -1,41 +1,37 @@
-# About PouchDB
+[PouchDB](http://pouchdb.com/) - The Javascript Database that Syncs
+==================================================
 
 PouchDB was written to help web developers build applications that work as well offline as well as they do online, applications save data locally so the user can use all the features of an app even while offline and synchronise the data between clients so they have up to date data wherever they go.
 
-PouchDB is a free open source project, written in Javascript by these [wonderful contributors](https://github.com/daleharvey/pouchdb/graphs/contributors) and inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a>. If you want to get involved then check out the [contributing guide](https://github.com/daleharvey/pouchdb/blob/master/CONTRIBUTING.md)
+PouchDB is a free open source project, written in Javascript by these [wonderful contributors](https://github.com/daleharvey/pouchdb/graphs/contributors) and inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a>.
 
-# Browser Support
+Using PouchDB
+-------------
 
-PouchDB uses various backends so it can work across various browsers and in Node.js. It uses IndexedDB in Firefox and Chrome, WebSQL in Safari and Opera and LevelDB in Node.js. It is currently tested in:
+To get started using PouchDB check out our [Documentation](http://pouchdb.com/learn.html) and the [API Documentation](http://pouchdb.com/api.html).
 
- * Firefox 12+
- * Chrome 19+
- * Opera 12+
- * Safari 5+
- * [Node.js 0.10+](http://nodejs.org/)
- * [Apache Cordova](http://cordova.apache.org/)
- * Internet Explorer 10+
 
-If your application requires support for Internet Explorer below version 10, it is possible to use an online CouchDB as a fallback, however it will not work offline.
+Contributors
+------------
+If you want to get involved then check out the [contributing guide](https://github.com/daleharvey/pouchdb/blob/master/CONTRIBUTING.md)
 
-# Current Status
+Example
+-------
 
-PouchDB in the browser currently beta release software, it is extensively tested and the functionality implemented is known to be stable however you may find bugs in lesser used parts of the API. The API is currently stable with no known changes and you will be able to upgrade PouchDB without losing data. We are currently working towards a stable release of PouchDB.
+```
+var db = new PouchDB('dbname');
 
-PouchDB in Node.js is currently alpha and an upgrade to the library can break current databases. It is however possible to upgrade by replicating data across different versions to manually upgrade.
+db.put({
+ _id: 'dave@gmail.com',
+ name: 'David',
+ age: 66
+});
 
-# Installing
+db.changes({
+  onChange: function() {
+    console.log('Ch-Ch-Changes');
+  }
+});
 
-PouchDB is designed to be a minimal library that is suitable for mobile devices, to start using PouchDB in your website you simply [Download](http://download.pouchdb.com) and include it in your webpage.
-
-    <script src="pouchdb-nightly.min.js"></script>
-
-If you are using Node.js then
-
-    $ npm install pouchdb
-
-For a HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-thompson/pouchdb-server)
-
-# Using PouchDB
-
-To get started using PouchDB check out our [Getting Started Tutorial](http://pouchdb.com/getting-started.html) and the [API Documentation](http://pouchdb.com/api.html).
+db.replicate.to('http://example.com/mydb');
+```
