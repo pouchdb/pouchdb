@@ -12,6 +12,7 @@ The following documentation should answer most of the common questions about how
 Most project discussions should happen on the Mailing list / Bug Tracker and IRC, however if you are a first time contributor and want some help getting started feel free to send a private email to any of the following maintainers:
 
  * Dale Harvey (dale@arandomurl.com)
+ * Calvin Metcalf (calvin.metcalf@gmail.com)
 
 
 Good First Patch
