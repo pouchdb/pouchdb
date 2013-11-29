@@ -85,6 +85,7 @@ QUnit.jUnitReport = function(report) {
   report.started = started;
   report.completed = new Date();
   report.passed = (report.results.failed === 0);
+  delete report.xml;
   window.testReport = report;
 };
 
