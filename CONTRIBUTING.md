@@ -62,7 +62,7 @@ Running PouchDB Tests
 
 The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can override this by passing a flag with the CouchDB host (and basic auth credentials if needed)
 
-    $ ./bin/dev-server -remote=http://user:pass@myname.host.com
+    $ ./bin/dev-server.js --remote=http://user:pass@myname.host.com
 
 ### Node Tests
 
