@@ -1,1 +1,1 @@
-module.exports = 'nightly';
+module.exports = 'v0.0.16';
