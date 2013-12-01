@@ -440,6 +440,8 @@ Pouch.error = function (error, reason) {
   return PouchUtils.extend({}, error, {reason: reason});
 };
 
+global.Pouch = Pouch;
+global.PouchDB = Pouch;
 module.exports = Pouch;
 
 Pouch.ajax = require('./deps/ajax');

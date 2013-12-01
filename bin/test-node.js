@@ -33,7 +33,7 @@ testrunner.run({
     './src/deps/extend.js',
     './src/deps/blob.js',
     './src/deps/ajax.js',
-    './tests/pouch.shim.js'
+    './src/pouch.js'
   ],
   code: "./src/adapters/pouch.leveldb.js",
   tests: testFiles.map(function(n) {
