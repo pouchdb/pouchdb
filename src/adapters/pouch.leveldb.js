@@ -258,7 +258,7 @@ function LevelPouch(opts, callback) {
       }
       var currentDoc = info.shift();
       stores[DOC_STORE].get(currentDoc.metadata.id, function (err, oldDoc) {
-        if (err && err.name === 'NotFoundError') {
+        if (!oldDoc || err && err.name === 'NotFoundError') {
           insertDoc(currentDoc, processDocs);
         }
         else {
