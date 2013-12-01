@@ -447,6 +447,7 @@ module.exports = Pouch;
 Pouch.ajax = require('./deps/ajax');
 Pouch.extend = require('./deps/extend');
 Pouch.replicate = require('./pouch.replicate.js').replicate;
+Pouch.sync = require('./pouch.replicate.js').sync;
 Pouch.version = require('./version');
 var httpAdapter = require('./adapters/pouch.http.js');
 Pouch.adapter('http', httpAdapter);

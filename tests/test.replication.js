@@ -917,4 +917,34 @@ interHTTPAdapters.map(function(adapters) {
       });
     });
   });
+
+  asyncTest("Test syncing two endpoints (issue 838)", function () {
+    var self = this;
+    var doc1 = {_id: 'adoc', foo:'bar'};
+    var doc2 = {_id: 'anotherdoc', foo:'baz'};
+    initDBPair(this.name, this.remote, function(db, remote) {
+      db.replicate.sync(remote, {
+        continuous: true
+      });
+
+      db.post(doc1, function (err) {
+        ok(!err, 'no error');
+        // allow time to replicate
+        setTimeout(function () {
+          remote.get(doc1._id, function (err) {
+            ok(!err, 'no error');
+            remote.post(doc2, function (err) {
+              ok(!err, 'no error');
+              setTimeout(function () {
+                db.get(doc2._id, function (err) {
+                  ok(!err, 'no error');
+                  start();
+                });
+              }, 100);
+            });
+          });
+        }, 100);
+      });      
+    });
+  });
 });

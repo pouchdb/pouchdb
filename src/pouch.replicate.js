@@ -258,7 +258,7 @@ function toPouch(db, callback) {
   callback(null, db);
 }
 
-exports.replicate = function (src, target, opts, callback) {
+function _replicate(src, target, opts, callback) {
   if (opts instanceof Function) {
     callback = opts;
     opts = {};
@@ -292,4 +292,14 @@ exports.replicate = function (src, target, opts, callback) {
     });
   });
   return replicateRet;
-};
+}
+
+function sync(db1, db2, opts, callback) {
+  return [
+    _replicate(db1, db2, opts, callback),
+    _replicate(db2, db1, opts, callback)
+  ];
+}
+
+exports.replicate = _replicate;
+exports.sync = sync;

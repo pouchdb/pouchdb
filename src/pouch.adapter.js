@@ -694,6 +694,14 @@ function PouchAdapter(opts, callback) {
     return Pouch.replicate(customApi, dbName, opts, callback);
   };
 
+  api.replicate.sync = function (dbName, opts, callback) {
+    if (typeof opts === 'function') {
+      callback = opts;
+      opts = {};
+    }
+    return Pouch.sync(customApi, dbName, opts, callback);
+  };
+
   for (var j in api) {
     if (!customApi.hasOwnProperty(j)) {
       customApi[j] = api[j];
