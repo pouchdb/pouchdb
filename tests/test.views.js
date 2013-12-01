@@ -342,6 +342,41 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Map only documents with _conflicts (#1000)', function() {
+    var self = this;
+    var docs1 = [
+     {_id: '1', foo: 'bar'},
+     {_id: '2', name: 'two'},
+    ];
+    var doc2 = {_id: '1', foo: 'baz'};
+    var queryFun = function(doc) {
+      if (doc._conflicts) {
+        emit(doc._id, doc._conflicts);
+      }
+    };
+    initDBPair(this.name, this.remote, function(db, remote) {
+      db.bulkDocs({docs: docs1}, function(err, res) {
+        var revId1 = res[0].rev;
+        remote.post(doc2, function(err, res) {
+          var revId2 = res.rev;
+          db.replicate.from(remote, function(err, res) {
+            db.get(docs1[0]._id, {conflicts: true}, function(err, res) {
+              var winner = res._rev;
+              var looser = winner === revId1 ? revId2 : revId1;
+              ok(res._conflicts,'Conflict exists in db');
+              db.query(queryFun, function(err, res) {
+                strictEqual(res.rows.length, 1, 'One doc with conflicts');
+                strictEqual(res.rows[0].key, '1', 'Correct document with conflicts.');
+                deepEqual(res.rows[0].value, [looser], 'Correct conflicts included.');
+                start();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Test view querying with limit option", function() {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({
