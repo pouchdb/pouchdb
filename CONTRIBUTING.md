@@ -74,8 +74,8 @@ Run all tests with:
 
     $ npm build
     $ npm run dev-server
-    # Now visit http://127.0.0.1:8000/tests/test.html in your browser
-    # add ?testFiles=test.basics.js to run single test file
+
+Now visit http://127.0.0.1:8000/tests/test.html in your browser add ?testFiles=test.basics.js to run single test file. You do not need to manually rebuild PouchDB when you run the `dev-server` target, any changes you make to the source will automatically be built.
 
 Git Essentials
 --------------------------------------
