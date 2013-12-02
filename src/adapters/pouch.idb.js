@@ -229,7 +229,7 @@ function IdbPouch(opts, callback) {
                                 "Attachments need to be base64 encoded");
           return PouchUtils.call(callback, err);
         }
-        var buffer = new Uint8Array(data);
+        var buffer = string2Uint8Array(data);
         att.digest = 'md5-' + PouchUtils.Crypto.FastMD5(buffer);
         if (blobSupport) {
           var type = att.content_type;
@@ -249,6 +249,14 @@ function IdbPouch(opts, callback) {
         finish();
       };
       reader.readAsArrayBuffer(att.data);
+    }
+
+    function string2Uint8Array(str) {
+      var buf = new Uint8Array(str.length);
+      for (var i = 0; i < str.length; i++) {
+        buf[i] = str.charCodeAt(i);
+      }
+      return buf;
     }
 
     // convert array buffer to base64 byte array (needed for chrome gets binary blobs 
