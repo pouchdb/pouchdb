@@ -24,6 +24,7 @@ var testFiles = fs.readdirSync("./tests").filter(function(name){
 
 testrunner.setup({
   log: {
+    errors: true,
     summary: true
   }
 });
