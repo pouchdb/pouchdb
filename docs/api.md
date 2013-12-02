@@ -347,7 +347,7 @@ db.replicate.from(remoteDB, [options]);
   'end_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)"
 }
 {% endhighlight %}
-Note that the response for server replications (via `options.server`) is slightly different. See the (CouchDB Wiki)(http://wiki.apache.org/couchdb/Replication).
+Note that the response for server replications (via `options.server`) is slightly different. See the [CouchDB Wiki](http://wiki.apache.org/couchdb/Replication).
 
 ## Save an attachment<a id="save_attachment"></a>
 
