@@ -13,7 +13,7 @@
 // If you are on OSX, you will need to ensure Firefox is on your path
 // export PATH=/Applications/Firefox.app/Contents/MacOS/:$PATH
 
-// Also needs $ npm run dev-server
+// Also needs $ npm run dev-server if run manually
 
 var webdriverjs = require('webdriverjs');
 
@@ -27,7 +27,8 @@ var client = {};
 
 var browsers = [
   'firefox',
-  'safari',
+  // Temporarily disable safari until it is fixed (#1068)
+  // 'safari',
   'chrome'
 ];
 
