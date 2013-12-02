@@ -363,10 +363,6 @@ function LevelPouch(opts, callback) {
         doc.metadata.rev_map[doc.metadata.rev] = doc.metadata.seq;
 
         stores[BY_SEQ_STORE].put(doc.metadata.seq, doc.data, function (err) {
-          if (err && false) {
-            return console.error(err);
-          }
-
           stores[DOC_STORE].put(doc.metadata.id, doc.metadata, function (err) {
             results.push(doc);
             return saveUpdateSeq(callback2);
@@ -392,7 +388,7 @@ function LevelPouch(opts, callback) {
       stores[ATTACH_STORE].get(digest, function (err, oldAtt) {
         if (err && err.name !== 'NotFoundError') {
           if (false) {
-            console.error(err);
+            //console.error(err);
           }
           return call(callback, err);
         }
@@ -414,18 +410,12 @@ function LevelPouch(opts, callback) {
         }
 
         stores[ATTACH_STORE].put(digest, newAtt, function (err) {
-          if (err && false) {
-            return console.error(err);
-          }
           // do not try to store empty attachments
           if (data.length === 0) {
             return callback(err);
           }
           stores[ATTACH_BINARY_STORE].put(digest, data, function (err) {
             callback(err);
-            if (err && false) {
-              return console.error(err);
-            }
           });
         });
       });
@@ -545,7 +535,7 @@ function LevelPouch(opts, callback) {
     docstream.on('error', function (err) {
       // TODO: handle error
       if (false) {
-        console.error(err);
+        //console.error(err);
       }
     });
     docstream.on('end', function () {
@@ -633,7 +623,7 @@ function LevelPouch(opts, callback) {
         .on('error', function (err) {
           // TODO: handle errors
           if (false) {
-            console.error(err);
+            //console.error(err);
           }
         })
         .on('close', function () {
@@ -676,7 +666,7 @@ function LevelPouch(opts, callback) {
       return {
         cancel: function () {
           if (false) {
-            console.log(name + ': Cancel Changes Feed');
+            //console.log(name + ': Cancel Changes Feed');
           }
           opts.cancelled = true;
           change_emitter.removeListener('change', changeListener);

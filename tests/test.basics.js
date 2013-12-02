@@ -407,7 +407,7 @@ adapters.map(function(adapter) {
   });
 
   test('Error works', 1, function() {
-    deepEqual(Pouch.error(Pouch.Errors.BAD_REQUEST, "love needs no reason"),
+    deepEqual(Pouch.utils.error(Pouch.Errors.BAD_REQUEST, "love needs no reason"),
       {status: 400, error: "bad_request", reason: "love needs no reason"},
       "should be the same");
   });

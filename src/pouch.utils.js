@@ -12,6 +12,9 @@ PouchUtils.Crypto = require('./deps/md5.js');
 var buffer = require('./deps/buffer');
 var errors = require('./deps/errors');
 
+PouchUtils.error = function (error, reason) {
+  return PouchUtils.extend({}, error, {reason: reason});
+};
 // List of top level reserved words for doc
 var reservedWords = [
   '_id',

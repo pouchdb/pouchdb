@@ -4,6 +4,7 @@
 
 var PouchUtils = require('./pouch.utils.js');
 var PouchMerge = require('./pouch.merge');
+var errors = require('./deps/errors');
 var call = PouchUtils.call;
 
 /*
@@ -124,7 +125,7 @@ module.exports = function (Pouch) {
         opts = {};
       }
       if (typeof doc !== 'object' || Array.isArray(doc)) {
-        return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+        return call(callback, errors.NOT_AN_OBJECT);
       }
       return customApi.bulkDocs({docs: [doc]}, opts,
           autoCompact(yankError(callback)));
@@ -136,10 +137,10 @@ module.exports = function (Pouch) {
         opts = {};
       }
       if (typeof doc !== 'object') {
-        return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+        return call(callback, errors.NOT_AN_OBJECT);
       }
       if (!('_id' in doc)) {
-        return call(callback, Pouch.Errors.MISSING_ID);
+        return call(callback, errors.MISSING_ID);
       }
       return customApi.bulkDocs({docs: [doc]}, opts,
           autoCompact(yankError(callback)));
@@ -173,7 +174,7 @@ module.exports = function (Pouch) {
 
       api.get(docId, function (err, doc) {
         // create new doc
-        if (err && err.error === Pouch.Errors.MISSING_DOC.error) {
+        if (err && err.error === errors.MISSING_DOC.error) {
           createAttachment({_id: docId});
           return;
         }
@@ -183,7 +184,7 @@ module.exports = function (Pouch) {
         }
 
         if (doc._rev !== rev) {
-          call(callback, Pouch.Errors.REV_CONFLICT);
+          call(callback, errors.REV_CONFLICT);
           return;
         }
 
@@ -198,7 +199,7 @@ module.exports = function (Pouch) {
           return;
         }
         if (obj._rev !== rev) {
-          call(callback, Pouch.Errors.REV_CONFLICT);
+          call(callback, errors.REV_CONFLICT);
           return;
         }
         if (!obj._attachments) {
@@ -393,13 +394,13 @@ module.exports = function (Pouch) {
               var l = leaves[i];
               // looks like it's the only thing couchdb checks
               if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
-                return call(callback, Pouch.error(Pouch.Errors.BAD_REQUEST,
+                return call(callback, PouchUtils.error(errors.BAD_REQUEST,
                   "Invalid rev format"));
               }
             }
             finishOpenRevs();
           } else {
-            return call(callback, Pouch.error(Pouch.Errors.UNKNOWN_ERROR,
+            return call(callback, PouchUtils.error(errors.UNKNOWN_ERROR,
               'function_clause'));
           }
         }
@@ -499,7 +500,7 @@ module.exports = function (Pouch) {
           opts.ctx = res.ctx;
           customApi._getAttachment(res.doc._attachments[attachmentId], opts, callback);
         } else {
-          return call(callback, Pouch.Errors.MISSING_DOC);
+          return call(callback, errors.MISSING_DOC);
         }
       });
     };
@@ -515,13 +516,13 @@ module.exports = function (Pouch) {
       }
       if ('keys' in opts) {
         if ('startkey' in opts) {
-          call(callback, Pouch.error(Pouch.Errors.QUERY_PARSE_ERROR,
+          call(callback, PouchUtils.error(errors.QUERY_PARSE_ERROR,
             'Query parameter `start_key` is not compatible with multi-get'
           ));
           return;
         }
         if ('endkey' in opts) {
-          call(callback, Pouch.error(Pouch.Errors.QUERY_PARSE_ERROR,
+          call(callback, PouchUtils.error(errors.QUERY_PARSE_ERROR,
             'Query parameter `end_key` is not compatible with multi-get'
           ));
           return;
@@ -543,7 +544,7 @@ module.exports = function (Pouch) {
               return task.task.cancel();
             }
             if (Pouch.DEBUG) {
-              console.log('Cancel Changes Feed');
+              //console.log('Cancel Changes Feed');
             }
             task.parameters[0].aborted = true;
           }
@@ -569,7 +570,7 @@ module.exports = function (Pouch) {
               return changes.cancel();
             }
             if (Pouch.DEBUG) {
-              console.log('Cancel Changes Feed');
+              //console.log('Cancel Changes Feed');
             }
             opts.aborted = true;
           }
@@ -625,16 +626,16 @@ module.exports = function (Pouch) {
       }
 
       if (!req || !req.docs || req.docs.length < 1) {
-        return call(callback, Pouch.Errors.MISSING_BULK_DOCS);
+        return call(callback, errors.MISSING_BULK_DOCS);
       }
 
       if (!Array.isArray(req.docs)) {
-        return call(callback, Pouch.Errors.QUERY_PARSE_ERROR);
+        return call(callback, errors.QUERY_PARSE_ERROR);
       }
 
       for (var i = 0; i < req.docs.length; ++i) {
         if (typeof req.docs[i] !== 'object' || Array.isArray(req.docs[i])) {
-          return call(callback, Pouch.Errors.NOT_AN_OBJECT);
+          return call(callback, errors.NOT_AN_OBJECT);
         }
       }
 
