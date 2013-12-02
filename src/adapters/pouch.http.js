@@ -29,7 +29,7 @@ function parseUri(str) {
 }
 
 function encodeDocId(id) {
-  if (/^_design/.test(id)) {
+  if (/^_(design|local)/.test(id)) {
     return id;
   }
   return encodeURIComponent(id);
