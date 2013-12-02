@@ -923,28 +923,57 @@ interHTTPAdapters.map(function(adapters) {
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'anotherdoc', foo:'baz'};
     initDBPair(this.name, this.remote, function(db, remote) {
-      db.replicate.sync(remote, {
-        continuous: true
-      });
+      var finished = false;
 
-      db.post(doc1, function (err) {
-        ok(!err, 'no error');
-        // allow time to replicate
-        setTimeout(function () {
-          remote.get(doc1._id, function (err) {
-            ok(!err, 'no error');
-            remote.post(doc2, function (err) {
-              ok(!err, 'no error');
-              setTimeout(function () {
-                db.get(doc2._id, function (err) {
-                  ok(!err, 'no error');
-                  start();
-                });
-              }, 100);
+      function onComplete() {
+        if (finished) {
+          db.allDocs(function(err, res) {
+            var db_total = res.total_rows;
+            remote.allDocs(function(err, res) {
+              var remote_total = res.total_rows;
+              ok(db_total === remote_total, 'replicated all docs successfully');
+              start();
             });
           });
-        }, 100);
-      });      
+        } else {
+          finished = true;
+        }
+      }
+
+      db.put(doc1, function(err) {
+        remote.put(doc2, function(err) {
+          db.replicate.sync(remote, {
+            complete: onComplete
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("Syncing should stop if one replication fails (issue 838)", function () {
+    var self = this;
+    var doc1 = {_id: 'adoc', foo:'bar'};
+    var doc2 = {_id: 'anotherdoc', foo:'baz'};
+    initDBPair(this.name, this.remote, function(db, remote) {
+      var replications = db.replicate.sync(remote, {
+        continuous: true,
+        onComplete: console.log
+      });
+
+      db.put(doc1, function(err) {
+        replications[0].cancel();
+        remote.put(doc2, function(err) {
+          db.allDocs(function(err, res) {
+            var db_total = res.total_rows;
+            remote.allDocs(function(err, res) {
+              var remote_total = res.total_rows;
+              ok(db_total < 2, 'db replication halted');
+              ok(remote_total < 2, 'remote replication halted');
+              start();
+            });
+          });
+        });
+      });
     });
   });
 });

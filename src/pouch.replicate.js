@@ -258,7 +258,7 @@ function toPouch(db, callback) {
   callback(null, db);
 }
 
-function _replicate(src, target, opts, callback) {
+function replicateWrapper(src, target, opts, callback) {
   if (opts instanceof Function) {
     callback = opts;
     opts = {};
@@ -295,11 +295,29 @@ function _replicate(src, target, opts, callback) {
 }
 
 function sync(db1, db2, opts, callback) {
-  return [
-    _replicate(db1, db2, opts, callback),
-    _replicate(db2, db1, opts, callback)
+  var complete = opts.complete,
+      replications = [];
+
+  opts.complete = function (err, res) {
+    if (err) {
+      // cancel both replications if either experiences problems
+      console.log(err);
+      replications.forEach(function (replication) {
+        replication.cancel();
+      });
+    }
+    if (complete) {
+      complete(err, res);
+    }
+  };
+
+  replications = [
+    replicateWrapper(db1, db2, opts, callback),
+    replicateWrapper(db2, db1, opts, callback)
   ];
+
+  return replications;
 }
 
-exports.replicate = _replicate;
+exports.replicate = replicateWrapper;
 exports.sync = sync;
