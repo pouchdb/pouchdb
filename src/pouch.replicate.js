@@ -295,26 +295,50 @@ function replicateWrapper(src, target, opts, callback) {
 }
 
 function sync(db1, db2, opts, callback) {
-  var complete = opts.complete,
-      replications = [];
+  var replications = {};
 
-  opts.complete = function (err, res) {
-    if (err) {
-      // cancel both replications if either experiences problems
-      console.log(err);
-      replications.forEach(function (replication) {
-        replication.cancel();
-      });
+  function clone(obj) {
+    var target = {};
+    for (var i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        target[i] = obj[i];
+      }
     }
-    if (complete) {
-      complete(err, res);
-    }
+  }
+
+  function complete(callback) {
+    return function (err, res) {
+      if (err) {
+        // cancel both replications if either experiences problems
+        replications.push.cancel();
+        replications.pull.cancel();
+      }
+      PouchUtils.call(complete, err, res);
+    };
+  }
+
+  function onChange(src, callback) {
+    return function (change) {
+      return {
+        source: src,
+        change: PouchUtils.call(callback, change)
+      };
+    };
+  }
+
+  function makeOpts(src, opts) {
+    opts = clone(opts);
+    // console.log('this runs');
+    opts.complete = complete(opts.complete);
+    // console.log('this doesn\'t run');
+    opts.onChange = onChange(src, opts.onChange);
+    return opts;
+  }
+
+  replications = {
+    push: replicateWrapper(db1, db2, makeOpts(db1, opts), callback),
+    pull: replicateWrapper(db2, db1, makeOpts(db2, opts), callback)
   };
-
-  replications = [
-    replicateWrapper(db1, db2, opts, callback),
-    replicateWrapper(db2, db1, opts, callback)
-  ];
 
   return replications;
 }

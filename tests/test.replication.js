@@ -919,7 +919,6 @@ interHTTPAdapters.map(function(adapters) {
   });
 
   asyncTest("Test syncing two endpoints (issue 838)", function () {
-    var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'anotherdoc', foo:'baz'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -951,7 +950,6 @@ interHTTPAdapters.map(function(adapters) {
   });
 
   asyncTest("Syncing should stop if one replication fails (issue 838)", function () {
-    var self = this;
     var doc1 = {_id: 'adoc', foo:'bar'};
     var doc2 = {_id: 'anotherdoc', foo:'baz'};
     initDBPair(this.name, this.remote, function(db, remote) {
@@ -960,8 +958,10 @@ interHTTPAdapters.map(function(adapters) {
         onComplete: console.log
       });
 
+      console.log(replications);
+
       db.put(doc1, function(err) {
-        replications[0].cancel();
+        replications.pull.cancel();
         remote.put(doc2, function(err) {
           db.allDocs(function(err, res) {
             var db_total = res.total_rows;
