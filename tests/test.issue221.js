@@ -54,7 +54,7 @@ adapters.map(function(adapters) {
             remote.get(doc._id, {revs_info:true},function(err, data) {
               var correctRev = data._revs_info[0];
               local.replicate.from(remote, function(err, results) {
-                // Check the PouchDB doc.
+                // Check the Pouch doc.
                 local.get(doc._id, function(err, results) {
                   strictEqual(results._rev, correctRev.rev,
                               'correct rev stored after replication');

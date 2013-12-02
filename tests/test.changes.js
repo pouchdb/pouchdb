@@ -1,7 +1,7 @@
 /*globals initTestDB, emit: true, generateAdapterUrl */
 /*globals PERSIST_DATABASES, initDBPair, utils: true */
 /*globals Pouch.ajax: true, LevelPouch: true, putTree, deepEqual */
-/*globals cleanupTestDatabases, strictEqual, writeDocs, PouchDB */
+/*globals cleanupTestDatabases, strictEqual, writeDocs, Pouch */
 
 "use strict";
 
@@ -452,7 +452,7 @@ adapters.map(function(adapter) {
         onChange: function(change) {
           count += 1;
           if (count === 1) {
-            PouchDB.destroy(name, function(err, resp) {
+            Pouch.destroy(name, function(err, resp) {
               changes.cancel();
               ok(true);
               start();
@@ -755,7 +755,7 @@ adapters.map(function(adapter) {
 
 asyncTest("Changes reports errors", function (){
   expect(1);
-  var db = new PouchDB('http://infiniterequest.com', {skipSetup: true});
+  var db = new Pouch('http://infiniterequest.com', {skipSetup: true});
   db.changes({
     complete: function(err, changes) {
       ok(err, 'got error');

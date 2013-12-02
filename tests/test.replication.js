@@ -1,4 +1,4 @@
-/*globals initTestDB, emit, generateAdapterUrl, PouchDB */
+/*globals initTestDB, emit, generateAdapterUrl, Pouch */
 /*globals PERSIST_DATABASES, initDBPair, openTestDB, putAfter */
 /*globals cleanupTestDatabases, strictEqual */
 
@@ -666,7 +666,7 @@ adapters.map(function(adapters) {
       db1.post(adoc, function() {
         Pouch.replicate(db1, db2, {complete: function() {
           Pouch.destroy(db1name, function() {
-            var fresh = new PouchDB(db1name);
+            var fresh = new Pouch(db1name);
             fresh.post(newdoc, function() {
               Pouch.replicate(fresh, db2, {complete: function() {
                 db2.allDocs(function(err, docs) {
