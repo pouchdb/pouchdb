@@ -2,7 +2,7 @@
 
 var PouchUtils = require('../pouch.utils.js');
 var PouchMerge = require('../pouch.merge');
-
+var errors = require('../deps/errors');
 function quote(str) {
   return "'" + str + "'";
 }
@@ -38,7 +38,7 @@ function webSqlPouch(opts, callback) {
 
   var db = openDatabase(name, POUCH_VERSION, name, POUCH_SIZE);
   if (!db) {
-    return PouchUtils.call(callback, Pouch.Errors.UNKNOWN_ERROR);
+    return PouchUtils.call(callback, errors.UNKNOWN_ERROR);
   }
 
   function dbCreated() {
@@ -74,7 +74,7 @@ function webSqlPouch(opts, callback) {
       tx.executeSql(dbid, [], function (tx, result) {
         if (!result.rows.length) {
           var initDb = 'UPDATE ' + META_STORE + ' SET dbid=?';
-          instanceId = Pouch.uuid();
+          instanceId = PouchUtils.uuid();
           tx.executeSql(initDb, [instanceId]);
           return;
         }
@@ -193,7 +193,7 @@ function webSqlPouch(opts, callback) {
         try {
           att.data = atob(att.data);
         } catch (e) {
-          var err = Pouch.error(Pouch.Errors.BAD_ARG,
+          var err = PouchUtils.error(errors.BAD_ARG,
                                 "Attachments need to be base64 encoded");
           return PouchUtils.call(callback, err);
         }
@@ -329,7 +329,7 @@ function webSqlPouch(opts, callback) {
          newEdits && merged.conflicts !== 'new_leaf');
 
       if (inConflict) {
-        results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
+        results.push(makeErr(errors.REV_CONFLICT, docInfo._bulk_seq));
         return processDocs();
       }
 
@@ -340,7 +340,7 @@ function webSqlPouch(opts, callback) {
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
       if ('was_delete' in opts && PouchUtils.isDeleted(docInfo.metadata)) {
-        results.push(Pouch.Errors.MISSING_DOC);
+        results.push(errors.MISSING_DOC);
         return processDocs();
       }
       writeDoc(docInfo, processDocs, false);
@@ -430,12 +430,12 @@ function webSqlPouch(opts, callback) {
     var sql = 'SELECT * FROM ' + DOC_STORE + ' WHERE id=?';
     tx.executeSql(sql, [id], function (a, results) {
       if (!results.rows.length) {
-        err = Pouch.Errors.MISSING_DOC;
+        err = errors.MISSING_DOC;
         return finish();
       }
       metadata = JSON.parse(results.rows.item(0).json);
       if (PouchUtils.isDeleted(metadata) && !opts.rev) {
-        err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
+        err = PouchUtils.error(errors.MISSING_DOC, "deleted");
         return finish();
       }
 
@@ -445,7 +445,7 @@ function webSqlPouch(opts, callback) {
       var sql = 'SELECT * FROM ' + BY_SEQ_STORE + ' WHERE doc_id_rev=?';
       tx.executeSql(sql, [key], function (tx, results) {
         if (!results.rows.length) {
-          err = Pouch.Errors.MISSING_DOC;
+          err = errors.MISSING_DOC;
           return finish();
         }
         doc = JSON.parse(results.rows.item(0).json);
@@ -546,20 +546,18 @@ function webSqlPouch(opts, callback) {
 
   api._changes = function idb_changes(opts) {
 
-    if (Pouch.DEBUG) {
-      console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
-    }
+    
+    //console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
+    
 
     if (opts.continuous) {
-      var id = name + ':' + Pouch.uuid();
+      var id = name + ':' + PouchUtils.uuid();
       opts.cancelled = false;
       webSqlPouch.Changes.addListener(name, id, api, opts);
       webSqlPouch.Changes.notify(name);
       return {
         cancel: function () {
-          if (Pouch.DEBUG) {
-            console.log(name + ': Cancel Changes Feed');
-          }
+          //console.log(name + ': Cancel Changes Feed');
           opts.cancelled = true;
           webSqlPouch.Changes.removeListener(name, id);
         }
@@ -658,7 +656,7 @@ function webSqlPouch(opts, callback) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
       tx.executeSql(sql, [docId], function (tx, result) {
         if (!result.rows.length) {
-          PouchUtils.call(callback, Pouch.Errors.MISSING_DOC);
+          PouchUtils.call(callback, errors.MISSING_DOC);
         } else {
           var data = JSON.parse(result.rows.item(0).metadata);
           PouchUtils.call(callback, null, data.rev_tree);

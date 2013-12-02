@@ -2,7 +2,7 @@
 
 var PouchUtils = require('../pouch.utils.js');
 var PouchMerge = require('../pouch.merge');
-
+var errors = require('../deps/errors');
 function idbError(callback) {
   return function (event) {
     PouchUtils.call(callback, {
@@ -37,10 +37,10 @@ function IdbPouch(opts, callback) {
 
   var name = opts.name;
   var req = window.indexedDB.open(name, POUCH_VERSION);
-
-  if (Pouch.openReqList) {
-    Pouch.openReqList[name] = req;
+  if (!('openReqList' in IdbPouch)) {
+    IdbPouch.openReqList = {};
   }
+  IdbPouch.openReqList[name] = req;
 
   var blobSupport = null;
 
@@ -48,9 +48,7 @@ function IdbPouch(opts, callback) {
   var api = {};
   var idb = null;
 
-  if (Pouch.DEBUG) {
-    console.log(name + ': Open Database');
-  }
+  //console.log(name + ': Open Database');
 
   req.onupgradeneeded = function (e) {
     var db = e.target.result;
@@ -116,7 +114,7 @@ function IdbPouch(opts, callback) {
       if (name + '_id' in meta) {
         instanceId = meta[name + '_id'];
       } else {
-        instanceId = Pouch.uuid();
+        instanceId = PouchUtils.uuid();
         meta[name + '_id'] = instanceId;
         txn.objectStore(META_STORE).put(meta);
       }
@@ -225,7 +223,7 @@ function IdbPouch(opts, callback) {
         try {
           data = atob(att.data);
         } catch (e) {
-          var err = Pouch.error(Pouch.Errors.BAD_ARG,
+          var err = PouchUtils.error(errors.BAD_ARG,
                                 "Attachments need to be base64 encoded");
           return PouchUtils.call(callback, err);
         }
@@ -330,9 +328,7 @@ function IdbPouch(opts, callback) {
         docInfo.data._doc_id_rev = docInfo.data._id + "::" + docInfo.data._rev;
         var dataReq = txn.objectStore(BY_SEQ_STORE).put(docInfo.data);
         dataReq.onsuccess = function (e) {
-          if (Pouch.DEBUG) {
-            console.log(name + ': Wrote Document ', docInfo.metadata.id);
-          }
+          //console.log(name + ': Wrote Document ', docInfo.metadata.id);
           docInfo.metadata.seq = e.target.result;
           // Current _rev is calculated from _rev_tree on read
           delete docInfo.metadata.rev;
@@ -357,7 +353,7 @@ function IdbPouch(opts, callback) {
         (!wasPreviouslyDeleted && newEdits && merged.conflicts !== 'new_leaf');
 
       if (inConflict) {
-        results.push(makeErr(Pouch.Errors.REV_CONFLICT, docInfo._bulk_seq));
+        results.push(makeErr(errors.REV_CONFLICT, docInfo._bulk_seq));
         return processDocs();
       }
 
@@ -368,7 +364,7 @@ function IdbPouch(opts, callback) {
     function insertDoc(docInfo) {
       // Cant insert new deleted documents
       if ('was_delete' in opts && PouchUtils.isDeleted(docInfo.metadata)) {
-        results.push(Pouch.Errors.MISSING_DOC);
+        results.push(errors.MISSING_DOC);
         return processDocs();
       }
       writeDoc(docInfo, processDocs);
@@ -438,11 +434,11 @@ function IdbPouch(opts, callback) {
       // When we ask with opts.rev we expect the answer to be either
       // doc (possibly with _deleted=true) or missing error
       if (!metadata) {
-        err = Pouch.Errors.MISSING_DOC;
+        err = errors.MISSING_DOC;
         return finish();
       }
       if (PouchUtils.isDeleted(metadata) && !opts.rev) {
-        err = Pouch.error(Pouch.Errors.MISSING_DOC, "deleted");
+        err = PouchUtils.error(errors.MISSING_DOC, "deleted");
         return finish();
       }
 
@@ -456,7 +452,7 @@ function IdbPouch(opts, callback) {
           delete(doc._doc_id_rev);
         }
         if (!doc) {
-          err = Pouch.Errors.MISSING_DOC;
+          err = errors.MISSING_DOC;
           return finish();
         }
         finish();
@@ -634,20 +630,16 @@ function IdbPouch(opts, callback) {
   };
 
   api._changes = function idb_changes(opts) {
-    if (Pouch.DEBUG) {
-      console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
-    }
+    //console.log(name + ': Start Changes Feed: continuous=' + opts.continuous);
 
     if (opts.continuous) {
-      var id = name + ':' + Pouch.uuid();
+      var id = name + ':' + PouchUtils.uuid();
       opts.cancelled = false;
       IdbPouch.Changes.addListener(name, id, api, opts);
       IdbPouch.Changes.notify(name);
       return {
         cancel: function () {
-          if (Pouch.DEBUG) {
-            console.log(name + ': Cancel Changes Feed');
-          }
+          //console.log(name + ': Cancel Changes Feed');
           opts.cancelled = true;
           IdbPouch.Changes.removeListener(name, id);
         }
@@ -780,7 +772,7 @@ function IdbPouch(opts, callback) {
 
   api._close = function (callback) {
     if (idb === null) {
-      return PouchUtils.call(callback, Pouch.Errors.NOT_OPEN);
+      return PouchUtils.call(callback, errors.NOT_OPEN);
     }
 
     // https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#close
@@ -795,7 +787,7 @@ function IdbPouch(opts, callback) {
     req.onsuccess = function (event) {
       var doc = event.target.result;
       if (!doc) {
-        PouchUtils.call(callback, Pouch.Errors.MISSING_DOC);
+        PouchUtils.call(callback, errors.MISSING_DOC);
       } else {
         PouchUtils.call(callback, null, doc.rev_tree);
       }
@@ -844,21 +836,22 @@ IdbPouch.valid = function idb_valid() {
 };
 
 IdbPouch.destroy = function idb_destroy(name, opts, callback) {
-  if (Pouch.DEBUG) {
-    console.log(name + ': Delete Database');
+  if (!('openReqList' in IdbPouch)) {
+    IdbPouch.openReqList = {};
   }
+  //console.log(name + ': Delete Database');
   IdbPouch.Changes.clearListeners(name);
 
   //Close open request for "name" database to fix ie delay.
-  if (Pouch.openReqList[name] && Pouch.openReqList[name].result) {
-    Pouch.openReqList[name].result.close();
+  if (IdbPouch.openReqList[name] && IdbPouch.openReqList[name].result) {
+    IdbPouch.openReqList[name].result.close();
   }
   var req = window.indexedDB.deleteDatabase(name);
 
   req.onsuccess = function () {
     //Remove open request from the list.
-    if (Pouch.openReqList[name]) {
-      Pouch.openReqList[name] = null;
+    if (IdbPouch.openReqList[name]) {
+      IdbPouch.openReqList[name] = null;
     }
     PouchUtils.call(callback, null);
   };

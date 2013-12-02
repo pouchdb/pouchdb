@@ -2,7 +2,7 @@
 
 var Pouch = require('../pouch.js');
 var PouchUtils = require('../pouch.utils.js');
-
+var errors = require('../deps/errors');
 var HTTP_TIMEOUT = 10000;
 
 // parseUri 1.2.2
@@ -155,7 +155,7 @@ function HttpPouch(opts, callback) {
       }
       var cb = function (err, body) {
         if (err || !('uuids' in body)) {
-          PouchUtils.call(callback, err || Pouch.Errors.UNKNOWN_ERROR);
+          PouchUtils.call(callback, err || errors.UNKNOWN_ERROR);
         } else {
           uuids.list = uuids.list.concat(body.uuids);
           PouchUtils.call(callback, null, "OK");
@@ -193,7 +193,7 @@ function HttpPouch(opts, callback) {
         // Continue as if there had been no errors
         PouchUtils.call(callback, null, api);
       } else {
-        PouchUtils.call(callback, Pouch.Errors.UNKNOWN_ERROR);
+        PouchUtils.call(callback, errors.UNKNOWN_ERROR);
       }
     });
   };
@@ -491,10 +491,10 @@ function HttpPouch(opts, callback) {
       opts = {};
     }
     if (typeof doc !== 'object') {
-      return PouchUtils.call(callback, Pouch.Errors.NOT_AN_OBJECT);
+      return PouchUtils.call(callback, errors.NOT_AN_OBJECT);
     }
     if (!('_id' in doc)) {
-      return PouchUtils.call(callback, Pouch.Errors.MISSING_ID);
+      return PouchUtils.call(callback, errors.MISSING_ID);
     }
 
     // List of parameter to add to the PUT request
@@ -536,7 +536,7 @@ function HttpPouch(opts, callback) {
       opts = {};
     }
     if (typeof doc !== 'object') {
-      return PouchUtils.call(callback, Pouch.Errors.NOT_AN_OBJECT);
+      return PouchUtils.call(callback, errors.NOT_AN_OBJECT);
     }
     if (! ("_id" in doc)) {
       if (uuids.list.length > 0) {
@@ -545,7 +545,7 @@ function HttpPouch(opts, callback) {
       } else {
         uuids.get(function (err, resp) {
           if (err) {
-            return PouchUtils.call(callback, Pouch.Errors.UNKNOWN_ERROR);
+            return PouchUtils.call(callback, errors.UNKNOWN_ERROR);
           }
           doc._id = uuids.list.pop();
           api.put(doc, opts, callback);
@@ -692,9 +692,7 @@ function HttpPouch(opts, callback) {
           if (task.task) {
             return task.task.cancel();
           }
-          if (Pouch.DEBUG) {
-            console.log(db_url + ': Cancel Changes Feed');
-          }
+          //console.log(db_url + ': Cancel Changes Feed');
           task.parameters[0].aborted = true;
         }
       };
@@ -714,17 +712,13 @@ function HttpPouch(opts, callback) {
           if (changes) {
             return changes.cancel();
           }
-          if (Pouch.DEBUG) {
-            console.log(db_url + ': Cancel Changes Feed');
-          }
+          //console.log(db_url + ': Cancel Changes Feed');
           opts.aborted = true;
         }
       };
     }
 
-    if (Pouch.DEBUG) {
-      console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
-    }
+    //console.log(db_url + ': Start Changes Feed: continuous=' + opts.continuous);
 
     var params = {};
     var limit = (typeof opts.limit !== 'undefined') ? opts.limit : false;
@@ -858,7 +852,7 @@ function HttpPouch(opts, callback) {
         var maximumWait = opts.maximumWait || 30000;
 
         if (retryWait > maximumWait) {
-          PouchUtils.call(opts.complete, err || Pouch.Errors.UNKNOWN_ERROR, null);
+          PouchUtils.call(opts.complete, err || errors.UNKNOWN_ERROR, null);
         }
 
         // Queue a call to fetch again with the newest sequence number
@@ -887,9 +881,7 @@ function HttpPouch(opts, callback) {
     // Return a method to cancel this method from processing any more
     return {
       cancel: function () {
-        if (Pouch.DEBUG) {
-          console.log(db_url + ': Cancel Changes Feed');
-        }
+        //console.log(db_url + ': Cancel Changes Feed');
         opts.aborted = true;
         xhr.abort();
       }

@@ -2,7 +2,6 @@
 
 var PouchUtils = require('./pouch.utils.js');
 var PouchAdapter = require('./pouch.adapter.js')(Pouch);
-
 function Pouch(name, opts, callback) {
 
   if (!(this instanceof Pouch)) {
@@ -77,8 +76,6 @@ function Pouch(name, opts, callback) {
   }
 }
 
-Pouch.DEBUG = false;
-Pouch.openReqList = {};
 Pouch.adapters = {};
 Pouch.plugins = {};
 
@@ -138,9 +135,7 @@ Pouch.destroy = function (name, opts, callback) {
     for (var plugin in Pouch.plugins) {
       Pouch.plugins[plugin]._delete(backend.name);
     }
-    if (Pouch.DEBUG) {
-      console.log(backend.name + ': Delete Database');
-    }
+    //console.log(backend.name + ': Delete Database');
 
     // call destroy method of the particular adaptor
     Pouch.adapters[backend.adapter].destroy(backend.name, opts, callback);
@@ -168,7 +163,7 @@ Pouch.removeFromAllDbs = function (opts, callback) {
   new Pouch(Pouch.allDBName(opts.adapter), function (err, db) {
     if (err) {
       // don't fail when allDbs fail
-      console.error(err);
+      //console.error(err);
       callback();
       return;
     }
@@ -180,7 +175,7 @@ Pouch.removeFromAllDbs = function (opts, callback) {
       } else {
         db.remove(doc, function (err, response) {
           if (err) {
-            console.error(err);
+            //console.error(err);
           }
           callback();
         });
@@ -232,7 +227,7 @@ Pouch.open = function (opts, callback) {
   new Pouch(Pouch.allDBName(adapter), function (err, db) {
     if (err) {
       // don't fail when allDb registration fails
-      console.error(err);
+      //console.error(err);
       callback();
       return;
     }
@@ -246,7 +241,7 @@ Pouch.open = function (opts, callback) {
           dbname: opts.originalName
         }, function (err) {
             if (err) {
-              console.error(err);
+              //console.error(err);
             }
 
             callback();
@@ -305,7 +300,7 @@ Pouch.allDbs = function (callback) {
         // code to clear allDbs.
         // response.rows.forEach(function (row) {
         //   db.remove(row.doc, function () {
-        //     console.log(arguments);
+        //     //console.log(arguments);
         //   });
         // });
 
@@ -318,20 +313,16 @@ Pouch.allDbs = function (callback) {
   accumulate(adapters, []);
 };
 
-Pouch.uuid = PouchUtils.uuid;
-Pouch.uuids = PouchUtils.uuids;
 // Enumerate errors, add the status code so we can reflect the HTTP api
 // in future
-Pouch.Errors = require('./deps/errors');
 
-Pouch.error = function (error, reason) {
-  return PouchUtils.extend({}, error, {reason: reason});
-};
 
 module.exports = Pouch;
 
 Pouch.ajax = require('./deps/ajax');
 Pouch.extend = require('./deps/extend');
+Pouch.utils = PouchUtils;
+Pouch.Errors = require('./deps/errors');
 Pouch.replicate = require('./pouch.replicate.js').replicate;
 Pouch.version = require('./version');
 var httpAdapter = require('./adapters/pouch.http.js');
