@@ -19,7 +19,8 @@
   ],
   "dependencies": {
     "level": "*",
-    "request": "*"
+    "request": "*",
+    "pouchdb-mapreduce": "0.2.0"
   },
   "jam": {
     "main": "dist/pouchdb-nightly.js",

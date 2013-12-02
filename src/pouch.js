@@ -340,7 +340,7 @@ Pouch.adapter('https', httpAdapter);
 
 Pouch.adapter('idb', require('./adapters/pouch.idb.js'));
 Pouch.adapter('websql', require('./adapters/pouch.websql.js'));
-Pouch.plugin('mapreduce', require('./plugins/pouchdb.mapreduce.js'));
+Pouch.plugin('mapreduce', require('pouchdb-mapreduce'));
 
 if (!process.browser) {
   var ldbAdapter = require('./adapters/pouch.leveldb.js');
