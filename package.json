@@ -62,7 +62,7 @@
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
     "test-node": "./bin/test-node.js",
-    "test-browser": "npm run build-js && ./bin/test-browser",
+    "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node"
   },
