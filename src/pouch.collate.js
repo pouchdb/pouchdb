@@ -1,4 +1,4 @@
-(function () {
+(function (ctx) {
     'use strict';
     
     function pouchCollate(a, b) {
@@ -83,12 +83,12 @@
     }
     
     // for nodejs
-    if (!!this.module) {
+    if (!!ctx.module) {
       module.exports = pouchCollate;
     }
     
     // for browsers
-    if (!!this.window) {
+    if (!!ctx.window) {
       window.pouchCollate = pouchCollate;
     }
 
