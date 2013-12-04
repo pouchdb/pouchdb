@@ -176,6 +176,48 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Changes limit and view instead of filter", function(){
+    var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3},
+      {_id: "4", integer: 4},
+      {_id: "5", integer: 5},
+
+      {_id: '_design/foo', integer: 4, views: {
+         even: {
+            map: 'function(doc) { if (doc.integer % 2 === 1) { emit(doc._id, null) }; }'
+         }
+       }
+      }
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      writeDocs(db, docs, function(err, info) {
+        db.changes({
+          filter: '_view',
+          view: 'foo/even',
+          limit: 2,
+          since: 2,
+          include_docs: true,
+          complete: function(err, results) {
+            strictEqual(results.results.length, 2, 'correct # results');
+
+            strictEqual(results.results[0].id, '3', 'correct first id');
+            strictEqual(results.results[0].seq, 4, 'correct first seq');
+            strictEqual(results.results[0].doc.integer, 3, 'correct first integer');
+
+            strictEqual(results.results[1].id, '5', 'correct second id');
+            strictEqual(results.results[1].seq, 6, 'correct second seq');
+            strictEqual(results.results[1].doc.integer, 5, 'correct second integer');
+            start();
+          }
+        });
+      });
+    });
+  });
+
   asyncTest("Changes last_seq", function() {
     var docs = [
       {_id: "0", integer: 0},
@@ -199,6 +241,46 @@ adapters.map(function(adapter) {
                 strictEqual(results.last_seq, 5, 'correct last_seq');
                 db.changes({
                   filter: 'foo/even',
+                  complete: function(err, results) {
+                    strictEqual(results.last_seq, 5, 'filter does not change last_seq');
+                    strictEqual(results.results.length, 2, 'correct # of changes');
+                    start();
+                  }
+                });
+              }
+            });
+          });
+        }
+      });
+    });
+  });
+
+  asyncTest("Changes last_seq with view instead of filter", function() {
+    var docs = [
+      {_id: "0", integer: 0},
+      {_id: "1", integer: 1},
+      {_id: "2", integer: 2},
+      {_id: "3", integer: 3},
+
+      {_id: '_design/foo', integer: 4, views: {
+         even: {
+            map: 'function(doc) { if (doc.integer % 2 === 1) { emit(doc._id, null) }; }'
+         }
+       }
+      }
+    ];
+
+    initTestDB(this.name, function(err, db) {
+      db.changes({
+        complete: function(err, results) {
+          strictEqual(results.last_seq, 0, 'correct last_seq');
+          db.bulkDocs({docs: docs}, function(err, info) {
+            db.changes({
+              complete: function(err, results) {
+                strictEqual(results.last_seq, 5, 'correct last_seq');
+                db.changes({
+                  filter: '_view',
+                  view: 'foo/even',
                   complete: function(err, results) {
                     strictEqual(results.last_seq, 5, 'filter does not change last_seq');
                     strictEqual(results.results.length, 2, 'correct # of changes');

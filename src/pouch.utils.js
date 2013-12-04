@@ -289,6 +289,7 @@ PouchUtils.Changes = function () {
         continuous: false,
         descending: false,
         filter: opts.filter,
+        view: opts.view,
         since: opts.since,
         query_params: opts.query_params,
         onChange: function (c) {

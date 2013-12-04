@@ -617,18 +617,7 @@ function webSqlPouch(opts, callback) {
       });
     }
 
-    if (opts.filter && typeof opts.filter === 'string') {
-      var filterName = opts.filter.split('/');
-      api.get('_design/' + filterName[0], function (err, ddoc) {
-        /*jshint evil: true */
-        var filter = eval('(function () { return ' +
-                          ddoc.filters[filterName[1]] + ' })()');
-        opts.filter = filter;
-        fetchChanges();
-      });
-    } else {
-      fetchChanges();
-    }
+    fetchChanges();
   };
 
   api._close = function (callback) {
