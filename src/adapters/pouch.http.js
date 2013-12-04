@@ -750,6 +750,9 @@ function HttpPouch(opts, callback) {
 
     if (opts.filter && typeof opts.filter === 'string') {
       params.filter = opts.filter;
+      if (opts.filter === '_view' && opts.view && typeof opts.view === 'string') {
+        params.view = opts.view;
+      }
     }
 
     // If opts.query_params exists, pass it through to the changes request.

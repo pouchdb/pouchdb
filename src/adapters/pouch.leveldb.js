@@ -647,20 +647,7 @@ function LevelPouch(opts, callback) {
         });
     }
 
-    // fetch a filter from a design doc
-    if (opts.filter && typeof opts.filter === 'string') {
-      var filtername = opts.filter.split('/');
-      api.get('_design/' + filtername[0], function (err, design) {
-        /*jshint evil: true */
-        var filter = eval('(function () { return ' +
-                          design.filters[filtername[1]] + '})()');
-        opts.filter = filter;
-        fetchChanges();
-      });
-    }
-    else {
-      fetchChanges();
-    }
+    fetchChanges();
 
     if (opts.continuous) {
       return {

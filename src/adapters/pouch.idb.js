@@ -673,18 +673,7 @@ function IdbPouch(opts, callback) {
       req.onerror = onerror;
     }
 
-    if (opts.filter && typeof opts.filter === 'string') {
-      var filterName = opts.filter.split('/');
-      api.get('_design/' + filterName[0], function (err, ddoc) {
-        /*jshint evil: true */
-        var filter = eval('(function () { return ' +
-                          ddoc.filters[filterName[1]] + ' })()');
-        opts.filter = filter;
-        fetchChanges();
-      });
-    } else {
-      fetchChanges();
-    }
+    fetchChanges();
 
     function onsuccess(event) {
       if (!event.target.result) {
