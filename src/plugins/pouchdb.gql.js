@@ -287,7 +287,7 @@
 
         symbol("identifier", function (tok) {
           //here we allow for identifiers with the same name as functions
-          if (isfunction (tok.value) && peekToken().type === "(") {
+          if (isFunction (tok.value) && peekToken().type === "(") {
             var args= [];
             while(advance()){
               if (token.type === ")"){
