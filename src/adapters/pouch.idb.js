@@ -212,23 +212,46 @@ function IdbPouch(opts, callback) {
                                 "Attachments need to be base64 encoded");
           return PouchUtils.call(callback, err);
         }
-        att.digest = 'md5-' + PouchUtils.Crypto.MD5(data);
+        var buffer = string2Uint8Array(data);
+        att.digest = 'md5-' + PouchUtils.Crypto.FastMD5(buffer);
         if (blobSupport) {
           var type = att.content_type;
           data = fixBinary(data);
-          att.data = PouchUtils.createBlob([data], {type: type});
+          att.data = new Blob([data], { type: type });
         }
         return finish();
       }
       var reader = new FileReader();
       reader.onloadend = function (e) {
-        att.digest = 'md5-' + PouchUtils.Crypto.MD5(this.result);
+        var buffer = new Uint8Array(this.result);
+        att.digest = 'md5-' + PouchUtils.Crypto.FastMD5(buffer);
+        att.data.md5 = att.digest; //YSG - no-cost debug to see if md5 is correct
         if (!blobSupport) {
-          att.data = btoa(this.result);
+          att.data = arrayBufferToBase64(this.result);
         }
         finish();
       };
-      reader.readAsBinaryString(att.data);
+      reader.readAsArrayBuffer(att.data);
+    }
+
+    function string2Uint8Array(str) {
+      var buf = new Uint8Array(str.length);
+      for (var i = 0; i < str.length; i++) {
+        buf[i] = str.charCodeAt(i);
+      }
+      return buf;
+    }
+
+    // convert array buffer to base64 byte array (needed for chrome gets binary blobs 
+    // issue 108012 which will be fixed in a few months: https://code.google.com/p/chromium/issues/detail?id=108012
+    function arrayBufferToBase64(buffer) {
+      var binary = '';
+      var bytes = new Uint8Array(buffer);
+      var len = bytes.byteLength;
+      for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return window.btoa(binary);
     }
 
     function preprocessAttachments(callback) {
