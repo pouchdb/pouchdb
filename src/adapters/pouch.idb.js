@@ -2,6 +2,7 @@
 
 var PouchUtils = require('../pouch.utils.js');
 var PouchMerge = require('../pouch.merge');
+
 var errors = require('../deps/errors');
 function idbError(callback) {
   return function (event) {
@@ -12,7 +13,6 @@ function idbError(callback) {
     });
   };
 }
-
 
 function IdbPouch(opts, callback) {
 
@@ -37,6 +37,7 @@ function IdbPouch(opts, callback) {
 
   var name = opts.name;
   var req = window.indexedDB.open(name, POUCH_VERSION);
+
   if (!('openReqList' in IdbPouch)) {
     IdbPouch.openReqList = {};
   }
@@ -47,8 +48,6 @@ function IdbPouch(opts, callback) {
   var instanceId = null;
   var api = {};
   var idb = null;
-
-  //console.log(name + ': Open Database');
 
   req.onupgradeneeded = function (e) {
     var db = e.target.result;
@@ -86,26 +85,12 @@ function IdbPouch(opts, callback) {
 
     idb = e.target.result;
 
-    var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE],
-                              'readwrite');
-
     idb.onversionchange = function () {
       idb.close();
     };
 
-    // polyfill the new onupgradeneeded api for chrome. can get rid of when
-    // saucelabs moves to chrome 23
-    if (idb.setVersion && Number(idb.version) !== POUCH_VERSION) {
-      var versionReq = idb.setVersion(POUCH_VERSION);
-      versionReq.onsuccess = function (evt) {
-        function setVersionComplete() {
-          req.onsuccess(e);
-        }
-        evt.target.result.oncomplete = setVersionComplete;
-        req.onupgradeneeded(e);
-      };
-      return;
-    }
+    var txn = idb.transaction([META_STORE, DETECT_BLOB_SUPPORT_STORE],
+                              'readwrite');
 
     var req = txn.objectStore(META_STORE).get(META_STORE);
 
@@ -828,7 +813,6 @@ IdbPouch.destroy = function idb_destroy(name, opts, callback) {
   if (!('openReqList' in IdbPouch)) {
     IdbPouch.openReqList = {};
   }
-  //console.log(name + ': Delete Database');
   IdbPouch.Changes.clearListeners(name);
 
   //Close open request for "name" database to fix ie delay.
