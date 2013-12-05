@@ -1,6 +1,4 @@
 #!/bin/bash
-# publish requires jam and tin installed
-# install with npm install tin jamjs
 
 # Build
 git checkout -b build
@@ -17,7 +15,6 @@ git push --tags git@github.com:daleharvey/pouchdb.git $1
 
 # Publish JS modules
 npm publish
-./node_modules/jamjs/bin/jam.js publish
 
 # Build pouchdb.com
 cd docs
