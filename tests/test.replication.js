@@ -18,8 +18,8 @@ var interHTTPAdapters = [['http-1', 'http-2']];
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js');
-  var LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  var Pouch = require('../lib');
+  var LevelPouch = require('../lib/adapters/leveldb');
   var utils = require('./test.utils.js');
 
   for (var k in utils) {

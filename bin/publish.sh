@@ -3,10 +3,10 @@
 # Build
 git checkout -b build
 ./node_modules/tin/bin/tin -v $1
-echo "module.exports = '"$1"';" > src/version.js
+echo "module.exports = '"$1"';" > lib/version.js
 npm run build
 git add dist -f
-git add src/version.js package.json bower.json component.json
+git add lib/version.js package.json bower.json component.json
 git commit -m "build $1"
 
 # Tag and push

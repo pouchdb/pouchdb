@@ -11,8 +11,8 @@ var local = 'test_suite_db';
 var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../src/pouch.js');
-  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  Pouch = require('../lib');
+  LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
   Pouch.ajax = Pouch.utils.Pouch.ajax;
 

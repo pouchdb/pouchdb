@@ -12,7 +12,7 @@ var adapter = 'http-1';
 var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../src/pouch.js');
+  Pouch = require('../lib');
   utils = require('./test.utils.js');
 
   for (var k in utils) {

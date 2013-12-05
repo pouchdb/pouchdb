@@ -16,8 +16,8 @@ var LevelPouch;
 var utils;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../src/pouch.js');
-  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  Pouch = require('../lib');
+  LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
 
   for (var k in utils) {

@@ -10,8 +10,8 @@ var adapters = ['http-1', 'local-1'];
 var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js');
-  var LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  var Pouch = require('../lib');
+  var LevelPouch = require('../lib/adapters/leveldb');
   var utils = require('./test.utils.js');
 
   for (var k in utils) {
