@@ -137,6 +137,69 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Changes with filter not present in ddoc", function () {
+    var docs = [{
+      _id: "1",
+      integer: 1
+    }, {
+      _id: '_design/foo',
+      integer: 4,
+      filters: {
+        even: 'function (doc) { return doc.integer % 2 === 1; }'
+      }
+    }, ];
+
+    initTestDB(this.name, function (err, db) {
+      writeDocs(db, docs, function (err, info) {
+        db.changes({
+          filter: 'foo/odd',
+          limit: 2,
+          include_docs: true,
+          complete: function (err, results) {
+            equal(err.status, 404, 'correct error status');
+            equal(err.reason, 'missing json key: odd', 'correct error reason');
+            equal(results, null, 'correct `results` object returned');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes with `filters` key not present in ddoc", function () {
+    var docs = [{
+      _id: "0",
+      integer: 0
+    }, {
+      _id: "1",
+      integer: 1
+    }, {
+      _id: '_design/foo',
+      integer: 4,
+      views: {
+        even: {
+          map: 'function (doc) { if (doc.integer % 2 === 1) { emit(doc._id, null) }; }'
+        }
+      }
+    }, ];
+
+    initTestDB(this.name, function (err, db) {
+      writeDocs(db, docs, function (err, info) {
+        db.changes({
+          filter: 'foo/even',
+          limit: 2,
+          include_docs: true,
+          complete: function (err, results) {
+            equal(err.status, 404, 'correct error status');
+            equal(err.reason, 'missing json key: filters', 'correct error reason');
+            equal(results, null, 'correct `results` object returned');
+            start();
+          }
+        });
+      });
+    });
+  });
+
   asyncTest("Changes limit and filter", function(){
     var docs = [
       {_id: "0", integer: 0},
@@ -169,6 +232,123 @@ adapters.map(function(adapter) {
             strictEqual(results.results[1].id, '5', 'correct second id');
             strictEqual(results.results[1].seq, 6, 'correct second seq');
             strictEqual(results.results[1].doc.integer, 5, 'correct second integer');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes with filter from nonexistent ddoc", function () {
+    var docs = [{
+      _id: "0",
+      integer: 0
+    }, {
+      _id: "1",
+      integer: 1
+    }, ];
+
+    initTestDB(this.name, function (err, db) {
+      writeDocs(db, docs, function (err, info) {
+        db.changes({
+          filter: 'foobar/odd',
+          complete: function (err, results) {
+            equal(err.status, 404, 'correct error status');
+            equal(err.reason, 'missing', 'correct error reason');
+            equal(results, null, 'correct `results` object returned');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes with view not present in ddoc", function () {
+    var docs = [{
+      _id: "0",
+      integer: 0
+    }, {
+      _id: "1",
+      integer: 1
+    }, {
+      _id: '_design/foo',
+      integer: 4,
+      views: {
+        even: {
+          map: 'function (doc) { if (doc.integer % 2 === 1) { emit(doc._id, null) }; }'
+        }
+      }
+    }];
+
+    initTestDB(this.name, function (err, db) {
+      writeDocs(db, docs, function (err, info) {
+        db.changes({
+          filter: '_view',
+          view: 'foo/odd',
+          complete: function (err, results) {
+            equal(err.status, 404, 'correct error status');
+            equal(err.reason, 'missing json key: odd', 'correct error reason');
+            equal(results, null, 'correct `results` object returned');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes with `views` key not present in ddoc", function () {
+    var docs = [{
+      _id: "1",
+      integer: 1
+    }, {
+      _id: '_design/foo',
+      integer: 4,
+      filters: {
+        even: 'function (doc) { return doc.integer % 2 === 1; }'
+      }
+    }, ];
+
+    initTestDB(this.name, function (err, db) {
+      writeDocs(db, docs, function (err, info) {
+        db.changes({
+          filter: '_view',
+          view: 'foo/even',
+          complete: function (err, results) {
+            equal(err.status, 404, 'correct error status');
+            equal(err.reason, 'missing json key: views', 'correct error reason');
+            equal(results, null, 'correct `results` object returned');
+            start();
+          }
+        });
+      });
+    });
+  });
+
+  asyncTest("Changes with missing param `view` in request", function () {
+    var docs = [{
+      _id: "0",
+      integer: 0
+    }, {
+      _id: "1",
+      integer: 1
+    }, {
+      _id: '_design/foo',
+      integer: 4,
+      views: {
+        even: {
+          map: 'function (doc) { if (doc.integer % 2 === 1) { emit(doc._id, null) }; }'
+        }
+      }
+    }];
+
+    initTestDB(this.name, function (err, db) {
+      writeDocs(db, docs, function (err, info) {
+        db.changes({
+          filter: '_view',
+          complete: function (err, results) {
+            equal(err.status, 400, 'correct error status');
+            equal(err.reason, '`view` filter parameter is not provided.', 'correct error reason');
+            equal(results, null, 'correct `results` object returned');
             start();
           }
         });
