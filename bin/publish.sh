@@ -1,17 +1,24 @@
 #!/bin/bash
 
+VERSION=$1
+
+if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Usage: ./bin/publish.sh 0.0.1"
+    exit 2
+fi
+
 # Build
 git checkout -b build
-./node_modules/tin/bin/tin -v $1
-echo "module.exports = '"$1"';" > lib/version.js
+./node_modules/tin/bin/tin -v $VERSION
+echo "module.exports = '"$VERSION"';" > lib/version.js
 npm run build
 git add dist -f
 git add lib/version.js package.json bower.json component.json
-git commit -m "build $1"
+git commit -m "build $VERSION"
 
 # Tag and push
-git tag $1
-git push --tags git@github.com:daleharvey/pouchdb.git $1
+git tag $VERSION
+git push --tags git@github.com:daleharvey/pouchdb.git $VERSION
 
 # Publish JS modules
 npm publish
