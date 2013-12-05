@@ -603,12 +603,17 @@ module.exports = function (Pouch) {
                   api.changes(opts);
                 }
               } else {
-                err = err || Pouch.error(Pouch.Errors.MISSING_DOC, 'missing json key: ' + viewName[1]);
+                err = err || 
+                     (ddoc.views ? 
+                      PouchUtils.error(Pouch.Errors.MISSING_DOC, 
+                                       'missing json key: ' + viewName[1]) :
+                      PouchUtils.error(Pouch.Errors.MISSING_DOC, 
+                                       'missing json key: views'));
                 PouchUtils.call(opts.complete, err);
               }
             });
           } else {
-            var err = Pouch.error(Pouch.Errors.BAD_REQUEST, '`view` filter parameter is not provided.');
+            var err = PouchUtils.error(Pouch.Errors.BAD_REQUEST, '`view` filter parameter is not provided.');
             PouchUtils.call(opts.complete, err);
           }
         } else {
@@ -624,7 +629,12 @@ module.exports = function (Pouch) {
                 api.changes(opts);
               }
             } else {
-              err = err || Pouch.error(Pouch.Errors.MISSING_DOC, 'missing json key: ' + filterName[1]);
+              err = err || 
+                   (ddoc.filters ? 
+                    PouchUtils.error(Pouch.Errors.MISSING_DOC, 
+                                     'missing json key: ' + filterName[1]) :
+                    PouchUtils.error(Pouch.Errors.MISSING_DOC, 
+                                     'missing json key: filters'));
               PouchUtils.call(opts.complete, err);
             }
           });
