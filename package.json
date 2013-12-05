@@ -22,18 +22,6 @@
     "request": "~2.28.0",
     "pouchdb-mapreduce": "0.2.0"
   },
-  "jam": {
-    "main": "dist/pouchdb-nightly.js",
-    "include": [
-      "dist/pouchdb-nightly.js",
-      "README.md",
-      "LICENSE"
-    ],
-    "dependencies": {
-      "simple-uuid": null,
-      "md5": null
-    }
-  },
   "devDependencies": {
     "commander": "~2.1.0",
     "webdriverjs": "~0.7.14",
@@ -44,7 +32,8 @@
     "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
     "qunit": "~0.5.17",
-    "browserify": "~2.36.1"
+    "browserify": "~2.36.1",
+    "tin": "~0.3.1"
   },
   "maintainers": [
     {
