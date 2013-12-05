@@ -640,6 +640,69 @@ module.exports = function (Pouch) {
         };
       }
 
+      if (opts.filter && typeof opts.filter === 'string') {
+        if (opts.filter === '_view') {
+          if (opts.view && typeof opts.view === 'string') {
+            // fetch a view from a design doc, make it behave like a filter
+            var viewName = opts.view.split('/');
+            api.get('_design/' + viewName[0], function (err, ddoc) {
+              if (ddoc && ddoc.views && ddoc.views[viewName[1]]) {
+                /*jshint evil: true */
+                var filter = eval('(function () {' + 
+                                  '  return function (doc) {' + 
+                                  '    var emitted = false;' + 
+                                  '    var emit = function (a, b) {' + 
+                                  '      emitted = true;' + 
+                                  '    };' + 
+                                  '    var view = ' + ddoc.views[viewName[1]].map + ';' + 
+                                  '    view(doc);' + 
+                                  '    if (emitted) {' + 
+                                  '      return true;' + 
+                                  '    }' + 
+                                  '  }' + 
+                                  '})()');
+                if (!opts.aborted) {
+                  opts.filter = filter;
+                  api.changes(opts);
+                }
+              } else {
+                err = err || Pouch.error(Pouch.Errors.MISSING_DOC, 'missing json key: ' + viewName[1]);
+                PouchUtils.call(opts.complete, err);
+              }
+            });
+          } else {
+            var err = Pouch.error(Pouch.Errors.BAD_REQUEST, '`view` filter parameter is not provided.');
+            PouchUtils.call(opts.complete, err);
+          }
+        } else {
+          // fetch a filter from a design doc
+          var filterName = opts.filter.split('/');
+          api.get('_design/' + filterName[0], function (err, ddoc) {
+            if (ddoc && ddoc.filters && ddoc.filters[filterName[1]]) {
+              /*jshint evil: true */
+              var filter = eval('(function () { return ' +
+                                ddoc.filters[filterName[1]] + ' })()');
+              if (!opts.aborted) {
+                opts.filter = filter;
+                api.changes(opts);
+              }
+            } else {
+              err = err || Pouch.error(Pouch.Errors.MISSING_DOC, 'missing json key: ' + filterName[1]);
+              PouchUtils.call(opts.complete, err);
+            }
+          });
+        }
+        // Return a method to cancel this method from processing any more
+        return {
+          cancel: function () {
+            if (Pouch.DEBUG) {
+              console.log('Cancel Changes Feed');
+            }
+            opts.aborted = true;
+          }
+        };
+      }
+
       if (!('descending' in opts)) {
         opts.descending = false;
       }
