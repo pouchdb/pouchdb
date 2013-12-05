@@ -415,7 +415,7 @@ function cleanUpCors(dburl, callback_) {
 // ---- END CORS Specific Utils ---- //
 
 if (typeof module !== 'undefined' && module.exports) {
-  Pouch = require('../src/pouch.js');
+  Pouch = require('../lib');
   module.exports = {
     uuid: uuid,
     makeDocs: makeDocs,

@@ -10,8 +10,8 @@ var utils;
 var fs;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../src/pouch.js');
-  LevelPouch = require('../src/adapters/pouch.leveldb.js');
+  Pouch = require('../lib');
+  LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
   fs = require('fs');
 

@@ -31,12 +31,12 @@ testrunner.setup({
 
 testrunner.run({
   deps: [
-    './src/deps/extend.js',
-    './src/deps/blob.js',
-    './src/deps/ajax.js',
+    './lib/deps/extend.js',
+    './lib/deps/blob.js',
+    './lib/deps/ajax.js',
     './tests/pouch.shim.js'
   ],
-  code: "./src/adapters/pouch.leveldb.js",
+  code: "./lib/adapters/leveldb.js",
   tests: testFiles.map(function(n) {
     return "./tests/" + n;
   })

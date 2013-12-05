@@ -10,8 +10,8 @@ var qunit = module;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../src/pouch.js'),
-  LevelPouch = require('../src/adapters/pouch.leveldb.js'),
+  var Pouch = require('../lib'),
+  LevelPouch = require('../lib/adapters/leveldb'),
   utils = require('./test.utils.js');
 
   for (var k in utils) {
