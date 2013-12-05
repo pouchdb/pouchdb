@@ -18,8 +18,8 @@
     "pouchdb"
   ],
   "dependencies": {
-    "level": "*",
-    "request": "*",
+    "level": "~0.18.0",
+    "request": "~2.28.0",
     "pouchdb-mapreduce": "0.2.0"
   },
   "jam": {
@@ -35,16 +35,16 @@
     }
   },
   "devDependencies": {
-    "browserify": "*",
-    "watchify": "*",
-    "webdriverjs": "*",
-    "commander": "*",
-    "jshint": "*",
-    "uglify-js": "*",
-    "qunit": "*",
-    "corsproxy": "*",
-    "http-proxy": "*",
-    "http-server": "*"
+    "commander": "~2.1.0",
+    "webdriverjs": "~0.7.14",
+    "watchify": "~0.4.1",
+    "uglify-js": "~2.4.6",
+    "jshint": "~2.3.0",
+    "http-proxy": "~0.10.3",
+    "corsproxy": "~0.2.13",
+    "http-server": "~0.5.5",
+    "qunit": "~0.5.17",
+    "browserify": "~2.36.1"
   },
   "maintainers": [
     {
