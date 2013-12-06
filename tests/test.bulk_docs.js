@@ -14,7 +14,7 @@ var LevelPouch;
 var utils;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
 
@@ -29,7 +29,7 @@ adapters.map(function(adapter) {
   qunit('bulk_docs: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });
@@ -127,7 +127,7 @@ adapters.map(function(adapter) {
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
         equal(err.error, 'bad_request', 'correct error returned');
-        equal(err.reason, Pouch.Errors.RESERVED_ID.reason, 'correct error message returned');
+        equal(err.reason, PouchDB.Errors.RESERVED_ID.reason, 'correct error message returned');
         ok(!info, 'info is empty');
         start();
       });

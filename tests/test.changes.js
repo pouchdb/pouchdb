@@ -1,7 +1,7 @@
 /*globals initTestDB, emit: true, generateAdapterUrl */
 /*globals PERSIST_DATABASES, initDBPair, utils: true */
 /*globals Pouch.ajax: true, LevelPouch: true, putTree, deepEqual */
-/*globals cleanupTestDatabases, strictEqual, writeDocs, Pouch */
+/*globals cleanupTestDatabases, strictEqual, writeDocs, PouchDB */
 
 "use strict";
 
@@ -12,7 +12,7 @@ var LevelPouch;
 var utils;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
 
@@ -28,7 +28,7 @@ adapters.map(function(adapter) {
   QUnit.module("changes: " + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });
@@ -714,7 +714,7 @@ adapters.map(function(adapter) {
         onChange: function(change) {
           count += 1;
           if (count === 1) {
-            Pouch.destroy(name, function(err, resp) {
+            PouchDB.destroy(name, function(err, resp) {
               changes.cancel();
               ok(true);
               start();
@@ -896,7 +896,7 @@ adapters.map(function(adapter) {
         localdb.put(docs2[0], function(err, info) {
           localdb.put(docs2[1], function(err, info) {
             var rev2 = info.rev;
-            Pouch.replicate(localdb, remotedb, function(err, done) {
+            PouchDB.replicate(localdb, remotedb, function(err, done) {
               // update remote once, local twice, then replicate from
               // remote to local so the remote losing conflict is later in the tree
               localdb.put({_id: "3", _rev: rev2, integer: 20}, function(err, resp) {
@@ -906,7 +906,7 @@ adapters.map(function(adapter) {
                   var rev4Doc = {_id: "3", _rev: rev2, integer: 100};
                   remotedb.put(rev4Doc, function(err, resp) {
                     var remoterev = resp.rev;
-                    Pouch.replicate(remotedb, localdb, function(err, done) {
+                    PouchDB.replicate(remotedb, localdb, function(err, done) {
                       localdb.changes({
                         include_docs: true,
                         style: 'all_docs',
@@ -1017,7 +1017,7 @@ adapters.map(function(adapter) {
 
 asyncTest("Changes reports errors", function (){
   expect(1);
-  var db = new Pouch('http://infiniterequest.com', {skipSetup: true});
+  var db = new PouchDB('http://infiniterequest.com', {skipSetup: true});
   db.changes({
     complete: function(err, changes) {
       ok(err, 'got error');

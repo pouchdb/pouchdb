@@ -17,7 +17,7 @@ var PouchUtils;
 var utils;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   PouchUtils = require('../lib/utils');
   utils = require('./test.utils.js');
@@ -32,7 +32,7 @@ adapters.map(function(adapter) {
   qunit('functions with / in _id: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });

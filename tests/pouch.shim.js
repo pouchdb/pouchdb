@@ -1,1 +1,1 @@
-global.Pouch = {};
+global.PouchDB = {};

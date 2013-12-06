@@ -11,7 +11,7 @@ var LevelPouch;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../lib');
+  var PouchDB = require('../lib');
   var LevelPouch = require('../lib/adapters/leveldb');
   var utils = require('./test.utils.js');
 
@@ -26,7 +26,7 @@ adapters.map(function(adapter) {
   qunit("revs diff:" + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });

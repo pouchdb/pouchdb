@@ -8,9 +8,10 @@ var adapters = ['http-1', 'local-1'];
 var qunit = module;
 var LevelPouch;
 var utils;
+var PouchDB;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
 
@@ -19,13 +20,13 @@ if (typeof module !== undefined && module.exports) {
   }
   qunit = QUnit.module;
 }
-var PouchDB = Pouch;
+
 adapters.map(function(adapter) {
 
   qunit("basics: " + adapter, {
     setup: function() {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = false;
+      PouchDB.enableAllDbs = false;
     },
     teardown: cleanupTestDatabases
   });
@@ -40,7 +41,7 @@ adapters.map(function(adapter) {
   asyncTest("Remove a pouch", 1, function() {
     var name = this.name;
     initTestDB(name, function(err, db) {
-      Pouch.destroy(name, function(err, db) {
+      PouchDB.destroy(name, function(err, db) {
         ok(!err);
         start();
       });
@@ -407,7 +408,7 @@ adapters.map(function(adapter) {
   });
 
   test('Error works', 1, function() {
-    deepEqual(Pouch.utils.error(Pouch.Errors.BAD_REQUEST, "love needs no reason"),
+    deepEqual(PouchDB.utils.error(PouchDB.Errors.BAD_REQUEST, "love needs no reason"),
       {status: 400, error: "bad_request", reason: "love needs no reason"},
       "should be the same");
   });

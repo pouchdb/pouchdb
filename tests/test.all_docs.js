@@ -8,12 +8,13 @@
 var adapters = ['http-1', 'local-1'];
 var qunit = module;
 var LevelPouch;
+var PouchDB;
 var utils;
 
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
 
@@ -28,7 +29,7 @@ adapters.map(function(adapter) {
   qunit('all_docs: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });

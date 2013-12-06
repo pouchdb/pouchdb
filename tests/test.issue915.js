@@ -10,7 +10,7 @@ var utils;
 var fs;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
   fs = require('fs');
@@ -27,7 +27,7 @@ qunit("Remove DB", {
     fs.mkdirSync('veryimportantfiles');
   },
   teardown: function() {
-      Pouch.destroy('name');
+      PouchDB.destroy('name');
       fs.rmdirSync('veryimportantfiles');
   }
 });
@@ -36,8 +36,8 @@ qunit("Remove DB", {
 
 asyncTest("Create a pouch without DB setup", function() {
   var instantDB;
-  instantDB = new Pouch('name', {skipSetup: true}, function() {
-    Pouch.destroy('veryimportantfiles', function( error, response ) {
+  instantDB = new PouchDB('name', {skipSetup: true}, function() {
+    PouchDB.destroy('veryimportantfiles', function( error, response ) {
         equal(error.reason, 'Database not found', 'should return Database not found error');
         equal(fs.existsSync('veryimportantfiles'), true, 'veryimportantfiles was not removed');
         start();

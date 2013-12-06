@@ -10,7 +10,7 @@ var adapters = ['http-1', 'local-1'];
 var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../lib');
+  var PouchDB = require('../lib');
   var LevelPouch = require('../lib/adapters/leveldb');
   var utils = require('./test.utils.js');
 
@@ -25,14 +25,14 @@ adapters.map(function(adapter) {
   qunit("taskqueue: " + adapter, {
     setup: function() {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });
 
   asyncTest("Add a doc", 1, function() {
     var name = this.name;
-    Pouch.destroy(name, function() {
+    PouchDB.destroy(name, function() {
       var db = openTestAsyncDB(name);
       db.post({test:"somestuff"}, function (err, info) {
         ok(!err, 'saved a doc with post');
@@ -43,7 +43,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Query", 1, function() {
     var name = this.name;
-    Pouch.destroy(name, function() {
+    PouchDB.destroy(name, function() {
       var db = openTestAsyncDB(name);
       var queryFun = {
         map: function(doc) { }
@@ -57,7 +57,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Bulk docs", 2, function() {
     var name = this.name;
-    Pouch.destroy(name, function() {
+    PouchDB.destroy(name, function() {
       var db = openTestAsyncDB(name);
 
       db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
@@ -70,7 +70,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Get", 1, function() {
     var name = this.name;
-    Pouch.destroy(name, function() {
+    PouchDB.destroy(name, function() {
       var db = openTestAsyncDB(name);
 
       db.get('0', function(err, res) {
@@ -82,7 +82,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Info", 2, function() {
     var name = this.name;
-    Pouch.destroy(name, function() {
+    PouchDB.destroy(name, function() {
       var db = openTestAsyncDB(name);
 
       db.info(function(err, info) {

@@ -18,7 +18,7 @@ var interHTTPAdapters = [['http-1', 'http-2']];
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  var Pouch = require('../lib');
+  var PouchDB = require('../lib');
   var LevelPouch = require('../lib/adapters/leveldb');
   var utils = require('./test.utils.js');
 
@@ -35,7 +35,7 @@ adapters.map(function(adapters) {
     setup : function () {
       this.name = generateAdapterUrl(adapters[0]);
       this.remote = generateAdapterUrl(adapters[1]);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });
@@ -64,7 +64,7 @@ adapters.map(function(adapters) {
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
-        Pouch.replicate(self.remote, self.name, {}, function(err, result) {
+        PouchDB.replicate(self.remote, self.name, {}, function(err, result) {
           ok(result.ok, 'replication was ok');
           equal(result.docs_written, docs.length, 'correct # docs written');
           start();
@@ -77,7 +77,7 @@ adapters.map(function(adapters) {
     var self = this;
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs}, {}, function(err, results) {
-        Pouch.replicate(self.remote, self.name, {complete: function(err, result) {
+        PouchDB.replicate(self.remote, self.name, {complete: function(err, result) {
           ok(result.ok, 'replication was ok');
           equal(result.docs_written, docs.length, 'correct # docs written');
           start();
@@ -244,7 +244,7 @@ adapters.map(function(adapters) {
     var doc = {_id: "3", count: 0};
     initDBPair(this.name, this.remote, function(db, remote) {
       db.put(doc, {}, function(err, results) {
-        Pouch.replicate(db, remote, {}, function(err, result) {
+        PouchDB.replicate(db, remote, {}, function(err, result) {
           ok(result.ok, 'replication was ok');
           doc._rev = results.rev;
           doc.count++;
@@ -252,7 +252,7 @@ adapters.map(function(adapters) {
             doc._rev = results.rev;
             doc.count++;
             db.put(doc, {}, function(err, results) {
-              Pouch.replicate(db, remote, {}, function(err, result) {
+              PouchDB.replicate(db, remote, {}, function(err, result) {
                 ok(result.ok, 'replication was ok');
                 ok(result.docs_written === 1, 'correct # docs written');
                 start();
@@ -282,8 +282,8 @@ adapters.map(function(adapters) {
                   ok(doc.value === "db1", "db1 has correct value (get)");
                   db2.get("foo", function(err, doc) {
                     ok(doc.value === "db2", "db2 has correct value (get)");
-                    Pouch.replicate(db1, db2, function() {
-                      Pouch.replicate(db2, db1, function() {
+                    PouchDB.replicate(db1, db2, function() {
+                      PouchDB.replicate(db2, db1, function() {
                         db1.get("foo", function(err, doc) {
                           ok(doc.value === "db1", "db1 has correct value (get after replication)");
                           db2.get("foo", function(err, doc) {
@@ -580,7 +580,7 @@ adapters.map(function(adapters) {
     initDBPair(this.name, this.remote, function(db, remote) {
       remote.post(doc, function(err, resp) {
         doc._rev = resp.rev;
-        Pouch.replicate(remote, db, function(err, resp) {
+        PouchDB.replicate(remote, db, function(err, resp) {
           doc.test = "Local 1";
           db.put(doc, function(err, resp) {
             doc.test = "Remote 2";
@@ -589,8 +589,8 @@ adapters.map(function(adapters) {
               doc.test = "Remote 3";
               remote.put(doc, function(err, resp) {
                 winningRev = resp.rev;
-                Pouch.replicate(db, remote, function(err, resp) {
-                  Pouch.replicate(remote, db, function(err, resp) {
+                PouchDB.replicate(db, remote, function(err, resp) {
+                  PouchDB.replicate(remote, db, function(err, resp) {
                     remote.get('test', {revs_info: true}, function(err, remotedoc) {
                       db.get('test', {revs_info: true}, function(err, localdoc) {
                         equal(localdoc._rev, winningRev, "Local chose correct winning revision");
@@ -664,11 +664,11 @@ adapters.map(function(adapters) {
     var newdoc = {'_id' :'newdoc'};
     initDBPair(this.name, this.remote, function(db1, db2) {
       db1.post(adoc, function() {
-        Pouch.replicate(db1, db2, {complete: function() {
-          Pouch.destroy(db1name, function() {
-            var fresh = new Pouch(db1name);
+        PouchDB.replicate(db1, db2, {complete: function() {
+          PouchDB.destroy(db1name, function() {
+            var fresh = new PouchDB(db1name);
             fresh.post(newdoc, function() {
-              Pouch.replicate(fresh, db2, {complete: function() {
+              PouchDB.replicate(fresh, db2, {complete: function() {
                 db2.allDocs(function(err, docs) {
                   equal(docs.rows.length, 2, 'Woot, got both');
                   start();
@@ -825,7 +825,7 @@ deletedDocAdapters.map(function(adapters) {
         db.bulkDocs({docs: docs}, {}, function(err, _) {
           db.replicate.to(self.remote, function(err, result) {
             ok(result.docs_written === docs.length, 'docs replicated ok');
-            Pouch.destroy(self.remote, function (err, result) {
+            PouchDB.destroy(self.remote, function (err, result) {
               ok(result.ok === true, 'remote was deleted');
               db.replicate.to(self.remote, function (err, result) {
                 ok(result.docs_written === docs.length, 'docs were written again because target was deleted.');
@@ -878,7 +878,7 @@ interHTTPAdapters.map(function(adapters) {
     var self = this;
     initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: docs}, {}, function(err, results) {
-        Pouch.replicate(self.name, self.remote, {server: true}, function(err, result) {
+        PouchDB.replicate(self.name, self.remote, {server: true}, function(err, result) {
           ok(result.ok, 'replication was ok');
           equal(result.history[0].docs_written, docs.length, 'correct # docs written');
           start();
