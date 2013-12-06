@@ -1,7 +1,7 @@
 /*globals initTestDB: false, emit: true, generateAdapterUrl: false */
 /*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
 /*globals Pouch.ajax: true, LevelPouch: true */
-/*globals Pouch: true, QUnit, uuid, asyncTest, ok, start*/
+/*globals PouchDB: true, QUnit, uuid, asyncTest, ok, start*/
 "use strict";
 
 var qunit = module;
@@ -9,7 +9,7 @@ var LevelPouch;
 var utils;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
 
@@ -49,16 +49,16 @@ function async(functions, callback) {
 }
 
 // Remove old allDbs to prevent DOM exception
-Object.keys(Pouch.adapters).forEach(function(adapter) {
+Object.keys(PouchDB.adapters).forEach(function(adapter) {
   if (adapter === "http" || adapter === "https") {
     return;
   }
 
-  Pouch.destroy(Pouch.allDBName(adapter), function(){});
+  PouchDB.destroy(PouchDB.allDBName(adapter), function(){});
 });
 
 // Loop through all availible adapters
-Object.keys(Pouch.adapters).forEach(function(adapter) {
+Object.keys(PouchDB.adapters).forEach(function(adapter) {
   // allDbs method only works for local adapters
   if (adapter === "http" || adapter === "https") {
     return;
@@ -67,7 +67,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
   qunit('allDbs: ' + adapter, {
     setup: function() {
       // enable allDbs
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
 
       // DummyDB Names
       this.pouchNames = [];
@@ -79,7 +79,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
       }
     },
     teardown: function() {
-      Pouch.enableAllDbs = false;
+      PouchDB.enableAllDbs = false;
     }
   });
 
@@ -87,14 +87,14 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
     var pouchName = this.pouchNames[0];
 
     // create db
-    new Pouch(pouchName, function(err, db) {
+    new PouchDB(pouchName, function(err, db) {
       if (err) {
         console.error(err);
         ok(false, 'failed to open database');
         return start();
       }
 
-      Pouch.allDbs(function(err, dbs) {
+      PouchDB.allDbs(function(err, dbs) {
         if (err) {
           console.error(err);
           ok(false, err);
@@ -108,7 +108,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
         ok(exists, "pouch exists in allDbs database");
 
         // remove db
-        Pouch.destroy(pouchName, function(err, info) {
+        PouchDB.destroy(pouchName, function(err, info) {
           ok(!err, "pouch destroyed");
           start();
         });
@@ -120,14 +120,14 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
     var pouchName = this.pouchNames[0];
 
     // create db
-    new Pouch(pouchName, function(err, db) {
+    new PouchDB(pouchName, function(err, db) {
       if (err) {
         console.error(err);
         ok(false, 'failed to open database');
         return start();
       }
 
-      Pouch.allDbs(function(err, dbs) {
+      PouchDB.allDbs(function(err, dbs) {
         if (err) {
           console.error(err);
           ok(false, err);
@@ -141,9 +141,9 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
         ok(exists, "pouch exists in allDbs database");
 
         // remove db
-        Pouch.destroy(pouchName, function(err, info) {
+        PouchDB.destroy(pouchName, function(err, info) {
           ok(!err, "pouch destroyed");
-          Pouch.allDbs(function(err, dbs) {
+          PouchDB.allDbs(function(err, dbs) {
             if (err) {
               console.error(err);
               ok(false, err);
@@ -167,7 +167,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
     async(
       pouchNames.map(function(pouch) {
         return function(callback) {
-          new Pouch(pouch, callback);
+          new PouchDB(pouch, callback);
         };
       }),
       function(err) {
@@ -177,7 +177,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
           return start();
         }
 
-        Pouch.allDbs(function(err, dbs) {
+        PouchDB.allDbs(function(err, dbs) {
           if (err) {
             console.error(err);
             ok(false, err);
@@ -200,7 +200,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
           async(
             pouchNames.map(function(pouch) {
               return function(callback) {
-                Pouch.destroy(pouch, callback);
+                PouchDB.destroy(pouch, callback);
               };
             }),
             function(err) {
@@ -223,7 +223,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
       //
       pouchNames.map(function(pouch) {
         return function(callback) {
-          new Pouch(pouch, callback);
+          new PouchDB(pouch, callback);
         };
       }),
       function(err) {
@@ -233,7 +233,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
           return start();
         }
 
-        Pouch.allDbs(function(err, dbs) {
+        PouchDB.allDbs(function(err, dbs) {
           if (err) {
             console.error(err);
             ok(false, err);
@@ -260,7 +260,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
           async(
             pouchNames.map(function(pouch) {
               return function(callback) {
-                return Pouch.destroy(pouch, callback);
+                return PouchDB.destroy(pouch, callback);
               };
             }),
             function(err) {
@@ -270,7 +270,7 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
                 return start();
               }
 
-              Pouch.allDbs(function(err, dbs) {
+              PouchDB.allDbs(function(err, dbs) {
                 if (err) {
                   console.error(err);
                   ok(false, err);
@@ -308,14 +308,14 @@ Object.keys(Pouch.adapters).forEach(function(adapter) {
 qunit("allDbs return value", {
   setup: function() {
     // enable allDbs
-    Pouch.enableAllDbs = true;
+    PouchDB.enableAllDbs = true;
 
     // DummyDB Names
     var pouchNames = [];
 
     // Create some pouches with adapter prefix
     var pouchName;
-    Object.keys(Pouch.adapters).forEach(function(adapter) {
+    Object.keys(PouchDB.adapters).forEach(function(adapter) {
       // allDbs method only works for local adapters
       if (adapter === "http" || adapter === "https") {
         return;
@@ -334,7 +334,7 @@ qunit("allDbs return value", {
     this.pouchNames = pouchNames;
   },
   teardown: function() {
-    Pouch.enableAllDbs = false;
+    PouchDB.enableAllDbs = false;
   }
 });
 
@@ -344,7 +344,7 @@ asyncTest("Create and Destroy Pouches with and without adapter prefixes", 2, fun
     // Create Pouches from pouchNames array
     pouchNames.map(function(name) {
       return function(callback) {
-        new Pouch(name, callback);
+        new PouchDB(name, callback);
       };
     }), function(err) {
       if (err) {
@@ -354,7 +354,7 @@ asyncTest("Create and Destroy Pouches with and without adapter prefixes", 2, fun
       }
 
       // check allDbs output
-      Pouch.allDbs(function(err, dbs) {
+      PouchDB.allDbs(function(err, dbs) {
         if (err) {
           console.error(err);
           ok(false, err);
@@ -379,7 +379,7 @@ asyncTest("Create and Destroy Pouches with and without adapter prefixes", 2, fun
         async(
           pouchNames.map(function(db) {
             return function(callback) {
-              Pouch.destroy(db, callback);
+              PouchDB.destroy(db, callback);
             };
           }),
           function(err) {
@@ -390,7 +390,7 @@ asyncTest("Create and Destroy Pouches with and without adapter prefixes", 2, fun
             }
 
             // Check that pouches no longer exist in allDbs
-            Pouch.allDbs(function(err, dbs) {
+            PouchDB.allDbs(function(err, dbs) {
               if (err) {
                 console.error(err);
                 ok(false, err);

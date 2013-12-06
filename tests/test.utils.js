@@ -1,4 +1,4 @@
-/*globals Pouch.extend: false, Buffer: false, Pouch: true, Pouch.ajax:false */
+/*globals PouchDB.extend: false, Buffer: false, PouchDB: true, PouchDB.ajax:false */
 "use strict";
 
 var PERSIST_DATABASES = false;
@@ -8,7 +8,7 @@ Array.prototype.wtf = function() { };
 function cleanupAllDbs() {
 
   var deleted = 0;
-  var adapters = Object.keys(Pouch.adapters).filter(function(adapter) {
+  var adapters = Object.keys(PouchDB.adapters).filter(function(adapter) {
     return adapter !== 'http' && adapter !== 'https';
   });
 
@@ -33,7 +33,7 @@ function cleanupAllDbs() {
     if (adapter === "http" || adapter === "https") {
       return;
     }
-    Pouch.destroy(Pouch.allDBName(adapter), dbDeleted);
+    PouchDB.destroy(PouchDB.allDBName(adapter), dbDeleted);
   });
 }
 
@@ -61,13 +61,13 @@ function cleanupTestDatabases(alreadyStopped_) {
     }
   }
 
-  Pouch.allDbs(function(err, dbs) {
+  PouchDB.allDbs(function(err, dbs) {
     if (!dbs.length) {
       finished();
     }
     dbCount = dbs.length;
     dbs.forEach(function(db) {
-      Pouch.destroy(db, dbDeleted);
+      PouchDB.destroy(db, dbDeleted);
     });
   });
 }
@@ -138,7 +138,7 @@ function base64Blob(blob, callback) {
 }
 
 function openTestAsyncDB(name) {
-  return new Pouch(name, function(err,db) {
+  return new PouchDB(name, function(err,db) {
     if (err) {
       console.error(err);
       ok(false, 'failed to open database');
@@ -152,7 +152,7 @@ function openTestDB(name, opts, callback) {
     callback = opts;
     opts = {};
   }
-  new Pouch(name, opts, function(err, db) {
+  new PouchDB(name, opts, function(err, db) {
     if (err) {
       console.error(err);
       ok(false, 'failed to open database');
@@ -164,7 +164,7 @@ function openTestDB(name, opts, callback) {
 
 function initTestDB(name, opts, callback) {
   // ignore errors, the database might not exist
-  Pouch.destroy(name, function(err) {
+  PouchDB.destroy(name, function(err) {
     if (err && err.status !== 404 && err.statusText !== 'timeout') {
       console.error(err);
       ok(false, 'failed to open database');
@@ -201,7 +201,7 @@ function generateAdapterUrl(id) {
 // in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
 function putAfter(db, doc, prevRev, callback){
-  var newDoc = Pouch.extend({}, doc);
+  var newDoc = PouchDB.extend({}, doc);
   if (!prevRev) {
     db.put(newDoc, {new_edits: false}, callback);
     return;
@@ -296,9 +296,9 @@ function eliminateDuplicates(arr) {
 function enableCORS(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  Pouch.ajax({url: host + '_config/httpd/enable_cors', json: false,
+  PouchDB.ajax({url: host + '_config/httpd/enable_cors', json: false,
     method: 'PUT', body: '"true"'}, function(err, resBody, req) {
-      Pouch.ajax({url: host + '_config/cors/origins', json: false,
+      PouchDB.ajax({url: host + '_config/cors/origins', json: false,
         method: 'PUT', body: '"http://127.0.0.1:8000"'}, function(err, resBody, req) {
           callback(err, req);
       });
@@ -309,7 +309,7 @@ function enableCORS(dburl, callback) {
 function enableCORSCredentials(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  Pouch.ajax({url: host + '_config/cors/credentials',
+  PouchDB.ajax({url: host + '_config/cors/credentials',
     method: 'PUT', body: '"true"', json: false}, function(err, resBody, req) {
       callback(err, req);
   });
@@ -319,13 +319,13 @@ function enableCORSCredentials(dburl, callback) {
 function disableCORS(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  Pouch.ajax({
+  PouchDB.ajax({
     url: host + '_config/cors/origins',
     json: false,
     method: 'PUT',
     body: '"*"'
   }, function (err, resBody, req) {
-    Pouch.ajax({
+    PouchDB.ajax({
       url: host + '_config/httpd/enable_cors',
       json: false,
       method: 'PUT',
@@ -340,7 +340,7 @@ function disableCORS(dburl, callback) {
 function disableCORSCredentials(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  Pouch.ajax({
+  PouchDB.ajax({
     url: host + '_config/cors/credentials',
     method: 'PUT',
     body: '"false"',
@@ -354,10 +354,10 @@ function disableCORSCredentials(dburl, callback) {
 function setupAdminAndMemberConfig(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  Pouch.ajax({url: host + '_users/org.couchdb.user:TestUser',
+  PouchDB.ajax({url: host + '_users/org.couchdb.user:TestUser',
     method: 'PUT', body: {_id: 'org.couchdb.user:TestUser', name: 'TestUser',
     password: 'user', roles: [], type: 'user'}}, function(err, resBody, req) {
-      Pouch.ajax({url: host + '_config/admins/TestAdmin', json: false,
+      PouchDB.ajax({url: host + '_config/admins/TestAdmin', json: false,
         method: 'PUT', body: '"admin"'}, function(err, resBody, req) {
           callback(err, req);
       });
@@ -370,12 +370,12 @@ function tearDownAdminAndMemberConfig(dburl, callback) {
   var headers = {};
   var token = btoa('TestAdmin:admin');
   headers.Authorization = 'Basic ' + token;
-  Pouch.ajax({url: host + '_config/admins/TestAdmin',
+  PouchDB.ajax({url: host + '_config/admins/TestAdmin',
     method: 'DELETE', headers:headers , json: false}, function(err, resBody, req) {
-      Pouch.ajax({url: host + '_users/org.couchdb.user:TestUser',
+      PouchDB.ajax({url: host + '_users/org.couchdb.user:TestUser',
         method: 'GET', body: '"admin"'}, function(err, resBody, req) {
           if (resBody) {
-            Pouch.ajax({url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody['_rev'],
+            PouchDB.ajax({url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody['_rev'],
               method: 'DELETE', json: false}, function(err, resBody, req) {
                 callback(err, req);
             });
@@ -389,7 +389,7 @@ function tearDownAdminAndMemberConfig(dburl, callback) {
 function deleteCookieAuth(dburl, callback_) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
-  Pouch.ajax({
+  PouchDB.ajax({
     method: 'DELETE',
     url: host + '_session',
     withCredentials: true,
@@ -404,18 +404,18 @@ function cleanUpCors(dburl, callback_) {
 
   if (typeof module !== 'undefined' && module.exports) {
     disableCORS(dburl, function() {
-      Pouch.destroy(dburl, callback_);
+      PouchDB.destroy(dburl, callback_);
     });
   } else {
     disableCORS(dburl.replace('5984','2020'), function() {
-      Pouch.destroy(dburl.replace('5984','2020'), callback_);
+      PouchDB.destroy(dburl.replace('5984','2020'), callback_);
     });
   }
 }
 // ---- END CORS Specific Utils ---- //
 
 if (typeof module !== 'undefined' && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   module.exports = {
     uuid: uuid,
     makeDocs: makeDocs,

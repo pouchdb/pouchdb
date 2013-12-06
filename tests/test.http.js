@@ -10,7 +10,7 @@ var LevelPouch;
 var utils;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   utils = require('./test.utils.js');
 
@@ -26,7 +26,7 @@ qunit("http-adapter", {
   },
   teardown: function() {
     if (!PERSIST_DATABASES) {
-      Pouch.destroy(this.name);
+      PouchDB.destroy(this.name);
     }
   }
 });
@@ -36,8 +36,8 @@ qunit("http-adapter", {
 asyncTest("Create a pouch without DB setup", function() {
   var instantDB;
   var name = this.name;
-  Pouch.destroy(name, function() {
-    instantDB = new Pouch(name, {skipSetup: true});
+  PouchDB.destroy(name, function() {
+    instantDB = new PouchDB(name, {skipSetup: true});
     instantDB.post({test:"abc"}, function(err, info) {
       ok(err && err.error === 'not_found', 'Skipped setup of database');
       start();

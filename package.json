@@ -47,8 +47,8 @@
   ],
   "scripts": {
     "jshint": "jshint -c .jshintrc lib/*.js lib/adapters/*.js",
-    "build-js": "mkdir -p dist && browserify lib/index.js -s Pouch -o dist/pouchdb-nightly.js",
-    "watch-js": "mkdir -p dist && watchify lib/index.js -s Pouch -o dist/pouchdb-nightly.js",
+    "build-js": "mkdir -p dist && browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
+    "watch-js": "mkdir -p dist && watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
     "test-node": "./bin/test-node.js",

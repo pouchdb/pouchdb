@@ -19,7 +19,7 @@ var utils;
 // if we are running under node.js, set things up
 // a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
+  PouchDB = require('../lib');
   LevelPouch = require('../lib/adapters/leveldb');
   PouchUtils = require('../lib/utils');
   utils = require('./test.utils.js');
@@ -34,7 +34,7 @@ adapters.map(function(adapter) {
   qunit('attachments: ' + adapter, {
     setup : function () {
       this.name = generateAdapterUrl(adapter);
-      Pouch.enableAllDbs = true;
+      PouchDB.enableAllDbs = true;
     },
     teardown: cleanupTestDatabases
   });
@@ -444,7 +444,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test synchronous getAttachment", function() {
-    var db = new Pouch(this.name);
+    var db = new PouchDB(this.name);
     db.getAttachment('unexistent', 'attachment', function(err, res) {
       ok(err, "Correctly returned error");
       start();
@@ -452,7 +452,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test synchronous putAttachment", function() {
-    var db = new Pouch(this.name);
+    var db = new PouchDB(this.name);
     db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function(err) {
       ok(!err, "Correctly wrote attachment");
       start();
