@@ -826,6 +826,10 @@ function HttpPouch(opts, callback) {
           }
           return ret;
         });
+      } else if (err) {
+        // In case of an error, stop listening for changes and call opts.complete
+        opts.aborted = true;
+        PouchUtils.call(opts.complete, err, null);
       }
 
       // The changes feed may have timed out with no results
