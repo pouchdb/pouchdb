@@ -57,7 +57,7 @@
     "test": "npm run jshint && npm run test-node"
   },
   "browser": {
-    "./adapters/leveldb.js": false,
+    "./adapters/leveldb": false,
     "./deps/buffer": false,
     "request": false,
     "level": false,
