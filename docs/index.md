@@ -56,7 +56,7 @@ db.replicate.to('http://example.com/mydb');
 
 <section>
   <h2>Lightweight</h2>
-  PouchDB is just a script tag and 65KB away in the browser, or<br /> <code>$ npm install pouchdb</code> away
+  PouchDB is just a script tag and 25KB(gzipped) away in the browser, or<br /> <code>$ npm install pouchdb</code> away
   in node.
 </section>
 
