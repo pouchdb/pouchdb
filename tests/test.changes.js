@@ -1025,3 +1025,22 @@ asyncTest("Changes reports errors", function (){
     }
   });
 });
+
+asyncTest("Closing db dosent cause a crash if changes cancelled", function (){
+  initTestDB(this.name, function (err, db) {
+      db.bulkDocs({docs: [
+        { foo: 'bar' }
+      ]}, function (err, data) {
+        ok(!err, 'bulked ok');
+        var changes = db.changes({
+          continuous: true,
+          onChange: function(){}
+        });
+        changes.cancel();
+        db.close(function(error){
+          ok(!error, 'closed ok');
+          start();
+        });
+      });
+    });
+});
