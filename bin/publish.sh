@@ -2,8 +2,8 @@
 
 VERSION=$1
 
-if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "Usage: ./bin/publish.sh 0.0.1"
+if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9]+)?)?$ ]]; then
+    echo "Usage: ./bin/publish.sh 0.0.1(-version(.2))"
     exit 2
 fi
 
