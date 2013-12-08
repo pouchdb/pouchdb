@@ -7,34 +7,39 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 var db1 = 'mocha_test_db';
+var dbs = ['mocha_test_db', 'http://127.0.0.1:5984/mocha_test_db'];
 
 beforeEach(function(done) {
-  utils.clearDatabases([db1], done);
+  utils.clearDatabases(dbs, done);
 });
 
 afterEach(function(done) {
-  utils.clearDatabases([db1], done);
+  utils.clearDatabases(dbs, done);
 });
 
-describe('Basic tests', function() {
+dbs.forEach(function(db) {
 
-  it('Creates a database', function(done) {
-    new PouchDB(db1, function(err, result) {
-      chai.assert.equal(err, null, 'Created database');
-      done();
+  describe('Basic tests', function() {
+
+    it('Creates a database', function(done) {
+      new PouchDB(db, function(err, result) {
+        chai.assert.equal(err, null, 'Created database');
+        done();
+      });
     });
-  });
 
-  it('Update a document', function(done) {
-    new PouchDB(db1, function(err, db) {
-      db.post({a: 'doc'}, function(err, info) {
-        db.put({_id: info.id, _rev: info.rev, more:'data'}, function(err, res) {
-          chai.assert.equal(err, null, 'Update worked');
-          chai.assert.notEqual(info.rev, res.rev, 'Revision updated');
-          done();
+    it('Update a document', function(done) {
+      new PouchDB(db, function(err, db) {
+        db.post({a: 'doc'}, function(err, info) {
+          db.put({_id: info.id, _rev: info.rev, more:'data'}, function(err, res) {
+            chai.assert.equal(err, null, 'Update worked');
+            chai.assert.notEqual(info.rev, res.rev, 'Revision updated');
+            done();
+          });
         });
       });
     });
-  });
 
-})
+  })
+
+});
