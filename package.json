@@ -34,7 +34,10 @@
     "qunit": "~0.5.17",
     "browserify": "~2.36.1",
     "tin": "~0.3.1",
-    "chai": "*"
+    "chai": "*",
+    "mocha": "*",
+    "karma": "*",
+    "karma-mocha": "*"
   },
   "maintainers": [
     {
@@ -52,10 +55,10 @@
     "watch-js": "mkdir -p dist && watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
-    "test-node": "./bin/test-node.js",
-    "test-browser": "npm run build-js && ./bin/test-browser.js",
+    "test-node": "mocha test/**/*_test.js",
+    "test-browser": "npm run build-js && karma start pouchdb.conf.js --singleRun=true",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
-    "test": "npm run jshint && npm run test-node"
+    "test": "npm run jshint && npm run test-node && npm run test-browser"
   },
   "browser": {
     "./adapters/leveldb": false,
