@@ -56,7 +56,8 @@
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
     "test-node": "mocha test/**/*_test.js",
-    "test-browser": "npm run build-js && karma start pouchdb.conf.js --single-run --browsers Firefox",
+    "test-browser": "npm run build-js && ./bin/check-cors.js && karma start pouchdb.conf.js --single-run --browsers Firefox",
+    "check-cors": "./bin/check-cors.js",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser"
   },
