@@ -33,7 +33,8 @@
     "http-server": "~0.5.5",
     "qunit": "~0.5.17",
     "browserify": "~2.36.1",
-    "tin": "~0.3.1"
+    "tin": "~0.3.1",
+    "chai": "*"
   },
   "maintainers": [
     {

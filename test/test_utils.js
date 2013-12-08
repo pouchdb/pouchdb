@@ -1,8 +1,14 @@
-var PouchDB = require('../');
 
-module.exports = {};
+'use strict';
 
-module.exports.clearDatabases = function(databases, done) {
+var utils = {};
+
+if (typeof module !== 'undefined' && module.exports) {
+  var PouchDB = require('../');
+  module.exports = utils;
+}
+
+utils.clearDatabases = function(databases, done) {
   var count = databases.length;
   databases.forEach(function(dbName) {
     PouchDB.destroy(dbName, function() {

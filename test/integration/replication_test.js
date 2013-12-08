@@ -1,9 +1,10 @@
 'use strict';
 
-var assert = require('assert');
-
-var PouchDB = require('../..');
-var utils = require('../test_utils.js');
+if (typeof module !== 'undefined' && module.exports) {
+  var chai = require('chai');
+  var PouchDB = require('../../');
+  var utils = require('../test_utils.js');
+}
 
 var db1 = 'mocha_test_db';
 var db2 = 'mocha_test_db2';
@@ -24,7 +25,7 @@ describe('Replication tests', function() {
     local.post({a:'doc'}, function(err, db) {
       local.replicate.to(remote, function() {
         remote.allDocs(function(err, docs) {
-          assert.equal(1, docs.total_rows, 'Document in remote db');
+          chai.assert.equal(1, docs.total_rows, 'Document in remote db');
           done();
         });
       });
