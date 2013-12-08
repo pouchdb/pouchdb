@@ -1,7 +1,6 @@
 dist
 tmp
-.*
-!.gitignore
+.DS_Store
 sauce_connect.log*
 node_modules
 test_suite_db
