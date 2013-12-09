@@ -1,27 +1,35 @@
-/*globals require */
-
 'use strict';
 
-var PouchDB = require('../../');
-var utils = require('../test.utils.js');
-var opts = require('browserify-getopts');
+if (typeof module !== 'undefined' && module.exports) {
+  var chai = require('chai');
+  var PouchDB = require('../../');
+  var utils = require('../test_utils.js');
+}
 
-var db1 = opts.db1 || 'testdb1';
-var db2 = opts.db2 || 'testdb2';
-var db3 = opts.db2 || 'testdb3';
+var db1 = 'mocha_test_db';
+var db2 = 'mocha_test_db2';
 
-var test = require('wrapping-tape')(utils.setupDb(db1, db2, db3));
+beforeEach(function(done) {
+  utils.clearDatabases([db1, db2], done);
+});
 
-test('Replicate without creating src', function(t) {
-  t.plan(2);
-  var db = new PouchDB(db1);
-  var docs = [{a: 'doc'}, {anew: 'doc'}];
-  db.bulkDocs({docs: docs}, function() {
-    PouchDB.replicate(db1, db2, {complete: function(err, changes) {
-      t.equal(changes.docs_written, docs.length, 'Docs written');
-      PouchDB.replicate(db1, db3, {complete: function(err, changes) {
-        t.equal(changes.docs_written, docs.length, 'Docs written');
-      }});
-    }});
+afterEach(function(done) {
+  utils.clearDatabases([db1, db2], done);
+});
+
+describe('Replication tests', function() {
+
+  it('replicates', function(done) {
+    var local = new PouchDB(db1);
+    var remote = new PouchDB(db2);
+    local.post({a:'doc'}, function(err, db) {
+      local.replicate.to(remote, function() {
+        remote.allDocs(function(err, docs) {
+          chai.assert.equal(1, docs.total_rows, 'Document in remote db');
+          done();
+        });
+      });
+    });
   });
+
 });
