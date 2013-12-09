@@ -1,11 +1,6 @@
 dist
 tmp
-.*
-!.gitignore
-sauce_connect.log*
+.DS_Store
 node_modules
-test_suite_db
-testdb_*
-_allDbs/
 docs/_site
 npm-debug.log
