@@ -3,7 +3,7 @@
 
 var utils = {};
 
-utils.COUCH_HOST = 'http://127.0.0.1:5985';
+utils.COUCH_HOST = 'http://127.0.0.1:5984';
 
 utils.clearDatabases = function(databases, done) {
   var count = databases.length;
