@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+// This module ensures you have a valid CouchDB instance to run tests against
+// You are required to have administration rights to CouchDB, CORS will
+// automatically be setup
+
+// Dont run the tests against a CouchDB instance you are running in production.
+
 var request = require('request').defaults({json: true});
 
 var config = {
@@ -10,18 +16,16 @@ var config = {
   'cors/headers': '"accept, authorization, content-type, origin"'
 };
 
-var HOST = 'http://127.0.0.1:5984';
+var HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
 var count = 0;
 
-function installCors() {
+function installCorsConfig() {
 
   if (count == Object.keys(config).length) {
-    console.log('CORS setup complete');
     return;
   }
 
   var key = Object.keys(config)[count];
-
   var opts = {
     method: 'PUT',
     uri: HOST + '/_config/' + key,
@@ -34,33 +38,19 @@ function installCors() {
       return;
     }
     count++;
-    installCors();
+    installCorsConfig();
   });
 
 }
 
 request.get(HOST + '/_session', function(err, result) {
 
-  if (result.body.userCtx.roles.indexOf('_admin') === -1) {
-    console.log('You are not an admin');
+  if (err || result.body.userCtx.roles.indexOf('_admin') === -1) {
+    console.error('Did not find a valid CouchDB instance with admin access');
     return process.exit(1);
   }
 
-  request.get({
-    uri: HOST + '/testdb',
-    method: 'OPTIONS',
-    headers: {
-      'Origin': 'http://fakedomain.com:80',
-      'Access-Control-Request-Method': 'PUT'
-    }
-  }, function(err, result) {
-    var allowHeader = result.headers['access-control-allow-origin'] || false;
-    if (!allowHeader || allowHeader.indexOf('*') === -1) {
-      installCors();
-      return;
-    }
-  });
-
+  installCorsConfig();
 });
 
 
