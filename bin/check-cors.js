@@ -5,7 +5,7 @@
 // automatically be setup
 
 // Dont run the tests against a CouchDB instance you are running in production.
-
+var utils = require('../test/test_utils.js');
 var request = require('request').defaults({json: true});
 
 var config = {
@@ -16,7 +16,6 @@ var config = {
   'cors/headers': '"accept, authorization, content-type, origin"'
 };
 
-var HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
 var count = 0;
 
 function installCorsConfig() {
@@ -28,7 +27,7 @@ function installCorsConfig() {
   var key = Object.keys(config)[count];
   var opts = {
     method: 'PUT',
-    uri: HOST + '/_config/' + key,
+    uri: utils.COUCH_HOST + '/_config/' + key,
     body: config[key]
   };
 
@@ -43,7 +42,7 @@ function installCorsConfig() {
 
 }
 
-request.get(HOST + '/_session', function(err, result) {
+request.get(utils.COUCH_HOST + '/_session', function(err, result) {
 
   if (err || result.body.userCtx.roles.indexOf('_admin') === -1) {
     console.error('Did not find a valid CouchDB instance with admin access');

@@ -6,7 +6,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var utils = require('../test_utils.js');
 }
 
-var dbs = ['mocha_test_db', 'http://127.0.0.1:5984/mocha_test_db'];
+var dbs = ['mocha_test_db', utils.COUCH_HOST + '/mocha_test_db'];
 
 beforeEach(function(done) {
   utils.clearDatabases(dbs, done);
