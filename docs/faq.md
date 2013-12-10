@@ -16,8 +16,7 @@ There are a number of projects that implement a CouchDB like protocol and PouchD
 
  * [PouchDB-Server](https://github.com/nick-thompson/pouchdb-server) - a HTTP api written on top of PouchDB
  * [Cloudant](https://cloudant.com/) - A cluster aware fork of CouchDB
-
-For CORS support PouchDB requires CouchDB > 1.3.0, however if you serve your web application from the same host as CouchDB (either via reverse proxy or CouchApps) then it should work with older versions.
+ * [Couchbase Sync Gateway](http://www.couchbase.com/communities/couchbase-sync-gateway) - A sync gateway for Couchbase
 
 ### The web is nice, but I want to build a native app?
 
