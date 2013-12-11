@@ -18,9 +18,9 @@
     "pouchdb"
   ],
   "dependencies": {
-    "level": "~0.18.0",
     "request": "~2.28.0",
-    "pouchdb-mapreduce": "0.2.0"
+    "pouchdb-mapreduce": "0.2.0",
+    "level-hyper": "~0.18.0"
   },
   "devDependencies": {
     "commander": "~2.1.0",
