@@ -412,4 +412,22 @@ adapters.map(function(adapter) {
       {status: 400, error: "bad_request", reason: "love needs no reason"},
       "should be the same");
   });
+
+  asyncTest('Fail to fetch a doc after db was deleted', function() {
+    var dbName = 'foodb';
+    var docid = 'foodoc';
+    var pouchDB = new PouchDB({name : dbName}, function onCreate() {
+      pouchDB.put({_id : docid}, function onPut() {
+        PouchDB.destroy({name : dbName}, function onDestroy() {
+          pouchDB = new PouchDB({name : dbName}, function onRecreate() {
+            pouchDB.get(docid, function onGet(err, doc) {
+              equal(doc, undefined, 'should not return the document, because db was deleted');
+              notEqual(err, undefined, 'should return error, because db was deleted');
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
 });
