@@ -430,4 +430,16 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest("Can't add docs with empty ids", 6, function() {
+    var docs = [{}, {_id : null}, {_id : undefined}, {_id : ''}, {_id : {}}, {_id : '_underscored_id'}];
+    initTestDB(this.name, function(err, db) {
+      docs.forEach(function(doc) {
+        db.put(doc, function (err, info) {
+          ok(err, "didn't get an error for doc: " + JSON.stringify(doc) +'; response was ' + JSON.stringify(info));
+          start();
+        });
+      });
+    });
+  });
 });

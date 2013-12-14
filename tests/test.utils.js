@@ -265,9 +265,9 @@ var writeDocs = function(db, docs, callback, res) {
     return callback(null, res);
   }
   var doc = docs.shift();
-  db.put(doc, function(err, doc) {
-    ok(doc.ok, 'docwrite returned ok');
-    res.push(doc);
+  db.put(doc, function(err, info) {
+    ok(info && info.ok, 'docwrite returned ok');
+    res.push(info);
     writeDocs(db, docs, callback, res);
   });
 };
