@@ -414,7 +414,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Fail to fetch a doc after db was deleted', function() {
-    var dbName = 'foodb';
+    var dbName = this.name;
     var docid = 'foodoc';
     var pouchDB = new PouchDB({name : dbName}, function onCreate() {
       pouchDB.put({_id : docid}, function onPut() {
