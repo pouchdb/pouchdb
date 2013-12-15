@@ -228,7 +228,7 @@ db.changes(options)
 {% endhighlight %}
 
 A list of changes made to documents in the database, in the order they were made.
-If `options.continuous` is set it returns object with one method `cancel` which you call if you don't want to listen to new changes anymore. `opttions.onChange` will be be called for each change that is encountered.
+If `options.continuous` is set it returns object with one method `cancel` which you call if you don't want to listen to new changes anymore. `options.onChange` will be be called for each change that is encountered.
 
 * `options.include_docs`: Include the associated document with each change
 * `options.conflicts`: Include conflicts
