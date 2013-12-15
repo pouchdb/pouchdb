@@ -25,6 +25,7 @@
   "devDependencies": {
     "commander": "~2.1.0",
     "webdriverjs": "~0.7.14",
+    "selenium-standalone": "~2.38.0",
     "watchify": "~0.4.1",
     "uglify-js": "~2.4.6",
     "jshint": "~2.3.0",
@@ -54,7 +55,7 @@
     "test-node": "./bin/test-node.js",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
-    "test": "npm run jshint && npm run test-node"
+    "test": "npm run jshint && npm run test-node && npm run test-browser"
   },
   "browser": {
     "./adapters/leveldb": false,
