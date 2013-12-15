@@ -1,22 +1,12 @@
 #!/usr/bin/env node
 
-// This requires some setup, will attempt to remove steps needed
-
-// You need to download and start selenium-server-standalone
-// download from: https://code.google.com/p/selenium/downloads/list
-// start with: java -jar ~/Downloads/selenium-server-standalone-2.37.0.jar
-
-// You need chromedriver, download it @
-// Download http://chromedriver.storage.googleapis.com/index.html?path=2.7/
-// then add to your path
-
-// If you are on OSX, you will need to ensure Firefox is on your path
-// export PATH=/Applications/Firefox.app/Contents/MacOS/:$PATH
-
-// Also needs $ npm run dev-server if run manually
+var path = require('path');
+var spawn = require('child_process').spawn;
 
 var webdriverjs = require('webdriverjs');
+var devserver = require('./dev-server.js');
 
+var SELENIUM_PATH = '../node_modules/.bin/start-selenium';
 var testUrl = 'http://127.0.0.1:8000/tests/test.html';
 var testTimeout = 2 * 60 * 1000;
 var testSelector = 'body.testsComplete';
@@ -31,6 +21,26 @@ var browsers = [
   // 'safari',
   'chrome'
 ];
+
+// Travis only has firefox
+if (process.env.TRAVIS) {
+  browsers = ['firefox'];
+}
+
+function startServers(callback) {
+
+  // Starts the file and CORS proxy
+  devserver.start();
+
+  // Start selenium
+  var selenium = spawn(path.resolve(__dirname, SELENIUM_PATH));
+
+  selenium.stdout.on('data', function(data) {
+    if (/Started org.openqa.jetty.jetty/.test(data)) {
+      callback();
+    }
+  });
+}
 
 function testsComplete() {
   var passed = Object.keys(results).every(function(x) {
@@ -81,4 +91,6 @@ function startTest() {
   client.url(testUrl).waitFor(testSelector, testTimeout, testComplete);
 }
 
-startTest();
+startServers(function() {
+  startTest();
+});
