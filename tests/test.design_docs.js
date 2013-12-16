@@ -1,34 +1,20 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals Pouch.ajax: true, LevelPouch: true */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
-var qunit = module;
-var LevelPouch;
-var utils;
 
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
 
-  qunit("design_docs: " + adapter, {
+  QUnit.module("design_docs: " + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   var doc = {
@@ -45,7 +31,7 @@ adapters.map(function(adapter) {
   };
 
   asyncTest("Test writing design doc", function () {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post(doc, function (err, info) {
         ok(!err, 'Wrote design doc');
         db.get('_design/foo', function (err, info) {
@@ -73,7 +59,7 @@ adapters.map(function(adapter) {
       {_id: "7", integer: 7}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var count = 0;
       db.bulkDocs({docs: docs1}, function(err, info) {
         var changes = db.changes({
@@ -103,7 +89,7 @@ adapters.map(function(adapter) {
       {_id: "nuno", score: 3}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: docs1}, function(err, info) {
         db.query('foo/scores', {reduce: false}, function(err, result) {
           equal(result.rows.length, 4, 'Correct # of results');
@@ -117,7 +103,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Concurrent queries", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [doc, {_id: "dale", score: 3}]}, function(err, info) {
         var cnt = 0;
         db.query('foo/scores', {reduce: false}, function(err, result) {

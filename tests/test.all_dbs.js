@@ -1,22 +1,8 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals Pouch.ajax: true, LevelPouch: true */
-/*globals PouchDB: true, QUnit, uuid, asyncTest, ok, start*/
 "use strict";
 
-var qunit = module;
-var LevelPouch;
-var utils;
-
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 // async method takes an array of functions of signature:
@@ -64,7 +50,7 @@ Object.keys(PouchDB.adapters).forEach(function(adapter) {
     return;
   }
 
-  qunit('allDbs: ' + adapter, {
+  QUnit.module('allDbs: ' + adapter, {
     setup: function() {
       // enable allDbs
       PouchDB.enableAllDbs = true;
@@ -74,7 +60,7 @@ Object.keys(PouchDB.adapters).forEach(function(adapter) {
 
       var pouchName;
       for (var i = 0; i < 5; i++) {
-        pouchName = 'testdb_' + uuid();
+        pouchName = 'testdb_' + testUtils.uuid();
         this.pouchNames.push([adapter, "://", pouchName].join(''));
       }
     },
@@ -305,7 +291,7 @@ Object.keys(PouchDB.adapters).forEach(function(adapter) {
 // 1. if an adapter is specified upon Pouch creation, the dbname will include the adapter prefix
 //   - eg. "idb://testdb"
 // 2. Otherwise, the dbname will just contain the dbname (without the adapter prefix)
-qunit("allDbs return value", {
+QUnit.module("allDbs return value", {
   setup: function() {
     // enable allDbs
     PouchDB.enableAllDbs = true;
@@ -321,13 +307,13 @@ qunit("allDbs return value", {
         return;
       }
 
-      pouchName = 'testdb_' + uuid();
+      pouchName = 'testdb_' + testUtils.uuid();
       pouchNames.push([adapter, "://", pouchName].join(''));
     });
 
     // Create some pouches without adapter prefix
     for (var i = 0; i < 3; i++) {
-      pouchName = 'testdb_' + uuid();
+      pouchName = 'testdb_' + testUtils.uuid();
       pouchNames.push(pouchName);
     }
 

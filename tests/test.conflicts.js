@@ -1,38 +1,24 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals Pouch.ajax: true, LevelPouch: true */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
-var qunit = module;
-var LevelPouch;
-var utils;
 
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
 
-  qunit('conflicts: ' + adapter, {
-    setup : function () {
-      this.name = generateAdapterUrl(adapter);
+  QUnit.module('conflicts: ' + adapter, {
+    setup: function () {
+      this.name = testUtils.generateAdapterUrl(adapter);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   asyncTest('Testing conflicts', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var doc = {_id: 'foo', a:1, b: 1};
       db.put(doc, function(err, res) {
         doc._rev = res.rev;
@@ -64,7 +50,7 @@ adapters.map(function(adapter) {
 
   asyncTest('Testing conflicts', function() {
     var doc = {_id: 'fubar', a:1, b: 1};
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.put(doc, function(err, ndoc) {
         doc._rev = ndoc.rev;
         db.remove(doc, function() {

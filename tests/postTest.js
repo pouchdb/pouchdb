@@ -1,5 +1,3 @@
-/*globals openTestDB: false */
-
 "use strict";
 
 module("misc", {
@@ -10,7 +8,7 @@ module("misc", {
 });
 
 asyncTest("Add a doc", 2, function() {
-  openTestDB(this.name, function(err, db) {
+  testUtils.openTestDB(this.name, function(err, db) {
     ok(!err, 'opened the pouch');
     db.post({test:"somestuff"}, function (err, info) {
       ok(!err, 'saved a doc with post');

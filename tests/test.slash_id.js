@@ -1,9 +1,3 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, strictEqual: false */
-/*globals Pouch.ajax: true, LevelPouch: true, makeDocs: false */
-/*globals readBlob: false, makeBlob: false, base64Blob: false */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
@@ -11,30 +5,19 @@ var repl_adapters = [['local-1', 'http-1'],
                      ['http-1', 'http-2'],
                      ['http-1', 'local-1'],
                      ['local-1', 'local-2']];
-var qunit = module;
-var LevelPouch;
-var PouchUtils;
-var utils;
 
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  PouchUtils = require('../lib/utils');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
-  qunit('functions with / in _id: ' + adapter, {
+  QUnit.module('functions with / in _id: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   var binAttDoc = {
@@ -48,19 +31,19 @@ adapters.map(function(adapter) {
   };
 
   asyncTest('Insert a doc, putAttachment and allDocs', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       var docId = 'doc/with/slashes';
       var attachmentId = 'attachment/with/slashes';
       var blobData = 'attachment content';
-      var blob = makeBlob(blobData);
+      var blob = testUtils.makeBlob(blobData);
       var doc = {_id: docId, test: true};
       db.put(doc, function(err, info) {
         ok(!err, 'saved doc');
         strictEqual(info.id, 'doc/with/slashes', 'id is the same as inserted');
         db.putAttachment(docId, attachmentId, info.rev, blob, 'text/plain', function(err, res) {
           db.getAttachment(docId, attachmentId, function(err, res) {
-            readBlob(res, function(data) {
+            testUtils.readBlob(res, function(data) {
               db.get(docId, function(err, res){
                 strictEqual(res._id, docId);
                 ok(attachmentId in res._attachments, 'contains correct attachment');
@@ -74,7 +57,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('BulkDocs and changes', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var docs = [
         {_id: 'part/doc1', int: 1},
         {_id: 'part/doc2', int: 2, _attachments: {
@@ -113,10 +96,10 @@ adapters.map(function(adapter) {
 
 repl_adapters.map(function(adapters) {
 
-  qunit('replication with / in _id: ' + adapters[0] + ':' + adapters[1], {
+  QUnit.module('replication with / in _id: ' + adapters[0] + ':' + adapters[1], {
     setup : function () {
-      this.name = generateAdapterUrl(adapters[0]);
-      this.remote = generateAdapterUrl(adapters[1]);
+      this.name = testUtils.generateAdapterUrl(adapters[0]);
+      this.remote = testUtils.generateAdapterUrl(adapters[1]);
     }
   });
 
@@ -139,7 +122,7 @@ repl_adapters.map(function(adapters) {
       {_id: "3", integer: 3}
     ];
 
-    initDBPair(this.name, this.remote, function(db, remote) {
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
       remote.bulkDocs({docs: docs1}, function(err, info) {
         var replicate = db.replicate.from(remote, function() {
           db.get('bin_doc/with/slash', {attachments: true}, function(err, doc) {

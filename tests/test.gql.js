@@ -1,36 +1,23 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['local-1'];
-var qunit = module;
 
-// if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../lib'),
-  LevelPouch = require('../lib/adapters/leveldb'),
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  adapters = ['leveldb-1', 'http-1'];
-  qunit = QUnit.module; }
+  var testUtils = require('./test.utils.js');
+}
 
 adapters.map(function(adapter) {
-  qunit('gql: ' + adapter, {
+  QUnit.module('gql: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       Pouch.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   asyncTest("Test select *", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz",
       what: "test" }]},{},
         function() {
@@ -52,7 +39,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test select with one row", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
@@ -71,7 +58,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test select with two columns", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
@@ -91,7 +78,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test select with missing column", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
@@ -114,7 +101,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test select with parsing errors", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs(
         {docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
@@ -130,7 +117,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test select with backquotes", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs(
         {docs: [{"name!": "pencil", price: 2, discount: 0.7, vendor: "store1"},
           {"name!": "pen", price:3, discount: 2, vendor: "store2"} ]},{},
@@ -157,7 +144,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test not null and select *", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs(
         {docs: [{name: "charmander", type: "Fire"},
           {type: "Fire", attack:"tail whip"},
@@ -183,7 +170,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test unwrapped identifier in select", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs(
         {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
@@ -203,7 +190,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test where with no results", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: "bar", what: "field"}, { _id: "volatile", foo: "baz" }]},{},
         function() {
           var queryFun = {
@@ -219,7 +206,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test where boolean operators and precedence (no parenthesis)", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: true },
       {charmeleon: true, charmander: true, charizard: false}]},{},
         function() {
@@ -239,7 +226,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test where boolean operators and precedence (with parenthesis)", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: true },
       {charmeleon: true, charmander: true, charizard: false}]},{},
         function() {
@@ -259,7 +246,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test where boolean operators with not", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: false, charmander: true}, {charizard: true, charmeleon: false},
       {charmeleon: true, charmander: false, charizard: true, bulbasaur: false},
       {charmeleon: true, charmander: false, charizard: true, bulbasaur: true}]},{},
@@ -281,7 +268,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test where inequalities", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmander: 30, haunter: true}, {charizard: 40, charmander: 50},
       {charizard: 700, charmander: 22}]},{},
         function() {
@@ -301,7 +288,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test where inequalities with strings", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmander: "porygon"}, {charizard: 40, charmander: "Zubat"}]},{},
         function() {
           var queryFun = {
@@ -320,7 +307,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test where math", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmander: 24, charmeleon: 2, haunter:true},
       {charizard: 40, charmeleon: 0.5, charmander: 50},
       {charizard: 7, charmeleon: 20, charmander: 15}]},{},
@@ -341,7 +328,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test aggregation functions", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50}, {charizard: 40}, {charizard: 7}]},{},
         function() {
           var queryFun = {
@@ -363,7 +350,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test null checker", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: null}, {charmander: 40}, {charizard: 7}, {charizard: false}]},{},
         function() {
           var queryFun = {
@@ -386,7 +373,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test basic group by", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmander: 24, charmeleon: 2, haunter:true},
       {charizard: 40, charmeleon: 2, charmander: 50}, {charizard: 7, charmeleon: 20, charmander: 15}]},{},
         function() {
@@ -410,7 +397,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test basic pivot", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello"}, {charizard: 40, charmeleon: "hello"},
       {charizard: 7, charmeleon: "world", charmander: 15}]},{},
         function() {
@@ -431,7 +418,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test double pivot", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{charizard: 50, charmeleon: "hello", abra: 2},
       {charizard: 40, charmeleon: "hello", abra: 3},
       {charizard: 99, charmeleon: "hello", abra: 3},
@@ -467,7 +454,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test pivot clause that shares identifiers with select", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs(
         {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
@@ -487,7 +474,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test group by and pivot together", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs(
         {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},
@@ -514,7 +501,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test basic label", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs(
         {docs: [{charizard: 50, dept: "eng", lunch:"2"}, {charizard: 40, lunch: "1", dept: "market"},
           {charizard: 99, dept: "eng", lunch: 1}, {charizard: 7, dept: "eng", lunch: 2}]},{},

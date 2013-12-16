@@ -1,39 +1,25 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, putAfter */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
-var qunit = module;
-var LevelPouch;
 
-// if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   var PouchDB = require('../lib');
-  var LevelPouch = require('../lib/adapters/leveldb');
-  var utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
 
-  qunit("revs diff:" + adapter, {
+  QUnit.module("revs diff:" + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   asyncTest("Test revs diff", function() {
     var revs = [];
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff", _id: 'somestuff'}, function (err, info) {
         revs.push(info.rev);
         db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info2) {
@@ -54,7 +40,7 @@ adapters.map(function(adapter) {
 
   asyncTest('Missing docs should be returned with all revisions being asked for',
     function() {
-      initTestDB(this.name, function(err, db) {
+      testUtils.initTestDB(this.name, function(err, db) {
         // empty database
         var revs = ['1-a', '2-a', '2-b'];
         db.revsDiff({'foo': revs}, function(err, results) {
@@ -71,13 +57,13 @@ adapters.map(function(adapter) {
 
     function createConflicts(db, callback) {
       db.put(doc, {new_edits: false}, function(err, res) {
-        putAfter(db, {_id: '939', _rev: '2-a'}, '1-a', function(err, res) {
-            putAfter(db, {_id: '939', _rev: '2-b'}, '1-a', callback);
+        testUtils.putAfter(db, {_id: '939', _rev: '2-a'}, '1-a', function(err, res) {
+            testUtils.putAfter(db, {_id: '939', _rev: '2-b'}, '1-a', callback);
         });
       });
     }
 
-    initTestDB(this.name, function(err, db) {
+      testUtils.initTestDB(this.name, function(err, db) {
       createConflicts(db, function() {
         db.revsDiff({'939': ['1-a', '2-a', '2-b']}, function(err, results) {
           ok(!('939' in results), 'no missing revs');
@@ -92,11 +78,11 @@ adapters.map(function(adapter) {
 
     function createDeletedRevision(db, callback) {
       db.put({_id: '935', _rev: '1-a'}, {new_edits: false}, function (err, info) {
-        putAfter(db, {_id: '935', _rev: '2-a', _deleted: true}, '1-a', callback);
+        testUtils.putAfter(db, {_id: '935', _rev: '2-a', _deleted: true}, '1-a', callback);
       });
     }
 
-    initTestDB(this.name, function(err, db) {
+      testUtils.initTestDB(this.name, function(err, db) {
       createDeletedRevision(db, function() {
         db.revsDiff({'935': ['1-a', '2-a']}, function(err, results) {
           ok(!('935' in results), 'should not return the deleted revs');
