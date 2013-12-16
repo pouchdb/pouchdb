@@ -1,17 +1,10 @@
-/*globals $, utils: true, eliminateDuplicates */
-
 "use strict";
 
 var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  var utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 var rfcRegexp = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
@@ -34,7 +27,7 @@ test('UUID generation uniqueness', 1, function() {
   var count = 1000;
   var uuids = PouchDB.utils.uuids(count);
 
-  equal(eliminateDuplicates(uuids).length, count,
+  equal(testUtils.eliminateDuplicates(uuids).length, count,
         "Generated UUIDS are unique.");
 });
 
@@ -43,7 +36,7 @@ test('Test small uuid uniqness', 1, function() {
   var count = 2000;
 
   var uuids = PouchDB.utils.uuids(count, {length: length});
-  equal(eliminateDuplicates(uuids).length, count,
+  equal(testUtils.eliminateDuplicates(uuids).length, count,
         "Generated small UUIDS are unique.");
 });
 

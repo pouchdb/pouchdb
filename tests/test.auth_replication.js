@@ -1,34 +1,20 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals Pouch.ajax: true, LevelPouch: true, makeDocs: false */
-
 "use strict";
 
-var remote = {
-  host: 'localhost:2020'
-};
+var remote = {host: 'localhost:2020'};
 var local = 'test_suite_db';
-var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-  Pouch.ajax = Pouch.utils.Pouch.ajax;
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
-qunit('auth_replication', {
+QUnit.module('auth_replication', {
   setup: function () {
     this.name = local;
     this.remote = 'http://' + remote.host + '/test_suite_db/';
   },
   teardown: function() {
-    if (!PERSIST_DATABASES) {
+    if (!testUtils.PERSIST_DATABASES) {
       Pouch.destroy(this.name);
       Pouch.destroy(this.remote);
     }

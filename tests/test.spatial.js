@@ -1,34 +1,20 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, Spatial: false */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
-var qunit = module;
-var LevelPouch;
 
-// if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   var Pouch = require('../lib');
-  var LevelPouch = require('../lib/adapters/leveldb');
-  var utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
 
-  qunit('spatial: ' + adapter, {
+  QUnit.module('spatial: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       Pouch.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   // some geometries are based on the GeoJSON specification
@@ -114,7 +100,7 @@ adapters.map(function(adapter) {
       {_id: 'volatile', foo: 'baz', key: [2]}
     ];
 
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
     db.bulkDocs({docs: docs}, {}, function() {
         db.get('volatile', function(_, doc) {
           db.remove(doc, function(_, resp) {
@@ -141,7 +127,7 @@ adapters.map(function(adapter) {
       }
     };
 
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [designDoc, {key: [10, 100]},{key: [20, 200]},{key: [30, 300]},{key: [40, 400]},{key: [50, 500]}]}, {}, function() {
         db.spatial('foo/test', {start_range: [21, 301], end_range: [49, 1000]}, function(_, res) {
           equal(res.rows.length, 1, 'start_range/end_range query 1');
@@ -162,7 +148,7 @@ adapters.map(function(adapter) {
       }
     };
 
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var docs = GEOJSON_GEOMS.map(function(x, i) {
         return {_id: (i).toString(), geom: x};
       });
@@ -233,7 +219,7 @@ adapters.map(function(adapter) {
     docs.push(designDoc);
     docs.push({_id: '10', string: '10', integer: 10, loc: [1,1]});
 
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: docs}, {}, function() {
         tests_with_geometry(db);
       });

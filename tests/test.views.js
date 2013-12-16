@@ -1,39 +1,25 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
-var qunit = module;
-var LevelPouch;
 
-// if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
   var PouchDB = require('../lib');
-  var LevelPouch = require('../lib/adapters/leveldb');
-  var utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
 
-  qunit('views: ' + adapter, {
+  QUnit.module('views: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
-      this.remote = generateAdapterUrl('local-2');
+      this.name = testUtils.generateAdapterUrl(adapter);
+      this.remote = testUtils.generateAdapterUrl('local-2');
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   asyncTest("Test basic view", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {
         var queryFun = {
           map: function(doc) { emit(doc.foo, doc); }
@@ -60,7 +46,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test passing just a function", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {
         var queryFun = function(doc) { emit(doc.foo, doc); };
         db.get('volatile', function(_, doc) {
@@ -84,7 +70,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test opts.startkey/opts.endkey", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key4'},{key: 'key5'}]}, {}, function() {
         var queryFun = {
           map: function(doc) { emit(doc.key, doc); }
@@ -107,7 +93,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test opts.key", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key3'}]}, {}, function() {
         var queryFun = {
           map: function(doc) { emit(doc.key, doc); }
@@ -170,7 +156,7 @@ adapters.map(function(adapter) {
     // that doesn't preserve order)
     values.push({b:2, c:2});
 
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var docs = values.map(function(x, i) {
         return {_id: (i).toString(), foo: x};
       });
@@ -195,7 +181,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test joins", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: [{_id: 'mydoc', foo: 'bar'}, { doc_id: 'mydoc' }]}, {}, function() {
         var queryFun = {
           map: function(doc) {
@@ -214,7 +200,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("No reduce function", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({foo: 'bar'}, function(err, res) {
         var queryFun = {
           map: function(doc) {
@@ -230,7 +216,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Built in _sum reduce function", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { val: 'bar' },
@@ -255,7 +241,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Built in _count reduce function", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { val: 'bar' },
@@ -280,7 +266,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Built in _stats reduce function", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { val: 'bar' },
@@ -308,7 +294,7 @@ adapters.map(function(adapter) {
   });
 
  asyncTest("No reduce function, passing just a  function", function() {
-    initTestDB(this.name, function(err, db) {
+   testUtils.initTestDB(this.name, function(err, db) {
       db.post({foo: 'bar'}, function(err, res) {
         var queryFun = function(doc) { emit('key', 'val'); };
         db.query(queryFun, function(err, res) {
@@ -325,7 +311,7 @@ adapters.map(function(adapter) {
     var doc1 = {_id: '1', foo: 'bar'};
     var doc2 = {_id: '1', foo: 'baz'};
     var queryFun = function(doc) { emit(doc._id, !!doc._conflicts); };
-    initDBPair(this.name, this.remote, function(db, remote) {
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
       db.post(doc1, function(err, res) {
         remote.post(doc2, function(err, res) {
           db.replicate.from(remote, function(err, res) {
@@ -354,7 +340,7 @@ adapters.map(function(adapter) {
         emit(doc._id, doc._conflicts);
       }
     };
-    initDBPair(this.name, this.remote, function(db, remote) {
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
       db.bulkDocs({docs: docs1}, function(err, res) {
         var revId1 = res[0].rev;
         remote.post(doc2, function(err, res) {
@@ -378,7 +364,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test view querying with limit option", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { foo: 'bar' },
@@ -402,7 +388,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Query non existing view returns error", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var doc = {
         _id: '_design/barbar',
         views: {
@@ -422,7 +408,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Special document member _doc_id_rev should never leak outside", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { foo: 'bar' }
@@ -442,7 +428,7 @@ adapters.map(function(adapter) {
   });
   
   asyncTest('If reduce function returns 0, resulting value should not be null', function () {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { foo: 'bar' }
@@ -464,7 +450,7 @@ adapters.map(function(adapter) {
   });
   
   asyncTest('Testing skip with a view', function () {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { foo: 'bar' },
@@ -484,7 +470,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing skip with allDocs', function () {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({
         docs: [
           { foo: 'bar' },

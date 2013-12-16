@@ -1,11 +1,10 @@
-/*globals PouchDB.extend: false, Buffer: false, PouchDB: true, PouchDB.ajax:false */
-"use strict";
+'use strict';
 
-var PERSIST_DATABASES = false;
+var testUtils = {};
 
-Array.prototype.wtf = function() { };
+testUtils.PERSIST_DATABASES = false;
 
-function cleanupAllDbs() {
+testUtils.cleanupAllDbs = function() {
 
   var deleted = 0;
   var adapters = Object.keys(PouchDB.adapters).filter(function(adapter) {
@@ -37,9 +36,9 @@ function cleanupAllDbs() {
   });
 }
 
-function cleanupTestDatabases(alreadyStopped_) {
+testUtils.cleanupTestDatabases = function(alreadyStopped_) {
 
-  if (PERSIST_DATABASES) {
+  if (testUtils.PERSIST_DATABASES) {
     return;
   }
 
@@ -52,7 +51,7 @@ function cleanupTestDatabases(alreadyStopped_) {
   var deleted = 0;
 
   function finished() {
-    cleanupAllDbs();
+    testUtils.cleanupAllDbs();
   }
 
   function dbDeleted() {
@@ -72,7 +71,7 @@ function cleanupTestDatabases(alreadyStopped_) {
   });
 }
 
-function uuid() {
+testUtils.uuid = function() {
   var S4 = function() {
     return Math.floor(Math.random() * 0x10000).toString(16);
   };
@@ -86,25 +85,7 @@ function uuid() {
   );
 }
 
-function makeDocs(start, end, templateDoc) {
-  var templateDocSrc = templateDoc ? JSON.stringify(templateDoc) : "{}";
-  if (end === undefined) {
-    end = start;
-    start = 0;
-  }
-  var docs = [];
-  for (var i = start; i < end; i++) {
-    /*jshint evil:true */
-    var newDoc = eval("(" + templateDocSrc + ")");
-    newDoc._id = (i).toString();
-    newDoc.integer = i;
-    newDoc.string = (i).toString();
-    docs.push(newDoc);
-  }
-  return docs;
-}
-
-function makeBlob(data, type) {
+testUtils.makeBlob = function(data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data);
   } else {
@@ -112,7 +93,7 @@ function makeBlob(data, type) {
   }
 }
 
-function readBlob(blob, callback) {
+testUtils.readBlob = function(blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString());
   } else {
@@ -124,7 +105,7 @@ function readBlob(blob, callback) {
   }
 }
 
-function base64Blob(blob, callback) {
+testUtils.base64Blob = function(blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString('base64'));
   } else {
@@ -137,7 +118,7 @@ function base64Blob(blob, callback) {
   }
 }
 
-function openTestAsyncDB(name) {
+testUtils.openTestAsyncDB = function(name) {
   return new PouchDB(name, function(err,db) {
     if (err) {
       console.error(err);
@@ -147,7 +128,7 @@ function openTestAsyncDB(name) {
   });
 }
 
-function openTestDB(name, opts, callback) {
+testUtils.openTestDB = function(name, opts, callback) {
   if (typeof opts === 'function') {
     callback = opts;
     opts = {};
@@ -162,7 +143,7 @@ function openTestDB(name, opts, callback) {
   });
 }
 
-function initTestDB(name, opts, callback) {
+testUtils.initTestDB = function(name, opts, callback) {
   // ignore errors, the database might not exist
   PouchDB.destroy(name, function(err) {
     if (err && err.status !== 404 && err.statusText !== 'timeout') {
@@ -170,21 +151,21 @@ function initTestDB(name, opts, callback) {
       ok(false, 'failed to open database');
       return start();
     }
-    openTestDB(name, opts, callback);
+    testUtils.openTestDB(name, opts, callback);
   });
 }
 
-function initDBPair(local, remote, callback) {
-  initTestDB(local, function(err, localDb) {
-    initTestDB(remote, function(err, remoteDb) {
+testUtils.initDBPair = function(local, remote, callback) {
+  testUtils.initTestDB(local, function(err, localDb) {
+    testUtils.initTestDB(remote, function(err, remoteDb) {
       callback(localDb, remoteDb);
     });
   });
 }
 
-var testId = uuid();
+var testId = testUtils.uuid();
 
-function generateAdapterUrl(id) {
+testUtils.generateAdapterUrl = function(id) {
   var opt = id.split('-');
   if (opt[0] === 'local') {
     return 'testdb_' + testId + '_' + opt[1];
@@ -200,7 +181,7 @@ function generateAdapterUrl(id) {
 // Put doc after prevRev (so that doc is a child of prevDoc
 // in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
-function putAfter(db, doc, prevRev, callback){
+testUtils.putAfter = function(db, doc, prevRev, callback){
   var newDoc = PouchDB.extend({}, doc);
   if (!prevRev) {
     db.put(newDoc, {new_edits: false}, callback);
@@ -218,7 +199,7 @@ function putAfter(db, doc, prevRev, callback){
 
 // docs will be inserted one after another
 // starting from root
-var putBranch = function(db, docs, callback) {
+testUtils.putBranch = function(db, docs, callback) {
   function insert(i) {
     var doc = docs[i];
     var prev = i > 0 ? docs[i-1]._rev : null;
@@ -231,7 +212,7 @@ var putBranch = function(db, docs, callback) {
     }
     db.get(doc._id, {rev: doc._rev}, function(err, ok){
       if(err){
-        putAfter(db, docs[i], prev, function(err, doc) {
+        testUtils.putAfter(db, docs[i], prev, function(err, doc) {
           next();
         });
       }else{
@@ -243,10 +224,10 @@ var putBranch = function(db, docs, callback) {
 };
 
 
-var putTree = function(db, tree, callback) {
+testUtils.putTree = function(db, tree, callback) {
   function insert(i) {
     var branch = tree[i];
-    putBranch(db, branch, function() {
+    testUtils.putBranch(db, branch, function() {
       if (i < tree.length - 1) {
         insert(i+1);
       } else {
@@ -257,7 +238,7 @@ var putTree = function(db, tree, callback) {
   insert(0);
 };
 
-var writeDocs = function(db, docs, callback, res) {
+testUtils.writeDocs = function(db, docs, callback, res) {
   if (!res) {
     res = [];
   }
@@ -268,13 +249,13 @@ var writeDocs = function(db, docs, callback, res) {
   db.put(doc, function(err, info) {
     ok(info && info.ok, 'docwrite returned ok');
     res.push(info);
-    writeDocs(db, docs, callback, res);
+    testUtils.writeDocs(db, docs, callback, res);
   });
 };
 
 
 // Borrowed from: http://stackoverflow.com/a/840849
-function eliminateDuplicates(arr) {
+testUtils.eliminateDuplicates = function(arr) {
   var i, element,
       len = arr.length,
       out = [],
@@ -293,7 +274,7 @@ function eliminateDuplicates(arr) {
 
 // ---- CORS Specific Utils ---- //
 //enable CORS on server
-function enableCORS(dburl, callback) {
+testUtils.enableCORS = function(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
   PouchDB.ajax({url: host + '_config/httpd/enable_cors', json: false,
@@ -306,7 +287,7 @@ function enableCORS(dburl, callback) {
 }
 
 //enable CORS Credentials on server
-function enableCORSCredentials(dburl, callback) {
+testUtils.enableCORSCredentials = function(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
   PouchDB.ajax({url: host + '_config/cors/credentials',
@@ -316,7 +297,7 @@ function enableCORSCredentials(dburl, callback) {
 }
 
 //disable CORS
-function disableCORS(dburl, callback) {
+testUtils.disableCORS = function(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
   PouchDB.ajax({
@@ -337,7 +318,7 @@ function disableCORS(dburl, callback) {
 }
 
 //disable CORS Credentials
-function disableCORSCredentials(dburl, callback) {
+testUtils.disableCORSCredentials = function(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
   PouchDB.ajax({
@@ -351,7 +332,7 @@ function disableCORSCredentials(dburl, callback) {
 }
 
 //create admin user and member user
-function setupAdminAndMemberConfig(dburl, callback) {
+testUtils.setupAdminAndMemberConfig = function(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
   PouchDB.ajax({url: host + '_users/org.couchdb.user:TestUser',
@@ -365,7 +346,7 @@ function setupAdminAndMemberConfig(dburl, callback) {
 }
 
 //delete admin and member user
-function tearDownAdminAndMemberConfig(dburl, callback) {
+testUtils.tearDownAdminAndMemberConfig = function(dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
   var headers = {};
   var token = btoa('TestAdmin:admin');
@@ -386,7 +367,7 @@ function tearDownAdminAndMemberConfig(dburl, callback) {
   });
 }
 
-function deleteCookieAuth(dburl, callback_) {
+testUtils.deleteCookieAuth = function(dburl, callback_) {
   var host = 'http://' + dburl.split('/')[2] + '/';
 
   PouchDB.ajax({
@@ -397,8 +378,8 @@ function deleteCookieAuth(dburl, callback_) {
   }, callback_);
 }
 
-function cleanUpCors(dburl, callback_) {
-  if (PERSIST_DATABASES) {
+testUtils.cleanUpCors = function(dburl, callback_) {
+  if (testUtils.PERSIST_DATABASES) {
     return;
   }
 
@@ -412,35 +393,8 @@ function cleanUpCors(dburl, callback_) {
     });
   }
 }
-// ---- END CORS Specific Utils ---- //
 
 if (typeof module !== 'undefined' && module.exports) {
   PouchDB = require('../lib');
-  module.exports = {
-    uuid: uuid,
-    makeDocs: makeDocs,
-    makeBlob: makeBlob,
-    readBlob: readBlob,
-    base64Blob: base64Blob,
-    initTestDB: initTestDB,
-    initDBPair: initDBPair,
-    openTestDB: openTestDB,
-    openTestAsyncDB: openTestAsyncDB,
-    generateAdapterUrl: generateAdapterUrl,
-    putAfter: putAfter,
-    putBranch: putBranch,
-    putTree: putTree,
-    writeDocs: writeDocs,
-    cleanupTestDatabases: cleanupTestDatabases,
-    PERSIST_DATABASES: PERSIST_DATABASES,
-    eliminateDuplicates: eliminateDuplicates,
-    enableCORS: enableCORS,
-    enableCORSCredentials: enableCORSCredentials,
-    setupAdminAndMemberConfig: setupAdminAndMemberConfig,
-    tearDownAdminAndMemberConfig: tearDownAdminAndMemberConfig,
-    disableCORS: disableCORS,
-    disableCORSCredentials: disableCORSCredentials,
-    cleanUpCors: cleanUpCors,
-    deleteCookieAuth: deleteCookieAuth
-  };
+  module.exports = testUtils;
 }

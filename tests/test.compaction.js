@@ -1,41 +1,24 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true, putTree: false */
-/*globals Pouch.ajax: true, LevelPouch: true, makeDocs: false, strictEqual: false */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['local-1', 'http-1'];
 var autoCompactionAdapters = ['local-1'];
 
-var qunit = module;
-var LevelPouch;
-var utils;
-
-// if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
-  qunit('compaction: ' + adapter, {
+  QUnit.module('compaction: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   asyncTest('Compation document with no revisions to remove', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var doc = {_id: "foo", value: "bar"};
       db.put(doc, function(err, res) {
         db.compact(function(){
@@ -50,7 +33,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Compation on empty db', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.compact(function(){
         ok(true, "compaction finished");
         start();
@@ -59,7 +42,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Compation on empty db with interval option', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.compact({interval: 199}, function(){
         ok(true, "compaction finished");
         start();
@@ -68,7 +51,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Simple compation test', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var doc = {_id: "foo", value: "bar"};
 
       db.post(doc, function(err, res) {
@@ -162,8 +145,8 @@ adapters.map(function(adapter) {
   ];
 
   asyncTest('Compact more complicated tree', function() {
-    initTestDB(this.name, function(err, db) {
-      putTree(db, exampleTree, function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.putTree(db, exampleTree, function() {
         db.compact(function() {
           checkTree(db, exampleTree, function() {
             ok(1, "checks finished");
@@ -175,8 +158,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Compact two times more complicated tree', function() {
-    initTestDB(this.name, function(err, db) {
-      putTree(db, exampleTree, function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.putTree(db, exampleTree, function() {
         db.compact(function() {
           db.compact(function() {
             checkTree(db, exampleTree, function() {
@@ -190,9 +173,9 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Compact database with at least two documents', function() {
-    initTestDB(this.name, function(err, db) {
-      putTree(db, exampleTree, function() {
-        putTree(db, exampleTree2, function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.putTree(db, exampleTree, function() {
+        testUtils.putTree(db, exampleTree2, function() {
           db.compact(function() {
             checkTree(db, exampleTree, function() {
               checkTree(db, exampleTree2, function() {
@@ -207,7 +190,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Compact deleted document', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.put({_id: "foo"}, function(err, res) {
         var firstRev = res.rev;
         db.remove({_id: "foo", _rev: firstRev}, function(err, res) {
@@ -225,7 +208,7 @@ adapters.map(function(adapter) {
 
   if (autoCompactionAdapters.indexOf(adapter) > -1) {
     asyncTest('Auto-compaction test', function() {
-      initTestDB(this.name, {auto_compaction: true}, function(err, db) {
+      testUtils.initTestDB(this.name, {auto_compaction: true}, function(err, db) {
         var doc = {_id: "doc", val: "1"};
         db.post(doc, function(err, res) {
           var rev1 = res.rev;

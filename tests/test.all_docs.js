@@ -1,37 +1,20 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals Pouch.ajax: true, LevelPouch: true, makeDocs: false */
-/*globals cleanupTestDatabases: false, writeDocs: false */
-
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
-var qunit = module;
-var LevelPouch;
-var PouchDB;
-var utils;
 
-// if we are running under node.js, set things up
-// a little differently, and only test the leveldb adapter
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
 
-  qunit('all_docs: ' + adapter, {
+  QUnit.module('all_docs: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   var origDocs = [
@@ -42,8 +25,8 @@ adapters.map(function(adapter) {
   ];
 
   asyncTest('Testing all docs', function() {
-    initTestDB(this.name, function(err, db) {
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.allDocs(function(err, result) {
           var rows = result.rows;
           ok(result.total_rows === 4, 'correct number of results');
@@ -84,8 +67,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing allDocs opts.keys', function() {
-    initTestDB(this.name, function(err, db) {
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         var keys = ["3", "1"];
         db.allDocs({keys: keys}, function(err, result) {
           var rows = result.rows;
@@ -133,8 +116,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing deleting in changes', function() {
-    initTestDB(this.name, function(err, db) {
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get('1', function(err, doc) {
           db.remove(doc, function(err, deleted) {
             ok(deleted.ok, 'deleted');
@@ -153,8 +136,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing updating in changes', function() {
-    initTestDB(this.name, function(err, db) {
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get('3', function(err, doc) {
           doc.updated = 'totally';
           db.put(doc, function(err, doc) {
@@ -172,8 +155,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing include docs', function() {
-    initTestDB(this.name, function(err, db) {
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.changes({
           include_docs: true,
           complete: function(err, changes) {
@@ -186,8 +169,8 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing conflicts', function() {
-    initTestDB(this.name, function(err, db) {
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         // add conflicts
         var conflictDoc1 = {
           _id: "3", _rev: "2-aa01552213fafa022e6167113ed01087", value: "X"
@@ -240,7 +223,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('test basic collation', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var docs = {docs: [{_id: "z", foo: "z"}, {_id: "a", foo: "a"}]};
       db.bulkDocs(docs, function(err, res) {
         db.allDocs({startkey: 'z', endkey: 'z'}, function(err, result) {
@@ -252,7 +235,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('test limit option and total_rows', function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var docs = {
         docs: [
           {_id: "z", foo: "z"},

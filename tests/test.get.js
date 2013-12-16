@@ -1,34 +1,20 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false, putTree: false, putBranch: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals Pouch.ajax: true, LevelPouch: true, makeDocs: false, strictEqual: false, notStrictEqual: false */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = ['http-1', 'local-1'];
-var qunit = module;
-var LevelPouch;
-var utils;
 
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapter) {
 
-  qunit('get: ' + adapter, {
+  QUnit.module('get: ' + adapter, {
     setup : function () {
-      this.name = generateAdapterUrl(adapter);
+      this.name = testUtils.generateAdapterUrl(adapter);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   var origDocs = [
@@ -51,7 +37,7 @@ adapters.map(function(adapter) {
   }
 
   asyncTest("Get doc", 2, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         db.get(info.id, function(err, doc) {
           ok(doc.test);
@@ -65,7 +51,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Get design doc", 2, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.put({_id: '_design/someid', test:"somestuff"}, function(err, info) {
         db.get(info.id, function(err, doc) {
           ok(doc.test);
@@ -79,7 +65,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Check error of deleted document", 2, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         db.remove({_id:info.id, _rev:info.rev}, function(err, res) {
           db.get(info.id, function(err, res) {
@@ -93,7 +79,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Get local_seq of document", function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info1) {
         db.get(info1.id, {local_seq: true}, function(err, res) {
           ok(res);
@@ -111,7 +97,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Get revisions of removed doc", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({test:"somestuff"}, function(err, info) {
         var rev = info.rev;
         db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
@@ -125,7 +111,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with rev', 10, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
           // add conflicts
@@ -161,7 +147,7 @@ adapters.map(function(adapter) {
 
   asyncTest("Testing rev format", 2, function() {
     var revs = [];
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
         revs.unshift(info.rev.split('-')[1]);
         db.put({_id: info.id, _rev: info.rev, another: 'test1'}, function(err, info2) {
@@ -180,14 +166,14 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test opts.revs=true with rev other than winning", 5, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var docs = [
         {_id: "foo", _rev: "1-a", value: "foo a"},
         {_id: "foo", _rev: "2-b", value: "foo b"},
         {_id: "foo", _rev: "3-c", value: "foo c"},
         {_id: "foo", _rev: "4-d", value: "foo d"}
       ];
-      putBranch(db, docs, function() {
+      testUtils.putBranch(db, docs, function() {
         db.get("foo", {rev: "3-c", revs: true}, function(err, doc) {
           strictEqual(doc._revisions.ids.length, 3, "correct revisions length");
           strictEqual(doc._revisions.start, 3, "correct revisions start");
@@ -201,7 +187,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test opts.revs=true return only winning branch", 6, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var simpleTree = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -215,7 +201,7 @@ adapters.map(function(adapter) {
           {_id: "foo", _rev: "4-f", value: "foo f"}
         ]
       ];
-      putTree(db, simpleTree, function() {
+      testUtils.putTree(db, simpleTree, function() {
         db.get("foo", {revs: true}, function(err, doc) {
           strictEqual(doc._revisions.ids.length, 4, "correct revisions length");
           strictEqual(doc._revisions.start, 4, "correct revisions start");
@@ -230,7 +216,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test get with simple revs_info", 1, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.post({test: "somestuff"}, function (err, info) {
         db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
           db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
@@ -245,7 +231,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test get with revs_info on tree", 4, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var simpleTree = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -258,7 +244,7 @@ adapters.map(function(adapter) {
           {_id: "foo", _rev: "3-e", _deleted: true}
         ]
       ];
-      putTree(db, simpleTree, function() {
+      testUtils.putTree(db, simpleTree, function() {
         db.get("foo", {revs_info: true}, function(err, doc) {
           var revs = doc._revs_info;
           strictEqual(revs.length, 3, "correct number of revs");
@@ -272,7 +258,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test get with revs_info on compacted tree", 7, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var simpleTree = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -285,7 +271,7 @@ adapters.map(function(adapter) {
           {_id: "foo", _rev: "3-e", _deleted: true}
         ]
       ];
-      putTree(db, simpleTree, function() {
+      testUtils.putTree(db, simpleTree, function() {
         db.compact(function(err, ok) {
           db.get("foo", {revs_info: true}, function(err, doc) {
             var revs = doc._revs_info;
@@ -305,7 +291,7 @@ adapters.map(function(adapter) {
 
 
   asyncTest("Test get with conflicts", 3, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var simpleTree = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -320,7 +306,7 @@ adapters.map(function(adapter) {
           {_id: "foo", _rev: "2-d", value: "foo d", _deleted: true}
         ]
       ];
-      putTree(db, simpleTree, function() {
+      testUtils.putTree(db, simpleTree, function() {
         db.get("foo", {conflicts: true}, function(err, doc) {
           strictEqual(doc._rev, "2-c", "correct rev");
           strictEqual(doc._conflicts.length, 1, "just one conflict");
@@ -332,7 +318,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Retrieve old revision", 6, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.post({version: "first"}, function (err, info) {
         var firstrev = info.rev;
@@ -353,7 +339,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get open_revs="all"', 8, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
           // add conflicts
@@ -390,7 +376,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with some open_revs', 11, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
         db.get("3", function(err, parent){
           // add conflicts
@@ -439,7 +425,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with open_revs and revs', 4, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       var docs = [
         [
           {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -450,7 +436,7 @@ adapters.map(function(adapter) {
           {_id: "foo", _rev: "2-c", value: "foo c"}
         ]
       ];
-      putTree(db, docs, function() {
+      testUtils.putTree(db, docs, function() {
         db.get("foo", {open_revs: ["2-b"], revs: true}, function(err, res) {
           var doc = res[0].ok;
           ok(doc, "got doc");
@@ -464,7 +450,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with open_revs on nonexistent doc', 3, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.get("nonexistent", {open_revs: ["2-whatever"]}, function(err, res) {
         strictEqual(res.length, 1, "just one result");
         strictEqual(res[0].missing, "2-whatever", "just one result");
@@ -478,7 +464,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest('Testing get with open_revs with wrong params', 4, function() {
-    initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function(err, db) {
       db.put({_id: "foo"}, function(err, res) {
         db.get("foo", {open_revs: {"whatever": "which is", "not an array": "or all string"}}, function(err, res) {
           ok(err, "got error");

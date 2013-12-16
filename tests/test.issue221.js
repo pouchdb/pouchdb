@@ -1,8 +1,3 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false, strictEqual: false */
-/*globals PERSIST_DATABASES: false, initDBPair: false, utils: true */
-/*globals Pouch.ajax: true, LevelPouch: true */
-/*globals cleanupTestDatabases: false */
-
 "use strict";
 
 var adapters = [
@@ -11,30 +6,21 @@ var adapters = [
   ['http-1', 'local-1'],
   ['local-1', 'local-2']
 ];
-var qunit = module;
-var LevelPouch;
-var utils;
 
 if (typeof module !== undefined && module.exports) {
-  PouchDB = require('../lib');
-  LevelPouch = require('../lib/adapters/leveldb');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
 adapters.map(function(adapters) {
 
-  qunit('replication + compaction: ' + adapters[0] + ':' + adapters[1], {
+  QUnit.module('replication + compaction: ' + adapters[0] + ':' + adapters[1], {
     setup: function() {
-      this.local = generateAdapterUrl(adapters[0]);
-      this.remote = generateAdapterUrl(adapters[1]);
+      this.local = testUtils.generateAdapterUrl(adapters[0]);
+      this.remote = testUtils.generateAdapterUrl(adapters[1]);
       PouchDB.enableAllDbs = true;
     },
-    teardown: cleanupTestDatabases
+    teardown: testUtils.cleanupTestDatabases
   });
 
   var doc = { _id: '0', integer: 0 };
@@ -42,7 +28,7 @@ adapters.map(function(adapters) {
   asyncTest('Testing issue #221', function() {
     var self = this;
     // Create databases.
-    initDBPair(self.local, self.remote, function(local, remote) {
+    testUtils.initDBPair(self.local, self.remote, function(local, remote) {
       // Write a doc in CouchDB.
       remote.put(doc, function(err, results) {
         // Update the doc.
@@ -73,7 +59,7 @@ adapters.map(function(adapters) {
   asyncTest('Testing issue #221 again', function() {
     var self = this;
     // Create databases.
-    initDBPair(self.local, self.remote, function(local, remote) {
+    testUtils.initDBPair(self.local, self.remote, function(local, remote) {
       // Write a doc in CouchDB.
       remote.put(doc, function(err, results) {
         doc._rev = results.rev;

@@ -1,27 +1,13 @@
-/*globals initTestDB: false, emit: true, generateAdapterUrl: false */
-/*globals PERSIST_DATABASES: false, utils: true, Pouch.extend: true */
-/*globals Pouch.ajax: true, strictEqual: false, Pouch: true */
-/*globals cleanupTestDatabases: false, openTestDB: true, putAfter: false */
-/*globals setupAdminAndMemberConfig:false, tearDownAdminAndMemberConfig:false */
-/*globals cleanUpCors:false, enableCORS:false, enableCORSCredentials:false, call:false */
-/*globals disableCORS: false, disableCORSCredentials: false, deleteCookieAuth:false */
-
 'use strict';
 
 var adapter = 'http-1';
-var qunit = module;
 
 if (typeof module !== undefined && module.exports) {
-  Pouch = require('../lib');
-  utils = require('./test.utils.js');
-
-  for (var k in utils) {
-    global[k] = global[k] || utils[k];
-  }
-  qunit = QUnit.module;
+  var PouchDB = require('../lib');
+  var testUtils = require('./test.utils.js');
 }
 
-qunit('cors-adapter:', {
+QUnit.module('cors-adapter:', {
   setup: function () {
     this.name = generateAdapterUrl(adapter);
   },
