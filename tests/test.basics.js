@@ -354,19 +354,36 @@ adapters.map(function(adapter) {
       "should be the same");
   });
 
-  asyncTest('Fail to fetch a doc after db was deleted', function() {
-    var dbName = this.name;
+  asyncTest('Fail to fetch a doc after db was deleted', 8, function() {
+
+    var self = this;
+
+    // two ways of instantiating/destroying the same DB
+    var optsFunctions = [function(name) {return {name : name};}, function (name) {return name;}];
     var docid = 'foodoc';
-    var pouchDB = new PouchDB({name : dbName}, function onCreate() {
-      pouchDB.put({_id : docid}, function onPut() {
-        PouchDB.destroy({name : dbName}, function onDestroy() {
-          pouchDB = new PouchDB({name : dbName}, function onRecreate() {
-            pouchDB.get(docid, function onGet(err, doc) {
-              equal(doc, undefined,
-                    'should not return the document, because db was deleted');
-              notEqual(err, undefined,
-                       'should return error, because db was deleted');
-              start();
+
+    // test every combination of create/destroy opts
+    var counter = 0;
+    optsFunctions.forEach(function(createOptsFunc) {
+      optsFunctions.forEach(function(destroyOptsFunc) {
+
+        var dbName = self.name + '_' + (counter++); // ensure db names are always unique
+
+        var createOpts = createOptsFunc(dbName);
+        var destroyOpts = destroyOptsFunc(dbName);
+
+        var pouchDB = new PouchDB(createOpts, function onCreate() {
+          pouchDB.put({_id : docid}, function onPut() {
+            PouchDB.destroy(destroyOpts, function onDestroy() {
+              pouchDB = new PouchDB(createOpts, function onRecreate() {
+                pouchDB.get(docid, function onGet(err, doc) {
+                  var info = 'createOpts are ' + JSON.stringify(createOpts) +
+                    ', destroyOpts are ' + JSON.stringify(destroyOpts);
+                  equal(doc, undefined, info + ': should not return the document, because db was deleted');
+                  notEqual(err, undefined, info + ': should return error, because db was deleted');
+                  start();
+                });
+              });
             });
           });
         });
