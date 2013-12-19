@@ -12,87 +12,6 @@ testUtils.couchHost = function() {
   return 'http://localhost:2020';
 }
 
-testUtils.cleanupAllDbs = function() {
-
-  var deleted = 0;
-  var adapters = Object.keys(PouchDB.adapters).filter(function(adapter) {
-    return adapter !== 'http' && adapter !== 'https';
-  });
-
-  function finished() {
-    // Restart text execution
-    start();
-  }
-
-  function dbDeleted() {
-    deleted++;
-    if (deleted === adapters.length) {
-      finished();
-    }
-  }
-
-  if (!adapters.length) {
-    finished();
-  }
-
-  // Remove old allDbs to prevent DOM exception
-  adapters.forEach(function(adapter) {
-    if (adapter === "http" || adapter === "https") {
-      return;
-    }
-    PouchDB.destroy(PouchDB.allDBName(adapter), dbDeleted);
-  });
-}
-
-testUtils.cleanupTestDatabases = function(alreadyStopped_) {
-
-  if (testUtils.PERSIST_DATABASES) {
-    return;
-  }
-
-  // Stop the tests from executing
-  if(!alreadyStopped_) {
-      stop();
-  }
-
-  var dbCount;
-  var deleted = 0;
-
-  function finished() {
-    testUtils.cleanupAllDbs();
-  }
-
-  function dbDeleted() {
-    if (++deleted === dbCount) {
-      finished();
-    }
-  }
-
-  PouchDB.allDbs(function(err, dbs) {
-    if (!dbs.length) {
-      finished();
-    }
-    dbCount = dbs.length;
-    dbs.forEach(function(db) {
-      PouchDB.destroy(db, dbDeleted);
-    });
-  });
-}
-
-testUtils.uuid = function() {
-  var S4 = function() {
-    return Math.floor(Math.random() * 0x10000).toString(16);
-  };
-
-  return (
-    S4() + S4() + "-" +
-      S4() + "-" +
-      S4() + "-" +
-      S4() + "-" +
-      S4() + S4() + S4()
-  );
-}
-
 testUtils.makeBlob = function(data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data);
@@ -123,63 +42,6 @@ testUtils.base64Blob = function(blob, callback) {
       callback(base64);
     };
     reader.readAsDataURL(blob);
-  }
-}
-
-testUtils.openTestAsyncDB = function(name) {
-  return new PouchDB(name, function(err,db) {
-    if (err) {
-      console.error(err);
-      ok(false, 'failed to open database');
-      return start();
-    }
-  });
-}
-
-testUtils.openTestDB = function(name, opts, callback) {
-  if (typeof opts === 'function') {
-    callback = opts;
-    opts = {};
-  }
-  new PouchDB(name, opts, function(err, db) {
-    if (err) {
-      console.error(err);
-      ok(false, 'failed to open database');
-      return start();
-    }
-    callback.apply(this, arguments);
-  });
-}
-
-testUtils.initTestDB = function(name, opts, callback) {
-  // ignore errors, the database might not exist
-  PouchDB.destroy(name, function(err) {
-    if (err && err.status !== 404 && err.statusText !== 'timeout') {
-      console.error(err);
-      ok(false, 'failed to open database');
-      return start();
-    }
-    testUtils.openTestDB(name, opts, callback);
-  });
-}
-
-testUtils.initDBPair = function(local, remote, callback) {
-  testUtils.initTestDB(local, function(err, localDb) {
-    testUtils.initTestDB(remote, function(err, remoteDb) {
-      callback(localDb, remoteDb);
-    });
-  });
-}
-
-var testId = testUtils.uuid();
-
-testUtils.generateAdapterUrl = function(id) {
-  var opt = id.split('-');
-  if (opt[0] === 'local') {
-    return 'testdb_' + testId + '_' + opt[1];
-  }
-  if (opt[0] === 'http') {
-    return testUtils.couchHost() + '/testdb_' + testId + '_' + opt[1];
   }
 }
 
@@ -398,6 +260,29 @@ testUtils.cleanUpCors = function(dburl, callback_) {
     });
   }
 }
+
+testUtils.cleanDbs = function(QUnit, dbs) {
+  return function() {
+    QUnit.stop();
+    var deleted = 0;
+    function done() {
+      deleted++;
+      if (deleted === dbs.length) {
+        QUnit.start();
+      }
+    }
+    dbs.forEach(function(db) {
+      PouchDB.destroy(db, done);
+    });
+  }
+}
+
+
+testUtils.args = function() {
+  // if node, return process.argv or process.env
+  // if browser parse url args
+  return false;
+};
 
 if (typeof module !== 'undefined' && module.exports) {
   PouchDB = require('../lib');

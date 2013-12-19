@@ -34,8 +34,6 @@ testrunner.setup({
 testrunner.run({
   deps: [
     './lib/deps/extend.js',
-    './lib/deps/blob.js',
-    './lib/deps/ajax.js',
     './tests/pouch.shim.js'
   ],
   code: "./lib/adapters/leveldb.js",
