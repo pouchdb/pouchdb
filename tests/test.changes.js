@@ -38,12 +38,22 @@ adapters.map(function(adapter) {
       {_id: "0", integer: 0},
       {_id: "1", integer: 1},
       {_id: "2", integer: 2},
-      {_id: "3", integer: 3}
+      {_id: "3", integer: 3},
+      {_id: "4", integer: 4},
+      {_id: "5", integer: 5},
+      {_id: "6", integer: 6},
+      {_id: "7", integer: 7},
+      {_id: "8", integer: 9},
+      {_id: "9", integer: 9},
+      {_id: "10", integer: 10},
+      {_id: "11", integer: 11},
+      {_id: "12", integer: 12},
+      {_id: "13", integer: 13}
     ];
     testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
         db.changes({
-          since: 2,
+          since: 12,
           complete: function(err, results) {
             equal(results.results.length, 2, 'Partial results');
             start();
