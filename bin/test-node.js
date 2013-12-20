@@ -13,14 +13,16 @@ var excludedTests = [
   'test.spatial.js'
 ];
 
-var testFiles = fs.readdirSync("./tests").filter(function(name){
-  return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
-    (excludedTests.indexOf(name) === -1);
-});
+var testFiles;
 
-// If you want to test a single file, just do this for now, kinda ugly
-// but will improve
-//testFiles = ['test.basics.js'];
+if (process.env.TEST_FILE) {
+  testFiles = [process.env.TEST_FILE];
+} else {
+  testFiles = fs.readdirSync("./tests").filter(function(name){
+    return (/^test\.([a-z0-9_])*\.js$/).test(name) &&
+      (excludedTests.indexOf(name) === -1);
+  });
+}
 
 testrunner.setup({
   log: {
