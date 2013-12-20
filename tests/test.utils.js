@@ -4,6 +4,14 @@ var testUtils = {};
 
 testUtils.PERSIST_DATABASES = false;
 
+testUtils.couchHost = function() {
+  if (typeof module !== 'undefined' && module.exports) {
+    return process.env.COUCH_HOST || 'http://localhost:5984';
+  }
+  // In the browser we default to the CORS server, in future will change
+  return 'http://localhost:2020';
+}
+
 testUtils.cleanupAllDbs = function() {
 
   var deleted = 0;
@@ -171,10 +179,7 @@ testUtils.generateAdapterUrl = function(id) {
     return 'testdb_' + testId + '_' + opt[1];
   }
   if (opt[0] === 'http') {
-    var host = (typeof module !== 'undefined' && module.exports) ?
-      process.env.COUCH_HOST || 'http://localhost:5984/' :
-      'http://localhost:2020/';
-    return host + 'testdb_' + testId + '_' + opt[1];
+    return testUtils.couchHost() + '/testdb_' + testId + '_' + opt[1];
   }
 }
 
