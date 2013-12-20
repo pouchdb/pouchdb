@@ -6,22 +6,16 @@ var testFiles = window.location.search.match(/[?&]testFiles=([^&]+)/);
 testFiles = testFiles && testFiles[1].split(',') || [];
 var started = new Date();
 if (!testFiles.length) {
-  // If you want to run performance tests, uncomment these tests
-  // and comment out the testFiles below
-  //testFiles = [
-  //  'perf.attachments.js'
-  //];
-
-  // Temporarily disable tests that can leave CouchDB in non Admin Party
-  // 'test.cors.js'
-  // 'test.auth_replication.js',
-  testFiles = ['test.basics.js', 'test.all_dbs.js', 'test.changes.js',
-               'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
-               'test.revs_diff.js',
-               'test.replication.js', 'test.views.js', 'test.taskqueue.js',
-               'test.design_docs.js', 'test.issue221.js', 'test.http.js',
-               'test.compaction.js', 'test.get.js',
-               'test.attachments.js', 'test.uuids.js', 'test.slash_id.js'];
+  testFiles = [
+    'test.setup.js',
+    'test.basics.js', 'test.all_dbs.js', 'test.changes.js',
+    'test.bulk_docs.js', 'test.all_docs.js', 'test.conflicts.js',
+    'test.revs_diff.js',
+    'test.replication.js', 'test.views.js', 'test.taskqueue.js',
+    'test.design_docs.js', 'test.issue221.js', 'test.http.js',
+    'test.compaction.js', 'test.get.js',
+    'test.attachments.js', 'test.uuids.js', 'test.slash_id.js'
+  ];
 }
 
 testFiles.unshift('test.utils.js');
