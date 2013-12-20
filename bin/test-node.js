@@ -8,6 +8,8 @@ var excludedTests = [
   // auth_replication and cors need admin access (#1030)
   'test.auth_replication.js',
   'test.cors.js',
+  //no workers in node
+  'test.worker.js',
   // Plugins currnetly arent tested (#1031)
   'test.gql.js',
   'test.spatial.js'
