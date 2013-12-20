@@ -228,7 +228,7 @@ adapters.map(function(adapter) {
     testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: bad_docs}, function(err, res) {
         strictEqual(err.status, 500);
-        strictEqual(err.error, 'doc_validation');
+        strictEqual(err.name, 'doc_validation');
         start();
       });
     });
@@ -348,10 +348,11 @@ adapters.map(function(adapter) {
     });
   });
 
-  test('Error works', 1, function() {
-    deepEqual(PouchDB.utils.error(PouchDB.Errors.BAD_REQUEST, "love needs no reason"),
-      {status: 400, error: "bad_request", reason: "love needs no reason"},
-      "should be the same");
+  test('Error works', 3, function() {
+    var newError = PouchDB.Errors.error(PouchDB.Errors.BAD_REQUEST, "love needs no message");
+    ok(newError.status === 400);
+    ok(newError.name === 'bad_request');
+    ok(newError.message === "love needs no message");
   });
 
 

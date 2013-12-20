@@ -26,7 +26,7 @@ asyncTest("Create a pouch without DB setup", function() {
   PouchDB.destroy(name, function() {
     instantDB = new PouchDB(name, {skipSetup: true});
     instantDB.post({test:"abc"}, function(err, info) {
-      ok(err && err.error === 'not_found', 'Skipped setup of database');
+      ok(err && err.name === 'not_found', 'Skipped setup of database');
       start();
     });
   });

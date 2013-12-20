@@ -64,7 +64,7 @@ adapters.map(function(adapter) {
           }
           db.put(docs[0], function(err, doc) {
             db.bulkDocs({docs: docs}, function(err, results) {
-              ok(results[0].error === 'conflict', 'First doc should be in conflict');
+              ok(results[0].name === 'conflict', 'First doc should be in conflict');
               ok(typeof results[0].rev === "undefined", 'no rev in conflict');
               for (i = 1; i < 5; i++) {
                 ok(results[i].id === i.toString());
@@ -88,7 +88,7 @@ adapters.map(function(adapter) {
           {"_id": newdoc._id, "_rev": newdoc._rev, "_deleted": true}
         ];
         db.bulkDocs({docs: docs}, function(err, results) {
-          ok(results[0].error === 'conflict' || results[1].error === 'conflict');
+          ok(results[0].name === 'conflict' || results[1].name === 'conflict');
           start();
         });
       });
@@ -113,7 +113,7 @@ adapters.map(function(adapter) {
     ];
     testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
-        equal(err.error, 'bad_request', 'correct error returned');
+        equal(err.name, 'bad_request', 'correct error returned');
         ok(!info, 'info is empty');
         start();
       });
@@ -127,8 +127,8 @@ adapters.map(function(adapter) {
     ];
     testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({docs: docs}, function(err, info) {
-        equal(err.error, 'bad_request', 'correct error returned');
-        equal(err.reason, PouchDB.Errors.RESERVED_ID.reason, 'correct error message returned');
+        equal(err.name, 'bad_request', 'correct error returned');
+        equal(err.message, PouchDB.Errors.RESERVED_ID.message, 'correct error message returned');
         ok(!info, 'info is empty');
         start();
       });
@@ -139,8 +139,8 @@ adapters.map(function(adapter) {
     testUtils.initTestDB(this.name, function(err, db) {
       db.bulkDocs({"doc": [{"foo":"bar"}]}, function(err, result) {
         ok(err.status === 400);
-        ok(err.error === 'bad_request');
-        ok(err.reason === "Missing JSON list of 'docs'");
+        ok(err.name === 'bad_request');
+        ok(err.message === "Missing JSON list of 'docs'");
         start();
       });
     });
@@ -156,8 +156,8 @@ adapters.map(function(adapter) {
       ];
       db.bulkDocs({docs: docs}, function(err, results) {
         ok(results[1].id === "1", 'check ordering');
-        ok(results[1].error === undefined, 'first id succeded');
-        ok(results[2].error === "conflict", 'second conflicted');
+        ok(results[1].name === undefined, 'first id succeded');
+        ok(results[2].name === "conflict", 'second conflicted');
         ok(results.length === 4, 'got right amount of results');
         start();
       });

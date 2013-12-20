@@ -143,7 +143,7 @@ adapters.map(function(adapter) {
           include_docs: true,
           complete: function (err, results) {
             equal(err.status, 404, 'correct error status');
-            equal(err.reason, 'missing json key: odd', 'correct error reason');
+            equal(err.message, 'missing json key: odd', 'correct error reason');
             equal(results, null, 'correct `results` object returned');
             start();
           }
@@ -177,7 +177,7 @@ adapters.map(function(adapter) {
           include_docs: true,
           complete: function (err, results) {
             equal(err.status, 404, 'correct error status');
-            equal(err.reason, 'missing json key: filters', 'correct error reason');
+            equal(err.message, 'missing json key: filters', 'correct error reason');
             equal(results, null, 'correct `results` object returned');
             start();
           }
@@ -240,7 +240,7 @@ adapters.map(function(adapter) {
           filter: 'foobar/odd',
           complete: function (err, results) {
             equal(err.status, 404, 'correct error status');
-            equal(err.reason, 'missing', 'correct error reason');
+            equal(err.message, 'missing', 'correct error reason');
             equal(results, null, 'correct `results` object returned');
             start();
           }
@@ -273,7 +273,7 @@ adapters.map(function(adapter) {
           view: 'foo/odd',
           complete: function (err, results) {
             equal(err.status, 404, 'correct error status');
-            equal(err.reason, 'missing json key: odd', 'correct error reason');
+            equal(err.message, 'missing json key: odd', 'correct error reason');
             equal(results, null, 'correct `results` object returned');
             start();
           }
@@ -301,7 +301,7 @@ adapters.map(function(adapter) {
           view: 'foo/even',
           complete: function (err, results) {
             equal(err.status, 404, 'correct error status');
-            equal(err.reason, 'missing json key: views', 'correct error reason');
+            equal(err.message, 'missing json key: views', 'correct error reason');
             equal(results, null, 'correct `results` object returned');
             start();
           }
@@ -333,7 +333,7 @@ adapters.map(function(adapter) {
           filter: '_view',
           complete: function (err, results) {
             equal(err.status, 400, 'correct error status');
-            equal(err.reason, '`view` filter parameter is not provided.', 'correct error reason');
+            equal(err.message, '`view` filter parameter is not provided.', 'correct error reason');
             equal(results, null, 'correct `results` object returned');
             start();
           }

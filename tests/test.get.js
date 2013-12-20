@@ -42,7 +42,7 @@ adapters.map(function(adapter) {
         db.get(info.id, function(err, doc) {
           ok(doc.test);
           db.get(info.id+'asdf', function(err) {
-            ok(err.error);
+            ok(err.name);
             start();
           });
         });
@@ -56,7 +56,7 @@ adapters.map(function(adapter) {
         db.get(info.id, function(err, doc) {
           ok(doc.test);
           db.get(info.id+'asdf', function(err) {
-            ok(err.error);
+            ok(err.name);
             start();
           });
         });
@@ -69,8 +69,8 @@ adapters.map(function(adapter) {
       db.post({test:"somestuff"}, function(err, info) {
         db.remove({_id:info.id, _rev:info.rev}, function(err, res) {
           db.get(info.id, function(err, res) {
-            strictEqual(err.error, "not_found", "correct error");
-            strictEqual(err.reason, "deleted", "correct reason");
+            strictEqual(err.name, "not_found", "correct error");
+            strictEqual(err.message, "deleted", "correct reason");
             start();
           });
         });
@@ -468,11 +468,11 @@ adapters.map(function(adapter) {
       db.put({_id: "foo"}, function(err, res) {
         db.get("foo", {open_revs: {"whatever": "which is", "not an array": "or all string"}}, function(err, res) {
           ok(err, "got error");
-          strictEqual(err.error, "unknown_error", "correct error"); // unfortunately!
+          strictEqual(err.name, "unknown_error", "correct error"); // unfortunately!
 
           db.get("foo", {open_revs: ["1-almost", "2-correct", "keys"]}, function(err, res) {
             ok(err, "got error");
-            strictEqual(err.error, "bad_request", "correct error");
+            strictEqual(err.name, "bad_request", "correct error");
             start();
           });
         });

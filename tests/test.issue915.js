@@ -23,7 +23,7 @@ asyncTest("Create a pouch without DB setup", function() {
   var instantDB;
   instantDB = new PouchDB('name', {skipSetup: true}, function() {
     PouchDB.destroy('veryimportantfiles', function( error, response ) {
-      equal(error.reason, 'Database not found', 'should return Database not found error');
+      equal(error.message, 'Database not found', 'should return Database not found error');
       equal(fs.existsSync('veryimportantfiles'), true, 'veryimportantfiles was not removed');
       start();
     });

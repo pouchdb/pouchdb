@@ -399,8 +399,12 @@ adapters.map(function(adapter) {
       };
       db.post(doc, function (err, info) {
         db.query('barbar/dontExist',{key: 'bar'}, function(err, res) {
-          equal(err.error, 'not_found');
-          equal(err.reason, 'missing_named_view');
+          if(!err.name){
+            err.name = err.error;
+            err.message = err.reason;
+          }
+          equal(err.name, 'not_found');
+          equal(err.message, 'missing_named_view');
           start();
         });
       });
