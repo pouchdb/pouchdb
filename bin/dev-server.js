@@ -8,23 +8,20 @@ var http_server = require("http-server");
 
 var program = require('commander');
 
-var COUCH_HOST = 'http://127.0.0.1:5984';
+var COUCH_HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
+
 var HTTP_PORT = 8000;
 var CORS_PORT = 2020;
 
-function startServers(remote) {
-  var couchHost = remote || COUCH_HOST;
+function startServers(couchHost) {
   http_server.createServer().listen(HTTP_PORT);
-  cors_proxy.options = {target: couchHost};
+  cors_proxy.options = {target: couchHost || COUCH_HOST};
   http_proxy.createServer(cors_proxy).listen(CORS_PORT);
 }
 
 
 if (require.main === module) {
-  program
-    .option('-r, --remote [url]', 'Specify the remote couch host')
-    .parse(process.argv);
-  startServers(program.remote);
+  startServers();
 } else {
   module.exports.start = startServers;
 }

@@ -68,25 +68,25 @@ Run all tests with:
 
     $ npm run test-node
 
-Run an indivitual test
+Run an indivitual test:
 
     $ TEST_FILE=test.basics.js npm run test-node
 
 ### Browser Tests
 
-Browser tests require a running HTTP server and a CORS proxy
+Browser tests require a running HTTP server and a CORS proxy:
 
     $ npm run dev-server
 
-To configure the location of CouchDB, you can pass the `--remote` flag
+To configure the location of CouchDB, you can set the `COUCH_HOST` env var:
 
-    $ ./bin/dev-server.js --remote=http://user:pass@myname.host.com
+    $ COUCH_HOST=http://user:pass@myname.host.com npm run dev-server
 
 Now visit http://127.0.0.1:8000/tests/test.html in your browser add ?testFiles=test.basics.js to run single test file. You do not need to manually rebuild PouchDB when you run the `dev-server` target, any changes you make to the source will automatically be built.
 
 ### All Tests
 
-To run all tests
+To run all tests:
 
     $ npm test
 
