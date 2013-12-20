@@ -354,35 +354,22 @@ adapters.map(function(adapter) {
       "should be the same");
   });
 
-  asyncTest('Fail to fetch a doc after db was deleted', 8, function() {
 
-    var self = this;
-
-    // two ways of instantiating/destroying the same DB
-    var optsFunctions = [function(name) {return {name : name};}, function (name) {return name;}];
-    var docid = 'foodoc';
-
-    // test every combination of create/destroy opts
-    var counter = 0;
-    optsFunctions.forEach(function(createOptsFunc) {
-      optsFunctions.forEach(function(destroyOptsFunc) {
-
-        var dbName = self.name + '_' + (counter++); // ensure db names are always unique
-
-        var createOpts = createOptsFunc(dbName);
-        var destroyOpts = destroyOptsFunc(dbName);
-
-        var pouchDB = new PouchDB(createOpts, function onCreate() {
-          pouchDB.put({_id : docid}, function onPut() {
-            PouchDB.destroy(destroyOpts, function onDestroy() {
-              pouchDB = new PouchDB(createOpts, function onRecreate() {
-                pouchDB.get(docid, function onGet(err, doc) {
-                  var info = 'createOpts are ' + JSON.stringify(createOpts) +
-                    ', destroyOpts are ' + JSON.stringify(destroyOpts);
-                  equal(doc, undefined, info + ': should not return the document, because db was deleted');
-                  notEqual(err, undefined, info + ': should return error, because db was deleted');
-                  start();
-                });
+  asyncTest('Fail to fetch a doc after db was deleted', 2, function() {
+    var name = this.name;
+    testUtils.initTestDB(name, function(err, db) {
+      var doc = {_id: 'foodoc'};
+      var doc2 = {_id: 'foodoc2'};
+      var db2 = new PouchDB({name: name});
+      db.put(doc, function() {
+        db2.put(doc2, function() {
+          db.allDocs(function(err, docs) {
+            equal(docs.total_rows, 2, 'Wrote 2 documents');
+            PouchDB.destroy({name: name}, function() {
+              db2 = new PouchDB(name);
+              db2.get(doc._id, function(err, doc) {
+                equal(err.status, 404, 'doc is missing');
+                start();
               });
             });
           });
