@@ -252,4 +252,23 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('test escaped startkey/endkey', 1, function () {
+    testUtils.initTestDB(this.name, function (err, db) {
+      var id1 = "\"crazy id!\" a";
+      var id2 = "\"crazy id!\" z";
+      var docs = {
+        docs: [
+          {_id: id1, foo: "a"},
+          {_id: id2, foo: "z"}
+        ]
+      };
+      db.bulkDocs(docs, function (err, res) {
+        db.allDocs({ startkey: id1, endkey: id2 }, function (err, res) {
+          equal(res.total_rows, 2, 'Accurately return total_rows count');
+          start();
+        });
+      });
+    });
+  });
+
 });
