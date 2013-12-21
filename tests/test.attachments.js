@@ -304,7 +304,7 @@ adapters.map(function(adapter) {
           var blob = testUtils.makeBlob('bar');
           db.putAttachment('adoc', 'foo.txt', doc._rev, blob, 'text/plain', function(err) {
             ok(err, 'Attachment has not been saved');
-            equal(err.error, 'conflict', 'error is a conflict');
+            equal(err.name, 'conflict', 'error is a conflict');
             start();
           });
         });
@@ -409,7 +409,7 @@ adapters.map(function(adapter) {
       db.put(doc, function(err, res) {
         ok(err, "error returned");
         strictEqual(err.status, 500, "correct error");
-        strictEqual(err.error, "badarg", "correct error");
+        strictEqual(err.name, "badarg", "correct error");
         start();
       });
     });

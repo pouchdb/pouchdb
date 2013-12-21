@@ -63,7 +63,7 @@ adapters.map(function(adapter) {
           db.compact(function(){
             ok(true, "compaction finished");
             db.get("foo", {rev: rev1}, function(err, doc){
-              ok(err.status === 404 && err.error === "not_found", "compacted document is missing");
+              ok(err.status === 404 && err.name === "not_found", "compacted document is missing");
               db.get("foo", {rev: rev2}, function(err, doc){
                 ok(!err, "newest revision does not get compacted");
                 start();
@@ -197,7 +197,7 @@ adapters.map(function(adapter) {
           db.compact(function() {
             db.get("foo", {rev: firstRev}, function(err, res) {
               ok(err, "got error");
-              strictEqual(err.reason, "missing", "correct reason");
+              strictEqual(err.message, "missing", "correct reason");
               start();
             });
           });
@@ -222,7 +222,7 @@ adapters.map(function(adapter) {
               var rev3 = res.rev;
               db.get("doc", {rev: rev1}, function(err, doc) {
                 strictEqual(err.status, 404, "compacted document is missing");
-                strictEqual(err.error, "not_found", "compacted document is missing");
+                strictEqual(err.name, "not_found", "compacted document is missing");
                 db.get("doc", {rev: rev2}, function(err, doc) {
                   ok(!err, "leaf's parent does not get compacted");
                   db.get("doc", {rev: rev3}, function(err, doc) {

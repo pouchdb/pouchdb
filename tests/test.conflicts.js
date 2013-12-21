@@ -30,13 +30,13 @@ adapters.map(function(adapter) {
           db.put(doc, function(err, res) {
             ok(res.ok, 'Put second doc');
             db.put(doc2, function(err) {
-              ok(err.error === 'conflict', 'Put got a conflicts');
+              ok(err.name === 'conflict', 'Put got a conflicts');
               db.changes({
                 complete: function(err, results) {
                   ok(results.results.length === 1, 'We have one entry in changes');
                   doc2._rev = undefined;
                   db.put(doc2, function(err) {
-                    ok(err.error === 'conflict', 'Another conflict');
+                    ok(err.name === 'conflict', 'Another conflict');
                     start();
                   });
                 }
