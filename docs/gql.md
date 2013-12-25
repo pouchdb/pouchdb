@@ -61,7 +61,7 @@ Properties that are missing from an object in the database are assigned null.
 
 With these documents in the database
 
-    {name!: "pencil", price: 2, discount: 0.7, vender: "store1"},
+    {name!: "pencil", price: 2, discount: 0.7, vendor: "store1"},
     {name!: "pen", price:3, discount: 2, vendor: "store2"}
 
 The above query will return
