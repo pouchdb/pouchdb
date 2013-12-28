@@ -31,7 +31,7 @@ Multidimensional and Spatial Queries with PouchDB.
 Google Query Language(GQL) queries with PouchDB.
 
 [Documentation](http://pouchdb.com/gql.html)
-[Build](http://download.pouchdb.com/pouchdb.gql-nightly.js)
+[repo](https://github.com/pouchdb/GQL)
 
 ### Backbone PouchDB
 
