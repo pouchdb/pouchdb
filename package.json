@@ -47,7 +47,7 @@
     }
   ],
   "scripts": {
-    "jshint": "./node_modules/bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js",
+    "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",
     "build-js": "mkdir -p dist && ./node_modules/.bin/browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "watch-js": "mkdir -p dist && ./node_modules/.bin/watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
@@ -55,7 +55,7 @@
     "test-node": "./bin/test-node.js",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
-    "test": "npm run ./node_modules/.bin/jshint && npm run test-node && npm run test-browser"
+    "test": "npm run jshint && npm run test-node && npm run test-browser"
   },
   "browser": {
     "./adapters/leveldb": false,
