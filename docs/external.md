@@ -23,8 +23,7 @@ An express submodule with a CouchDB style REST interface to PouchDB.
 
 Multidimensional and Spatial Queries with PouchDB.
 
-[Source](https://github.com/daleharvey/pouchdb/blob/master/src/plugins/pouchdb.spatial.js)
-[Build](http://download.pouchdb.com/pouchdb.spatial-nightly.js)
+[repo](https://github.com/pouchdb/geopouch)
 
 ### GQL
 
