@@ -454,6 +454,8 @@ Retrieve a view, this allows you to perform more complex queries on PouchDB, the
 
 * `fun`: Name of a view function or function
 * `options.reduce`: Reduce function
+* `options.key`: Only return rows matching key
+* `options.startkey`, `options.endkey`: Only return rows with keys in range
 
 #### Example Usage:
 {% highlight js %}
