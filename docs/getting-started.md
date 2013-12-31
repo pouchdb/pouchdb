@@ -101,8 +101,8 @@ db.info(function(err, info) {
   });
 });
 
-// Show the current list of todos by reading them from the database
-function showTodos() {
+// We have to create a new todo document and enter it in the database
+function addTodo(text) {
 {% endhighlight %}
 
 So every time an update happens to the database, we redraw the UI to show the new data. The `continuous` flag means this function will continue to run indefinitely. Now try entering a new todo and it should appear immediately.
