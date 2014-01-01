@@ -491,4 +491,37 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Map documents on 0/null/undefined/empty string', function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      var docs = [
+        {_id : 'doc0', num : 0},
+        {_id : 'doc1', num : 1},
+        {_id : 'doc2' /* num is undefined */},
+        {_id : 'doc3', num : null},
+        {_id : 'doc4', num : ''}
+      ];
+      db.bulkDocs({docs: docs}, function(err){
+        var mapFunction =function(doc){emit(doc.num, null);};
+
+        db.query(mapFunction, {key : 0, include_docs : true}, function(err, data){
+          equal(data.rows.length, 1);
+          equal(data.rows[0].doc._id, 'doc0');
+        });
+        db.query(mapFunction, {key : null, include_docs : true}, function(err, data){
+          equal(data.rows.length, 2);
+          equal(data.rows[0].doc._id, 'doc2');
+          equal(data.rows[1].doc._id, 'doc3');
+        });
+        db.query(mapFunction, {key : '', include_docs : true}, function(err, data){
+          equal(data.rows.length, 1);
+          equal(data.rows[0].doc._id, 'doc4');
+        });
+        db.query(mapFunction, {key : undefined, include_docs : true}, function(err, data){
+          equal(data.rows.length, 5); // everything
+          start();
+        });
+      });
+    });
+  });
+
 });
