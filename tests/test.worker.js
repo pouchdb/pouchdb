@@ -28,5 +28,5 @@ asyncTest('create db',1,function(){
     worker.terminate();
     start();
   });
-  worker.postMessage(['create',testUtils.generateAdapterUrl(adapter)]);
+  worker.postMessage(['create',testUtils.generateAdapterUrl('http-1')]);
 });
