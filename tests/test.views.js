@@ -332,7 +332,7 @@ adapters.map(function(adapter) {
     var self = this;
     var docs1 = [
      {_id: '1', foo: 'bar'},
-     {_id: '2', name: 'two'},
+     {_id: '2', name: 'two'}
     ];
     var doc2 = {_id: '1', foo: 'baz'};
     var queryFun = function(doc) {
@@ -524,4 +524,131 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Testing query with keys', function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs : [
+          {_id : 'doc_0', field : 0},
+          {_id : 'doc_1', field : 1},
+          {_id : 'doc_2', field : 2},
+          {_id : 'doc_empty', field : ''},
+          {_id : 'doc_null', field : null},
+          {_id : 'doc_undefined' /* field undefined */},
+          {_id : 'doc_foo', field : 'foo'}
+        ]
+      }, function(err) {
+        var mapFunction =function(doc){emit(doc.field, null);};
+        var opts = {include_docs : true};
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 7, 'returns all docs');
+        });
+        opts.keys = [];
+        db.query(mapFunction, opts, function(err, data) {
+          // no docs
+          equal(data.rows.length, 0, 'returns 0 docs');
+        });
+        opts.keys = [0];
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 1, 'returns one doc');
+          equal(data.rows[0].doc._id, 'doc_0');
+        });
+        opts.keys = [2, 'foo', 1 , 0, null, ''];
+        db.query(mapFunction, opts, function(err, data) {
+          // check that the returned ordering fits opts.keys
+          equal(data.rows.length, 7, 'returns 7 docs in correct order');
+          equal(data.rows[0].doc._id, 'doc_2');
+          equal(data.rows[1].doc._id, 'doc_foo');
+          equal(data.rows[2].doc._id, 'doc_1');
+          equal(data.rows[3].doc._id, 'doc_0');
+          equal(data.rows[4].doc._id, 'doc_null');
+          equal(data.rows[5].doc._id, 'doc_undefined');
+          equal(data.rows[6].doc._id, 'doc_empty');
+        });
+        opts.keys = [3, 1, 4, 2];
+        db.query(mapFunction, opts, function(err, data) {
+          // nonexistent keys just give us holes in the list
+          equal(data.rows.length, 2, 'returns 2 non-empty docs');
+          equal(data.rows[0].key, 1);
+          equal(data.rows[0].doc._id, 'doc_1');
+          equal(data.rows[1].key, 2);
+          equal(data.rows[1].doc._id, 'doc_2');
+        });
+        opts.keys = [2, 1, 2, 0, 2, 1];
+        db.query(mapFunction, opts, function(err, data) {
+          // with duplicates, we return multiple docs
+          equal(data.rows.length, 6, 'returns 6 docs with duplicates');
+          equal(data.rows[0].doc._id, 'doc_2');
+          equal(data.rows[1].doc._id, 'doc_1');
+          equal(data.rows[2].doc._id, 'doc_2');
+          equal(data.rows[3].doc._id, 'doc_0');
+          equal(data.rows[4].doc._id, 'doc_2');
+          equal(data.rows[5].doc._id, 'doc_1');
+        });
+        opts.keys = [2, 1, 2, 3, 2];
+        db.query(mapFunction, opts, function(err, data) {
+          // duplicates and unknowns at the same time, for maximum crazy
+          equal(data.rows.length, 4, 'returns 2 docs with duplicates/unknowns');
+          equal(data.rows[0].doc._id, 'doc_2');
+          equal(data.rows[1].doc._id, 'doc_1');
+          equal(data.rows[2].doc._id, 'doc_2');
+          equal(data.rows[3].doc._id, 'doc_2');
+
+        });
+
+        opts.include_docs = false;
+        opts.keys = [3];
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 0, 'returns 0 doc due to unknown key');
+        });
+        opts.keys = [3, 2];
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 1, 'returns 1 doc due to unknown key');
+          equal(data.rows[0].id, 'doc_2');
+          equal(data.rows[0].doc, undefined, 'no doc, since include_docs=false');
+          start();
+        });
+      })
+    });
+  });
+
+  asyncTest('Testing empty startkeys and endkeys', function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.bulkDocs({
+        docs : [
+          {_id : 'doc_empty', field : ''},
+          {_id : 'doc_null', field : null},
+          {_id : 'doc_undefined' /* field undefined */},
+          {_id : 'doc_foo', field : 'foo'}
+        ]
+      }, function(err) {
+        var mapFunction = function(doc){emit(doc.field, null);};
+        var opts = {startkey : null, endkey : ''};
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 3);
+          equal(data.rows[0].id, 'doc_null');
+          equal(data.rows[1].id, 'doc_undefined');
+          equal(data.rows[2].id, 'doc_empty');
+        });
+        opts = {startkey : '', endkey : 'foo'};
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 2);
+          equal(data.rows[0].id, 'doc_empty');
+          equal(data.rows[1].id, 'doc_foo');
+        });
+        opts = {startkey : null, endkey : null};
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 2);
+          equal(data.rows[0].id, 'doc_null');
+          equal(data.rows[1].id, 'doc_undefined');
+        });
+        opts.descending = true;
+        db.query(mapFunction, opts, function(err, data) {
+          equal(data.rows.length, 2);
+          equal(data.rows[0].id, 'doc_undefined');
+          equal(data.rows[1].id, 'doc_null');
+          start();
+        });
+      });
+    })
+  });
 });
