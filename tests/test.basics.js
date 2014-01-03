@@ -43,6 +43,16 @@ adapters.map(function(adapter) {
       });
     });
   });
+  asyncTest("Add a doc with a promise", 1, function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      ok(!err, 'opened the pouch');
+      db.post({test:"somestuff"}).then(function (info) {
+        start();
+      },function(err){
+        ok(!err, 'saved a doc with post');
+      });
+    });
+  });
 
   asyncTest("Modify a doc", 3, function() {
     testUtils.initTestDB(this.name, function(err, db) {
@@ -57,6 +67,20 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Modify a doc with a promise", 2, function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      ok(!err, 'opened the pouch');
+      db.post({test: "promisestuff"}).then(function(info){
+        return db.put({_id: info.id, _rev: info.rev, another: 'test'}).then(function(info2){
+          ok(info2.rev !== info._rev, 'updated a doc with put');
+        });
+      }).then(function(){
+        start();
+      },function(err){
+        ok(!err);
+      });
+    });
+  });
   asyncTest("Read db id", function() {
     testUtils.initTestDB(this.name, function(err, db) {
       ok(typeof(db.id()) === 'string' && db.id() !== '', "got id");
@@ -69,6 +93,16 @@ adapters.map(function(adapter) {
       db.close(function(error){
         ok(!err, 'close called back with an error');
         start();
+      });
+    });
+  });
+  asyncTest("Close db with a promise", function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.close().then(function(){
+        ok(true)
+        start();
+      },function(error){
+        ok(!err, 'close called back with an error');
       });
     });
   });
@@ -109,6 +143,22 @@ adapters.map(function(adapter) {
             start();
           });
         });
+      });
+    });
+  });
+
+    asyncTest("Remove doc with a promise", 1, function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.post({test:"someotherstuff"}).then(function(info) {
+        return db.remove({test:"someotherstuff", _id:info.id, _rev:info.rev})
+          .then(function() {
+            return db.get(info.id).then(function(doc){
+              return doc;
+            },function(err) {
+              ok(err.error);
+              start();
+            });
+          });
       });
     });
   });
@@ -184,6 +234,16 @@ adapters.map(function(adapter) {
     testUtils.initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}, function(err, infos) {
+        ok(!infos[0].error);
+        ok(!infos[1].error);
+        start();
+      });
+    });
+  });
+  asyncTest("Bulk docs with a promie", 3, function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      ok(!err, 'opened the pouch');
+      db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}).then(function(infos) {
         ok(!infos[0].error);
         ok(!infos[1].error);
         start();
