@@ -20,6 +20,7 @@
   "dependencies": {
     "level": "~0.18.0",
     "request": "~2.28.0",
+    "lie": "~2.5.2",
     "pouchdb-mapreduce": "0.5.0"
   },
   "devDependencies": {
