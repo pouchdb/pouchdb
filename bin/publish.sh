@@ -7,6 +7,10 @@ if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9]+)?)?$ ]]; then
     exit 2
 fi
 
+#make sure deps are up to date
+rm -r node_modules
+npm install
+
 # Build
 git checkout -b build
 ./node_modules/tin/bin/tin -v $VERSION
