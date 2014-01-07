@@ -59,17 +59,25 @@ you must specify its revision `_rev`, otherwise a conflict will occur.
 There are some restrictions on valid property names of the documents, these are explained [here](http://wiki.apache.org/couchdb/HTTP_Document_API#Special_Fields).
 
 #### Example Usage:
+
+## Create a new doc with id.
 {% highlight js %}
 db.put({
   _id: 'mydoc',
   title: 'Heroes'
 }, function(err, response) { });
+{% endhighlight %}
 
-db.put({
-  _id: 'mydoc',
-  _rev: '1-A6157A5EA545C99B00FF904EEF05FD9F',
-  title: 'Lets Dance',
-}, function(err, response) { })
+## Update an existing doc
+{% highlight js %}
+db.get('myOtherDoc',function(err,resp){
+  db.put({
+    _id: 'myOtherDoc',
+    _rev: 'resp._rev',
+    title: 'Lets Dance',
+  }, function(err, response) { });
+});
+
 {% endhighlight %}
 
 #### Example Response:
