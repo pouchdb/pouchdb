@@ -18,7 +18,7 @@ asyncTest('check pouch version',1,function(){
   });
   worker.postMessage('version');
 });
-asyncTest('create db',1,function(){
+asyncTest('create remote db',1,function(){
   var worker = new Worker('worker.js');
   worker.addEventListener('error',function(e){
     throw e;
@@ -29,4 +29,16 @@ asyncTest('create db',1,function(){
     start();
   });
   worker.postMessage(['create',testUtils.generateAdapterUrl('http-1')]);
+});
+asyncTest('create local db',1,function(){
+  var worker = new Worker('worker.js');
+  worker.addEventListener('error',function(e){
+    throw e;
+  });
+  worker.addEventListener('message',function(e){
+    ok('lala',e.data);
+    worker.terminate();
+    start();
+  });
+  worker.postMessage(['create',testUtils.generateAdapterUrl('local-1')]);
 });
