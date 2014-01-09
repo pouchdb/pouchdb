@@ -15,6 +15,7 @@ npm install
 git checkout -b build
 ./node_modules/tin/bin/tin -v $VERSION
 echo "module.exports = '"$VERSION"';" > lib/version.js
+echo "version: $VERSION" >> docs/_config.yml
 npm run build
 git add dist -f
 git add lib/version.js package.json bower.json component.json
