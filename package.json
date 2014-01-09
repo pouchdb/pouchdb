@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "0.0.0",
+  "version": "1.2.0-alpha",
   "description": "PouchDB is a pocket-sized database.",
   "release": "nightly",
   "author": "Dale Harvey",
@@ -33,10 +33,10 @@
     "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
     "qunit": "~0.5.17",
-    "tin": "~0.3.1",
     "browserify": "~3.14.1",
     "lie": "~2.5.2",
-    "wd": "~0.2.8"
+    "wd": "~0.2.8",
+    "tin": "~0.4.0"
   },
   "maintainers": [
     {
@@ -57,7 +57,9 @@
     "test-node": "BLUEBIRD_DEBUG=1 ./bin/test-node.js",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
-    "test": "npm run jshint && npm run test-node && npm run test-browser"
+    "test": "npm run jshint && npm run test-node && npm run test-browser",
+    "publish": "./bin/publish.sh",
+    "publish-site": "./bin/publish-site.sh"
   },
   "browser": {
     "./adapters/leveldb": false,
