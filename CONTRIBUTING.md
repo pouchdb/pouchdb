@@ -1,4 +1,4 @@
-[PouchDB](http://pouchdb.com/) - The Javascript Database that Syncs
+[PouchDB](http://pouchdb.com/) - The JavaScript Database that Syncs
 ==================================================
 
 Welcome, so you are thinking about contributing to PouchDB? awesome, this is a great place to start.
@@ -41,7 +41,7 @@ issue
 Dependencies
 --------------------------------------
 
-PouchDB needs the following to be able to build and test your build, if you havent installed them then best to do do so now, we will wait.
+PouchDB needs the following to be able to build and test your build, if you haven't installed them then best to do do so now, we will wait.
 
   * [Node.js](http://nodejs.org/)
   * [CouchDB](http://couchdb.apache.org/)
@@ -118,8 +118,9 @@ Committers!
 With great power comes great responsibility yada yada yada:
 
  * Code is peer reviewed, you should (almost) never push your own code.
- * Please dont accidently force push to master.
- * Cherry Pick / Rebase commits, dont use the big green button.
- * Ensure reviewed code follows the above contribution guidelines, if it doesnt feel free to ammend and make note.
+ * Please don't accidentally force push to master.
+ * Cherry Pick / Rebase commits, don't use the big green button.
+ * Ensure reviewed code follows the above contribution guidelines, if it doest feel free to amend and make note.
  * Please try to watch when Pull Requests are made and review and / or commit them in a timely manner.
+ * After you merge in a patch use tin to update the version accordingly. Run `tin -v x.x.x-prerelease` with x.x.x being the previous version upgraded appropriately via semver. When we are ready to publish to npm we can remove the `-prerelease`.
  * Thanks, you are all awesome human beings.
