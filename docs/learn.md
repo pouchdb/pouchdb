@@ -31,15 +31,27 @@ PouchDB in Node.js is currently alpha and an upgrade to the library can break cu
 
 # Installing
 
-PouchDB is designed to be a minimal library that is suitable for mobile devices, to start using PouchDB in your website you simply [Download](http://download.pouchdb.com) and include it in your webpage.
+PouchDB is designed to be a minimal library that is suitable for mobile devices, tablets, desktops &mdash; anything that runs Javascript. To start using PouchDB in your website, you simply [download][latest] it and include it in your webpage.
 
-{% highlight html %}<script src="pouchdb-nightly.min.js"></script>{% endhighlight %}
+  [latest]: https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js
 
-If you are using Node.js then
+{% highlight html %}
+<script src="pouchdb-{{ site.version }}.min.js"></script>
+{% endhighlight %}
+
+### Downloads
+
+Latest and greatest: [pouchdb-{{ site.version }}.min.js][latest]
+
+For past releases and changelog, check out the [Github releases page](https://github.com/daleharvey/pouchdb/releases).
+
+### Node.js
+
+If you are using Node.js then run
 
 {% highlight bash %}$ npm install pouchdb{% endhighlight %}
 
-For a HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-thompson/pouchdb-server)
+For a HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-thompson/pouchdb-server).
 
 # Using PouchDB
 
