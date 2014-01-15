@@ -632,35 +632,35 @@ adapters.map(function(adapter) {
     });
   });
 
-  if (is_browser) {
-    asyncTest("Continuous changes across windows", function() {
-      var search = window.location.search
-        .replace(/[?&]testFiles=[^&]+/, '')
-        .replace(/[?&]testNumber=[^&]+/, '')
-        .replace(/[?&]dbname=[^&]+/, '') +
-          '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
-      testUtils.initTestDB(this.name, function(err, db) {
-        var count = 0;
-        var tab;
-        var changes = db.changes({
-          onChange: function(change) {
-            count += 1;
-            equal(count, 1, 'Received a single change');
-            changes.cancel();
-            if (tab) {
-              tab.close();
-            }
-            start();
-          },
-          continuous: true
-        });
-        var iframe = document.createElement('iframe');
-        iframe.src = 'test.html?' + search.replace(/^[?&]+/, '');
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-      });
-    });
-  }
+  // if (is_browser) {
+  //   asyncTest("Continuous changes across windows", function() {
+  //     var search = window.location.search
+  //       .replace(/[?&]testFiles=[^&]+/, '')
+  //       .replace(/[?&]testNumber=[^&]+/, '')
+  //       .replace(/[?&]dbname=[^&]+/, '') +
+  //         '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
+  //     testUtils.initTestDB(this.name, function(err, db) {
+  //       var count = 0;
+  //       var tab;
+  //       var changes = db.changes({
+  //         onChange: function(change) {
+  //           count += 1;
+  //           equal(count, 1, 'Received a single change');
+  //           changes.cancel();
+  //           if (tab) {
+  //             tab.close();
+  //           }
+  //           start();
+  //         },
+  //         continuous: true
+  //       });
+  //       var iframe = document.createElement('iframe');
+  //       iframe.src = 'test.html?' + search.replace(/^[?&]+/, '');
+  //       iframe.style.display = 'none';
+  //       document.body.appendChild(iframe);
+  //     });
+  //   });
+  // }
 
   asyncTest("Continuous changes doc", function() {
     testUtils.initTestDB(this.name, function(err, db) {
