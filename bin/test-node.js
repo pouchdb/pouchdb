@@ -49,5 +49,9 @@ testrunner.run({
     console.error(err);
     process.exit(1);
     return;
+  } else if (result.failed) {
+    console.log('[node] failed ' + result.failed + ' out of ' + result.assertions + ' tests')
+    process.exit(2);
+    return;
   }
 });
