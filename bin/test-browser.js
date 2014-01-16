@@ -3,7 +3,7 @@
 var path = require('path');
 var spawn = require('child_process').spawn;
 
-var webdriverjs = require('webdriverjs');
+var wd = require('wd');
 var devserver = require('./dev-server.js');
 
 var SELENIUM_PATH = '../node_modules/.bin/start-selenium';
@@ -16,17 +16,18 @@ var results = {};
 var client = {};
 
 var browsers = [
-  'firefox',
+  'firefox'
   // Temporarily disable safari until it is fixed (#1068)
   // 'safari',
-  'chrome'
+  //'chrome'
 ];
 
 // Travis only has firefox
-if (process.env.TRAVIS) {
-  browsers = ['firefox'];
+if (!process.env.TRAVIS) {
+  browsers.push('chrome');
 }
-
+var numBrowsers = browsers.length;
+var finishedBrowsers = 0;
 function startServers(callback) {
 
   // Starts the file and CORS proxy
@@ -43,52 +44,55 @@ function startServers(callback) {
 }
 
 function testsComplete() {
-  var passed = Object.keys(results).every(function(x) {
-    return results[x].passed;
+  var passed = Object.keys(results).length && Object.keys(results).every(function(x) {
+    return !results[x].failed;
   });
 
   if (passed) {
-    console.log('Woot, tests passed');
+    console.log('Woot, all '+Object.keys(results).length+' tests passed');
     process.exit(0);
   } else {
-    console.error('Doh, tests failed');
+    console.error('we ran '+Object.keys(results).length+' tests and at least one failed');
     process.exit(1);
   }
 }
 
-function resultCollected(err, result) {
-  console.log('[' + currentTest + '] ' +
-              (result.value.passed ? 'passed' : 'failed'));
-  results[currentTest] = result.value;
-  client.end(startTest);
-}
-
-function testComplete(err, result) {
-  if (err) {
-    console.log('[' + currentTest + '] failed');
-    results[currentTest] = {passed: false};
-    return client.end(startTest);
-  }
-  client.execute('return window.testReport;', [], resultCollected);
-}
 
 function startTest() {
-  if (!browsers.length) {
+  if (numBrowsers === finishedBrowsers) {
     return testsComplete();
   }
+  if(!browsers.length){
+    return;
+  }
 
-  currentTest = browsers.pop();
+  var currentTest = browsers.pop();
   console.log('[' + currentTest + '] starting');
+  var client = wd.promiseChainRemote();
+  client.init({
+    browserName: currentTest
+  }).get(testUrl).setAsyncScriptTimeout(testTimeout)
+    .executeAsync('var cb = arguments[arguments.length - 1];console.log("injected");QUnit.done(function( report ) {cb(report)});')
+    .then(function (result) {
+      finishedBrowsers++;
+      console.log(result);
+      if(!result.failed){
+        console.log('[' + currentTest + '] passed');
+      }else{
+        console.log('[' + currentTest + '] failed');
+        client.quit();
+        process.exit(2);
+        return;
+      }
+      results[currentTest] = result;
+    }).quit()
+    .then(startTest,function(e){
+      console.error(e);
+      console.error('Doh, tests failed');
+      client.quit();
+      process.exit(3);
+    });
 
-  client = webdriverjs.remote({
-    logLevel: 'silent',
-    desiredCapabilities: {
-      browserName: currentTest
-    }
-  });
-
-  client.init();
-  client.url(testUrl).waitFor(testSelector, testTimeout, testComplete);
 }
 
 startServers(function() {
