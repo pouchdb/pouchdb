@@ -5,7 +5,7 @@ title: API Reference - PouchDB
 
 # API Reference
 
-Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, the second argument holds the result.
+Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, the second argument holds the result. Additionally, any method that only returns a single thing (i.e. db.get, but not db.changes) also returns a [promise](http://www.html5rocks.com/en/tutorials/es6/promises/)
 
 ## Create database<a id="create_database"></a>
 
@@ -77,6 +77,20 @@ db.get('myOtherDoc', function(err, resp) {
   }, function(err, response) { });
 });
 
+## with a promise
+{% highlight js %}
+db.get('myOtherDoc').then(function(resp) {
+  return db.put({
+    _id: 'myOtherDoc',
+    _rev: resp._rev,
+    title: 'Lets Dance',
+  });
+}).then(function(resp){
+  // on success
+}, function(e){
+  // any errors
+});
+
 {% endhighlight %}
 
 #### Example Response:
@@ -146,6 +160,15 @@ Delete a document, `doc` is required to be a document with at least an `_id` and
 {% highlight js %}
 db.get('mydoc', function(err, doc) {
   db.remove(doc, function(err, response) { });
+});
+{% endhighlight %}
+
+### With Promises:
+{% highlight js %}
+db.get('mydoc').then(function(doc) {
+  return db.remove(doc);
+}).catch(function(e){
+  //errors
 });
 {% endhighlight %}
 
