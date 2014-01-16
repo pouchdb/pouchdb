@@ -73,15 +73,6 @@ function asyncParForEach(array, fn, callback) {
 
 QUnit.config.testTimeout = 60000;
 
-QUnit.jUnitReport = function(report) {
-  document.body.classList.add('testsComplete');
-  report.started = started;
-  report.completed = new Date();
-  report.passed = (report.results.failed === 0);
-  delete report.xml;
-  window.testReport = report;
-};
-
 asyncParForEach(sourceFiles, asyncLoadScript, function() {
   asyncParForEach(testFiles, asyncLoadScript, function() {
     startQUnit();
