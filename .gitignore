@@ -4,3 +4,5 @@ tmp
 node_modules
 docs/_site
 npm-debug.log
+*~
+*.uuid

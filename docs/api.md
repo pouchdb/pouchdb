@@ -22,6 +22,7 @@ This method creates a database or opens an existing one. If you use a `http://do
 
 * `options.name`: You can omit the name argument and specify it via options.
 * `options.auto_compaction`: This turns on auto compaction (experimental).
+* `options.cache` (default false) appends a random string to the end of all get requests to avoid them being cached, set this to be true to prevent this happening (can also be set per request).
 
 
 #### Example Usage:
@@ -131,6 +132,8 @@ Retrieves a document, specified by `docid`.
 * `options.conflicts`: If specified conflicting leaf revisions will be attached in `_conflicts` array
 * `options.attachments`: Include attachment data
 * `options.local_seq`: Include sequence number of the revision in the database
+* `options.ajax`: an object of options to be sent to the ajax requester, in node they are sent verbetem to [request](https://github.com/mikeal/request) with the exception of:
+    * `options.ajax.cache` with controls if a cache busting param gets added to the url, defaults to false.
 
 <span></span>
 

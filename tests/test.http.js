@@ -1,10 +1,11 @@
 "use strict";
 
 var adapter = 'http-1';
-
+var node = false;
 if (typeof module !== undefined && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
+  node = true;
 }
 
 QUnit.module("http-adapter", {
@@ -33,3 +34,16 @@ asyncTest("Create a pouch without DB setup", function() {
 });
 
 
+if (node) {
+  test("nonce option", function(){
+    var cache = PouchDB.ajax({
+      url: "/"
+    });
+    ok(cache.uri.query.slice(0,6) === '_nonce', 'should have a nonce');
+    var noCache = PouchDB.ajax({
+      url: "/",
+      cache: true
+    });
+    ok(!noCache.uri.query, 'should not have a nonce');
+  })
+}
