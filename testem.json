@@ -1,0 +1,8 @@
+{
+   "timeout": 600000,
+   "framework": "qunit",
+   "test_page": "tests/testem.html",
+   "on_start":"node bin/cors.js",  
+   "on_exit":"kill $(ps aux | grep '/[b]in/cors.js' | awk '{print $2}')",
+   "skip":"Safari"
+}

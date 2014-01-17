@@ -25,8 +25,6 @@
   },
   "devDependencies": {
     "commander": "~2.1.0",
-    "webdriverjs": "~0.7.14",
-    "selenium-standalone": "~2.38.0",
     "watchify": "~0.4.1",
     "uglify-js": "~2.4.6",
     "jshint": "~2.3.0",
@@ -35,7 +33,9 @@
     "http-server": "~0.5.5",
     "qunit": "~0.5.17",
     "tin": "~0.3.1",
-    "browserify": "~3.14.1"
+    "browserify": "~3.14.1",
+    "testem": "~0.6.2",
+    "daemon": "~1.1.0"
   },
   "maintainers": [
     {
@@ -54,7 +54,7 @@
     "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
     "test-node": "./bin/test-node.js",
-    "test-browser": "npm run build-js && ./bin/test-browser.js",
+    "test-browser": "npm run build-js && ./node_modules/.bin/testem ci",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser"
   },
