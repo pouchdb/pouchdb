@@ -20,8 +20,8 @@
   "dependencies": {
     "level": "~0.18.0",
     "request": "~2.28.0",
-    "lie": "~2.5.2",
-    "pouchdb-mapreduce": "0.5.0"
+    "pouchdb-mapreduce": "0.5.0",
+    "bluebird": "~1.0.0"
   },
   "devDependencies": {
     "commander": "~2.1.0",
@@ -35,7 +35,8 @@
     "http-server": "~0.5.5",
     "qunit": "~0.5.17",
     "tin": "~0.3.1",
-    "browserify": "~3.14.1"
+    "browserify": "~3.14.1",
+    "lie": "~2.5.2"
   },
   "maintainers": [
     {
@@ -53,7 +54,7 @@
     "watch-js": "mkdir -p dist && ./node_modules/.bin/watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
-    "test-node": "./bin/test-node.js",
+    "test-node": "BLUEBIRD_DEBUG=1 ./bin/test-node.js",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "npm run watch-js & ./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser"
@@ -66,6 +67,7 @@
     "path": false,
     "fs": false,
     "events": false,
-    "crypto": false
+    "crypto": false,
+    "bluebird": "lie"
   }
 }

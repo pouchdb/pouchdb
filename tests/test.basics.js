@@ -50,6 +50,7 @@ adapters.map(function(adapter) {
         start();
       },function(err){
         ok(!err, 'saved a doc with post');
+        start();
       });
     });
   });
@@ -74,10 +75,10 @@ adapters.map(function(adapter) {
         return db.put({_id: info.id, _rev: info.rev, another: 'test'}).then(function(info2){
           ok(info2.rev !== info._rev, 'updated a doc with put');
         });
+      }).catch(function(err){
+        ok(!err);
       }).then(function(){
         start();
-      },function(err){
-        ok(!err);
       });
     });
   });
@@ -103,6 +104,7 @@ adapters.map(function(adapter) {
         start();
       },function(error){
         ok(!err, 'close called back with an error');
+        start();
       });
     });
   });
@@ -153,7 +155,8 @@ adapters.map(function(adapter) {
         return db.remove({test:"someotherstuff", _id:info.id, _rev:info.rev})
           .then(function() {
             return db.get(info.id).then(function(doc){
-              return doc;
+              ok(false);
+              start();
             },function(err) {
               ok(err.error);
               start();
@@ -240,14 +243,14 @@ adapters.map(function(adapter) {
       });
     });
   });
-  asyncTest("Bulk docs with a promie", 3, function() {
+  asyncTest("Bulk docs with a promise", 3, function() {
     testUtils.initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
       db.bulkDocs({docs: [{test:"somestuff"}, {test:"another"}]}).then(function(infos) {
         ok(!infos[0].error);
         ok(!infos[1].error);
         start();
-      });
+      }).catch(start);
     });
   });
 
