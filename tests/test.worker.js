@@ -30,15 +30,17 @@ asyncTest('create remote db',1,function(){
   });
   worker.postMessage(['create',testUtils.generateAdapterUrl('http-1')]);
 });
-asyncTest('create local db',1,function(){
-  var worker = new Worker('worker.js');
-  worker.addEventListener('error',function(e){
-    throw e;
+if (typeof mozIndexedDB === 'undefined') {
+  asyncTest('create local db',1,function(){
+    var worker = new Worker('worker.js');
+    worker.addEventListener('error',function(e){
+      throw e;
+    });
+    worker.addEventListener('message',function(e){
+      ok('lala',e.data);
+      worker.terminate();
+      start();
+    });
+    worker.postMessage(['create',testUtils.generateAdapterUrl('local-1')]);
   });
-  worker.addEventListener('message',function(e){
-    ok('lala',e.data);
-    worker.terminate();
-    start();
-  });
-  worker.postMessage(['create',testUtils.generateAdapterUrl('local-1')]);
-});
+}
