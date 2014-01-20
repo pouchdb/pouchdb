@@ -44,3 +44,9 @@ A bookmarklet for inspecting PouchDB databases within the browser.
 
 [Website](http://puton.jit.su/)
 [Github](http://github.com/ymichael/puton)
+
+### PouchDroid
+
+Android adapter with a native Java interface to PouchDB.
+
+[Github](https://github.com/nolanlawson/PouchDroid/)

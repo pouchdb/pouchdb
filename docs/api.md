@@ -5,7 +5,13 @@ title: API Reference - PouchDB
 
 # API Reference
 
-Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` Where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, the second argument holds the result. Additionally, any method that only returns a single thing (i.e. db.get, but not db.changes) also returns a [promise](http://www.html5rocks.com/en/tutorials/es6/promises/)
+Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, and the second argument holds the result. 
+
+Additionally, any method that only returns a single thing (e.g. `db.get`, but not `db.changes`) also returns a [promise][]. Promises come from the minimal library [lie][] in the browser, and the feature-rich [Bluebird][] in Node.
+
+  [promise]: http://www.html5rocks.com/en/tutorials/es6/promises/
+  [lie]: https://github.com/calvinmetcalf/lie
+  [bluebird]: https://github.com/petkaantonov/bluebird
 
 ## Create database<a id="create_database"></a>
 
@@ -13,16 +19,19 @@ Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` Where bo
 new PouchDB([name], [options])
 {% endhighlight %}
 
-This method creates a database or opens an existing one. If you use a `http://domain.com/dbname` then PouchDB will work as a client to an online CouchDB instance, otherwise it will create a local database using a backend that is present.
+This method creates a database or opens an existing one. If you use a URL like `http://domain.com/dbname` then PouchDB will work as a client to an online CouchDB instance, otherwise it will create a local database using whatever backend is present (i.e. IndexedDB, WebSQL, or LevelDB).
 
 **Notes:** 
 
-1. If you are also using indexedDB directly, PouchDB will use `_pouch_` to prefix the internal database names, dont manually create databases with the same prefix.
-2. When acting as a client on Node any other options given will be passed to [request](https://github.com/mikeal/request).
+1. If you are also using indexedDB directly, PouchDB will use `_pouch_` to prefix the internal database names. Don't manually create databases with the same prefix.
+2. When acting as a client on Node, any other options given will be passed to [request][].
+
+  [request]: https://github.com/mikeal/request
 
 * `options.name`: You can omit the name argument and specify it via options.
 * `options.auto_compaction`: This turns on auto compaction (experimental).
-* `options.cache` (default false) appends a random string to the end of all get requests to avoid them being cached, set this to be true to prevent this happening (can also be set per request).
+* `options.cache` (default false) Appends a random string to the end of all get requests to avoid them being cached, set this to be true to prevent this happening (can also be set per request). See []issue #1233](https://github.com/daleharvey/pouchdb/issues/1233) for details.
+* `options.adapter` One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. By default, PouchDB infers this automatically, preferring IndexedDB to WebSQL in browsers that support both (e.g. Chrome).
 
 
 #### Example Usage:
@@ -40,7 +49,7 @@ PouchDB.destroy(name, [options], [callback])
 
 Delete database with given name
 
-**Notes:** With a remote couch on node options are passed to [request](https://github.com/mikeal/request).
+**Notes:** With a remote couch on node options are passed to [request][].
 
 #### Example Usage:
 {% highlight js %}
@@ -77,6 +86,7 @@ db.get('myOtherDoc', function(err, resp) {
     title: 'Lets Dance',
   }, function(err, response) { });
 });
+{% endhighlight %}
 
 ## with a promise
 {% highlight js %}
@@ -125,14 +135,14 @@ db.get(docid, [options], [callback])
 
 Retrieves a document, specified by `docid`.
 
-* `options.rev`: Fetch specific revision of a document. Defaults to winning revision (see [couchdb guide](http://guide.couchdb.org/draft/conflicts.html).
+* `options.rev`: Fetch specific revision of a document. Defaults to winning revision (see [couchdb guide](http://guide.couchdb.org/draft/conflicts.html)).
 * `options.revs`: Include revision history of the document
 * `options.revs_info`: Include a list of revisions of the document, and their availability.
-* `options.open_revs`: Fetch all leaf revisions if open_revs="all" or fetch all leaf revisions specified in open_revs array. Leaves will be returned in the same order as specified in input array
+* `options.open_revs`: Fetch all leaf revisions if `open_revs="all"` or fetch all leaf revisions specified in open_revs array. Leaves will be returned in the same order as specified in input array
 * `options.conflicts`: If specified conflicting leaf revisions will be attached in `_conflicts` array
 * `options.attachments`: Include attachment data
 * `options.local_seq`: Include sequence number of the revision in the database
-* `options.ajax`: an object of options to be sent to the ajax requester, in node they are sent verbetem to [request](https://github.com/mikeal/request) with the exception of:
+* `options.ajax`: an object of options to be sent to the ajax requester. In Node they are sent verbetem to [request][] with the exception of:
     * `options.ajax.cache` with controls if a cache busting param gets added to the url, defaults to false.
 
 <span></span>
@@ -228,7 +238,7 @@ Fetch multiple documents, deleted document are only included if `options.keys` i
     - the row for a nonexistent document will just contain an "error" property with the value "not_found"
 * `options.attachments`: Include attachment data
 
-<span></span>
+**Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](http://docs.couchdb.org/en/latest/couchapp/views/pagination.html).
 
 #### Example Usage:
 {% highlight js %}
@@ -341,15 +351,15 @@ db.changes({complete: function(err, response) { }});
 PouchDB.replicate(source, target, [options])
 {% endhighlight %}
 
-Replicate data from `source` to `target`, both the `source` and `target` can be strings used to represent a database of a PouchDB object. If `options.continuous` is `true` then this will track future changes and also replicate them.
+Replicate data from `source` to `target`.  Both the `source` and `target` can be strings used to represent a database of a PouchDB object. If `options.continuous` is `true`, then this will track future changes and also replicate them.
 
-If you want to sync data in both directions you can call this twice reversing the `source` and `target` arguments.
+If you want to sync data in both directions you can call this twice, reversing the `source` and `target` arguments.
 
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.query_params`: Query params send to the filter function.
 * `options.doc_ids`: Only replicate docs with these ids.
 * `options.complete`: Function called when all changes have been processed.
-* `options.onChange`: Function called on each change processed..
+* `options.onChange`: Function called on each change processed.
 * `options.continuous`: If true starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
@@ -405,7 +415,13 @@ db.putAttachment('a', 'text', rev, doc, 'text/plain', function(err, res) {})
 }
 {% endhighlight %}
 
-Within node you must use a Buffer:
+PouchDB also offers a `createBlob` function, which will work around browser inconsistencies:
+
+{% highlight js %}
+var doc = PouchDB.utils.createBlob(["It's a God awful small affair"]);
+{% endhighlight %}
+
+Within Node, you must use a Buffer:
 
 {% highlight js %}
 var doc = new Buffer("It's a God awful small affair");
@@ -483,12 +499,13 @@ db.removeAttachment('otherdoc',
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Retrieve a view, this allows you to perform more complex queries on PouchDB, the [CouchDB documentation for map reduce](http://docs.couchdb.org/en/latest/ddocs.html#view-functions) applies to PouchDB.
+Retrieve a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map reduce](http://docs.couchdb.org/en/latest/ddocs.html#view-functions) applies to PouchDB.
 
-* `fun`: Name of a view function or function
-* `options.reduce`: Reduce function
-* `options.key`: Only return rows matching key
-* `options.startkey` & `options.endkey`: Get documents with keys in a certain range
+* `fun`: Name of a view function or the function itself.
+* `options.reduce`: Reduce function, or the name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.  Typically, if you're not using a built-in, [you're doing it wrong](https://www.youtube.com/watch?v=BKQ9kXKoHS8).
+* `options.key`: Only return rows matching this key.
+* `options.keys`: Return rows matching more than one key.
+* `options.startkey` & `options.endkey`: Get documents with keys in a certain range.
 
 #### Example Usage:
 {% highlight js %}
@@ -523,6 +540,12 @@ db.query({map: map}, {reduce: false}, function(err, response) { });
   }]
 }
 {% endhighlight %}
+
+**Notes:**
+
+1. Local databases do not currently support view caching; everything is a live view.
+2. [Linked documents](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Linked_documents) (aka joins) are supported.  
+3. [Complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) are supported.  Use them for fancy ordering (e.g. `[firstName, lastName, isFemale]`).
 
 ## Get database information<a id="database_information"></a>
 
