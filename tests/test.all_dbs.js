@@ -60,7 +60,7 @@ Object.keys(PouchDB.adapters).forEach(function(adapter) {
 
       var pouchName;
       for (var i = 0; i < 5; i++) {
-        pouchName = 'testdb_' + testUtils.uuid();
+        pouchName = testUtils.generateAdapterUrl('local-' + i);
         this.pouchNames.push([adapter, "://", pouchName].join(''));
       }
     },
@@ -307,13 +307,13 @@ QUnit.module("allDbs return value", {
         return;
       }
 
-      pouchName = 'testdb_' + testUtils.uuid();
+      pouchName = testUtils.generateAdapterUrl('local-' + testUtils.uuid(8));
       pouchNames.push([adapter, "://", pouchName].join(''));
     });
 
     // Create some pouches without adapter prefix
     for (var i = 0; i < 3; i++) {
-      pouchName = 'testdb_' + testUtils.uuid();
+      pouchName = testUtils.generateAdapterUrl('local-'+ i);
       pouchNames.push(pouchName);
     }
 

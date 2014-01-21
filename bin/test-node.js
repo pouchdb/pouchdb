@@ -3,6 +3,9 @@
 // specify dependency
 var testrunner = require("qunit");
 var fs = require('fs');
+var testsDir = process.env.TESTS_DIR || './tmp';
+var path = require('path');
+var exec = require('child_process').exec;
 
 var excludedTests = [
   // auth_replication and cors need admin access (#1030)
@@ -33,25 +36,37 @@ testrunner.setup({
   }
 });
 
-testrunner.run({
-  deps: [
-    './lib/deps/extend.js',
-    './lib/deps/blob.js',
-    './lib/deps/ajax.js',
-    './tests/pouch.shim.js'
-  ],
-  code: "./lib/adapters/leveldb.js",
-  tests: testFiles.map(function(n) {
-    return "./tests/" + n;
-  })
-}, function(err, result) {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-    return;
-  } else if (result.failed) {
-    console.log('[node] failed ' + result.failed + ' out of ' + result.assertions + ' tests')
-    process.exit(2);
-    return;
-  }
+function cleanup() {
+  // Remove test databases and test allDbs database.
+  exec('rm -r ' + testsDir);
+}
+
+exec('mkdir -p ' + testsDir, function () {
+  process.env.TESTS_DIR = testsDir.slice(-1) === "/" ? testsDir : testsDir+"/";
+
+  process.on('SIGINT', cleanup);
+  process.on('exit', cleanup);
+
+  testrunner.run({
+    deps: [
+      './lib/deps/extend.js',
+      './lib/deps/blob.js',
+      './lib/deps/ajax.js',
+      './tests/pouch.shim.js'
+    ],
+    code: './lib/adapters/leveldb.js',
+    tests: testFiles.map(function(n) {
+      return "./tests/" + n;
+    })
+  }, function(err, result) {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+      return;
+    } else if (result.failed) {
+      console.log('[node] failed ' + result.failed + ' out of ' + result.assertions + ' tests')
+      process.exit(2);
+      return;
+    }
+  });
 });
