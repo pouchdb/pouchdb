@@ -15,7 +15,7 @@ testUtils.couchHost = function() {
 testUtils.cleanupAllDbs = function() {
 
   var deleted = 0;
-  var adapters = Object.keys(PouchDB.adapters).filter(function(adapter) {
+  var adapters = Object.keys(PouchDB.prototype.adapters).filter(function(adapter) {
     return adapter !== 'http' && adapter !== 'https';
   });
 
