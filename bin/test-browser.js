@@ -33,10 +33,13 @@ function startServers(callback) {
   devserver.start();
 
   // Start selenium
+  var started = false;
   var selenium = spawn(path.resolve(__dirname, SELENIUM_PATH));
 
   selenium.stdout.on('data', function(data) {
-    if (/Started org.openqa.jetty.jetty/.test(data)) {
+    if (!started &&
+        /Started org.openqa.jetty.jetty.servlet.ServletHandler/.test(data)) {
+      started = true;
       callback();
     }
   });
