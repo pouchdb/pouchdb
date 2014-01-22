@@ -175,11 +175,16 @@ var testId = testUtils.uuid();
 
 testUtils.generateAdapterUrl = function(id) {
   var opt = id.split('-');
+  var name = 'testdb_' + testId;
+
+  if (opt[1]) {
+    name = name + '_' + opt[1];
+  }
   if (opt[0] === 'local') {
-    return 'testdb_' + testId + '_' + opt[1];
+    return typeof process === 'undefined' ? name : process.env.TESTS_DIR + name;
   }
   if (opt[0] === 'http') {
-    return testUtils.couchHost() + '/testdb_' + testId + '_' + opt[1];
+    return testUtils.couchHost() + '/' + name;
   }
 }
 
@@ -401,5 +406,8 @@ testUtils.cleanUpCors = function(dburl, callback_) {
 
 if (typeof module !== 'undefined' && module.exports) {
   PouchDB = require('../lib');
+  if (typeof process !== 'undefined') {
+    PouchDB.prefix = process.env.TESTS_DIR + PouchDB.prefix;
+  }
   module.exports = testUtils;
 }
