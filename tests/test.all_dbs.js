@@ -35,7 +35,7 @@ function async(functions, callback) {
 }
 
 // Remove old allDbs to prevent DOM exception
-Object.keys(PouchDB.adapters).forEach(function(adapter) {
+Object.keys(PouchDB.prototype.adapters).forEach(function(adapter) {
   if (adapter === "http" || adapter === "https") {
     return;
   }
@@ -44,7 +44,7 @@ Object.keys(PouchDB.adapters).forEach(function(adapter) {
 });
 
 // Loop through all availible adapters
-Object.keys(PouchDB.adapters).forEach(function(adapter) {
+Object.keys(PouchDB.prototype.adapters).forEach(function(adapter) {
   // allDbs method only works for local adapters
   if (adapter === "http" || adapter === "https") {
     return;
@@ -301,7 +301,7 @@ QUnit.module("allDbs return value", {
 
     // Create some pouches with adapter prefix
     var pouchName;
-    Object.keys(PouchDB.adapters).forEach(function(adapter) {
+    Object.keys(PouchDB.prototype.adapters).forEach(function(adapter) {
       // allDbs method only works for local adapters
       if (adapter === "http" || adapter === "https") {
         return;
