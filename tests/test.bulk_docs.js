@@ -209,4 +209,19 @@ adapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest('Test quotes in doc ids', function () {
+    testUtils.initTestDB(this.name, function (err, db) {
+      db.bulkDocs({docs: [
+        {_id: "'your_sql_injection_script_here'"}
+      ]}, function (err, res) {
+        ok(!err, 'got error: ' + JSON.stringify(err));
+        db.get("foo", function (err, res) {
+          ok(err, "deleted");
+          start();
+        });
+      });
+    });
+  });
+
 });
