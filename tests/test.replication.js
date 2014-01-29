@@ -160,6 +160,9 @@ adapters.map(function(adapters) {
         var changeCount = docs.length;
         var changes = db.changes({
           continuous: true,
+	  // Replicate writes docs first then updates checkpoints. There is
+	  // a race between the checkpoint update and this change callback.
+	  // This test may not be deterministic.
           onChange: function(change) {
             if (--changeCount) {
               return;
@@ -688,6 +691,50 @@ adapters.map(function(adapters) {
           ok(result.ok, 'replication was ok');
           ok(result.docs_written === docList.length, 'correct # docs written');
           start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Issue #1240 - checkpoint after get error", function () {
+    var self = this;
+    var docs = [];
+    var num = 10;
+    for (var i = 0; i < num; i++) {
+      docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+    }
+    function genReplicationId(src, target, opts) {
+      return '_local/' + PouchDB.utils.Crypto.MD5(src.id() + target.id());
+    }
+
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
+      var get = remote.get;
+      remote.get = function() {
+        // Simulate failure to get the document with id '4'
+        // This should block the replication at seq 4
+        if(arguments[0] === 'doc_4') {
+          arguments[2].apply(null, [{}]);
+        } else {
+          get.apply(this, arguments);
+        }
+      };
+
+      remote.bulkDocs({docs: docs}, {}, function(err, results) {
+        db.replicate.from(remote, function(err, result) {
+          ok(err !== null, 'Replication fails with an error');
+          // TODO: Test for the specific error for this case
+          var repId = genReplicationId(remote, db);
+          remote.get(repId, function(err, result) {
+            ok(err === null, 'No error getting remote checkpoint ' + JSON.stringify(err) + ', ' + JSON.stringify(result));
+            var remote_last_seq = result.last_seq;
+            db.get(repId, function(err, result) {
+              ok(err === null, 'No error getting local checkpoint');
+              var local_last_seq = result.last_seq;
+              strictEqual(local_last_seq, remote_last_seq, 'Local and remote checkpoints are consistent');
+              strictEqual(result.last_seq, 4, 'Correct checkpoint after failed replication');
+              start();
+            });
+          });
         });
       });
     });
