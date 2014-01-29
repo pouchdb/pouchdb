@@ -8,7 +8,7 @@ var devserver = require('./dev-server.js');
 
 var SELENIUM_PATH = '../node_modules/.bin/start-selenium';
 var testUrl = 'http://127.0.0.1:8000/tests/test.html';
-var testTimeout = 2 * 60 * 1000;
+var testTimeout = 5 * 60 * 1000;
 var currentTest = '';
 var results = {};
 var client = {};
