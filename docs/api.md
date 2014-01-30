@@ -62,7 +62,7 @@ PouchDB.destroy('dbname', function(err, info) { });
 
 ### Using db.put()
 {% highlight js %}
-db.put(doc, [options], [callback])
+db.put(doc, [_id], [_rev], [options], [callback])
 {% endhighlight %}
 
 Create a new document or update an existing document. If the document already exists, you must specify its revision `_rev`, otherwise a conflict will occur.
@@ -71,37 +71,47 @@ There are some restrictions on valid property names of the documents. These are 
 
 #### Example Usage:
 
-## Create a new doc with id.
+Create a new doc with an `_id`:
+
 {% highlight js %}
 db.put({
-  _id: 'mydoc',
   title: 'Heroes'
-}, function(err, response) { });
+}, 'mydoc'), function(err, response) { });
 {% endhighlight %}
 
-## Update an existing doc
+Like all methods, you can also use a promise:
+
+{% highlight js %}
+db.put({
+  title: 'Lady Stardust'
+}, 'myOtherDoc').then(function(response) { });
+{% endhighlight %}
+
+Update an existing doc using `_rev`:
+
 {% highlight js %}
 db.get('myOtherDoc', function(err, otherDoc) {
   db.put({
-    _id: 'myOtherDoc',
-    _rev: otherDoc._rev,
     title: "Let's Dance",
-  }, function(err, response) { });
+  }, 'myOtherDoc', otherDoc._rev, function(err, response) { });
 });
 {% endhighlight %}
 
-## With a promise
+You can also include the `_id` and `_rev` directly in the document:
+
 {% highlight js %}
 db.get('myOtherDoc').then(function(otherDoc) {
   return db.put({
     _id: 'myOtherDoc',
     _rev: otherDoc._rev,
-    title: "Let's Dance",
+    title: 'Be My Wife',
   });
-}).then(function(response){
-  // on success
-}, function(err){
-  // any errors
+}, function(err, response) {
+  if (err) {
+    // on error
+  } else {
+    // on success
+  }
 });
 
 {% endhighlight %}
@@ -162,7 +172,6 @@ All options default to `false` unless otherwise specified.
 * `options.ajax`: An object of options to be sent to the ajax requester. In Node they are sent ver batim to [request][] with the exception of:
     * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
 
-<span></span>
 
 #### Example Usage:
 {% highlight js %}

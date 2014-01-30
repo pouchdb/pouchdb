@@ -68,6 +68,22 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest("Modify a doc with sugar syntax", 4, function() {
+    testUtils.initTestDB(this.name, function (err, db) {
+      ok(!err, 'opened the pouch');
+      db.post({test: "somestuff"}, function (err, info) {
+        ok(!err, 'saved a doc with post');
+        db.put({another: 'test'}, info.id, info.rev, function (err, info2) {
+          ok(!err && info2.rev !== info._rev, 'updated a doc with put');
+          db.put({yet_another : 'test'}, 'yet_another', function (err, info3) {
+            ok(!err && info3.rev && info3.id === 'yet_another', 'created a doc with put');
+            start();
+          });
+        });
+      });
+    });
+  });
+
   asyncTest("Modify a doc with a promise", 2, function() {
     testUtils.initTestDB(this.name, function(err, db) {
       ok(!err, 'opened the pouch');
