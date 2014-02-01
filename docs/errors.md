@@ -9,9 +9,15 @@ title: PouchDB, the JavaScript Database that Syncs!
 
 Are you in private browsing mode? IndexedDB is [disabled in private browsing mode](https://developer.mozilla.org/en-US/docs/IndexedDB/Using_IndexedDB) in Firefox.
 
-### Can't open second database on Android WebView/Cordova/Phone Gap
+### Can't open second database on Android WebView with Cordova/Phone Gap
 
-There is a limit of one database per app in some versions of the Android WebView. Install the [SQLite plugin](https://github.com/lite4cordova/Cordova-SQLitePlugin), then PouchDB will use that if it is available.
+There is a limit of one database per app in some versions of the Android WebView. Install the [SQLite plugin][sqlite], then PouchDB will use that if it is available.
+
+  [sqlite]: https://github.com/lite4cordova/Cordova-SQLitePlugin
+
+### Database size limitation of ~5MB on iOS with Cordova/Phone Gap
+
+If you're storing large amounts of data, such as PNG attachments, the [SQLite plugin][sqlite] is again your friend. (See [issue #1260](https://github.com/daleharvey/pouchdb/issues/1260) for details.)
 
 ### `put()` is throwing 412: "_id is required for puts"
 
