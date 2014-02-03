@@ -575,6 +575,7 @@ db.query(function(thisIs, awesome) {
 1. Local databases do not currently support view caching; everything is a live view.
 2. [Linked documents](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Linked_documents) (aka joins) are supported.  
 3. [Complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) are supported.  Use them for fancy ordering (e.g. `[firstName, lastName, isFemale]`).
+4. Closures are only supported by local databases. CouchDB still requires self-contained map/reduce functions.
 
 ## Get database information<a id="database_information"></a>
 
