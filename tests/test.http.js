@@ -56,6 +56,7 @@ asyncTest("Issue 1269 redundant _changes requests", function() {
         },
         complete: function(err, result) {
           ok(callCount === 1, 'One _changes call to complete changes');
+          PouchDB.utils.ajax = ajax;
           start();
         }
       });
