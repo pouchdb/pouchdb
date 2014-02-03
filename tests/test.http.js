@@ -33,6 +33,36 @@ asyncTest("Create a pouch without DB setup", function() {
   });
 });
 
+asyncTest("Issue 1269 redundant _changes requests", function() {
+  var docs = [];
+  var num = 100;
+  for (var i = 0; i < num; i++) {
+    docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+  }
+  var self = this;
+  testUtils.initTestDB(this.name, function (err, db) {
+    db.bulkDocs({docs: docs}, function (err, result) {
+      var callCount = 0;
+      var ajax = PouchDB.utils.ajax;
+      PouchDB.utils.ajax = function(opts) {
+        if(/_changes/.test(opts.url)) {
+          callCount++;
+        }
+        ajax.apply(this, arguments);
+      }
+      var changes = db.changes({
+        since: 100,
+        onChange: function(change) {
+        },
+        complete: function(err, result) {
+          ok(callCount === 1, 'One _changes call to complete changes');
+          start();
+        }
+      });
+    });
+  });
+});
+
 
 if (node) {
   test("nonce option", function(){
