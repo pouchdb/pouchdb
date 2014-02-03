@@ -541,11 +541,41 @@ db.query({map: map}, {reduce: false}, function(err, response) { });
 }
 {% endhighlight %}
 
+If you pass a function to `db.query` and give it the `emit` function as the second argument, then you can use a closure. (Otherwise we have to use `eval()` to bind `emit`.)
+
+{% highlight js %}
+// BAD! will throw error
+var myId = 'foo';
+db.query(function(doc) {
+  if (doc._id === myId) {
+    emit(doc);
+  }
+}, function(err, results) { /* ... */ });
+
+// will be fine
+var myId = 'foo';
+db.query(function(doc, emit) {
+  if (doc._id === myId) {
+    emit(doc);
+  }
+}, function(err, results) { /* ... */ });
+{% endhighlight %}
+
+You don't actuallly have to call them by those names, though:
+{% highlight js %}
+var myId = 'foo';
+db.query(function(thisIs, awesome) {
+  if (thisIs._id === myId) {
+    awesome(thisIs); 
+  }
+}, function(err, results) { /* ... */ });
+{% endhighlight %}
 **Notes:**
 
 1. Local databases do not currently support view caching; everything is a live view.
 2. [Linked documents](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Linked_documents) (aka joins) are supported.  
 3. [Complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) are supported.  Use them for fancy ordering (e.g. `[firstName, lastName, isFemale]`).
+4. Closures are only supported by local databases. CouchDB still requires self-contained map/reduce functions.
 
 ## Get database information<a id="database_information"></a>
 
