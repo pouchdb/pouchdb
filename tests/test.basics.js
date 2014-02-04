@@ -17,10 +17,24 @@ adapters.map(function(adapter) {
     teardown: testUtils.cleanupTestDatabases
   });
 
-  asyncTest("Create a pouch", 1, function() {
+  asyncTest("Create a pouch", 2, function() {
     testUtils.initTestDB(this.name, function(err, db) {
       ok(!err, 'created a pouch');
+      ok(db instanceof PouchDB, 'should be an instance of PouchDB');
       start();
+    });
+  });
+
+  asyncTest("Create a pouch with a promise", 1, function() {
+    var self = this;
+    testUtils.initTestDB(this.name, function(err, db) {
+      PouchDB(self.name).then(function (db) {
+        ok(db instanceof PouchDB, 'should be an instance of PouchDB');
+        start();
+      }, function (err) {
+        ok(false);
+        start();
+      });
     });
   });
 
