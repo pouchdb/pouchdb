@@ -113,6 +113,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test getAttachment", function() {
+
     testUtils.initTestDB(this.name, function(err, db) {
       db.put(binAttDoc, function(err, res) {
         db.getAttachment('bin_doc', 'foo.txt', function(err, res) {
@@ -127,7 +128,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test attachments in allDocs/changes", function() {
-    testUtils.initTestDB(this.name, function(err, db) {
+    testUtils.initTestDB(this.name, function (err, db) {
       var docs = [
         {
           _id: 'doc0'
@@ -153,36 +154,49 @@ adapters.map(function(adapter) {
               content_type: 'text/plain'
             }
           }
+        },
+        {
+          _id: 'doc3',
+          _attachments: {
+            'att0': {
+              data: "YXR0YWNobWVudDA=",
+              content_type: 'text/plain'
+            }
+          }
         }
       ];
-      function sort(a, b){
+      function sort(a, b) {
         return a.id.localeCompare(b.id);
       }
-      db.bulkDocs({docs: docs}, function(err, res) {
-        db.allDocs({include_docs: true}, function(err, res){
-          for(var i = 0; i < 3; i++){
-            for(var j = 0; j < i; j++){
-              strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, '(allDocs) doc'+i+' contains att'+j+' stub');
+      db.bulkDocs({docs: docs}, function (err, res) {
+        db.allDocs({include_docs: true}, function (err, res) {
+          for (var i = 0; i < docs.length; i++) {
+            var attachmentsNb = (typeof docs[i]._attachments !== 'undefined' ? Object.keys(docs[i]._attachments).length : 0);
+            for (var j = 0; j < attachmentsNb; j++) {
+              strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, '(allDocs) doc' + i + ' contains att' + j + ' stub');
             }
           }
           strictEqual(res.rows[0].doc._attachments, undefined, '(allDocs) doc0 contains no attachments');
           db.changes({
             include_docs: true,
-            onChange: function(change) {
+            onChange: function (change) {
               var i = +change.id.substr(3);
               if (i === 0) {
                 strictEqual(res.rows[0].doc._attachments, undefined, '(onChange) doc0 contains no attachments');
               } else {
-                for(var j = 0; j < i; j++){
-                  strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, '(onChange) doc'+i+' contains att'+j+' stub');
+                var attachmentsNb = (typeof docs[i]._attachments !== 'undefined' ? Object.keys(docs[i]._attachments).length : 0);
+                for (var j = 0; j < attachmentsNb; j++) {
+                  strictEqual(res.rows[i].doc._attachments['att' + j].stub, true, '(onChange) doc' + i + ' contains att' + j + ' stub');
                 }
               }
             },
-            complete: function(err, res) {
+            complete: function (err, res) {
+              var attachmentsNb = 0;
               res.results.sort(sort);
-              for(var i = 0; i < 3; i++){
-                for(var j = 0; j < i; j++){
-                  strictEqual(res.results[i].doc._attachments['att' + j].stub, true, '(complete) doc'+i+' contains att'+j+' stub');
+              for (var i = 0; i < 3; i++) {
+                attachmentsNb = (typeof docs[i]._attachments !== 'undefined' ? Object.keys(docs[i]._attachments).length : 0);
+                for (var j = 0; j < attachmentsNb; j++) {
+                  strictEqual(res.results[i].doc._attachments['att' + j].stub, true, '(complete) doc' + i + ' contains att' + j + ' stub');
                 }
               }
               strictEqual(res.results[0].doc._attachments, undefined, '(complete) doc0 contains no attachments');

@@ -224,4 +224,12 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('Bulk docs empty list', function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.bulkDocs({docs: []}, function(err, res) {
+        ok(!err, 'no error');
+        start();
+      });
+    });
+  });
 });
