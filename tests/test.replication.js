@@ -805,114 +805,114 @@ adapters.map(function(adapters) {
     });
   });
 
-  asyncTest("(#1240) - bulkWrite error", function () {
-    var self = this;
+  // asyncTest("(#1240) - bulkWrite error", function () {
+  //   var self = this;
 
-    // 10 test documents
-    var num = 10;
-    var docs = [];
-    for (var i = 0; i < num; i++) {
-      docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
-    }
+  //   // 10 test documents
+  //   var num = 10;
+  //   var docs = [];
+  //   for (var i = 0; i < num; i++) {
+  //     docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+  //   }
 
-    // Set up test databases
-    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
-      // Initialize remote with test documents
-      remote.bulkDocs({docs: docs}, {}, function(err, results) {
-        var bulkDocs = db.bulkDocs;
+  //   // Set up test databases
+  //   testUtils.initDBPair(this.name, this.remote, function(db, remote) {
+  //     // Initialize remote with test documents
+  //     remote.bulkDocs({docs: docs}, {}, function(err, results) {
+  //       var bulkDocs = db.bulkDocs;
 
-        function first_replicate() {
-          // Mock bulkDocs to fail writing doc_3 (fourth doc)
-          db.bulkDocs = function() {
-            if(arguments[0].docs[0]._id === 'doc_3') {
-              arguments[2].apply(null, [{
-                status: 500,
-                error: 'mock bulkDocs error',
-                reason: 'Simulated error for test'
-              }]);
-            } else {
-              bulkDocs.apply(this, arguments);
-            }
-          };
-          // Replicate and confirm failure, docs_written and target docs
-          db.replicate.from(remote, function(err, result) {
-            ok(err !== null, 'Replication fails with an error');
-            ok(result !== null, 'Replication has a result');
-            strictEqual(result.docs_written, 3, 'Three docs written');
-            function check_docs(id, result) {
-              if (!id) {
-                second_replicate();
-                return;
-              }
-              db.get(id, function(err, exists) {
-                if(exists) {
-                  ok(err === null, 'Document exists')
-                } else {
-                  ok(err !== null, 'Document does not exist')
-                }
-                check_docs(docs.shift());
-              });
-            }
-            var docs = [
-              [ 'doc_0', true ],
-              [ 'doc_1', true ],
-              [ 'doc_2', true ],
-              [ 'doc_3', false ],
-              [ 'doc_4', false ],
-              [ 'doc_5', false ],
-              [ 'doc_6', false ],
-              [ 'doc_7', false ],
-              [ 'doc_8', false ],
-              [ 'doc_9', false ]
-            ];
-            check_docs(docs.shift());
-          });
-        }
+  //       function first_replicate() {
+  //         // Mock bulkDocs to fail writing doc_3 (fourth doc)
+  //         db.bulkDocs = function() {
+  //           if(arguments[0].docs[0]._id === 'doc_3') {
+  //             arguments[2].apply(null, [{
+  //               status: 500,
+  //               error: 'mock bulkDocs error',
+  //               reason: 'Simulated error for test'
+  //             }]);
+  //           } else {
+  //             bulkDocs.apply(this, arguments);
+  //           }
+  //         };
+  //         // Replicate and confirm failure, docs_written and target docs
+  //         db.replicate.from(remote, function(err, result) {
+  //           ok(err !== null, 'Replication fails with an error');
+  //           ok(result !== null, 'Replication has a result');
+  //           strictEqual(result.docs_written, 3, 'Three docs written');
+  //           function check_docs(id, result) {
+  //             if (!id) {
+  //               second_replicate();
+  //               return;
+  //             }
+  //             db.get(id, function(err, exists) {
+  //               if(exists) {
+  //                 ok(err === null, 'Document exists')
+  //               } else {
+  //                 ok(err !== null, 'Document does not exist')
+  //               }
+  //               check_docs(docs.shift());
+  //             });
+  //           }
+  //           var docs = [
+  //             [ 'doc_0', true ],
+  //             [ 'doc_1', true ],
+  //             [ 'doc_2', true ],
+  //             [ 'doc_3', false ],
+  //             [ 'doc_4', false ],
+  //             [ 'doc_5', false ],
+  //             [ 'doc_6', false ],
+  //             [ 'doc_7', false ],
+  //             [ 'doc_8', false ],
+  //             [ 'doc_9', false ]
+  //           ];
+  //           check_docs(docs.shift());
+  //         });
+  //       }
 
-        function second_replicate() {
-          // Restore buldDocs to original
-          db.bulkDocs = bulkDocs;
-          // Replicate and confirm success, docs_written and target docs
-          db.replicate.from(remote, function(err, result) {
-            ok(err === null, 'Replication completes without error');
-            ok(result !== null, 'Replication has a result');
-            strictEqual(result.docs_written, 7, 'Seven docs written');
-            function check_docs(id, exists) {
-              if (!id) {
-                start();
-                return;
-              }
-              db.get(id, function(err, result) {
-                if(exists) {
-                  ok(err === null, 'Document exists')
-                } else {
-                  ok(err !== null, 'Document does not exist')
-                }
-                check_docs(docs.shift());
-              });
-            }
-            var docs = [
-              [ 'doc_0', true ],
-              [ 'doc_1', true ],
-              [ 'doc_2', true ],
-              [ 'doc_3', true ],
-              [ 'doc_4', true ],
-              [ 'doc_5', true ],
-              [ 'doc_6', true ],
-              [ 'doc_7', true ],
-              [ 'doc_8', true ],
-              [ 'doc_9', true ]
-            ];
-            check_docs(docs.shift());
-          });
-        }
+  //       function second_replicate() {
+  //         // Restore buldDocs to original
+  //         db.bulkDocs = bulkDocs;
+  //         // Replicate and confirm success, docs_written and target docs
+  //         db.replicate.from(remote, function(err, result) {
+  //           ok(err === null, 'Replication completes without error');
+  //           ok(result !== null, 'Replication has a result');
+  //           strictEqual(result.docs_written, 7, 'Seven docs written');
+  //           function check_docs(id, exists) {
+  //             if (!id) {
+  //               start();
+  //               return;
+  //             }
+  //             db.get(id, function(err, result) {
+  //               if(exists) {
+  //                 ok(err === null, 'Document exists')
+  //               } else {
+  //                 ok(err !== null, 'Document does not exist')
+  //               }
+  //               check_docs(docs.shift());
+  //             });
+  //           }
+  //           var docs = [
+  //             [ 'doc_0', true ],
+  //             [ 'doc_1', true ],
+  //             [ 'doc_2', true ],
+  //             [ 'doc_3', true ],
+  //             [ 'doc_4', true ],
+  //             [ 'doc_5', true ],
+  //             [ 'doc_6', true ],
+  //             [ 'doc_7', true ],
+  //             [ 'doc_8', true ],
+  //             [ 'doc_9', true ]
+  //           ];
+  //           check_docs(docs.shift());
+  //         });
+  //       }
 
-        // Start the test
-        first_replicate();
+  //       // Start the test
+  //       first_replicate();
 
-      });
-    });
-  });
+  //     });
+  //   });
+  // });
 
   asyncTest("(#1307) - replicate empty database", function () {
     var self = this;
