@@ -6,7 +6,7 @@ var repl_adapters = [['local-1', 'http-1'],
                      ['http-1', 'local-1'],
                      ['local-1', 'local-2']];
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
 }

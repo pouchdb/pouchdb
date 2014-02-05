@@ -31,11 +31,12 @@
     "http-proxy": "~0.10.3",
     "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
-    "qunit": "~0.5.17",
     "browserify": "~3.14.1",
     "lie": "~2.5.2",
     "wd": "~0.2.8",
-    "tin": "~0.4.0"
+    "tin": "~0.4.0",
+    "qunit-mocha-ui": "0.0.5",
+    "mocha": "~1.17.1"
   },
   "scripts": {
     "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",

@@ -1,18 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <title>QUnit Test Suite</title>
-    <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
-    <script type="text/javascript" src="qunit/qunit.js"></script>
-    <script type="text/javascript" src="qunit/junitlogger.js"></script>
+    <meta charset="utf-8">
+    <title>Mocha</title>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/qunit-mocha-ui/qunit-mocha-ui-browser.js"></script>
+    <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
   </head>
   <body>
-    <h1 id="qunit-header">QUnit Test Suite</h1>
-    <h2 id="qunit-banner"></h2>
-    <div id="qunit-testrunner-toolbar"></div>
-    <h2 id="qunit-userAgent"></h2>
-    <ol id="qunit-tests"></ol>
+    <div id="mocha"></div>
+    <script>
+      mocha.setup({ui:"qunit-mocha-ui"});
+      window.QUnit = {"module": suite};
+    </script>
+    <script src='../dist/pouchdb-nightly.js'></script>
+    <script src='test.utils.js'></script>
+    <script src='test.setup.js'></script>
+    <script src='test.basics.js'></script>
+    <script src='test.all_dbs.js'></script>
+    <script src='test.changes.js'></script>
+    <script src='test.bulk_docs.js'></script>
+    <script src='test.all_docs.js'></script>
+    <script src='test.conflicts.js'></script>
+    <script src='test.revs_diff.js'></script>
+    <script src='test.replication.js'></script>
+    <script src='test.views.js'></script>
+    <script src='test.taskqueue.js'></script>
+    <script src='test.design_docs.js'></script>
+    <script src='test.issue221.js'></script>
+    <script src='test.http.js'></script>
+    <script src='test.compaction.js'></script>
+    <script src='test.get.js'></script>
+    <script src='test.attachments.js'></script>
+    <script src='test.uuids.js'></script>
+    <script src='test.slash_id.js'></script>
+    <script src='test.worker.js'></script>
     <script type="text/javascript" src="./webrunner.js"></script>
   </body>
 </html>
-

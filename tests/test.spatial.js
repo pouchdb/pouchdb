@@ -2,7 +2,7 @@
 
 var adapters = ['local-1', 'http-1'];
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var Pouch = require('../lib');
   var testUtils = require('./test.utils.js');
 }

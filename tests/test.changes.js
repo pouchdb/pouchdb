@@ -3,7 +3,7 @@
 var adapters = ['http-1', 'local-1'];
 var is_browser = true;
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
   is_browser = false;
@@ -632,44 +632,44 @@ adapters.map(function(adapter) {
     });
   });
 
-  if (is_browser) {
-    asyncTest("Continuous changes across windows", function() {
-      var search = window.location.search
-        .replace(/[?&]testFiles=[^&]+/, '')
-        .replace(/[?&]testNumber=[^&]+/, '')
-        .replace(/[?&]dbname=[^&]+/, '') +
-          '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
-      testUtils.initTestDB(this.name, function(err, db) {
-        var count = 0;
-        var tab;
-        var changes = db.changes({
-          onChange: function(change) {
-            count += 1;
-            equal(count, 1, 'Received a single change');
-            changes.cancel();
-            if (tab) {
-              tab.close();
-            }
-            start();
-          },
-          continuous: true
-        });
-        var iframe = document.createElement('iframe');
-        iframe.src = 'test.html?' + search.replace(/^[?&]+/, '');
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-      });
-    });
-  }
+  // if (is_browser) {
+  //   asyncTest("Continuous changes across windows", function(done) {
+  //     var search = window.location.search
+  //       .replace(/[?&]testFiles=[^&]+/, '')
+  //       .replace(/[?&]testNumber=[^&]+/, '')
+  //       .replace(/[?&]dbname=[^&]+/, '') +
+  //         '&testFiles=postTest.js&dbname=' + encodeURIComponent(this.name);
+  //     testUtils.initTestDB(this.name, function(err, db) {
+  //       var count = 0;
+  //       var tab;
+  //       var changes = db.changes({
+  //         onChange: function(change) {
+  //           count += 1;
+  //           equal(count, 1, 'Received a single change');
+  //           changes.cancel();
+  //           if (tab) {
+  //             tab.close();
+  //           }
+  //           done();
+  //         },
+  //         continuous: true
+  //       });
+  //       var iframe = document.createElement('iframe');
+  //       iframe.src = 'test.html?' + search.replace(/^[?&]+/, '');
+  //       iframe.style.display = 'none';
+  //       document.body.appendChild(iframe);
+  //     });
+  //   });
+  // }
 
-  asyncTest("Continuous changes doc", function() {
+  asyncTest("Continuous changes doc", function(done) {
     testUtils.initTestDB(this.name, function(err, db) {
       var changes = db.changes({
         onChange: function(change) {
           ok(change.doc, 'doc included');
           ok(change.doc._rev, 'rev included');
           changes.cancel();
-          start();
+          done();
         },
         continuous: true,
         include_docs: true
@@ -702,7 +702,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Kill database while listening to continuous changes", function() {
+  asyncTest("Kill database while listening to continuous changes", function(done) {
     var name = this.name;
     testUtils.initTestDB(this.name, function(err, db) {
       var count = 0;
@@ -713,7 +713,7 @@ adapters.map(function(adapter) {
             PouchDB.destroy(name, function(err, resp) {
               changes.cancel();
               ok(true);
-              start();
+              done();
             });
           }
         },
@@ -723,7 +723,7 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Changes filter", function() {
+  asyncTest("Changes filter", function(done) {
 
     var docs1 = [
       {_id: "0", integer: 0},
@@ -749,7 +749,7 @@ adapters.map(function(adapter) {
             if (count === 4) {
               ok(true, 'We got all the docs');
               changes.cancel();
-              start();
+              done();
             }
           },
           continuous: true
@@ -1011,13 +1011,13 @@ adapters.map(function(adapter) {
 
 });
 
-asyncTest("Changes reports errors", function (){
-  expect(1);
+asyncTest("Changes reports errors", function (done){
+  this.timeout(20000);
   var db = new PouchDB('http://infiniterequest.com', {skipSetup: true});
   db.changes({
     complete: function(err, changes) {
       ok(err, 'got error');
-      start();
+      done();
     }
   });
 });
