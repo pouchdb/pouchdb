@@ -2,7 +2,7 @@
 
 var adapter = 'http-1';
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
 }
@@ -18,7 +18,7 @@ QUnit.module('cors-adapter:', {
       //get rid of cookie used for auth
       deleteCookieAuth(name, function (err, ret, res) {
         //get rid of admin and user
-        if (typeof module !== undefined && module.exports) {
+        if (typeof module !== 'undefined' && module.exports) {
           tearDownAdminAndMemberConfig(name, function (err, info) {
             cleanUpCors(name, function () {
               cleanupTestDatabases(true);

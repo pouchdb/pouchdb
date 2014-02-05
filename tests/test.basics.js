@@ -2,7 +2,7 @@
 
 var adapters = ['http-1', 'local-1'];
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
 }
@@ -442,15 +442,18 @@ adapters.map(function(adapter) {
     });
   });
 
-  asyncTest("Can't add docs with empty ids", 6, function() {
+  asyncTest("Can't add docs with empty ids", function(done) {
     var docs = [{}, {_id : null}, {_id : undefined}, {_id : ''},
                 {_id : {}}, {_id : '_underscored_id'}];
+    var num = docs.length;
     testUtils.initTestDB(this.name, function(err, db) {
       docs.forEach(function(doc) {
         db.put(doc, function (err, info) {
           ok(err, "didn't get an error for doc: " + JSON.stringify(doc) +
              '; response was ' + JSON.stringify(info));
-          start();
+          if(!(--num)){
+            done();
+          }
         });
       });
     });

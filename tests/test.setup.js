@@ -1,6 +1,6 @@
 "use strict";
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var testUtils = require('./test.utils.js');
   var PouchDB = require('../lib');
 }

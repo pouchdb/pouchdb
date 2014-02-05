@@ -2,7 +2,7 @@
 
 var adapters = ['http-1', 'local-1'];
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
 }

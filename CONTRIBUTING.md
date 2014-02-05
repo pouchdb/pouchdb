@@ -80,7 +80,7 @@ Browser tests require a running HTTP server and a CORS proxy:
     # or
     $ COUCH_HOST=http://user:pass@myname.host.com npm run dev-server
 
-Now visit http://127.0.0.1:8000/tests/test.html in your browser add ?testFiles=test.basics.js to run single test file. You do not need to manually rebuild PouchDB when you run the `dev-server` target, any changes you make to the source will automatically be built.
+Now visit http://127.0.0.1:8000/tests/test.html in your browser, you can add ?grep=basics to run a test file. You do not need to manually rebuild PouchDB when you run the `dev-server` target, any changes you make to the source will automatically be built.
 
 ### All Tests
 
