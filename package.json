@@ -3,7 +3,6 @@
   "version": "1.2.0-alpha",
   "description": "PouchDB is a pocket-sized database.",
   "release": "nightly",
-  "author": "Dale Harvey",
   "main": "./lib/index.js",
   "homepage": "https://github.com/daleharvey/pouchdb",
   "repository": "https://github.com/daleharvey/pouchdb",
@@ -38,16 +37,6 @@
     "wd": "~0.2.8",
     "tin": "~0.4.0"
   },
-  "maintainers": [
-    {
-      "name": "Dale Harvey",
-      "web": "https://github.com/daleharvey"
-    },
-    {
-      "name": "Ryan Ramage",
-      "web": "https://github.com/ryanramage"
-    }
-  ],
   "scripts": {
     "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",
     "build-js": "mkdir -p dist && ./node_modules/.bin/browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
