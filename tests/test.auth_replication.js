@@ -3,7 +3,7 @@
 var remote = {host: 'localhost:2020'};
 var local = 'test_suite_db';
 
-if (typeof module !== undefined && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
 }

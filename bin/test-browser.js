@@ -77,7 +77,7 @@ function startTest() {
   client.init({
     browserName: currentTest
   }).get(testUrl).setAsyncScriptTimeout(testTimeout)
-    .executeAsync('var cb = arguments[arguments.length - 1];QUnit.done(function( report ) {cb(report)});')
+    .executeAsync('var cb = arguments[arguments.length - 1];runner.on("end",function() {cb(results)});')
     .then(function (result) {
       finishedBrowsers++;
       if (!result.failed) {

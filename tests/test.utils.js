@@ -12,7 +12,7 @@ testUtils.couchHost = function() {
   return 'http://localhost:2020';
 }
 
-testUtils.cleanupAllDbs = function() {
+testUtils.cleanupAllDbs = function(done) {
 
   var deleted = 0;
   var adapters = Object.keys(PouchDB.adapters).filter(function(adapter) {
@@ -21,7 +21,7 @@ testUtils.cleanupAllDbs = function() {
 
   function finished() {
     // Restart text execution
-    start();
+    done();
   }
 
   function dbDeleted() {
@@ -44,23 +44,18 @@ testUtils.cleanupAllDbs = function() {
   });
 }
 
-testUtils.cleanupTestDatabases = function(alreadyStopped_) {
+testUtils.cleanupTestDatabases = function(done) {
 
   if (testUtils.PERSIST_DATABASES) {
     return;
   }
 
-  // Stop the tests from executing
-  if(!alreadyStopped_) {
-      stop();
-  }
-
   var dbCount;
   var deleted = 0;
-
   function finished() {
-    testUtils.cleanupAllDbs();
+    testUtils.cleanupAllDbs(done);
   }
+  
 
   function dbDeleted() {
     if (++deleted === dbCount) {

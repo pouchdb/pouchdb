@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-// specify dependency
-var testrunner = require("qunit");
+var Mocha = require("mocha");
+require("qunit-mocha-ui");
 var fs = require('fs');
 var testsDir = process.env.TESTS_DIR || './tmp';
 var path = require('path');
 var exec = require('child_process').exec;
-
+var mocha = new Mocha({ui:"qunit-mocha-ui", reporter:process.env.TRAVIS ? "spec" : "nyan", timeout: 20000});
 var excludedTests = [
   // auth_replication and cors need admin access (#1030)
   'test.auth_replication.js',
@@ -29,12 +29,6 @@ if (process.env.TEST_FILE) {
   });
 }
 
-testrunner.setup({
-  log: {
-    errors: true,
-    summary: true
-  }
-});
 
 function cleanup() {
   // Remove test databases and test allDbs database.
@@ -47,26 +41,18 @@ exec('mkdir -p ' + testsDir, function () {
   process.on('SIGINT', cleanup);
   process.on('exit', cleanup);
 
-  testrunner.run({
-    deps: [
-      './lib/deps/extend.js',
+  ['./lib/deps/extend.js',
       './lib/deps/blob.js',
       './lib/deps/ajax.js',
-      './tests/pouch.shim.js'
-    ],
-    code: './lib/adapters/leveldb.js',
-    tests: testFiles.map(function(n) {
-      return "./tests/" + n;
-    })
-  }, function(err, result) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-      return;
-    } else if (result.failed) {
-      console.log('[node] failed ' + result.failed + ' out of ' + result.assertions + ' tests')
-      process.exit(2);
-      return;
-    }
+      './tests/pouch.shim.js',
+    './lib/adapters/leveldb.js'
+    ].forEach(function(file){
+      mocha.addFile(file);
+    });
+    testFiles.map(function(n) {
+      mocha.addFile("./tests/" + n);
+    });
+  mocha.run(function(failed){
+    process.exit(failed);
   });
 });
