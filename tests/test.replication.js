@@ -6,6 +6,10 @@ var adapters = [
   ['http-1', 'local-1'],
   ['local-1', 'local-2']];
 
+var httpAdapters = [
+  ['local-1', 'http-1'],
+  ['http-1', 'local-1']];
+
 var downAdapters = ['local-1'];
 var deletedDocAdapters = [['local-1', 'http-1']];
 var interHTTPAdapters = [['http-1', 'http-2']];
@@ -916,6 +920,168 @@ adapters.map(function(adapters) {
 
 });
 
+// test local<->http replication
+
+httpAdapters.map(function(adapters) {
+  QUnit.module('replication: ' + adapters[0] + ':' + adapters[1], {
+    setup : function () {
+      this.name = testUtils.generateAdapterUrl(adapters[0]);
+      this.remote = testUtils.generateAdapterUrl(adapters[1]);
+    },
+    teardown: testUtils.cleanupTestDatabases
+  });
+
+
+
+  asyncTest("issue #1201 testing conflict resolution with subsequent manual unidirectional replication", function () {
+    testUtils.initDBPair(this.name, this.remote, function (db1, db2) {
+      var doc = {
+        _id: "foo",
+        _rev: "1-a",
+        value: "generic"
+      };
+      db1.put(doc, {new_edits: false}, function (err, res) {
+        db2.put(doc, {new_edits: false}, function (err, res) {
+          testUtils.putAfter(db2, {_id: "foo", _rev: "2-b", value: "db2"}, "1-a", function (err, res) {
+            testUtils.putAfter(db1, {_id: "foo", _rev: "2-c", value: "whatever"}, "1-a", function (err, res) {
+              testUtils.putAfter(db1, {_id: "foo", _rev: "3-c", value: "db1"}, "2-c", function (err, res) {
+                db1.get("foo", {conflicts: true}, function (err, doc) {
+                  ok(doc.value === "db1", "db1 has correct value (get)");
+                  ok(!doc._conflicts || doc._conflicts.length === 0, "db1 has no conflicts before replication");
+
+                  db2.get("foo", function (err, doc) {
+                    ok(doc.value === "db2", "db2 has correct value (get)");
+                    ok(!doc._conflicts || doc._conflicts.length === 0, "db2 sees no conflicts before replication");
+
+                    PouchDB.replicate(db1, db2, function () {
+                      PouchDB.replicate(db2, db1, function () {
+
+                        db1.get("foo", {conflicts: true}, function (err, doc) {
+                          ok(doc.value === "db1", "db1 has correct value (get after replication)");
+                          ok(doc._conflicts && doc._conflicts.length === 1, "db1 sees conflict  after replication");
+
+                          var conflictRev = doc._conflicts[0];
+
+                          db2.get("foo", {conflicts: true}, function (err, doc) {
+                            ok(doc.value === "db1", "db2 has correct value (get after replication)");
+                            ok(doc._conflicts && doc._conflicts.length === 1, "db2 sees conflict after replication");
+
+                            db1.remove({_id: "foo", _rev: conflictRev}, function (err, res) {
+                              ok(res.ok, "Conflicting document removed on db1");
+
+                              db1.get("foo", {conflicts: true}, function (err, doc) {
+                                ok(!doc._conflicts || doc._conflicts.length === 0, "db1 sees no more conflicts after removing it");
+
+                                PouchDB.replicate(db1, db2, function () {
+
+                                  db1.get("foo", {conflicts: true}, function (err, doc) {
+                                    ok(doc.value === "db1", "db1 has correct value (get after replication)");
+                                    ok(!doc._conflicts || doc._conflicts.length === 0, "db1 sees no conflict after replication");
+
+                                    db2.get("foo", {conflicts: true}, function (err, doc) {
+                                      ok(doc.value === "db1", "db2 has correct value (get after replication)");
+                                      ok(!doc._conflicts || doc._conflicts.length === 0, "db2 sees no conflict after replication");
+                                      start();
+                                    });
+                                  });
+                                });
+                              });
+                            });
+                          });
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("issue #1201 testing conflict resolution with continuous replication", function () {
+    testUtils.initDBPair(this.name, this.remote, function (db1, db2) {
+      var doc = {
+        _id: "foo",
+        _rev: "1-a",
+        value: "generic"
+      };
+      db1.put(doc, {new_edits: false}, function (err, res) {
+        db2.put(doc, {new_edits: false}, function (err, res) {
+          testUtils.putAfter(db2, {_id: "foo", _rev: "2-b", value: "db2"}, "1-a", function (err, res) {
+            testUtils.putAfter(db1, {_id: "foo", _rev: "2-c", value: "whatever"}, "1-a", function (err, res) {
+              testUtils.putAfter(db1, {_id: "foo", _rev: "3-c", value: "db1"}, "2-c", function (err, res) {
+                db1.get("foo", {conflicts: true}, function (err, doc) {
+                  ok(doc.value === "db1", "db1 has correct value (get)");
+                  ok(!doc._conflicts || doc._conflicts.length === 0, "db1 has no conflicts before replication");
+
+                  db2.get("foo", function (err, doc) {
+                    ok(doc.value === "db2", "db2 has correct value (get)");
+                    ok(!doc._conflicts || doc._conflicts.length === 0, "db2 sees no conflicts before replication");
+
+                    PouchDB.replicate(db1, db2, function () {
+                      PouchDB.replicate(db2, db1, function () {
+
+                        db1.get("foo", {conflicts: true}, function (err, doc) {
+                          ok(doc.value === "db1", "db1 has correct value (get after replication)");
+                          ok(doc._conflicts && doc._conflicts.length === 1, "db1 sees conflict  after replication");
+
+                          var conflictRev = doc._conflicts[0];
+
+                          db2.get("foo", {conflicts: true}, function (err, doc) {
+                            ok(doc.value === "db1", "db2 has correct value (get after replication)");
+                            ok(doc._conflicts && doc._conflicts.length === 1, "db2 sees conflict after replication");
+
+                            var initialChangeComplete = false;
+
+                            function continueAfterFirstSync() {
+
+                              db1.remove({_id: "foo", _rev: conflictRev}, function (err, res) {
+                                ok(res.ok, "Conflicting document removed on db1");
+
+                                db1.get("foo", {conflicts: true}, function (err, doc) {
+                                  ok(!doc._conflicts || doc._conflicts.length === 0, "db1 sees no more conflicts after removing it");
+
+                                  setTimeout(function () {
+
+                                    db2.get("foo", {conflicts: true}, function (err, doc) {
+                                      ok(doc.value === "db1", "db2 has correct value (get after replication)");
+                                      ok(!doc._conflicts || doc._conflicts.length === 0, "db2 sees no conflict after replication");
+                                      start();
+                                    });
+                                  }, 1000);
+                                });
+                              });
+                            }
+
+                            PouchDB.replicate(db1, db2, {
+                                continuous: true}
+                            );
+
+                            // continue with change watching after a couple of milliseconds to allow for first sync for local->remote ...
+                            setTimeout(function () {
+                              continueAfterFirstSync();
+                            }, 500);
+
+                          });
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+});
+
+
 // test a basic "initialize pouch" scenario when couch instance contains deleted revisions
 // currently testing idb-http only
 deletedDocAdapters.map(function(adapters) {
@@ -1044,6 +1210,8 @@ deletedDocAdapters.map(function(adapters) {
         });
     });
   });
+
+
 });
 
 // This test only needs to run for one configuration, and it slows stuff
