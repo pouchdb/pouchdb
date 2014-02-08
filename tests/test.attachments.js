@@ -439,18 +439,43 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Test synchronous getAttachment", function() {
-    var db = new PouchDB(this.name);
-    db.getAttachment('unexistent', 'attachment', function(err, res) {
-      ok(err, "Correctly returned error");
-      start();
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.getAttachment('unexistent', 'attachment', function(err, res) {
+        ok(err, "Correctly returned error");
+        start();
+      });
     });
   });
 
-  asyncTest("Test synchronous putAttachment", function() {
-    var db = new PouchDB(this.name);
-    db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function(err) {
-      ok(!err, "Correctly wrote attachment");
-      start();
+  asyncTest("Test synchronous putAttachment with text data", function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.putAttachment('a', 'foo2.txt', '', testUtils.makeBlob('foobaz', 'text/plain'), 'text/plain', function(err) {
+        ok(!err, "Correctly wrote attachment");
+        db.get('a', {attachments : true}, function(err, doc) {
+          ok(!err, 'Correctly got attachment');
+          strictEqual(doc._attachments['foo2.txt'].data, 'Zm9vYmF6');
+          equal(doc._attachments['foo2.txt'].content_type, 'text/plain');
+          start();
+        });
+      });
+    });
+  });
+
+  asyncTest("Test synchronous putAttachment with no text data", function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function(err) {
+        ok(!err, "Correctly wrote attachment");
+        db.get('a', {attachments : true}, function(err, doc) {
+          ok(!err, 'Correctly got attachment');
+          strictEqual(doc._attachments['foo2.txt'].data, '');
+
+          // firefox 3 appends charset=utf8
+          // see http://forums.mozillazine.org/viewtopic.php?p=6318215#p6318215
+          strictEqual(doc._attachments['foo2.txt'].content_type.indexOf('text/plain'), 0,
+            'expected content-type to start with text/plain');
+          start();
+        });
+      });
     });
   });
 
@@ -472,6 +497,27 @@ adapters.map(function(adapter) {
         db.getAttachment('foo', 'unexistentAttachment', function(err, res) {
           ok(err, "Correctly returned error");
           start();
+        });
+      });
+    });
+  });
+
+  asyncTest("putAttachment and getAttachment with png data", function() {
+    testUtils.initTestDB(this.name, function(err, db) {
+      db.put({_id: 'foo'}, function(err, res) {
+        db.get('foo', function(err, doc){
+          var data = pngAttDoc._attachments['foo.png'].data;
+          var blob = testUtils.makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)), 'image/png');
+          db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png', function(err, info){
+            ok(!err, 'attachment inserted');
+            db.getAttachment('foo', 'foo.png', function(err, blob) {
+              ok(!err, 'attachment gotten');
+              testUtils.readBlob(blob, function(returnedData) {
+                equal(PouchDB.utils.btoa(returnedData), data, 'returned png base64-encoded data same as original data');
+                start();
+              });
+            });
+          });
         });
       });
     });

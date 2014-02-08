@@ -97,7 +97,7 @@ testUtils.makeBlob = function(data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data);
   } else {
-    return new Blob([data], {type: type});
+    return PouchDB.utils.createBlob([data], {type: type});
   }
 }
 
