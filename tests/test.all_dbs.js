@@ -70,6 +70,7 @@ Object.keys(PouchDB.adapters).forEach(function(adapter) {
   });
 
   asyncTest("new Pouch registered in allDbs", 2, function() {
+    this.timeout(15000);
     var pouchName = this.pouchNames[0];
 
     // create db

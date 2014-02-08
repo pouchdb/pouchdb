@@ -134,6 +134,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Changes with filter not present in ddoc", function () {
+    this.timeout(15000);
     var docs = [{
       _id: "1",
       integer: 1
