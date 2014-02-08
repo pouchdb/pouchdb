@@ -19,7 +19,6 @@ var dotfile = "./dist/.pouchdb-nightly.js";
 var outfile = "./dist/pouchdb-nightly.js";
 
 w.on('update', bundle);
-bundle();
 
 function bundle () {
   var wb = w.bundle({
