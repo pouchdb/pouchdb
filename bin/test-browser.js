@@ -8,7 +8,7 @@ var devserver = require('./dev-server.js');
 
 var SELENIUM_PATH = '../node_modules/.bin/start-selenium';
 var testUrl = 'http://127.0.0.1:8000/tests/test.html';
-var testTimeout = 5 * 60 * 1000;
+var testTimeout = 30 * 60 * 1000;
 var currentTest = '';
 var results = {};
 var client = {};
@@ -20,10 +20,9 @@ var browsers = [
   'chrome'
 ];
 
-// Don't do it on trais
+// Travis supports only firefox
 if (process.env.TRAVIS) {
-  console.log('skipping tests on travis');
-  process.exit(0)
+  browsers = ['firefox'];
 }
 var numBrowsers = browsers.length;
 var finishedBrowsers = 0;
