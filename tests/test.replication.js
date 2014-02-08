@@ -630,6 +630,7 @@ adapters.map(function(adapters) {
   });
 
   asyncTest("Replicate large number of docs", function() {
+    this.timeout(15000);
     var docs = [];
     var num = 30;
     for (var i = 0; i < num; i++) {
