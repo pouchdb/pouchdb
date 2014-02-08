@@ -31,7 +31,7 @@
     "http-proxy": "~0.10.3",
     "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
-    "browserify": "~3.14.1",
+    "browserify": "~3.24.13",
     "lie": "~2.5.2",
     "wd": "~0.2.8",
     "tin": "~0.4.0",
