@@ -10,7 +10,10 @@
   <body>
     <div id="mocha"></div>
     <script>
-      mocha.setup({ui:"qunit-mocha-ui"});
+      mocha.setup({
+        ui:"qunit-mocha-ui",
+        timeout:50000
+    });
       window.QUnit = {"module": suite};
     </script>
     <script src='../dist/pouchdb-nightly.js'></script>

@@ -1,7 +1,5 @@
 "use strict";
 
-var qunit = module;
-
 if (typeof module !== 'undefined' && module.exports) {
   var PouchDB = require('../lib');
   var testUtils = require('./test.utils.js');
