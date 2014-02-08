@@ -20,10 +20,9 @@ var browsers = [
   'chrome'
 ];
 
-// Don't do it on trais
+// Run only firefox tests on Travis
 if (process.env.TRAVIS) {
-  console.log('skipping tests on travis');
-  process.exit(0)
+  browsers = ['firefox'];
 }
 var numBrowsers = browsers.length;
 var finishedBrowsers = 0;
