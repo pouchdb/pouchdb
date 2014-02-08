@@ -914,6 +914,20 @@ adapters.map(function(adapters) {
     });
   });
 
+  asyncTest("(#1307) - replicate empty database", function () {
+    var self = this;
+
+    // Set up test databases
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
+      db.replicate.from(remote, function(err, result) {
+        ok(!err, 'No error');
+        ok(!!result, 'Result');
+        strictEqual(result.docs_written, 0, 'No docs written');
+        start();
+      });
+    });
+  });
+
 });
 
 // test a basic "initialize pouch" scenario when couch instance contains deleted revisions
