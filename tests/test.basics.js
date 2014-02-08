@@ -315,7 +315,7 @@ adapters.map(function(adapter) {
   });
 
   asyncTest("Testing issue #48", 1, function() {
-
+    this.timeout(15000);
     var docs = [{"id":"0"}, {"id":"1"}, {"id":"2"},
                 {"id":"3"}, {"id":"4"}, {"id":"5"}];
     var x = 0;
