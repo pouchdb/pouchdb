@@ -36,7 +36,8 @@
     "wd": "~0.2.8",
     "tin": "~0.4.0",
     "qunit-mocha-ui": "0.0.5",
-    "mocha": "~1.17.1"
+    "mocha": "~1.17.1",
+    "through": "~2.3.4"
   },
   "scripts": {
     "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",
@@ -46,7 +47,7 @@
     "build": "npm run build-js && npm run uglify",
     "test-node": "BLUEBIRD_DEBUG=1 ./bin/test-node.js",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
-    "dev-server": "npm run watch-js & ./bin/dev-server.js",
+    "dev-server": "./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh"
