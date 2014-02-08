@@ -46,7 +46,6 @@ adapters.map(function(adapters) {
     });
   });
 
-
   asyncTest("Test basic pull replication plain api", function() {
     var self = this;
     testUtils.initDBPair(this.name, this.remote, function(db, remote) {
@@ -1135,6 +1134,41 @@ interHTTPAdapters.map(function(adapters) {
               }, 500);
             }
           }
+        });
+      });
+    });
+  });
+
+  asyncTest("Test consecutive replications with different query_params", function() {
+    var myDocs = [
+      {_id: "0", integer: 0, string: '0'},
+      {_id: "1", integer: 1, string: '1'},
+      {_id: "2", integer: 2, string: '2'},
+      {_id: "3", integer: 3, string: '3'},
+      {_id: "4", integer: 5, string: '5'}
+    ];
+    var self = this;
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
+      remote.bulkDocs({docs: myDocs}, {}, function(err, results) {
+        var filterFun = function(doc, req) {
+          if (req.query.even) {
+            return doc.integer % 2 === 0;
+          } else {
+            return true;
+          }
+        };
+        db.replicate.from(self.remote, {
+          filter: filterFun,
+          query_params: {"even": true}
+        }, function(err, result) {
+          equal(result.docs_written, 2, "correct # docs written");
+          db.replicate.from(self.remote, {
+            filter: filterFun,
+            query_params: {"even": false}
+          }, function(err, result) {
+            equal(result.docs_written, 3, "correct # docs written after replication with different query_params");
+            start();
+          });
         });
       });
     });
