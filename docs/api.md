@@ -391,7 +391,7 @@ PouchDB.replicate(source, target, [options])
 
 Replicate data from `source` to `target`.  Both the `source` and `target` can be a string representing a CouchDB database url or the name a local PouchDB database. If `options.continuous` is `true`, then this will track future changes and also replicate them automatically.
 
-If you want to sync data in both directions, you can call this twice, reversing the `source` and `target` arguments.
+If you want to sync data in both directions, you can call this twice, reversing the `source` and `target` arguments. Additionally, you can use PouchDB.sync().
 
 ### Options
 
@@ -434,6 +434,39 @@ db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
 
 Note that the response for server replications (via `options.server`) is slightly different. See the [CouchDB replication documentation](http://wiki.apache.org/couchdb/Replication) for details.
+
+## Sync a database<a id="sync"></a>
+
+{% highlight js %}
+PouchDB.sync(target, [options])
+{% endhighlight %}
+
+Sync data from database to `target` and `target` to database. This is a convience method for bidirectional data replication, and is equivalent to:
+
+{% highlight js %}
+PouchDB.replicate(db1, db2, [options]);
+PouchDB.replicate(db2, db1, [options]);
+{% endhighlight %}
+
+### Options
+
+Please refer to [Replication](api.html#replication) for documention on options, as sync is just a convience method that entails bidirectional replication.
+
+#### Example Usage:
+{% highlight js %}
+PouchDB.sync('http://localhost:5984/mydb', {
+  onChange: onChange,
+  complete: onComplete
+});;
+{% endhighlight %}
+
+There is also a shorthand for syncing given existing PouchDB objects. This behaves the same as `PouchDB.sync()`:
+
+{% highlight js %}
+db.sync(remoteDB, [options]);
+{% endhighlight %}
+
+For any further details, please further to [Replication](api.html#replication).
 
 ## Save an attachment<a id="save_attachment"></a>
 
