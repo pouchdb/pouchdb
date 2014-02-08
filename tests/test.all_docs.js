@@ -271,4 +271,28 @@ adapters.map(function(adapter) {
     });
   });
 
+  asyncTest('test "key" option', function () {
+    testUtils.initTestDB(this.name, function (err, db) {
+      db.bulkDocs({docs : [{_id : '0'}, {_id : '1'}, {_id : '2'}]}, function(err) {
+        ok(!err);
+        db.allDocs({key : '1'}, function (err, res) {
+          equal(res.rows.length, 1, 'key option returned 1 doc');
+          db.allDocs({key : '1', keys : ['1', '2']}, function(err) {
+            ok(err, 'error correctly reported - keys is incompatible with key');
+            db.allDocs({key : '1', startkey : '1'}, function(err, res) {
+              ok(!err, 'error correctly unreported - startkey is compatible with key');
+              db.allDocs({key : '1', endkey : '1'}, function(err, res) {
+                ok(!err, 'error correctly unreported - endkey is compatible with key');
+                // when mixing key/startkey or key/endkey, the results
+                // are very weird and probably undefined, so don't go beyond
+                // verifying that there's no error
+                start();
+              })
+            })
+          })
+        });
+      })
+    });
+  })
+
 });
