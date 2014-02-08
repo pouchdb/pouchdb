@@ -1079,6 +1079,64 @@ downAdapters.map(function(adapter) {
       });
     });
   });
+
+  asyncTest("Test syncing two endpoints (issue 838)", function () {
+    var doc1 = {_id: 'adoc', foo:'bar'};
+    var doc2 = {_id: 'anotherdoc', foo:'baz'};
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
+      var finished = false;
+      
+      function onComplete() {
+        if (finished) {
+          db.allDocs(function(err, res) {
+            var db_total = res.total_rows;
+            remote.allDocs(function(err, res) {
+              var remote_total = res.total_rows;
+              ok(db_total === remote_total, 'replicated all docs successfully');
+              start();
+            });
+          });
+        } else {
+          finished = true;
+        }
+      }
+
+      db.put(doc1, function(err) {
+        remote.put(doc2, function(err) {
+          db.replicate.sync(remote, {
+            complete: onComplete
+          });
+        });
+      });
+    });
+  });
+
+  asyncTest("Syncing should stop if one replication fails (issue 838)", function () {
+    var doc1 = {_id: 'adoc', foo:'bar'};
+    var doc2 = {_id: 'anotherdoc', foo:'baz'};
+    testUtils.initDBPair(this.name, this.remote, function(db, remote) {
+      var replications = db.replicate.sync(remote, {
+        continuous: true,
+
+        onComplete: console.log
+      });
+
+      db.put(doc1, function(err) {
+        replications.pull.cancel();
+        remote.put(doc2, function(err) {
+          db.allDocs(function(err, res) {
+            var db_total = res.total_rows;
+            remote.allDocs(function(err, res) {
+              var remote_total = res.total_rows;
+              ok(db_total < 2, 'db replication halted');
+              ok(remote_total < 2, 'remote replication halted');
+              start();
+            });
+          });
+        });
+      });
+    });
+  });
 });
 
 // Server side replication via `server: true` between http
