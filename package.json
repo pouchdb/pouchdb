@@ -46,7 +46,7 @@
     "build": "npm run build-js && npm run uglify",
     "test-node": "BLUEBIRD_DEBUG=1 ./bin/test-node.js",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
-    "dev-server": "npm run watch-js & ./bin/dev-server.js",
+    "dev-server": "npm run watch-js & ./bin/dev-server.js; kill -INT -$(ps ho ppid:1 -p $$)",
     "test": "npm run jshint && npm run test-node && npm run test-browser",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh"
