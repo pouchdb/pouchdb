@@ -324,6 +324,20 @@ describe('attachments', function () {
         });
       });
 
+      it("Test put another attachment on a doc with attachments", function(done) {
+        testUtils.initTestDB(testHelpers.name, function(err, db) {
+          db.put({ _id: 'mydoc' }, function(err, res1) {
+            var blob = testUtils.makeBlob('Mytext');
+            db.putAttachment('mydoc', 'mytext', res1.rev, blob, 'text/plain', function(err, res2) {
+              db.putAttachment('mydoc', 'mytext2', res2.rev, blob, 'text/plain', function(err, res3) {
+                should.exist(res3.ok);
+                done();
+              });
+            });
+          });
+        });
+      });
+
       it('Test get with attachments: true if empty attachments', function(done) {
         testUtils.initTestDB(testHelpers.name, function(erro, db) {
           db.put({_id: 'foo', _attachments: {}}, function(err, resp) {
