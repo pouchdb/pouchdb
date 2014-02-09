@@ -100,8 +100,10 @@ adapters.map(function(adapter) {
   });
   asyncTest("Read db id", function() {
     testUtils.initTestDB(this.name, function(err, db) {
-      ok(typeof(db.id()) === 'string' && db.id() !== '', "got id");
-      start();
+      db.id(function(id) {
+        ok(typeof(id) === 'string' && id !== '', "got id");
+        start();
+      });
     });
   });
 
@@ -131,8 +133,10 @@ adapters.map(function(adapter) {
       db.close(function(error){
         ok(!err, 'close called back with an error');
         testUtils.openTestDB(dbName, function(err, db){
-          ok(typeof(db.id()) === 'string' && db.id() !== '', "got id");
-          start();
+          db.id(function(id) {
+            ok(typeof(id) === 'string' && id !== '', "got id");
+            start();
+          });
         });
       });
     });

@@ -9,8 +9,8 @@ if (typeof module !== 'undefined' && module.exports) {
 QUnit.module('replication-http-errors:');
 
 function MockDatabase(statusCodeToReturn, dataToReturn) {
-  this.id = function () {
-    return 123;
+  this.id = function (callback) {
+    callback(123);
   };
 
   this.get = function (id, callback) {
