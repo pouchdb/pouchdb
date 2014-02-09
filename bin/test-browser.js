@@ -20,9 +20,8 @@ var browsers = [
   'chrome'
 ];
 
-// Travis supports only firefox
 if (process.env.TRAVIS) {
-  browsers = ['firefox'];
+  process.exit(0);
 }
 var numBrowsers = browsers.length;
 var finishedBrowsers = 0;
