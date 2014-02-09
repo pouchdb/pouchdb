@@ -21,7 +21,7 @@ var browsers = [
 ];
 
 if (process.env.TRAVIS) {
-  process.exit(0);
+  browsers = ['firefox'];
 }
 var numBrowsers = browsers.length;
 var finishedBrowsers = 0;
