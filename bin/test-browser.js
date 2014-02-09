@@ -6,7 +6,7 @@ var spawn = require('child_process').spawn;
 var wd = require('wd');
 var devserver = require('./dev-server.js');
 
-var SELENIUM_PATH = '../node_modules/.bin/start-selenium';
+var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
 var testUrl = 'http://127.0.0.1:8000/tests/test.html';
 var testTimeout = 30 * 60 * 1000;
 var currentTest = '';
@@ -17,7 +17,7 @@ var browsers = [
   'firefox',
   // Temporarily disable safari until it is fixed (#1068)
   // 'safari',
-  'chrome'
+ // 'chrome'
 ];
 
 // Travis supports only firefox
@@ -26,15 +26,20 @@ if (process.env.TRAVIS) {
 }
 var numBrowsers = browsers.length;
 var finishedBrowsers = 0;
+
 function startServers(callback) {
 
   // Starts the file and CORS proxy
   devserver.start();
 
   // Start selenium
-  var started = false;
-  var selenium = spawn(path.resolve(__dirname, SELENIUM_PATH));
+  var started = false;  
+  var args = [
+    '-jar',
+    path.resolve(__dirname, SELENIUM_PATH),
+  ];
 
+  var selenium = spawn('java', args, {});
   selenium.stdout.on('data', function(data) {
     if (!started &&
         /Started org.openqa.jetty.jetty.servlet.ServletHandler/.test(data)) {
