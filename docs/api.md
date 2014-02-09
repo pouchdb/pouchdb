@@ -252,6 +252,28 @@ db.get('mydoc').then(function(doc) {
 }
 {% endhighlight %}
 
+{% include anchor.html title="Purge revisions" hash="purge_revs"%}
+
+{% highlight js %}
+db.purge(revs, [callback])
+{% endhighlight %}
+
+Purges given revisions. Purge is an alternative way of deleting selected revisions which leaves no trace after the revisions/documents. Revs is a map from documents ids to arrays of revisions to purge. For detailed description of purge policy, see [CouchDB purge](http://wiki.apache.org/couchdb/Purge_Documents).
+
+#### Example Usage:
+{% highlight js %}
+db.purge('{"myid": ["1-rev1", "2-rev2"]}', function(err, purged) {});
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "purged": {
+    "myid": ["1-rev1", "2-rev2"]
+  }
+}
+{% endghighlight %}
+
 {% include anchor.html title="Create/update a batch of documents" hash="batch_create" %}
 
 {% highlight js %}
