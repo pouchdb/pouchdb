@@ -149,11 +149,6 @@ testUtils.openTestDB = function(name, opts, callback) {
 testUtils.initTestDB = function(name, opts, callback) {
   // ignore errors, the database might not exist
   PouchDB.destroy(name, function(err) {
-    if (err && err.status !== 404 && err.statusText !== 'timeout') {
-      console.error(err);
-      ok(false, 'failed to open database');
-      return start();
-    }
     testUtils.openTestDB(name, opts, callback);
   });
 }
@@ -176,7 +171,7 @@ testUtils.generateAdapterUrl = function(id) {
     name = name + '_' + opt[1];
   }
   if (opt[0] === 'local') {
-    return typeof process === 'undefined' ? name : process.env.TESTS_DIR + name;
+    return typeof process === 'undefined' ? name : PouchDB.prefix + name;
   }
   if (opt[0] === 'http') {
     return testUtils.couchHost() + '/' + name;
@@ -252,7 +247,6 @@ testUtils.writeDocs = function(db, docs, callback, res) {
   }
   var doc = docs.shift();
   db.put(doc, function(err, info) {
-    ok(info && info.ok, 'docwrite returned ok');
     res.push(info);
     testUtils.writeDocs(db, docs, callback, res);
   });
@@ -398,11 +392,13 @@ testUtils.cleanUpCors = function(dburl, callback_) {
     });
   }
 }
-
+var testDir;
 if (typeof module !== 'undefined' && module.exports) {
-  PouchDB = require('../lib');
+  global.PouchDB = require('../lib');
   if (typeof process !== 'undefined') {
-    PouchDB.prefix = process.env.TESTS_DIR + PouchDB.prefix;
+    testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
+    testDir = testDir.slice(-1) === "/" ? testDir : testDir + "/";
+    global.PouchDB.prefix =  testDir + global.PouchDB.prefix;
   }
   module.exports = testUtils;
 }

@@ -1,12 +1,5 @@
 "use strict";
 
-if (typeof module !== 'undefined' && module.exports) {
-  var PouchDB = require('../lib');
-  var testUtils = require('./test.utils.js');
-}
-
-
-QUnit.module('replication-http-errors:');
 
 function MockDatabase(statusCodeToReturn, dataToReturn) {
   this.id = function (callback) {
@@ -29,7 +22,7 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
   }
 }
 
-function getCallback(expectError) {
+function getCallback(expectError, done) {
   // returns a function which expects to be called within a certain time. Fails the test otherwise
 
   var maximumTimeToWait = 50;
@@ -37,61 +30,64 @@ function getCallback(expectError) {
   var _result;
   var _err;
 
-  var callback = function (err, result) {
+  function callback(err, result) {
     _hasBeenCalled = true;
     _result = result;
     _err = err;
   };
 
-  var timeOutCallback = function () {
-    ok(_hasBeenCalled , 'callback has been called');
-    ok(expectError || !_err , 'error expectation fulfilled');
-    start();
+  function timeOutCallback() {
+    _hasBeenCalled.should.equal(true, 'callback has been called');
+    if (!expectError) {
+      should.not.exist(_err, 'error expectation fulfilled')
+    }
+    done();
   };
 
   setTimeout(timeOutCallback, maximumTimeToWait);
 
   return callback;
 }
+describe('replication-http-errors:', function () {
+  it("Initial replication is ok if source returns HTTP 404", function (done) {
+    var source = new MockDatabase(404, null);
+    var target = new MockDatabase(200, {});
+    PouchDB.replicate(source, target, {}, getCallback(false, done));
+  });
 
-asyncTest("Initial replication is ok if source returns HTTP 404", function () {
-  var source = new MockDatabase(404, null);
-  var target = new MockDatabase(200, {});
-  PouchDB.replicate(source, target, {}, getCallback());
-});
+  it("Initial replication is ok if target returns HTTP 404", function (done) {
+    var source = new MockDatabase(200, {});
+    var target = new MockDatabase(404, null);
+    PouchDB.replicate(source, target, {}, getCallback(false, done));
+  });
 
-asyncTest("Initial replication is ok if target returns HTTP 404", function () {
-  var source = new MockDatabase(200, {});
-  var target = new MockDatabase(404, null);
-  PouchDB.replicate(source, target, {}, getCallback());
-});
+  it("Initial replication is ok if source and target return HTTP 200", function (done) {
+    var source = new MockDatabase(200, {});
+    var target = new MockDatabase(200, {});
+    PouchDB.replicate(source, target, {}, getCallback(false, done));
+  });
 
-asyncTest("Initial replication is ok if source and target return HTTP 200", function () {
-  var source = new MockDatabase(200, {});
-  var target = new MockDatabase(200, {});
-  PouchDB.replicate(source, target, {}, getCallback());
-});
+  it("Initial replication returns err if source returns HTTP 500", function (done) {
+    var source = new MockDatabase(500, null);
+    var target = new MockDatabase(200, {});
+    PouchDB.replicate(source, target, {}, getCallback(true, done));
+  });
 
-asyncTest("Initial replication returns err if source returns HTTP 500", function () {
-  var source = new MockDatabase(500, null);
-  var target = new MockDatabase(200, {});
-  PouchDB.replicate(source, target, {}, getCallback(true));
-});
+  it("Initial replication returns err if target returns HTTP 500", function (done) {
+    var source = new MockDatabase(200, {});
+    var target = new MockDatabase(500, null);
+    PouchDB.replicate(source, target, {}, getCallback(true, done));
+  });
 
-asyncTest("Initial replication returns err if target returns HTTP 500", function () {
-  var source = new MockDatabase(200, {});
-  var target = new MockDatabase(500, null);
-  PouchDB.replicate(source, target, {}, getCallback(true));
-});
+  it("Initial replication returns err if target and source return HTTP 500", function (done) {
+    var source = new MockDatabase(500, null);
+    var target = new MockDatabase(500, null);
+    PouchDB.replicate(source, target, {}, getCallback(true, done));
+  });
 
-asyncTest("Initial replication returns err if target and source return HTTP 500", function () {
-  var source = new MockDatabase(500, null);
-  var target = new MockDatabase(500, null);
-  PouchDB.replicate(source, target, {}, getCallback(true));
-});
-
-asyncTest("Subsequent replication returns err if source return HTTP 500", function () {
-  var source = new MockDatabase(500, null);
-  var target = new MockDatabase(200, {last_seq: 456});
-  PouchDB.replicate(source, target, {}, getCallback(true));
+  it("Subsequent replication returns err if source return HTTP 500", function (done) {
+    var source = new MockDatabase(500, null);
+    var target = new MockDatabase(200, {last_seq: 456});
+    PouchDB.replicate(source, target, {}, getCallback(true, done));
+  });
 });
