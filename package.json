@@ -36,7 +36,7 @@
     "tin": "~0.4.0",
     "qunit-mocha-ui": "0.0.5",
     "mocha": "~1.17.1",
-    "through": "~2.3.4"
+    "chai": "~1.9.0"
   },
   "scripts": {
     "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",
@@ -44,7 +44,8 @@
     "watch-js": "mkdir -p dist && ./node_modules/.bin/watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
-    "test-node": "BLUEBIRD_DEBUG=1 ./bin/test-node.js",
+    "mocha": "mocha -t 50000 -r ./tests/node.setup.js -R spec tests/test.*.js",
+    "test-node": "npm run mocha",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser",

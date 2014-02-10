@@ -4,17 +4,20 @@
     <meta charset="utf-8">
     <title>Mocha</title>
     <script src="../node_modules/mocha/mocha.js"></script>
-    <script src="../node_modules/qunit-mocha-ui/qunit-mocha-ui-browser.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
     <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
   </head>
   <body>
     <div id="mocha"></div>
     <script>
-      mocha.setup({ui:"qunit-mocha-ui", timeout:10000});
-      window.QUnit = {"module": suite};
+      mocha.setup({
+        timeout:100000,
+        ui: 'bdd'
+      });
+      var should = chai.should();
     </script>
     <script src='../dist/pouchdb-nightly.js'></script>
-    <script src='test.utils.js'></script>
+    <script src='utils.js'></script>
     <script src='test.setup.js'></script>
     <script src='test.basics.js'></script>
     <script src='test.all_dbs.js'></script>
@@ -34,7 +37,7 @@
     <script src='test.attachments.js'></script>
     <script src='test.uuids.js'></script>
     <script src='test.slash_id.js'></script>
-    <script src='test.worker.js'></script>
+    <script src='browser.worker.js'></script>
     <script type="text/javascript" src="./webrunner.js"></script>
   </body>
 </html>
