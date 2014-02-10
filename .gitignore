@@ -6,3 +6,4 @@ docs/_site
 npm-debug.log
 *~
 *.uuid
+coverage
