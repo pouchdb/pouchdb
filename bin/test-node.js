@@ -6,7 +6,14 @@ var fs = require('fs');
 var testsDir = process.env.TESTS_DIR || './tmp';
 var path = require('path');
 var exec = require('child_process').exec;
-var mocha = new Mocha({ui:"qunit-mocha-ui", reporter:process.env.TRAVIS ? "spec" : "dot", timeout: 5 * 60 * 1000});
+
+var mocha = new Mocha({
+  ui: "qunit-mocha-ui",
+  reporter: process.env.REPORTER || 'spec',
+  grep: process.env.GREP || '',
+  timeout: 5 * 60 * 1000
+});
+
 var excludedTests = [
   // auth_replication and cors need admin access (#1030)
   'test.auth_replication.js',
