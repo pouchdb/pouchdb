@@ -36,7 +36,8 @@
     "tin": "~0.4.0",
     "qunit-mocha-ui": "0.0.5",
     "mocha": "~1.17.1",
-    "chai": "~1.9.0"
+    "chai": "~1.9.0",
+    "istanbul": "~0.2.4"
   },
   "scripts": {
     "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",
@@ -50,7 +51,8 @@
     "dev-server": "./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser",
     "publish": "./bin/publish.sh",
-    "publish-site": "./bin/publish-site.sh"
+    "publish-site": "./bin/publish-site.sh",
+    "coverage" :"istanbul cover ./node_modules/mocha/bin/_mocha -- -t 50000 -r ./tests/node.setup.js -R spec tests/test.*.js"
   },
   "browser": {
     "./adapters/leveldb": false,
