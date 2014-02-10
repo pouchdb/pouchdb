@@ -599,6 +599,41 @@ describe('changes', function () {
         });
       });
 
+      // Note for the following test that CouchDB's implementation of /_changes
+      // with `descending=true` ignores any `since` parameter.
+      it("Descending many changes", function (done) {
+        testUtils.initTestDB(testHelpers.name, function(err, db) {
+          if (err) {
+            return done(err);
+          }
+          var docs = [];
+          var num = 100;
+          for (var i = 0; i < num; i++) {
+            docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+          }
+          var changes = 0;
+          db.bulkDocs({docs: docs}, function(err, info) {
+            if (err) {
+              return done(err);
+            }
+            db.changes({
+              descending: true,
+              onChange: function (change) {
+                changes++;
+              },
+              complete: function(err, results) {
+                if (err) {
+                  return done(err);
+                }
+                changes.should.equal(num, 'correct number of changes');
+                done();
+              }
+            });
+          });
+        });
+      });
+
+
       it("Continuous changes", function(start) {
         testUtils.initTestDB(testHelpers.name, function(err, db) {
           var count = 0;
@@ -1030,6 +1065,7 @@ describe('changes', function () {
         this.timeout(20000);
         var db = new PouchDB('http://infiniterequest.com', {skipSetup: true});
         db.changes({
+          timeout: 10000,
           complete: function(err, changes) {
             ok(err, 'got error');
             done();
