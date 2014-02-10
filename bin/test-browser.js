@@ -13,6 +13,10 @@ var currentTest = '';
 var results = {};
 var client = {};
 
+if( process.env.GREP ){
+  testUrl += '?grep=' + process.env.GREP;
+}
+
 var browsers = [
   'firefox',
   // Temporarily disable safari until it is fixed (#1068)
