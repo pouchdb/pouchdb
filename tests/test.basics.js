@@ -34,15 +34,18 @@ describe('basics', function () {
         });
       });
 
-      it("Create a pouch with a promise", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          PouchDB(testHelpers.name).then(function (db) {
-            ok(db instanceof PouchDB, 'should be an instance of PouchDB');
-            start();
-          }, function (err) {
-            ok(false);
-            start();
-          });
+      it("Create a pouch with a promise", function(done) {
+        PouchDB(testHelpers.name).then(function (db) {
+          ok(db instanceof PouchDB, 'should be an instance of PouchDB');
+          done();
+        }, function () {
+          done(err);
+        });
+      });
+      it("Catch an error when creating a pouch with a promise", function(done) {
+        PouchDB().catch(function (err) {
+          should.exist(err);
+          done();
         });
       });
 
