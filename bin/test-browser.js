@@ -25,7 +25,7 @@ var browsers = [
 ];
 
 if (process.env.TRAVIS) {
-  process.exit(0);
+  browsers = ['firefox'];
 }
 var numBrowsers = browsers.length;
 var finishedBrowsers = 0;
@@ -91,6 +91,7 @@ function startTest() {
         console.log('[' + currentTest + '] passed ' + result.passed + ' of ' + result.total + ' tests');
       } else {
         console.log('[' + currentTest + '] failed ' + result.failed + ' of ' + result.total + ' tests');
+        console.log(JSON.stringify(results.failures));
         return client.quit().then(function() {
           process.exit(2);
         })
