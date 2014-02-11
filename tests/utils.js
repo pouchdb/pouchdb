@@ -399,6 +399,9 @@ if (typeof module !== 'undefined' && module.exports) {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
     testDir = testDir.slice(-1) === "/" ? testDir : testDir + "/";
     global.PouchDB.prefix =  testDir + global.PouchDB.prefix;
+    require('bluebird').onPossiblyUnhandledRejection(function(e, promise){
+        throw e;
+    });
   }
   module.exports = testUtils;
 }

@@ -9,7 +9,11 @@
   </head>
   <body>
     <div id="mocha"></div>
+    <script src="../vendor/bluebird.js"></script>
     <script>
+      Promise.onPossiblyUnhandledRejection(function(e, promise){
+          throw e;
+      });
       mocha.setup({
         timeout:100000,
         ui: 'bdd'
