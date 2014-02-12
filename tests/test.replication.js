@@ -1081,6 +1081,24 @@ describe('replication', function () {
         });
       });
 
+      it("Test sync cancel", function (done) {
+        var completed = 0;
+        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function(db, remote) {
+          
+          var replications = db.replicate.sync(remote, {
+            complete: function(err, result) {
+              completed++;
+              if(completed === 2) {
+                done();
+              }
+            }
+          });
+          ok(replications, 'got some stuff');
+          replications.cancel();
+          return;
+        });
+      });
+
       it("Test syncing two endpoints (issue 838)", function (start) {
         var doc1 = {_id: 'adoc', foo:'bar'};
         var doc2 = {_id: 'anotherdoc', foo:'baz'};
