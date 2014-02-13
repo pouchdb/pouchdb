@@ -499,6 +499,36 @@ describe('changes', function () {
         });
       });
 
+      it("Replication since", function(start) {
+        var thedocs = [
+          {_id: '1', integer: 1, string: '1'},
+          {_id: '2', integer: 2, string: '2'},
+          {_id: '3', integer: 3, string: '3'},
+          {_id: '4', integer: 4, string: '4'},
+          {_id: '5', integer: 5, string: '5'}
+        ];
+
+        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function(db, remote) {
+          remote.bulkDocs({docs: thedocs}, function(err, info) {
+            db.replicate.from(remote, {
+              since: 3,
+              complete: function(err, result) {
+                ok(!null, 'Replication completed without error');
+                result.docs_written.should.equal(2, 'Correct number of docs written');
+                db.replicate.from(remote, {
+                  since: 0,
+                  complete: function(err, result) {
+                    ok(!err, 'Replication completed without error');
+                    result.docs_written.should.equal(3, 'Correct number of docs written');
+                    start();
+                  }
+                });
+              }
+            });
+          });
+        });
+      });
+
       it("Replication with same filters", function(start) {
         var more_docs = [
           {_id: '3', integer: 3, string: '3'},
