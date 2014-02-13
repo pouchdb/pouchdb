@@ -412,6 +412,7 @@ All options default to `false` unless otherwise specified.
 * `options.complete`: Function called when all changes have been processed.
 * `options.onChange`: Function called on each change processed.
 * `options.continuous`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
+* `options.since`: Replicate changes after the given sequence number.
 * `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
 
