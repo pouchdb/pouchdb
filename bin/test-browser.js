@@ -90,6 +90,7 @@ function startTest() {
       if (!result.failed) {
         console.log('[' + currentTest + '] passed ' + result.passed + ' of ' + result.total + ' tests');
       } else {
+        console.log(JSON.stringify(results.failures, false, 4));
         console.log('[' + currentTest + '] failed ' + result.failed + ' of ' + result.total + ' tests');
         return client.quit().then(function() {
           process.exit(2);
