@@ -17,10 +17,11 @@
     "pouchdb"
   ],
   "dependencies": {
-    "level": "~0.18.0",
     "request": "~2.28.0",
     "pouchdb-mapreduce": "0.5.0",
-    "bluebird": "~1.0.0"
+    "bluebird": "~1.0.0",
+    "levelup": "~0.18.2",
+    "leveldown": "~0.10.2"
   },
   "devDependencies": {
     "commander": "~2.1.0",
