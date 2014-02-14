@@ -805,6 +805,128 @@ describe('changes', function () {
         });
       });
 
+      it("Get error 2", function(start) {
+        
+        // 10 test documents
+        var num = 10;
+        var docs = [];
+        for (var i = 0; i < num; i++) {
+          docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
+        }
+
+        // Set up test databases
+        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function(db, remote) {
+          // Initialize remote with test documents
+          remote.bulkDocs({docs: docs}, {}, function(err, results) {
+            var get = remote.get;
+
+            function first_replicate() {
+              // Mock remote.get to fail writing doc_3 (fourth doc)
+              remote.get = function() {
+                // Simulate failure to get the document with id 'doc_4'
+                // This should block the replication at seq 4
+                if(arguments[0] === 'doc_4') {
+                  arguments[2].apply(null, [{
+                    status: 500,
+                    error: 'mock error',
+                    reason: 'mock get failure'
+                  }]);
+                } else {
+                  get.apply(this, arguments);
+                }
+              };
+
+              // Replicate and confirm failure, docs_written and target docs
+              db.replicate.from(remote, function(err, result) {
+                ok(err !== null, 'Replication fails with an error');
+                ok(err.status === 500, 'err.status');
+                ok(err.error === 'Replication aborted', 'err.error');
+                ok(err.reason === 'src.get completed with error', 'err.reason');
+                ok(err.details.status === 500, 'err.details.status');
+                ok(err.details.error === 'mock error', 'err.details.error');
+                ok(err.details.reason === 'mock get failure', 'err.details.reason');
+                ok(result !== null, 'Replication has a result');
+                ok(!result.ok, 'result.ok');
+                ok(result.errors[0].status === 500, 'result.errors[0].status');
+                ok(result.errors[0].error === 'mock error', 'result.errors[0].error');
+                ok(result.errors[0].reason === 'mock get failure', 'result.errors[0].reason');
+                strictEqual(result.docs_written, 4, 'Four docs written');
+                function check_docs(id, result) {
+                  if (!id) {
+                    second_replicate();
+                    return;
+                  }
+                  db.get(id, function(err, exists) {
+                    if(exists) {
+                      ok(err === null, 'Document exists')
+                    } else {
+                      ok(err !== null, 'Document does not exist')
+                    }
+                    check_docs(docs.shift());
+                  });
+                }
+                var docs = [
+                  [ 'doc_0', true ],
+                  [ 'doc_1', true ],
+                  [ 'doc_2', true ],
+                  [ 'doc_3', false ],
+                  [ 'doc_4', false ],
+                  [ 'doc_5', false ],
+                  [ 'doc_6', false ],
+                  [ 'doc_7', false ],
+                  [ 'doc_8', false ],
+                  [ 'doc_9', false ]
+                ];
+                check_docs(docs.shift());
+              });
+            }
+
+            function second_replicate() {
+              // Restore remote.get to original
+              remote.get = get;
+
+              // Replicate and confirm success, docs_written and target docs
+              db.replicate.from(remote, function(err, result) {
+                ok(err === null, 'Replication completes without error');
+                ok(result !== null, 'Replication has a result');
+                strictEqual(result.docs_written, 6, 'Six docs written');
+                function check_docs(id, exists) {
+                  if (!id) {
+                    start();
+                    return;
+                  }
+                  db.get(id, function(err, result) {
+                    if(exists) {
+                      ok(err === null, 'Document exists')
+                    } else {
+                      ok(err !== null, 'Document does not exist')
+                    }
+                    check_docs(docs.shift());
+                  });
+                }
+                var docs = [
+                  [ 'doc_0', true ],
+                  [ 'doc_1', true ],
+                  [ 'doc_2', true ],
+                  [ 'doc_3', true ],
+                  [ 'doc_4', true ],
+                  [ 'doc_5', true ],
+                  [ 'doc_6', true ],
+                  [ 'doc_7', true ],
+                  [ 'doc_8', true ],
+                  [ 'doc_9', true ]
+                ];
+                check_docs(docs.shift());
+              });
+            }
+
+            // Start the test
+            first_replicate();
+
+          });
+        });
+      });
+
       // it("(#1240) - bulkWrite error", function () {
       //   
 
