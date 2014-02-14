@@ -45,14 +45,13 @@
     "watch-js": "mkdir -p dist && ./node_modules/.bin/watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
-    "mocha": "mocha -t 50000 -r ./tests/node.setup.js -R spec tests/test.*.js",
-    "test-node": "npm run mocha",
+    "test-node": "./bin/run-mocha.sh",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
-    "coverage" :"istanbul cover ./node_modules/mocha/bin/_mocha -- -t 50000 -r ./tests/node.setup.js -R spec tests/test.*.js"
+    "coverage" :"COVERAGE=1 ./bin/run-mocha.sh"
   },
   "browser": {
     "./adapters/leveldb": false,
