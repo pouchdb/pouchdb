@@ -438,7 +438,9 @@ db.replicate.from(remoteDB, [options]);
   'docs_read': 2,
   'docs_written': 2,
   'start_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)",
-  'end_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)"
+  'end_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)",
+  'status': 'Complete',
+  'errors': []
 }
 {% endhighlight %}
 
