@@ -382,12 +382,12 @@ describe('basics', function () {
         });
       });
 
-      it("Put doc with bad reserved id should fail with correct error message", function(start) {
+      it("Put doc with bad reserved id should fail with correct error message", function(done) {
         testUtils.initTestDB(testHelpers.name, function(err, db) {
           db.put({_id: '_i_test', test:"somestuff"}, function(err, info) {
             ok(err, 'Only reserved document ids may start with underscore');
-            ok(err.name === 'bad_request')
-            start();
+            err.name.should.equal('bad_request');
+            done();
           });
         });
       });
