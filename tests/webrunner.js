@@ -14,7 +14,7 @@ runner.on('pass', function () {
   results.total++;
 });
 
-runner.on('fail', function(e) {
+runner.on('fail', function (e) {
   results.failures.push(e);
   results.failed++;
   results.total++;
