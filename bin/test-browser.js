@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 
 var path = require('path');
 var spawn = require('child_process').spawn;
@@ -9,9 +10,7 @@ var devserver = require('./dev-server.js');
 var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
 var testUrl = 'http://127.0.0.1:8000/tests/test.html';
 var testTimeout = 30 * 60 * 1000;
-var currentTest = '';
 var results = {};
-var client = {};
 
 if (process.env.GREP) {
   testUrl += '?grep=' + process.env.GREP;
@@ -36,14 +35,14 @@ function startServers(callback) {
   devserver.start();
 
   // Start selenium
-  var started = false;  
+  var started = false;
   var args = [
     '-jar',
     path.resolve(__dirname, SELENIUM_PATH),
   ];
 
   var selenium = spawn('java', args, {});
-  selenium.stdout.on('data', function(data) {
+  selenium.stdout.on('data', function (data) {
     if (!started &&
         /Started org.openqa.jetty.jetty.servlet.ServletHandler/.test(data)) {
       started = true;
@@ -53,9 +52,15 @@ function startServers(callback) {
 }
 
 function testsComplete() {
-  var passed = Object.keys(results).length && Object.keys(results).every(function(x) {
+  var tests = Object.keys(results).length;
+
+  var passed = tests && Object.keys(results).every(function (x) {
     return !results[x].failed;
   });
+
+  var failed = Object.keys(results).filter(function (x) {
+    return results[x].failed;
+  }).length;
 
   if (passed) {
     console.log('Woot, all ' + Object.keys(results).length + ' tests passed');
@@ -64,7 +69,7 @@ function testsComplete() {
     console.error('no tests ran');
     process.exit(4);
   } else {
-    console.error('we ran ' + Object.keys(results).length + ' tests and ' + results[x].failed + ' failed');
+    console.error('we ran ' + Object.keys(results).length + ' tests and ' + failed + ' failed');
     process.exit(1);
   }
 }
@@ -91,13 +96,13 @@ function startTest() {
         console.log('[' + currentTest + '] passed ' + result.passed + ' of ' + result.total + ' tests');
       } else {
         console.log('[' + currentTest + '] failed ' + result.failed + ' of ' + result.total + ' tests');
-        return client.quit().then(function() {
+        return client.quit().then(function () {
           process.exit(2);
-        })
+        });
       }
       results[currentTest] = result;
     }).quit()
-    .then(startTest,function(e) {
+    .then(startTest, function (e) {
       console.error(e);
       console.error('Doh, tests failed');
       client.quit();
@@ -106,6 +111,6 @@ function startTest() {
 
 }
 
-startServers(function() {
+startServers(function () {
   startTest();
 });

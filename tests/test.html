@@ -11,7 +11,7 @@
     <div id="mocha"></div>
     <script src="../vendor/bluebird.js"></script>
     <script>
-      Promise.onPossiblyUnhandledRejection(function(e, promise){
+      Promise.onPossiblyUnhandledRejection(function (e, promise) {
           throw e;
       });
       mocha.setup({
