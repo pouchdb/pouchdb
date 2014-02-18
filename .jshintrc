@@ -10,6 +10,7 @@
   "browser": true,
   "node": true,
   "strict": true,
+  "trailing": true,
   "globalstrict": true,
   "globals": {
     "PouchDB": true
