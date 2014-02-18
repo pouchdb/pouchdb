@@ -4,7 +4,7 @@ var adapters = ['http-1', 'local-1'];
 
 var testHelpers = {};
 describe('all_docs', function () {
-  adapters.map(function(adapter) {
+  adapters.map(function (adapter) {
 
     describe(adapter, function () {
       beforeEach(function () {
@@ -20,35 +20,35 @@ describe('all_docs', function () {
         {_id:"2",a:3,b:9}
       ];
 
-      it('Testing all docs', function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
-            db.allDocs(function(err, result) {
+      it('Testing all docs', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+            db.allDocs(function (err, result) {
               var rows = result.rows;
               result.total_rows.should.equal(4, 'correct number of results');
               for(var i=0; i < rows.length; i++) {
                 rows[i].id.should.be.at.least("0");
                 rows[i].id.should.be.at.most("4");
               }
-              db.allDocs({startkey:"2", include_docs: true}, function(err, all) {
+              db.allDocs({startkey:"2", include_docs: true}, function (err, all) {
                 all.rows.should.have.length(2, 'correct number when opts.startkey set');
                 all.rows[0].id.should.equal("2", 'correct docs when opts.startkey set');
                 // TODO: implement offset
                 //ok(all.offset == 2, 'offset correctly set');
                 var opts = {startkey: "org.couchdb.user:", endkey: "org.couchdb.user;"};
-                db.allDocs(opts, function(err, raw) {
+                db.allDocs(opts, function (err, raw) {
                   raw.rows.should.have.length(0, 'raw collation');
                   var ids = ["0","3","1","2"];
                   db.changes({
-                    complete: function(err, changes) {
-                      changes.results.forEach(function(row, i) {
+                    complete: function (err, changes) {
+                      changes.results.forEach(function (row, i) {
                         row.id.should.equal(ids[i], 'seq order');
                       });
                       db.changes({
                         descending: true,
-                        complete: function(err, changes) {
+                        complete: function (err, changes) {
                           ids = ["2","1","3","0"];
-                          changes.results.forEach(function(row, i) {
+                          changes.results.forEach(function (row, i) {
                             row.id.should.equal(ids[i], 'descending=true');
                           });
                           done();
@@ -63,31 +63,31 @@ describe('all_docs', function () {
         });
       });
 
-      it('Testing allDocs opts.keys', function(done) {
+      it('Testing allDocs opts.keys', function (done) {
         function keyFunc(doc) {
           return doc.key;
         }
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
             var keys = ["3", "1"];
-            db.allDocs({keys: keys}, function(err, result) {
+            db.allDocs({keys: keys}, function (err, result) {
               result.rows.map(keyFunc).should.deep.equal(keys);
               keys = ["2", "0", "1000"];
-              db.allDocs({keys: keys}, function(err, result) {
+              db.allDocs({keys: keys}, function (err, result) {
                 result.rows.map(keyFunc).should.deep.equal(keys);
                 result.rows[2].error.should.equal("not_found", 'correct third (non-existent) row - has error field');
-                db.allDocs({keys: keys, descending: true}, function(err, result) {
+                db.allDocs({keys: keys, descending: true}, function (err, result) {
                   result.rows.map(keyFunc).should.deep.equal(["1000", "0", "2"]);
                   result.rows[0].error.should.equal("not_found", 'correct third (non-existent) row - has error field (desc)');
-                  db.allDocs({keys: keys, startkey: "a"}, function(err, result) {
+                  db.allDocs({keys: keys, startkey: "a"}, function (err, result) {
                     err.should.exist;
-                    db.allDocs({keys: keys, endkey: "a"}, function(err, result) {
+                    db.allDocs({keys: keys, endkey: "a"}, function (err, result) {
                       err.should.exist;
-                      db.allDocs({keys: []}, function(err, result) {
+                      db.allDocs({keys: []}, function (err, result) {
                         result.rows.should.have.length(0, 'correct answer if keys is empty');
-                        db.get("2", function(err, doc){
-                          db.remove(doc, function(err, doc){
-                            db.allDocs({keys: keys, include_docs: true}, function(err, result){
+                        db.get("2", function (err, doc) {
+                          db.remove(doc, function (err, doc) {
+                            db.allDocs({keys: keys, include_docs: true}, function (err, result) {
                               result.rows.map(keyFunc).should.deep.equal(keys);
                               done();
                             });
@@ -103,14 +103,14 @@ describe('all_docs', function () {
         });
       });
 
-      it('Testing deleting in changes', function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
-            db.get('1', function(err, doc) {
-              db.remove(doc, function(err, deleted) {
+      it('Testing deleting in changes', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+            db.get('1', function (err, doc) {
+              db.remove(doc, function (err, deleted) {
                 deleted.ok.should.exist;
                 db.changes({
-                  complete: function(err, changes) {
+                  complete: function (err, changes) {
                     changes.results.should.have.length(4);
                     changes.results[3].id.should.equal("1");
                     changes.results[3].deleted.should.exist;
@@ -123,14 +123,14 @@ describe('all_docs', function () {
         });
       });
 
-      it('Testing updating in changes', function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
-            db.get('3', function(err, doc) {
+      it('Testing updating in changes', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+            db.get('3', function (err, doc) {
               doc.updated = 'totally';
-              db.put(doc, function(err, doc) {
+              db.put(doc, function (err, doc) {
                 db.changes({
-                  complete: function(err, changes) {
+                  complete: function (err, changes) {
                     changes.results.should.have.length(4);
                     changes.results[3].id.should.equal("3");
                     done();
@@ -142,12 +142,12 @@ describe('all_docs', function () {
         });
       });
 
-      it('Testing include docs', function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+      it('Testing include docs', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
             db.changes({
               include_docs: true,
-              complete: function(err, changes) {
+              complete: function (err, changes) {
                 changes.results[0].doc.a.should.equal(1);
                 done();
               }
@@ -156,9 +156,9 @@ describe('all_docs', function () {
         });
       });
 
-      it('Testing conflicts', function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
+      it('Testing conflicts', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
             // add conflicts
             var conflictDoc1 = {
               _id: "3", _rev: "2-aa01552213fafa022e6167113ed01087", value: "X"
@@ -166,16 +166,16 @@ describe('all_docs', function () {
             var conflictDoc2 = {
               _id: "3", _rev: "2-ff01552213fafa022e6167113ed01087", value: "Z"
             };
-            db.put(conflictDoc1, {new_edits: false}, function(err, doc) {
-              db.put(conflictDoc2, {new_edits: false}, function(err, doc) {
-                db.get('3', function(err, winRev) {
+            db.put(conflictDoc1, {new_edits: false}, function (err, doc) {
+              db.put(conflictDoc2, {new_edits: false}, function (err, doc) {
+                db.get('3', function (err, winRev) {
                   winRev._rev.should.equal(conflictDoc2._rev, "correct wining revision on get");
                   var opts = {include_docs: true, conflicts: true, style: 'all_docs'};
                   db.changes({
                     include_docs: true,
                     conflicts: true,
                     style: 'all_docs',
-                    complete: function(err, changes) {
+                    complete: function (err, changes) {
                       var result = changes.results[3];
                       result.id.should.equal('3', 'changes are ordered');
                       result.changes.should.have.length(3, 'correct number of changes');
@@ -188,7 +188,7 @@ describe('all_docs', function () {
                             'include docs contains conflicts');
                       result.doc._conflicts.should.have.length(2, 'correct number of changes');
                       conflictDoc1._rev.should.equal(result.doc._conflicts[0], 'correct conflict rev');
-                      db.allDocs({include_docs: true, conflicts: true}, function(err, res) {
+                      db.allDocs({include_docs: true, conflicts: true}, function (err, res) {
                         var row = res.rows[3];
                         res.rows.should.have.length(4, 'correct number of changes');
                         row.key.should.equal("3", 'correct key');
@@ -210,11 +210,11 @@ describe('all_docs', function () {
         });
       });
 
-      it('test basic collation', function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it('test basic collation', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var docs = {docs: [{_id: "z", foo: "z"}, {_id: "a", foo: "a"}]};
-          db.bulkDocs(docs, function(err, res) {
-            db.allDocs({startkey: 'z', endkey: 'z'}, function(err, result) {
+          db.bulkDocs(docs, function (err, res) {
+            db.allDocs({startkey: 'z', endkey: 'z'}, function (err, result) {
               result.rows.should.have.length(1, 'Exclude a result');
               done();
             });
@@ -223,14 +223,14 @@ describe('all_docs', function () {
       });
 
       it('test limit option and total_rows', function (done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var docs = {
             docs: [
               {_id: "z", foo: "z"},
               {_id: "a", foo: "a"}
             ]
           };
-          db.bulkDocs(docs, function(err, res) {
+          db.bulkDocs(docs, function (err, res) {
             db.allDocs({ startkey: 'a', limit: 1 }, function (err, res) {
               res.total_rows.should.equal(2, 'Accurately return total_rows count');
               res.rows.should.have.length(1, 'Correctly limit the returned rows.');
@@ -261,15 +261,15 @@ describe('all_docs', function () {
 
       it('test "key" option', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
-          db.bulkDocs({docs : [{_id : '0'}, {_id : '1'}, {_id : '2'}]}, function(err) {
+          db.bulkDocs({docs : [{_id : '0'}, {_id : '1'}, {_id : '2'}]}, function (err) {
             should.not.exist(err);
             db.allDocs({key : '1'}, function (err, res) {
               res.rows.should.have.length(1, 'key option returned 1 doc');
-              db.allDocs({key : '1', keys : ['1', '2']}, function(err) {
+              db.allDocs({key : '1', keys : ['1', '2']}, function (err) {
                 should.exist(err, 'error correctly reported - keys is incompatible with key');
-                db.allDocs({key : '1', startkey : '1'}, function(err, res) {
+                db.allDocs({key : '1', startkey : '1'}, function (err, res) {
                   should.not.exist(err, 'error correctly unreported - startkey is compatible with key');
-                  db.allDocs({key : '1', endkey : '1'}, function(err, res) {
+                  db.allDocs({key : '1', endkey : '1'}, function (err, res) {
                     should.not.exist(err, 'error correctly unreported - endkey is compatible with key');
                     // when mixing key/startkey or key/endkey, the results
                     // are very weird and probably undefined, so don't go beyond

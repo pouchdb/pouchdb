@@ -6,8 +6,8 @@ if (typeof module !== 'undefined' && module.exports) {
   node = true;
 }
 var testHelpers = {};
-describe('http', function() {
-  beforeEach(function() {
+describe('http', function () {
+  beforeEach(function () {
     testHelpers.name = testUtils.generateAdapterUrl(adapter);
   });
   afterEach(function (done) {
@@ -23,12 +23,12 @@ describe('http', function() {
 
 
 
-  it("Create a pouch without DB setup", function(done) {
+  it("Create a pouch without DB setup", function (done) {
     var instantDB;
     var name = testHelpers.name;
-    PouchDB.destroy(name, function() {
+    PouchDB.destroy(name, function () {
       instantDB = new PouchDB(name, {skipSetup: true});
-      instantDB.post({test:"abc"}, function(err, info) {
+      instantDB.post({test:"abc"}, function (err, info) {
         should.exist(err);
         err.name.should.equal('not_found', 'Skipped setup of database');
         done();
@@ -36,7 +36,7 @@ describe('http', function() {
     });
   });
 
-  it("Issue 1269 redundant _changes requests", function(done) {
+  it("Issue 1269 redundant _changes requests", function (done) {
     var docs = [];
     var num = 100;
     for (var i = 0; i < num; i++) {
@@ -47,17 +47,17 @@ describe('http', function() {
       db.bulkDocs({docs: docs}, function (err, result) {
         var callCount = 0;
         var ajax = PouchDB.utils.ajax;
-        PouchDB.utils.ajax = function(opts) {
-          if(/_changes/.test(opts.url)) {
+        PouchDB.utils.ajax = function (opts) {
+          if (/_changes/.test(opts.url)) {
             callCount++;
           }
           ajax.apply(this, arguments);
         }
         var changes = db.changes({
           since: 100,
-          onChange: function(change) {
+          onChange: function (change) {
           },
-          complete: function(err, result) {
+          complete: function (err, result) {
             callCount.should.equal(1, 'One _changes call to complete changes');
             PouchDB.utils.ajax = ajax;
             done();
@@ -69,7 +69,7 @@ describe('http', function() {
 
 
   if (node) {
-    it("nonce option", function(){
+    it("nonce option", function () {
       var cache = PouchDB.ajax({
         url: "/"
       });

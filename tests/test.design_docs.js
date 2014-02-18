@@ -3,7 +3,7 @@
 var adapters = ['local-1', 'http-1'];
 
 describe('design_docs', function () {
-  adapters.map(function(adapter) {
+  adapters.map(function (adapter) {
 
     describe(adapter, function () {
       beforeEach(function () {
@@ -16,17 +16,17 @@ describe('design_docs', function () {
         _id: '_design/foo',
         views: {
           scores: {
-            map: 'function(doc) { if (doc.score) { emit(null, doc.score); } }',
-            reduce: 'function(keys, values, rereduce) { return sum(values); }'
+            map: 'function (doc) { if (doc.score) { emit(null, doc.score); } }',
+            reduce: 'function (keys, values, rereduce) { return sum(values); }'
           }
         },
         filters: {
-          even: 'function(doc) { return doc.integer % 2 === 0; }'
+          even: 'function (doc) { return doc.integer % 2 === 0; }'
         }
       };
 
       it("Test writing design doc", function (done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+        testUtils.initTestDB(this.name, function (err, db) {
           db.post(doc, function (err, info) {
             should.not.exist(err, 'Wrote design doc');
             db.get('_design/foo', function (err, info) {
@@ -36,7 +36,7 @@ describe('design_docs', function () {
         });
       });
 
-      it("Changes filter", function(done) {
+      it("Changes filter", function (done) {
 
         var docs1 = [
           doc,
@@ -53,12 +53,12 @@ describe('design_docs', function () {
           {_id: "7", integer: 7}
         ];
 
-        testUtils.initTestDB(this.name, function(err, db) {
+        testUtils.initTestDB(this.name, function (err, db) {
           var count = 0;
-          db.bulkDocs({docs: docs1}, function(err, info) {
+          db.bulkDocs({docs: docs1}, function (err, info) {
             var changes = db.changes({
               filter: 'foo/even',
-              onChange: function(change) {
+              onChange: function (change) {
                 count += 1;
                 if (count === 4) {
                   changes.cancel();
@@ -82,11 +82,11 @@ describe('design_docs', function () {
           {_id: "nuno", score: 3}
         ];
 
-        testUtils.initTestDB(this.name, function(err, db) {
-          db.bulkDocs({docs: docs1}, function(err, info) {
-            db.query('foo/scores', {reduce: false}, function(err, result) {
+        testUtils.initTestDB(this.name, function (err, db) {
+          db.bulkDocs({docs: docs1}, function (err, info) {
+            db.query('foo/scores', {reduce: false}, function (err, result) {
               result.rows.should.have.length(4, 'Correct # of results');
-              db.query('foo/scores', function(err, result) {
+              db.query('foo/scores', function (err, result) {
                 result.rows[0].value.should.equal(15, 'Reduce gave correct result');
                 done();
               });
@@ -95,17 +95,17 @@ describe('design_docs', function () {
         });
       });
 
-      it("Concurrent queries", function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
-          db.bulkDocs({docs: [doc, {_id: "dale", score: 3}]}, function(err, info) {
+      it("Concurrent queries", function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
+          db.bulkDocs({docs: [doc, {_id: "dale", score: 3}]}, function (err, info) {
             var cnt = 0;
-            db.query('foo/scores', {reduce: false}, function(err, result) {
+            db.query('foo/scores', {reduce: false}, function (err, result) {
               result.rows.should.have.length(1, 'Correct # of results');
               if (++cnt === 2) {
                 done();
               }
             });
-            db.query('foo/scores', {reduce: false}, function(err, result) {
+            db.query('foo/scores', {reduce: false}, function (err, result) {
               result.rows.should.have.length(1, 'Correct # of results');
               if (++cnt === 2) {
                 done();

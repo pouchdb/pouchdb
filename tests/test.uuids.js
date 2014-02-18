@@ -3,12 +3,12 @@
 
 var rfcRegexp = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 describe('uuid', function () {
-  it('UUID generation count', function() {
+  it('UUID generation count', function () {
     var count = 10;
     PouchDB.utils.uuids(count).should.have.length(count, "Correct number of uuids generated.");
   });
 
-  it('UUID RFC4122 test', function() {
+  it('UUID RFC4122 test', function () {
     var uuid = PouchDB.utils.uuids()[0];
     rfcRegexp.test(PouchDB.utils.uuids()[0]).should.equal(true,
                          "Single UUID complies with RFC4122.");
@@ -16,7 +16,7 @@ describe('uuid', function () {
           "Single UUID through Pouch.utils.uuid complies with RFC4122.");
   });
 
-  it('UUID generation uniqueness', function() {
+  it('UUID generation uniqueness', function () {
     var count = 1000;
     var uuids = PouchDB.utils.uuids(count);
 
@@ -24,7 +24,7 @@ describe('uuid', function () {
           "Generated UUIDS are unique.");
   });
 
-  it('Test small uuid uniqness', function() {
+  it('Test small uuid uniqness', function () {
     var length = 8;
     var count = 2000;
 
@@ -33,7 +33,7 @@ describe('uuid', function () {
           "Generated small UUIDS are unique.");
   });
 
-  it('Test custom length', function() {
+  it('Test custom length', function () {
     var length = 32;
     var count = 10;
     var options = {length: length};
@@ -47,7 +47,7 @@ describe('uuid', function () {
     });
   });
 
-  it('Test custom length, redix', function() {
+  it('Test custom length, redix', function () {
     var length = 32;
     var count = 10;
     var radix = 5;
@@ -58,7 +58,7 @@ describe('uuid', function () {
     uuids.push(PouchDB.utils.uuid(options));
 
     uuids.map(function (uuid) {
-      var nums = uuid.split('').map(function(character) {
+      var nums = uuid.split('').map(function (character) {
         return parseInt(character, radix);
       });
 

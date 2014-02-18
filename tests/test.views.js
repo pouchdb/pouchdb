@@ -20,18 +20,18 @@ describe('views', function () {
       });
       afterEach(testUtils.cleanupTestDatabases);
 
-      it("Test basic view", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {
+      it("Test basic view", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function () {
             var queryFun = {
-              map: function(doc) { emit(doc.foo, doc); }
+              map: function (doc) { emit(doc.foo, doc); }
             };
-            db.get('volatile', function(_, doc) {
-              db.remove(doc, function(_, resp) {
-                db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+            db.get('volatile', function (_, doc) {
+              db.remove(doc, function (_, resp) {
+                db.query(queryFun, {include_docs: true, reduce: false}, function (_, res) {
                   res.rows.should.have.length(1, 'Dont include deleted documents');
                   res.total_rows.should.equal(1, 'Include total_rows property.');
-                  res.rows.forEach(function(x, i) {
+                  res.rows.forEach(function (x, i) {
                     x.id.should.exist;
                     x.key.should.exist;
                     x.value._rev.should.exist;
@@ -45,15 +45,15 @@ describe('views', function () {
         });
       });
 
-      it("Test passing just a function", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function() {
-            var queryFun = function(doc) { emit(doc.foo, doc); };
-            db.get('volatile', function(_, doc) {
-              db.remove(doc, function(_, resp) {
-                db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+      it("Test passing just a function", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.bulkDocs({docs: [{foo: 'bar'}, { _id: 'volatile', foo: 'baz' }]}, {}, function () {
+            var queryFun = function (doc) { emit(doc.foo, doc); };
+            db.get('volatile', function (_, doc) {
+              db.remove(doc, function (_, resp) {
+                db.query(queryFun, {include_docs: true, reduce: false}, function (_, res) {
                   res.rows.should.have.length(1, 'Dont include deleted documents');
-                  res.rows.forEach(function(x, i) {
+                  res.rows.forEach(function (x, i) {
                     x.id.should.exist;
                     x.key.should.exist;
                     x.value._rev.should.exist;
@@ -67,19 +67,19 @@ describe('views', function () {
         });
       });
 
-      it("Test opts.startkey/opts.endkey", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key4'},{key: 'key5'}]}, {}, function() {
+      it("Test opts.startkey/opts.endkey", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key4'},{key: 'key5'}]}, {}, function () {
             var queryFun = {
-              map: function(doc) { emit(doc.key, doc); }
+              map: function (doc) { emit(doc.key, doc); }
             };
-            db.query(queryFun, {reduce: false, startkey: 'key2'}, function(_, res) {
+            db.query(queryFun, {reduce: false, startkey: 'key2'}, function (_, res) {
               res.rows.should.have.length(4, 'Startkey is inclusive');
-              db.query(queryFun, {reduce: false, endkey: 'key3'}, function(_, res) {
+              db.query(queryFun, {reduce: false, endkey: 'key3'}, function (_, res) {
                 res.rows.should.have.length(3, 'Endkey is inclusive');
-                db.query(queryFun, {reduce: false, startkey: 'key2', endkey: 'key3'}, function(_, res) {
+                db.query(queryFun, {reduce: false, startkey: 'key2', endkey: 'key3'}, function (_, res) {
                   res.rows.should.have.length(2, 'Startkey and endkey together');
-                  db.query(queryFun, {reduce: false, startkey: 'key4', endkey: 'key4'}, function(_, res) {
+                  db.query(queryFun, {reduce: false, startkey: 'key4', endkey: 'key4'}, function (_, res) {
                     res.rows.should.have.length( 1, 'Startkey=endkey');
                     done();
                   });
@@ -90,15 +90,15 @@ describe('views', function () {
         });
       });
 
-      it("Test opts.key", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key3'}]}, {}, function() {
+      it("Test opts.key", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.bulkDocs({docs: [{key: 'key1'},{key: 'key2'},{key: 'key3'},{key: 'key3'}]}, {}, function () {
             var queryFun = {
-              map: function(doc) { emit(doc.key, doc); }
+              map: function (doc) { emit(doc.key, doc); }
             };
-            db.query(queryFun, {reduce: false, key: 'key2'}, function(_, res) {
+            db.query(queryFun, {reduce: false, key: 'key2'}, function (_, res) {
               res.rows.should.have.length(1, 'Doc with key');
-              db.query(queryFun, {reduce: false, key: 'key3'}, function(_, res) {
+              db.query(queryFun, {reduce: false, key: 'key3'}, function (_, res) {
                 res.rows.should.have.length(2, 'Multiple docs with key');
                 done();
               });
@@ -107,7 +107,7 @@ describe('views', function () {
         });
       });
 
-      it.skip("Test basic view collation", function(done) {
+      it.skip("Test basic view collation", function (done) {
 
         var values = [];
 
@@ -154,29 +154,29 @@ describe('views', function () {
         // that doesn't preserve order)
         values.push({b:2, c:2});
 
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          var docs = values.map(function(x, i) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          var docs = values.map(function (x, i) {
             return {_id: (i).toString(), foo: x};
           });
-          db.bulkDocs({docs: docs}, {}, function(err) {
+          db.bulkDocs({docs: docs}, {}, function (err) {
             var queryFun = {
-              map: function(doc) { emit(doc.foo, null); }
+              map: function (doc) { emit(doc.foo, null); }
             };
             if (err) {
               done(err);
             }
-            db.query(queryFun, {reduce: false}, function(err, res) {
+            db.query(queryFun, {reduce: false}, function (err, res) {
               if (err) {
                 done(err);
               }
-              res.rows.forEach(function(x, i) {
+              res.rows.forEach(function (x, i) {
                 x.key.should.deep.equal(values[i], 'keys collate');
               });
-              db.query(queryFun, {descending: true, reduce: false}, function(err, res) {
+              db.query(queryFun, {descending: true, reduce: false}, function (err, res) {
                 if (err) {
                   done(err);
                 }
-                res.rows.forEach(function(x, i) {
+                res.rows.forEach(function (x, i) {
                   x.key.should.deep.equal(values[values.length - 1 - i],
                      'keys collate descending');
                 });
@@ -187,17 +187,17 @@ describe('views', function () {
         });
       });
 
-      it("Test joins", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.bulkDocs({docs: [{_id: 'mydoc', foo: 'bar'}, { doc_id: 'mydoc' }]}, {}, function() {
+      it("Test joins", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.bulkDocs({docs: [{_id: 'mydoc', foo: 'bar'}, { doc_id: 'mydoc' }]}, {}, function () {
             var queryFun = {
-              map: function(doc) {
+              map: function (doc) {
                 if (doc.doc_id) {
                   emit(doc._id, {_id: doc.doc_id});
                 }
               }
             };
-            db.query(queryFun, {include_docs: true, reduce: false}, function(_, res) {
+            db.query(queryFun, {include_docs: true, reduce: false}, function (_, res) {
               res.rows[0].doc.should.exist;
               res.rows[0].doc._id.should.equal('mydoc', 'mydoc included');
               done();
@@ -206,37 +206,37 @@ describe('views', function () {
         });
       });
 
-      it("No reduce function", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.post({foo: 'bar'}, function(err, res) {
+      it("No reduce function", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.post({foo: 'bar'}, function (err, res) {
             var queryFun = {
-              map: function(doc) {
+              map: function (doc) {
                 emit('key', 'val');
               }
             };
-            db.query(queryFun, function(err, res) {
+            db.query(queryFun, function (err, res) {
               done();
             });
           });
         });
       });
 
-      it("Built in _sum reduce function", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Built in _sum reduce function", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { val: 'bar' },
               { val: 'bar' },
               { val: 'baz' }
             ]
-          }, null, function() {
+          }, null, function () {
             var queryFun = {
-              map: function(doc) {
+              map: function (doc) {
                 emit(doc.val, 1);
               },
               reduce: "_sum"
             };
-            db.query(queryFun, {reduce: true, group_level:999}, function(err, res) {
+            db.query(queryFun, {reduce: true, group_level:999}, function (err, res) {
               res.rows.should.have.length(2);
               res.rows[0].value.should.equal(2);
               res.rows[1].value.should.equal(1);
@@ -246,22 +246,22 @@ describe('views', function () {
         });
       });
 
-      it("Built in _count reduce function", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Built in _count reduce function", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { val: 'bar' },
               { val: 'bar' },
               { val: 'baz' }
             ]
-          }, null, function() {
+          }, null, function () {
             var queryFun = {
-              map: function(doc) {
+              map: function (doc) {
                 emit(doc.val, doc.val);
               },
               reduce: "_count"
             };
-            db.query(queryFun, {reduce: true, group_level:999}, function(err, res) {
+            db.query(queryFun, {reduce: true, group_level:999}, function (err, res) {
               res.rows.should.have.length(2);
               res.rows[0].value.should.equal(2);
               res.rows[1].value.should.equal(1);
@@ -271,22 +271,22 @@ describe('views', function () {
         });
       });
 
-      it("Built in _stats reduce function", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Built in _stats reduce function", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { val: 'bar' },
               { val: 'bar' },
               { val: 'baz' }
             ]
-          }, null, function() {
+          }, null, function () {
             var queryFun = {
-              map: function(doc) {
+              map: function (doc) {
                 emit(doc.val, 1);
               },
               reduce: "_stats"
             };
-            db.query(queryFun, {reduce: true, group_level:999}, function(err, res) {
+            db.query(queryFun, {reduce: true, group_level:999}, function (err, res) {
               var stats = res.rows[0].value;
               stats.sum.should.equal(2);
               stats.count.should.equal(2);
@@ -299,11 +299,11 @@ describe('views', function () {
         });
       });
 
-     it("No reduce function, passing just a  function", function(done) {
-       testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.post({foo: 'bar'}, function(err, res) {
-            var queryFun = function(doc) { emit('key', 'val'); };
-            db.query(queryFun, function(err, res) {
+     it("No reduce function, passing just a  function", function (done) {
+       testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.post({foo: 'bar'}, function (err, res) {
+            var queryFun = function (doc) { emit('key', 'val'); };
+            db.query(queryFun, function (err, res) {
               done();
             });
           });
@@ -311,18 +311,18 @@ describe('views', function () {
       });
 
 
-      it('Views should include _conflicts', function(done) {
+      it('Views should include _conflicts', function (done) {
         var self = this;
         var doc1 = {_id: '1', foo: 'bar'};
         var doc2 = {_id: '1', foo: 'baz'};
-        var queryFun = function(doc) { emit(doc._id, !!doc._conflicts); };
-        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function(db, remote) {
-          db.post(doc1, function(err, res) {
-            remote.post(doc2, function(err, res) {
-              db.replicate.from(remote, function(err, res) {
-                db.get(doc1._id, {conflicts: true}, function(err, res) {
+        var queryFun = function (doc) { emit(doc._id, !!doc._conflicts); };
+        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
+          db.post(doc1, function (err, res) {
+            remote.post(doc2, function (err, res) {
+              db.replicate.from(remote, function (err, res) {
+                db.get(doc1._id, {conflicts: true}, function (err, res) {
                   res._conflicts.should.exist;
-                  db.query(queryFun, function(err, res) {
+                  db.query(queryFun, function (err, res) {
                     res.rows[0].value.should.exist;
                     done();
                   });
@@ -333,29 +333,29 @@ describe('views', function () {
         });
       });
 
-      it('Map only documents with _conflicts (#1000)', function(done) {
+      it('Map only documents with _conflicts (#1000)', function (done) {
         var self = this;
         var docs1 = [
          {_id: '1', foo: 'bar'},
          {_id: '2', name: 'two'},
         ];
         var doc2 = {_id: '1', foo: 'baz'};
-        var queryFun = function(doc) {
+        var queryFun = function (doc) {
           if (doc._conflicts) {
             emit(doc._id, doc._conflicts);
           }
         };
-        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function(db, remote) {
-          db.bulkDocs({docs: docs1}, function(err, res) {
+        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
+          db.bulkDocs({docs: docs1}, function (err, res) {
             var revId1 = res[0].rev;
-            remote.post(doc2, function(err, res) {
+            remote.post(doc2, function (err, res) {
               var revId2 = res.rev;
-              db.replicate.from(remote, function(err, res) {
-                db.get(docs1[0]._id, {conflicts: true}, function(err, res) {
+              db.replicate.from(remote, function (err, res) {
+                db.get(docs1[0]._id, {conflicts: true}, function (err, res) {
                   var winner = res._rev;
                   var looser = winner === revId1 ? revId2 : revId1;
                   res._conflicts.should.exist;
-                  db.query(queryFun, function(err, res) {
+                  db.query(queryFun, function (err, res) {
                     res.rows.should.have.length(1, 'One doc with conflicts');
                     res.rows[0].key.should.equal('1', 'Correct document with conflicts.');
                     res.rows[0].value.should.deep.equal([looser], 'Correct conflicts included.');
@@ -368,15 +368,15 @@ describe('views', function () {
         });
       });
 
-      it("Test view querying with limit option", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Test view querying with limit option", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { foo: 'bar' },
               { foo: 'bar' },
               { foo: 'baz' }
             ]
-          }, null, function() {
+          }, null, function () {
 
             db.query(function (doc) {
               if (doc.foo === 'bar') {
@@ -392,19 +392,19 @@ describe('views', function () {
         });
       });
 
-      it("Query non existing view returns error", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Query non existing view returns error", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var doc = {
             _id: '_design/barbar',
             views: {
               scores: {
-                map: 'function(doc) { if (doc.score) { emit(null, doc.score); } }'
+                map: 'function (doc) { if (doc.score) { emit(null, doc.score); } }'
               }
             }
           };
           db.post(doc, function (err, info) {
-            db.query('barbar/dontExist',{key: 'bar'}, function(err, res) {
-              if(!err.name){
+            db.query('barbar/dontExist',{key: 'bar'}, function (err, res) {
+              if (!err.name) {
                 err.name = err.error;
                 err.message = err.reason;
               }
@@ -416,13 +416,13 @@ describe('views', function () {
         });
       });
 
-      it("Special document member _doc_id_rev should never leak outside", function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Special document member _doc_id_rev should never leak outside", function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { foo: 'bar' }
             ]
-          }, null, function() {
+          }, null, function () {
 
             db.query(function (doc) {
               if (doc.foo === 'bar') {
@@ -435,9 +435,9 @@ describe('views', function () {
           });
         });
       });
-      
+
       it('If reduce function returns 0, resulting value should not be null', function (done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { foo: 'bar' }
@@ -457,9 +457,9 @@ describe('views', function () {
           });
         });
       });
-      
+
       it('Testing skip with a view', function (done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { foo: 'bar' },
@@ -479,7 +479,7 @@ describe('views', function () {
       });
 
       it('Testing skip with allDocs', function (done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({
             docs: [
               { foo: 'bar' },
@@ -496,8 +496,8 @@ describe('views', function () {
         });
       });
 
-      it('Map documents on 0/null/undefined/empty string', function(done) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it('Map documents on 0/null/undefined/empty string', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var docs = [
             {_id : 'doc0', num : 0},
             {_id : 'doc1', num : 1},
@@ -505,23 +505,23 @@ describe('views', function () {
             {_id : 'doc3', num : null},
             {_id : 'doc4', num : ''}
           ];
-          db.bulkDocs({docs: docs}, function(err){
-            var mapFunction =function(doc){emit(doc.num, null);};
+          db.bulkDocs({docs: docs}, function (err) {
+            var mapFunction =function (doc) {emit(doc.num, null);};
 
-            db.query(mapFunction, {key : 0, include_docs : true}, function(err, data){
+            db.query(mapFunction, {key : 0, include_docs : true}, function (err, data) {
               data.rows.should.have.length(1);
               data.rows[0].doc._id.should.equal('doc0');
             });
-            db.query(mapFunction, {key : null, include_docs : true}, function(err, data){
+            db.query(mapFunction, {key : null, include_docs : true}, function (err, data) {
               data.rows.should.have.length(2);
               data.rows[0].doc._idshould.equal('doc2');
               data.rows[1].doc._idshould.equal('doc3');
             });
-            db.query(mapFunction, {key : '', include_docs : true}, function(err, data){
+            db.query(mapFunction, {key : '', include_docs : true}, function (err, data) {
               data.rows.should.have.length(1);
               data.rows[0].doc._idshould.equal('doc4');
             });
-            db.query(mapFunction, {key : undefined, include_docs : true}, function(err, data){
+            db.query(mapFunction, {key : undefined, include_docs : true}, function (err, data) {
               data.rows.should.have.length(5); // everything
               done();
             });

@@ -20,7 +20,7 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 describe('bulk_docs', function () {
-  adapters.map(function(adapter) {
+  adapters.map(function (adapter) {
 
     describe(adapter, function () {
       beforeEach(function () {
@@ -37,10 +37,10 @@ describe('bulk_docs', function () {
         {name: 'Randall Leeds', commits: 9}
       ];
 
-      it('Testing bulk docs', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+      it('Testing bulk docs', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
           var docs = makeDocs(5);
-          db.bulkDocs({docs: docs}, function(err, results) {
+          db.bulkDocs({docs: docs}, function (err, results) {
             results.should.have.length(5, 'results length matches');
             for (var i = 0; i < 5; i++) {
               results[i].id.should.equal(docs[i]._id, 'id matches');
@@ -49,7 +49,7 @@ describe('bulk_docs', function () {
               docs[i]._rev = results[i].rev;
               docs[i].string = docs[i].string + ".00";
             }
-            db.bulkDocs({docs: docs}, function(err, results) {
+            db.bulkDocs({docs: docs}, function (err, results) {
               results.should.have.length(5, 'results length matches');
               for (i = 0; i < 5; i++) {
                 results[i].id.should.equal(i.toString(), 'id matches again');
@@ -57,8 +57,8 @@ describe('bulk_docs', function () {
                 docs[i]._rev = results[i].rev;
                 docs[i]._deleted = true;
               }
-              db.put(docs[0], function(err, doc) {
-                db.bulkDocs({docs: docs}, function(err, results) {
+              db.put(docs[0], function (err, doc) {
+                db.bulkDocs({docs: docs}, function (err, results) {
                   results[0].name.should.equal('conflict', 'First doc should be in conflict');
                   should.not.exist(results[0].rev, 'no rev in conflict');
                   for (i = 1; i < 5; i++) {
@@ -73,16 +73,16 @@ describe('bulk_docs', function () {
         });
       });
 
-      it('No id in bulk docs', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+      it('No id in bulk docs', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
           var newdoc = {"_id": "foobar", "body": "baz"};
-          db.put(newdoc, function(err, doc) {
+          db.put(newdoc, function (err, doc) {
             should.exist(doc.ok);
             var docs = [
               {"_id": newdoc._id, "_rev": newdoc._rev, "body": "blam"},
               {"_id": newdoc._id, "_rev": newdoc._rev, "_deleted": true}
             ];
-            db.bulkDocs({docs: docs}, function(err, results) {
+            db.bulkDocs({docs: docs}, function (err, results) {
               (results[0].name === 'conflict' || results[1].name === 'conflict').should.be.ok;
               done();
             });
@@ -90,24 +90,24 @@ describe('bulk_docs', function () {
         });
       });
 
-      it('No _rev and new_edits=false', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+      it('No _rev and new_edits=false', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
           var docs = [
             {_id: "foo", integer: 1}
           ];
-          db.bulkDocs({docs: docs}, {new_edits: false}, function(err, res) {
+          db.bulkDocs({docs: docs}, {new_edits: false}, function (err, res) {
             should.exist(err, "error reported");
             done();
           });
         });
       });
 
-      it("Test errors on invalid doc id", function(done) {
+      it("Test errors on invalid doc id", function (done) {
         var docs = [
           {'_id': '_invalid', foo: 'bar'}
         ];
-        testUtils.initTestDB(this.name, function(err, db) {
-          db.bulkDocs({docs: docs}, function(err, info) {
+        testUtils.initTestDB(this.name, function (err, db) {
+          db.bulkDocs({docs: docs}, function (err, info) {
             err.name.should.equal('bad_request', 'correct error returned');
             should.not.exist(info, 'info is empty');
             done();
@@ -115,13 +115,13 @@ describe('bulk_docs', function () {
         });
       });
 
-      it("Test two errors on invalid doc id", function(done) {
+      it("Test two errors on invalid doc id", function (done) {
         var docs = [
           {'_id': '_invalid', foo: 'bar'},
           {'_id': 123, foo: 'bar'}
         ];
-        testUtils.initTestDB(this.name, function(err, db) {
-          db.bulkDocs({docs: docs}, function(err, info) {
+        testUtils.initTestDB(this.name, function (err, db) {
+          db.bulkDocs({docs: docs}, function (err, info) {
             err.name.should.equal('bad_request', 'correct error returned');
             err.message.should.equal(PouchDB.Errors.RESERVED_ID.message, 'correct error message returned');
             should.not.exist(info, 'info is empty');
@@ -130,9 +130,9 @@ describe('bulk_docs', function () {
         });
       });
 
-      it('No docs', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
-          db.bulkDocs({"doc": [{"foo":"bar"}]}, function(err, result) {
+      it('No docs', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
+          db.bulkDocs({"doc": [{"foo":"bar"}]}, function (err, result) {
             err.status.should.equal(400);
             err.name.should.equal('bad_request');
             err.message.should.equal("Missing JSON list of 'docs'");
@@ -141,15 +141,15 @@ describe('bulk_docs', function () {
         });
       });
 
-      it('Jira 911', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+      it('Jira 911', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
           var docs = [
             {"_id":"0", "a" : 0},
             {"_id":"1", "a" : 1},
             {"_id":"1", "a" : 1},
             {"_id":"3", "a" : 3}
           ];
-          db.bulkDocs({docs: docs}, function(err, results) {
+          db.bulkDocs({docs: docs}, function (err, results) {
             results[1].id.should.equal("1", 'check ordering');
             should.not.exist(results[1].name, 'first id succeded');
             results[2].name.should.equal("conflict", 'second conflicted');
@@ -159,11 +159,11 @@ describe('bulk_docs', function () {
         });
       });
 
-      it('Test multiple bulkdocs', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+      it('Test multiple bulkdocs', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
           db.bulkDocs({docs: authors}, function (err, res) {
             db.bulkDocs({docs: authors}, function (err, res) {
-              db.allDocs(function(err, result) {
+              db.allDocs(function (err, result) {
                 result.total_rows.should.equal(8, 'correct number of results');
                 done();
               });
@@ -172,8 +172,8 @@ describe('bulk_docs', function () {
         });
       });
 
-      it('Bulk with new_edits=false', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+      it('Bulk with new_edits=false', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
           var docs = [
             {"_id":"foo","_rev":"2-x","_revisions":
               {"start":2,"ids":["x","a"]}
@@ -182,9 +182,9 @@ describe('bulk_docs', function () {
               {"start":2,"ids":["y","a"]}
             }
           ];
-          db.bulkDocs({docs: docs}, {new_edits: false}, function(err, res){
+          db.bulkDocs({docs: docs}, {new_edits: false}, function (err, res) {
             //ok(res.length === 0, "empty array returned");
-            db.get("foo", {open_revs: "all"}, function(err, res){
+            db.get("foo", {open_revs: "all"}, function (err, res) {
               res[0].ok._rev.should.equal("2-x", "doc1 ok");
               res[1].ok._rev.should.equal("2-y", "doc2 ok");
               done();
@@ -193,11 +193,11 @@ describe('bulk_docs', function () {
         });
       });
 
-      it('656 regression in handling deleted docs', function(done) {
-        testUtils.initTestDB(this.name, function(err, db) {
+      it('656 regression in handling deleted docs', function (done) {
+        testUtils.initTestDB(this.name, function (err, db) {
           db.bulkDocs({docs: [{_id: "foo", _rev: "1-a", _deleted: true}]},
-                      {new_edits: false}, function(err, res){
-            db.get("foo", function(err, res){
+                      {new_edits: false}, function (err, res) {
+            db.get("foo", function (err, res) {
               should.exist(err, "deleted");
               done();
             });
@@ -220,8 +220,8 @@ describe('bulk_docs', function () {
       });
 
       it('Bulk docs empty list', function (done) {
-        testUtils.initTestDB(this.name, function(err, db) {
-          db.bulkDocs({docs: []}, function(err, res) {
+        testUtils.initTestDB(this.name, function (err, db) {
+          db.bulkDocs({docs: []}, function (err, res) {
             done(err);
           });
         });

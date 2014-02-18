@@ -26,10 +26,10 @@ var strictEqual = equal;
 var notStrictEqual = notEqual;
 describe('get', function () {
 
-  adapters.map(function(adapter) {
+  adapters.map(function (adapter) {
 
     describe(adapter, function () {
-      beforeEach(function() {
+      beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
         PouchDB.enableAllDbs = false;
       });
@@ -48,18 +48,18 @@ describe('get', function () {
           return callback();
         }
         var doc = docs.shift();
-        db.put(doc, function(err, doc) {
+        db.put(doc, function (err, doc) {
           ok(doc.ok, 'docwrite returned ok');
           writeDocs(db, docs, callback);
         });
       }
 
-      it("Get doc", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.post({test:"somestuff"}, function(err, info) {
-            db.get(info.id, function(err, doc) {
+      it("Get doc", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.post({test:"somestuff"}, function (err, info) {
+            db.get(info.id, function (err, doc) {
               ok(doc.test);
-              db.get(info.id+'asdf', function(err) {
+              db.get(info.id+'asdf', function (err) {
                 ok(err.name);
                 start();
               });
@@ -68,12 +68,12 @@ describe('get', function () {
         });
       });
 
-      it("Get design doc", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.put({_id: '_design/someid', test:"somestuff"}, function(err, info) {
-            db.get(info.id, function(err, doc) {
+      it("Get design doc", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.put({_id: '_design/someid', test:"somestuff"}, function (err, info) {
+            db.get(info.id, function (err, doc) {
               ok(doc.test);
-              db.get(info.id+'asdf', function(err) {
+              db.get(info.id+'asdf', function (err) {
                 ok(err.name);
                 start();
               });
@@ -82,11 +82,11 @@ describe('get', function () {
         });
       });
 
-      it("Check error of deleted document", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.post({test:"somestuff"}, function(err, info) {
-            db.remove({_id:info.id, _rev:info.rev}, function(err, res) {
-              db.get(info.id, function(err, res) {
+      it("Check error of deleted document", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.post({test:"somestuff"}, function (err, info) {
+            db.remove({_id:info.id, _rev:info.rev}, function (err, res) {
+              db.get(info.id, function (err, res) {
                 strictEqual(err.name, "not_found", "correct error");
                 strictEqual(err.message, "deleted", "correct reason");
                 start();
@@ -96,14 +96,14 @@ describe('get', function () {
         });
       });
 
-      it("Get local_seq of document", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.post({test:"somestuff"}, function(err, info1) {
-            db.get(info1.id, {local_seq: true}, function(err, res) {
+      it("Get local_seq of document", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.post({test:"somestuff"}, function (err, info1) {
+            db.get(info1.id, {local_seq: true}, function (err, res) {
               ok(res);
               strictEqual(res._local_seq, 1);
-              db.post({test:"someotherstuff"}, function(err, info2) {
-                db.get(info2.id, {local_seq: true}, function(err, res) {
+              db.post({test:"someotherstuff"}, function (err, info2) {
+                db.get(info2.id, {local_seq: true}, function (err, res) {
                   ok(res);
                   strictEqual(res._local_seq, 2);
                   start();
@@ -114,12 +114,12 @@ describe('get', function () {
         });
       });
 
-      it("Get revisions of removed doc", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.post({test:"somestuff"}, function(err, info) {
+      it("Get revisions of removed doc", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.post({test:"somestuff"}, function (err, info) {
             var rev = info.rev;
-            db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function(doc) {
-              db.get(info.id, {rev: rev}, function(err, doc) {
+            db.remove({test:"somestuff", _id:info.id, _rev:info.rev}, function (doc) {
+              db.get(info.id, {rev: rev}, function (err, doc) {
                 ok(!err, 'Recieved deleted doc with rev');
                 start();
               });
@@ -128,10 +128,10 @@ describe('get', function () {
         });
       });
 
-      it('Testing get with rev', function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
-            db.get("3", function(err, parent){
+      it('Testing get with rev', function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+            db.get("3", function (err, parent) {
               // add conflicts
               var pRevId = parent._rev.split('-')[1];
               var conflicts = [
@@ -139,16 +139,16 @@ describe('get', function () {
                 {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", pRevId]}},
                 {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", pRevId]}}
               ];
-              db.put(conflicts[0], {new_edits: false}, function(err, doc) {
-                db.put(conflicts[1], {new_edits: false}, function(err, doc) {
-                  db.put(conflicts[2], {new_edits: false}, function(err, doc) {
-                    db.get("3", {rev: "2-aaa"}, function(err, doc){
+              db.put(conflicts[0], {new_edits: false}, function (err, doc) {
+                db.put(conflicts[1], {new_edits: false}, function (err, doc) {
+                  db.put(conflicts[2], {new_edits: false}, function (err, doc) {
+                    db.get("3", {rev: "2-aaa"}, function (err, doc) {
                       strictEqual(doc._rev, "2-aaa", "rev ok");
                       strictEqual(doc.value, "x", "value ok");
-                      db.get("3", {rev: "3-bbb"}, function(err, doc){
+                      db.get("3", {rev: "3-bbb"}, function (err, doc) {
                         strictEqual(doc._rev, "3-bbb", "rev ok");
                         strictEqual(doc.value, "y", "value ok");
-                        db.get("3", {rev: "4-ccc"}, function(err, doc){
+                        db.get("3", {rev: "4-ccc"}, function (err, doc) {
                           strictEqual(doc._rev, "4-ccc", "rev ok");
                           strictEqual(doc.value, "z", "value ok");
                           start();
@@ -163,16 +163,16 @@ describe('get', function () {
         });
       });
 
-      it("Testing rev format", function(start) {
+      it("Testing rev format", function (start) {
         var revs = [];
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.post({test: "somestuff"}, function (err, info) {
             revs.unshift(info.rev.split('-')[1]);
-            db.put({_id: info.id, _rev: info.rev, another: 'test1'}, function(err, info2) {
+            db.put({_id: info.id, _rev: info.rev, another: 'test1'}, function (err, info2) {
               revs.unshift(info2.rev.split('-')[1]);
-              db.put({_id: info.id, _rev: info2.rev, last: 'test2'}, function(err, info3) {
+              db.put({_id: info.id, _rev: info2.rev, last: 'test2'}, function (err, info3) {
                 revs.unshift(info3.rev.split('-')[1]);
-                db.get(info.id, {revs:true}, function(err, doc) {
+                db.get(info.id, {revs:true}, function (err, doc) {
                   strictEqual(doc._revisions.start, 3, 'correct starting position');
                   deepEqual(revs, doc._revisions.ids, 'correct revs returned');
                   start();
@@ -183,16 +183,16 @@ describe('get', function () {
         });
       });
 
-      it("Test opts.revs=true with rev other than winning", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Test opts.revs=true with rev other than winning", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var docs = [
             {_id: "foo", _rev: "1-a", value: "foo a"},
             {_id: "foo", _rev: "2-b", value: "foo b"},
             {_id: "foo", _rev: "3-c", value: "foo c"},
             {_id: "foo", _rev: "4-d", value: "foo d"}
           ];
-          testUtils.putBranch(db, docs, function() {
-            db.get("foo", {rev: "3-c", revs: true}, function(err, doc) {
+          testUtils.putBranch(db, docs, function () {
+            db.get("foo", {rev: "3-c", revs: true}, function (err, doc) {
               strictEqual(doc._revisions.ids.length, 3, "correct revisions length");
               strictEqual(doc._revisions.start, 3, "correct revisions start");
               strictEqual(doc._revisions.ids[0], "c", "correct rev");
@@ -204,8 +204,8 @@ describe('get', function () {
         });
       });
 
-      it("Test opts.revs=true return only winning branch", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Test opts.revs=true return only winning branch", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var simpleTree = [
             [
               {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -219,8 +219,8 @@ describe('get', function () {
               {_id: "foo", _rev: "4-f", value: "foo f"}
             ]
           ];
-          testUtils.putTree(db, simpleTree, function() {
-            db.get("foo", {revs: true}, function(err, doc) {
+          testUtils.putTree(db, simpleTree, function () {
+            db.get("foo", {revs: true}, function (err, doc) {
               strictEqual(doc._revisions.ids.length, 4, "correct revisions length");
               strictEqual(doc._revisions.start, 4, "correct revisions start");
               strictEqual(doc._revisions.ids[0], "f", "correct rev");
@@ -233,12 +233,12 @@ describe('get', function () {
         });
       });
 
-      it("Test get with simple revs_info", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Test get with simple revs_info", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.post({test: "somestuff"}, function (err, info) {
-            db.put({_id: info.id, _rev: info.rev, another: 'test'}, function(err, info) {
-              db.put({_id: info.id, _rev: info.rev, a: 'change'}, function(err, info2) {
-                db.get(info.id, {revs_info:true}, function(err, doc) {
+            db.put({_id: info.id, _rev: info.rev, another: 'test'}, function (err, info) {
+              db.put({_id: info.id, _rev: info.rev, a: 'change'}, function (err, info2) {
+                db.get(info.id, {revs_info:true}, function (err, doc) {
                   strictEqual(doc._revs_info.length, 3, 'updated a doc with put');
                   start();
                 });
@@ -248,8 +248,8 @@ describe('get', function () {
         });
       });
 
-      it("Test get with revs_info on tree", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Test get with revs_info on tree", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var simpleTree = [
             [
               {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -262,8 +262,8 @@ describe('get', function () {
               {_id: "foo", _rev: "3-e", _deleted: true}
             ]
           ];
-          testUtils.putTree(db, simpleTree, function() {
-            db.get("foo", {revs_info: true}, function(err, doc) {
+          testUtils.putTree(db, simpleTree, function () {
+            db.get("foo", {revs_info: true}, function (err, doc) {
               var revs = doc._revs_info;
               strictEqual(revs.length, 3, "correct number of revs");
               strictEqual(revs[0].rev, "3-c", "rev ok");
@@ -275,8 +275,8 @@ describe('get', function () {
         });
       });
 
-      it("Test get with revs_info on compacted tree", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Test get with revs_info on compacted tree", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var simpleTree = [
             [
               {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -289,9 +289,9 @@ describe('get', function () {
               {_id: "foo", _rev: "3-e", _deleted: true}
             ]
           ];
-          testUtils.putTree(db, simpleTree, function() {
-            db.compact(function(err, ok) {
-              db.get("foo", {revs_info: true}, function(err, doc) {
+          testUtils.putTree(db, simpleTree, function () {
+            db.compact(function (err, ok) {
+              db.get("foo", {revs_info: true}, function (err, doc) {
                 var revs = doc._revs_info;
                 strictEqual(revs.length, 3, "correct number of revs");
                 strictEqual(revs[0].rev, "3-c", "rev ok");
@@ -308,8 +308,8 @@ describe('get', function () {
       });
 
 
-      it("Test get with conflicts", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Test get with conflicts", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var simpleTree = [
             [
               {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -324,8 +324,8 @@ describe('get', function () {
               {_id: "foo", _rev: "2-d", value: "foo d", _deleted: true}
             ]
           ];
-          testUtils.putTree(db, simpleTree, function() {
-            db.get("foo", {conflicts: true}, function(err, doc) {
+          testUtils.putTree(db, simpleTree, function () {
+            db.get("foo", {conflicts: true}, function (err, doc) {
               strictEqual(doc._rev, "2-c", "correct rev");
               strictEqual(doc._conflicts.length, 1, "just one conflict");
               strictEqual(doc._conflicts[0], "2-b", "just one conflict");
@@ -335,18 +335,18 @@ describe('get', function () {
         });
       });
 
-      it("Retrieve old revision", function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it("Retrieve old revision", function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           ok(!err, 'opened the pouch');
           db.post({version: "first"}, function (err, info) {
             var firstrev = info.rev;
             ok(!err, 'saved a doc with post');
-            db.put({_id: info.id, _rev: info.rev, version: 'second'}, function(err, info2) {
+            db.put({_id: info.id, _rev: info.rev, version: 'second'}, function (err, info2) {
               ok(!err, 'no error');
               notStrictEqual(info2.rev, info._rev, 'updated a doc with put');
-              db.get(info.id, {rev: info.rev}, function(err, oldRev) {
+              db.get(info.id, {rev: info.rev}, function (err, oldRev) {
                 equal(oldRev.version, 'first', 'Fetched old revision');
-                db.get(info.id, {rev: '1-nonexistentRev'}, function(err, doc){
+                db.get(info.id, {rev: '1-nonexistentRev'}, function (err, doc) {
                   ok(err, 'Non existent row error correctly reported');
                   start();
                 });
@@ -356,10 +356,10 @@ describe('get', function () {
         });
       });
 
-      it('Testing get open_revs="all"', function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
-            db.get("3", function(err, parent){
+      it('Testing get open_revs="all"', function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+            db.get("3", function (err, parent) {
               // add conflicts
               var previd = parent._rev.split('-')[1];
               var conflicts = [
@@ -367,20 +367,20 @@ describe('get', function () {
                 {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", previd]}},
                 {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", previd]}}
               ];
-              db.put(conflicts[0], {new_edits: false}, function(err, doc) {
-                db.put(conflicts[1], {new_edits: false}, function(err, doc) {
-                  db.put(conflicts[2], {new_edits: false}, function(err, doc) {
-                    db.get("3", {open_revs: "all"}, function(err, res){
+              db.put(conflicts[0], {new_edits: false}, function (err, doc) {
+                db.put(conflicts[1], {new_edits: false}, function (err, doc) {
+                  db.put(conflicts[2], {new_edits: false}, function (err, doc) {
+                    db.get("3", {open_revs: "all"}, function (err, res) {
                       var i;
-                      res = res.map(function(row){
+                      res = res.map(function (row) {
                         return row.ok;
                       });
-                      res.sort(function(a, b){
+                      res.sort(function (a, b) {
                         return a._rev === b._rev ? 0 : a._rev < b._rev ? -1 : 1;
                       });
 
                       strictEqual(res.length, conflicts.length, 'correct number of open_revs');
-                      for (i = 0; i < conflicts.length; i++){
+                      for (i = 0; i < conflicts.length; i++) {
                         strictEqual(conflicts[i]._rev, res[i]._rev, 'correct rev');
                       }
                       start();
@@ -393,10 +393,10 @@ describe('get', function () {
         });
       });
 
-      it('Testing get with some open_revs', function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function() {
-            db.get("3", function(err, parent){
+      it('Testing get with some open_revs', function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+            db.get("3", function (err, parent) {
               // add conflicts
               var previd = parent._rev.split('-')[1];
               var conflicts = [
@@ -404,12 +404,12 @@ describe('get', function () {
                 {_id: "3", _rev: "3-bbb", value: "y", _deleted: true, _revisions: {start: 3, ids: ["bbb", "some", previd]}},
                 {_id: "3", _rev: "4-ccc", value: "z", _revisions: {start: 4, ids: ["ccc", "even", "more", previd]}}
               ];
-              db.put(conflicts[0], {new_edits: false}, function(err, doc) {
-                db.put(conflicts[1], {new_edits: false}, function(err, doc) {
-                  db.put(conflicts[2], {new_edits: false}, function(err, doc) {
-                    db.get("3", {open_revs: ["2-aaa", "5-nonexistent", "3-bbb"]}, function(err, res){
+              db.put(conflicts[0], {new_edits: false}, function (err, doc) {
+                db.put(conflicts[1], {new_edits: false}, function (err, doc) {
+                  db.put(conflicts[2], {new_edits: false}, function (err, doc) {
+                    db.get("3", {open_revs: ["2-aaa", "5-nonexistent", "3-bbb"]}, function (err, res) {
                       var i;
-                      res.sort(function(a, b){
+                      res.sort(function (a, b) {
                         if (a.ok) {
                           if (b.ok) {
                             var x = a.ok._rev, y = b.ok._rev;
@@ -442,8 +442,8 @@ describe('get', function () {
         });
       });
 
-      it('Testing get with open_revs and revs', function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
+      it('Testing get with open_revs and revs', function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
           var docs = [
             [
               {_id: "foo", _rev: "1-a", value: "foo a"},
@@ -454,8 +454,8 @@ describe('get', function () {
               {_id: "foo", _rev: "2-c", value: "foo c"}
             ]
           ];
-          testUtils.putTree(db, docs, function() {
-            db.get("foo", {open_revs: ["2-b"], revs: true}, function(err, res) {
+          testUtils.putTree(db, docs, function () {
+            db.get("foo", {open_revs: ["2-b"], revs: true}, function (err, res) {
               var doc = res[0].ok;
               ok(doc, "got doc");
               ok(doc._revisions, "got revisions");
@@ -467,13 +467,13 @@ describe('get', function () {
         });
       });
 
-      it('Testing get with open_revs on nonexistent doc', function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.get("nonexistent", {open_revs: ["2-whatever"]}, function(err, res) {
+      it('Testing get with open_revs on nonexistent doc', function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.get("nonexistent", {open_revs: ["2-whatever"]}, function (err, res) {
             strictEqual(res.length, 1, "just one result");
             strictEqual(res[0].missing, "2-whatever", "just one result");
 
-            db.get("nonexistent", {open_revs: "all"}, function(err, res) {
+            db.get("nonexistent", {open_revs: "all"}, function (err, res) {
               strictEqual(res.length, 0, "no open revisions");
               start();
             });
@@ -481,14 +481,14 @@ describe('get', function () {
         });
       });
 
-      it('Testing get with open_revs with wrong params', function(start) {
-        testUtils.initTestDB(testHelpers.name, function(err, db) {
-          db.put({_id: "foo"}, function(err, res) {
-            db.get("foo", {open_revs: {"whatever": "which is", "not an array": "or all string"}}, function(err, res) {
+      it('Testing get with open_revs with wrong params', function (start) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.put({_id: "foo"}, function (err, res) {
+            db.get("foo", {open_revs: {"whatever": "which is", "not an array": "or all string"}}, function (err, res) {
               ok(err, "got error");
               strictEqual(err.name, "unknown_error", "correct error"); // unfortunately!
 
-              db.get("foo", {open_revs: ["1-almost", "2-correct", "keys"]}, function(err, res) {
+              db.get("foo", {open_revs: ["1-almost", "2-correct", "keys"]}, function (err, res) {
                 ok(err, "got error");
                 strictEqual(err.name, "bad_request", "correct error");
                 start();

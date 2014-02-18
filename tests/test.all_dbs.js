@@ -2,7 +2,7 @@
 
 var testHelpers = {};
 // async method takes an array of functions of signature:
-// `function(cb) {}`
+// `function (cb) {}`
 // each function is called and `callback` is called when all functions are done.
 // each function calls `cb` to signal completion
 // cb is called with error as the first arguments (if any)
@@ -10,14 +10,14 @@ var testHelpers = {};
 // callback is called `callback(err)`
 function async(functions, callback) {
   function series(functions) {
-    callback = callback || function() {};
+    callback = callback || function () {};
 
     if (!functions.length) {
       return callback();
     }
 
     var fn = functions.shift();
-    fn.call(fn, function(err) {
+    fn.call(fn, function (err) {
       if (err) {
         callback(err);
         return;
@@ -31,23 +31,23 @@ function async(functions, callback) {
 }
 describe('allDbs', function () {
 // Remove old allDbs to prevent DOM exception
-  Object.keys(PouchDB.adapters).forEach(function(adapter) {
+  Object.keys(PouchDB.adapters).forEach(function (adapter) {
     if (adapter === "http" || adapter === "https") {
       return;
     }
 
-    PouchDB.destroy(PouchDB.allDBName(adapter), function(){});
+    PouchDB.destroy(PouchDB.allDBName(adapter), function () {});
   });
 
   // Loop through all availible adapters
-  Object.keys(PouchDB.adapters).forEach(function(adapter) {
+  Object.keys(PouchDB.adapters).forEach(function (adapter) {
     // allDbs method only works for local adapters
     if (adapter === "http" || adapter === "https") {
       return;
     }
 
     describe(adapter, function () {
-      beforeEach(function() {
+      beforeEach(function () {
         // enable allDbs
         PouchDB.enableAllDbs = true;
 
@@ -60,15 +60,15 @@ describe('allDbs', function () {
           testHelpers.pouchNames.push([adapter, "://", pouchName].join(''));
         }
       });
-      afterEach(function() {
+      afterEach(function () {
         PouchDB.enableAllDbs = false;
       });
 
-      it("new Pouch registered in allDbs", function(done) {
+      it("new Pouch registered in allDbs", function (done) {
         this.timeout(15000);
         var pouchName = testHelpers.pouchNames[0];
         function after(err) {
-          PouchDB.destroy(pouchName, function(er){
+          PouchDB.destroy(pouchName, function (er) {
             if (er) {
               done(er);
             } else {
@@ -76,20 +76,20 @@ describe('allDbs', function () {
             }
           });
         };
-        
+
         // create db
-        new PouchDB(pouchName, function(err, db) {
+        new PouchDB(pouchName, function (err, db) {
           if (err) {
             return after(err);
           }
 
-          PouchDB.allDbs(function(err, dbs) {
+          PouchDB.allDbs(function (err, dbs) {
             if (err) {
               return after(err);
             }
 
             // check if pouchName exists in _all_db
-            dbs.some(function(dbname) {
+            dbs.some(function (dbname) {
               return dbname === pouchName;
             }).should.equal(true, "pouch exists in allDbs database");
             after();
@@ -97,37 +97,37 @@ describe('allDbs', function () {
         });
       });
 
-      it("Pouch.destroy removes pouch from allDbs", function(done) {
+      it("Pouch.destroy removes pouch from allDbs", function (done) {
         var pouchName = testHelpers.pouchNames[0];
 
         // create db
-        new PouchDB(pouchName, function(err, db) {
+        new PouchDB(pouchName, function (err, db) {
           if (err) {
             return done(err);
           }
 
-          PouchDB.allDbs(function(err, dbs) {
+          PouchDB.allDbs(function (err, dbs) {
             if (err) {
             return done(err);
           }
 
             // check if pouchName exists in _all_db
-            dbs.some(function(dbname) {
+            dbs.some(function (dbname) {
               return dbname === pouchName;
             }).should.equal(true, "pouch exists in allDbs database");
 
             // remove db
-            PouchDB.destroy(pouchName, function(err, info) {
+            PouchDB.destroy(pouchName, function (err, info) {
               if (err) {
                 return done(err);
               }
-              PouchDB.allDbs(function(err, dbs) {
+              PouchDB.allDbs(function (err, dbs) {
                 if (err) {
                   return done(err);
                 }
 
                 // check if pouchName still exists in _all_db
-                var exists = dbs.some(function(dbname) {
+                var exists = dbs.some(function (dbname) {
                   return dbname === pouchName;
                 }).should.equal(false, "pouch no longer exists in allDbs database");
                 done();
@@ -137,39 +137,39 @@ describe('allDbs', function () {
         });
       });
 
-      it("Create Multiple Pouches", function(done) {
+      it("Create Multiple Pouches", function (done) {
         var pouchNames = testHelpers.pouchNames;
         async(
-          pouchNames.map(function(pouch) {
-            return function(callback) {
+          pouchNames.map(function (pouch) {
+            return function (callback) {
               new PouchDB(pouch, callback);
             };
           }),
-          function(err) {
+          function (err) {
             if (err) {
               return done(err);
             }
 
-            PouchDB.allDbs(function(err, dbs) {
+            PouchDB.allDbs(function (err, dbs) {
               if (err) {
                 return done(err);
               }
 
-              pouchNames.forEach(function(pouch) {
+              pouchNames.forEach(function (pouch) {
                 // check if pouchName exists in _all_db
-                dbs.some(function(dbname) {
+                dbs.some(function (dbname) {
                   return dbname === pouch;
                 }).should.equal(true, "pouch name not found in allDbs");
               });
 
               // destroy remaining pouches
               async(
-                pouchNames.map(function(pouch) {
-                  return function(callback) {
+                pouchNames.map(function (pouch) {
+                  return function (callback) {
                     PouchDB.destroy(pouch, callback);
                   };
                 }),
-                function(err) {
+                function (err) {
                   done(err);
                 }
               );
@@ -179,31 +179,31 @@ describe('allDbs', function () {
         );
       });
 
-      it("Create and Destroy Multiple Pouches", function(done) {
+      it("Create and Destroy Multiple Pouches", function (done) {
         var pouchNames = testHelpers.pouchNames;
 
         async(
           //
           // Create Multiple Pouches
           //
-          pouchNames.map(function(pouch) {
-            return function(callback) {
+          pouchNames.map(function (pouch) {
+            return function (callback) {
               new PouchDB(pouch, callback);
             };
           }),
-          function(err) {
+          function (err) {
             if (err) {
               return done(err);
             }
 
-            PouchDB.allDbs(function(err, dbs) {
+            PouchDB.allDbs(function (err, dbs) {
               if (err) {
                 return done(err);
               }
 
               // check if pouchName exists in _all_db
-              pouchNames.forEach(function(pouch) {
-                dbs.some(function(dbname) {
+              pouchNames.forEach(function (pouch) {
+                dbs.some(function (dbname) {
                   return dbname === pouch;
                 }).should.equal(true);
               });
@@ -213,24 +213,24 @@ describe('allDbs', function () {
               // Destroy all Pouches
               //
               async(
-                pouchNames.map(function(pouch) {
-                  return function(callback) {
+                pouchNames.map(function (pouch) {
+                  return function (callback) {
                     return PouchDB.destroy(pouch, callback);
                   };
                 }),
-                function(err) {
+                function (err) {
                   if (err) {
                     return done(err);
                   }
 
-                  PouchDB.allDbs(function(err, dbs) {
+                  PouchDB.allDbs(function (err, dbs) {
                     if (err) {
                       return done(err);
                     }
 
                     // check if pouchName exists in _all_db
-                    pouchNames.forEach(function(pouch) {
-                      dbs.some(function(dbname) {
+                    pouchNames.forEach(function (pouch) {
+                      dbs.some(function (dbname) {
                         return dbname === pouch;
                       }).should.equal(false, "pouch name found in allDbs after its destroyed");
                      });
@@ -249,51 +249,51 @@ describe('allDbs', function () {
       // 1. if an adapter is specified upon Pouch creation, the dbname will include the adapter prefix
       //   - eg. "idb://testdb"
       // 2. Otherwise, the dbname will just contain the dbname (without the adapter prefix)
-      it("Create and Destroy Pouches with and without adapter prefixes", function(done) {
+      it("Create and Destroy Pouches with and without adapter prefixes", function (done) {
         var pouchNames = testHelpers.pouchNames;
         async(
           // Create Pouches from pouchNames array
-          pouchNames.map(function(name) {
-            return function(callback) {
+          pouchNames.map(function (name) {
+            return function (callback) {
               new PouchDB(name, callback);
             };
-          }), function(err) {
+          }), function (err) {
             if (err) {
               return done(err);
             }
 
             // check allDbs output
-            PouchDB.allDbs(function(err, dbs) {
+            PouchDB.allDbs(function (err, dbs) {
               if (err) {
                 return done(err);
               }
 
-              pouchNames.forEach(function(pouch) {
+              pouchNames.forEach(function (pouch) {
                 // check if pouchName exists in allDbs
-                dbs.some(function(dbname) {
+                dbs.some(function (dbname) {
                   return dbname === pouch;
                 }).should.equal(true, "pouch name not found in allDbs");
               });
 
               // destroy pouches
               async(
-                pouchNames.map(function(db) {
-                  return function(callback) {
+                pouchNames.map(function (db) {
+                  return function (callback) {
                     PouchDB.destroy(db, callback);
                   };
                 }),
-                function(err) {
+                function (err) {
                   if (err) {
                     return done(err);
                   }
                   // Check that pouches no longer exist in allDbs
-                  PouchDB.allDbs(function(err, dbs) {
+                  PouchDB.allDbs(function (err, dbs) {
                     if (err) {
                       return done(err);
                     }
                     // check if pouchName exists in _all_db
-                    pouchNames.forEach(function(pouch) {
-                      dbs.some(function(dbname) {
+                    pouchNames.forEach(function (pouch) {
+                      dbs.some(function (dbname) {
                         return dbname === pouch;
                       }).should.equal(false, "pouch name found in allDbs after its destroyed");
 
