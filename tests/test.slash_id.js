@@ -31,15 +31,6 @@ describe('slash ids', function () {
           PouchDB.enableAllDbs = true;
         });
         afterEach(testUtils.cleanupTestDatabases);
-        var binAttDoc = {
-            _id: 'bin_doc',
-            _attachments: {
-              'foo.txt': {
-                content_type: 'text/plain',
-                data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
-              }
-            }
-          };
         it('Insert a doc, putAttachment and allDocs', function (done) {
           testUtils.initTestDB(testHelpers.name, function (err, db) {
             should.not.exist(err, 'opened the pouch');
@@ -161,12 +152,12 @@ describe('slash ids', function () {
             ];
           testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
             remote.bulkDocs({ docs: docs1 }, function (err, info) {
-              var replicate = db.replicate.from(remote, function () {
-                  db.get('bin_doc/with/slash', { attachments: true }, function (err, doc) {
-                    binAttDoc._attachments['foo/with/slash.txt'].data.should.equal(doc._attachments['foo/with/slash.txt'].data);
-                    done();
-                  });
+              db.replicate.from(remote, function () {
+                db.get('bin_doc/with/slash', { attachments: true }, function (err, doc) {
+                  binAttDoc._attachments['foo/with/slash.txt'].data.should.equal(doc._attachments['foo/with/slash.txt'].data);
+                  done();
                 });
+              });
             });
           });
         });

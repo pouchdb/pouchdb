@@ -3,7 +3,6 @@ var adapters = [
     'http-1',
     'local-1'
   ];
-var is_browser = true;
 var testHelpers = {};
 function ok(thing, message) {
   (!!thing).should.equal(true, message);
@@ -13,13 +12,6 @@ function equal(thing1, thing2, message) {
     thing1.should.equal(thing2, message);
   } else {
     should.equal(thing1, thing2, message);
-  }
-}
-function notEqual(thing1, thing2, message) {
-  if (thing1) {
-    thing1.should.not.equal(thing2, message);
-  } else {
-    should.not.equal(thing1, thing2, message);
   }
 }
 function deepEqual(thing1, thing2, message) {
@@ -890,7 +882,7 @@ describe('changes', function () {
         testUtils.initDBPair(localname, remotename, function (localdb, remotedb) {
           localdb.bulkDocs({ docs: docs1 }, function (err, info) {
             docs2[0]._rev = info[2].rev;
-            var rev1 = docs2[1]._rev = info[3].rev;
+            docs2[1]._rev = info[3].rev;
             localdb.put(docs2[0], function (err, info) {
               localdb.put(docs2[1], function (err, info) {
                 var rev2 = info.rev;

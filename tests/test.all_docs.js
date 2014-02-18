@@ -222,11 +222,6 @@ describe('all_docs', function () {
               db.put(conflictDoc2, { new_edits: false }, function (err, doc) {
                 db.get('3', function (err, winRev) {
                   winRev._rev.should.equal(conflictDoc2._rev, 'correct wining revision on get');
-                  var opts = {
-                      include_docs: true,
-                      conflicts: true,
-                      style: 'all_docs'
-                    };
                   db.changes({
                     include_docs: true,
                     conflicts: true,

@@ -39,8 +39,6 @@ function bundle() {
   }
 }
 
-var program = require('commander');
-
 var COUCH_HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
 
 var HTTP_PORT = 8000;

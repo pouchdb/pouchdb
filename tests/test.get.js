@@ -520,7 +520,6 @@ describe('get', function () {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           ok(!err, 'opened the pouch');
           db.post({ version: 'first' }, function (err, info) {
-            var firstrev = info.rev;
             ok(!err, 'saved a doc with post');
             db.put({
               _id: info.id,
@@ -670,7 +669,6 @@ describe('get', function () {
                         '3-bbb'
                       ]
                     }, function (err, res) {
-                      var i;
                       res.sort(function (a, b) {
                         if (a.ok) {
                           if (b.ok) {

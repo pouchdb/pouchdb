@@ -11,12 +11,6 @@ function ok(thing, message) {
 function equal(thing1, thing2, message) {
   thing1.should.equal(thing2, message);
 }
-function notEqual(thing1, thing2, message) {
-  thing1.should.not.equal(thing2, message);
-}
-function deepEqual(thing1, thing2, message) {
-  thing1.should.deep.equal(thing2, message);
-}
 var strictEqual = equal;
 var downAdapters = ['local-1'];
 var deletedDocAdapters = [['local-1', 'http-1']];
@@ -666,12 +660,12 @@ describe('changes', function () {
           ];
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           remote.bulkDocs({ docs: docs1 }, function (err, info) {
-            var replicate = db.replicate.from(remote, function () {
-                db.allDocs(function (err, res) {
-                  equal(res.total_rows, 4, 'Replication with deleted docs');
-                  start();
-                });
+            db.replicate.from(remote, function () {
+              db.allDocs(function (err, res) {
+                equal(res.total_rows, 4, 'Replication with deleted docs');
+                start();
               });
+            });
           });
         });
       });
@@ -780,12 +774,12 @@ describe('changes', function () {
         }
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           remote.bulkDocs({ docs: docs }, function (err, info) {
-            var replicate = db.replicate.from(remote, {}, function () {
-                db.allDocs(function (err, res) {
-                  equal(res.total_rows, num, 'Replication with deleted docs');
-                  start();
-                });
+            db.replicate.from(remote, {}, function () {
+              db.allDocs(function (err, res) {
+                equal(res.total_rows, num, 'Replication with deleted docs');
+                start();
               });
+            });
           });
         });
       });

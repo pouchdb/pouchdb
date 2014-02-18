@@ -6,7 +6,6 @@ describe('uuid', function () {
     PouchDB.utils.uuids(count).should.have.length(count, 'Correct number of uuids generated.');
   });
   it('UUID RFC4122 test', function () {
-    var uuid = PouchDB.utils.uuids()[0];
     rfcRegexp.test(PouchDB.utils.uuids()[0]).should.equal(true, 'Single UUID complies with RFC4122.');
     rfcRegexp.test(PouchDB.utils.uuid()).should.equal(true, 'Single UUID through Pouch.utils.uuid complies with RFC4122.');
   });

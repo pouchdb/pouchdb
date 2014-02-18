@@ -10,9 +10,7 @@ var devserver = require('./dev-server.js');
 var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
 var testUrl = 'http://127.0.0.1:8000/tests/test.html';
 var testTimeout = 30 * 60 * 1000;
-var currentTest = '';
 var results = {};
-var client = {};
 
 if (process.env.GREP) {
   testUrl += '?grep=' + process.env.GREP;

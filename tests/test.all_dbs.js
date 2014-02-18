@@ -1,4 +1,5 @@
 'use strict';
+
 var testHelpers = {};
 // async method takes an array of functions of signature:
 // `function (cb) {}`
@@ -113,9 +114,9 @@ describe('allDbs', function () {
                   return done(err);
                 }
                 // check if pouchName still exists in _all_db
-                var exists = dbs.some(function (dbname) {
-                    return dbname === pouchName;
-                  }).should.equal(false, 'pouch no longer exists in allDbs database');
+                dbs.some(function (dbname) {
+                  return dbname === pouchName;
+                }).should.equal(false, 'pouch no longer exists in allDbs database');
                 done();
               });
             });

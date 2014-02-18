@@ -402,7 +402,6 @@ describe('views', function () {
         });
       });
       it('Views should include _conflicts', function (done) {
-        var self = this;
         var doc1 = {
             _id: '1',
             foo: 'bar'
@@ -431,7 +430,6 @@ describe('views', function () {
         });
       });
       it('Map only documents with _conflicts (#1000)', function (done) {
-        var self = this;
         var docs1 = [
             {
               _id: '1',

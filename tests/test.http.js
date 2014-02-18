@@ -40,7 +40,6 @@ describe('http', function () {
         foo: 'bar_' + i
       });
     }
-    var self = this;
     testUtils.initTestDB(testHelpers.name, function (err, db) {
       db.bulkDocs({ docs: docs }, function (err, result) {
         var callCount = 0;
@@ -51,16 +50,16 @@ describe('http', function () {
           }
           ajax.apply(this, arguments);
         };
-        var changes = db.changes({
-            since: 100,
-            onChange: function (change) {
-            },
-            complete: function (err, result) {
-              callCount.should.equal(1, 'One _changes call to complete changes');
-              PouchDB.utils.ajax = ajax;
-              done();
-            }
-          });
+        db.changes({
+          since: 100,
+          onChange: function (change) {
+          },
+          complete: function (err, result) {
+            callCount.should.equal(1, 'One _changes call to complete changes');
+            PouchDB.utils.ajax = ajax;
+            done();
+          }
+        });
       });
     });
   });

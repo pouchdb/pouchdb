@@ -562,12 +562,12 @@ describe('replication', function () {
           ];
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           remote.bulkDocs({ docs: docs1 }, function (err, info) {
-            var replicate = db.replicate.from(remote, function () {
-                db.get('bin_doc', { attachments: true }, function (err, doc) {
-                  binAttDoc._attachments['foo.txt'].data.should.equal(doc._attachments['foo.txt'].data);
-                  done();
-                });
+            db.replicate.from(remote, function () {
+              db.get('bin_doc', { attachments: true }, function (err, doc) {
+                binAttDoc._attachments['foo.txt'].data.should.equal(doc._attachments['foo.txt'].data);
+                done();
               });
+            });
           });
         });
       });

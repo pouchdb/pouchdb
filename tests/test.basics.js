@@ -267,7 +267,6 @@ describe('basics', function () {
       });
       it('Remove doc, no callback', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
-          var changesCount = 2;
           var changes = db.changes({
               continuous: true,
               include_docs: true,
