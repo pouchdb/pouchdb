@@ -4,6 +4,7 @@
   "immed": true,
   "newcap": true,
   "noarg": true,
+  "notypeof": true,
   "sub": true,
   "undef": true,
   "eqnull": true,
