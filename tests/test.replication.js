@@ -1,22 +1,10 @@
 'use strict';
 var adapters = [
-    [
-      'local-1',
-      'http-1'
-    ],
-    [
-      'http-1',
-      'http-2'
-    ],
-    [
-      'http-1',
-      'local-1'
-    ],
-    [
-      'local-1',
-      'local-2'
-    ]
-  ];
+  ['local-1', 'http-1'],
+  ['http-1', 'http-2'],
+  ['http-1', 'local-1'],
+  ['local-1', 'local-2']
+];
 function ok(thing, message) {
   (!!thing).should.equal(true, message);
 }
@@ -31,14 +19,8 @@ function deepEqual(thing1, thing2, message) {
 }
 var strictEqual = equal;
 var downAdapters = ['local-1'];
-var deletedDocAdapters = [[
-      'local-1',
-      'http-1'
-    ]];
-var interHTTPAdapters = [[
-      'http-1',
-      'http-2'
-    ]];
+var deletedDocAdapters = [['local-1', 'http-1']];
+var interHTTPAdapters = [['http-1', 'http-2']];
 var testHelpers = {};
 if (typeof module !== 'undefined' && module.exports) {
   downAdapters = [];

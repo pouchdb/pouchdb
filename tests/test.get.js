@@ -11,14 +11,14 @@ function equal(thing1, thing2, message) {
   if (thing1) {
     thing1.should.equal(thing2, message);
   } else {
-    (thing1 == thing2).should.equal(true, message);
+    (thing1 === thing2).should.equal(true, message);
   }
 }
 function notEqual(thing1, thing2, message) {
   if (thing1) {
     thing1.should.not.equal(thing2, message);
   } else {
-    (thing1 != thing2).should.equal(true, message);
+    (thing1 !== thing2).should.equal(true, message);
   }
 }
 function deepEqual(thing1, thing2, message) {

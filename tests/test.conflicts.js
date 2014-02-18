@@ -23,7 +23,7 @@ describe('conflicts', function () {
             should.exist(res.ok, 'Put first document');
             db.get('foo', function (err, doc2) {
               doc._id.should.equal(doc2._id);
-              (doc._rev && doc2._rev).should.be.ok;
+              should.be.ok(doc._rev && doc2._rev);
               doc.a = 2;
               doc2.a = 3;
               db.put(doc, function (err, res) {

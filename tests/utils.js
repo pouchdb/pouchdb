@@ -1,6 +1,9 @@
 /* global PouchDB */
+/* jshint -W079 */
 'use strict';
+
 var testUtils = {};
+
 testUtils.PERSIST_DATABASES = false;
 testUtils.couchHost = function () {
   if (typeof module !== 'undefined' && module.exports) {

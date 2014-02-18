@@ -126,12 +126,12 @@ describe('all_docs', function () {
                     keys: keys,
                     startkey: 'a'
                   }, function (err, result) {
-                    err.should.exist;
+                    should.exist(err);
                     db.allDocs({
                       keys: keys,
                       endkey: 'a'
                     }, function (err, result) {
-                      err.should.exist;
+                      should.exist(err);
                       db.allDocs({ keys: [] }, function (err, result) {
                         result.rows.should.have.length(0, 'correct answer if keys is empty');
                         db.get('2', function (err, doc) {

@@ -11,7 +11,9 @@
   "node": true,
   "strict": true,
   "globalstrict": true,
-  "globals": { "Pouch": true},
+  "globals": {
+    "PouchDB": true
+  },
   "white": true,
   "indent": 2,
   "forin": true,
@@ -22,7 +24,6 @@
     "afterEach",
     "testUtils",
     "should",
-    "PouchDB",
     "emit"
   ]
 }
