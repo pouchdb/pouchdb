@@ -16,7 +16,6 @@
   "globals": {
     "PouchDB": true
   },
-  "white": true,
   "indent": 2,
   "forin": true,
   "predef": [
