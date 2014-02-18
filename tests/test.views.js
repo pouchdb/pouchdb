@@ -578,7 +578,7 @@ describe('views', function () {
           });
         });
       });
-      it('Map documents on 0/null/undefined/empty string', function (done) {
+      it.skip('Map documents on 0/null/undefined/empty string', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           var docs = [
               {

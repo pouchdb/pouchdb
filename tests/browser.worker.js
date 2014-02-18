@@ -1,6 +1,6 @@
 'use strict';
 describe('worker', function () {
-  it('create it', function (done) {
+  it.skip('create it', function (done) {
     var worker = new Worker('worker.js');
     worker.addEventListener('message', function (e) {
       e.data.should.equal('pong');
@@ -9,7 +9,7 @@ describe('worker', function () {
     });
     worker.postMessage('ping');
   });
-  it('check pouch version', function (done) {
+  it.skip('check pouch version', function (done) {
     var worker = new Worker('worker.js');
     worker.addEventListener('message', function (e) {
       PouchDB.version.should.equal(e.data);
@@ -18,7 +18,7 @@ describe('worker', function () {
     });
     worker.postMessage('version');
   });
-  it('create remote db', function (done) {
+  it.skip('create remote db', function (done) {
     var worker = new Worker('worker.js');
     worker.addEventListener('error', function (e) {
       throw e;
