@@ -1066,6 +1066,40 @@ describe('changes', function () {
       //   });
       // });
 
+      it("error updating checkpoint", function(done) {
+        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function(db, remote) {
+          remote.bulkDocs({docs: docs}, {}, function(err, results) {
+            var get = remote.get;
+            var local_count = 0;
+            // Mock remote.get to fail writing doc_3 (fourth doc)
+            remote.get = function() {
+              // Simulate failure to get the checkpoint
+              if(arguments[0].slice(0,6) === '_local') {
+                local_count++;
+                if(local_count === 2) {
+                  console.log('get local: ' + JSON.stringify(arguments));
+                  arguments[1].apply(null, [{
+                    status: 500,
+                    error: 'mock get error',
+                    reason: 'simulate an error updating the checkpoint'
+                  }]);
+                } else {
+                  get.apply(this, arguments);
+                }
+              } else {
+                get.apply(this, arguments);
+              }
+            };
+
+            db.replicate.from(remote, function(err, result) {
+              ok(!!err, 'Replication fails with an error');
+              ok(!result.ok, 'Replication result is not OK');
+              done();
+            });
+          });
+        });
+      });
+
       it("(#1307) - replicate empty database", function(start) {
         
 
