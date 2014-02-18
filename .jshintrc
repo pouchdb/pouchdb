@@ -6,6 +6,7 @@
   "noarg": true,
   "sub": true,
   "undef": true,
+  "unused": "vars",
   "eqnull": true,
   "browser": true,
   "node": true,
