@@ -7,8 +7,8 @@ var http_proxy = require("http-proxy");
 var http_server = require("http-server");
 var fs = require('fs');
 
-fs.mkdir('dist', function(e) {
-  if(e && e.code != 'EEXIST') {
+fs.mkdir('dist', function (e) {
+  if (e && e.code !== 'EEXIST') {
     throw e;
   }
 });
@@ -21,7 +21,7 @@ var outfile = "./dist/pouchdb-nightly.js";
 w.on('update', bundle);
 bundle();
 
-function bundle () {
+function bundle() {
   var wb = w.bundle({
     standalone: "PouchDB"
   });
@@ -31,9 +31,9 @@ function bundle () {
   wb.on("end", end);
   wb.pipe(fs.createWriteStream(dotfile));
 
-  function end () {
+  function end() {
     fs.rename(dotfile, outfile, function (err) {
-      if(err) return console.error(err);
+      if (err) { return console.error(err); }
       console.log("Updated " + outfile);
     });
   }

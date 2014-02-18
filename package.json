@@ -40,7 +40,7 @@
     "istanbul": "~0.2.4"
   },
   "scripts": {
-    "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",
+    "jshint": "./node_modules/.bin/jshint -c .jshintrc bin/*.js lib/*.js lib/adapters/*.js lib/deps/*.js",
     "build-js": "mkdir -p dist && ./node_modules/.bin/browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "watch-js": "mkdir -p dist && ./node_modules/.bin/watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
