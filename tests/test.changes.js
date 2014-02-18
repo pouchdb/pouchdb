@@ -12,14 +12,14 @@ function equal(thing1, thing2, message) {
   if (thing1) {
     thing1.should.equal(thing2, message);
   } else {
-    (thing1 === thing2).should.equal(true, message);
+    should.equal(thing1, thing2, message);
   }
 }
 function notEqual(thing1, thing2, message) {
   if (thing1) {
     thing1.should.not.equal(thing2, message);
   } else {
-    (thing1 !== thing2).should.equal(true, message);
+    should.not.equal(thing1, thing2, message);
   }
 }
 function deepEqual(thing1, thing2, message) {
@@ -34,109 +34,55 @@ describe('changes', function () {
         PouchDB.enableAllDbs = false;
       });
       afterEach(testUtils.cleanupTestDatabases);
-      it('All changes', function (start) {
+      it('All changes', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.post({ test: 'somestuff' }, function (err, info) {
             db.changes({
               onChange: function (change) {
                 ok(!change.doc, 'If we dont include docs, dont include docs');
                 ok(change.seq, 'Received a sequence number');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes Since', function (start) {
+      it('Changes Since', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            },
-            {
-              _id: '4',
-              integer: 4
-            },
-            {
-              _id: '5',
-              integer: 5
-            },
-            {
-              _id: '6',
-              integer: 6
-            },
-            {
-              _id: '7',
-              integer: 7
-            },
-            {
-              _id: '8',
-              integer: 9
-            },
-            {
-              _id: '9',
-              integer: 9
-            },
-            {
-              _id: '10',
-              integer: 10
-            },
-            {
-              _id: '11',
-              integer: 11
-            },
-            {
-              _id: '12',
-              integer: 12
-            },
-            {
-              _id: '13',
-              integer: 13
-            }
-          ];
+          {_id: '0', integer: 0},
+          {_id: '1', integer: 1},
+          {_id: '2', integer: 2},
+          {_id: '3', integer: 3},
+          {_id: '4', integer: 4},
+          {_id: '5', integer: 5},
+          {_id: '6', integer: 6},
+          {_id: '7', integer: 7},
+          {_id: '8', integer: 9},
+          {_id: '9', integer: 9},
+          {_id: '10', integer: 10},
+          {_id: '11', integer: 11},
+          {_id: '12', integer: 12},
+          {_id: '13', integer: 13}
+        ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: docs }, function (err, info) {
             db.changes({
               since: 12,
               complete: function (err, results) {
                 equal(results.results.length, 2, 'Partial results');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes Since and limit', function (start) {
+      it('Changes Since and limit', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
-          ];
+          {_id: '0', integer: 0},
+          {_id: '1', integer: 1},
+          {_id: '2', integer: 2},
+          {_id: '3', integer: 3},
+        ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: docs }, function (err, info) {
             db.changes({
@@ -144,40 +90,22 @@ describe('changes', function () {
               limit: 1,
               complete: function (err, results) {
                 equal(results.results.length, 1, 'Partial results');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes limit', function (start) {
+      it('Changes limit', function (done) {
         var docs1 = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
           ];
         var docs2 = [
-            {
-              _id: '2',
-              integer: 11
-            },
-            {
-              _id: '3',
-              integer: 12
-            }
+            {_id: '2', integer: 11},
+            {_id: '3', integer: 12},
           ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           // we use writeDocs since bulkDocs looks to have undefined
@@ -201,7 +129,7 @@ describe('changes', function () {
                     strictEqual(results[1].id, '3', 'correct second id');
                     strictEqual(results[1].seq, 6, 'correct second seq');
                     strictEqual(results[1].doc.integer, 12, 'correct second integer');
-                    start();
+                    done();
                   }
                 });
               });
@@ -209,13 +137,10 @@ describe('changes', function () {
           });
         });
       });
-      it('Changes with filter not present in ddoc', function (start) {
+      it('Changes with filter not present in ddoc', function (done) {
         this.timeout(15000);
         var docs = [
-            {
-              _id: '1',
-              integer: 1
-            },
+            {_id: '1', integer: 1},
             {
               _id: '_design/foo',
               integer: 4,
@@ -232,22 +157,16 @@ describe('changes', function () {
                 equal(err.status, 404, 'correct error status');
                 equal(err.message, 'missing json key: odd', 'correct error reason');
                 equal(results, null, 'correct `results` object returned');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes with `filters` key not present in ddoc', function (start) {
+      it('Changes with `filters` key not present in ddoc', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
             {
               _id: '_design/foo',
               integer: 4,
@@ -264,38 +183,20 @@ describe('changes', function () {
                 equal(err.status, 404, 'correct error status');
                 equal(err.message, 'missing json key: filters', 'correct error reason');
                 equal(results, null, 'correct `results` object returned');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes limit and filter', function (start) {
+      it('Changes limit and filter', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            },
-            {
-              _id: '4',
-              integer: 4
-            },
-            {
-              _id: '5',
-              integer: 5
-            },
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
+            {_id: '4', integer: 4},
+            {_id: '5', integer: 5},
             {
               _id: '_design/foo',
               integer: 4,
@@ -317,22 +218,16 @@ describe('changes', function () {
                 strictEqual(results.results[1].id, '5', 'correct second id');
                 strictEqual(results.results[1].seq, 6, 'correct second seq');
                 strictEqual(results.results[1].doc.integer, 5, 'correct second integer');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes with filter from nonexistent ddoc', function (start) {
+      it('Changes with filter from nonexistent ddoc', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
           ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           testUtils.writeDocs(db, docs, function (err, info) {
@@ -342,22 +237,16 @@ describe('changes', function () {
                 equal(err.status, 404, 'correct error status');
                 equal(err.message, 'missing', 'correct error reason');
                 equal(results, null, 'correct `results` object returned');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes with view not present in ddoc', function (start) {
+      it('Changes with view not present in ddoc', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
             {
               _id: '_design/foo',
               integer: 4,
@@ -373,18 +262,15 @@ describe('changes', function () {
                 equal(err.status, 404, 'correct error status');
                 equal(err.message, 'missing json key: odd', 'correct error reason');
                 equal(results, null, 'correct `results` object returned');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes with `views` key not present in ddoc', function (start) {
+      it('Changes with `views` key not present in ddoc', function (done) {
         var docs = [
-            {
-              _id: '1',
-              integer: 1
-            },
+            {_id: '1', integer: 1},
             {
               _id: '_design/foo',
               integer: 4,
@@ -400,22 +286,16 @@ describe('changes', function () {
                 equal(err.status, 404, 'correct error status');
                 equal(err.message, 'missing json key: views', 'correct error reason');
                 equal(results, null, 'correct `results` object returned');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes with missing param `view` in request', function (start) {
+      it('Changes with missing param `view` in request', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
             {
               _id: '_design/foo',
               integer: 4,
@@ -430,38 +310,20 @@ describe('changes', function () {
                 equal(err.status, 400, 'correct error status');
                 equal(err.message, '`view` filter parameter is not provided.', 'correct error reason');
                 equal(results, null, 'correct `results` object returned');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes limit and view instead of filter', function (start) {
+      it('Changes limit and view instead of filter', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            },
-            {
-              _id: '4',
-              integer: 4
-            },
-            {
-              _id: '5',
-              integer: 5
-            },
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
+            {_id: '4', integer: 4},
+            {_id: '5', integer: 5},
             {
               _id: '_design/foo',
               integer: 4,
@@ -484,30 +346,18 @@ describe('changes', function () {
                 strictEqual(results.results[1].id, '5', 'correct second id');
                 strictEqual(results.results[1].seq, 6, 'correct second seq');
                 strictEqual(results.results[1].doc.integer, 5, 'correct second integer');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes last_seq', function (start) {
+      it('Changes last_seq', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            },
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
             {
               _id: '_design/foo',
               integer: 4,
@@ -527,7 +377,7 @@ describe('changes', function () {
                       complete: function (err, results) {
                         strictEqual(results.last_seq, 5, 'filter does not change last_seq');
                         strictEqual(results.results.length, 2, 'correct # of changes');
-                        start();
+                        done();
                       }
                     });
                   }
@@ -537,24 +387,12 @@ describe('changes', function () {
           });
         });
       });
-      it('Changes last_seq with view instead of filter', function (start) {
+      it('Changes last_seq with view instead of filter', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            },
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
             {
               _id: '_design/foo',
               integer: 4,
@@ -575,7 +413,7 @@ describe('changes', function () {
                       complete: function (err, results) {
                         strictEqual(results.last_seq, 5, 'filter does not change last_seq');
                         strictEqual(results.results.length, 2, 'correct # of changes');
-                        start();
+                        done();
                       }
                     });
                   }
@@ -585,7 +423,7 @@ describe('changes', function () {
           });
         });
       });
-      it('Changes with style = all_docs', function (start) {
+      it('Changes with style = all_docs', function (done) {
         var simpleTree = [
             [
               {
@@ -657,7 +495,7 @@ describe('changes', function () {
                     deepEqual(changes[0], { rev: '4-f' }, 'correct rev');
                     deepEqual(changes[1], { rev: '3-c' }, 'correct rev');
                     deepEqual(changes[2], { rev: '2-g' }, 'correct rev');
-                    start();
+                    done();
                   }
                 });
               }
@@ -665,24 +503,12 @@ describe('changes', function () {
           });
         });
       });
-      it('Changes limit = 0', function (start) {
+      it('Changes limit = 0', function (done) {
         var docs = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
           ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: docs }, function (err, info) {
@@ -690,7 +516,7 @@ describe('changes', function () {
               limit: 0,
               complete: function (err, results) {
                 equal(results.results.length, 1, 'Partial results');
-                start();
+                done();
               }
             });
           });
@@ -698,7 +524,7 @@ describe('changes', function () {
       });
       // Note for the following test that CouchDB's implementation of /_changes
       // with `descending=true` ignores any `since` parameter.
-      it('Descending changes', function (start) {
+      it('Descending changes', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.post({
             _id: '0',
@@ -725,7 +551,7 @@ describe('changes', function () {
                     results.results.forEach(function (row, i) {
                       equal(row.id, ids[i], 'All results, descending order');
                     });
-                    start();
+                    done();
                   }
                 });
               });
@@ -733,7 +559,7 @@ describe('changes', function () {
           });
         });
       });
-      it('Changes doc', function (start) {
+      it('Changes doc', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.post({ test: 'somestuff' }, function (err, info) {
             db.changes({
@@ -742,7 +568,7 @@ describe('changes', function () {
                 ok(change.doc);
                 equal(change.doc._id, change.id);
                 equal(change.doc._rev, change.changes[change.changes.length - 1].rev);
-                start();
+                done();
               }
             });
           });
@@ -784,7 +610,7 @@ describe('changes', function () {
           });
         });
       });
-      it('Continuous changes', function (start) {
+      it('Continuous changes', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           var count = 0;
           var changes = db.changes({
@@ -793,19 +619,19 @@ describe('changes', function () {
                 ok(!change.doc, 'If we dont include docs, dont include docs');
                 equal(count, 1, 'Only receive a single change');
                 changes.cancel();
-                start();
+                done();
               },
               continuous: true
             });
           db.post({ test: 'adoc' });
         });
       });
-      it('Multiple watchers', function (start) {
+      it('Multiple watchers', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           var count = 0;
           function checkCount() {
             equal(count, 2, 'Should have received exactly one change per listener');
-            start();
+            done();
           }
           var changes1 = db.changes({
               onChange: function (change) {
@@ -876,7 +702,7 @@ describe('changes', function () {
           db.post({ test: 'adoc' });
         });
       });
-      it('Cancel changes', function (start) {
+      it('Cancel changes', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           var count = 0;
           var changes = db.changes({
@@ -889,7 +715,7 @@ describe('changes', function () {
                     // subsequent callbacks, so it is needed
                     setTimeout(function () {
                       equal(count, 1);
-                      start();
+                      done();
                     }, 200);
                   });
                 }
@@ -921,40 +747,16 @@ describe('changes', function () {
       });
       it('Changes filter', function (done) {
         var docs1 = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
           ];
         var docs2 = [
-            {
-              _id: '4',
-              integer: 4
-            },
-            {
-              _id: '5',
-              integer: 5
-            },
-            {
-              _id: '6',
-              integer: 6
-            },
-            {
-              _id: '7',
-              integer: 7
-            }
+            {_id: '4', integer: 4},
+            {_id: '5', integer: 5},
+            {_id: '6', integer: 6},
+            {_id: '7', integer: 7},
           ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           var count = 0;
@@ -977,42 +779,18 @@ describe('changes', function () {
           });
         });
       });
-      it('Changes filter with query params', function (start) {
+      it('Changes filter with query params', function (done) {
         var docs1 = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
           ];
         var docs2 = [
-            {
-              _id: '4',
-              integer: 4
-            },
-            {
-              _id: '5',
-              integer: 5
-            },
-            {
-              _id: '6',
-              integer: 6
-            },
-            {
-              _id: '7',
-              integer: 7
-            }
+            {_id: '4', integer: 4},
+            {_id: '5', integer: 5},
+            {_id: '6', integer: 6},
+            {_id: '7', integer: 7},
           ];
         var params = { 'abc': true };
         testUtils.initTestDB(testHelpers.name, function (err, db) {
@@ -1030,7 +808,7 @@ describe('changes', function () {
                   if (count === 4) {
                     ok(true, 'We got all the docs');
                     changes.cancel();
-                    start();
+                    done();
                   }
                 },
                 continuous: true
@@ -1039,24 +817,12 @@ describe('changes', function () {
           });
         });
       });
-      it('Non-continuous changes filter', function (start) {
+      it('Non-continuous changes filter', function (done) {
         var docs1 = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
           ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: docs1 }, function (err, info) {
@@ -1067,40 +833,22 @@ describe('changes', function () {
               complete: function (err, changes) {
                 // Should get docs 0 and 2 if the filter has been applied correctly.
                 equal(changes.results.length, 2, 'should only get 2 changes');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Changes to same doc are grouped', function (start) {
+      it('Changes to same doc are grouped', function (done) {
         var docs1 = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
           ];
         var docs2 = [
-            {
-              _id: '2',
-              integer: 11
-            },
-            {
-              _id: '3',
-              integer: 12
-            }
+            {_id: '2', integer: 11},
+            {_id: '3', integer: 12},
           ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: docs1 }, function (err, info) {
@@ -1118,7 +866,7 @@ describe('changes', function () {
                     equal(changes.results[2].id, '2');
                     equal(changes.results[2].changes.length, 1, 'Should include the current revision for a doc');
                     equal(changes.results[2].doc.integer, 11, 'Includes correct revision of the doc');
-                    start();
+                    done();
                   }
                 });
               });
@@ -1126,34 +874,16 @@ describe('changes', function () {
           });
         });
       });
-      it('Changes with conflicts are handled correctly', function (start) {
+      it('Changes with conflicts are handled correctly', function (testDone) {
         var docs1 = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3},
           ];
         var docs2 = [
-            {
-              _id: '2',
-              integer: 11
-            },
-            {
-              _id: '3',
-              integer: 12
-            }
+            {_id: '2', integer: 11},
+            {_id: '3', integer: 12},
           ];
         var localname = testHelpers.name;
         var remotename = testHelpers.name + '-remote';
@@ -1207,7 +937,7 @@ describe('changes', function () {
                               ok(ch.doc._conflicts, 'Includes conflicts');
                               equal(ch.doc._conflicts.length, 1, 'Should have 1 conflict');
                               equal(ch.doc._conflicts[0], remoterev, 'Conflict should be remote rev');
-                              start();
+                              testDone();
                             }
                           });
                         });
@@ -1220,24 +950,12 @@ describe('changes', function () {
           });
         });
       });
-      it('Change entry for a deleted doc', function (start) {
+      it('Change entry for a deleted doc', function (done) {
         var docs1 = [
-            {
-              _id: '0',
-              integer: 0
-            },
-            {
-              _id: '1',
-              integer: 1
-            },
-            {
-              _id: '2',
-              integer: 2
-            },
-            {
-              _id: '3',
-              integer: 3
-            }
+            {_id: '0', integer: 0},
+            {_id: '1', integer: 1},
+            {_id: '2', integer: 2},
+            {_id: '3', integer: 3}
           ];
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: docs1 }, function (err, info) {
@@ -1255,14 +973,14 @@ describe('changes', function () {
                   equal(ch.id, '3', 'Have correct doc');
                   equal(ch.seq, 5, 'Have correct sequence');
                   equal(ch.deleted, true, 'Shows doc as deleted');
-                  start();
+                  done();
                 }
               });
             });
           });
         });
       });
-      it('changes large number of docs', function (start) {
+      it('changes large number of docs', function (done) {
         var docs = [];
         var num = 30;
         for (var i = 0; i < num; i++) {
@@ -1276,13 +994,13 @@ describe('changes', function () {
             db.changes({
               complete: function (err, res) {
                 equal(res.results.length, num, 'Replication with deleted docs');
-                start();
+                done();
               }
             });
           });
         });
       });
-      it('Calling db.changes({since: \'latest\'', function (start) {
+      it('Calling db.changes({since: \'latest\'})', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
             ok(!err, 'bulkDocs passed');
@@ -1292,7 +1010,7 @@ describe('changes', function () {
                   complete: function (err, res) {
                     ok(!err, 'completed db.changes({since: \'latest\'}): ' + JSON.stringify(res));
                     equal(res.last_seq, info.update_seq, 'db.changes({since: \'latest\'}) listens since update_seq');
-                    start();
+                    done();
                   }
                 });
               equal(typeof api, 'object', 'db.changes({since: \'latest\'}) returns object');
@@ -1312,7 +1030,7 @@ describe('changes', function () {
           }
         });
       });
-      it('Closing db dosent cause a crash if changes cancelled', function (start) {
+      it('Closing db does not cause a crash if changes cancelled', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
             ok(!err, 'bulked ok');
@@ -1324,7 +1042,7 @@ describe('changes', function () {
             changes.cancel();
             db.close(function (error) {
               ok(!error, 'closed ok');
-              start();
+              done();
             });
           });
         });

@@ -102,7 +102,8 @@ describe('bulk_docs', function () {
                 }
               ];
             db.bulkDocs({ docs: docs }, function (err, results) {
-              should.be.ok(results[0].name === 'conflict' || results[1].name === 'conflict');
+              results[0].should.have.property('name', 'conflict');
+              results[1].should.have.property('name', 'conflict');
               done();
             });
           });

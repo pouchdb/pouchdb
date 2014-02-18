@@ -14,16 +14,17 @@ describe('conflicts', function () {
       it('Testing conflicts', function (done) {
         testUtils.initTestDB(this.name, function (err, db) {
           var doc = {
-              _id: 'foo',
-              a: 1,
-              b: 1
-            };
+            _id: 'foo',
+            a: 1,
+            b: 1
+          };
           db.put(doc, function (err, res) {
             doc._rev = res.rev;
             should.exist(res.ok, 'Put first document');
             db.get('foo', function (err, doc2) {
               doc._id.should.equal(doc2._id);
-              should.be.ok(doc._rev && doc2._rev);
+              doc.should.have.property('_rev');
+              doc2.should.have.property('_rev');
               doc.a = 2;
               doc2.a = 3;
               db.put(doc, function (err, res) {
