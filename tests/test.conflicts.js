@@ -1,20 +1,23 @@
-"use strict";
-
-var adapters = ['http-1', 'local-1'];
-
+'use strict';
+var adapters = [
+    'http-1',
+    'local-1'
+  ];
 describe('conflicts', function () {
   adapters.map(function (adapter) {
-
     describe(adapter, function () {
       beforeEach(function () {
         this.name = testUtils.generateAdapterUrl(adapter);
         PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
-
       it('Testing conflicts', function (done) {
         testUtils.initTestDB(this.name, function (err, db) {
-          var doc = {_id: 'foo', a:1, b: 1};
+          var doc = {
+              _id: 'foo',
+              a: 1,
+              b: 1
+            };
           db.put(doc, function (err, res) {
             doc._rev = res.rev;
             should.exist(res.ok, 'Put first document');
@@ -43,9 +46,12 @@ describe('conflicts', function () {
           });
         });
       });
-
       it('Testing conflicts', function (done) {
-        var doc = {_id: 'fubar', a:1, b: 1};
+        var doc = {
+            _id: 'fubar',
+            a: 1,
+            b: 1
+          };
         testUtils.initTestDB(this.name, function (err, db) {
           db.put(doc, function (err, ndoc) {
             doc._rev = ndoc.rev;

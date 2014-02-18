@@ -1,13 +1,15 @@
 /* jshint worker: true */
-"use strict";
-
+'use strict';
 importScripts('../dist/pouchdb-nightly.js');
 function bigTest(name) {
-  PouchDB(name, function (err, db) {
+  new PouchDB(name, function (err, db) {
     if (err) {
       throw err;
     }
-    db.post({_id:"blablah",key:'lala'}, function (err) {
+    db.post({
+      _id: 'blablah',
+      key: 'lala'
+    }, function (err) {
       if (err) {
         throw err;
       }

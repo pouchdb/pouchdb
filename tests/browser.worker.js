@@ -1,7 +1,5 @@
-"use strict";
-
+'use strict';
 describe('worker', function () {
-
   it('create it', function (done) {
     var worker = new Worker('worker.js');
     worker.addEventListener('message', function (e) {
@@ -30,7 +28,10 @@ describe('worker', function () {
       worker.terminate();
       done();
     });
-    worker.postMessage(['create',testUtils.generateAdapterUrl('http-1')]);
+    worker.postMessage([
+      'create',
+      testUtils.generateAdapterUrl('http-1')
+    ]);
   });
   if (typeof mozIndexedDB === 'undefined') {
     it('create local db', function (done) {
@@ -43,7 +44,10 @@ describe('worker', function () {
         worker.terminate();
         done();
       });
-      worker.postMessage(['create',testUtils.generateAdapterUrl('local-1')]);
+      worker.postMessage([
+        'create',
+        testUtils.generateAdapterUrl('local-1')
+      ]);
     });
   }
 });

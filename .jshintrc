@@ -19,6 +19,10 @@
     "describe",
     "it",
     "beforeEach",
-    "afterEach"
+    "afterEach",
+    "testUtils",
+    "should",
+    "PouchDB",
+    "emit"
   ]
 }

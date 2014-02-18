@@ -1,6 +1,5 @@
 /* global mocha: true */
-"use strict";
-
+'use strict';
 var runner = mocha.run();
 var results = {};
 results.passed = 0;
