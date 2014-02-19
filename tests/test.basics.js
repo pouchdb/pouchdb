@@ -372,31 +372,42 @@ describe('basics', function () {
           });
         });
       });
+
       it('Testing issue #48', function (done) {
         this.timeout(15000);
         var docs = [
-            { 'id': '0' },
-            { 'id': '1' },
-            { 'id': '2' },
-            { 'id': '3' },
-            { 'id': '4' },
-            { 'id': '5' }
-          ];
-        var x = 0;
+          {'id': '0'},
+          {'id': '1'},
+          {'id': '2'},
+          {'id': '3'},
+          {'id': '4'},
+          {'id': '5'}
+        ];
+        var sent = 0;
+        var complete = 0;
         var timer;
+
         testUtils.initTestDB(testHelpers.name, function (err, db) {
-          var save = function () {
-            db.bulkDocs({ docs: docs }, function (err, res) {
-              if (++x === 10) {
-                ok(true, 'all updated succedded');
-                clearInterval(timer);
-                done();
-              }
-            });
+
+          var bulkCallback = function () {
+            ok(!err, 'Updated without error');
+            if (++complete === 10) {
+              ok(true, 'all updates succeedded');
+              done();
+            }
           };
+
+          var save = function () {
+            if (++sent === 10) {
+              clearInterval(timer);
+            }
+            db.bulkDocs({docs: docs}, bulkCallback);
+          };
+
           timer = setInterval(save, 50);
         });
       });
+
       it('Testing valid id', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.post({
@@ -408,6 +419,7 @@ describe('basics', function () {
           });
         });
       });
+
       it('Put doc without _id should fail', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.put({ test: 'somestuff' }, function (err, info) {
