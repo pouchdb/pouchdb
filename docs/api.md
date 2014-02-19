@@ -588,7 +588,7 @@ db.removeAttachment('otherdoc',
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Retrieve a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map reduce](http://docs.couchdb.org/en/latest/ddocs.html#view-functions) applies to PouchDB.
+Retrieve a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
 
 ### Options
 
