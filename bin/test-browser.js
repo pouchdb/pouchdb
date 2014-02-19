@@ -4,6 +4,7 @@
 var path = require('path');
 var spawn = require('child_process').spawn;
 
+var request = require('request');
 var wd = require('wd');
 var devserver = require('./dev-server.js');
 
@@ -27,20 +28,27 @@ function startServers(callback) {
   devserver.start();
 
   // Start selenium
-  var started = false;
-  var args = [
-    '-jar',
-    path.resolve(__dirname, SELENIUM_PATH),
-  ];
+  spawn('java', ['-jar', path.resolve(__dirname, SELENIUM_PATH)], {});
 
-  var selenium = spawn('java', args, {});
-  selenium.stdout.on('data', function (data) {
-    if (!started &&
-        /Started org.openqa.jetty.jetty.servlet.ServletHandler/.test(data)) {
-      started = true;
-      callback();
+  var retries = 0;
+  var started = function () {
+
+    if (++retries > 30) {
+      console.error('Unable to connect to selenium');
+      process.exit(1);
+      return;
     }
-  });
+
+    request('http://localhost:4444/wd/hub/status', function (err, resp) {
+      if (resp && resp.statusCode === 200) {
+        callback();
+      } else {
+        setTimeout(started, 1000);
+      }
+    });
+  };
+
+  started();
 }
 
 function testError(e) {
