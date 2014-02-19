@@ -1503,36 +1503,25 @@ describe('replication', function () {
           });
         });
       });
-      it('Syncing should stop if one replication fails (issue 838)', function (start) {
-        var doc1 = {
-            _id: 'adoc',
-            foo: 'bar'
-          };
-        var doc2 = {
-            _id: 'anotherdoc',
-            foo: 'baz'
-          };
-        testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
-          var replications = db.replicate.sync(remote, {
-              continuous: true,
-              onComplete: console.log
-            });
+
+      it('Syncing should stop if one replication fails (issue 838)', function (done) {
+        var doc1 = {_id: 'adoc', foo: 'bar'};
+        var doc2 = {_id: 'anotherdoc', foo: 'baz'};
+        var th = testHelpers;
+        testUtils.initDBPair(th.name, th.remote, function (db, remote) {
+          var replications = db.replicate.sync(remote, {continuous: true});
           db.put(doc1, function (err) {
             replications.pull.cancel();
             remote.put(doc2, function (err) {
               db.allDocs(function (err, res) {
-                var db_total = res.total_rows;
-                remote.allDocs(function (err, res) {
-                  var remote_total = res.total_rows;
-                  ok(db_total < 2, 'db replication halted');
-                  ok(remote_total < 2, 'remote replication halted');
-                  start();
-                });
+                res.total_rows.should.be.below(2, 'db replication halted');
+                done();
               });
             });
           });
         });
       });
+
     });
   });
 });
