@@ -615,15 +615,15 @@ describe('views', function () {
               include_docs: true
             }, function (err, data) {
               data.rows.should.have.length(2);
-              data.rows[0].doc._idshould.equal('doc2');
-              data.rows[1].doc._idshould.equal('doc3');
+              data.rows[0].doc._id.should.equal('doc2');
+              data.rows[1].doc._id.should.equal('doc3');
             });
             db.query(mapFunction, {
               key: '',
               include_docs: true
             }, function (err, data) {
               data.rows.should.have.length(1);
-              data.rows[0].doc._idshould.equal('doc4');
+              data.rows[0].doc._id.should.equal('doc4');
             });
             db.query(mapFunction, {
               key: undefined,
