@@ -1039,18 +1039,24 @@ describe('changes', function () {
           });
         });
       });
-      it('changes arn\'t duplicated', function (done) {
+      it('changes are not duplicated', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
-          db.changes({
+          var called = 0;
+          var changs = db.changes({
             since: 'latest',
             continuous: true,
             onChange: function () {
-              done();
+              called++;
             }
           });
           db.put({
             key: 'value'
           }, '_id');
+          setTimeout(function () {
+            called.should.equal(1);
+            changes.cancel();
+            done();
+          }, 1000);
         });
       });
     });
