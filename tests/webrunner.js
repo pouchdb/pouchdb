@@ -1,21 +1,22 @@
 /* global mocha: true */
+
 'use strict';
+
 var runner = mocha.run();
-var results = {};
-
-results.passed = 0;
-results.failed = 0;
-results.total = 0;
-
-results.failures = [];
+var results = {
+  passed: 0,
+  failed: 0,
+  failures: []
+};
 
 runner.on('pass', function () {
   results.passed++;
-  results.total++;
 });
 
 runner.on('fail', function (e) {
-  results.failures.push(e);
   results.failed++;
-  results.total++;
+  results.failures.push({
+    title: e.title,
+    err: e.err
+  });
 });
