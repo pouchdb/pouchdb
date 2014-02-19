@@ -1039,6 +1039,20 @@ describe('changes', function () {
           });
         });
       });
+      it('changes arn\'t duplicated', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          db.changes({
+            since: 'latest',
+            continuous: true,
+            onChange: function () {
+              done();
+            }
+          });
+          db.put({
+            key: 'value'
+          }, '_id');
+        });
+      });
     });
   });
 });
