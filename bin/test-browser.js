@@ -5,6 +5,7 @@ var path = require('path');
 var spawn = require('child_process').spawn;
 
 var wd = require('wd');
+var FirefoxProfile = require('firefox-profile');
 var devserver = require('./dev-server.js');
 
 var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
@@ -16,16 +17,12 @@ if (process.env.GREP) {
   testUrl += '?grep=' + process.env.GREP;
 }
 
-var browsers = [
-  'firefox',
-  // Temporarily disable safari until it is fixed (#1068)
-  // 'safari',
- // 'chrome'
-];
+var browsers = ['firefox'];
 
-if (process.env.TRAVIS) {
-  process.exit(0);
-}
+var profile = new FirefoxProfile();
+
+// Never show the slow script dialog
+profile.setPreference('dom.max_script_run_time', 0);
 
 var numBrowsers = browsers.length;
 var finishedBrowsers = 0;
@@ -86,31 +83,38 @@ function startTest() {
 
   var currentTest = browsers.pop();
   console.log('[' + currentTest + '] starting');
-  var client = wd.promiseChainRemote();
-  client.init({
-    browserName: currentTest
-  }).get(testUrl).setAsyncScriptTimeout(testTimeout)
-    .executeAsync('var cb = arguments[arguments.length - 1];runner.on("end",function() {cb(results)});')
-    .then(function (result) {
-      finishedBrowsers++;
-      if (!result.failed) {
-        console.log('[' + currentTest + '] passed ' + result.passed + ' of ' + result.total + ' tests');
-      } else {
-        console.log(JSON.stringify(results.failures, false, 4));
-        console.log('[' + currentTest + '] failed ' + result.failed + ' of ' + result.total + ' tests');
-        return client.quit().then(function () {
-          process.exit(2);
-        });
-      }
-      results[currentTest] = result;
-    }).quit()
-    .then(startTest, function (e) {
-      console.error(e);
-      console.error('Doh, tests failed');
-      client.quit();
-      process.exit(3);
-    });
 
+  profile.encoded(function (zippedProfile) {
+
+    var client = wd.promiseChainRemote();
+    client.init({
+      browserName: currentTest,
+      firefox_profile: zippedProfile
+    }).get(testUrl).setAsyncScriptTimeout(testTimeout)
+      .executeAsync('var cb = arguments[arguments.length - 1];' +
+                    'runner.on("end",function() {cb(results)});')
+      .then(function (result) {
+        finishedBrowsers++;
+        if (!result.failed) {
+          console.log('[' + currentTest + '] passed ' + result.passed +
+                      ' of ' + result.total + ' tests');
+        } else {
+          console.log(JSON.stringify(results.failures, false, 4));
+          console.log('[' + currentTest + '] failed ' + result.failed +
+                      ' of ' + result.total + ' tests');
+          return client.quit().then(function () {
+            process.exit(2);
+          });
+        }
+        results[currentTest] = result;
+      }).quit()
+      .then(startTest, function (e) {
+        console.error(e);
+        console.error('Doh, tests failed');
+        client.quit();
+        process.exit(3);
+      });
+  });
 }
 
 startServers(function () {
