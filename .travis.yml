@@ -12,3 +12,56 @@ before_script:
   - "sleep 5"
     # Workaround for Selenium #3280 issue
   - "sudo sed -i 's/^127\\.0\\.0\\.1.*$/127.0.0.1 localhost/' /etc/hosts"
+
+env:
+  matrix:
+  - TRY=1 npm test
+  - TRY=2 npm test
+  - TRY=3 npm test
+  - TRY=4 npm test
+  - TRY=5 npm test
+  - TRY=6 npm test
+  - TRY=7 npm test
+  - TRY=8 npm test
+  - TRY=9 npm test
+  - TRY=10 npm test
+  - TRY=11 npm test
+  - TRY=12 npm test
+  - TRY=13 npm test
+  - TRY=14 npm test
+  - TRY=15 npm test
+  - TRY=16 npm test
+  - TRY=17 npm test
+  - TRY=18 npm test
+  - TRY=19 npm test
+  - TRY=20 npm test
+  - TRY=21 npm test
+  - TRY=22 npm test
+  - TRY=23 npm test
+  - TRY=24 npm test
+  - TRY=25 npm test
+  - TRY=26 npm test
+  - TRY=27 npm test
+  - TRY=28 npm test
+  - TRY=29 npm test
+  - TRY=30 npm test
+  - TRY=31 npm test
+  - TRY=32 npm test
+  - TRY=33 npm test
+  - TRY=34 npm test
+  - TRY=35 npm test
+  - TRY=36 npm test
+  - TRY=37 npm test
+  - TRY=38 npm test
+  - TRY=39 npm test
+  - TRY=40 npm test
+  - TRY=41 npm test
+  - TRY=42 npm test
+  - TRY=43 npm test
+  - TRY=44 npm test
+  - TRY=45 npm test
+  - TRY=46 npm test
+  - TRY=47 npm test
+  - TRY=48 npm test
+  - TRY=49 npm test
+  - TRY=50 npm test
