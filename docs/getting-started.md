@@ -68,7 +68,7 @@ function addTodo(text) {
 }
 {% endhighlight %}
 
-In PouchDB each document is required to have a unique `_id`. Any subsequent writes to a document with the same `_id` will be considered updates. Here we are using a date string as an `_id`. For our use case, it will be unique, and it can also be used to sort items in the database. You can use `PouchDB.uuids()` or `db.post()` if you want random ids. The `_id` is the only thing required when creating a new document. The rest of the object you can create as you like.
+In PouchDB each document is required to have a unique `_id`. Any subsequent writes to a document with the same `_id` will be considered updates. Here we are using a date string as an `_id`. For our use case, it will be unique, and it can also be used to sort items in the database. You can use `db.post()` if you want random ids. The `_id` is the only thing required when creating a new document. The rest of the object you can create as you like.
 
 The `callback` function will be called once the document has been written (or failed to write). If the `err` argument is not null, then it will have an object explaining the error, otherwise the `result` will hold the result.
 
