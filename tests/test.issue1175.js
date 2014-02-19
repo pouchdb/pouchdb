@@ -19,19 +19,19 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
 }
 function getCallback(expectError, done) {
   // returns a function which expects to be called within a certain time. Fails the test otherwise
-  var maximumTimeToWait = 50;
-  var _hasBeenCalled;
-  var _result;
-  var _err;
-  function callback(err, result) {
-    _hasBeenCalled = true;
-    _result = result;
-    _err = err;
+  var maximumTimeToWait = 500;
+  var hasBeenCalled = false;
+  var result;
+  var err;
+  function callback(error, resp) {
+    hasBeenCalled = true;
+    result = resp;
+    err = error;
   }
   function timeOutCallback() {
-    _hasBeenCalled.should.equal(true, 'callback has been called');
+    hasBeenCalled.should.equal(true, 'callback has been called');
     if (!expectError) {
-      should.not.exist(_err, 'error expectation fulfilled');
+      should.not.exist(err, 'error expectation fulfilled');
     }
     done();
   }
