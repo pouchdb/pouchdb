@@ -207,33 +207,28 @@ describe('bulk_docs', function () {
       });
       it('Bulk with new_edits=false', function (done) {
         testUtils.initTestDB(this.name, function (err, db) {
-          var docs = [
-              {
-                '_id': 'foo',
-                '_rev': '2-x',
-                '_revisions': {
-                  'start': 2,
-                  'ids': [
-                    'x',
-                    'a'
-                  ]
-                }
-              },
-              {
-                '_id': 'foo',
-                '_rev': '2-y',
-                '_revisions': {
-                  'start': 2,
-                  'ids': [
-                    'y',
-                    'a'
-                  ]
-                }
-              }
-            ];
-          db.bulkDocs({ docs: docs }, { new_edits: false }, function (err, res) {
-            //ok(res.length === 0, "empty array returned");
-            db.get('foo', { open_revs: 'all' }, function (err, res) {
+          var docs = [{
+            '_id': 'foo',
+            '_rev': '2-x',
+            '_revisions': {
+              'start': 2,
+              'ids': ['x', 'a']
+            }
+          }, {
+            '_id': 'foo',
+            '_rev': '2-y',
+            '_revisions': {
+              'start': 2,
+              'ids': ['y', 'a']
+            }
+          }];
+          db.bulkDocs({docs: docs}, {new_edits: false}, function (err, res) {
+            db.get('foo', {open_revs: 'all'}, function (err, res) {
+              res.sort(function (a, b) {
+                return a.ok._rev < b.ok._rev ? -1 :
+                  a.ok._rev > b.ok._rev ? 1 : 0;
+              });
+              res.length.should.equal(2);
               res[0].ok._rev.should.equal('2-x', 'doc1 ok');
               res[1].ok._rev.should.equal('2-y', 'doc2 ok');
               done();
