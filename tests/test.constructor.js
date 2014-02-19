@@ -8,10 +8,18 @@ describe('constructor errors', function () {
       done(db);
     });
   });
+  it('should error on an undefined adapter', function (done) {
+    new PouchDB('foo', {adapter : 'myFakeAdapter'}, function (err, db) {
+      should.exist(err);
+      err.message.should.equal('Adapter is missing', 'should give the correct error message');
+      done(db);
+    });
+  });
   it('should error on a null name', function (done) {
     var notAName = null;
     new PouchDB(notAName).then(done, function (err) {
       should.exist(err);
+      err.message.should.equal('Missing/invalid DB name', 'should give the correct error message');
       done();
     });
   });
@@ -21,6 +29,7 @@ describe('constructor errors', function () {
         _id: 'lala'
       }, function (err, resp) {
         should.exist(err);
+        err.message.should.equal('Missing/invalid DB name', 'should give the correct error message');
         done(resp);
       });
     });
