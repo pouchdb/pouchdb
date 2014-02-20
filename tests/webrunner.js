@@ -1,21 +1,28 @@
 /* global mocha: true */
+
 'use strict';
+
 var runner = mocha.run();
-var results = {};
+var results = {
+  passed: 0,
+  failed: 0,
+  failures: []
+};
 
-results.passed = 0;
-results.failed = 0;
-results.total = 0;
-
-results.failures = [];
+runner.on('start', function (e) {
+  if (window && window.fakeConsole) {
+    window.fakeConsole.push('STARTING ' + e.title);
+  }
+});
 
 runner.on('pass', function () {
   results.passed++;
-  results.total++;
 });
 
 runner.on('fail', function (e) {
-  results.failures.push(e);
   results.failed++;
-  results.total++;
+  results.failures.push({
+    title: e.title,
+    err: e.err
+  });
 });
