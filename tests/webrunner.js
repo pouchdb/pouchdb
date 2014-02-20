@@ -9,6 +9,12 @@ var results = {
   failures: []
 };
 
+runner.on('start', function (e) {
+  if (window && window.fakeConsole) {
+    window.fakeConsole.push('STARTING ' + e.title);
+  }
+});
+
 runner.on('pass', function () {
   results.passed++;
 });

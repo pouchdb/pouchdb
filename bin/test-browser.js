@@ -57,6 +57,8 @@ function testError(e) {
 
 function testComplete(result) {
 
+  console.log(result.fakeConsole);
+
   var total = result.passed + result.failed;
 
   if (result.failed) {
@@ -80,7 +82,7 @@ function startTest() {
   var script =
     'var cb = arguments[arguments.length - 1];' +
     'console.log("GONNA START WAITING");' +
-    'runner.on("end", function() { console.log("TESTS ENDED"); cb(results); });';
+    'runner.on("end", function() { console.log("TESTS ENDED"); results.fakeConsole = window.fakeConsole; cb(results); });';
 
   client = wd.promiseChainRemote();
   client
