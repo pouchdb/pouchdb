@@ -25,7 +25,6 @@ describe('bulk_docs', function () {
     describe(adapter, function () {
       beforeEach(function () {
         this.name = testUtils.generateAdapterUrl(adapter);
-        PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
       var authors = [

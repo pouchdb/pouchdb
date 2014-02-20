@@ -11,7 +11,6 @@ describe('views', function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
         testHelpers.remote = testUtils.generateAdapterUrl('local-2');
-        PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
       it('Test basic view', function (done) {

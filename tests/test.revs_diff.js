@@ -9,7 +9,6 @@ describe('revs diff', function () {
     describe(adapter, function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
-        PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
       it('Test revs diff', function (done) {

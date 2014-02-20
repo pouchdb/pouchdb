@@ -8,7 +8,6 @@ describe('conflicts', function () {
     describe(adapter, function () {
       beforeEach(function () {
         this.name = testUtils.generateAdapterUrl(adapter);
-        PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
       it('Testing conflicts', function (done) {

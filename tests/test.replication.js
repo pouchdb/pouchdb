@@ -25,7 +25,6 @@ describe('changes', function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapters[0]);
         testHelpers.remote = testUtils.generateAdapterUrl(adapters[1]);
-        PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
       var docs = [

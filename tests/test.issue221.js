@@ -24,7 +24,6 @@ describe('replication + compaction', function () {
       beforeEach(function () {
         testHelpers.local = testUtils.generateAdapterUrl(adapters[0]);
         testHelpers.remote = testUtils.generateAdapterUrl(adapters[1]);
-        PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
       var doc = {

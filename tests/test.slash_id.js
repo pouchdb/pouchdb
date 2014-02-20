@@ -28,7 +28,6 @@ describe('slash ids', function () {
       describe(adapter, function () {
         beforeEach(function () {
           testHelpers.name = testUtils.generateAdapterUrl(adapter);
-          PouchDB.enableAllDbs = true;
         });
         afterEach(testUtils.cleanupTestDatabases);
         it('Insert a doc, putAttachment and allDocs', function (done) {

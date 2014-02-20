@@ -4,7 +4,6 @@
 
 var testUtils = {};
 
-testUtils.PERSIST_DATABASES = false;
 testUtils.couchHost = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env.COUCH_HOST || 'http://localhost:5984';
@@ -12,56 +11,11 @@ testUtils.couchHost = function () {
   // In the browser we default to the CORS server, in future will change
   return 'http://localhost:2020';
 };
-testUtils.cleanupAllDbs = function (done) {
-  var deleted = 0;
-  var adapters = Object.keys(PouchDB.adapters).filter(function (adapter) {
-      return adapter !== 'http' && adapter !== 'https';
-    });
-  function finished() {
-    // Restart text execution
-    done();
-  }
-  function dbDeleted() {
-    deleted++;
-    if (deleted === adapters.length) {
-      finished();
-    }
-  }
-  if (!adapters.length) {
-    finished();
-  }
-  // Remove old allDbs to prevent DOM exception
-  adapters.forEach(function (adapter) {
-    if (adapter === 'http' || adapter === 'https') {
-      return;
-    }
-    PouchDB.destroy(PouchDB.allDBName(adapter), dbDeleted);
-  });
-};
+
 testUtils.cleanupTestDatabases = function (done) {
-  if (testUtils.PERSIST_DATABASES) {
-    return;
-  }
-  var dbCount;
-  var deleted = 0;
-  function finished() {
-    testUtils.cleanupAllDbs(done);
-  }
-  function dbDeleted() {
-    if (++deleted === dbCount) {
-      finished();
-    }
-  }
-  PouchDB.allDbs(function (err, dbs) {
-    if (!dbs.length) {
-      finished();
-    }
-    dbCount = dbs.length;
-    dbs.forEach(function (db) {
-      PouchDB.destroy(db, dbDeleted);
-    });
-  });
+  done();
 };
+
 testUtils.uuid = function () {
   var S4 = function () {
     return Math.floor(Math.random() * 65536).toString(16);
