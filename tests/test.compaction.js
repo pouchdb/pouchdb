@@ -10,7 +10,6 @@ describe('compaction', function () {
     describe(adapter, function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
-        PouchDB.enableAllDbs = true;
       });
       afterEach(testUtils.cleanupTestDatabases);
       it('Compation document with no revisions to remove', function (done) {

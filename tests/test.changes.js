@@ -23,7 +23,6 @@ describe('changes', function () {
     describe(adapter, function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
-        PouchDB.enableAllDbs = false;
       });
       afterEach(testUtils.cleanupTestDatabases);
       it('All changes', function (done) {

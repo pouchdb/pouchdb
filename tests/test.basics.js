@@ -22,11 +22,12 @@ describe('basics', function () {
     describe(adapter, function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
-        PouchDB.enableAllDbs = false;
       });
       afterEach(testUtils.cleanupTestDatabases);
       it('Create a pouch', function (done) {
+        console.log('starting');
         testUtils.initTestDB(testHelpers.name, function (err, db) {
+          console.log('inited');
           ok(!err, 'created a pouch');
           ok(db instanceof PouchDB, 'should be an instance of PouchDB');
           done();

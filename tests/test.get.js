@@ -31,7 +31,6 @@ describe('get', function () {
     describe(adapter, function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
-        PouchDB.enableAllDbs = false;
       });
       afterEach(testUtils.cleanupTestDatabases);
       var origDocs = [
