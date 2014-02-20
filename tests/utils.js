@@ -132,6 +132,33 @@ testUtils.initDBPair = function (local, remote, callback) {
     });
   });
 };
+
+// Prefix http adapter database names with their host and
+// node adapter ones with a db location
+testUtils.adapterUrl = function (adapter, name) {
+  if (adapter === 'http') {
+    return testUtils.couchHost() + '/' + name;
+  }
+  return typeof process === 'undefined' ? name : PouchDB.prefix + name;
+};
+
+// Delete specified databases
+testUtils.cleanup = function (dbs, done) {
+
+  var deleted = 0;
+  var num = dbs.length;
+
+  function dbDeleted() {
+    if (++deleted === num) {
+      done();
+    }
+  }
+
+  dbs.forEach(function (db) {
+    PouchDB.destroy(db, dbDeleted);
+  });
+};
+
 var testId = testUtils.uuid();
 testUtils.generateAdapterUrl = function (id) {
   var opt = id.split('-');
