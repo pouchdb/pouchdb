@@ -20,7 +20,9 @@
     "level": "~0.18.0",
     "request": "~2.28.0",
     "pouchdb-mapreduce": "0.6.2",
-    "bluebird": "~1.0.0"
+    "bluebird": "~1.0.0",
+    "rimraf": "~2.2.6",
+    "mkdirp": "~0.3.5"
   },
   "devDependencies": {
     "commander": "~2.1.0",
@@ -51,7 +53,7 @@
     "test": "npm run jshint && npm run test-node && npm run test-browser",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
-    "coverage" :"COVERAGE=1 ./bin/run-mocha.sh"
+    "coverage": "COVERAGE=1 ./bin/run-mocha.sh"
   },
   "browser": {
     "./adapters/leveldb": false,
@@ -62,6 +64,8 @@
     "fs": false,
     "events": false,
     "crypto": false,
-    "bluebird": "lie"
+    "bluebird": "lie",
+    "rimraf": false,
+    "mkdirp": false
   }
 }
