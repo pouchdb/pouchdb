@@ -9,11 +9,17 @@ var results = {
   failures: []
 };
 
-runner.on('pass', function () {
+runner.on('pass', function (e) {
+  if (window && window.fakeConsole) {
+    window.fakeConsole.push('PASS ' + e.title);
+  }
   results.passed++;
 });
 
 runner.on('fail', function (e) {
+  if (window && window.fakeConsole) {
+    window.fakeConsole.push('FAIL ' + e.title);
+  }
   results.failed++;
   results.failures.push({
     title: e.title,
