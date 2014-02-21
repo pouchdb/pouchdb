@@ -1,7 +1,7 @@
 
 'use strict';
 
-var adapters = ['http-1', 'local-1'];
+var adapters = ['http', 'local'];
 
 adapters.map(function (adapter) {
 
@@ -920,16 +920,33 @@ adapters.map(function (adapter) {
       db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
         var changes = db.changes({
           continuous: true,
-          onChange: function () {
+          onChange: function () { },
+          complete: function(err, result) {
+            result.status.should.equal('cancelled');
+            done();
           }
         });
         changes.cancel();
         db.close(function (error) {
           should.not.exist(error);
-          done();
         });
       });
     });
+
+    it('fire-complete-on-cancel', function (done) {
+      var db = new PouchDB(dbs.name);
+      var changes = db.changes({
+        continuous: true,
+        complete: function (err, result) {
+          result.status.should.equal('cancelled');
+          done();
+        }
+      });
+      setTimeout(function () {
+        changes.cancel();
+      }, 100);
+    });
+
   });
 });
 
