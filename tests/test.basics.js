@@ -236,8 +236,11 @@ adapters.map(function (adapter) {
         onChange: function (change) {
           if (change.doc._deleted) {
             changes.cancel();
-            done();
           }
+        },
+        complete: function (err, result) {
+          result.status.should.equal('cancelled');
+          done();
         }
       });
       db.post({ _id: 'somestuff' }, function (err, res) {

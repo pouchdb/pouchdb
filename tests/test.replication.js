@@ -19,7 +19,7 @@ var testHelpers = {};
 if (typeof module !== 'undefined' && module.exports) {
   downAdapters = [];
 }
-describe('changes', function () {
+describe('replication', function () {
   adapters.map(function (adapters) {
     describe(adapters, function () {
       beforeEach(function () {
@@ -153,54 +153,70 @@ describe('changes', function () {
           });
         });
       });
+
       it('Test continuous pull checkpoint', function (start) {
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           remote.bulkDocs({ docs: docs }, {}, function (err, results) {
             var changeCount = docs.length;
             var changes = db.changes({
-                continuous: true,
-                onChange: function (change) {
-                  if (--changeCount) {
-                    return;
-                  }
-                  replication.cancel();
-                  changes.cancel();
-                  db.replicate.from(testHelpers.remote, {
-                    complete: function (err, details) {
-                      equal(details.docs_read, 0, 'We restarted from checkpoint');
-                      start();
-                    }
-                  });
+              continuous: true,
+              onChange: function (change) {
+                if (--changeCount) {
+                  return;
                 }
-              });
+                replication.cancel();
+                changes.cancel();
+              },
+              complete: function () {
+                db.replicate.from(testHelpers.remote, {
+                  complete: function (err, details) {
+                    equal(details.docs_read, 0, 'We restarted from checkpoint');
+                    start();
+                  }
+                });
+
+              }
+            });
             var replication = db.replicate.from(testHelpers.remote, { continuous: true });
           });
         });
       });
+
       it('Test continuous push checkpoint', function (start) {
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           db.bulkDocs({ docs: docs }, {}, function (err, results) {
             var changeCount = docs.length;
-            var changes = remote.changes({
-                continuous: true,
-                onChange: function (change) {
-                  if (--changeCount) {
-                    return;
-                  }
-                  replication.cancel();
-                  changes.cancel();
-                  db.replicate.to(testHelpers.remote, {
-                    complete: function (err, details) {
-                      equal(details.docs_read, 0, 'We restarted from checkpoint');
-                      start();
-                    }
-                  });
+            var finished = 0;
+            var isFinished = function () {
+              if (++finished !== 2) {
+                return;
+              }
+              db.replicate.to(testHelpers.remote, {
+                complete: function (err, details) {
+                  equal(details.docs_read, 0, 'We restarted from checkpoint');
+                  start();
                 }
               });
-            var replication = db.replicate.to(testHelpers.remote, { continuous: true });
+            };
+            var changes = remote.changes({
+              continuous: true,
+              onChange: function (change) {
+                if (--changeCount) {
+                  return;
+                }
+                replication.cancel();
+                changes.cancel();
+              },
+              complete: isFinished
+            });
+            var replication = db.replicate.to(testHelpers.remote, {
+              continuous: true,
+              complete: isFinished
+            });
           });
         });
       });
+
       it('Test checkpoint 2', function (start) {
         var doc = {
             _id: '3',
@@ -374,22 +390,32 @@ describe('changes', function () {
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           remote.bulkDocs({ docs: docs }, {}, function (err, results) {
             var count = 0;
-            var rep = db.replicate.from(testHelpers.remote, { continuous: true });
+            var finished = 0;
+            var isFinished = function () {
+              if (++finished !== 2) {
+                return;
+              }
+              ok(true, 'Got all the changes');
+              start();
+            };
+            var rep = db.replicate.from(testHelpers.remote, {
+              continuous: true,
+              complete: isFinished
+            });
             var changes = db.changes({
-                onChange: function (change) {
-                  ++count;
-                  if (count === 3) {
-                    return remote.put(doc1);
-                  }
-                  if (count === 4) {
-                    ok(true, 'Got all the changes');
-                    rep.cancel();
-                    changes.cancel();
-                    start();
-                  }
-                },
-                continuous: true
-              });
+              onChange: function (change) {
+                ++count;
+                if (count === 3) {
+                  return remote.put(doc1);
+                }
+                if (count === 4) {
+                  rep.cancel();
+                  changes.cancel();
+                }
+              },
+              continuous: true,
+              complete: isFinished
+            });
           });
         });
       });
@@ -401,22 +427,32 @@ describe('changes', function () {
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           db.bulkDocs({ docs: docs }, {}, function (err, results) {
             var count = 0;
-            var rep = remote.replicate.from(db, { continuous: true });
+            var finished = 0;
+            var isFinished = function () {
+              if (++finished !== 2) {
+                return;
+              }
+              ok(true, 'Got all the changes');
+              start();
+            };
+            var rep = remote.replicate.from(db, {
+              continuous: true,
+              complete: isFinished
+            });
             var changes = remote.changes({
-                onChange: function (change) {
-                  ++count;
-                  if (count === 3) {
-                    return db.put(doc1);
-                  }
-                  if (count === 4) {
-                    ok(true, 'Got all the changes');
-                    rep.cancel();
-                    changes.cancel();
-                    start();
-                  }
-                },
-                continuous: true
-              });
+              onChange: function (change) {
+                ++count;
+                if (count === 3) {
+                  return db.put(doc1);
+                }
+                if (count === 4) {
+                  rep.cancel();
+                  changes.cancel();
+                }
+              },
+              continuous: true,
+              complete: isFinished
+            });
           });
         });
       });
@@ -432,29 +468,35 @@ describe('changes', function () {
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           remote.bulkDocs({ docs: docs }, {}, function (err, results) {
             var count = 0;
-            var replicate = db.replicate.from(testHelpers.remote, { continuous: true });
+            var replicate = db.replicate.from(testHelpers.remote, {
+              continuous: true,
+              complete: function () {
+                remote.put(doc2);
+                setTimeout(function () {
+                  changes.cancel();
+                }, 100);
+              }
+            });
             var changes = db.changes({
-                continuous: true,
-                onChange: function (change) {
-                  ++count;
-                  if (count === 3) {
-                    remote.put(doc1);
-                  }
-                  if (count === 4) {
-                    replicate.cancel();
-                    remote.put(doc2);
-                    // This setTimeout is needed to ensure no further changes come through
-                    setTimeout(function () {
-                      ok(count === 4, 'got no more docs');
-                      changes.cancel();
-                      start();
-                    }, 500);
-                  }
+              continuous: true,
+              complete: function () {
+                ok(count === 4, 'got no more docs');
+                start();
+              },
+              onChange: function (change) {
+                ++count;
+                if (count === 3) {
+                  remote.put(doc1);
                 }
-              });
+                if (count === 4) {
+                  replicate.cancel();
+                }
+              }
+            });
           });
         });
       });
+
       it('Replication filter', function (start) {
         var docs1 = [
             {
@@ -476,20 +518,21 @@ describe('changes', function () {
           ];
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           remote.bulkDocs({ docs: docs1 }, function (err, info) {
-            var replicate = db.replicate.from(remote, {
-                filter: function (doc) {
-                  return doc.integer % 2 === 0;
-                }
-              }, function () {
+            db.replicate.from(remote, {
+              complete: function () {
                 db.allDocs(function (err, docs) {
                   equal(docs.rows.length, 2);
-                  replicate.cancel();
                   start();
                 });
-              });
+              },
+              filter: function (doc) {
+                return doc.integer % 2 === 0;
+              }
+            });
           });
         });
       });
+
       it('Replication with different filters', function (start) {
         var more_docs = [
             {
@@ -1459,18 +1502,20 @@ describe('replication', function () {
         var completed = 0;
         testUtils.initDBPair(testHelpers.name, testHelpers.remote, function (db, remote) {
           var replications = db.replicate.sync(remote, {
-              complete: function (err, result) {
-                completed++;
-                if (completed === 2) {
-                  done();
-                }
+            complete: function (err, result) {
+              completed++;
+              if (completed === 2) {
+                done();
               }
-            });
+            }
+          });
+
           ok(replications, 'got some stuff');
           replications.cancel();
           return;
         });
       });
+
       it('Test syncing two endpoints (issue 838)', function (start) {
         var doc1 = {
             _id: 'adoc',
@@ -1508,16 +1553,27 @@ describe('replication', function () {
         var doc1 = {_id: 'adoc', foo: 'bar'};
         var doc2 = {_id: 'anotherdoc', foo: 'baz'};
         var th = testHelpers;
+        var finished = false;
         testUtils.initDBPair(th.name, th.remote, function (db, remote) {
-          var replications = db.replicate.sync(remote, {continuous: true});
+          var replications = db.replicate.sync(remote, {
+            continuous: true,
+            complete: function () {
+              if (finished) {
+                return;
+              }
+              finished = true;
+              remote.put(doc2, function (err) {
+                setTimeout(function () {
+                  db.allDocs(function (err, res) {
+                    res.total_rows.should.be.below(2, 'db replication halted');
+                    done();
+                  });
+                }, 100);
+              });
+            }
+          });
           db.put(doc1, function (err) {
             replications.pull.cancel();
-            remote.put(doc2, function (err) {
-              db.allDocs(function (err, res) {
-                res.total_rows.should.be.below(2, 'db replication halted');
-                done();
-              });
-            });
           });
         });
       });
@@ -1574,28 +1630,28 @@ describe('server side replication', function () {
           remote.bulkDocs({ docs: docs }, {}, function (err, results) {
             var count = 0;
             var replicate = db.replicate.from(testHelpers.remote, {
-                server: true,
-                continuous: true
-              });
+              server: true,
+              continuous: true
+            });
             var changes = db.changes({
-                continuous: true,
-                onChange: function (change) {
-                  ++count;
-                  if (count === 3) {
-                    remote.put(doc1);
-                  }
-                  if (count === 4) {
-                    replicate.cancel();
-                    remote.put(doc2);
-                    // This setTimeout is needed to ensure no further changes come through
-                    setTimeout(function () {
-                      ok(count === 4, 'got no more docs');
-                      changes.cancel();
-                      start();
-                    }, 500);
-                  }
+              continuous: true,
+              onChange: function (change) {
+                ++count;
+                if (count === 3) {
+                  remote.put(doc1);
                 }
-              });
+                if (count === 4) {
+                  replicate.cancel();
+                  remote.put(doc2);
+                  // This setTimeout is needed to ensure no further changes come through
+                  setTimeout(function () {
+                    ok(count === 4, 'got no more docs');
+                    changes.cancel();
+                    start();
+                  }, 500);
+                }
+              }
+            });
           });
         });
       });

@@ -544,16 +544,19 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('Continuous changes', function (done) {
+    it('continuous-changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
       var changes = db.changes({
+        complete: function () {
+          count.should.equal(1);
+          done();
+        },
         onChange: function (change) {
           count += 1;
           change.should.not.have.property('doc');
           count.should.equal(1);
           changes.cancel();
-          done();
         },
         continuous: true
       });
@@ -564,42 +567,46 @@ adapters.map(function (adapter) {
       var db = new PouchDB(dbs.name);
       var count = 0;
       function checkCount() {
-        count.should.equal(2);
-        done();
+        if (count === 2) {
+          done();
+        }
       }
       var changes1 = db.changes({
+        complete: function () {
+          checkCount();
+        },
         onChange: function (change) {
           count += 1;
           changes1.cancel();
           changes1 = null;
-          if (!changes2) {
-            checkCount();
-          }
         },
         continuous: true
       });
       var changes2 = db.changes({
+        complete: function () {
+          checkCount();
+        },
         onChange: function (change) {
           count += 1;
           changes2.cancel();
           changes2 = null;
-          if (!changes1) {
-            checkCount();
-          }
         },
         continuous: true
       });
-      db.post({ test: 'adoc' });
+      db.post({test: 'adoc'});
     });
 
     it('Continuous changes doc', function (done) {
       var db = new PouchDB(dbs.name);
       var changes = db.changes({
+        complete: function (err, result) {
+          result.status.should.equal('cancelled');
+          done();
+        },
         onChange: function (change) {
           change.should.have.property('doc');
           change.doc.should.have.property('_rev');
           changes.cancel();
-          done();
         },
         continuous: true,
         include_docs: true
@@ -611,18 +618,20 @@ adapters.map(function (adapter) {
       var db = new PouchDB(dbs.name);
       var count = 0;
       var changes = db.changes({
+        complete: function (err, result) {
+          result.status.should.equal('cancelled');
+          // This setTimeout ensures that once we cancel a change we dont recieve
+          // subsequent callbacks, so it is needed
+          setTimeout(function () {
+            count.should.equal(1);
+            done();
+          }, 200);
+        },
         onChange: function (change) {
           count += 1;
           if (count === 1) {
             changes.cancel();
-            db.post({ test: 'another doc' }, function (err, info) {
-              // This setTimeout ensures that once we cancel a change we dont recieve
-              // subsequent callbacks, so it is needed
-              setTimeout(function () {
-                count.should.equal(1);
-                done();
-              }, 200);
-            });
+            db.post({ test: 'another doc' });
           }
         },
         continuous: true
@@ -634,12 +643,14 @@ adapters.map(function (adapter) {
       var db = new PouchDB(dbs.name);
       var count = 0;
       var changes = db.changes({
+        complete: function (err, result) {
+          done();
+        },
         onChange: function (change) {
           count += 1;
           if (count === 1) {
-            PouchDB.destroy(dbs.name, function (err, resp) {
+            PouchDB.destroy(dbs.name, function () {
               changes.cancel();
-              done();
             });
           }
         },
@@ -648,7 +659,7 @@ adapters.map(function (adapter) {
       db.post({ test: 'adoc' });
     });
 
-    it('Changes filter', function (done) {
+    it('changes-filter', function (done) {
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -665,6 +676,10 @@ adapters.map(function (adapter) {
       var count = 0;
       db.bulkDocs({ docs: docs1 }, function (err, info) {
         var changes = db.changes({
+          complete: function (err, result) {
+            result.status.should.equal('cancelled');
+            done();
+          },
           filter: function (doc) {
             return doc.integer % 2 === 0;
           },
@@ -672,7 +687,6 @@ adapters.map(function (adapter) {
             count += 1;
             if (count === 4) {
               changes.cancel();
-              done();
             }
           },
           continuous: true
@@ -681,7 +695,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('Changes filter with query params', function (done) {
+    it('changes-filter with query params', function (done) {
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -699,6 +713,10 @@ adapters.map(function (adapter) {
       var count = 0;
       db.bulkDocs({ docs: docs1 }, function (err, info) {
         var changes = db.changes({
+          complete: function (err, result) {
+            result.status.should.equal('cancelled');
+            done();
+          },
           filter: function (doc, req) {
             if (req.query.abc) {
               return doc.integer % 2 === 0;
@@ -709,7 +727,6 @@ adapters.map(function (adapter) {
             count += 1;
             if (count === 4) {
               changes.cancel();
-              done();
             }
           },
           continuous: true
@@ -921,7 +938,7 @@ adapters.map(function (adapter) {
         var changes = db.changes({
           continuous: true,
           onChange: function () { },
-          complete: function(err, result) {
+          complete: function (err, result) {
             result.status.should.equal('cancelled');
             done();
           }
