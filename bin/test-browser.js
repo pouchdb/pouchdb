@@ -18,9 +18,9 @@ if (process.env.GREP) {
   testUrl += '?grep=' + process.env.GREP;
 }
 
-if (process.env.TRAVIS) {
-  process.exit(0);
-}
+// if (process.env.TRAVIS) {
+//   process.exit(0);
+// }
 
 function startServers(callback) {
 
@@ -83,8 +83,7 @@ function startTest() {
 
   var script =
     'var cb = arguments[arguments.length - 1];' +
-    'console.log("GONNA START WAITING");' +
-    'runner.on("end", function() { console.log("TESTS ENDED"); cb(results); });';
+    'runner.on("end", function() { cb(results); });';
 
   client = wd.promiseChainRemote();
   client

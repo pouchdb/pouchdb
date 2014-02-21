@@ -1484,17 +1484,17 @@ describe('replication', function () {
 });
 // This test only needs to run for one configuration, and it slows stuff
 // down
-describe('replication', function () {
+describe('Replication Down Adapters', function () {
   downAdapters.map(function (adapter) {
     describe(adapter, function () {
       beforeEach(function () {
         testHelpers.name = testUtils.generateAdapterUrl(adapter);
       });
-      it('replicate from down server test', function (start) {
+      it('replicate from down server test', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.replicate.to('http://infiniterequest.com', function (err, changes) {
-            ok(err);
-            start();
+            should.exist(err);
+            done();
           });
         });
       });
