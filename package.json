@@ -17,12 +17,12 @@
     "pouchdb"
   ],
   "dependencies": {
-    "level": "~0.18.0",
     "request": "~2.28.0",
     "pouchdb-mapreduce": "0.6.2",
     "bluebird": "~1.0.0",
-    "rimraf": "~2.2.6",
-    "mkdirp": "~0.3.5"
+    "level-sublevel": "~5.2.0",
+    "levelup": "~0.18.2",
+    "leveldown": "~0.10.2"
   },
   "devDependencies": {
     "commander": "~2.1.0",
@@ -39,7 +39,8 @@
     "qunit-mocha-ui": "0.0.5",
     "mocha": "~1.17.1",
     "chai": "~1.9.0",
-    "istanbul": "~0.2.4"
+    "istanbul": "~0.2.4",
+    "ncp": "~0.5.0"
   },
   "scripts": {
     "jshint": "./node_modules/.bin/jshint -c .jshintrc bin/*.js tests/*.js lib/*.js lib/adapters/*.js lib/deps/*.js",
@@ -59,13 +60,11 @@
     "./adapters/leveldb": false,
     "./deps/buffer": false,
     "request": false,
-    "level": false,
-    "path": false,
-    "fs": false,
+    "levelup": false,
+    "leveldown": false,
     "events": false,
     "crypto": false,
     "bluebird": "lie",
-    "rimraf": false,
-    "mkdirp": false
+    "level-sublevel": false
   }
 }
