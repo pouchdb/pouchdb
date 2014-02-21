@@ -73,16 +73,21 @@ describe('design_docs', function () {
           var count = 0;
           db.bulkDocs({ docs: docs1 }, function (err, info) {
             var changes = db.changes({
-                filter: 'foo/even',
-                onChange: function (change) {
-                  count += 1;
-                  if (count === 4) {
-                    changes.cancel();
-                    done();
-                  }
-                },
-                continuous: true
-              });
+              continuous: true,
+              filter: 'foo/even',
+              onChange: function (change) {
+                count += 1;
+                if (count === 4) {
+                  console.log('CANCEL');
+                  changes.cancel();
+                }
+              },
+              complete: function (err, result) {
+                result.status.should.equal('cancelled');
+                done();
+              },
+
+            });
             db.bulkDocs({ docs: docs2 }, {});
           });
         });

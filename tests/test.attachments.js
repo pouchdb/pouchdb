@@ -249,20 +249,23 @@ describe('attachments', function () {
       it('Test create attachment and doc in one go without callback', function (done) {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           var changes = db.changes({
-              continuous: true,
-              onChange: function (change) {
-                if (change.seq === 1) {
-                  change.id.should.equal('anotherdoc2', 'Doc has been created');
-                  db.get(change.id, { attachments: true }, function (err, doc) {
-                    doc._attachments.should.be.an('object', 'doc has attachments object');
-                    should.exist(doc._attachments.mytext, 'doc has attachments attachment');
-                    doc._attachments.mytext.data.should.equal('TXl0ZXh0', 'doc has attachments attachment');
-                    changes.cancel();
-                    done();
-                  });
-                }
+            complete: function (err, result) {
+              result.status.should.equal('cancelled');
+              done();
+            },
+            continuous: true,
+            onChange: function (change) {
+              if (change.seq === 1) {
+                change.id.should.equal('anotherdoc2', 'Doc has been created');
+                db.get(change.id, { attachments: true }, function (err, doc) {
+                  doc._attachments.should.be.an('object', 'doc has attachments object');
+                  should.exist(doc._attachments.mytext, 'doc has attachments attachment');
+                  doc._attachments.mytext.data.should.equal('TXl0ZXh0', 'doc has attachments attachment');
+                  changes.cancel();
+                });
               }
-            });
+            }
+          });
           var blob = testUtils.makeBlob('Mytext');
           db.putAttachment('anotherdoc2', 'mytext', blob, 'text/plain');
         });
@@ -272,21 +275,24 @@ describe('attachments', function () {
           db.put({ _id: 'anotherdoc3' }, function (err, resp) {
             should.not.exist(err, 'doc was saved');
             var changes = db.changes({
-                continuous: true,
-                include_docs: true,
-                onChange: function (change) {
-                  if (change.seq === 2) {
-                    change.id.should.equal('anotherdoc3', 'Doc has been created');
-                    db.get(change.id, { attachments: true }, function (err, doc) {
-                      doc._attachments.should.be.an('object', 'doc has attachments object');
-                      should.exist(doc._attachments.mytext, 'doc has attachments attachment');
-                      doc._attachments.mytext.data.should.equal('TXl0ZXh0', 'doc has attachments attachment');
-                      changes.cancel();
-                      done();
-                    });
-                  }
+              complete: function (err, result) {
+                result.status.should.equal('cancelled');
+                done();
+              },
+              continuous: true,
+              include_docs: true,
+              onChange: function (change) {
+                if (change.seq === 2) {
+                  change.id.should.equal('anotherdoc3', 'Doc has been created');
+                  db.get(change.id, { attachments: true }, function (err, doc) {
+                    doc._attachments.should.be.an('object', 'doc has attachments object');
+                    should.exist(doc._attachments.mytext, 'doc has attachments attachment');
+                    doc._attachments.mytext.data.should.equal('TXl0ZXh0', 'doc has attachments attachment');
+                    changes.cancel();
+                  });
                 }
-              });
+              }
+            });
             var blob = testUtils.makeBlob('Mytext');
             db.putAttachment('anotherdoc3', 'mytext', resp.rev, blob, 'text/plain');
           });
