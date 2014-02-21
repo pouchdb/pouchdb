@@ -48,7 +48,7 @@
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "./bin/dev-server.js",
-    "test": "npm run jshint && npm run test-node && npm run test-browser",
+    "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
     "coverage" :"COVERAGE=1 ./bin/run-mocha.sh"

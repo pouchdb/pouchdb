@@ -18,10 +18,6 @@ if (process.env.GREP) {
   testUrl += '?grep=' + process.env.GREP;
 }
 
-if (process.env.TRAVIS) {
-  process.exit(0);
-}
-
 function startServers(callback) {
 
   // Starts the file and CORS proxy
@@ -78,7 +74,7 @@ function testComplete(result) {
 
 function startTest() {
 
-  var browser = process.env.BROWSER || 'firefox';
+  var browser = process.env.CLIENT || 'firefox';
   console.log('Starting', browser);
 
   var script =

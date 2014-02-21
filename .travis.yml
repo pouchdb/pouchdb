@@ -12,3 +12,12 @@ before_script:
   - "sleep 5"
     # Workaround for Selenium #3280 issue
   - "sudo sed -i 's/^127\\.0\\.0\\.1.*$/127.0.0.1 localhost/' /etc/hosts"
+
+env:
+  matrix:
+  - CLIENT=node npm test
+  - CLIENT=firefox npm test
+
+matrix:
+  allow_failures:
+  - env: CLIENT=firefox npm test
