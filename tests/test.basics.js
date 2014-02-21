@@ -135,9 +135,26 @@ adapters.map(function (adapter) {
     it('Read db id', function (done) {
       var db = new PouchDB(dbs.name);
       db.id(function (err, id) {
-        id.should.be.a('string');
-        //id.should.not.be.empty();
+        if (id[id.length - 1] === '/') {
+          id = id.slice(0, -1);
+        } else if (id.slice(0, 7) === '_pouch_') {
+          id = id.slice(7);
+        }
+        id.should.equal(dbs.name);
         done(err);
+      });
+    });
+
+    it('Read db id with promise', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.id().then(function (id) {
+        if (id[id.length - 1] === '/') {
+          id = id.slice(0, -1);
+        } else if (id.slice(0, 7) === '_pouch_') {
+          id = id.slice(7);
+        }
+        id.should.equal(dbs.name);
+        done();
       });
     });
 
