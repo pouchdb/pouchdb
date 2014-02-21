@@ -368,7 +368,8 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('Put doc without _id should fail', function (done) {
+    // TODO: https://github.com/daleharvey/pouchdb/issues/1461
+    it.skip('Put doc without _id should fail', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({test: 'somestuff' }, function (err, info) {
         should.exist(err);
