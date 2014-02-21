@@ -1,17 +1,22 @@
 #!/bin/bash
 
+: ${TIMEOUT:=50000}
+: ${REPORTER:="spec"}
+
 if [ ! $COVERAGE ]; then
     ./node_modules/.bin/mocha \
-        -t 50000 \
-        -r ./tests/node.setup.js \
-        -R spec \
+        --bail \
+        --timeout $TIMEOUT \
+        --require=./tests/node.setup.js \
+        --reporter=$REPORTER \
         --grep=$GREP \
         tests/test.*.js
 else
     ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \
-        -t 50000 \
-        -r ./tests/node.setup.js \
-        -R spec \
+        --bail \
+        --timeout=$TIMEOUT \
+        -require=./tests/node.setup.js \
+        --reporter=$REPORTER \
         --grep=$GREP \
         tests/test.*.js
 fi

@@ -83,8 +83,8 @@ function startTest() {
 
   var script =
     'var cb = arguments[arguments.length - 1];' +
-    'console.log("GONNA START WAITING");' +
-    'runner.on("end", function() { console.log("TESTS ENDED"); cb(results); });';
+    'runner.on("end", function() { cb(results); });' +
+    'runner.on("fail", function() { cb(results); });';
 
   client = wd.promiseChainRemote();
   client
