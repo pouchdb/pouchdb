@@ -520,15 +520,18 @@ adapters.map(function (adapter) {
     it('Test instance update_seq updates correctly', function (done) {
       var db1 = new PouchDB(dbs.name);
       var db2 = new PouchDB(dbs.name);
-      db1.post({ a: 'doc' }, function () {
-        console.log('INFO 1');
+      db1.post({ a: 'doc' }, function (err) {
+        if (err) {
+          return done(err);
+        }
         db1.info(function (err, db1Info) {
-          console.log('INFO 2');
+          if (err) {
+            return done(err);
+          }
           db2.info(function (err, db2Info) {
-            console.log('INFO 2 DONE');
             db1Info.update_seq.should.not.equal(0);
             db2Info.update_seq.should.not.equal(0);
-            done();
+            done(err);
           });
         });
       });
