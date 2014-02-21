@@ -639,19 +639,18 @@ adapters.map(function (adapter) {
       db.post({ test: 'adoc' });
     });
 
-    it('Kill database while listening to continuous changes', function (done) {
+    // TODO: https://github.com/daleharvey/pouchdb/issues/1460
+    it.skip('Kill database while listening to continuous changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
-      var changes = db.changes({
+      db.changes({
         complete: function (err, result) {
           done();
         },
         onChange: function (change) {
           count += 1;
           if (count === 1) {
-            PouchDB.destroy(dbs.name, function () {
-              changes.cancel();
-            });
+            PouchDB.destroy(dbs.name);
           }
         },
         continuous: true
