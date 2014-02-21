@@ -17,7 +17,3 @@ env:
   matrix:
   - CLIENT=node npm test
   - CLIENT=firefox npm test
-
-matrix:
-  allow_failures:
-  - env: CLIENT=firefox npm test
