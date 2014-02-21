@@ -29,7 +29,7 @@ function async(functions, callback) {
 describe('allDbs', function () {
   // Remove old allDbs to prevent DOM exception
   Object.keys(PouchDB.adapters).forEach(function (adapter) {
-    if (adapter === 'http' || adapter === 'https') {
+    if (~PouchDB.noAllDbs.indexOf(adapter)) {
       return;
     }
     PouchDB.destroy(PouchDB.allDBName(adapter), function () {
@@ -38,7 +38,7 @@ describe('allDbs', function () {
   // Loop through all availible adapters
   Object.keys(PouchDB.adapters).forEach(function (adapter) {
     // allDbs method only works for local adapters
-    if (adapter === 'http' || adapter === 'https') {
+    if (~PouchDB.noAllDbs.indexOf(adapter)) {
       return;
     }
     describe(adapter, function () {
