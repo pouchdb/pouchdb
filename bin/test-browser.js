@@ -18,9 +18,9 @@ if (process.env.GREP) {
   testUrl += '?grep=' + process.env.GREP;
 }
 
-if (process.env.TRAVIS) {
-  process.exit(0);
-}
+// if (process.env.TRAVIS) {
+//   process.exit(0);
+// }
 
 function startServers(callback) {
 
