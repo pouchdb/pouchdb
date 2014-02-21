@@ -46,16 +46,16 @@ var db = new PouchDB('http://localhost:5984/dbname');
 ## Delete database<a id="delete_database"></a>
 
 {% highlight js %}
-PouchDB.destroy(name, [options], [callback])
+db.destroy([options], [callback])
 {% endhighlight %}
 
-Delete database with given name.
+Delete database.
 
 **Notes:** With a remote CouchDB on Node, options are passed to [request][].
 
 #### Example Usage:
 {% highlight js %}
-PouchDB.destroy('dbname', function(err, info) { });
+db.destroy(function(err, info) { });
 {% endhighlight %}
 
 ## Create / Update a document<a id="create_document"></a>
