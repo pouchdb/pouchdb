@@ -48,6 +48,31 @@ adapters.map(function (adapter) {
       });
     });
 
+    it('Remove a pouch, with a promise', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        PouchDB.destroy(dbs).then(function () {
+          done();
+        }, done);
+      });
+    });
+
+    it('destroy a pouch', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        db.destroy(function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('destroy a pouch, with a promise', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        db.destroy().then(function () {
+          done();
+        }, done);
+      });
+    });
+
     it('Add a doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}, function (err, info) {
@@ -109,10 +134,10 @@ adapters.map(function (adapter) {
 
     it('Read db id', function (done) {
       var db = new PouchDB(dbs.name);
-      db.id(function (id) {
+      db.id(function (err, id) {
         id.should.be.a('string');
         //id.should.not.be.empty();
-        done();
+        done(err);
       });
     });
 
@@ -515,6 +540,14 @@ adapters.map(function (adapter) {
             done();
           }
         });
+      });
+    });
+    it('db.info should give correct name', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.info().then(function (info) {
+        console.log(dbs.name);
+        info.db_name.should.equal('test_basics');
+        done();
       });
     });
 
