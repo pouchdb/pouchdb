@@ -1,5 +1,19 @@
 'use strict';
-describe('worker', function () {
+
+describe('browser.worker.js', function () {
+
+  var dbs = {};
+
+  beforeEach(function (done) {
+    dbs.name = testUtils.adapterUrl('local', 'test_worker');
+    dbs.remote = testUtils.adapterUrl('http', 'test_worker_remote');
+    testUtils.cleanup([dbs.name, dbs.remote], done);
+  });
+
+  afterEach(function (done) {
+    testUtils.cleanup([dbs.name, dbs.remote], done);
+  });
+
   it('create it', function (done) {
     var worker = new Worker('worker.js');
     worker.addEventListener('message', function (e) {
@@ -9,6 +23,7 @@ describe('worker', function () {
     });
     worker.postMessage('ping');
   });
+
   it('check pouch version', function (done) {
     var worker = new Worker('worker.js');
     worker.addEventListener('message', function (e) {
@@ -18,6 +33,7 @@ describe('worker', function () {
     });
     worker.postMessage('version');
   });
+
   it('create remote db', function (done) {
     var worker = new Worker('worker.js');
     worker.addEventListener('error', function (e) {
@@ -28,11 +44,9 @@ describe('worker', function () {
       worker.terminate();
       done();
     });
-    worker.postMessage([
-      'create',
-      testUtils.generateAdapterUrl('http-1')
-    ]);
+    worker.postMessage(['create', dbs.remote]);
   });
+
   if (typeof mozIndexedDB === 'undefined') {
     it('create local db', function (done) {
       var worker = new Worker('worker.js');
@@ -44,10 +58,8 @@ describe('worker', function () {
         worker.terminate();
         done();
       });
-      worker.postMessage([
-        'create',
-        testUtils.generateAdapterUrl('local-1')
-      ]);
+      worker.postMessage(['create', dbs.name]);
     });
   }
+
 });

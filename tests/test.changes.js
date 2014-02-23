@@ -5,7 +5,7 @@ var adapters = ['http', 'local'];
 
 adapters.map(function (adapter) {
 
-  describe('changes-' + adapter, function () {
+  describe('test.changes.js-' + adapter, function () {
 
     var dbs = {};
 

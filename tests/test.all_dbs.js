@@ -49,7 +49,7 @@ describe('allDbs', function () {
         testHelpers.pouchNames = [];
         var pouchName;
         for (var i = 0; i < 5; i++) {
-          pouchName = testUtils.generateAdapterUrl('local-' + i);
+          pouchName = testUtils.adapterUrl('local', '-' + i);
           testHelpers.pouchNames.push([
             adapter,
             '://',

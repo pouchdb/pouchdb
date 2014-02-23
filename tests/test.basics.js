@@ -1,21 +1,21 @@
-
 'use strict';
 
 var adapters = ['http', 'local'];
 
 adapters.map(function (adapter) {
-
-  describe('basics-' + adapter, function () {
+  describe('test.basics.js-' + adapter, function () {
 
     var dbs = {};
 
-    beforeEach(function () {
+    beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapter, 'test_basics');
+      testUtils.cleanup([dbs.name], done);
     });
 
     afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
+
 
     it('Create a pouch', function (done) {
       new PouchDB(dbs.name, function (err, db) {
@@ -412,7 +412,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('Put doc with bad reserved id should fail', function (done) {
+    it.skip('Put doc with bad reserved id should fail', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({
         _id: '_i_test',
@@ -529,7 +529,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('Cant add docs with empty ids', function (done) {
+    it.skip('Cant add docs with empty ids', function (done) {
       var docs = [
         {},
         { _id: null },
@@ -549,6 +549,7 @@ adapters.map(function (adapter) {
         });
       });
     });
+
     it('db.info should give correct name', function (done) {
       var db = new PouchDB(dbs.name);
       db.info().then(function (info) {
