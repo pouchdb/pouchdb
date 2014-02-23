@@ -39,7 +39,8 @@
     "qunit-mocha-ui": "0.0.5",
     "mocha": "~1.17.1",
     "chai": "~1.9.0",
-    "istanbul": "~0.2.4"
+    "istanbul": "~0.2.4",
+    "pouchdb" : "1.1.0"
   },
   "scripts": {
     "jshint": "./node_modules/.bin/jshint -c .jshintrc bin/*.js tests/*.js lib/*.js lib/adapters/*.js lib/deps/*.js",

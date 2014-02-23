@@ -99,7 +99,7 @@ describe('replication', function () {
           db.bulkDocs({ docs: docs }, {}, function (err, results) {
             db.replicate.to(testHelpers.remote, function (err, result) {
               ok(result.ok, 'replication was ok');
-              ok(result.docs_written === docs.length, 'correct # docs written');
+              result.docs_written.should.equal(docs.length, 'correct # docs written');
               start();
             });
           });
@@ -1533,7 +1533,7 @@ describe('replication', function () {
                 var db_total = res.total_rows;
                 remote.allDocs(function (err, res) {
                   var remote_total = res.total_rows;
-                  ok(db_total === remote_total, 'replicated all docs successfully');
+                  db_total.should.equal(remote_total, 'replicated all docs successfully');
                   start();
                 });
               });
@@ -1610,6 +1610,7 @@ describe('server side replication', function () {
         testUtils.initTestDB(testHelpers.name, function (err, db) {
           db.bulkDocs({ docs: docs }, {}, function (err, results) {
             PouchDB.replicate(testHelpers.name, testHelpers.remote, { server: true }, function (err, result) {
+              should.not.exist(err, 'got error: ' + JSON.stringify(err));
               ok(result.ok, 'replication was ok');
               equal(result.history[0].docs_written, docs.length, 'correct # docs written');
               start();
