@@ -9,9 +9,10 @@ adapters.map(function (adapter) {
 
     var dbs = {};
 
-    beforeEach(function () {
+    beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapter, 'test_changes');
       dbs.remote = testUtils.adapterUrl(adapter, 'test_changes_remote');
+      testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
     afterEach(function (done) {
