@@ -739,24 +739,3 @@ db.revsDiff({
   }
 }
 {% endhighlight %}
-
-## List all databases<a id="list_databases"></a>
-
-{% highlight js %}
-PouchDB.allDbs(callback)
-{% endhighlight %}
-
-Retrieves all databases from PouchDB. By default, this feature is turned off and this function will return an empty list.  To enable this feature and obtain a list of all the databases, set `PouchDB.enableAllDbs` to `true` before creating any databases.
-
-#### Example Usage:
-{% highlight js %}
-PouchDB.enableAllDbs = true;
-PouchDB.allDbs(function(err, response) {});
-{% endhighlight %}
-
-#### Example Response:
-{% highlight js %}
-[
-  "testdb"
-]
-{% endhighlight %}
