@@ -3,7 +3,7 @@
 var testsDir = process.env.TESTS_DIR || './tmp';
 var exec = require('child_process').exec;
 function cleanup() {
-  // Remove test databases and test allDbs database.
+  // Remove test databases
   exec('rm -r ' + testsDir);
 }
 exec('mkdir -p ' + testsDir, function () {
