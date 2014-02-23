@@ -22,7 +22,8 @@
     "bluebird": "~1.0.0",
     "level-sublevel": "~5.2.0",
     "levelup": "~0.18.2",
-    "leveldown": "~0.10.2"
+    "leveldown": "~0.10.2",
+    "inherits": "~2.0.1"
   },
   "devDependencies": {
     "commander": "~2.1.0",
