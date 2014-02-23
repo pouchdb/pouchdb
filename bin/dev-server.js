@@ -34,7 +34,7 @@ function bundle() {
   function end() {
     fs.rename(dotfile, outfile, function (err) {
       if (err) { return console.error(err); }
-      console.log("Updated " + outfile);
+      console.log('Updated:', outfile);
     });
   }
 }
@@ -48,6 +48,7 @@ function startServers(couchHost) {
   http_server.createServer().listen(HTTP_PORT);
   cors_proxy.options = {target: couchHost || COUCH_HOST};
   http_proxy.createServer(cors_proxy).listen(CORS_PORT);
+  console.log('Tests: http://127.0.0.1:' + HTTP_PORT + '/tests/test.html');
 }
 
 
