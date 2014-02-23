@@ -50,7 +50,7 @@
     "build": "npm run build-js && npm run uglify",
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
-    "dev-server": "./bin/dev-server.js",
+    "dev": "./bin/dev-server.js",
     "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",

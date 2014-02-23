@@ -60,33 +60,46 @@ You will now have various distributions of PouchDB in your `dist` folder, congra
 Running PouchDB Tests
 --------------------------------------
 
-The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can configure this by sending the `COUCH_HOST` env var when running the Node tests or the `dev-server`
+The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can configure this by sending the `COUCH_HOST` env var.
 
 ### Node Tests
 
 Run all tests with:
 
-    $ npm run test-node
-
-Run an filtered set of tests:
-
-    $ GREP=basics npm run test-node
+    $ npm test
 
 ### Browser Tests
 
-Browser tests require a running HTTP server and a CORS proxy:
+Browser tests can be run automatically with:
 
-    $ npm run dev-server
-    # or
-    $ COUCH_HOST=http://user:pass@myname.host.com npm run dev-server
+    $ CLIENT=firefox npm test
 
-Now visit http://127.0.0.1:8000/tests/test.html in your browser, you can add ?grep=basics to run a test file. You do not need to manually rebuild PouchDB when you run the `dev-server` target, any changes you make to the source will automatically be built.
+or you can run:
 
-### All Tests
+    $ npm run dev
 
-To run all tests:
+and open http://127.0.0.1:8000/tests/test.html in your browser of choice.
 
-    $ npm test
+### Test Options
+
+#### Subset of tests:
+
+    $ GREP=test.replication.js npm test
+
+or append `?grep=test.replication.js` if you opened the tests in a browser manually
+
+#### Test Coverage
+
+    $ COVERAGE=1 npm test
+
+#### Test alternative server
+
+    $ COUCH_HOST=http://user:pass@myname.host.com npm run dev
+
+or
+
+    $ COUCH_HOST=http://user:pass@myname.host.com npm test
+
 
 Git Essentials
 --------------------------------------
