@@ -78,7 +78,6 @@ describe('design_docs', function () {
               onChange: function (change) {
                 count += 1;
                 if (count === 4) {
-                  console.log('CANCEL');
                   changes.cancel();
                 }
               },
