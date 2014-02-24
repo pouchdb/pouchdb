@@ -68,9 +68,9 @@ Run all tests with:
 
     $ npm run test-node
 
-Run an indivitual test:
+Run an filtered set of tests:
 
-    $ TEST_FILE=test.basics.js npm run test-node
+    $ GREP=basics npm run test-node
 
 ### Browser Tests
 

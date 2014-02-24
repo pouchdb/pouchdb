@@ -19,7 +19,7 @@
   "dependencies": {
     "level": "~0.18.0",
     "request": "~2.28.0",
-    "pouchdb-mapreduce": "0.5.0",
+    "pouchdb-mapreduce": "0.6.2",
     "bluebird": "~1.0.0"
   },
   "devDependencies": {
@@ -40,19 +40,18 @@
     "istanbul": "~0.2.4"
   },
   "scripts": {
-    "jshint": "./node_modules/.bin/jshint -c .jshintrc lib/*.js lib/adapters/*.js lib/deps/*.js",
+    "jshint": "./node_modules/.bin/jshint -c .jshintrc bin/*.js tests/*.js lib/*.js lib/adapters/*.js lib/deps/*.js",
     "build-js": "mkdir -p dist && ./node_modules/.bin/browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "watch-js": "mkdir -p dist && ./node_modules/.bin/watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
-    "mocha": "mocha -t 50000 -r ./tests/node.setup.js -R spec tests/test.*.js",
-    "test-node": "npm run mocha",
+    "test-node": "./bin/run-mocha.sh",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev-server": "./bin/dev-server.js",
     "test": "npm run jshint && npm run test-node && npm run test-browser",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
-    "coverage" :"istanbul cover ./node_modules/mocha/bin/_mocha -- -t 50000 -r ./tests/node.setup.js -R spec tests/test.*.js"
+    "coverage" :"COVERAGE=1 ./bin/run-mocha.sh"
   },
   "browser": {
     "./adapters/leveldb": false,

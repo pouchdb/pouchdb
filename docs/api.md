@@ -412,6 +412,7 @@ All options default to `false` unless otherwise specified.
 * `options.complete`: Function called when all changes have been processed.
 * `options.onChange`: Function called on each change processed.
 * `options.continuous`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
+* `options.since`: Replicate changes after the given sequence number.
 * `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
 
@@ -438,7 +439,9 @@ db.replicate.from(remoteDB, [options]);
   'docs_read': 2,
   'docs_written': 2,
   'start_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)",
-  'end_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)"
+  'end_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)",
+  'status': 'complete',
+  'errors': []
 }
 {% endhighlight %}
 
@@ -585,7 +588,7 @@ db.removeAttachment('otherdoc',
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Retrieve a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map reduce](http://docs.couchdb.org/en/latest/ddocs.html#view-functions) applies to PouchDB.
+Retrieve a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
 
 ### Options
 
