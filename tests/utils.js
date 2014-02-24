@@ -12,13 +12,6 @@ testUtils.couchHost = function () {
   return 'http://localhost:2020';
 };
 
-testUtils.uuid = function () {
-  var S4 = function () {
-    return Math.floor(Math.random() * 65536).toString(16);
-  };
-  return S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4();
-};
-
 testUtils.makeBlob = function (data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data);
@@ -67,8 +60,10 @@ testUtils.cleanup = function (dbs, done) {
   var deleted = 0;
   var num = dbs.length;
 
-  function dbDeleted() {
-    if (++deleted === num) {
+  function dbDeleted(err, res) {
+    if (err && err.status !== 404) {
+      done(err);
+    } else if (++deleted === num) {
       done();
     }
   }
