@@ -476,8 +476,10 @@ adapters.map(function (adapters) {
       ];
       remote.bulkDocs({ docs: docs1 }, function (err, info) {
         db.replicate.from(remote, {
-          complete: function () {
+          complete: function (err, res) {
+            if (err) { done(err); }
             db.allDocs(function (err, docs) {
+              if (err) { done(err); }
               docs.rows.length.should.equal(2);
               done();
             });

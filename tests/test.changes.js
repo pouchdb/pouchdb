@@ -955,6 +955,7 @@ adapters.map(function (adapter) {
       var changes = db.changes({
         continuous: true,
         complete: function (err, result) {
+          should.not.exist(err);
           result.status.should.equal('cancelled');
           done();
         }
