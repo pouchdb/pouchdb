@@ -951,17 +951,18 @@ adapters.map(function (adapter) {
     });
 
     it('fire-complete-on-cancel', function (done) {
-      var db = new PouchDB(dbs.name);
-      var changes = db.changes({
-        continuous: true,
-        complete: function (err, result) {
-          result.status.should.equal('cancelled');
-          done();
-        }
+      new PouchDB(dbs.name, function (err, db) {
+        var changes = db.changes({
+          continuous: true,
+          complete: function (err, result) {
+            result.status.should.equal('cancelled');
+            done();
+          }
+        });
+        setTimeout(function () {
+          changes.cancel();
+        }, 100);
       });
-      setTimeout(function () {
-        changes.cancel();
-      }, 100);
     });
 
   });
