@@ -3,20 +3,26 @@
 'use strict';
 
 var runner = mocha.run();
-var results = {
+
+window.results = {
   passed: 0,
   failed: 0,
   failures: []
 };
 
 runner.on('pass', function () {
-  results.passed++;
+  window.results.passed++;
 });
 
 runner.on('fail', function (e) {
-  results.failed++;
-  results.failures.push({
+  window.results.failed++;
+  window.results.failures.push({
     title: e.title,
     err: e.err
   });
+});
+
+runner.on('end', function () {
+  window.results.completed = true;
+  window.results.passed++;
 });
