@@ -41,7 +41,8 @@
     "mocha": "~1.17.1",
     "chai": "~1.9.0",
     "istanbul": "~0.2.4",
-    "ncp": "~0.5.0"
+    "ncp": "~0.5.0",
+    "sauce-connect-launcher": "0.2.2"
   },
   "scripts": {
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js",
