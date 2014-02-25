@@ -289,9 +289,11 @@ adapters.map(function (adapters) {
                           db2.get('foo', function (err, doc) {
                             doc.value.should.equal('db1');
                             db1.allDocs({ include_docs: true }, function (err, res) {
+                              res.rows.should.have.length.above(0);
                               // redundant but we want to test it
                               res.rows[0].doc.value.should.equal('db1');
                               db2.allDocs({ include_docs: true }, function (err, res) {
+                                res.rows.should.have.length.above(0);
                                 res.rows[0].doc.value.should.equal('db1');
                                 done();
                               });
