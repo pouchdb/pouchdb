@@ -17,3 +17,4 @@ env:
   matrix:
   - CLIENT=node npm test
   - CLIENT=firefox npm test
+  - CLIENT=chrome npm test
