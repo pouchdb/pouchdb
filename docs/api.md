@@ -742,3 +742,15 @@ db.revsDiff({
   }
 }
 {% endhighlight %}
+
+## Plugins<a id="plugins"></a>
+
+Writing a plugin is easy the api is
+
+{% highlight js %}
+PouchDB.plugin({
+  methodName: function
+});
+{% endhighlight %}
+
+This will add the function as a method of all databases with the given name, it will always be called in the so that `this` is db.
