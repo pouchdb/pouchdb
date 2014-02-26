@@ -61,7 +61,6 @@
     "request": false,
     "levelup": false,
     "leveldown": false,
-    "events": false,
     "crypto": false,
     "bluebird": "lie",
     "level-sublevel": false

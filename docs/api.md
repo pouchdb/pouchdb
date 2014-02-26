@@ -19,7 +19,7 @@ Additionally, any method that only returns a single thing (e.g. `db.get`, but no
 new PouchDB([name], [options])
 {% endhighlight %}
 
-This method creates a database or opens an existing one. If you use a URL like `http://domain.com/dbname` then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using whatever backend is present (i.e. IndexedDB, WebSQL, or LevelDB).
+This method creates a database or opens an existing one. If you use a URL like `http://domain.com/dbname` then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using whatever backend is present (i.e. IndexedDB, WebSQL, or LevelDB). 
 
 ### Options
 
@@ -743,6 +743,19 @@ db.revsDiff({
 }
 {% endhighlight %}
 
+## Events<a id="events"></a>
+
+PouchDB is an [event emiter](http://nodejs.org/api/events.html#events_class_events_eventemitter) and will emit a 'created' event when a database is created. A 'destroy' event is emited when a database is destroyed.
+
+{% highlight js %}
+PouchDB.on('created', function (dbName) {
+  // called whenver a db is created.
+});
+PouchDB.on('destroyed', function (dbName) {
+  // called whenver a db is destroyed.
+});
+{% endhighlight %}
+
 ## Plugins<a id="plugins"></a>
 
 Writing a plugin is easy the api is
@@ -753,4 +766,5 @@ PouchDB.plugin({
 });
 {% endhighlight %}
 
-This will add the function as a method of all databases with the given name, it will always be called in the so that `this` is db.
+This will add the function as a method of all databases with the given name, it will always be called in context so that `this` is db.
+
