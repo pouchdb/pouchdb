@@ -44,10 +44,10 @@
     "ncp": "~0.5.0"
   },
   "scripts": {
-    "jshint": "./node_modules/.bin/jshint -c .jshintrc bin/*.js tests/*.js lib/*.js lib/adapters/*.js lib/deps/*.js",
-    "build-js": "mkdir -p dist && ./node_modules/.bin/browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
-    "watch-js": "mkdir -p dist && ./node_modules/.bin/watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
-    "uglify": "./node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
+    "jshint": "jshint -c .jshintrc bin/*.js tests/*.js lib/*.js lib/adapters/*.js lib/deps/*.js",
+    "build-js": "mkdir -p dist && browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
+    "watch-js": "mkdir -p dist && watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
+    "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "npm run build-js && npm run uglify",
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "npm run build-js && ./bin/test-browser.js",
