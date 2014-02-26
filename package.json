@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "1.2.0-alpha",
+  "version": "2.0.0-alpha",
   "description": "PouchDB is a pocket-sized database.",
   "release": "nightly",
   "main": "./lib/index.js",
@@ -18,7 +18,7 @@
   ],
   "dependencies": {
     "request": "~2.28.0",
-    "pouchdb-mapreduce": "0.6.2",
+    "pouchdb-mapreduce": "1.0.0",
     "bluebird": "~1.0.0",
     "level-sublevel": "~5.2.0",
     "levelup": "~0.18.2",
