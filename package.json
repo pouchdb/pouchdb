@@ -44,18 +44,16 @@
     "ncp": "~0.5.0"
   },
   "scripts": {
-    "jshint": "jshint -c .jshintrc bin/*.js tests/*.js lib/*.js lib/adapters/*.js lib/deps/*.js",
-    "build-js": "mkdir -p dist && browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
-    "watch-js": "mkdir -p dist && watchify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
+    "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js",
+    "build-js": "browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
-    "build": "npm run build-js && npm run uglify",
+    "build": "mkdir -p dist && npm run build-js && npm run uglify",
     "test-node": "./bin/run-mocha.sh",
-    "test-browser": "npm run build-js && ./bin/test-browser.js",
+    "test-browser": "mkdir -p dist && npm run build-js && ./bin/test-browser.js",
     "dev": "./bin/dev-server.js",
     "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
-    "publish-site": "./bin/publish-site.sh",
-    "coverage": "COVERAGE=1 ./bin/run-mocha.sh"
+    "publish-site": "./bin/publish-site.sh"
   },
   "browser": {
     "./adapters/leveldb": false,
