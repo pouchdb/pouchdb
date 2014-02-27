@@ -57,10 +57,14 @@ All dependancies installed? great, now building PouchDB itself is a breeze:
 
 You will now have various distributions of PouchDB in your `dist` folder, congratulations.
 
+ * If you are on windows, you will need `node-gyp` to install levelup, visit https://github.com/TooTallNate/node-gyp#installation for installation instructions.
+
 Running PouchDB Tests
 --------------------------------------
 
 The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can configure this by sending the `COUCH_HOST` env var.
+
+ * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
 
 ### Node Tests
 
