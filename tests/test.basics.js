@@ -117,6 +117,20 @@ adapters.map(function (adapter) {
       });
     });
 
+    it('Modify a doc with sugar syntax and omit the _id', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post({test: 'somestuff'}, function (err, info) {
+        db.put({another: 'test', _id: info.id}, info.rev, function (err, info2) {
+          info.rev.should.not.equal(info2.rev);
+          db.put({yet_another: 'test'}, 'yet_another', function (err, info3) {
+            info3.id.should.equal('yet_another');
+            info.rev.should.not.equal(info2.rev);
+            done();
+          });
+        });
+      });
+    });
+
     it('Modify a doc with a promise', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'promisestuff'}).then(function (info) {
