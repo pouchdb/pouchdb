@@ -9,7 +9,7 @@ In this tutorial we will write a basic Todo web application based on [TodoMVC](h
 
 # Download Assets
 
-We will start with a template of the project where all the data related functions have been replaced with empty stubs. Download and unzip [pouchdb-getting-started-todo.zip](/static/assets/pouchdb-getting-started-todo.zip). When dealing with XHR and IndexedDB you are better off running web pages from a server as opposed to a filesystem. To do this you can run:
+We will start with a template of the project where all the data related functions have been replaced with empty stubs. Download and unzip [pouchdb-getting-started-todo.zip]({{ site.baseurl }}/static/assets/pouchdb-getting-started-todo.zip). When dealing with XHR and IndexedDB you are better off running web pages from a server as opposed to a filesystem. To do this you can run:
 
 {% highlight bash %}
 $ cd pouchdb-getting-started-todo
@@ -18,8 +18,8 @@ $ python -m SimpleHTTPServer
 
 Then visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/). If you see the following screenshot, you are good to go:
 
-<a href="/static/screenshots/todo-1.png" style="display: block; text-align: center;">
-   <img src="/static/screenshots/todo-1.png" style="width:400px;"/>
+<a href="{{ site.baseurl }}/static/img/screenshots/todo-1.png" style="display: block; text-align: center;">
+   <img src="{{ site.baseurl }}/static/img/screenshots/todo-1.png" style="width:400px;"/>
 </a>
 
 It's also a good idea to open your browser's console so you can see any errors or confirmation messages.
