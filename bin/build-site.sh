@@ -1,8 +1,10 @@
 #!/bin/bash
 # Builds /docs
 
-# Install jekyll
-gem install jekyll
+# Install jekyll if it doesnt exist.
+if ! gem list jekyll -i; then
+	gem install jekyll
+fi
 
 # Install npm dependancies
 npm install
