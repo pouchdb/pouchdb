@@ -3,7 +3,7 @@
 
 # Install jekyll if it doesnt exist.
 if ! gem list jekyll -i; then
-	gem install jekyll
+  gem install jekyll
 fi
 
 # Install npm dependancies
