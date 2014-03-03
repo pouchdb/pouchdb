@@ -41,13 +41,18 @@
     "chai": "~1.9.0",
     "istanbul": "~0.2.4",
     "ncp": "~0.5.0",
-    "sauce-connect-launcher": "0.2.2"
+    "sauce-connect-launcher": "0.2.2",
+    "es5-shim": "^2.3.0"
   },
   "scripts": {
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js",
-    "build-js": "browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
-    "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
-    "build": "mkdir -p dist && npm run build-js && npm run uglify",
+    "build-legacy": "browserify lib/legacy.js -s PouchDB -o dist/pouchdb-legacy.js",
+    "build-modern": "browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
+    "uglify-modern": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
+    "uglify-legacy": "uglifyjs dist/pouchdb-legacy.js -mc > dist/pouchdb-legacy.min.js",
+    "modern": "npm run build-modern && npm run uglify-modern",
+    "legacy": "npm run build-legacy && npm run uglify-legacy",
+    "build-js": "mkdir -p dist && npm run modern && npm run legacy",
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "mkdir -p dist && npm run build-js && ./bin/test-browser.js",
     "dev": "./bin/dev-server.js",
