@@ -4,73 +4,78 @@
   <head>
     <meta charset="utf-8">
     <title>{{ page.title }}</title>
-    <link rel="stylesheet" href="/static/style/pygments.css">
-    <link rel="stylesheet" href="/static/style/pouchdb.css" />
+    <link rel="stylesheet" href="{{ site.baseurl }}/static/css/pouchdb.css" />
   </head>
 
   <body>
 
-    <header><div id="headerwrapper">
+    <header>
 
-      <h1><a href="/">PouchDB</a></h1>
+      <div class="container">
 
-      <section id="download">
-        <a href="https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js">Download</a>
-      </section>
+        <a class="logo" href="{{ site.baseurl }}/">
+          <img class="logo-img" src="{{ site.baseurl }}/static/img/logo-icon.png" alt="Logo">
+          <span class='logo-type'>PouchDB</span>
+        </a>
 
-      <nav>
-        <ul>
-          <li><a href="/learn.html">Learn</a></li>
-          <!-- <li><a href="/discuss.html">Discuss</a></li> -->
-          <!-- <li><a href="/">Contribute</a></li> -->
-          <!-- <li><a href="/">Download</a></li> -->
+        <ul class='nav nav-header nav-pills'>
+          <li>
+            <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/api.html">Documentation</a>
+          </li>
+          <li>
+            <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/learn.html">Learn</a>
+          </li>
+          <li>
+            <a class='btn btn-primary btn-lg' href="https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js">Download</a>
+          </li>
         </ul>
-      </nav>
 
-    </div></header>
+      </div>
 
-    <section id="content">{{ content }}</section>
+    </header>
 
-    <footer><div id="footerwrapper">
+    {{ content }}
 
-      <section>
-        <h2>Learn</h2>
-        <ul>
-          <li><a href="/getting-started.html">Getting Started</a></li>
-          <li><a href="/api.html">API Guide</a></li>
-          <li><a href="https://github.com/daleharvey/pouchdb/wiki">Wiki</a></li>
-        </ul>
-      </section>
+    <footer>
 
-      <section>
-        <h2>Discuss</h2>
-        <ul>
-          <li><a href="https://groups.google.com/forum/#!forum/pouchdb">Mailing List</a></li>
-          <li><a href="irc://freenode.net/#pouchdb">IRC</a></li>
-          <li><a href="http://twitter.com/pouchdb">Twitter</a></li>
-          <li><a href="http://stackoverflow.com/questions/tagged/pouchdb">StackOverflow</a></li>
-        </ul>
-      </section>
+      <div class="container">
 
-      <section>
-        <h2>Contribute</h2>
-        <ul>
-          <li><a href="https://github.com/daleharvey/pouchdb/blob/master/CONTRIBUTING.md">Contributing</a></li>
-          <li><a href="https://github.com/daleharvey/pouchdb">Source</a></li>
-          <li><a href="https://github.com/daleharvey/pouchdb/issues">Issues</a></li>
-          <li><a href="https://github.com/daleharvey/pouchdb/blob/master/LICENSE">Apache License</a></li>
-        </ul>
-      </section>
+        <div class="row">
 
-      <section id="logos">
-        <a id="couchdb_logo" href="http://couchdb.apache.org/">CouchDB</a>
-        <a id="github_logo" href="http://github.com/daleharvey/pouchdb">Github</a>
-        <a id="twitter_logo" href="http://twitter.com/pouchdb">Twitter</a>
-      </section>
+          <div class='col-xs-4 col-md-3'>
+            <h3>Learn</h3>
+            <ul class='nav nav-silent'>
+              <li><a href="{{ site.baseurl }}/getting-started.html">Getting Started</a></li>
+              <li><a href="{{ site.baseurl }}/api.html">API Guide</a></li>
+              <li><a href="https://github.com/daleharvey/pouchdb/wiki">Wiki</a></li>
+            </ul>
+          </div>
 
-    </div></footer>
+          <div class='col-xs-4 col-md-3'>
+            <h3>Discuss</h3>
+            <ul class='nav nav-silent'>
+              <li><a href="https://groups.google.com/forum/#!forum/pouchdb">Mailing List</a></li>
+              <li><a href="irc://freenode.net/#pouchdb">IRC</a></li>
+              <li><a href="http://twitter.com/pouchdb">Twitter</a></li>
+              <li><a href="http://stackoverflow.com/questions/tagged/pouchdb">StackOverflow</a></li>
+            </ul>
+          </div>
 
-    <a href="https://github.com/daleharvey/pouchdb"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+          <div class='col-xs-4 col-md-3'>
+            <h3>Contribute</h3>
+            <ul class='nav nav-silent'>
+              <li><a href="https://github.com/daleharvey/pouchdb/blob/master/CONTRIBUTING.md">Contributing</a></li>
+              <li><a href="https://github.com/daleharvey/pouchdb">Source</a></li>
+              <li><a href="https://github.com/daleharvey/pouchdb/issues">Issues</a></li>
+              <li><a href="https://github.com/daleharvey/pouchdb/blob/master/LICENSE">Apache License</a></li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+    </footer>
 
     <script type="text/javascript">
       var _gaq = _gaq || [];

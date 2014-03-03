@@ -4068,7 +4068,7 @@ exports.MD5 = function (string) {
     return   wordToHexValue;
   }
 
-  //**	function Utf8Encode(string) removed. Aready defined in pidcrypt_utils.js
+  //**  function Utf8Encode(string) removed. Aready defined in pidcrypt_utils.js
 
   var x = [];
   var k, AA, BB, CC, DD, a, b, c, d;
@@ -4077,7 +4077,7 @@ exports.MD5 = function (string) {
   var S31 = 4, S32 = 11, S33 = 16, S34 = 23;
   var S41 = 6, S42 = 10, S43 = 15, S44 = 21;
 
-  //	string = Utf8Encode(string); #function call removed
+  //  string = Utf8Encode(string); #function call removed
 
   x = convertToWordArray(string);
 

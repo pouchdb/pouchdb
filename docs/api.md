@@ -272,7 +272,7 @@ All options default to `false` unless otherwise specified.
 
 * `options.include_docs`: Include the document itself in each row in the `doc` field. Otherwise by default you only get the `_id` and `_rev` properties.
     - `options.conflicts`: Include conflict information in the `_conflicts` field of a doc.
-	- `options.attachments`: Include attachment data.
+  - `options.attachments`: Include attachment data.
 * `options.startkey` & `options.endkey`: Get documents with keys in a certain range (inclusive/inclusive).
 * `options.descending`: Reverse the order of the output documents.
 * `options.key`: Only return rows matching this string key.
@@ -323,8 +323,8 @@ If `options.continuous` is set to `true`, it returns an object with one method `
 All options default to `false` unless otherwise specified.
 
 * `options.include_docs`: Include the associated document with each change.
-	* `options.conflicts`: Include conflicts.
-	* `options.attachments`: Include attachments.
+  * `options.conflicts`: Include conflicts.
+  * `options.attachments`: Include attachments.
 * `options.descending`: Reverse the order of the output documents.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.since`: Start the results from the change immediately after the given sequence number.
@@ -602,7 +602,7 @@ All options default to `false` unless otherwise specified.
     * Tip: if you're not using a built-in, [you're probably doing it wrong](http://youtu.be/BKQ9kXKoHS8?t=865s).
 * `options.include_docs`: Include the document in each row in the `doc` field.
     - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc.
-	- `options.attachments`: Include attachment data.
+  - `options.attachments`: Include attachment data.
 * `options.startkey` & `options.endkey`: Get documents with keys in a certain range (inclusive/inclusive).
 * `options.descending`: Reverse the order of the output documents.
 * `options.key`: Only return rows matching this string key.

@@ -1,0 +1,30 @@
+@import "../../../../bower_components/bootstrap/less/navs.less";
+
+.nav-header {
+  float: right;
+  > li { min-width: 150px; }
+}
+
+.nav-silent {
+  > li {
+    > a {
+      padding: .1em 0;
+      color: @text-color;
+    }
+  }
+}
+
+@media (max-width: @navs-breakpoint) {
+  .nav {
+      float: none;
+      > li {
+        width: 100%;
+      }
+  }
+  // .nav-silent {
+  //  text-align: center;
+  //  > li {
+  //    width: 100%;
+  //  }
+  // }
+}
