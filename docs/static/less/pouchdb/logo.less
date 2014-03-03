@@ -1,0 +1,23 @@
+.logo {
+  float: left;
+  .logo-img,
+  .logo-type {
+    float: left;
+  }
+  .logo-img { opacity: .9; }
+  .logo-type {
+    margin-left: 5px;
+    font-size: 3em;
+    line-height: 1.1;
+    text-transform: lowercase;
+    font-weight: bold;
+  }
+  &:hover .logo-img { opacity: 1; }
+  .clearfix();
+}
+
+@media (max-width: @navs-breakpoint) {
+  .logo {
+    float: none;
+  }
+}

@@ -2,41 +2,52 @@
 layout: default
 ---
 
-<div id="learn-nav">
-  <ul id="learn-nav">
-    <li><a href="/learn.html">About PouchDB</a></li>
-    <li><a href="/getting-started.html">Get Started Guide</a></li>
-    <li><a href="/api.html">API</a></li>
-    <li><a href="/faq.html">FAQ</a></li>
-    <li><a href="/errors.html">Common Errors</a></li>
-    <li><a href="/external.html">External Projects</a></li>
-  </ul>
+<article>
+  <div class="container">
 
-  <h3>API</h3>
-  <ul>
-    <li><a href="api.html#create_database">Create database</a></li>
-    <li><a href="api.html#delete_database">Delete database</a></li>
-    <li><a href="api.html#create_document">Create/Update document</a></li>
-    <li><a href="api.html#fetch_document">Fetch document</a></li>
-    <li><a href="api.html#delete_document">Delete document</a></li>
-    <li><a href="api.html#batch_create">Batch Create</a></li>
-    <li><a href="api.html#batch_fetch">Batch Fetch</a></li>
-    <li><a href="api.html#changes">Changes</a></li>
-    <li><a href="api.html#replication">Replication</a></li>
-    <li><a href="api.html#sync">Sync</a></li>
-    <li><a href="api.html#save_attachment">Save attachment</a></li>
-    <li><a href="api.html#get_attachment">Get attachment</a></li>
-    <li><a href="api.html#delete_attachment">Delete attachment</a></li>
-    <li><a href="api.html#query_database">Query database</a></li>
-    <li><a href="api.html#database_information">Database Information</a></li>
-    <li><a href="api.html#compaction">Compaction</a></li>
-    <li><a href="api.html#revisions_diff">Revision diff</a></li>
-    <li><a href="api.html#events">Database Events</a></li>
-    <li><a href="api.html#plugins">Plugins</a></li>
-  </ul>
+    <div class="row">
 
-</div>
+        <div class="col-sm-3 col-md-2">
 
-<div id="learn-content">
-  {{ content }}
-</div>
+          <ul class='nav nav-silent'>
+            <li><a href="{{ site.baseurl }}/learn.html">About PouchDB</a></li>
+            <li><a href="{{ site.baseurl }}/getting-started.html">Get Started Guide</a></li>
+            <li><a href="{{ site.baseurl }}/api.html">API</a></li>
+            <li><a href="{{ site.baseurl }}/faq.html">FAQ</a></li>
+            <li><a href="{{ site.baseurl }}/errors.html">Common Errors</a></li>
+            <li><a href="{{ site.baseurl }}/external.html">External Projects</a></li>
+          </ul>
+
+          <h3>API</h3>
+          <ul class='nav nav-silent'>
+            <li><a href="api.html#create_database">Create database</a></li>
+            <li><a href="api.html#delete_database">Delete database</a></li>
+            <li><a href="api.html#create_document">Create/Update document</a></li>
+            <li><a href="api.html#fetch_document">Fetch document</a></li>
+            <li><a href="api.html#delete_document">Delete document</a></li>
+            <li><a href="api.html#batch_create">Batch Create</a></li>
+            <li><a href="api.html#batch_fetch">Batch Fetch</a></li>
+            <li><a href="api.html#changes">Changes</a></li>
+            <li><a href="api.html#replication">Replication</a></li>
+            <li><a href="api.html#sync">Sync</a></li>
+            <li><a href="api.html#save_attachment">Save attachment</a></li>
+            <li><a href="api.html#get_attachment">Get attachment</a></li>
+            <li><a href="api.html#delete_attachment">Delete attachment</a></li>
+            <li><a href="api.html#query_database">Query database</a></li>
+            <li><a href="api.html#database_information">Database Information</a></li>
+            <li><a href="api.html#compaction">Compaction</a></li>
+            <li><a href="api.html#revisions_diff">Revision diff</a></li>
+            <li><a href="api.html#list_databases">List databases</a></li>
+          </ul>
+
+        </div>
+
+        <div class="col-sm-9 col-md-10">
+          {{content}}
+        <div>
+
+    </div>
+
+  </div>
+
+</article>
