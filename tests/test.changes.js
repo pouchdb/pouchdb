@@ -567,13 +567,17 @@ adapters.map(function (adapter) {
     it('Multiple watchers', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
+      var changes1Complete = false;
+      var changes2Complete = false;
       function checkCount() {
-        if (count === 2) {
+        if (changes1Complete && changes2Complete) {
+          count.should.equal(2);
           done();
         }
       }
       var changes1 = db.changes({
         complete: function () {
+          changes1Complete = true;
           checkCount();
         },
         onChange: function (change) {
@@ -585,6 +589,7 @@ adapters.map(function (adapter) {
       });
       var changes2 = db.changes({
         complete: function () {
+          changes2Complete = true;
           checkCount();
         },
         onChange: function (change) {
@@ -952,15 +957,21 @@ adapters.map(function (adapter) {
 
     it('fire-complete-on-cancel', function (done) {
       var db = new PouchDB(dbs.name);
+      var cancelled = false;
       var changes = db.changes({
         continuous: true,
         complete: function (err, result) {
+          cancelled.should.equal(true);
           should.not.exist(err);
-          result.status.should.equal('cancelled');
+          should.exist(result);
+          if (result) {
+            result.status.should.equal('cancelled');
+          }
           done();
         }
       });
       setTimeout(function () {
+        cancelled = true;
         changes.cancel();
       }, 100);
     });
