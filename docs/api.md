@@ -453,15 +453,28 @@ Note that the response for server replications (via `options.server`) is slightl
 ## Sync a database<a id="sync"></a>
 
 {% highlight js %}
-PouchDB.sync(target, [options])
+var sync = PouchDB.sync(src, target, [options])
 {% endhighlight %}
 
-Sync data from database to `target` and `target` to database. This is a convience method for bidirectional data replication, and is equivalent to:
+Sync data from `src` to `target` and `target` to `src`. This is a convience method for bidirectional data replication, and is mostly equivalent to:
 
 {% highlight js %}
-PouchDB.replicate(db1, db2, [options]);
-PouchDB.replicate(db2, db1, [options]);
+var sync = {
+  `push`: PouchDB.replicate(src, target, [options]);
+  `pull`: PouchDB.replicate(target, src, [options]);
+  `cancel`: function() {
+    if (sync.push) {
+      sync.push.cancel();
+    }
+    if (sync.pull) {
+      sync.pull.cancel();
+    }
+  }
+};
 {% endhighlight %}
+
+With the exception that if one replication fails the other is cancelled.
+
 
 ### Options
 
