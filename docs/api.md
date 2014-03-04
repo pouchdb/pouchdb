@@ -7,7 +7,7 @@ title: API Reference - PouchDB
 
 Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, and the second argument holds the result. 
 
-Additionally, any method that only returns a single thing (e.g. `db.get`, but not `db.changes`) also returns a [promise][]. Promises come from the minimal library [lie][] in the browser, and the feature-rich [Bluebird][] in Node.
+Additionally, any method that only returns a single thing (e.g. `db.get`) also returns a [promise][]. Promises come from the minimal library [lie][] in the browser, and the feature-rich [Bluebird][] in Node.
 
   [promise]: http://www.html5rocks.com/en/tutorials/es6/promises/
   [lie]: https://github.com/calvinmetcalf/lie
@@ -316,7 +316,8 @@ db.changes(options)
 {% endhighlight %}
 
 A list of changes made to documents in the database, in the order they were made.
-If `options.continuous` is set to `true`, it returns an object with one method `cancel` which you call if you don't want to listen to new changes anymore. `options.onChange` will be be called for each change that is encountered.
+It returns an object with one method `cancel` which you call if you don't want to listen to new changes anymore. 
+`options.onChange` will be be called for each change that is encountered.
 
 ### Options
 

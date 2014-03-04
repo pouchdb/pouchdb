@@ -22,13 +22,19 @@ adapters.map(function (adapter) {
     it('All changes', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({ test: 'somestuff' }, function (err, info) {
-        db.changes({
+        var promise = db.changes({
           onChange: function (change) {
             change.should.not.have.property('doc');
             change.should.have.property('seq');
             done();
           }
         });
+        should.exist(promise);
+        if (promise) {
+          // The http adapter does not yet return a Promise
+          // promise.should.be.an.instanceof('Promise');
+          promise.cancel.should.be.a('function');
+        }
       });
     });
 
@@ -51,13 +57,19 @@ adapters.map(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        db.changes({
+        var promise = db.changes({
           since: 12,
           complete: function (err, results) {
             results.results.length.should.equal(2);
             done();
           }
         });
+        should.exist(promise);
+        if (promise) {
+          // The http adapter does not yet return a Promise
+          // promise.should.be.an.instanceof('Promise');
+          promise.cancel.should.be.a('function');
+        }
       });
     });
 
@@ -194,7 +206,7 @@ adapters.map(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       testUtils.writeDocs(db, docs, function (err, info) {
-        db.changes({
+        var promise = db.changes({
           filter: 'foo/even',
           limit: 2,
           since: 2,
@@ -210,6 +222,12 @@ adapters.map(function (adapter) {
             done();
           }
         });
+        should.exist(promise);
+        if (promise) {
+          // The http adapter does not yet return a Promise
+          // promise.should.be.an.instanceof('Promise');
+          promise.cancel.should.be.a('function');
+        }
       });
     });
 
@@ -948,6 +966,8 @@ adapters.map(function (adapter) {
             done();
           }
         });
+        should.exist(changes);
+        changes.cancel.should.be.a('function');
         changes.cancel();
         db.close(function (error) {
           should.not.exist(error);
@@ -970,6 +990,8 @@ adapters.map(function (adapter) {
           done();
         }
       });
+      should.exist(changes);
+      changes.cancel.should.be.a('function');
       setTimeout(function () {
         cancelled = true;
         changes.cancel();
