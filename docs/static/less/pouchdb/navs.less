@@ -4,13 +4,22 @@
   float: right;
   > li { min-width: 150px; }
 }
-
 .nav-silent {
-  > li {
-    > a {
-      padding: .1em 0;
-      color: @text-color;
-    }
+  > li > a {
+    padding: .1em 0;
+    color: @text-color;
+  }
+}
+
+/**
+ * Sidebar navigation used in learn.html
+ **/
+.nav-sidebar {
+  margin-top: 25px;
+  > li.active > a,
+  > li > a:hover {
+    color: darken(@brand-primary, 10%);
+    border-right: 2px solid lighten(@brand-primary, 10%);
   }
 }
 
@@ -21,10 +30,4 @@
         width: 100%;
       }
   }
-  // .nav-silent {
-  //  text-align: center;
-  //  > li {
-  //    width: 100%;
-  //  }
-  // }
 }
