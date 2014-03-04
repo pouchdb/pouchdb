@@ -1,5 +1,6 @@
 .logo {
   float: left;
+  width: @logo-width;
   .logo-img,
   .logo-type {
     float: left;
@@ -15,9 +16,26 @@
   &:hover .logo-img { opacity: 1; }
   .clearfix();
 }
-
+/**
+ * When we hit the breakpoint
+ * Center the logo in the middle
+ **/
 @media (max-width: @navs-breakpoint) {
   .logo {
     float: none;
+    display: block;
+    margin: auto;
   }
+}
+@media (max-width: @navs-logo-breakpoint) {
+  .logo {
+    width: auto;
+    .logo-img {
+      display: block;
+      float: none;
+      margin: auto;
+    }
+    .logo-type { display: none; }
+  }
+
 }
