@@ -59,12 +59,19 @@ testUtils.cleanup = function (dbs, done) {
 
   var deleted = 0;
   var num = dbs.length;
+  var errors = [];
 
   function dbDeleted(err, res) {
     if (err && err.status !== 404) {
-      done(err);
-    } else if (++deleted === num) {
-      done();
+      errors.push(err);
+    }
+    if (++deleted === num) {
+      if (errors.length > 0) {
+        // TODO: report all the errors
+        done(errors[0]);
+      } else {
+        done();
+      }
     }
   }
 
