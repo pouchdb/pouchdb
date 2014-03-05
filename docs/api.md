@@ -13,7 +13,7 @@ Additionally, any method that only returns a single thing (e.g. `db.get`) also r
   [lie]: https://github.com/calvinmetcalf/lie
   [bluebird]: https://github.com/petkaantonov/bluebird
 
-## Create database<a id="create_database"></a>
+{% include anchor.html title="Create database" %}
 
 {% highlight js %}
 new PouchDB([name], [options])
@@ -46,7 +46,7 @@ var db = new PouchDB('dbname');
 var db = new PouchDB('http://localhost:5984/dbname');
 {% endhighlight %}
 
-## Delete database<a id="delete_database"></a>
+{% include anchor.html title="Delete database" %}
 
 {% highlight js %}
 db.destroy([options], [callback])
@@ -61,7 +61,7 @@ Delete database.
 db.destroy(function(err, info) { });
 {% endhighlight %}
 
-## Create / Update a document<a id="create_document"></a>
+{% include anchor.html title="Create / Update a document" hash="create_document" %}
 
 ### Using db.put()
 {% highlight js %}
@@ -153,7 +153,7 @@ db.post({
 
 **Put vs. post**: The basic rule of thumb is: put new documents with an `_id`, post new documents without an `_id`.
 
-## Fetch document<a id="fetch_document"></a>
+{% include anchor.html title="Fetch document" %}
 
 {% highlight js %}
 db.get(docid, [options], [callback])
@@ -190,7 +190,7 @@ db.get('mydoc', function(err, doc) { });
 }
 {% endhighlight %}
 
-## Delete document<a id="delete_document"></a>
+{% include anchor.html title="Delete document" %}
 
 {% highlight js %}
 db.remove(doc, [options], [callback])
@@ -223,7 +223,7 @@ db.get('mydoc').then(function(doc) {
 }
 {% endhighlight %}
 
-## Create a batch of documents<a id="batch_create"></a>
+{% include anchor.html title="Create a batch of documents" hash="batch_create" %}
 
 {% highlight js %}
 db.bulkDocs(docs, [options], [callback])
@@ -258,7 +258,7 @@ db.bulkDocs({docs: [
 {% endhighlight %}
 
 
-## Fetch documents<a id="batch_fetch"></a>
+{% include anchor.html title="Fetch documents" hash="batch_fetch" %}
 
 {% highlight js %}
 db.allDocs([options], [callback])
@@ -309,7 +309,7 @@ db.allDocs({include_docs: true}, function(err, response) { });
 }
 {% endhighlight %}
 
-## Listen to database changes<a id="changes"></a>
+{% include anchor.html title="Listen to database changes" hash="changes" %}
 
 {% highlight js %}
 db.changes(options)
@@ -396,7 +396,7 @@ db.changes({complete: function(err, response) { }});
 }
 {% endhighlight %}
 
-## Replicate a database<a id="replication"></a>
+{% include anchor.html title="Replicate a database" hash="replication" %}
 
 {% highlight js %}
 PouchDB.replicate(source, target, [options])
@@ -451,7 +451,7 @@ db.replicate.from(remoteDB, [options]);
 
 Note that the response for server replications (via `options.server`) is slightly different. See the [CouchDB replication documentation](http://wiki.apache.org/couchdb/Replication) for details.
 
-## Sync a database<a id="sync"></a>
+{% include anchor.html title="Sync a database" hash="sync" %}
 
 {% highlight js %}
 var sync = PouchDB.sync(src, target, [options])
@@ -479,7 +479,7 @@ db.sync(remoteDB, [options]);
 
 For any further details, please further to [Replication](api.html#replication).
 
-## Save an attachment<a id="save_attachment"></a>
+{% include anchor.html title="Save an attachment" hash="save_attachment" %}
 
 {% highlight js %}
 db.putAttachment(docId, attachmentId, rev, doc, type, [callback]);
@@ -537,7 +537,7 @@ You can also inline attachments inside the document. In this case, the attachmen
 See [Inline Attachments](http://wiki.apache.org/couchdb/HTTP_Document_API#Inline_Attachments)
 on the CouchDB wiki for details.
 
-## Get an attachment<a id="get_attachment"></a>
+{% include anchor.html title="Get an attachment" hash="get_attachment" %}
 
 {% highlight js %}
 db.getAttachment(docId, attachmentId, [options], [callback])
@@ -557,7 +557,7 @@ In Node you get `Buffer`s, and in the browser you get `Blob`s.
 
 You can specify `attachments: true` to most read operations. The attachment data will then be included inlined in the resulting list of docs.
 
-## Delete an attachment<a id="delete_attachment"></a>
+{% include anchor.html title="Delete an attachment" hash="delete_attachment" %}
 
 {% highlight js %}
 db.removeAttachment(docId, attachmentId, rev, [callback])
@@ -581,7 +581,7 @@ db.removeAttachment('otherdoc',
 }
 {% endhighlight %}
 
-## Query the database<a id="query_database"></a>
+{% include anchor.html title="Query the database" hash="query_database" %}
 
 {% highlight js %}
 db.query(fun, [options], [callback])
@@ -679,7 +679,7 @@ db.query(function(thisIs, awesome) {
 3. [Complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) are supported.  Use them for fancy ordering (e.g. `[firstName, lastName, isFemale]`).
 4. Closures are only supported by local databases. CouchDB still requires self-contained map/reduce functions.
 
-## Get database information<a id="database_information"></a>
+{% include anchor.html title="Get database information" hash="database_information" %}
 
 {% highlight js %}
 db.info(callback)
@@ -701,7 +701,7 @@ db.info(function(err, info) { })
 }
 {% endhighlight %}
 
-## Compact the database<a id="compaction"></a>
+{% include anchor.html title="Compact the database" hash="compaction" %}
 
 {% highlight js %}
 db.compact([options], [callback])
@@ -711,7 +711,7 @@ Runs compaction of the database. Fires callback when compaction is done. If you 
 
 * `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Only for http adapter.
 
-## Document Revisions Diff<a id="revisions_diff"></a>
+{% include anchor.html title="Document Revisions Diff" hash="revisions_diff" %}
 
 {% highlight js %}
 db.revsDiff(diff, [callback])
@@ -739,7 +739,7 @@ db.revsDiff({
 }
 {% endhighlight %}
 
-## Events<a id="events"></a>
+{% include anchor.html title="Events" %}
 
 PouchDB is an [event emiter](http://nodejs.org/api/events.html#events_class_events_eventemitter) and will emit a 'created' event when a database is created. A 'destroy' event is emited when a database is destroyed.
 
@@ -752,7 +752,7 @@ PouchDB.on('destroyed', function (dbName) {
 });
 {% endhighlight %}
 
-## Plugins<a id="plugins"></a>
+{% include anchor.html title="Plugins" %}
 
 Writing a plugin is easy the api is
 
