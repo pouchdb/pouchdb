@@ -530,7 +530,30 @@ adapters.map(function (adapter) {
           db2.put(doc2, function () {
             db.allDocs(function (err, docs) {
               docs.total_rows.should.equal(2);
-              PouchDB.destroy(dbs.name, function () {
+              PouchDB.destroy(dbs.name, function (err) {
+                should.not.exist(err);
+                db2 = new PouchDB(dbs.name);
+                db2.get(doc._id, function (err, doc) {
+                  err.status.should.equal(404);
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it('Fail to fetch a doc after db was deleted', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        var db2 = new PouchDB(dbs.name);
+        var doc = { _id: 'foodoc' };
+        var doc2 = { _id: 'foodoc2' };
+        db.put(doc, function () {
+          db2.put(doc2, function () {
+            db.allDocs(function (err, docs) {
+              docs.total_rows.should.equal(2);
+              db.destroy().then(function () {
                 db2 = new PouchDB(dbs.name);
                 db2.get(doc._id, function (err, doc) {
                   err.status.should.equal(404);
