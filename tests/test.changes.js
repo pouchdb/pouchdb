@@ -998,6 +998,24 @@ adapters.map(function (adapter) {
       }, 100);
     });
 
+    it('changes are not duplicated', function (done) {
+      var db = new PouchDB(dbs.name);
+      var called = 0;
+      var changes = db.changes({
+        since: 'latest',
+        continuous: true,
+        onChange: function () {
+          called++;
+        },
+        complete: done
+      });
+      db.post({key: 'value'});
+      setTimeout(function () {
+        called.should.equal(1);
+        changes.cancel();
+      }, 1000);
+    });
+
   });
 });
 
