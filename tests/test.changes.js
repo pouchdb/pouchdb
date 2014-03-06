@@ -973,6 +973,26 @@ adapters.map(function (adapter) {
           should.not.exist(error);
         });
       });
+      it('changes are not duplicated', function (done) {
+        testUtils.initTestDB(testHelpers.name, function (err, db) {
+          var called = 0;
+          var changs = db.changes({
+            since: 'latest',
+            continuous: true,
+            onChange: function () {
+              called++;
+            }
+          });
+          db.put({
+            key: 'value'
+          }, '_id');
+          setTimeout(function () {
+            called.should.equal(1);
+            changes.cancel();
+            done();
+          }, 1000);
+        });
+      });
     });
 
     it('fire-complete-on-cancel', function (done) {
