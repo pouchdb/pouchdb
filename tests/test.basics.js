@@ -595,5 +595,17 @@ adapters.map(function (adapter) {
       });
     });
 
+    it('should use the same db when prefixed with adapter name', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({_id : 'foo'}, function (err, info) {
+        var db2Name = db.adapter !== 'http' ? db.adapter + '://' + dbs.name : dbs.name;
+        var db2 = new PouchDB(db2Name);
+        db2.get('foo', function (err, doc) {
+          should.not.exist(err, 'error: ' + JSON.stringify(err));
+          done();
+        });
+      });
+    });
+
   });
 });
