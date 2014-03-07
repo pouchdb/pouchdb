@@ -1,25 +1,62 @@
-/* global PouchDBVersion110 */
+/* global PouchDBVersion110,PouchDBVersion200,PouchDB */
 'use strict';
 
-var adapters = [['local', 'http']];
+var scenarios = [
+  'PouchDB v1.1.0',
+  'PouchDB v2.0.0',
+  'websql'
+];
+
 describe('migration', function () {
-  adapters.map(function (adapterPair) {
-    describe(adapterPair, function () {
-      var dbs = {};
+
+  var constructors = {
+    'PouchDB v1.1.0': PouchDBVersion110,
+    'PouchDB v2.0.0': PouchDBVersion200,
+    PouchDB: PouchDB
+  };
+
+  scenarios.map(function (scenario) {
+
+    if (scenario === 'websql' && !('websql' in PouchDB.adapters &&
+      'idb' in PouchDB.adapters)) {
+      return; // scenario doesn't make sense for this browser
+    }
+
+    var suiteName = 'migrate from ' + scenario;
+
+    describe(suiteName, function () {
+      var dbs = {
+      };
 
       beforeEach(function (done) {
         // need actual unique db names for these tests
-        dbs.name = testUtils.adapterUrl(adapters[0], 'test_migration');
-        dbs.remote = testUtils.adapterUrl(adapters[1], 'test_remote');
+        var localName = testUtils.adapterUrl('local', 'test_migration_local');
+        var remoteName = testUtils.adapterUrl('http', 'test_migration_remote');
 
-        // modify the preferredAdapters in setup.js, then
-        // uncomment this line to test websql in Chrome
-        // delete PouchDBVersion110.adapters.idb;
-        testUtils.cleanup([dbs.name, dbs.remote], done);
+
+        dbs.first = {
+          pouch : constructors[scenario] || PouchDB,
+          local : localName,
+          remote : remoteName,
+          localOpts : {}
+        };
+
+        dbs.second = {
+          pouch : PouchDB,
+          local : localName,
+          remote : remoteName
+        };
+
+        if (scenario in PouchDB.adapters) {
+          dbs.first.localOpts.adapter = scenario;
+        }
+
+        testUtils.cleanup([dbs.first.local, dbs.second.local], done);
+
       });
 
       afterEach(function (done) {
-        testUtils.cleanup([dbs.name, dbs.remote], done);
+        testUtils.cleanup([dbs.first.local, dbs.second.local], done);
       });
 
       var origDocs = [
@@ -30,7 +67,7 @@ describe('migration', function () {
       ];
 
       it('Testing basic migration integrity', function (done) {
-        var oldPouch = new PouchDBVersion110(dbs.name, function (err, oldPouch) {
+        var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts, function (err) {
           should.not.exist(err, 'got error: ' + JSON.stringify(err));
           if (err) {
             done();
@@ -42,7 +79,7 @@ describe('migration', function () {
           oldPouch.remove(origDocs[0], function (err, res) {
             oldPouch.close(function (err) {
               should.not.exist(err, 'got error: ' + JSON.stringify(err));
-              var newPouch = new PouchDB(dbs.name);
+              var newPouch = new dbs.second.pouch(dbs.second.local);
               newPouch.then(function (newPouch) {
                 return newPouch.allDocs({key: '2'});
               }).then(function (res) {
@@ -72,25 +109,25 @@ describe('migration', function () {
           {_id: "4", integer: 4, string: '4', _deleted : true}
         ];
 
-        new PouchDBVersion110(dbs.remote, function (err, oldPouch) {
+        new dbs.first.pouch(dbs.first.remote, function (err, oldPouch) {
           should.not.exist(err, 'got error in constructor: ' + JSON.stringify(err));
           if (err) {
             done();
           }
           oldPouch.bulkDocs({docs: docs}, {}, function (err, res) {
             should.not.exist(err, 'got error in bulkDocs: ' + JSON.stringify(err));
-            oldPouch.replicate.to(dbs.name, {}, function (err, result) {
-              should.not.exist(err, 'got error in replicate: ' + JSON.stringify(err));
-              if (err) {
-                done();
-              }
-              should.exist(result.ok, 'replication was ok');
-              oldPouch.close(function (err) {
-                should.not.exist(err, 'got error in close: ' + JSON.stringify(err));
+            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts, function (err, oldLocalPouch) {
+              oldPouch.replicate.to(oldLocalPouch, function (err, result) {
+                should.not.exist(err, 'got error in replicate: ' + JSON.stringify(err));
                 if (err) {
                   done();
                 }
-                new PouchDBVersion110(dbs.name, function (err, oldLocalPouch) {
+                should.exist(result.ok, 'replication was ok');
+                oldPouch.close(function (err) {
+                  should.not.exist(err, 'got error in close: ' + JSON.stringify(err));
+                  if (err) {
+                    done();
+                  }
                   should.not.exist(err, 'got error: ' + JSON.stringify(err));
                   if (err) {
                     done();
@@ -100,7 +137,7 @@ describe('migration', function () {
                     if (err) {
                       done();
                     }
-                    new PouchDB(dbs.name, function (err, newPouch) {
+                    new dbs.second.pouch(dbs.second.local, function (err, newPouch) {
                       should.not.exist(err, 'got error in 2nd constructor: ' + JSON.stringify(err));
                       if (err) {
                         done();
