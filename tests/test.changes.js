@@ -563,7 +563,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('continuous-changes', function (done) {
+    it('live-changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
       var changes = db.changes({
@@ -577,7 +577,7 @@ adapters.map(function (adapter) {
           count.should.equal(1);
           changes.cancel();
         },
-        continuous: true
+        live: true
       });
       db.post({ test: 'adoc' });
     });
@@ -603,7 +603,7 @@ adapters.map(function (adapter) {
           changes1.cancel();
           changes1 = null;
         },
-        continuous: true
+        live: true
       });
       var changes2 = db.changes({
         complete: function () {
@@ -615,7 +615,7 @@ adapters.map(function (adapter) {
           changes2.cancel();
           changes2 = null;
         },
-        continuous: true
+        live: true
       });
       db.post({test: 'adoc'});
     });
@@ -632,7 +632,7 @@ adapters.map(function (adapter) {
           change.doc.should.have.property('_rev');
           changes.cancel();
         },
-        continuous: true,
+        live: true,
         include_docs: true
       });
       db.post({ test: 'adoc' });
@@ -658,13 +658,13 @@ adapters.map(function (adapter) {
             db.post({ test: 'another doc' });
           }
         },
-        continuous: true
+        live: true
       });
       db.post({ test: 'adoc' });
     });
 
     // TODO: https://github.com/daleharvey/pouchdb/issues/1460
-    it.skip('Kill database while listening to continuous changes', function (done) {
+    it.skip('Kill database while listening to live changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
       db.changes({
@@ -677,7 +677,7 @@ adapters.map(function (adapter) {
             PouchDB.destroy(dbs.name);
           }
         },
-        continuous: true
+        live: true
       });
       db.post({ test: 'adoc' });
     });
@@ -712,7 +712,7 @@ adapters.map(function (adapter) {
               changes.cancel();
             }
           },
-          continuous: true
+          live: true
         });
         db.bulkDocs({ docs: docs2 });
       });
@@ -752,13 +752,13 @@ adapters.map(function (adapter) {
               changes.cancel();
             }
           },
-          continuous: true
+          live: true
         });
         db.bulkDocs({ docs: docs2 });
       });
     });
 
-    it('Non-continuous changes filter', function (done) {
+    it('Non-live changes filter', function (done) {
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -959,7 +959,7 @@ adapters.map(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
         var changes = db.changes({
-          continuous: true,
+          live: true,
           onChange: function () { },
           complete: function (err, result) {
             result.status.should.equal('cancelled');
@@ -979,7 +979,7 @@ adapters.map(function (adapter) {
       var db = new PouchDB(dbs.name);
       var cancelled = false;
       var changes = db.changes({
-        continuous: true,
+        live: true,
         complete: function (err, result) {
           cancelled.should.equal(true);
           should.not.exist(err);
@@ -1003,7 +1003,7 @@ adapters.map(function (adapter) {
       var called = 0;
       var changes = db.changes({
         since: 'latest',
-        continuous: true,
+        live: true,
         onChange: function () {
           called++;
         },

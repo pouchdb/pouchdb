@@ -146,13 +146,13 @@ adapters.map(function (adapters) {
       });
     });
 
-    it('Test continuous pull checkpoint', function (done) {
+    it('Test live pull checkpoint', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       remote.bulkDocs({ docs: docs }, {}, function (err, results) {
         var changeCount = docs.length;
         var changes = db.changes({
-          continuous: true,
+          live: true,
           onChange: function (change) {
             if (--changeCount) {
               return;
@@ -169,11 +169,11 @@ adapters.map(function (adapters) {
             });
           }
         });
-        var replication = db.replicate.from(dbs.remote, { continuous: true });
+        var replication = db.replicate.from(dbs.remote, { live: true });
       });
     });
 
-    it('Test continuous push checkpoint', function (done) {
+    it('Test live push checkpoint', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       db.bulkDocs({ docs: docs }, {}, function (err, results) {
@@ -191,7 +191,7 @@ adapters.map(function (adapters) {
           });
         };
         var changes = remote.changes({
-          continuous: true,
+          live: true,
           onChange: function (change) {
             if (--changeCount) {
               return;
@@ -202,7 +202,7 @@ adapters.map(function (adapters) {
           complete: isFinished
         });
         var replication = db.replicate.to(dbs.remote, {
-          continuous: true,
+          live: true,
           complete: isFinished
         });
       });
@@ -358,7 +358,7 @@ adapters.map(function (adapters) {
       });
     });
 
-    it('Test basic continuous pull replication', function (done) {
+    it('Test basic live pull replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var doc1 = {_id: 'adoc', foo: 'bar'};
@@ -372,7 +372,7 @@ adapters.map(function (adapters) {
           done();
         };
         var rep = db.replicate.from(dbs.remote, {
-          continuous: true,
+          live: true,
           complete: isFinished
         });
         var changes = db.changes({
@@ -386,13 +386,13 @@ adapters.map(function (adapters) {
               changes.cancel();
             }
           },
-          continuous: true,
+          live: true,
           complete: isFinished
         });
       });
     });
 
-    it('Test basic continuous push replication', function (done) {
+    it('Test basic live push replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var doc1 = {_id: 'adoc', foo: 'bar'};
@@ -406,7 +406,7 @@ adapters.map(function (adapters) {
           done();
         };
         var rep = remote.replicate.from(db, {
-          continuous: true,
+          live: true,
           complete: isFinished
         });
         var changes = remote.changes({
@@ -420,7 +420,7 @@ adapters.map(function (adapters) {
               changes.cancel();
             }
           },
-          continuous: true,
+          live: true,
           complete: isFinished
         });
       });
@@ -439,7 +439,7 @@ adapters.map(function (adapters) {
         remote.bulkDocs({ docs: docs }, {}, function (err, results) {
           var count = 0;
           var replicate = db.replicate.from(remote, {
-            continuous: true,
+            live: true,
             complete: function () {
               remote.put(doc2);
               setTimeout(function () {
@@ -448,7 +448,7 @@ adapters.map(function (adapters) {
             }
           });
           var changes = db.changes({
-            continuous: true,
+            live: true,
             complete: function (err, reason) {
               count.should.equal(4);
               done();
@@ -479,7 +479,9 @@ adapters.map(function (adapters) {
       remote.bulkDocs({ docs: docs1 }, function (err, info) {
         db.replicate.from(remote, {
           complete: function (err, res) {
-            if (err) { done(err); }
+            if (err) {
+              done(err);
+            }
             db.allDocs(function (err, docs) {
               if (err) { done(err); }
               docs.rows.length.should.equal(2);
@@ -770,7 +772,7 @@ adapters.map(function (adapters) {
       ];
       remote.bulkDocs({ docs: docs }, {}, function (err, results) {
         db.replicate.from(dbs.remote, {
-          continuous: false,
+          live: false,
           doc_ids: docList
         }, function (err, result) {
           result.docs_written.should.equal(docList.length);
@@ -1169,7 +1171,7 @@ adapters.map(function (adapters) {
       var doc2 = {_id: 'anotherdoc', foo: 'baz'};
       var finished = false;
       var replications = db.replicate.sync(remote, {
-        continuous: true,
+        live: true,
         complete: function () {
           if (finished) {
             return;
@@ -1403,7 +1405,7 @@ interHTTPAdapters.map(function (adapters) {
       });
     });
 
-    it('Test cancel continuous replication', function (done) {
+    it('Test cancel live replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var doc1 = {_id: 'adoc', foo: 'bar'};
@@ -1412,10 +1414,10 @@ interHTTPAdapters.map(function (adapters) {
         var count = 0;
         var replicate = db.replicate.from(dbs.remote, {
           server: true,
-          continuous: true
+          live: true
         });
         var changes = db.changes({
-          continuous: true,
+          live: true,
           onChange: function (change) {
             ++count;
             if (count === 3) {

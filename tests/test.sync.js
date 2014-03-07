@@ -263,7 +263,7 @@ adapters.map(function (adapters) {
       var replications_completed = 0;
       var put_completed = 0;
       var replications = db.replicate.sync(remote, {
-        continuous: true,
+        live: true,
         complete: function () {
           replications_completed++;
           if (replications_completed < 2 || put_completed === 0) {
