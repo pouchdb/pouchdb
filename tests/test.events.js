@@ -1,21 +1,22 @@
 'use strict';
 
-var adapters = [
-  'http-1',
-  'local-1'
-];
+var adapters = ['local'];
+
 adapters.forEach(function (adapter) {
   describe('test.events.js-' + adapter, function () {
+
     //we can't use the same db becasue
     var i = 0;
     var dbs = {};
-    beforeEach(function () {
+    beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapter, 'events_tests' + i++);
+      testUtils.cleanup([dbs.name], done);
     });
 
     afterEach(function (done) {
-      PouchDB.destroy(dbs.name, done);
+      testUtils.cleanup([dbs.name], done);
     });
+
 
     it('PouchDB emits creation event', function (done) {
       PouchDB.once('created', function (name) {
@@ -24,15 +25,17 @@ adapters.forEach(function (adapter) {
       });
       new PouchDB(dbs.name);
     });
+
     it('PouchDB emits destruction event', function (done) {
-      new PouchDB(dbs.name + 1, function () {
-        PouchDB.destroy(dbs.name + 1);
+      new PouchDB(dbs.name, function () {
+        PouchDB.destroy(dbs.name);
       }).once('destroyed', function () {
         new PouchDB(dbs.name, function () {
           done();
         });
       });
     });
+
     it('emit creation event', function (done) {
       var db = new PouchDB(dbs.name).on('created', function (newDB) {
         db.should.equal(newDB, 'should be same thing');
