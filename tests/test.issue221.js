@@ -1,10 +1,10 @@
 'use strict';
 
 var adapters = [
-  ['local-1', 'http-1'],
-  ['http-1', 'http-2'],
-  ['http-1', 'local-1'],
-  ['local-1', 'local-2']
+  ['local', 'http'],
+  ['http', 'http'],
+  ['http', 'local'],
+  ['local', 'local']
 ];
 
 adapters.map(function (adapters) {
