@@ -73,7 +73,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('wtf Add a doc', function (done) {
+    it('Add a doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}, function (err, info) {
         should.not.exist(err);
@@ -417,7 +417,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('wtf Put doc without _id should fail', function (done) {
+    it('Put doc without _id should fail', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({test: 'somestuff' }, function (err, info) {
         should.exist(err);
@@ -425,7 +425,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('wtf Put doc with bad reserved id should fail', function (done) {
+    it('Put doc with bad reserved id should fail', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({
         _id: '_i_test',
