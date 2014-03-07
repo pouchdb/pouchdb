@@ -1,6 +1,6 @@
 'use strict';
 
-var adapters = ['local', 'http'];
+var adapters = ['local'];
 
 adapters.forEach(function (adapter) {
   describe('test.events.js-' + adapter, function () {
