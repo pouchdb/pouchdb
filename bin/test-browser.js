@@ -7,7 +7,7 @@ var spawn = require('child_process').spawn;
 var request = require('request');
 var wd = require('wd');
 var sauceConnectLauncher = require('sauce-connect-launcher');
-
+var querystring = require("querystring");
 var devserver = require('./dev-server.js');
 
 var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
@@ -19,10 +19,15 @@ var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
 var browser = process.env.CLIENT || 'firefox';
 var client;
-
+var qs = {};
 if (process.env.GREP) {
-  testUrl += '?grep=' + process.env.GREP;
+  qs.grep = process.env.GREP;
 }
+if (process.env.NATIVEPROMISE) {
+  qs.noBluebird = 1;
+}
+testUrl += '?';
+testUrl += querystring.stringify(qs);
 
 if ((process.env.TRAVIS && browser !== 'firefox') &&
     !process.env.TRAVIS_SECURE_ENV_VARS) {
