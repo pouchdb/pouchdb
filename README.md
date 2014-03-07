@@ -18,7 +18,7 @@ If you want to get involved then check out the [contributing guide](https://gith
 Example
 -------
 
-```
+```javascript
 var db = new PouchDB('dbname');
 
 db.put({
