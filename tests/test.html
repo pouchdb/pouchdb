@@ -11,9 +11,13 @@
     <div id="mocha"></div>
     <script src="../vendor/bluebird.js"></script>
     <script>
-      Promise.onPossiblyUnhandledRejection(function (e, promise) {
-          throw e;
-      });
+      if (location.search.search('noBluebird') === -1) {
+        Promise.noConflict();
+      } else {
+        Promise.onPossiblyUnhandledRejection(function (e, promise) {
+            throw e;
+        });
+      }
       mocha.setup({
         timeout:100000,
         ui: 'bdd'
