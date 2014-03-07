@@ -1,2 +1,4 @@
 pygments: true
 markdown: redcarpet
+baseurl: /pouchdb
+version: 2.0.0

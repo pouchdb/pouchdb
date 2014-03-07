@@ -1,17 +1,38 @@
 #!/bin/bash
-# publish-site requires jekyll
-# install with gem install jekyll
 
-npm run build
+git checkout master
 
-VERSION=$(npm ls --json=true pouchdb | grep version | awk '{ print $2}'| sed -e 's/^"//'  -e 's/"$//')
-echo "version: $VERSION" >> docs/_config.yml
+# Store current branch hash 
+CRT=`git rev-parse --abbrev-ref HEAD`
 
-# Build pouchdb.com
-cd docs
-jekyll build
-cd ..
+# Checkout staging branch
+git checkout -b build-site
 
-# Publish pouchdb.com + nightly
-scp -r docs/_site/* pouchdb.com:www/pouchdb.com
-scp dist/* pouchdb.com:www/download.pouchdb.com
+# Remove built files just incase
+if [ -d docs/static/css ]; then
+    rm -rf docs/static/css
+fi
+
+# Build site
+npm run build-site
+
+# Check the css is built
+if [ ! -f docs/static/css/pouchdb.css ]; then
+   echo 'CSS wasnt built properly'
+   exit 1
+fi
+
+# Force add the .gitignored built css
+git add docs/static/css/pouchdb.css -f
+git commit -m 'pouchdb.css deploy build'
+git rm --cache docs/static/css/pouchdb.css
+git commit -m 'reignore pouchdb.css'
+
+# Deploy to gh-pages
+git subtree push --prefix docs origin gh-pages
+
+# Return to previous branch
+git checkout $CRT
+
+# Delete staging branch
+git branch -D build-site
