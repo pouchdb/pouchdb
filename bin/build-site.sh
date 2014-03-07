@@ -21,4 +21,9 @@ node_modules/less/bin/lessc docs/static/less/pouchdb/pouchdb.less > docs/static/
 
 # Build the site using jekyll
 cd docs
-jekyll serve --baseurl=''
+
+if [ ! $BUILD ]; then
+    jekyll serve
+else
+    jekyll build
+fi
