@@ -277,7 +277,7 @@ adapters.map(function (adapter) {
     it('Remove doc, no callback', function (done) {
       var db = new PouchDB(dbs.name);
       var changes = db.changes({
-        continuous: true,
+        live: true,
         include_docs: true,
         onChange: function (change) {
           if (change.doc._deleted) {

@@ -57,7 +57,7 @@ adapters.map(function (adapter) {
       var count = 0;
       db.bulkDocs({ docs: docs1 }, function (err, info) {
         var changes = db.changes({
-          continuous: true,
+          live: true,
           filter: 'foo/even',
           onChange: function (change) {
             count += 1;

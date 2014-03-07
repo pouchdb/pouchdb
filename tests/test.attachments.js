@@ -257,7 +257,7 @@ adapters.map(function (adapter) {
           result.status.should.equal('cancelled');
           done();
         },
-        continuous: true,
+        live: true,
         onChange: function (change) {
           if (change.seq === 1) {
             change.id.should.equal('anotherdoc2', 'Doc has been created');
@@ -283,7 +283,7 @@ adapters.map(function (adapter) {
             result.status.should.equal('cancelled');
             done();
           },
-          continuous: true,
+          live: true,
           include_docs: true,
           onChange: function (change) {
             if (change.seq === 2) {
