@@ -56,7 +56,8 @@
     "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
-    "build-site": "./bin/build-site.sh"
+    "build-site": "./bin/build-site.sh",
+    "shell": "./bin/repl.js"  
   },
   "browser": {
     "./adapters/leveldb": false,
