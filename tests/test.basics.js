@@ -73,7 +73,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it('Add a doc', function (done) {
+    it('wtf Add a doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}, function (err, info) {
         should.not.exist(err);
@@ -162,23 +162,23 @@ adapters.map(function (adapter) {
       });
     });
 
-    it.skip('Close db', function (done) {
+    it('Close db', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         db.close(done);
       });
     });
 
-    it.skip('Close db with a promise', function (done) {
+    it('Close db with a promise', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         db.close().then(done, done);
       });
     });
 
-    it.skip('Read db id after closing Close', function (done) {
+    it('Read db id after closing Close', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         db.close(function (error) {
           db = new PouchDB(dbs.name);
-          db.id(function (id) {
+          db.id(function (err, id) {
             id.should.be.a('string');
             done();
           });
@@ -417,8 +417,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    // TODO: https://github.com/daleharvey/pouchdb/issues/1461
-    it.skip('Put doc without _id should fail', function (done) {
+    it('wtf Put doc without _id should fail', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({test: 'somestuff' }, function (err, info) {
         should.exist(err);
@@ -426,7 +425,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it.skip('Put doc with bad reserved id should fail', function (done) {
+    it('wtf Put doc with bad reserved id should fail', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({
         _id: '_i_test',
@@ -566,7 +565,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it.skip('Cant add docs with empty ids', function (done) {
+    it('Cant add docs with empty ids', function (done) {
       var docs = [
         {},
         { _id: null },

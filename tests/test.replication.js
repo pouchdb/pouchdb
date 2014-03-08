@@ -1164,7 +1164,7 @@ adapters.map(function (adapters) {
 
     // This fails as it somehow triggers an xhr abort in the http adapter in node
     // which doesnt have xhr....
-    it.skip('Syncing should stop if one replication fails (issue 838)', function (done) {
+    it('Syncing should stop if one replication fails (issue 838)', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var doc1 = {_id: 'adoc', foo: 'bar'};

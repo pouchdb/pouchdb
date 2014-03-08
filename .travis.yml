@@ -22,6 +22,36 @@ env:
   matrix:
   - CLIENT=node npm test
   - NATIVEPROMISE=1 CLIENT=firefox npm test
+  - TRY=1 CLIENT=node npm test
+  - TRY=2 CLIENT=firefox npm test
+  - TRY=3 CLIENT=node npm test
+  - TRY=3 CLIENT=firefox npm test
+  - TRY=4 CLIENT=node npm test
+  - TRY=5 CLIENT=firefox npm test
+  - TRY=6 CLIENT=node npm test
+  - TRY=7 CLIENT=firefox npm test
+  - TRY=8 CLIENT=node npm test
+  - TRY=10 CLIENT=firefox npm test
+  - TRY=11 CLIENT=node npm test
+  - TRY=12 CLIENT=firefox npm test
+  - TRY=13 CLIENT=node npm test
+  - TRY=14 CLIENT=firefox npm test
+  - TRY=15 CLIENT=node npm test
+  - TRY=16 CLIENT=firefox npm test
+  - TRY=17 CLIENT=node npm test
+  - TRY=18 CLIENT=firefox npm test
+  - TRY=19 CLIENT=node npm test
+  - TRY=20 CLIENT=firefox npm test
+  - TRY=21 CLIENT=node npm test
+  - TRY=22 CLIENT=firefox npm test
+  - TRY=23 CLIENT=node npm test
+  - TRY=24 CLIENT=firefox npm test
+  - TRY=25 CLIENT=node npm test
+  - TRY=26 CLIENT=firefox npm test
+  - TRY=27 CLIENT=node npm test
+  - TRY=28 CLIENT=firefox npm test
+  - TRY=29 CLIENT=node npm test
+  - TRY=30 CLIENT=firefox npm test
   - CLIENT=chrome npm test
 
 matrix:
