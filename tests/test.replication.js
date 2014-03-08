@@ -781,7 +781,7 @@ adapters.map(function (adapters) {
       });
     });
 
-    it('(#1240) - get error', function (done) {
+    it.skip('(#1240) - get error', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // 10 test documents
@@ -943,7 +943,7 @@ adapters.map(function (adapters) {
       });
     });
 
-    it('Get error 2', function (done) {
+    it.skip('Get error 2', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // 10 test documents
@@ -1116,7 +1116,7 @@ adapters.map(function (adapters) {
       });
     });
 
-    it("error updating checkpoint", function (done) {
+    it.skip("error updating checkpoint", function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       remote.bulkDocs({docs: docs}, {}, function (err, results) {
