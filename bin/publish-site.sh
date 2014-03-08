@@ -12,7 +12,7 @@ git checkout gh-pages
 # Copy the docs in and git add them, we need to make sure if
 # any more top level parts directories get introduced they are
 # added here
-cp -R docs/_site/ ./
+cp -R docs/_site/* ./
 git add *.html static
 
 # Push updates
