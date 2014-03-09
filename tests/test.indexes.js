@@ -25,20 +25,24 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      index.put('fooDoc', map).then(function () {
+      return index.put('fooDoc', map).then(function () {
         return index.get();
       }).then(function (results) {
-        results.should.have.length(3);
-        should.equal(results[0].id, 'fooDoc');
-        should.equal(results[1].id, 'fooDoc');
-        should.equal(results[2].id, 'fooDoc');
-        should.equal(results[0].key, '1');
-        should.equal(results[1].key, '2');
-        should.equal(results[2].key, '3');
-        should.equal(results[0].value, 'one');
-        should.equal(results[1].value, 'two');
-        should.equal(results[2].value, 'three');
-
+        results.should.deep.equal([
+          {
+            id: 'fooDoc',
+            key: '1',
+            value: 'one'
+          }, {
+            id: 'fooDoc',
+            key: '2',
+            value: 'two'
+          }, {
+            id: 'fooDoc',
+            key: '3',
+            value: 'three'
+          }
+        ]);
         return index.get('1');
       }).then(function (results) {
         results.should.have.length(3);
@@ -55,13 +59,10 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      }).catch(function (err) {
-        should.not.exist(err);
-        done();
       });
     }).catch(function (err) {
-      should.not.exist(err);
-      done();
+      console.log(err);
+      done(err);
     });
   });
 
@@ -79,40 +80,41 @@ describe('plugin indexes', function () {
       index.put('fooDoc', map).then(function () {
         return index.get('1', '3');
       }).then(function (results) {
-          results.should.have.length(3);
-          should.equal(results[0].id, 'fooDoc');
-          should.equal(results[1].id, 'fooDoc');
-          should.equal(results[2].id, 'fooDoc');
-          should.equal(results[0].key, '1');
-          should.equal(results[1].key, '2');
-          should.equal(results[2].key, '3');
-          should.equal(results[0].value, 'one');
-          should.equal(results[1].value, 'two');
-          should.equal(results[2].value, 'three');
+        results.should.deep.equal([
+          {
+            id: 'fooDoc',
+            key: '1',
+            value: 'one'
+          }, {
+            id: 'fooDoc',
+            key: '2',
+            value: 'two'
+          }, {
+            id: 'fooDoc',
+            key: '3',
+            value: 'three'
+          }
+        ]);
 
-          return index.get('1', '2');
-        }).then(function (results) {
-          results.should.have.length(2);
-          return index.get('2', '3');
-        }).then(function (results) {
-          results.should.have.length(2);
-          return index.get('3', '4');
-        }).then(function (results) {
-          results.should.have.length(1);
-          return index.get('4', '5');
-        }).then(function (results) {
-          results.should.have.length(0);
-          return index.get('0', '1');
-        }).then(function (results) {
-          results.should.have.length(1);
-          done();
-        }).catch(function (err) {
-          should.not.exist(err);
-          done();
-        });
-    }).catch(function (err) {
-        should.not.exist(err);
+        return index.get('1', '2');
+      }).then(function (results) {
+        results.should.have.length(2);
+        return index.get('2', '3');
+      }).then(function (results) {
+        results.should.have.length(2);
+        return index.get('3', '4');
+      }).then(function (results) {
+        results.should.have.length(1);
+        return index.get('4', '5');
+      }).then(function (results) {
+        results.should.have.length(0);
+        return index.get('0', '1');
+      }).then(function (results) {
+        results.should.have.length(1);
         done();
+      });
+    }).catch(function (err) {
+        done(err);
       });
   });
 
@@ -124,16 +126,13 @@ describe('plugin indexes', function () {
       var map = {
       };
 
-      index.put('fooDoc', map).then(function () {
+      return index.put('fooDoc', map).then(function () {
         return index.get();
       }).then(function (results) {
         results.should.have.length(0);
         return index.get('1');
       }).then(function (results) {
         results.should.have.length(0);
-        done();
-      }).catch(function (err) {
-        should.not.exist(err);
         done();
       });
     }).catch(function (err) {
@@ -153,7 +152,7 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      index.put('fooDoc', map).then(function () {
+      return index.put('fooDoc', map).then(function () {
         return index.put('fooDoc', {});
       }).then(function () {
         return index.get();
@@ -163,13 +162,9 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      }).catch(function (err) {
-        should.not.exist(err);
-        done();
       });
     }).catch(function (err) {
-        should.not.exist(err);
-        done();
+        done(err);
       });
   });
 
@@ -184,7 +179,7 @@ describe('plugin indexes', function () {
         '6' : 'six'
       };
 
-      index.put('fooDoc', map).then(function () {
+      return index.put('fooDoc', map).then(function () {
         var newMap = {
           '1' : 'one',
           '2' : 'two',
@@ -199,13 +194,9 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      }).catch(function (err) {
-        should.not.exist(err);
-        done();
       });
     }).catch(function (err) {
-        should.not.exist(err);
-        done();
+        done(err);
       });
   });
 
@@ -226,7 +217,7 @@ describe('plugin indexes', function () {
         '6' : 'six'
       };
 
-      index.put('fooDoc', fooMap).then(function () {
+      return index.put('fooDoc', fooMap).then(function () {
         return index.put('barDoc', barMap);
       }).then(function () {
         return index.get('1', '3');
@@ -247,13 +238,9 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(3);
         done();
-      }).catch(function (err) {
-        should.not.exist(err);
-        done();
       });
     }).catch(function (err) {
-        should.not.exist(err);
-        done();
+        done(err);
       });
   });
 
@@ -268,18 +255,14 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      index.put('fooDoc', map).then(function () {
+      return index.put('fooDoc', map).then(function () {
         return index.count();
       }).then(function (count) {
         count.should.equal(3);
         done();
-      }).catch(function (err) {
-        should.not.exist(err);
-        done();
       });
     }).catch(function (err) {
-        should.not.exist(err);
-        done();
+        done(err);
       });
   });
 
@@ -294,7 +277,7 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      index.put('fooDoc', map).then(function () {
+      return index.put('fooDoc', map).then(function () {
         return index.get();
       }).then(function (results) {
           results.should.have.length(3);
@@ -302,20 +285,13 @@ describe('plugin indexes', function () {
         }).then(function () {
           var index2 = db.index('fooIndex');
 
-          index2.get().then(function (results) {
+          return index2.get().then(function (results) {
             results.should.have.length(0);
             done();
-          }).catch(function (err) {
-            should.not.exist(err);
-            done();
           });
-        }).catch(function (err) {
-          should.not.exist(err);
-          done();
         });
     }).catch(function (err) {
-        should.not.exist(err);
-        done();
+        done(err);
       });
   });
 });
