@@ -11,7 +11,7 @@
     <div id="mocha"></div>
     <script src="../vendor/bluebird.js"></script>
     <script>
-      if (location.search.search('noBluebird') === -1) {
+      if (location.search.search('noBluebird') > -1) {
         Promise.noConflict();
       } else {
         Promise.onPossiblyUnhandledRejection(function (e, promise) {
