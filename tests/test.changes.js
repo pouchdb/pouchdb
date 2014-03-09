@@ -30,11 +30,7 @@ adapters.map(function (adapter) {
           }
         });
         should.exist(promise);
-        if (promise) {
-          // The http adapter does not yet return a Promise
-          // promise.should.be.an.instanceof('Promise');
-          promise.cancel.should.be.a('function');
-        }
+        promise.cancel.should.be.a('function');
       });
     });
 
@@ -65,11 +61,7 @@ adapters.map(function (adapter) {
           }
         });
         should.exist(promise);
-        if (promise) {
-          // The http adapter does not yet return a Promise
-          // promise.should.be.an.instanceof('Promise');
-          promise.cancel.should.be.a('function');
-        }
+        promise.cancel.should.be.a('function');
       });
     });
 
@@ -223,11 +215,7 @@ adapters.map(function (adapter) {
           }
         });
         should.exist(promise);
-        if (promise) {
-          // The http adapter does not yet return a Promise
-          // promise.should.be.an.instanceof('Promise');
-          promise.cancel.should.be.a('function');
-        }
+        promise.cancel.should.be.a('function');
       });
     });
 
