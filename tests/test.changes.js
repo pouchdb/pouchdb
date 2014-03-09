@@ -1002,7 +1002,6 @@ adapters.map(function (adapter) {
       var db = new PouchDB(dbs.name);
       var called = 0;
       var changes = db.changes({
-        since: 'latest',
         live: true,
         onChange: function () {
           called++;
@@ -1034,5 +1033,3 @@ describe('changes-standalone', function () {
   });
 
 });
-
-
