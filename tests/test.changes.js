@@ -629,21 +629,40 @@ adapters.map(function (adapter) {
     it('Cancel changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
+      var interval;
+      var docPosted = false;
+
+      // We want to wait for a period of time after the final
+      // document was posted to ensure we didnt see another
+      // change
+      function waitForDocPosted() {
+        if (!docPosted) {
+          return;
+        }
+        clearInterval(interval);
+        setTimeout(function () {
+          count.should.equal(1);
+          done();
+        }, 200);
+      }
+
       var changes = db.changes({
         complete: function (err, result) {
           result.status.should.equal('cancelled');
           // This setTimeout ensures that once we cancel a change we dont recieve
           // subsequent callbacks, so it is needed
-          setTimeout(function () {
-            count.should.equal(1);
-            done();
-          }, 200);
+          interval = setInterval(waitForDocPosted, 100);
         },
         onChange: function (change) {
           count += 1;
           if (count === 1) {
             changes.cancel();
-            db.post({ test: 'another doc' });
+            db.post({ test: 'another doc' }, function (err, res) {
+              if (err) {
+                return done(err);
+              }
+              docPosted = true;
+            });
           }
         },
         live: true
