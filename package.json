@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "2.0.1-alpha",
+  "version": "2.0.2-alpha",
   "description": "PouchDB is a pocket-sized database.",
   "release": "nightly",
   "main": "./lib/index.js",
@@ -57,7 +57,7 @@
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
     "build-site": "./bin/build-site.sh",
-    "shell": "./bin/repl.js"  
+    "shell": "./bin/repl.js"
   },
   "browser": {
     "./adapters/leveldb": false,
