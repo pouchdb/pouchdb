@@ -60,10 +60,7 @@ describe('plugin indexes', function () {
         results.should.have.length(0);
         done();
       });
-    }).catch(function (err) {
-      console.log(err);
-      done(err);
-    });
+    }, done);
   });
 
   it('Test start and end', function (done) {
@@ -98,24 +95,34 @@ describe('plugin indexes', function () {
 
         return index.get('1', '2');
       }).then(function (results) {
-        results.should.have.length(2);
+        results.should.have.length(2, 'test1');
         return index.get('2', '3');
       }).then(function (results) {
-        results.should.have.length(2);
+        results.should.have.length(2, 'test2');
         return index.get('3', '4');
       }).then(function (results) {
-        results.should.have.length(1);
+        results.should.have.length(1, 'test3');
         return index.get('4', '5');
       }).then(function (results) {
-        results.should.have.length(0);
+        results.should.have.length(0, 'test4');
+        return index.get(null, '1');
+      }).then(function (results) {
+        results.should.have.length(1, 'test5');
+        return index.get('2', null);
+      }).then(function (results) {
+        results.should.have.length(2, 'test6');
+        return index.get('2', '1');
+      }).then(function (results) {
+        results.should.have.length(0, 'test7');
+        return index.get('0', '5');
+      }).then(function (results) {
+        results.should.have.length(3, 'test8');
         return index.get('0', '1');
       }).then(function (results) {
-        results.should.have.length(1);
+        results.should.have.length(1, 'test9');
         done();
       });
-    }).catch(function (err) {
-        done(err);
-      });
+    }, done);
   });
 
   it('Test empty map', function (done) {
@@ -135,10 +142,7 @@ describe('plugin indexes', function () {
         results.should.have.length(0);
         done();
       });
-    }).catch(function (err) {
-        should.not.exist(err);
-        done();
-      });
+    }, done);
   });
 
   it('Test deleted map', function (done) {
@@ -163,9 +167,7 @@ describe('plugin indexes', function () {
         results.should.have.length(0);
         done();
       });
-    }).catch(function (err) {
-        done(err);
-      });
+    }, done);
   });
 
   it('Test replaced map', function (done) {
@@ -195,9 +197,7 @@ describe('plugin indexes', function () {
         results.should.have.length(0);
         done();
       });
-    }).catch(function (err) {
-        done(err);
-      });
+    }, done);
   });
 
   it('Test multiple maps', function (done) {
@@ -239,9 +239,7 @@ describe('plugin indexes', function () {
         results.should.have.length(3);
         done();
       });
-    }).catch(function (err) {
-        done(err);
-      });
+    }, done);
   });
 
   it('Test count', function (done) {
@@ -261,9 +259,7 @@ describe('plugin indexes', function () {
         count.should.equal(3);
         done();
       });
-    }).catch(function (err) {
-        done(err);
-      });
+    }, done);
   });
 
   it('Test destroy', function (done) {
@@ -290,8 +286,6 @@ describe('plugin indexes', function () {
             done();
           });
         });
-    }).catch(function (err) {
-        done(err);
-      });
+    }, done);
   });
 });
