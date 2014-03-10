@@ -22,7 +22,7 @@
     "level-sublevel": "~5.2.0",
     "leveldown": "~0.10.2",
     "levelup": "~0.18.2",
-    "lie": "^2.5.3",
+    "lie": "^2.5.4",
     "pouchdb-mapreduce": "1.0.0",
     "request": "~2.28.0"
   },
