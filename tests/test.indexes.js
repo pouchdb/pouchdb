@@ -25,7 +25,7 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      return index.put('fooDoc', map).then(function () {
+      index.put('fooDoc', map).then(function () {
         return index.get({});
       }).then(function (results) {
         results.should.deep.equal([
@@ -59,7 +59,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -98,7 +98,7 @@ describe('plugin indexes', function () {
         });
         done();
       }, done);
-    });
+    }, done);
   });
 
   it('Test invalid input args', function (done) {
@@ -133,7 +133,7 @@ describe('plugin indexes', function () {
               });
             });
           });
-        });
+        }, done);
       }, done);
     });
   });
@@ -196,7 +196,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(1);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -274,7 +274,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -342,7 +342,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(1);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -354,7 +354,7 @@ describe('plugin indexes', function () {
       var map = {
       };
 
-      return index.put('fooDoc', map).then(function () {
+      index.put('fooDoc', map).then(function () {
         return index.get({});
       }).then(function (results) {
         results.should.have.length(0);
@@ -362,7 +362,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -377,7 +377,7 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      return index.put('fooDoc', map).then(function () {
+      index.put('fooDoc', map).then(function () {
         return index.put('fooDoc', {});
       }).then(function () {
         return index.get({});
@@ -387,7 +387,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -402,7 +402,7 @@ describe('plugin indexes', function () {
         '6' : 'six'
       };
 
-      return index.put('fooDoc', map).then(function () {
+      index.put('fooDoc', map).then(function () {
         var newMap = {
           '1' : 'one',
           '2' : 'two',
@@ -417,7 +417,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(0);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -438,7 +438,7 @@ describe('plugin indexes', function () {
         '6' : 'six'
       };
 
-      return index.put('fooDoc', fooMap).then(function () {
+      index.put('fooDoc', fooMap).then(function () {
         return index.put('barDoc', barMap);
       }).then(function () {
         return index.get({startkey: '1', endkey : '3'});
@@ -459,7 +459,7 @@ describe('plugin indexes', function () {
       }).then(function (results) {
         results.should.have.length(3);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -474,12 +474,12 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      return index.put('fooDoc', map).then(function () {
+      index.put('fooDoc', map).then(function () {
         return index.count();
       }).then(function (count) {
         count.should.equal(3);
         done();
-      });
+      }, done);
     }, done);
   });
 
@@ -494,19 +494,90 @@ describe('plugin indexes', function () {
         '3' : 'three'
       };
 
-      return index.put('fooDoc', map).then(function () {
+      index.put('fooDoc', map).then(function () {
         return index.get({});
       }).then(function (results) {
-          results.should.have.length(3);
-          return index.destroy();
-        }).then(function () {
-          var index2 = db.index('fooIndex');
+        results.should.have.length(3);
+        return index.destroy();
+      }).then(function () {
+        var index2 = db.index('fooIndex');
 
-          return index2.get({}).then(function (results) {
-            results.should.have.length(0);
-            done();
-          });
+        return index2.get({}).then(function (results) {
+          results.should.have.length(0);
+          done();
         });
+      }, done);
+    }, done);
+  });
+
+  it('Test empty string keys', function (done) {
+    new PouchDB(dbs.name).then(function (db) {
+      var index = db.index('fooIndex');
+
+      var map = {
+        '' : 'empty'
+      };
+
+      index.put('fooDoc', map).then(function () {
+        return index.get({});
+      }).then(function (results) {
+        results.should.deep.equal([{
+          key : '',
+          value : 'empty',
+          id : 'fooDoc'
+        }]);
+        return index.get('');
+      }).then(function (result) {
+        result.should.deep.equal({
+          key : '',
+          value : 'empty',
+          id : 'fooDoc'
+        });
+        done();
+      }, done);
+    }, done);
+  });
+
+  it('Test values with multiple types', function (done) {
+    new PouchDB(dbs.name).then(function (db) {
+      var index = db.index('fooIndex');
+
+      var map = {
+        '1' : '1',
+        '2' : 2,
+        '3' : 3.3,
+        '4' : true,
+        '5' : false,
+        '6' : undefined,
+        '7' : null,
+        '8' : ['1', 2, 3.3, true, false, undefined, null, '0', null, ''],
+        '9' : {
+          '9' : {
+            '9' : null
+          },
+          'a' : [null, 3, undefined, Number.MAX_VALUE]
+        },
+        'a' : '',
+        'b' : '0',
+        'c' : 0,
+        'd' : new Date(0)
+      };
+
+      var getValues = function (obj) {
+        return obj.value;
+      };
+
+      index.put('fooDoc', map).then(function () {
+        return index.get({});
+      }).then(function (results) {
+          results.map(getValues).should.deep.equal([
+            '1', 2, 3.3, true, false, null, null,
+            [ '1', 2, 3.3, true, false, null, null, '0', null, ''],
+            { '9': { '9': null }, 'a': [ null, 3, null, Number.MAX_VALUE ] },
+            '', '0', 0, '1970-01-01T00:00:00.000Z'
+          ]);
+          done();
+        }, done);
     }, done);
   });
 });
