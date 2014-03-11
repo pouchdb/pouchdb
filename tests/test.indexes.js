@@ -129,7 +129,7 @@ describe('plugin indexes', function () {
             key: '3',
             value: 'three'
           }
-        ]);
+        ], '1-3');
 
         return index.get({startkey: '1', endkey : '2'});
       }).then(function (results) {
