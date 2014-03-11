@@ -5,7 +5,7 @@ title: Plugins - PouchDB
 
 # PouchDB Plugins
 
-Writing a plugin is easy! The api is:
+Writing a plugin is easy! The API is:
 
 {% highlight js %}
 PouchDB.plugin({
@@ -30,11 +30,29 @@ new PouchDB('foobar').sayMyName(); // prints "My name is foobar"
 
 #### Index data
 
-Plugins also have access to a special `db.index()` API that gives developers the ability to store plugin-specific metadata in a database. This API has two main features:
+Plugins also have access to a special `db.index()` API that gives developers the ability to store plugin-specific metadata in a database. This API has three main features:
 
 1. The stored data is unique per database
 2. It doesn't collide with user data.
 3. It supports pagination as well as a secondary index.
+
+##### Creating/fetching an index
+
+Example:
+
+{% highlight js %}
+PouchDB.plugin({
+  myPluginFunction : function () {
+    var index = this.index('myIndex');
+  }
+});
+{% endhighlight %}
+
+The `index()` function creates a new index or returns an existing index with the given name.
+
+All data stored in the index is bound to that particular index - i.e. indexes with different names do not share any data.
+
+However, the name of the index itself shares a global namespace, so it would be wise to prefix your index names with something like 'myAwesomePlugin-' to avoid collisions.
 
 ##### Putting data
 
@@ -43,7 +61,7 @@ Example:
 {% highlight js %}
 PouchDB.plugin({
   myPluginFunction : function () {
-    this.index().put('groupId', {
+    this.index('myIndex').put('groupId', {
       'key1' : 'value1',
       'key2' : 'value2',
       'key3' : {
@@ -55,7 +73,7 @@ PouchDB.plugin({
 });
 {% endhighlight %}
 
-The `groupId` and `key`s must be strings, but the values can be any valid JavaScript object.
+The `put()` function creates or overwrites data in the index.  The `groupId` and `key`s must be strings, but the values can be any valid JavaScript object.
 
 This is an all-or-nothing operation, so if you add new data to `groupId`, any data previously
 associated with `groupId` will be overwritten.  You may `put` an empty object or `null` to delete all associated data.
@@ -69,8 +87,8 @@ The basic method is to specify a simple string `key`:
 {% highlight js %}
 PouchDB.plugin({
   myPluginFunction : function () {
-    this.index().get('key1', function (err, res) {
-    /* handle err or res */
+    this.index('myIndex').get('key1', function (err, result) {
+      /* handle err or result */
     });
   }
 });
@@ -88,17 +106,18 @@ Example response:
 
 This method either returns the data itself or an error if not found.
 
-Alternatively, you can specify an options object with the familiar Couch-style `startkey`/`endkey`/`descending`/`skip`, which behave exactly like those parameters when used in `allDocs()` or `query()`:
+Alternatively, you can specify an options object with the familiar Couch-style
+`startkey`/`endkey`/`descending`/`skip`/`limit`, which behave exactly like those parameters when used in `allDocs()` or `query()`:
 
 
 {% highlight js %}
 PouchDB.plugin({
   myPluginFunction : function () {
-    this.index().get({
+    this.index('myIndex').get({
       startkey : 'key1',
       endkey   : 'key2'
-    }, function (err, res) {
-    /* handle err or res */
+    }, function (err, result) {
+      /* handle err or result */
     });
   }
 });
@@ -119,6 +138,61 @@ Example response:
     "value" : "value2"
   }
 {% endhighlight %}
+
+Note that the `value`s are passed through `JSON.stringify()` before being stored, so `undefined`s will become `null`s, dates will become strings, etc.
+
+{% highlight js %}
+PouchDB.plugin({
+  myPluginFunction : function () {
+    var index = this.index('myIndex')
+    index.put('groupId', {
+      'key1' : undefined,
+      'key2' : {some : ['arbitrary', 'json', new Date(0)]}
+    });
+    index.get({}, function (err, result) {
+      /* handle err or result */
+    });
+  }
+});
+{% endhighlight %}
+
+Example response:
+
+{% highlight js %}
+[
+  {
+    "id"    : "groupId",
+    "key"   : "key1",
+    "value" : null
+  },
+  {
+    "id"    : "groupId",
+    "key"   : "key2",
+    "value" : {
+      "some" : [
+        "arbitrary",
+        "json",
+        "1970-01-01T00:00:00.000Z"
+      ]
+    }
+  }
+]
+{% endhighlight %}
+
+##### Destroying an index
+
+{% highlight js %}
+PouchDB.plugin({
+  myPluginFunction : function () {
+    this.index('myIndex').destroy(function (err) {
+      /* handle err or success */
+    });
+  }
+});
+{% endhighlight %}
+
+The `destroy()` function removes all data associated with the index.
+
 
 ##### Uses
 
