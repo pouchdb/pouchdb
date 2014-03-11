@@ -7,17 +7,22 @@ describe('plugin indexes', function () {
 
   beforeEach(function (done) {
     dbs.name = testUtils.adapterUrl('local', 'test_indexes');
+    dbs.indexName = 'fooIndex';
     testUtils.cleanup([dbs.name], done);
   });
 
   afterEach(function (done) {
-    testUtils.cleanup([dbs.name], done);
+    new PouchDB(dbs.name).then(function (db) {
+      return db.index(dbs.indexName).destroy();
+    }).then(function () {
+      testUtils.cleanup([dbs.name], done);
+    }, done);
   });
 
   it('Test basic index', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -66,7 +71,7 @@ describe('plugin indexes', function () {
   it('Test simple get', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -77,25 +82,25 @@ describe('plugin indexes', function () {
       index.put('fooDoc', map).then(function () {
         return index.get('1');
       }).then(function (result) {
-        result.should.deep.equal({
+        result.should.deep.equal([{
           id: 'fooDoc',
           key: '1',
           value: 'one'
-        });
+        }]);
         return index.get('2');
       }).then(function (result) {
-        result.should.deep.equal({
+        result.should.deep.equal([{
           id: 'fooDoc',
           key: '2',
           value: 'two'
-        });
+        }]);
         return index.get('3');
       }).then(function (result) {
-        result.should.deep.equal({
+        result.should.deep.equal([{
           id: 'fooDoc',
           key: '3',
           value: 'three'
-        });
+        }]);
         done();
       }, done);
     }, done);
@@ -104,7 +109,7 @@ describe('plugin indexes', function () {
   it('Test start and end', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -166,7 +171,7 @@ describe('plugin indexes', function () {
   it('Test limit and skip', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -241,7 +246,7 @@ describe('plugin indexes', function () {
   it('Test descending', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -307,7 +312,7 @@ describe('plugin indexes', function () {
   it('Test empty map', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
       };
@@ -327,7 +332,7 @@ describe('plugin indexes', function () {
   it('Test deleted map', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -352,7 +357,7 @@ describe('plugin indexes', function () {
   it('Test replaced map', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '4' : 'four',
@@ -382,7 +387,7 @@ describe('plugin indexes', function () {
   it('Test multiple maps', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var fooMap = {
         '1' : 'one',
@@ -424,7 +429,7 @@ describe('plugin indexes', function () {
   it('Test count', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -444,7 +449,7 @@ describe('plugin indexes', function () {
   it('Test destroy', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : 'one',
@@ -458,7 +463,7 @@ describe('plugin indexes', function () {
         results.should.have.length(3);
         return index.destroy();
       }).then(function () {
-        var index2 = db.index('fooIndex');
+        var index2 = db.index(dbs.indexName);
 
         return index2.get({}).then(function (results) {
           results.should.have.length(0);
@@ -470,7 +475,7 @@ describe('plugin indexes', function () {
 
   it('Test empty string keys', function (done) {
     new PouchDB(dbs.name).then(function (db) {
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '' : 'empty'
@@ -486,18 +491,18 @@ describe('plugin indexes', function () {
         }]);
         return index.get('');
       }).then(function (result) {
-        result.should.deep.equal({
+        result.should.deep.equal([{
           key : '',
           value : 'empty',
           id : 'fooDoc'
-        });
+        }]);
         done();
       }, done);
     }, done);
   });
   it('Test values with multiple types', function (done) {
     new PouchDB(dbs.name).then(function (db) {
-      var index = db.index('fooIndex');
+      var index = db.index(dbs.indexName);
 
       var map = {
         '1' : '1',
@@ -535,6 +540,88 @@ describe('plugin indexes', function () {
           ]);
           done();
         }, done);
+    }, done);
+  });
+
+  it('Test duplicate keys', function (done) {
+    new PouchDB(dbs.name).then(function (db) {
+      var index = db.index(dbs.indexName);
+
+      var map = {
+        '1'   : '1',
+        '2'   : '2',
+        '10'  : '10',
+        '100' : '100'
+      };
+
+      var sortByDoc = function (a, b) {
+        return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+      };
+
+      index.put('doc1', map).then(function () {
+        return index.put('doc2', map);
+      }).then(function () {
+        return index.put('doc3', {'1' : '1'});
+      }).then(function () {
+        return index.get('1');
+      }).then(function (res) {
+        res.sort(sortByDoc).should.deep.equal([
+          {
+            key : '1',
+            value: '1',
+            id : 'doc1'
+          },
+          {
+            key : '1',
+            value: '1',
+            id : 'doc2'
+          },
+          {
+            key : '1',
+            value: '1',
+            id : 'doc3'
+          }
+        ], 'get-1');
+        return index.get({startkey : '1', endkey : '1'});
+      }).then(function (res) {
+        res.sort(sortByDoc).should.deep.equal([
+          {
+            key : '1',
+            value: '1',
+            id : 'doc1'
+          },
+          {
+            key : '1',
+            value: '1',
+            id : 'doc2'
+          },
+          {
+            key : '1',
+            value: '1',
+            id : 'doc3'
+          }
+        ], 'start-1,end-1');
+        return index.get({startkey : '1', endkey : '10'});
+      }).then(function (res) {
+        res.should.have.length(5, '1-10');
+        return index.get({startkey : '10', endkey : '2'});
+      }).then(function (res) {
+        res.should.have.length(6, '10-2');
+        return index.get({startkey : '10', endkey : '1',
+          descending : true});
+      }).then(function (res) {
+        res.should.have.length(5, '10-1');
+        return index.get({startkey : '1'});
+      }).then(function (res) {
+        res.should.have.length(9, '1-');
+        return index.get({endkey : '10'});
+      }).then(function (res) {
+        res.should.have.length(5, '-10');
+        return index.get({startkey : '1', limit : 2});
+      }).then(function (res) {
+        res.should.have.length(2, '1-limit2');
+        done();
+      }, done);
     }, done);
   });
 });
