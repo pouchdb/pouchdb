@@ -495,4 +495,46 @@ describe('plugin indexes', function () {
       }, done);
     }, done);
   });
+  it('Test values with multiple types', function (done) {
+    new PouchDB(dbs.name).then(function (db) {
+      var index = db.index('fooIndex');
+
+      var map = {
+        '1' : '1',
+        '2' : 2,
+        '3' : 3.3,
+        '4' : true,
+        '5' : false,
+        '6' : undefined,
+        '7' : null,
+        '8' : ['1', 2, 3.3, true, false, undefined, null, '0', null, ''],
+        '9' : {
+          '9' : {
+            '9' : null
+          },
+          'a' : [null, 3, undefined, Number.MAX_VALUE]
+        },
+        'a' : '',
+        'b' : '0',
+        'c' : 0,
+        'd' : new Date(0)
+      };
+
+      var getValues = function (obj) {
+        return obj.value;
+      };
+
+      index.put('fooDoc', map).then(function () {
+        return index.get({});
+      }).then(function (results) {
+          results.map(getValues).should.deep.equal([
+            '1', 2, 3.3, true, false, null, null,
+            [ '1', 2, 3.3, true, false, null, null, '0', null, ''],
+            { '9': { '9': null }, 'a': [ null, 3, null, Number.MAX_VALUE ] },
+            '', '0', 0, '1970-01-01T00:00:00.000Z'
+          ]);
+          done();
+        }, done);
+    }, done);
+  });
 });
