@@ -23,7 +23,7 @@ node_modules/less/bin/lessc docs/static/less/pouchdb/pouchdb.less > docs/static/
 cd docs
 
 if [ ! $BUILD ]; then
-    jekyll serve
+    jekyll -w serve --baseurl=''
 else
     jekyll build
 fi
