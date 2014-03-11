@@ -845,7 +845,7 @@ Example response:
 
 This method either returns the data itself or an error if not found.
 
-Alternatively, you can specify an options object with the familiar Couch-style `startkey`/`endkey`/`descending`/`skip`/`offset`, which behave exactly like those parameters when used in `allDocs()` or `query()`:
+Alternatively, you can specify an options object with the familiar Couch-style `startkey`/`endkey`/`descending`/`skip`, which behave exactly like those parameters when used in `allDocs()` or `query()`:
 
 
 {% highlight js %}
