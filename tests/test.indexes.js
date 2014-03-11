@@ -238,7 +238,7 @@ describe('plugin indexes', function () {
     }, done);
   });
 
-  it.skip('Test descending', function (done) {
+  it('Test descending', function (done) {
     new PouchDB(dbs.name).then(function (db) {
 
       var index = db.index('fooIndex');
