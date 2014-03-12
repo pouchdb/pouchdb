@@ -759,28 +759,3 @@ PouchDB.on('destroyed', function (dbName) {
   // called whenver a db is destroyed.
 });
 {% endhighlight %}
-
-{% include anchor.html title="Plugins" %}
-
-Writing a plugin is easy! The api is:
-
-{% highlight js %}
-PouchDB.plugin({
-  methodName: myFunction
-  }
-});
-{% endhighlight %}
-
-This will add the function as a method of all databases with the given method name.  It will always be called in context, so that `this` always refers to the database object.
-
-#### Example Usage:
-{% highlight js %}
-PouchDB.plugin({
-  sayMyName : function () {
-    this.info().then(function (info)   {
-      console.log('My name is ' + info.db_name);
-    }).catch(function (err) { });
-  }
-});
-new PouchDB('foobar').sayMyName(); // prints "My name is foobar"
-{% endhighlight %}
