@@ -13,10 +13,10 @@ title: PouchDB, the JavaScript Database that Syncs!
 
         <h1>The Database that Syncs!</h1>
 
-        <p>PouchDB is an open-source JavaScript Database inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a> that is designed to run well within the browser.</p>
+        <p>PouchDB is an open-source JavaScript database inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a> that is designed to run well within the browser.</p>
 
-        <p>PouchDB was created to help web developers build applications that work equally as well offline as they do online.<br>
-        It enables applications to store data locally while offline, and synchronize it with CouchDB and compatible servers when the application is back online, keeping the user's data in sync no matter where they next login.</p>
+        <p>PouchDB was created to help web developers build applications that work as well offline as they do online.<br>
+        <p>It enables applications to store data locally while offline, then synchronize it with CouchDB and compatible servers when the application is back online, keeping the user's data in sync no matter where they next login.</p>
 
         <a href="{{ site.baseurl }}/learn.html" class="btn btn-primary btn-lg">Learn more</a>
 
@@ -66,22 +66,22 @@ title: PouchDB, the JavaScript Database that Syncs!
       <div class='col-xs-6 col-md-3'>
 
         <h3 class='brand-primary'>Lightweight</h3>
-        <p>PouchDB is just a script tag and 25KB(gzipped) away in the  browser, or <code>$ npm install pouchdb</code> away
-        in node.</p>
+        <p>PouchDB is just a script tag and 25KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
+        in Node.</p>
 
       </div>
 
       <div class='col-xs-6 col-md-3'>
 
         <h3 class='brand-primary'>Easy to Learn</h3>
-        <p>Requires some programming knowledge, however PouchDB is a piece of piss to learn.</p>
+        <p>Requires some programming knowledge, however PouchDB is a piece of cake to learn.</p>
 
       </div>
 
       <div class='col-xs-6 col-md-3'>
 
         <h3 class='brand-primary'>Open Source</h3>
-        <p>Everything is developed out in the open on Github, contributers always welcome!</p>
+        <p>Everything is developed out in the open on Github, contributors always welcome!</p>
 
       </div>
 
