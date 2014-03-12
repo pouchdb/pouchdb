@@ -25,7 +25,7 @@ If your application requires support for Internet Explorer below version 10, it 
 
 # Current Status
 
-PouchDB in the browser currently beta release software. It is extensively tested and the functionality implemented is known to be stable, however you may find bugs in lesser used parts of the API. The API is currently stable with no known changes and you will be able to upgrade PouchDB without losing data. We are currently working towards a stable release of PouchDB.
+PouchDB in the browser is currently beta release software. It is extensively tested and the functionality implemented is known to be stable, however you may find bugs in lesser-used parts of the API. The API is currently stable with no known changes and you will be able to upgrade PouchDB without losing data. We are currently working towards a stable release of PouchDB.
 
 PouchDB in Node.js is currently alpha and an upgrade to the library can break current databases. It is however possible to upgrade by replicating data across different versions to manually upgrade.
 
@@ -55,4 +55,4 @@ For an HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-th
 
 # Using PouchDB
 
-To get started using PouchDB check out our [Getting Started Tutorial](getting-started.html) and the [API Documentation](api.html).
+To get started using PouchDB, check out our [Getting Started Tutorial](getting-started.html) and the [API Documentation](api.html).
