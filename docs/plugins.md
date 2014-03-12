@@ -52,7 +52,7 @@ The `index()` function creates a new index or returns an existing index with the
 
 All data stored in the index is bound to that particular index - i.e. indexes with different names do not share any data.
 
-However, the name of the index itself shares a global namespace, so it would be wise to prefix your index names with something like 'myAwesomePlugin-' to avoid collisions.
+However, the name of the index itself shares a global namespace, so it would be wise to prefix your index names with something like `'myAwesomePlugin-'` to avoid collisions.
 
 ##### Putting data
 
@@ -97,14 +97,16 @@ PouchDB.plugin({
 Example response:
 
 {% highlight js %}
-{
-  "id"    : "groupId",
-  "key"   : "key1",
-  "value" : "value1"
-}
+[
+  {
+    "id"    : "groupId",
+    "key"   : "key1",
+    "value" : "value1"
+  }
+]
 {% endhighlight %}
 
-This method either returns the data itself or an error if not found.
+This method returns a list of stored objects that match the given key.  Note that keys are non-unique, and no ordering is guaranteed at the `value`/`groupId` level.
 
 Alternatively, you can specify an options object with the familiar Couch-style
 `startkey`/`endkey`/`descending`/`skip`/`limit`, which behave exactly like those parameters when used in `allDocs()` or `query()`:
@@ -137,6 +139,7 @@ Example response:
     "key"   : "key2",
     "value" : "value2"
   }
+]
 {% endhighlight %}
 
 Note that the `value`s are passed through `JSON.stringify()` before being stored, so `undefined`s will become `null`s, dates will become strings, etc.
