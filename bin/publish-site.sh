@@ -13,7 +13,7 @@ git checkout gh-pages
 # any more top level parts directories get introduced they are
 # added here
 cp -R docs/_site/* ./
-git add *.html static
+git add *.html static 2014
 
 # Push updates
 git commit -m "Site Update"
