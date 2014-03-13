@@ -284,6 +284,18 @@ adapters.map(function (adapter) {
         }).then(function (res) {
           res.rows.should.have.length(2,  'correctly return rows');
           res.total_rows.should.equal(8,  'correctly return total_rows');
+          return db.allDocs({startkey : '5', limit : 0});
+        }).then(function (res) {
+          res.rows.should.have.length(0,  'correctly return rows, startkey w/ limit=0');
+          res.total_rows.should.equal(8,  'correctly return total_rows');
+          return db.allDocs({keys : ['5'], limit : 0});
+        }).then(function (res) {
+          res.rows.should.have.length(0,  'correctly return rows, keys w/ limit=0');
+          res.total_rows.should.equal(8,  'correctly return total_rows');
+          return db.allDocs({limit : 0});
+        }).then(function (res) {
+          res.rows.should.have.length(0,  'correctly return rows, limit=0');
+          res.total_rows.should.equal(8,  'correctly return total_rows');
           return db.allDocs({startkey : '5', descending : true, skip : 1});
         }).then(function (res) {
           res.rows.should.have.length(4,  'correctly return rows');
@@ -323,7 +335,8 @@ adapters.map(function (adapter) {
           return db.allDocs({keys : ['0', '1', '0', '2', '1', '1']});
         }).then(function (res) {
           res.rows.should.have.length(6,  'correctly return rows');
-          res.rows.map(function (row) { return row.key; }).should.deep.equal(['0', '1', '0', '2', '1', '1']);
+          res.rows.map(function (row) { return row.key; }).should.deep.equal(
+            ['0', '1', '0', '2', '1', '1']);
           res.total_rows.should.equal(8,  'correctly return total_rows');
           return db.allDocs({keys : []});
         }).then(function (res) {
