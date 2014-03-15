@@ -1472,5 +1472,35 @@ interHTTPAdapters.map(function (adapters) {
       });
     });
 
+    it('Test consecutive replications with different doc_ids', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var myDocs = [
+        {_id: '0', integer: 0, string: '0'},
+        {_id: '1', integer: 1, string: '1'},
+        {_id: '2', integer: 2, string: '2'},
+        {_id: '3', integer: 3, string: '3'},
+        {_id: '4', integer: 5, string: '5'}
+      ];
+      remote.bulkDocs({ docs: myDocs }, {}, function (err, results) {
+        db.replicate.from(dbs.remote, {
+          doc_ids: ['0', '4']
+        }, function (err, result) {
+          result.docs_written.should.equal(2);
+          db.replicate.from(dbs.remote, {
+            doc_ids: ['1', '2', '3']
+          }, function (err, result) {
+            result.docs_written.should.equal(3);
+            db.replicate.from(dbs.remote, {
+              doc_ids: ['5']
+            }, function (err, result) {
+              result.docs_written.should.equal(0);
+              done();
+            });
+          });
+        });
+      });
+    });
+
   });
 });
