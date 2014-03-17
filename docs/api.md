@@ -26,13 +26,13 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `options.name`: You can omit the `name` argument and specify it via `options` instead. Note that the name is required.
 * `options.auto_compaction`: This turns on auto compaction (experimental). Defaults to `false`.
 * `options.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening (can also be set per request). Defaults to `false`.
-* `options.adapter` One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (e.g. Chrome).
+* `options.adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
 
 **Notes:** 
 
 1. In IndexedDB and WebSQL, PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
 2. When acting as a client on Node, any other options given will be passed to [request][].
-3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][]. The storage layer of leveldb can be replaced by passing a level backend factory (such as [MemDOWN][]) as `options.db`. The rest of the supported options are [documented here][levelup_options], .
+3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][]. The storage layer of leveldb can be replaced by passing a level backend factory (such as [MemDOWN][]) as `options.db`. The rest of the supported options are [documented here][levelup_options].
 
   [request]: https://github.com/mikeal/request
   [levelup]: https://github.com/rvagg/node-levelup
@@ -44,6 +44,20 @@ This method creates a database or opens an existing one. If you use a URL like `
 var db = new PouchDB('dbname');
 // or
 var db = new PouchDB('http://localhost:5984/dbname');
+{% endhighlight %}
+
+Create a WebSQL-only Pouch (e.g. when using the [SQLite Plugin][] for Cordova/PhoneGap):
+
+  [sqlite plugin]: https://github.com/lite4cordova/Cordova-SQLitePlugin
+
+{% highlight js %}
+var db = new PouchDB('dbname', {adapter : 'websql'});
+{% endhighlight %}
+
+Create an in-memory Pouch (in Node):
+
+{% highlight js %}
+var db = new PouchDB('dbname', {db : require('memdown')});
 {% endhighlight %}
 
 {% include anchor.html title="Delete database" %}
