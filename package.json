@@ -19,6 +19,7 @@
   "dependencies": {
     "bluebird": "~1.0.0",
     "inherits": "~2.0.1",
+    "level-js": "~2.0.0",
     "level-sublevel": "~5.2.0",
     "leveldown": "~0.10.2",
     "levelup": "~0.18.2",
@@ -47,7 +48,7 @@
   },
   "scripts": {
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js",
-    "build-js": "browserify lib/index.js -s PouchDB -o dist/pouchdb-nightly.js",
+    "build-js": "./bin/build-js.sh",
     "uglify": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
     "build": "mkdir -p dist && npm run build-js && npm run uglify",
     "test-node": "./bin/run-mocha.sh",
@@ -60,13 +61,9 @@
     "shell": "./bin/repl.js"
   },
   "browser": {
-    "./adapters/leveldb": false,
     "./deps/buffer": false,
     "request": false,
-    "levelup": false,
-    "leveldown": false,
-    "crypto": false,
-    "bluebird": "lie",
-    "level-sublevel": false
+    "leveldown": "level-js",
+    "bluebird": "lie"
   }
 }

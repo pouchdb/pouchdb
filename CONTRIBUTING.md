@@ -110,6 +110,9 @@ For quick debugging, you can run an interactive Node shell with the `PouchDB` va
 
     npm run shell
 
+Alternative Backends
+--------------------------------------
+PouchDB is looking to support alternative backends that comply with the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown). Simply include `INDEX_FILE=index-levelalt.js` in your `npm run build` and `npm run dev` commands to experiment with this feature!
 
 Git Essentials
 --------------------------------------
