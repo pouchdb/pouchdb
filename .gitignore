@@ -9,3 +9,4 @@ npm-debug.log
 *.uuid
 coverage
 bower_components
+.idea/
