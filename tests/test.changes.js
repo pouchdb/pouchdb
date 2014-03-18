@@ -1012,14 +1012,18 @@ adapters.map(function (adapter) {
         live: true,
         onChange: function () {
           called++;
+          if (called === 1) {
+            setTimeout(function () {
+              changes.cancel();
+            }, 1000);
+          }
         },
-        complete: done
+        complete: function (err) {
+          called.should.equal(1);
+          done();
+        }
       });
       db.post({key: 'value'});
-      setTimeout(function () {
-        called.should.equal(1);
-        changes.cancel();
-      }, 1000);
     });
 
   });
