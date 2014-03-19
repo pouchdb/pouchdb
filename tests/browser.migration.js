@@ -47,6 +47,8 @@ describe('migration', function () {
           remote : remoteName
         };
 
+        dbs.indexName = 'migrationIndex';
+
         if (scenario in PouchDB.adapters) {
           dbs.first.localOpts.adapter = scenario;
         }
@@ -56,7 +58,11 @@ describe('migration', function () {
       });
 
       afterEach(function (done) {
-        testUtils.cleanup([dbs.first.local, dbs.second.local], done);
+        new PouchDB(dbs.second.local).then(function (db) {
+          return db.index(dbs.indexName).destroy();
+        }).then(function () {
+          testUtils.cleanup([dbs.first.local, dbs.second.local], done);
+        }, done);
       });
 
       var origDocs = [
@@ -153,6 +159,54 @@ describe('migration', function () {
                 });
               });
             });
+          });
+        });
+      });
+
+      it('Testing indexes after migration', function (done) {
+        var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts, function (err) {
+          should.not.exist(err, 'got error: ' + JSON.stringify(err));
+          if (err) {
+            done();
+          }
+        });
+        oldPouch.bulkDocs({docs: origDocs}, function (err, res) {
+
+          oldPouch.close(function (err) {
+            should.not.exist(err, 'got error: ' + JSON.stringify(err));
+            if (err) {
+              return done();
+            }
+            new dbs.second.pouch(dbs.second.local).then(function (newPouch) {
+              var index = newPouch.index(dbs.indexName);
+
+              var map = {
+                '1' : 'one',
+                '2' : 'two',
+                '3' : 'three'
+              };
+
+              index.put('fooDoc', map).then(function () {
+                return index.get({});
+              }).then(function (results) {
+                results.should.deep.equal([
+                  {
+                    id: 'fooDoc',
+                    key: '1',
+                    value: 'one'
+                  }, {
+                    id: 'fooDoc',
+                    key: '2',
+                    value: 'two'
+                  }, {
+                    id: 'fooDoc',
+                    key: '3',
+                    value: 'three'
+                  }
+                ]);
+                done();
+              }, done);
+            }, done);
           });
         });
       });
