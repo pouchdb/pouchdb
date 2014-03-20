@@ -8,7 +8,6 @@ var adapters = [
 ];
 
 var downAdapters = ['local'];
-var deletedDocAdapters = [['local', 'http']];
 var interHTTPAdapters = [['http', 'http']];
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -1192,25 +1191,68 @@ adapters.map(function (adapters) {
       });
     });
 
-  });
-});
-
-// test a basic "initialize pouch" scenario when couch instance contains
-// deleted revisions currently testing idb-http only
-deletedDocAdapters.map(function (adapters) {
-
-  describe('test.replication.js-' + adapters[0] + '-' + adapters[1], function () {
-
-    var dbs = {};
-
-    beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapters[0], 'test_repl');
-      dbs.remote = testUtils.adapterUrl(adapters[1], 'test_repl_remote');
-      testUtils.cleanup([dbs.name, dbs.remote], done);
+    it('Test consecutive replications with different query_params', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var myDocs = [
+        {_id: '0', integer: 0, string: '0'},
+        {_id: '1', integer: 1, string: '1'},
+        {_id: '2', integer: 2, string: '2'},
+        {_id: '3', integer: 3, string: '3'},
+        {_id: '4', integer: 5, string: '5'}
+      ];
+      remote.bulkDocs({ docs: myDocs }, {}, function (err, results) {
+        var filterFun = function (doc, req) {
+          if (req.query.even) {
+            return doc.integer % 2 === 0;
+          } else {
+            return true;
+          }
+        };
+        db.replicate.from(dbs.remote, {
+          filter: filterFun,
+          query_params: { 'even': true }
+        }, function (err, result) {
+          result.docs_written.should.equal(2);
+          db.replicate.from(dbs.remote, {
+            filter: filterFun,
+            query_params: { 'even': false }
+          }, function (err, result) {
+            result.docs_written.should.equal(3);
+            done();
+          });
+        });
+      });
     });
 
-    afterEach(function (done) {
-      testUtils.cleanup([dbs.name, dbs.remote], done);
+    it('Test consecutive replications with different doc_ids', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var myDocs = [
+        {_id: '0', integer: 0, string: '0'},
+        {_id: '1', integer: 1, string: '1'},
+        {_id: '2', integer: 2, string: '2'},
+        {_id: '3', integer: 3, string: '3'},
+        {_id: '4', integer: 5, string: '5'}
+      ];
+      remote.bulkDocs({ docs: myDocs }, {}, function (err, results) {
+        db.replicate.from(dbs.remote, {
+          doc_ids: ['0', '4']
+        }, function (err, result) {
+          result.docs_written.should.equal(2);
+          db.replicate.from(dbs.remote, {
+            doc_ids: ['1', '2', '3']
+          }, function (err, result) {
+            result.docs_written.should.equal(3);
+            db.replicate.from(dbs.remote, {
+              doc_ids: ['5']
+            }, function (err, result) {
+              result.docs_written.should.equal(0);
+              done();
+            });
+          });
+        });
+      });
     });
 
     it('doc count after multiple replications', function (done) {
@@ -1247,11 +1289,11 @@ deletedDocAdapters.map(function (adapters) {
       }
 
       // a basic map function to mimic our testing situation
-      function map(doc) {
-        if (doc.common === true) {
-          emit(doc._id, doc.rev);
-        }
-      }
+      var map = 'function(doc) {' +
+        'if (doc.common === true) {' +
+          'emit(doc._id, doc.rev);' +
+        '}' +
+      '}';
 
       // The number of workflow cycles to perform. 2+ was always failing
       // reason for this test.
@@ -1437,70 +1479,5 @@ interHTTPAdapters.map(function (adapters) {
         });
       });
     });
-
-    it('Test consecutive replications with different query_params', function (done) {
-      var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-      var myDocs = [
-        {_id: '0', integer: 0, string: '0'},
-        {_id: '1', integer: 1, string: '1'},
-        {_id: '2', integer: 2, string: '2'},
-        {_id: '3', integer: 3, string: '3'},
-        {_id: '4', integer: 5, string: '5'}
-      ];
-      remote.bulkDocs({ docs: myDocs }, {}, function (err, results) {
-        var filterFun = function (doc, req) {
-          if (req.query.even) {
-            return doc.integer % 2 === 0;
-          } else {
-            return true;
-          }
-        };
-        db.replicate.from(dbs.remote, {
-          filter: filterFun,
-          query_params: { 'even': true }
-        }, function (err, result) {
-          result.docs_written.should.equal(2);
-          db.replicate.from(dbs.remote, {
-            filter: filterFun,
-            query_params: { 'even': false }
-          }, function (err, result) {
-            result.docs_written.should.equal(3);
-            done();
-          });
-        });
-      });
-    });
-
-    it('Test consecutive replications with different doc_ids', function (done) {
-      var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-      var myDocs = [
-        {_id: '0', integer: 0, string: '0'},
-        {_id: '1', integer: 1, string: '1'},
-        {_id: '2', integer: 2, string: '2'},
-        {_id: '3', integer: 3, string: '3'},
-        {_id: '4', integer: 5, string: '5'}
-      ];
-      remote.bulkDocs({ docs: myDocs }, {}, function (err, results) {
-        db.replicate.from(dbs.remote, {
-          doc_ids: ['0', '4']
-        }, function (err, result) {
-          result.docs_written.should.equal(2);
-          db.replicate.from(dbs.remote, {
-            doc_ids: ['1', '2', '3']
-          }, function (err, result) {
-            result.docs_written.should.equal(3);
-            db.replicate.from(dbs.remote, {
-              doc_ids: ['5']
-            }, function (err, result) {
-              result.docs_written.should.equal(0);
-              done();
-            });
-          });
-        });
-      });
-    });
-
   });
 });
