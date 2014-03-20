@@ -13,17 +13,19 @@ fs.mkdir('dist', function (e) {
   }
 });
 
-var indexfile;
-if (process.env.INDEX_FILE) {
-  indexfile = "./lib/" + process.env.INDEX_FILE;
+var indexfile, dotfile, outfile;
+if (process.env.LEVEL_BACKEND) {
+  indexfile = "./lib/index-levelalt.js";
+  dotfile = "./dist/.pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+  outfile = "./dist/pouchdb-" + process.env.LEVEL_BACKEND + ".js";
 } else {
   indexfile = "./lib/index.js";
+  dotfile = "./dist/.pouchdb-nightly.js";
+  outfile = "./dist/pouchdb-nightly.js";
 }
 
 var watchify = require("watchify");
 var w = watchify(indexfile);
-var dotfile = "./dist/.pouchdb-nightly.js";
-var outfile = "./dist/pouchdb-nightly.js";
 
 w.on('update', bundle);
 bundle();
