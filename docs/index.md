@@ -30,7 +30,7 @@ title: PouchDB, the JavaScript Database that Syncs!
   db.put({
    _id: 'dave@gmail.com',
    name: 'David',
-   age: 66
+   age: 67
   });
 
   db.changes({
