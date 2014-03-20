@@ -112,7 +112,9 @@ For quick debugging, you can run an interactive Node shell with the `PouchDB` va
 
 Alternative Backends
 --------------------------------------
-PouchDB is looking to support alternative backends that comply with the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown). Simply include `INDEX_FILE=index-levelalt.js` in your `npm run build` and `npm run dev` commands to experiment with this feature!
+PouchDB is looking to support alternative backends that comply with the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown). For example, simply include `LEVEL_BACKEND=leveljs` in your `npm run build` and `npm run dev` commands to experiment with this feature!
+
+Doing so will also create a separate distribution, for example, `pouchdb-leveljs.js` rather than `pouchdb-nightly.js`. In order to test a different distribution from `pouchdb-nightly.js`, you must specify in the testing URL: http://127.0.0.1:8000/tests/test.html?sourceFile=pouchdb-leveljs.js. `LEVEL_BACKEND=leveljs npm run test` will accomplish the same thing.
 
 Git Essentials
 --------------------------------------

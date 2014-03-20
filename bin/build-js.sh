@@ -1,12 +1,13 @@
 #!/bin/bash
 
-: ${INDEX_FILE:="index.js"}
-
-if [ "$INDEX_FILE" == "index-levelalt.js" ]; then
+if [ "$LEVEL_BACKEND" == "leveljs" ]; then
     node_modules/.bin/browserify lib/index-levelalt.js \
       --require ./lib/index:./lib/index-levelalt.js \
       --standalone PouchDB \
-      --outfile dist/pouchdb-nightly.js
+      --outfile dist/pouchdb-$LEVEL_BACKEND.js
+
+    node_modules/.bin/uglifyjs dist/pouchdb-$LEVEL_BACKEND.js -mc \
+      > dist/pouchdb-$LEVEL_BACKEND.min.js
 else
     node_modules/.bin/browserify lib/index.js \
       --exclude ./adapters/leveldb \
@@ -16,4 +17,7 @@ else
       --ignore level-sublevel \
       --standalone PouchDB \
       --outfile dist/pouchdb-nightly.js
+    
+    node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc \
+      > dist/pouchdb-nightly.min.js
 fi
