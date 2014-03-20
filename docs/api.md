@@ -496,7 +496,7 @@ PouchDB.sync('http://localhost:5984/mydb', {
 There is also a shorthand for syncing given existing PouchDB objects. This behaves the same as `PouchDB.sync()`:
 
 {% highlight js %}
-db.sync(remoteDB, [options]);
+db.replicate.sync(remoteDB, [options]);
 {% endhighlight %}
 
 For any further details, please further to [Replication](api.html#replication).
