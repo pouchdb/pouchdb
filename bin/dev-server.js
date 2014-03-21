@@ -13,8 +13,15 @@ fs.mkdir('dist', function (e) {
   }
 });
 
+var indexfile;
+if (process.env.INDEX_FILE) {
+  indexfile = "./lib/" + process.env.INDEX_FILE;
+} else {
+  indexfile = "./lib/index.js";
+}
+
 var watchify = require("watchify");
-var w = watchify("./lib/index.js");
+var w = watchify(indexfile);
 var dotfile = "./dist/.pouchdb-nightly.js";
 var outfile = "./dist/pouchdb-nightly.js";
 

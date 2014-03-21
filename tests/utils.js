@@ -26,9 +26,18 @@ testUtils.readBlob = function (blob, callback) {
   } else {
     var reader = new FileReader();
     reader.onloadend = function (e) {
-      callback(this.result);
+      
+      var binary = "";
+      var bytes = new Uint8Array(this.result);
+      var length = bytes.byteLength;
+      
+      for (var i = 0; i < length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      
+      callback(binary);
     };
-    reader.readAsBinaryString(blob);
+    reader.readAsArrayBuffer(blob);
   }
 };
 
