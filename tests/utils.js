@@ -71,7 +71,9 @@ testUtils.cleanup = function (dbs, done) {
   var errors = [];
 
   function dbDeleted(err, res) {
-    if (err && err.status !== 404) {
+    // 400 is for an unexpected return from CouchDB, filed
+    // https://issues.apache.org/jira/browse/COUCHDB-2205
+    if (err && (err.status !== 404 && err.status !== 400)) {
       errors.push(err);
     }
     if (++deleted === num) {
