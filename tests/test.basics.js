@@ -565,7 +565,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it.skip('Cant add docs with empty ids', function (done) {
+    it('Cant add docs with empty ids', function (done) {
       var docs = [
         {},
         { _id: null },
