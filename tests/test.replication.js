@@ -1190,6 +1190,59 @@ adapters.map(function (adapters) {
         replications.pull.cancel();
       });
     });
+    
+    it("Reporting write failures (#942)", function () {
+      var docs = [{_id: 'a', _rev: '1-a'}, {_id: 'b', _rev: '1-b'}];
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      db.bulkDocs({docs: docs}, {new_edits: false}, function (err, _) {
+        remote.bulkDocs = function (content, opts, callback) {
+          var response = [];
+          var ids = content.docs.map(function (doc) { return doc._id; });
+          if (ids.indexOf('a') >= 0) {
+            response.push({id: 'a', rev: '1-a'});
+          }
+          if (ids.indexOf('b') >= 0) {
+            response.push({id: 'b', error: 'internal server error'});
+          }
+          callback(null, response);
+        }
+
+        db.replicate.to(remote, function (err, result) {
+          ok(result.docs_read === 2, 'correct number of docs read');
+          ok(result.docs_written === 1, 'correct number of docs written');
+          ok(result.doc_write_failures === 1, 'correct number of failures');
+          db.replicate.to(remote, function (err, result) {
+            // checkpoint should not be moved and subsequent replications
+            // should continue from this some point
+            ok(result.docs_read === 2, 'checkpoint not moved');
+            start();
+          });
+        });
+      });
+    });
+
+    it("Reporting write failures if whole saving fails (#942)", function () {
+      var docs = [{_id: 'a', _rev: '1-a'}, {_id: 'b', _rev: '1-b'}];
+      var db = new PouchDB(dbs.name);
+      var db = new PouchDB(dbs.remote);
+      db.bulkDocs({docs: docs}, {new_edits: false}, function (err, _) {
+        remote.bulkDocs = function (docs, opts, callback) {
+          callback(new Error());
+        }
+
+        db.replicate.to(remote, function (err, result) {
+          ok(result.docs_read === 2, 'correct number of docs read');
+          ok(result.docs_written === 0, 'correct number of docs written');
+          ok(result.doc_write_failures === 2, 'correct number of failures');
+          db.replicate.to(remote, function (err, result) {
+            ok(result.docs_read === 2, 'checkpoint not moved');
+            start();
+          });
+        });
+      });
+    });
+
 
     it.skip("Reporting write failures (#942)", function (done) {
       var docs = [{_id: 'a', _rev: '1-a'}, {_id: 'b', _rev: '1-b'}];
