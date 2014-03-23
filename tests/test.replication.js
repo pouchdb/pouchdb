@@ -1191,6 +1191,58 @@ adapters.map(function (adapters) {
       });
     });
 
+    it.skip("Reporting write failures (#942)", function (done) {
+      var docs = [{_id: 'a', _rev: '1-a'}, {_id: 'b', _rev: '1-b'}];
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      db.bulkDocs({docs: docs}, {new_edits: false}, function (err, _) {
+        remote.bulkDocs = function (content, opts, callback) {
+          var response = [];
+          var ids = content.docs.map(function (doc) { return doc._id; });
+          if (ids.indexOf('a') >= 0) {
+            response.push({id: 'a', rev: '1-a'});
+          }
+          if (ids.indexOf('b') >= 0) {
+            response.push({id: 'b', error: 'internal server error'});
+          }
+          callback(null, response);
+        };
+
+        db.replicate.to(remote, function (err, result) {
+          result.docs_read.should.equal(2);
+          result.docs_written.should.equal(1);
+          result.doc_write_failures.should.equal(1);
+          db.replicate.to(remote, function (err, result) {
+            // checkpoint should not be moved and subsequent replications
+            // should continue from this some point
+            result.docs_read.should.equal(2);
+            done();
+          });
+        });
+      });
+    });
+
+    it.skip("Reporting write failures if whole saving fails (#942)", function (done) {
+      var docs = [{_id: 'a', _rev: '1-a'}, {_id: 'b', _rev: '1-b'}];
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      db.bulkDocs({docs: docs}, {new_edits: false}, function (err, _) {
+        remote.bulkDocs = function (docs, opts, callback) {
+          callback(new Error());
+        };
+
+        db.replicate.to(remote, function (err, result) {
+          result.docs_read.should.equal(2);
+          result.docs_written.should.equal(0);
+          result.doc_write_failures.equal(2);
+          db.replicate.to(remote, function (err, result) {
+            result.docs_read.should.equal(2);
+            done();
+          });
+        });
+      });
+    });
+
     it('Test consecutive replications with different query_params', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
