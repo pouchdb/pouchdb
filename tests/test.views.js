@@ -508,6 +508,7 @@ adapters.map(function (adapters) {
         views: { scores: { map: 'function (doc) { if (doc.score) { emit(null, doc.score); } }' } }
       };
       db.post(doc, function (err, info) {
+        doc._rev = info.rev;
         db.query('barbar/dontExist', { key: 'bar' }, function (err, res) {
           if (!err.name) {
             err.name = err.error;
@@ -515,7 +516,12 @@ adapters.map(function (adapters) {
           }
           err.name.should.equal('not_found');
           err.message.should.equal('missing_named_view');
-          done();
+
+          db.remove(doc, function (err, res) {
+            db.viewCleanup(function (err) {
+              done();
+            });
+          });
         });
       });
     });

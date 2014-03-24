@@ -13,7 +13,15 @@ adapters.map(function (adapter) {
     });
 
     afterEach(function (done) {
-      testUtils.cleanup([dbs.name], done);
+
+      var db = new PouchDB(dbs.name);
+      db.get('_design/foo').then(function (ddoc) {
+        db.remove(ddoc).then(function () {
+          db.viewCleanup(done);
+        }).catch(done);
+      }).catch(function () {
+        testUtils.cleanup([dbs.name], done);
+      });
     });
 
 
