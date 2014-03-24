@@ -23,7 +23,9 @@ env:
   - CLIENT=node npm test
   - NATIVEPROMISE=1 CLIENT=firefox npm test
   - CLIENT=chrome npm test
+  - CLIENT=firefox INDEX_FILE=index-levelalt.js npm test
 
 matrix:
   allow_failures:
   - env: CLIENT=chrome npm test
+  - env: CLIENT=firefox INDEX_FILE=index-levelalt.js npm test

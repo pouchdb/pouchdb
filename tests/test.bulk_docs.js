@@ -216,6 +216,28 @@ adapters.map(function (adapter) {
       });
     });
 
+    it('Testing successive new_edits to the same doc', function (done) {
+
+      var db = new PouchDB(dbs.name);
+      var docs = [{
+        '_id': 'foo',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      }];
+
+      db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
+        should.not.exist(err);
+        db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+
     it('Bulk with new_edits=false in req body', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [{

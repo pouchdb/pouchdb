@@ -11,15 +11,20 @@ PouchDB is a free open-source project, written in JavaScript by these [wonderful
 
 # Browser Support
 
-PouchDB uses various backends so it can work across various browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera, WebSQL in Safari, and LevelDB in Node.js. It is currently tested in:
+PouchDB uses various backends so it can work across different browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera/IE, WebSQL in Safari, and LevelDB in Node.js. It is currently tested in:
 
  * Firefox 12+
  * Chrome 19+
  * Opera 12+
  * Safari 5+
+ * Internet Explorer 10+
  * [Node.js 0.10+](http://nodejs.org/)
  * [Apache Cordova](http://cordova.apache.org/)
- * Internet Explorer 10+
+
+For details on supported browsers, see ["Can I use IndexedDB?"][caniuse-idb] and ["Can I use Web SQL Database?"][caniuse-websql].
+
+  [caniuse-idb]: http://caniuse.com/indexeddb
+  [caniuse-websql]: http://caniuse.com/sql-storage
 
 If your application requires support for Internet Explorer below version 10, it is possible to use an online CouchDB as a fallback, however it will not work offline.
 
