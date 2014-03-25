@@ -305,5 +305,30 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('handles simultaneous writes', function (done) {
+      var db1 = new PouchDB(dbs.name);
+      var db2 = new PouchDB(dbs.name);
+      var id = 'fooId';
+      var errorNames = [];
+      var ids = [];
+      var numDone = 0;
+      function callback(err, res) {
+        should.not.exist(err);
+        if (res[0].error) {
+          errorNames.push(res[0].name);
+        } else {
+          ids.push(res[0].id);
+        }
+        console.log(res);
+        if (++numDone === 2) {
+          errorNames.should.deep.equal(['conflict']);
+          ids.should.deep.equal([id]);
+          done();
+        }
+      }
+      db1.bulkDocs({docs : [{_id : id}]}, callback);
+      db2.bulkDocs({docs : [{_id : id}]}, callback);
+    });
+
   });
 });
