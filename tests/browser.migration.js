@@ -9,30 +9,22 @@ var scenarios = [
 
 describe('migration', function () {
 
-  var constructors = {
-    'PouchDB v1.1.0': PouchDBVersion110,
-    'PouchDB v2.0.0': PouchDBVersion200,
-    PouchDB: PouchDB
-  };
-
   scenarios.map(function (scenario) {
 
-    if (scenario === 'websql' && !('websql' in PouchDB.adapters &&
-      'idb' in PouchDB.adapters)) {
-      return; // scenario doesn't make sense for this browser
-    }
-
-    var suiteName = 'migrate from ' + scenario;
-
-    describe(suiteName, function () {
-      var dbs = {
-      };
+    describe('migrate from ' + scenario, function () {
+      var dbs = {};
+      var constructors = {};
 
       beforeEach(function (done) {
+        constructors = {
+          'PouchDB v1.1.0': PouchDBVersion110,
+          'PouchDB v2.0.0': PouchDBVersion200,
+          PouchDB: PouchDB
+        };
+
         // need actual unique db names for these tests
         var localName = testUtils.adapterUrl('local', 'test_migration_local');
         var remoteName = testUtils.adapterUrl('http', 'test_migration_remote');
-
 
         dbs.first = {
           pouch : constructors[scenario] || PouchDB,
@@ -49,7 +41,7 @@ describe('migration', function () {
 
         if (scenario in PouchDB.adapters) {
           dbs.first.localOpts.adapter = scenario;
-        }
+        } // else scenario might not make sense for this browser, so just use same adapter for both
 
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
 
