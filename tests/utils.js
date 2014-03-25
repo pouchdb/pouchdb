@@ -60,7 +60,7 @@ testUtils.adapterUrl = function (adapter, name) {
   if (adapter === 'http') {
     return testUtils.couchHost() + '/' + name;
   }
-  return typeof process === 'undefined' ? name : PouchDB.prefix + name;
+  return name;
 };
 
 // Delete specified databases
@@ -334,6 +334,7 @@ if (typeof module !== 'undefined' && module.exports) {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
     testDir = testDir.slice(-1) === '/' ? testDir : testDir + '/';
     global.PouchDB.prefix = testDir + global.PouchDB.prefix;
+    require('../lib/adapters/leveldb').use_prefix = true;
     require('bluebird').onPossiblyUnhandledRejection(function (e, promise) {
       throw e;
     });
