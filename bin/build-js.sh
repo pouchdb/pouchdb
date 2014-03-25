@@ -1,15 +1,15 @@
 #!/bin/bash
 
 if [ "$LEVEL_BACKEND" == "leveljs" ]; then
-    node_modules/.bin/browserify lib/index-levelalt.js \
+    browserify lib/index-levelalt.js \
       --require ./lib/index:./lib/index-levelalt.js \
       --standalone PouchDB \
       --outfile dist/pouchdb-$LEVEL_BACKEND.js
 
-    node_modules/.bin/uglifyjs dist/pouchdb-$LEVEL_BACKEND.js -mc \
+    uglifyjs dist/pouchdb-$LEVEL_BACKEND.js -mc \
       > dist/pouchdb-$LEVEL_BACKEND.min.js
 else
-    node_modules/.bin/browserify lib/index.js \
+    browserify lib/index.js \
       --exclude ./adapters/leveldb \
       --exclude ./adapters/levelalt \
       --ignore levelup \
@@ -18,6 +18,6 @@ else
       --standalone PouchDB \
       --outfile dist/pouchdb-nightly.js
     
-    node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc \
+    uglifyjs dist/pouchdb-nightly.js -mc \
       > dist/pouchdb-nightly.min.js
 fi

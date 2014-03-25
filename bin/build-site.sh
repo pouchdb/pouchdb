@@ -17,7 +17,7 @@ bower install
 mkdir -p docs/static/css
 
 # Pre-process the less into it's final form.
-node_modules/less/bin/lessc docs/static/less/pouchdb/pouchdb.less > docs/static/css/pouchdb.css
+lessc docs/static/less/pouchdb/pouchdb.less > docs/static/css/pouchdb.css
 
 # Build the site using jekyll
 cd docs
