@@ -9,7 +9,7 @@ describe('Remove DB', function () {
     });
   });
   it('Put a file in the db, then destroy it', function (done) {
-    new PouchDB('./tmp/_pouch_veryimportantfiles', function (err, db) {
+    new PouchDB('veryimportantfiles', function (err, db) {
       fs.writeFile('./tmp/_pouch_veryimportantfiles/something', new Buffer('lalala'), function (err) {
         db.destroy(function (err) {
           if (err) {
