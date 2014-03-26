@@ -4,7 +4,7 @@
 : ${REPORTER:="spec"}
 
 if [ ! $COVERAGE ]; then
-    ./node_modules/.bin/mocha \
+    mocha \
         --bail \
         --timeout $TIMEOUT \
         --require=./tests/node.setup.js \
@@ -12,7 +12,7 @@ if [ ! $COVERAGE ]; then
         --grep=$GREP \
         tests/test.*.js
 else
-    ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \
+    istanbul cover ./node_modules/mocha/bin/_mocha -- \
         --bail \
         --timeout $TIMEOUT \
         --require=./tests/node.setup.js \
