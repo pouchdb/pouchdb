@@ -194,6 +194,26 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Compact db with sql-injecty doc id', function (done) {
+      var db = new PouchDB(dbs.name);
+      var id = '\'sql_injection_here';
+      db.put({ _id: id }, function (err, res) {
+        var firstRev = res.rev;
+        db.remove({
+          _id: id,
+          _rev: firstRev
+        }, function (err, res) {
+          db.compact(function () {
+            db.get(id, { rev: firstRev }, function (err, res) {
+              should.exist(err, 'got error');
+              err.message.should.equal('missing', 'correct reason');
+              done();
+            });
+          });
+        });
+      });
+    });
+
     if (autoCompactionAdapters.indexOf(adapter) === -1) {
       return;
     }
