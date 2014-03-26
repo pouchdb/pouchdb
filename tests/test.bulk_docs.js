@@ -319,7 +319,6 @@ adapters.forEach(function (adapter) {
         } else {
           ids.push(res[0].id);
         }
-        console.log(res);
         if (++numDone === 2) {
           errorNames.should.deep.equal(['conflict']);
           ids.should.deep.equal([id]);
