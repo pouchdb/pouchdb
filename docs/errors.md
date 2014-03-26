@@ -1,6 +1,7 @@
 ---
-layout: learn
+layout: 2ColLeft
 title: PouchDB, the JavaScript Database that Syncs!
+sidebar: nav.html
 ---
 
 # Common Errors

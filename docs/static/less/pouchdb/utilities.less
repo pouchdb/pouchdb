@@ -1,0 +1,22 @@
+@import "bower_components/bootstrap/less/utilities.less";
+
+.affix {
+  top: 0;
+  position: fixed;
+}
+
+@media (min-width: @affix-min-width) and (min-height: @affix-min-height) {
+  .affix-top{
+    top: 0;
+    position:absolute;
+  }
+
+  .affix {
+    top: 0;
+    position: fixed;
+  }
+
+  .affix-bottom {
+    position: absolute;
+  }
+}

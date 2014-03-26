@@ -1,0 +1,22 @@
+---
+layout: default
+---
+
+<article>
+  <div class="container">
+    <div class="row">
+        <div class="col-sm-3 col-md-2">
+          <ul class="nav nav-silent nav-sidebar" data-spy="affix" data-offset-top="100" data-offset-bottom="350">
+            {% include {{page.sidebar}} %}
+          </ul>
+        </div>
+
+        <div class="col-sm-9 col-md-10">
+          {{content}}
+        <div>
+
+    </div>
+
+  </div>
+
+</article>
