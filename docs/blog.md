@@ -2,6 +2,8 @@
 layout: default
 ---
 <article class='container'>
+<div class='row'>
+<div class='col-md-offset-2 col-md-8'>
 <h1>Blog</h1>
 
 {% for page in site.posts %}
@@ -10,5 +12,6 @@ layout: default
 {% include post_details.html %}
 
 {% endfor %}
-
+</div>
+</div>
 </article>
