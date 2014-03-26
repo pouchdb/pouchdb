@@ -2,12 +2,16 @@
 layout: default
 ---
 <article class='container'>
-    <h1>{{ page.title }}</h1>
-    <h4>{{ page.sub_title}}</h4>
+  <div class='row'>
+    <div class='col-md-offset-2 col-md-8'>
+      <h1>{{ page.title }}</h1>
+      <h4>{{ page.sub_title}}</h4>
 
-	{% include post_details.html %}
+	  {% include post_details.html %}
 
-    {{ content }}
+      {{ content }}
 
-	{% include social.html %}
+	  {% include social.html %}
+	</div>
+  </div>
 </article>
