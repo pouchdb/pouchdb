@@ -14,10 +14,12 @@ fs.mkdir('dist', function (e) {
 });
 
 var indexfile, dotfile, outfile;
+var query = "";
 if (process.env.LEVEL_BACKEND) {
   indexfile = "./lib/index-levelalt.js";
   dotfile = "./dist/.pouchdb-" + process.env.LEVEL_BACKEND + ".js";
   outfile = "./dist/pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+  query = "?sourceFile=pouchdb-" + process.env.LEVEL_BACKEND + ".js";
 } else {
   indexfile = "./lib/index.js";
   dotfile = "./dist/.pouchdb-nightly.js";
@@ -57,7 +59,8 @@ function startServers(couchHost) {
   http_server.createServer().listen(HTTP_PORT);
   cors_proxy.options = {target: couchHost || COUCH_HOST};
   http_proxy.createServer(cors_proxy).listen(CORS_PORT);
-  console.log('Tests: http://127.0.0.1:' + HTTP_PORT + '/tests/test.html');
+  console.log('Tests: http://127.0.0.1:' + HTTP_PORT +
+    '/tests/test.html' + query);
 }
 
 
