@@ -59,7 +59,9 @@ adapters.forEach(function (adapter) {
           db.compact(function () {
             db.get('foo', { rev: rev1 }, function (err, doc) {
               err.status.should.equal(404);
-              err.name.should.equal('not_found', 'compacted document is missing');
+              err.name.should.equal(
+                'not_found', 'compacted document is missing'
+              );
               db.get('foo', { rev: rev2 }, function (err, doc) {
                 done(err);
               });
@@ -210,7 +212,9 @@ adapters.forEach(function (adapter) {
             var rev3 = res.rev;
             db.get('doc', { rev: rev1 }, function (err, doc) {
               err.status.should.equal(404, 'compacted document is missing');
-              err.name.should.equal('not_found', 'compacted document is missing');
+              err.name.should.equal(
+                'not_found', 'compacted document is missing'
+              );
               db.get('doc', { rev: rev2 }, function (err, doc) {
                 if (err) {
                   return done(err);

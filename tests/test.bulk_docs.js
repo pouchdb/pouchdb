@@ -64,7 +64,8 @@ adapters.forEach(function (adapter) {
           }
           db.put(docs[0], function (err, doc) {
             db.bulkDocs({ docs: docs }, function (err, results) {
-              results[0].name.should.equal('conflict', 'First doc should be in conflict');
+              results[0].name.should.equal(
+                'conflict', 'First doc should be in conflict');
               should.not.exist(results[0].rev, 'no rev in conflict');
               for (i = 1; i < 5; i++) {
                 results[i].id.should.equal(i.toString());
