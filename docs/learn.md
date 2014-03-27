@@ -27,7 +27,7 @@ For details on supported browsers, see ["Can I use IndexedDB?"][caniuse-idb] and
   [caniuse-idb]: http://caniuse.com/indexeddb
   [caniuse-websql]: http://caniuse.com/sql-storage
 
-If your application requires support for Internet Explorer below version 10, it is possible to use an online CouchDB as a fallback, however it will not work offline.
+If your application requires support for Internet Explorer below version 10, it is possible to use an online CouchDB as a fallback, however it will not work offline. Also, because PouchDB requires an ES5 environment, you will need to include the [es5-shim](https://github.com/es-shims/es5-shim) library. This also applies to other legacy browsers, such as Android <4.0 and Opera Mini.
 
 # Current Status
 
