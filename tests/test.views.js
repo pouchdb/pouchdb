@@ -5,7 +5,7 @@ var adapters = [
   ['local', 'http'],
 ];
 
-adapters.map(function (adapters) {
+adapters.forEach(function (adapters) {
   describe('test.views.js-' + adapters[0] + '-' + adapters[1], function () {
 
     var dbs = {};

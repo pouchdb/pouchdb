@@ -9,7 +9,7 @@ var scenarios = [
 
 describe('migration', function () {
 
-  scenarios.map(function (scenario) {
+  scenarios.forEach(function (scenario) {
 
     describe('migrate from ' + scenario, function () {
       var dbs = {};

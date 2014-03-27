@@ -14,7 +14,7 @@ if (typeof module !== 'undefined' && module.exports) {
   downAdapters = [];
 }
 
-adapters.map(function (adapters) {
+adapters.forEach(function (adapters) {
   describe('test.replication.js-' + adapters[0] + '-' + adapters[1], function () {
 
     var dbs = {};

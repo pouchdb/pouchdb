@@ -3,7 +3,7 @@
 
 var adapters = ['http', 'local'];
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
 
   describe('test.changes.js-' + adapter, function () {
 
