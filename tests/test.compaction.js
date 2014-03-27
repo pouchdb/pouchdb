@@ -3,7 +3,7 @@
 var adapters = ['http', 'local'];
 var autoCompactionAdapters = ['local'];
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
   describe('test.compaction.js-' + adapter, function () {
 
     var dbs = {};

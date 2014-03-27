@@ -2,7 +2,7 @@
 
 var adapters = ['http', 'local'];
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
   describe('test.taskqueue.js-' + adapter, function () {
 
     var dbs = {};

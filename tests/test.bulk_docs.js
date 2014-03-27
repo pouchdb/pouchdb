@@ -20,7 +20,7 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
   describe('test.bulk_docs.js-' + adapter, function () {
 
     var dbs = {};

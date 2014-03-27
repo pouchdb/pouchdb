@@ -7,7 +7,7 @@ var adapters = [
   ['local', 'local']
 ];
 
-adapters.map(function (adapters) {
+adapters.forEach(function (adapters) {
   describe('test.sync.js-' + adapters[0] + '-' + adapters[1], function () {
 
     var dbs = {};
