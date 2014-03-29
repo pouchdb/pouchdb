@@ -8,7 +8,7 @@ layout: default
 
 {% for page in site.posts %}
 
-<a class='h3' href='{{ site.baseurl }}{{ page.url }}'>{{ page.title }}: {{ page.sub_title }}</a>
+<a class='h3' href='{{ site.baseurl }}{{ page.url }}'>{{ page.title }}</a>
 {% include post_details.html %}
 
 {% endfor %}
