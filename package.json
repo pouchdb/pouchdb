@@ -57,7 +57,8 @@
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
     "build-site": "./bin/build-site.sh",
-    "shell": "./bin/repl.js"
+    "shell": "./bin/repl.js",
+    "report-coverage": "./bin/run-coverage.js"
   },
   "browser": {
     "./deps/buffer": false,
