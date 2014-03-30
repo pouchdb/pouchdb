@@ -15,11 +15,11 @@
  * Sidebar navigation used in learn.html
  **/
 .nav-sidebar {
-  margin-top: 25px;
   > li.active > a,
   > li > a:hover {
     color: darken(@brand-primary, 10%);
     border-right: 2px solid lighten(@brand-primary, 10%);
+    padding-right: 10px;
   }
 }
 
@@ -30,4 +30,7 @@
         width: 100%;
       }
   }
+}
+@media (max-width: @screen-sm-min) {
+  .nav-sidebar { margin-bottom: 25px; }
 }

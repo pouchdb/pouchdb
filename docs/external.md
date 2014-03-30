@@ -1,10 +1,8 @@
 ---
 layout: 2ColLeft
-title: PouchDB, the JavaScript Database that Syncs!
+title: External Projects
 sidebar: nav.html
 ---
-
-# External Projects
 
 A set of projects that either provide plugins or related tools for PouchDB.
 

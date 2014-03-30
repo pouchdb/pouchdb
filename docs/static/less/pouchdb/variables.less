@@ -1,33 +1,59 @@
 @import "bower_components/bootstrap/less/variables.less";
 
-//Pouchdb overides
+// Color
 @brand-accent: #fa3649;
 @brand-primary: #6ccb99;
+@twitter: cornflowerblue;
+@github: darkslategray;
 
+// Social colors
+@btn-twitter-color: lighten(@twitter, 25%);
+@btn-twitter-bg: @twitter;
+@btn-twitter-border: darken(@twitter, 10%);
+@btn-github-color: lighten(@github, 50%);
+@btn-github-bg: @github;
+@btn-github-border: darken(@github, 10%);
+
+// Scaffolding
 @body-bg: #f6f6f6;
 @text-color: @gray;
 
-@link-color: @brand-accent;
 
-@headings-color: @brand-accent;
+// Container sizes
+@container-large-desktop: ((950px + @grid-gutter-width));
+
+// Code
+@code-color: darken(@brand-primary, 20%);
+@code-bg: lighten(@code-color, 50%);
+
+// Type
+@font-family-sans-serif: "Open Sans", Helvetica, Arial, sans-serif;
+
+@link-color: @brand-accent;
 @nav-link-hover-bg: none;
 
-//Pouchdb specific variables
+@headings-font-family: "Lato", Helvetica, Arial, sans-serif;
 @header-color: #ffffff;
 @header-border-color: #c8c8c8;
 
+// Logo
+@logo-img: '../img/mark.svg';
+@logo-fallback-img: '../img/mark.png';
+@logo-img-ratio: .78;
+@logo-img-height: 70px;
 @logo-width: 250px;
 
+// Navs
+
 /**
- * Navigation breakpoint
  * This defines at what point the navigation
  * will switch into it's horizontal view
  **/
 @navs-breakpoint: 715px;
 
-//When it get's silly small display only the mark.
+// When it get's silly small display only the mark.
 @navs-logo-breakpoint: 275px;
 
-//Minimum width and height for fixed sidebars
+// Minimum width and height for fixed sidebars
 @affix-min-width: @screen-sm-min;
 @affix-min-height: 475px;

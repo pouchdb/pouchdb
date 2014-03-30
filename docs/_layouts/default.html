@@ -16,6 +16,7 @@
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
     </script>
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700|Open+Sans:400,700' rel='stylesheet' type='text/css'>
   </head>
 
   <body>
@@ -25,7 +26,7 @@
       <div class="container">
 
         <a class="logo" href="{{ site.baseurl }}/">
-          <img class="logo-img" src="{{ site.baseurl }}/static/img/logo-icon.png" alt="Logo">
+          <div class="logo-img"></div>
           <span class='logo-type'>PouchDB</span>
         </a>
 
@@ -47,6 +48,21 @@
       </div>
 
     </header>
+    {% if page.url != "/index.html" %}
+      <div class="page-head">
+
+        <div class="container">
+
+          <h1>{{ page.title }}</h1>
+          {% if page.sub_title %}
+            <h4>{{ page.sub_title}}</h4>
+          {% endif %}
+
+        </div>
+
+      </div>
+    {% endif %}
+
 
     {{ content }}
 

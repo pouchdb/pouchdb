@@ -58,14 +58,14 @@ title: PouchDB, the JavaScript Database that Syncs!
 
       <div class='col-xs-6 col-md-3'>
 
-        <h3 class='brand-primary'>Cross Browser</h3>
+        <h3>Cross Browser</h3>
         <p>Works in Firefox, Chrome, Opera, Safari, IE and Node.js</p>
 
       </div>
 
       <div class='col-xs-6 col-md-3'>
 
-        <h3 class='brand-primary'>Lightweight</h3>
+        <h3>Lightweight</h3>
         <p>PouchDB is just a script tag and 25KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
         in Node.</p>
 
@@ -73,14 +73,14 @@ title: PouchDB, the JavaScript Database that Syncs!
 
       <div class='col-xs-6 col-md-3'>
 
-        <h3 class='brand-primary'>Easy to Learn</h3>
+        <h3>Easy to Learn</h3>
         <p>Requires some programming knowledge, however PouchDB is a piece of cake to learn.</p>
 
       </div>
 
       <div class='col-xs-6 col-md-3'>
 
-        <h3 class='brand-primary'>Open Source</h3>
+        <h3>Open Source</h3>
         <p>Everything is developed out in the open on Github, contributors always welcome!</p>
 
       </div>
