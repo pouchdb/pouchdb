@@ -131,18 +131,27 @@ adapters.forEach(function (adapter) {
 
     it('Testing deleting in changes', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
-        function () {
-        db.get('1', function (err, doc) {
-          db.remove(doc, function (err, deleted) {
-            should.exist(deleted.ok);
-            db.changes({
-              complete: function (err, changes) {
-                changes.results.should.have.length(4);
-                changes.results[3].id.should.equal('1');
-                should.exist(changes.results[3].deleted);
-                done();
-              }
+
+      db.info(function (err, info) {
+        var update_seq = info.update_seq;
+        
+        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+          function () {
+          db.get('1', function (err, doc) {
+            db.remove(doc, function (err, deleted) {
+              should.exist(deleted.ok);
+
+              db.changes({
+                since: update_seq,
+                complete: function (err, changes) {
+                  var deleted_ids = changes.results.map(function (c) {
+                    if (c.deleted) { return c.id; }
+                  });
+                  deleted_ids.should.include('1');
+
+                  done();
+                }
+              });
             });
           });
         });
@@ -151,17 +160,24 @@ adapters.forEach(function (adapter) {
 
     it('Testing updating in changes', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
-        function () {
-        db.get('3', function (err, doc) {
-          doc.updated = 'totally';
-          db.put(doc, function (err, doc) {
-            db.changes({
-              complete: function (err, changes) {
-                changes.results.should.have.length(4);
-                changes.results[3].id.should.equal('3');
-                done();
-              }
+
+      db.info(function (err, info) {
+        var update_seq = info.update_seq;
+        
+        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), 
+          function () {
+          db.get('3', function (err, doc) {
+            doc.updated = 'totally';
+            db.put(doc, function (err, doc) {
+              db.changes({
+                since: update_seq,
+                complete: function (err, changes) {
+                  var ids = changes.results.map(function (c) { return c.id; });
+                  ids.should.include('3');
+
+                  done();
+                }
+              });
             });
           });
         });
