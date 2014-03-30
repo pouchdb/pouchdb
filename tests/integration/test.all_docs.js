@@ -52,15 +52,19 @@ adapters.forEach(function (adapter) {
               var ids = ['0', '3', '1', '2'];
               db.changes({
                 complete: function (err, changes) {
+                  // order of changes is not guaranteed in a 
+                  // clustered changes feed
                   changes.results.forEach(function (row, i) {
-                    row.id.should.equal(ids[i], 'seq order');
+                    ids.should.include(row.id, 'seq order');
                   });
                   db.changes({
                     descending: true,
                     complete: function (err, changes) {
+                      // again, order is not guaranteed so 
+                      // unsure if this is a useful test
                       ids = ['2', '1', '3', '0'];
                       changes.results.forEach(function (row, i) {
-                        row.id.should.equal(ids[i], 'descending=true');
+                        ids.should.include(row.id, 'descending=true');
                       });
                       done();
                     }
