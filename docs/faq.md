@@ -1,11 +1,8 @@
 ---
 layout: 2ColLeft
-title: PouchDB, the JavaScript Database that Syncs!
+title: FAQ
 sidebar: nav.html
 ---
-
-# FAQ
-
 
 ### Can PouchDB sync with MySQL / my current non CouchDB database?
 

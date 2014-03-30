@@ -5,13 +5,21 @@
   .logo-type {
     float: left;
   }
-  .logo-img { opacity: .9; }
+  .logo-img {
+    opacity: .9;
+    height: @logo-img-height;
+    margin-top: -@logo-img-height*.2;
+    width: @logo-img-height*@logo-img-ratio;
+    background-image: url(@logo-img);
+    background-size: 100%;
+  }
   .logo-type {
-    margin-left: 5px;
+    margin-left: 8px;
     font-size: 3em;
     line-height: 1.1;
     text-transform: lowercase;
-    font-weight: bold;
+    letter-spacing: -1px;
+    color: @text-color;
   }
   &:hover .logo-img { opacity: 1; }
   .clearfix();

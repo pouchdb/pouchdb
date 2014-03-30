@@ -1,10 +1,8 @@
 ---
 layout: 2ColLeft
-title: API Reference - PouchDB
+title: API Reference
 sidebar: api.html
 ---
-
-# API Reference
 
 Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, and the second argument holds the result. 
 

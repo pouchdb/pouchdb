@@ -3,5 +3,5 @@
     {% capture author_twitter %}@{{ author.twitter }}{% endcapture %}
   {% endif %}
 {% endfor %}
-<a href='https://github.com/daleharvey/pouchdb/tree/master/docs/{{ page.path }}'>View on GitHub</a>
-<a href="https://twitter.com/intent/tweet?text={{ page.title }}: {{ site.host }}{{ site.baseurl }}{{ page.url }} -- @pouchdb {{ author_twitter }}">Tweet this article</a>
+<a class='btn btn-github' href='https://github.com/daleharvey/pouchdb/tree/master/docs/{{ page.path }}'>View on GitHub</a>
+<a class='btn btn-twitter' href="https://twitter.com/intent/tweet?text={{ page.title }}: {{ site.host }}{{ site.baseurl }}{{ page.url }} -- @pouchdb {{ author_twitter }}">Tweet this article</a>

@@ -1,10 +1,8 @@
 ---
 layout: 2ColLeft
-title: PouchDB, the JavaScript Database that Syncs!
+title: GQL Documentation
 sidebar: nav.html
 ---
-
-# GQL Documentation
 
 The Google Query Language (GQL) interface provides an alternative method for accessing data.
 The version of GQL implemented here is based on the Google Visualization API Query Language

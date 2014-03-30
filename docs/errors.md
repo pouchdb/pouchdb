@@ -1,10 +1,8 @@
 ---
 layout: 2ColLeft
-title: PouchDB, the JavaScript Database that Syncs!
+title: Common Errors
 sidebar: nav.html
 ---
-
-# Common Errors
 
 ### PouchDB is throwing `InvalidStateError`
 
