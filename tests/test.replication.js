@@ -720,6 +720,49 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Changes error', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docs = [];
+      var num = 80;
+      for (var i = 0; i < num; i++) {
+        docs.push({
+          _id: 'doc_' + i,
+          foo: 'bar_' + i
+        });
+      }
+      remote.bulkDocs({docs: docs}, {}, function (err, results) {
+        var changes = remote.changes;
+        var doc_count = 0;
+
+        // Mock remote.get to fail writing doc_3
+        remote.changes = function (opts) {
+          var onChange = opts.onChange;
+          opts.onChange = function () {
+            doc_count++;
+            onChange.apply(this, arguments);
+          };
+          var complete = opts.complete;
+          opts.complete = function () {
+            complete.apply(this, [{
+              status: 500,
+              error: 'mock changes error',
+              reason: 'simulate and error from changes'
+            }]);
+          };
+          changes.apply(this, arguments);
+        };
+
+        // Replicate and confirm failure
+        db.replicate.from(remote, function (err, result) {
+          should.exist(err);
+          doc_count.should.equal(result.docs_read);
+          remote.changes = changes;
+          done();
+        });
+      });
+    });
+
     it('Ensure checkpoint after deletion', function (done) {
       var db1name = dbs.name;
       var adoc = { '_id': 'adoc' };
