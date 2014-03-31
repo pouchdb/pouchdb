@@ -12,7 +12,7 @@ Additionally, any method that only returns a single thing (e.g. `db.get`) also r
   [lie]: https://github.com/calvinmetcalf/lie
   [bluebird]: https://github.com/petkaantonov/bluebird
 
-{% include anchor.html title="Create database" %}
+{% include anchor.html title="Create a database" hash="create_database"%}
 
 {% highlight js %}
 new PouchDB([name], [options])
@@ -59,7 +59,7 @@ Create an in-memory Pouch (in Node):
 var db = new PouchDB('dbname', {db : require('memdown')});
 {% endhighlight %}
 
-{% include anchor.html title="Delete database" %}
+{% include anchor.html title="Delete a database" hash="delete_database"%}
 
 {% highlight js %}
 db.destroy([options], [callback])
@@ -80,7 +80,7 @@ You can also delete a database using just the name:
 PouchDB.destroy('dbname', function(err, info) { });
 {% endhighlight %}
 
-{% include anchor.html title="Create / Update a document" hash="create_document" %}
+{% include anchor.html title="Create / update a document" hash="create_document" %}
 
 ### Using db.put()
 {% highlight js %}
@@ -172,7 +172,7 @@ db.post({
 
 **Put vs. post**: The basic rule of thumb is: put new documents with an `_id`, post new documents without an `_id`.
 
-{% include anchor.html title="Fetch document" %}
+{% include anchor.html title="Fetch a document" hash="fetch_document"%}
 
 {% highlight js %}
 db.get(docid, [options], [callback])
@@ -209,7 +209,7 @@ db.get('mydoc', function(err, doc) { });
 }
 {% endhighlight %}
 
-{% include anchor.html title="Delete document" %}
+{% include anchor.html title="Delete a document" hash="delete_document"%}
 
 {% highlight js %}
 db.remove(doc, [options], [callback])
@@ -277,7 +277,7 @@ db.bulkDocs({docs: [
 {% endhighlight %}
 
 
-{% include anchor.html title="Fetch documents" hash="batch_fetch" %}
+{% include anchor.html title="Fetch a batch of documents" hash="batch_fetch" %}
 
 {% highlight js %}
 db.allDocs([options], [callback])
@@ -732,7 +732,7 @@ Runs compaction of the database. Fires callback when compaction is done. If you 
 
 * `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Only for http adapter.
 
-{% include anchor.html title="Document Revisions Diff" hash="revisions_diff" %}
+{% include anchor.html title="Document revisions diff" hash="revisions_diff" %}
 
 {% highlight js %}
 db.revsDiff(diff, [callback])
@@ -760,7 +760,7 @@ db.revsDiff({
 }
 {% endhighlight %}
 
-{% include anchor.html title="Events" %}
+{% include anchor.html title="Events" hash="events"%}
 
 PouchDB is an [event emiter](http://nodejs.org/api/events.html#events_class_events_eventemitter) and will emit a `'created'` event when a database is created. A `'destroy'` event is emited when a database is destroyed.
 
@@ -773,9 +773,9 @@ PouchDB.on('destroyed', function (dbName) {
 });
 {% endhighlight %}
 
-{% include anchor.html title="Plugins" %}
+{% include anchor.html title="Plugins" hash="plugins"%}
 
-Writing a plugin is easy! The api is:
+Writing a plugin is easy! The API is:
 
 {% highlight js %}
 PouchDB.plugin({
