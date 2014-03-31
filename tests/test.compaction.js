@@ -3,7 +3,7 @@
 var adapters = ['http', 'local'];
 var autoCompactionAdapters = ['local'];
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
   describe('test.compaction.js-' + adapter, function () {
 
     var dbs = {};
@@ -59,7 +59,9 @@ adapters.map(function (adapter) {
           db.compact(function () {
             db.get('foo', { rev: rev1 }, function (err, doc) {
               err.status.should.equal(404);
-              err.name.should.equal('not_found', 'compacted document is missing');
+              err.name.should.equal(
+                'not_found', 'compacted document is missing'
+              );
               db.get('foo', { rev: rev2 }, function (err, doc) {
                 done(err);
               });
@@ -192,6 +194,26 @@ adapters.map(function (adapter) {
       });
     });
 
+    it('Compact db with sql-injecty doc id', function (done) {
+      var db = new PouchDB(dbs.name);
+      var id = '\'sql_injection_here';
+      db.put({ _id: id }, function (err, res) {
+        var firstRev = res.rev;
+        db.remove({
+          _id: id,
+          _rev: firstRev
+        }, function (err, res) {
+          db.compact(function () {
+            db.get(id, { rev: firstRev }, function (err, res) {
+              should.exist(err, 'got error');
+              err.message.should.equal('missing', 'correct reason');
+              done();
+            });
+          });
+        });
+      });
+    });
+
     if (autoCompactionAdapters.indexOf(adapter) === -1) {
       return;
     }
@@ -210,7 +232,9 @@ adapters.map(function (adapter) {
             var rev3 = res.rev;
             db.get('doc', { rev: rev1 }, function (err, doc) {
               err.status.should.equal(404, 'compacted document is missing');
-              err.name.should.equal('not_found', 'compacted document is missing');
+              err.name.should.equal(
+                'not_found', 'compacted document is missing'
+              );
               db.get('doc', { rev: rev2 }, function (err, doc) {
                 if (err) {
                   return done(err);

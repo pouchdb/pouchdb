@@ -20,7 +20,7 @@ function makeDocs(start, end, templateDoc) {
   return docs;
 }
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
   describe('test.bulk_docs.js-' + adapter, function () {
 
     var dbs = {};
@@ -64,7 +64,8 @@ adapters.map(function (adapter) {
           }
           db.put(docs[0], function (err, doc) {
             db.bulkDocs({ docs: docs }, function (err, results) {
-              results[0].name.should.equal('conflict', 'First doc should be in conflict');
+              results[0].name.should.equal(
+                'conflict', 'First doc should be in conflict');
               should.not.exist(results[0].rev, 'no rev in conflict');
               for (i = 1; i < 5; i++) {
                 results[i].id.should.equal(i.toString());
@@ -215,6 +216,28 @@ adapters.map(function (adapter) {
         });
       });
     });
+
+    it('Testing successive new_edits to the same doc', function (done) {
+
+      var db = new PouchDB(dbs.name);
+      var docs = [{
+        '_id': 'foo',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      }];
+
+      db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
+        should.not.exist(err);
+        db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
 
     it('Bulk with new_edits=false in req body', function (done) {
       var db = new PouchDB(dbs.name);

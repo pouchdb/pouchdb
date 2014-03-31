@@ -8,7 +8,7 @@ var repl_adapters = [
   ['local', 'local']
 ];
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
   describe('test.attachments.js-' + adapter, function () {
 
     var dbs = {};
@@ -545,7 +545,7 @@ adapters.map(function (adapter) {
   });
 });
 
-repl_adapters.map(function (adapters) {
+repl_adapters.forEach(function (adapters) {
   describe('test.attachments.js- ' + adapters[0] + ':' + adapters[1], function () {
 
     var dbs = {};

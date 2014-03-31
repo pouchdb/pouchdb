@@ -2,7 +2,7 @@
 
 var adapters = ['http', 'local'];
 
-adapters.map(function (adapter) {
+adapters.forEach(function (adapter) {
   describe('test.basics.js-' + adapter, function () {
 
     var dbs = {};
@@ -565,7 +565,7 @@ adapters.map(function (adapter) {
       });
     });
 
-    it.skip('Cant add docs with empty ids', function (done) {
+    it('Cant add docs with empty ids', function (done) {
       var docs = [
         {},
         { _id: null },
@@ -594,5 +594,35 @@ adapters.map(function (adapter) {
       });
     });
 
+    if (adapter === 'local') {
+      // TODO: this test fails in the http adapter in Chrome
+      it('should allow unicode doc ids', function (done) {
+        var db = new PouchDB(dbs.name);
+        var ids = [
+          // "PouchDB is awesome" in Japanese, contains 1-3 byte chars
+          '\u30d1\u30a6\u30c1\u30e5DB\u306f\u6700\u9ad8\u3060',
+          '\u03B2', // 2-byte utf-8 char: 3b2
+          '\uD843\uDF2D', // exotic 4-byte utf-8 char: 20f2d
+          '\u0000foo\u0000bar\u0001baz\u0002quux', // like mapreduce
+          '\u0000',
+          '\u30d1'
+        ];
+        var numDone = 0;
+        ids.forEach(function (id) {
+          var doc = {_id : id, foo : 'bar'};
+          db.put(doc).then(function (info) {
+            doc._rev = info.rev;
+            return db.put(doc);
+          }).then(function () {
+            return db.get(id);
+          }).then(function (resp) {
+            resp._id.should.equal(id);
+            if (++numDone === ids.length) {
+              done();
+            }
+          }, done);
+        });
+      });
+    }
   });
 });

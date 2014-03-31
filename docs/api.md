@@ -1,6 +1,7 @@
 ---
-layout: learn
+layout: 2ColLeft
 title: API Reference - PouchDB
+sidebar: api.html
 ---
 
 # API Reference

@@ -26,6 +26,9 @@ if (process.env.GREP) {
 if (process.env.NATIVEPROMISE) {
   qs.noBluebird = 1;
 }
+if (process.env.LEVEL_BACKEND) {
+  qs.sourceFile = "pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+}
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 

@@ -60,7 +60,7 @@ testUtils.adapterUrl = function (adapter, name) {
   if (adapter === 'http') {
     return testUtils.couchHost() + '/' + name;
   }
-  return typeof process === 'undefined' ? name : PouchDB.prefix + name;
+  return name;
 };
 
 // Delete specified databases
@@ -71,7 +71,9 @@ testUtils.cleanup = function (dbs, done) {
   var errors = [];
 
   function dbDeleted(err, res) {
-    if (err && err.status !== 404) {
+    // 400 is for an unexpected return from CouchDB, filed
+    // https://issues.apache.org/jira/browse/COUCHDB-2205
+    if (err && (err.status !== 404 && err.status !== 400)) {
       errors.push(err);
     }
     if (++deleted === num) {
@@ -332,6 +334,7 @@ if (typeof module !== 'undefined' && module.exports) {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
     testDir = testDir.slice(-1) === '/' ? testDir : testDir + '/';
     global.PouchDB.prefix = testDir + global.PouchDB.prefix;
+    require('../lib/adapters/leveldb').use_prefix = true;
     require('bluebird').onPossiblyUnhandledRejection(function (e, promise) {
       throw e;
     });
