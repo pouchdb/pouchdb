@@ -338,9 +338,10 @@ db.changes(options)
 
 A list of changes made to documents in the database, in the order they were made.
 It returns an object with one method `cancel`, which you call if you don't want to listen to new changes anymore. 
-`options.onChange` will be be called for each change that is encountered. 
 
-**Note** the 'live' option was formally called 'continuous', you can still use 'continuous' if you can spell it.
+It is an [event emitter][event emitter] and will emit a 'change' event on each document change, it calls a 'complete' event when all the changes have been processed, and an 'error' event when an error occurs. In addition to the 'change' event any change will also emit a 'create', 'update', or 'delete' event.
+
+**Note** The 'live' option was formally called 'continuous', you can still use 'continuous' if you can spell it.  Changes was previously not an event emitter, and instead of the 'change' and 'complete' events it took `completee` and `onChange` options, this is depreciated and could be removed in version 3.
 
 ### Options
 
@@ -351,18 +352,18 @@ All options default to `false` unless otherwise specified.
   * `options.attachments`: Include attachments.
 * `options.descending`: Reverse the order of the output documents.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
-* `options.since`: Start the results from the change immediately after the given sequence number.
-* `options.complete`: Function called when all changes have been processed.
+* `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'latest' if you want only new changes.
 * `options.live`: Use _longpoll_ feed. 
-* `options.onChange`: Function called on each change after deduplication (only sends the most recent for each document). Not called as a callback but called as `onChange(change)`. Can also be used with the `live` flag.
+* `options.limit`: Limit the number of results to this number.
+* `options.style`: Specifies how many revisions are returned in the changes array. The default, main_only, will only return the current "winning" revision; all_docs will return all leaf revisions (including conflicts and deleted former conflicts).
+* `options.view`: Specify a view function to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them.
 
 #### Example Usage:
 {% highlight js %}
 var changes = db.changes({
   since: 20,
-  live: true,
-  onChange: function(change) { }
-});
+  live: true
+}).on('change', function(change) { });
 
 changes.cancel();
 {% endhighlight %}
@@ -385,7 +386,9 @@ changes.cancel();
 
 #### Example Usage:
 {% highlight js %}
-db.changes({complete: function(err, response) { }});
+db.changes()
+  .on('error', function (err) {})
+  .on('complete', function (resp) {});
 {% endhighlight %}
 
 #### Example Response:
@@ -884,7 +887,7 @@ db.revsDiff({
 
 {% include anchor.html title="Events" hash="events"%}
 
-PouchDB is an [event emiter](http://nodejs.org/api/events.html#events_class_events_eventemitter) and will emit a `'created'` event when a database is created. A `'destroy'` event is emited when a database is destroyed.
+PouchDB is an [event emitter][event emitter] and will emit a `'created'` event when a database is created. A `'destroy'` event is emitted when a database is destroyed.
 
 {% highlight js %}
 PouchDB.on('created', function (dbName) {
@@ -919,3 +922,5 @@ PouchDB.plugin({
 });
 new PouchDB('foobar').sayMyName(); // prints "My name is foobar"
 {% endhighlight %}
+
+[event emitter]: http://nodejs.org/api/events.html#events_class_events_eventemitter
