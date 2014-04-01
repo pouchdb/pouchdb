@@ -139,6 +139,13 @@ The source for the website http://pouchdb.com is stored inside the `docs` direct
 
 You should now find the documentation at http://127.0.0.1:4000
 
+Writing a PouchDB Blog Post
+--------------------------------------
+
+Writing a blog post for PouchDB is exactly the same process as other contributions, the blog posts are kept @ https://github.com/daleharvey/pouchdb/tree/master/docs/_posts, just build the site as documented above, its usually easiest to copy an existing post and write away.
+
+If you want to be sure the blog post is relevant, open an issue on what you want to write about to hear back from reviewers.
+
 Committers!
 --------------
 
