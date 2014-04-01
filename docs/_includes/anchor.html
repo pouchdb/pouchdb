@@ -1,6 +1,1 @@
-{% if include.hash %}
-  {% assign hash = include.hash %}
-{% else %}
-  {% assign hash = include.title | downcase | replace: " ","_" %}
-{% endif %}
-<a class='h2 anchor' href='#{{ hash }}' name='{{ hash }}'>{{ include.title }}</a>
+<a class='h2 anchor' href='#{{ include.hash }}' name='{{ include.hash }}'>{{ include.title }}</a>
