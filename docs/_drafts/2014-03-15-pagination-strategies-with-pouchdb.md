@@ -70,7 +70,11 @@ Here's the response:
 }
 ```
 
-**Potential gotcha!** Somewhat unintuitively, `allDocs()` doesn't return the full document data by default.  It only returns the document `id` and revision hash `rev`, unless you pass in the option `{include_docs : true}`.
+{% include alert_start.html variant="warning"%}
+
+<strong>Potential gotcha!</strong> Somewhat unintuitively, <code>allDocs()</code> doesn't return the full document data by default.  It only returns the document <code>id</code> and revision hash <code>rev</code>, unless you pass in the option <code>{include_docs : true}</code>.
+
+{% include alert_end.html %}
 
 All 20 documents are returned, no pagination involved.  We can visualize it graphically like this:
 
@@ -222,7 +226,17 @@ In our initial query, we simply tell PouchDB to give us the first 5 documents (o
 
 Of course, you could also fetch `pageSize + 1` docs each time, and simply omit the last document when you display the results to the user.  The choice is yours, but either method is preferable to using `skip` and `limit` alone.
 
-**Aside**: To be fair, WebSQL and CouchDB (since [version 1.1.1][couch-skip-fix]) do not suffer from this problem, due to their ability to efficiently count SQLite rows/B-tree offsets.  However, since IndexedDB and LevelDB (and other backends modeled on [LevelDOWN][]) are traditional key-value stores, they don't have a good way to count offsets.  So you're better off using the `startkey` pattern everywhere.
+{% include alert_start.html  variant="info"%}
+
+<strong>Aside</strong>: To be fair, WebSQL and CouchDB (since <a href='https://issues.apache
+.org/jira/browse/COUCHDB-977'>version 1.1.1</a>) do not
+suffer from this problem, due to their ability to efficiently count SQLite rows/B-tree offsets.
+However, since IndexedDB and LevelDB (and other backends modeled on <a href='https://github
+.com/rvagg/node-leveldown/'>LevelDOWN</a>) are
+traditional key-value stores, they don't have a good way to count offsets.  So you're better off
+using the <code>startkey</code> pattern everywhere.
+
+{% include alert_end.html %}
 
 ## Paginating in backwards land
 
@@ -345,7 +359,11 @@ now.toJSON()          // "2014-03-15T00:04:00.000Z"
 partyLikeIts.toJSON() < now.toJSON(); // true
 ```
 
-**Note:** If you're worried about ID collisions, you could also use `new Date().toJSON() + Math.random()`.
+{% include alert_start.html variant="warning" %}
+
+<strong>Note:</strong> If you're worried about ID collisions, you could also use <code>new Date().toJSON() + Math.random()</code>.
+
+{% include alert_end.html %}
 
 Now we can fetch the 10 most recent docs:
 
@@ -402,10 +420,8 @@ PouchDB and CouchDB handle pagination like it ain't no thing.  There are more ad
 So congratulations, you're now a [Page Master]!  Try to use your newfound powers for good.
 
   [couch-query-api]: https://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
-  [couch-skip-fix]: https://issues.apache.org/jira/browse/COUCHDB-977
   [js-string-ordering]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#Comparing_strings
   [collation-specification]: http://docs.couchdb.org/en/latest/couchapp/views/collation.html#collation-specification
   [query-api]: http://pouchdb.com/api.html#query_database
-  [leveldown]: https://github.com/rvagg/node-leveldown/
   [page master]: https://en.wikipedia.org/wiki/Pagemaster
   [remove]: http://pouchdb.com/api.html#delete_document
