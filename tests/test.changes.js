@@ -964,13 +964,16 @@ adapters.forEach(function (adapter) {
 
     it('Closing db does not cause a crash if changes cancelled', function (done) {
       var db = new PouchDB(dbs.name);
+      var state = 0;
       db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
         var changes = db.changes({
           live: true,
           onChange: function () { },
           complete: function (err, result) {
             result.status.should.equal('cancelled');
-            done();
+            if (++state === 2) {
+              done();
+            }
           }
         });
         should.exist(changes);
@@ -978,6 +981,9 @@ adapters.forEach(function (adapter) {
         changes.cancel();
         db.close(function (error) {
           should.not.exist(error);
+          if (++state === 2) {
+            done();
+          }
         });
       });
     });
