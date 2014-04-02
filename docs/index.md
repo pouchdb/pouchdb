@@ -3,7 +3,7 @@ layout: default
 title: PouchDB, the JavaScript Database that Syncs!
 ---
 
-<div class="ui-intro">
+<div class="intro">
 
   <div class="container">
 
@@ -50,20 +50,25 @@ title: PouchDB, the JavaScript Database that Syncs!
 
 </div>
 
-<div class="ui-infoblocks">
+<div class="infoblocks">
 
   <div class="container">
 
     <div class='row'>
 
-      <div class='col-xs-6 col-md-3'>
+
+      <div class='block col-sm-6 col-md-3'>
+
+        <div class="icon icon-node"></div>
 
         <h3>Cross Browser</h3>
         <p>Works in Firefox, Chrome, Opera, Safari, IE and Node.js</p>
 
       </div>
 
-      <div class='col-xs-6 col-md-3'>
+      <div class='block col-sm-6 col-md-3'>
+
+        <div class="icon icon-light"></div>
 
         <h3>Lightweight</h3>
         <p>PouchDB is just a script tag and 25KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
@@ -71,14 +76,18 @@ title: PouchDB, the JavaScript Database that Syncs!
 
       </div>
 
-      <div class='col-xs-6 col-md-3'>
+      <div class='block col-sm-6 col-md-3'>
+
+        <div class="icon icon-learn"></div>
 
         <h3>Easy to Learn</h3>
         <p>Requires some programming knowledge, however PouchDB is a piece of cake to learn.</p>
 
       </div>
 
-      <div class='col-xs-6 col-md-3'>
+      <div class='block col-sm-6 col-md-3'>
+
+        <div class="icon icon-open"></div>
 
         <h3>Open Source</h3>
         <p>Everything is developed out in the open on Github, contributors always welcome!</p>

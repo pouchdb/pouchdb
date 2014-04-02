@@ -1,5 +1,8 @@
 @import "@{bootstrap}/variables.less";
 
+// Base img dir
+@img_dir: "../img";
+
 // Color
 @brand-accent: #fa3649;
 @brand-primary: #6ccb99;
@@ -36,8 +39,8 @@
 @header-border-color: #c8c8c8;
 
 // Logo
-@logo-img: '../img/mark.svg';
-@logo-fallback-img: '../img/mark.png';
+@logo-img: '@{img_dir}/mark.svg';
+@logo-fallback-img: '@{img_dir}/mark.png';
 @logo-img-ratio: .78;
 @logo-img-height: 70px;
 @logo-width: 250px;
@@ -51,7 +54,7 @@
 @navs-breakpoint: 715px;
 
 // When it get's silly small display only the mark.
-@navs-logo-breakpoint: 275px;
+@navs-logo-breakpoint: 270px;
 
 // Minimum width and height for fixed sidebars
 @affix-min-width: @screen-sm-min;
