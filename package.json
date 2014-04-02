@@ -43,8 +43,7 @@
     "istanbul": "~0.2.4",
     "ncp": "~0.5.0",
     "sauce-connect-launcher": "0.2.2",
-    "less": "~1.7.0",
-    "bower": "~1.2.8"
+    "less": "~1.7.0"
   },
   "scripts": {
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js",

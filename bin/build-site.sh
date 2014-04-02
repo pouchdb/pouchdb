@@ -10,9 +10,6 @@ fi
 # Install npm dependancies
 npm install
 
-# Install bower dependancies
-bower install
-
 # Make the directory for the css to live in.
 mkdir -p docs/static/css
 

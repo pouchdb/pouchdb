@@ -1,22 +1,24 @@
+@bootstrap: "../bootstrap";
+
 @import "variables.less";
 
 // Mixins
-@import "bower_components/bootstrap/less/mixins.less";
+@import "@{bootstrap}/mixins.less";
 
 // Reset
-@import "bower_components/bootstrap/less/normalize.less";
-@import "bower_components/bootstrap/less/print.less";
+@import "@{bootstrap}/normalize.less";
+@import "@{bootstrap}/print.less";
 
 // Core CSS
-@import "bower_components/bootstrap/less/scaffolding.less";
-@import "bower_components/bootstrap/less/code.less";
-@import "bower_components/bootstrap/less/grid.less";
+@import "@{bootstrap}/scaffolding.less";
+@import "@{bootstrap}/code.less";
+@import "@{bootstrap}/grid.less";
 
 // Components
-@import "bower_components/bootstrap/less/media.less";
+@import "@{bootstrap}/media.less";
 
 // Utility classes
-@import "bower_components/bootstrap/less/responsive-utilities.less";
+@import "@{bootstrap}/responsive-utilities.less";
 
 // PouchDB Overrides
 @import "navs.less";
