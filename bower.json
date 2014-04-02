@@ -9,9 +9,6 @@
     "pouchdb"
   ],
   "dependencies": {},
-  "devDependencies": {
-    "bootstrap": "~3.1.1"
-  },
   "development": {},
   "license": "Apache",
   "main": "dist/pouchdb-nightly.js",
