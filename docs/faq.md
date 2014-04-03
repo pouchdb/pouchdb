@@ -34,7 +34,7 @@ Internet Exporer 10 has a hard 250MB limit.
 
 ### CouchDB Differences
 
-PouchDB is also a CouchDB client and you should be able to switch between a local database or an online CouchDB instance changing any of your applications code, there are some minor differences to note:
+PouchDB is also a CouchDB client and you should be able to switch between a local database or an online CouchDB instance without changing any of your applications code, there are some minor differences to note:
 
 **View Collation** - CouchDB uses ICU to order keys in a view query, in PouchDB they are ASCII ordered.
 
