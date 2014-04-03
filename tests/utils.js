@@ -4,6 +4,14 @@
 
 var testUtils = {};
 
+function uniq(list) {
+  var map = {};
+  list.forEach(function (item) {
+    map[item] = true;
+  });
+  return Object.keys(map);
+}
+
 testUtils.couchHost = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env.COUCH_HOST || 'http://localhost:5984';
@@ -65,6 +73,8 @@ testUtils.adapterUrl = function (adapter, name) {
 
 // Delete specified databases
 testUtils.cleanup = function (dbs, done) {
+
+  dbs = uniq(dbs);
 
   var deleted = 0;
   var num = dbs.length;
