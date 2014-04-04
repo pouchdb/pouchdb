@@ -39,6 +39,7 @@ env:
   - NATIVEPROMISE=1 CLIENT=firefox COMMAND=test
   - CLIENT=chrome COMMAND=test
   - CLIENT=firefox LEVEL_BACKEND=leveljs COMMAND=test
+  - CLIENT=firefox PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
 matrix:

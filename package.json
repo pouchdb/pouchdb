@@ -43,21 +43,25 @@
     "istanbul": "~0.2.4",
     "ncp": "~0.5.0",
     "sauce-connect-launcher": "0.2.2",
-    "less": "~1.7.0"
+    "less": "~1.7.0",
+    "tape": "~2.12.2",
+    "glob": "~3.2.9",
+    "watch-glob": "~0.1.1"
   },
   "scripts": {
-    "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js",
+    "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js",
     "build-js": "./bin/build-js.sh",
-    "build": "mkdir -p dist && npm run build-js",
+    "build": "npm run build-js",
     "test-node": "./bin/run-mocha.sh",
-    "test-browser": "mkdir -p dist && npm run build-js && ./bin/test-browser.js",
+    "test-browser": "npm run build-js && ./bin/test-browser.js",
     "dev": "./bin/dev-server.js",
     "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
     "build-site": "./bin/build-site.sh",
     "shell": "./bin/repl.js",
-    "report-coverage": "./bin/run-coverage.js"
+    "report-coverage": "./bin/run-coverage.js",
+    "build-perf": "browserify tests/performance/*.js > dist/performance-bundle.js"
   },
   "browser": {
     "./deps/buffer": false,

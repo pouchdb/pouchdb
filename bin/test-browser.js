@@ -12,7 +12,11 @@ var devserver = require('./dev-server.js');
 
 var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
 var SELENIUM_HUB = 'http://localhost:4444/wd/hub/status';
-var testUrl = 'http://127.0.0.1:8000/tests/test.html';
+
+var testRoot = 'http://127.0.0.1:8000/tests/';
+var testUrl = testRoot +
+  (process.env.PERF ? 'performance/test.html' : 'test.html');
+
 var testTimeout = 30 * 60 * 1000;
 
 var username = process.env.SAUCE_USERNAME;
@@ -20,6 +24,7 @@ var accessKey = process.env.SAUCE_ACCESS_KEY;
 var browser = process.env.CLIENT || 'firefox';
 var client;
 var qs = {};
+
 if (process.env.GREP) {
   qs.grep = process.env.GREP;
 }
@@ -46,20 +51,23 @@ function testError(e) {
 }
 
 function testComplete(result) {
-
-  var total = result.passed + result.failed;
-
-  if (result.failed) {
-    console.log('failed ' + result.failed + ' of ' + total + ' tests');
-    console.log(JSON.stringify(result.failures, false, 4));
-  } else {
-    console.log('passed ' + result.passed + ' of ' + total + ' tests');
-  }
+  result.date = Date.now();
+  console.log(result);
 
   client.quit().then(function () {
-    process.exit(result.failed ? 1 : 0);
+    if (process.env.PERF && process.env.DASHBOARD_HOST) {
+      var options = {
+        method: 'POST',
+        uri: process.env.DASHBOARD_HOST + '/performance_results',
+        json: result
+      };
+      request(options, function (error, response, body) {
+        process.exit(!!error);
+      });
+      return;
+    }
+    process.exit(!process.env.PERF && result.failed ? 1 : 0);
   });
-
 }
 
 function startSelenium(callback) {
