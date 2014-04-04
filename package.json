@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "commander": "~2.1.0",
-    "watchify": "~0.4.1",
     "uglify-js": "~2.4.6",
     "jshint": "~2.3.0",
     "http-proxy": "~0.10.3",
@@ -55,9 +54,11 @@
     "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
-    "build-site": "./bin/build-site.sh",
     "shell": "./bin/repl.js",
-    "report-coverage": "./bin/run-coverage.js"
+    "report-coverage": "./bin/run-coverage.js",
+    "build-site": "./bin/build-site.sh",
+    "build-css": "./bin/build-css.sh",
+    "watch-css": "watch-run -p 'docs/static/less/**/*.less' npm run build-css"
   },
   "browser": {
     "./deps/buffer": false,
