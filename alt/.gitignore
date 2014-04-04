@@ -1,0 +1,12 @@
+tmp
+.DS_Store
+node_modules
+docs/_site
+docs/static/css
+npm-debug.log
+*~
+*.uuid
+coverage
+bower_components
+.idea/
+tests/performance/bundle.js
