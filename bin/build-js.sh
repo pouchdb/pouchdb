@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -n "$PERF" ]; then
+    npm run build-perf
+fi
+
 if [ -n "$LEVEL_BACKEND" ]; then
     node_modules/.bin/browserify lib/index-levelalt.js \
       --require ./lib/index:./lib/index-levelalt.js \
