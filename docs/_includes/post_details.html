@@ -30,8 +30,11 @@
     <p>
       <strong>By:</strong> {{ post_author }}<br>
       <strong>Published:</strong> {{ post.date | date_to_long_string }}<br>
-      {% if page.url == "/blog.html" %}
-        {{ post.excerpt }}
+      {% if page.url == "/blog.html" or page.url == "/index.html" %}
+        {{ post.excerpt | truncatewords: 30 }}
+      {% endif %}
+      {% if page.url == "/blog.html" or page.url == "/index.html" %}        
+        <a href='{{ site.baseurl }}{{ post.url }}'>[...]</a>
       {% endif %}
     </p>
     </div>
