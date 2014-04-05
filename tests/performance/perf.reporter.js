@@ -10,14 +10,17 @@ function log(msg) {
   }
 }
 
-exports.start = function (key) {
-  log('Starting test: ' + key + ' .... ');
+exports.start = function (testCase) {
+  var key = testCase.name;
+  log('Starting test: ' + key + ' with ' + testCase.assertions +
+    ' assertions and ' + testCase.iterations + ' iterations... ');
   global.results[key] = {
     start: Date.now()
   };
 };
 
-exports.end = function (key) {
+exports.end = function (testCase) {
+  var key = testCase.name;
   var obj = global.results[key];
   obj.end = Date.now();
   obj.duration = obj.end - obj.start;
@@ -27,6 +30,6 @@ exports.end = function (key) {
 exports.complete = function () {
   global.results.completed = true;
   console.log(global.results);
-  log('\nTests Complete!');
+  log('\nTests Complete!\n\n');
 };
 
