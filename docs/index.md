@@ -24,7 +24,7 @@ title: PouchDB, the JavaScript Database that Syncs!
 
       <div class='col-sm-6'>
 
-  {% highlight js linenos %}
+  {% highlight js %}
   var db = new PouchDB('dbname');
 
   db.put({
