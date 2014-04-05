@@ -46,19 +46,20 @@
     "less": "~1.7.0",
     "tape": "~2.12.2",
     "glob": "~3.2.9",
-    "watch-glob": "~0.1.1"
+    "watch-glob": "~0.1.1",
+    "mkdirp": "~0.3.5",
+    "exec-sync": "~0.1.6"
   },
   "scripts": {
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js",
-    "build-js": "./bin/build-js.sh",
-    "build": "npm run build-js",
+    "build": "./bin/build-js.sh",
     "test-node": "./bin/run-mocha.sh",
-    "test-browser": "npm run build-js && ./bin/test-browser.js",
+    "test-browser": "npm run build && ./bin/test-browser.js",
     "dev": "./bin/dev-server.js",
     "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
-    "build-site": "./bin/build-site.sh",
+    "build-site": "./bin/build-site.js",
     "shell": "./bin/repl.js",
     "report-coverage": "./bin/run-coverage.js",
     "build-perf": "browserify tests/performance/*.js > dist/performance-bundle.js"
