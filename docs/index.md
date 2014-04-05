@@ -24,7 +24,7 @@ title: PouchDB, the JavaScript Database that Syncs!
 
       <div class='col-sm-6'>
 
-  {% highlight js linenos %}
+  {% highlight js %}
   var db = new PouchDB('dbname');
 
   db.put({
@@ -95,6 +95,34 @@ title: PouchDB, the JavaScript Database that Syncs!
       </div>
 
     </div>
+  </div>
+
+</div>
+
+<div class="blog">
+
+  <div class="container">
+
+    <h3>Latest</h3>
+
+        <div class="row">
+
+{% for post in site.posts limit:2 %}
+
+<div class="col-md-6">
+
+
+  <p><a class='h4' href='{{ site.baseurl }}{{ post.url }}'>{{ post.title }}</a></p>
+
+{% include post_details.html %}
+
+  </div>
+
+{% endfor %}
+
+   </div>
+
+   <a class="btn btn-primary btn-lg" href="/blog.html">View more</a>
 
   </div>
 

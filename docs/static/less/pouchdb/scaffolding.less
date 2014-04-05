@@ -4,6 +4,9 @@ body {
   overflow-x: hidden;
 }
 
+// Temporary fix for Jekyll's P tags all over the place. :/
+p:empty { display: none; }
+
 .intro,
 .infoblocks,
 .icons,
@@ -16,8 +19,10 @@ article { padding: 20px 0 75px; }
 
 .page-head,
 .intro,
+.blog,
 footer {
   background-color: @gray-lighter;
 }
 
 .intro .highlight { margin-top: 2em; }
+.icons { border-top: 20px solid @gray-lighter; }
