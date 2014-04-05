@@ -21,12 +21,26 @@
 // Container sizes
 @container-large-desktop: ((950px + @grid-gutter-width));
 
+// Grid
+@grid-gutter-width: 40px;
+
 // Code
 @code-color: darken(@brand-primary, 30%);
 @code-bg: lighten(@brand-primary, 30%);
 
 // Type
 @font-family-sans-serif: "Open Sans", Helvetica, Arial, sans-serif;
+@font-size-base: 16px;
+
+@font-size-large: ceil((@font-size-base * 1.25));
+@font-size-small: ceil((@font-size-base * 0.75));
+
+@font-size-h1: floor((@font-size-base * 2.25));
+@font-size-h2: floor((@font-size-base * 2));
+@font-size-h3: ceil((@font-size-base * 1.75));
+@font-size-h4: ceil((@font-size-base * 1.5));
+@font-size-h5: ceil((@font-size-base * 1.25));
+@font-size-h6: @font-size-base;
 
 @link-color: @brand-accent;
 @nav-link-hover-bg: none;
