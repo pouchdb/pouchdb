@@ -42,11 +42,14 @@ function bundle() {
 var w = watchify(indexfile).on('update', bundle);
 bundle();
 
-watchGlob('tests/performance/perf.*.js', function (err, files) {
+function bundlePerfTests() {
   glob('./tests/performance/*.js', function (err, files) {
     browserify(files).bundle({}, writeFile(performanceBundle));
   });
-});
+}
+
+watchGlob('tests/performance/perf.*.js', bundlePerfTests);
+bundlePerfTests();
 
 var COUCH_HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
 
