@@ -13,7 +13,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    afterEach(function (done) {
+    after(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -91,7 +91,7 @@ adapters.forEach(function (adapter) {
         db.put(obj, id).then(function (doc) {
           db.put({'something': 'else'}, id, doc.rev);
         });
-       
+
       });
     });
 

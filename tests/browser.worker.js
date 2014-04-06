@@ -10,7 +10,7 @@ describe('browser.worker.js', function () {
     testUtils.cleanup([dbs.name, dbs.remote], done);
   });
 
-  afterEach(function (done) {
+  after(function (done) {
     testUtils.cleanup([dbs.name, dbs.remote], done);
   });
 

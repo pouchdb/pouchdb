@@ -30,7 +30,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    afterEach(function (done) {
+    after(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -269,7 +269,7 @@ adapters.forEach(function (adapter) {
         });
       });
     });
-    
+
     it('656 regression in handling deleted docs', function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({
