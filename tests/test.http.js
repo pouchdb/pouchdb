@@ -11,7 +11,7 @@ describe('test.http.js', function () {
     testUtils.cleanup([dbs.name], done);
   });
 
-  afterEach(function (done) {
+  after(function (done) {
     testUtils.cleanup([dbs.name], done);
   });
 

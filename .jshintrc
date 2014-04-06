@@ -22,6 +22,7 @@
   "predef": [
     "describe",
     "it",
+    "after",
     "beforeEach",
     "afterEach",
     "testUtils",

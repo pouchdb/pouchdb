@@ -12,7 +12,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    afterEach(function (done) {
+    after(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
 
