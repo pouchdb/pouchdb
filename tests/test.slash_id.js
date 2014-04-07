@@ -73,16 +73,19 @@ adapters.forEach(function (adapter) {
           });
           for (var i = 0; i < 3; i++) {
             res.rows[i].doc._id.should
-              .equal(docs[i]._id, '(allDocs) correctly inserted ' + docs[i]._id);
+              .equal(docs[i]._id, '(allDocs) correctly inserted ' +
+                     docs[i]._id);
           }
-          res.rows[1].doc._attachments.should.include.keys('attachment/with/slash');
+          res.rows[1].doc._attachments.should.include
+            .keys('attachment/with/slash');
           db.changes({
             complete: function (err, res) {
               res.results.sort(function (a, b) {
                 return a.id.localeCompare(b.id);
               });
               for (var i = 0; i < 3; i++) {
-                res.results[i].id.should.equal(docs[i]._id, 'correctly inserted');
+                res.results[i].id.should
+                  .equal(docs[i]._id, 'correctly inserted');
               }
               done();
             }
@@ -132,7 +135,8 @@ repl_adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       remote.bulkDocs({ docs: docs1 }, function (err, info) {
         db.replicate.from(remote, function () {
-          db.get('bin_doc/with/slash', { attachments: true }, function (err, doc) {
+          db.get('bin_doc/with/slash', { attachments: true },
+            function (err, doc) {
             binAttDoc._attachments['foo/with/slash.txt'].data.should
               .equal(doc._attachments['foo/with/slash.txt'].data);
             done();

@@ -41,7 +41,9 @@ describe('migration', function () {
 
         if (scenario in PouchDB.adapters) {
           dbs.first.localOpts.adapter = scenario;
-        } // else scenario might not make sense for this browser, so just use same adapter for both
+        }
+        // else scenario might not make sense for this browser, so just use 
+        // same adapter for both
 
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
 
@@ -59,7 +61,9 @@ describe('migration', function () {
       ];
 
       it('Testing basic migration integrity', function (done) {
-        var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts, function (err) {
+        var oldPouch =
+          new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
+          function (err) {
           should.not.exist(err, 'got error: ' + JSON.stringify(err));
           if (err) {
             done();
@@ -102,21 +106,26 @@ describe('migration', function () {
         ];
 
         new dbs.first.pouch(dbs.first.remote, function (err, oldPouch) {
-          should.not.exist(err, 'got error in constructor: ' + JSON.stringify(err));
+          should.not.exist(err, 'got error in constructor: ' +
+            JSON.stringify(err));
           if (err) {
             done();
           }
           oldPouch.bulkDocs({docs: docs}, {}, function (err, res) {
-            should.not.exist(err, 'got error in bulkDocs: ' + JSON.stringify(err));
-            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts, function (err, oldLocalPouch) {
+            should.not.exist(err, 'got error in bulkDocs: ' +
+              JSON.stringify(err));
+            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
+              function (err, oldLocalPouch) {
               oldPouch.replicate.to(oldLocalPouch, function (err, result) {
-                should.not.exist(err, 'got error in replicate: ' + JSON.stringify(err));
+                should.not.exist(err, 'got error in replicate: ' +
+                  JSON.stringify(err));
                 if (err) {
                   done();
                 }
                 should.exist(result.ok, 'replication was ok');
                 oldPouch.close(function (err) {
-                  should.not.exist(err, 'got error in close: ' + JSON.stringify(err));
+                  should.not.exist(err, 'got error in close: ' +
+                    JSON.stringify(err));
                   if (err) {
                     done();
                   }
@@ -125,18 +134,23 @@ describe('migration', function () {
                     done();
                   }
                   oldLocalPouch.close(function (err) {
-                    should.not.exist(err, 'got error in close: ' + JSON.stringify(err));
+                    should.not.exist(err, 'got error in close: ' +
+                      JSON.stringify(err));
                     if (err) {
                       done();
                     }
-                    new dbs.second.pouch(dbs.second.local, function (err, newPouch) {
-                      should.not.exist(err, 'got error in 2nd constructor: ' + JSON.stringify(err));
+                    new dbs.second.pouch(dbs.second.local,
+                      function (err, newPouch) {
+                      should.not.exist(err, 'got error in 2nd constructor: ' +
+                        JSON.stringify(err));
                       if (err) {
                         done();
                       }
                       newPouch.allDocs({}, function (err, res) {
-                        should.not.exist(err, 'got error in allDocs: ' + JSON.stringify(err));
-                        res.rows.should.have.length(3, 'unexpected rows: ' + JSON.stringify(res.rows));
+                        should.not.exist(err, 'got error in allDocs: ' +
+                          JSON.stringify(err));
+                        res.rows.should.have.length(3, 'unexpected rows: ' +
+                          JSON.stringify(res.rows));
                         res.total_rows.should.equal(3);
                         done();
                       });

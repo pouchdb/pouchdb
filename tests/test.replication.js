@@ -15,7 +15,8 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 adapters.forEach(function (adapters) {
-  describe('test.replication.js-' + adapters[0] + '-' + adapters[1], function () {
+  describe('test.replication.js-' + adapters[0] + '-' + adapters[1],
+    function () {
 
     var dbs = {};
 
@@ -287,11 +288,13 @@ adapters.forEach(function (adapters) {
                           doc.value.should.equal('db1');
                           db2.get('foo', function (err, doc) {
                             doc.value.should.equal('db1');
-                            db1.allDocs({ include_docs: true }, function (err, res) {
+                            db1.allDocs({ include_docs: true },
+                              function (err, res) {
                               res.rows.should.have.length.above(0);
                               // redundant but we want to test it
                               res.rows[0].doc.value.should.equal('db1');
-                              db2.allDocs({ include_docs: true }, function (err, res) {
+                              db2.allDocs({ include_docs: true },
+                                function (err, res) {
                                 res.rows.should.have.length.above(0);
                                 res.rows[0].doc.value.should.equal('db1');
                                 done();
@@ -643,8 +646,10 @@ adapters.forEach(function (adapters) {
                 winningRev = resp.rev;
                 PouchDB.replicate(db, remote, function (err, resp) {
                   PouchDB.replicate(remote, db, function (err, resp) {
-                    remote.get('test', { revs_info: true }, function (err, remotedoc) {
-                      db.get('test', { revs_info: true }, function (err, localdoc) {
+                    remote.get('test', { revs_info: true },
+                      function (err, remotedoc) {
+                      db.get('test', { revs_info: true },
+                        function (err, localdoc) {
                         localdoc._rev.should.equal(winningRev);
                         remotedoc._rev.should.equal(winningRev);
                         done();
@@ -790,7 +795,8 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('issue #909 Filtered replication bails at paging limit', function (done) {
+    it('issue #909 Filtered replication bails at paging limit',
+      function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docs = [];
@@ -1204,9 +1210,10 @@ adapters.forEach(function (adapters) {
     });
 
 
-    // This fails as it somehow triggers an xhr abort in the http adapter in node
-    // which doesnt have xhr....
-    it.skip('Syncing should stop if one replication fails (issue 838)', function (done) {
+    // This fails as it somehow triggers an xhr abort in the http adapter in
+    // node which doesnt have xhr....
+    it.skip('Syncing should stop if one replication fails (issue 838)',
+      function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var doc1 = {_id: 'adoc', foo: 'bar'};
@@ -1260,15 +1267,18 @@ adapters.forEach(function (adapters) {
             // checkpoint should not be moved past first doc
             // should continue from this point and retry second doc
             result.docs_read.should.equal(1, 'second replication, docs_read');
-            result.docs_written.should.equal(1, 'second replication, docs_written');
-            result.doc_write_failures.should.equal(0, 'second replication, doc_write_failures');
+            result.docs_written.should
+              .equal(1, 'second replication, docs_written');
+            result.doc_write_failures.should
+              .equal(0, 'second replication, doc_write_failures');
             done();
           });
         });
       });
     });
 
-    it("Reporting write failures if whole saving fails (#942)", function (done) {
+    it("Reporting write failures if whole saving fails (#942)",
+      function (done) {
       var docs = [{_id: 'a', _rev: '1-a'}, {_id: 'b', _rev: '1-b'}];
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -1285,8 +1295,10 @@ adapters.forEach(function (adapters) {
           result.last_seq.should.equal(0, 'last_seq');
           remote.bulkDocs = bulkDocs;
           db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
-            result.doc_write_failures.should.equal(0, 'second replication, doc_write_failures');
-            result.docs_written.should.equal(2, 'second replication, docs_written');
+            result.doc_write_failures.should
+              .equal(0, 'second replication, doc_write_failures');
+            result.docs_written.should
+              .equal(2, 'second replication, docs_written');
             result.last_seq.should.equal(2, 'second replication, last_seq');
             done();
           });
@@ -1294,7 +1306,8 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Test consecutive replications with different query_params', function (done) {
+    it('Test consecutive replications with different query_params',
+      function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var myDocs = [
@@ -1384,7 +1397,8 @@ adapters.forEach(function (adapters) {
       function bulkLoad(db, docs, callback) {
         db.bulkDocs({ docs: docs }, function (err, results) {
           if (err) {
-            console.error('Unable to bulk load docs.  Err: ' + JSON.stringify(err));
+            console.error('Unable to bulk load docs.  Err: ' +
+                          JSON.stringify(err));
             return;
           }
           callback(results);
@@ -1542,7 +1556,8 @@ interHTTPAdapters.map(function (adapters) {
     it('Test basic replication', function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, {}, function (err, results) {
-        PouchDB.replicate(dbs.name, dbs.remote, {server: true }, function (err, result) {
+        PouchDB.replicate(dbs.name, dbs.remote, {server: true },
+          function (err, result) {
           result.ok.should.equal(true);
           result.history[0].docs_written.should.equal(docs.length);
           done();
@@ -1571,7 +1586,8 @@ interHTTPAdapters.map(function (adapters) {
             if (count === 4) {
               replicate.cancel();
               remote.put(doc2);
-              // This setTimeout is needed to ensure no further changes come through
+              // This setTimeout is needed to ensure no further changes come
+              // through
               setTimeout(function () {
                 count.should.equal(4);
                 changes.cancel();
