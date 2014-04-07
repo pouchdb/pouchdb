@@ -181,7 +181,8 @@ adapters.forEach(function (adapters) {
       values.push(3);
       values.push(4);
       // then text, case sensitive
-      // currently chrome uses ascii ordering and so wont handle capitals properly
+      // currently chrome uses ascii ordering and so wont handle 
+      // capitals properly
       values.push('a');
       //values.push("A");
       values.push('aa');
@@ -261,7 +262,9 @@ adapters.forEach(function (adapters) {
               done(err);
             }
             res.rows.forEach(function (x, i) {
-              x.key.should.deep.equal(values[values.length - 1 - i], 'keys collate descending');
+              x.key.should.deep
+                .equal(values[values.length - 1 - i],
+                       'keys collate descending');
             });
             done();
           });
@@ -470,8 +473,10 @@ adapters.forEach(function (adapters) {
               res._conflicts.should.exist;
               db.query(queryFun, function (err, res) {
                 res.rows.should.have.length(1, 'One doc with conflicts');
-                res.rows[0].key.should.equal('1', 'Correct document with conflicts.');
-                res.rows[0].value.should.deep.equal([looser], 'Correct conflicts included.');
+                res.rows[0].key.should
+                  .equal('1', 'Correct document with conflicts.');
+                res.rows[0].value.should.deep
+                  .equal([looser], 'Correct conflicts included.');
                 done();
               });
             });
@@ -505,7 +510,10 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var doc = {
         _id: '_design/barbar',
-        views: { scores: { map: 'function (doc) { if (doc.score) { emit(null, doc.score); } }' } }
+        views:
+          { scores:
+            { map: 'function (doc) { if (doc.score) ' +
+                   '{ emit(null, doc.score); } }' } }
       };
       db.post(doc, function (err, info) {
         db.query('barbar/dontExist', { key: 'bar' }, function (err, res) {

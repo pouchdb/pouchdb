@@ -27,7 +27,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing all docs', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         db.allDocs(function (err, result) {
           var rows = result.rows;
           result.total_rows.should.equal(4, 'correct number of results');
@@ -39,8 +40,10 @@ adapters.forEach(function (adapter) {
             startkey: '2',
             include_docs: true
           }, function (err, all) {
-            all.rows.should.have.length(2, 'correct number when opts.startkey set');
-            all.rows[0].id.should.equal('2', 'correct docs when opts.startkey set');
+            all.rows.should.have
+              .length(2, 'correct number when opts.startkey set');
+            all.rows[0].id.should
+              .equal('2', 'correct docs when opts.startkey set');
             var opts = {
               startkey: 'org.couchdb.user:',
               endkey: 'org.couchdb.user;'
@@ -76,7 +79,8 @@ adapters.forEach(function (adapter) {
       function keyFunc(doc) {
         return doc.key;
       }
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         var keys = ['3', '1'];
         db.allDocs({ keys: keys }, function (err, result) {
           result.rows.map(keyFunc).should.deep.equal(keys);
@@ -124,7 +128,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing deleting in changes', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         db.get('1', function (err, doc) {
           db.remove(doc, function (err, deleted) {
             should.exist(deleted.ok);
@@ -143,7 +148,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing updating in changes', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         db.get('3', function (err, doc) {
           doc.updated = 'totally';
           db.put(doc, function (err, doc) {
@@ -161,7 +167,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing include docs', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         db.changes({
           include_docs: true,
           complete: function (err, changes) {
@@ -174,7 +181,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing conflicts', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         // add conflicts
         var conflictDoc1 = {
           _id: '3',
@@ -197,7 +205,8 @@ adapters.forEach(function (adapter) {
                 complete: function (err, changes) {
                   var result = changes.results[3];
                   result.id.should.equal('3', 'changes are ordered');
-                  result.changes.should.have.length(3, 'correct number of changes');
+                  result.changes.should.have
+                    .length(3, 'correct number of changes');
                   result.doc._rev.should.equal(conflictDoc2._rev);
                   result.doc._id.should.equal('3', 'correct doc id');
                   winRev._rev.should.equal(result.doc._rev);
@@ -217,7 +226,8 @@ adapters.forEach(function (adapter) {
                     row.doc._id.should.equal('3', 'correct order');
                     row.doc._conflicts.should.be.instanceof(Array);
                     row.doc._conflicts.should.have.length(2);
-                    conflictDoc1._rev.should.equal(res.rows[3].doc._conflicts[0]);
+                    conflictDoc1._rev.should
+                      .equal(res.rows[3].doc._conflicts[0]);
                     done();
                   });
                 }
@@ -286,11 +296,13 @@ adapters.forEach(function (adapter) {
           res.total_rows.should.equal(8,  'correctly return total_rows');
           return db.allDocs({startkey : '5', limit : 0});
         }).then(function (res) {
-          res.rows.should.have.length(0,  'correctly return rows, startkey w/ limit=0');
+          res.rows.should.have
+            .length(0,  'correctly return rows, startkey w/ limit=0');
           res.total_rows.should.equal(8,  'correctly return total_rows');
           return db.allDocs({keys : ['5'], limit : 0});
         }).then(function (res) {
-          res.rows.should.have.length(0,  'correctly return rows, keys w/ limit=0');
+          res.rows.should.have
+            .length(0,  'correctly return rows, keys w/ limit=0');
           res.total_rows.should.equal(8,  'correctly return total_rows');
           return db.allDocs({limit : 0});
         }).then(function (res) {
@@ -381,10 +393,14 @@ adapters.forEach(function (adapter) {
 
           db.get('x', function (err, xDoc) {
             db.remove(xDoc, function (err, res) {
-              db.allDocs({ startkey: 'w', limit: 2, skip : 1}, function (err, res) {
-                res.total_rows.should.equal(3,  'Accurately return total_rows count after delete');
-                res.rows.should.have.length(2,  'Correctly limit the returned rows after delete');
-                res.rows[0].id.should.equal('y', 'Correctly skip 1 doc after delete');
+              db.allDocs({ startkey: 'w', limit: 2, skip : 1},
+                function (err, res) {
+                res.total_rows.should
+                  .equal(3,  'Accurately return total_rows count after delete');
+                res.rows.should.have
+                  .length(2,  'Correctly limit the returned rows after delete');
+                res.rows[0].id.should
+                  .equal('y', 'Correctly skip 1 doc after delete');
                 done();
               });
             });

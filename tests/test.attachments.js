@@ -57,7 +57,12 @@ adapters.forEach(function (adapter) {
       _attachments: {
         'foo.png': {
           content_type: 'image/png',
-          data: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAMFBMVEX+9+j+9OD+7tL95rr93qT80YD7x2L6vkn6syz5qRT4ogT4nwD4ngD4nQD4nQD4nQDT2nT/AAAAcElEQVQY002OUQLEQARDw1D14f7X3TCdbfPnhQTqI5UqvGOWIz8gAIXFH9zmC63XRyTsOsCWk2A9Ga7wCXlA9m2S6G4JlVwQkpw/YmxrUgNoMoyxBwSMH/WnAzy5cnfLFu+dK2l5gMvuPGLGJd1/9AOiBQiEgkzOpgAAAABJRU5ErkJggg=='
+          data: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAMFBMVEX+9+' +
+                'j+9OD+7tL95rr93qT80YD7x2L6vkn6syz5qRT4ogT4nwD4ngD4nQD4nQD4' +
+                'nQDT2nT/AAAAcElEQVQY002OUQLEQARDw1D14f7X3TCdbfPnhQTqI5UqvG' +
+                'OWIz8gAIXFH9zmC63XRyTsOsCWk2A9Ga7wCXlA9m2S6G4JlVwQkpw/Ymxr' +
+                'UgNoMoyxBwSMH/WnAzy5cnfLFu+dK2l5gMvuPGLGJd1/9AOiBQiEgkzOpg' +
+                'AAAABJRU5ErkJggg=='
         }
       }
     };
@@ -74,7 +79,8 @@ adapters.forEach(function (adapter) {
             testUtils.readBlob(res, function (data) {
               data.should.equal('This is a base64 encoded text');
               db.put(binAttDoc2, function (err, rev) {
-                db.getAttachment('bin_doc2', 'foo.txt', function (err, res, xhr) {
+                db.getAttachment('bin_doc2', 'foo.txt',
+                  function (err, res, xhr) {
                   testUtils.readBlob(res, function (data) {
                     data.should.equal('', 'Correct data returned');
                     moreTests(rev.rev);
@@ -93,12 +99,15 @@ adapters.forEach(function (adapter) {
           db.getAttachment('bin_doc2', 'foo2.txt', function (err, res, xhr) {
             testUtils.readBlob(res, function (data) {
               should.exist(data);
-              db.get('bin_doc2', { attachments: true }, function (err, res, xhr) {
+              db.get('bin_doc2', { attachments: true },
+                function (err, res, xhr) {
                 should.exist(res._attachments, 'Result has attachments field');
-                should.not.exist(res._attachments['foo2.txt'].stub, 'stub is false');
+                should.not
+                  .exist(res._attachments['foo2.txt'].stub, 'stub is false');
                 res._attachments['foo2.txt'].data.should
                   .equal('VGhpcyBpcyBubyBiYXNlNjQgZW5jb2RlZCB0ZXh0');
-                res._attachments['foo2.txt'].content_type.should.equal('text/plain');
+                res._attachments['foo2.txt'].content_type.should
+                  .equal('text/plain');
                 res._attachments['foo.txt'].data.should.equal('');
                 done();
               });
@@ -169,7 +178,8 @@ adapters.forEach(function (adapter) {
               Object.keys(docs[i]._attachments).length : 0;
             for (var j = 0; j < attachmentsNb; j++) {
               res.rows[i].doc._attachments['att' + j].stub.should
-                .equal(true, '(allDocs) doc' + i + ' contains att' + j + ' stub');
+                .equal(true, '(allDocs) doc' + i + ' contains att' + j +
+                       ' stub');
             }
           }
           should.not.exist(res.rows[0].doc._attachments,
@@ -182,11 +192,13 @@ adapters.forEach(function (adapter) {
                 should.not.exist(res.rows[0].doc._attachments,
                                  '(onChange) doc0 contains no attachments');
               } else {
-                var attachmentsNb = typeof docs[i]._attachments !== 'undefined' ?
+                var attachmentsNb =
+                  typeof docs[i]._attachments !== 'undefined' ?
                   Object.keys(docs[i]._attachments).length : 0;
                 for (var j = 0; j < attachmentsNb; j++) {
                   res.rows[i].doc._attachments['att' + j].stub.should
-                    .equal(true, '(onChange) doc' + i + ' contains att' + j + ' stub');
+                    .equal(true, '(onChange) doc' + i + ' contains att' + j +
+                           ' stub');
                 }
               }
             },
@@ -198,7 +210,8 @@ adapters.forEach(function (adapter) {
                   Object.keys(docs[i]._attachments).length : 0;
                 for (var j = 0; j < attachmentsNb; j++) {
                   res.results[i].doc._attachments['att' + j].stub.should
-                    .equal(true, '(complete) doc' + i + ' contains att' + j + ' stub');
+                    .equal(true, '(complete) doc' + i + ' contains att' + j +
+                           ' stub');
                 }
               }
               should.not.exist(res.results[0].doc._attachments,
@@ -217,7 +230,8 @@ adapters.forEach(function (adapter) {
         db.getAttachment('png_doc', 'foo.png', function (err, res) {
           if (err) { return done(err); }
           testUtils.base64Blob(res, function (data) {
-            data.should.equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
+            data.should
+              .equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
             done();
           });
         });
@@ -244,13 +258,15 @@ adapters.forEach(function (adapter) {
     it('Test create attachment and doc in one go', function (done) {
       var db = new PouchDB(dbs.name);
       var blob = testUtils.makeBlob('Mytext');
-      db.putAttachment('anotherdoc', 'mytext', blob, 'text/plain', function (err, res) {
+      db.putAttachment('anotherdoc', 'mytext', blob, 'text/plain',
+        function (err, res) {
         should.exist(res.ok);
         done();
       });
     });
 
-    it('Test create attachment and doc in one go without callback', function (done) {
+    it('Test create attachment and doc in one go without callback',
+      function (done) {
       var db = new PouchDB(dbs.name);
       var changes = db.changes({
         complete: function (err, result) {
@@ -262,9 +278,12 @@ adapters.forEach(function (adapter) {
           if (change.seq === 1) {
             change.id.should.equal('anotherdoc2', 'Doc has been created');
             db.get(change.id, { attachments: true }, function (err, doc) {
-              doc._attachments.should.be.an('object', 'doc has attachments object');
-              should.exist(doc._attachments.mytext, 'doc has attachments attachment');
-              doc._attachments.mytext.data.should.equal('TXl0ZXh0', 'doc has attachments attachment');
+              doc._attachments.should.be
+                .an('object', 'doc has attachments object');
+              should.exist(doc._attachments.mytext,
+                           'doc has attachments attachment');
+              doc._attachments.mytext.data.should
+                .equal('TXl0ZXh0', 'doc has attachments attachment');
               changes.cancel();
             });
           }
@@ -289,7 +308,8 @@ adapters.forEach(function (adapter) {
             if (change.seq === 2) {
               change.id.should.equal('anotherdoc3', 'Doc has been created');
               db.get(change.id, { attachments: true }, function (err, doc) {
-                doc._attachments.should.be.an('object', 'doc has attachments object');
+                doc._attachments.should.be.an('object',
+                                              'doc has attachments object');
                 should.exist(doc._attachments.mytext);
                 doc._attachments.mytext.data.should.equal('TXl0ZXh0');
                 changes.cancel();
@@ -334,7 +354,8 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Test put another attachment on a doc with attachments', function (done) {
+    it('Test put another attachment on a doc with attachments',
+      function (done) {
       var db = new PouchDB(dbs.name);
       db.put({ _id: 'mydoc' }, function (err, res1) {
         var blob = testUtils.makeBlob('Mytext');
@@ -386,7 +407,8 @@ adapters.forEach(function (adapter) {
               db.get('mydoc', { attachments: true }, function (err, res) {
                 res._attachments.should.not.include.keys('mytext1');
                 res._attachments.should.include.keys('mytext2');
-                db.removeAttachment('mydoc', 'mytext2', res._rev, function (err, res) {
+                db.removeAttachment('mydoc', 'mytext2', res._rev,
+                  function (err, res) {
                   should.not.exist(res._attachments);
                   done();
                 });
@@ -526,7 +548,8 @@ adapters.forEach(function (adapter) {
         db.get('foo', function (err, doc) {
           var data = pngAttDoc._attachments['foo.png'].data;
           var blob = testUtils
-            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)), 'image/png');
+            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+                                              'image/png');
           db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
                            function (err, info) {
             should.not.exist(err, 'attachment inserted');
@@ -546,7 +569,8 @@ adapters.forEach(function (adapter) {
 });
 
 repl_adapters.forEach(function (adapters) {
-  describe('test.attachments.js- ' + adapters[0] + ':' + adapters[1], function () {
+  describe('test.attachments.js- ' + adapters[0] + ':' + adapters[1],
+    function () {
 
     var dbs = {};
 

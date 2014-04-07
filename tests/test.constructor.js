@@ -11,7 +11,9 @@ describe('constructor errors', function () {
   it('should error on an undefined adapter', function (done) {
     new PouchDB('foo', {adapter : 'myFakeAdapter'}, function (err, db) {
       should.exist(err);
-      err.message.should.equal('Adapter is missing', 'should give the correct error message');
+      err.message.should
+        .equal('Adapter is missing',
+               'should give the correct error message');
       done(db);
     });
   });
@@ -19,7 +21,9 @@ describe('constructor errors', function () {
     var notAName = null;
     new PouchDB(notAName).then(done, function (err) {
       should.exist(err);
-      err.message.should.equal('Missing/invalid DB name', 'should give the correct error message');
+      err.message.should
+        .equal('Missing/invalid DB name',
+               'should give the correct error message');
       done();
     });
   });
@@ -29,7 +33,9 @@ describe('constructor errors', function () {
         _id: 'lala'
       }, function (err, resp) {
         should.exist(err);
-        err.message.should.equal('Missing/invalid DB name', 'should give the correct error message');
+        err.message.should
+          .equal('Missing/invalid DB name',
+                 'should give the correct error message');
         done(resp);
       });
     });
