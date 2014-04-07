@@ -3,90 +3,100 @@
 var PouchDB = require('../..');
 var test = require('tape');
 var reporter = require('./perf.reporter');
+var Promise = PouchDB.utils.Promise;
 
-function padInt(i) {
+function createDocId(i) {
   var intString = i.toString();
   while (intString.length < 10) {
-    intString += '0' + intString;
+    intString = '0' + intString;
   }
-  return intString;
-}
-
-// so we don't have to generate them every time, which might throw off
-// the perf numbers
-var docIds = [];
-for (var counter = 0; counter < 10000; counter++) {
-  docIds.push('numero_' + padInt(counter));
+  return 'doc_' + intString;
 }
 
 var testCases = [
   {
-    name : 'basic-inserts',
-    assertions : 1,
-    iterations : 100,
-    setup : function (db, callback) {
+    name: 'basic-inserts',
+    assertions: 1,
+    iterations: 100,
+    setup: function (db, callback) {
       callback(null, {'yo': 'dawg'});
     },
-    test : function (db, itr, doc, done) {
+    test: function (db, itr, doc, done) {
       db.put(doc, '' + itr, done);
     }
   }, {
-    name : 'bulk-inserts',
-    assertions : 1,
-    iterations : 10,
-    setup : function (db, callback) {
+    name: 'bulk-inserts',
+    assertions: 1,
+    iterations: 10,
+    setup: function (db, callback) {
       var docs = [];
       for (var i = 0; i < 100; i++) {
         docs.push({much : 'docs', very : 'bulk'});
       }
       callback(null, {docs : docs});
     },
-    test : function (db, itr, docs, done) {
+    test: function (db, itr, docs, done) {
       db.bulkDocs(docs, done);
     }
   }, {
-    name : 'basic-gets',
-    assertions : 1,
-    iterations : 1000,
-    setup : function (db, callback) {
+    name: 'basic-gets',
+    assertions: 1,
+    iterations: 1000,
+    setup: function (db, callback) {
       var docs = [];
       for (var i = 0; i < 1000; i++) {
-        docs.push({_id : docIds[i], foo : 'bar', baz : 'quux'});
+        docs.push({_id : createDocId(i), foo : 'bar', baz : 'quux'});
       }
       db.bulkDocs({docs : docs}, callback);
     },
-    test : function (db, itr, docs, done) {
-      db.get(docIds[itr], done);
+    test: function (db, itr, docs, done) {
+      db.get(createDocId(itr), done);
     }
   }, {
-    name : 'all-docs-skip-limit',
-    assertions : 1,
-    iterations : 50,
-    setup : function (db, callback) {
+    name: 'all-docs-skip-limit',
+    assertions: 1,
+    iterations: 5,
+    setup: function (db, callback) {
       var docs = [];
       for (var i = 0; i < 1000; i++) {
-        docs.push({_id : docIds[i], foo : 'bar', baz : 'quux'});
+        docs.push({_id : createDocId(i), foo : 'bar', baz : 'quux'});
       }
       db.bulkDocs({docs : docs}, callback);
     },
-    test : function (db, itr, docs, done) {
-      db.allDocs({skip : itr, limit : 10}, done);
+    test: function (db, itr, docs, done) {
+      var tasks = [];
+      for (var i = 0; i < 10; i++) {
+        tasks.push(i);
+      }
+      Promise.all(tasks.map(function (doc, i) {
+        return db.allDocs({skip : i * 100, limit : 10});
+      })).then(function () {
+        done();
+      }, done);
     }
   }, {
-    name : 'all-docs-startkey-endkey',
-    assertions : 1,
-    iterations : 50,
-    setup : function (db, callback) {
+    name: 'all-docs-startkey-endkey',
+    assertions: 1,
+    iterations: 5,
+    setup: function (db, callback) {
       var docs = [];
       for (var i = 0; i < 1000; i++) {
-        docs.push({_id : docIds[i], foo : 'bar', baz : 'quux'});
+        docs.push({_id : createDocId(i), foo : 'bar', baz : 'quux'});
       }
       db.bulkDocs({docs : docs}, callback);
     },
-    test : function (db, itr, docs, done) {
-      db.allDocs({
-        startkey : docIds[itr],
-        endkey : docIds[itr + 10]
+    test: function (db, itr, docs, done) {
+      var tasks = [];
+      for (var i = 0; i < 10; i++) {
+        tasks.push(i);
+      }
+      Promise.all(tasks.map(function (doc, i) {
+        return db.allDocs({
+          startkey : createDocId(i * 100),
+          endkey : createDocId((i * 100) + 10)
+        });
+      })).then(function () {
+        done();
       }, done);
     }
   }
