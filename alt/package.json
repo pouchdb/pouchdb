@@ -4,7 +4,8 @@
   "description": "alt pouchdb",
   "main": "index.js",
   "scripts": {
-    "build": "browserify . -s PouchDB > ../dist/pouchdb-leveljs.js"
+    "build": "browserify . -s PouchDB > ../dist/pouchdb-leveljs.js",
+    "build-perf": "browserify tests/performance/*.js > ../dist/performance-bundle.js"
   },
   "author": "",
   "license": "Apache",
@@ -20,6 +21,7 @@
     "lie": "^2.6.0"
   },
   "devDependencies": {
-    "browserify": "^3.38.1"
+    "browserify": "^3.38.1",
+    "tape": "^2.12.3"
   }
 }

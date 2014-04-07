@@ -15,15 +15,20 @@ var http_server = require('http-server');
 var performanceBundle = './dist/performance-bundle.js';
 var indexfile, outfile;
 var query = "";
-var w;
+var perfRoot;
 if (process.env.LEVEL_BACKEND) {
   query = "?sourceFile=pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+  indexfile = "./alt/index.js";
+  outfile = "./dist/pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+  perfRoot = './alt/performance/*.js';
 } else {
   indexfile = "./lib/index.js";
   outfile = "./dist/pouchdb-nightly.js";
-  w = watchify(indexfile).on('update', bundle);
-  bundle();
+  perfRoot = './tests/performance/*.js';
 }
+
+var w = watchify(indexfile).on('update', bundle);
+bundle();
 
 function writeFile(file) {
   return function (err, data) {
@@ -37,21 +42,16 @@ function writeFile(file) {
 }
 
 function bundle() {
-  if (process.env.LEVEL_BACKEND) {
-    return;
-  }
   w.bundle({standalone: "PouchDB"}, writeFile(outfile));
 }
 
-
-
 function bundlePerfTests() {
-  glob('./tests/performance/*.js', function (err, files) {
+  glob(perfRoot, function (err, files) {
     browserify(files).bundle({}, writeFile(performanceBundle));
   });
 }
 
-watchGlob('tests/performance/perf.*.js', bundlePerfTests);
+watchGlob(perfRoot, bundlePerfTests);
 bundlePerfTests();
 
 var COUCH_HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
@@ -67,7 +67,7 @@ function startServers(couchHost) {
   console.log('Integration tests: ' + testRoot +
               '/tests/test.html' + query);
   console.log('Performance tests: ' + testRoot +
-              '/tests/performance/test.html' + query);
+              '/tests/performance/test.html');
 }
 
 
