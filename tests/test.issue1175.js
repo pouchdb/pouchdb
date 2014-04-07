@@ -18,7 +18,8 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
   };
 }
 function getCallback(expectError, done) {
-  // returns a function which expects to be called within a certain time. Fails the test otherwise
+  // returns a function which expects to be called within a certain time.
+  // Fails the test otherwise
   var maximumTimeToWait = 500;
   var hasBeenCalled = false;
   var result;
@@ -49,27 +50,32 @@ describe('replication-http-errors:', function () {
     var target = new MockDatabase(404, null);
     PouchDB.replicate(source, target, {}, getCallback(false, done));
   });
-  it('Initial replication is ok if source and target return HTTP 200', function (done) {
+  it('Initial replication is ok if source and target return HTTP 200',
+    function (done) {
     var source = new MockDatabase(200, {});
     var target = new MockDatabase(200, {});
     PouchDB.replicate(source, target, {}, getCallback(false, done));
   });
-  it('Initial replication returns err if source returns HTTP 500', function (done) {
+  it('Initial replication returns err if source returns HTTP 500',
+    function (done) {
     var source = new MockDatabase(500, null);
     var target = new MockDatabase(200, {});
     PouchDB.replicate(source, target, {}, getCallback(true, done));
   });
-  it('Initial replication returns err if target returns HTTP 500', function (done) {
+  it('Initial replication returns err if target returns HTTP 500',
+    function (done) {
     var source = new MockDatabase(200, {});
     var target = new MockDatabase(500, null);
     PouchDB.replicate(source, target, {}, getCallback(true, done));
   });
-  it('Initial replication returns err if target and source return HTTP 500', function (done) {
+  it('Initial replication returns err if target and source return HTTP 500',
+    function (done) {
     var source = new MockDatabase(500, null);
     var target = new MockDatabase(500, null);
     PouchDB.replicate(source, target, {}, getCallback(true, done));
   });
-  it('Subsequent replication returns err if source return HTTP 500', function (done) {
+  it('Subsequent replication returns err if source return HTTP 500',
+    function (done) {
     var source = new MockDatabase(500, null);
     var target = new MockDatabase(200, { last_seq: 456 });
     PouchDB.replicate(source, target, {}, getCallback(true, done));

@@ -245,8 +245,10 @@ adapters.forEach(function (adapter) {
         {
           _id: '_design/foo',
           integer: 4,
-          views: { even: { map: 'function (doc) { if (doc.integer % 2 === 1) { ' +
-                           'emit(doc._id, null) }; }' } }
+          views:
+            { even:
+              { map: 'function (doc) { if (doc.integer % 2 === 1) { ' +
+                     'emit(doc._id, null) }; }' } }
         }
       ];
       var db = new PouchDB(dbs.name);
@@ -305,7 +307,8 @@ adapters.forEach(function (adapter) {
           filter: '_view',
           complete: function (err, results) {
             err.status.should.equal(400);
-            err.message.should.equal('`view` filter parameter is not provided.');
+            err.message.should
+              .equal('`view` filter parameter is not provided.');
             should.not.exist(results);
             done();
           }
@@ -395,8 +398,10 @@ adapters.forEach(function (adapter) {
         {
           _id: '_design/foo',
           integer: 4,
-          views: { even: { map: 'function (doc) { if (doc.integer % 2 === 1) { ' +
-                           'emit(doc._id, null) }; }' } }
+          views:
+            { even:
+              { map: 'function (doc) { if (doc.integer % 2 === 1) { ' +
+                     'emit(doc._id, null) }; }' } }
         }
       ];
       var db = new PouchDB(dbs.name);
@@ -649,8 +654,8 @@ adapters.forEach(function (adapter) {
       var changes = db.changes({
         complete: function (err, result) {
           result.status.should.equal('cancelled');
-          // This setTimeout ensures that once we cancel a change we dont recieve
-          // subsequent callbacks, so it is needed
+          // This setTimeout ensures that once we cancel a change we dont
+          // recieve subsequent callbacks, so it is needed
           interval = setInterval(waitForDocPosted, 100);
         },
         onChange: function (change) {
@@ -842,7 +847,8 @@ adapters.forEach(function (adapter) {
               var rev2 = info.rev;
               PouchDB.replicate(localdb, remotedb, function (err, done) {
                 // update remote once, local twice, then replicate from
-                // remote to local so the remote losing conflict is later in the tree
+                // remote to local so the remote losing conflict is later in 
+                // the tree
                 localdb.put({
                   _id: '3',
                   _rev: rev2,
@@ -862,7 +868,8 @@ adapters.forEach(function (adapter) {
                     };
                     remotedb.put(rev4Doc, function (err, resp) {
                       var remoterev = resp.rev;
-                      PouchDB.replicate(remotedb, localdb, function (err, done) {
+                      PouchDB.replicate(remotedb, localdb,
+                        function (err, done) {
                         localdb.changes({
                           include_docs: true,
                           style: 'all_docs',
@@ -962,7 +969,8 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Closing db does not cause a crash if changes cancelled', function (done) {
+    it('Closing db does not cause a crash if changes cancelled',
+      function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
         var changes = db.changes({

@@ -1,4 +1,4 @@
-{
+{ "maxlen": 80,
   "curly": true,
   "eqeqeq": true,
   "immed": true,
