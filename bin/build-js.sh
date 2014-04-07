@@ -4,6 +4,9 @@ if [ -n "$PERF" ]; then
     npm run build-perf
 fi
 
+mv lib/version.js lib/.version.js
+echo "module.exports = $(./bin/get-version.js);" > lib/version.js
+
 if [ -n "$LEVEL_BACKEND" ]; then
     node_modules/.bin/browserify lib/index-levelalt.js \
       --require ./lib/index:./lib/index-levelalt.js \
@@ -25,3 +28,5 @@ else
     node_modules/.bin/uglifyjs dist/pouchdb-nightly.js -mc \
       > dist/pouchdb-nightly.min.js
 fi
+
+mv lib/.version.js lib/version.js
