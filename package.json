@@ -58,7 +58,7 @@
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "mkdir -p dist && npm run build-js && ./bin/test-browser.js",
     "test-browser-alt": "mkdir -p dist && npm run build-alt && ./bin/test-browser.js",
-    "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js",
+    "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js alt/*.js",
     "dev": "./bin/dev-server.js",
     "test": "npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
