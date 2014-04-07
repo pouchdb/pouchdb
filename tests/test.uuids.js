@@ -1,5 +1,7 @@
 'use strict';
+/* jshint maxlen: false */
 var rfcRegexp = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+/* jshint maxlen: 80 */
 
 describe('test.uuid.jsu', function () {
 
@@ -13,7 +15,8 @@ describe('test.uuid.jsu', function () {
     rfcRegexp.test(PouchDB.utils.uuids()[0]).should
       .equal(true, 'Single UUID complies with RFC4122.');
     rfcRegexp.test(PouchDB.utils.uuid()).should
-      .equal(true, 'Single UUID through Pouch.utils.uuid complies with RFC4122.');
+      .equal(true,
+             'Single UUID through Pouch.utils.uuid complies with RFC4122.');
   });
 
   it('UUID generation uniqueness', function () {

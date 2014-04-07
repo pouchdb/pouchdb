@@ -27,7 +27,8 @@ function asyncLoadScript(url, callback) {
     script.onload = function () {
       callback();
 
-      // Clear it out to avoid getting called more than once or any memory leaks.
+      // Clear it out to avoid getting called more than once or any 
+      // memory leaks.
       script.onload = script.onreadystatechange = undefined;
     };
     script.onreadystatechange = function () {
