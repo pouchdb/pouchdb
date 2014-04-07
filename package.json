@@ -71,8 +71,6 @@
   "browser": {
     "./deps/buffer": false,
     "request": false,
-    "level-sublevel": false,
-    "levelup": false,
     "crypto": false,
     "./adapters/leveldb": false,
     "./adapters/levelalt": false,
