@@ -1,0 +1,25 @@
+{
+  "name": "levelalt",
+  "version": "0.0.0",
+  "description": "alt pouchdb",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify . -s PouchDB > ../dist/pouchdb-leveljs.js"
+  },
+  "author": "",
+  "license": "Apache",
+  "browser": {
+    "./deps/buffer": false,
+    "request": false,
+    "leveldown": "level-js",
+    "bluebird": "lie",
+    "./index": "../lib/index"
+  },
+  "dependencies": {
+    "level-js": "^2.1.2",
+    "lie": "^2.6.0"
+  },
+  "devDependencies": {
+    "browserify": "^3.38.1"
+  }
+}

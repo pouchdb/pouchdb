@@ -15,14 +15,14 @@ var http_server = require('http-server');
 var performanceBundle = './dist/performance-bundle.js';
 var indexfile, outfile;
 var query = "";
-
+var w;
 if (process.env.LEVEL_BACKEND) {
-  indexfile = "./lib/index-levelalt.js";
-  outfile = "./dist/pouchdb-" + process.env.LEVEL_BACKEND + ".js";
   query = "?sourceFile=pouchdb-" + process.env.LEVEL_BACKEND + ".js";
 } else {
   indexfile = "./lib/index.js";
   outfile = "./dist/pouchdb-nightly.js";
+  w = watchify(indexfile).on('update', bundle);
+  bundle();
 }
 
 function writeFile(file) {
@@ -37,10 +37,13 @@ function writeFile(file) {
 }
 
 function bundle() {
+  if (process.env.LEVEL_BACKEND) {
+    return;
+  }
   w.bundle({standalone: "PouchDB"}, writeFile(outfile));
 }
-var w = watchify(indexfile).on('update', bundle);
-bundle();
+
+
 
 function bundlePerfTests() {
   glob('./tests/performance/*.js', function (err, files) {
