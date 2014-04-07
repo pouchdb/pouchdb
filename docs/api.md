@@ -292,9 +292,11 @@ All options default to `false` unless otherwise specified.
 * `options.include_docs`: Include the document itself in each row in the `doc` field. Otherwise by default you only get the `_id` and `_rev` properties.
     - `options.conflicts`: Include conflict information in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
-* `options.startkey` & `options.endkey`: Get documents with keys in a certain range (inclusive/inclusive).
+* `options.startkey` & `options.endkey`: Get documents with IDs in a certain range (inclusive/inclusive).
+* `options.limit`: Maximum number of documents to return.
+* `options.skip`: Number of docs to skip before returning (warning: poor performance on IndexedDB/LevelDB!).
 * `options.descending`: Reverse the order of the output documents.
-* `options.key`: Only return rows matching this string key.
+* `options.key`: Only return documents with IDs matching this string key.
 * `options.keys`: Array of string keys to fetch in a single shot.
     - Neither `startkey` nor `endkey` can be specified with this option.
     - The rows are returned in the same order as the supplied `keys` array.
@@ -608,27 +610,42 @@ db.removeAttachment('otherdoc',
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Retrieve a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
+Retrieves a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
+
+Since views perform a full scan of all documents, this method may be slow, unless you first save your view in a design document.
 
 ### Options
 
 All options default to `false` unless otherwise specified.
 
-* `fun`: Name of an existing view, the map function itself, or a full CouchDB-style mapreduce object: `{map : ..., reduce: ...}`.
+* `fun`: Map/reduce function, which can be one of the following: 
+  * A map function by itself (no reduce).
+  * A full CouchDB-style map/reduce object: `{map : ..., reduce: ...}`.
+  * The name of a view in an existing design document (e.g. `'myview'` or `'mydesigndoc/myview'`).
 * `options.reduce`: Reduce function, or the string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.  Defaults to `false` (no reduce).
     * Tip: if you're not using a built-in, [you're probably doing it wrong](http://youtu.be/BKQ9kXKoHS8?t=865s).
+    * On local databases, `rereduce` will always be `false` (since it's single-node).
 * `options.include_docs`: Include the document in each row in the `doc` field.
     - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
-* `options.startkey` & `options.endkey`: Get documents with keys in a certain range (inclusive/inclusive).
-* `options.descending`: Reverse the order of the output documents.
-* `options.key`: Only return rows matching this string key.
-* `options.keys`: Array of string keys to fetch in a single shot.
+* `options.startkey` & `options.endkey`: Get rows with keys in a certain range (inclusive/inclusive).
+* `options.limit`: Maximum number of rows to return.
+* `options.skip`: Number of rows to skip before returning (warning: poor performance on IndexedDB/LevelDB!).
+* `options.descending`: Reverse the order of the output rows.
+* `options.key`: Only return rows matching this key.
+* `options.keys`: Array of keys to fetch in a single shot.
     - Neither `startkey` nor `endkey` can be specified with this option.
     - The rows are returned in the same order as the supplied `keys` array.
     - The row for a deleted document will have the revision ID of the deletion, and an extra key `"deleted":true` in the `value` property.
     - The row for a nonexistent document will just contain an `"error"` property with the value `"not_found"`.
-    - For details, see the [CouchDB query options documentation](http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options).
+* `options.group`: True if you want the reduce function to group results by keys, rather than returning a single result. Defaults to `false`. 
+* `options.group_level`: Number of elements in a key to group by, assuming the keys are arrays. Defaults to the full length of the array.
+* `options.stale`: One of `'ok'` or `'update_after'`.  Only applies to saved views. Can be one of:
+    * unspecified (default): Returns the latest results, waiting for the view to build if necessary.
+    * `'ok'`: Returns results immediately, even if they're out-of-date.
+    * `'update_after'`: Returns results immediately, but kicks off a build afterwards.
+
+For details, see the [CouchDB query options documentation](http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options).
 
 #### Example Usage:
 {% highlight js %}
@@ -644,6 +661,7 @@ db.query({map: map}, {reduce: false}, function(err, response) { });
 #### Example Response:
 {% highlight js %}
 {
+  "offset" : 0,
   "rows": [{
     "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
     "key": "Cony Island Baby",
@@ -660,11 +678,125 @@ db.query({map: map}, {reduce: false}, function(err, response) { });
     "id": "mydoc",
     "key": "Rock and Roll Heart",
     "value": null
-  }]
+  }],
+  "total_rows" : 4
 }
 {% endhighlight %}
 
-If u pass a function to `db.query` and give it the `emit` function as the second argument, then you can use a closure. (Otherwise we have to use `eval()` to bind `emit`.)
+#### Complex keys
+
+You can also use [complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) for fancy ordering:
+
+{% highlight js %}
+function map(doc) {
+  // sort by last name, first name, and age
+  emit([doc.lastName, doc.firstName, doc.age]);
+}
+db.query(map, function (err, response) {});
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+    "offset": 0,
+    "rows": [{
+	    "id"  : "bowie",
+	    "key" : ["Bowie", "David", 67]
+	  }, {
+	    "id"  : "dylan",
+	    "key" : ["Dylan", "Bob", 72]
+	  }, {
+	    "id"  : "younger_dylan",
+	    "key" : ["Dylan", "Jakob", 44]
+	  }, {
+	    "id"  : "hank_the_third",
+	    "key" : ["Williams", "Hank", 41]
+	  }, {
+	    "id"  : "hank",
+	    "key" : ["Williams", "Hank", 91]
+	  }],
+    "total_rows": 5
+}
+{% endhighlight %}
+
+**Tips:** 
+
+* CouchDB sorts objects last, so `{startkey: ['Williams'], endkey: ['Williams', {}]}` would return all people with the last name `'Williams'`.
+* `group_level` can be very helpful when working with complex keys.  In the example above, you can use `{group_level: 1}` or group by last name, or `{group_level: 2}` to group by last and first name. 
+
+#### Linked documents
+
+PouchDB fully supports [linked documents](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Linked_documents). Use them to join two types of documents together, by simply adding an `_id` to the emitted value:
+
+{% highlight js %}
+function map(doc) {
+  // join artist data to albums
+  if (doc.type === 'album') {
+    emit(doc.name, {_id : doc.artistId, albumYear : doc.year});
+  }
+}
+db.query(map, {include_docs : true}, function (err, response) {});
+{% endhighlight %}
+
+#### Example response:
+
+{% highlight js %}
+{
+    "offset": 0,
+    "rows": [
+        {
+            "doc": {
+                "_id": "bowie",
+                "_rev": "1-fdb234b78904a5c8293f2acf4be70d44",
+                "age": 67,
+                "firstName": "David",
+                "lastName": "Bowie"
+            },
+            "id": "album_hunkydory",
+            "key": "Hunky Dory",
+            "value": {
+                "_id": "album_hunkydory",
+                "albumYear": 1971
+            }
+        },
+        {
+            "doc": {
+                "_id": "bowie",
+                "_rev": "1-fdb234b78904a5c8293f2acf4be70d44",
+                "age": 67,
+                "firstName": "David",
+                "lastName": "Bowie"
+            },
+            "id": "album_low",
+            "key": "Low",
+            "value": {
+                "_id": "album_low",
+                "albumYear": 1977
+            }
+        },
+        {
+            "doc": {
+                "_id": "bowie",
+                "_rev": "1-fdb234b78904a5c8293f2acf4be70d44",
+                "age": 67,
+                "firstName": "David",
+                "lastName": "Bowie"
+            },
+            "id": "album_spaceoddity",
+            "key": "Space Oddity",
+            "value": {
+                "_id": "album_spaceoddity",
+                "albumYear": 1969
+            }
+        }
+    ],
+    "total_rows": 3
+}
+{% endhighlight %}
+
+#### Closures
+
+If you pass a function to `db.query` and give it the `emit` function as the second argument, then you can use a closure. (Otherwise we have to use `eval()` to bind `emit`.)
 
 {% highlight js %}
 // BAD! will throw error
@@ -693,12 +825,8 @@ db.query(function(thisIs, awesome) {
   }
 }, function(err, results) { /* ... */ });
 {% endhighlight %}
-**Notes:**
 
-1. Local databases do not currently support view caching; everything is a live view.
-2. [Linked documents](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Linked_documents) (aka joins) are supported.  
-3. [Complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) are supported.  Use them for fancy ordering (e.g. `[firstName, lastName, isFemale]`).
-4. Closures are only supported by local databases. CouchDB still requires self-contained map/reduce functions.
+Note that closures are only supported by local databases with temporary views.
 
 {% include anchor.html title="Get database information" hash="database_information" %}
 
