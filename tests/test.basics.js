@@ -131,6 +131,26 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Modify a doc with opts.rev', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post({test: 'somestuff'}, function (err, info) {
+        db.put({another: 'test', _id: info.id}, {rev : info.rev}, function (err, info2) {
+          info.rev.should.not.equal(info2.rev);
+          db.put({and_another: 'test', _rev: info2.rev, _id : info.id},
+              {rev: info2.rev}, function (err, info3) {
+            info2.rev.should.not.equal(info3.rev);
+            db.put({yet_another: 'test', _id: info.id, _rev: info2.rev },
+                {rev : info3.rev}, function (err, info4) {
+              err.name.should.equal('bad_request');
+              should.not.exist(info4);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+
     it('Modify a doc with a promise', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'promisestuff'}).then(function (info) {
