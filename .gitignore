@@ -1,4 +1,3 @@
-dist
 tmp
 .DS_Store
 node_modules
@@ -10,3 +9,4 @@ npm-debug.log
 coverage
 bower_components
 .idea/
+tests/performance/bundle.js

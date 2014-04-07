@@ -1,8 +1,8 @@
 'use strict';
 
-var LevelPouch = require('./leveldb');
+var LevelPouch = require('../lib/adapters/leveldb');
 var levelalt = require('level-js');
-var utils = require('../utils');
+var utils = require('../lib/utils');
 
 function LevelPouchAlt(opts, callback) {
   var _opts = utils.extend({

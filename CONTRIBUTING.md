@@ -82,7 +82,7 @@ or you can run:
 
     $ npm run dev
 
-and open http://127.0.0.1:8000/tests/test.html in your browser of choice.
+and open [http://127.0.0.1:8000/tests/test.html](http://127.0.0.1:8000/tests/test.html) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/test.html](http://localhost:8000/tests/performance/test.html).
 
 ### Test Options
 
@@ -109,6 +109,12 @@ or
 For quick debugging, you can run an interactive Node shell with the `PouchDB` variable already available:
 
     npm run shell
+
+### Performance tests
+
+    PERF=1 npm test
+
+To run the performance test suite in node.js or the automated browser runner.
 
 Alternative Backends
 --------------------------------------
