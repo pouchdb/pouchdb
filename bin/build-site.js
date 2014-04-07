@@ -20,7 +20,8 @@ if (!execSync('gem list jekyll -i')) {
 mkdirp.sync(__dirname + '/../docs/static/css');
 
 function buildCSS() {
-  var css = execSync(__dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS);
+  var css =
+    execSync(__dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS);
   fs.writeFileSync(POUCHDB_CSS, css);
   console.log('Updated: ', POUCHDB_CSS);
 }
