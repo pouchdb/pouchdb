@@ -595,6 +595,28 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    // unskip when leveldb is fixed (#1860)
+    it.skip('db.info should give correct doc_count', function (done) {
+      new PouchDB(dbs.name).then(function (db) {
+        db.info().then(function (info) {
+          info.doc_count.should.equal(0);
+          return db.bulkDocs({docs : [{_id : '1'}, {_id : '2'}, {_id : '3'}]});
+        }).then(function () {
+          return db.info();
+        }).then(function (info) {
+          info.doc_count.should.equal(3);
+          return db.get('1');
+        }).then(function (doc) {
+          return db.remove(doc);
+        }).then(function () {
+          return db.info();
+        }).then(function (info) {
+          info.doc_count.should.equal(2);
+          done();
+        }, done);
+      }, done);
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
