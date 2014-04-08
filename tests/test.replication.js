@@ -1517,14 +1517,22 @@ downAdapters.map(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    it('replicate from down server test', function (done) {
+    it('replicate to down server test callback', function (done) {
       var db = new PouchDB(dbs.name);
       db.replicate.to('http://infiniterequest.com', function (err, changes) {
         should.exist(err);
         done();
       });
     });
-
+    it('replicate to down server test options.complete', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.replicate.to('http://infiniterequest.com', {
+        complete: function (err, result) {
+          should.exist(err);
+          done();
+        }
+      })
+    });
   });
 });
 
