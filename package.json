@@ -54,16 +54,17 @@
     "exec-sync": "~0.1.6"
   },
   "scripts": {
-    "build-js": "browserify . > dist/pouchdb-nightly.js",
+    "build-js": "browserify . -s PouchDB > dist/pouchdb-nightly.js",
     "min": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
-    "build": "mkdir -p dist && npm run build-js && npm run min",
+    "build": "npm run version && mkdir -p dist && npm run build-js && npm run min",
     "build-alt": "./bin/build-alt.sh",
+    "version":"echo \"module.exports = $(./bin/get-version.js);\" > lib/.version.js",
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "mkdir -p dist && npm run build-js && ./bin/test-browser.js",
     "test-browser-alt": "mkdir -p dist && npm run build-alt && ./bin/test-browser.js",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js alt/*.js",
-    "dev": "./bin/dev-server.js",
-    "test": "npm run jshint && ./bin/run-test.sh",
+    "dev": "npm run version && ./bin/dev-server.js",
+    "test": "npm run version && npm run jshint && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
     "build-site": "./bin/build-site.js",
@@ -77,6 +78,8 @@
     "crypto": false,
     "./adapters/leveldb": false,
     "./adapters/levelalt": false,
+    "./lib/deps/ajax.js": "./lib/deps/ajax-browser.js",
+    "./lib/version.js": "./lib/.version.js",
     "bluebird": "lie",
     "leveldown": "level-js"
   }
