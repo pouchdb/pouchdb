@@ -693,12 +693,129 @@ db.query(function(thisIs, awesome) {
   }
 }, function(err, results) { /* ... */ });
 {% endhighlight %}
+
+{% include anchor.html title="Create a view" hash="create_view" %}
+
+{% highlight js %}
+db.putView(name, fun, [_rev], [options], [callback])
+{% endhighlight %}
+
+Create a view, which allows you to perform faster <a href='#query_database'>`query()`</a> calls.
+
+When you first query a view, it will be slow because it needs to be built up.  After that, it will be much faster, because the emitted key/values are stored in an index.
+
+As new documents are added, they will be processed during the next query. If the view is modified, then the entire index will need to be rebuilt from scratch.
+
+See `options.stale` in <a href='#query_database'>`db.query()`</a> for more options on index rebuilding. See [the CouchDB view documentation](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) for more about how views work.
+
+### Options
+
+* `name`: Name of the view to save (e.g. `'myview'` or `'mydesigndoc/myview'`).
+* `fun`: Map/reduce function, which can be one of the following:
+  * A map function by itself (no reduce).
+  * A full CouchDB-style map/reduce object: `{map : ..., reduce: ...}`. The `reduce` may either be a function, or the string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.
+* `_rev`: Revision of the associated design document.
+
+Otherwise, all options are the same as for <a href='#create_document'>`put()`</a>.
+
+#### Example Usage:
+
+{% highlight js %}
+db.putView('my_view', {
+  map : function (doc) {
+    emit(doc.firstName);
+  }, reduce : '_count'
+  }, function (err, response) {})
+{% endhighlight %}
+
+#### Example Response:
+
+{% highlight js %}
+{
+  "ok": true,
+  "id": "_design/my_view",
+  "rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+}
+{% endhighlight %}
+
+Now that it's saved, you can query it:
+
+{% highlight js %}
+db.query('my_view', function (error, response) {});
+{% endhighlight %}
+
+#### Example Response:
+
+{% highlight js %}
+{
+    "offset": 0,
+    "rows": [
+        {
+            "id": "bowie",
+            "key": "David",
+        },
+        {
+            "id": "dylan",
+            "key": "Bob",
+        },
+        {
+            "id": "hank",
+            "key": "Hank",
+        }
+    ],
+    "total_rows": 3
+}
+{% endhighlight %}
+
+#### Design docs
+
+Views are saved in a special type of document called a *design document*.  These documents have `_id`s that begin with the reserved prefix `'_design/'` and contain one or more views.  For simplicity's sake, we prefer creating one view per design document.
+
+So the `putView('my_view', ...)` example above is equivalent to:
+
+{% highlight js %}
+db.put({
+  _id : '_design/my_view',
+  my_view : {
+    map : 'function (doc) {\nemit(doc.artist);\n}',
+    reduce : '_count'
+  }
+}, function (err, response) {})
+{% endhighlight %}
+
 **Notes:**
 
-1. Local databases do not currently support view caching; everything is a live view.
-2. [Linked documents](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Linked_documents) (aka joins) are supported.  
-3. [Complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) are supported.  Use them for fancy ordering (e.g. `[firstName, lastName, isFemale]`).
-4. Closures are only supported by local databases. CouchDB still requires self-contained map/reduce functions.
+*  If you call `putView()` twice with the same name,
+it will result in a `conflict` error. Include the `_rev` to avoid
+this (or just ignore the error if you don't care).
+*  To update/delete design documents, you can use the normal `get()`, `put()`, and `delete()` methods. `putView()` is just sugar.
+* Design docs are returned in `allDocs()` queries, but you can easily skip them by adding ```{startkey : '_design0'}```.
+* If you want more control over the design doc's name, then put a slash in the name, e.g. `'my_design_name/my_view_name'`.
+* Design docs are synced, but the underlying indexes are not.
+
+{% include anchor.html title="View cleanup" hash="view_cleanup" %}
+
+{% highlight js %}
+db.viewCleanup([options], [callback])
+{% endhighlight %}
+
+Cleans up any stale map/reduce indexes.
+
+As design docs are deleted or modified, their associated index files (in CouchDB) or companion databases (in local PouchDBs) continue to take up space on disk. `viewCleanup()` removes these unnecessary index files.
+
+See [the CouchDB documentation on view cleanup](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html#views-cleanup) for details.
+
+#### Example Usage:
+{% highlight js %}
+db.viewCleanup([options], [callback])
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "ok" : "true"
+}
+{% endhighlight %}
 
 {% include anchor.html title="Get database information" hash="database_information" %}
 
