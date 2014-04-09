@@ -17,6 +17,7 @@
     "pouchdb"
   ],
   "dependencies": {
+    "argsarray": "0.0.1",
     "bluebird": "~1.0.0",
     "inherits": "~2.0.1",
     "level-js": "~2.0.0",
