@@ -44,7 +44,6 @@ env:
 
 matrix:
   allow_failures:
-  - env: CLIENT=chrome COMMAND=test
   - env: CLIENT=firefox LEVEL_BACKEND=leveljs COMMAND=test
 
 branches:

@@ -703,7 +703,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Replicate large number of docs', function (done) {
+    it.skip('Replicate large number of docs', function (done) {
       this.timeout(15000);
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -725,7 +725,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Changes error', function (done) {
+    it.skip('Changes error', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docs = [];

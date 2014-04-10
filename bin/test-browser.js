@@ -25,6 +25,9 @@ var browser = process.env.CLIENT || 'firefox';
 var client;
 var qs = {};
 
+var sauceConnectProcess;
+var tunnelId = process.env.TRAVIS_JOB_NUMBER || 'tunnel-' + Date.now();
+
 if (process.env.GREP) {
   qs.grep = process.env.GREP;
 }
@@ -50,23 +53,33 @@ function testError(e) {
   process.exit(3);
 }
 
+function postResult(result) {
+  if (process.env.PERF && process.env.DASHBOARD_HOST) {
+    var options = {
+      method: 'POST',
+      uri: process.env.DASHBOARD_HOST + '/performance_results',
+      json: result
+    };
+    request(options, function (error, response, body) {
+      process.exit(!!error);
+    });
+    return;
+  }
+  process.exit(!process.env.PERF && result.failed ? 1 : 0);
+}
+
 function testComplete(result) {
   result.date = Date.now();
   console.log(result);
 
   client.quit().then(function () {
-    if (process.env.PERF && process.env.DASHBOARD_HOST) {
-      var options = {
-        method: 'POST',
-        uri: process.env.DASHBOARD_HOST + '/performance_results',
-        json: result
-      };
-      request(options, function (error, response, body) {
-        process.exit(!!error);
+    if (sauceConnectProcess) {
+      sauceConnectProcess.close(function () {
+        postResult(result);
       });
-      return;
+    } else {
+      postResult(result);
     }
-    process.exit(!process.env.PERF && result.failed ? 1 : 0);
   });
 }
 
@@ -102,10 +115,17 @@ function startSauceConnect(callback) {
 
   var options = {
     username: username,
-    accessKey: accessKey
+    accessKey: accessKey,
+    tunnelIdentifier: tunnelId
   };
 
-  sauceConnectLauncher(options, function (err, sauceConnectProcess) {
+  sauceConnectLauncher(options, function (err, process) {
+    if (err) {
+      console.error('Failed to connect to saucelabs');
+      console.error(err);
+      return process.exit(1);
+    }
+    sauceConnectProcess = process;
     client = wd.promiseChainRemote("localhost", 4445, username, accessKey);
     callback();
   });
@@ -118,9 +138,11 @@ function startTest() {
   var opts = {
     browserName: browser,
     tunnelTimeout: testTimeout,
+    name: browser + ' - ' + tunnelId,
     'max-duration': 60 * 30,
     'command-timeout': 599,
-    'idle-timeout': 599
+    'idle-timeout': 599,
+    'tunnel-identifier': tunnelId
   };
 
   client.init(opts).get(testUrl, function () {
