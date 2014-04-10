@@ -795,6 +795,34 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('issue #1001 cb as 3rd argument', function (done) {
+      PouchDB.replicate('http://example.com', dbs.name, function (err, result) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('issue #1001 cb in options', function (done) {
+      PouchDB.replicate('http://example.com', dbs.name, {
+        complete: function (err, result) {
+          should.exist(err);
+          done();
+        }
+      });
+    });
+
+    it('issue #1001 cb as 4th argument', function (done) {
+      PouchDB.replicate(
+        'http://example.com',
+        dbs.name,
+        {},
+        function (err, result) {
+          should.exist(err);
+          done();
+        }
+      );
+    });
+
     it('issue #909 Filtered replication bails at paging limit',
       function (done) {
       var db = new PouchDB(dbs.name);
