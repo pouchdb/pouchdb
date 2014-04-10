@@ -1,13 +1,10 @@
 "use strict";
 
-require('../lib/deps/es5_shims');
-
 var PouchDB = require('../lib/setup');
 
 module.exports = PouchDB;
 
 PouchDB.ajax = require('../lib/deps/ajax');
-PouchDB.extend = require('../lib/deps/extend');
 PouchDB.utils = require('../lib/utils');
 PouchDB.Errors = require('../lib/deps/errors');
 var replicate = require('../lib/replicate');
