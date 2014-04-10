@@ -102,7 +102,11 @@ testUtils.cleanup = function (dbs, done) {
 
   try {
     if (global.localStorage) {
-      global.localStorage.clear();
+      Object.keys(global.localStorage).forEach(function (key) {
+        if (/^_pouch_/.test(key)) {
+          delete global.localStorage[key];
+        }
+      });
     }
   } catch (e) {
     // firefox chrome environment, ignore
