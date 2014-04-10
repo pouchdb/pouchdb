@@ -13,13 +13,14 @@ var http_proxy = require('http-proxy');
 var http_server = require('http-server');
 
 var performanceBundle = './dist/performance-bundle.js';
+var level_backend = process.env.LEVEL_BACKEND;
 var indexfile, outfile;
 var query = "";
 var perfRoot;
 if (process.env.LEVEL_BACKEND) {
-  query = "?sourceFile=pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+  query = "?sourceFile=pouchdb-" + level_backend + ".js";
   indexfile = "./alt/index.js";
-  outfile = "./dist/pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+  outfile = "./dist/pouchdb-" + level_backend + ".js";
   perfRoot = './alt/performance/*.js';
 } else {
   indexfile = "./lib/index.js";
@@ -42,12 +43,19 @@ function writeFile(file) {
 }
 
 function bundle() {
+  if (level_backend) {
+    w.require(level_backend, {expose: 'levelalt'});
+  }
   w.bundle({standalone: "PouchDB"}, writeFile(outfile));
 }
 
 function bundlePerfTests() {
   glob(perfRoot, function (err, files) {
-    browserify(files).bundle({}, writeFile(performanceBundle));
+    var b = browserify(files);
+    if (level_backend) {
+      b.require(level_backend, {expose: 'levelalt'});
+    }
+    b.bundle({}, writeFile(performanceBundle));
   });
 }
 

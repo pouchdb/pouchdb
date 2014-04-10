@@ -4,7 +4,7 @@
   "description": "alt pouchdb",
   "main": "index.js",
   "scripts": {
-    "build": "browserify . -s PouchDB > ../dist/pouchdb-leveljs.js",
+    "build": "./build-js.sh",
     "build-perf": "browserify tests/performance/*.js > ../dist/performance-bundle.js"
   },
   "author": "",
@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "level-js": "^2.1.2",
-    "lie": "^2.6.0"
+    "lie": "^2.6.0",
+    "localstorage-down": "^0.4.2"
   },
   "devDependencies": {
     "browserify": "^3.38.1",
