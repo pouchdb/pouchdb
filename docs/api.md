@@ -525,19 +525,13 @@ db.putAttachment('a', 'text', rev, doc, 'text/plain', function(err, res) {})
 }
 {% endhighlight %}
 
-PouchDB also offers a `createBlob` function, which will work around browser inconsistencies:
-
-{% highlight js %}
-var doc = PouchDB.utils.createBlob(["It's a God awful small affair"]);
-{% endhighlight %}
-
-Within Node, you must use a `Buffer`:
+Within Node, you must use a `Buffer` instead of a `Blob`:
 
 {% highlight js %}
 var doc = new Buffer("It's a God awful small affair");
 {% endhighlight %}
 
-For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).
+For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).  If you need a shim for older browsers that don't support the `Blob` constructor, you can use [this one](https://gist.github.com/nolanlawson/10340255).
 
 ### Save an inline attachment
 
