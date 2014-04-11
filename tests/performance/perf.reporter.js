@@ -10,6 +10,10 @@ function log(msg) {
   }
 }
 
+exports.startSuite = function (suiteName) {
+  log('Starting suite: ' + suiteName + '\n\n');
+};
+
 exports.start = function (testCase) {
   var key = testCase.name;
   log('Starting test: ' + key + ' with ' + testCase.assertions +
@@ -27,7 +31,7 @@ exports.end = function (testCase) {
   log('done in ' + obj.duration + 'ms\n');
 };
 
-exports.complete = function () {
+exports.complete = function (suiteName) {
   global.results.completed = true;
   console.log(global.results);
   log('\nTests Complete!\n\n');
