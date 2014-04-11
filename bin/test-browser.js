@@ -40,7 +40,11 @@ if (process.env.LEVEL_BACKEND) {
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 
-if ((process.env.TRAVIS && browser !== 'firefox') &&
+console.log(process.env.TRAVIS, browser, process.TRAVIS_SECURE_ENV_VARS);
+// If we are in travis, not testing with local selenium and the secure env
+// vars arent available, we cant test
+if (process.env.TRAVIS &&
+    browser !== 'firefox' &&
     !process.env.TRAVIS_SECURE_ENV_VARS) {
   console.error('Not running test, cannot connect to saucelabs');
   process.exit(0);
@@ -123,7 +127,8 @@ function startSauceConnect(callback) {
     if (err) {
       console.error('Failed to connect to saucelabs');
       console.error(err);
-      return process.exit(1);
+      process.exit(1);
+      return;
     }
     sauceConnectProcess = process;
     client = wd.promiseChainRemote("localhost", 4445, username, accessKey);
