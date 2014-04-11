@@ -11,6 +11,7 @@ VERSION=$(node --eval "console.log(require('./package.json').version);")
 git checkout -b build
 npm run build
 git add dist -f
+git add lib/.version.js -f
 git commit -m "build $VERSION"
 
 # Tag and push
