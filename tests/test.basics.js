@@ -595,8 +595,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    // unskip when leveldb is fixed (#1860)
-    it.skip('db.info should give correct doc_count', function (done) {
+    it('db.info should give correct doc_count', function (done) {
       new PouchDB(dbs.name).then(function (db) {
         db.info().then(function (info) {
           info.doc_count.should.equal(0);
