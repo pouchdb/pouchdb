@@ -40,10 +40,12 @@ if (process.env.LEVEL_BACKEND) {
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 
-if ((process.env.TRAVIS && browser !== 'firefox') &&
-    !process.env.TRAVIS_SECURE_ENV_VARS) {
+if (process.env.TRAVIS &&
+    browser !== 'firefox' &&
+    process.env.TRAVIS_SECURE_ENV_VARS === 'false') {
   console.error('Not running test, cannot connect to saucelabs');
   process.exit(0);
+  return;
 }
 
 function testError(e) {
