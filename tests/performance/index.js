@@ -1,2 +1,2 @@
-var PouchDB = require('../..');
-require('./perf.basics')(PouchDB);
+require('./perf.basics');
+require('./perf.views');
