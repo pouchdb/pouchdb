@@ -38,13 +38,13 @@ env:
   - CLIENT=node COMMAND=test
   - NATIVEPROMISE=1 CLIENT=firefox COMMAND=test
   - CLIENT=chrome COMMAND=test
-  - CLIENT=firefox LEVEL_BACKEND=leveljs COMMAND=test
+  - CLIENT=firefox LEVEL_BACKEND=level-js COMMAND=test
   - CLIENT=firefox PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
 matrix:
   allow_failures:
-  - env: CLIENT=firefox LEVEL_BACKEND=leveljs COMMAND=test
+  - env: CLIENT=firefox LEVEL_BACKEND=level-js COMMAND=test
 
 branches:
   only:
