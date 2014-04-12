@@ -337,11 +337,9 @@ db.changes(options)
 {% endhighlight %}
 
 A list of changes made to documents in the database, in the order they were made.
-It returns an object with one method `cancel`, which you call if you don't want to listen to new changes anymore. 
+It returns an object with the method `cancel()`, which you call if you don't want to listen to new changes anymore. 
 
-It is an [event emitter][event emitter] and will emit a 'change' event on each document change, it calls a 'complete' event when all the changes have been processed, and an 'error' event when an error occurs. In addition to the 'change' event any change will also emit a 'create', 'update', or 'delete' event.
-
-**Note** The 'live' option was formally called 'continuous', you can still use 'continuous' if you can spell it.  Changes was previously not an event emitter, and instead of the 'change' and 'complete' events it took `completee` and `onChange` options, this is depreciated and could be removed in version 3.
+It is an [event emitter][event emitter] and will emit a `'change'` event on each document change, a `'complete'` event when all the changes have been processed, and an `'error'` event when an error occurs. In addition to the `'change'` event, any change will also emit a `'create'`, `'update'`, or `'delete'` event.
 
 ### Options
 
@@ -422,6 +420,8 @@ db.changes()
 }
 {% endhighlight %}
 
+**Note:** The `changes()` method was previously not an event emitter, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is depreciated and could be removed in PouchDB version 3.
+
 {% include anchor.html title="Replicate a database" hash="replication" %}
 
 {% highlight js %}
@@ -475,7 +475,10 @@ db.replicate.from(remoteDB, [options]);
 }
 {% endhighlight %}
 
-Note that the response for server replications (via `options.server`) is slightly different. See the [CouchDB replication documentation](http://wiki.apache.org/couchdb/Replication) for details.
+**Notes:**:
+
+* The response for server replications (via `options.server`) is slightly different. See the [CouchDB replication documentation](http://wiki.apache.org/couchdb/Replication) for details.
+* The `'live'` option was formerly called `'continuous'`. You can still use `'continuous'` if you can spell it.
 
 {% include anchor.html title="Sync a database" hash="sync" %}
 
