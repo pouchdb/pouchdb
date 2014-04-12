@@ -99,14 +99,6 @@ testUtils.cleanup = function (dbs, done) {
   dbs.forEach(function (db) {
     PouchDB.destroy(db, dbDeleted);
   });
-
-  try {
-    if (global.localStorage) {
-      global.localStorage.clear();
-    }
-  } catch (e) {
-    // firefox chrome environment, ignore
-  }
 };
 
 // Put doc after prevRev (so that doc is a child of prevDoc
