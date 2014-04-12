@@ -10,10 +10,6 @@ var adapters = [
 var downAdapters = ['local'];
 var interHTTPAdapters = [['http', 'http']];
 
-if (typeof module !== 'undefined' && module.exports) {
-  downAdapters = [];
-}
-
 adapters.forEach(function (adapters) {
   describe('test.replication.js-' + adapters[0] + '-' + adapters[1],
     function () {
