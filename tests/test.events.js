@@ -5,11 +5,9 @@ var adapters = ['local'];
 adapters.forEach(function (adapter) {
   describe('test.events.js-' + adapter, function () {
 
-    //we can't use the same db becasue
-    var i = 0;
     var dbs = {};
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'events_tests' + i++);
+      dbs.name = testUtils.adapterUrl(adapter, 'events_tests');
       testUtils.cleanup([dbs.name], done);
     });
 
