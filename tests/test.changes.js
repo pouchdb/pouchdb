@@ -976,7 +976,7 @@ adapters.forEach(function (adapter) {
     });
 
     // TODO: https://github.com/daleharvey/pouchdb/issues/1460
-    it.skip('Kill database while listening to live changes', function (done) {
+    it('Kill database while listening to live changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
       db.changes({
