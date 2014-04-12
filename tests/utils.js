@@ -102,7 +102,12 @@ testUtils.cleanup = function (dbs, done) {
 
   try {
     if (global.localStorage) {
-      global.localStorage.clear();
+      Object.keys(global.localStorage).forEach(function (key) {
+        if (['setItem', 'removeItem', 'clear'].indexOf(key) === -1) {
+          // avoids IE11 bug
+          delete global.localStorage[key];
+        }
+      });
     }
   } catch (e) {
     // firefox chrome environment, ignore
