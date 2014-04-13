@@ -13,18 +13,27 @@ var devserver = require('./dev-server.js');
 var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
 var SELENIUM_HUB = 'http://localhost:4444/wd/hub/status';
 
-var testRoot = 'http://127.0.0.1:8000/tests/';
-var testUrl = testRoot +
-  (process.env.PERF ? 'performance/test.html' : 'test.html');
-
 var testTimeout = 30 * 60 * 1000;
 
 var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
-var browser = process.env.CLIENT || 'firefox';
-var client;
+
+// process.env.CLIENT is a colon seperated list of
+// (saucelabs|selenium):browserName:browserVerion:platform
+var tmp = (process.env.CLIENT || 'selenium:firefox').split(':');
+var client = {
+  runner: tmp[0] || 'selenium',
+  browser: tmp[1] || 'firefox',
+  version: tmp[2] || null, // Latest
+  platform: tmp[3] || null
+};
+
+var testRoot = 'http://127.0.0.1:8000/tests/';
+var testUrl = testRoot +
+  (process.env.PERF ? 'performance/test.html' : 'test.html');
 var qs = {};
 
+var sauceClient;
 var sauceConnectProcess;
 var tunnelId = process.env.TRAVIS_JOB_NUMBER || 'tunnel-' + Date.now();
 
@@ -41,7 +50,7 @@ testUrl += '?';
 testUrl += querystring.stringify(qs);
 
 if (process.env.TRAVIS &&
-    browser !== 'firefox' &&
+    client.browser !== 'firefox' &&
     process.env.TRAVIS_SECURE_ENV_VARS === 'false') {
   console.error('Not running test, cannot connect to saucelabs');
   process.exit(0);
@@ -51,7 +60,7 @@ if (process.env.TRAVIS &&
 function testError(e) {
   console.error(e);
   console.error('Doh, tests failed');
-  client.quit();
+  sauceClient.quit();
   process.exit(3);
 }
 
@@ -74,7 +83,7 @@ function testComplete(result) {
   result.date = Date.now();
   console.log(result);
 
-  client.quit().then(function () {
+  sauceClient.quit().then(function () {
     if (sauceConnectProcess) {
       sauceConnectProcess.close(function () {
         postResult(result);
@@ -101,7 +110,7 @@ function startSelenium(callback) {
 
     request(SELENIUM_HUB, function (err, resp) {
       if (resp && resp.statusCode === 200) {
-        client = wd.promiseChainRemote();
+        sauceClient = wd.promiseChainRemote();
         callback();
       } else {
         setTimeout(started, 1000);
@@ -128,30 +137,32 @@ function startSauceConnect(callback) {
       return process.exit(1);
     }
     sauceConnectProcess = process;
-    client = wd.promiseChainRemote("localhost", 4445, username, accessKey);
+    sauceClient = wd.promiseChainRemote("localhost", 4445, username, accessKey);
     callback();
   });
 }
 
 function startTest() {
 
-  console.log('Starting', browser);
+  console.log('Starting', client);
 
   var opts = {
-    browserName: browser,
+    browserName: client.browser,
+    version: client.version,
+    platform: client.platform,
     tunnelTimeout: testTimeout,
-    name: browser + ' - ' + tunnelId,
+    name: client.browser + ' - ' + tunnelId,
     'max-duration': 60 * 30,
     'command-timeout': 599,
     'idle-timeout': 599,
     'tunnel-identifier': tunnelId
   };
 
-  client.init(opts).get(testUrl, function () {
+  sauceClient.init(opts).get(testUrl, function () {
 
     /* jshint evil: true */
     var interval = setInterval(function () {
-      client.eval('window.results', function (err, results) {
+      sauceClient.eval('window.results', function (err, results) {
         if (err) {
           clearInterval(interval);
           testError(err);
@@ -168,7 +179,7 @@ function startTest() {
 
 devserver.start();
 
-if (process.env.TRAVIS && browser !== 'firefox') {
+if (client.runner === 'saucelabs') {
   startSauceConnect(startTest);
 } else {
   startSelenium(startTest);
