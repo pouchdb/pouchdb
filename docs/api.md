@@ -698,24 +698,24 @@ db.query(map, function (err, response) {});
 #### Example Response:
 {% highlight js %}
 {
-    "offset": 0,
-    "rows": [{
-	    "id"  : "bowie",
-	    "key" : ["Bowie", "David", 67]
-	  }, {
-	    "id"  : "dylan",
-	    "key" : ["Dylan", "Bob", 72]
-	  }, {
-	    "id"  : "younger_dylan",
-	    "key" : ["Dylan", "Jakob", 44]
-	  }, {
-	    "id"  : "hank_the_third",
-	    "key" : ["Williams", "Hank", 41]
-	  }, {
-	    "id"  : "hank",
-	    "key" : ["Williams", "Hank", 91]
-	  }],
-    "total_rows": 5
+  "offset": 0,
+  "rows": [{
+      "id"  : "bowie",
+      "key" : ["Bowie", "David", 67]
+    }, {
+      "id"  : "dylan",
+      "key" : ["Dylan", "Bob", 72]
+    }, {
+      "id"  : "younger_dylan",
+      "key" : ["Dylan", "Jakob", 44]
+    }, {
+      "id"  : "hank_the_third",
+      "key" : ["Williams", "Hank", 41]
+    }, {
+      "id"  : "hank",
+      "key" : ["Williams", "Hank", 91]
+    }],
+  "total_rows": 5
 }
 {% endhighlight %}
 
