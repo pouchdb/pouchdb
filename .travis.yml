@@ -36,15 +36,22 @@ env:
 
   matrix:
   - CLIENT=node COMMAND=test
-  - NATIVEPROMISE=1 CLIENT=firefox COMMAND=test
-  - CLIENT=chrome COMMAND=test
-  - CLIENT=firefox LEVEL_BACKEND=level-js COMMAND=test
-  - CLIENT=firefox PERF=1 COMMAND=test
+
+  # Test in firefox running on travis
+  - NATIVEPROMISE=1 CLIENT=selenium:firefox COMMAND=test
+
+  # Testing in saucelabs
+  - CLIENT=saucelabs:chrome COMMAND=test
+  - CLIENT=saucelabs:safari COMMAND=test
+
+  - CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
+  - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
 matrix:
   allow_failures:
-  - env: CLIENT=firefox LEVEL_BACKEND=level-js COMMAND=test
+  - env: CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
+  - env: CLIENT=saucelabs:safari COMMAND=test
 
 branches:
   only:

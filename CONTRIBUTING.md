@@ -76,7 +76,7 @@ Run all tests with:
 
 Browser tests can be run automatically with:
 
-    $ CLIENT=firefox npm test
+    $ CLIENT=selenium:firefox npm test
 
 or you can run:
 
