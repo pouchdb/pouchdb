@@ -2,7 +2,6 @@
 layout: post
 
 title: Pagination strategies with PouchDB
-sub_title: How to slice 'n' dice big databases
 
 excerpt: PouchDB, like CouchDB, was designed to store large amounts of data. However, once you're dealing with hundreds, thousands, or even millions of documents in a single database&hellip;
 
@@ -233,8 +232,8 @@ Of course, you could also fetch `pageSize + 1` docs each time, and simply omit t
 suffer from this problem, due to their ability to efficiently count SQLite rows/B-tree offsets.
 However, since IndexedDB and LevelDB (and other backends modeled on <a href='https://github
 .com/rvagg/node-leveldown/'>LevelDOWN</a>) are
-traditional key-value stores, they don't have a good way to count offsets.  So you're better off
-using the <code>startkey</code> pattern everywhere.
+traditional key-value stores, they don't have a good way to count offsets.  Also, some <a href='http://danielwertheim.se/2014/04/01/couchdb-pagination-is-skip-and-limit-enough/
+'>experimental data</a> suggests that CouchDB 1.5 is still faster with the <code>startkey</code> pattern. So you're better off just using <code>startkey</code> everywhere.
 
 {% include alert_end.html %}
 
