@@ -497,5 +497,24 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    if (adapter === 'local') { // chrome doesn't like \u0000 in URLs
+      it('test unicode ids and revs', function (done) {
+        var db = new PouchDB(dbs.name);
+        var id = 'baz\u0000';
+        var rev;
+        return db.put({_id: id}).then(function (res) {
+          rev = res.rev;
+        }).then(function () {
+            return db.get(id);
+          }).then(function (doc) {
+            doc._id.should.equal(id);
+            doc._rev.should.equal(rev);
+            return db.allDocs({keys: [id]});
+          }).then(function (res) {
+            res.rows.should.have.length(1);
+            res.rows[0].value.rev.should.equal(rev);
+          }).then(done, done);
+      });
+    }
   });
 });
