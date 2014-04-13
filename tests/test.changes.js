@@ -1,6 +1,5 @@
 
 'use strict';
-
 var adapters = ['http', 'local'];
 
 adapters.forEach(function (adapter) {
@@ -1423,6 +1422,35 @@ adapters.forEach(function (adapter) {
         }, 'nextSong', rev2);
       });
     });
+
+    if (adapter === 'local') {
+      it('supports returnDocs=false', function (done) {
+        var db = new PouchDB(dbs.name);
+        var docs = [];
+        var num = 10;
+        for (var i = 0; i < num; i++) {
+          docs.push({ _id: 'doc_' + i, });
+        }
+        var changes = 0;
+        db.bulkDocs({ docs: docs }, function (err, info) {
+          if (err) {
+            return done(err);
+          }
+          db.changes({
+            descending: true,
+            returnDocs : false
+          }).on('change', function (change) {
+            changes++;
+          }).on('complete', function (results) {
+            results.results.should.have.length(0, '0 results returned');
+            changes.should.equal(num, 'correct number of changes');
+            done();
+          }).on('error', function (err) {
+            done(err);
+          });
+        });
+      });
+    }
   });
 });
 
