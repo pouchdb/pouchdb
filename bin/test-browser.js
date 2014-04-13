@@ -155,7 +155,7 @@ function startTest() {
         if (err) {
           clearInterval(interval);
           testError(err);
-        } else if (results.completed) {
+        } else if (results.completed || results.failures.length) {
           clearInterval(interval);
           testComplete(results);
         } else {
