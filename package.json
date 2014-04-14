@@ -2,10 +2,9 @@
   "name": "pouchdb",
   "version": "2.2.0-alpha",
   "description": "PouchDB is a pocket-sized database.",
-  "release": "nightly",
   "main": "./lib/index.js",
-  "homepage": "https://github.com/daleharvey/pouchdb",
-  "repository": "https://github.com/daleharvey/pouchdb",
+  "homepage": "http://pouchdb.com/",
+  "repository": "https://github.com/pouchdb/pouchdb",
   "keywords": [
     "db",
     "couchdb",
