@@ -2,17 +2,20 @@
 /* jshint maxlen: false */
 var rfcRegexp = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 /* jshint maxlen: 80 */
+function makeUuids(count, length, radix) {
+  count = count || 1;
+  var i = -1;
+  var out = [];
+  while (++i < count) {
+    out.push(PouchDB.utils.uuid(length, radix));
+  }
+  return out;
+}
 
-describe('test.uuid.jsu', function () {
-
-  it('UUID generation count', function () {
-    var count = 10;
-    PouchDB.utils.uuids(count).should.have
-      .length(count, 'Correct number of uuids generated.');
-  });
+describe('test.uuid.js', function () {
 
   it('UUID RFC4122 test', function () {
-    rfcRegexp.test(PouchDB.utils.uuids()[0]).should
+    rfcRegexp.test(makeUuids()[0]).should
       .equal(true, 'Single UUID complies with RFC4122.');
     rfcRegexp.test(PouchDB.utils.uuid()).should
       .equal(true,
@@ -21,7 +24,7 @@ describe('test.uuid.jsu', function () {
 
   it('UUID generation uniqueness', function () {
     var count = 1000;
-    var uuids = PouchDB.utils.uuids(count);
+    var uuids = makeUuids(count);
     testUtils.eliminateDuplicates(uuids).should.have
       .length(count, 'Generated UUIDS are unique.');
   });
@@ -29,7 +32,7 @@ describe('test.uuid.jsu', function () {
   it('Test small uuid uniqness', function () {
     var length = 8;
     var count = 2000;
-    var uuids = PouchDB.utils.uuids(count, { length: length });
+    var uuids = makeUuids(count, length);
     testUtils.eliminateDuplicates(uuids).should.have
       .length(count, 'Generated small UUIDS are unique.');
   });
@@ -37,10 +40,9 @@ describe('test.uuid.jsu', function () {
   it('Test custom length', function () {
     var length = 32;
     var count = 10;
-    var options = { length: length };
-    var uuids = PouchDB.utils.uuids(count, options);
+    var uuids = makeUuids(count, length);
     // Test single UUID wrapper
-    uuids.push(PouchDB.utils.uuid(options));
+    uuids.push(PouchDB.utils.uuid(length));
     uuids.map(function (uuid) {
       uuid.should.have.length(length, 'UUID length is correct.');
     });
@@ -50,13 +52,9 @@ describe('test.uuid.jsu', function () {
     var length = 32;
     var count = 10;
     var radix = 5;
-    var options = {
-        length: length,
-        radix: radix
-      };
-    var uuids = PouchDB.utils.uuids(count, options);
+    var uuids = makeUuids(count, length, radix);
     // Test single UUID wrapper
-    uuids.push(PouchDB.utils.uuid(options));
+    uuids.push(PouchDB.utils.uuid(length, radix));
     uuids.map(function (uuid) {
       var nums = uuid.split('').map(function (character) {
           return parseInt(character, radix);
