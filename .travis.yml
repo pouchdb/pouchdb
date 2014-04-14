@@ -45,12 +45,14 @@ env:
   - CLIENT=saucelabs:safari COMMAND=test
 
   - CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
+  - CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
 matrix:
   allow_failures:
   - env: CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
+  - env: CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
   - env: CLIENT=saucelabs:safari COMMAND=test
 
 branches:
