@@ -10,6 +10,8 @@ function log(msg) {
   }
 }
 
+exports.log = log;
+
 exports.startSuite = function (suiteName) {
   log('Starting suite: ' + suiteName + '\n\n');
 };

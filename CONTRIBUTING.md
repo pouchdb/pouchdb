@@ -116,6 +116,15 @@ For quick debugging, you can run an interactive Node shell with the `PouchDB` va
 
 To run the performance test suite in node.js or the automated browser runner.
 
+### Performance tests in the browser
+
+You can specify a particular version of PouchDB or a particular adapter by doing e.g.:
+
+    http://localhost:8000/tests/performance/test.html?src=http://site.com/path/to/pouchdb.js
+    http://localhost:8000/tests/performance/test.html?adapter=websql
+    http://localhost:8000/tests/performance/test.html?adapter=idb&src=//site.com/pouchdb.js
+
+
 Alternative Backends
 --------------------------------------
 PouchDB is looking to support alternative backends that comply with the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown). For example, simply include `LEVEL_BACKEND=level-js` in your `npm run build-alt` and `npm run dev` commands to experiment with this feature!
