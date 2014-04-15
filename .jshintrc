@@ -27,6 +27,7 @@
     "afterEach",
     "testUtils",
     "should",
-    "emit"
+    "emit",
+    "EventSource"
   ]
 }
