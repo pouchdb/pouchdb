@@ -22,7 +22,6 @@
     "localstorage-down": "^0.4.2"
   },
   "devDependencies": {
-    "browserify": "^3.38.1",
     "tape": "^2.12.3"
   }
 }
