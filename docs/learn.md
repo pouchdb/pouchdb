@@ -10,28 +10,16 @@ PouchDB is a free open-source project, written in JavaScript by these [wonderful
 
 ### Browser Support
 
-PouchDB uses various backends so it can work across different browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera/IE, WebSQL in Safari, and LevelDB in Node.js. It is currently tested in:
+PouchDB uses various backends so it can work across different browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera/IE, WebSQL in Safari, and LevelDB in Node.js. It is currently tested and fully supported in:
 
- * Firefox 12+
- * Chrome 19+
- * Opera 12+
- * Safari 5+
- * Internet Explorer 10+
- * [Node.js 0.10+](http://nodejs.org/)
- * [Apache Cordova](http://cordova.apache.org/)
+ * Firefox latest stable (v28)
+ * Chrome latest stable (v34)
+ * Desktop Safari latest stable (v7)
+ * [Node.js](http://nodejs.org/)
 
-For details on supported browsers, see ["Can I use IndexedDB?"][caniuse-idb] and ["Can I use Web SQL Database?"][caniuse-websql].
+PouchDB is experimental on Internet Explorer 10+, Opera and various mobile browsers and environments including [Apache Cordova](http://cordova.apache.org/). It is known to work but you may run into issues, as we resolve these issues we will update the fully supported list.
 
-  [caniuse-idb]: http://caniuse.com/indexeddb
-  [caniuse-websql]: http://caniuse.com/sql-storage
-
-If your application requires support for Internet Explorer below version 10, it is possible to use an online CouchDB as a fallback, however it will not work offline. Also, because PouchDB requires an ES5 environment, you will need to include the [es5-shim](https://github.com/es-shims/es5-shim) library. This also applies to other legacy browsers, such as Android <4.0 and Opera Mini.
-
-### Current Status
-
-PouchDB in the browser is currently beta release software. It is extensively tested and the functionality implemented is known to be stable, however you may find bugs in lesser-used parts of the API. The API is currently stable with no known changes and you will be able to upgrade PouchDB without losing data. We are currently working towards a stable release of PouchDB.
-
-PouchDB in Node.js is currently alpha and an upgrade to the library can break current databases. It is however possible to upgrade by replicating data across different versions to manually upgrade.
+PouchDB requires an ES5 environment, if your browser does not support this (IE < 9, Android < 4.0, Opera Mini) you will need to include the [es5-shim](https://github.com/es-shims/es5-shim) library.
 
 ### Installing
 
