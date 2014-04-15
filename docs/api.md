@@ -355,6 +355,7 @@ All options default to `false` unless otherwise specified.
 * `options.limit`: Limit the number of results to this number.
 * `options.style`: Specifies how many revisions are returned in the changes array. The default, main_only, will only return the current "winning" revision; all_docs will return all leaf revisions (including conflicts and deleted former conflicts).
 * `options.view`: Specify a view function to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them.
+* `options.returnDocs`: Is available for non http databases and defaults to true, passing `false` prevents the changes feed from keeping all the documents in memory, in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
 
 #### Example Usage:
 {% highlight js %}
