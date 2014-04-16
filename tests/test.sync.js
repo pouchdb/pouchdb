@@ -255,7 +255,7 @@ adapters.forEach(function (adapters) {
           error: 'mock error',
           reason: 'mock changes failure'
         };
-        opts.complete(err, null);
+        return PouchDB.utils.Promise.reject(err);
       };
       function check_results() {
         db.allDocs(function (err, res) {

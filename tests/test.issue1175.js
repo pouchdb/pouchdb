@@ -1,20 +1,28 @@
 'use strict';
 function MockDatabase(statusCodeToReturn, dataToReturn) {
+  this.once = this.removeListener = function () {};
+  this.type = function () { return 'mock'; };
   this.id = function (callback) {
     callback(123);
   };
   this.get = function (id, callback) {
-    setTimeout(function () {
-      if (statusCodeToReturn !== 200) {
-        callback({ status: statusCodeToReturn }, dataToReturn);
-      } else {
-        callback(null, dataToReturn);
-      }
-    }, 0);
+    return new PouchDB.utils.Promise(function (fulfill, reject) {
+      setTimeout(function () {
+        if (statusCodeToReturn !== 200) {
+          reject({ status: statusCodeToReturn });
+        } else {
+          fulfill(dataToReturn);
+        }
+      }, 0);
+    });
   };
   this.changes = function (opts) {
-    opts.complete();
-    return [];
+    if (opts.complete) {
+      opts.complete(null, {results: []});
+    }
+    var promise = PouchDB.utils.Promise.resolve({results: []});
+    promise.on = function () { return this; };
+    return promise;
   };
 }
 function getCallback(expectError, done) {
