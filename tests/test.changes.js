@@ -1424,6 +1424,46 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Attachments changes', function (done) {
+      var binAttDoc = {
+        _id: 'bin_doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
+          }
+        }
+      };
+      var docs1 = [
+        binAttDoc,
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {_id: '3', integer: 3}
+      ];
+
+      var db = new PouchDB(dbs.name);
+
+      db.bulkDocs({ docs: docs1 }, function (err, info) {
+        var count = 0;
+        function onChange(change) {
+          count++;
+        }
+        function complete(err, result) {
+          count.should.equal(5);
+          result.results.length.should.equal(5);
+          done();
+        }
+        db.changes({
+          since: 0,
+          style: 'all_docs',
+          onChange: onChange,
+          complete: complete,
+          returnDocs: false
+        });
+      });
+    });
+
     if (adapter === 'local') {
       it('supports returnDocs=false', function (done) {
         var db = new PouchDB(dbs.name);
