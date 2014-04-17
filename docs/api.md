@@ -304,7 +304,7 @@ All options default to `false` unless otherwise specified.
     - The row for a nonexistent document will just contain an `"error"` property with the value `"not_found"`.
     - For details, see the [CouchDB query options documentation](http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options).
 
-**Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](http://docs.couchdb.org/en/latest/couchapp/views/pagination.html) instead.
+**Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](http://docs.couchdb.org/en/latest/couchapp/views/pagination.html) instead. `total_rows` is the total number of documents in the database.
 
 #### Example Usage:
 {% highlight js %}
