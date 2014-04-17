@@ -35,25 +35,28 @@ env:
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
 
   matrix:
-  - CLIENT=node COMMAND=test
-
-  # Test in firefox running on travis
-  - NATIVEPROMISE=1 CLIENT=selenium:firefox COMMAND=test
-
-  # Testing in saucelabs
-  - CLIENT=saucelabs:chrome COMMAND=test
-  - CLIENT=saucelabs:safari COMMAND=test
-
-  - CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
-  - CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
-  - CLIENT=selenium:firefox PERF=1 COMMAND=test
-  - COMMAND=report-coverage
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=1
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=2
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=3
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=4
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=5
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=6
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=7
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=8
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=9
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=10
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=11
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=12
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=13
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=14
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=15
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=16
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=17
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=18
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=19
+  - CLIENT=node COMMAND=test GREP='push-pull-live' run=20
 
 matrix:
-  allow_failures:
-  - env: CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
-  - env: CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
-  - env: CLIENT=saucelabs:safari COMMAND=test
 
 branches:
   only:

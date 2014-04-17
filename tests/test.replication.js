@@ -11,7 +11,7 @@ var downAdapters = ['local'];
 var interHTTPAdapters = [['http', 'http']];
 
 adapters.forEach(function (adapters) {
-  describe('test.replication.js-' + adapters[0] + '-' + adapters[1],
+  describe('test.replication.js-basic-' + adapters[0] + '-' + adapters[1],
     function () {
 
     var dbs = {};
@@ -141,69 +141,69 @@ adapters.forEach(function (adapters) {
         });
       });
     });
+    describe('push-pull-live', function () {
+      it('Test live pull checkpoint', function (done) {
+        var db = new PouchDB(dbs.name);
+        var remote = new PouchDB(dbs.remote);
+        remote.bulkDocs({ docs: docs }, {}, function (err, results) {
+          var changeCount = docs.length;
+          var changes = db.changes({
+            live: true,
+            onChange: function (change) {
+              if (--changeCount) {
+                return;
+              }
+              replication.cancel();
+              changes.cancel();
+            },
+            complete: function () {
+              db.replicate.from(dbs.remote, {
+                complete: function (err, details) {
+                  details.docs_read.should.equal(0);
+                  done();
+                }
+              });
+            }
+          });
+          var replication = db.replicate.from(dbs.remote, { live: true });
+        });
+      });
 
-    it('Test live pull checkpoint', function (done) {
-      var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-      remote.bulkDocs({ docs: docs }, {}, function (err, results) {
-        var changeCount = docs.length;
-        var changes = db.changes({
-          live: true,
-          onChange: function (change) {
-            if (--changeCount) {
+      it('Test live push checkpoint', function (done) {
+        var db = new PouchDB(dbs.name);
+        var remote = new PouchDB(dbs.remote);
+        db.bulkDocs({ docs: docs }, {}, function (err, results) {
+          var changeCount = docs.length;
+          var finished = 0;
+          var isFinished = function () {
+            if (++finished !== 2) {
               return;
             }
-            replication.cancel();
-            changes.cancel();
-          },
-          complete: function () {
-            db.replicate.from(dbs.remote, {
+            db.replicate.to(dbs.remote, {
               complete: function (err, details) {
                 details.docs_read.should.equal(0);
                 done();
               }
             });
-          }
-        });
-        var replication = db.replicate.from(dbs.remote, { live: true });
-      });
-    });
-
-    it('Test live push checkpoint', function (done) {
-      var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-      db.bulkDocs({ docs: docs }, {}, function (err, results) {
-        var changeCount = docs.length;
-        var finished = 0;
-        var isFinished = function () {
-          if (++finished !== 2) {
-            return;
-          }
-          db.replicate.to(dbs.remote, {
-            complete: function (err, details) {
-              details.docs_read.should.equal(0);
-              done();
-            }
+          };
+          var changes = remote.changes({
+            live: true,
+            onChange: function (change) {
+              if (--changeCount) {
+                return;
+              }
+              replication.cancel();
+              changes.cancel();
+            },
+            complete: isFinished
           });
-        };
-        var changes = remote.changes({
-          live: true,
-          onChange: function (change) {
-            if (--changeCount) {
-              return;
-            }
-            replication.cancel();
-            changes.cancel();
-          },
-          complete: isFinished
-        });
-        var replication = db.replicate.to(dbs.remote, {
-          live: true,
-          complete: isFinished
+          var replication = db.replicate.to(dbs.remote, {
+            live: true,
+            complete: isFinished
+          });
         });
       });
     });
-
     it('Test checkpoint 2', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
