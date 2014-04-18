@@ -1467,35 +1467,82 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    if (adapter === 'local') {
-      it('supports returnDocs=false', function (done) {
-        var db = new PouchDB(dbs.name);
-        var docs = [];
-        var num = 10;
-        for (var i = 0; i < num; i++) {
-          docs.push({ _id: 'doc_' + i, });
+    it('supports returnDocs=false', function (done) {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      var num = 10;
+      for (var i = 0; i < num; i++) {
+        docs.push({ _id: 'doc_' + i, });
+      }
+      var changes = 0;
+      db.bulkDocs({ docs: docs }, function (err, info) {
+        if (err) {
+          return done(err);
         }
-        var changes = 0;
-        db.bulkDocs({ docs: docs }, function (err, info) {
-          if (err) {
-            return done(err);
-          }
-          db.changes({
-            descending: true,
-            returnDocs : false
-          }).on('change', function (change) {
-            changes++;
-          }).on('complete', function (results) {
-            results.results.should.have.length(0, '0 results returned');
-            changes.should.equal(num, 'correct number of changes');
-            done();
-          }).on('error', function (err) {
-            done(err);
-          });
+        db.changes({
+          descending: true,
+          returnDocs : false
+        }).on('change', function (change) {
+          changes++;
+        }).on('complete', function (results) {
+          results.results.should.have.length(0, '0 results returned');
+          changes.should.equal(num, 'correct number of changes');
+          done();
+        }).on('error', function (err) {
+          done(err);
         });
       });
-    }
+    });
 
+    it('should respects limit', function (done) {
+      var docs1 = [
+        {_id: '_local/foo'},
+        {_id: 'a', integer: 0},
+        {_id: 'b', integer: 1},
+        {_id: 'c', integer: 2},
+        {_id: 'd', integer: 3}
+      ];
+      var called = 0;
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: docs1 }, function (err, info) {
+        db.changes({
+          limit: 1
+        }).on('change', function (ch) {
+          ch.id.should.equal('a');
+          (called++).should.equal(0);
+        }).on('complete', function () {
+          done();
+        });
+      });
+    });
+    it.skip('should respects limit with live replication', function (done) {
+      var docs1 = [
+        {_id: '_local/foo'},
+        {_id: 'a', integer: 0},
+        {_id: 'b', integer: 1},
+        {_id: 'c', integer: 2},
+        {_id: 'd', integer: 3}
+      ];
+      var called = 0;
+      var doneCalled = 0;
+      function calldone() {
+        doneCalled++;
+        if (doneCalled === 2) {
+          done();
+        }
+      }
+      var db = new PouchDB(dbs.name);
+      db.changes({
+        limit: 1,
+        live: true
+      }).on('change', function (ch) {
+        ch.id.should.equal('a');
+        (called++).should.equal(0);
+      }).on('complete', function () {
+        calldone();
+      });
+      db.bulkDocs({ docs: docs1 }).then(calldone);
+    });
   });
 });
 
