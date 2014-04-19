@@ -20,17 +20,17 @@ module.exports = function (PouchDB, opts) {
     {
       name: 'basic-inserts',
       assertions: 1,
-      iterations: 100,
+      iterations: 1000,
       setup: function (db, callback) {
-        callback(null, {'yo': 'dawg', _id : 'doc-' + Math.random()});
+        callback(null, {'yo': 'dawg'});
       },
       test: function (db, itr, doc, done) {
-        db.put(doc, done);
+        db.post(doc, done);
       }
     }, {
       name: 'bulk-inserts',
       assertions: 1,
-      iterations: 10,
+      iterations: 100,
       setup: function (db, callback) {
         var docs = [];
         for (var i = 0; i < 100; i++) {
@@ -44,10 +44,10 @@ module.exports = function (PouchDB, opts) {
     }, {
       name: 'basic-gets',
       assertions: 1,
-      iterations: 1000,
+      iterations: 10000,
       setup: function (db, callback) {
         var docs = [];
-        for (var i = 0; i < 1000; i++) {
+        for (var i = 0; i < 10000; i++) {
           docs.push({_id : createDocId(i), foo : 'bar', baz : 'quux'});
         }
         db.bulkDocs({docs : docs}, callback);
@@ -58,7 +58,7 @@ module.exports = function (PouchDB, opts) {
     }, {
       name: 'all-docs-skip-limit',
       assertions: 1,
-      iterations: 5,
+      iterations: 50,
       setup: function (db, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
@@ -80,7 +80,7 @@ module.exports = function (PouchDB, opts) {
     }, {
       name: 'all-docs-startkey-endkey',
       assertions: 1,
-      iterations: 5,
+      iterations: 50,
       setup: function (db, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {

@@ -3,8 +3,18 @@
 var reporter = require('./perf.reporter');
 var test = require('tape');
 
+var grep;
+if (global.window && global.window.location && global.window.location.search) {
+  grep = global.window.location.search.match(/[&?]grep=([^&]+)/);
+  grep = grep && grep[1];
+}
+
 exports.runTests = function (PouchDB, suiteName, testCases, opts) {
   testCases.forEach(function (testCase, i) {
+    if (grep && suiteName.indexOf(grep) === -1 &&
+        testCase.name.indexOf(grep) === -1) {
+      return;
+    }
     test('benchmarking', function (t) {
 
       var db;
@@ -30,6 +40,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         function after(err) {
           if (err) {
             t.error(err);
+            reporter.log(testCase.name + ' errored: ' + err.message + '\n');
           }
           if (++num < testCase.iterations) {
             process.nextTick(function () {
