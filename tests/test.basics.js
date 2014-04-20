@@ -64,6 +64,8 @@ adapters.forEach(function (adapter) {
       new PouchDB(dbs.name, function (err, db) {
         db.destroy(function (err, info) {
           should.not.exist(err);
+          should.exist(info);
+          info.ok.should.equal(true);
           done();
         });
       });
