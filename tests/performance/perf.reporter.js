@@ -35,6 +35,7 @@ exports.end = function (testCase) {
 
 exports.complete = function (suiteName) {
   global.results.completed = true;
+  global.results.client = navigator.userAgent;
   console.log(global.results);
   log('\nTests Complete!\n\n');
 };
