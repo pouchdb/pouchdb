@@ -33,6 +33,51 @@ adapters.forEach(function (adapter) {
         promise.cancel.should.be.a('function');
       });
     });
+
+    it('Promise resolved when changes cancelled', function (done) {
+      var docs = [
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {_id: '3', integer: 3},
+        {_id: '4', integer: 4},
+        {_id: '5', integer: 5},
+        {_id: '6', integer: 6},
+        {_id: '7', integer: 7},
+        {_id: '8', integer: 9},
+        {_id: '9', integer: 9},
+        {_id: '10', integer: 10},
+      ];
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: docs }, function (err, info) {
+        var changeCount = 0;
+        var promise = db.changes({
+          onChange: function (change) {
+            changeCount++;
+            if (changeCount === 5) {
+              promise.cancel();
+            }
+          }
+        });
+        should.exist(promise);
+        should.exist(promise.then);
+        promise.then.should.be.a('function');
+        promise.then(
+        function (result) {
+          console.log('fulfilled ' + JSON.stringify(result));
+          changeCount.should.equal(5, 'changeCount');
+          should.exist(result);
+          result.results.length.should.equal(5, 'results.length');
+          done();
+        }, function (err) {
+          console.log('rejected ' + JSON.stringify(err));
+          changeCount.should.equal(5, 'changeCount');
+          should.exist(err);
+          done();
+        });
+      });
+    });
+
     it('Changes Since Old Style', function (done) {
       var docs = [
         {_id: '0', integer: 0},
