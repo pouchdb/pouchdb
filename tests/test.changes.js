@@ -64,13 +64,11 @@ adapters.forEach(function (adapter) {
         promise.then.should.be.a('function');
         promise.then(
         function (result) {
-          console.log('fulfilled ' + JSON.stringify(result));
           changeCount.should.equal(5, 'changeCount');
           should.exist(result);
-          result.results.length.should.equal(5, 'results.length');
+          result.should.deep.equal({status: 'cancelled'});
           done();
         }, function (err) {
-          console.log('rejected ' + JSON.stringify(err));
           changeCount.should.equal(5, 'changeCount');
           should.exist(err);
           done();
@@ -1029,7 +1027,7 @@ adapters.forEach(function (adapter) {
           done();
         },
         onChange: function (change) {
-          count += 1;
+          count++;
           if (count === 1) {
             PouchDB.destroy(dbs.name);
           }
