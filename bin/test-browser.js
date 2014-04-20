@@ -4,10 +4,11 @@
 var path = require('path');
 var spawn = require('child_process').spawn;
 
-var request = require('request');
 var wd = require('wd');
 var sauceConnectLauncher = require('sauce-connect-launcher');
 var querystring = require("querystring");
+var request = require('request').defaults({json: true});
+
 var devserver = require('./dev-server.js');
 
 var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
@@ -66,13 +67,24 @@ function testError(e) {
 
 function postResult(result) {
   if (process.env.PERF && process.env.DASHBOARD_HOST) {
-    var options = {
-      method: 'POST',
-      uri: process.env.DASHBOARD_HOST + '/performance_results',
-      json: result
-    };
-    request(options, function (error, response, body) {
-      process.exit(!!error);
+    result.branch = process.env.TRAVIS_BRANCH || process.env.BRANCH || false;
+    result.commit = process.env.TRAVIS_COMMIT || process.env.COMMIT || false;
+    result.pull_request = process.env.TRAVIS_PULL_REQUEST;
+    var commits = 'https://api.github.com/repos/pouchdb/pouchdb/git/commits/';
+    request({
+      method: 'GET',
+      uri: commits + result.commit,
+      headers: {'User-Agent': 'request'}
+    }, function (error, response, body) {
+      result._id = result.date = body.committer.date;
+      request({
+        method: 'POST',
+        uri: process.env.DASHBOARD_HOST + '/performance_results',
+        json: result
+      }, function (error, response, body) {
+        console.log(result);
+        process.exit(!!error);
+      });
     });
     return;
   }
@@ -80,7 +92,6 @@ function postResult(result) {
 }
 
 function testComplete(result) {
-  result.date = Date.now();
   console.log(result);
 
   sauceClient.quit().then(function () {
