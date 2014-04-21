@@ -1,5 +1,7 @@
 'use strict';
 
+var UAParser = require('ua-parser-js');
+var ua = new UAParser(navigator.userAgent);
 global.results = {};
 
 var pre = document && document.getElementById('output');
@@ -35,7 +37,14 @@ exports.end = function (testCase) {
 
 exports.complete = function (suiteName) {
   global.results.completed = true;
-  global.results.client = navigator.userAgent;
+  global.results.client = {
+    browser: ua.getBrowser(),
+    device: ua.getDevice(),
+    engine: ua.getEngine(),
+    cpu: ua.getCPU(),
+    os : ua.getOS(),
+    userAgent: navigator.userAgent
+  };
   console.log(global.results);
   log('\nTests Complete!\n\n');
 };
