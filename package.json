@@ -51,14 +51,16 @@
     "glob": "~3.2.9",
     "watch-glob": "~0.1.1",
     "mkdirp": "~0.3.5",
-    "exec-sync": "~0.1.6"
+    "exec-sync": "~0.1.6",
+    "replace": "~0.2.9"
   },
   "scripts": {
     "build-js": "browserify . -s PouchDB > dist/pouchdb-nightly.js",
+    "de-keywordify": "./bin/de-keywordify.sh",
     "min": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
-    "build": "npm run version && mkdir -p dist && npm run build-js && npm run min",
+    "build": "npm run version && mkdir -p dist && npm run build-js && npm run de-keywordify && npm run min",
     "build-alt": "./bin/build-alt.sh",
-    "version":"echo \"module.exports = $(./bin/get-version.js);\" > lib/.version.js",
+    "version": "echo \"module.exports = $(./bin/get-version.js);\" > lib/.version.js",
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "mkdir -p dist && npm run build-js && ./bin/test-browser.js",
     "test-browser-alt": "mkdir -p dist && npm run build-alt && ./bin/test-browser.js",
