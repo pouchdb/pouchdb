@@ -38,7 +38,7 @@ env:
   - CLIENT=node COMMAND=test
 
   # Test in firefox running on travis
-  - NATIVEPROMISE=1 CLIENT=selenium:firefox COMMAND=test
+  - CLIENT=selenium:firefox COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
