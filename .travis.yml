@@ -35,25 +35,14 @@ env:
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
 
   matrix:
-  - CLIENT=node COMMAND=test
-
-  # Test in firefox running on travis
-  - CLIENT=selenium:firefox COMMAND=test
-
   # Testing in saucelabs
-  - CLIENT=saucelabs:chrome COMMAND=test
-  - CLIENT=saucelabs:safari COMMAND=test
-
-  - CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
-  - CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
-  - CLIENT=selenium:firefox PERF=1 COMMAND=test
-  - COMMAND=report-coverage
+  - CLIENT="saucelabs:safari:6:OS X 10.8" COMMAND=test
 
 matrix:
   allow_failures:
   - env: CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
   - env: CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
-  - env: CLIENT=saucelabs:safari COMMAND=test
+  - env: CLIENT="saucelabs:safari:7:OS X 10.9" COMMAND=test
 
 branches:
   only:
