@@ -42,7 +42,7 @@ env:
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
-  - CLIENT=saucelabs:safari COMMAND=test
+  - CLIENT=saucelabs:safari:6 COMMAND=test
 
   - CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
   - CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
@@ -53,7 +53,6 @@ matrix:
   allow_failures:
   - env: CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
   - env: CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
-  - env: CLIENT=saucelabs:safari COMMAND=test
 
 branches:
   only:
