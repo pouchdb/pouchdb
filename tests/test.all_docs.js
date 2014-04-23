@@ -497,6 +497,47 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('test inclusive_end=false', function (done) {
+      new PouchDB(dbs.name).then(function (db) {
+        var docs = [
+          { _id: '1' },
+          { _id: '2' },
+          { _id: '3' },
+          { _id: '4' }
+        ];
+        db.bulkDocs({docs: docs}).then(function () {
+          db.allDocs({inclusive_end: false, endkey: '2'}).then(function (res) {
+            res.rows.should.have.length(1);
+            return db.allDocs({inclusive_end: false, endkey: '1'});
+          }).then(function (res) {
+            res.rows.should.have.length(0);
+            return db.allDocs({inclusive_end: false, endkey: '1',
+              startkey: '0'});
+          }).then(function (res) {
+            res.rows.should.have.length(0);
+            return db.allDocs({inclusive_end: false, endkey: '5'});
+          }).then(function (res) {
+            res.rows.should.have.length(4);
+            return db.allDocs({inclusive_end: false, endkey: '4'});
+          }).then(function (res) {
+            res.rows.should.have.length(3);
+            return db.allDocs({inclusive_end: false, endkey: '4',
+              startkey: '3'});
+          }).then(function (res) {
+            res.rows.should.have.length(1);
+            return db.allDocs({inclusive_end: false, endkey: '1',
+              descending: true});
+          }).then(function (res) {
+            res.rows.should.have.length(3);
+            return db.allDocs({inclusive_end: true, endkey: '4'});
+          }).then(function (res) {
+            res.rows.should.have.length(4);
+            done();
+          }).catch(done);
+        }).catch(done);
+      }).catch(done);
+    });
+
     if (adapter === 'local') { // chrome doesn't like \u0000 in URLs
       it('test unicode ids and revs', function (done) {
         var db = new PouchDB(dbs.name);
