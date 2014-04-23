@@ -636,7 +636,7 @@ adapters.forEach(function (adapters) {
                   var row = res.rows[0];
                   should.not.exist(row.error);
                   // set rev to latest so we go at the end (otherwise new
-                  // rev is 1 and subsequent remote won't win)
+                  // rev is 1 and the subsequent remove below won't win)
                   var doc = {
                     _id: '0', integer: 10, string: '10', _rev: row.value.rev
                   };
