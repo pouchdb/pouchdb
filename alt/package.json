@@ -23,8 +23,5 @@
   },
   "devDependencies": {
     "tape": "^2.12.3"
-  },
-  "browserify": {
-    "transform": [ "es3ify" ]
   }
 }

@@ -12,7 +12,7 @@ function runTestSuites(PouchDB) {
   require('./perf.basics')(PouchDB, opts);
   require('./perf.views')(PouchDB, opts);
 }
-var startNow = true;
+
 if (global.window && global.window.location && global.window.location.search) {
 
   var fragment = global.window.location.search.replace(/^\??/, '').split('&');
@@ -38,10 +38,9 @@ if (global.window && global.window.location && global.window.location.search) {
         runTestSuites(global.window.PouchDB);
       }
     }, 100);
-    startNow = false;
+    return;
   }
 }
-if (startNow) {
-  var PouchDB = require('../..');
-  runTestSuites(PouchDB);
-}
+
+var PouchDB = require('../..');
+runTestSuites(PouchDB);
