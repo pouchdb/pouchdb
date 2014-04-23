@@ -651,8 +651,8 @@ For details, see the [CouchDB query options documentation](http://wiki.apache.or
 #### Example Usage:
 {% highlight js %}
 function map(doc) {
-  if(doc.title) {
-    emit(doc.title, null);
+  if (doc.title) {
+    emit(doc.title);
   }
 }
 
@@ -723,7 +723,7 @@ db.query(map, function (err, response) {});
 **Tips:** 
 
 * CouchDB sorts objects last, so `{startkey: ['Williams'], endkey: ['Williams', {}]}` would return all people with the last name `'Williams'`.
-* `group_level` can be very helpful when working with complex keys.  In the example above, you can use `{group_level: 1}` or group by last name, or `{group_level: 2}` to group by last and first name. 
+* `group_level` can be very helpful when working with complex keys.  In the example above, you can use `{group_level: 1}` or group by last name, or `{group_level: 2}` to group by last and first name.
 
 #### Linked documents
 
@@ -909,7 +909,6 @@ Writing a plugin is easy! The API is:
 {% highlight js %}
 PouchDB.plugin({
   methodName: myFunction
-  }
 });
 {% endhighlight %}
 
