@@ -614,7 +614,7 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // insert docs
-      remote.bulkDocs( { docs: docs }, function (err, info) {
+      remote.bulkDocs({ docs: docs }, function (err, info) {
         should.not.exist(err);
         // get doc 0
         remote.get('0', function (err, doc) {
@@ -638,7 +638,10 @@ adapters.forEach(function (adapters) {
                   // set rev to latest so we go at the end (otherwise new
                   // rev is 1 and the subsequent remove below won't win)
                   var doc = {
-                    _id: '0', integer: 10, string: '10', _rev: row.value.rev
+                    _id: '0',
+                    integer: 10,
+                    string: '10',
+                    _rev: row.value.rev
                   };
                   // add doc 0
                   remote.put(doc, function (err) {
