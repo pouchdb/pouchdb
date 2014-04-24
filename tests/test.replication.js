@@ -7,6 +7,10 @@ var adapters = [
   ['local', 'local']
 ];
 
+if ('saucelabs' in testUtils.params()) {
+  adapters = [['local', 'http'], ['http', 'local']];
+}
+
 var downAdapters = ['local'];
 var interHTTPAdapters = [['http', 'http']];
 
