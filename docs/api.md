@@ -891,7 +891,7 @@ db.revsDiff({
 
 {% include anchor.html title="Events" hash="events"%}
 
-PouchDB is an [event emitter][event emitter] and will emit a `'created'` event when a database is created. A `'destroy'` event is emitted when a database is destroyed.
+PouchDB is an [event emitter][event emitter] and will emit a `'created'` event when a database is created. A `'destroyed'` event is emitted when a database is destroyed.
 
 {% highlight js %}
 PouchDB.on('created', function (dbName) {
