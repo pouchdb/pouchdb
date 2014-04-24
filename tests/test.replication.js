@@ -252,6 +252,49 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test checkpoint read only 3 :)', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var put = function (doc) {
+        return db.bulkDocs({docs: [doc]}).then(function (resp) {
+          return resp[0];
+        });
+      };
+      var err = {
+        "message": "_writer access is required for this request",
+        "name": "unauthorized",
+        "status": 401
+      };
+      db.put = function () {
+        if (typeof arguments[arguments.length - 1] === 'function') {
+          arguments[arguments.length - 1](err);
+        } else {
+          return PouchDB.utils.Promise.reject(err);
+        }
+      };
+      var doc = {_id: '3', count: 0};
+      put(doc).then(function (results) {
+        return PouchDB.replicate(db, remote).then(function (result) {
+          result.ok.should.equal(true);
+          doc._rev = results.rev;
+          doc.count++;
+          return put(doc);
+        });
+      }).then(function (results) {
+        doc._rev = results.rev;
+        doc.count++;
+        return put(doc);
+      }).then(function () {
+        return PouchDB.replicate(db, remote);
+      }).then(function (result) {
+        result.ok.should.equal(true);
+        result.docs_written.should.equal(1);
+        done();
+      }, function (a) {
+        done(JSON.stringify(a, false, 4));
+      });
+    });
+
     it('Testing allDocs with some conflicts (issue #468)', function (done) {
       var db1 = new PouchDB(dbs.name);
       var db2 = new PouchDB(dbs.remote);
@@ -1578,7 +1621,33 @@ adapters.forEach(function (adapters) {
         });
       });
     });
-
+    it('should work with a read only source', function (done) {
+      var src = new PouchDB(dbs.name);
+      var target = new PouchDB(dbs.remote);
+      var err = {
+        "message": "_writer access is required for this request",
+        "name": "unauthorized",
+        "status": 401
+      };
+      src.bulkDocs({docs: [
+        {_id: '0', integer: 0, string: '0'},
+        {_id: '1', integer: 1, string: '1'},
+        {_id: '2', integer: 2, string: '2'},
+      ]}).then(function () {
+        src.put = function () {
+          if (typeof arguments[arguments.length - 1] === 'function') {
+            arguments[arguments.length - 1](err);
+          } else {
+            return PouchDB.utils.Promise.reject(err);
+          }
+        };
+        return src.replicate.to(target);
+      }).then(function () {
+        done();
+      }, function (a) {
+        done(JSON.stringify(a, false, 4));
+      });
+    });
   });
 });
 

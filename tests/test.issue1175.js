@@ -3,7 +3,11 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
   this.once = this.removeListener = function () {};
   this.type = function () { return 'mock'; };
   this.id = function (callback) {
-    callback(123);
+    if (callback) {
+      callback(123);
+    } else {
+      return PouchDB.utils.Promise.resolve(123);
+    }
   };
   this.get = function (id, callback) {
     return new PouchDB.utils.Promise(function (fulfill, reject) {
@@ -23,6 +27,9 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
     var promise = PouchDB.utils.Promise.resolve({results: []});
     promise.on = function () { return this; };
     return promise;
+  };
+  this.put = function () {
+    return PouchDB.utils.Promise.resolve();
   };
 }
 function getCallback(expectError, done) {
