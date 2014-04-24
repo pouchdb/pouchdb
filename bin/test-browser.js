@@ -38,6 +38,9 @@ var sauceClient;
 var sauceConnectProcess;
 var tunnelId = process.env.TRAVIS_JOB_NUMBER || 'tunnel-' + Date.now();
 
+if (client.runner === 'saucelabs') {
+  qs.saucelabs = true;
+}
 if (process.env.GREP) {
   qs.grep = process.env.GREP;
 }
