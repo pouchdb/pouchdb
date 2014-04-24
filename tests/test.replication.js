@@ -784,7 +784,10 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it.skip('Replicate large number of docs', function (done) {
+    it('Replicate large number of docs', function (done) {
+      if ('saucelabs' in testUtils.params()) {
+        return done();
+      }
       this.timeout(15000);
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -807,6 +810,9 @@ adapters.forEach(function (adapters) {
     });
 
     it.skip('Changes error', function (done) {
+      if ('saucelabs' in testUtils.params()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docs = [];
