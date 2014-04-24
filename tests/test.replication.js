@@ -613,63 +613,42 @@ adapters.forEach(function (adapters) {
     it('Replication with doc deleted twice', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      // insert docs
-      remote.bulkDocs({ docs: docs }, function (err, info) {
-        should.not.exist(err);
-        // get doc 0
-        remote.get('0', function (err, doc) {
-          should.not.exist(err);
-          // remove doc 0
-          remote.remove(doc, function (err) {
-            should.not.exist(err);
-            // replicate
-            db.replicate.from(remote, function (err) {
-              should.not.exist(err);
-              // get all docs
-              db.allDocs(function (err, res) {
-                should.not.exist(err);
-                // check 2 docs in replica
-                res.total_rows.should.equal(2);
-                // get deleted doc 0
-                remote.allDocs({ keys: [ '0' ] }, function (err, res) {
-                  should.not.exist(err);
-                  var row = res.rows[0];
-                  should.not.exist(row.error);
-                  // set rev to latest so we go at the end (otherwise new
-                  // rev is 1 and the subsequent remove below won't win)
-                  var doc = {
-                    _id: '0',
-                    integer: 10,
-                    string: '10',
-                    _rev: row.value.rev
-                  };
-                  // add doc 0
-                  remote.put(doc, function (err) {
-                    should.not.exist(err);
-                    // get doc 0
-                    remote.get('0', function (err, doc) {
-                      should.not.exist(err);
-                      // remove doc 0 again
-                      remote.remove(doc, function (err) {
-                        should.not.exist(err);
-                        // check replication succeeds without conflict
-                        db.replicate.from(remote, function (err) {
-                          should.not.exist(err);
-                          // check 2 docs in replica still
-                          db.allDocs(function (err, res) {
-                            should.not.exist(err);
-                            res.total_rows.should.equal(2);
-                            done();
-                          });
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
+      remote.bulkDocs({ docs: docs }).then(function (info) {
+        return remote.get('0');
+      }).then(function (doc) {
+        return remote.remove(doc);
+      }).then(function () {
+        return db.replicate.from(remote);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.total_rows.should.equal(2);
+        return remote.allDocs({ keys: [ '0' ] });
+      }).then(function (res) {
+        var row = res.rows[0];
+        should.not.exist(row.error);
+        // set rev to latest so we go at the end (otherwise new
+        // rev is 1 and the subsequent remove below won't win)
+        var doc = {
+          _id: '0',
+          integer: 10,
+          string: '10',
+          _rev: row.value.rev
+        };
+        return remote.put(doc);
+      }).then(function () {
+        return remote.get('0');
+      }).then(function (doc) {
+        return remote.remove(doc);
+      }).then(function () {
+        return db.replicate.from(remote);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.total_rows.should.equal(2);
+        done();
+      }).catch(function (err) {
+        done(JSON.stringify(err, false, 4));
       });
     });
 
