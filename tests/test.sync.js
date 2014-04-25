@@ -26,7 +26,7 @@ adapters.forEach(function (adapters) {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
-    it('PouchDB.sync 1', function (done) {
+    it('PouchDB.sync event', function (done) {
       var doc1 = {
           _id: 'adoc',
           foo: 'bar'
@@ -39,36 +39,18 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       db.put(doc1, function (err) {
         remote.put(doc2, function (err) {
-          var push_done = false;
-          var pull_done = false;
-          PouchDB.sync(db, remote, {
-            complete: function (err, result) {
-              should.not.exist(err);
-              should.exist(result);
-              result.ok.should.equal(true);
-              result.docs_read.should.equal(1);
-              result.docs_written.should.equal(1);
-              result.errors.should.have.length(0);
-              should.exist(result.direction);
-              result.direction.should.match(/^(push|pull)$/);
-              if (result.direction === 'push') {
-                push_done = true;
-                if (pull_done) {
-                  done();
-                }
-              } else if (result.direction === 'pull') {
-                pull_done = true;
-                if (push_done) {
-                  done();
-                }
-              }
-            }
+          PouchDB.sync(db, remote).on('complete', function (result) {
+            result.pull.ok.should.equal(true);
+            result.pull.docs_read.should.equal(1);
+            result.pull.docs_written.should.equal(1);
+            result.pull.errors.should.have.length(0);
+            done();
           });
         });
       });
     });
 
-    it('PouchDB.sync 2', function (done) {
+    it('PouchDB.sync callback', function (done) {
       var doc1 = {
           _id: 'adoc',
           foo: 'bar'
@@ -81,34 +63,42 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       db.put(doc1, function (err) {
         remote.put(doc2, function (err) {
-          var push_done = false;
-          var pull_done = false;
-          PouchDB.sync(db, remote, {}, function (err, result) {
-            should.not.exist(err);
-            should.exist(result);
-            result.ok.should.equal(true);
-            result.docs_read.should.equal(1);
-            result.docs_written.should.equal(1);
-            result.errors.should.have.length(0);
-            should.exist(result.direction);
-            result.direction.should.match(/^(push|pull)$/);
-            if (result.direction === 'push') {
-              push_done = true;
-              if (pull_done) {
-                done();
-              }
-            } else if (result.direction === 'pull') {
-              pull_done = true;
-              if (push_done) {
-                done();
-              }
-            }
+          PouchDB.sync(db, remote, function (err, result) {
+            result.pull.ok.should.equal(true);
+            result.pull.docs_read.should.equal(1);
+            result.pull.docs_written.should.equal(1);
+            result.pull.errors.should.have.length(0);
+            done();
           });
         });
       });
     });
 
-    it('db.sync 1', function (done) {
+    it('PouchDB.sync promise', function (done) {
+      var doc1 = {
+          _id: 'adoc',
+          foo: 'bar'
+        };
+      var doc2 = {
+          _id: 'anotherdoc',
+          foo: 'baz'
+        };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return PouchDB.sync(db, remote);
+      }).then(function (result) {
+        result.pull.ok.should.equal(true);
+        result.pull.docs_read.should.equal(1);
+        result.pull.docs_written.should.equal(1);
+        result.pull.errors.should.have.length(0);
+        done();
+      }, done);
+    });
+
+    it('db.sync event', function (done) {
       var doc1 = {
           _id: 'adoc',
           foo: 'bar'
@@ -121,36 +111,18 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       db.put(doc1, function (err) {
         remote.put(doc2, function (err) {
-          var push_done = false;
-          var pull_done = false;
-          db.replicate.sync(remote, {
-            complete: function (err, result) {
-              should.not.exist(err);
-              should.exist(result);
-              result.ok.should.equal(true);
-              result.docs_read.should.equal(1);
-              result.docs_written.should.equal(1);
-              result.errors.should.have.length(0);
-              should.exist(result.direction);
-              result.direction.should.match(/^(push|pull)$/);
-              if (result.direction === 'push') {
-                push_done = true;
-                if (pull_done) {
-                  done();
-                }
-              } else if (result.direction === 'pull') {
-                pull_done = true;
-                if (push_done) {
-                  done();
-                }
-              }
-            }
+          db.sync(remote).on('complete', function (result) {
+            result.pull.ok.should.equal(true);
+            result.pull.docs_read.should.equal(1);
+            result.pull.docs_written.should.equal(1);
+            result.pull.errors.should.have.length(0);
+            done();
           });
         });
       });
     });
 
-    it('db.sync 2', function (done) {
+    it('db.sync callback', function (done) {
       var doc1 = {
           _id: 'adoc',
           foo: 'bar'
@@ -163,47 +135,50 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       db.put(doc1, function (err) {
         remote.put(doc2, function (err) {
-          var push_done = false;
-          var pull_done = false;
-          db.replicate.sync(remote, {}, function (err, result) {
-            should.not.exist(err);
-            should.exist(result);
-            result.ok.should.equal(true);
-            result.docs_read.should.equal(1);
-            result.docs_written.should.equal(1);
-            result.errors.should.have.length(0);
-            should.exist(result.direction);
-            result.direction.should.match(/^(push|pull)$/);
-            if (result.direction === 'push') {
-              push_done = true;
-              if (pull_done) {
-                done();
-              }
-            } else if (result.direction === 'pull') {
-              pull_done = true;
-              if (push_done) {
-                done();
-              }
-            }
+          db.sync(remote, function (err, result) {
+            result.pull.ok.should.equal(true);
+            result.pull.docs_read.should.equal(1);
+            result.pull.docs_written.should.equal(1);
+            result.pull.errors.should.have.length(0);
+            done();
           });
         });
       });
+    });
+
+    it('db.sync promise', function (done) {
+      var doc1 = {
+          _id: 'adoc',
+          foo: 'bar'
+        };
+      var doc2 = {
+          _id: 'anotherdoc',
+          foo: 'baz'
+        };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return db.sync(remote);
+      }).then(function (result) {
+        result.pull.ok.should.equal(true);
+        result.pull.docs_read.should.equal(1);
+        result.pull.docs_written.should.equal(1);
+        result.pull.errors.should.have.length(0);
+        done();
+      }, done);
     });
 
     // Skipped due to https://github.com/daleharvey/pouchdb/issues/1409
     // This will only call once in the case of being cancelled before starting
     // but will call twice when cancelled after starting
-    it.skip('Test sync cancel', function (done) {
-      var completed = 0;
+    it('Test sync cancel', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var replications = db.replicate.sync(remote, {
+      var replications = db.sync(remote, {
         complete: function (err, result) {
-          completed++;
-          // sync calls complete twice: once for each replicate
-          if (completed === 2) {
-            done();
-          }
+          done();
         }
       });
       should.exist(replications);
@@ -223,12 +198,7 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // Replication isn't finished until onComplete has been called twice
-      var completed = 0;
       function onComplete() {
-        completed++;
-        if (completed < 2) {
-          return;
-        }
         db.allDocs(function (err, res1) {
           should.not.exist(err);
           remote.allDocs(function (err, res2) {
@@ -240,56 +210,43 @@ adapters.forEach(function (adapters) {
       }
       db.put(doc1, function (err) {
         remote.put(doc2, function (err) {
-          db.replicate.sync(remote, { complete: onComplete });
+          db.replicate.sync(remote).on('complete', onComplete);
         });
       });
     });
 
-    it.skip('Syncing should stop if one replication fails (issue 838)',
+    it('Syncing should stop if one replication fails (issue 838)',
       function (done) {
       var doc1 = {_id: 'adoc', foo: 'bar'};
       var doc2 = {_id: 'anotherdoc', foo: 'baz'};
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var changes = db.changes;
-      db.changes = function (opts) {
-        var err = {
-          status: 500,
-          error: 'mock error',
-          reason: 'mock changes failure'
-        };
-        return PouchDB.utils.Promise.reject(err);
-      };
-      function check_results() {
-        db.allDocs(function (err, res) {
-          res.total_rows.should.be.below(2, 'db replication halted');
-          db.changes = changes;
-          done();
-        });
-      }
-      var replications_completed = 0;
-      var put_completed = 0;
-      var replications = db.replicate.sync(remote, {
+      var replications = db.sync(remote, {
         live: true,
         complete: function () {
-          replications_completed++;
-          if (replications_completed < 2 || put_completed === 0) {
-            return;
-          }
-          check_results();
+          done();
         }
       });
-      db.put(doc1, function (err) {
-        remote.put(doc2, function (err) {
-          put_completed = 1;
-          if (replications_completed < 2) {
-            replications.cancel();
-            return;
-          }
-          check_results();
-        });
+      db.on('change', function (ch) {
+        if (ch.seq !== 1) {
+          done(true);
+        }
       });
+      replications.then(null, function () {
+        done();
+      });
+      var changes = 0;
+      replications.on('change', function (ch) {
+        changes++;
+        if (changes === 2) {
+          replications.pull.emit('error');
+          remote.put(doc2);
+        } else if (changes > 2) {
+          done(true);
+        }
+      });
+      db.put(doc1);
     });
   });
 });

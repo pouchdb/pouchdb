@@ -429,9 +429,9 @@ db.changes()
 PouchDB.replicate(source, target, [options])
 {% endhighlight %}
 
-Replicate data from `source` to `target`.  Both the `source` and `target` can be a string representing a CouchDB database url or the name a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically.
+Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database url or the name a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically.
 
-If you want to sync data in both directions, you can call this twice, reversing the `source` and `target` arguments. Additionally, you can use PouchDB.sync().
+Replication is an event emmiter like changes and emits the `complete`, `change`, and `error` events.
 
 ### Options
 
@@ -440,19 +440,18 @@ All options default to `false` unless otherwise specified.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.query_params`: Query params sent to the filter function.
 * `options.doc_ids`: Only replicate docs with these ids.
-* `options.complete`: Function called when all changes have been processed.
-* `options.onChange`: Function called on each change processed.
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.since`: Replicate changes after the given sequence number.
 * `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
+* `options.batch_size`: Number of documents to process at a time defaults to 100, effects the number held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low ammounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments), if your documents are small in size then increaseing this number will speed replication up.
+* `options.batches_limit`: Number of batches to process at a time defaults to 10, this (along wtih batch_size) control how many docs are kept in memory at a time, max docs would equal batch_size x batch_limit.
 
 #### Example Usage:
 {% highlight js %}
-PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
-  onChange: onChange,
-  complete: onComplete
-});;
+PouchDB.replicate('mydb', 'http://localhost:5984/mydb')
+  .on('change', onChange)
+  .on('complete', onComplete);
 {% endhighlight %}
 
 There are also shorthands for replication given existing PouchDB objects. These behave the same as `PouchDB.replicate()`:
@@ -495,10 +494,9 @@ Please refer to [Replication](api.html#replication) for documention on options, 
 
 #### Example Usage:
 {% highlight js %}
-PouchDB.sync('http://localhost:5984/mydb', {
-  onChange: onChange,
-  complete: onComplete
-});;
+PouchDB.sync('http://localhost:5984/mydb')
+  .on('change', onChange)
+  .on('complete', onComplete);
 {% endhighlight %}
 
 There is also a shorthand for syncing given existing PouchDB objects. This behaves the same as `PouchDB.sync()`:
