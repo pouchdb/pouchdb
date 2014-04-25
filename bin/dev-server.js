@@ -19,7 +19,7 @@ var query = "";
 var perfRoot;
 if (process.env.LEVEL_BACKEND) {
   query = "?sourceFile=pouchdb-" + level_backend + ".js";
-  indexfile = "./alt/index.js";
+  indexfile = "./alt/index-alt.js";
   outfile = "./dist/pouchdb-" + level_backend + ".js";
   perfRoot = './alt/performance/*.js';
 } else {
@@ -45,6 +45,7 @@ function writeFile(file) {
 function bundle() {
   if (level_backend) {
     w.require(level_backend, {expose: 'levelalt'});
+    w.require('./alt/index-alt', {expose: './index'});
   }
   w.bundle({standalone: "PouchDB"}, writeFile(outfile));
 }
@@ -54,6 +55,7 @@ function bundlePerfTests() {
     var b = browserify(files);
     if (level_backend) {
       b.require(level_backend, {expose: 'levelalt'});
+      b.require('./alt/index-alt', {expose: './index'});
     }
     b.bundle({}, writeFile(performanceBundle));
   });

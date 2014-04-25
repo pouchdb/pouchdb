@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "commander": "~2.1.0",
-    "watchify": "~0.4.1",
+    "watchify": "~0.8.2",
     "uglify-js": "~2.4.6",
     "jshint": "~2.3.0",
     "http-proxy": "~0.10.3",
