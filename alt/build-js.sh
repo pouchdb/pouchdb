@@ -6,6 +6,7 @@ if [ -z "$LEVEL_BACKEND" ]; then
 fi
 
 ../node_modules/.bin/browserify . \
+    -r ./index-alt:./index \
     -r $LEVEL_BACKEND:levelalt \
     -s PouchDB \
     -o ../dist/pouchdb-$LEVEL_BACKEND.js

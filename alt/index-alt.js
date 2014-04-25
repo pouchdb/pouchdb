@@ -5,11 +5,11 @@ var PouchDB = require('../lib/setup');
 module.exports = PouchDB;
 
 PouchDB.ajax = require('../lib/deps/ajax');
+PouchDB.extend = require('extend');
 PouchDB.utils = require('../lib/utils');
 PouchDB.Errors = require('../lib/deps/errors');
-var replicate = require('../lib/replicate');
-PouchDB.replicate = replicate.replicate;
-PouchDB.sync = replicate.sync;
+PouchDB.replicate = require('../lib/replicate').replicate;
+PouchDB.sync = require('../lib/sync');
 PouchDB.version = require('../lib/version');
 var httpAdapter = require('../lib/adapters/http');
 PouchDB.adapter('http', httpAdapter);
