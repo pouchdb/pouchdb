@@ -22,7 +22,7 @@ testUtils.params = function () {
       return acc;
     }
     var tmp = val.split('=');
-    acc[tmp[0]] = tmp[1] || true;
+    acc[tmp[0]] = decodeURIParam(tmp[1]) || true;
     return acc;
   }, {});
 };
