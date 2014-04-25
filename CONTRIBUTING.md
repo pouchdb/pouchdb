@@ -18,7 +18,7 @@ Most project discussions should happen on the Mailing list / Bug Tracker and IRC
 Good First Patch
 ----------------
 
-If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [goodfirstpatch](https://github.com/daleharvey/pouchdb/issues?labels=goodfirstpatch&state=open).
+If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [goodfirstpatch](https://github.com/pouchdb/pouchdb/issues?labels=goodfirstpatch&state=open).
 
 
 Guide to Contributions
@@ -141,7 +141,7 @@ Git Essentials
 Workflows can vary, but here is a very simple workflow for contributing a bug fix:
 
     $ git clone git@github.com:myfork/pouchdb.git
-    $ git remote add pouchdb https://github.com/daleharvey/pouchdb.git
+    $ git remote add pouchdb https://github.com/pouchdb/pouchdb.git
 
     $ git checkout -b 121-issue-keyword master
     # Write tests + code
@@ -161,7 +161,7 @@ You should now find the documentation at http://127.0.0.1:4000
 Writing a PouchDB Blog Post
 --------------------------------------
 
-Writing a blog post for PouchDB is exactly the same process as other contributions, the blog posts are kept @ https://github.com/daleharvey/pouchdb/tree/master/docs/_posts, just build the site as documented above, its usually easiest to copy an existing post and write away.
+Writing a blog post for PouchDB is exactly the same process as other contributions, the blog posts are kept @ https://github.com/pouchdb/pouchdb/tree/master/docs/_posts, just build the site as documented above, its usually easiest to copy an existing post and write away.
 
 If you want to be sure the blog post is relevant, open an issue on what you want to write about to hear back from reviewers.
 
