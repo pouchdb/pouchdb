@@ -19,7 +19,7 @@
   "dependencies": {
     "level-js": "^2.1.2",
     "lie": "^2.6.0",
-    "localstorage-down": "^0.4.2"
+    "localstorage-down": "^0.4.3"
   },
   "devDependencies": {
     "tape": "^2.12.3"
