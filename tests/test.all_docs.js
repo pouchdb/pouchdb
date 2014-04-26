@@ -532,8 +532,15 @@ adapters.forEach(function (adapter) {
             return db.allDocs({inclusive_end: true, endkey: '4'});
           }).then(function (res) {
             res.rows.should.have.length(4);
-            done();
-          }).catch(done);
+            return db.allDocs({
+              descending: true,
+              startkey: '3',
+              endkey: '2',
+              inclusive_end: false
+            });
+          }).then(function (res) {
+            res.rows.should.have.length(1);
+          }).then(done).catch(done);
         }).catch(done);
       }).catch(done);
     });
