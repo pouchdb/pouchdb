@@ -12,6 +12,21 @@ function uniq(list) {
   return Object.keys(map);
 }
 
+testUtils.params = function () {
+  if (typeof module !== 'undefined' && module.exports) {
+    return process.env;
+  }
+  var paramStr = document.location.search.slice(1);
+  return paramStr.split('&').reduce(function (acc, val) {
+    if (!val) {
+      return acc;
+    }
+    var tmp = val.split('=');
+    acc[tmp[0]] = tmp[1] || true;
+    return acc;
+  }, {});
+};
+
 testUtils.couchHost = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env.COUCH_HOST || 'http://localhost:5984';
