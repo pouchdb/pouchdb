@@ -329,5 +329,76 @@ adapters.forEach(function (adapter) {
       db2.bulkDocs({docs : [{_id : id}]}, callback);
     });
 
+    it('bulk docs input by array', function (done) {
+      var db = new PouchDB(dbs.name);
+      var docs = makeDocs(5);
+      db.bulkDocs(docs, function (err, results) {
+        results.should.have.length(5, 'results length matches');
+        for (var i = 0; i < 5; i++) {
+          results[i].id.should.equal(docs[i]._id, 'id matches');
+          should.exist(results[i].rev, 'rev is set');
+          // Update the doc
+          docs[i]._rev = results[i].rev;
+          docs[i].string = docs[i].string + '.00';
+        }
+        db.bulkDocs(docs, function (err, results) {
+          results.should.have.length(5, 'results length matches');
+          for (i = 0; i < 5; i++) {
+            results[i].id.should.equal(i.toString(), 'id matches again');
+            // set the delete flag to delete the docs in the next step
+            docs[i]._rev = results[i].rev;
+            docs[i]._deleted = true;
+          }
+          db.put(docs[0], function (err, doc) {
+            db.bulkDocs(docs, function (err, results) {
+              results[0].name.should.equal(
+                'conflict', 'First doc should be in conflict');
+              should.not.exist(results[0].rev, 'no rev in conflict');
+              for (i = 1; i < 5; i++) {
+                results[i].id.should.equal(i.toString());
+                should.exist(results[i].rev);
+              }
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('Bulk empty list', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs([], function (err, res) {
+        done(err);
+      });
+    });
+
+    it('Bulk docs not an array', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: 'foo' }, function (err, res) {
+        should.exist(err, 'error reported');
+        err.status.should.equal(400);
+        err.name.should.equal('bad_request');
+        err.message.should.equal('Missing JSON list of \'docs\'');
+        done();
+      });
+    });
+
+    it('Bulk docs not an object', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: ['foo'] }, function (err, res) {
+        should.exist(err, 'error reported');
+        err.status.should.equal(400);
+        err.name.should.equal('bad_request');
+        err.message.should.equal('Document must be a JSON object');
+      });
+      db.bulkDocs({ docs: [[]] }, function (err, res) {
+        should.exist(err, 'error reported');
+        err.status.should.equal(400);
+        err.name.should.equal('bad_request');
+        err.message.should.equal('Document must be a JSON object');
+        done();
+      });
+    });
+
   });
 });
