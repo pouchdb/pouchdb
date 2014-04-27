@@ -244,6 +244,35 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Remove doc with new syntax', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post({ test: 'somestuff' }, function (err, info) {
+        db.remove(info.id, info.rev, function (err) {
+          should.not.exist(err);
+          db.get(info.id, function (err) {
+            should.exist(err);
+            done();
+          });
+        });
+      });
+    });
+
+    it('Remove doc with new syntax and a promise', function (done) {
+      var db = new PouchDB(dbs.name);
+      var id;
+      db.post({test: 'someotherstuff'}).then(function (info) {
+        id = info.id;
+        return db.remove(info.id, info.rev);
+      }).then(function () {
+        return db.get(id);
+      }).then(function (doc) {
+        done(true);
+      }, function (err) {
+        should.exist(err.error);
+        done();
+      });
+    });
+
     it('Doc removal leaves only stub', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({_id: 'foo', value: 'test'}, function (err, res) {
