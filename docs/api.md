@@ -293,6 +293,7 @@ All options default to `false` unless otherwise specified.
     - `options.conflicts`: Include conflict information in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
 * `options.startkey` & `options.endkey`: Get documents with IDs in a certain range (inclusive/inclusive).
+* `options.inclusive_end`: Define if documents with and ID equal to the given `options.endkey` should be included to the results. Default value: `true`.
 * `options.limit`: Maximum number of documents to return.
 * `options.skip`: Number of docs to skip before returning (warning: poor performance on IndexedDB/LevelDB!).
 * `options.descending`: Reverse the order of the output documents.
@@ -630,6 +631,7 @@ All options default to `false` unless otherwise specified.
     - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
 * `options.startkey` & `options.endkey`: Get rows with keys in a certain range (inclusive/inclusive).
+* `options.inclusive_end`: Define if rows with key equal to the given `options.endkey` should be included to the results. Default value: `true`.
 * `options.limit`: Maximum number of rows to return.
 * `options.skip`: Number of rows to skip before returning (warning: poor performance on IndexedDB/LevelDB!).
 * `options.descending`: Reverse the order of the output rows.
