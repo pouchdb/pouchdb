@@ -71,4 +71,20 @@ describe('test.http.js', function () {
     });
   }
 
+  it('Issue 1969 - Allow creation of security object', function (done) {
+    var db = new PouchDB(dbs.name);
+    var sec = {
+      "_id": "_security",
+        "members": {
+        "names": ["foo"]
+      }
+    };
+    db.put(sec, function(err, doc){
+      should.not.exist(err, 'security object should have been created');
+      doc.ok.should.equal(true, 'security document should have been written');
+      done();
+    });
+
+  });
+
 });
