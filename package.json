@@ -43,9 +43,6 @@
     "browserify": "~3.24.13",
     "wd": "~0.2.8",
     "tin": "~0.4.0",
-    "mocha": "~1.17.1",
-    "chai": "~1.9.0",
-    "istanbul": "~0.2.4",
     "ncp": "~0.5.0",
     "sauce-connect-launcher": "0.2.2",
     "less": "~1.7.0",
@@ -54,7 +51,10 @@
     "watch-glob": "~0.1.1",
     "mkdirp": "~0.3.5",
     "exec-sync": "~0.1.6",
-    "ua-parser-js": "^0.6.2"
+    "ua-parser-js": "^0.6.2",
+    "chai": "^1.9.1",
+    "mocha": "^1.18.2",
+    "istanbul": "^0.2.7"
   },
   "scripts": {
     "build-js": "browserify . -s PouchDB > dist/pouchdb-nightly.js",
@@ -87,6 +87,8 @@
     "leveldown": "level-js"
   },
   "browserify": {
-    "transform": [ "es3ify" ]
+    "transform": [
+      "es3ify"
+    ]
   }
 }
