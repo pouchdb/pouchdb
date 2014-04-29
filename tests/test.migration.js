@@ -13,11 +13,11 @@ describe('migration', function () {
     });
     input.pipe(fs.createWriteStream('./tmp/_pouch_oldStyle.uuid'));
   });
-  it('should work', function (done) {
-    new PouchDB('oldStyle').then(function (db) {
-      db.get('doc').then(function (doc) {
+  it('should work', function () {
+    return new PouchDB('oldStyle').then(function (db) {
+      return db.get('doc').then(function (doc) {
         doc.something.should.equal('awesome');
-        done();
+        return db.destroy();
       });
     });
   });
