@@ -18,7 +18,7 @@ Additionally, any method that only returns a single thing (e.g. `db.get`) also r
 new PouchDB([name], [options])
 {% endhighlight %}
 
-This method creates a database or opens an existing one. If you use a URL like `http://domain.com/dbname` then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using whatever backend is present (i.e. IndexedDB, WebSQL, or LevelDB). 
+This method creates a database or opens an existing one. If you use a URL like `'http://domain.com/dbname'` then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using whatever backend is present (i.e. IndexedDB, WebSQL, or LevelDB). 
 
 ### Options
 
@@ -84,7 +84,7 @@ PouchDB.destroy('dbname', function(err, info) { });
 
 ### Using db.put()
 {% highlight js %}
-db.put(doc, [_id], [_rev], [options], [callback])
+db.put(doc, [docId], [docRev], [options], [callback])
 {% endhighlight %}
 
 Create a new document or update an existing document. If the document already exists, you must specify its revision `_rev`, otherwise a conflict will occur.
@@ -170,15 +170,15 @@ db.post({
 }
 {% endhighlight %}
 
-**Put vs. post**: The basic rule of thumb is: put new documents with an `_id`, post new documents without an `_id`.
+**Put vs. post**: The basic rule of thumb is: `put()` new documents with an `_id`, `post()` new documents without an `_id`.
 
 {% include anchor.html title="Fetch a document" hash="fetch_document"%}
 
 {% highlight js %}
-db.get(docid, [options], [callback])
+db.get(docId, [options], [callback])
 {% endhighlight %}
 
-Retrieves a document, specified by `docid`.
+Retrieves a document, specified by `docId`.
 
 ### Options
 
@@ -196,6 +196,7 @@ All options default to `false` unless otherwise specified.
 
 
 #### Example Usage:
+
 {% highlight js %}
 db.get('mydoc', function(err, doc) { });
 {% endhighlight %}
@@ -215,12 +216,21 @@ db.get('mydoc', function(err, doc) { });
 db.remove(doc, [options], [callback])
 {% endhighlight %}
 
+Or:
+
+{% highlight js %}
+db.remove(docId, docRev, [options], [callback])
+{% endhighlight %}
+
+
 Deletes the document. `doc` is required to be a document with at least an `_id` and a `_rev` property. Sending the full document will work as well.
 
 #### Example Usage:
 {% highlight js %}
 db.get('mydoc', function(err, doc) {
   db.remove(doc, function(err, response) { });
+  // or:
+  db.remove(doc._id, doc._rev, function(err, response) { });
 });
 {% endhighlight %}
 
@@ -242,22 +252,25 @@ db.get('mydoc').then(function(doc) {
 }
 {% endhighlight %}
 
-{% include anchor.html title="Create a batch of documents" hash="batch_create" %}
+{% include anchor.html title="Create/update a batch of documents" hash="batch_create" %}
 
 {% highlight js %}
 db.bulkDocs(docs, [options], [callback])
 {% endhighlight %}
 
-Modify, create or delete multiple documents. The `docs` argument is an object with property `docs` which is an array of documents. You can also specify a `new_edits` property on the `docs` object that when set to `false` allows you to post [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions).
+Create, update or delete multiple documents. The `docs` argument is an array of documents, or an object with property `docs` which is the array of documents.
 
 If you omit an `_id` parameter on a given document, the database will create a new document and assign the ID for you. To update a document, you must include both an `_id` parameter and a `_rev` parameter, which should match the ID and revision of the document on which to base your updates. Finally, to delete a document, include a `_deleted` parameter with the value `true`.
 
 #### Example Usage:
+
+Post some new docs and auto-generate the `_id`s:
+
 {% highlight js %}
-db.bulkDocs({docs: [
+db.bulkDocs([
   {title : 'Lisa Says'},
   {title : 'Space Oddity'}
-]}, function(err, response) { });
+], function(err, response) { });
 {% endhighlight %}
 
 #### Example Response:
@@ -276,6 +289,47 @@ db.bulkDocs({docs: [
 ]
 {% endhighlight %}
 
+#### Bulk update/delete:
+
+Then you can update those same docs:
+
+{% highlight js %}
+db.bulkDocs([
+  {
+    title  : 'Lisa Says', 
+    artist : 'Velvet Underground',
+    _id    : "06F1740A-8E8A-4645-A2E9-0D8A8C0C983A", 
+    _rev   : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title  : 'Space Oddity',
+	artist : 'David Bowie',
+    _id    : "6244FB45-91DB-41E5-94FF-58C540E91844", 
+    _rev   : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+], function(err, response) { });
+{% endhighlight %}
+
+Or delete them:
+
+{% highlight js %}
+db.bulkDocs([
+  {
+    title    : 'Lisa Says', 
+    _deleted : true,
+    _id      : "06F1740A-8E8A-4645-A2E9-0D8A8C0C983A", 
+    _rev     : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title    : 'Space Oddity',
+	_deleted : true,
+    _id      : "6244FB45-91DB-41E5-94FF-58C540E91844", 
+    _rev     : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+], function(err, response) { });
+{% endhighlight %}
+
+**Note:** You can also specify a `new_edits` property on the `docs` object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
 
 {% include anchor.html title="Fetch a batch of documents" hash="batch_fetch" %}
 
@@ -314,6 +368,7 @@ db.allDocs({include_docs: true}, function(err, response) { });
 #### Example Response:
 {% highlight js %}
 {
+  "offset": 0,
   "total_rows": 1,
   "rows": [{
     "doc": {
@@ -421,7 +476,7 @@ db.changes()
 }
 {% endhighlight %}
 
-**Note:** The `changes()` method was previously not an event emitter, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is depreciated and could be removed in PouchDB version 3.
+**Note:** The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
 
 {% include anchor.html title="Replicate a database" hash="replication" %}
 
@@ -431,7 +486,7 @@ PouchDB.replicate(source, target, [options])
 
 Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database url or the name a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically.
 
-Replication is an event emmiter like changes and emits the `complete`, `change`, and `error` events.
+Replication is an event emiter like changes and emits the `complete`, `change`, and `error` events.
 
 ### Options
 
@@ -444,8 +499,8 @@ All options default to `false` unless otherwise specified.
 * `options.since`: Replicate changes after the given sequence number.
 * `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
-* `options.batch_size`: Number of documents to process at a time defaults to 100, effects the number held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low ammounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments), if your documents are small in size then increaseing this number will speed replication up.
-* `options.batches_limit`: Number of batches to process at a time defaults to 10, this (along wtih batch_size) control how many docs are kept in memory at a time, max docs would equal batch_size x batch_limit.
+* `options.batch_size`: Number of documents to process at a time. Defaults to 100. This affects the number of docs held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low amounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments). If your documents are small in size, then increasing this number will probably speed replication up.
+* `options.batches_limit`: Number of batches to process at a time. Defaults to 10. This (along wtih `batch_size`) controls how many docs are kept in memory at a time, so the maximum docs in memory at once would equal `batch_size` &times; `batches_limit`.
 
 #### Example Usage:
 {% highlight js %}
@@ -475,10 +530,11 @@ db.replicate.from(remoteDB, [options]);
 }
 {% endhighlight %}
 
-**Notes:**:
+**Notes:**
 
 * The response for server replications (via `options.server`) is slightly different. See the [CouchDB replication documentation](http://wiki.apache.org/couchdb/Replication) for details.
 * The `'live'` option was formerly called `'continuous'`. You can still use `'continuous'` if you can spell it.
+* The replicate() method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
 
 {% include anchor.html title="Sync a database" hash="sync" %}
 
@@ -682,6 +738,8 @@ db.query({map: map}, {reduce: false}, function(err, response) { });
 }
 {% endhighlight %}
 
+**Note:** `total_rows` is the total number of possible results in the view.
+
 #### Complex keys
 
 You can also use [complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) for fancy ordering:
@@ -721,7 +779,7 @@ db.query(map, function (err, response) {});
 **Tips:** 
 
 * CouchDB sorts objects last, so `{startkey: ['Williams'], endkey: ['Williams', {}]}` would return all people with the last name `'Williams'`.
-* `group_level` can be very helpful when working with complex keys.  In the example above, you can use `{group_level: 1}` or group by last name, or `{group_level: 2}` to group by last and first name.
+* `group_level` can be very helpful when working with complex keys.  In the example above, you can use `{group_level: 1}` to group by last name, or `{group_level: 2}` to group by last and first name.
 
 #### Linked documents
 
