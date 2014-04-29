@@ -11,3 +11,4 @@ bower_components
 .idea/
 tests/performance/bundle.js
 tests/cordova/www
+alt/.adapter-name.js

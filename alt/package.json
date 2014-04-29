@@ -14,7 +14,8 @@
     "./deps/buffer": false,
     "request": false,
     "leveldown": "level-js",
-    "bluebird": "lie"
+    "bluebird": "lie",
+    "./adapter-name.js": "./.adapter-name.js"
   },
   "dependencies": {
     "level-js": "^2.1.3",

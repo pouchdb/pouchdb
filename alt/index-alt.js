@@ -22,4 +22,5 @@ PouchDB.plugin(require('pouchdb-mapreduce'));
 var ldbAdapter = require('../lib/adapters/leveldb');
 PouchDB.adapter('ldb', ldbAdapter);
 PouchDB.adapter('leveldb', ldbAdapter);
-PouchDB.adapter('levelalt', require('./levelalt'));
+var adapterName = require('./adapter-name');
+PouchDB.adapter(adapterName, require('./levelalt'));
