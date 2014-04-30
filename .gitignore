@@ -10,3 +10,5 @@ coverage
 bower_components
 .idea/
 tests/performance/bundle.js
+lib/.version.js
+tests/cordova/www

@@ -104,6 +104,30 @@ or
 
     $ COUCH_HOST=http://user:pass@myname.host.com npm test
 
+### Cordova tests
+
+You may need to install `ant` in order for the Android tests to run (e.g. `brew install ant`).
+
+You will also need to run the dev test `npm run dev` simultaneously, so that
+the CORS server is available on port 2020.
+
+    $ CLIENT=ios npm run cordova
+    $ CLIENT=android DEVICE=true npm run cordova
+    $ COUCH_HOST=http://myurl:2020 npm run cordova
+    $ GREP=basics npm run cordova
+    $ SQLITE_PLUGIN=true npm run cordova
+
+* `CLIENT=ios` will run on iOS, default is `CLIENT=android`
+* `DEVICE=true` will run on a device connected via USB, else on an emulator
+* `SQLITE_PLUGIN=true` will use the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin)
+* `COUCH_HOST` should be the full URL; you can only omit this is in the Android emulator
+
+You can also debug with Weinre by doing:
+
+    $ npm install -g weinre
+    $ weinre --boundHost=0.0.0.0
+    $ WEINRE_HOST=http://route.to.my.weinre:8080
+
 ### Testing Pouch in a shell
 
 For quick debugging, you can run an interactive Node shell with the `PouchDB` variable already available:

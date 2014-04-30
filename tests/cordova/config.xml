@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.pouchdb.tests" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>PouchDbTestRunner</name>
+    <name>PouchDB Test Runner</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+      Runs the unit tests suite for the PouchDB project on Cordova.
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="daleharvey@arandomurl.com" href="http://pouchdb.com">
+      The PouchDB Team
     </author>
-    <content src="index.html" />
+    <content src="tests/test.html" />
     <access origin="*" />
 </widget>
