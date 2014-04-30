@@ -54,7 +54,9 @@
     "ua-parser-js": "^0.6.2",
     "chai": "^1.9.1",
     "mocha": "^1.18.2",
-    "istanbul": "^0.2.7"
+    "istanbul": "^0.2.7",
+    "cordova": "~3.4.1-0.1.0",
+    "replace": "^0.2.9"
   },
   "scripts": {
     "build-js": "browserify . -s PouchDB > dist/pouchdb-nightly.js",
@@ -65,6 +67,7 @@
     "test-node": "./bin/run-mocha.sh",
     "test-browser": "mkdir -p dist && npm run build-js && ./bin/test-browser.js",
     "test-browser-alt": "mkdir -p dist && npm run build-alt && ./bin/test-browser.js",
+    "cordova": "npm run build && ./bin/run-cordova.sh",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js alt/*.js",
     "dev": "npm run version && ./bin/dev-server.js",
     "test": "npm run version && npm run jshint && ./bin/run-test.sh",

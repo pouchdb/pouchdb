@@ -43,30 +43,46 @@ function asyncLoadScript(url, callback) {
   firstScript.parentNode.insertBefore(script, firstScript);
 }
 
-asyncLoadScript(sourceFile, function () {
-  var runner = mocha.run();
-  window.results = {
-    lastPassed: '',
-    passed: 0,
-    failed: 0,
-    failures: []
-  };
+function startTests() {
+  asyncLoadScript(sourceFile, function () {
+    var runner = mocha.run();
+    window.results = {
+      lastPassed: '',
+      passed: 0,
+      failed: 0,
+      failures: []
+    };
 
-  runner.on('pass', function (e) {
-    window.results.lastPassed = e.title;
-    window.results.passed++;
-  });
+    runner.on('pass', function (e) {
+      window.results.lastPassed = e.title;
+      window.results.passed++;
+    });
 
-  runner.on('fail', function (e) {
-    window.results.failed++;
-    window.results.failures.push({
-      title: e.title,
-      err: e.err
+    runner.on('fail', function (e) {
+      window.results.failed++;
+      window.results.failures.push({
+        title: e.title,
+        err: e.err
+      });
+    });
+
+    runner.on('end', function () {
+      window.results.completed = true;
+      window.results.passed++;
     });
   });
+}
 
-  runner.on('end', function () {
-    window.results.completed = true;
-    window.results.passed++;
-  });
-});
+if (window.cordova) {
+  if (window.GREP && (!window.location.search ||
+        window.location.search.indexOf('grep') === -1)) {
+    window.location.search += (window.location.search ? '&' : '?') +
+      'grep=' + encodeURIComponent(window.GREP);
+  } else {
+    document.addEventListener("deviceready", startTests, false);
+  }
+} else {
+  startTests();
+}
+
+
