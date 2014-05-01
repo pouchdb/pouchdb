@@ -33,10 +33,8 @@ title: PouchDB, the JavaScript Database that Syncs!
    age: 67
   });
 
-  db.changes({
-    onChange: function() {
-      console.log('Ch-Ch-Changes');
-    }
+  db.changes().on('change', function() {
+    console.log('Ch-Ch-Changes');
   });
 
   db.replicate.to('http://example.com/mydb');
@@ -71,7 +69,7 @@ title: PouchDB, the JavaScript Database that Syncs!
         <div class="icon icon-light"></div>
 
         <h3>Lightweight</h3>
-        <p>PouchDB is just a script tag and 25KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
+        <p>PouchDB is just a script tag and 34KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
         in Node.</p>
 
       </div>

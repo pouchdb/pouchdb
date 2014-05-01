@@ -177,3 +177,16 @@ With great power comes great responsibility yada yada yada:
  * Please try to watch when Pull Requests are made and review and / or commit them in a timely manner.
  * After you merge in a patch use tin to update the version accordingly. Run `tin -v x.x.x-prerelease` with x.x.x being the previous version upgraded appropriately via semver. When we are ready to publish to npm we can remove the `-prerelease`.
  * Thanks, you are all awesome human beings.
+
+Release Procedure
+-----------------
+
+ * Copy the last release post from ./docs/_posts/date-pouchdb-version.md, ammend date and version and fill in release notes
+ * Update docs/_config.yml to latest version
+ * Push release post
+ * `./node_modules/.bin/tin -v $VERSION
+ * `npm run publish`
+ * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases
+ * `./node_modules/.bin/tin -v $VERSION+1-prerelease
+ * Push updated versions to master
+ * `npm run publish-site`
