@@ -17,7 +17,7 @@
     "bluebird": "lie"
   },
   "dependencies": {
-    "level-js": "^2.1.2",
+    "level-js": "^2.1.3",
     "lie": "^2.6.0",
     "localstorage-down": "^0.4.4"
   },
