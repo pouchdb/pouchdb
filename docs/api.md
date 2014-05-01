@@ -563,6 +563,8 @@ db.sync(remoteDB, [options]);
 
 For any further details, please further to [Replication](api.html#replication).
 
+**Note:** You can also do `db.replicate.sync`, which was the API in PouchDB <2.2.0.
+
 {% include anchor.html title="Save an attachment" hash="save_attachment" %}
 
 {% highlight js %}
