@@ -19,7 +19,7 @@
     "argsarray": "0.0.1",
     "bluebird": "~1.0.0",
     "inherits": "~2.0.1",
-    "level-js": "~2.0.0",
+    "level-js": "^2.1.3",
     "level-sublevel": "~5.2.0",
     "leveldown": "~0.10.2",
     "levelup": "~0.18.2",
