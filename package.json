@@ -88,7 +88,7 @@
   },
   "browserify": {
     "transform": [
-      "node_modules/es3ify"
+      "./node_modules/es3ify"
     ]
   }
 }
