@@ -78,6 +78,44 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Testing bulk docs promise', function (done) {
+      var db = new PouchDB(dbs.name);
+      var docs = makeDocs(5);
+      db.bulkDocs({ docs: docs }).then(function (results) {
+        results.should.have.length(5, 'results length matches');
+        for (var i = 0; i < 5; i++) {
+          results[i].id.should.equal(docs[i]._id, 'id matches');
+          should.exist(results[i].rev, 'rev is set');
+          // Update the doc
+          docs[i]._rev = results[i].rev;
+          docs[i].string = docs[i].string + '.00';
+        }
+        return db.bulkDocs({ docs: docs });
+      }).then(function (results) {
+        results.should.have.length(5, 'results length matches');
+        for (var i = 0; i < 5; i++) {
+          results[i].id.should.equal(i.toString(), 'id matches again');
+          // set the delete flag to delete the docs in the next step
+          docs[i]._rev = results[i].rev;
+          docs[i]._deleted = true;
+        }
+        return db.put(docs[0]);
+      }).then(function (doc) {
+        return db.bulkDocs({ docs: docs });
+      }).then(function (results) {
+        results[0].name.should.equal(
+          'conflict', 'First doc should be in conflict');
+        should.not.exist(results[0].rev, 'no rev in conflict');
+        for (var i = 1; i < 5; i++) {
+          results[i].id.should.equal(i.toString());
+          should.exist(results[i].rev);
+        }
+        done();
+      }).catch(function (err) {
+        done(err);
+      });
+    });
+
     it('No id in bulk docs', function (done) {
       var db = new PouchDB(dbs.name);
       var newdoc = {
@@ -214,6 +252,40 @@ adapters.forEach(function (adapter) {
           res[1].ok._rev.should.equal('2-y', 'doc2 ok');
           done();
         });
+      });
+    });
+
+    it('Bulk with new_edits=false, promise', function (done) {
+      var db = new PouchDB(dbs.name);
+      var docs = [{
+        '_id': 'foo',
+        '_rev': '2-x',
+        '_revisions': {
+          'start': 2,
+          'ids': ['x', 'a']
+        }
+      }, {
+        '_id': 'foo',
+        '_rev': '2-y',
+        '_revisions': {
+          'start': 2,
+          'ids': ['y', 'a']
+        }
+      }];
+      db.bulkDocs({docs: docs}, {new_edits: false}).then(function (res) {
+        return db.get('foo', {open_revs: 'all'}, function (err, res) {
+          res.sort(function (a, b) {
+            return a.ok._rev < b.ok._rev ? -1 :
+              a.ok._rev > b.ok._rev ? 1 : 0;
+          });
+          res.length.should.equal(2);
+          res[0].ok._rev.should.equal('2-x', 'doc1 ok');
+          res[1].ok._rev.should.equal('2-y', 'doc2 ok');
+        });
+      }).catch(function (err) {
+        done(err);
+      }).then(function (res) {
+        done();
       });
     });
 
