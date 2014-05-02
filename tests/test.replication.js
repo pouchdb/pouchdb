@@ -914,7 +914,7 @@ adapters.forEach(function (adapters) {
       );
     });
 
-    it('issue #909 Filtered replication bails at paging limit',
+    it.skip('issue #909 Filtered replication bails at paging limit',
       function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
