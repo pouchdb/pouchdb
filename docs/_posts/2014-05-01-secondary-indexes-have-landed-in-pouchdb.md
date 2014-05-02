@@ -361,7 +361,7 @@ allDocs({startkey: 'artist_', endkey: 'artist__'});
 Want to list all the albums?  Try:
 
 ```js
-allDocs({startkey: 'albums_', endkey: 'albums__'});
+allDocs({startkey: 'album_', endkey: 'album__'});
 ```
 
 How about all albums by David Bowie?  Wham bam, thank you ma'am:
