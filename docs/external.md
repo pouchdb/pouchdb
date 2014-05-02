@@ -56,3 +56,9 @@ A tool drawing revision tree of a couchdb document. You can see what is a confli
 
 [Website](http://neojski.github.io/visualizeRevTree)
 [Github](https://github.com/neojski/visualizeRevTree)
+
+### Pouch Stream
+
+A plugin to let PouchDB talk streams
+
+[Github](https://github.com/calvinmetcalf/PouchStream)
