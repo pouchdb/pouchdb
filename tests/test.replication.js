@@ -512,6 +512,21 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test basic events', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: docs }).then(function () {
+        db.replicate.to(dbs.remote)
+        .on('complete', function (res) {
+          should.exist(res);
+          db.replicate.to('http://0.0.0.0:0')
+          .on('error', function (res) {
+            should.exist(res);
+            done();
+          });
+        });
+      });
+    });
+
     it('Replication filter', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
