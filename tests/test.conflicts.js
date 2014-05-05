@@ -104,7 +104,6 @@ adapters.forEach(function (adapter) {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b', 'Correct revision wins');
-      }).then(function (res) {
         return db.bulkDocs({
           new_edits: false,
           docs: [{
@@ -152,7 +151,6 @@ adapters.forEach(function (adapter) {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a', 'Correct revision wins');
-      }).then(function (res) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
@@ -188,7 +186,6 @@ adapters.forEach(function (adapter) {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('10-a', 'Correct revision wins');
-      }).then(function (res) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
@@ -239,7 +236,6 @@ adapters.forEach(function (adapter) {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b1', 'Correct revision wins');
-      }).then(function (res) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
@@ -284,7 +280,6 @@ adapters.forEach(function (adapter) {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a2', 'Correct revision wins');
-      }).then(function (res) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
