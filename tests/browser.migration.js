@@ -1,9 +1,10 @@
-/* global PouchDBVersion110,PouchDBVersion200,PouchDB */
+/* global PouchDBVersion110,PouchDBVersion200,PouchDBVersion220,PouchDB */
 'use strict';
 
 var scenarios = [
   'PouchDB v1.1.0',
   'PouchDB v2.0.0',
+  'PouchDB v2.2.0',
   'websql'
 ];
 
@@ -26,6 +27,7 @@ describe('migration', function () {
         constructors = {
           'PouchDB v1.1.0': PouchDBVersion110,
           'PouchDB v2.0.0': PouchDBVersion200,
+          'PouchDB v2.2.0': PouchDBVersion220,
           PouchDB: PouchDB
         };
 
@@ -78,9 +80,8 @@ describe('migration', function () {
           }
         });
         oldPouch.bulkDocs({docs: origDocs}, function (err, res) {
-          origDocs[0]._deleted = true;
-          origDocs[0]._rev = res[0].rev;
-          oldPouch.remove(origDocs[0], function (err, res) {
+          var removedDoc = {_deleted: true, _rev: res[0].rev, _id: res[0].id};
+          oldPouch.remove(removedDoc, function (err, res) {
             oldPouch.close(function (err) {
               should.not.exist(err, 'got error: ' + JSON.stringify(err));
               var newPouch = new dbs.second.pouch(dbs.second.local);
@@ -170,6 +171,55 @@ describe('migration', function () {
           });
         });
       });
+
+      if (scenario === 'PouchDB v2.2.0') {
+        it("Test persistent views don't require update", function (done) {
+          var oldPouch =
+            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
+              function (err) {
+                should.not.exist(err, 'got error: ' + JSON.stringify(err));
+                if (err) {
+                  done();
+                }
+              });
+          var docs = origDocs.slice().concat([{
+            _id: '_design/myview',
+            views: {
+              myview: {
+                map: function (doc) {
+                  emit(doc.a);
+                }.toString()
+              }
+            }
+          }]);
+          var expectedRows = [
+            { key: 1, id: '0', value: null },
+            { key: 2, id: '1', value: null },
+            { key: 3, id: '2', value: null },
+            { key: 4, id: '3', value: null }
+          ];
+          oldPouch.bulkDocs({docs: docs}, function (err, res) {
+            should.not.exist(err, 'bulkDocs');
+            oldPouch.query('myview', function (err, res) {
+              should.not.exist(err, 'query');
+              res.rows.should.deep.equal(expectedRows);
+              oldPouch.close(function (err) {
+                should.not.exist(err, 'close');
+                var newPouch = new dbs.second.pouch(dbs.second.local);
+                newPouch.then(function (newPouch) {
+                  return newPouch.query('myview', {stale: 'ok'});
+                }).then(function (res) {
+                  res.rows.should.deep.equal(expectedRows);
+                  done();
+                }).catch(function (err) {
+                  should.not.exist(err, 'catch');
+                  done();
+                });
+              });
+            });
+          });
+        });
+      }
     });
   });
 });
