@@ -1,4 +1,3 @@
-
 'use strict';
 
 var adapters = ['http', 'local'];
@@ -7,13 +6,12 @@ adapters.forEach(function (adapter) {
   describe('test.all_docs.js-' + adapter, function () {
 
     var dbs = {};
-
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'test_all_docs');
+      dbs = {name: testUtils.adapterUrl(adapter, 'test_all_docs')};
       testUtils.cleanup([dbs.name], done);
     });
 
-    after(function (done) {
+    afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -505,37 +503,48 @@ adapters.forEach(function (adapter) {
           { _id: '3' },
           { _id: '4' }
         ];
-        db.bulkDocs({docs: docs}).then(function () {
-          db.allDocs({inclusive_end: false, endkey: '2'}).then(function (res) {
-            res.rows.should.have.length(1);
-            return db.allDocs({inclusive_end: false, endkey: '1'});
-          }).then(function (res) {
-            res.rows.should.have.length(0);
-            return db.allDocs({inclusive_end: false, endkey: '1',
-              startkey: '0'});
-          }).then(function (res) {
-            res.rows.should.have.length(0);
-            return db.allDocs({inclusive_end: false, endkey: '5'});
-          }).then(function (res) {
-            res.rows.should.have.length(4);
-            return db.allDocs({inclusive_end: false, endkey: '4'});
-          }).then(function (res) {
-            res.rows.should.have.length(3);
-            return db.allDocs({inclusive_end: false, endkey: '4',
-              startkey: '3'});
-          }).then(function (res) {
-            res.rows.should.have.length(1);
-            return db.allDocs({inclusive_end: false, endkey: '1',
-              descending: true});
-          }).then(function (res) {
-            res.rows.should.have.length(3);
-            return db.allDocs({inclusive_end: true, endkey: '4'});
-          }).then(function (res) {
-            res.rows.should.have.length(4);
-            done();
-          }).catch(done);
-        }).catch(done);
-      }).catch(done);
+        return db.bulkDocs({docs: docs}).then(function () {
+          return db.allDocs({inclusive_end: false, endkey: '2'});
+        }).then(function (res) {
+          res.rows.should.have.length(1);
+          return db.allDocs({inclusive_end: false, endkey: '1'});
+        }).then(function (res) {
+          res.rows.should.have.length(0);
+          return db.allDocs({inclusive_end: false, endkey: '1',
+            startkey: '0'});
+        }).then(function (res) {
+          res.rows.should.have.length(0);
+          return db.allDocs({inclusive_end: false, endkey: '5'});
+        }).then(function (res) {
+          res.rows.should.have.length(4);
+          return db.allDocs({inclusive_end: false, endkey: '4'});
+        }).then(function (res) {
+          res.rows.should.have.length(3);
+          return db.allDocs({inclusive_end: false, endkey: '4',
+            startkey: '3'});
+        }).then(function (res) {
+          res.rows.should.have.length(1);
+          return db.allDocs({inclusive_end: false, endkey: '1',
+            descending: true});
+        }).then(function (res) {
+          res.rows.should.have.length(3);
+          return db.allDocs({inclusive_end: true, endkey: '4'});
+        }).then(function (res) {
+          res.rows.should.have.length(4);
+          return db.allDocs({
+            descending: true,
+            startkey: '3',
+            endkey: '2',
+            inclusive_end: false
+          });
+        });
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+      }).then(function () {
+        done();
+      }, function (err) {
+        done(err);
+      });
     });
 
     if (adapter === 'local') { // chrome doesn't like \u0000 in URLs
