@@ -9,8 +9,8 @@ var scenarios = [
 
 describe('migration', function () {
 
-  if (PouchDB.adapters.memdown) {
-    return; // memdown doesn't need migration tests
+  if (PouchDB.adapters.memdown || PouchDB.adapters.localstorage) {
+    return; // doesn't need migration tests
   }
 
   scenarios.forEach(function (scenario) {
