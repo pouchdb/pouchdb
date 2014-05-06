@@ -54,6 +54,7 @@ matrix:
   allow_failures:
   - env: CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
   - env: CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
+  - env: CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
 
 branches:
   only:
