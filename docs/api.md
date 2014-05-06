@@ -887,6 +887,30 @@ db.query(function(thisIs, awesome) {
 
 Note that closures are only supported by local databases with temporary views.
 
+{% include anchor.html title="View cleanup" hash="view_cleanup" %}
+
+{% highlight js %}
+db.viewCleanup([options], [callback])
+{% endhighlight %}
+
+Cleans up any stale map/reduce indexes.
+
+As design docs are deleted or modified, their associated index files (in CouchDB) or companion databases (in local PouchDBs) continue to take up space on disk. `viewCleanup()` removes these unnecessary index files.
+
+See [the CouchDB documentation on view cleanup](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html#views-cleanup) for details.
+
+#### Example Usage:
+{% highlight js %}
+db.viewCleanup([options], [callback])
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "ok" : "true"
+}
+{% endhighlight %}
+
 {% include anchor.html title="Get database information" hash="database_information" %}
 
 {% highlight js %}
