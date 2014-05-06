@@ -70,7 +70,7 @@
     "cordova": "npm run build && ./bin/run-cordova.sh",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js alt/*.js",
     "dev": "npm run version && ./bin/dev-server.js",
-    "test": "npm run version && npm run jshint && ./bin/run-test.sh",
+    "test": "npm run version && ./bin/run-test.sh",
     "publish": "./bin/publish.sh",
     "publish-site": "./bin/publish-site.sh",
     "build-site": "./bin/build-site.js",

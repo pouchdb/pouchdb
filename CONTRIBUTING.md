@@ -66,6 +66,12 @@ The PouchDB test suite expects an instance of CouchDB running in Admin Party on 
 
  * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
 
+### JSHint
+
+You can run the lint tests with:
+
+    $ npm run jshint
+
 ### Node Tests
 
 Run all tests with:
