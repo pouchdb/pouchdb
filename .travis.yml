@@ -47,6 +47,7 @@ env:
 
   - CLIENT=selenium:firefox LEVEL_BACKEND=level-js COMMAND=test
   - CLIENT=selenium:firefox LEVEL_BACKEND=localstorage-down COMMAND=test
+  - CLIENT=selenium:firefox LEVEL_BACKEND=memdown COMMAND=test
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
