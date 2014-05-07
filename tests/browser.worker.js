@@ -64,7 +64,10 @@ function runTests() {
       worker.postMessage(['create', dbs.remote]);
     });
 
-    if (typeof mozIndexedDB === 'undefined') {
+
+    // Mozilla bug: https://bugzilla.mozilla.org/show_bug.cgi?id=701634
+    // IE bug: https://connect.microsoft.com/IE/feedback/details/866495
+    if (!('mozIndexedDB' in window || 'msIndexedDB' in window)) {
       it('create local db', function (done) {
         var worker = new Worker('worker.js');
         worker.addEventListener('error', function (e) {
