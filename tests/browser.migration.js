@@ -174,6 +174,7 @@ describe('migration', function () {
 
       if (scenario === 'PouchDB v2.2.0' && !skip) {
         it("Test persistent views don't require update", function (done) {
+          if (scenario !== 'PouchDB v2.2.0' || skip) { return done(); }
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
               function (err) {

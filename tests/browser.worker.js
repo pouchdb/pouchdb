@@ -1,5 +1,13 @@
 'use strict';
 
+var sourceFile = window.location.search.match(/[?&]sourceFile=([^&]+)/);
+
+if (!sourceFile) {
+  sourceFile = '../dist/pouchdb-nightly.js';
+} else {
+  sourceFile = '../dist/' + sourceFile[1];
+}
+
 if (typeof window.Worker === 'function') {
   runTests();
 }
@@ -27,6 +35,7 @@ function runTests() {
         worker.terminate();
         done();
       });
+      worker.postMessage(sourceFile);
       worker.postMessage('ping');
     });
 
@@ -37,6 +46,7 @@ function runTests() {
         worker.terminate();
         done();
       });
+      worker.postMessage(sourceFile);
       worker.postMessage('version');
     });
 
@@ -50,6 +60,7 @@ function runTests() {
         worker.terminate();
         done();
       });
+      worker.postMessage(sourceFile);
       worker.postMessage(['create', dbs.remote]);
     });
 
@@ -64,6 +75,7 @@ function runTests() {
           worker.terminate();
           done();
         });
+        worker.postMessage(sourceFile);
         worker.postMessage(['create', dbs.name]);
       });
     }

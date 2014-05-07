@@ -1,8 +1,6 @@
 /* jshint worker: true */
 'use strict';
 
-importScripts('../dist/pouchdb-nightly.js');
-
 function bigTest(name) {
   new PouchDB(name, function (err, db) {
     if (err) {
@@ -27,6 +25,9 @@ function bigTest(name) {
 }
 
 self.addEventListener('message', function (e) {
+  if (typeof e.data === 'string' && e.data.indexOf('/dist/') > -1) {
+    importScripts(e.data);
+  }
   if (e.data === 'ping') {
     self.postMessage('pong');
   }
