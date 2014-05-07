@@ -12,10 +12,17 @@ describe('migration', function () {
   scenarios.forEach(function (scenario) {
 
     describe('migrate from ' + scenario, function () {
+
       var dbs = {};
       var constructors = {};
+      var skip = false;
 
       beforeEach(function (done) {
+
+        if (PouchDB.adapters.levelalt) {
+          skip = true;
+        }
+
         constructors = {
           'PouchDB v1.1.0': PouchDBVersion110,
           'PouchDB v2.0.0': PouchDBVersion200,
@@ -61,6 +68,7 @@ describe('migration', function () {
       ];
 
       it('Testing basic migration integrity', function (done) {
+        if (skip) { return done(); }
         var oldPouch =
           new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
           function (err) {
@@ -96,7 +104,7 @@ describe('migration', function () {
       });
 
       it("Test basic replication with migration", function (done) {
-
+        if (skip) { return done(); }
         var docs = [
           {_id: "0", integer: 0, string: '0'},
           {_id: "1", integer: 1, string: '1'},
