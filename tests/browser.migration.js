@@ -172,7 +172,7 @@ describe('migration', function () {
         });
       });
 
-      if (scenario === 'PouchDB v2.2.0') {
+      if (scenario === 'PouchDB v2.2.0' && !skip) {
         it("Test persistent views don't require update", function (done) {
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
