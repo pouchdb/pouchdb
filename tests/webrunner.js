@@ -62,7 +62,8 @@ function startTests() {
       window.results.failed++;
       window.results.failures.push({
         title: e.title,
-        err: e.err
+        message: e.err.message,
+        stack: e.err.stack
       });
     });
 
