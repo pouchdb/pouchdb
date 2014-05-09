@@ -20,8 +20,10 @@ describe('migration', function () {
 
       beforeEach(function (done) {
 
-        if (PouchDB.adapters.levelalt) {
+        if (PouchDB.adapters.levelalt || window.msIndexedDB) {
           skip = true;
+          done();
+          return;
         }
 
         constructors = {
@@ -59,6 +61,10 @@ describe('migration', function () {
       });
 
       afterEach(function (done) {
+        if (skip) {
+          done();
+          return;
+        }
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
       });
 
