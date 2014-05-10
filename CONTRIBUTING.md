@@ -15,10 +15,10 @@ Most project discussions should happen on the Mailing list / Bug Tracker and IRC
  * Calvin Metcalf (calvin.metcalf@gmail.com)
 
 
-Good First Patch
+Help Wanted
 ----------------
 
-If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [goodfirstpatch](https://github.com/pouchdb/pouchdb/issues?labels=goodfirstpatch&state=open).
+If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [help wanted](https://github.com/pouchdb/pouchdb/issues?labels=help%20wanted&state=open).
 
 
 Guide to Contributions
