@@ -2,14 +2,18 @@
 
 'use strict';
 
-// use query parameter sourceFile if present,
-// eg: test.html?sourceFile=pouchdb-leveljs.js
-var sourceFile = window.location.search.match(/[?&]sourceFile=([^&]+)/);
-
-if (!sourceFile) {
-  sourceFile = '../dist/pouchdb-nightly.js';
-} else {
-  sourceFile = '../dist/' + sourceFile[1];
+// use query parameter pluginFile if present,
+// eg: test.html?pluginFile=memory.pouchdb.js
+var preferredAdapters = window.location.search.match(/[?&]adapters=([^&]+)/);
+var scriptsToLoad = ['../dist/pouchdb-nightly.js'];
+if (preferredAdapters) {
+  preferredAdapters = preferredAdapters[1].split(',');
+  preferredAdapters.forEach(function (adapter) {
+    if (adapter !== 'websql' && adapter !== 'idb') {
+      // load from plugin
+      scriptsToLoad.push('../dist/pouchdb.' + adapter + '.js');
+    }
+  });
 }
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
@@ -43,8 +47,25 @@ function asyncLoadScript(url, callback) {
   firstScript.parentNode.insertBefore(script, firstScript);
 }
 
+function modifyAdapters() {
+  if (preferredAdapters) {
+    window.PouchDB.preferredAdapters = preferredAdapters;
+  }
+}
+
 function startTests() {
-  asyncLoadScript(sourceFile, function () {
+
+  function loadNext() {
+    if (scriptsToLoad.length) {
+      var script = scriptsToLoad.shift();
+      asyncLoadScript(script, loadNext);
+    } else {
+      onReady();
+    }
+  }
+
+  function onReady() {
+    modifyAdapters();
     var runner = mocha.run();
     window.results = {
       lastPassed: '',
@@ -71,7 +92,9 @@ function startTests() {
       window.results.completed = true;
       window.results.passed++;
     });
-  });
+  }
+
+  loadNext();
 }
 
 if (window.cordova) {
