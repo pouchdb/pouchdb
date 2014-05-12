@@ -13,25 +13,19 @@ var http_proxy = require('http-proxy');
 var http_server = require('http-server');
 
 var performanceBundle = './dist/performance-bundle.js';
-var level_backend = process.env.LEVEL_BACKEND;
-var indexfile, outfile;
 var queryParams = {};
 
 if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
   queryParams.es5shim = true;
 }
-
-var perfRoot;
-if (process.env.LEVEL_BACKEND) {
-  queryParams.sourceFile = "pouchdb-" + level_backend + ".js";
-  indexfile = "./alt/index-alt.js";
-  outfile = "./dist/pouchdb-" + level_backend + ".js";
-  perfRoot = './alt/performance/*.js';
-} else {
-  indexfile = "./lib/index.js";
-  outfile = "./dist/pouchdb-nightly.js";
-  perfRoot = './tests/performance/*.js';
+if (process.env.ADAPTERS) {
+  queryParams.adapters = process.env.ADAPTERS;
 }
+
+var indexfile = "./lib/index.js";
+var outfile = "./dist/pouchdb-nightly.js";
+var perfRoot = './tests/performance/*.js';
+
 
 var w = watchify(indexfile).on('update', bundle);
 bundle();
@@ -48,20 +42,12 @@ function writeFile(file) {
 }
 
 function bundle() {
-  if (level_backend) {
-    w.require(level_backend, {expose: 'levelalt'});
-    w.require('./alt/index-alt', {expose: './index'});
-  }
   w.bundle({standalone: "PouchDB"}, writeFile(outfile));
 }
 
 function bundlePerfTests() {
   glob(perfRoot, function (err, files) {
     var b = browserify(files);
-    if (level_backend) {
-      b.require(level_backend, {expose: 'levelalt'});
-      b.require('./alt/index-alt', {expose: './index'});
-    }
     b.bundle({}, writeFile(performanceBundle));
   });
 }

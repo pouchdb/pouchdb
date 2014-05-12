@@ -162,16 +162,47 @@ You can specify a particular version of PouchDB or a particular adapter by doing
     http://localhost:8000/tests/performance/test.html?adapter=websql
     http://localhost:8000/tests/performance/test.html?adapter=idb&src=//site.com/pouchdb.js
 
-You can specify particular tests by using `grep=`, e.g.:
+All of the browser plugin adapters (i.e. `idb-alt`, `memory`, and `localstorage`) are also available this way.
+
+You can also specify particular tests by using `grep=`, e.g.:
 
     http://127.0.0.1:8000/tests/performance/test.html?grep=basics
     http://127.0.0.1:8000/tests/performance/test.html?grep=basic-inserts
 
-Alternative Backends
+Adapter plugins and adapter order
 --------------------------------------
-PouchDB is looking to support alternative backends that comply with the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown). For example, simply include `LEVEL_BACKEND=level-js` in your `npm run build-alt` and `npm run dev` commands to experiment with this feature!
 
-Doing so will also create a separate distribution, for example `pouchdb-level-js.js` rather than `pouchdb-nightly.js`. In order to test a different distribution from `pouchdb-nightly.js`, you must specify in the testing URL: http://127.0.0.1:8000/tests/test.html?sourceFile=pouchdb-level-js.js. `LEVEL_BACKEND=level-js npm run test` will accomplish the same thing.
+We are currently building three adapters-as-plugins: `memory`, `localstorage`, and `idb-alt`.  All are based on the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown):
+
+* `memory`: based on [MemDOWN](https://github.com/rvagg/memdown)
+* `localstorage`: based on [localstorage-down](https://github.com/no9/localstorage-down)
+* `idb-alt`: based on [level-js](https://github.com/maxogden/level.js), will probably replace `idb.js` someday
+
+These adapters are built and included in the `dist/` folder as e.g. `pouchdb.memory.js`.  Including these scripts after `pouchdb-nightly.js` will load the adapters, placing them in the `PouchDB.preferredAdapters` list after `idb` and `websql` by default.
+
+    <script src="pouchdb-nightly.js"></script>
+    <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql']</script>
+    <script src="pouchdb.memory.js"></script>
+    <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql', 'memory']</script>
+    
+To test these adapters, you can run e.g.
+
+    ADAPTERS=memory CLIENT=selenium:firefox npm run test
+    
+Or append them as query params in the browser:
+
+    http://localhost:8000/tests/test.html?adapters=memory
+    
+The `adapters` list is a comma-separated list that will be used for `PouchDB.preferredAdapters`.  So e.g. if you want to test `websql` in Chrome, you can do:
+
+    http://localhost:8000/tests/test.html?adapters=websql
+
+Or even make the `preferredAdapters` list any crazy thing you want:
+
+    # loads websql, then memory, then idb, then localstorage
+    http://localhost:8000/tests/test.html?adapters=websql,memory,idb,localstorage
+
+Keep in mind that `preferredAdapters` only applies to non-http, non-https adapters.
 
 Git Essentials
 --------------------------------------

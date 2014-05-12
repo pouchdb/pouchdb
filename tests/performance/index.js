@@ -42,6 +42,6 @@ if (global.window && global.window.location && global.window.location.search) {
   }
 }
 if (startNow) {
-  var PouchDB = require('../..');
+  var PouchDB = process.browser ? window.PouchDB : require('../..');
   runTestSuites(PouchDB);
 }
