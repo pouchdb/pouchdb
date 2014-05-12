@@ -3,6 +3,10 @@ layout: 2ColLeft
 title: Common Errors
 sidebar: nav.html
 ---
+### PouchDB throws 404 (Object Not Found) for '_local' document
+
+Don't worry, nothing is amiss, this is expected behaviour:
+During PouchDB's initial replication PouchDB will check for a checkpoint, if it doesn't exist a 404 will be returned and a checkpoint will subsequently be written.
 
 ### PouchDB is throwing `InvalidStateError`
 
