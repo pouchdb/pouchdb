@@ -90,7 +90,7 @@ and open [http://127.0.0.1:8000/tests/test.html](http://127.0.0.1:8000/tests/tes
 
     $ GREP=test.replication.js npm test
 
-or append `?grep=test.replication.js` if you opened the tests in a browser manually
+or append `?grep=test.replication.js` if you opened the tests in a browser manually.
 
 #### Test Coverage
 
@@ -103,6 +103,18 @@ or append `?grep=test.replication.js` if you opened the tests in a browser manua
 or
 
     $ COUCH_HOST=http://user:pass@myname.host.com npm test
+
+#### Test with ES5 shims
+
+Some older browsers require [es5 shims](https://github.com/es-shims/es5-shim). Enable them with:
+
+    $ ES5_SHIM=true npm run dev
+
+or e.g.:
+
+    $ ES5_SHIM=true CLIENT=selenium:phantomjs npm test
+
+or you can append it as `?es5shim=true` if you manually opened a browser window.
 
 ### Cordova tests
 
@@ -127,6 +139,8 @@ You can also debug with Weinre by doing:
     $ npm install -g weinre
     $ weinre --boundHost=0.0.0.0
     $ WEINRE_HOST=http://route.to.my.weinre:8080
+
+The `ES5_SHIM=true` option is also available for Cordova.
 
 ### Testing Pouch in a shell
 

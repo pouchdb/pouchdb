@@ -15,10 +15,15 @@ var http_server = require('http-server');
 var performanceBundle = './dist/performance-bundle.js';
 var level_backend = process.env.LEVEL_BACKEND;
 var indexfile, outfile;
-var query = "";
+var queryParams = {};
+
+if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
+  queryParams.es5shim = true;
+}
+
 var perfRoot;
 if (process.env.LEVEL_BACKEND) {
-  query = "?sourceFile=pouchdb-" + level_backend + ".js";
+  queryParams.sourceFile = "pouchdb-" + level_backend + ".js";
   indexfile = "./alt/index-alt.js";
   outfile = "./dist/pouchdb-" + level_backend + ".js";
   perfRoot = './alt/performance/*.js';
@@ -74,6 +79,11 @@ function startServers(couchHost) {
   cors_proxy.options = {target: couchHost || COUCH_HOST};
   http_proxy.createServer(cors_proxy).listen(CORS_PORT);
   var testRoot = 'http://127.0.0.1:' + HTTP_PORT;
+  var query = '';
+  Object.keys(queryParams).forEach(function (key) {
+    query += (query ? '&' : '?');
+    query += key + '=' + encodeURIComponent(queryParams[key]);
+  });
   console.log('Integration tests: ' + testRoot +
               '/tests/test.html' + query);
   console.log('Performance tests: ' + testRoot +

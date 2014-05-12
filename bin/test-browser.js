@@ -47,6 +47,9 @@ if (process.env.GREP) {
 if (process.env.LEVEL_BACKEND) {
   qs.sourceFile = "pouchdb-" + process.env.LEVEL_BACKEND + ".js";
 }
+if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
+  qs.es5shim = true;
+}
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 

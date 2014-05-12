@@ -57,7 +57,9 @@
     "mocha": "^1.18.2",
     "istanbul": "^0.2.7",
     "cordova": "~3.4.1-0.1.0",
-    "replace": "^0.2.9"
+    "replace": "^0.2.9",
+    "es5-shim": "^3.1.1",
+    "phantomjs": "^1.9.7-5"
   },
   "scripts": {
     "build-js": "browserify . -s PouchDB > dist/pouchdb-nightly.js",
