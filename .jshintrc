@@ -14,7 +14,8 @@
   "trailing": true,
   "globalstrict": true,
   "globals": {
-    "PouchDB": true
+    "PouchDB": true,
+     "should": true
   },
   "white": true,
   "indent": 2,
@@ -26,7 +27,6 @@
     "beforeEach",
     "afterEach",
     "testUtils",
-    "should",
     "emit"
   ]
 }
