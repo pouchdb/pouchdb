@@ -37,8 +37,9 @@ env:
   matrix:
   - CLIENT=node COMMAND=test
 
-  # Test in firefox running on travis
+  # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
+  - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
