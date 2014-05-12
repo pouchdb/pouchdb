@@ -12,7 +12,7 @@ Additionally, any method that only returns a single thing (e.g. `db.get`) also r
   [lie]: https://github.com/calvinmetcalf/lie
   [bluebird]: https://github.com/petkaantonov/bluebird
 
-{% include anchor.html title="Create a database" hash="create_database"%}
+{% include anchor.html title="Create a database" hash="create_database" %}
 
 {% highlight js %}
 new PouchDB([name], [options])
@@ -406,7 +406,7 @@ All options default to `false` unless otherwise specified.
   * `options.attachments`: Include attachments.
 * `options.descending`: Reverse the order of the output documents.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
-* `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'latest' if you want only new changes.
+* `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'now' if you want only new changes.
 * `options.live`: Use _longpoll_ feed. 
 * `options.limit`: Limit the number of results to this number.
 * `options.style`: Specifies how many revisions are returned in the changes array. The default, main_only, will only return the current "winning" revision; all_docs will return all leaf revisions (including conflicts and deleted former conflicts).
@@ -477,7 +477,10 @@ db.changes()
 }
 {% endhighlight %}
 
-**Note:** The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
+**Note:**
+
+* The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
+* The `'since'`option formally took 'latest' but has been changed to 'now' to keep consistency with CouchDB, 'latest' is deprecated but will still work to ensure backwards compatibility.
 
 {% include anchor.html title="Replicate a database" hash="replication" %}
 
