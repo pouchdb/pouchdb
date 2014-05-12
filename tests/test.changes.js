@@ -1294,6 +1294,25 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Calling db.changes({since: \'now\'})', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
+        db.info(function (err, info) {
+          var api = db.changes({
+            since: 'now',
+            complete: function (err, res) {
+              should.not.exist(err);
+              res.last_seq.should.equal(info.update_seq);
+              done();
+            }
+          });
+          api.should.be.an('object');
+          api.cancel.should.be.an('function');
+        });
+      });
+    });
+
+    //Duplicate to make sure both api options work.
     it('Calling db.changes({since: \'latest\'})', function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
