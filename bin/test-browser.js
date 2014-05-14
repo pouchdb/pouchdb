@@ -47,6 +47,9 @@ if (process.env.GREP) {
 if (process.env.ADAPTERS) {
   qs.adapters = process.env.ADAPTERS;
 }
+if (process.env.ADAPTER) {
+  qs.adapter = process.env.ADAPTER;
+}
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 

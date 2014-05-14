@@ -35,6 +35,10 @@ exports.end = function (testCase) {
   log('done in ' + obj.duration + 'ms\n');
 };
 
+exports.setAdapter = function (adapter) {
+  global.results.adapter = adapter;
+};
+
 exports.complete = function (suiteName) {
   global.results.completed = true;
   global.results.client = {

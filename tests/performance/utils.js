@@ -29,6 +29,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
           if (i === 0) {
             reporter.startSuite(suiteName);
           }
+          reporter.setAdapter(db.adapter);
           reporter.start(testCase);
           t.end();
         });
