@@ -999,6 +999,8 @@ PouchDB.plugin({
 
 This will add the function as a method of all databases with the given method name.  It will always be called in context, so that `this` always refers to the database object.
 
+We also offer a [PouchDB Plugin Seed project](https://github.com/pouchdb/plugin-seed), which is the fastest way to get started writing, building and testing your very own own plugin.
+
 #### Example Usage:
 {% highlight js %}
 PouchDB.plugin({
