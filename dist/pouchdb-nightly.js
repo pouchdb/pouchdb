@@ -1,5 +1,5 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.PouchDB=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-module.exports = "2.2.0";
+module.exports = "2.2.1";
 
 },{}],2:[function(_dereq_,module,exports){
 "use strict";
@@ -4732,8 +4732,8 @@ if (!process.browser) {
   PouchDB.adapter('leveldb', ldbAdapter);
 }
 
-}).call(this,_dereq_("/Users/daleharvey/src/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./adapters/http":3,"./adapters/idb":4,"./adapters/leveldb":23,"./adapters/websql":5,"./deps/ajax":8,"./deps/errors":10,"./replicate":17,"./setup":18,"./sync":19,"./utils":21,"./version":1,"/Users/daleharvey/src/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":25,"extend":26,"pouchdb-mapreduce":48}],16:[function(_dereq_,module,exports){
+}).call(this,_dereq_("/Users/nolan/workspace/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./adapters/http":3,"./adapters/idb":4,"./adapters/leveldb":23,"./adapters/websql":5,"./deps/ajax":8,"./deps/errors":10,"./replicate":17,"./setup":18,"./sync":19,"./utils":21,"./version":1,"/Users/nolan/workspace/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":25,"extend":26,"pouchdb-mapreduce":49}],16:[function(_dereq_,module,exports){
 'use strict';
 var utils = _dereq_('./utils');
 
@@ -6502,8 +6502,8 @@ exports.MD5 = exports.Crypto.MD5 = function (string) {
   }
 };
 
-}).call(this,_dereq_("/Users/daleharvey/src/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./deps/ajax":8,"./deps/blob":9,"./deps/buffer":23,"./deps/errors":10,"./deps/uuid":12,"./merge":16,"/Users/daleharvey/src/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":25,"argsarray":22,"bluebird":31,"crypto":23,"events":24,"extend":26,"inherits":27,"md5-jkmyers":45}],22:[function(_dereq_,module,exports){
+}).call(this,_dereq_("/Users/nolan/workspace/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./deps/ajax":8,"./deps/blob":9,"./deps/buffer":23,"./deps/errors":10,"./deps/uuid":12,"./merge":16,"/Users/nolan/workspace/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":25,"argsarray":22,"bluebird":32,"crypto":23,"events":24,"extend":26,"inherits":27,"md5-jkmyers":46}],22:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -6673,7 +6673,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 
@@ -6995,40 +6998,44 @@ module.exports = INTERNAL;
 function INTERNAL() {}
 },{}],29:[function(_dereq_,module,exports){
 'use strict';
-var INTERNAL = _dereq_('./INTERNAL');
 var Promise = _dereq_('./promise');
 var reject = _dereq_('./reject');
 var resolve = _dereq_('./resolve');
-
+var INTERNAL = _dereq_('./INTERNAL');
+var handlers = _dereq_('./handlers');
+var noArray = reject(new TypeError('must be an array'));
 module.exports = function all(iterable) {
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return reject(new TypeError('must be an array'));
+    return noArray;
   }
+
   var len = iterable.length;
   if (!len) {
     return resolve([]);
   }
-  var values = [];
+
+  var values = new Array(len);
   var resolved = 0;
   var i = -1;
   var promise = new Promise(INTERNAL);
-  function allResolver(value, i) {
-    resolve(value).then(function (outValue) {
-      values[i] = outValue;
-      if (++resolved === len) {
-        promise.resolve(values);
-      }
-    }, function (error) {
-      promise.reject(error);
-    });
-  }
   
   while (++i < len) {
     allResolver(iterable[i], i);
   }
   return promise;
+  function allResolver(value, i) {
+    resolve(value).then(resolveFromAll, function (error) {
+      handlers.reject(promise, error);
+    });
+    function resolveFromAll(outValue) {
+      values[i] = outValue;
+      if (++resolved === len) {
+        handlers.resolve(promise, values);
+      }
+    }
+  }
 };
-},{"./INTERNAL":28,"./promise":33,"./reject":34,"./resolve":35}],30:[function(_dereq_,module,exports){
+},{"./INTERNAL":28,"./handlers":31,"./promise":33,"./reject":35,"./resolve":36}],30:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = getThen;
@@ -7043,42 +7050,57 @@ function getThen(obj) {
   }
 }
 },{}],31:[function(_dereq_,module,exports){
+'use strict';
+var tryCatch = _dereq_('./tryCatch');
+var getThen = _dereq_('./getThen');
+var resolveThenable = _dereq_('./resolveThenable');
+var states = _dereq_('./states');
+
+exports.resolve = function (self, value) {
+  var result = tryCatch(getThen, value);
+  if (result.status === 'error') {
+    return exports.reject(self, result.value);
+  }
+  var thenable = result.value;
+
+  if (thenable) {
+    resolveThenable.safely(self, thenable);
+  } else {
+    self.state = states.FULFILLED;
+    self.outcome = value;
+    var i = -1;
+    var len = self.queue.length;
+    while (++i < len) {
+      self.queue[i].callFulfilled(value);
+    }
+  }
+  return self;
+};
+exports.reject = function (self, error) {
+  self.state = states.REJECTED;
+  self.outcome = error;
+  var i = -1;
+  var len = self.queue.length;
+  while (++i < len) {
+    self.queue[i].callRejected(error);
+  }
+  return self;
+};
+},{"./getThen":30,"./resolveThenable":37,"./states":38,"./tryCatch":39}],32:[function(_dereq_,module,exports){
 module.exports = exports = _dereq_('./promise');
 
 exports.resolve = _dereq_('./resolve');
 exports.reject = _dereq_('./reject');
 exports.all = _dereq_('./all');
-},{"./all":29,"./promise":33,"./reject":34,"./resolve":35}],32:[function(_dereq_,module,exports){
-'use strict';
-
-module.exports = once;
-
-/* Wrap an arbitrary number of functions and allow only one of them to be
-   executed and only once */
-function once() {
-  var called = 0;
-  return function wrapper(wrappedFunction) {
-    return function () {
-      if (called++) {
-        return;
-      }
-      wrappedFunction.apply(this, arguments);
-    };
-  };
-}
-},{}],33:[function(_dereq_,module,exports){
+},{"./all":29,"./promise":33,"./reject":35,"./resolve":36}],33:[function(_dereq_,module,exports){
 'use strict';
 
 var unwrap = _dereq_('./unwrap');
 var INTERNAL = _dereq_('./INTERNAL');
-var once = _dereq_('./once');
-var tryCatch = _dereq_('./tryCatch');
-var getThen = _dereq_('./getThen');
+var resolveThenable = _dereq_('./resolveThenable');
+var states = _dereq_('./states');
+var QueueItem = _dereq_('./queueItem');
 
-// Lazy man's symbols for states
-var PENDING = ['PENDING'],
-  FULFILLED = ['FULFILLED'],
-  REJECTED = ['REJECTED'];
 module.exports = Promise;
 function Promise(resolver) {
   if (!(this instanceof Promise)) {
@@ -7087,42 +7109,12 @@ function Promise(resolver) {
   if (typeof resolver !== 'function') {
     throw new TypeError('reslover must be a function');
   }
-  this.state = PENDING;
+  this.state = states.PENDING;
   this.queue = [];
   if (resolver !== INTERNAL) {
-    safelyResolveThenable(this, resolver);
+    resolveThenable.safely(this, resolver);
   }
 }
-Promise.prototype.resolve = function (value) {
-  var result = tryCatch(getThen, value);
-  if (result.status === 'error') {
-    return this.reject(result.value);
-  }
-  var thenable = result.value;
-
-  if (thenable) {
-    safelyResolveThenable(this, thenable);
-  } else {
-    this.state = FULFILLED;
-    this.outcome = value;
-    var i = -1;
-    var len = this.queue.length;
-    while (++i < len) {
-      this.queue[i].callFulfilled(value);
-    }
-  }
-  return this;
-};
-Promise.prototype.reject = function (error) {
-  this.state = REJECTED;
-  this.outcome = error;
-  var i = -1;
-  var len = this.queue.length;
-  while (++i < len) {
-    this.queue[i].callRejected(error);
-  }
-  return this;
-};
 
 Promise.prototype['catch'] = function (onRejected) {
   return this.then(null, onRejected);
@@ -7130,93 +7122,84 @@ Promise.prototype['catch'] = function (onRejected) {
 Promise.prototype.then = function (onFulfilled, onRejected) {
   var onFulfilledFunc = typeof onFulfilled === 'function';
   var onRejectedFunc = typeof onRejected === 'function';
-  if (!onFulfilledFunc && this.state === FULFILLED || !onRejected && this.state === REJECTED) {
+  if (typeof onFulfilled !== 'function' && this.state === states.FULFILLED ||
+    typeof onRejected !== 'function' && this.state === states.REJECTED) {
     return this;
   }
   var promise = new Promise(INTERNAL);
 
-  var thenHandler =  {
-    promise: promise,
-  };
-  if (this.state !== REJECTED) {
-    if (onFulfilledFunc) {
-      thenHandler.callFulfilled = function (value) {
-        unwrap(promise, onFulfilled, value);
-      };
-    } else {
-      thenHandler.callFulfilled = function (value) {
-        promise.resolve(value);
-      };
-    }
-  }
-  if (this.state !== FULFILLED) {
-    if (onRejectedFunc) {
-      thenHandler.callRejected = function (value) {
-        unwrap(promise, onRejected, value);
-      };
-    } else {
-      thenHandler.callRejected = function (value) {
-        promise.reject(value);
-      };
-    }
-  }
-  if (this.state === FULFILLED) {
-    thenHandler.callFulfilled(this.outcome);
-  } else if (this.state === REJECTED) {
-    thenHandler.callRejected(this.outcome);
+  
+  if (this.state !== states.PENDING) {
+    var resolver = this.state === states.FULFILLED ? onFulfilled: onRejected;
+    unwrap(promise, resolver, this.outcome);
   } else {
-    this.queue.push(thenHandler);
+    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
   }
 
   return promise;
 };
-function safelyResolveThenable(self, thenable) {
-  // Either fulfill, reject or reject with error
-  var onceWrapper = once();
-  var onError = onceWrapper(function (value) {
-    return self.reject(value);
-  });
-  var result = tryCatch(function () {
-    thenable(
-      onceWrapper(function (value) {
-        return self.resolve(value);
-      }),
-      onError
-    );
-  });
-  if (result.status === 'error') {
-    onError(result.value);
+
+},{"./INTERNAL":28,"./queueItem":34,"./resolveThenable":37,"./states":38,"./unwrap":40}],34:[function(_dereq_,module,exports){
+'use strict';
+var handlers = _dereq_('./handlers');
+var unwrap = _dereq_('./unwrap');
+
+module.exports = QueueItem;
+function QueueItem(promise, onFulfilled, onRejected) {
+  this.promise = promise;
+  if (typeof onFulfilled === 'function') {
+    this.onFulfilled = onFulfilled;
+    this.callFulfilled = this.otherCallFulfilled;
+  }
+  if (typeof onRejected === 'function') {
+    this.onRejected = onRejected;
+    this.callRejected = this.otherCallRejected;
   }
 }
-},{"./INTERNAL":28,"./getThen":30,"./once":32,"./tryCatch":36,"./unwrap":37}],34:[function(_dereq_,module,exports){
+QueueItem.prototype.callFulfilled = function (value) {
+  handlers.resolve(this.promise, value);
+};
+QueueItem.prototype.otherCallFulfilled = function (value) {
+  unwrap(this.promise, this.onFulfilled, value);
+};
+QueueItem.prototype.callRejected = function (value) {
+  handlers.reject(this.promise, value);
+};
+QueueItem.prototype.otherCallRejected = function (value) {
+  unwrap(this.promise, this.onRejected, value);
+};
+},{"./handlers":31,"./unwrap":40}],35:[function(_dereq_,module,exports){
 'use strict';
 
 var Promise = _dereq_('./promise');
 var INTERNAL = _dereq_('./INTERNAL');
-
+var handlers = _dereq_('./handlers');
 module.exports = reject;
 
 function reject(reason) {
 	var promise = new Promise(INTERNAL);
-	return promise.reject(reason);
+	return handlers.reject(promise, reason);
 }
-},{"./INTERNAL":28,"./promise":33}],35:[function(_dereq_,module,exports){
+},{"./INTERNAL":28,"./handlers":31,"./promise":33}],36:[function(_dereq_,module,exports){
 'use strict';
 
 var Promise = _dereq_('./promise');
 var INTERNAL = _dereq_('./INTERNAL');
-
+var handlers = _dereq_('./handlers');
 module.exports = resolve;
 
-var FALSE = new Promise(INTERNAL).resolve(false);
-var NULL = new Promise(INTERNAL).resolve(null);
-var UNDEFINED = new Promise(INTERNAL).resolve(void 0);
-var ZERO = new Promise(INTERNAL).resolve(0);
-var EMPTYSTRING = new Promise(INTERNAL).resolve('');
+var FALSE = handlers.resolve(new Promise(INTERNAL), false);
+var NULL = handlers.resolve(new Promise(INTERNAL), null);
+var UNDEFINED = handlers.resolve(new Promise(INTERNAL), void 0);
+var ZERO = handlers.resolve(new Promise(INTERNAL), 0);
+var EMPTYSTRING = handlers.resolve(new Promise(INTERNAL), '');
 
 function resolve(value) {
   if (value) {
-    return new Promise(INTERNAL).resolve(value);
+    if (value instanceof Promise) {
+      return value;
+    }
+    return handlers.resolve(new Promise(INTERNAL), value);
   }
   var valueType = typeof value;
   switch (valueType) {
@@ -7232,7 +7215,46 @@ function resolve(value) {
       return EMPTYSTRING;
   }
 }
-},{"./INTERNAL":28,"./promise":33}],36:[function(_dereq_,module,exports){
+},{"./INTERNAL":28,"./handlers":31,"./promise":33}],37:[function(_dereq_,module,exports){
+'use strict';
+var handlers = _dereq_('./handlers');
+var tryCatch = _dereq_('./tryCatch');
+function safelyResolveThenable(self, thenable) {
+  // Either fulfill, reject or reject with error
+  var called = false;
+  function onError(value) {
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.reject(self, value);
+  }
+
+  function onSuccess(value) {
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.resolve(self, value);
+  }
+
+  function tryToUnwrap() {
+    thenable(onSuccess, onError);
+  }
+  
+  var result = tryCatch(tryToUnwrap);
+  if (result.status === 'error') {
+    onError(result.value);
+  }
+}
+exports.safely = safelyResolveThenable;
+},{"./handlers":31,"./tryCatch":39}],38:[function(_dereq_,module,exports){
+// Lazy man's symbols for states
+
+exports.REJECTED = ['REJECTED'];
+exports.FULFILLED = ['FULFILLED'];
+exports.PENDING = ['PENDING'];
+},{}],39:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = tryCatch;
@@ -7248,11 +7270,11 @@ function tryCatch(func, value) {
   }
   return out;
 }
-},{}],37:[function(_dereq_,module,exports){
+},{}],40:[function(_dereq_,module,exports){
 'use strict';
 
 var immediate = _dereq_('immediate');
-
+var handlers = _dereq_('./handlers');
 module.exports = unwrap;
 
 function unwrap(promise, func, value) {
@@ -7261,79 +7283,65 @@ function unwrap(promise, func, value) {
     try {
       returnValue = func(value);
     } catch (e) {
-      return promise.reject(e);
+      return handlers.reject(promise, e);
     }
     if (returnValue === promise) {
-      promise.reject(new TypeError('Cannot resolve promise with itself'));
+      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
     } else {
-      promise.resolve(returnValue);
+      handlers.resolve(promise, returnValue);
     }
   });
 }
-},{"immediate":39}],38:[function(_dereq_,module,exports){
-'use strict';
-exports.test = function () {
-  return false;
-};
-},{}],39:[function(_dereq_,module,exports){
+},{"./handlers":31,"immediate":41}],41:[function(_dereq_,module,exports){
 'use strict';
 var types = [
   _dereq_('./nextTick'),
-  _dereq_('./mutation'),
-  _dereq_('./postMessage'),
   _dereq_('./messageChannel'),
   _dereq_('./stateChange'),
   _dereq_('./timeout')
 ];
-var handlerQueue = [];
+var draining;
+var queue = [];
 function drainQueue() {
-  var i = 0,
-  task,
-  innerQueue = handlerQueue;
-  handlerQueue = [];
-  while ((task = innerQueue[i++])) {
-    task();
+  draining = true;
+  var i, oldQueue;
+  var len = queue.length;
+  while (len) {
+    oldQueue = queue;
+    queue = [];
+    i = -1;
+    while (++i < len) {
+      oldQueue[i]();
+    }
+    len = queue.length;
   }
+  draining = false;
 }
-var nextTick;
+var scheduleDrain;
 var i = -1;
 var len = types.length;
 while (++ i < len) {
   if (types[i].test()) {
-    nextTick = types[i].install(drainQueue);
+    scheduleDrain = types[i].install(drainQueue);
     break;
   }
 }
-module.exports = function (task) {
-  var len, i, args;
-  var nTask = task;
-  if (arguments.length > 1 && typeof task === 'function') {
-    args = new Array(arguments.length - 1);
-    i = 0;
-    while (++i < arguments.length) {
-      args[i - 1] = arguments[i];
-    }
-    nTask = function () {
-      task.apply(undefined, args);
-    };
+module.exports = immediate;
+function immediate(task) {
+  if (queue.push(task) === 1 && !draining) {
+    scheduleDrain();
   }
-  if ((len = handlerQueue.push(nTask)) === 1) {
-    nextTick(drainQueue);
-  }
-  return len;
-};
-module.exports.clear = function (n) {
-  if (n <= handlerQueue.length) {
-    handlerQueue[n - 1] = function () {};
-  }
-  return this;
-};
-
-},{"./messageChannel":40,"./mutation":41,"./nextTick":38,"./postMessage":42,"./stateChange":43,"./timeout":44}],40:[function(_dereq_,module,exports){
+}
+},{"./messageChannel":42,"./nextTick":43,"./stateChange":44,"./timeout":45}],42:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 
 exports.test = function () {
+  if (global.setImmediate) {
+    // we can only get here in IE10
+    // which doesn't handel postMessage well
+    return false;
+  }
   return typeof global.MessageChannel !== 'undefined';
 };
 
@@ -7345,7 +7353,7 @@ exports.install = function (func) {
   };
 };
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],41:[function(_dereq_,module,exports){
+},{}],43:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 //based off rsvp https://github.com/tildeio/rsvp.js
@@ -7370,46 +7378,7 @@ exports.install = function (handle) {
   };
 };
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],42:[function(_dereq_,module,exports){
-(function (global){
-'use strict';
-// The test against `importScripts` prevents this implementation from being installed inside a web worker,
-// where `global.postMessage` means something completely different and can't be used for this purpose.
-
-exports.test = function () {
-  if (!global.postMessage || global.importScripts) {
-    return false;
-  }
-
-  var postMessageIsAsynchronous = true;
-  var oldOnMessage = global.onmessage;
-  global.onmessage = function () {
-    postMessageIsAsynchronous = false;
-  };
-  global.postMessage('', '*');
-  global.onmessage = oldOnMessage;
-
-  return postMessageIsAsynchronous;
-};
-
-exports.install = function (func) {
-  var codeWord = 'com.calvinmetcalf.setImmediate' + Math.random();
-  function globalMessage(event) {
-    if (event.source === global && event.data === codeWord) {
-      func();
-    }
-  }
-  if (global.addEventListener) {
-    global.addEventListener('message', globalMessage, false);
-  } else {
-    global.attachEvent('onmessage', globalMessage);
-  }
-  return function () {
-    global.postMessage(codeWord, '*');
-  };
-};
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],43:[function(_dereq_,module,exports){
+},{}],44:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 
@@ -7436,7 +7405,7 @@ exports.install = function (handle) {
   };
 };
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],44:[function(_dereq_,module,exports){
+},{}],45:[function(_dereq_,module,exports){
 'use strict';
 exports.test = function () {
   return true;
@@ -7447,9 +7416,9 @@ exports.install = function (t) {
     setTimeout(t, 0);
   };
 };
-},{}],45:[function(_dereq_,module,exports){
-!function(a,b){"function"==typeof define&&define.amd?define(b):"object"==typeof exports?module.exports=b():a.md5=b()}(this,function(){function a(a,b){var g=a[0],h=a[1],i=a[2],j=a[3];g=c(g,h,i,j,b[0],7,-680876936),j=c(j,g,h,i,b[1],12,-389564586),i=c(i,j,g,h,b[2],17,606105819),h=c(h,i,j,g,b[3],22,-1044525330),g=c(g,h,i,j,b[4],7,-176418897),j=c(j,g,h,i,b[5],12,1200080426),i=c(i,j,g,h,b[6],17,-1473231341),h=c(h,i,j,g,b[7],22,-45705983),g=c(g,h,i,j,b[8],7,1770035416),j=c(j,g,h,i,b[9],12,-1958414417),i=c(i,j,g,h,b[10],17,-42063),h=c(h,i,j,g,b[11],22,-1990404162),g=c(g,h,i,j,b[12],7,1804603682),j=c(j,g,h,i,b[13],12,-40341101),i=c(i,j,g,h,b[14],17,-1502002290),h=c(h,i,j,g,b[15],22,1236535329),g=d(g,h,i,j,b[1],5,-165796510),j=d(j,g,h,i,b[6],9,-1069501632),i=d(i,j,g,h,b[11],14,643717713),h=d(h,i,j,g,b[0],20,-373897302),g=d(g,h,i,j,b[5],5,-701558691),j=d(j,g,h,i,b[10],9,38016083),i=d(i,j,g,h,b[15],14,-660478335),h=d(h,i,j,g,b[4],20,-405537848),g=d(g,h,i,j,b[9],5,568446438),j=d(j,g,h,i,b[14],9,-1019803690),i=d(i,j,g,h,b[3],14,-187363961),h=d(h,i,j,g,b[8],20,1163531501),g=d(g,h,i,j,b[13],5,-1444681467),j=d(j,g,h,i,b[2],9,-51403784),i=d(i,j,g,h,b[7],14,1735328473),h=d(h,i,j,g,b[12],20,-1926607734),g=e(g,h,i,j,b[5],4,-378558),j=e(j,g,h,i,b[8],11,-2022574463),i=e(i,j,g,h,b[11],16,1839030562),h=e(h,i,j,g,b[14],23,-35309556),g=e(g,h,i,j,b[1],4,-1530992060),j=e(j,g,h,i,b[4],11,1272893353),i=e(i,j,g,h,b[7],16,-155497632),h=e(h,i,j,g,b[10],23,-1094730640),g=e(g,h,i,j,b[13],4,681279174),j=e(j,g,h,i,b[0],11,-358537222),i=e(i,j,g,h,b[3],16,-722521979),h=e(h,i,j,g,b[6],23,76029189),g=e(g,h,i,j,b[9],4,-640364487),j=e(j,g,h,i,b[12],11,-421815835),i=e(i,j,g,h,b[15],16,530742520),h=e(h,i,j,g,b[2],23,-995338651),g=f(g,h,i,j,b[0],6,-198630844),j=f(j,g,h,i,b[7],10,1126891415),i=f(i,j,g,h,b[14],15,-1416354905),h=f(h,i,j,g,b[5],21,-57434055),g=f(g,h,i,j,b[12],6,1700485571),j=f(j,g,h,i,b[3],10,-1894986606),i=f(i,j,g,h,b[10],15,-1051523),h=f(h,i,j,g,b[1],21,-2054922799),g=f(g,h,i,j,b[8],6,1873313359),j=f(j,g,h,i,b[15],10,-30611744),i=f(i,j,g,h,b[6],15,-1560198380),h=f(h,i,j,g,b[13],21,1309151649),g=f(g,h,i,j,b[4],6,-145523070),j=f(j,g,h,i,b[11],10,-1120210379),i=f(i,j,g,h,b[2],15,718787259),h=f(h,i,j,g,b[9],21,-343485551),a[0]=l(g,a[0]),a[1]=l(h,a[1]),a[2]=l(i,a[2]),a[3]=l(j,a[3])}function b(a,b,c,d,e,f){return b=l(l(b,a),l(d,f)),l(b<<e|b>>>32-e,c)}function c(a,c,d,e,f,g,h){return b(c&d|~c&e,a,c,f,g,h)}function d(a,c,d,e,f,g,h){return b(c&e|d&~e,a,c,f,g,h)}function e(a,c,d,e,f,g,h){return b(c^d^e,a,c,f,g,h)}function f(a,c,d,e,f,g,h){return b(d^(c|~e),a,c,f,g,h)}function g(b){txt="";var c,d=b.length,e=[1732584193,-271733879,-1732584194,271733878];for(c=64;c<=b.length;c+=64)a(e,h(b.substring(c-64,c)));b=b.substring(c-64);var f=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];for(c=0;c<b.length;c++)f[c>>2]|=b.charCodeAt(c)<<(c%4<<3);if(f[c>>2]|=128<<(c%4<<3),c>55)for(a(e,f),c=0;16>c;c++)f[c]=0;return f[14]=8*d,a(e,f),e}function h(a){var b,c=[];for(b=0;64>b;b+=4)c[b>>2]=a.charCodeAt(b)+(a.charCodeAt(b+1)<<8)+(a.charCodeAt(b+2)<<16)+(a.charCodeAt(b+3)<<24);return c}function i(a){for(var b="",c=0;4>c;c++)b+=m[a>>8*c+4&15]+m[a>>8*c&15];return b}function j(a){for(var b=0;b<a.length;b++)a[b]=i(a[b]);return a.join("")}function k(a){return j(g(a))}function l(a,b){return a+b&4294967295}function l(a,b){var c=(65535&a)+(65535&b),d=(a>>16)+(b>>16)+(c>>16);return d<<16|65535&c}var m="0123456789abcdef".split("");return"5d41402abc4b2a76b9719d911017c592"!=k("hello"),k});
 },{}],46:[function(_dereq_,module,exports){
+!function(a,b){"function"==typeof define&&define.amd?define(b):"object"==typeof exports?module.exports=b():a.md5=b()}(this,function(){function a(a,b){var g=a[0],h=a[1],i=a[2],j=a[3];g=c(g,h,i,j,b[0],7,-680876936),j=c(j,g,h,i,b[1],12,-389564586),i=c(i,j,g,h,b[2],17,606105819),h=c(h,i,j,g,b[3],22,-1044525330),g=c(g,h,i,j,b[4],7,-176418897),j=c(j,g,h,i,b[5],12,1200080426),i=c(i,j,g,h,b[6],17,-1473231341),h=c(h,i,j,g,b[7],22,-45705983),g=c(g,h,i,j,b[8],7,1770035416),j=c(j,g,h,i,b[9],12,-1958414417),i=c(i,j,g,h,b[10],17,-42063),h=c(h,i,j,g,b[11],22,-1990404162),g=c(g,h,i,j,b[12],7,1804603682),j=c(j,g,h,i,b[13],12,-40341101),i=c(i,j,g,h,b[14],17,-1502002290),h=c(h,i,j,g,b[15],22,1236535329),g=d(g,h,i,j,b[1],5,-165796510),j=d(j,g,h,i,b[6],9,-1069501632),i=d(i,j,g,h,b[11],14,643717713),h=d(h,i,j,g,b[0],20,-373897302),g=d(g,h,i,j,b[5],5,-701558691),j=d(j,g,h,i,b[10],9,38016083),i=d(i,j,g,h,b[15],14,-660478335),h=d(h,i,j,g,b[4],20,-405537848),g=d(g,h,i,j,b[9],5,568446438),j=d(j,g,h,i,b[14],9,-1019803690),i=d(i,j,g,h,b[3],14,-187363961),h=d(h,i,j,g,b[8],20,1163531501),g=d(g,h,i,j,b[13],5,-1444681467),j=d(j,g,h,i,b[2],9,-51403784),i=d(i,j,g,h,b[7],14,1735328473),h=d(h,i,j,g,b[12],20,-1926607734),g=e(g,h,i,j,b[5],4,-378558),j=e(j,g,h,i,b[8],11,-2022574463),i=e(i,j,g,h,b[11],16,1839030562),h=e(h,i,j,g,b[14],23,-35309556),g=e(g,h,i,j,b[1],4,-1530992060),j=e(j,g,h,i,b[4],11,1272893353),i=e(i,j,g,h,b[7],16,-155497632),h=e(h,i,j,g,b[10],23,-1094730640),g=e(g,h,i,j,b[13],4,681279174),j=e(j,g,h,i,b[0],11,-358537222),i=e(i,j,g,h,b[3],16,-722521979),h=e(h,i,j,g,b[6],23,76029189),g=e(g,h,i,j,b[9],4,-640364487),j=e(j,g,h,i,b[12],11,-421815835),i=e(i,j,g,h,b[15],16,530742520),h=e(h,i,j,g,b[2],23,-995338651),g=f(g,h,i,j,b[0],6,-198630844),j=f(j,g,h,i,b[7],10,1126891415),i=f(i,j,g,h,b[14],15,-1416354905),h=f(h,i,j,g,b[5],21,-57434055),g=f(g,h,i,j,b[12],6,1700485571),j=f(j,g,h,i,b[3],10,-1894986606),i=f(i,j,g,h,b[10],15,-1051523),h=f(h,i,j,g,b[1],21,-2054922799),g=f(g,h,i,j,b[8],6,1873313359),j=f(j,g,h,i,b[15],10,-30611744),i=f(i,j,g,h,b[6],15,-1560198380),h=f(h,i,j,g,b[13],21,1309151649),g=f(g,h,i,j,b[4],6,-145523070),j=f(j,g,h,i,b[11],10,-1120210379),i=f(i,j,g,h,b[2],15,718787259),h=f(h,i,j,g,b[9],21,-343485551),a[0]=l(g,a[0]),a[1]=l(h,a[1]),a[2]=l(i,a[2]),a[3]=l(j,a[3])}function b(a,b,c,d,e,f){return b=l(l(b,a),l(d,f)),l(b<<e|b>>>32-e,c)}function c(a,c,d,e,f,g,h){return b(c&d|~c&e,a,c,f,g,h)}function d(a,c,d,e,f,g,h){return b(c&e|d&~e,a,c,f,g,h)}function e(a,c,d,e,f,g,h){return b(c^d^e,a,c,f,g,h)}function f(a,c,d,e,f,g,h){return b(d^(c|~e),a,c,f,g,h)}function g(b){txt="";var c,d=b.length,e=[1732584193,-271733879,-1732584194,271733878];for(c=64;c<=b.length;c+=64)a(e,h(b.substring(c-64,c)));b=b.substring(c-64);var f=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];for(c=0;c<b.length;c++)f[c>>2]|=b.charCodeAt(c)<<(c%4<<3);if(f[c>>2]|=128<<(c%4<<3),c>55)for(a(e,f),c=0;16>c;c++)f[c]=0;return f[14]=8*d,a(e,f),e}function h(a){var b,c=[];for(b=0;64>b;b+=4)c[b>>2]=a.charCodeAt(b)+(a.charCodeAt(b+1)<<8)+(a.charCodeAt(b+2)<<16)+(a.charCodeAt(b+3)<<24);return c}function i(a){for(var b="",c=0;4>c;c++)b+=m[a>>8*c+4&15]+m[a>>8*c&15];return b}function j(a){for(var b=0;b<a.length;b++)a[b]=i(a[b]);return a.join("")}function k(a){return j(g(a))}function l(a,b){return a+b&4294967295}function l(a,b){var c=(65535&a)+(65535&b),d=(a>>16)+(b>>16)+(c>>16);return d<<16|65535&c}var m="0123456789abcdef".split("");return"5d41402abc4b2a76b9719d911017c592"!=k("hello"),k});
+},{}],47:[function(_dereq_,module,exports){
 'use strict';
 
 var upsert = _dereq_('./upsert');
@@ -7461,12 +7430,13 @@ module.exports = function (opts) {
   var viewName = opts.viewName;
   var mapFun = opts.map;
   var reduceFun = opts.reduce;
-  var randomizer = opts.randomizer;
+  var temporary = opts.temporary;
 
+  // the "undefined" part is for backwards compatibility
   var viewSignature = mapFun.toString() + (reduceFun && reduceFun.toString()) +
-    (randomizer && randomizer.toString());
+    'undefined';
 
-  if (sourceDB._cachedViews) {
+  if (!temporary && sourceDB._cachedViews) {
     var cachedView = sourceDB._cachedViews[viewSignature];
     if (cachedView) {
       return Promise.resolve(cachedView);
@@ -7474,13 +7444,19 @@ module.exports = function (opts) {
   }
 
   return sourceDB.info().then(function (info) {
-    var depDbName = info.db_name + '-mrview-' + utils.MD5(viewSignature);
+
+    var depDbName = info.db_name + '-mrview-' +
+      (temporary ? 'temp' : utils.MD5(viewSignature));
 
     // save the view name in the source PouchDB so it can be cleaned up if necessary
     // (e.g. when the _design doc is deleted, remove all associated view data)
     function diffFunction(doc) {
       doc.views = doc.views || {};
-      var depDbs = doc.views[viewName] = doc.views[viewName] || {};
+      var fullViewName = viewName;
+      if (fullViewName.indexOf('/') === -1) {
+        fullViewName = viewName + '/' + viewName;
+      }
+      var depDbs = doc.views[fullViewName] = doc.views[fullViewName] || {};
       /* istanbul ignore if */
       if (depDbs[depDbName]) {
         return; // no update necessary
@@ -7500,15 +7476,14 @@ module.exports = function (opts) {
           mapFun: mapFun,
           reduceFun: reduceFun
         };
-        return view.db.get('_local/lastSeq').then(null, function (err) {
+        return view.db.get('_local/lastSeq')["catch"](function (err) {
           /* istanbul ignore if */
           if (err.name !== 'not_found') {
             throw err;
           }
         }).then(function (lastSeqDoc) {
           view.seq = lastSeqDoc ? lastSeqDoc.seq : 0;
-          if (!randomizer) {
-            // randomizer implies the view is temporary, no need to cache it
+          if (!temporary) {
             sourceDB._cachedViews = sourceDB._cachedViews || {};
             sourceDB._cachedViews[viewSignature] = view;
             view.db.on('destroyed', function () {
@@ -7522,7 +7497,7 @@ module.exports = function (opts) {
   });
 };
 
-},{"./upsert":52,"./utils":53}],47:[function(_dereq_,module,exports){
+},{"./upsert":53,"./utils":54}],48:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = function (func, emit, sum, log, isArray, toJSON) {
@@ -7530,7 +7505,7 @@ module.exports = function (func, emit, sum, log, isArray, toJSON) {
   return eval("'use strict'; (" + func + ");");
 };
 
-},{}],48:[function(_dereq_,module,exports){
+},{}],49:[function(_dereq_,module,exports){
 'use strict';
 
 var pouchCollate = _dereq_('pouchdb-collate');
@@ -7550,6 +7525,7 @@ if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
 var utils = _dereq_('./utils');
 var Promise = utils.Promise;
 var mainQueue = new TaskQueue();
+var tempViewQueue = new TaskQueue();
 var CHANGES_BATCH_SIZE = 50;
 
 function parseViewName(name) {
@@ -7779,59 +7755,81 @@ function defaultsTo(value) {
     }
   };
 }
-function saveKeyValues(view, docIdsToEmits, seq) {
-  return view.db.get('_local/lastSeq')
-    .then(null, defaultsTo({_id: '_local/lastSeq', seq: 0}))
-    .then(function (lastSeqDoc) {
-      return Promise.all(Object.keys(docIdsToEmits).map(function (docId) {
-        return view.db.get('_local/doc_' + docId)
-          .then(null, defaultsTo({_id : '_local/doc_' + docId, keys : []}))
-          .then(function (metaDoc) {
-            return view.db.allDocs({keys : metaDoc.keys, include_docs : true}).then(function (res) {
-              var kvDocs = res.rows.map(function (row) {
-                return row.doc;
-              }).filter(function (row) {
-                return row;
-              });
 
-              var indexableKeysToKeyValues = docIdsToEmits[docId];
-              var oldKeysMap = {};
-              kvDocs.forEach(function (kvDoc) {
-                oldKeysMap[kvDoc._id] = true;
-                kvDoc._deleted = !indexableKeysToKeyValues[kvDoc._id];
-                if (!kvDoc._deleted) {
-                  kvDoc.value = indexableKeysToKeyValues[kvDoc._id];
-                }
-              });
-
-              var newKeys = Object.keys(indexableKeysToKeyValues);
-              newKeys.forEach(function (key) {
-                if (!oldKeysMap[key]) {
-                  // new doc
-                  kvDocs.push({
-                    _id : key,
-                    value : indexableKeysToKeyValues[key]
-                  });
-                }
-              });
-              metaDoc.keys = utils.uniq(newKeys.concat(metaDoc.keys));
-              kvDocs.push(metaDoc);
-
-              return kvDocs;
+// returns a promise for a list of docs to update, based on the input docId.
+// we update the metaDoc first (i.e. the doc that points from the sourceDB
+// document Id to the ids of the documents in the mrview database), then
+// the key/value docs.  that way, if lightning strikes the user's computer
+// in the middle of an update, we don't write any docs that we wouldn't
+// be able to find later using the metaDoc.
+function getDocsToPersist(docId, view, docIdsToEmits) {
+  var metaDocId = '_local/doc_' + docId;
+  return view.db.get(metaDocId)[
+    "catch"](defaultsTo({_id: metaDocId, keys: []}))
+    .then(function (metaDoc) {
+      return view.db.allDocs({
+        keys: metaDoc.keys,
+        include_docs: true
+      }).then(function (res) {
+          var kvDocs = res.rows.map(function (row) {
+            return row.doc;
+          }).filter(function (row) {
+              return row;
             });
+
+          var indexableKeysToKeyValues = docIdsToEmits[docId];
+          var oldKeysMap = {};
+          kvDocs.forEach(function (kvDoc) {
+            oldKeysMap[kvDoc._id] = true;
+            kvDoc._deleted = !indexableKeysToKeyValues[kvDoc._id];
+            if (!kvDoc._deleted) {
+              kvDoc.value = indexableKeysToKeyValues[kvDoc._id];
+            }
           });
+
+          var newKeys = Object.keys(indexableKeysToKeyValues);
+          newKeys.forEach(function (key) {
+            if (!oldKeysMap[key]) {
+              // new doc
+              kvDocs.push({
+                _id: key,
+                value: indexableKeysToKeyValues[key]
+              });
+            }
+          });
+          metaDoc.keys = utils.uniq(newKeys.concat(metaDoc.keys));
+          kvDocs.splice(0, 0, metaDoc);
+
+          return kvDocs;
+        });
+    });
+}
+
+// updates all emitted key/value docs and metaDocs in the mrview database
+// for the given batch of documents from the source database
+function saveKeyValues(view, docIdsToEmits, seq) {
+  var seqDocId = '_local/lastSeq';
+  return view.db.get(seqDocId)[
+  "catch"](defaultsTo({_id: seqDocId, seq: 0}))
+  .then(function (lastSeqDoc) {
+    var docIds = Object.keys(docIdsToEmits);
+    return Promise.all(docIds.map(function (docId) {
+        return getDocsToPersist(docId, view, docIdsToEmits);
       })).then(function (listOfDocsToPersist) {
         var docsToPersist = [];
         listOfDocsToPersist.forEach(function (docList) {
           docsToPersist = docsToPersist.concat(docList);
         });
 
+        // update the seq doc last, so that if a meteor strikes the user's
+        // computer in the middle of an update, we can apply the idempotent
+        // batch update operation again
         lastSeqDoc.seq = seq;
         docsToPersist.push(lastSeqDoc);
 
         return view.db.bulkDocs({docs : docsToPersist});
       });
-    });
+  });
 }
 
 var updateView = utils.sequentialize(mainQueue, function (view) {
@@ -8085,7 +8083,7 @@ var localViewCleanup = utils.sequentialize(mainQueue, function (db) {
   return db.get('_local/mrviews').then(function (metaDoc) {
     var docsToViews = {};
     Object.keys(metaDoc.views).forEach(function (fullViewName) {
-      var parts = fullViewName.split('/');
+      var parts = parseViewName(fullViewName);
       var designDocName = '_design/' + parts[0];
       var viewName = parts[1];
       docsToViews[designDocName] = docsToViews[designDocName] || {};
@@ -8098,8 +8096,16 @@ var localViewCleanup = utils.sequentialize(mainQueue, function (db) {
     return db.allDocs(opts).then(function (res) {
       var viewsToStatus = {};
       res.rows.forEach(function (row) {
+        var ddocName = row.key.substring(8);
         Object.keys(docsToViews[row.key]).forEach(function (viewName) {
-          var viewDBNames = Object.keys(metaDoc.views[row.key.substring(8) + '/' + viewName]);
+          var fullViewName = ddocName + '/' + viewName;
+          /* istanbul ignore if */
+          if (!metaDoc.views[fullViewName]) {
+            // new format, without slashes, to support PouchDB 2.2.0
+            // migration test in pouchdb's browser.migration.js verifies this
+            fullViewName = viewName;
+          }
+          var viewDBNames = Object.keys(metaDoc.views[fullViewName]);
           // design doc deleted, or view function nonexistent
           var statusIsGood = row.doc && row.doc.views && row.doc.views[viewName];
           viewDBNames.forEach(function (viewDBName) {
@@ -8137,22 +8143,24 @@ function queryPromised(db, fun, opts) {
     // temp_view
     checkQueryParseError(opts, fun);
 
-    var randomizer = Math.round(Math.random()  * 1000000) + 1;
     var createViewOpts = {
       db : db,
       viewName : 'temp_view/temp_view',
       map : fun.map,
       reduce : fun.reduce,
-      randomizer : randomizer
+      temporary : true
     };
-    return createView(createViewOpts).then(function (view) {
-      function cleanup() {
-        return view.db.destroy();
-      }
-      return utils.fin(updateView(view).then(function () {
-        return queryView(view, opts);
-      }), cleanup);
+    tempViewQueue.add(function () {
+      return createView(createViewOpts).then(function (view) {
+        function cleanup() {
+          return view.db.destroy();
+        }
+        return utils.fin(updateView(view).then(function () {
+          return queryView(view, opts);
+        }), cleanup);
+      });
     });
+    return tempViewQueue.finish();
   } else {
     // persistent view
     var fullViewName = fun;
@@ -8279,7 +8287,7 @@ function QueryParseError(message) {
 
 utils.inherits(QueryParseError, Error);
 
-},{"./create-view":46,"./evalfunc":47,"./taskqueue":51,"./utils":53,"pouchdb-collate":49}],49:[function(_dereq_,module,exports){
+},{"./create-view":47,"./evalfunc":48,"./taskqueue":52,"./utils":54,"pouchdb-collate":50}],50:[function(_dereq_,module,exports){
 'use strict';
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
@@ -8502,7 +8510,7 @@ function numToIndexableString(num) {
   return result;
 }
 
-},{"./utils":50}],50:[function(_dereq_,module,exports){
+},{"./utils":51}],51:[function(_dereq_,module,exports){
 'use strict';
 
 function pad(str, padWith, upToLength) {
@@ -8573,7 +8581,7 @@ exports.intToDecimalForm = function (int) {
 
   return result;
 };
-},{}],51:[function(_dereq_,module,exports){
+},{}],52:[function(_dereq_,module,exports){
 'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes callbacks will eventually fire (once).
@@ -8585,7 +8593,7 @@ function TaskQueue() {
   this.promise = new Promise(function (fulfill) {fulfill(); });
 }
 TaskQueue.prototype.add = function (promiseFactory) {
-  this.promise = this.promise.then(null, function () {
+  this.promise = this.promise["catch"](function () {
     // just recover
   }).then(function () {
     return promiseFactory();
@@ -8598,7 +8606,7 @@ TaskQueue.prototype.finish = function () {
 
 module.exports = TaskQueue;
 
-},{"./utils":53}],52:[function(_dereq_,module,exports){
+},{"./utils":54}],53:[function(_dereq_,module,exports){
 'use strict';
 var Promise = _dereq_('./utils').Promise;
 
@@ -8631,7 +8639,7 @@ function upsert(db, docId, diffFun) {
 }
 
 function tryAndPut(db, doc, diffFun) {
-  return db.put(doc).then(null, function (err) {
+  return db.put(doc)["catch"](function (err) {
     if (err.name !== 'conflict') {
       throw err;
     }
@@ -8641,7 +8649,7 @@ function tryAndPut(db, doc, diffFun) {
 
 module.exports = upsert;
 
-},{"./utils":53}],53:[function(_dereq_,module,exports){
+},{"./utils":54}],54:[function(_dereq_,module,exports){
 (function (process,global){
 'use strict';
 /* istanbul ignore if */
@@ -8727,7 +8735,7 @@ exports.MD5 = function (string) {
     return md5(string);
   }
 };
-}).call(this,_dereq_("/Users/daleharvey/src/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"/Users/daleharvey/src/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":25,"argsarray":22,"crypto":23,"extend":26,"inherits":27,"lie":31,"md5-jkmyers":45}]},{},[15])
+}).call(this,_dereq_("/Users/nolan/workspace/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"/Users/nolan/workspace/pouchdb/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":25,"argsarray":22,"crypto":23,"extend":26,"inherits":27,"lie":32,"md5-jkmyers":46}]},{},[15])
 (15)
 });
