@@ -44,8 +44,8 @@ if (client.runner === 'saucelabs') {
 if (process.env.GREP) {
   qs.grep = process.env.GREP;
 }
-if (process.env.LEVEL_BACKEND) {
-  qs.sourceFile = "pouchdb-" + process.env.LEVEL_BACKEND + ".js";
+if (process.env.ADAPTERS) {
+  qs.adapters = process.env.ADAPTERS;
 }
 if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
   qs.es5shim = true;
@@ -193,8 +193,11 @@ function startTest() {
 
 devserver.start();
 
-if (client.runner === 'saucelabs') {
-  startSauceConnect(startTest);
-} else {
-  startSelenium(startTest);
-}
+// http proxy takes awhile to start up
+setTimeout(function () {
+  if (client.runner === 'saucelabs') {
+    startSauceConnect(startTest);
+  } else {
+    startSelenium(startTest);
+  }
+}, 5000);
