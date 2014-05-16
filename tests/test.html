@@ -11,6 +11,8 @@
       var val = window.location.search.match(/[&\?]es5shims?=([^&\?]+)/);
       if (val && val[1] === 'true') {
         document.write('<script src="../node_modules/es5-shim/es5-shim.js"></' + 'script>');
+        document.write('<script src="./deps/typedarray.js"></' + 'script>');
+        document.write('<script src="./deps/typedarray-shim.js"></' + 'script>');
       }
     </script>
     <script src="../node_modules/mocha/mocha.js"></script>
