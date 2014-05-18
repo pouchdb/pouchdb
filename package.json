@@ -74,7 +74,7 @@
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/*.js tests/performance/*.js alt/*.js",
     "dev": "npm run version && ./bin/dev-server.js",
     "test": "npm run version && npm run jshint && ./bin/run-test.sh",
-    "publish": "./bin/publish.sh",
+    "release": "./bin/release.sh",
     "publish-site": "./bin/publish-site.sh",
     "build-site": "./bin/build-site.js",
     "shell": "./bin/repl.js",
