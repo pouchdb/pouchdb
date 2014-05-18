@@ -223,7 +223,7 @@ Release Procedure
  * Update docs/_config.yml to latest version
  * Push release post
  * `./node_modules/.bin/tin -v $VERSION
- * `npm run publish`
+ * `npm run release`
  * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases
  * `./node_modules/.bin/tin -v $VERSION+1-prerelease
  * Push updated versions to master
