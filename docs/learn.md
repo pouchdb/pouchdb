@@ -10,16 +10,22 @@ PouchDB is a free open-source project, written in JavaScript by these [wonderful
 
 ### Browser Support
 
-PouchDB uses various backends so it can work across different browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera/IE, WebSQL in Safari, and LevelDB in Node.js. It is currently tested and fully supported in:
+PouchDB uses various backends so it can work across different browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera/IE, WebSQL in Safari and most mobile browsers, and LevelDB in Node.js. It is currently tested and fully supported in:
 
- * Firefox latest stable (v28)
+ * Firefox latest stable (v29)
  * Chrome latest stable (v34)
  * Desktop Safari latest stable (v7)
+ * Internet Explorer v10+
+ * Opera latest stable (v21)
+ * Android 4.3+
+ * iOS Safari latest stable ()v7.1)
  * [Node.js](http://nodejs.org/)
 
-PouchDB is experimental on Internet Explorer 10+, Opera and various mobile browsers and environments including [Apache Cordova](http://cordova.apache.org/). It is known to work but you may run into issues, as we resolve these issues we will update the fully supported list.
+PouchDB is experimental on Android 2.x, iOS and various mobile browsers and environments including [Apache Cordova](http://cordova.apache.org/). It is known to work, but you may run into issues. As we resolve these issues we will update the fully supported list.
 
-PouchDB requires an ES5 environment, if your browser does not support this (IE < 9, Android < 4.0, Opera Mini) you will need to include the [es5-shim](https://github.com/es-shims/es5-shim) library.
+PouchDB requires an ES5 environment. If your browser does not support this (IE <= 9, Android < 4.0, Opera Mini), then you will need to include the [es5-shim](https://github.com/es-shims/es5-shim) library.
+
+To reach the widest possible audience, PouchDB also offers several [external adapters](adapters.html), including localStorage and pure in-memory.
 
 ### Installing
 
