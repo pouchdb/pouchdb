@@ -1,3 +1,5 @@
+This repository add support for Sync Gateway to PouchDB. Use at your own risk.
+
 [PouchDB](http://pouchdb.com/) - The Javascript Database that Syncs
 ==================================================
 
