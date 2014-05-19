@@ -509,8 +509,13 @@ All options default to `false` unless otherwise specified.
 #### Example Usage:
 {% highlight js %}
 PouchDB.replicate('mydb', 'http://localhost:5984/mydb')
-  .on('change', onChange)
-  .on('complete', onComplete);
+  .on('change', function (info) {
+    // handle change
+  }).on('complete', function (info) {
+    // handle complete
+  }).on('error', function (err) {
+    // handle error
+  });
 {% endhighlight %}
 
 There are also shorthands for replication given existing PouchDB objects. These behave the same as `PouchDB.replicate()`:
@@ -522,15 +527,34 @@ db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
 
 #### Example Response:
+
+Example response in the `'change'` listener:
+
 {% highlight js %}
 {
-  'ok': true,
-  'docs_read': 2,
-  'docs_written': 2,
-  'start_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)",
-  'end_time': "Sun Sep 23 2012 08:14:45 GMT-0500 (CDT)",
-  'status': 'complete',
-  'errors': []
+  "doc_write_failures": 0, 
+  "docs_read": 1, 
+  "docs_written": 1, 
+  "errors": [], 
+  "last_seq": 1, 
+  "ok": true, 
+  "start_time": "Fri May 16 2014 18:23:12 GMT-0700 (PDT)"
+}
+{% endhighlight %}
+
+Example response in the `'complete'` listener:
+
+{% highlight js %}
+{
+  "doc_write_failures": 0, 
+  "docs_read": 2, 
+  "docs_written": 2, 
+  "end_time": "Fri May 16 2014 18:26:00 GMT-0700 (PDT)", 
+  "errors": [], 
+  "last_seq": 2, 
+  "ok": true, 
+  "start_time": "Fri May 16 2014 18:26:00 GMT-0700 (PDT)", 
+  "status": "complete"
 }
 {% endhighlight %}
 
@@ -556,7 +580,8 @@ Please refer to [Replication](api.html#replication) for documention on options, 
 {% highlight js %}
 PouchDB.sync('http://localhost:5984/mydb')
   .on('change', onChange)
-  .on('complete', onComplete);
+  .on('complete', onComplete)
+  .on('error', onError);
 {% endhighlight %}
 
 There is also a shorthand for syncing given existing PouchDB objects. This behaves the same as `PouchDB.sync()`:
