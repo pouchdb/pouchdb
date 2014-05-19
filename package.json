@@ -37,8 +37,6 @@
     "watchify": "~0.8.2",
     "uglify-js": "~2.4.6",
     "jshint": "~2.3.0",
-    "http-proxy": "~0.10.3",
-    "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
     "browserify": "~3.24.13",
     "wd": "~0.2.8",
@@ -58,7 +56,8 @@
     "cordova": "~3.4.1-0.1.0",
     "replace": "^0.2.9",
     "es5-shim": "^3.1.1",
-    "phantomjs": "^1.9.7-5"
+    "phantomjs": "^1.9.7-5",
+    "request": "^2.28.0"
   },
   "scripts": {
     "build-js": "browserify . -s PouchDB > dist/pouchdb-nightly.js",
