@@ -29,7 +29,7 @@ var client = {
   platform: tmp[3] || null
 };
 
-var testRoot = 'http://127.0.0.1:8000/tests/';
+var testRoot = 'http://127.0.0.1:8031/tests/';
 var testUrl = testRoot +
   (process.env.PERF ? 'performance/test.html' : 'test.html');
 var qs = {};
