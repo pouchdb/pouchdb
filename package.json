@@ -93,7 +93,7 @@
   },
   "browserify": {
     "transform": [
-      "./node_modules/es3ify"
+      "es3ify"
     ]
   }
 }
