@@ -1562,6 +1562,17 @@ adapters.forEach(function (adapter) {
       });
       db.bulkDocs({ docs: docs1 }).then(calldone);
     });
+
+    it('doesn\'t throw if opts.complete is undefined', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({_id: 'foo'}).then(function () {
+        db.changes().on('change', function () {
+          done();
+        }).on('error', function (err) {
+          done(err);
+        });
+      }, done);
+    });
   });
 });
 
