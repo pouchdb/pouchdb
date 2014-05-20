@@ -29,7 +29,11 @@ var client = {
   platform: tmp[3] || null
 };
 
-var testRoot = 'http://127.0.0.1:8000/tests/';
+var host = '127.0.0.1';
+if (client.browser === 'android') {
+  host = '10.0.2.2';
+}
+var testRoot = 'http://' + host + ':8000/tests/';
 var testUrl = testRoot +
   (process.env.PERF ? 'performance/test.html' : 'test.html');
 var qs = {};
@@ -151,7 +155,7 @@ function startSauceConnect(callback) {
       return process.exit(1);
     }
     sauceConnectProcess = process;
-    sauceClient = wd.promiseChainRemote("localhost", 4445, username, accessKey);
+    sauceClient = wd.promiseChainRemote('localhost', 4445, username, accessKey);
     callback();
   });
 }
