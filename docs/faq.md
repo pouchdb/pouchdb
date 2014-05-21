@@ -38,4 +38,4 @@ PouchDB is also a CouchDB client and you should be able to switch between a loca
 
 **View Collation** - CouchDB uses ICU to order keys in a view query, in PouchDB they are ASCII ordered.
 
-**View Offset** - CouchDB returns an `offset` property in the view results, PouchDB doesnt.
+**View Offset** - CouchDB returns an `offset` property in the view results, PouchDB doesn't.
