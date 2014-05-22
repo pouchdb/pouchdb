@@ -961,6 +961,12 @@ db.info(function(err, info) { })
 }
 {% endhighlight %}
 
+**Response object:**
+
+* `db_name` is the name of the database you gave when you called `new PouchDB()`, and also the unique identifier for the database.
+* `doc_count` is the total number of non-deleted documents in the database.
+* `update_seq` is the sequence number of the database.  It starts at 0 and gets incremented every time a document is added or modified.
+
 {% include anchor.html title="Compact the database" hash="compaction" %}
 
 {% highlight js %}
