@@ -34,10 +34,9 @@ testUtils.couchHost = function () {
     return window.COUCH_HOST;
   } else if (window && window.cordova) {
     // magic route to localhost on android emulator
-    return 'http://10.0.2.2:2020';
+    return 'http://10.0.2.2:5984';
   }
-  // In the browser we default to the CORS server, in future will change
-  return 'http://localhost:2020';
+  return 'http://localhost:5984';
 };
 
 testUtils.makeBlob = function (data, type) {
@@ -208,69 +207,6 @@ testUtils.eliminateDuplicates = function (arr) {
   return out;
 };
 
-// ---- CORS Specific Utils ---- //
-//enable CORS on server
-testUtils.enableCORS = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/httpd/enable_cors',
-    json: false,
-    method: 'PUT',
-    body: '"true"'
-  }, function (err, resBody, req) {
-    PouchDB.ajax({
-      url: host + '_config/cors/origins',
-      json: false,
-      method: 'PUT',
-      body: '"http://127.0.0.1:8000"'
-    }, function (err, resBody, req) {
-      callback(err, req);
-    });
-  });
-};
-//enable CORS Credentials on server
-testUtils.enableCORSCredentials = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/cors/credentials',
-    method: 'PUT',
-    body: '"true"',
-    json: false
-  }, function (err, resBody, req) {
-    callback(err, req);
-  });
-};
-//disable CORS
-testUtils.disableCORS = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/cors/origins',
-    json: false,
-    method: 'PUT',
-    body: '"*"'
-  }, function (err, resBody, req) {
-    PouchDB.ajax({
-      url: host + '_config/httpd/enable_cors',
-      json: false,
-      method: 'PUT',
-      body: '"false"'
-    }, function (err, resBody, req) {
-      callback(err, req);
-    });
-  });
-};
-//disable CORS Credentials
-testUtils.disableCORSCredentials = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/cors/credentials',
-    method: 'PUT',
-    body: '"false"',
-    json: false
-  }, function (err, resBody, req) {
-    callback(err, req);
-  });
-};
 //create admin user and member user
 testUtils.setupAdminAndMemberConfig = function (dburl, callback) {
   var host = 'http://' + dburl.split('/')[2] + '/';
@@ -334,20 +270,6 @@ testUtils.deleteCookieAuth = function (dburl, callback_) {
     withCredentials: true,
     json: false
   }, callback_);
-};
-testUtils.cleanUpCors = function (dburl, callback_) {
-  if (testUtils.PERSIST_DATABASES) {
-    return;
-  }
-  if (typeof module !== 'undefined' && module.exports) {
-    testUtils.disableCORS(dburl, function () {
-      PouchDB.destroy(dburl, callback_);
-    });
-  } else {
-    testUtils.disableCORS(dburl.replace('5984', '2020'), function () {
-      PouchDB.destroy(dburl.replace('5984', '2020'), callback_);
-    });
-  }
 };
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
