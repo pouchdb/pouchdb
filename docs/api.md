@@ -490,7 +490,7 @@ PouchDB.replicate(source, target, [options])
 
 Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database url or the name a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically.
 
-Replication is an event emiter like changes and emits the `complete`, `change`, and `error` events.
+Replication is an event emiter like `changes()` and emits the `'complete'`, `'uptodate'`, `'change'` and `'error'` events.
 
 ### Options
 
@@ -513,6 +513,8 @@ PouchDB.replicate('mydb', 'http://localhost:5984/mydb')
     // handle change
   }).on('complete', function (info) {
     // handle complete
+  }).on('uptodate', function (info) {
+    // handle up-to-date
   }).on('error', function (err) {
     // handle error
   });
@@ -525,6 +527,11 @@ db.replicate.to(remoteDB, [options]);
 // or
 db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
+
+**Notes:**
+
+* The `'complete'` event only fires when you aren't doing live replication, or when live replication fails.
+* The `'uptodate'` event fires during live replication, when the target database is up-to-date and just idling, waiting for new changes.
 
 #### Example Response:
 
