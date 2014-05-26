@@ -547,6 +547,27 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('test empty db', function (done) {
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.allDocs().then(function (res) {
+          res.rows.should.have.length(0);
+          res.total_rows.should.equal(0);
+          done();
+        });
+      });
+    });
+
+    it('test after db close', function (done) {
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.close().then(function () {
+          return db.allDocs().catch(function (err) {
+            err.message.should.equal('database is closed');
+            done();
+          });
+        });
+      });
+    });
+
     if (adapter === 'local') { // chrome doesn't like \u0000 in URLs
       it('test unicode ids and revs', function (done) {
         var db = new PouchDB(dbs.name);
