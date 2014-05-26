@@ -116,6 +116,15 @@ or e.g.:
 
 or you can append it as `?es5shim=true` if you manually opened a browser window.
 
+#### Test with the CORS proxy
+
+For many cases we need to set with the CORS proxy running at localhost:2020 instead of directly accessing CouchDB at 5984.  You can start up the proxy using:
+
+    $ CORS_PROXY=true CLIENT=selenium:firefox npm run test
+    $ CORS_PROXY=true npm run dev
+
+The CORS proxy is only used in the browser, not in the Node tests.
+
 ### Cordova tests
 
 You may need to install `ant` in order for the Android tests to run (e.g. `brew install ant`).
