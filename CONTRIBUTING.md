@@ -142,6 +142,25 @@ You can also debug with Weinre by doing:
 
 The `ES5_SHIM=true` option is also available for Cordova.
 
+### Testing against PouchDB server
+
+[pouchdb-server](https://github.com/nick-thompson/pouchdb-server) is a project that uses [express-pouchdb](https://github.com/nick-thompson/express-pouchdb) to run a CouchDB-compliant server backed by PouchDB.
+
+To test the latest and greatest version of pouchdb-server, you can do e.g.:
+
+    SERVER=pouchdb-server npm test
+    SERVER=pouchdb-server CLIENT=selenium:firefox npm test
+
+If you would like to modify pouchdb-server while testing, then git clone the express-pouchdb and pouchdb-server projects, `npm link` them all together, and then run:
+
+	node /path/to/pouchdb-server/bin/pouchdb-server -p 6984    
+
+Then in the PouchDB project, run:
+
+    COUCH_HOST=http://localhost:6984 npm run dev
+
+This works because `npm run dev` does not start up the pouchdb-server itself (only `npm test` does).
+
 ### Testing Pouch in a shell
 
 For quick debugging, you can run an interactive Node shell with the `PouchDB` variable already available:
