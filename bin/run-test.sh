@@ -22,5 +22,7 @@ else
 fi
 
 EXIT_STATUS=$?
-kill $POUCHDB_SERVER_PID
+if [[ ! -z $POUCHDB_SERVER_PID ]]; then 
+  kill $POUCHDB_SERVER_PID
+fi
 exit $EXIT_STATUS
