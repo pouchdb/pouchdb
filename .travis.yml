@@ -37,6 +37,10 @@ env:
   matrix:
   - CLIENT=node COMMAND=test
 
+  # Test against pouchdb-server
+  - CLIENT=node SERVER=pouchdb-server COMMAND=test
+  - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
@@ -58,6 +62,8 @@ matrix:
   allow_failures:
   - env: CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
   - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
+  - env: CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
 
 branches:
   only:
