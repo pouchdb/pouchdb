@@ -242,7 +242,7 @@ function createDesignDoc(name, mapFunction) {
     views: {
     }
   };
-  ddoc.views[name] = mapFunction.toString();
+  ddoc.views[name] = { map: mapFunction.toString() };
   return ddoc;
 }
 ```
