@@ -37,6 +37,20 @@ adapters.forEach(function (adapters) {
       {_id: '2', integer: 2, string: '2'}
     ];
 
+    it('Replication stacking.', function (done) {
+      var db = new PouchDB(dbs.name);
+      var docs = [{ _id: 'a' }, { _id: 'b' }];
+      db.bulkDocs({ docs: docs }, {}, function (err, _) {
+        var a = db.replicate.from(dbs.remote);
+        var b = db.replicate.from(dbs.remote);
+        b.then(function () {
+          a.reallyRunning.should.equal(true);
+          b.reallyRunning.should.equal(false);
+          done();
+        });
+      });
+    });
+
     it('Test basic pull replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -1688,6 +1702,7 @@ adapters.forEach(function (adapters) {
         });
       });
     });
+
     it('should work with a read only source', function (done) {
       var src = new PouchDB(dbs.name);
       var target = new PouchDB(dbs.remote);
