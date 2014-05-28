@@ -22,6 +22,8 @@ before_script:
   - "curl -X GET http://127.0.0.1:5984/"
   - "curl -X PUT http://127.0.0.1:5984/_config/log/level -d '\"debug\"'"
 
+  - "curl http://jsonip.com"
+
 
 after_failure:
   - "curl -X GET http://127.0.0.1:5984/_log?bytes=1000000"
