@@ -632,6 +632,188 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it("Basic purge", function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: "someid", something: 42};
+      db.put(doc, function (err, info) {
+        should.not.exist(err);
+        var req = {};
+        req[info.id] = [info.rev];
+        db.purge(req, function (err, res) {
+          should.not.exist(err);
+          db.get(doc._id, function (err, doc2) {
+            should.exist(err);
+            done();
+          });
+        });
+      });
+    });
+
+    it("Purging changed doc", function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: "onedoc", some: 32};
+      db.put(doc, function (err, info) {
+        var doc2 = {_id: "onedoc", some: 42, _rev: info.rev};
+        db.put(doc2, function (err, info2) {
+          should.not.exist(err);
+          var req = {};
+          req[info.id] = [info2.rev];
+          db.purge(req, function (err, res) {
+            should.not.exist(err);
+            db.get(doc._id, function (err, dc) {
+              should.exist(err);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it("Purging not a leaf", function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: "onedoc", some: 32};
+      db.put(doc, function (err, info) {
+        var doc2 = {_id: "onedoc", some: 42, _rev: info.rev};
+        db.put(doc2, function (err, info2) {
+          should.not.exist(err);
+          var req = {};
+          req[info.id] = [info.rev];
+          db.purge(req, function (err, res) {
+            Object.keys(res.purged).length.should.equal(0);
+            done();
+          });
+        });
+      });
+    });
+
+    it("Purging winning rev", function (done) {
+      var simpleTree = [
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            value: 'foo a'
+          },
+          {
+            _id: 'foo',
+            _rev: '2-b',
+            value: 'foo b'
+          }
+        ],
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            value: 'foo a'
+          },
+          {
+            _id: 'foo',
+            _rev: '2-c',
+            value: 'foo c'
+          }
+        ]
+      ];
+      var db = new PouchDB(dbs.name);
+      testUtils.putTree(db, simpleTree, function () {
+        db.get("foo", {conflicts: true}, function (err, doc) {
+          doc._rev.should.equal("2-c", "correct winning rev");
+          db.purge({"foo": ["2-c"]}, function (err, res) {
+            Object.keys(res.purged).length.should.equal(1);
+            db.get("foo", function (err, doc) {
+              should.not.exist(err);
+              doc._rev.should.equal("2-b");
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it("Purging all revisions", function (done) {
+      var simpleTree = [
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            value: 'foo a'
+          },
+          {
+            _id: 'foo',
+            _rev: '2-b',
+            value: 'foo b'
+          }
+        ],
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            value: 'foo a'
+          },
+          {
+            _id: 'foo',
+            _rev: '2-c',
+            value: 'foo c'
+          }
+        ]
+      ];
+      var db = new PouchDB(dbs.name);
+      testUtils.putTree(db, simpleTree, function () {
+        db.get("foo", {conflicts: true}, function (err, doc) {
+          doc._rev.should.equal("2-c", "correct winning rev");
+          db.purge({"foo": ["2-b", "2-c"]}, function (err, res) {
+            res.purged.foo.length.should.equal(2);
+            db.get("foo", function (err, doc) {
+              should.exist(err);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it("Purging second revision", function (done) {
+      var simpleTree = [
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            value: 'foo a'
+          },
+          {
+            _id: 'foo',
+            _rev: '2-b',
+            value: 'foo b'
+          }
+        ],
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            value: 'foo a'
+          },
+          {
+            _id: 'foo',
+            _rev: '2-c',
+            value: 'foo c'
+          }
+        ]
+      ];
+      var db = new PouchDB(dbs.name);
+      testUtils.putTree(db, simpleTree, function () {
+        db.get("foo", {conflicts: true}, function (err, doc) {
+          doc._rev.should.equal("2-c", "correct winning rev");
+          db.purge({"foo": ["2-b"]}, function (err, res) {
+            res.purged.foo.length.should.equal(1);
+            db.get("foo", function (err, doc) {
+              should.not.exist(err);
+              doc._rev.should.equal("2-c");
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('db.info should give correct doc_count', function (done) {
       new PouchDB(dbs.name).then(function (db) {
         db.info().then(function (info) {
@@ -684,4 +866,5 @@ adapters.forEach(function (adapter) {
       });
     }
   });
+
 });
