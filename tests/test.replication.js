@@ -1803,13 +1803,17 @@ interHTTPAdapters.map(function (adapters) {
             }
             if (count === 4) {
               replicate.cancel();
-              remote.put(doc2);
-              // This setTimeout is needed to ensure no further changes come
-              // through
+              // This setTimeout ensures that Safari fires the cancel
+              // event before the put event.
               setTimeout(function () {
-                count.should.equal(4);
-                changes.cancel();
-                done();
+                remote.put(doc2);
+                // This setTimeout is needed to ensure no further changes come
+                // through
+                setTimeout(function () {
+                  count.should.equal(4);
+                  changes.cancel();
+                  done();
+                }, 500);
               }, 500);
             }
           }
