@@ -501,7 +501,6 @@ All options default to `false` unless otherwise specified.
 * `options.doc_ids`: Only replicate docs with these ids.
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.since`: Replicate changes after the given sequence number.
-* `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
 * `options.batch_size`: Number of documents to process at a time. Defaults to 100. This affects the number of docs held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low amounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments). If your documents are small in size, then increasing this number will probably speed replication up.
 * `options.batches_limit`: Number of batches to process at a time. Defaults to 10. This (along wtih `batch_size`) controls how many docs are kept in memory at a time, so the maximum docs in memory at once would equal `batch_size` &times; `batches_limit`.
