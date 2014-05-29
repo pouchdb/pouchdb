@@ -12,7 +12,6 @@ if ('saucelabs' in testUtils.params()) {
 }
 
 var downAdapters = ['local'];
-var interHTTPAdapters = [['http', 'http']];
 
 adapters.forEach(function (adapters) {
   describe('test.replication.js-' + adapters[0] + '-' + adapters[1],
@@ -1743,78 +1742,5 @@ downAdapters.map(function (adapter) {
       });
     });
 
-  });
-});
-
-
-// Server side replication via `server: true` between http
-
-interHTTPAdapters.map(function (adapters) {
-
-  describe('test.replication.js-server', function () {
-
-    var dbs = {};
-
-    beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapters[0], 'test_repl');
-      dbs.remote = testUtils.adapterUrl(adapters[1], 'test_repl_remote');
-      testUtils.cleanup([dbs.name, dbs.remote], done);
-    });
-
-    afterEach(function (done) {
-      testUtils.cleanup([dbs.name, dbs.remote], done);
-    });
-
-    var docs = [
-      {_id: '0', integer: 0, string: '0'},
-      {_id: '1', integer: 1, string: '1'},
-      {_id: '2', integer: 2, string: '2'}
-    ];
-
-    it('Test basic replication', function (done) {
-      var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, {}, function (err, results) {
-        PouchDB.replicate(dbs.name, dbs.remote, {server: true },
-          function (err, result) {
-          result.ok.should.equal(true);
-          result.history[0].docs_written.should.equal(docs.length);
-          done();
-        });
-      });
-    });
-
-    it('Test cancel live replication', function (done) {
-      var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-      var doc1 = {_id: 'adoc', foo: 'bar'};
-      var doc2 = {_id: 'anotherdoc', foo: 'baz'};
-      remote.bulkDocs({ docs: docs }, {}, function (err, results) {
-        var count = 0;
-        var replicate = db.replicate.from(dbs.remote, {
-          server: true,
-          live: true
-        });
-        var changes = db.changes({
-          live: true,
-          onChange: function (change) {
-            ++count;
-            if (count === 3) {
-              remote.put(doc1);
-            }
-            if (count === 4) {
-              replicate.cancel();
-              remote.put(doc2);
-              // This setTimeout is needed to ensure no further changes come
-              // through
-              setTimeout(function () {
-                count.should.equal(4);
-                changes.cancel();
-                done();
-              }, 500);
-            }
-          }
-        });
-      });
-    });
   });
 });
