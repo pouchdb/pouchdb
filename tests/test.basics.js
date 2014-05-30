@@ -643,6 +643,7 @@ adapters.forEach(function (adapter) {
           should.not.exist(err);
           db.get(doc._id, function (err, doc2) {
             should.exist(err);
+            console.log("im here");
             done();
           });
         });
