@@ -34,6 +34,18 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('PouchDB emits destruction event on PouchDB object', function (done) {
+      PouchDB.once('destroyed', function (name) {
+        name.should.equal(dbs.name, 'should have the same name');
+        new PouchDB(dbs.name, function () {
+          done();
+        });
+      });
+      new PouchDB(dbs.name, function () {
+        PouchDB.destroy(dbs.name);
+      });
+    });
+
     it('emit creation event', function (done) {
       var db = new PouchDB(dbs.name).on('created', function (newDB) {
         db.should.equal(newDB, 'should be same thing');
