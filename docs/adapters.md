@@ -140,9 +140,9 @@ As of PouchDB 2.2.3, we are building some experimental browser plugins that use 
 
 **Downloads:**
 
-* [pouchdb.localstorage.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js)
-* [pouchdb.memory.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js)
-* [pouchdb.idb-alt.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js)
+* [pouchdb.localstorage.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage-{{ site.version }}.js) ([min](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage-{{ site.version }}.min.js))
+* [pouchdb.memory.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.memory-{{ site.version }}.js) ([min](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.memory-{{ site.version }}.min.js))
+* [pouchdb.idb-alt.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt-{{ site.version }}.js) ([min](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt-{{ site.version }}.min.js))
 
 #### LocalStorage plugin
 
