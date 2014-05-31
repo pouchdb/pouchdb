@@ -135,7 +135,7 @@ The SQLite plugin does not yet pass our test suite with 100% success.  However, 
 
 ### Experimental adapter plugins
 
-As of PouchDB 2.3.0, we are building some experimental browser plugins that use backends other than IndexedDB and WebSQL. You are free to use them, but they are not yet part of the official release (although they pass our unit test suite at 100%).
+As of PouchDB 2.2.3, we are building some experimental browser plugins that use backends other than IndexedDB and WebSQL. You are free to use them, but they are not yet part of the official release (although they pass our unit test suite at 100%).
 
 
 **Downloads:**
