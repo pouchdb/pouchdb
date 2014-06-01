@@ -276,5 +276,6 @@ Release Procedure
  * `npm run release`
  * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases
  * `./node_modules/.bin/tin -v $VERSION+1-prerelease
+ * Put the new prerelease version in `lib/version-browser.js` too
  * Push updated versions to master
  * `npm run publish-site`
