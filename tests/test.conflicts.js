@@ -291,5 +291,20 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('local conflicts', function (done) {
+      var db = new PouchDB(dbs.name);
+      return db.put({foo: 'bar'}, '_local/baz').then(function (result) {
+        return db.put({foo: 'bar'}, '_local/baz', result.res);
+      }).then(function () {
+        return db.put({foo: 'bar'}, '_local/baz');
+      }, function (e) {
+        should.not.exist(e, 'shouldn\'t error yet');
+        done(e);
+      }).then(undefined, function (e) {
+        should.exist(e, 'error when you have a conflict');
+        done();
+      });
+    });
+
   });
 });
