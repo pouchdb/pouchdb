@@ -35,7 +35,7 @@ function writeFile(file, callback) {
     } else {
       fs.writeFileSync(file, data);
       console.log('Updated: ', file);
-      if (callback) {
+      if (typeof callback === 'function') {
         callback();
       }
     }
