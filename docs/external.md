@@ -4,68 +4,102 @@ title: External Projects
 sidebar: nav.html
 ---
 
-A set of projects that either provide plugins or related tools for PouchDB.
+A list of known plugins, tools and projects can be used with PouchDB. [Fork this page](https://github.com/pouchdb/pouchdb/blob/master/docs/external.md) to add your own!
 
-### PouchDB Server
+## Plugins
 
-A standalone CouchDB style REST interface server to PouchDB.
+#### PouchDB allDbs()
 
-[Github](https://github.com/nick-thompson/pouchdb-server)
+Plugin for listing all PouchDB databases.
 
-### Express PouchDB
+* [Github](https://github.com/nolanlawson/pouchdb-all-dbs)
 
-An express submodule with a CouchDB style REST interface to PouchDB.
+#### PouchDB Authentication
 
-[Github](https://github.com/nick-thompson/express-pouchdb)
+Plugin for CouchDB's authentication system.
 
-### PouchDB Spatial
+* [Github](https://github.com/nolanlawson/pouchdb-authentication)
 
-Multidimensional and Spatial Queries with PouchDB.
+#### PouchDB GQL
 
-[repo](https://github.com/pouchdb/geopouch)
+Google Query Language (GQL) queries with PouchDB.
 
-### GQL
+* [Documentation](http://pouchdb.com/gql.html)
+* [Github](https://github.com/pouchdb/GQL)
 
-Google Query Language(GQL) queries with PouchDB.
+#### PouchDB Spatial
 
-[Documentation](http://pouchdb.com/gql.html)
-[repo](https://github.com/pouchdb/GQL)
+Multidimensional and spatial queries with PouchDB.
 
-### Backbone PouchDB
+* [Github](https://github.com/pouchdb/geopouch)
 
-Backbone PouchDB Sync Adapter.
-
-[Github](https://github.com/jo/backbone-pouch)
-
-### Puton
-
-A bookmarklet for inspecting PouchDB databases within the browser.
-
-[Website](http://puton.jit.su/)
-[Github](http://github.com/ymichael/puton)
-
-### PouchDroid
-
-Android adapter with a native Java interface to PouchDB.
-
-[Github](https://github.com/nolanlawson/PouchDroid/)
-
-### Revision Tree Visualizer
-
-A tool drawing revision tree of a couchdb document. You can see what is a conflict, which revisions are deleted and which is winning.
-
-[Website](http://neojski.github.io/visualizeRevTree)
-[Github](https://github.com/neojski/visualizeRevTree)
-
-### Pouch Stream
+#### Pouch Stream
 
 A plugin to let PouchDB talk streams.
 
-[Github](https://github.com/calvinmetcalf/PouchStream)
+* [Github](https://github.com/calvinmetcalf/PouchStream)
 
-### Python-PouchDB
+## Server Side
+
+#### PouchDB Server
+
+A standalone CouchDB-style REST interface server to PouchDB.
+
+* [Github](https://github.com/nick-thompson/pouchdb-server)
+
+#### Express PouchDB
+
+An express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
+
+* [Github](https://github.com/nick-thompson/express-pouchdb)
+
+## MV* Adapters
+
+#### Backbone PouchDB
+
+Backbone PouchDB Sync Adapter.
+
+* [Github](https://github.com/jo/backbone-pouch)
+
+#### Ember PouchDB
+
+PouchDB wrapper for Ember.js.
+
+* [Github](https://github.com/taras/ember-pouchdb)
+
+#### AngularJS PouchDB Support
+
+Wrapper for using PouchDB within Angular.js.
+
+* [Github](https://github.com/wspringer/angular-pouchdb)
+
+## Other languages
+
+#### Python-PouchDB
 A Python interface to PouchDB, with both a synchronous and an asynchronous API. Uses QtWebKit internally (via either PySide, PyQt4 or PyQt5). The geopouch, GQL, search, validation, show and list PouchDB plugins are also wrapped.
 
-[Website](http://python-pouchdb.marten-de-vries.nl/)
-[Documentation](http://pythonhosted.org/Python-PouchDB/)
-[Launchpad](https://launchpad.net/python-pouchdb)
+* [Website](http://python-pouchdb.marten-de-vries.nl/)
+* [Documentation](http://pythonhosted.org/Python-PouchDB/)
+* [Launchpad](https://launchpad.net/python-pouchdb)
+
+#### PouchDroid
+
+Android adapter with a native Java interface to PouchDB.
+
+* [Github](https://github.com/nolanlawson/PouchDroid/)
+
+## Tools
+
+#### Revision Tree Visualizer
+
+A tool drawing revision tree of a couchdb document. You can see what is a conflict, which revisions are deleted and which is winning.
+
+* [Website](http://neojski.github.io/visualizeRevTree)
+* [Github](https://github.com/neojski/visualizeRevTree)
+
+#### Puton
+
+A bookmarklet for inspecting PouchDB databases within the browser.
+
+* [Website](http://puton.jit.su/)
+* [Github](http://github.com/ymichael/puton)
