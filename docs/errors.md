@@ -58,3 +58,7 @@ In Android, if you're loading PouchDB directly via `webView.loadUrl('javascript:
 ### PouchDB object fails silently (Safari)
 
 Safari requires users to confirm that they want to allow an app to store data locally ("Allow this website to use space on your disk?").  If PouchDB is loaded in an `iframe` or some other unusual way, the dialog might not be shown, and the database will silently fail.
+
+### window.localStorage is not available (Chrome apps)
+
+In Chrome apps, you'll see the warning "window.localStorage is not available in packaged apps. Use chrome.storage.local instead."  This is harmless; since PouchDB doesn't use localStorage if it's not available.
