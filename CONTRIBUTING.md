@@ -188,6 +188,14 @@ You can also specify particular tests by using `grep=`, e.g.:
     http://127.0.0.1:8000/tests/performance/test.html?grep=basics
     http://127.0.0.1:8000/tests/performance/test.html?grep=basic-inserts
 
+### Ad-hoc tests
+
+There's a WebSQL storage quota test available in:
+
+    http://127.0.0.1:8000/tests/stress/websql_storage_limit.html
+
+Run `npm run dev`, then open it in Safari or iOS.
+
 Adapter plugins and adapter order
 --------------------------------------
 
