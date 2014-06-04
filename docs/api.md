@@ -32,6 +32,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 1. In IndexedDB and WebSQL, PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
 2. When acting as a client on Node, any other options given will be passed to [request][].
 3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][]. The storage layer of leveldb can be replaced by passing a level backend factory (such as [MemDOWN][]) as `options.db`. The rest of the supported options are [documented here][levelup_options].
+4. When using the `'websql'` adapter, you can use `options.size` to request more than 5MB up-front, in order to avoid errors caused by reaching the storage limit on iOS/Safari. Details [here](errors.html).
 
   [request]: https://github.com/mikeal/request
   [levelup]: https://github.com/rvagg/node-levelup
