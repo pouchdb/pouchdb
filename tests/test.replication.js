@@ -43,7 +43,11 @@ adapters.forEach(function (adapters) {
         db.replicate.from(dbs.remote, function (err, result) {
           result.ok.should.equal(true);
           result.docs_written.should.equal(docs.length);
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(3, 'update_seq');
+            info.doc_count.should.equal(3, 'doc_count');
+            done();
+          });
         });
       });
     });
@@ -54,7 +58,11 @@ adapters.forEach(function (adapters) {
         PouchDB.replicate(dbs.remote, dbs.name, {}, function (err, result) {
           result.ok.should.equal(true);
           result.docs_written.should.equal(docs.length);
-          done();
+          new PouchDB(dbs.name).info(function (err, info) {
+            info.update_seq.should.equal(3, 'update_seq');
+            info.doc_count.should.equal(3, 'doc_count');
+            done();
+          });
         });
       });
     });
@@ -66,7 +74,11 @@ adapters.forEach(function (adapters) {
           complete: function (err, result) {
             result.ok.should.equal(true);
             result.docs_written.should.equal(docs.length);
-            done();
+            new PouchDB(dbs.name).info(function (err, info) {
+              info.update_seq.should.equal(3, 'update_seq');
+              info.doc_count.should.equal(3, 'doc_count');
+              done();
+            });
           }
         });
       });
@@ -80,7 +92,11 @@ adapters.forEach(function (adapters) {
           db.replicate.from(dbs.remote, function (err, _) {
             db.allDocs(function (err, result) {
               result.rows.length.should.equal(docs.length);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(3, 'update_seq');
+                info.doc_count.should.equal(3, 'doc_count');
+                done();
+              });
             });
           });
         });
@@ -93,7 +109,11 @@ adapters.forEach(function (adapters) {
         db.replicate.to(dbs.remote, function (err, result) {
           result.ok.should.equal(true);
           result.docs_written.should.equal(docs.length);
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(3);
+            info.doc_count.should.equal(3);
+            done();
+          });
         });
       });
     });
@@ -105,7 +125,11 @@ adapters.forEach(function (adapters) {
         db.replicate.to(dbs.remote, function (err, _) {
           remote.allDocs(function (err, result) {
             result.rows.length.should.equal(docs.length);
-            done();
+            db.info(function (err, info) {
+              info.update_seq.should.equal(3);
+              info.doc_count.should.equal(3);
+              done();
+            });
           });
         });
       });
@@ -121,7 +145,11 @@ adapters.forEach(function (adapters) {
             result.docs_read.should.equal(0);
             db.replicate.to(dbs.remote, function (err, result) {
               result.docs_read.should.equal(0);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(1);
+                info.doc_count.should.equal(1);
+                done();
+              });
             });
           });
         });
@@ -139,7 +167,11 @@ adapters.forEach(function (adapters) {
             result.ok.should.equal(true);
             result.docs_written.should.equal(0);
             result.docs_read.should.equal(0);
-            done();
+            db.info(function (err, info) {
+              info.update_seq.should.equal(3);
+              info.doc_count.should.equal(3);
+              done();
+            });
           });
         });
       });
@@ -163,7 +195,11 @@ adapters.forEach(function (adapters) {
             db.replicate.from(dbs.remote, {
               complete: function (err, details) {
                 details.docs_read.should.equal(0);
-                done();
+                db.info(function (err, info) {
+                  info.update_seq.should.equal(3);
+                  info.doc_count.should.equal(3);
+                  done();
+                });
               }
             });
           }
@@ -185,7 +221,11 @@ adapters.forEach(function (adapters) {
           db.replicate.to(dbs.remote, {
             complete: function (err, details) {
               details.docs_read.should.equal(0);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(3);
+                info.doc_count.should.equal(3);
+                done();
+              });
             }
           });
         };
@@ -223,7 +263,11 @@ adapters.forEach(function (adapters) {
               db.replicate.from(dbs.remote, function (err, result) {
                 result.ok.should.equal(true);
                 result.docs_written.should.equal(1);
-                done();
+                db.info(function (err, info) {
+                  info.update_seq.should.equal(2);
+                  info.doc_count.should.equal(1);
+                  done();
+                });
               });
             });
           });
@@ -247,7 +291,11 @@ adapters.forEach(function (adapters) {
               PouchDB.replicate(db, remote, {}, function (err, result) {
                 result.ok.should.equal(true);
                 result.docs_written.should.equal(1);
-                done();
+                db.info(function (err, info) {
+                  info.update_seq.should.equal(3);
+                  info.doc_count.should.equal(1);
+                  done();
+                });
               });
             });
           });
@@ -292,7 +340,11 @@ adapters.forEach(function (adapters) {
       }).then(function (result) {
         result.ok.should.equal(true);
         result.docs_written.should.equal(1);
-        done();
+        db.info(function (err, info) {
+          info.update_seq.should.equal(3);
+          info.doc_count.should.equal(1);
+          done();
+        });
       }, function (a) {
         done(JSON.stringify(a, false, 4));
       });
@@ -339,7 +391,15 @@ adapters.forEach(function (adapters) {
                                 function (err, res) {
                                 res.rows.should.have.length.above(0, 'second');
                                 res.rows[0].doc.value.should.equal('db1');
-                                done();
+                                db1.info(function (err, info) {
+                                  info.update_seq.should.equal(4);
+                                  info.doc_count.should.equal(1);
+                                  db2.info(function (err, info2) {
+                                    info2.update_seq.should.equal(3);
+                                    info2.doc_count.should.equal(1);
+                                    done();
+                                  });
+                                });
                               });
                             });
                           });
@@ -368,7 +428,11 @@ adapters.forEach(function (adapters) {
           db.replicate.to(dbs.remote, function (err, _) {
             remote.get('adoc', { conflicts: true }, function (err, result) {
               result.should.have.property('_conflicts');
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(1);
+                info.doc_count.should.equal(1);
+                done();
+              });
             });
           });
         });
@@ -395,7 +459,11 @@ adapters.forEach(function (adapters) {
               conflicts: true
             }, function (_, res) {
               res.rows.length.should.equal(1);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(1);
+                info.doc_count.should.equal(1);
+                done();
+              });
             });
           });
         });
@@ -413,7 +481,11 @@ adapters.forEach(function (adapters) {
           if (++finished !== 2) {
             return;
           }
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(4);
+            info.doc_count.should.equal(4);
+            done();
+          });
         };
         var rep = db.replicate.from(dbs.remote, {
           live: true,
@@ -447,7 +519,11 @@ adapters.forEach(function (adapters) {
           if (++finished !== 2) {
             return;
           }
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(4);
+            info.doc_count.should.equal(4);
+            done();
+          });
         };
         var rep = remote.replicate.from(db, {
           live: true,
@@ -495,7 +571,11 @@ adapters.forEach(function (adapters) {
             live: true,
             complete: function (err, reason) {
               count.should.equal(4);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(4);
+                info.doc_count.should.equal(4);
+                done();
+              });
             },
             onChange: function (change) {
               ++count;
@@ -544,7 +624,11 @@ adapters.forEach(function (adapters) {
             db.allDocs(function (err, docs) {
               if (err) { done(err); }
               docs.rows.length.should.equal(2);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(2);
+                info.doc_count.should.equal(2);
+                done();
+              });
             });
           },
           filter: function (doc) {
@@ -570,7 +654,11 @@ adapters.forEach(function (adapters) {
           remote.bulkDocs({ docs: more_docs }, function (err, info) {
             db.replicate.from(remote, {}, function (err, response) {
               response.docs_written.should.equal(3);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(5);
+                info.doc_count.should.equal(5);
+                done();
+              });
             });
           });
         });
@@ -590,7 +678,11 @@ adapters.forEach(function (adapters) {
           doc_ids: ['3', '4']
         }, function (err, response) {
           response.docs_written.should.equal(2);
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(2);
+            info.doc_count.should.equal(2);
+            done();
+          });
         });
       });
     });
@@ -616,7 +708,11 @@ adapters.forEach(function (adapters) {
               complete: function (err, result) {
                 should.not.exist(err);
                 result.docs_written.should.equal(3);
-                done();
+                db.info(function (err, info) {
+                  info.update_seq.should.equal(5);
+                  info.doc_count.should.equal(5);
+                  done();
+                });
               }
             });
           }
@@ -644,7 +740,11 @@ adapters.forEach(function (adapters) {
               }
             }, function (err, response) {
               response.docs_written.should.equal(1);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(3);
+                info.doc_count.should.equal(3);
+                done();
+              });
             });
           });
         });
@@ -665,7 +765,11 @@ adapters.forEach(function (adapters) {
         db.replicate.from(remote, function () {
           db.allDocs(function (err, res) {
             res.total_rows.should.equal(4);
-            done();
+            db.info(function (err, info) {
+              info.update_seq.should.equal(5);
+              info.doc_count.should.equal(4);
+              done();
+            });
           });
         });
       });
@@ -707,7 +811,11 @@ adapters.forEach(function (adapters) {
         return db.allDocs();
       }).then(function (res) {
         res.total_rows.should.equal(2);
-        done();
+        db.info(function (err, info) {
+          info.update_seq.should.equal(4);
+          info.doc_count.should.equal(2);
+          done();
+        });
       }).catch(function (err) {
         done(JSON.stringify(err, false, 4));
       });
@@ -720,7 +828,11 @@ adapters.forEach(function (adapters) {
       var onChange = function (c) {
         changes++;
         if (changes === 3) {
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(3);
+            info.doc_count.should.equal(3);
+            done();
+          });
         }
       };
       remote.bulkDocs({ docs: docs }, {}, function (err, results) {
@@ -751,7 +863,11 @@ adapters.forEach(function (adapters) {
                         function (err, localdoc) {
                         localdoc._rev.should.equal(winningRev);
                         remotedoc._rev.should.equal(winningRev);
-                        done();
+                        db.info(function (err, info) {
+                          info.update_seq.should.equal(3);
+                          info.doc_count.should.equal(1);
+                          done();
+                        });
                       });
                     });
                   });
@@ -797,7 +913,11 @@ adapters.forEach(function (adapters) {
           // written to the target database (this is consistent with CouchDB)
           result.docs_written.should.equal(3);
           result.docs_read.should.equal(3);
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(1);
+            info.doc_count.should.equal(1);
+            done();
+          });
         });
       });
     });
@@ -821,7 +941,11 @@ adapters.forEach(function (adapters) {
         db.replicate.from(remote, {}, function () {
           db.allDocs(function (err, res) {
             res.total_rows.should.equal(num);
-            done();
+            db.info(function (err, info) {
+              info.update_seq.should.equal(30);
+              info.doc_count.should.equal(30);
+              done();
+            });
           });
         });
       });
@@ -868,7 +992,11 @@ adapters.forEach(function (adapters) {
           should.exist(err);
           doc_count.should.equal(result.docs_read);
           remote.changes = changes;
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(3);
+            info.doc_count.should.equal(3);
+            done();
+          });
         });
       });
     });
@@ -889,7 +1017,15 @@ adapters.forEach(function (adapters) {
                   complete: function () {
                     db2.allDocs(function (err, docs) {
                       docs.rows.length.should.equal(2);
-                      done();
+                      db1.info(function (err, info) {
+                        info.update_seq.should.equal(1, '1-1');
+                        info.doc_count.should.equal(1, '1-2');
+                        db2.info(function (err, info) {
+                          info.update_seq.should.equal(2, '2-1');
+                          info.doc_count.should.equal(2, '2-2');
+                          done();
+                        });
+                      });
                     });
                   }
                 });
@@ -957,7 +1093,11 @@ adapters.forEach(function (adapters) {
           doc_ids: docList
         }, function (err, result) {
           result.docs_written.should.equal(docList.length);
-          done();
+          db.info(function (err, info) {
+            info.update_seq.should.equal(3);
+            info.doc_count.should.equal(3);
+            done();
+          });
         });
       });
     });
@@ -1062,7 +1202,11 @@ adapters.forEach(function (adapters) {
             result.docs_written.should.equal(6);
             function check_docs(id, exists) {
               if (!id) {
-                done();
+                db.info(function (err, info) {
+                  info.update_seq.should.equal(6);
+                  info.doc_count.should.equal(6);
+                  done();
+                });
                 return;
               }
               db.get(id, function (err, result) {
@@ -1235,7 +1379,11 @@ adapters.forEach(function (adapters) {
             result.docs_written.should.equal(6);
             function check_docs(id, exists) {
               if (!id) {
-                done();
+                db.info(function (err, info) {
+                  info.update_seq.should.equal(6);
+                  info.doc_count.should.equal(6);
+                  done();
+                });
                 return;
               }
               db.get(id, function (err, result) {
@@ -1325,7 +1473,11 @@ adapters.forEach(function (adapters) {
         db.replicate.from(remote, {
           complete: function (err, result) {
             should.exist(err);
-            done();
+            db.info(function (err, info) {
+              info.update_seq.should.equal(2);
+              info.doc_count.should.equal(2);
+              done();
+            });
           }
         });
       });
@@ -1338,7 +1490,11 @@ adapters.forEach(function (adapters) {
         should.not.exist(err);
         should.exist(result);
         result.docs_written.should.equal(0);
-        done();
+        db.info(function (err, info) {
+          info.update_seq.should.equal(0);
+          info.doc_count.should.equal(0);
+          done();
+        });
       });
     });
 
@@ -1421,7 +1577,11 @@ adapters.forEach(function (adapters) {
               .equal(1, 'second replication, docs_written');
             result.doc_write_failures.should
               .equal(0, 'second replication, doc_write_failures');
-            done();
+            db.info(function (err, info) {
+              info.update_seq.should.equal(2);
+              info.doc_count.should.equal(2);
+              done();
+            });
           });
         });
       });
@@ -1555,7 +1715,11 @@ adapters.forEach(function (adapters) {
               doc_ids: ['5']
             }, function (err, result) {
               result.docs_written.should.equal(0);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(5);
+                info.doc_count.should.equal(5);
+                done();
+              });
             });
           });
         });
@@ -1646,7 +1810,11 @@ adapters.forEach(function (adapters) {
               if (--x) {
                 workflow(name, remote, x);
               } else {
-                done();
+                db.info(function (err, info) {
+                  info.update_seq.should.equal(4);
+                  info.doc_count.should.equal(4);
+                  done();
+                });
               }
             });
           });
@@ -1666,7 +1834,11 @@ adapters.forEach(function (adapters) {
             result.rows.length.should.equal(2);
             result.rows[0].id.should.equal('a');
             result.rows[1].id.should.equal('b');
-            done();
+            db.info(function (err, info) {
+              info.update_seq.should.equal(2);
+              info.doc_count.should.equal(2);
+              done();
+            });
           });
         });
       });
@@ -1681,7 +1853,11 @@ adapters.forEach(function (adapters) {
           PouchDB.destroy(dbs.remote, function (err, result) {
             db.replicate.to(dbs.remote, function (err, result) {
               result.docs_written.should.equal(docs.length);
-              done();
+              db.info(function (err, info) {
+                info.update_seq.should.equal(2);
+                info.doc_count.should.equal(2);
+                done();
+              });
             });
           });
         });
@@ -1709,7 +1885,11 @@ adapters.forEach(function (adapters) {
         };
         return src.replicate.to(target);
       }).then(function () {
-        done();
+        target.info(function (err, info) {
+          info.update_seq.should.equal(3);
+          info.doc_count.should.equal(3);
+          done();
+        });
       }, function (a) {
         done(JSON.stringify(a, false, 4));
       });
