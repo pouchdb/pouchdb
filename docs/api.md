@@ -98,7 +98,7 @@ Create a new doc with an `_id`:
 {% highlight js %}
 db.put({
   title: 'Heroes'
-}, 'mydoc'), function(err, response) { });
+}, 'mydoc', function(err, response) { });
 {% endhighlight %}
 
 Like all methods, you can also use a promise:
@@ -114,8 +114,9 @@ Update an existing doc using `_rev`:
 {% highlight js %}
 db.get('myOtherDoc', function(err, otherDoc) {
   db.put({
-    title: "Let's Dance",
-  }, 'myOtherDoc', otherDoc._rev, function(err, response) { });
+    title: "Let's Dance"
+  }, 'myOtherDoc', otherDoc._rev, function(err, response) {
+  });
 });
 {% endhighlight %}
 
@@ -135,7 +136,6 @@ db.get('myOtherDoc').then(function(otherDoc) {
     // on success
   }
 });
-
 {% endhighlight %}
 
 #### Example Response:
