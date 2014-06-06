@@ -93,9 +93,13 @@ adapters.forEach(function (adapters) {
             db.allDocs(function (err, result) {
               result.rows.length.should.equal(docs.length);
               db.info(function (err, info) {
-                info.update_seq.should.equal(3, 'update_seq');
-                info.doc_count.should.equal(3, 'doc_count');
-                done();
+                info.update_seq.should.equal(3, 'update_seq local');
+                info.doc_count.should.equal(3, 'doc_count local');
+                remote.info(function (err, info) {
+                  info.update_seq.should.equal(3, 'update_seq remote');
+                  info.doc_count.should.equal(3, 'doc_count remote');
+                  done();
+                });
               });
             });
           });
