@@ -1,4 +1,4 @@
-pygments: true
+highlighter: pygments
 markdown: redcarpet
 baseurl:
 version: 2.2.3
