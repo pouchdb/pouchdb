@@ -27,6 +27,24 @@ Google Query Language (GQL) queries with PouchDB.
 * [Documentation](http://pouchdb.com/gql.html)
 * [Github](https://github.com/pouchdb/GQL)
 
+#### PouchDB List
+A PouchDB plug-in that allows you to re-use your CouchDB list functions on the client side.
+
+* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-rewrite-plug-in)
+* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+
+#### PouchDB Rewrite
+A PouchDB plug-in that allows you to re-use your CouchDB rewrites on the client side.
+
+* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-list-plug-in)
+* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+
+#### PouchDB Show
+A PouchDB plug-in that allows you to re-use your CouchDB show functions on the client side.
+
+* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-show-plug-in)
+* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+
 #### PouchDB Spatial
 
 Multidimensional and spatial queries with PouchDB.
@@ -38,6 +56,18 @@ Multidimensional and spatial queries with PouchDB.
 A plugin to let PouchDB talk streams.
 
 * [Github](https://github.com/calvinmetcalf/PouchStream)
+
+#### PouchDB Update
+A PouchDB plug-in that allows you to re-use your CouchDB update functions on the client side.
+
+* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-update-plug-in)
+* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+
+#### PouchDB Validation
+A PouchDB plug-in that allows you to re-use your CouchDB validate_doc_update functions on the client side.
+
+* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in)
+* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 ## Server Side
 
@@ -76,7 +106,7 @@ Wrapper for using PouchDB within Angular.js.
 ## Other languages
 
 #### Python-PouchDB
-A Python interface to PouchDB, with both a synchronous and an asynchronous API. Uses QtWebKit internally (via either PySide, PyQt4 or PyQt5). The geopouch, GQL, search, validation, show and list PouchDB plugins are also wrapped.
+A Python interface to PouchDB, with both a synchronous and an asynchronous API. Uses QtWebKit internally (via either PySide, PyQt4 or PyQt5). Some PouchDB plugins are also wrapped.
 
 * [Website](http://python-pouchdb.marten-de-vries.nl/)
 * [Documentation](http://pythonhosted.org/Python-PouchDB/)
