@@ -5,8 +5,14 @@
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     export COUCH_HOST='http://127.0.0.1:6984'
+    # link pouchdb-server's pouchdb to us
+    cd ./node_modules/pouchdb-server
+    npm link ../..
+    cd -
     echo -e "Starting up pouchdb-server\n"
-    ./node_modules/.bin/pouchdb-server -p 6984 &
+    TESTDIR=./tests/pouchdb_server
+    rm -rf $TESTDIR && mkdir -p $TESTDIR
+    ./node_modules/.bin/pouchdb-server -p 6984 -d $TESTDIR &
     export POUCHDB_SERVER_PID=$!
   else
     # I mistype pouchdb-server a lot
