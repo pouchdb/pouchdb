@@ -205,9 +205,9 @@ We are currently building three adapters-as-plugins: `memory`, `localstorage`, a
 * `localstorage`: based on [localstorage-down](https://github.com/no9/localstorage-down)
 * `idb-alt`: based on [level-js](https://github.com/maxogden/level.js), will probably replace `idb.js` someday
 
-These adapters are built and included in the `dist/` folder as e.g. `pouchdb.memory.js`.  Including these scripts after `pouchdb-nightly.js` will load the adapters, placing them in the `PouchDB.preferredAdapters` list after `idb` and `websql` by default.
+These adapters are built and included in the `dist/` folder as e.g. `pouchdb.memory.js`.  Including these scripts after `pouchdb.js` will load the adapters, placing them in the `PouchDB.preferredAdapters` list after `idb` and `websql` by default.
 
-    <script src="pouchdb-nightly.js"></script>
+    <script src="pouchdb.js"></script>
     <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql']</script>
     <script src="pouchdb.memory.js"></script>
     <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql', 'memory']</script>

@@ -3,7 +3,7 @@
 var sourceFile = window.location.search.match(/[?&]sourceFile=([^&]+)/);
 
 if (!sourceFile) {
-  sourceFile = '../dist/pouchdb-nightly.js';
+  sourceFile = '../dist/pouchdb.js';
 } else {
   sourceFile = '../dist/' + sourceFile[1];
 }

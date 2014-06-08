@@ -11,8 +11,8 @@
   "dependencies": {},
   "development": {},
   "license": "Apache",
-  "main": "dist/pouchdb-nightly.js",
+  "main": "dist/pouchdb.js",
   "scripts": [
-    "dist/pouchdb-nightly.js"
+    "dist/pouchdb.js"
   ]
 }
