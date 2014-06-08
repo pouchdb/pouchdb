@@ -616,5 +616,34 @@ repl_adapters.forEach(function (adapters) {
       });
     });
 
+    it('Multiple attachments replicate', function () {
+      var doc = {_id: 'foo'};
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var data = 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=';
+      var rev;
+      return db.put(doc).then(function (info) {
+        rev = info.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return db.putAttachment(doc._id, 'foo1.txt', rev, data, 'text/plain');
+      }).then(function (info) {
+        rev = info.rev;
+        return db.putAttachment(doc._id, 'foo2.txt', rev, data, 'text/plain');
+      }).then(function (info) {
+        rev = info.rev;
+        return db.putAttachment(doc._id, 'foo3.txt', rev, data, 'text/plain');
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get('foo', {attachments: true});
+      }).then(function (doc) {
+        var keys = Object.keys(doc._attachments);
+        keys.sort();
+        keys.should.deep.equal(['foo1.txt', 'foo2.txt', 'foo3.txt']);
+      });
+    });
   });
 });
