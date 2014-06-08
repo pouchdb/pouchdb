@@ -31,7 +31,7 @@ describe('defaults', function () {
       prefix: prefix
     }).then(function (db) {
       return db.info().then(function (info1) {
-        info1.db_name.should.equal(prefix + './tmp/_pouch_mydb');
+        info1.db_name.should.equal('mydb');
         return db.destroy();
       });
     });
@@ -51,7 +51,7 @@ describe('defaults', function () {
     });
     return new CustomPouch('mydb').then(function (db) {
       return db.info().then(function (info1) {
-        info1.db_name.should.equal(prefix + './tmp/_pouch_mydb');
+        info1.db_name.should.equal('mydb');
         return db.destroy();
       });
     });

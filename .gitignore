@@ -12,3 +12,4 @@ bower_components
 tests/performance/bundle.js
 tests/cordova/www
 phantomjsdriver.log
+tests/pouchdb_server
