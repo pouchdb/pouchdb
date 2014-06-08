@@ -12,7 +12,12 @@ if [[ ! -z $SERVER ]]; then
     echo -e "Starting up pouchdb-server\n"
     TESTDIR=./tests/pouchdb_server
     rm -rf $TESTDIR && mkdir -p $TESTDIR
-    ./node_modules/.bin/pouchdb-server -p 6984 -d $TESTDIR &
+    if [[ "$SERVER_ADAPTER" == "memory" ]]; then
+      FLAGS='--in-memory'
+    else
+      FLAGS="-d $TESTDIR"
+    fi
+    ./node_modules/.bin/pouchdb-server -p 6984 $FLAGS &
     export POUCHDB_SERVER_PID=$!
   else
     # I mistype pouchdb-server a lot

@@ -161,6 +161,18 @@ Then in the PouchDB project, run:
 
 This works because `npm run dev` does not start up the pouchdb-server itself (only `npm test` does).
 
+### Testing the in-memory adapter
+
+`pouchdb-server` uses the `--in-memory` flag to use MemDOWN.  To enable this, set
+
+    SERVER_ADAPTER=memory
+    
+Whereas on the client this is configured using `PouchDB.defaults()`, so you can enable it like so:
+
+    LEVEL_ADAPTER=memdown
+
+The value is a comma-separated list of key values, where the key-values are separated by colons.
+
 ### Testing Pouch in a shell
 
 For quick debugging, you can run an interactive Node shell with the `PouchDB` variable already available:
