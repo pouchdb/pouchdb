@@ -35,9 +35,11 @@ testUtils.couchHost = function () {
   } else if (window && window.cordova) {
     // magic route to localhost on android emulator
     return 'http://10.0.2.2:2020';
+  } else if (window && window.location.search.match(/[?&]corsProxy=true/)) {
+    // use the CORS proxy
+    return 'http://localhost:2020';
   }
-  // In the browser we default to the CORS server, in future will change
-  return 'http://localhost:2020';
+  return 'http://localhost:5984';
 };
 
 testUtils.makeBlob = function (data, type) {
