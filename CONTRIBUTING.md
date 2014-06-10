@@ -269,7 +269,7 @@ With great power comes great responsibility yada yada yada:
  * Code is peer reviewed, you should (almost) never push your own code.
  * Please don't accidentally force push to master.
  * Cherry Pick / Rebase commits, don't use the big green button.
- * Ensure reviewed code follows the above contribution guidelines, if it doest feel free to amend and make note.
+ * Ensure reviewed code follows the above contribution guidelines, if it doesn't feel free to amend and make note.
  * Please try to watch when Pull Requests are made and review and / or commit them in a timely manner.
  * After you merge in a patch use tin to update the version accordingly. Run `tin -v x.x.x-prerelease` with x.x.x being the previous version upgraded appropriately via semver. When we are ready to publish to npm we can remove the `-prerelease`.
  * Thanks, you are all awesome human beings.
