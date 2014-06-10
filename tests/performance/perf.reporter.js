@@ -1,14 +1,16 @@
 'use strict';
-
+var isNode = process && !process.browser;
 var UAParser = require('ua-parser-js');
-var ua = new UAParser(navigator.userAgent);
+var ua = !isNode && new UAParser(navigator.userAgent);
 global.results = {};
 
-var pre = document && document.getElementById('output');
+var pre = !isNode && global.document.getElementById('output');
 
 function log(msg) {
   if (pre) {
     pre.innerHTML = pre.innerHTML + msg;
+  } else {
+    console.log(msg);
   }
 }
 
@@ -37,14 +39,18 @@ exports.end = function (testCase) {
 
 exports.complete = function (suiteName) {
   global.results.completed = true;
-  global.results.client = {
-    browser: ua.getBrowser(),
-    device: ua.getDevice(),
-    engine: ua.getEngine(),
-    cpu: ua.getCPU(),
-    os : ua.getOS(),
-    userAgent: navigator.userAgent
-  };
+  if (isNode) {
+    global.results.client = {node: process.version};
+  } else {
+    global.results.client = {
+      browser: ua.getBrowser(),
+      device: ua.getDevice(),
+      engine: ua.getEngine(),
+      cpu: ua.getCPU(),
+      os : ua.getOS(),
+      userAgent: navigator.userAgent
+    };
+  }
   console.log(global.results);
   log('\nTests Complete!\n\n');
 };
