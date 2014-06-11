@@ -7,6 +7,8 @@ var grep;
 if (global.window && global.window.location && global.window.location.search) {
   grep = global.window.location.search.match(/[&?]grep=([^&]+)/);
   grep = grep && grep[1];
+} else if (process && process.env) {
+  grep = process.env.GREP;
 }
 
 exports.runTests = function (PouchDB, suiteName, testCases, opts) {
