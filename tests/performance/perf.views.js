@@ -53,6 +53,7 @@ module.exports = function (PouchDB, opts) {
             emit(doc.key);
           }, task);
         })).then(function (res) {
+          console.log(res);
           done();
         }, done);
       }
@@ -96,6 +97,7 @@ module.exports = function (PouchDB, opts) {
         Promise.all(tasks.map(function (task) {
             return db.query('myview/myview', task);
           })).then(function (res) {
+            console.log(res);
             done();
           }, done);
       }
@@ -139,6 +141,7 @@ module.exports = function (PouchDB, opts) {
         Promise.all(tasks.map(function (task) {
             return db.query('myview/myview', task);
           })).then(function (res) {
+            console.log(res);
             done();
           }, done);
       }

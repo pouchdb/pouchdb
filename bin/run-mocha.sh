@@ -3,9 +3,7 @@
 : ${TIMEOUT:=50000}
 : ${REPORTER:="spec"}
 
-if [ $PERF ]; then
-    node tests/performance/index.js
-elif [ ! $COVERAGE ]; then
+if [ ! $COVERAGE ]; then
     ./node_modules/.bin/mocha \
         --bail \
         --timeout $TIMEOUT \
