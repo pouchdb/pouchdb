@@ -70,7 +70,7 @@
     "build-plugins": "./bin/build-all-plugins.sh",
     "build": "npm run version && mkdirp dist && npm run build-js",
     "version": "node ./bin/get-version.js",
-    "test-node": "./bin/run-mocha.sh",
+    "test-node": "./bin/test-node.sh",
     "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
     "cordova": "npm run build && ./bin/run-cordova.sh",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/ tests/performance/",
