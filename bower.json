@@ -13,6 +13,16 @@
   "license": "Apache",
   "main": "dist/pouchdb-nightly.js",
   "scripts": [
-    "dist/pouchdb-nightly.js"
+    "dist/pouchdb-nightly.js",
+    "dist/pouchdb-nightly.min.js"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "tests",
+    "vendor",
+    "npm-debug.log",
+    "phantomjsdriver.log"
   ]
 }
