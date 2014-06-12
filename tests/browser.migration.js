@@ -283,6 +283,31 @@ describe('migration', function () {
             }, done);
           }, done);
         });
+        it('Remembers local docs', function (done) {
+          if (skip) { return done(); }
+          var oldPouch =
+            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
+              function (err) {
+                should.not.exist(err, 'got error: ' + JSON.stringify(err));
+                if (err) {
+                  done();
+                }
+              });
+          var docs = [
+            { _id: '_local/foo' },
+            { _id: '_local/bar' }
+          ];
+          oldPouch.bulkDocs({docs: docs}).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local);
+            newPouch.get('_local/foo').then(function () {
+              return newPouch.get('_local/bar');
+            }).then(function () {
+              done();
+            }, done);
+          }, done);
+        });
       }
     });
   });
