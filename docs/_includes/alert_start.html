@@ -1,4 +1,6 @@
-{% if include.variant == "success" %}
+{% if include.variant == "quote" %}
+<div class="alert alert-info alert-quote">
+{% elsif include.variant == "success" %}
 <div class="alert alert-success">
 {% elsif include.variant == "warning" %}
 <div class="alert alert-warning">
