@@ -81,25 +81,24 @@ NPM has [moved away from storing attachments in CouchDB](http://blog.npmjs.org/p
 
 In general, both CouchDB and PouchDB are just poor fits for storing binary data.  (Databases rarely are.) Instead of attachments, try using a CDN or a simple fileserver, and store the URLs or checksums in the database if you need to.
 
-{% include alert_start.html variant="quote" %}
+
+<blockquote>
 
 <p>
-
 "One of the big things that everybody who's spent a lot of time with databases knows is that you should <em>never</em> put your binaries in the database.  It's a terrible idea.  It always goes wrong.  I have never met a database in 15 years of which it is not true, and it's definitely not true of CouchDB.
-
 </p>
-<p>
 
+<p>
 You are taking this thing which is meant to sort and organize data, and you're giving it binary data, which it can neither sort nor organize.  It can't do anything with that data, other than get really fat."
-
-</p>
-<p>
-
-&mdash; Laurie Voss, on <a href='http://javascriptjabber.com/099-jsj-npm-inc-with-isaac-schlueter-laurie-voss-and-rod-boothby/'>JavaScript Jabber</a>
-
 </p>
 
-{% include alert_end.html %}
+<footer>
+<cite title="Source Title">
+  Laurie Voss, on <a href='http://javascriptjabber.com/099-jsj-npm-inc-with-isaac-schlueter-laurie-voss-and-rod-boothby/'>JavaScript Jabber</a>
+</cite>
+</footer>
+
+</blockquote>
 
 
 ### 5. Use plugins
