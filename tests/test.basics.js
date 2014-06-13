@@ -653,6 +653,27 @@ adapters.forEach(function (adapter) {
       }, done);
     });
 
+    it('putting returns {ok: true}', function () {
+      // in couch, it's {ok: true} and in cloudant it's {},
+      // but the http adapter smooths this out
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.put({_id: '_local/foo'}).then(function (info) {
+          true.should.equal(info.ok, 'putting local returns ok=true');
+          return db.put({_id: 'quux'});
+        }).then(function (info) {
+          true.should.equal(info.ok, 'putting returns ok=true');
+          return db.bulkDocs([ {_id: '_local/bar'}, {_id: 'baz'} ]);
+        }).then(function (info) {
+          info.should.have.length(2, 'correct num bulk docs');
+          true.should.equal(info[0].ok, 'bulk docs says ok=true #1');
+          true.should.equal(info[1].ok, 'bulk docs says ok=true #2');
+          return db.post({});
+        }).then(function (info) {
+          true.should.equal(info.ok, 'posting returns ok=true');
+        });
+      });
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
