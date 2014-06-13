@@ -95,7 +95,8 @@ adapters.forEach(function (adapter) {
       function moreTests(rev) {
         var blob = testUtils.makeBlob('This is no base64 encoded text');
         db.putAttachment('bin_doc2', 'foo2.txt', rev, blob, 'text/plain',
-                         function (err, wtf) {
+                         function (err, info) {
+          info.ok.should.equal(true);
           db.getAttachment('bin_doc2', 'foo2.txt', function (err, res, xhr) {
             testUtils.readBlob(res, function (data) {
               should.exist(data);
