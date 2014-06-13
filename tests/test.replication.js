@@ -1890,6 +1890,41 @@ adapters.forEach(function (adapters) {
         done(JSON.stringify(a, false, 4));
       });
     });
+
+    it('issue #2342 update_seq after replication', function (done) {
+      this.timeout(30000);
+      var docs = [];
+      for (var i = 0; i < 10; i++) {
+        docs.push({_id: i.toString()});
+      }
+
+      var remote = new PouchDB(dbs.remote);
+      var db = new PouchDB(dbs.name);
+
+      remote.bulkDocs({ docs: docs }, {}, function (err, res) {
+        res.forEach(function (row, i) {
+          docs[i]._rev = row.rev;
+          if (i % 2 === 0) {
+            docs[i]._deleted = true;
+          }
+        });
+        remote.bulkDocs({docs: docs}, {}, function (err, res) {
+          db.replicate.from(dbs.remote, function (err, _) {
+            db.info(function (err, info) {
+              db.changes({
+                since: 'latest',
+                live: true,
+                onChange: function (change) {
+                  change.changes.should.have.length(1);
+                  change.seq.should.equal(info.update_seq);
+                  done();
+                }
+              });
+            });
+          });
+        });
+      });
+    });
   });
 });
 
