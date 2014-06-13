@@ -8,128 +8,97 @@ A list of known plugins, tools and projects can be used with PouchDB. [Fork this
 
 ## Plugins
 
-#### PouchDB allDbs()
+#### [PouchDB allDbs()](https://github.com/nolanlawson/pouchdb-all-dbs)
 
-Plugin for listing all PouchDB databases.
+Revives the `allDbs()` function, which lists all PouchDB databases.
 
-* [Github](https://github.com/nolanlawson/pouchdb-all-dbs)
-
-#### PouchDB Authentication
+#### [PouchDB Authentication](https://github.com/nolanlawson/pouchdb-authentication)
 
 Plugin for CouchDB's authentication system.
 
-* [Github](https://github.com/nolanlawson/pouchdb-authentication)
+#### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
-#### PouchDB GQL
+Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
 
-Google Query Language (GQL) queries with PouchDB.
+#### [PouchDB List](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
-* [Documentation](http://pouchdb.com/gql.html)
-* [Github](https://github.com/pouchdb/GQL)
+Allows you to re-use your CouchDB list functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-rewrite-plug-in))
 
-#### PouchDB List
-A PouchDB plug-in that allows you to re-use your CouchDB list functions on the client side.
+#### [PouchDB No-Eval Map/Reduce](https://github.com/evidenceprime/pouchdb.mapreduce.noeval)
 
-* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-rewrite-plug-in)
-* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+Allows you to use the `query()` API in environments that disallow `eval()`, like Chrome packaged apps.
 
-#### PouchDB Rewrite
-A PouchDB plug-in that allows you to re-use your CouchDB rewrites on the client side.
+#### [Peer Pouch](https://github.com/natevw/PeerPouch)
 
-* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-list-plug-in)
-* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+PouchDB over WebRTC.
 
-#### PouchDB Show
-A PouchDB plug-in that allows you to re-use your CouchDB show functions on the client side.
+#### [PouchDB Quick Search](https://github.com/nolanlawson/pouchdb-quick-search)
 
-* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-show-plug-in)
-* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+Full-text search engine on top of PouchDB.
 
-#### PouchDB Spatial
+#### [PouchDB Rewrite](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+
+A PouchDB plugin that allows you to re-use your CouchDB rewrites on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-list-plug-in))
+
+#### [PouchDB Show](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+
+A PouchDB plugin that allows you to re-use your CouchDB show functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-show-plug-in))
+
+#### [PouchDB Spatial](https://github.com/pouchdb/geopouch)
 
 Multidimensional and spatial queries with PouchDB.
 
-* [Github](https://github.com/pouchdb/geopouch)
-
-#### Pouch Stream
+#### [Pouch Stream](https://github.com/calvinmetcalf/PouchStream)
 
 A plugin to let PouchDB talk streams.
 
-* [Github](https://github.com/calvinmetcalf/PouchStream)
+#### [PouchDB Update](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
-#### PouchDB Update
-A PouchDB plug-in that allows you to re-use your CouchDB update functions on the client side.
+A PouchDB plugin that allows you to re-use your CouchDB update functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-update-plug-in))
 
-* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-update-plug-in)
-* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+#### [PouchDB Validation](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
-#### PouchDB Validation
-A PouchDB plug-in that allows you to re-use your CouchDB validate_doc_update functions on the client side.
-
-* [Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in)
-* [Website](http://python-pouchdb.marten-de-vries.nl/plugins.html)
+A PouchDB plugin that allows you to re-use your CouchDB validate_doc_update functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in))
 
 ## Server Side
 
-#### PouchDB Server
+#### [PouchDB Server](https://github.com/pouchdb/pouchdb-server)
 
 A standalone CouchDB-style REST interface server to PouchDB.
 
-* [Github](https://github.com/nick-thompson/pouchdb-server)
-
-#### Express PouchDB
+#### [Express PouchDB](https://github.com/pouchdb/express-pouchdb)
 
 An express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
 
-* [Github](https://github.com/nick-thompson/express-pouchdb)
-
 ## MV* Adapters
 
-#### Backbone PouchDB
+#### [Backbone PouchDB](https://github.com/jo/backbone-pouch)
 
 Backbone PouchDB Sync Adapter.
 
-* [Github](https://github.com/jo/backbone-pouch)
-
-#### Ember PouchDB
+#### [Ember PouchDB](https://github.com/taras/ember-pouchdb)
 
 PouchDB wrapper for Ember.js.
 
-* [Github](https://github.com/taras/ember-pouchdb)
-
-#### AngularJS PouchDB Support
+#### [AngularJS PouchDB Support](https://github.com/wspringer/angular-pouchdb)
 
 Wrapper for using PouchDB within Angular.js.
 
-* [Github](https://github.com/wspringer/angular-pouchdb)
-
 ## Other languages
 
-#### Python-PouchDB
-A Python interface to PouchDB, with both a synchronous and an asynchronous API. Uses QtWebKit internally (via either PySide, PyQt4 or PyQt5). Some PouchDB plugins are also wrapped.
+#### [Python-PouchDB](http://python-pouchdb.marten-de-vries.nl/)
+A Python interface to PouchDB, with both a synchronous and an asynchronous API. Uses QtWebKit internally (via either PySide, PyQt4 or PyQt5). Some PouchDB plugins are also wrapped. ([Documentation](http://pythonhosted.org/Python-PouchDB/) / [Launchpad](https://launchpad.net/python-pouchdb))
 
-* [Website](http://python-pouchdb.marten-de-vries.nl/)
-* [Documentation](http://pythonhosted.org/Python-PouchDB/)
-* [Launchpad](https://launchpad.net/python-pouchdb)
-
-#### PouchDroid
+#### [PouchDroid](https://github.com/nolanlawson/PouchDroid/)
 
 Android adapter with a native Java interface to PouchDB.
 
-* [Github](https://github.com/nolanlawson/PouchDroid/)
-
 ## Tools
 
-#### Revision Tree Visualizer
+#### [Revision Tree Visualizer](http://neojski.github.io/visualizeRevTree)
 
-A tool drawing revision tree of a couchdb document. You can see what is a conflict, which revisions are deleted and which is winning.
+A tool drawing revision tree of a couchdb document. You can see what is a conflict, which revisions are deleted and which is winning. ([Github](https://github.com/neojski/visualizeRevTree))
 
-* [Website](http://neojski.github.io/visualizeRevTree)
-* [Github](https://github.com/neojski/visualizeRevTree)
+#### [Puton](http://puton.jit.su/)
 
-#### Puton
-
-A bookmarklet for inspecting PouchDB databases within the browser.
-
-* [Website](http://puton.jit.su/)
-* [Github](http://github.com/ymichael/puton)
+A bookmarklet for inspecting PouchDB databases within the browser. ([Github](http://github.com/ymichael/puton))
