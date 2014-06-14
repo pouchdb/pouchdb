@@ -233,7 +233,10 @@ adapters.forEach(function (adapter) {
         should.not.exist(err);
         db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
           should.not.exist(err);
-          done();
+          db.get('foo', function (err, res) {
+            res._rev.should.equal('1-x');
+            done();
+          });
         });
       });
     });
