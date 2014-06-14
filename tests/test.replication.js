@@ -1925,6 +1925,50 @@ adapters.forEach(function (adapters) {
         });
       });
     });
+
+    it('issue #2393 update_seq after new_edits + replication', function (done) {
+      var docs = [{
+        '_id': 'foo',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      }];
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      remote.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
+        should.not.exist(err);
+        remote.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
+          should.not.exist(err);
+          db.replicate.from(dbs.remote, function (err, _) {
+            db.info(function (err, info) {
+              db.changes({
+                since: 'latest',
+                live: true,
+                onChange: function (change) {
+                  change.changes.should.have.length(1);
+                  change.seq.should.equal(info.update_seq);
+                  remote.info(function (err, info) {
+                    remote.changes({
+                      since: 'latest',
+                      live: true,
+                      onChange: function (change) {
+                        change.changes.should.have.length(1);
+                        change.seq.should.equal(info.update_seq);
+                        done();
+                      }
+                    });
+                  });
+                }
+              });
+            });
+          });
+        });
+      });
+    });
   });
 });
 
