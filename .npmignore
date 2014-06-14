@@ -1,0 +1,11 @@
+.git*
+node_modules
+.DS_Store
+*~
+npm-debug.log
+vendor
+dist/performance-bundle.js
+tests/cordova/www
+.idea
+phantomjsdriver.log
+bower_components

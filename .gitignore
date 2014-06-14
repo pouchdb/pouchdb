@@ -9,6 +9,6 @@ npm-debug.log
 coverage
 bower_components
 .idea/
-tests/performance/bundle.js
 tests/cordova/www
 phantomjsdriver.log
+dist/performance-bundle.js
