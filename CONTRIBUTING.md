@@ -124,7 +124,7 @@ You will also need to run the dev test `npm run dev` simultaneously, so that
 the CORS server is available on port 2020.
 
     $ CLIENT=ios npm run cordova
-    $ CLIENT=android DEVICE=true npm run cordova
+    $ CLIENT=android DEVICE=true npm run cordova. Also available: `CLIENT=firefoxos`.
     $ COUCH_HOST=http://myurl:2020 npm run cordova
     $ GREP=basics npm run cordova
     $ SQLITE_PLUGIN=true npm run cordova
