@@ -127,20 +127,20 @@ the CORS server is available on port 2020.
     $ CLIENT=android DEVICE=true npm run cordova. Also available: `CLIENT=firefoxos`.
     $ COUCH_HOST=http://myurl:2020 npm run cordova
     $ GREP=basics npm run cordova
-    $ SQLITE_PLUGIN=true npm run cordova
+    $ SQLITE_PLUGIN=true ADAPTERS=websql npm run cordova
 
 * `CLIENT=ios` will run on iOS, default is `CLIENT=android`
 * `DEVICE=true` will run on a device connected via USB, else on an emulator
-* `SQLITE_PLUGIN=true` will use the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin)
-* `COUCH_HOST` should be the full URL; you can only omit this is in the Android emulator
+* `SQLITE_PLUGIN=true` will install and use the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin) in lieu of the `'websql'` adapter.
+* `ADAPTERS=websql` should be used if you want to skip using IndexedDB on Android 4.4+ and iOS 8+.
+* `COUCH_HOST` should be the full URL; you can only omit this is in the Android emulator due to the magic `10.0.2.2` route to `localhost`.
+* `ES5_SHIM=true` should be used on devices that don't support ES5 (e.g. Android 2.x).
 
 You can also debug with Weinre by doing:
 
     $ npm install -g weinre
     $ weinre --boundHost=0.0.0.0
     $ WEINRE_HOST=http://route.to.my.weinre:8080
-
-The `ES5_SHIM=true` option is also available for Cordova.
 
 ### Testing against PouchDB server
 
