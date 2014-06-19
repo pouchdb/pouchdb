@@ -58,7 +58,7 @@ A PouchDB plugin that allows you to re-use your CouchDB update functions on the 
 
 #### [PouchDB Validation](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
-A PouchDB plugin that allows you to re-use your CouchDB validate_doc_update functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in))
+A PouchDB plugin that allows you to re-use your CouchDB `validate_doc_update` functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in))
 
 ## Server Side
 
