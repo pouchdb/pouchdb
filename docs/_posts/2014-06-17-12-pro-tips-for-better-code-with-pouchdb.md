@@ -219,7 +219,7 @@ function getPostsBefore(when) {
   return db.query('by_timestamp', {startkey: when});
 }
 function getPostsBetween(startTime, endTime) {
-  return db.query('by_timestamp', {startkey: when, endkey: endTime});
+  return db.query('by_timestamp', {startkey: startTime, endkey: endTime});
 }
 ```
 
