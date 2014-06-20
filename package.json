@@ -65,8 +65,8 @@
   },
   "scripts": {
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
-    "build-main-js": "browserify . -s PouchDB > dist/pouchdb-nightly.js",
-    "min": "uglifyjs dist/pouchdb-nightly.js -mc > dist/pouchdb-nightly.min.js",
+    "build-main-js": "browserify . -s PouchDB > dist/pouchdb.js",
+    "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
     "build-plugins": "./bin/build-all-plugins.sh",
     "build": "npm run version && mkdirp dist && npm run build-js",
     "version": "node ./bin/get-version.js",

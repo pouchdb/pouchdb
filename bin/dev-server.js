@@ -22,7 +22,7 @@ if (process.env.ADAPTERS) {
 }
 
 var indexfile = "./lib/index.js";
-var outfile = "./dist/pouchdb-nightly.js";
+var outfile = "./dist/pouchdb.js";
 var perfRoot = './tests/performance/*.js';
 var performanceBundle = './dist/performance-bundle.js';
 
