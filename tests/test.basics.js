@@ -673,7 +673,34 @@ adapters.forEach(function (adapter) {
         });
       });
     });
-
+    it('putting is override-able', function (done) {
+      var db = new PouchDB(dbs.name);
+      var called = 0;
+      var plugin = {
+        initPull: function () {
+          this.oldPut = this.put;
+          this.put = function () {
+            if (typeof arguments[arguments.length - 1] === 'function') {
+              called++;
+            }
+            return this.oldPut.apply(this, arguments);
+          };
+        },
+        cleanupPut: function () {
+          this.put = this.oldPut;
+        }
+      };
+      PouchDB.plugin(plugin);
+      db.initPull();
+      return db.put({foo: 'bar'}, 'anid').then(function (resp) {
+        called.should.be.above(0, 'put was called');
+        return db.get('anid');
+      }).then(function (doc) {
+        doc.foo.should.equal('bar', 'correct doc');
+      }).then(function () {
+        done();
+      }, done);
+    });
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
