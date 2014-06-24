@@ -22,7 +22,7 @@
     "level-js": "^2.1.3",
     "level-sublevel": "~5.2.0",
     "leveldown": "~0.10.2",
-    "levelup": "~0.18.2",
+    "levelup": "~0.18.4",
     "lie": "^2.6.0",
     "localstorage-down": "^0.4.4",
     "pouchdb-mapreduce": "~2.2.4",
