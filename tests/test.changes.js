@@ -5,6 +5,9 @@ var adapters = ['http', 'local'];
 
 adapters.forEach(function (adapter) {
 
+  var parseSeq = testUtils.parseSeq;
+  var getNthChangeSeq = testUtils.getNthChangeSeq;
+
   describe('test.changes.js-' + adapter, function () {
 
     var dbs = {};
@@ -95,15 +98,20 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        var promise = db.changes({
-          since: 12,
-          complete: function (err, results) {
-            results.results.length.should.equal(2);
-            done();
+        getNthChangeSeq(db, 12, function (err, seq) {
+          if (err) {
+            return done(err);
           }
+          var promise = db.changes({
+            since: seq,
+            complete: function (err, results) {
+              results.results.length.should.equal(2);
+              done();
+            }
+          });
+          should.exist(promise);
+          promise.cancel.should.be.a('function');
         });
-        should.exist(promise);
-        promise.cancel.should.be.a('function');
       });
     });
 
@@ -126,14 +134,19 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        var promise = db.changes({
-          since: 12
-        }).on('complete', function (results) {
-          results.results.length.should.equal(2);
-          done();
+        getNthChangeSeq(db, 12, function (err, seq) {
+          if (err) {
+            return done(err);
+          }
+          var promise = db.changes({
+            since: seq
+          }).on('complete', function (results) {
+            results.results.length.should.equal(2);
+            done();
+          });
+          should.exist(promise);
+          promise.cancel.should.be.a('function');
         });
-        should.exist(promise);
-        promise.cancel.should.be.a('function');
       });
     });
 
@@ -146,13 +159,22 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        db.changes({
-          since: 2,
-          limit: 1,
-          complete: function (err, results) {
-            results.results.length.should.equal(1);
-            done();
+        getNthChangeSeq(db, 2, function (err, seq) {
+          if (err) {
+            return done(err);
           }
+          db.changes({
+            since: seq,
+            limit: 1,
+            complete: function (err, results) {
+              try {
+                results.results.length.should.equal(1);
+                done();
+              } catch (err) {
+                done(err);
+              }
+            }
+          });
         });
       });
     });
@@ -166,12 +188,17 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        db.changes({
-          since: 2,
-          limit: 1
-        }).on('complete', function (results) {
-          results.results.length.should.equal(1);
-          done();
+        getNthChangeSeq(db, 2, function (err, seq) {
+          if (err) {
+            return done(err);
+          }
+          db.changes({
+            since: seq,
+            limit: 1
+          }).on('complete', function (results) {
+            results.results.length.should.equal(1);
+            done();
+          });
         });
       });
     });
@@ -185,13 +212,18 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        db.changes({
-          since: 2,
-          limit: 0,
-          complete: function (err, results) {
-            results.results.length.should.equal(1);
-            done();
+        getNthChangeSeq(db, 2, function (err, seq) {
+          if (err) {
+            return done(err);
           }
+          db.changes({
+            since: seq,
+            limit: 0,
+            complete: function (err, results) {
+              results.results.length.should.equal(1);
+              done();
+            }
+          });
         });
       });
     });
@@ -205,12 +237,17 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        db.changes({
-          since: 2,
-          limit: 0
-        }).on('complete', function (results) {
-          results.results.length.should.equal(1);
-          done();
+        getNthChangeSeq(db, 2, function (err, seq) {
+          if (err) {
+            return done(err);
+          }
+          db.changes({
+            since: seq,
+            limit: 0
+          }).on('complete', function (results) {
+            results.results.length.should.equal(1);
+            done();
+          });
         });
       });
     });
@@ -234,22 +271,31 @@ adapters.forEach(function (adapter) {
         docs2[1]._rev = info[3].rev;
         db.put(docs2[0], function (err, info) {
           db.put(docs2[1], function (err, info) {
-            db.changes({
-              limit: 2,
-              since: 2,
-              include_docs: true,
-              complete: function (err, results) {
-                results.last_seq.should.equal(6);
-                results = results.results;
-                results.length.should.equal(2);
-                results[0].id.should.equal('2');
-                results[0].seq.should.equal(5);
-                results[0].doc.integer.should.equal(11);
-                results[1].id.should.equal('3');
-                results[1].seq.should.equal(6);
-                results[1].doc.integer.should.equal(12);
-                done();
+            getNthChangeSeq(db, 2, function (err, seq) {
+              if (err) {
+                return done(err);
               }
+              db.changes({
+                limit: 2,
+                since: seq,
+                include_docs: true,
+                complete: function (err, results) {
+                  try {
+                    parseSeq(results.last_seq).should.equal(6);
+                    results = results.results;
+                    results.length.should.equal(2);
+                    results[0].id.should.equal('2');
+                    parseSeq(results[0].seq).should.equal(5);
+                    results[0].doc.integer.should.equal(11);
+                    results[1].id.should.equal('3');
+                    parseSeq(results[1].seq).should.equal(6);
+                    results[1].doc.integer.should.equal(12);
+                    done();
+                  } catch (err) {
+                    done(err);
+                  }
+                }
+              });
             });
           });
         });
@@ -275,21 +321,30 @@ adapters.forEach(function (adapter) {
         docs2[1]._rev = info[3].rev;
         db.put(docs2[0], function (err, info) {
           db.put(docs2[1], function (err, info) {
-            db.changes({
-              limit: 2,
-              since: 2,
-              include_docs: true
-            }).on('complete', function (results) {
-              results.last_seq.should.equal(6);
-              results = results.results;
-              results.length.should.equal(2);
-              results[0].id.should.equal('2');
-              results[0].seq.should.equal(5);
-              results[0].doc.integer.should.equal(11);
-              results[1].id.should.equal('3');
-              results[1].seq.should.equal(6);
-              results[1].doc.integer.should.equal(12);
-              done();
+            getNthChangeSeq(db, 2, function (err, seq) {
+              if (err) {
+                return done(err);
+              }
+              db.changes({
+                limit: 2,
+                since: seq,
+                include_docs: true
+              }).on('complete', function (results) {
+                try {
+                  parseSeq(results.last_seq).should.equal(6);
+                  results = results.results;
+                  results.length.should.equal(2);
+                  results[0].id.should.equal('2');
+                  parseSeq(results[0].seq).should.equal(5);
+                  results[0].doc.integer.should.equal(11);
+                  results[1].id.should.equal('3');
+                  parseSeq(results[1].seq).should.equal(6);
+                  results[1].doc.integer.should.equal(12);
+                  done();
+                } catch (err) {
+                  done(err);
+                }
+              });
             });
           });
         });
@@ -313,7 +368,7 @@ adapters.forEach(function (adapter) {
           include_docs: true,
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: odd');
+            err.message.should.contain('missing json key');
             should.not.exist(results);
             done();
           }
@@ -344,7 +399,7 @@ adapters.forEach(function (adapter) {
           include_docs: true,
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: filters');
+            err.message.should.contain('missing json key');
             should.not.exist(results);
             done();
           }
@@ -368,24 +423,33 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       testUtils.writeDocs(db, docs, function (err, info) {
-        var promise = db.changes({
-          filter: 'foo/even',
-          limit: 2,
-          since: 2,
-          include_docs: true,
-          complete: function (err, results) {
-            results.results.length.should.equal(2);
-            results.results[0].id.should.equal('3');
-            results.results[0].seq.should.equal(4);
-            results.results[0].doc.integer.should.equal(3);
-            results.results[1].id.should.equal('5');
-            results.results[1].seq.should.equal(6);
-            results.results[1].doc.integer.should.equal(5);
-            done();
+        getNthChangeSeq(db, 2, function (err, seq) {
+          if (err) {
+            return done(err);
           }
+          var promise = db.changes({
+            filter: 'foo/even',
+            limit: 2,
+            since: seq,
+            include_docs: true,
+            complete: function (err, results) {
+              try {
+                results.results.length.should.equal(2);
+                results.results[0].id.should.equal('3');
+                parseSeq(results.results[0].seq).should.equal(4);
+                results.results[0].doc.integer.should.equal(3);
+                results.results[1].id.should.equal('5');
+                parseSeq(results.results[1].seq).should.equal(6);
+                results.results[1].doc.integer.should.equal(5);
+                done();
+              } catch (err) {
+                done(err);
+              }
+            }
+          });
+          should.exist(promise);
+          promise.cancel.should.be.a('function');
         });
-        should.exist(promise);
-        promise.cancel.should.be.a('function');
       });
     });
 
@@ -428,7 +492,7 @@ adapters.forEach(function (adapter) {
           view: 'foo/odd',
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: odd');
+            err.message.should.contain('missing json key');
             should.not.exist(results);
             done();
           }
@@ -442,7 +506,7 @@ adapters.forEach(function (adapter) {
         {
           _id: '_design/foo',
           integer: 4,
-          filters: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
+          baz: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
         }
       ];
       var db = new PouchDB(dbs.name);
@@ -452,7 +516,7 @@ adapters.forEach(function (adapter) {
           view: 'foo/even',
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: views');
+            err.message.should.contain('missing json key');
             should.not.exist(results);
             done();
           }
@@ -477,8 +541,7 @@ adapters.forEach(function (adapter) {
           filter: '_view',
           complete: function (err, results) {
             err.status.should.equal(400);
-            err.message.should
-              .equal('`view` filter parameter is not provided.');
+            /filter parameter/.test(err.message).should.equal(true);
             should.not.exist(results);
             done();
           }
@@ -503,22 +566,34 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       testUtils.writeDocs(db, docs, function (err, info) {
-        db.changes({
-          filter: '_view',
-          view: 'foo/even',
-          limit: 2,
-          since: 2,
-          include_docs: true,
-          complete: function (err, results) {
-            results.results.length.should.equal(2);
-            results.results[0].id.should.equal('3');
-            results.results[0].seq.should.equal(4);
-            results.results[0].doc.integer.should.equal(3);
-            results.results[1].id.should.equal('5');
-            results.results[1].seq.should.equal(6);
-            results.results[1].doc.integer.should.equal(5);
-            done();
+        getNthChangeSeq(db, 2, function (err, seq) {
+          if (err) {
+            return done(err);
           }
+          db.changes({
+            filter: '_view',
+            view: 'foo/even',
+            limit: 2,
+            since: seq,
+            include_docs: true,
+            complete: function (err, results) {
+              if (err) {
+                return done(err);
+              }
+              try {
+                results.results.length.should.equal(2);
+                results.results[0].id.should.equal('3');
+                parseSeq(results.results[0].seq).should.equal(4);
+                results.results[0].doc.integer.should.equal(3);
+                results.results[1].id.should.equal('5');
+                parseSeq(results.results[1].seq).should.equal(6);
+                results.results[1].doc.integer.should.equal(5);
+                done();
+              } catch (err) {
+                done(err);
+              }
+            }
+          });
         });
       });
     });
@@ -539,15 +614,15 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.changes({
         complete: function (err, results) {
-          results.last_seq.should.equal(0);
+          parseSeq(results.last_seq).should.equal(0);
           db.bulkDocs({ docs: docs }, function (err, info) {
             db.changes({
               complete: function (err, results) {
-                results.last_seq.should.equal(5);
+                parseSeq(results.last_seq).should.equal(5);
                 db.changes({
                   filter: 'foo/even',
                   complete: function (err, results) {
-                    results.last_seq.should.equal(5);
+                    parseSeq(results.last_seq).should.equal(5);
                     results.results.length.should.equal(2);
                     done();
                   }
@@ -577,18 +652,22 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.changes({
         complete: function (err, results) {
-          results.last_seq.should.equal(0);
+          parseSeq(results.last_seq).should.equal(0);
           db.bulkDocs({ docs: docs }, function (err, info) {
             db.changes({
               complete: function (err, results) {
-                results.last_seq.should.equal(5);
+                parseSeq(results.last_seq).should.equal(5);
                 db.changes({
                   filter: '_view',
                   view: 'foo/even',
                   complete: function (err, results) {
-                    results.last_seq.should.equal(5);
-                    results.results.length.should.equal(2);
-                    done();
+                    try {
+                      parseSeq(results.last_seq).should.equal(5);
+                      results.results.length.should.equal(2);
+                      done();
+                    } catch (err) {
+                      done(err);
+                    }
                   }
                 });
               }
@@ -699,17 +778,26 @@ adapters.forEach(function (adapter) {
       db.post({_id: '0', test: 'ing'}, function (err, res) {
         db.post({_id: '1', test: 'ing'}, function (err, res) {
           db.post({_id: '2', test: 'ing'}, function (err, res) {
-            db.changes({
-              descending: true,
-              since: 1,
-              complete: function (err, results) {
-                results.results.length.should.equal(3);
-                var ids = ['2', '1', '0'];
-                results.results.forEach(function (row, i) {
-                  row.id.should.equal(ids[i]);
-                });
-                done();
+            getNthChangeSeq(db, 1, function (err, seq) {
+              if (err) {
+                return done(err);
               }
+              db.changes({
+                descending: true,
+                since: seq,
+                complete: function (err, results) {
+                  try {
+                    results.results.length.should.equal(3);
+                    var ids = ['2', '1', '0'];
+                    results.results.forEach(function (row, i) {
+                      row.id.should.equal(ids[i]);
+                    });
+                    done();
+                  } catch (err) {
+                    done(err);
+                  }
+                }
+              });
             });
           });
         });
@@ -1155,12 +1243,16 @@ adapters.forEach(function (adapter) {
             db.changes({
               include_docs: true,
               complete: function (err, changes) {
-                changes.results.length.should.equal(4);
-                changes.results[2].seq.should.equal(5);
-                changes.results[2].id.should.equal('2');
-                changes.results[2].changes.length.should.equal(1);
-                changes.results[2].doc.integer.should.equal(11);
-                done();
+                try {
+                  changes.results.length.should.equal(4);
+                  parseSeq(changes.results[2].seq).should.equal(5);
+                  changes.results[2].id.should.equal('2');
+                  changes.results[2].changes.length.should.equal(1);
+                  changes.results[2].doc.integer.should.equal(11);
+                  done();
+                } catch (err) {
+                  done(err);
+                }
               }
             });
           });
@@ -1168,7 +1260,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Changes with conflicts are handled correctly', function (testDone) {
+    it('Changes with conflicts are handled correctly', function (done) {
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -1186,9 +1278,12 @@ adapters.forEach(function (adapter) {
           docs2[0]._rev = info[2].rev;
           docs2[1]._rev = info[3].rev;
           localdb.put(docs2[0], function (err, info) {
+            if (err) { return done(err); };
             localdb.put(docs2[1], function (err, info) {
+              if (err) { return done(err); };
               var rev2 = info.rev;
-              PouchDB.replicate(localdb, remotedb, function (err, done) {
+              PouchDB.replicate(localdb, remotedb, function (err) {
+                if (err) { return done(err); };
                 // update remote once, local twice, then replicate from
                 // remote to local so the remote losing conflict is later in 
                 // the tree
@@ -1197,12 +1292,14 @@ adapters.forEach(function (adapter) {
                   _rev: rev2,
                   integer: 20
                 }, function (err, resp) {
+                  if (err) { return done(err); };
                   var rev3Doc = {
                     _id: '3',
                     _rev: resp.rev,
                     integer: 30
                   };
                   localdb.put(rev3Doc, function (err, resp) {
+                    if (err) { return done(err); };
                     var rev4local = resp.rev;
                     var rev4Doc = {
                       _id: '3',
@@ -1210,28 +1307,35 @@ adapters.forEach(function (adapter) {
                       integer: 100
                     };
                     remotedb.put(rev4Doc, function (err, resp) {
+                      if (err) { return done(err); };
                       var remoterev = resp.rev;
                       PouchDB.replicate(remotedb, localdb,
-                        function (err, done) {
-                        localdb.changes({
+                        function (err) {
+                        if (err) { return done(err); }
+                          localdb.changes({
                           include_docs: true,
                           style: 'all_docs',
                           conflicts: true,
                           complete: function (err, changes) {
-                            changes.results.length.should.equal(4);
-                            var ch = changes.results[3];
-                            ch.id.should.equal('3');
-                            ch.changes.length.should.equal(2);
-                            ch.doc.integer.should.equal(30);
-                            ch.doc._rev.should.equal(rev4local);
-                            ch.changes.should.deep.equal([
-                              { rev: rev4local },
-                              { rev: remoterev }
-                            ]);
-                            ch.doc.should.have.property('_conflicts');
-                            ch.doc._conflicts.length.should.equal(1);
-                            ch.doc._conflicts[0].should.equal(remoterev);
-                            testDone();
+                            if (err) { return done(err); }
+                            try {
+                              changes.results.length.should.equal(4);
+                              var ch = changes.results[3];
+                              ch.id.should.equal('3');
+                              ch.changes.length.should.equal(2);
+                              ch.doc.integer.should.equal(30);
+                              ch.doc._rev.should.equal(rev4local);
+                              ch.changes.should.deep.equal([
+                                { rev: rev4local },
+                                { rev: remoterev }
+                              ]);
+                              ch.doc.should.have.property('_conflicts');
+                              ch.doc._conflicts.length.should.equal(1);
+                              ch.doc._conflicts[0].should.equal(remoterev);
+                              done();
+                            } catch (err) {
+                              done(err);
+                            }
                           }
                         });
                       });
@@ -1262,12 +1366,16 @@ adapters.forEach(function (adapter) {
           db.changes({
             include_docs: true,
             complete: function (err, changes) {
-              changes.results.length.should.equal(4);
-              var ch = changes.results[3];
-              ch.id.should.equal('3');
-              ch.seq.should.equal(5);
-              ch.deleted.should.equal(true);
-              done();
+              try {
+                changes.results.length.should.equal(4);
+                var ch = changes.results[3];
+                ch.id.should.equal('3');
+                parseSeq(ch.seq).should.equal(5);
+                ch.deleted.should.equal(true);
+                done();
+              } catch (err) {
+                done(err);
+              }
             }
           });
         });
@@ -1302,7 +1410,7 @@ adapters.forEach(function (adapter) {
             since: 'now',
             complete: function (err, res) {
               should.not.exist(err);
-              res.last_seq.should.equal(info.update_seq);
+              parseSeq(res.last_seq).should.equal(parseSeq(info.update_seq));
               done();
             }
           });
@@ -1321,7 +1429,7 @@ adapters.forEach(function (adapter) {
             since: 'latest',
             complete: function (err, res) {
               should.not.exist(err);
-              res.last_seq.should.equal(info.update_seq);
+              parseSeq(res.last_seq).should.equal(parseSeq(info.update_seq));
               done();
             }
           });

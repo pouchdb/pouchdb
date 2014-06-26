@@ -349,6 +349,16 @@ testUtils.cleanUpCors = function (dburl, callback_) {
     });
   }
 };
+testUtils.getNthChangeSeq = function (db, n, callback) {
+  db.changes().on('complete', function (res) {
+    var changeSeq = res.results[n - 1].seq;
+    callback(null, changeSeq);
+  }).on('error', callback);
+};
+testUtils.parseSeq = function (seq) {
+  // cloudant uses strings with prefix like e.g. "2-"
+  return typeof seq === 'number' ? seq : parseInt(seq.split('-')[0], 10);
+};
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
   global.PouchDB = require('../lib');

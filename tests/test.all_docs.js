@@ -51,17 +51,25 @@ adapters.forEach(function (adapter) {
               var ids = ['0', '3', '1', '2'];
               db.changes({
                 complete: function (err, changes) {
+                  try {
                   changes.results.forEach(function (row, i) {
                     row.id.should.equal(ids[i], 'seq order');
                   });
+                  } catch (err) {
+                    return done(err);
+                  }
                   db.changes({
                     descending: true,
                     complete: function (err, changes) {
-                      ids = ['2', '1', '3', '0'];
-                      changes.results.forEach(function (row, i) {
-                        row.id.should.equal(ids[i], 'descending=true');
-                      });
-                      done();
+                      try {
+                        ids = ['2', '1', '3', '0'];
+                        changes.results.forEach(function (row, i) {
+                          row.id.should.equal(ids[i], 'descending=true');
+                        });
+                        done();
+                      } catch (err) {
+                        done(err);
+                      }
                     }
                   });
                 }
@@ -133,10 +141,14 @@ adapters.forEach(function (adapter) {
             should.exist(deleted.ok);
             db.changes({
               complete: function (err, changes) {
-                changes.results.should.have.length(4);
-                changes.results[3].id.should.equal('1');
-                should.exist(changes.results[3].deleted);
-                done();
+                try {
+                  changes.results.should.have.length(4);
+                  changes.results[3].id.should.equal('1');
+                  should.exist(changes.results[3].deleted);
+                  done();
+                } catch (err) {
+                  done(err);
+                }
               }
             });
           });
@@ -153,9 +165,13 @@ adapters.forEach(function (adapter) {
           db.put(doc, function (err, doc) {
             db.changes({
               complete: function (err, changes) {
-                changes.results.should.have.length(4);
-                changes.results[3].id.should.equal('3');
-                done();
+                try {
+                  changes.results.should.have.length(4);
+                  changes.results[3].id.should.equal('3');
+                  done();
+                } catch (err) {
+                  done(err);
+                }
               }
             });
           });
@@ -170,8 +186,12 @@ adapters.forEach(function (adapter) {
         db.changes({
           include_docs: true,
           complete: function (err, changes) {
-            changes.results[0].doc.a.should.equal(1);
-            done();
+            try {
+              changes.results[0].doc.a.should.equal(1);
+              done();
+            } catch (err) {
+              done(err);
+            }
           }
         });
       });
@@ -201,16 +221,20 @@ adapters.forEach(function (adapter) {
                 conflicts: true,
                 style: 'all_docs',
                 complete: function (err, changes) {
-                  var result = changes.results[3];
-                  result.id.should.equal('3', 'changes are ordered');
-                  result.changes.should.have
-                    .length(3, 'correct number of changes');
-                  result.doc._rev.should.equal(conflictDoc2._rev);
-                  result.doc._id.should.equal('3', 'correct doc id');
-                  winRev._rev.should.equal(result.doc._rev);
-                  result.doc._conflicts.should.be.instanceof(Array);
-                  result.doc._conflicts.should.have.length(2);
-                  conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
+                  try {
+                    var result = changes.results[3];
+                    result.id.should.equal('3', 'changes are ordered');
+                    result.changes.should.have
+                      .length(3, 'correct number of changes');
+                    result.doc._rev.should.equal(conflictDoc2._rev);
+                    result.doc._id.should.equal('3', 'correct doc id');
+                    winRev._rev.should.equal(result.doc._rev);
+                    result.doc._conflicts.should.be.instanceof(Array);
+                    result.doc._conflicts.should.have.length(2);
+                    conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
+                  } catch (err) {
+                    return done(err);
+                  }
                   db.allDocs({
                     include_docs: true,
                     conflicts: true
