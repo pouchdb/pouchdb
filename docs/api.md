@@ -480,6 +480,7 @@ db.changes()
 
 **Note:**
 
+* Using the `complete` event on live changes is pointless because it will never fire.
 * The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
 * The `'since'`option formally took 'latest' but has been changed to 'now' to keep consistency with CouchDB, 'latest' is deprecated but will still work to ensure backwards compatibility.
 
