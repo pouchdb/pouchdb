@@ -581,7 +581,7 @@ Sync data from `src` to `target` and `target` to `src`. This is a convience meth
 
 ### Options
 
-Please refer to [Replication](api.html#replication) for documention on options, as sync is just a convience method that entails bidirectional replication.
+Please refer to [Replication](api.html#replication) for documentation on options, as sync is just a convience method that entails bidirectional replication.
 
 #### Example Usage:
 {% highlight js %}
