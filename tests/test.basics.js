@@ -343,6 +343,76 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Delete document with many args', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        return db.remove(doc._id, info.rev, {});
+      });
+    });
+
+    it('Delete document with many args, callback style', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      db.put(doc, function (err, info) {
+        should.not.exist(err);
+        db.remove(doc._id, info.rev, {}, function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('Delete doc with id + rev + no opts', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        return db.remove(doc._id, info.rev);
+      });
+    });
+
+    it('Delete doc with id + rev + no opts, callback style', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      db.put(doc, function (err, info) {
+        should.not.exist(err);
+        db.remove(doc._id, info.rev, function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('Delete doc with doc + opts', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        doc._rev = info.rev;
+        return db.remove(doc, {});
+      });
+    });
+
+    it('Delete doc with doc + opts, callback style', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      db.put(doc, function (err, info) {
+        should.not.exist(err);
+        doc._rev = info.rev;
+        db.remove(doc, {}, function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('Delete doc with rev in opts', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        return db.remove(doc, {rev: info.rev});
+      });
+    });
+
     it('Bulk docs', function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({
