@@ -259,9 +259,11 @@ db.get('mydoc').then(function(doc) {
 db.bulkDocs(docs, [options], [callback])
 {% endhighlight %}
 
-Create, update or delete multiple documents. The `docs` argument is an array of documents, or an object with property `docs` which is the array of documents.
+Create, update or delete multiple documents. The `docs` argument is an array of documents.
 
 If you omit an `_id` parameter on a given document, the database will create a new document and assign the ID for you. To update a document, you must include both an `_id` parameter and a `_rev` parameter, which should match the ID and revision of the document on which to base your updates. Finally, to delete a document, include a `_deleted` parameter with the value `true`.
+
+**Note**: Previously `bulkDocs()` took an object with a key `docs` holding the array of documents. This is deprecated, but still works.
 
 #### Example Usage:
 
@@ -330,7 +332,7 @@ db.bulkDocs([
 ], function(err, response) { });
 {% endhighlight %}
 
-**Note:** You can also specify a `new_edits` property on the `docs` object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
+**Note:** You can also specify a `new_edits` property on the options object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
 
 {% include anchor.html title="Fetch a batch of documents" hash="batch_fetch" %}
 
