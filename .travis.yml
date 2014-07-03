@@ -62,6 +62,9 @@ env:
 
 matrix:
   allow_failures:
+  - env: CLIENT=saucelabs:chrome COMMAND=test
+  - env: CLIENT=saucelabs:chrome ADAPTERS=websql COMMAND=test
+  - env: CLIENT=saucelabs:safari:6 COMMAND=test
   - env: CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
   - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
   - env: SERVER_ADAPTER=memory LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
