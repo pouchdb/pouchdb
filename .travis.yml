@@ -23,7 +23,8 @@ before_script:
   - "curl -X PUT http://127.0.0.1:5984/_config/log/level -d '\"debug\"'"
 
     # for pouchdb-server to link to pouchdb
-  - ln -sf ../../.. node_modules/pouchdb-server/node_modules/pouchdb
+  - rm -fr node_modules/pouchdb-server/node_modules/pouchdb
+  - ln -s ../../.. node_modules/pouchdb-server/node_modules/pouchdb
 
 
 after_failure:
