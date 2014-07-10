@@ -62,18 +62,23 @@ describe('test.http.js', function () {
     PouchDB.destroy(dbs.name, function () {
       var beforeSendArguments = null;
       var ajax = {
-        beforeSend: function(){
+        beforeSend: function () {
           beforeSendArguments = arguments;
         }
       };
       instantDB = new PouchDB(dbs.name, { ajax: ajax });
       instantDB.post({ test: 'abc' }, function (err, info) {
-        beforeSendArguments.length.should.equal(2)
+        beforeSendArguments.length.should.equal(2);
         var xhr = beforeSendArguments[0];
-        var options = beforeSendArguments[1]
+        var options = beforeSendArguments[1];
         
-        xhr.should.be.an.instanceof(XMLHttpRequest);
-        options.beforeSend.should.equal(ajax.beforeSend)
+        if (global.window) {
+          xhr.should.be.an.instanceof(XMLHttpRequest);
+        } else {
+          true.should.equal(null === xhr);
+        }
+
+        options.beforeSend.should.equal(ajax.beforeSend);
         done();
       });
     });
