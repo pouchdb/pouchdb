@@ -983,7 +983,7 @@ db.info(function(err, info) { })
 db.compact([options], [callback])
 {% endhighlight %}
 
-Triggers a CouchDB compaction operation for `db` on the remote host. This reduces the database's size by removing unused and old data. If the `callback` function is specified, Pouch checks compaction status at regular intervals and fires the callback upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more detail about database compaction.
+Triggers a compaction operation for `db` on the remote host. This reduces the database's size by removing unused and old data. If a `callback` function is specified, Pouch checks compaction status at regular intervals and fires the callback upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more detail about database compaction.
 
 **Note:** This method is only available when using the http adapter.
 
