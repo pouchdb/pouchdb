@@ -984,9 +984,11 @@ db.info(function(err, info) { })
 db.compact([options], [callback])
 {% endhighlight %}
 
-Runs compaction of the database. Fires callback when compaction is done. If you use the http adapter and have specified a callback, Pouch will ping the remote database in regular intervals unless the compaction is finished.
+Triggers a compaction operation for `db` on the remote host. This reduces the database's size by removing unused and old data. If a `callback` function is specified, Pouch checks compaction status at regular intervals and fires the callback upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more detail about database compaction.
 
-* `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Only for http adapter.
+**Note:** This method is only available when using the http adapter.
+
+* `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Defaults to 200.
 
 {% include anchor.html title="Document revisions diff" hash="revisions_diff" %}
 
