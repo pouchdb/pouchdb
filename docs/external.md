@@ -16,6 +16,10 @@ Revives the `allDbs()` function, which lists all PouchDB databases.
 
 Plugin for CouchDB's authentication system.
 
+#### [PouchDB Collate](https://github.com/pouchdb/collate)
+
+Collation utilities, so you can use complex keys as doc IDs.
+
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
 Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
