@@ -56,31 +56,4 @@ describe('test.http.js', function () {
       });
     });
   });
-
-  it('Create a pouch with a beforeSend hook', function (done) {
-    var instantDB;
-    PouchDB.destroy(dbs.name, function () {
-      var beforeSendArguments = null;
-      var ajax = {
-        beforeSend: function () {
-          beforeSendArguments = arguments;
-        }
-      };
-      instantDB = new PouchDB(dbs.name, { ajax: ajax });
-      instantDB.post({ test: 'abc' }, function (err, info) {
-        beforeSendArguments.length.should.equal(2);
-        var xhr = beforeSendArguments[0];
-        var options = beforeSendArguments[1];
-        
-        if (global.window) {
-          xhr.should.be.an.instanceof(XMLHttpRequest);
-        } else {
-          true.should.equal(null === xhr);
-        }
-
-        options.beforeSend.should.equal(ajax.beforeSend);
-        done();
-      });
-    });
-  });
 });
