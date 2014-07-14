@@ -511,9 +511,9 @@ adapters.forEach(function (adapters) {
       var doc = {
         _id: '_design/barbar',
         views:
-          { scores:
-            { map: 'function (doc) { if (doc.score) ' +
-                   '{ emit(null, doc.score); } }' } }
+        { scores:
+        { map: 'function (doc) { if (doc.score) ' +
+          '{ emit(null, doc.score); } }' } }
       };
       db.post(doc, function (err, info) {
         db.query('barbar/dontExist', { key: 'bar' }, function (err, res) {
@@ -524,6 +524,42 @@ adapters.forEach(function (adapters) {
           err.name.should.be.a('string');
           err.message.should.be.a('string');
           done();
+        });
+      });
+    });
+
+    it('emits registeredDependentDb event', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {
+        _id: '_design/barbar',
+        views:
+        { scores:
+        { map: 'function (doc) { if (doc.score) ' +
+          '{ emit(null, doc.score); } }' } }
+      };
+      var numDone = 0;
+      function checkDone() {
+        if (++numDone === 3) {
+          PouchDB.removeAllListeners('registeredDependentDb');
+          done();
+        }
+      }
+      PouchDB.on('registeredDependentDb', function (sourceDB, dependentDB,
+                                                    adapter) {
+        sourceDB.should.equal(dbs.name);
+        dependentDB.should.be.a('string');
+        adapter.should.equal(db.adapter);
+        checkDone();
+      });
+      db.on('registeredDependentDb', function (dependentDB) {
+        dependentDB.should.be.a('string');
+        checkDone();
+      });
+      db.post(doc, function (err) {
+        should.not.exist(err);
+        db.query('barbar/scores', { key: 'bar' }, function (err) {
+          should.not.exist(err);
+          checkDone();
         });
       });
     });
