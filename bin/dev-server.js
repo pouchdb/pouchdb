@@ -9,7 +9,7 @@ var watchGlob = require('watch-glob');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
-var http_proxy = require('http-proxy');
+var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
 
 var queryParams = {};
