@@ -485,6 +485,20 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Replication fields (#2442)', function (done) {
+      var doc = {
+        '_replication_id': 'test',
+        '_replication_state': 'triggered',
+        '_replication_state_time': 1,
+        '_replication_stats': {}
+      };
+      var db = new PouchDB(dbs.name);
+      db.post(doc, function (err, res) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
     it('Testing issue #48', function (done) {
       var docs = [
         {'id': '0'}, {'id': '1'}, {'id': '2'},
