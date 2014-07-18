@@ -1179,7 +1179,6 @@ adapters.forEach(function (adapter) {
         {_id: '2', integer: 11},
         {_id: '3', integer: 12},
       ];
-      var _i = 0;
       new PouchDB(dbs.name).then(function (localdb) {
         var remotedb = new PouchDB(dbs.remote);
         return localdb.bulkDocs({ docs: docs1 }).then(function (info) {
