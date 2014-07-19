@@ -116,23 +116,29 @@ or e.g.:
 
 or you can append it as `?es5shim=true` if you manually opened a browser window.
 
+#### Test with the CORS proxy
+
+For many cases we need to set with the CORS proxy running at localhost:2020 instead of directly accessing CouchDB at 5984.  You can start up the proxy using:
+
+    $ CORS_PROXY=true CLIENT=selenium:firefox npm run test
+    $ CORS_PROXY=true npm run dev
+
+The CORS proxy is only used in the browser, not in the Node tests.
+
 ### Cordova tests
 
 You may need to install `ant` in order for the Android tests to run (e.g. `brew install ant`).
 
-You will also need to run the dev test `npm run dev` simultaneously, so that
-the CORS server is available on port 2020.
-
     $ CLIENT=ios npm run cordova
     $ CLIENT=android DEVICE=true npm run cordova. Also available: `CLIENT=firefoxos`.
-    $ COUCH_HOST=http://myurl:2020 npm run cordova
+    $ COUCH_HOST=http://myurl:5984 npm run cordova
     $ GREP=basics npm run cordova
     $ SQLITE_PLUGIN=true npm run cordova
 
 * `CLIENT=ios` will run on iOS, default is `CLIENT=android`
 * `DEVICE=true` will run on a device connected via USB, else on an emulator
 * `SQLITE_PLUGIN=true` will use the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin)
-* `COUCH_HOST` should be the full URL; you can only omit this is in the Android emulator
+* `COUCH_HOST` should be the full URL; you can only omit this is in the Android emulator because the magic route 10.0.2.2 routes to localhost
 
 You can also debug with Weinre by doing:
 
