@@ -785,6 +785,32 @@ adapters.forEach(function (adapter) {
         done();
       }, done);
     });
+    it('local docs - put then get', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put({_id: '_local/foo'}).then(function (res) {
+        res.id.should.equal('_local/foo');
+        res.rev.should.be.a('string');
+        res.ok.should.equal(true);
+        return db.get('_local/foo');
+      });
+    });
+    it('local docs - put then remove then get', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: '_local/foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.remove(doc);
+      }).then(function (res) {
+        res.id.should.equal('_local/foo');
+        res.rev.should.be.a('string');
+        res.ok.should.equal(true);
+        return db.get('_local/foo').then(function (doc) {
+          should.not.exist(doc);
+        }).catch(function (err) {
+          err.name.should.equal('not_found');
+        });
+      });
+    });
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
