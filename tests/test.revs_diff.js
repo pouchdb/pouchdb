@@ -12,7 +12,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    after(function (done) {
+    afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -97,6 +97,41 @@ adapters.forEach(function (adapter) {
         db.revsDiff({'935': ['1-a', '2-a']}, function (err, results) {
           results.should.not.include.keys('939');
           done();
+        });
+      });
+    });
+
+    it('Revs diff with empty revs', function () {
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.revsDiff({}).then(function (res) {
+          should.exist(res);
+        });
+      });
+    });
+
+    it('Test revs diff with reserved ID', function (done) {
+      var db = new PouchDB(dbs.name);
+      var revs = [];
+      db.post({
+        test: 'constructor',
+        _id: 'constructor'
+      }, function (err, info) {
+        revs.push(info.rev);
+        db.put({
+          _id: info.id,
+          _rev: info.rev,
+          another: 'test'
+        }, function (err, info2) {
+          revs.push(info2.rev);
+          db.revsDiff({ 'constructor': revs }, function (err, results) {
+            results.should.not.include.keys('constructor');
+            revs.push('2-randomid');
+            db.revsDiff({ 'constructor': revs }, function (err, results) {
+              results.should.include.keys('constructor');
+              results.constructor.missing.should.have.length(1);
+              done();
+            });
+          });
         });
       });
     });
