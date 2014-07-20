@@ -23,7 +23,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('test docs with reserved javascript ids', function () {
-      this.timeout(5000);
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       return db.bulkDocs([
