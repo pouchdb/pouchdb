@@ -425,7 +425,7 @@ var changes = db.changes({
   live: true
 }).on('change', function(change) { });
 
-changes.cancel();
+changes.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 #### Example Response:
@@ -484,7 +484,7 @@ db.changes()
 
 **Note:**
 
-* Using the `complete` event on live changes is pointless because it will never fire.
+* The `'complete'` event only fires when you aren't doing live changes. With live changes, use the `'uptodate'` event instead.
 * The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
 * The `'since'`option formally took 'latest' but has been changed to 'now' to keep consistency with CouchDB, 'latest' is deprecated but will still work to ensure backwards compatibility.
 
@@ -494,7 +494,7 @@ db.changes()
 PouchDB.replicate(source, target, [options])
 {% endhighlight %}
 
-Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database url or the name a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically.
+Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database URL or the name of a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically. This method returns an object with the method `cancel()`, which you call if you want to cancel live replication.
 
 Replication is an event emiter like `changes()` and emits the `'complete'`, `'uptodate'`, `'change'` and `'error'` events.
 
@@ -513,7 +513,7 @@ All options default to `false` unless otherwise specified.
 
 #### Example Usage:
 {% highlight js %}
-PouchDB.replicate('mydb', 'http://localhost:5984/mydb')
+var replication = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true})
   .on('change', function (info) {
     // handle change
   }).on('complete', function (info) {
@@ -523,6 +523,8 @@ PouchDB.replicate('mydb', 'http://localhost:5984/mydb')
   }).on('error', function (err) {
     // handle error
   });
+  
+replication.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 There are also shorthands for replication given existing PouchDB objects. These behave the same as `PouchDB.replicate()`:
@@ -582,18 +584,41 @@ Example response in the `'complete'` listener:
 var sync = PouchDB.sync(src, target, [options])
 {% endhighlight %}
 
-Sync data from `src` to `target` and `target` to `src`. This is a convience method for bidirectional data replication.
+Sync data from `src` to `target` and `target` to `src`. This is a convenience method for bidirectional data replication.
+
+In other words, this code:
+
+{% highlight js %}
+PouchDB.replicate('mydb', 'http://localhost:5984/mydb');
+PouchDB.replicate('http://localhost:5984/mydb', 'mydb');
+{% endhighlight %}
+
+
+is equivalent to this code:
+
+{% highlight js %}
+PouchDB.sync('mydb', 'http://localhost:5984/mydb');
+{% endhighlight %}
+
 
 ### Options
 
-Please refer to [Replication](api.html#replication) for documentation on options, as sync is just a convience method that entails bidirectional replication.
+Please refer to [Replication](api.html#replication) for documentation on options, as `sync()` is just a convenience method that entails bidirectional replication.
 
 #### Example Usage:
 {% highlight js %}
-PouchDB.sync('http://localhost:5984/mydb')
-  .on('change', onChange)
-  .on('complete', onComplete)
-  .on('error', onError);
+var sync = PouchDB.sync('mydb', 'http://localhost:5984/mydb', {live: true})
+  .on('change', function (info) {
+    // handle change
+  }).on('complete', function (info) {
+    // handle complete
+  }).on('uptodate', function (info) {
+    // handle up-to-date
+  }).on('error', function (err) {
+    // handle error
+  });
+  
+sync.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 There is also a shorthand for syncing given existing PouchDB objects. This behaves the same as `PouchDB.sync()`:
