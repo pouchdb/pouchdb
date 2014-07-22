@@ -23,16 +23,34 @@
   }
 }
 
-@media (max-width: @navs-breakpoint) {
-  .nav {
+@media (max-width: @navs-breakpoint-justified) {
+  .nav-header {
+     width: 100%;
+    > li {
       float: none;
-      > li {
-        width: 100%;
-      }
+      display: table-cell;
+      width: 1%;
+      > a { text-align: center; }
+    }
   }
 }
+
+@media (max-width: @navs-breakpoint-horizontal) {
+  .nav-header > li:last-child {
+    float: left;
+    width: 100%;
+  }
+}
+
+@media (max-width: @logo-breakpoint) {
+  .nav-header > li {
+    float: left;
+    width: 100%;
+  }
+}
+
 @media (max-width: @screen-sm-min) {
   .nav.nav-sidebar { margin-bottom: 25px; }
   .nav-head,
-  .nav { text-align: center; }
+  .nav.nav-sidebar { text-align: center; }
 }
