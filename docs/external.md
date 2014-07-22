@@ -20,6 +20,10 @@ Plugin for CouchDB's authentication system.
 
 Collation utilities, so you can use complex keys as doc IDs.
 
+#### [Filter Pouch](https://github.com/nolanlawson/filter-pouch)
+
+Applies filter functions to documents before and after storage, e.g. for encryption, compression, or massaging data.
+
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
 Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
@@ -27,6 +31,10 @@ Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchd
 #### [PouchDB List](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 Allows you to re-use your CouchDB list functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-rewrite-plug-in))
+
+#### [Pouch Mirror](https://github.com/colinskow/pouch-mirror)
+
+Creates a synced in-memory mirror of a remote CouchDB for faster reads.
 
 #### [PouchDB No-Eval Map/Reduce](https://github.com/evidenceprime/pouchdb.mapreduce.noeval)
 
