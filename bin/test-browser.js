@@ -5,6 +5,7 @@ var path = require('path');
 var spawn = require('child_process').spawn;
 
 var wd = require('wd');
+wd.configureHttp({timeout: 180000}); // 3 minutes
 var sauceConnectLauncher = require('sauce-connect-launcher');
 var querystring = require("querystring");
 var request = require('request').defaults({json: true});
