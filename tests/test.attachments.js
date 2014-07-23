@@ -239,6 +239,26 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test postAttachment with PNG then bulkDocs', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({ _id: 'foo' }, function (err, res) {
+        db.get('foo', function (err, doc) {
+          var data = pngAttDoc._attachments['foo.png'].data;
+          var blob = testUtils
+            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+              'image/png');
+          db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
+              function (err, info) {
+            should.not.exist(err, 'attachment inserted');
+            db.bulkDocs([{}], function (err) {
+              should.not.exist(err, 'doc inserted');
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('Testing with invalid docs', function (done) {
       var db = new PouchDB(dbs.name);
       var invalidDoc = {
