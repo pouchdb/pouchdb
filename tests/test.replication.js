@@ -84,6 +84,106 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test pull replication with many changes', function (done) {
+      this.timeout(20000);
+      var remote = new PouchDB(dbs.remote);
+
+      var numDocs = 201;
+      var docs = [];
+      for (var i = 0; i < numDocs; i++) {
+        docs.push({_id: i.toString()});
+      }
+
+      remote.bulkDocs({ docs: docs }, {}, function (err) {
+        should.not.exist(err);
+        PouchDB.replicate(dbs.remote, dbs.name, {
+          complete: function (err, result) {
+            result.ok.should.equal(true);
+            result.docs_written.should.equal(docs.length);
+            new PouchDB(dbs.name).info(function (err, info) {
+              info.update_seq.should.equal(numDocs, 'update_seq');
+              info.doc_count.should.equal(numDocs, 'doc_count');
+              done();
+            });
+          }
+        });
+      });
+    });
+
+    it('Test pull replication with many conflicts', function (done) {
+      this.timeout(20000);
+      var remote = new PouchDB(dbs.remote);
+
+      var numRevs = 200; // repro "url too long" error with open_revs
+      var docs = [];
+      for (var i = 0; i < numRevs; i++) {
+        var rev =  '1-' + PouchDB.utils.uuid(32, 16).toLowerCase();
+        docs.push({_id: 'doc', _rev: rev});
+      }
+
+      remote.bulkDocs({ docs: docs }, {new_edits: false}, function (err) {
+        should.not.exist(err);
+        PouchDB.replicate(dbs.remote, dbs.name, {
+          complete: function (err, result) {
+            result.ok.should.equal(true);
+            result.docs_written.should.equal(docs.length);
+            var db = new PouchDB(dbs.name);
+            db.info(function (err, info) {
+              should.not.exist(err);
+              info.doc_count.should.equal(1, 'doc_count');
+              db.get('doc', {open_revs: "all"}, function (err, docs) {
+                should.not.exist(err);
+                var okDocs = docs.filter(function (doc) { return doc.ok; });
+                okDocs.should.have.length(numRevs);
+                done();
+              });
+            });
+          }
+        });
+      });
+    });
+
+    it('Test correct # docs replicated with staggered revs', function (done) {
+      // ensure we don't just process all the open_revs with
+      // every replication; we should only process the current subset
+      var remote = new PouchDB(dbs.remote);
+
+      var docs = [{_id: 'doc', _rev: '1-a'}, {_id: 'doc', _rev: '1-b'}];
+      remote.bulkDocs({ docs: docs }, {new_edits: false}, function (err) {
+        should.not.exist(err);
+        PouchDB.replicate(dbs.remote, dbs.name, {
+          complete: function (err, result) {
+            result.ok.should.equal(true);
+            result.docs_written.should.equal(2);
+            result.docs_read.should.equal(2);
+            var docs = [{_id: 'doc', _rev: '1-c'}, {_id: 'doc', _rev: '1-d'}];
+            remote.bulkDocs({ docs: docs }, {new_edits: false}, function (err) {
+              should.not.exist(err);
+              PouchDB.replicate(dbs.remote, dbs.name, {
+                complete: function (err, result) {
+                  result.docs_written.should.equal(2);
+                  result.docs_read.should.equal(2);
+                  var db = new PouchDB(dbs.name);
+                  db.info(function (err, info) {
+                    should.not.exist(err);
+                    info.doc_count.should.equal(1, 'doc_count');
+                    db.get('doc', {open_revs: "all"}, function (err, docs) {
+                      should.not.exist(err);
+                      var okDocs = docs.filter(function (doc) {
+                        return doc.ok;
+                      });
+                      okDocs.should.have.length(4);
+                      done();
+                    });
+                  });
+                }
+              });
+            });
+          }
+        });
+      });
+    });
+
     it('Local DB contains documents', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
