@@ -6,7 +6,7 @@ sidebar: nav.html
 
 A list of known plugins, tools and projects can be used with PouchDB. [Fork this page](https://github.com/pouchdb/pouchdb/blob/master/docs/external.md) to add your own!
 
-## Plugins
+{% include anchor.html title="Plugins" hash="plugins" %}
 
 #### [PouchDB allDbs()](https://github.com/nolanlawson/pouchdb-all-dbs)
 
@@ -72,7 +72,7 @@ A PouchDB plugin that allows you to re-use your CouchDB update functions on the 
 
 A PouchDB plugin that allows you to re-use your CouchDB `validate_doc_update` functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in))
 
-## Server Side
+{% include anchor.html title="Server Side" hash="Server Side" %}
 
 #### [PouchDB Server](https://github.com/pouchdb/pouchdb-server)
 
@@ -82,7 +82,7 @@ A standalone CouchDB-style REST interface server to PouchDB.
 
 An express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
 
-## MV* Adapters
+{% include anchor.html title="MV* Adapters" hash="MV* Adapters" %}
 
 #### [Backbone PouchDB](https://github.com/jo/backbone-pouch)
 
@@ -96,7 +96,7 @@ PouchDB wrapper for Ember.js.
 
 Wrapper for using PouchDB within Angular.js.
 
-## Other languages
+{% include anchor.html title="Other languages" hash="Other languages" %}
 
 #### [Python-PouchDB](http://python-pouchdb.marten-de-vries.nl/)
 A Python interface to PouchDB, with both a synchronous and an asynchronous API. Uses QtWebKit internally (via either PySide, PyQt4 or PyQt5). Some PouchDB plugins are also wrapped. ([Documentation](http://pythonhosted.org/Python-PouchDB/) / [Launchpad](https://launchpad.net/python-pouchdb))
@@ -105,7 +105,7 @@ A Python interface to PouchDB, with both a synchronous and an asynchronous API. 
 
 Android adapter with a native Java interface to PouchDB.
 
-## Tools
+{% include anchor.html title="Tools" hash="Tools" %}
 
 #### [Revision Tree Visualizer](http://neojski.github.io/visualizeRevTree)
 

@@ -8,7 +8,7 @@ PouchDB was written to help web developers build applications that work offline 
 
 PouchDB is a free open-source project, written in JavaScript by these [wonderful contributors](https://github.com/daleharvey/pouchdb/graphs/contributors) and inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a>. If you want to get involved then check out the [contributing guide](https://github.com/daleharvey/pouchdb/blob/master/CONTRIBUTING.md).
 
-### Browser Support
+{% include anchor.html class="h3" title="Browser Support" hash="browser_support" %}
 
 PouchDB uses various backends so it can work across different browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera/IE, WebSQL in Safari and most mobile browsers, and LevelDB in Node.js. It is currently tested and fully supported in:
 
@@ -25,7 +25,7 @@ PouchDB is experimental on Android 2.x and various mobile browsers and environme
 
 PouchDB requires an ES5 environment. If your browser does not support this (IE <= 9, Android < 4.0, Opera Mini), then you will need to include the [es5-shim](https://github.com/es-shims/es5-shim) library.
 
-### Installing
+{% include anchor.html class="h3" title="Installing" hash="installing" %}
 
 PouchDB is designed to be a minimal library that is suitable for mobile devices, tablets, desktops &mdash; anything that runs Javascript. To start using PouchDB in your website, you simply [download][latest] it and include it in your webpage.
 
@@ -49,6 +49,6 @@ If you are using Node.js then run
 
 For an HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-thompson/pouchdb-server).
 
-### Using PouchDB
+{% include anchor.html class="h3" title="Using PouchDB" hash="using_pouchdb" %}
 
 To get started using PouchDB, check out our [Getting Started Tutorial](getting-started.html) and the [API Documentation](api.html).

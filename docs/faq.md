@@ -4,11 +4,12 @@ title: FAQ
 sidebar: nav.html
 ---
 
-### Can PouchDB sync with MongoDB/MySQL/my current non-CouchDB database?
+{% include anchor.html class="h3" title="Can PouchDB sync with MongoDB/MySQL/my current non-CouchDB database?" hash="sync_non_couchdb" %}
+
 
 No, your backend needs to speak the [CouchDB replication protocol](http://couchdb.readthedocs.org/en/latest/replication/protocol.html). The magic of PouchDB <&ndash;> CouchDB sync comes from this design, which in particular requires all documents to be versioned with the `_rev` marker. This allows PouchDB and CouchDB to [elegantly handle conflicts](http://writing.jan.io/2013/12/19/understanding-couchdb-conflicts.html), among other benefits.
 
-### What can PouchDB sync with?
+{% include anchor.html class="h3" title="What can PouchDB sync with?" hash="what_can_pouchdb_sync_with" %}
 
 There are a number of databases that implement a CouchDB-like protocol, and PouchDB should be able to replicate with them. They include:
 
@@ -18,7 +19,7 @@ There are a number of databases that implement a CouchDB-like protocol, and Pouc
  * [IrisCouch](http://iriscouch.com/) &ndash; CouchDB in the cloud.
  * [PouchDB Server](https://github.com/pouchdb/pouchdb-server) &ndash; An HTTP API written on top of PouchDB. Additionally, it supports alternate backends like in-memory, Redis, Riak and MySQL via [the LevelUP ecosystem](https://github.com/rvagg/node-levelup/wiki/Modules#storage). Note that your application must use the PouchDB API rather than directly modifying the database, however.
 
-### The web is nice, but I want to build a native app?
+{% include anchor.html class="h3" title="The web is nice, but I want to build a native app?" hash="native_support" %}
 
 PouchDB is one of multiple projects that implement the CouchDB protocol, and these can all be used to sync the same set of data.
 
@@ -36,7 +37,7 @@ For mobile applications, you can use PouchDB within [PhoneGap](http://phonegap.c
 * [Couchbase Lite for Android](https://github.com/couchbase/couchbase-lite-android)
 * [Cloudant Sync for Android](https://github.com/cloudant/sync-android)
 
-### How much data can PouchDB store?
+{% include anchor.html class="h3" title="How much data can PouchDB store?" hash="data_limits" %}
 
 In **Firefox**, PouchDB uses IndexedDB, which will ask the user if data can be stored the first time it is attempted, then every 50MB after. The amount that can be stored is unlimited.
 
@@ -54,7 +55,7 @@ In [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/), you c
 
 For more information, see [Working with quota on mobile browsers](http://www.html5rocks.com/en/tutorials/offline/quota-research/).
 
-### How is PouchDB different from CouchDB?
+{% include anchor.html class="h3" title="How is PouchDB different from CouchDB?" hash="couchdb_differences" %}
 
 PouchDB is also a CouchDB client, and you should be able to switch between a local database or an online CouchDB instance without changing any of your application's code.
 
