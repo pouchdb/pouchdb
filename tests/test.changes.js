@@ -10,7 +10,7 @@ adapters.forEach(function (adapter) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'test_changes');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       dbs.remote = testUtils.adapterUrl(adapter, 'test_changes_remote');
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
