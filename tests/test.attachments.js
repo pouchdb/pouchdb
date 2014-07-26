@@ -14,7 +14,7 @@ adapters.forEach(function (adapter) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'test_attach');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -596,7 +596,7 @@ repl_adapters.forEach(function (adapters) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapters[0], 'test_attach');
+      dbs.name = testUtils.adapterUrl(adapters[0], 'testdb');
       dbs.remote = testUtils.adapterUrl(adapters[1], 'test_attach_remote');
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });

@@ -7,7 +7,7 @@ adapters.forEach(function (adapter) {
 
     var dbs = {};
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'events_tests');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
