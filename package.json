@@ -56,7 +56,7 @@
     "exec-sync": "~0.1.6",
     "ua-parser-js": "^0.6.2",
     "chai": "^1.9.1",
-    "mocha": "^1.18.2",
+    "mocha": "1.21.0",
     "istanbul": "^0.2.7",
     "cordova": "~3.4.1-0.1.0",
     "replace": "^0.2.9",
