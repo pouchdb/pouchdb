@@ -23,7 +23,7 @@ curl -X POST $HOST/_config/httpd/enable_cors -d '"true"'
 curl -X PUT $HOST/_config/cors/origins -d '"*"'
 curl -X PUT $HOST/_config/cors/credentials -d '"true"'
 curl -X PUT $HOST/_config/cors/methods -d '"GET, PUT, POST, HEAD, DELETE"'
-curl -X PUT $HOST/_config/cors/headers -d '"accept, content-type, origin"'
+curl -X PUT $HOST/_config/cors/headers -d '"accept, content-type, origin, referer"'
 ```
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
