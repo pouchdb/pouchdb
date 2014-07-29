@@ -24,14 +24,16 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 * `options.name`: You can omit the `name` argument and specify it via `options` instead. Note that the name is required.
 * `options.auto_compaction`: This turns on auto compaction (experimental). Defaults to `false`.
-* `options.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening (can also be set per request). Defaults to `false`.
 * `options.adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
+* `options.ajax`: An object of options to be sent to the ajax requester. In Node they are sent verbatim to [request][] with the exception of:
+    * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
 
 **Notes:** 
 
 1. In IndexedDB and WebSQL, PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
 2. When acting as a client on Node, any other options given will be passed to [request][].
 3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][]. The storage layer of leveldb can be replaced by passing a level backend factory (such as [MemDOWN][]) as `options.db`. The rest of the supported options are [documented here][levelup_options].
+4. When using the `'websql'` adapter, you can use `options.size` to request more than 5MB up-front, in order to avoid errors caused by reaching the storage limit on iOS/Safari. Details [here](errors.html).
 
   [request]: https://github.com/mikeal/request
   [levelup]: https://github.com/rvagg/node-levelup
@@ -98,7 +100,7 @@ Create a new doc with an `_id`:
 {% highlight js %}
 db.put({
   title: 'Heroes'
-}, 'mydoc'), function(err, response) { });
+}, 'mydoc', function(err, response) { });
 {% endhighlight %}
 
 Like all methods, you can also use a promise:
@@ -114,8 +116,9 @@ Update an existing doc using `_rev`:
 {% highlight js %}
 db.get('myOtherDoc', function(err, otherDoc) {
   db.put({
-    title: "Let's Dance",
-  }, 'myOtherDoc', otherDoc._rev, function(err, response) { });
+    title: "Let's Dance"
+  }, 'myOtherDoc', otherDoc._rev, function(err, response) {
+  });
 });
 {% endhighlight %}
 
@@ -135,7 +138,6 @@ db.get('myOtherDoc').then(function(otherDoc) {
     // on success
   }
 });
-
 {% endhighlight %}
 
 #### Example Response:
@@ -191,7 +193,7 @@ All options default to `false` unless otherwise specified.
 * `options.conflicts`: If specified, conflicting leaf revisions will be attached in `_conflicts` array.
 * `options.attachments`: Include attachment data.
 * `options.local_seq`: Include sequence number of the revision in the database.
-* `options.ajax`: An object of options to be sent to the ajax requester. In Node they are sent ver batim to [request][] with the exception of:
+* `options.ajax`: An object of options to be sent to the ajax requester. In Node they are sent verbatim to [request][] with the exception of:
     * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
 
 
@@ -258,9 +260,11 @@ db.get('mydoc').then(function(doc) {
 db.bulkDocs(docs, [options], [callback])
 {% endhighlight %}
 
-Create, update or delete multiple documents. The `docs` argument is an array of documents, or an object with property `docs` which is the array of documents.
+Create, update or delete multiple documents. The `docs` argument is an array of documents.
 
 If you omit an `_id` parameter on a given document, the database will create a new document and assign the ID for you. To update a document, you must include both an `_id` parameter and a `_rev` parameter, which should match the ID and revision of the document on which to base your updates. Finally, to delete a document, include a `_deleted` parameter with the value `true`.
+
+**Note**: Previously `bulkDocs()` took an object with a key `docs` holding the array of documents. This is deprecated, but still works.
 
 #### Example Usage:
 
@@ -329,7 +333,7 @@ db.bulkDocs([
 ], function(err, response) { });
 {% endhighlight %}
 
-**Note:** You can also specify a `new_edits` property on the `docs` object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
+**Note:** You can also specify a `new_edits` property on the options object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
 
 {% include anchor.html title="Fetch a batch of documents" hash="batch_fetch" %}
 
@@ -407,11 +411,12 @@ All options default to `false` unless otherwise specified.
 * `options.descending`: Reverse the order of the output documents.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'now' if you want only new changes.
-* `options.live`: Use _longpoll_ feed. 
+* `options.live`: Uses the  `_longpoll_` feed. 
 * `options.limit`: Limit the number of results to this number.
-* `options.style`: Specifies how many revisions are returned in the changes array. The default, main_only, will only return the current "winning" revision; all_docs will return all leaf revisions (including conflicts and deleted former conflicts).
+* `options.style`: Specifies how many revisions are returned in the changes array. The default, `'main_only'`, will only return the current "winning" revision; `'all_docs'` will return all leaf revisions (including conflicts and deleted former conflicts).
 * `options.view`: Specify a view function to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them.
 * `options.returnDocs`: Is available for non http databases and defaults to true, passing `false` prevents the changes feed from keeping all the documents in memory, in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
+* `options.batch_size`: Only available for http databases, this configures how many changes to fetch at a time. Increasing this can reduce the number of requests made. Default is 25.
 
 #### Example Usage:
 {% highlight js %}
@@ -420,7 +425,7 @@ var changes = db.changes({
   live: true
 }).on('change', function(change) { });
 
-changes.cancel();
+changes.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 #### Example Response:
@@ -479,6 +484,7 @@ db.changes()
 
 **Note:**
 
+* The `'complete'` event only fires when you aren't doing live changes. With live changes, use the `'uptodate'` event instead.
 * The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
 * The `'since'`option formally took 'latest' but has been changed to 'now' to keep consistency with CouchDB, 'latest' is deprecated but will still work to ensure backwards compatibility.
 
@@ -488,7 +494,7 @@ db.changes()
 PouchDB.replicate(source, target, [options])
 {% endhighlight %}
 
-Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database url or the name a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically.
+Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database URL or the name of a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically. This method returns an object with the method `cancel()`, which you call if you want to cancel live replication.
 
 Replication is an event emiter like `changes()` and emits the `'complete'`, `'uptodate'`, `'change'` and `'error'` events.
 
@@ -501,14 +507,13 @@ All options default to `false` unless otherwise specified.
 * `options.doc_ids`: Only replicate docs with these ids.
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.since`: Replicate changes after the given sequence number.
-* `options.server`: Initialize the replication on the server. The response is the CouchDB `POST _replicate` response and is different from the PouchDB replication response. Also, `options.onChange` is not supported on server replications.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
 * `options.batch_size`: Number of documents to process at a time. Defaults to 100. This affects the number of docs held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low amounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments). If your documents are small in size, then increasing this number will probably speed replication up.
 * `options.batches_limit`: Number of batches to process at a time. Defaults to 10. This (along wtih `batch_size`) controls how many docs are kept in memory at a time, so the maximum docs in memory at once would equal `batch_size` &times; `batches_limit`.
 
 #### Example Usage:
 {% highlight js %}
-PouchDB.replicate('mydb', 'http://localhost:5984/mydb')
+var replication = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true})
   .on('change', function (info) {
     // handle change
   }).on('complete', function (info) {
@@ -518,6 +523,8 @@ PouchDB.replicate('mydb', 'http://localhost:5984/mydb')
   }).on('error', function (err) {
     // handle error
   });
+  
+replication.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 There are also shorthands for replication given existing PouchDB objects. These behave the same as `PouchDB.replicate()`:
@@ -577,18 +584,41 @@ Example response in the `'complete'` listener:
 var sync = PouchDB.sync(src, target, [options])
 {% endhighlight %}
 
-Sync data from `src` to `target` and `target` to `src`. This is a convience method for bidirectional data replication.
+Sync data from `src` to `target` and `target` to `src`. This is a convenience method for bidirectional data replication.
+
+In other words, this code:
+
+{% highlight js %}
+PouchDB.replicate('mydb', 'http://localhost:5984/mydb');
+PouchDB.replicate('http://localhost:5984/mydb', 'mydb');
+{% endhighlight %}
+
+
+is equivalent to this code:
+
+{% highlight js %}
+PouchDB.sync('mydb', 'http://localhost:5984/mydb');
+{% endhighlight %}
+
 
 ### Options
 
-Please refer to [Replication](api.html#replication) for documention on options, as sync is just a convience method that entails bidirectional replication.
+Please refer to [Replication](api.html#replication) for documentation on options, as `sync()` is just a convenience method that entails bidirectional replication.
 
 #### Example Usage:
 {% highlight js %}
-PouchDB.sync('http://localhost:5984/mydb')
-  .on('change', onChange)
-  .on('complete', onComplete)
-  .on('error', onError);
+var sync = PouchDB.sync('mydb', 'http://localhost:5984/mydb', {live: true})
+  .on('change', function (info) {
+    // handle change
+  }).on('complete', function (info) {
+    // handle complete
+  }).on('uptodate', function (info) {
+    // handle up-to-date
+  }).on('error', function (err) {
+    // handle error
+  });
+  
+sync.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 There is also a shorthand for syncing given existing PouchDB objects. This behaves the same as `PouchDB.sync()`:
@@ -980,9 +1010,11 @@ db.info(function(err, info) { })
 db.compact([options], [callback])
 {% endhighlight %}
 
-Runs compaction of the database. Fires callback when compaction is done. If you use the http adapter and have specified a callback, Pouch will ping the remote database in regular intervals unless the compaction is finished.
+Triggers a compaction operation for `db` on the remote host. This reduces the database's size by removing unused and old data. If a `callback` function is specified, Pouch checks compaction status at regular intervals and fires the callback upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more detail about database compaction.
 
-* `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Only for http adapter.
+**Note:** This method is only available when using the http adapter.
+
+* `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Defaults to 200.
 
 {% include anchor.html title="Document revisions diff" hash="revisions_diff" %}
 
@@ -1024,6 +1056,40 @@ PouchDB.on('destroyed', function (dbName) {
   // called whenver a db is destroyed.
 });
 {% endhighlight %}
+
+{% include anchor.html title="Default settings" hash="defaults"%}
+
+If you find yourself using the same constructor options repeatedly,
+you can simplify your code with `PouchDB.defaults()`:
+
+{% highlight js %}
+PouchDB.defaults({
+  option1: 'foo',
+  option2: 'value'
+});
+{% endhighlight %}
+
+The returned object is a constructor function that works the same as `PouchDB`, except that whenever you invoke it (e.g. with `new`), the given options will be passed in by default.
+
+#### Example Usage:
+{% highlight js %}
+var MyMemPouch = PouchDB.defaults({
+  db: require('memdown')
+});
+// MemDOWN-backed Pouch (in Node)
+var MyMemPouch = new MyMemPouch('dbname');
+
+var MyPrefixedPouch = PouchDB.defaults({
+  prefix: '/path/to/my/db/'
+});
+// db will be named '/path/to/my/db/dbname', useful for LevelDB
+var myPrefixedPouch = new MyPrefixedPouch('dbname');
+{% endhighlight %}
+
+Note the special constructor option `prefix`, which appends a prefix to the database name
+and can be helpful for URL-based or file-based LevelDOWN path names.
+
+All [constructor options](#create_database) are supported. Default options can still be overriden individually.
 
 {% include anchor.html title="Plugins" hash="plugins"%}
 

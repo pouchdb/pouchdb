@@ -8,7 +8,7 @@ adapters.forEach(function (adapter) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'test_conflicts');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -287,6 +287,21 @@ adapters.forEach(function (adapter) {
         done(err);
         throw err;
       }).then(function (res) {
+        done();
+      });
+    });
+
+    it('local conflicts', function (done) {
+      var db = new PouchDB(dbs.name);
+      return db.put({foo: 'bar'}, '_local/baz').then(function (result) {
+        return db.put({foo: 'bar'}, '_local/baz', result.res);
+      }).then(function () {
+        return db.put({foo: 'bar'}, '_local/baz');
+      }, function (e) {
+        should.not.exist(e, 'shouldn\'t error yet');
+        done(e);
+      }).then(undefined, function (e) {
+        should.exist(e, 'error when you have a conflict');
         done();
       });
     });

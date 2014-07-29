@@ -124,7 +124,7 @@ You will also need to run the dev test `npm run dev` simultaneously, so that
 the CORS server is available on port 2020.
 
     $ CLIENT=ios npm run cordova
-    $ CLIENT=android DEVICE=true npm run cordova
+    $ CLIENT=android DEVICE=true npm run cordova. Also available: `CLIENT=firefoxos`.
     $ COUCH_HOST=http://myurl:2020 npm run cordova
     $ GREP=basics npm run cordova
     $ SQLITE_PLUGIN=true npm run cordova
@@ -161,6 +161,18 @@ Then in the PouchDB project, run:
 
 This works because `npm run dev` does not start up the pouchdb-server itself (only `npm test` does).
 
+### Testing the in-memory adapter
+
+`pouchdb-server` uses the `--in-memory` flag to use MemDOWN.  To enable this, set
+
+    SERVER_ADAPTER=memory
+    
+Whereas on the client this is configured using `PouchDB.defaults()`, so you can enable it like so:
+
+    LEVEL_ADAPTER=memdown
+
+The value is a comma-separated list of key values, where the key-values are separated by colons.
+
 ### Testing Pouch in a shell
 
 For quick debugging, you can run an interactive Node shell with the `PouchDB` variable already available:
@@ -188,6 +200,14 @@ You can also specify particular tests by using `grep=`, e.g.:
     http://127.0.0.1:8000/tests/performance/test.html?grep=basics
     http://127.0.0.1:8000/tests/performance/test.html?grep=basic-inserts
 
+### Ad-hoc tests
+
+There's a WebSQL storage quota test available in:
+
+    http://127.0.0.1:8000/tests/stress/websql_storage_limit.html
+
+Run `npm run dev`, then open it in Safari or iOS.
+
 Adapter plugins and adapter order
 --------------------------------------
 
@@ -197,9 +217,9 @@ We are currently building three adapters-as-plugins: `memory`, `localstorage`, a
 * `localstorage`: based on [localstorage-down](https://github.com/no9/localstorage-down)
 * `idb-alt`: based on [level-js](https://github.com/maxogden/level.js), will probably replace `idb.js` someday
 
-These adapters are built and included in the `dist/` folder as e.g. `pouchdb.memory.js`.  Including these scripts after `pouchdb-nightly.js` will load the adapters, placing them in the `PouchDB.preferredAdapters` list after `idb` and `websql` by default.
+These adapters are built and included in the `dist/` folder as e.g. `pouchdb.memory.js`.  Including these scripts after `pouchdb.js` will load the adapters, placing them in the `PouchDB.preferredAdapters` list after `idb` and `websql` by default.
 
-    <script src="pouchdb-nightly.js"></script>
+    <script src="pouchdb.js"></script>
     <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql']</script>
     <script src="pouchdb.memory.js"></script>
     <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql', 'memory']</script>
@@ -261,7 +281,7 @@ With great power comes great responsibility yada yada yada:
  * Code is peer reviewed, you should (almost) never push your own code.
  * Please don't accidentally force push to master.
  * Cherry Pick / Rebase commits, don't use the big green button.
- * Ensure reviewed code follows the above contribution guidelines, if it doest feel free to amend and make note.
+ * Ensure reviewed code follows the above contribution guidelines, if it doesn't feel free to amend and make note.
  * Please try to watch when Pull Requests are made and review and / or commit them in a timely manner.
  * After you merge in a patch use tin to update the version accordingly. Run `tin -v x.x.x-prerelease` with x.x.x being the previous version upgraded appropriately via semver. When we are ready to publish to npm we can remove the `-prerelease`.
  * Thanks, you are all awesome human beings.
@@ -276,5 +296,6 @@ Release Procedure
  * `npm run release`
  * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases
  * `./node_modules/.bin/tin -v $VERSION+1-prerelease
+ * Put the new prerelease version in `lib/version-browser.js` too
  * Push updated versions to master
  * `npm run publish-site`

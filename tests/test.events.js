@@ -7,7 +7,7 @@ adapters.forEach(function (adapter) {
 
     var dbs = {};
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'events_tests');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -31,6 +31,18 @@ adapters.forEach(function (adapter) {
         new PouchDB(dbs.name, function () {
           done();
         });
+      });
+    });
+
+    it('PouchDB emits destruction event on PouchDB object', function (done) {
+      PouchDB.once('destroyed', function (name) {
+        name.should.equal(dbs.name, 'should have the same name');
+        new PouchDB(dbs.name, function () {
+          done();
+        });
+      });
+      new PouchDB(dbs.name, function () {
+        PouchDB.destroy(dbs.name);
       });
     });
 

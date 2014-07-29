@@ -120,7 +120,7 @@ title: PouchDB, the JavaScript Database that Syncs!
 
    </div>
 
-   <a class="btn btn-primary btn-lg" href="/blog.html">View more</a>
+   <a class="btn btn-primary btn-lg" href="/blog/index.html">View more</a>
 
   </div>
 

@@ -38,7 +38,7 @@
 
         <ul class='nav nav-header nav-pills'>
           <li>
-            <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/blog.html">Blog</a>
+            <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/blog/index.html">Blog</a>
           </li>
           <li>
             <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/api.html">API</a>
@@ -47,7 +47,12 @@
             <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/learn.html">Learn</a>
           </li>
           <li>
-            <a class='btn btn-primary btn-lg' href="https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js">Download</a>
+            <a
+                class='btn btn-primary btn-lg'
+                href="https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js"
+            >
+                Download <strong>v{{ site.version }}</strong>
+            </a>
           </li>
         </ul>
 
@@ -120,7 +125,7 @@
 
     </div>
 
-    <footer>
+    <footer class="footer">
 
       <div class="container">
 

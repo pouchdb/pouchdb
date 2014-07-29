@@ -26,7 +26,7 @@ adapters.forEach(function (adapter) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'test_bulk_docs');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -233,7 +233,10 @@ adapters.forEach(function (adapter) {
         should.not.exist(err);
         db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
           should.not.exist(err);
-          done();
+          db.get('foo', function (err, res) {
+            res._rev.should.equal('1-x');
+            done();
+          });
         });
       });
     });

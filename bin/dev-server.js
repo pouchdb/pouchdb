@@ -9,7 +9,7 @@ var watchGlob = require('watch-glob');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
-var http_proxy = require('http-proxy');
+var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
 
 var queryParams = {};
@@ -22,7 +22,7 @@ if (process.env.ADAPTERS) {
 }
 
 var indexfile = "./lib/index.js";
-var outfile = "./dist/pouchdb-nightly.js";
+var outfile = "./dist/pouchdb.js";
 var perfRoot = './tests/performance/*.js';
 var performanceBundle = './dist/performance-bundle.js';
 
@@ -35,7 +35,7 @@ function writeFile(file, callback) {
     } else {
       fs.writeFileSync(file, data);
       console.log('Updated: ', file);
-      if (callback) {
+      if (typeof callback === 'function') {
         callback();
       }
     }

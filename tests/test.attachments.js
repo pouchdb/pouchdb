@@ -14,7 +14,7 @@ adapters.forEach(function (adapter) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'test_attach');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -95,7 +95,8 @@ adapters.forEach(function (adapter) {
       function moreTests(rev) {
         var blob = testUtils.makeBlob('This is no base64 encoded text');
         db.putAttachment('bin_doc2', 'foo2.txt', rev, blob, 'text/plain',
-                         function (err, wtf) {
+                         function (err, info) {
+          info.ok.should.equal(true);
           db.getAttachment('bin_doc2', 'foo2.txt', function (err, res, xhr) {
             testUtils.readBlob(res, function (data) {
               should.exist(data);
@@ -233,6 +234,26 @@ adapters.forEach(function (adapter) {
             data.should
               .equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
             done();
+          });
+        });
+      });
+    });
+
+    it('Test postAttachment with PNG then bulkDocs', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({ _id: 'foo' }, function (err, res) {
+        db.get('foo', function (err, doc) {
+          var data = pngAttDoc._attachments['foo.png'].data;
+          var blob = testUtils
+            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+              'image/png');
+          db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
+              function (err, info) {
+            should.not.exist(err, 'attachment inserted');
+            db.bulkDocs([{}], function (err) {
+              should.not.exist(err, 'doc inserted');
+              done();
+            });
           });
         });
       });
@@ -575,7 +596,7 @@ repl_adapters.forEach(function (adapters) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapters[0], 'test_attach');
+      dbs.name = testUtils.adapterUrl(adapters[0], 'testdb');
       dbs.remote = testUtils.adapterUrl(adapters[1], 'test_attach_remote');
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
@@ -616,5 +637,34 @@ repl_adapters.forEach(function (adapters) {
       });
     });
 
+    it('Multiple attachments replicate', function () {
+      var doc = {_id: 'foo'};
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var data = 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=';
+      var rev;
+      return db.put(doc).then(function (info) {
+        rev = info.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return db.putAttachment(doc._id, 'foo1.txt', rev, data, 'text/plain');
+      }).then(function (info) {
+        rev = info.rev;
+        return db.putAttachment(doc._id, 'foo2.txt', rev, data, 'text/plain');
+      }).then(function (info) {
+        rev = info.rev;
+        return db.putAttachment(doc._id, 'foo3.txt', rev, data, 'text/plain');
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get('foo', {attachments: true});
+      }).then(function (doc) {
+        var keys = Object.keys(doc._attachments);
+        keys.sort();
+        keys.should.deep.equal(['foo1.txt', 'foo2.txt', 'foo3.txt']);
+      });
+    });
   });
 });

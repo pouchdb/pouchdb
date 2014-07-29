@@ -1,1 +1,14 @@
-<div id='{{ include.hash }}'><a class='h2 anchor' href='#{{ include.hash }}' name='{{ include.hash }}'>{{ include.title }}</a></div>
+{% if include.class %}
+  {% assign class = include.class %}
+{% else %}
+  {% assign class = 'h2' %}
+{% endif %}
+<div id='{{ include.hash }}'>
+  <a
+     class='{{ class }} anchor'
+     href='#{{ include.hash }}'
+     name='{{ include.hash }}'
+  >
+    {{ include.title }}
+  </a>
+</div>

@@ -8,7 +8,7 @@ adapters.forEach(function (adapter) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'test_basics');
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -343,6 +343,76 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Delete document with many args', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        return db.remove(doc._id, info.rev, {});
+      });
+    });
+
+    it('Delete document with many args, callback style', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      db.put(doc, function (err, info) {
+        should.not.exist(err);
+        db.remove(doc._id, info.rev, {}, function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('Delete doc with id + rev + no opts', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        return db.remove(doc._id, info.rev);
+      });
+    });
+
+    it('Delete doc with id + rev + no opts, callback style', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      db.put(doc, function (err, info) {
+        should.not.exist(err);
+        db.remove(doc._id, info.rev, function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('Delete doc with doc + opts', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        doc._rev = info.rev;
+        return db.remove(doc, {});
+      });
+    });
+
+    it('Delete doc with doc + opts, callback style', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      db.put(doc, function (err, info) {
+        should.not.exist(err);
+        doc._rev = info.rev;
+        db.remove(doc, {}, function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('Delete doc with rev in opts', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (info) {
+        return db.remove(doc, {rev: info.rev});
+      });
+    });
+
     it('Bulk docs', function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({
@@ -411,6 +481,20 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: bad_docs }, function (err, res) {
         err.status.should.equal(500);
         err.name.should.equal('doc_validation');
+        done();
+      });
+    });
+
+    it('Replication fields (#2442)', function (done) {
+      var doc = {
+        '_replication_id': 'test',
+        '_replication_state': 'triggered',
+        '_replication_state_time': 1,
+        '_replication_stats': {}
+      };
+      var db = new PouchDB(dbs.name);
+      db.post(doc, function (err, res) {
+        should.not.exist(err);
         done();
       });
     });
@@ -627,7 +711,7 @@ adapters.forEach(function (adapter) {
     it('db.info should give correct name', function (done) {
       var db = new PouchDB(dbs.name);
       db.info().then(function (info) {
-        info.db_name.should.equal('test_basics');
+        info.db_name.should.equal('testdb');
         done();
       });
     });
@@ -653,6 +737,54 @@ adapters.forEach(function (adapter) {
       }, done);
     });
 
+    it('putting returns {ok: true}', function () {
+      // in couch, it's {ok: true} and in cloudant it's {},
+      // but the http adapter smooths this out
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.put({_id: '_local/foo'}).then(function (info) {
+          true.should.equal(info.ok, 'putting local returns ok=true');
+          return db.put({_id: 'quux'});
+        }).then(function (info) {
+          true.should.equal(info.ok, 'putting returns ok=true');
+          return db.bulkDocs([ {_id: '_local/bar'}, {_id: 'baz'} ]);
+        }).then(function (info) {
+          info.should.have.length(2, 'correct num bulk docs');
+          true.should.equal(info[0].ok, 'bulk docs says ok=true #1');
+          true.should.equal(info[1].ok, 'bulk docs says ok=true #2');
+          return db.post({});
+        }).then(function (info) {
+          true.should.equal(info.ok, 'posting returns ok=true');
+        });
+      });
+    });
+    it('putting is override-able', function (done) {
+      var db = new PouchDB(dbs.name);
+      var called = 0;
+      var plugin = {
+        initPull: function () {
+          this.oldPut = this.put;
+          this.put = function () {
+            if (typeof arguments[arguments.length - 1] === 'function') {
+              called++;
+            }
+            return this.oldPut.apply(this, arguments);
+          };
+        },
+        cleanupPut: function () {
+          this.put = this.oldPut;
+        }
+      };
+      PouchDB.plugin(plugin);
+      db.initPull();
+      return db.put({foo: 'bar'}, 'anid').then(function (resp) {
+        called.should.be.above(0, 'put was called');
+        return db.get('anid');
+      }).then(function (doc) {
+        doc.foo.should.equal('bar', 'correct doc');
+      }).then(function () {
+        done();
+      }, done);
+    });
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {

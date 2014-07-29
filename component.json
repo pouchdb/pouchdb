@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "2.2.1-prerelease",
+  "version": "2.2.4-prerelease",
   "description": "PouchDB is a pocket-sized database.",
   "repo": "daleharvey/pouchdb",
   "keywords": [
@@ -11,8 +11,8 @@
   "dependencies": {},
   "development": {},
   "license": "Apache",
-  "main": "dist/pouchdb-nightly.js",
+  "main": "dist/pouchdb.js",
   "scripts": [
-    "dist/pouchdb-nightly.js"
+    "dist/pouchdb.js"
   ]
 }

@@ -1,1 +1,2 @@
 tests/deps/*.js
+tests/cordova/**/*.js

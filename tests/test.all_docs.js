@@ -7,7 +7,7 @@ adapters.forEach(function (adapter) {
 
     var dbs = {};
     beforeEach(function (done) {
-      dbs = {name: testUtils.adapterUrl(adapter, 'test_all_docs')};
+      dbs = {name: testUtils.adapterUrl(adapter, 'testdb')};
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -544,6 +544,27 @@ adapters.forEach(function (adapter) {
         done();
       }, function (err) {
         done(err);
+      });
+    });
+
+    it('test empty db', function (done) {
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.allDocs().then(function (res) {
+          res.rows.should.have.length(0);
+          res.total_rows.should.equal(0);
+          done();
+        });
+      });
+    });
+
+    it('test after db close', function (done) {
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.close().then(function () {
+          return db.allDocs().catch(function (err) {
+            err.message.should.equal('database is closed');
+            done();
+          });
+        });
       });
     });
 
