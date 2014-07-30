@@ -357,6 +357,40 @@ describe('migration', function () {
             }, done);
           }, done);
         });
+
+        it('Testing migration with weird doc ids', function (done) {
+          if (skip) { return done(); }
+
+          var origDocs = [
+            {_id: 'foo::bar::baz'},
+            {_id: '\u0000foo\u0000'}
+          ];
+
+          var oldPouch =
+            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
+              function (err) {
+                should.not.exist(err, 'got error: ' + JSON.stringify(err));
+                if (err) {
+                  done();
+                }
+              });
+          oldPouch.bulkDocs({docs: origDocs}, function (err, res) {
+            should.not.exist(err, 'got error: ' + JSON.stringify(err));
+            oldPouch.close(function (err) {
+              should.not.exist(err, 'got error: ' + JSON.stringify(err));
+              var newPouch = new dbs.second.pouch(dbs.second.local);
+              newPouch.then(function (newPouch) {
+                return newPouch.allDocs();
+              }).then(function (res) {
+                res.total_rows.should.equal(2);
+                res.rows.should.have.length(2);
+                res.rows[1].id.should.equal(origDocs[0]._id);
+                res.rows[0].id.should.equal(origDocs[1]._id);
+                done();
+              });
+            });
+          });
+        });
       }
     });
   });
