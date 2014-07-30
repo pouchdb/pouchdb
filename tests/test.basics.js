@@ -480,7 +480,6 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: bad_docs }, function (err, res) {
         err.status.should.equal(500);
-        err.name.should.equal('doc_validation');
         done();
       });
     });
@@ -554,7 +553,8 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err, info) {
         should.exist(err);
-        err.name.should.equal('bad_request');
+        err.name.should.equal('TypeError');
+        err.status.should.equal(400);
         done();
       });
     });
