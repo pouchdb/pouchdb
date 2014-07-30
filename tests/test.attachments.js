@@ -586,6 +586,58 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    var isSafari = (typeof process === 'undefined' || process.browser) &&
+      /Safari/.test(window.navigator.userAgent) &&
+      !/Chrome/.test(window.navigator.userAgent);
+    if (!isSafari) {
+      // skip in safari/ios because of size limit popup
+      it('putAttachment and getAttachment with big png data', function (done) {
+
+        this.timeout(20000);
+
+        function getData(cb) {
+          if (typeof process !== 'undefined' && !process.browser) {
+            var bigimage = require('./deps/bigimage.js');
+            cb(null, bigimage);
+          } else { // browser
+            var script = document.createElement('script');
+            script.src = 'deps/bigimage.js';
+            document.body.appendChild(script);
+            var timeout = setInterval(function () {
+              if (!!window.bigimage) {
+                clearInterval(timeout);
+                cb(null, window.bigimage);
+              }
+            }, 500);
+          }
+        }
+
+        var db = new PouchDB(dbs.name);
+        db.put({ _id: 'foo' }, function (err, res) {
+          db.get('foo', function (err, doc) {
+
+            getData(function (err, data) {
+              var blob = testUtils
+                .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+                  'image/png');
+              db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
+                  function (err, info) {
+                should.not.exist(err, 'attachment inserted: ' +
+                  JSON.stringify(err));
+                db.getAttachment('foo', 'foo.png', function (err, blob) {
+                  should.not.exist(err, 'attachment gotten: ' +
+                    JSON.stringify(err));
+                  testUtils.readBlob(blob, function (returnedData) {
+                    PouchDB.utils.btoa(returnedData).should.equal(data);
+                    done();
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    }
   });
 });
 
