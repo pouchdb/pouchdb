@@ -125,7 +125,7 @@ adapters.forEach(function (adapter) {
         foo: 'bar'
       }];
       db.bulkDocs({ docs: docs }, function (err, info) {
-        err.name.should.equal('bad_request', 'correct error returned');
+        err.status.should.equal(400, 'correct error status returned');
         should.not.exist(info, 'info is empty');
         done();
       });
@@ -139,7 +139,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        err.name.should.equal('bad_request', 'correct error returned');
+        err.status.should.equal(400, 'correct error returned');
         err.message.should.equal(PouchDB.Errors.RESERVED_ID.message,
                                  'correct error message returned');
         should.not.exist(info, 'info is empty');
@@ -151,7 +151,6 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ 'doc': [{ 'foo': 'bar' }] }, function (err, result) {
         err.status.should.equal(400);
-        err.name.should.equal('bad_request');
         err.message.should.equal('Missing JSON list of \'docs\'');
         done();
       });
@@ -380,7 +379,6 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: 'foo' }, function (err, res) {
         should.exist(err, 'error reported');
         err.status.should.equal(400);
-        err.name.should.equal('bad_request');
         err.message.should.equal('Missing JSON list of \'docs\'');
         done();
       });
@@ -391,13 +389,11 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: ['foo'] }, function (err, res) {
         should.exist(err, 'error reported');
         err.status.should.equal(400);
-        err.name.should.equal('bad_request');
         err.message.should.equal('Document must be a JSON object');
       });
       db.bulkDocs({ docs: [[]] }, function (err, res) {
         should.exist(err, 'error reported');
         err.status.should.equal(400);
-        err.name.should.equal('bad_request');
         err.message.should.equal('Document must be a JSON object');
         done();
       });
