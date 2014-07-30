@@ -622,9 +622,11 @@ adapters.forEach(function (adapter) {
                   'image/png');
               db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
                   function (err, info) {
-                should.not.exist(err, 'attachment inserted: ' + JSON.stringify(err));
+                should.not.exist(err, 'attachment inserted: ' +
+                  JSON.stringify(err));
                 db.getAttachment('foo', 'foo.png', function (err, blob) {
-                  should.not.exist(err, 'attachment gotten: ' + JSON.stringify(err));
+                  should.not.exist(err, 'attachment gotten: ' +
+                    JSON.stringify(err));
                   testUtils.readBlob(blob, function (returnedData) {
                     PouchDB.utils.btoa(returnedData).should.equal(data);
                     done();
