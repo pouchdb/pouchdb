@@ -55,6 +55,14 @@ In [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/), you c
 
 For more information, see [Working with quota on mobile browsers](http://www.html5rocks.com/en/tutorials/offline/quota-research/).
 
+{% include anchor.html class="h3" title="Is it safe to upgrade PouchDB?" hash="safe_to_upgrade" %}
+
+Since v1.0.0, PouchDB has supported automatic schema migrations. This means that if you open a database that was built with an older version of PouchDB, the newer version will run all the steps necessary to get the old database up to date. We have extensive tests in place to guarantee that this feature works correctly.
+
+Even in the case of a major version release, PouchDB still performs the schema migrations. So for instance, you can create a database with PouchDB 1.0.0 and it will still work after you open it in 3.0.0.
+
+Once a database is migrated, however, you can no longer open it with an older version of PouchDB. So if an update contains a migration, it will be clearly marked in the release notes.
+
 {% include anchor.html class="h3" title="How is PouchDB different from CouchDB?" hash="couchdb_differences" %}
 
 PouchDB is also a CouchDB client, and you should be able to switch between a local database or an online CouchDB instance without changing any of your application's code.
