@@ -4,7 +4,7 @@ title: Adapters
 sidebar: nav.html
 ---
 
-PouchDB is not a self-contained database; it is a unified abstraction layer over other databases. By default, PouchDB ships with [IndexedDB][] and [WebSQL][] adapters in the browser, and a [LevelDB][] adapter in Node.js.
+PouchDB is not a self-contained database; it is a CouchDB-style abstraction layer over other databases. By default, PouchDB ships with [IndexedDB][] and [WebSQL][] adapters in the browser, and a [LevelDB][] adapter in Node.js.
 
 PouchDB attempts to provide a consistent API that "just works" across every browser and JavaScript environment, and in most cases, you can just use the defaults. However, if you're trying to reach the widest possible audience, or if you want the best performance, then you will sometimes want to tinker with the adapter settings.
 
@@ -128,10 +128,7 @@ However, this only occurs if the adapter is `'websql'`, not `'idb'` (e.g. on And
 var websqlPouch = new PouchDB('myDB', {adapter: 'websql'});
 ```
 
-{% include alert_start.html variant="warning"%}
-The SQLite plugin does not yet pass our test suite with 100% success.  However, it should work for most basic use cases.  We will update this page when support reaches 100%.
-{% include alert_end.html%}
-
+The SQLite plugin is known to pass the PouchDB test suite on both iOS and Android. You may run into issues on Windows Phone 8.
 
 ### Experimental adapter plugins
 
