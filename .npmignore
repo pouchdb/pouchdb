@@ -4,7 +4,7 @@ node_modules
 *~
 npm-debug.log
 vendor
-dist/performance-bundle.js
+tests/performance-bundle.js
 tests/cordova/www
 .idea
 phantomjsdriver.log

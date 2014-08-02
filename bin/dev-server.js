@@ -24,7 +24,7 @@ if (process.env.ADAPTERS) {
 var indexfile = "./lib/index.js";
 var outfile = "./dist/pouchdb.js";
 var perfRoot = './tests/performance/*.js';
-var performanceBundle = './dist/performance-bundle.js';
+var performanceBundle = './tests/performance-bundle.js';
 
 var w = watchify(indexfile).on('update', bundle);
 

@@ -68,7 +68,8 @@
     "build-main-js": "browserify . -s PouchDB > dist/pouchdb.js",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
     "build-plugins": "./bin/build-all-plugins.sh",
-    "build": "npm run version && mkdirp dist && npm run build-js",
+    "build": "npm run version && mkdirp dist && npm run build-js && npm run license",
+    "license": "./bin/add-license.js",
     "version": "node ./bin/get-version.js",
     "test-node": "./bin/test-node.sh",
     "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
@@ -81,7 +82,7 @@
     "build-site": "node ./bin/build-site.js",
     "shell": "./bin/repl.js",
     "report-coverage": "node ./bin/run-coverage.js",
-    "build-perf": "browserify tests/performance/*.js > dist/performance-bundle.js"
+    "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js"
   },
   "browser": {
     "./deps/buffer": false,
