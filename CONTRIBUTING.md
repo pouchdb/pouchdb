@@ -173,6 +173,10 @@ Whereas on the client this is configured using `PouchDB.defaults()`, so you can 
 
 The value is a comma-separated list of key values, where the key-values are separated by colons.
 
+Some Level adapters also require a standard database name prefix (e.g. `riak://` or `mysql://`), which you can specify like so:
+
+    LEVEL_PREFIX=riak://localhost:8087/
+
 ### Testing Pouch in a shell
 
 For quick debugging, you can run an interactive Node shell with the `PouchDB` variable already available:

@@ -677,6 +677,7 @@ adapters.forEach(function (adapter) {
               db.destroy().then(function () {
                 db2 = new PouchDB(dbs.name);
                 db2.get(doc._id, function (err, doc) {
+                  should.not.exist(doc);
                   err.status.should.equal(404);
                   done();
                 });

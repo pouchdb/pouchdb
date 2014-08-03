@@ -28,6 +28,7 @@ adapters.forEach(function (adapter) {
       testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
         function () {
         db.allDocs(function (err, result) {
+          should.not.exist(err);
           var rows = result.rows;
           result.total_rows.should.equal(4, 'correct number of results');
           for (var i = 0; i < rows.length; i++) {
