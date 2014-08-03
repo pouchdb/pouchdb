@@ -18,6 +18,10 @@ else
   fi;
 fi;
 
+if [[ $BUILD -eq 'true' ]]; then
+  ACTION=compile
+fi
+
 TESTS_DIR=./tests/cordova
 
 rm -fr $TESTS_DIR/www

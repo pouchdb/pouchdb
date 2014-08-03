@@ -162,9 +162,6 @@ function startTest() {
   console.log('Starting', client);
 
   var opts = {
-    browserName: client.browser,
-    version: client.version,
-    platform: client.platform,
     tunnelTimeout: testTimeout,
     name: client.browser + ' - ' + tunnelId,
     'max-duration': 60 * 30,
@@ -173,7 +170,24 @@ function startTest() {
     'tunnel-identifier': tunnelId
   };
 
-  sauceClient.init(opts).get(testUrl, function () {
+  if (process.env.CORDOVA) {
+    opts.platformName = process.env.CLIENT || 'Android';
+    opts.platformVersion = '4.3';
+    opts.deviceName = 'Android Emulator';
+    opts.app = process.cwd() +
+      '/tests/cordova/platforms/android//ant-build/PouchDBTestRunner-debug.apk';
+  } else {
+    opts.browserName = client.browser;
+    opts.version = client.version;
+    opts.platform = client.platform;
+  }
+
+  sauceClient = wd.promiseChainRemote({
+    host: 'localhost',
+    port: 4723
+  });
+
+  sauceClient.init(opts).setImplicitWaitTimeout(20000, function () {
 
     /* jshint evil: true */
     var interval = setInterval(function () {
@@ -194,7 +208,7 @@ function startTest() {
 
 devserver.start(function () {
   if (client.runner === 'saucelabs') {
-    startSauceConnect(startTest);
+    startTest();
   } else {
     startSelenium(startTest);
   }
