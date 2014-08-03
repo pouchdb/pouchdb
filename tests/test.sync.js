@@ -248,5 +248,88 @@ adapters.forEach(function (adapters) {
       });
       db.put(doc1);
     });
+
+    it('Push and pull changes both fire (issue 2555)', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.post({}).then(function () {
+        return remote.post({});
+      }).then(function () {
+        var numChanges = 0;
+        var lastChange;
+        var sync = db.sync(remote);
+        sync.on('change', function (change) {
+          ['push', 'pull'].should.contain(change.direction);
+          change.change.docs_read.should.equal(1);
+          change.change.docs_written.should.equal(1);
+          if (!lastChange) {
+            lastChange = change.direction;
+          } else {
+            lastChange.should.not.equal(change.direction);
+          }
+          if (++numChanges === 2) {
+            done();
+          }
+        });
+      });
+    });
+
+    it('Doesn\'t have a memory leak (push)', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs([{}, {}, {}]).then(function () {
+        return remote.bulkDocs([{}, {}, {}]);
+      }).then(function () {
+        var sync = db.replicate.to(remote);
+        sync.on('change', function () {});
+        sync.on('error', function () {});
+        sync.on('complete', function () {
+          setTimeout(function () {
+            Object.keys(sync._events).should.have.length(0);
+            done();
+          });
+        });
+      });
+    });
+
+    it('Doesn\'t have a memory leak (pull)', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs([{}, {}, {}]).then(function () {
+        return remote.bulkDocs([{}, {}, {}]);
+      }).then(function () {
+        var sync = db.replicate.from(remote);
+        sync.on('change', function () {});
+        sync.on('error', function () {});
+        sync.on('complete', function () {
+          setTimeout(function () {
+            Object.keys(sync._events).should.have.length(0);
+            done();
+          });
+        });
+      });
+    });
+
+    it('Doesn\'t have a memory leak (bi)', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs([{}, {}, {}]).then(function () {
+        return remote.bulkDocs([{}, {}, {}]);
+      }).then(function () {
+        var sync = db.sync(remote);
+        sync.on('change', function () {});
+        sync.on('error', function () {});
+        sync.on('complete', function () {
+          setTimeout(function () {
+            Object.keys(sync._events).should.have.length(0);
+            done();
+          });
+        });
+      });
+    });
   });
 });
