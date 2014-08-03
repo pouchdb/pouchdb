@@ -352,10 +352,19 @@ testUtils.cleanUpCors = function (dburl, callback_) {
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
   global.PouchDB = require('../lib');
-  if (process && process.env && process.env.LEVEL_ADAPTER) {
-    global.PouchDB = global.PouchDB.defaults({
-      db: require(process.env.LEVEL_ADAPTER)
-    });
+  if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
+    var defaults = {};
+
+    if (process.env.LEVEL_ADAPTER) {
+      defaults.db = require(process.env.LEVEL_ADAPTER);
+      console.log('Using client-side leveldown adapter: ' +
+        process.env.LEVEL_ADAPTER);
+    }
+    if (process.env.LEVEL_PREFIX) {
+      defaults.prefix = process.env.LEVEL_PREFIX;
+      console.log('Using client-side leveldown prefix: ' + defaults.prefix);
+    }
+    global.PouchDB = global.PouchDB.defaults(defaults);
   }
   if (typeof process !== 'undefined') {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
