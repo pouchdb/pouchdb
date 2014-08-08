@@ -785,6 +785,36 @@ adapters.forEach(function (adapter) {
         done();
       }, done);
     });
+    it('test delete', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post({blah: 1}, function (err, resp) {
+        if (err) {
+          return done(err);
+        }
+        db.get(resp.id, function (err, doc) {
+          if (err) {
+            done(err);
+          }
+          db.remove(doc._id, doc._rev, function (err) {
+            should.not.exist(err);
+            done(err);
+          });
+        });
+      });
+    });
+    it('test delete with promises', function (done) {
+      var db = new PouchDB(dbs.name);
+      return db.post({blah: 1}).then(function (resp) {
+        return db.get(resp.id);
+      }).then(function (doc) {
+        return db.remove(doc._id, doc._rev);
+      }).then(function () {
+        done();
+      }, function (err) {
+        should.not.exist(err);
+        done(err);
+      });
+    });
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
