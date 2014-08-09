@@ -38,7 +38,7 @@ adapters.forEach(function (adapter) {
         res.ok.should.equal(true);
         return db.get('_local/foo').then(function (doc) {
           should.not.exist(doc);
-        }).catch(function (err) {
+        })['catch'](function (err) {
           err.name.should.equal('not_found');
         });
       });
@@ -116,7 +116,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       return db.get('_local/foo').then(function (doc) {
         should.not.exist(doc);
-      }).catch(function (err) {
+      })['catch'](function (err) {
         err.name.should.equal('not_found');
       });
     });
@@ -126,7 +126,7 @@ adapters.forEach(function (adapter) {
       var doc = {_id: '_local/foo', _rev: '1-fake'};
       return db.put(doc).then(function (res) {
         should.not.exist(res);
-      }).catch(function (err) {
+      })['catch'](function (err) {
         err.name.should.be.a('string');
       });
     });
@@ -138,7 +138,7 @@ adapters.forEach(function (adapter) {
         return db.put(doc);
       }).then(function (res) {
         should.not.exist(res);
-      }).catch(function (err) {
+      })['catch'](function (err) {
         err.name.should.be.a('string');
       });
     });
@@ -153,7 +153,7 @@ adapters.forEach(function (adapter) {
         return db.put(doc);
       }).then(function (res) {
         should.not.exist(res);
-      }).catch(function (err) {
+      })['catch'](function (err) {
         err.name.should.be.a('string');
       });
     });

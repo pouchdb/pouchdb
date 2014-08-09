@@ -33,11 +33,19 @@ describe('migration', function () {
         }
 
         constructors = {
-          'PouchDB v1.1.0': PouchDBVersion110,
-          'PouchDB v2.0.0': PouchDBVersion200,
-          'PouchDB v2.2.0': PouchDBVersion220,
+          'PouchDB v1.1.0': window.PouchDBVersion110,
+          'PouchDB v2.0.0': window.PouchDBVersion200,
+          'PouchDB v2.2.0': window.PouchDBVersion220,
           PouchDB: PouchDB
         };
+
+        Object.keys(constructors).forEach(function (key) {
+          if (!constructors[key]) {
+            // that older version of Pouch isn't even
+            // compatible on this browser (e.g. Android 2.3)
+            delete constructors[key];
+          }
+        });
 
         // need actual unique db names for these tests
         var localName = testUtils.adapterUrl('local', 'test_migration_local');
@@ -107,7 +115,7 @@ describe('migration', function () {
                   res.total_rows.should.equal(3);
                   res.rows.should.have.length(0);
                   done();
-                }).catch(function (err) {
+                })['catch'](function (err) {
                   should.not.exist(err, 'got error: ' + JSON.stringify(err));
                   done();
                 });
@@ -224,7 +232,7 @@ describe('migration', function () {
                 }).then(function (res) {
                   res.rows.should.deep.equal(expectedRows);
                   done();
-                }).catch(function (err) {
+                })['catch'](function (err) {
                   should.not.exist(err, 'catch');
                   done();
                 });
@@ -273,7 +281,7 @@ describe('migration', function () {
                 }).then(function (res) {
                   res.rows.should.deep.equal(expectedRows);
                   done();
-                }).catch(function (err) {
+                })['catch'](function (err) {
                   should.not.exist(err, 'catch');
                   done();
                 });

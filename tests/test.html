@@ -8,6 +8,40 @@
   <body>
     <div id="mocha"></div>
     <script>
+      (function () {
+        'use strict';
+        // minimal Function.prototype.bind polyfill for ES3.
+        // We need to declare this before mocha,
+        // because mocha relies on it.
+        if (window.location.search.indexOf('es5Shim') !== -1 &&
+            !Function.prototype.bind) {
+          Function.prototype.bind = function (oThis) {
+            if (typeof this !== "function") {
+              // closest thing possible to the ECMAScript 5
+              // internal IsCallable function
+              throw new TypeError("Function.prototype.bind - what " +
+                  "is trying to be bound is not callable");
+            }
+
+            var aArgs = Array.prototype.slice.call(arguments, 1),
+                fToBind = this,
+                fNOP = function () {},
+                fBound = function () {
+                  return fToBind.apply(this instanceof fNOP && oThis
+                      ? this
+                      : oThis,
+                      aArgs.concat(Array.prototype.slice.call(arguments)));
+                };
+
+            fNOP.prototype = this.prototype;
+            fBound.prototype = new fNOP();
+
+            return fBound;
+          };
+        }
+      })();
+    </script>
+    <script>
       var val = window.location.search.match(/[&\?]es5shims?=([^&\?]+)/);
       if (val && val[1] === 'true') {
         document.write('<script src="../node_modules/es5-shim/es5-shim.js"></' + 'script>');

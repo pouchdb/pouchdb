@@ -20,20 +20,20 @@ adapters.forEach(function (adapter) {
     it('Create a pouch', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         should.not.exist(err);
-        db.should.be.an.instanceof(PouchDB);
+        db.should.be.an['instanceof'](PouchDB);
         done();
       });
     });
 
     it('Create a pouch with a promise', function (done) {
       new PouchDB(dbs.name).then(function (db) {
-        db.should.be.an.instanceof(PouchDB);
+        db.should.be.an['instanceof'](PouchDB);
         done();
       }, done);
     });
 
     it('Catch an error when creating a pouch with a promise', function (done) {
-      new PouchDB().catch(function (err) {
+      new PouchDB()['catch'](function (err) {
         should.exist(err);
         done();
       });
@@ -150,7 +150,7 @@ adapters.forEach(function (adapter) {
         }).then(function (info2) {
           info.rev.should.not.equal(info2.rev);
         });
-      }).catch(done).then(function () {
+      })['catch'](done).then(function () {
         done();
       });
     });
@@ -440,7 +440,7 @@ adapters.forEach(function (adapter) {
         infos[0].ok.should.equal(true);
         infos[1].ok.should.equal(true);
         done();
-      }).catch(done);
+      })['catch'](done);
     });
 
     it('Basic checks', function (done) {

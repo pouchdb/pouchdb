@@ -37,7 +37,7 @@ testUtils.couchHost = function () {
     return 'http://10.0.2.2:2020';
   }
   // In the browser we default to the CORS server, in future will change
-  return 'http://localhost:2020';
+  return 'http://192.168.0.3:8001/_couchdb';
 };
 
 testUtils.makeBlob = function (data, type) {

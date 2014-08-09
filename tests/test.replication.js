@@ -920,7 +920,7 @@ adapters.forEach(function (adapters) {
           info.doc_count.should.equal(2);
           done();
         });
-      }).catch(function (err) {
+      })['catch'](function (err) {
         done(JSON.stringify(err, false, 4));
       });
     });
@@ -1785,7 +1785,7 @@ adapters.forEach(function (adapters) {
       }).then(function (result) {
         result.docs_written.should.equal(3);
         done();
-      }).catch(done);
+      })['catch'](done);
     });
 
     it('Test consecutive replications with different doc_ids', function (done) {

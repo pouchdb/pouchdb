@@ -208,7 +208,7 @@ adapters.forEach(function (adapter) {
                   result.doc._rev.should.equal(conflictDoc2._rev);
                   result.doc._id.should.equal('3', 'correct doc id');
                   winRev._rev.should.equal(result.doc._rev);
-                  result.doc._conflicts.should.be.instanceof(Array);
+                  result.doc._conflicts.should.be['instanceof'](Array);
                   result.doc._conflicts.should.have.length(2);
                   conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
                   db.allDocs({
@@ -222,7 +222,7 @@ adapters.forEach(function (adapter) {
                     row.value.rev.should.equal(winRev._rev, 'correct rev');
                     row.doc._rev.should.equal(winRev._rev, 'correct rev');
                     row.doc._id.should.equal('3', 'correct order');
-                    row.doc._conflicts.should.be.instanceof(Array);
+                    row.doc._conflicts.should.be['instanceof'](Array);
                     row.doc._conflicts.should.have.length(2);
                     conflictDoc1._rev.should
                       .equal(res.rows[3].doc._conflicts[0]);
@@ -560,7 +560,7 @@ adapters.forEach(function (adapter) {
     it('test after db close', function (done) {
       return new PouchDB(dbs.name).then(function (db) {
         return db.close().then(function () {
-          return db.allDocs().catch(function (err) {
+          return db.allDocs()['catch'](function (err) {
             err.message.should.equal('database is closed');
             done();
           });

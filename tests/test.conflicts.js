@@ -119,7 +119,7 @@ adapters.forEach(function (adapter) {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-2', 'Correct revision wins');
-      }).catch(function (err) {
+      })['catch'](function (err) {
         done(err);
         throw err;
       }).then(function (res) {
@@ -154,7 +154,7 @@ adapters.forEach(function (adapter) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
+      })['catch'](function (err) {
         done(err);
         throw err;
       }).then(function (res) {
@@ -189,7 +189,7 @@ adapters.forEach(function (adapter) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
+      })['catch'](function (err) {
         done(err);
         throw err;
       }).then(function (res) {
@@ -239,7 +239,7 @@ adapters.forEach(function (adapter) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
+      })['catch'](function (err) {
         done(err);
         throw err;
       }).then(function (res) {
@@ -283,7 +283,7 @@ adapters.forEach(function (adapter) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
+      })['catch'](function (err) {
         done(err);
         throw err;
       }).then(function (res) {
