@@ -255,6 +255,36 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test getAttachment with PNG using bulkDocs', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs([pngAttDoc], function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('png_doc', 'foo.png', function (err, res) {
+          if (err) { return done(err); }
+          testUtils.base64Blob(res, function (data) {
+            data.should
+              .equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
+    it('Test getAttachment with PNG using post', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post(pngAttDoc, function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('png_doc', 'foo.png', function (err, res) {
+          if (err) { return done(err); }
+          testUtils.base64Blob(res, function (data) {
+            data.should
+              .equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
     it('Test postAttachment with PNG then bulkDocs', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({ _id: 'foo' }, function (err, res) {
@@ -847,6 +877,79 @@ repl_adapters.forEach(function (adapters) {
             done();
           });
         });
+      });
+    });
+
+    it('Many many attachments replicate', function () {
+      var doc = {_id: 'foo'};
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var rev;
+
+      var data = PouchDB.utils.btoa('foobar');
+      var blob = testUtils
+        .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+          'text/plain');
+
+      doc._attachments = {};
+      var expectedKeys = [];
+      for (var i = 0; i < 50; i++) {
+        doc._attachments[i + '.txt'] = {
+          content_type: 'text/plain',
+          data: blob
+        };
+        expectedKeys.push(i + '.txt');
+      }
+      return db.put(doc).then(function (info) {
+        rev = info.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get('foo', {attachments: true});
+      }).then(function (doc) {
+        var keys = Object.keys(doc._attachments);
+        keys.sort();
+        keys.should.deep.equal(expectedKeys.sort());
+        doc._attachments[keys[0]].data.should.equal(data);
+      });
+    });
+
+    it('Many many png attachments replicate', function () {
+      var doc = {_id: 'foo'};
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var rev;
+
+      var data = 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAMFBMVEX+9+' +
+        'j+9OD+7tL95rr93qT80YD7x2L6vkn6syz5qRT4ogT4nwD4ngD4nQD4nQD4' +
+        'nQDT2nT/AAAAcElEQVQY002OUQLEQARDw1D14f7X3TCdbfPnhQTqI5UqvG' +
+        'OWIz8gAIXFH9zmC63XRyTsOsCWk2A9Ga7wCXlA9m2S6G4JlVwQkpw/Ymxr' +
+        'UgNoMoyxBwSMH/WnAzy5cnfLFu+dK2l5gMvuPGLGJd1/9AOiBQiEgkzOpg' +
+        'AAAABJRU5ErkJggg==';
+      var blob = testUtils
+        .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+          'image/png');
+
+      doc._attachments = {};
+      var expectedKeys = [];
+      for (var i = 0; i < 50; i++) {
+        doc._attachments[i + '.txt'] = {
+          content_type: 'image/png',
+          data: blob
+        };
+        expectedKeys.push(i + '.txt');
+      }
+      return db.put(doc).then(function (info) {
+        rev = info.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get('foo', {attachments: true});
+      }).then(function (doc) {
+        var keys = Object.keys(doc._attachments);
+        keys.sort();
+        keys.should.deep.equal(expectedKeys.sort());
+        doc._attachments[keys[0]].data.should.equal(data);
       });
     });
 
