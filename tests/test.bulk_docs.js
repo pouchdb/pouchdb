@@ -241,6 +241,36 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Testing successive new_edits to two doc', function () {
+
+      var db = new PouchDB(dbs.name);
+      var doc1 = {
+        '_id': 'foo',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      };
+      var doc2 = {
+        '_id': 'bar',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      };
+
+      return db.put(doc1, {new_edits: false}).then(function () {
+        return db.put(doc2, {new_edits: false});
+      }).then(function () {
+        return db.put(doc1, {new_edits: false});
+      }).then(function () {
+        return db.get('foo');
+      }).then(function () {
+        return db.get('bar');
+      });
+    });
 
     it('Bulk with new_edits=false in req body', function (done) {
       var db = new PouchDB(dbs.name);
