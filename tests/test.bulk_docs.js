@@ -118,6 +118,20 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test empty bulkDocs', function () {
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs([]);
+    });
+
+    it('Test many bulkDocs', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 201; i++) {
+        docs.push({_id: i.toString()});
+      }
+      return db.bulkDocs(docs);
+    });
+
     it('Test errors on invalid doc id', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [{
