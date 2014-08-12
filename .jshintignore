@@ -1,2 +1,3 @@
 tests/deps/*.js
 tests/cordova/**/*.js
+tests/performance-bundle.js
