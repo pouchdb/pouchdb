@@ -57,4 +57,44 @@ describe('test.http.js', function () {
     });
   });
 
+  it('Does longpoll changes with immediate return', function () {
+    var db = new PouchDB(dbs.name);
+
+    return db.bulkDocs([{}, {}, {}, {}]).then(function () {
+      return new PouchDB.utils.Promise(function (resolve, reject) {
+        var count = 0;
+        // when the docs are already there, it should return immediately
+        db.changes({live: true, since: 2}).on('change', function (change) {
+          if (++count === 2) {
+            resolve();
+          } else if (count > 2) {
+            reject('got more than 2 changes');
+          }
+        }).on('error', reject);
+      });
+    });
+  });
+
+  it('Does longpoll changes with async return', function () {
+    var db = new PouchDB(dbs.name);
+
+    return db.bulkDocs([{}]).then(function () {
+      return new PouchDB.utils.Promise(function (resolve, reject) {
+        var count = 0;
+        // when the docs are not there yet, it should only return 1
+        db.changes({live: true, since: 1}).on('change', function (change) {
+          if (++count === 1) {
+            resolve();
+          } else if (count > 1) {
+            reject('got more than 1 change');
+          }
+        }).on('error', reject);
+
+        setTimeout(function () {
+          db.bulkDocs([{}, {}, {}]).catch(reject);
+        }, 2000);
+      });
+    });
+  });
+
 });
