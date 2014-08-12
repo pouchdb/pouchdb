@@ -252,7 +252,7 @@ adapters.forEach(function (adapters) {
     it('Push and pull changes both fire (issue 2555)', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-
+      var correct = false;
       db.post({}).then(function () {
         return remote.post({});
       }).then(function () {
@@ -269,8 +269,12 @@ adapters.forEach(function (adapters) {
             lastChange.should.not.equal(change.direction);
           }
           if (++numChanges === 2) {
-            done();
+            correct = true;
+            sync.cancel();
           }
+        }).on('complete', function () {
+          correct.should.equal(true, 'things happened right');
+          done();
         });
       });
     });
