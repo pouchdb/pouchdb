@@ -19,6 +19,7 @@
     "argsarray": "0.0.1",
     "bluebird": "^1.2.4",
     "double-ended-queue": "^2.0.0-0",
+    "closurecompiler": "^1.3.2",
     "es3ify": "^0.1.3",
     "inherits": "~2.0.1",
     "level-js": "^2.1.3",
@@ -74,7 +75,7 @@
   "scripts": {
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
     "build-main-js": "browserify . -s PouchDB | derequire > dist/pouchdb.js",
-    "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
+    "min": "sh bin/min.sh",
     "build-plugins": "sh bin/build-all-plugins.sh",
     "build": "npm run version && mkdirp dist && npm run build-js && npm run license",
     "license": "node ./bin/add-license.js",
