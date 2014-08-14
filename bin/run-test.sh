@@ -20,6 +20,7 @@ if [[ ! -z $SERVER ]]; then
     fi
     ./node_modules/.bin/pouchdb-server -p 6984 $FLAGS &
     export POUCHDB_SERVER_PID=$!
+    sleep 15 # give it a chance to start up
   else
     # I mistype pouchdb-server a lot
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
