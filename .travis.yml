@@ -9,7 +9,7 @@ services:
   - couchdb
   
 git:
-  depth: 1
+  depth: 30
 
 before_script:
   - "export DISPLAY=:99.0"
