@@ -7,7 +7,9 @@ node_js:
 
 services:
   - couchdb
-
+  
+git:
+  depth: 1
 
 before_script:
   - "export DISPLAY=:99.0"
