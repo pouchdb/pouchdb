@@ -3,12 +3,5 @@
 {% else %}
   {% assign class = 'h2' %}
 {% endif %}
-<div id='{{ include.hash }}'>
-  <a
-     class='{{ class }} anchor'
-     href='#{{ include.hash }}'
-     name='{{ include.hash }}'
-  >
-    {{ include.title }}
-  </a>
-</div>
+<div id='{{ include.hash }}'></div>
+<a class='{{ class }} anchor' href='#{{ include.hash }}' name='{{ include.hash }}'>{{ include.title }}</a>
