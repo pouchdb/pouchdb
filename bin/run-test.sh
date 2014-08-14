@@ -18,7 +18,7 @@ if [[ ! -z $SERVER ]]; then
     else
       FLAGS="-d $TESTDIR"
     fi
-    ./node_modules/.bin/pouchdb-server -p 6984 $FLAGS &
+    pouchdb-server -p 6984 $FLAGS &
     export POUCHDB_SERVER_PID=$!
     sleep 15 # give it a chance to start up
   else
