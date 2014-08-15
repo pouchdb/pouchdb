@@ -1,3 +1,4 @@
+tests/deps/pouch-commit.txt
 tmp
 .DS_Store
 node_modules

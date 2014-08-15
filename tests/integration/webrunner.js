@@ -1,4 +1,4 @@
-/* global mocha: true */
+/* global testResultsSync,mocha: true */
 
 'use strict';
 
@@ -79,11 +79,13 @@ function startTests() {
     };
 
     runner.on('pass', function (e) {
+      testResultsSync.onPassOrFail(e);
       window.results.lastPassed = e.title;
       window.results.passed++;
     });
 
     runner.on('fail', function (e) {
+      testResultsSync.onPassOrFail(e);
       window.results.failed++;
       window.results.failures.push({
         title: e.title,

@@ -39,7 +39,29 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('destroy a pouch', function (done) {
+    it('Remove a pouch', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        PouchDB.destroy(dbs, function (err, info) {
+          should.not.exist(err);
+          should.exist(info);
+          info.ok.should.equal(true);
+          done();
+        });
+      });
+    });
+
+    it('Remove a pouch, with a promise', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        PouchDB.destroy(dbs).then(function (info) {
+          should.exist(info);
+          info.ok.should.equal(true);
+          done();
+        }, done);
+      });
+    });
+
+    xit('destroy a pouch', function (done) {
+>>>>>>> Minimum changes necessary for pouchtest.com:tests/test.basics.js
       new PouchDB(dbs.name, function (err, db) {
         should.exist(db);
         db.destroy(function (err, info) {
@@ -51,7 +73,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('destroy a pouch, with a promise', function (done) {
+    xit('destroy a pouch, with a promise', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         should.exist(db);
         db.destroy().then(function (info) {
@@ -747,7 +769,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('db.info should give correct name', function (done) {
+    xit('db.info should give correct name', function (done) {
       var db = new PouchDB(dbs.name);
       db.info().then(function (info) {
         info.db_name.should.equal('testdb');

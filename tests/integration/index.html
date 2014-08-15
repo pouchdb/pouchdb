@@ -1,11 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Mocha</title>
+    <title>PouchTest.com</title>
     <link rel="stylesheet" type="text/css" href="../../node_modules/mocha/mocha.css">
+    <style>
+      #pouchtest-info {
+        font-family: "Helvetica Neue Light","HelveticaNeue-Light","Helvetica Neue",Calibri,Helvetica,Arial,sans-serif;
+        margin:5px 10px;
+        color : #333;
+        background-color: #f0f0f0;
+        border-radius: 3px;
+        padding: 4px 12px 4px 7px;
+      }
+      #pouchtest-info p {
+        margin: 0 0 0.2em;
+      }
+      #pouchtest-info a {
+        color: #0b97c4;
+      }
+      #pouchtest-info a:visited {
+        color: #0b97c4;
+      }
+
+      #pouchtest-info h1 {
+        color: #0b97c4;
+        font-size: 2.5em;
+        margin: 0.1em 0;
+      }
+      #pouchtest-info ul {
+        list-style: none;
+        font-size: 0.9em;
+      }
+    </style>
   </head>
   <body>
+    <div id="pouchtest-info">
+      <h1>PouchTest.com</h1>
+      <p>
+        This site checks your browser for compatibility with <a href='http://pouchdb.com'>PouchDB</a>
+        <span id="pouch-version"></span>
+        <span id="pouch-commit"></span>.
+      </p>
+      <ul>
+        <li>
+          Debug in realtime <a href='http://pouchtest.com/weinre/' target='_blank'>with Weinre</a>.
+        </li>
+        <li>
+          Check out the
+          <a href="http://pouchtest.com/pouch-test-reports/" target='_blank'>aggregated test reports</a>.
+        </li>
+        <li id="personalized-report">
+          Share your personalized test results
+          <a href="#" target='_blank'>with this link</a>.
+        </li>
+      </ul>
+    </div>
     <div id="mocha"></div>
     <script>
       var val = window.location.search.match(/[&\?]es5shims?=([^&\?]+)/);
@@ -17,11 +67,14 @@
     <script src="../../node_modules/chai/chai.js"></script>
     <script>
       mocha.setup({
-        timeout:100000,
+        timeout:1000000,
         ui: 'bdd'
       });
       var should = chai.should();
     </script>
+
+    <script src="../../node_modules/es5-shim/es5-shim.min.js"></script>
+    <script src='../../dist/pouchdb.js'></script>
     <script src='deps/pouchdb-1.1.0-postfixed.js'></script>
     <script src='deps/pouchdb-2.0.0-postfixed.js'></script>
     <script src='deps/pouchdb-2.2.0-postfixed.js'></script>
@@ -57,6 +110,14 @@
     <script src='test.slash_id.js'></script>
     <script src='test.reserved.js'></script>
     <script src='browser.worker.js'></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="../../node_modules/ua-parser-js/src/ua-parser.min.js"></script>
+    <script type="text/javascript" src="./test-results-sync.js"></script>
     <script type="text/javascript" src="./webrunner.js"></script>
+    <script>
+      (function($){
+        $('#pouch-version').text('version ' + PouchDB.version);
+      })(jQuery);
+    </script>
   </body>
 </html>

@@ -79,6 +79,7 @@
     "selenium-standalone": "3.0.2"
   },
   "scripts": {
+    "postinstall":"git rev-parse HEAD^1 > tests/deps/pouch-commit.txt",
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
     "build-main-js": "browserify . -s PouchDB -p bundle-collapser/plugin | node ./bin/es3ify.js | derequire > dist/pouchdb.js",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
