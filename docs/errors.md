@@ -87,5 +87,9 @@ Safari requires users to confirm that they want to allow an app to store data lo
 
 In Chrome apps, you'll see the warning "window.localStorage is not available in packaged apps. Use chrome.storage.local instead."  This is harmless; since PouchDB doesn't use localStorage if it's not available.
 
+{% include anchor.html class="h3" title="Error: UnknownError (Firefox)" hash="unknown_error_ff" %}
+
+Are you using a webserver to host and run your code? This error can be caused by running your script/file locally using the file:/// setting in firefox, since firefox does not [allow access to "IndexedDB" locally](https://bugzilla.mozilla.org/show_bug.cgi?id=643318). You can use the SimpleHTTPServer to deploy your script by running, $python -m SimpleHTTPServer from the directory containing the script or use apache webserver and then access the script by using http://localhost/{path_to_your_script}.
+
 [es5shim]: https://github.com/es-shims/es5-shim
 [sqlite]: https://github.com/brodysoft/Cordova-SQLitePlugin
