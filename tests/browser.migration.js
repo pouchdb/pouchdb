@@ -184,6 +184,72 @@ describe('migration', function () {
         });
       });
 
+      it("Test basic replication with migration + changes()", function (done) {
+        if (skip) { return done(); }
+        var docs = [
+          {_id: "0", integer: 0, string: '0'},
+          {_id: "1", integer: 1, string: '1'},
+          {_id: "2", integer: 2, string: '2'},
+          {_id: "3", integer: 3, string: '3', _deleted : true},
+          {_id: "4", integer: 4, string: '4', _deleted : true}
+        ];
+
+        new dbs.first.pouch(dbs.first.remote, function (err, oldPouch) {
+          should.not.exist(err, 'got error in constructor: ' +
+            JSON.stringify(err));
+          if (err) {
+            done();
+          }
+          oldPouch.bulkDocs({docs: docs}, {}, function (err, res) {
+            should.not.exist(err, 'got error in bulkDocs: ' +
+              JSON.stringify(err));
+            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
+            function (err, oldLocalPouch) {
+              oldPouch.replicate.to(oldLocalPouch, function (err, result) {
+                should.not.exist(err, 'got error in replicate: ' +
+                  JSON.stringify(err));
+                if (err) {
+                  done();
+                }
+                should.exist(result.ok, 'replication was ok');
+                oldPouch.close(function (err) {
+                  should.not.exist(err, 'got error in close: ' +
+                    JSON.stringify(err));
+                  if (err) {
+                    done();
+                  }
+                  should.not.exist(err, 'got error: ' + JSON.stringify(err));
+                  if (err) {
+                    done();
+                  }
+                  oldLocalPouch.close(function (err) {
+                    should.not.exist(err, 'got error in close: ' +
+                      JSON.stringify(err));
+                    if (err) {
+                      done();
+                    }
+                    new dbs.second.pouch(dbs.second.local,
+                      function (err, newPouch) {
+                        should.not.exist(err, 'got error in 2nd constructor: ' +
+                          JSON.stringify(err));
+                        if (err) {
+                          done();
+                        }
+                        newPouch.changes({include_docs: true})
+                        .on('complete', function (complete) {
+                          complete.results.should.have.length(5,
+                            'no _local docs in changes()');
+                          done();
+                        }).on('error', done);
+                      });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
       if (scenario === 'PouchDB v2.2.0' && !skip) {
         it("Test persistent views don't require update", function (done) {
           if (scenario !== 'PouchDB v2.2.0' || skip) { return done(); }
