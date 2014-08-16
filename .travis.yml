@@ -37,31 +37,56 @@ env:
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
 
   matrix:
-  - CLIENT=node COMMAND=test
-  - CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
-
-  # Test against pouchdb-server
-  - CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
-  - SERVER_ADAPTER=memory LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
-
-  # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox COMMAND=test
-  - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
-
-  # Testing in saucelabs
-  - CLIENT=saucelabs:chrome COMMAND=test
-  - CLIENT=saucelabs:chrome ADAPTERS=websql COMMAND=test
-  - CLIENT=saucelabs:safari:6 COMMAND=test
-  - CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
-  - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
-
-  - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
-  - CLIENT=selenium:firefox PERF=1 COMMAND=test
-  - PERF=1 COMMAND=test
-  - COMMAND=report-coverage
+  - CLIENT=node COMMAND=test TRY=1
+  - CLIENT=node COMMAND=test TRY=2
+  - CLIENT=node COMMAND=test TRY=3
+  - CLIENT=node COMMAND=test TRY=4
+  - CLIENT=node COMMAND=test TRY=5
+  - CLIENT=node COMMAND=test TRY=6
+  - CLIENT=node COMMAND=test TRY=7
+  - CLIENT=node COMMAND=test TRY=8
+  - CLIENT=node COMMAND=test TRY=9
+  - CLIENT=node COMMAND=test TRY=0
+  - CLIENT=node COMMAND=test TRY=11
+  - CLIENT=node COMMAND=test TRY=12
+  - CLIENT=node COMMAND=test TRY=13
+  - CLIENT=node COMMAND=test TRY=14
+  - CLIENT=node COMMAND=test TRY=15
+  - CLIENT=node COMMAND=test TRY=16
+  - CLIENT=node COMMAND=test TRY=17
+  - CLIENT=node COMMAND=test TRY=18
+  - CLIENT=node COMMAND=test TRY=19
+  - CLIENT=node COMMAND=test TRY=20
+  - CLIENT=node COMMAND=test TRY=21
+  - CLIENT=node COMMAND=test TRY=22
+  - CLIENT=node COMMAND=test TRY=23
+  - CLIENT=node COMMAND=test TRY=24
+  - CLIENT=node COMMAND=test TRY=25
+  - CLIENT=node COMMAND=test TRY=26
+  - CLIENT=node COMMAND=test TRY=27
+  - CLIENT=node COMMAND=test TRY=28
+  - CLIENT=node COMMAND=test TRY=29
+  - CLIENT=node COMMAND=test TRY=30
+  - CLIENT=node COMMAND=test TRY=31
+  - CLIENT=node COMMAND=test TRY=32
+  - CLIENT=node COMMAND=test TRY=33
+  - CLIENT=node COMMAND=test TRY=34
+  - CLIENT=node COMMAND=test TRY=35
+  - CLIENT=node COMMAND=test TRY=36
+  - CLIENT=node COMMAND=test TRY=37
+  - CLIENT=node COMMAND=test TRY=38
+  - CLIENT=node COMMAND=test TRY=39
+  - CLIENT=node COMMAND=test TRY=40
+  - CLIENT=node COMMAND=test TRY=41
+  - CLIENT=node COMMAND=test TRY=42
+  - CLIENT=node COMMAND=test TRY=43
+  - CLIENT=node COMMAND=test TRY=44
+  - CLIENT=node COMMAND=test TRY=45
+  - CLIENT=node COMMAND=test TRY=46
+  - CLIENT=node COMMAND=test TRY=47
+  - CLIENT=node COMMAND=test TRY=48
+  - CLIENT=node COMMAND=test TRY=49
+  - CLIENT=node COMMAND=test TRY=50
 
 matrix:
   allow_failures:
