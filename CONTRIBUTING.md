@@ -297,6 +297,7 @@ Release Procedure
  * Update docs/_config.yml to latest version
  * Push release post
  * `./node_modules/.bin/tin -v $VERSION
+ * Put the new version in `lib/version-browser.js` too
  * `npm run release`
  * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases
  * `./node_modules/.bin/tin -v $VERSION+1-prerelease
