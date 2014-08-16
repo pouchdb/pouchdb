@@ -219,31 +219,28 @@ adapters.forEach(function (adapters) {
       function (done) {
       var doc1 = {_id: 'adoc', foo: 'bar'};
       var doc2 = {_id: 'anotherdoc', foo: 'baz'};
-
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var replications = db.sync(remote, {
-        live: true,
-        complete: function () {
-          done();
-        }
-      });
+      var replications = db.sync(remote, {live: true});
+
       db.on('change', function (ch) {
         if (ch.seq !== 1) {
           done(true);
         }
       });
-      replications.then(null, function () {
-        done();
+
+      replications.on('cancel', function () {
+        remote.put(doc2, function () {
+          changes.should.equal(2);
+          done();
+        });
       });
+
       var changes = 0;
       replications.on('change', function (ch) {
         changes++;
         if (changes === 2) {
-          replications.pull.emit('error');
-          remote.put(doc2);
-        } else if (changes > 2) {
-          done(true);
+          replications.pull.cancel();
         }
       });
       db.put(doc1);
