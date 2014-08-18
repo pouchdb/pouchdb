@@ -1527,13 +1527,15 @@ adapters.forEach(function (adapter) {
         db.changes({
           limit: 1
         }).on('change', function (ch) {
-          ch.id.should.equal('a');
           (called++).should.equal(0);
         }).on('complete', function () {
-          done();
+          setTimeout(function () {
+            done();
+          }, 50);
         });
       });
     });
+
     it.skip('should respects limit with live replication', function (done) {
       var docs1 = [
         {_id: '_local/foo'},
