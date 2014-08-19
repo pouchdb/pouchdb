@@ -24,21 +24,21 @@ title: PouchDB, the JavaScript Database that Syncs!
 
       <div class='col-sm-6'>
 
-  {% highlight js %}
-  var db = new PouchDB('dbname');
+{% highlight js %}
+var db = new PouchDB('dbname');
 
-  db.put({
-   _id: 'dave@gmail.com',
-   name: 'David',
-   age: 67
-  });
+db.put({
+  _id: 'dave@gmail.com',
+  name: 'David',
+  age: 67
+});
 
-  db.changes().on('change', function() {
-    console.log('Ch-Ch-Changes');
-  });
+db.changes().on('change', function() {
+  console.log('Ch-Ch-Changes');
+});
 
-  db.replicate.to('http://example.com/mydb');
-  {% endhighlight %}
+db.replicate.to('http://example.com/mydb');
+{% endhighlight %}
 
       </div>
 
