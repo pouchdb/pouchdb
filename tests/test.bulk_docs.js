@@ -285,7 +285,107 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Bulk with new_edits=false in req body', function (done) {
+    it('Deletion with new_edits=false', function () {
+
+      var db = new PouchDB(dbs.name);
+      var doc1 = {
+        '_id': 'foo',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      };
+      var doc2 = {
+        '_deleted': true,
+        '_id': 'foo',
+        '_rev': '2-y',
+        '_revisions': {
+          'start': 2,
+          'ids': ['y', 'x']
+        }
+      };
+
+      return db.put(doc1, {new_edits: false}).then(function () {
+        return db.put(doc2, {new_edits: false});
+      }).then(function () {
+        return db.allDocs({keys: ['foo']});
+      }).then(function (res) {
+        res.rows[0].value.rev.should.equal('2-y');
+        res.rows[0].value.deleted.should.equal(true);
+      });
+    });
+
+    it('Deletion with new_edits=false, no history', function () {
+
+      var db = new PouchDB(dbs.name);
+      var doc1 = {
+        '_id': 'foo',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      };
+      var doc2 = {
+        '_deleted': true,
+        '_id': 'foo',
+        '_rev': '2-y'
+      };
+
+      return db.put(doc1, {new_edits: false}).then(function () {
+        return db.put(doc2, {new_edits: false});
+      }).then(function () {
+        return db.allDocs({keys: ['foo']});
+      }).then(function (res) {
+        res.rows[0].value.rev.should.equal('1-x');
+        should.equal(!!res.rows[0].value.deleted, false);
+      });
+    });
+
+    it('Modification with new_edits=false, no history', function () {
+
+      var db = new PouchDB(dbs.name);
+      var doc1 = {
+        '_id': 'foo',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      };
+      var doc2 = {
+        '_id': 'foo',
+        '_rev': '2-y'
+      };
+
+      return db.put(doc1, {new_edits: false}).then(function () {
+        return db.put(doc2, {new_edits: false});
+      }).then(function () {
+        return db.allDocs({keys: ['foo']});
+      }).then(function (res) {
+        res.rows[0].value.rev.should.equal('2-y');
+      });
+    });
+
+    it('Deletion with new_edits=false, no history, no revisions', function () {
+
+      var db = new PouchDB(dbs.name);
+      var doc = {
+        '_deleted': true,
+        '_id': 'foo',
+        '_rev': '2-y'
+      };
+
+      return db.put(doc, {new_edits: false}).then(function () {
+        return db.allDocs({keys: ['foo']});
+      }).then(function (res) {
+        res.rows[0].value.rev.should.equal('2-y');
+        res.rows[0].value.deleted.should.equal(true);
+      });
+    });
+
+    it('Testing new_edits=false in req body', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [{
         '_id': 'foo',

@@ -983,6 +983,112 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Replicates deleted docs (issue #2636)', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replication = db.replicate.to(remote, {
+        live: true
+      });
+
+      return db.post({}).then(function (res) {
+        var doc = {
+          _id: res.id,
+          _rev: res.rev
+        };
+
+        return db.remove(doc);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(0, 'deleted locally');
+      }).then(function () {
+        // wait for changes to settle
+        return new PouchDB.utils.Promise(function (resolve) {
+          setTimeout(resolve, 5000);
+        });
+      }).then(function () {
+        return remote.allDocs();
+      }).then(function (res) {
+        replication.cancel();
+        res.rows.should.have.length(0, 'deleted in remote');
+      });
+    });
+
+    it('Replicates deleted docs w/ delay (issue #2636)', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replication = db.replicate.to(remote, {
+        live: true
+      });
+
+      return db.post({}).then(function (res) {
+        var doc = {
+          _id: res.id,
+          _rev: res.rev
+        };
+
+        // this timeout more consistently repros
+        // the issue, so it's not just a race
+        return new PouchDB.utils.Promise(function (resolve) {
+          setTimeout(resolve, 1000);
+        }).then(function () {
+          return doc;
+        });
+      }).then(function (doc) {
+        return db.remove(doc);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(0, 'deleted locally');
+      }).then(function () {
+        // wait for changes to settle
+        return new PouchDB.utils.Promise(function (resolve) {
+          setTimeout(resolve, 5000);
+        });
+      }).then(function () {
+        return remote.allDocs();
+      }).then(function (res) {
+        replication.cancel();
+        res.rows.should.have.length(0, 'deleted in remote');
+      });
+    });
+
+    it('Replicates modified docs (issue #2636)', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replication = db.replicate.to(remote, {
+        live: true
+      });
+
+      return db.post({}).then(function (res) {
+        var doc = {
+          _id: res.id,
+          _rev: res.rev,
+          modified: 'yep'
+        };
+
+        return db.put(doc);
+      }).then(function () {
+        return db.allDocs({include_docs: true});
+      }).then(function (res) {
+        res.rows.should.have.length(1, 'one doc synced locally');
+        res.rows[0].doc.modified.should.equal('yep', 'modified locally');
+      }).then(function () {
+        // wait for changes to settle
+        return new PouchDB.utils.Promise(function (resolve) {
+          setTimeout(resolve, 5000);
+        });
+      }).then(function () {
+        return remote.allDocs({include_docs: true});
+      }).then(function (res) {
+        replication.cancel();
+        res.rows[0].doc.modified.should.equal('yep', 'modified in remote');
+      });
+    });
+
     it('Replication of multiple remote conflicts (#789)', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
