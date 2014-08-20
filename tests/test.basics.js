@@ -709,6 +709,35 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test doc with percent in ID', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {
+        foo: 'bar',
+        _id: 'foo%bar'
+      };
+      return db.put(doc).then(function (res) {
+        res.id.should.equal('foo%bar');
+        return db.get('foo%bar');
+      }).then(function (doc) {
+        doc._id.should.equal('foo%bar');
+        var queryFun = {
+          map: function (doc) {
+            emit(doc.foo, doc);
+          }
+        };
+        return db.query(queryFun, {
+          include_docs: true,
+          reduce: false
+        });
+      }).then(function (res) {
+        var x = res.rows[0];
+        x.id.should.equal('foo%bar');
+        should.exist(x.key);
+        should.exist(x.value._rev);
+        should.exist(x.doc._rev);
+      });
+    });
+
     it('db.info should give correct name', function (done) {
       var db = new PouchDB(dbs.name);
       db.info().then(function (info) {
