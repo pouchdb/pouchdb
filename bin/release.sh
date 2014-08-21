@@ -12,7 +12,7 @@ git checkout -b build
 
 npm run build
 git add dist -f
-git add lib/version-browser.js
+git add bower.json component.json package.json lib/version-browser.js
 git rm -r bin docs scripts tests vendor
 
 git commit -m "build $VERSION"
