@@ -12,6 +12,10 @@ If you see the error:
 > No 'Access-Control-Allow-Origin' header is present on the requested resource.
 > Origin [...] is therefore not allowed access.
 
+or on firebug
+
+> Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://[couchDBIP]:[couchDBPort]/[dbname]/?_nonce=[request hash]. This can be fixed by moving the resource to the same domain or enabling CORS
+
 it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same domain.
 
 To enable CORS, just run the following commands on a command prompt (Mac/Linux) and substitute your user name, password, and the URL of your database:
@@ -25,6 +29,22 @@ curl -X PUT $HOST/_config/cors/credentials -d '"true"'
 curl -X PUT $HOST/_config/cors/methods -d '"GET, PUT, POST, HEAD, DELETE"'
 curl -X PUT $HOST/_config/cors/headers -d '"accept, content-type, origin, referer"'
 ```
+
+or on Windows edit the [pathtocouchdb]/etc/local.ini file and under the section `[httpd]` add
+```
+enable_cors = true
+```
+and then add the following lines at the end of this or any section
+```
+[cors]
+origins = *
+methods = GET,POST,PUT,DELETE
+credentials = true
+header = accept, authorization, content-type, origin, referer
+
+```
+The same can be achieved by using [Futon](http://localhost:5984/_utils/config.html) and adding new sections.
+
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
 
