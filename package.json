@@ -43,7 +43,6 @@
     "pouchdb-http-proxy": "~0.10.3",
     "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
-    "browserify": "~3.24.13",
     "wd": "~0.2.8",
     "tin": "~0.4.0",
     "ncp": "~0.5.0",
@@ -61,7 +60,8 @@
     "cordova": "~3.4.1-0.1.0",
     "replace": "^0.2.9",
     "es5-shim": "^3.1.1",
-    "phantomjs": "^1.9.7-5"
+    "phantomjs": "^1.9.7-5",
+    "browserify": "^4.1.8"
   },
   "scripts": {
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
