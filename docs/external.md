@@ -1,10 +1,10 @@
 ---
 layout: 2ColLeft
-title: External Projects
+title: Plugins and External Projects
 sidebar: nav.html
 ---
 
-A list of known plugins, tools and projects can be used with PouchDB. [Fork this page](https://github.com/pouchdb/pouchdb/blob/master/docs/external.md) to add your own!
+Below is a list of known plugins, tools and projects can be used with PouchDB. [Fork this page](https://github.com/pouchdb/pouchdb/blob/master/docs/external.md) to add your own!
 
 {% include anchor.html title="Plugins" hash="plugins" %}
 
@@ -19,6 +19,14 @@ Plugin for CouchDB's authentication system.
 #### [PouchDB Collate](https://github.com/pouchdb/collate)
 
 Collation utilities, so you can use complex keys as doc IDs.
+
+#### [Pouch Dat](https://github.com/calvinmetcalf/pouch-dat)
+
+Replicate from PouchDB to Dat. 
+
+#### [Delta Pouch](https://github.com/redgeoff/delta-pouch)
+
+Implements the handy "every document is a delta" pattern, so you don't have to deal with conflicts.
 
 #### [Filter Pouch](https://github.com/nolanlawson/filter-pouch)
 
@@ -47,6 +55,10 @@ PouchDB over WebRTC.
 #### [PouchDB Quick Search](https://github.com/nolanlawson/pouchdb-quick-search)
 
 Full-text search engine on top of PouchDB.
+
+#### [Relational Pouch](https://github.com/nolanlawson/relational-pouch)
+
+A relational database API on top of PouchDB/CouchDB.
 
 #### [PouchDB Rewrite](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
@@ -88,9 +100,9 @@ An express submodule with a CouchDB-style REST interface to PouchDB. Powers Pouc
 
 Backbone PouchDB Sync Adapter.
 
-#### [Ember PouchDB](https://github.com/taras/ember-pouchdb)
+#### [Ember Pouch](https://github.com/nolanlawson/ember-pouch)
 
-PouchDB wrapper for Ember.js.
+Ember Data adapter for PouchDB/CouchDB.
 
 #### [AngularJS PouchDB Support](https://github.com/wspringer/angular-pouchdb)
 
