@@ -156,15 +156,22 @@ Now we'll implement the syncing. You need to have a CouchDB instance, which you 
 
 To replicate directly with CouchDB, you need to make sure CORS is enabled. Only set the username and password if you have set them previously. By default, CouchDB will be installed in "Admin Party," where username and password are not needed. You will need to replace `myname.iriscouch.com` with your own host (`127.0.0.1:5984` if installed locally):
 
+You can enable CORS in CouchDB using `curl` or the Futon web interface, but we've saved you some time by making a Node script called [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb). Just run:
+
 {% highlight bash %}
-$ export HOST=http://username:password@myname.iriscouch.com
-$ curl -X PUT $HOST/_config/httpd/enable_cors -d '"true"'
-$ curl -X PUT $HOST/_config/cors/origins -d '"*"'
-$ curl -X PUT $HOST/_config/cors/credentials -d '"true"'
-$ curl -X PUT $HOST/_config/cors/methods -d '"GET, PUT, POST, HEAD, DELETE"'
-$ curl -X PUT $HOST/_config/cors/headers -d \
-  '"accept, authorization, content-type, origin, referer"'
+$ npm install -g add-cors-to-couchdb
+$ add-cors-to-couchdb
 {% endhighlight %}
+
+Or if your database is not at `127.0.0.1:5984`:
+
+{% highlight bash %}
+$ add-cors-to-couchdb http://me.iriscouch.com -u myusername -p mypassword
+{% endhighlight %}
+
+You can check that CORS is now enabled by visiting [http://localhost:5984/_utils/config.html](http://localhost:5984/_utils/config.html) in your browser. You should see something like this:
+
+![CORS settings in CouchDB](static/img/cors_in_couchdb.png)
 
 {% include anchor.html class="h3" title="Implement basic two way sync" hash="basic_two_way_sync" %}
 

@@ -18,17 +18,23 @@ or this one:
 
 it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same domain.
 
-To enable CORS, just run the following commands on a command prompt (Mac/Linux) and substitute your user name, password, and the URL of your database:
+You can enable CORS in CouchDB using `curl` or the Futon web interface, but we've saved you some time by making a Node script called [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb). Just run:
 
-```
-HOST=http://adminname:password@localhost:5984 # or whatever you got
+{% highlight bash %}
+$ npm install -g add-cors-to-couchdb
+$ add-cors-to-couchdb
+{% endhighlight %}
 
-curl -X POST $HOST/_config/httpd/enable_cors -d '"true"'
-curl -X PUT $HOST/_config/cors/origins -d '"*"'
-curl -X PUT $HOST/_config/cors/credentials -d '"true"'
-curl -X PUT $HOST/_config/cors/methods -d '"GET, PUT, POST, HEAD, DELETE"'
-curl -X PUT $HOST/_config/cors/headers -d '"accept, content-type, origin, referer"'
-```
+Or if your database is not at `127.0.0.1:5984`:
+
+{% highlight bash %}
+$ add-cors-to-couchdb http://me.iriscouch.com \
+    -u myusername -p mypassword
+{% endhighlight %}
+
+You can check that CORS is now enabled by visiting [http://localhost:5984/_utils/config.html](http://localhost:5984/_utils/config.html) in your browser. You should see something like this:
+
+![CORS settings in CouchDB](static/img/cors_in_couchdb.png)
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
 
