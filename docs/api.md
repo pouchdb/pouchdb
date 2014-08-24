@@ -1050,10 +1050,22 @@ PouchDB is an [event emitter][event emitter] and will emit a `'created'` event w
 
 {% highlight js %}
 PouchDB.on('created', function (dbName) {
-  // called whenver a db is created.
+  // called whenever a db is created.
 });
 PouchDB.on('destroyed', function (dbName) {
-  // called whenver a db is destroyed.
+  // called whenever a db is destroyed.
+});
+{% endhighlight %}
+
+Another event, which is probably only useful to plugin authors, is `'registeredDependentDb'`. This event fires whenever a dependent database is attached to the primary database (e.g. for persisted map/reduce).
+
+{% highlight js %}
+PouchDB.on('registeredDependentDb', function (dbName, dependentDbName, adapter) {
+  // called when the dependent db is attached
+  // all three are strings, adapter is e.g. 'idb' or 'leveldb'
+});
+// also emitted:
+db.on('registeredDependentDb', function (dependentDbName) {
 });
 {% endhighlight %}
 
