@@ -49,6 +49,11 @@ env:
   - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
+  # Test auto-compaction in Node, Phantom, and Firefox
+  - AUTO_COMPACTION=true CLIENT=node COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
   - CLIENT=saucelabs:chrome ADAPTERS=websql COMMAND=test

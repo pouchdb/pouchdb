@@ -47,9 +47,12 @@ function asyncLoadScript(url, callback) {
   firstScript.parentNode.insertBefore(script, firstScript);
 }
 
-function modifyAdapters() {
+function modifyGlobals() {
   if (preferredAdapters) {
     window.PouchDB.preferredAdapters = preferredAdapters;
+  }
+  if (window.location.search.indexOf('autoCompaction') !== -1) {
+    window.PouchDB = window.PouchDB.defaults({auto_compaction: true});
   }
 }
 
@@ -65,7 +68,7 @@ function startTests() {
   }
 
   function onReady() {
-    modifyAdapters();
+    modifyGlobals();
     var runner = mocha.run();
     window.results = {
       lastPassed: '',
@@ -102,14 +105,20 @@ if (window.cordova) {
       window.location.search.indexOf('grep') === -1;
   var hasEs5Shim = window.ES5_SHIM &&
       window.location.search.indexOf('es5Shim') === -1;
+  var hasAutoCompaction = window.AUTO_COMPACTION &&
+    window.location.search.indexOf('autoCompaction') === -1;
 
-  if (hasGrep || hasEs5Shim) {
+  if (hasGrep || hasEs5Shim || hasAutoCompaction) {
     var params = [];
     if (hasGrep) {
       params.push('grep=' + encodeURIComponent(window.GREP));
     }
     if (hasEs5Shim) {
       params.push('es5Shim=' + encodeURIComponent(window.ES5_SHIM));
+    }
+    if (hasAutoCompaction) {
+      params.push('autoCompaction=' +
+        encodeURIComponent(window.AUTO_COMPACTION));
     }
     window.location.search += (window.location.search ? '&' : '?') +
       params.join('&');

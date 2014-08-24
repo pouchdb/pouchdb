@@ -20,6 +20,9 @@ if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
 if (process.env.ADAPTERS) {
   queryParams.adapters = process.env.ADAPTERS;
 }
+if (process.env.AUTO_COMPACTION) {
+  queryParams.autoCompaction = true;
+}
 
 var indexfile = "./lib/index.js";
 var outfile = "./dist/pouchdb.js";
