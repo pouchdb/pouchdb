@@ -365,6 +365,8 @@ if (typeof module !== 'undefined' && module.exports) {
       console.log('Using client-side leveldown prefix: ' + defaults.prefix);
     }
     global.PouchDB = global.PouchDB.defaults(defaults);
+  } else if (process.env.AUTO_COMPACTION) {
+    global.PouchDB = global.PouchDB.defaults({auto_compaction: true});
   }
   if (typeof process !== 'undefined') {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
