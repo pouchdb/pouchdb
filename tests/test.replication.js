@@ -1055,6 +1055,34 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Replicates deleted docs w/ compaction', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return db.remove(doc);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(0, 'deleted locally');
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(0, 'deleted in remote');
+      });
+    });
+
     it('Replicates modified docs (issue #2636)', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
