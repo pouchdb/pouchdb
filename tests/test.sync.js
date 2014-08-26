@@ -19,7 +19,8 @@ adapters.forEach(function (adapters) {
     beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapters[0], 'testdb');
       dbs.remote = testUtils.adapterUrl(adapters[1], 'test_repl_remote');
-      testUtils.cleanup([dbs.name, dbs.remote], done);
+      dbs.local = testUtils.adapterUrl(adapters[1], 'testdb2');
+      testUtils.cleanup([dbs.name, dbs.remote, dbs.local], done);
     });
 
     after(function (done) {
@@ -329,6 +330,43 @@ adapters.forEach(function (adapters) {
             Object.keys(sync._events).should.have.length(0);
             done();
           });
+        });
+      });
+    });
+    it('3 way replication works', function (done) {
+      var db = new PouchDB(dbs.name);
+      var local = new PouchDB(dbs.local);
+      var remote = new PouchDB(dbs.remote);
+      var j = 0;
+      var sync = db.sync(remote, {
+        live: true
+      }).on('uptodate', function (ch) {
+        console.log('rchange', ++j);
+      });
+      var sync2 = local.sync(remote, {
+        live: true
+      });
+      db.post({}).then(function (resp) {
+        var doc = {
+          _id: resp.id,
+          _rev: resp.rev
+        };
+        local.put({}, 'foo').then(function () {
+          setTimeout(function () {
+            db.remove(doc).then(function () {
+              setTimeout(function () {
+                sync.cancel();
+                sync2.cancel();
+                db.get(resp.id).then(function () {
+                  console.log('bad');
+                  done();
+                }, function (e) {
+                  console.log(e);
+                  done();
+                });
+              }, 1000);
+            });
+          }, 100);
         });
       });
     });
