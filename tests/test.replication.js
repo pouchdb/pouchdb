@@ -85,7 +85,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('Test pull replication with many changes', function (done) {
-      this.timeout(20000);
       var remote = new PouchDB(dbs.remote);
 
       var numDocs = 201;
@@ -111,7 +110,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('Test pull replication with many conflicts', function (done) {
-      this.timeout(20000);
       var remote = new PouchDB(dbs.remote);
 
       var numRevs = 200; // repro "url too long" error with open_revs
@@ -983,6 +981,48 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Replicate and modify three times', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc = {
+        _id: 'foo',
+        generation: 1
+      };
+
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get('foo');
+      }).then(function (doc) {
+        doc.generation.should.equal(1);
+        doc.generation = 2;
+        return remote.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return remote.replicate.to(db);
+      }).then(function () {
+        return db.get('foo');
+      }).then(function (doc) {
+        doc.generation.should.equal(2);
+        doc.generation = 3;
+        return db.put(doc);
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return db.get('foo', {conflicts: true});
+      }).then(function (doc) {
+        doc.generation.should.equal(3);
+        should.not.exist(doc._conflicts);
+      }).then(function () {
+        return remote.get('foo', {conflicts: true});
+      }).then(function (doc) {
+        doc.generation.should.equal(3);
+        should.not.exist(doc._conflicts);
+      });
+    });
+
     it('Replicates deleted docs (issue #2636)', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -1113,6 +1153,7 @@ adapters.forEach(function (adapters) {
         return remote.allDocs({include_docs: true});
       }).then(function (res) {
         replication.cancel();
+        res.rows.should.have.length(1, '1 doc in remote');
         res.rows[0].doc.modified.should.equal('yep', 'modified in remote');
       });
     });
