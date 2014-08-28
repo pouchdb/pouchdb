@@ -25,7 +25,7 @@
     "leveldown": "~0.10.2",
     "levelup": "~0.18.4",
     "lie": "^2.6.0",
-    "localstorage-down": "^0.4.4",
+    "localstorage-down": "^0.6.1",
     "memdown": "^0.8.0",
     "pouchdb-extend": "^0.1.0",
     "pouchdb-mapreduce": "~2.2.4",
