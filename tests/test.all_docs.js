@@ -237,6 +237,43 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('test concurrent allDocs', function () {
+      var db1 = new PouchDB(dbs.name);
+      var db2 = new PouchDB(dbs.name + '_2');
+
+      var tasks = [];
+      for (var i = 0; i < 20; i++) {
+        tasks.push(null);
+      }
+
+      var promise = PouchDB.utils.Promise.resolve();
+
+      for (var ii = 0; ii < 10; ii++) {
+        /* jshint loopfunc:true */
+        promise = promise.then(function () {
+          return PouchDB.utils.Promise.all(tasks.map(function () {
+            return new PouchDB.utils.Promise(function (resolve, reject) {
+              db1.post({}, function (err) {
+                if (err) { return reject(err); }
+                db2.post({}, function (err) {
+                  if (err) { return reject(err); }
+                  db1.allDocs({}, function (err, docs) {
+                    if (err) { return reject(err); }
+                    db2.allDocs({}, function (err, docs) {
+                      if (err) { return reject(err); }
+                      resolve();
+                    });
+                  });
+                });
+              });
+            });
+          }));
+        });
+      }
+
+      return promise;
+    });
+
     it('test basic collation', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = {
