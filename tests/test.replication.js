@@ -2244,6 +2244,28 @@ adapters.forEach(function (adapters) {
         });
       });
     });
+    it('should cancel for live replication', function (done) {
+      var remote = new PouchDB(dbs.remote);
+      var db = new PouchDB(dbs.name);
+      var rep = db.replicate.from(remote, {live: true});
+      var called = false;
+      rep.on('change', function () {
+        if (called) {
+          done(new Error('called too many times!'));
+        } else {
+          called = true;
+          rep.cancel();
+          remote.put({}, 'foo').then(function () {
+            return remote.put({}, 'bar');
+          }).then(function () {
+            setTimeout(function () {
+              done();
+            }, 500);
+          });
+        }
+      });
+      remote.put({}, 'gazaa');
+    });
   });
 });
 
