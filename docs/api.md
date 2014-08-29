@@ -23,7 +23,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 ### Options
 
 * `options.name`: You can omit the `name` argument and specify it via `options` instead. Note that the name is required.
-* `options.auto_compaction`: This turns on auto compaction (experimental). Defaults to `false`.
+* `options.auto_compaction`: This turns on auto compaction, which means `compact()` is called after every change to the database. Defaults to `false`.
 * `options.adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
 * `options.ajax`: An object of options to be sent to the ajax requester. In Node they are sent verbatim to [request][] with the exception of:
     * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
@@ -1010,9 +1010,7 @@ db.info(function(err, info) { })
 db.compact([options], [callback])
 {% endhighlight %}
 
-Triggers a compaction operation for `db` on the remote host. This reduces the database's size by removing unused and old data. If a `callback` function is specified, Pouch checks compaction status at regular intervals and fires the callback upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more detail about database compaction.
-
-**Note:** This method is only available when using the http adapter.
+Triggers a compaction operation for `db` on the local or remote database. This reduces the database's size by removing unused and old data. If a `callback` function is specified, Pouch checks compaction status at regular intervals and fires the callback upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more detail about database compaction.
 
 * `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Defaults to 200.
 
