@@ -42,7 +42,7 @@ testUtils.couchHost = function () {
 
 testUtils.makeBlob = function (data, type) {
   if (typeof module !== 'undefined' && module.exports) {
-    return new Buffer(data);
+    return new Buffer(data, 'binary');
   } else {
     return PouchDB.utils.createBlob([data], { type: type });
   }
@@ -50,7 +50,7 @@ testUtils.makeBlob = function (data, type) {
 
 testUtils.readBlob = function (blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
-    callback(blob.toString());
+    callback(blob.toString('binary'));
   } else {
     var reader = new FileReader();
     reader.onloadend = function (e) {
