@@ -56,7 +56,7 @@ testUtils.readBlob = function (blob, callback) {
     reader.onloadend = function (e) {
       
       var binary = "";
-      var bytes = new Uint8Array(this.result);
+      var bytes = new Uint8Array(this.result || '');
       var length = bytes.byteLength;
       
       for (var i = 0; i < length; i++) {
@@ -73,12 +73,9 @@ testUtils.base64Blob = function (blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString('base64'));
   } else {
-    var reader = new FileReader();
-    reader.onloadend = function (e) {
-      var base64 = this.result.replace(/data:.*;base64,/, '');
-      callback(base64);
-    };
-    reader.readAsDataURL(blob);
+    testUtils.readBlob(blob, function (binary) {
+      callback(PouchDB.utils.btoa(binary));
+    });
   }
 };
 
