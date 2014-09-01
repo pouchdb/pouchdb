@@ -804,6 +804,47 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    if (typeof process === 'undefined' || process.browser) {
+      it('test stored URL content type of png data', function (done) {
+        var db = new PouchDB(dbs.name);
+        db.put({ _id: 'foo' }, function (err, res) {
+          db.get('foo', function (err, doc) {
+            var data = pngAttDoc._attachments['foo.png'].data;
+            var blob = testUtils
+              .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+                'image/png');
+            db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
+              function (err, info) {
+                should.not.exist(err, 'attachment inserted');
+                db.getAttachment('foo', 'foo.png', function (err, blob) {
+                  should.not.exist(err, 'attachment gotten');
+                  if (typeof URL === 'undefined') {
+                    // phantomjs doesn't have this, give up on this test
+                    return done();
+                  }
+                  var url = URL.createObjectURL(blob);
+                  PouchDB.utils.ajax({
+                    url: url,
+                    cache: true,
+                    binary: true
+                  }, function (err, res) {
+                    if (err && err.status === 405) {
+                      // firefox won't let us use ajax to get the blob.
+                      // too bad, but firefox wasn't the problem anyway
+                      return done();
+                    }
+                    should.not.exist(err, 'ajax gotten');
+                    res.type.should.equal('image/png');
+                    done();
+                  });
+                });
+              });
+          });
+        });
+      });
+    }
+
+
     var isSafari = (typeof process === 'undefined' || process.browser) &&
       /Safari/.test(window.navigator.userAgent) &&
       !/Chrome/.test(window.navigator.userAgent);
