@@ -224,12 +224,47 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test getAttachment with empty text', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put(binAttDoc2, function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('bin_doc2', 'foo.txt', function (err, res) {
+          if (err) { return done(err); }
+          (typeof res).should.equal('object', 'res is object, ' +
+            'not a string');
+          testUtils.base64Blob(res, function (data) {
+            data.should.equal('', 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
+    it('Test getAttachment with normal text', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put(binAttDoc, function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('bin_doc', 'foo.txt', function (err, res) {
+          if (err) { return done(err); }
+          (typeof res).should.equal('object', 'res is object, ' +
+            'not a string');
+          testUtils.base64Blob(res, function (data) {
+            data.should.equal(
+              binAttDoc._attachments['foo.txt'].data, 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
     it('Test getAttachment with PNG', function (done) {
       var db = new PouchDB(dbs.name);
       db.put(pngAttDoc, function (err, res) {
         if (err) { return done(err); }
         db.getAttachment('png_doc', 'foo.png', function (err, res) {
           if (err) { return done(err); }
+          (typeof res).should.equal('object', 'res is object, ' +
+            'not a string');
           testUtils.base64Blob(res, function (data) {
             data.should
               .equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
