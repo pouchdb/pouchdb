@@ -6,6 +6,12 @@ sidebar: nav.html
 
 In this tutorial we will write a basic Todo web application based on [TodoMVC](http://todomvc.com/) that syncs to an online CouchDB server. It should take around 10 minutes.
 
+{% include anchor.html class="h3" title="Video Tutorial" hash="video_tutorial" %}
+
+If you get stuck or just prefer video tutorials, this guide is available in video format:
+
+<iframe width="560" height="315" src="//www.youtube.com/embed/-Z7UF2TuSp0" frameborder="0" allowfullscreen></iframe>
+
 {% include anchor.html class="h3" title="Download Assets" hash="download" %}
 
 We will start with a template of the project where all the data related functions have been replaced with empty stubs. Download and unzip [pouchdb-getting-started-todo.zip]({{ site.baseurl }}/static/assets/pouchdb-getting-started-todo.zip). When dealing with XHR and IndexedDB you are better off running web pages from a server as opposed to a filesystem. To do this you can run:
