@@ -8,6 +8,23 @@ var repl_adapters = [
   ['local', 'local']
 ];
 
+/* jshint maxlen:false */
+var icons = [
+  "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"
+];
+
+var iconDigests = [
+  "md5-Mf8m9ehZnCXC717bPkqkCA==",
+  "md5-fdEZBYtnvr+nozYVDzzxpA==",
+  "md5-ImDARszfC+GA3Cv9TVW4HA==",
+  "md5-hBsgoz3ujHM4ioa72btwow==",
+  "md5-jDUyV6ySnTVANn2qq3332g=="
+];
+
 adapters.forEach(function (adapter) {
   describe('test.attachments.js-' + adapter, function () {
 
@@ -21,7 +38,6 @@ adapters.forEach(function (adapter) {
     after(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
-
 
     var binAttDoc = {
       _id: 'bin_doc',
@@ -224,9 +240,74 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test getAttachment with empty text', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put(binAttDoc2, function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('bin_doc2', 'foo.txt', function (err, res) {
+          if (err) { return done(err); }
+          (typeof res).should.equal('object', 'res is object, ' +
+            'not a string');
+          testUtils.base64Blob(res, function (data) {
+            data.should.equal('', 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
+    it('Test getAttachment with normal text', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put(binAttDoc, function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('bin_doc', 'foo.txt', function (err, res) {
+          if (err) { return done(err); }
+          (typeof res).should.equal('object', 'res is object, ' +
+            'not a string');
+          testUtils.base64Blob(res, function (data) {
+            data.should.equal(
+              binAttDoc._attachments['foo.txt'].data, 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
     it('Test getAttachment with PNG', function (done) {
       var db = new PouchDB(dbs.name);
       db.put(pngAttDoc, function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('png_doc', 'foo.png', function (err, res) {
+          if (err) { return done(err); }
+          (typeof res).should.equal('object', 'res is object, ' +
+            'not a string');
+          testUtils.base64Blob(res, function (data) {
+            data.should
+              .equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
+    it('Test getAttachment with PNG using bulkDocs', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs([pngAttDoc], function (err, res) {
+        if (err) { return done(err); }
+        db.getAttachment('png_doc', 'foo.png', function (err, res) {
+          if (err) { return done(err); }
+          testUtils.base64Blob(res, function (data) {
+            data.should
+              .equal(pngAttDoc._attachments['foo.png'].data, 'correct data');
+            done();
+          });
+        });
+      });
+    });
+
+    it('Test getAttachment with PNG using post', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post(pngAttDoc, function (err, res) {
         if (err) { return done(err); }
         db.getAttachment('png_doc', 'foo.png', function (err, res) {
           if (err) { return done(err); }
@@ -642,6 +723,52 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('putAttachment and getAttachment with plaintext', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({ _id: 'foo' }, function (err, res) {
+        db.get('foo', function (err, doc) {
+          var data = binAttDoc._attachments['foo.txt'].data;
+          var blob = testUtils
+            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+              'text/plain');
+          db.putAttachment('foo', 'foo.txt', doc._rev, blob, 'text/plain',
+                           function (err, info) {
+            should.not.exist(err, 'attachment inserted');
+            db.getAttachment('foo', 'foo.txt', function (err, blob) {
+              should.not.exist(err, 'attachment gotten');
+              testUtils.readBlob(blob, function (returnedData) {
+                PouchDB.utils.btoa(returnedData).should.equal(data);
+                db.get('foo', function (err, doc) {
+                  should.not.exist(err, 'err on get');
+                  delete doc._attachments["foo.txt"].revpos;
+                  delete doc._attachments["foo.txt"].length;
+
+                  // couchdb encodes plaintext strings differently from us
+                  // because of libicu vs. ascii. that's okay
+                  var digest = doc._attachments["foo.txt"].digest;
+                  var validDigests = [
+                    "md5-qUUYqS41RhwF0TrCsTAxFg==",
+                    "md5-aEI7pOYCRBLTRQvvqYrrJQ=="
+                  ];
+                  validDigests.indexOf(digest).should.not.equal(-1,
+                    'expected ' + digest  + ' to be in: ' +
+                      JSON.stringify(validDigests));
+                  delete doc._attachments["foo.txt"].digest;
+                  doc._attachments.should.deep.equal({
+                    "foo.txt": {
+                      "content_type": "text/plain",
+                      "stub": true
+                    }
+                  });
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
     it('putAttachment and getAttachment with png data', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({ _id: 'foo' }, function (err, res) {
@@ -657,7 +784,19 @@ adapters.forEach(function (adapter) {
               should.not.exist(err, 'attachment gotten');
               testUtils.readBlob(blob, function (returnedData) {
                 PouchDB.utils.btoa(returnedData).should.equal(data);
-                done();
+                db.get('foo', function (err, doc) {
+                  should.not.exist(err, 'err on get');
+                  delete doc._attachments["foo.png"].revpos;
+                  delete doc._attachments["foo.png"].length;
+                  doc._attachments.should.deep.equal({
+                    "foo.png": {
+                      "content_type": "image/png",
+                      "digest": "md5-c6eA+rofKUsstTNQBKUc8A==",
+                      "stub": true
+                    }
+                  });
+                  done();
+                });
               });
             });
           });
@@ -665,14 +804,53 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    if (typeof process === 'undefined' || process.browser) {
+      it('test stored URL content type of png data', function (done) {
+        var db = new PouchDB(dbs.name);
+        db.put({ _id: 'foo' }, function (err, res) {
+          db.get('foo', function (err, doc) {
+            var data = pngAttDoc._attachments['foo.png'].data;
+            var blob = testUtils
+              .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+                'image/png');
+            db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
+              function (err, info) {
+                should.not.exist(err, 'attachment inserted');
+                db.getAttachment('foo', 'foo.png', function (err, blob) {
+                  should.not.exist(err, 'attachment gotten');
+                  if (typeof URL === 'undefined') {
+                    // phantomjs doesn't have this, give up on this test
+                    return done();
+                  }
+                  var url = URL.createObjectURL(blob);
+                  PouchDB.utils.ajax({
+                    url: url,
+                    cache: true,
+                    binary: true
+                  }, function (err, res) {
+                    if (err && err.status === 405) {
+                      // firefox won't let us use ajax to get the blob.
+                      // too bad, but firefox wasn't the problem anyway
+                      return done();
+                    }
+                    should.not.exist(err, 'ajax gotten');
+                    res.type.should.equal('image/png');
+                    done();
+                  });
+                });
+              });
+          });
+        });
+      });
+    }
+
+
     var isSafari = (typeof process === 'undefined' || process.browser) &&
       /Safari/.test(window.navigator.userAgent) &&
       !/Chrome/.test(window.navigator.userAgent);
     if (!isSafari) {
       // skip in safari/ios because of size limit popup
       it('putAttachment and getAttachment with big png data', function (done) {
-
-        this.timeout(20000);
 
         function getData(cb) {
           if (typeof process !== 'undefined' && !process.browser) {
@@ -706,7 +884,19 @@ adapters.forEach(function (adapter) {
                   should.not.exist(err, 'attachment gotten');
                   testUtils.readBlob(blob, function (returnedData) {
                     PouchDB.utils.btoa(returnedData).should.equal(data);
-                    done();
+                    db.get('foo', function (err, doc) {
+                      should.not.exist(err, 'err on get');
+                      delete doc._attachments["foo.png"].revpos;
+                      delete doc._attachments["foo.png"].length;
+                      doc._attachments.should.deep.equal({
+                        "foo.png": {
+                          "content_type": "image/png",
+                          "digest": "md5-kqr2YcdElgDs3RkMn1Ygbw==",
+                          "stub": true
+                        }
+                      });
+                      done();
+                    });
                   });
                 });
               });
@@ -766,6 +956,79 @@ repl_adapters.forEach(function (adapters) {
       });
     });
 
+    it('Many many attachments replicate', function () {
+      var doc = {_id: 'foo'};
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var rev;
+
+      var data = PouchDB.utils.btoa('foobar');
+      var blob = testUtils
+        .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+          'text/plain');
+
+      doc._attachments = {};
+      var expectedKeys = [];
+      for (var i = 0; i < 50; i++) {
+        doc._attachments[i + '.txt'] = {
+          content_type: 'text/plain',
+          data: blob
+        };
+        expectedKeys.push(i + '.txt');
+      }
+      return db.put(doc).then(function (info) {
+        rev = info.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get('foo', {attachments: true});
+      }).then(function (doc) {
+        var keys = Object.keys(doc._attachments);
+        keys.sort();
+        keys.should.deep.equal(expectedKeys.sort());
+        doc._attachments[keys[0]].data.should.equal(data);
+      });
+    });
+
+    it('Many many png attachments replicate', function () {
+      var doc = {_id: 'foo'};
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var rev;
+
+      var data = 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAMFBMVEX+9+' +
+        'j+9OD+7tL95rr93qT80YD7x2L6vkn6syz5qRT4ogT4nwD4ngD4nQD4nQD4' +
+        'nQDT2nT/AAAAcElEQVQY002OUQLEQARDw1D14f7X3TCdbfPnhQTqI5UqvG' +
+        'OWIz8gAIXFH9zmC63XRyTsOsCWk2A9Ga7wCXlA9m2S6G4JlVwQkpw/Ymxr' +
+        'UgNoMoyxBwSMH/WnAzy5cnfLFu+dK2l5gMvuPGLGJd1/9AOiBQiEgkzOpg' +
+        'AAAABJRU5ErkJggg==';
+      var blob = testUtils
+        .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+          'image/png');
+
+      doc._attachments = {};
+      var expectedKeys = [];
+      for (var i = 0; i < 50; i++) {
+        doc._attachments[i + '.txt'] = {
+          content_type: 'image/png',
+          data: blob
+        };
+        expectedKeys.push(i + '.txt');
+      }
+      return db.put(doc).then(function (info) {
+        rev = info.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get('foo', {attachments: true});
+      }).then(function (doc) {
+        var keys = Object.keys(doc._attachments);
+        keys.sort();
+        keys.should.deep.equal(expectedKeys.sort());
+        doc._attachments[keys[0]].data.should.equal(data);
+      });
+    });
+
     it('Multiple attachments replicate', function () {
       var doc = {_id: 'foo'};
 
@@ -793,6 +1056,86 @@ repl_adapters.forEach(function (adapters) {
         var keys = Object.keys(doc._attachments);
         keys.sort();
         keys.should.deep.equal(['foo1.txt', 'foo2.txt', 'foo3.txt']);
+      });
+    });
+
+    it('Multiple attachments replicate, different docs (#2698)', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString(),
+          _attachments: {
+            'foo.txt': {
+              data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=',
+              content_type: 'text/plain'
+            }
+          }
+        });
+      }
+      return remote.bulkDocs(docs).then(function (info) {
+        return remote.replicate.to(db);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        return PouchDB.utils.Promise.all(res.rows.map(function (row) {
+          return db.get(row.id, {attachments: true});
+        }));
+      }).then(function (docs) {
+        var attachments = docs.map(function (doc) {
+          delete doc._attachments['foo.txt'].revpos;
+          delete doc._attachments['foo.txt'].digest;
+          return doc._attachments;
+        });
+        attachments.should.deep.equal([1, 2, 3, 4, 5].map(function () {
+          return {
+            "foo.txt": {
+              "content_type": "text/plain",
+              "data": "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
+            }
+          };
+        }));
+      });
+    });
+
+    it('Multiple attachments replicate, different docs png (#2698)', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString(),
+          _attachments: {
+            'foo.png': {
+              data: icons[i],
+              content_type: 'image/png'
+            }
+          }
+        });
+      }
+      return remote.bulkDocs(docs).then(function (info) {
+        return remote.replicate.to(db);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        return PouchDB.utils.Promise.all(res.rows.map(function (row) {
+          return db.get(row.id, {attachments: true});
+        }));
+      }).then(function (docs) {
+        var attachments = docs.map(function (doc) {
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "foo.png": {
+              "content_type": "image/png",
+              "data": icon,
+              "digest": iconDigests[i]
+            }
+          };
+        }));
       });
     });
   });

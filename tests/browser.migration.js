@@ -423,6 +423,40 @@ describe('migration', function () {
             }, done);
           }, done);
         });
+        it('Remembers attachments', function (done) {
+          if (skip) { return done(); }
+          var oldPouch =
+            new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
+              function (err) {
+                should.not.exist(err, 'got error: ' + JSON.stringify(err));
+                if (err) {
+                  done();
+                }
+              });
+          var docs = [
+            {
+              _id: 'foo',
+              _attachments: {
+                'foo.txt': {
+                  content_type: 'text/plain',
+                  data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
+                }
+              }
+            }
+          ];
+          oldPouch.bulkDocs({docs: docs}).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local);
+            newPouch.get('foo', {attachments: true}).then(function (doc) {
+              doc._attachments['foo.txt'].content_type.should.equal(
+                'text/plain');
+              doc._attachments['foo.txt'].data.should.equal(
+                'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
+              done();
+            }, done);
+          }, done);
+        });
 
         it('Testing migration with weird doc ids', function (done) {
           if (skip) { return done(); }
