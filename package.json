@@ -27,7 +27,7 @@
     "lie": "^2.6.0",
     "localstorage-down": "^0.6.1",
     "memdown": "^0.8.0",
-    "pouchdb-extend": "^0.1.0",
+    "pouchdb-extend": "pouchdb/pouchdb-extend#2543",
     "pouchdb-mapreduce": "~2.2.4",
     "request": "~2.28.0",
     "spark-md5": "0.0.5",
