@@ -109,6 +109,78 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('pull replication with many changes + a conflict (#2543)', function () {
+      var db = new PouchDB(dbs.remote);
+      var remote = new PouchDB(dbs.remote);
+      // simulate 5000 normal commits with two conflicts at the very end
+      function uuid() {
+        return PouchDB.utils.uuid(32, 16).toLowerCase();
+      }
+
+      var numRevs = 5000;
+      var isSafari = (typeof process === 'undefined' || process.browser) &&
+        /Safari/.test(window.navigator.userAgent) &&
+        !/Chrome/.test(window.navigator.userAgent);
+      if (isSafari) {
+        numRevs = 10; // fuck safari, we've hit the storage limit again
+      }
+
+      var uuids = [];
+      for (var i = 0; i < numRevs - 1; i++) {
+        uuids.push(uuid());
+      }
+      var conflict1 = 'a' + uuid();
+      var conflict2 = 'b' + uuid();
+
+      var doc1 = {
+        _id: 'doc',
+        _rev: numRevs + '-' + conflict1,
+        _revisions: {
+          start: numRevs,
+          ids: [conflict1].concat(uuids)
+        }
+      };
+      var doc2 = {
+        _id: 'doc',
+        _rev: numRevs + '-' + conflict2,
+        _revisions: {
+          start: numRevs,
+          ids: [conflict2].concat(uuids)
+        }
+      };
+      return remote.bulkDocs([doc1], {new_edits: false}).then(function () {
+        return remote.replicate.to(db);
+      }).then(function (result) {
+        result.ok.should.equal(true);
+        result.docs_written.should.equal(0, 'correct # docs written (1)');
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1, 'doc_count');
+        return db.get('doc', {open_revs: "all"});
+      }).then(function (doc) {
+        doc.should.deep.equal([{"ok": {"_id": "doc", "_rev": doc1._rev}}]);
+        return remote.bulkDocs([doc2], {new_edits: false});
+      }).then(function () {
+        return remote.replicate.to(db);
+      }).then(function (result) {
+        result.ok.should.equal(true);
+        result.docs_written.should.equal(0, 'correct # docs written (2)');
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1, 'doc_count');
+        return db.get('doc', {open_revs: "all"});
+      }).then(function (docs) {
+        // order with open_revs is unspecified
+        docs.sort(function (a, b) {
+          return a.ok._rev < b.ok._rev ? -1 : 1;
+        });
+        docs.should.deep.equal([
+          {"ok": {"_id": "doc", "_rev": doc1._rev}},
+          {"ok": {"_id": "doc", "_rev": doc2._rev}}
+        ]);
+      });
+    });
+
     it('Test pull replication with many conflicts', function (done) {
       var remote = new PouchDB(dbs.remote);
 
@@ -2278,7 +2350,7 @@ downAdapters.map(function (adapter) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapters[0], 'test_repl');
+      dbs.name = testUtils.adapterUrl(adapters[0], 'testdb');
       testUtils.cleanup([dbs.name], done);
     });
 
