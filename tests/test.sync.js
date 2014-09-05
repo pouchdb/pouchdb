@@ -332,5 +332,28 @@ adapters.forEach(function (adapters) {
         });
       });
     });
+    it('PouchDB.sync with strings for dbs', function (done) {
+      var doc1 = {
+          _id: 'adoc',
+          foo: 'bar'
+        };
+      var doc2 = {
+          _id: 'anotherdoc',
+          foo: 'baz'
+        };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return PouchDB.sync(dbs.name, dbs.remote);
+      }).then(function (result) {
+        result.pull.ok.should.equal(true);
+        result.pull.docs_read.should.equal(1);
+        result.pull.docs_written.should.equal(1);
+        result.pull.errors.should.have.length(0);
+        done();
+      }, done);
+    });
   });
 });
