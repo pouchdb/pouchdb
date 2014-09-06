@@ -19,8 +19,8 @@ function runTests() {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl('local', 'test_worker');
-      dbs.remote = testUtils.adapterUrl('http', 'test_worker_remote');
+      dbs.name = testUtils.adapterUrl('local', 'testdb');
+      dbs.remote = testUtils.adapterUrl('http', 'test_repl_remote');
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
