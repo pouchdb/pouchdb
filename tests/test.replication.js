@@ -35,6 +35,30 @@ adapters.forEach(function (adapters) {
       {_id: '1', integer: 1, string: '1'},
       {_id: '2', integer: 2, string: '2'}
     ];
+    
+    it('last_seq equals update_seq from info (#2745)', function (done) {
+      var remote = new PouchDB(dbs.remote);
+      var db = new PouchDB(dbs.name);
+      remote.put({ _id: 'test1', integer: 0 }).then(function () {
+        db.replicate.to(remote).on('complete', function (push) {
+          db.info(function (err1, i1) {
+            should.not.exist(err1);
+            should.exist(i1);
+            i1.update_seq.should.equal(push.last_seq);
+            db.put({ _id: 'test2', integer: 1 }).then(function () {
+              db.replicate.from(remote).on('complete', function (pull) {
+                db.info(function (err2, i2) {
+                  should.not.exist(err2);
+                  should.exist(i2);
+                  i2.update_seq.should.equal(pull.last_seq);
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
 
     it('Test basic pull replication', function (done) {
       var db = new PouchDB(dbs.name);
