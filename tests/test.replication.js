@@ -925,6 +925,43 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Replication with filter that leads to some empty batches',
+       function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docs1 = [
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 1},
+        {_id: '3', integer: 1},
+        {_id: '4', integer: 2},
+        {_id: '5', integer: 2}
+      ];
+      remote.bulkDocs({ docs: docs1 }, function (err, info) {
+        db.replicate.from(remote, {
+          batch_size: 2,
+          complete: function (err, res) {
+            if (err) {
+              done(err);
+            }
+            db.allDocs(function (err, docs) {
+              if (err) { done(err); }
+              docs.rows.length.should.equal(3);
+              db.info(function (err, info) {
+                info.update_seq.should.equal(6);
+                info.doc_count.should.equal(6);
+                done();
+              });
+            });
+          },
+          filter: function (doc) {
+            return doc.integer % 2 === 0;
+          }
+        });
+      });
+    });
+
+
     it('Replication with deleted doc', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
