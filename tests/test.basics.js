@@ -746,6 +746,26 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('db.info should give auto_compaction = false (#2744)', function (done) {
+      var db = new PouchDB(dbs.name, { auto_compaction: false});
+      db.info().then(function (info) {
+        info.auto_compaction.should.equal(false);
+        done();
+      });
+    });
+
+    it('db.info should give auto_compaction = true (#2744)', function (done) {
+      if (dbs.name === 'test.basics.js-local') {
+        var db = new PouchDB(dbs.name, { auto_compaction: true});
+        db.info().then(function (info) {
+          info.auto_compaction.should.equal(true);
+          done();
+        });
+      } else {
+        done();
+      }
+    });
+
     it('db.info should give correct doc_count', function (done) {
       new PouchDB(dbs.name).then(function (db) {
         db.info().then(function (info) {
