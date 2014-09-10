@@ -492,9 +492,19 @@ adapters.forEach(function (adapter) {
         '_replication_stats': {}
       };
       var db = new PouchDB(dbs.name);
-      db.post(doc, function (err, res) {
+      db.post(doc, function (err, resp) {
         should.not.exist(err);
-        done();
+
+        db.get(resp.id, function (err, doc2) {
+          should.not.exist(err);
+
+          doc2._replication_id.should.equal('test');
+          doc2._replication_state.should.equal('triggered');
+          doc2._replication_state_time.should.equal(1);
+          doc2._replication_stats.should.eql({});
+
+          done();
+        });
       });
     });
 
