@@ -925,7 +925,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Replication with filter that leads to some empty batches',
+    it('Replication with filter that leads to some empty batches (#2689)',
        function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -948,8 +948,8 @@ adapters.forEach(function (adapters) {
               if (err) { done(err); }
               docs.rows.length.should.equal(3);
               db.info(function (err, info) {
-                info.update_seq.should.equal(6);
-                info.doc_count.should.equal(6);
+                info.update_seq.should.equal(3);
+                info.doc_count.should.equal(3);
                 done();
               });
             });
@@ -960,7 +960,6 @@ adapters.forEach(function (adapters) {
         });
       });
     });
-
 
     it('Replication with deleted doc', function (done) {
       var db = new PouchDB(dbs.name);
