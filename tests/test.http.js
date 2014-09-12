@@ -57,4 +57,23 @@ describe('test.http.js', function () {
     });
   });
 
+  it('Gives a useful timeout error', function () {
+    this.timeout(60000);
+    // no way it can write 100000 docs in 5 s.
+    // couch is fast, but not that fast.
+    var db = new PouchDB(dbs.name, {ajax: {timeout: 5000}});
+    var docs = [];
+    for (var i = 0; i < 100000; i++) {
+      docs.push({});
+    }
+
+    return db.then(function (db) {
+      return db.bulkDocs(docs).then(function () {
+        true.should.equal(false, "didn't expect a 201 success");
+      }, function (err) {
+        err.status.should.equal(408);
+      });
+    });
+  });
+
 });
