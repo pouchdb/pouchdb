@@ -59,6 +59,16 @@ if [[ ! -z $COUCH_HOST ]]; then
     $TESTS_DIR/www/tests/test.html
 fi
 
+if [[ ! -z $ADAPTER ]]; then
+  ADAPTERS=$ADAPTER # I know I'm gonna mistype this
+fi
+
+if [[ ! -z $ADAPTERS ]]; then
+ ./node_modules/replace/bin/replace.js '<body>' \
+ "<body><script>window.ADAPTERS = ""'"$ADAPTERS"'"";</script>" \
+ $TESTS_DIR/www/tests/test.html
+fi
+
 if [[ ! -z $WEINRE_HOST ]]; then
   ./node_modules/replace/bin/replace.js '<body>' \
     "<body><script src=""'"$WEINRE_HOST"/target/target-script-min.js#anonymous""'""></script>" \
