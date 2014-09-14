@@ -57,6 +57,9 @@ db.put({
 ]);
 ```
 
+Why bulk up with `bulkDocs()`?
+----
+
 Bulk operations tend to be faster than individual operations, because they can be combined into a single transaction (in a local IndexedDB/WebSQL) or a single HTTP request (in a remote CouchDB).
 
 You can also update or delete multiple documents this way. You just need to include the `_rev` and `_deleted` values as previously discussed. The same rules as for `put()` apply to each individual document.
@@ -76,8 +79,53 @@ Likewise, `allDocs()` is a method that allows you to read many documents at once
 
 Most crucially, when you read from `allDocs()`, the documents are returned *sorted by order of `_id`*.  This makes the `_id` a very powerful field that you can use for more than just uniquely identifying your documents.
 
-For instance, you can use `new Date().toJSON()` as your document `_id`s, and in this way all your documents will be sorted by date. Or in the case of the kittens above, if you refer back to [the live example](http://bl.ocks.org/nolanlawson/038a45134341f3b7235b), you'll notice that the kittens are sorted by their name, because their names are used as their `_id`s.
+For instance, if you refer back to [the live example](http://bl.ocks.org/nolanlawson/038a45134341f3b7235b) above, you'll notice that the kittens are sorted by their name, because their names are used as their `_id`s.
 
-Far too many developers overlook this valuable API because they misunderstand it. When a developer says "PouchDB is slow!", it is usually because they are using the slow `query()` API when they should be using the fast `allDocs()` API.
+Another common way to take advantage of this is to use `new Date().toJSON()` as your document `_id`s. In this way, all your documents will be sorted by date.
 
-For details on how to effectively use `allDocs()`, you are strongly recommended to read ["Pagination strategies with PouchDB"](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html).
+For instance, let's save three kittens with three different dates, and then fetch them sorted by date:
+
+```js
+db.put({
+    _id: new Date().toJSON(),
+    name: 'Mittens',
+    occupation: 'kitten',
+    cuteness: 9.0
+}).then(function () {
+  return db.put({
+    _id: new Date().toJSON(),
+    name: 'Katie',
+    occupation: 'kitten',
+    cuteness: 7.0
+  });
+}).then(function () {
+  return db.put({
+    _id: new Date().toJSON(),
+    name: 'Felix',
+    occupation: 'kitten',
+    cuteness: 8.0
+  });
+]).then(function () {
+  return db.allDocs({include_docs: true});
+}).then(function (response) {
+  console.log(response);
+}).catch(function (err) {
+  console.log(err);
+});
+```
+
+You can see **[a live example](http://bl.ocks.org/nolanlawson/8f58dbc360348a4c95f6) to confirm that the kittens are sorted by the order they were put into the database.
+
+Please use `allDocs()`. Seriously.
+-------
+
+`allDocs()` is the overlooked star of the PouchDB world.
+
+Far too many developers overlook this valuable API, because they misunderstand it. When a developer says "PouchDB is slow!", it is usually because they are using the slow `query()` API when they should be using the fast `allDocs()` API.
+
+For details on how to effectively use `allDocs()`, you are strongly recommended to read ["Pagination strategies with PouchDB"](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html). For 99% of your applications, you should be able to use `allDocs()` for all the pagination/sorting/searching functionality that you need.
+
+Next
+------
+
+Now that you've fallen helplessly in love with `bulkDocs()` and `allDocs()`, let's [turn our wandering gaze to attachments](guides-attachments.html).
