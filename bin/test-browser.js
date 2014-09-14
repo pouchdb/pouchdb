@@ -120,7 +120,7 @@ function startSelenium(callback) {
   var retries = 0;
   var started = function () {
 
-    if (++retries > 30) {
+    if (++retries > 60) {
       console.error('Unable to connect to selenium');
       process.exit(1);
       return;
