@@ -4,9 +4,6 @@ title: Working with databases
 sidebar: guides_nav.html
 ---
 
-Creating a database
-----------
-
 PouchDB databases come in two main flavors: local and remote.
 
 Local databases

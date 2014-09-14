@@ -35,7 +35,7 @@ If you come from a SQL background, this handy conversion chart may help:
 </tr>
 <tr>
   <td>table</td>
-  <td>database</td>
+  <td><em>no equivalent</em></td>
 </tr>
 <tr>
   <td>row</td>
@@ -57,8 +57,133 @@ If you come from a SQL background, this handy conversion chart may help:
 </table>
 </div>
 
-We'll discuss more of these concepts later on.
+We'll discuss these concepts later on.
 
-Storing documents
+Storing a document
 -------------
 
+To store a document, you simply `put` it:
+
+```js
+var doc = {
+  "_id": "mittens",
+  "name": "Mittens",
+  "occupation": "kitten",
+  "age": 3,
+  "hobbies": [
+    "playing with balls of yarn",
+    "chasing laser pointers",
+    "lookin' hella cute"
+  ]
+};
+db.put(doc);
+```
+
+At this point, you can `get` it by using its `_id`:
+
+```js
+db.get('mittens').then(function (doc) {
+  console.log(doc);
+});
+```
+
+You should see:
+
+```js
+{
+  "name": "Mittens",
+  "occupation": "kitten",
+  "age": 3,
+  "hobbies": [
+    "playing with balls of yarn",
+    "chasing laser pointers",
+    "lookin' hella cute"
+  ],
+  "_id": "mittens",
+  "_rev": "1-bea5fa18e06522d12026f4aee6b15ee4"
+}
+```
+
+You can see a **[live example](http://bl.ocks.org/nolanlawson/c02bba75247012afb1bf)** of this code.
+
+The document looks exactly the same as when we put it, except... aha! What is this? There is a new field, `_rev`, that contains what looks like garbage. PouchDB gots some 'splainin' to do.
+
+Understanding revisions (`_rev`)
+------
+
+The new field, `_rev` is the *revision marker*. It is a randomly-generated ID that changes whenever a document is created or updated.
+
+Unlike most other databases, whenever you update a document in PouchDB or CouchDB, you must present the *entire document* along with its current *revision marker*.
+
+For instance, to increment Mittens' age to 4, we would do:
+
+```js
+doc.age = 4;
+doc._rev = "1-bea5fa18e06522d12026f4aee6b15ee4";
+db.put(doc);
+```
+
+If you fail to include the correct `_rev`, you will get the following sad error:
+
+```js
+{
+  "status": 409,
+  "name": "conflict",
+  "message": "Document update conflict"
+}
+```
+
+`HTTP 409` is a standard HTTP error message that indicates a conflict.
+
+Updating documents correctly
+-----------
+
+So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put him back.
+
+```js
+var doc = {
+  "_id": "mittens",
+  "name": "Mittens",
+  "occupation": "kitten",
+  "age": 3,
+  "hobbies": [
+    "playing with balls of yarn",
+    "chasing laser pointers",
+    "lookin' hella cute"
+  ]
+};
+db.put(doc).then(function () {
+  return db.get('mittens');
+}).then(function (doc) {
+  doc.age = 4;
+  return db.put(doc);
+}).then(function () {
+  return db.get('mittens');
+}).then(function (doc) {
+  console.log(doc);
+});
+```
+
+You should see the following:
+
+```js
+{
+  "name": "Mittens",
+  "occupation": "kitten",
+  "age": 4,
+  "hobbies": [
+    "playing with balls of yarn",
+    "chasing laser pointers",
+    "lookin' hella cute"
+  ],
+  "_id": "mittens",
+  "_rev": "2-3e3fd988b331193beeeea2d4221b57e7"
+}
+```
+
+You can see a **[live example](http://bl.ocks.org/nolanlawson/d6daa02ca3875d1222dd)** of this code.
+
+Next
+----
+
+Now that you understand a bit about how to put documents and how to update documents, [let's talk about asynchronous code](guides-async-code.html).
