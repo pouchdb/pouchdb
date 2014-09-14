@@ -10,7 +10,7 @@ In this tutorial we will write a basic Todo web application based on [TodoMVC](h
 
 If you get stuck or just prefer video tutorials, this guide is available in video format:
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/-Z7UF2TuSp0" frameborder="0" allowfullscreen></iframe>
+{% include iframe.html src="//www.youtube.com/embed/-Z7UF2TuSp0" %}
 
 {% include anchor.html class="h3" title="Download Assets" hash="download" %}
 
