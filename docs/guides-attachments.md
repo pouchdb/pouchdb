@@ -15,7 +15,7 @@ How attachments are stored
 
 As their name implies, attachments are *attached* to documents. You can work with attachments either in base64-encoded format, or as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
 
-For example, here is a very simple document with a plaintext attachment.
+For example, here is a very simple document with a plain text attachment, stored as base64.
 
 ```js
 db.put({
@@ -29,14 +29,22 @@ db.put({
 });
 ```
 
-As it turns out, `'aGVsbG8gd29ybGQ='` is just the string `'hello world'` encoded in base64. You can use the `atob` and `btoa` methods in your browser to verify.
+{% include alert_start.html variant="info" %}
+
+When you create an attachment, you need to specify its <code>content_type</code>, otherwise known as the <a href='https://en.wikipedia.org/wiki/MIME'>MIME type</a>. Common MIME types include <code>'text/plain'</code> for plain text, <code>'image/png'</code> for PNG images, and <code>'image/jpeg'</code> for JPG images.
+
+{% include alert_end.html %}
+
+As it turns out, `'aGVsbG8gd29ybGQ='` is just the string `'hello world'` encoded in base64. You can use the `atob()` and `btoa()` methods in your browser to verify.
 
 ```js
 btoa('hello world')      // "aGVsbG8gd29ybGQ="
 atob('aGVsbG8gd29ybGQ=') // "hello world"
 ```
 
-Let's `put()` this document and then `get()` it. When fetching attachments with either `get()` or `allDocs()`, you need to specify `{attachments: true}`, or else the attachments won't be returned (i.e. `_attachments` will be empty).
+Let's see what happens when we `put()` this document and then `get()` it.
+
+Note that, when fetching attachments with either `get()` or `allDocs()`, you need to specify `{attachments: true}`, or else the attachments won't be returned (i.e. `_attachments` will be empty).
 
 ```js
 db.put({
@@ -58,7 +66,7 @@ db.put({
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/b6d6164035f1fa0d38a8)** of this code.
 
-Binary attachments
+Image attachments
 --------
 
 Plaintext is cool and all, but you know what would be *really* awesome? Storing images.
@@ -90,7 +98,7 @@ You can see **[a live example](http://bl.ocks.org/nolanlawson/2a5f98a66c9fe3ae35
 
 You should be unsurprised to see a cat icon smiling back at you. If the kitten theme bothers you, then you haven't been on the Internet very long.
 
-How does this code work? First off, we are making use of the `URL.createObjectURL` method, which is a standard HTML5 method that converts a `Blob` to a URL that we can easily use as the `src` of an `img`.
+How does this code work? First off, we are making use of the `URL.createObjectURL()` method, which is a standard HTML5 method that converts a `Blob` to a URL that we can easily use as the `src` of an `img`.
 
 Second off, we are using the `getAttachment()` API, which returns a `Blob` rather than a base64-encoded string. To be clear: we can always convert between base64 and `Blob`s, but in this case, `getAttachment()` is just more convenient.
 

@@ -6,7 +6,7 @@ sidebar: guides_nav.html
 
 As we saw in the past two chapters, working with PouchDB documents can be tricky, because you have to manage the revision identifier `_rev`.
 
-Now that we understand promises, though, there are few techniques we can use to make our code more succinct.
+Now that we understand promises, though, there are few techniques we can use to make our code more elegant and readable.
 
 Creating a default document
 ------

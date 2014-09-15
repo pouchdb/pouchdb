@@ -14,11 +14,16 @@ Compare this to the traditional `localStorage` API:
 ```js
 
 // synchronous - blocks the DOM!
-localStorage['mittens'] = {name: 'mittens'};
+localStorage['mittens'] = '{"name": "mittens"}';
+console.log('Stored in localStorage!');
 
 // asynchronous - look ma, no DOM-blocking!
-new PouchDB('kittens').put({_id: 'mittens', name: 'mittens'});
+new PouchDB('kittens').put({_id: 'mittens', name: 'mittens'}).then(function () {
+  console.log('Stored in PouchDB!');
+});
 ```
+
+The `'Stored in localStorage!'` line will be blocked until the data has been written to disk, and no other JavaScript operations can take place in the interim. However, the `'Stored in PouchDB'` line will not be blocked, because it's executed asynchronously as a separate function.
 
 I promise to call you back...
 ------
@@ -149,7 +154,7 @@ You should see:
 {"age":23,"_id":"charlie","_rev":"3-e794618b4e39ed566cc68b56f5426e8e"}
 ```
 
-You can see **[a live example](http://bl.ocks.org/nolanlawson/612f95cbbb69eaafc2d5)** of this code, with debugger lines at each change in `charlie`.
+You can see **[a live example](http://bl.ocks.org/nolanlawson/612f95cbbb69eaafc2d5)** of this code.
 
 In this example, we put/get a document 3 times in a row. At the very end, there is a `catch()` statement to catch any errors along the way.
 
@@ -161,7 +166,7 @@ You should see:
 {"status":404,"name":"not_found","message":"missing"}
 ```
 
-This is really nice! No matter where the misspelling is, the error can be handled within a single function. Much better than having to do `if (err){}` an endless number of times!
+This is really nice! No matter where the misspelling is, the error can be handled within a single function. That's much nicer than having to do `if (err){}` an endless number of times!
 
 An alternate way of catching errors
 -------
@@ -186,7 +191,7 @@ db.get('charlie').then(function (charlie) {
 })
 ``` 
 
-So the method `catch()` is just syntactic sugar.
+The `catch()` method is just syntactic sugar. You can use either format.
 
 Promises 101
 ------
@@ -195,7 +200,7 @@ The `then()` method takes a function. What can you do within this function? Thre
 
 * Return another promise
 * Throw an error
-* Return a non-promise, non-error (or `undefined`)
+* Return a non-promise object (or `undefined`)
 
 Another way to think of it is this:
 
@@ -206,10 +211,11 @@ db.get('charlie').then(function (charlie) {
   // and it will be handled asynchronously!
 }).then(function (result) {
   // If the previous function returned something
-  // (or returned undefined), it will show up here.
+  // (or returned undefined), it will show up here 
+  // as "result".
 }).catch(function (err) {
   // If the previous function threw an error,
-  // it will show up here.
+  // it will show up here as "err".
 });
 ```
 
@@ -229,7 +235,7 @@ You are free to integrate any Promise library you like with PouchDB, as long as 
 <li><a href="https://github.com/cujojs/when">when</a></li>
 </ul>
 
-If you use one of these libraries, then you will have access to some advanced Promise features.
+If you use one of these libraries, then you will have access to some advanced Promise features. Read that library's documentation for details.
 
 Next
 ------

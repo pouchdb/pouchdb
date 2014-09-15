@@ -79,7 +79,9 @@ var doc = {
 db.put(doc);
 ```
 
-At this point, you can `get` it by using its `_id`:
+Whenever you `put()` a document, it must have an `_id` field so that you can retrieve it later.
+
+So now let's `get()` the document by using its `_id`:
 
 ```js
 db.get('mittens').then(function (doc) {
@@ -141,30 +143,29 @@ Updating documents correctly
 So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put him back.
 
 ```js
-var doc = {
-  "_id": "mittens",
-  "name": "Mittens",
-  "occupation": "kitten",
-  "age": 3,
-  "hobbies": [
-    "playing with balls of yarn",
-    "chasing laser pointers",
-    "lookin' hella cute"
-  ]
-};
-db.put(doc).then(function () {
-  return db.get('mittens');
-}).then(function (doc) {
+// fetch mittens
+db.get('mittens').then(function (doc) {
+  // update his age
   doc.age = 4;
+  // put him back
   return db.put(doc);
 }).then(function () {
+  // fetch mittens again
   return db.get('mittens');
 }).then(function (doc) {
   console.log(doc);
 });
 ```
 
-You should see the following:
+You can see a **[live example](http://bl.ocks.org/nolanlawson/d6daa02ca3875d1222dd)** of this code.
+
+{% include alert_start.html variant="info" %}
+
+Don't worry if the structure of this code seems strange! It's using <strong>promises</strong>, which will be discussed in the next chapter.
+
+{% include alert_end.html %}
+
+Now you should see the following:
 
 ```js
 {
@@ -181,9 +182,9 @@ You should see the following:
 }
 ```
 
-You can see a **[live example](http://bl.ocks.org/nolanlawson/d6daa02ca3875d1222dd)** of this code.
+As you can see, we have successfully updated Mittens' age to 4 (they grow up so fast!), and his revision marker has also changed to `"2-3e3fd988b331193beeeea2d4221b57e7"`. If we wanted to increment his age to 5, we would need to supply this new revision marker.
 
 Next
 ----
 
-Now that you understand a bit about how to put documents and how to update documents, [let's talk about asynchronous code](guides-async-code.html).
+Now that you understand a bit about how to create and update documents, let's take a small detour to talk about [asynchronous code](guides-async-code.html).

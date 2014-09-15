@@ -4,6 +4,8 @@ title: Introduction to PouchDB
 sidebar: guides_nav.html
 ---
 
+Welcome to the PouchDB guide! Here we'll discuss some of the history and concepts behind PouchDB and CouchDB, as well as walk through some concrete examples to help you get started using it. Feel free to skip ahead using the sidebar at any time.
+
 What is PouchDB?
 ------
 

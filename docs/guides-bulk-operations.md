@@ -4,7 +4,7 @@ title: Bulk operations
 sidebar: guides_nav.html
 ---
 
-You can `get()`, `put()`, and `remove()` single documents to your heart's content, but a database isn't a database if it doesn't let you do many things at once!
+You can `get()`, `put()`, and `remove()` single documents to your heart's content, but a database isn't a database unless it can handle many operations at once!
 
 PouchDB provides two methods for bulk operations - `bulkDocs()` for bulk writes, and `allDocs()` for bulk reads.
 
@@ -114,14 +114,14 @@ db.put({
 });
 ```
 
-You can see **[a live example](http://bl.ocks.org/nolanlawson/8f58dbc360348a4c95f6) to confirm that the kittens are sorted by the order they were put into the database.
+You can see **[a live example](http://bl.ocks.org/nolanlawson/8f58dbc360348a4c95f6)** to confirm that the kittens are sorted by the order they were put into the database.
 
 Please use `allDocs()`. Seriously.
 -------
 
-`allDocs()` is the overlooked star of the PouchDB world.
+`allDocs()` is the unsung star of the PouchDB world. It not only returns documents in order &ndash; it also allows you to reverse the order, filter by `_id`, slice and dice using "greater than" and "less than" operations on the `_id`, and much more.
 
-Far too many developers overlook this valuable API, because they misunderstand it. When a developer says "PouchDB is slow!", it is usually because they are using the slow `query()` API when they should be using the fast `allDocs()` API.
+Far too many developers overlook this valuable API, because they misunderstand it. When a developer says "my PouchDB app is slow!", it is usually because they are using the slow `query()` API when they should be using the fast `allDocs()` API.
 
 For details on how to effectively use `allDocs()`, you are strongly recommended to read ["Pagination strategies with PouchDB"](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html). For 99% of your applications, you should be able to use `allDocs()` for all the pagination/sorting/searching functionality that you need.
 
