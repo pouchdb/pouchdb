@@ -6,16 +6,66 @@ sidebar: guides_nav.html
 
 Attachments are where PouchDB can get really fun.
 
-The big difference between storage engines like WebSQL/IndexedDB and the older localStorage API is that you can stuff a lot more data in it than you're used to. Attachments allow you to use that to full advantage to store images, zip files, or whatever you want.
+The big difference between storage engines like WebSQL/IndexedDB and the older localStorage API is that you can stuff [a lot more data](http://www.html5rocks.com/en/tutorials/offline/quota-research/) in it.
+
+PouchDB attachments allow you to use that to full advantage to store images, zip files, or whatever you want.
 
 How attachments are stored
 ----------
 
 As their name implies, attachments are *attached* to documents. You can work with attachments either in base64-encoded format, or as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
 
-For instance, let's put a document with a small icon attachment, represented as a base64-encoded string. Then we'll fetch it and display the icon:
+For example, here is a very simple document with a plaintext attachment.
 
+```js
+db.put({
+  _id: 'mydoc',
+  _attachments: {
+    'myattachment.txt': {
+      content_type: 'text/plain',
+      data: 'aGVsbG8gd29ybGQ='
+    }
+  }
+});
 ```
+
+As it turns out, `'aGVsbG8gd29ybGQ='` is just the string `'hello world'` encoded in base64. You can use the `atob` and `btoa` methods in your browser to verify.
+
+```js
+btoa('hello world')      // "aGVsbG8gd29ybGQ="
+atob('aGVsbG8gd29ybGQ=') // "hello world"
+```
+
+Let's `put()` this document and then `get()` it. When fetching attachments with either `get()` or `allDocs()`, you need to specify `{attachments: true}`, or else the attachments won't be returned (i.e. `_attachments` will be empty).
+
+```js
+db.put({
+  _id: 'mydoc',
+  _attachments: {
+    'myattachment.txt': {
+      content_type: 'text/plain',
+      data: 'aGVsbG8gd29ybGQ='
+    }
+  }
+}).then(function () {
+  return db.get('mydoc', {attachments: true});
+}).then(function (doc) {
+  console.log(doc);
+}).catch(function (err) {
+  console.log(err);
+});
+```
+
+You can see **[a live example](http://bl.ocks.org/nolanlawson/b6d6164035f1fa0d38a8)** of this code.
+
+Binary attachments
+--------
+
+Plaintext is cool and all, but you know what would be *really* awesome? Storing images.
+
+So let's do it! In this example, we'll put a document with a small icon attachment, represented as a base64-encoded string. Then we'll fetch it and display the icon as a normal `<img>` tag:
+
+```js
 db.put({
   _id: 'meowth', 
   _attachments: {
@@ -36,6 +86,23 @@ db.put({
 });
 ```
 
-You can see **[a live example](http://bl.ocks.org/nolanlawson/2a5f98a66c9fe3ae3532) of this code.
+You can see **[a live example](http://bl.ocks.org/nolanlawson/2a5f98a66c9fe3ae3532)** of this code.
 
-No doubt you will be unsurprised to see a cat icon smiling back at you. If the kitten theme bothers you, then you haven't been on the Internet very long.
+You should be unsurprised to see a cat icon smiling back at you. If the kitten theme bothers you, then you haven't been on the Internet very long.
+
+How does this code work? First off, we are making use of the `URL.createObjectURL` method, which is a standard HTML5 method that converts a `Blob` to a URL that we can easily use as the `src` of an `img`.
+
+Second off, we are using the `getAttachment()` API, which returns a `Blob` rather than a base64-encoded string. To be clear: we can always convert between base64 and `Blob`s, but in this case, `getAttachment()` is just more convenient.
+
+You are also free to use the `putAttachment()` API if you can figure out how to create cross-browser `Blob`s yourself. But in general, base64 is easier.
+
+{% include alert_start.html variant="info" %}
+
+<strong>Node.js</strong>: in Node.js, PouchDB uses <a href='http://nodejs.org/api/buffer.html'><code>Buffer</code>s</a> instead of <code>Blob</code>s. Otherwise, the same rules apply.
+
+{% include alert_end.html %}
+
+Next
+----
+
+Now that you can attach cat pictures to all your documents (and why wouldn't you?), let's talk about [replication](guides-replication.html).
