@@ -24,6 +24,10 @@ Collation utilities, so you can use complex keys as doc IDs.
 
 Replicate from PouchDB to Dat. 
 
+#### [Pouch Datalog](https://github.com/dahjelle/pouch-datalog)
+
+Implement the Datalog query language on PouchDB, with indexes.
+
 #### [Delta Pouch](https://github.com/redgeoff/delta-pouch)
 
 Implements the handy "every document is a delta" pattern, so you don't have to deal with conflicts.
