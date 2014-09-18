@@ -36,6 +36,46 @@ adapters.forEach(function (adapters) {
       {_id: '2', integer: 2, string: '2'}
     ];
 
+    var remoteDocs = [
+      {_id: 'r0', integer: 0, string: '0'},
+      {_id: 'r1', integer: 1, string: '1'},
+      {_id: 'r2', integer: 2, string: '2'}
+    ];
+
+    it('last_seq equals update_seq from info (#2745)', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+    
+      var lastSeq = 0;
+      var docsNotReplicated = function () {
+        return db.changes({since: lastSeq});
+      };
+            
+      db.bulkDocs({ docs: docs }, {}, function (err, results) {
+        db.replicate.to(remote).on('complete', function (push) {
+          lastSeq = push.last_seq;
+          docsNotReplicated().then(function (changes) {
+            changes.results.length.should.equal(0);
+            db.put({ _id: 'test2', integer: 1 }).then(function () {
+              docsNotReplicated().then(function (changes) {
+                changes.results.length.should.equal(1);
+                // add docs on remote
+                remote.bulkDocs({ docs: remoteDocs }, {}, function (e, r) {
+                  // pull from remote
+                  db.replicate.from(remote).on('complete', function (pull) {
+                    docsNotReplicated().then(function (changes) {
+                      changes.results.length.should.equal(1);
+                      done();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
     it('Test basic pull replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
