@@ -4,26 +4,9 @@ title: Asynchronous code
 sidebar: guides_nav.html
 ---
 
-Asynchronicity: it's all about speed
----------
+PouchDB provides a fully **asynchronous** API. This ensures that when you talk to PouchDB, the UI doesn't stutter, because the DOM is not being blocked by database operations.
 
-PouchDB provides a fully asynchronous API. This ensures that when you talk to PouchDB, the UI doesn't stutter, because the DOM is not being blocked by database operations.
-
-Compare this to the traditional `localStorage` API:
-
-```js
-
-// synchronous - blocks the DOM!
-localStorage['mittens'] = '{"name": "mittens"}';
-console.log('Stored in localStorage!');
-
-// asynchronous - look ma, no DOM-blocking!
-new PouchDB('kittens').put({_id: 'mittens', name: 'mittens'}).then(function () {
-  console.log('Stored in PouchDB!');
-});
-```
-
-The `'Stored in localStorage!'` line will be blocked until the data has been written to disk, and no other JavaScript operations can take place in the interim. However, the `'Stored in PouchDB'` line will not be blocked, because it's executed asynchronously as a separate function.
+However, working with asynchronous code can be very complex, especially if you're only accustomed to synchronous APIs. So it's worth going over some of the basics.
 
 I promise to call you back...
 ------

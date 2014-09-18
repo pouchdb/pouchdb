@@ -29,6 +29,8 @@ db.put({
 });
 ```
 
+Our document has the usual `_id` field, but it also has a special `_attachments` field that holds the attachments. Documents can have as many attachments as you want.
+
 {% include alert_start.html variant="info" %}
 
 When you create an attachment, you need to specify its <code>content_type</code>, otherwise known as the <a href='https://en.wikipedia.org/wiki/MIME'>MIME type</a>. Common MIME types include <code>'text/plain'</code> for plain text, <code>'image/png'</code> for PNG images, and <code>'image/jpeg'</code> for JPG images.
@@ -42,26 +44,56 @@ btoa('hello world')      // "aGVsbG8gd29ybGQ="
 atob('aGVsbG8gd29ybGQ=') // "hello world"
 ```
 
-Let's see what happens when we `put()` this document and then `get()` it.
-
-Note that, when fetching attachments with either `get()` or `allDocs()`, you need to specify `{attachments: true}`, or else the attachments won't be returned (i.e. `_attachments` will be empty).
+Let's see what happens after we store this document. If you try to `get()` it normally, you may be surprised to see that the attachment data itself isn't returned:
 
 ```js
-db.put({
-  _id: 'mydoc',
-  _attachments: {
-    'myattachment.txt': {
-      content_type: 'text/plain',
-      data: 'aGVsbG8gd29ybGQ='
-    }
-  }
-}).then(function () {
-  return db.get('mydoc', {attachments: true});
-}).then(function (doc) {
+db.get('mydoc').then(function (doc) {
   console.log(doc);
-}).catch(function (err) {
-  console.log(err);
 });
+```
+
+The returned document will look like this:
+
+```js
+{
+  "_attachments": {
+    "myattachment.txt": {
+      "content_type": "text/plain",
+      "digest": "md5-XrY7u+Ae7tCTyyK7j1rNww==",
+      "stub": true
+    }
+  },
+  "_id": "mydoc",
+  "_rev": "1-e8a84187bb4e671f27ec11bdf7320aaa"
+}
+```
+
+You can see **[a live example](http://bl.ocks.org/nolanlawson/0a4b1267d3a5b5edd7b1)** of this code.
+
+By default, PouchDB will only give you an attachment **stub**, which contains a `digest`, i.e. the MD5 sum of the binary attachment.
+
+To get the full attachments when using `get()` or `allDocs()`, you need to specify `{attachments: true}`:
+
+```js
+db.get('mydoc', {attachments: true}).then(function (doc) {
+  console.log(doc);
+});
+```
+
+Then you'll get back the full attachment, base64-encoded:
+
+```js
+{
+  "_attachments": {
+    "myattachment.txt": {
+      "content_type": "text/plain",
+      "digest": "md5-XrY7u+Ae7tCTyyK7j1rNww==",
+      "data": "aGVsbG8gd29ybGQ="
+    }
+  },
+  "_id": "mydoc",
+  "_rev": "1-e8a84187bb4e671f27ec11bdf7320aaa"
+}
 ```
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/b6d6164035f1fa0d38a8)** of this code.
@@ -96,19 +128,56 @@ db.put({
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/2a5f98a66c9fe3ae3532)** of this code.
 
-You should be unsurprised to see a cat icon smiling back at you. If the kitten theme bothers you, then you haven't been on the Internet very long.
+You should be unsurprised to see a cat smiling back at you. If the kitten theme bothers you, then you haven't been on the Internet very long.
 
 How does this code work? First off, we are making use of the `URL.createObjectURL()` method, which is a standard HTML5 method that converts a `Blob` to a URL that we can easily use as the `src` of an `img`.
 
 Second off, we are using the `getAttachment()` API, which returns a `Blob` rather than a base64-encoded string. To be clear: we can always convert between base64 and `Blob`s, but in this case, `getAttachment()` is just more convenient.
 
-You are also free to use the `putAttachment()` API if you can figure out how to create cross-browser `Blob`s yourself. But in general, base64 is easier.
+Directly storing binary data
+-------------
+
+If you want to avoid working with base64-encoded strings, you can also use the `putAttachment()` API to directly store the binary data as a Blob. `putAttachment()` works the same as `put()`, except that it simply modifies the existing document to hold a new attachment.
 
 {% include alert_start.html variant="info" %}
 
 <strong>Node.js</strong>: in Node.js, PouchDB uses <a href='http://nodejs.org/api/buffer.html'><code>Buffer</code>s</a> instead of <code>Blob</code>s. Otherwise, the same rules apply.
 
 {% include alert_end.html %}
+
+For instance, we can read the image data from an `<img>` tag using a `canvas` element, and then directly write that Blob to PouchDB:
+
+```js
+function convertImgToBlob(img, callback) {
+   var canvas = document.createElement('canvas');
+   var context = canvas.getContext('2d');
+   context.drawImage(img, 0, 0);
+   canvas.toBlob(callback, 'image/png');
+}
+
+var catImage = document.getElementById('cat');
+convertImgToBlob(catImage, function (blob) {
+  db.put({_id: 'meowth'}).then(function () {
+    return db.get('meowth');
+  }).then(function (doc) {
+    return db.putAttachment('meowth', 'meowth.png', doc._rev, blob, 'image/png');
+  }).then(function () {
+    return db.get('meowth', {attachments: true});
+  }).then(function (doc) {
+    console.log(doc);
+  });
+});
+```
+You can see **[a live example](http://bl.ocks.org/nolanlawson/edaf09b84185418a55d9)** of this code.
+
+This stores exactly the same image content as in the other example, which you can confirm by checking the base64-encoded output.
+
+{% include alert_start.html variant="warning" %}
+
+Blobs can be very difficult to support in a cross-browser way. So you may prefer to only interact with the PouchDB API using base64-encoded strings, and allow PouchDB to handle the Blob conversion for you.
+
+{% include alert_end.html %}
+
 
 Next
 ----

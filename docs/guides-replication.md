@@ -4,13 +4,13 @@ title: Replication
 sidebar: guides_nav.html
 ---
 
-CouchDB was designed with one goal in mind &ndash; sync. Jason Smith of Nodejitsu has a great quote about this:
+CouchDB was designed with one main goal in mind &ndash; sync. Jason Smith has [a great quote](http://nodeup.com/thirtyseven) about this:
 
-> **CouchDB is bad at everything, except syncing**. And it turns out that's the most important feature you could ever ask for, for many types of software."
+> The way I like to think about CouchDB is this: CouchDB is bad at everything, except syncing. And it turns out that's the most important feature you could ever ask for, for many types of software."
 
-When you first start using CouchDB, you may become frustrated because it doesn't operate quite like other databases, such as MySQL and MongoDB. Unlike those databases, it makes you explicitly manage document revisions (`_rev`), which can be tedious.
+When you first start using CouchDB, you may become frustrated because it doesn't operate quite like other databases. Unlike many other databases, CouchDB requires you to explicitly manage document revisions (`_rev`), which can be tedious.
 
-However, CouchDB was designed with sync in mind, and this is exactly what it excels at. Many of the rougher edges of the API serve this larger purpose. For instance, managing document revisions is crucial, because it helps you further down the line, when you start needing to deal with conflicts.
+However, CouchDB was designed with sync in mind, and this is exactly what it excels at. Many of the rough edges of the API serve this larger purpose. For instance, managing your document revisions pays off in the future, when you eventually need to start dealing with conflicts.
 
 CouchDB sync
 ------
