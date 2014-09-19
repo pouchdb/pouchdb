@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 6
+layout: guide
 title: Asynchronous code
 sidebar: guides_nav.html
 ---
@@ -45,7 +46,7 @@ For this guide, we will use the **promise** format for a few reasons:
 1. Callbacks easily lead to spaghetti code, or to the [pyramid of doom](https://medium.com/@wavded/managing-node-js-callback-hell-1fe03ba8baf).
 2. Promises generally lead to better code organization, although they do have a steep learning curve.
 
-If you already understand promises, you can [skip to the next section](guides-updating-deleting.html).
+If you already understand promises, you can [skip to the next section](updating-deleting.html).
 
 Understanding promises
 ---------
@@ -223,4 +224,4 @@ If you use one of these libraries, then you will have access to some advanced Pr
 Next
 ------
 
-Now that you have a grasp on promises, [let's learn about updating and deleting documents](guides-updating-deleting.html).
+Now that you have a grasp on promises, let's learn about updating and deleting documents.

@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 4
+layout: guide
 title: Working with databases
 sidebar: guides_nav.html
 ---
@@ -121,4 +122,4 @@ The goal of PouchDB is to allow you to seamlessly communicate with one or the ot
 Next
 -------
 
-Now that you've created some databases, let's [put some documents in 'em](guides-documents.html)!
+Now that you've created some databases, let's put some documents in 'em!

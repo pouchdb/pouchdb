@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 8
+layout: guide
 title: Bulk operations
 sidebar: guides_nav.html
 ---
@@ -128,4 +129,4 @@ For details on how to effectively use `allDocs()`, you are strongly recommended 
 Next
 ------
 
-Now that you've fallen helplessly in love with `bulkDocs()` and `allDocs()`, let's [turn our wandering gaze to attachments](guides-attachments.html).
+Now that you've fallen helplessly in love with `bulkDocs()` and `allDocs()`, let's turn our wandering gaze to attachments.

@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 9
+layout: guide
 title: Working with attachments
 sidebar: guides_nav.html
 ---
@@ -182,4 +183,4 @@ Blobs can be very difficult to support in a cross-browser way. So you may prefer
 Next
 ----
 
-Now that you can attach cat pictures to all your documents (and why wouldn't you?), let's talk about [replication](guides-replication.html).
+Now that you can attach cat pictures to all your documents (and why wouldn't you?), let's talk about replication.
