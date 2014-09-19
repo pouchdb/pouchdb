@@ -845,6 +845,24 @@ adapters.forEach(function (adapter) {
         done();
       }, done);
     });
+    it('deleted docs, old revs COUCHDB-292', function (done) {
+      var db =  new PouchDB(dbs.name);
+      var rev;
+
+      db.put({_id: 'foo'}).then(function (resp) {
+        rev = resp.rev;
+        return db.remove('foo', rev);
+      }).then(function () {
+        return db.get('foo');
+      }).catch(function (err) {
+        return db.put({_id: 'foo', _rev: rev});
+      }).then(function () {
+        done(new Error('should never have got here'));
+      }, function (err){
+        should.exist(err);
+        done();
+      });
+    });
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
