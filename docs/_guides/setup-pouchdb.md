@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 3
+layout: guide
 title: Setting up PouchDB
 sidebar: guides_nav.html
 ---
@@ -9,7 +10,7 @@ Installing PouchDB is easy. There are a few different ways to do it:
 
 Direct download
 ------
-
+    
 Download the latest **pouchdb-{{site.version}}.min.js** from the big green button above. Then in your `index.html`:
 
 ```html
@@ -73,4 +74,4 @@ var PouchDB = require('pouchdb');
 Next
 -------
 
-Now that you have PouchDB installed, let's start [working with databases](guides-databases.html).
+Now that you have PouchDB installed, let's start working with databases.

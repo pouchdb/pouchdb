@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 2
+layout: guide
 title: Setting up CouchDB
 sidebar: guides_nav.html
 ---
@@ -90,4 +91,4 @@ If you installed PouchDB Server, CORS is enabled by default, and this step is no
 Next
 -------
 
-Now that you have CouchDB installed, let's [install PouchDB](guides-setup-pouchdb.html).
+Now that you have CouchDB installed, let's install PouchDB.

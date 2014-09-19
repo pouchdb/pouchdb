@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 5
+layout: guide
 title: Working with documents
 sidebar: guides_nav.html
 ---
@@ -187,4 +188,4 @@ As you can see, we have successfully updated Mittens' age to 4 (they grow up so 
 Next
 ----
 
-Now that you understand a bit about how to create and update documents, let's take a small detour to talk about [asynchronous code](guides-async-code.html).
+Now that you understand a bit about how to create and update documents, let's take a small detour to talk about asynchronous code.

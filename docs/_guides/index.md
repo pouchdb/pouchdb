@@ -1,5 +1,7 @@
 ---
-layout: 2ColLeft
+index: 1
+layout: guide
+nav: Intro
 title: Introduction to PouchDB
 sidebar: guides_nav.html
 ---
@@ -53,4 +55,4 @@ PouchDB takes this one step further by putting the database inside your browser.
 Next
 -----
 
-Now that you understand the basics of the PouchDB/CouchDB universe, let's [set up CouchDB](guides-setup-couchdb.html).
+Now that you understand the basics of the PouchDB/CouchDB universe, let's set up CouchDB!

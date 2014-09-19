@@ -1,5 +1,6 @@
 ---
-layout: 2ColLeft
+index: 10
+layout: guide
 title: Replication
 sidebar: guides_nav.html
 ---
@@ -24,7 +25,7 @@ don't have to worry which database is the "single source of truth." They all are
 every node is **A**vailable, and it's only eventually **C**onsistent.
 
 To illustrate, imagine a multi-node architecture with CouchDB servers spread across several continents. As long as you're willing to wait, the data will eventually flow 
-from Australia to Europe to North America to wherver. Users around the world running PouchDB in their browsers or the Couchbase/Cloudant mobile libraries smartphones experience the 
+from Australia to Europe to North America to wherever. Users around the world running PouchDB in their browsers or the Couchbase/Cloudant mobile libraries smartphones experience the 
 same privileges. The data won't show up instantaneously, but depending on the Internet connection speed, it's usually close enough to real-time.
 
 In cases of conflict, CouchDB will choose an arbitrary winner that every node can agree upon deterministically. However, conflicts are still stored in the **revision tree** (similar to a Git history tree), which means that app developers can either surface the conflicts to the user, or just ignore them.
@@ -43,7 +44,7 @@ var localDB = new PouchDB('mylocaldb')
 or remote PouchDBs:
 
 ```js
-var remoteDB = new PouchDB('http://localhost:5984/myremotedb)
+var remoteDB = new PouchDB('http://localhost:5984/myremotedb')
 ```
 
 This comes in handy when you want to share data between the two between the two.

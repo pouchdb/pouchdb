@@ -1,14 +1,8 @@
-<li><a href="{{ site.baseurl }}/guides-intro.html">Intro</a></li>
-<li><a href="{{ site.baseurl }}/guides-setup-couchdb.html">Setting up CouchDB</a></li>
-<li><a href="{{ site.baseurl }}/guides-setup-pouchdb.html">Setting up PouchDB</a></li>
-<li><a href="{{ site.baseurl }}/guides-databases.html">Working with databases</a></li>
-<li><a href="{{ site.baseurl }}/guides-documents.html">Working with documents</a></li>
-<li><a href="{{ site.baseurl }}/guides-async-code.html">Asynchronous code</a></li>
-<li><a href="{{ site.baseurl }}/guides-updating-deleting.html">Updating/deleting documents</a></li>
-<li><a href="{{ site.baseurl }}/guides-bulk-operations.html">Bulk operations</a></li>
-<li><a href="{{ site.baseurl }}/guides-attachments.html">Working with attachments</a></li>
-<li><a href="{{ site.baseurl }}/guides-replication.html">Replication</a></li>
-<li><a href="{{ site.baseurl }}/guides-conflicts.html">Conflicts</a></li>
-<li><a href="{{ site.baseurl }}/guides-views.html">Views and queries</a></li>
-<li><a href="{{ site.baseurl }}/guides-deleting-databases.html">Deleting databases</a></li>
-<li><a href="{{ site.baseurl }}/guides-plugins.html">Plugins</a></li>
+{% assign guides = (site.guides | sort: 'index') %}
+{% for guide in guides %}
+    {% assign title = guide.title %}
+    {% if guide.nav %}
+        {% assign title = guide.nav %}
+    {% endif %}
+    {% include nav_item.html path=guide.url text=title %}
+{% endfor %}

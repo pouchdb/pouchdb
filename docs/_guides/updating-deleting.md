@@ -1,5 +1,7 @@
 ---
-layout: 2ColLeft
+index: 7
+layout: guide
+nav: Updating/deleting documents
 title: Updating and deleting documents
 sidebar: guides_nav.html
 ---
@@ -138,4 +140,4 @@ You can see **[a live example](http://bl.ocks.org/nolanlawson/b2049ad69308e92f15
 Next
 --------
 
-Now that we understand how to update and delete documents, [let's do it in bulk](guides-bulk-operations.html).
+Now that we understand how to update and delete documents, let's do it in bulk.
