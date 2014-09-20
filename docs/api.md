@@ -632,15 +632,15 @@ For any further details, please further to [Replication](api.html#replication).
 {% include anchor.html title="Save an attachment" hash="save_attachment" %}
 
 {% highlight js %}
-db.putAttachment(docId, attachmentId, rev, doc, type, [callback]);
+db.putAttachment(docId, attachmentId, rev, attachment, type, [callback]);
 {% endhighlight %}
 
 Attaches a binary object to a document. Most of PouchDB's API deals with JSON, but if you're dealing with large binary data (such as PNGs), you may incur a performance or storage penalty if you simply include them as base64- or hex-encoded strings. In these cases, you can store the binary data as an attachment. For details, see the [CouchDB documentation on attachments](https://wiki.apache.org/couchdb/HTTP_Document_API#Attachments).
 
 #### Example Usage:
 {% highlight js %}
-var doc = new Blob(["It's a God awful small affair"]);
-db.putAttachment('a', 'text', rev, doc, 'text/plain', function(err, res) {})
+var attachment = new Blob(['Is there life on Mars?']);
+db.putAttachment('a', 'text', rev, attachment, 'text/plain', function(err, res) {})
 {% endhighlight %}
 
 #### Example Response:
@@ -655,7 +655,7 @@ db.putAttachment('a', 'text', rev, doc, 'text/plain', function(err, res) {})
 Within Node, you must use a `Buffer` instead of a `Blob`:
 
 {% highlight js %}
-var doc = new Buffer("It's a God awful small affair");
+var attachment = new Buffer('Is there life on Mars?');
 {% endhighlight %}
 
 For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).  If you need a shim for older browsers that don't support the `Blob` constructor, you can use [this one](https://gist.github.com/nolanlawson/10340255).
