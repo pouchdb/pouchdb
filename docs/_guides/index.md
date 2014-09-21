@@ -6,7 +6,11 @@ title: Introduction to PouchDB
 sidebar: guides_nav.html
 ---
 
-Welcome to the PouchDB guide! Here we'll discuss some of the history and concepts behind PouchDB and CouchDB, as well as walk through some concrete examples to help you get started using it. Feel free to skip ahead using the sidebar at any time.
+Welcome to the PouchDB guide! Consider this your starting point for anything and everything related to the world of PouchDB and CouchDB.
+
+For a quicker TodoMVC-based tutorial, you can also check out the ["Getting Started" guide](/getting-started.html).
+
+Feel free to skip ahead using the sidebar at any time.
 
 What is PouchDB?
 ------
