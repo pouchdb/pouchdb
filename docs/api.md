@@ -539,6 +539,27 @@ db.replicate.from(remoteDB, [options]);
 
 * The `'complete'` event only fires when you aren't doing live replication, or when live replication fails.
 * The `'uptodate'` event fires during live replication, when the target database is up-to-date and just idling, waiting for new changes.
+* If an error is emitted during a live replication or sync, such as when the connection is lost to the source database due to a network, the replication or sync is canceled. If you want to keep trying to replicate regardless of errors, we recommend restarting the live replication after an interval has passed. Better yet, have the retries slow over time as to not overload your app:
+
+{% highlight js %}
+var DEFAULT_TIMEOUT = 5000; // 5 seconds
+var BACKOFF = 1.5;
+
+var retryTimeout = DEFAULT_TIMEOUT;
+function retry() {
+  localDB.replicate.from(remoteDB, {live: true})
+  .on('change', function () {
+    retryTimeout = DEFAULT_TIMEOUT;
+  })
+  .on('error', function (err) {
+    setTimeout(function () {
+      retryTimeout = Math.round(retryTimeout * BACKOFF);    
+      retry();
+    }, retryTimeout);
+  });
+}
+{% endhighlight %}
+
 
 #### Example Response:
 
