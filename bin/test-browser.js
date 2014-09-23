@@ -131,7 +131,10 @@ function startSelenium(callback) {
         sauceClient = wd.promiseChainRemote();
         callback();
       } else {
-        setTimeout(started, 1000);
+        console.log('failed connection');
+        console.log(err);
+        console.log(resp);
+        setTimeout(started, 1500);
       }
     });
   };
