@@ -340,6 +340,36 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('proper stub behavior', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        return db.putAttachment(doc._id, 'foo.json', doc._rev,
+          jsonDoc._attachments['foo.json'].data,
+          jsonDoc._attachments['foo.json'].content_type);
+      }).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        Object.keys(doc._attachments).forEach(function (filename) {
+          var att = doc._attachments[filename];
+          should.not.exist(att.data);
+          att.stub.should.equal(true);
+          should.exist(att.digest);
+          should.exist(att.content_type);
+        });
+        return db.get(binAttDoc._id, {attachments: true});
+      }).then(function (doc) {
+        Object.keys(doc._attachments).forEach(function (filename) {
+          var att = doc._attachments[filename];
+          should.exist(att.data);
+          should.not.exist(att.stub);
+          should.exist(att.digest);
+          should.exist(att.content_type);
+        });
+      });
+    });
+
     it('Testing with invalid docs', function (done) {
       var db = new PouchDB(dbs.name);
       var invalidDoc = {
@@ -1152,6 +1182,60 @@ repl_adapters.forEach(function (adapters) {
             }
           };
         }));
+      });
+    });
+
+    it('replication with changing attachments', function () {
+      var attachment = {
+        content_type: 'text/plain',
+        data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
+      };
+      var attachment2 = {
+        content_type: 'text/plain',
+        data: ''
+      };
+      var binAttDoc = {
+        _id: 'bin_doc',
+        _attachments: {
+          'foo.txt': attachment
+        }
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      return db.put(binAttDoc).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        should.exist(doc);
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        doc._attachments['bar.txt'] = attachment2;
+        return db.put(doc);
+      }).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        should.exist(doc);
+        return db.get(binAttDoc._id, {attachments: true});
+      }).then(function (doc) {
+        should.not.exist(doc._attachments['foo.txt'].stub);
+        should.not.exist(doc._attachments['bar.txt'].stub);
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.get(binAttDoc._id, {attachments: true});
+      }).then(function (doc) {
+        should.not.exist(doc._attachments['foo.txt'].stub);
+        doc._attachments['baz.txt'] = doc._attachments['foo.txt'];
+        return remote.put(doc);
+      }).then(function () {
+        return remote.replicate.to(db);
+      }).then(function () {
+        return db.get(binAttDoc._id, {attachments: true});
+      }).then(function (doc) {
+        should.not.exist(doc._attachments['foo.txt'].stub);
+        should.not.exist(doc._attachments['bar.txt'].stub);
+        should.not.exist(doc._attachments['baz.txt'].stub);
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        should.exist(doc);
       });
     });
   });
