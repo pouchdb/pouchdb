@@ -83,6 +83,92 @@ adapters.forEach(function (adapter) {
       }
     };
 
+    it('issue 2803 should throw 412', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        doc._attachments['bar.txt'] = {
+          stub: true,
+          digest: 'md5-sorryIDoNotReallyExist=='
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        should.not.exist(res, 'should throw');
+      }).catch(function (err) {
+        should.exist(err.status, 'got improper error: ' + err);
+        err.status.should.equal(412);
+      });
+    });
+
+    it('issue 2803 should throw 412 part 2', function () {
+      var stubDoc = {
+        _id: 'stubby',
+        "_attachments": {
+          "foo.txt": {
+            "content_type": "text/plain",
+            "digest": "md5-aEI7pOYCRBLTRQvvqYrrJQ==",
+            "stub": true
+          },
+        }
+      };
+      var db = new PouchDB(dbs.name);
+      return db.put(stubDoc).then(function (res) {
+        should.not.exist(res, 'should throw');
+      }).catch(function (err) {
+        should.exist(err.status, 'got improper error: ' + err);
+        err.status.should.equal(412, 'got improper error: ' + err);
+      });
+    });
+
+    it('issue 2803 should throw 412 part 3', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        doc._attachments['foo.json'] = jsonDoc._attachments['foo.json'];
+      }).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        doc._attachments['bar.txt'] = {
+          stub: true,
+          digest: 'md5-sorryIDoNotReallyExist=='
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        should.not.exist(res, 'should throw');
+      }).catch(function (err) {
+        should.exist(err.status, 'got improper error: ' + err);
+        err.status.should.equal(412);
+      });
+    });
+
+    it('issue 2803 should throw 412 part 4', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        doc._attachments['foo.json'] = jsonDoc._attachments['foo.json'];
+      }).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        doc._attachments['bar.txt'] = {
+          stub: true,
+          digest: 'md5-sorryIDoNotReallyExist=='
+        };
+        doc._attachments['baz.txt'] = {
+          stub: true,
+          digest: 'md5-yahNoIDoNotExistEither=='
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        should.not.exist(res, 'should throw');
+      }).catch(function (err) {
+        should.exist(err.status, 'got improper error: ' + err);
+        err.status.should.equal(412);
+      });
+    });
+
     it('Test some attachments', function (done) {
       var db = new PouchDB(dbs.name);
       db.put(binAttDoc, function (err, write) {
