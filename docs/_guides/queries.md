@@ -5,7 +5,7 @@ title: Map/reduce queries
 sidebar: guides_nav.html
 ---
 
-Map/reduce queries, also known as *secondary indexes*, are one of the most powerful features in the PouchDB and CouchDB APIs. However, they can be quite tricky to use, so this guide is designed to dispell some of the mysteries around them.
+Map/reduce queries, also known as *secondary indexes*, are one of the most powerful features in PouchDB. However, they can be quite tricky to use, so this guide is designed to dispell some of the mysteries around them.
 
  {% include alert_start.html variant="warning" %}
 
