@@ -195,7 +195,13 @@ The map/reduce API is complex. Part of this problem will be resolved when the mo
 2. If your data is highly relational, try the [relational-pouch](https://github.com/nolanlawson/relational-pouch) plugin.
 1. Read the [12 tips for better code with PouchDB](2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html).
 
+Related API documentation
+--------
+
+* [query()](/api.html#query_database)
+* [viewCleanup()](/api.html#view_cleanup)
+
 Next
 -----
 
-Now that we've learned how to map reduce, map reuse, and map recycle, let's move on to plugins.
+Now that we've learned how to map reduce, map reuse, and map recycle, let's move on to `destroy()` and `compact()`.

@@ -126,6 +126,12 @@ Far too many developers overlook this valuable API, because they misunderstand i
 
 For details on how to effectively use `allDocs()`, you are strongly recommended to read ["Pagination strategies with PouchDB"](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html). For 99% of your applications, you should be able to use `allDocs()` for all the pagination/sorting/searching functionality that you need.
 
+Related API documentation
+--------
+
+* [bulkDocs()](/api.html#batch_create)
+* [allDocs()](/api.html#batch_fetch)
+
 Next
 ------
 

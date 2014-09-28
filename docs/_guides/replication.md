@@ -140,6 +140,12 @@ function retryReplication() {
 
 This is ideal for scenarios where the user may be flitting in and out of connectivity, such as on mobile devices.
 
+Related API documentation
+--------
+
+* [replication()](/api.html#replication)
+* [sync()](/api.html#sync)
+
 Next
 -------
 

@@ -119,6 +119,11 @@ When you create a remote PouchDB database, it communicates directly with the rem
 
 The goal of PouchDB is to allow you to seamlessly communicate with one or the other. You should not notice many differences between the two, except that of course the local one is much faster!
 
+Related API documentation
+--------
+
+* [new PouchDB() (constructor)](/api.html#create_database)
+ 
 Next
 -------
 

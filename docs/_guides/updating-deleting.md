@@ -137,6 +137,13 @@ Of course, you will want to add `catch()` to the end of all these, unless you li
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/b2049ad69308e92f15bc)** of this code.
 
+Related API documentation
+--------
+
+* [get()](/api.html#fetch_document)
+* [put()](/api.html#create_document)
+* [remove()](/api.html#delete_document)
+
 Next
 --------
 

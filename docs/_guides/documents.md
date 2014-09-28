@@ -185,6 +185,12 @@ Now you should see the following:
 
 As you can see, we have successfully updated Mittens' age to 4 (they grow up so fast!), and his revision marker has also changed to `"2-3e3fd988b331193beeeea2d4221b57e7"`. If we wanted to increment his age to 5, we would need to supply this new revision marker.
 
+Related API documentation
+--------
+
+* [get()](/api.html#fetch_document)
+* [put()](/api.html#create_document)
+
 Next
 ----
 

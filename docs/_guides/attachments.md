@@ -179,6 +179,12 @@ Blobs can be very difficult to support in a cross-browser way. So you may prefer
 
 {% include alert_end.html %}
 
+Related API documentation
+--------
+
+* [putAttachment()](/api.html#save_attachment)
+* [getAttachment()](/api.html#get_attachment)
+* [removeAttachment()](/api.html#delete_attachment)
 
 Next
 ----
