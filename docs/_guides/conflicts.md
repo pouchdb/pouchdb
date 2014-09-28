@@ -153,4 +153,4 @@ There is also a PouchDB plugin that implements this strategy: [delta-pouch](http
 Next
 -------
 
-Now that we've settled our conflicts, let's look into using the very powerful `query()` API.
+Now that we've settled our conflicts, let's take a look at the changes feed.
