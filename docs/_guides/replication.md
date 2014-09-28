@@ -5,9 +5,9 @@ title: Replication
 sidebar: guides_nav.html
 ---
 
-CouchDB was designed with one main goal in mind &ndash; sync. Jason Smith has [a great quote](http://nodeup.com/thirtyseven) about this:
+PouchDB is modeled after CouchDB. And CouchDB was designed with one main purpose in mind &ndash; **sync**. Jason Smith has [a great quote](http://nodeup.com/thirtyseven) about this:
 
-> The way I like to think about CouchDB is this: CouchDB is bad at everything, except syncing. And it turns out that's the most important feature you could ever ask for, for many types of software."
+> The way I like to think about CouchDB is this: CouchDB is bad at everything, *except syncing*. And it turns out that's the most important feature you could ever ask for, for many types of software."
 
 When you first start using CouchDB, you may become frustrated because it doesn't operate quite like other databases. Unlike many other databases, CouchDB requires you to explicitly manage document revisions (`_rev`), which can be tedious.
 
@@ -17,8 +17,7 @@ CouchDB sync
 ------
 
 CouchDB sync (aka replication) has a unique design. Rather than relying on a master/slave architecture, CouchDB
-supports a **multi-master** architecture. You can think of this as a system where any node can be written to or read from, and where you don't have to care which one is the "master"
-and which one is the "slave." In CouchDB's egalitarian world, every citizen is as worthy as another.
+supports a **multi-master** architecture. You can think of this as a system where any node can be written to or read from, and where you don't have to care which one is the "master" and which one is the "slave." In CouchDB's egalitarian world, every citizen is as worthy as another.
 
 When you write web applications with PouchDB, or when you write mobile apps using the Couchbase/Cloudant mobile libraries for iOS and Android, you
 don't have to worry which database is the "single source of truth." They all are. According to the CAP theorem, CouchDB is an AP database, meaning that it's **P**artitioned, 
@@ -47,12 +46,18 @@ or remote PouchDBs:
 var remoteDB = new PouchDB('http://localhost:5984/myremotedb')
 ```
 
-This comes in handy when you want to share data between the two between the two.
+This pattern comes in handy when you want to share data between the two.
 
-The simplest case is **unidirectional replication**, meaning you just want one databse to replicate to another one.
+The simplest case is **unidirectional replication**, meaning you just want one database to mirror its changes to a second one. Writes to the second database, however, will not propagate back to the master database.
+
+To perform unidirectional replication, you simply do:
 
 ```js
-localDB.replicate.to(remoteDB);
+localDB.replicate.to(remoteDB).on('complete', function () {
+  // yay, we're done!
+}).on('error', function (err) {
+  // boo, something went wrong!
+});
 ```
 
 Congratulations, all changes from the `localDB` have been replicated to the `remoteDB`.
@@ -67,20 +72,28 @@ localDB.replicate.from(remoteDB);
 However, to make things easier for your poor tired fingers, we have created a shortcut API:
 
 ```js
-localDB.sync.to(remoteDB);
+localDB.sync(remoteDB);
 ```
 
-These two statements are equivalent.
+These two code blocks above are equivalent. And the `sync` API supports all the same events as the `replicate` API:
 
-Live sync
+```js
+localDB.sync(remoteDB).on('complete', function () {
+  // yay, we're in sync!
+}).on('error', function (err) {
+  // boo, we hit an error!
+});
+```
+
+Live replication
 ---------
 
-Live replication (or live sync) is a separate mode where changes are propagated between the two databases as the changes occur. In other words, non-live replication happens once, whereas live replication happens in real time.
+Live replication (or "continuous" replication) is a separate mode where changes are propagated between the two databases as the changes occur. In other words, normal replication happens once, whereas live replication happens in real time.
 
 To enable live replication, you simply specify `{live: true}`:
 
 ```js
-localDB.sync.to(remoteDB, {live: true});
+localDB.sync(remoteDB, {live: true});
 ```
 
 However, there is one little gotcha with live replication: what if the user goes offline? In those cases, an error will be thrown, and you'll want to restart the replication process.
@@ -88,7 +101,7 @@ However, there is one little gotcha with live replication: what if the user goes
 Luckily. PouchDB provides a way to do this:
 
 ```js
-localDB.sync.to(remoteDB, {live: true}).on('change', function (change) {
+localDB.sync(remoteDB, {live: true}).on('change', function (change) {
   // yo, something changed!
 }).on('error', function (err) {
   // yo, we got an error!
@@ -99,10 +112,35 @@ When that `'error'` function is invoked, it's usually because of a network error
 
 ```js
 function retryReplication() {
-  localDB.sync.to(remoteDB, {live: true}).on('change', function (change) {
+  localDB.sync(remoteDB, {live: true}).on('change', function (change) {
     // yo, something changed!
   }).on('error', function (err) {
     setTimeout(retryReplication, 5000);
   })));
 }
 ```
+
+A slightly more sophisicated technique is to do an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff). This will try to reconnect less and less frequently, until the user goes back online, at which point it resets.
+
+```js
+var timeout = 5000;
+var backoff = 2;
+function retryReplication() {
+  localDB.sync.to(remoteDB, {live: true}).on('change', function (change) {
+    // yo, something changed!
+    timeout = 5000; // reset
+  }).on('error', function (err) {
+    setTimeout(function () {
+      timeout *= backoff;
+      retryReplication();
+    }, timeout);
+  })));
+}
+```
+
+This is ideal for scenarios where the user may be flitting in and out of connectivity, such as on mobile devices.
+
+Next
+-------
+
+Now that we have a grasp on replication, let's talk about an unpleasant but unavoidable fact &ndash; conflicts.
