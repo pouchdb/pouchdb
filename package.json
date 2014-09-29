@@ -32,7 +32,8 @@
     "request": "~2.28.0",
     "spark-md5": "0.0.5",
     "through2": "^0.4.1",
-    "vuvuzela": "^1.0.0"
+    "vuvuzela": "^1.0.0",
+    "redblackdown": "^1.0.0"
   },
   "devDependencies": {
     "rimraf": "2.2.8",
