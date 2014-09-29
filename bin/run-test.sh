@@ -28,7 +28,9 @@ if [[ ! -z $SERVER ]]; then
   fi
 fi
 
-if [ "$CLIENT" == "node" ]; then
+if [ "$CLIENT" == "unit" ]; then
+    npm run test-unit
+elif [ "$CLIENT" == "node" ]; then
     npm run test-node
 else
     npm run test-browser

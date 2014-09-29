@@ -66,6 +66,8 @@ env:
   - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
+
+  - CLIENT=unit COMMAND=test
   - PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
