@@ -98,12 +98,10 @@ We dont want to refresh the page to see new items. More typically you would upda
 {% highlight js %}
 var remoteCouch = false;
 
-db.info(function(err, info) {
-  db.changes({
-    since: info.update_seq,
-    live: true
-  }).on('change', showTodos);
-});
+db.changes({
+  since: 'now',
+  live: true
+}).on('change', showTodos);
 
 // We have to create a new todo document and enter it in the database
 function addTodo(text) {
