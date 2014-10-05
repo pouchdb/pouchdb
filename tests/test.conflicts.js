@@ -74,7 +74,7 @@ adapters.forEach(function (adapter) {
     // example, 2-de0ea16f8621cbac506d23a0fbbde08a beats
     // 2-7c971bb974251ae8541b8fe045964219. 
 
-    it('Conflict resolution 1', function (done) {
+    it('Conflict resolution 1', function () {
       var docs = [
         {
           _id: 'fubar',
@@ -100,7 +100,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs, new_edits: false }).then(function (result) {
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b', 'Correct revision wins');
@@ -119,16 +119,11 @@ adapters.forEach(function (adapter) {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-2', 'Correct revision wins');
-      }).catch(function (err) {
-        done(err);
-        throw err;
-      }).then(function (res) {
-        done();
       });
     });
 
 
-    it('Conflict resolution 2', function (done) {
+    it('Conflict resolution 2', function () {
       var docs = [
         {
           _id: 'fubar',
@@ -147,23 +142,18 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs, new_edits: false }).then(function (result) {
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a', 'Correct revision wins');
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
-        done(err);
-        throw err;
-      }).then(function (res) {
-        done();
       });
     });
 
 
-    it('Conflict resolution 3', function (done) {
+    it('Conflict resolution 3', function () {
       var docs = [
         {
           _id: 'fubar',
@@ -182,112 +172,261 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs, new_edits: false }).then(function (result) {
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('10-a', 'Correct revision wins');
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
-        done(err);
-        throw err;
-      }).then(function (res) {
-        done();
       });
     });
 
 
-    it('Conflict resolution 4', function (done) {
+    it('Conflict resolution 4-a', function () {
       var docs = [
         {
           _id: 'fubar',
           _rev: '1-a1',
-          _revisions: {
-            start: 1,
-            ids: [ 'a1' ]
-          }
+          _revisions: { start: 1, ids: [ 'a1' ] }
         }, {
           _id: 'fubar',
           _rev: '2-a2',
-          _revisions: {
-            start: 2,
-            ids: [ 'a2', 'a1' ]
-          }
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
         }, {
           _id: 'fubar',
           _deleted: true,
           _rev: '3-a3',
-          _revisions: {
-            start: 3,
-            ids: [ 'a3', 'a2', 'a1' ]
-          }
+          _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] }
         }, {
           _id: 'fubar',
           _rev: '1-b1',
-          _revisions: {
-            start: 1,
-            ids: [ 'b1' ]
-          }
+          _revisions: { start: 1, ids: [ 'b1' ] }
         }
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs, new_edits: false }).then(function (result) {
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b1', 'Correct revision wins');
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
-        done(err);
-        throw err;
-      }).then(function (res) {
-        done();
       });
     });
 
+    it('Conflict resolution 4-b', function () {
+      var docs = [
+        {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '3-a3',
+          _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '1-a1',
+          _revisions: { start: 1, ids: [ 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+        return db.get('fubar');
+      }).then(function (doc) {
+        doc._rev.should.equal('1-b1', 'Correct revision wins');
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1, 'Correct number of docs');
+      });
+    });
 
-    it('Conflict resolution 5', function (done) {
+    it('Conflict resolution 4-c', function () {
+      var docs = [
+        {
+          _id: 'fubar',
+          _rev: '1-a1',
+          _revisions: { start: 1, ids: [ 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '3-a3',
+          _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+        return db.get('fubar');
+      }).then(function (doc) {
+          doc._rev.should.equal('1-b1', 'Correct revision wins');
+          return db.info();
+        }).then(function (info) {
+          info.doc_count.should.equal(1, 'Correct number of docs');
+        });
+    });
+
+    it('Conflict resolution 4-d', function () {
+      var docs = [
+        {
+          _id: 'fubar',
+          _rev: '1-a1',
+          _revisions: { start: 1, ids: [ 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '3-a3',
+          _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+        return db.get('fubar');
+      }).then(function (doc) {
+        doc._rev.should.equal('1-b1', 'Correct revision wins');
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1, 'Correct number of docs');
+      });
+    });
+
+    it('Conflict resolution 4-e', function () {
+      var docs = [
+        {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '3-a3',
+          _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '1-a1',
+          _revisions: { start: 1, ids: [ 'a1' ] }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+        return db.get('fubar');
+      }).then(function (doc) {
+        doc._rev.should.equal('1-b1', 'Correct revision wins');
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1, 'Correct number of docs');
+      });
+    });
+
+    it('Conflict resolution 5-a', function () {
       var docs = [
         {
           _id: 'fubar',
           _rev: '2-a2',
-          _revisions: {
-            start: 2,
-            ids: [ 'a2', 'a1' ]
-          }
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
         }, {
           _id: 'fubar',
           _deleted: true,
           _rev: '1-b1',
-          _revisions: {
-            start: 1,
-            ids: [ 'b1' ]
-          }
+          _revisions: { start: 1, ids: [ 'b1' ] }
         }, {
           _id: 'fubar',
           _deleted: true,
           _rev: '1-c1',
-          _revisions: {
-            start: 1,
-            ids: [ 'c1' ]
-          }
+          _revisions: { start: 1, ids: [ 'c1' ] }
         }
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs, new_edits: false }).then(function (result) {
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a2', 'Correct revision wins');
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(1, 'Correct number of docs');
-      }).catch(function (err) {
-        done(err);
-        throw err;
-      }).then(function (res) {
-        done();
+      });
+    });
+
+    it('Conflict resolution 5-b', function () {
+      var docs = [
+        {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '1-c1',
+          _revisions: { start: 1, ids: [ 'c1' ] }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+        return db.get('fubar');
+      }).then(function (doc) {
+        doc._rev.should.equal('2-a2', 'Correct revision wins');
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1, 'Correct number of docs');
+      });
+    });
+
+    it('Conflict resolution 5-c', function () {
+      var docs = [
+        {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }, {
+          _id: 'fubar',
+          _deleted: true,
+          _rev: '1-c1',
+          _revisions: { start: 1, ids: [ 'c1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+        return db.get('fubar');
+      }).then(function (doc) {
+        doc._rev.should.equal('2-a2', 'Correct revision wins');
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1, 'Correct number of docs');
       });
     });
 

@@ -181,6 +181,52 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('issue 2779, undeletion when replicating', function () {
+      var db =  new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var rev;
+
+      function checkNumRevisions(num) {
+        return db.get('foo', {
+          open_revs: 'all',
+          revs: true
+        }).then(function (fullDocs) {
+          fullDocs[0].ok._revisions.ids.should.have.length(num,
+            'local is correct');
+        }).then(function () {
+          return remote.get('foo', {
+            open_revs: 'all',
+            revs: true
+          });
+        }).then(function (fullDocs) {
+          fullDocs[0].ok._revisions.ids.should.have.length(num,
+            'remote is correct');
+        });
+      }
+
+      return db.put({_id: 'foo'}).then(function (resp) {
+        rev = resp.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return checkNumRevisions(1);
+      }).then(function () {
+        return db.remove('foo', rev);
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return checkNumRevisions(2);
+      }).then(function () {
+        return db.allDocs({keys: ['foo']});
+      }).then(function (res) {
+        rev = res.rows[0].value.rev;
+        return db.put({_id: 'foo', _rev: rev});
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return checkNumRevisions(3);
+      });
+    });
+
     it('Test pull replication with many conflicts', function (done) {
       var remote = new PouchDB(dbs.remote);
 
