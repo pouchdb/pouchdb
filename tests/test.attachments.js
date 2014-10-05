@@ -25,6 +25,8 @@ var iconDigests = [
   "md5-jDUyV6ySnTVANn2qq3332g=="
 ];
 
+var iconLengths = [1047, 789, 967, 527, 1108];
+
 adapters.forEach(function (adapter) {
   describe('test.attachments.js-' + adapter, function () {
 
@@ -166,6 +168,43 @@ adapters.forEach(function (adapter) {
       }).catch(function (err) {
         should.exist(err.status, 'got improper error: ' + err);
         err.status.should.equal(412);
+      });
+    });
+
+    it('Measures length correctly after put()', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc).then(function () {
+        return db.get(binAttDoc._id);
+      }).then(function (doc) {
+        delete doc._attachments["foo.txt"].revpos;
+
+        // because of libicu vs. ascii
+        var digest = doc._attachments["foo.txt"].digest;
+        var validDigests = [
+          "md5-qUUYqS41RhwF0TrCsTAxFg==",
+          "md5-aEI7pOYCRBLTRQvvqYrrJQ=="
+        ];
+        validDigests.indexOf(digest).should.not.equal(-1,
+          'expected ' + digest  + ' to be in: ' +
+            JSON.stringify(validDigests));
+        delete doc._attachments["foo.txt"].digest;
+        doc._attachments.should.deep.equal({
+          "foo.txt": {
+            "content_type": "text/plain",
+            "stub": true,
+            length: 29
+          }
+        });
+      });
+    });
+
+    it('No length for non-stubs', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc).then(function () {
+        return db.get(binAttDoc._id, {attachments: true});
+      }).then(function (doc) {
+        should.not.exist(doc._attachments['foo.txt'].stub);
+        should.not.exist(doc._attachments['foo.txt'].length);
       });
     });
 
@@ -336,7 +375,19 @@ adapters.forEach(function (adapter) {
             'not a string');
           testUtils.base64Blob(res, function (data) {
             data.should.equal('', 'correct data');
-            done();
+            db.get(binAttDoc2._id, function (err, doc) {
+              var att = doc._attachments['foo.txt'];
+              att.stub.should.equal(true);
+              // both ascii and libicu
+              var validDigests = [
+                'md5-1B2M2Y8AsgTpgAmY7PhCfg==',
+                'md5-cCkGbCesb17xjWYNV0GXmg=='
+              ];
+              validDigests.indexOf(att.digest).should.be.above(-1);
+              att.content_type.should.equal('text/plain');
+              att.length.should.equal(0);
+              done();
+            });
           });
         });
       });
@@ -857,7 +908,6 @@ adapters.forEach(function (adapter) {
                 db.get('foo', function (err, doc) {
                   should.not.exist(err, 'err on get');
                   delete doc._attachments["foo.txt"].revpos;
-                  delete doc._attachments["foo.txt"].length;
 
                   // couchdb encodes plaintext strings differently from us
                   // because of libicu vs. ascii. that's okay
@@ -873,7 +923,8 @@ adapters.forEach(function (adapter) {
                   doc._attachments.should.deep.equal({
                     "foo.txt": {
                       "content_type": "text/plain",
-                      "stub": true
+                      "stub": true,
+                      length: 29
                     }
                   });
                   done();
@@ -903,12 +954,12 @@ adapters.forEach(function (adapter) {
                 db.get('foo', function (err, doc) {
                   should.not.exist(err, 'err on get');
                   delete doc._attachments["foo.png"].revpos;
-                  delete doc._attachments["foo.png"].length;
                   doc._attachments.should.deep.equal({
                     "foo.png": {
                       "content_type": "image/png",
                       "digest": "md5-c6eA+rofKUsstTNQBKUc8A==",
-                      "stub": true
+                      "stub": true,
+                      length: 229
                     }
                   });
                   done();
@@ -1019,12 +1070,12 @@ adapters.forEach(function (adapter) {
                     db.get('foo', function (err, doc) {
                       should.not.exist(err, 'err on get');
                       delete doc._attachments["foo.png"].revpos;
-                      delete doc._attachments["foo.png"].length;
                       doc._attachments.should.deep.equal({
                         "foo.png": {
                           "content_type": "image/png",
                           "digest": "md5-kqr2YcdElgDs3RkMn1Ygbw==",
-                          "stub": true
+                          "stub": true,
+                          length: 678010
                         }
                       });
                       done();
@@ -1266,6 +1317,23 @@ repl_adapters.forEach(function (adapters) {
               "data": icon,
               "digest": iconDigests[i]
             }
+          };
+        }));
+
+        return PouchDB.utils.Promise.all(docs.map(function (doc) {
+          return db.get(doc._id);
+        }));
+      }).then(function (docs) {
+        var attachments = docs.map(function (doc) {
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments['foo.png'];
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "content_type": "image/png",
+            stub: true,
+            "digest": iconDigests[i],
+            length: iconLengths[i]
           };
         }));
       });
