@@ -214,9 +214,187 @@ adapters.forEach(function (adapter) {
       });
     });
 
+
+    function getRevisions(db, docId) {
+      return db.get(docId, {
+        revs: true,
+        open_revs: 'all'
+      }).then(function (docs) {
+        var combinedResult = [];
+        return PouchDB.utils.Promise.all(docs.map(function (doc) {
+          doc = doc.ok;
+          // convert revision IDs into full _rev hashes
+          var start = doc._revisions.start;
+          return PouchDB.utils.Promise.all(
+            doc._revisions.ids.map(function (id, i) {
+              var rev = (start - i) + '-' + id;
+              return db.get(docId, {rev: rev}).then(function (doc) {
+                return { rev: rev, doc: doc };
+              }).catch(function (err) {
+                if (err.status !== 404) {
+                  throw err;
+                }
+                return { rev: rev };
+              });
+            })).then(function (docsAndRevs) {
+              combinedResult = combinedResult.concat(docsAndRevs);
+            });
+        })).then(function () {
+          return combinedResult;
+        });
+      });
+    }
+
+    it('Compaction removes non-leaf revs (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(1);
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(2);
+        should.exist(docsAndRevs[0].doc);
+        should.exist(docsAndRevs[1].doc);
+        return db.compact();
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(2);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+      });
+    });
+
+    it('Compaction removes non-leaf revs pt 2 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return db.put(doc);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(3);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+        should.not.exist(docsAndRevs[2].doc);
+      });
+    });
+
+    it('Compaction removes non-leaf revs pt 3 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+
+      var docs = [
+        {
+          _id: 'foo',
+          _rev: '1-a1',
+          _revisions: { start: 1, ids: [ 'a1' ] }
+        }, {
+          _id: 'foo',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'foo',
+          _deleted: true,
+          _rev: '3-a3',
+          _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] }
+        }, {
+          _id: 'foo',
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }
+      ];
+
+      return db.bulkDocs(docs, {new_edits: false}).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(4);
+        should.exist(docsAndRevs[0].doc);
+        should.exist(docsAndRevs[1].doc);
+        should.exist(docsAndRevs[2].doc);
+        should.exist(docsAndRevs[3].doc);
+        return db.compact();
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(4);
+        var asMap = {};
+        docsAndRevs.forEach(function (docAndRev) {
+          asMap[docAndRev.rev] = docAndRev.doc;
+        });
+        // only leafs remain
+        should.not.exist(asMap['1-a1']);
+        should.not.exist(asMap['2-a2']);
+        should.exist(asMap['3-a3']);
+        should.exist(asMap['1-b1']);
+      });
+    });
+
+    it('Compaction removes non-leaf revs pt 4 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        doc._deleted = true;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        delete doc._deleted;
+        return db.put(doc);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(3);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+        should.not.exist(docsAndRevs[2].doc);
+      });
+    });
+
+    it('Compaction removes non-leaf revs pt 5 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        doc._deleted = true;
+        return db.put(doc);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(3);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+        should.not.exist(docsAndRevs[2].doc);
+      });
+    });
+
+    //
+    // AUTO-COMPACTION TESTS FOLLOW
+    // http adapters need not apply!
+    //
+
     if (autoCompactionAdapters.indexOf(adapter) === -1) {
       return;
     }
+
     it('Auto-compaction test', function (done) {
       var db = new PouchDB(dbs.name, {auto_compaction: true});
       var doc = {_id: 'doc', val: '1'};
@@ -231,14 +409,15 @@ adapters.forEach(function (adapter) {
           db.post(doc, function (err, res) {
             var rev3 = res.rev;
             db.get('doc', { rev: rev1 }, function (err, doc) {
-              err.status.should.equal(404, 'compacted document is missing');
+              err.status.should.equal(404, 'rev-1 should be missing');
               err.name.should.equal(
-                'not_found', 'compacted document is missing'
+                'not_found', 'rev-1 should be missing'
               );
               db.get('doc', { rev: rev2 }, function (err, doc) {
-                if (err) {
-                  return done(err);
-                }
+                err.status.should.equal(404, 'rev-2 should be missing');
+                err.name.should.equal(
+                  'not_found', 'rev-2 should be missing'
+                );
                 db.get('doc', { rev: rev3 }, function (err, doc) {
                   done(err);
                 });
@@ -246,6 +425,125 @@ adapters.forEach(function (adapter) {
             });
           });
         });
+      });
+    });
+
+    it('Auto-compaction removes non-leaf revs (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: true});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(1);
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(2);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+      });
+    });
+
+    it('Auto-compaction removes non-leaf revs pt 2 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: true});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return db.put(doc);
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(3);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+        should.not.exist(docsAndRevs[2].doc);
+      });
+    });
+
+    it('Auto-compaction removes non-leaf revs pt 3 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: true});
+
+      var docs = [
+        {
+          _id: 'foo',
+          _rev: '1-a1',
+          _revisions: { start: 1, ids: [ 'a1' ] }
+        }, {
+          _id: 'foo',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'foo',
+          _deleted: true,
+          _rev: '3-a3',
+          _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] }
+        }, {
+          _id: 'foo',
+          _rev: '1-b1',
+          _revisions: { start: 1, ids: [ 'b1' ] }
+        }
+      ];
+
+      return db.bulkDocs(docs, {new_edits: false}).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(4);
+        var asMap = {};
+        docsAndRevs.forEach(function (docAndRev) {
+          asMap[docAndRev.rev] = docAndRev.doc;
+        });
+        // only leafs remain
+        should.not.exist(asMap['1-a1']);
+        should.not.exist(asMap['2-a2']);
+        should.exist(asMap['3-a3']);
+        should.exist(asMap['1-b1']);
+      });
+    });
+
+    it('Auto-compaction removes non-leaf revs pt 4 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: true});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        doc._deleted = true;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        delete doc._deleted;
+        return db.put(doc);
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(3);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+        should.not.exist(docsAndRevs[2].doc);
+      });
+    });
+
+    it('Auto-compaction removes non-leaf revs pt 5 (#2807)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: true});
+      var doc = {_id: 'foo'};
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        doc._deleted = true;
+        return db.put(doc);
+      }).then(function () {
+        return getRevisions(db, 'foo');
+      }).then(function (docsAndRevs) {
+        docsAndRevs.should.have.length(3);
+        should.exist(docsAndRevs[0].doc);
+        should.not.exist(docsAndRevs[1].doc);
+        should.not.exist(docsAndRevs[2].doc);
       });
     });
 

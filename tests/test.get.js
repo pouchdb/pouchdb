@@ -95,7 +95,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Get revisions of removed doc', function (done) {
-      var db = new PouchDB(dbs.name);
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
       db.post({ test: 'somestuff' }, function (err, info) {
         var rev = info.rev;
         db.remove({
@@ -211,7 +211,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Test opts.revs=true with rev other than winning', function (done) {
-      var db = new PouchDB(dbs.name);
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
       var docs = [
         {_id: 'foo', _rev: '1-a', value: 'foo a'},
         {_id: 'foo', _rev: '2-b', value: 'foo b'},
@@ -409,7 +409,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Retrieve old revision', function (done) {
-      var db = new PouchDB(dbs.name);
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
       db.post({ version: 'first' }, function (err, info) {
         db.put({
           _id: info.id,
