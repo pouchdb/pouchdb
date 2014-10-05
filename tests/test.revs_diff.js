@@ -18,7 +18,7 @@ adapters.forEach(function (adapter) {
 
 
     it('Test revs diff', function (done) {
-      var db = new PouchDB(dbs.name);
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
       var revs = [];
       db.post({
         test: 'somestuff',
@@ -70,7 +70,7 @@ adapters.forEach(function (adapter) {
           });
         });
       }
-      var db = new PouchDB(dbs.name);
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
       createConflicts(db, function () {
         db.revsDiff({'939': ['1-a', '2-a', '2-b']}, function (err, results) {
           results.should.not.include.keys('939');
@@ -110,7 +110,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Test revs diff with reserved ID', function (done) {
-      var db = new PouchDB(dbs.name);
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
       var revs = [];
       db.post({
         test: 'constructor',
