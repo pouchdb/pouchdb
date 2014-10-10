@@ -603,6 +603,29 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test put attachment with unencoded name', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({ _id: 'mydoc' }, function (err, resp) {
+        var blob = testUtils.makeBlob('Mytext');
+        db.putAttachment('mydoc', 'my/text?@', resp.rev, blob, 'text/plain',
+                         function (err, res) {
+          should.exist(res.ok);
+
+          db.get('mydoc', { attachments: true }, function (err, res) {
+            should.exist(res._attachments['my/text?@']);
+
+            db.getAttachment('mydoc', 'my/text?@', function (err, attachment) {
+              testUtils.readBlob(attachment, function (data) {
+                data.should.eql('Mytext');
+
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+
     it('Testing with invalid rev', function (done) {
       var db = new PouchDB(dbs.name);
       var doc = { _id: 'adoc' };
