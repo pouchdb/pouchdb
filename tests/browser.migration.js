@@ -1,10 +1,12 @@
-/* global PouchDBVersion110,PouchDBVersion200,PouchDBVersion220,PouchDB */
+/* global PouchDB, PouchDBVersion110, PouchDBVersion200,
+   PouchDBVersion220, PouchDBVersion306 */
 'use strict';
 
 var scenarios = [
   'PouchDB v1.1.0',
   'PouchDB v2.0.0',
   'PouchDB v2.2.0',
+  'PouchDB v3.0.6',
   'websql'
 ];
 
@@ -36,6 +38,7 @@ describe('migration', function () {
           'PouchDB v1.1.0': PouchDBVersion110,
           'PouchDB v2.0.0': PouchDBVersion200,
           'PouchDB v2.2.0': PouchDBVersion220,
+          'PouchDB v3.0.6': PouchDBVersion306,
           PouchDB: PouchDB
         };
 
@@ -250,9 +253,9 @@ describe('migration', function () {
         });
       });
 
-      if (scenario === 'PouchDB v2.2.0' && !skip) {
+      if ((scenario === 'PouchDB v2.2.0' || scenario === 'PouchDB v3.0.6')) {
         it("Test persistent views don't require update", function (done) {
-          if (scenario !== 'PouchDB v2.2.0' || skip) { return done(); }
+          if (skip) { return done(); }
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
               function (err) {
@@ -301,7 +304,7 @@ describe('migration', function () {
 
         it("Test persistent views don't require update, with a value",
             function (done) {
-          if (scenario !== 'PouchDB v2.2.0' || skip) { return done(); }
+          if (skip) { return done(); }
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
               function (err) {
@@ -454,6 +457,377 @@ describe('migration', function () {
                 res.rows[0].id.should.equal(origDocs[1]._id);
                 done();
               });
+            });
+          });
+        });
+      }
+
+      if (scenario === 'PouchDB v3.0.6') {
+        // attachments didn't really work until this release
+        it('#2818 Testing attachments with compaction of dups', function () {
+          if (skip) { return; }
+
+          var docs = [
+            {
+              _id: 'doc1',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            },
+            {
+              _id: 'doc2',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            }
+          ];
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.get('doc1').then(function (doc1) {
+              return newPouch.remove(doc1);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('doc2', {attachments: true});
+            }).then(function (doc2) {
+              doc2._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+            });
+          });
+        });
+
+        it('#2818 Testing attachments with compaction of dups 2', function () {
+          if (skip) { return; }
+
+          var docs = [
+            {
+              _id: 'doc1',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            }
+          ];
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.put({
+              _id: 'doc2',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            }).then(function () {
+              return newPouch.get('doc2');
+            }).then(function (doc2) {
+              return newPouch.remove(doc2);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('doc1', {attachments: true});
+            }).then(function (doc1) {
+              doc1._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+            });
+          });
+        });
+
+        it('#2818 Testing attachments with compaction of dups 3', function () {
+          if (skip) { return; }
+
+          var docs = [
+            {
+              _id: 'doc1',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            },
+            {
+              _id: 'doc_deleted',
+              _deleted: true
+            },
+            {
+              _id: 'doc_no_attachments'
+            }
+          ];
+
+          for (var i = 0; i < 25; i++) {
+            // test paging in the migration
+            docs.push({
+              _id: 'some_other_doc_' + i
+            });
+          }
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.put({
+              _id: 'doc2',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            }).then(function () {
+              return newPouch.get('doc2');
+            }).then(function (doc2) {
+              return newPouch.remove(doc2);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('doc1', {attachments: true});
+            }).then(function (doc1) {
+              doc1._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+            });
+          });
+        });
+
+        it('#2818 Testing attachments with compaction of dups 4', function () {
+          if (skip) { return; }
+
+          var docs = [
+            {
+              _id: 'doc1',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                },
+                'att2.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                },
+                'att3.txt': {
+                  data: 'Zm9v', // 'foo'
+                  content_type: 'text/plain'
+                }
+              }
+            }
+          ];
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.put({
+              _id: 'doc2',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            }).then(function () {
+              return newPouch.get('doc2');
+            }).then(function (doc2) {
+              return newPouch.remove(doc2);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('doc1', {attachments: true});
+            }).then(function (doc1) {
+              doc1._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+              doc1._attachments['att2.txt'].data.should.equal('Zm9vYmFy');
+              doc1._attachments['att3.txt'].data.should.equal('Zm9v');
+            });
+          });
+        });
+
+        it('#2818 Testing attachments with compaction of dups 5', function () {
+          if (skip) { return; }
+
+          var docs = [
+            {
+              _id: 'doc1',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                },
+                'att2.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                },
+                'att3.txt': {
+                  data: 'Zm9v', // 'foo'
+                  content_type: 'text/plain'
+                }
+              }
+            }, {
+              _id: 'doc3',
+              _attachments: {
+                'att-a.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                },
+                'att-b.txt': {
+                  data: 'Zm9v', // 'foo'
+                  content_type: 'text/plain'
+                },
+                'att-c.txt': {
+                  data: 'YmFy', // 'bar'
+                  content_type: 'text/plain'
+                }
+              }
+            }
+          ];
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.put({
+              _id: 'doc2',
+              _attachments: {
+                'att.txt': {
+                  data: 'YmFy', // 'bar'
+                  content_type: 'text/plain'
+                }
+              }
+            }).then(function () {
+              return newPouch.get('doc2');
+            }).then(function (doc2) {
+              return newPouch.remove(doc2);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('doc1', {attachments: true});
+            }).then(function (doc1) {
+              doc1._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+              doc1._attachments['att2.txt'].data.should.equal('Zm9vYmFy');
+              doc1._attachments['att3.txt'].data.should.equal('Zm9v');
+              return newPouch.get('doc3', {attachments: true});
+            }).then(function (doc3) {
+              doc3._attachments['att-a.txt'].data.should.equal('Zm9vYmFy');
+              doc3._attachments['att-b.txt'].data.should.equal('Zm9v');
+              doc3._attachments['att-c.txt'].data.should.equal('YmFy');
+            });
+          });
+        });
+
+        it('#2818 Testing attachments with compaction of dups 6', function () {
+          if (skip) { return; }
+
+          var docs = [];
+
+          for (var i = 0; i < 40; i++) {
+            docs.push({
+              _id: 'doc' + i,
+              _attachments: {
+                'att.txt' : {
+                  data: PouchDB.utils.btoa(Math.random().toString()),
+                  content_type: 'text/plain'
+                }
+              }
+            });
+          }
+          docs.push({
+            _id: 'doc_a',
+            _attachments: {
+              'att.txt': {
+                data: 'Zm9vYmFy', // 'foobar'
+                content_type: 'text/plain'
+              },
+              'att2.txt': {
+                data: 'Zm9vYmFy', // 'foobar'
+                content_type: 'text/plain'
+              },
+              'att3.txt': {
+                data: 'Zm9v', // 'foo'
+                content_type: 'text/plain'
+              }
+            }
+          });
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.put({
+              _id: 'doc_b',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9v', // 'foo'
+                  content_type: 'text/plain'
+                }
+              }
+            }).then(function () {
+              return newPouch.get('doc_b');
+            }).then(function (doc) {
+              return newPouch.remove(doc);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('doc_a', {attachments: true});
+            }).then(function (doc) {
+              doc._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+              doc._attachments['att2.txt'].data.should.equal('Zm9vYmFy');
+              doc._attachments['att3.txt'].data.should.equal('Zm9v');
+            });
+          });
+        });
+
+        it('#2818 compaction of atts after many revs', function () {
+          if (skip) { return; }
+          
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+
+          return oldPouch.put({_id: 'foo'}).then(function (res) {
+            return oldPouch.putAttachment('foo', 'att', res.rev, 'Zm9v',
+              'text/plain');
+          }).then(function () {
+            return oldPouch.get('foo', {attachments: true});
+          }).then(function (doc) {
+            doc._attachments['att'].content_type.should.equal('text/plain');
+            should.exist(doc._attachments['att'].data);
+            return oldPouch.get('foo');
+          }).then(function (doc) {
+            return oldPouch.put(doc);
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.compact().then(function () {
+              return newPouch.get('foo', {attachments: true});
+            }).then(function (doc) {
+              doc._attachments['att'].content_type.should.equal('text/plain');
+              doc._attachments['att'].data.length.should.be.above(0,
+                'attachment exists');
             });
           });
         });

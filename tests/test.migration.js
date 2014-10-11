@@ -9,9 +9,9 @@ if (!process.env.LEVEL_ADAPTER &&
 
   describe('migration one', function () {
     beforeEach(function (done) {
-      var input = fs.createReadStream('./tests/oldStyle.uuid');
+      var input = fs.createReadStream('./tests/leveldb/oldStyle.uuid');
       input.on('end', function () {
-        ncp('./tests/oldStyle', './tmp/_pouch_oldStyle', done);
+        ncp('./tests/leveldb/oldStyle', './tmp/_pouch_oldStyle', done);
       });
       input.pipe(fs.createWriteStream('./tmp/_pouch_oldStyle.uuid'));
     });
@@ -26,7 +26,7 @@ if (!process.env.LEVEL_ADAPTER &&
   });
   describe('migration two', function () {
     beforeEach(function (done) {
-      ncp('./tests/middleStyle', './tmp/_pouch_middleStyle', done);
+      ncp('./tests/leveldb/middleStyle', './tmp/_pouch_middleStyle', done);
     });
     it('should work', function () {
       return new PouchDB('middleStyle').then(function (db) {
@@ -39,6 +39,42 @@ if (!process.env.LEVEL_ADAPTER &&
         }).then(function (resp) {
           resp.total_rows.should.equal(1);
           resp.rows[0].id.should.equal('_design/foo');
+          return db.destroy();
+        });
+      });
+    });
+  });
+
+  // sanity check to ensure we don't actually need to migrate
+  // attachments for #2818
+  describe('#2818 no migration needed for attachments', function () {
+    beforeEach(function (done) {
+      ncp('./tests/leveldb/lateStyle', './tmp/_pouch_lateStyle', done);
+    });
+    it('should work', function () {
+      return new PouchDB('lateStyle', {
+        auto_compaction: false
+      }).then(function (db) {
+        return db.put({
+          _id: 'doc_b',
+          _attachments: {
+            'att.txt': {
+              data: 'Zm9v', // 'foo'
+              content_type: 'text/plain'
+            }
+          }
+        }).then(function () {
+          return db.get('doc_b');
+        }).then(function (doc) {
+          return db.remove(doc);
+        }).then(function () {
+          return db.compact();
+        }).then(function () {
+          return db.get('doc_a', {attachments: true});
+        }).then(function (doc) {
+          doc._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+          doc._attachments['att2.txt'].data.should.equal('Zm9vYmFy');
+          doc._attachments['att3.txt'].data.should.equal('Zm9v');
           return db.destroy();
         });
       });
