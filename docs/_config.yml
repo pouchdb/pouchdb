@@ -4,3 +4,6 @@ baseurl:
 version: 3.0.6
 paginate: 5
 paginate_path: "blog/page:num"
+collections:
+  guides:
+    output: true
