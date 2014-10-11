@@ -1017,6 +1017,98 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2818 - save same attachment in different revs', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+
+      return db.put({_id: 'foo'}).then(function (res) {
+        return db.putAttachment('foo', 'att', res.rev, 'Zm9v', 'text/plain');
+      }).then(function () {
+        return db.get('foo', {attachments: true});
+      }).then(function (doc) {
+        doc._attachments['att'].content_type.should.match(/^text\/plain/);
+        should.exist(doc._attachments['att'].data);
+        return db.get('foo');
+      }).then(function (doc) {
+        return db.put(doc);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        return db.get('foo', {attachments: true});
+      }).then(function (doc) {
+        doc._attachments['att'].content_type.should.match(/^text\/plain/);
+        doc._attachments['att'].data.length.should.be.above(0, 'attachment exists');
+      });
+    });
+
+    it('#2818 - save same attachment many times in parallel', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+
+      for (var i  = 0; i < 50; i++) {
+        docs.push({
+          _id: 'doc' + i,
+          _attachments: {
+            'foo.txt': {
+              content_type: 'text/plain',
+              data: 'Zm9vYmFy' // 'foobar'
+            }
+          }
+        });
+      }
+      return db.bulkDocs(docs);
+    });
+
+    it('#2818 - revisions keep attachments (no compaction)', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = {
+        _id: 'doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'Zm9vYmFy' // 'foobar'
+          }
+        }
+      };
+      var rev;
+      return db.put(doc).then(function () {
+        return db.get('doc');
+      }).then(function (doc) {
+        rev = doc._rev;
+        //delete doc._attachments['foo.txt'];
+        doc._attachments['foo.txt'] = {
+          content_type: 'text/plain',
+          data: 'dG90bw=='
+        }; // 'toto'
+        return db.put(doc);
+      }).then(function () {
+        return db.get('doc', {attachments: true});
+      }).then(function (doc) {
+        doc._attachments['foo.txt'].data.should.equal('dG90bw==');
+        return db.get('doc', {rev: rev, attachments: true});
+      }).then(function (doc) {
+        doc._attachments['foo.txt'].data.should.equal('Zm9vYmFy');
+      });
+    });
+
+    it('#2818 - doesn\'t throw 409 if same filename', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = {
+        _id: 'doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'Zm9vYmFy' // 'foobar'
+          }
+        }
+      };
+      var rev;
+      return db.put(doc).then(function (res) {
+        rev = doc._rev = res.rev;
+        doc._attachments['foo.txt'].data = 'dG90bw=='; // 'toto'
+        return db.put(doc);
+      });
+    });
+
     if (typeof process === 'undefined' || process.browser) {
       it('test stored URL content type of png data', function (done) {
         var db = new PouchDB(dbs.name);
