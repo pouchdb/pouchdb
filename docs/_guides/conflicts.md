@@ -121,11 +121,13 @@ Both databases will see the same conflict, assuming replication has completed. I
 
 To fetch the losing revision, you simply `get()` it using the `rev` option:
 
+```js
 db.get('docid', {rev: '2-f3d4c66dcd7596419c76b2498b3ba21f'}).then(function (doc) {
   // do something with the doc
 }).catch(function (err) {
   // handle any errors
 });
+```
 
 At this point, you can present both versions to the user, or resolve the conflict automatically using your preferred conflict resolution strategy: last write wins, first write wins, [RCS](https://www.gnu.org/software/rcs/), etc.
 

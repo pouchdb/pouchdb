@@ -142,7 +142,7 @@ If you want to avoid working with base64-encoded strings, you can also use the `
 
 {% include alert_start.html variant="info" %}
 
-<strong>Node.js</strong>: in Node.js, PouchDB uses <a href='http://nodejs.org/api/buffer.html'><code>Buffer</code>s</a> instead of <code>Blob</code>s. Otherwise, the same rules apply.
+<strong>Node.js</strong>: in Node.js, PouchDB uses <a href='http://nodejs.org/api/buffer.html'>Buffers</a> instead of Blobs. Otherwise, the same rules apply.
 
 {% include alert_end.html %}
 

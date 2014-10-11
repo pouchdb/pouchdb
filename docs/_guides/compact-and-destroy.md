@@ -107,8 +107,3 @@ Related API documentation
 
 * [compact()](/api.html#compaction)
 * [destroy()](/api.html#delete_database)
-
-Next
------
-
-Now that the nasty business of compaction and destruction is out of the way, let's explore the exciting world of PouchDB plugins.
