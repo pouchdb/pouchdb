@@ -291,24 +291,21 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Remove doc twice with specified id', function (done) {
+    it('Remove doc twice with specified id', function () {
       var db = new PouchDB(dbs.name);
-      db.put({_id: 'specifiedId', test: 'somestuff'}, function (err, info) {
-        db.get('specifiedId', function (err, doc) {
-          db.remove(doc, function (err, response) {
-            db.put({
-              _id: 'specifiedId',
-              test: 'somestuff2'
-            }, function (err, info) {
-              db.get('specifiedId', function (err, doc) {
-                db.remove(doc, function (err, response) {
-                  should.not.exist(err);
-                  done();
-                });
-              });
-            });
-          });
+      return db.put({_id: 'specifiedId', test: 'somestuff'}).then(function () {
+        return db.get('specifiedId');
+      }).then(function (doc) {
+        return db.remove(doc);
+      }).then(function () {
+        return db.put({
+          _id: 'specifiedId',
+          test: 'somestuff2'
         });
+      }).then(function () {
+        return db.get('specifiedId');
+      }).then(function (doc) {
+        return db.remove(doc);
       });
     });
 
@@ -845,6 +842,54 @@ adapters.forEach(function (adapter) {
         done();
       }, done);
     });
+    it('issue 2779, deleted docs, old revs COUCHDB-292', function (done) {
+      var db =  new PouchDB(dbs.name);
+      var rev;
+
+      db.put({_id: 'foo'}).then(function (resp) {
+        rev = resp.rev;
+        return db.remove('foo', rev);
+      }).then(function () {
+        return db.get('foo');
+      }).catch(function (err) {
+        return db.put({_id: 'foo', _rev: rev});
+      }).then(function () {
+        done(new Error('should never have got here'));
+      }, function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+    it('issue 2779, correct behavior for undeleting', function () {
+      var db =  new PouchDB(dbs.name);
+      var rev;
+
+      function checkNumRevisions(num) {
+        return db.get('foo', {
+          open_revs: 'all',
+          revs: true
+        }).then(function (fullDocs) {
+          fullDocs[0].ok._revisions.ids.should.have.length(num);
+        });
+      }
+
+      return db.put({_id: 'foo'}).then(function (resp) {
+        rev = resp.rev;
+        return checkNumRevisions(1);
+      }).then(function () {
+        return db.remove('foo', rev);
+      }).then(function () {
+        return checkNumRevisions(2);
+      }).then(function () {
+        return db.allDocs({keys: ['foo']});
+      }).then(function (res) {
+        rev = res.rows[0].value.rev;
+        return db.put({_id: 'foo', _rev: rev});
+      }).then(function () {
+        return checkNumRevisions(3);
+      });
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
