@@ -21,6 +21,9 @@ if [[ ! -z $SERVER ]]; then
     ./node_modules/.bin/pouchdb-server -p 6984 $FLAGS &
     export POUCHDB_SERVER_PID=$!
     sleep 15 # give it a chance to start up
+  elif [ "$SERVER" == "couchdb-master" ]; then
+    ./bin/run-couch-master-on-travis.sh
+    export COUCH_HOST='http://127.0.0.1:15986'
   else
     # I mistype pouchdb-server a lot
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
