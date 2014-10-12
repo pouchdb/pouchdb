@@ -55,6 +55,75 @@ In [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/), you c
 
 For more information, see [Working with quota on mobile browsers](http://www.html5rocks.com/en/tutorials/offline/quota-research/).
 
+{% include anchor.html class="h3" title="What data types does PouchDB support?" hash="data_types" %}
+
+PouchDB has two types of data: documents and attachments.
+
+#### Documents
+
+As in CouchDB, the documents you store must be serializable as JSON. Modifying the `Object` prototype or storing classes is not supported.
+
+IndexedDB will actually support non-JSON data (e.g. `Date`s aren't stringified), but you should not rely on this, because CouchDB, LevelDB, and Web SQL do not behave the same.
+
+#### Attachments
+
+PouchDB also supports attachments, which are the most efficient way to store binary data. Attachments may either be supplied as base64-encoded strings or as `Blob` objects.
+
+Different backends have different strategies for storing binary data, which may affect the overall database size. Attachment stubs have a `length` property that describes the number of bytes in the `Blob` object, but under the hood, it may actually take up more space than that.
+
+PouchDB's strategies are:
+
+* **Blob**: data is stored in a true binary format. The most efficient method.
+* **UTF-16 Blob**: blobs are coerced to UTF-16, so they takes up 2x the normal space.
+* **Base-64**: data is stored as a base-64-encoded string. The least efficient method.
+
+Here are the strategies used by various browsers in PouchDB:
+
+<div class="table-responsive">
+<table class="table">
+<tr>
+    <td></td>
+	<th><img src="static/img/browser-logos/internet-explorer_32x32.png" alt="IE"/></th>
+	<th><img src="static/img/browser-logos/firefox_32x32.png" alt="Firefox"/></th>
+	<th><img src="static/img/browser-logos/chrome_32x32.png" alt="Chrome"/></th>
+	<th><img src="static/img/browser-logos/chrome_32x32.png" alt="Chrome"/></th>
+	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
+	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
+</tr>
+<tr>
+    <th>Adapter</th>
+	<th>IE (10+)</th>
+	<th>Firefox</th>
+	<th>Chrome < 38, <br/>Android <= 4.4</th>
+	<th>Chrome >= 38</th>
+	<th>Safari < 7.1 <br/>iOS < 8</th>	
+	<th>Safari >= 7.1, <br/>iOS >= 8</th>
+</tr>
+<tr>
+    <td>IndexedDB</td>
+	<td>Blob</td>
+	<td>Blob</td>
+	<td>Base-64</td>
+	<td>Blob</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>WebSQL</td>
+	<td></td>
+	<td></td>
+	<td>Blob</td>
+	<td>Blob</td>
+	<td>UTF-16 Blob</td>
+	<td>Blob</td>
+</tr>
+</table>
+</div>
+
+Attachments are deduplicated based on their MD5 sum, so duplicate attachments won't take up extra space. 
+
+To truly remove an attachment from the data store, you will need to use [compaction](http://pouchdb.com/api.html#compaction) to remove document revisions that reference that attachment. 
+
 {% include anchor.html class="h3" title="Is it safe to upgrade PouchDB?" hash="safe_to_upgrade" %}
 
 Since v1.0.0, PouchDB has supported automatic schema migrations. This means that if you open a database that was built with an older version of PouchDB, the newer version will run all the steps necessary to get the old database up to date. We have extensive tests in place to guarantee that this feature works correctly.
