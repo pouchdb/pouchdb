@@ -125,7 +125,7 @@ pouch.query(myMapFunction, {key: 'Pika pi!', include_docs: true}).then(function 
 
 // find the first 5 pokemon whose name starts with 'P'
 pouch.query(myMapFunction, {
-  startkey: 'P', limit: 5, include_docs: true
+  startkey: 'P', endkey: 'P\uffff', limit: 5, include_docs: true
 }).then(function (result) {
   // handle result
 });
@@ -355,25 +355,25 @@ See what I did there? Artist-type documents are prefixed with `'artist_'`, and a
 Want to find all artists?  It's just:
 
 ```js
-allDocs({startkey: 'artist_', endkey: 'artist__'});
+allDocs({startkey: 'artist_', endkey: 'artist_\uffff'});
 ```  
 
 Want to list all the albums?  Try:
 
 ```js
-allDocs({startkey: 'album_', endkey: 'album__'});
+allDocs({startkey: 'album_', endkey: 'album_\uffff'});
 ```
 
 How about all albums by David Bowie?  Wham bam, thank you ma'am:
 
 ```js
-allDocs({startkey: 'album_bowie_', endkey: 'album_bowie__'});
+allDocs({startkey: 'album_bowie_', endkey: 'album_bowie_\uffff'});
 ```
 
 Let's go even fancier. Can we find all of Bob Dylan's albums released between 1964 and 1965, in reverse order? Gather 'round people, and try this:
 
 ```js
-allDocs({startkey: 'album_dylan_1965_', endkey: 'album_dylan_1964__', descending: true});
+allDocs({startkey: 'album_dylan_1965_', endkey: 'album_dylan_1964_\uffff', descending: true});
 ```
 
 In this example, you're getting all those "indexes" for free, each time a document is added to the database.  It doesn't take up any additional space on disk compared to the randomly-generated UUIDs, and you don't have to wait for a view to get built up, nor do you have to understand the map/reduce API at all.
