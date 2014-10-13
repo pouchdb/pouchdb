@@ -20,6 +20,9 @@ var testTimeout = 30 * 60 * 1000;
 var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
 
+// BAIL=0 to disable bailing
+var bail = process.env.BAIL !== '0';
+
 // process.env.CLIENT is a colon seperated list of
 // (saucelabs|selenium):browserName:browserVerion:platform
 var tmp = (process.env.CLIENT || 'selenium:firefox').split(':');
@@ -184,7 +187,7 @@ function startTest() {
         if (err) {
           clearInterval(interval);
           testError(err);
-        } else if (results.completed || results.failures.length) {
+        } else if (results.completed || (results.failures.length && bail)) {
           clearInterval(interval);
           testComplete(results);
         } else {
