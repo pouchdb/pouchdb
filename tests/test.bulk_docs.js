@@ -278,7 +278,7 @@ adapters.forEach(function (adapter) {
       var docsB = [{
         '_id': 'foo',
         '_rev': '1-x',
-        'bar' : 'zam',
+        'bar' : 'zam', // this update should be rejected
         '_revisions': {
           'start': 1,
           'ids': ['x']
@@ -310,15 +310,18 @@ adapters.forEach(function (adapter) {
                 var ids = result.results.map(function (row) {
                   return row.id;
                 });
-                // foo changed, client should be notified
-                ids.should.include("foo");
+                ids.should.not.include("foo");
                 ids.should.not.include("fee");
                 ids.should.include("faa");
-                result.last_seq.should.equal(2);
+                result.last_seq.should.equal(3);
                 db.get('foo', function (err, res) {
                   res._rev.should.equal('1-x');
-                  res.bar.should.equal("zam");
-                  done();
+                  res.bar.should.equal("baz");
+                  db.info(function (err, info) {
+                    info.doc_count.should.equal(3);
+                    info.update_seq.should.equal(3);
+                    done();
+                  });
                 });
               }
             });
