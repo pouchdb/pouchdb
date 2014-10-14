@@ -112,6 +112,10 @@ Ember Data adapter for PouchDB/CouchDB.
 
 Wrapper for using PouchDB within Angular.js.
 
+#### [Factoryng - AngularJS Adapter](https://github.com/redgeoff/factoryng)
+
+An all-in-one AngularJS factory that wraps PouchDB and Delta Pouch.
+
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
 #### [Python-PouchDB](http://python-pouchdb.marten-de-vries.nl/)
