@@ -254,6 +254,82 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Testing successive new_edits to the same doc, different content',
+      function (done) {
+
+      var db = new PouchDB(dbs.name);
+      var docsA = [{
+        '_id': 'foo',
+        '_rev': '1-x',
+        'bar' : 'baz',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      }, {
+        '_id' : 'fee',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      }];
+
+      var docsB = [{
+        '_id': 'foo',
+        '_rev': '1-x',
+        'bar' : 'zam', // this update should be rejected
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      }, {
+        '_id' : 'faa',
+        '_rev': '1-x',
+        '_revisions': {
+          'start': 1,
+          'ids': ['x']
+        }
+      }];
+
+      db.bulkDocs({docs: docsA, new_edits: false}, function (err, result) {
+        should.not.exist(err);
+        db.changes({complete: function (err, result) {
+          var ids = result.results.map(function (row) {
+            return row.id;
+          });
+          ids.should.include("foo");
+          ids.should.include("fee");
+          ids.should.not.include("faa");
+          result.last_seq.should.equal(2);
+          db.bulkDocs({docs: docsB, new_edits: false}, function (err, result) {
+            should.not.exist(err);
+            db.changes({
+              since : 2,
+              complete: function (err, result) {
+                var ids = result.results.map(function (row) {
+                  return row.id;
+                });
+                ids.should.not.include("foo");
+                ids.should.not.include("fee");
+                ids.should.include("faa");
+                result.last_seq.should.equal(3);
+                db.get('foo', function (err, res) {
+                  res._rev.should.equal('1-x');
+                  res.bar.should.equal("baz");
+                  db.info(function (err, info) {
+                    info.doc_count.should.equal(3);
+                    info.update_seq.should.equal(3);
+                    done();
+                  });
+                });
+              }
+            });
+          });
+        }});
+      });
+    });
+
     it('Testing successive new_edits to two doc', function () {
 
       var db = new PouchDB(dbs.name);
