@@ -44,6 +44,7 @@ env:
   - CLIENT=node SERVER=pouchdb-server COMMAND=test
   - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
   - SERVER_ADAPTER=memory LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
+  - SERVER_ADAPTER=redblack LEVEL_ADAPTER=redblackdown SERVER=pouchdb-server COMMAND=test
 
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
@@ -63,6 +64,7 @@ env:
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
+  - CLIENT=selenium:firefox ADAPTERS=redblack COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
