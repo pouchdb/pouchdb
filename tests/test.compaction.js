@@ -342,6 +342,9 @@ adapters.forEach(function (adapter) {
     });
 
     it('Compaction removes non-leaf revs pt 4 (#2807)', function () {
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
       var db = new PouchDB(dbs.name, {auto_compaction: false});
       var doc = {_id: 'foo'};
       return db.put(doc).then(function (res) {

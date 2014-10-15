@@ -57,6 +57,10 @@ if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
 if (process.env.AUTO_COMPACTION) {
   qs.autoCompaction = true;
 }
+if (process.env.SERVER) {
+  qs.SERVER = process.env.SERVER;
+}
+
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 
