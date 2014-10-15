@@ -52,6 +52,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('Testing issue #221 again', function (done) {
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // Write a doc in CouchDB.

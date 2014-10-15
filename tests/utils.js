@@ -12,6 +12,11 @@ function uniq(list) {
   return Object.keys(map);
 }
 
+testUtils.isCouchMaster = function () {
+  return 'SERVER' in testUtils.params() &&
+    testUtils.params().SERVER === 'couchdb-master';
+};
+
 testUtils.params = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env;

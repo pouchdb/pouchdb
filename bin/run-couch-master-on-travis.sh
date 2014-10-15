@@ -29,7 +29,7 @@ cd ~/couchdb
 # All done, run a cluster
 python dev/run &
 
-# Lets get rid of this at soem point :)
-sleep 5
+# Lets get rid of this at some point :)
+sleep 10
 
 cd $CWD

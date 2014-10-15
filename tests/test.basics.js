@@ -842,6 +842,7 @@ adapters.forEach(function (adapter) {
         done();
       }, done);
     });
+
     it('issue 2779, deleted docs, old revs COUCHDB-292', function (done) {
       var db =  new PouchDB(dbs.name);
       var rev;
@@ -860,7 +861,13 @@ adapters.forEach(function (adapter) {
         done();
       });
     });
+
     it('issue 2779, correct behavior for undeleting', function () {
+
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var db =  new PouchDB(dbs.name);
       var rev;
 

@@ -182,6 +182,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('issue 2779, undeletion when replicating', function () {
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
       var db =  new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var rev;
@@ -1035,6 +1038,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('Replication with doc deleted twice', function (done) {
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       remote.bulkDocs({ docs: docs }).then(function (info) {

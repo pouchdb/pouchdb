@@ -431,6 +431,9 @@ adapters.forEach(function (adapter) {
     });
 
     it('local conflicts', function (done) {
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       return db.put({foo: 'bar'}, '_local/baz').then(function (result) {
         return db.put({foo: 'bar'}, '_local/baz', result.res);
