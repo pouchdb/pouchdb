@@ -365,6 +365,29 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test putAttachment with base64 plaintext kirby', function () {
+      var db = new PouchDB(dbs.name);
+      return db.putAttachment('doc', 'att', null, 'Zm9v', 'text/plain').then(function () {
+        return db.getAttachment('doc', 'att');
+      }).then(function (blob) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          testUtils.base64Blob(blob, function (data) {
+            data.should.equal('Zm9v', 'should get the correct base64 back');
+            resolve();
+          });
+        });
+      });
+    });
+
+    it('Test putAttachment with incorrect base64 kirby', function () {
+      var db = new PouchDB(dbs.name);
+      return db.putAttachment('doc', 'att', null, '\u65e5\u672c\u8a9e', 'text/plain').then(function () {
+        throw new Error('shouldnt have gotten here');
+      }, function (err) {
+        should.exist(err);
+      });
+    });
+
     it('Test getAttachment with empty text', function (done) {
       var db = new PouchDB(dbs.name);
       db.put(binAttDoc2, function (err, res) {
