@@ -45,11 +45,13 @@ var w = watchify(browserify(indexfile, {
   standalone: "PouchDB",
   cache: {},
   packageCache: {},
-  fullPaths: true})).on('update', bundle);
+  fullPaths: true
+})).on('update', bundle);
 
 
 function bundle(callback) {
-  w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile)).on('finish', function () {
+  w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile))
+  .on('finish', function () {
     console.log('Updated: ', outfile);
   });
 }
@@ -57,9 +59,10 @@ function bundle(callback) {
 function bundlePerfTests(callback) {
   glob(perfRoot, function (err, files) {
     var b = browserify(files);
-    b.bundle().pipe(fs.createWriteStream(performanceBundle)).on('finish', function () {
-    console.log('Updated: ', performanceBundle);
-  });
+    b.bundle().pipe(fs.createWriteStream(performanceBundle))
+    .on('finish', function () {
+      console.log('Updated: ', performanceBundle);
+    });
   });
 }
 
