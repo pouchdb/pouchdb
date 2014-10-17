@@ -6,12 +6,24 @@ var fs = require('fs');
 var glob = require('glob');
 var Promise = require('bluebird');
 var watchGlob = require('watch-glob');
+var through = require('through2');
+var _derequire = require('derequire');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
 var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
 
+function derequire() {
+  var out = new Buffer('');
+  return through(function (data, _, next) {
+    out = Buffer.concat([out, data]);
+    next();
+  }, function (next) {
+    this.push(_derequire(out.toString()));
+    next();
+  });
+}
 var queryParams = {};
 
 if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
@@ -29,30 +41,25 @@ var outfile = "./dist/pouchdb.js";
 var perfRoot = './tests/performance/*.js';
 var performanceBundle = './tests/performance-bundle.js';
 
-var w = watchify(indexfile).on('update', bundle);
+var w = watchify(browserify(indexfile, {
+  standalone: "PouchDB",
+  cache: {},
+  packageCache: {},
+  fullPaths: true})).on('update', bundle);
 
-function writeFile(file, callback) {
-  return function (err, data) {
-    if (err) {
-      console.log(err);
-    } else {
-      fs.writeFileSync(file, data);
-      console.log('Updated: ', file);
-      if (typeof callback === 'function') {
-        callback();
-      }
-    }
-  };
-}
 
 function bundle(callback) {
-  w.bundle({standalone: "PouchDB"}, writeFile(outfile, callback));
+  w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile)).on('finish', function () {
+    console.log('Updated: ', outfile);
+  });
 }
 
 function bundlePerfTests(callback) {
   glob(perfRoot, function (err, files) {
     var b = browserify(files);
-    b.bundle({}, writeFile(performanceBundle, callback));
+    b.bundle().pipe(fs.createWriteStream(performanceBundle)).on('finish', function () {
+    console.log('Updated: ', performanceBundle);
+  });
   });
 }
 
