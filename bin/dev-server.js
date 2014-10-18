@@ -7,12 +7,23 @@ var glob = require('glob');
 var Promise = require('bluebird');
 var watchGlob = require('watch-glob');
 var through = require('through2');
+var _derequire = require('derequire');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
 var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
 
+function derequire() {
+  var out = new Buffer('');
+  return through(function (data, _, next) {
+    out = Buffer.concat([out, data]);
+    next();
+  }, function (next) {
+    this.push(_derequire(out.toString()));
+    next();
+  });
+}
 var queryParams = {};
 
 if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
@@ -39,7 +50,7 @@ var w = watchify(browserify(indexfile, {
 
 
 function bundle(callback) {
-  w.bundle().pipe(fs.createWriteStream(outfile))
+  w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile))
   .on('finish', function () {
     console.log('Updated: ', outfile);
   });
