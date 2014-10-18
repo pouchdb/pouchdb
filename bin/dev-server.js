@@ -53,6 +53,9 @@ function bundle(callback) {
   w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile))
   .on('finish', function () {
     console.log('Updated: ', outfile);
+    if (typeof callback === 'function') {
+       callback();
+    }
   });
 }
 
@@ -62,6 +65,9 @@ function bundlePerfTests(callback) {
     b.bundle().pipe(fs.createWriteStream(performanceBundle))
     .on('finish', function () {
       console.log('Updated: ', performanceBundle);
+      if (typeof callback === 'function') {
+        callback();
+      }
     });
   });
 }
