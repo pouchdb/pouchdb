@@ -6,7 +6,6 @@ var fs = require('fs');
 var glob = require('glob');
 var Promise = require('bluebird');
 var watchGlob = require('watch-glob');
-var through = require('through2');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
