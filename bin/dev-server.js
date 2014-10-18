@@ -54,7 +54,7 @@ function bundle(callback) {
   .on('finish', function () {
     console.log('Updated: ', outfile);
     if (typeof callback === 'function') {
-       callback();
+      callback();
     }
   });
 }
