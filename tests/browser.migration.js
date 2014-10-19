@@ -831,6 +831,50 @@ describe('migration', function () {
             });
           });
         });
+
+        it('#2890 PNG content after migration', function () {
+          if (skip) { return; }
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+
+          var transparent1x1Png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HA' +
+              'wCAAAAC0lEQVR4nGP6zwAAAgcBApocMXEA' +
+              'AAAASUVORK5CYII=';
+          var black1x1Png =
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACkl' +
+              'EQVR4nGNiAAAABgADNjd8qAAA' +
+              'AABJRU5ErkJggg==';
+
+          return oldPouch.put({_id: 'foo'}).then(function (res) {
+            return oldPouch.putAttachment('foo', 'att', res.rev,
+              transparent1x1Png, 'image/png');
+          }).then(function () {
+            return oldPouch.get('foo', {attachments: true});
+          }).then(function (doc) {
+            doc._attachments['att'].content_type.should.equal('image/png');
+            should.exist(doc._attachments['att'].data);
+            return oldPouch.get('foo');
+          }).then(function (doc) {
+            return oldPouch.put(doc);
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.compact().then(function () {
+              return newPouch.get('foo', {attachments: true});
+            }).then(function (doc) {
+              doc._attachments['att'].content_type.should.equal('image/png');
+              doc._attachments['att'].data.should.equal(transparent1x1Png);
+              return newPouch.putAttachment('bar', 'att', null,
+                black1x1Png, 'image/png');
+            }).then(function () {
+              return newPouch.get('bar', {attachments: true});
+            }).then(function (doc) {
+              doc._attachments['att'].content_type.should.equal('image/png');
+              doc._attachments['att'].data.should.equal(black1x1Png);
+            });
+          });
+        });
       }
     });
   });
