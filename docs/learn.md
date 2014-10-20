@@ -35,13 +35,15 @@ PouchDB is designed to be a minimal library that is suitable for mobile devices,
 <script src="pouchdb-{{ site.version }}.min.js"></script>
 {% endhighlight %}
 
-##### Downloads
+#### Downloads
 
 Latest and greatest: [pouchdb-{{ site.version }}.min.js][latest]
 
+PouchDB is also hosted on [jsdelivr](http://www.jsdelivr.com/#!pouchdb) and [cdnjs](https://cdnjs.com/libraries/pouchdb).
+
 For past releases and changelog, check out the [Github releases page](https://github.com/daleharvey/pouchdb/releases).
 
-##### Node.js
+#### Node.js
 
 If you are using Node.js then run
 
@@ -51,4 +53,4 @@ For an HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-th
 
 {% include anchor.html class="h3" title="Using PouchDB" hash="using_pouchdb" %}
 
-To get started using PouchDB, check out our [Getting Started Tutorial](getting-started.html) and the [API Documentation](api.html).
+To get started using PouchDB, check out our [Getting Started Tutorial](getting-started.html), [Guides](/guides/) and the [API Documentation](api.html).
