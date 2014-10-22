@@ -38,17 +38,9 @@ env:
 
   matrix:
 
-  - CLIENT="saucelabs:android" COMMAND=test
-  - CLIENT="saucelabs:android:4.0" COMMAND=test
-  - CLIENT="saucelabs:android:4.0:Linux" COMMAND=test
-  - CLIENT="saucelabs:android:4.1" COMMAND=test
-  - CLIENT="saucelabs:android:4.1:Linux" COMMAND=test
-  - CLIENT="saucelabs:android:4.2" COMMAND=test
-  - CLIENT="saucelabs:android:4.2:Linux" COMMAND=test
-  - CLIENT="saucelabs:android:4.3" COMMAND=test
-  - CLIENT="saucelabs:android:4.3:Linux" COMMAND=test
-  - CLIENT="saucelabs:android:4.4" COMMAND=test
-  - CLIENT="saucelabs:android:4.4:Linux" COMMAND=test
+  - SERVER=pouchdb-server CLIENT="saucelabs:android:4.3:Linux" COMMAND=test
+  - SERVER=pouchdb-server CLIENT="saucelabs:android:4.4:Linux" ADAPTERS=websql COMMAND=test
+  - SERVER=pouchdb-server CLIENT="saucelabs:android:4.4:Linux" COMMAND=test
 
 branches:
   only:
