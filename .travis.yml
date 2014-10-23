@@ -61,6 +61,7 @@ env:
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - CLIENT="saucelabs:android:4.4:Linux" AVOID_CORS=true COMMAND=test
 
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
