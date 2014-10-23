@@ -8,9 +8,12 @@ var Promise = require('bluebird');
 var watchGlob = require('watch-glob');
 var watchify = require('watchify');
 var browserify = require('browserify');
+var express = require('express');
+var app = express();
 var cors_proxy = require('corsproxy');
 var http_proxy = require('pouchdb-http-proxy');
-var http_server = require('http-server');
+var path = require('path');
+var proxy = require('express-http-proxy');
 
 var queryParams = {};
 
@@ -22,6 +25,9 @@ if (process.env.ADAPTERS) {
 }
 if (process.env.AUTO_COMPACTION) {
   queryParams.autoCompaction = true;
+}
+if (process.env.AVOID_CORS) {
+  queryParams.avoidCors = true;
 }
 
 var indexfile = "./lib/index.js";
@@ -81,7 +87,17 @@ var readyCallback;
 
 function startServers(callback) {
   readyCallback = callback;
-  http_server.createServer().listen(HTTP_PORT, function () {
+
+  app.use('/tests', express.static(path.resolve(
+    __dirname + '/../tests')));
+  app.use('/dist', express.static(path.resolve(
+    __dirname + '/../dist')));
+  app.use('/node_modules', express.static(path.resolve(
+    __dirname + '/../node_modules')));
+
+  app.use('/couchdb', proxy(COUCH_HOST));
+
+  app.listen(HTTP_PORT, function () {
     cors_proxy.options = {target: COUCH_HOST};
     http_proxy.createServer(cors_proxy).listen(CORS_PORT, function () {
       var testRoot = 'http://127.0.0.1:' + HTTP_PORT;
