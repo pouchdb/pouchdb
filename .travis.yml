@@ -71,6 +71,9 @@ env:
   # Test Couchbase Sync Gateway
   - GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
 
+  # test android on cordova using appium
+  - CLIENT=appium:android COMMAND=test
+
   # Performance tests
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - PERF=1 COMMAND=test

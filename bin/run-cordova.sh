@@ -6,15 +6,17 @@ if [[ -z $CLIENT ]]; then
   CLIENT=android
 fi;
 
-if [[ -z $DEVICE ]]; then
-  ACTION=emulate
-  echo -e "\nUsing default "'$DEVICE'"=false, you can also do:"
-  echo -e '$DEVICE'"=true to run on a real device\n"
-else
-  if [[ $DEVICE -ne 'true' ]]; then
+if [[ -z $ACTION ]]; then
+  if [[ -z $DEVICE ]]; then
     ACTION=emulate
+    echo -e "\nUsing default "'$DEVICE'"=false, you can also do:"
+    echo -e '$DEVICE'"=true to run on a real device\n"
   else
-    ACTION=run
+    if [[ $DEVICE -ne 'true' ]]; then
+      ACTION=emulate
+    else
+      ACTION=run
+    fi;
   fi;
 fi;
 
@@ -33,7 +35,7 @@ mkdir -p $TESTS_DIR/www/dist
 cp dist/pouchdb*js $TESTS_DIR/www/dist
 
 ./node_modules/replace/bin/replace.js '<body>' \
-  '<body><script src="../cordova.js"></script>' \
+  '<body><script src="../../cordova.js"></script>' \
   $TESTS_DIR/www/tests/integration/index.html
 
 if [[ ! -z $GREP ]]; then
@@ -83,7 +85,9 @@ $CORDOVA platform add $CLIENT
 if [[ $($CORDOVA plugin list | grep sqlite) ]]; then 
   $CORDOVA plugin rm com.phonegap.plugins.sqlite
 fi
+
 if [[ $SQLITE_PLUGIN == 'true' ]]; then 
   $CORDOVA plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
 fi
+
 $CORDOVA $ACTION $CLIENT
