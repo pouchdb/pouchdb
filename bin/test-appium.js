@@ -24,7 +24,7 @@ var desired = {
 var browser = wd.promiseChainRemote("0.0.0.0", 4723);
 
 browser.init(desired)
-  .setImplicitWaitTimeout(10000)
+  .setImplicitWaitTimeout(30000)
   .then(function () {
     browser = browser.sleep(10000);
 
