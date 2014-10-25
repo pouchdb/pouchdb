@@ -658,7 +658,7 @@ Within Node, you must use a `Buffer` instead of a `Blob`:
 var attachment = new Buffer('Is there life on Mars?');
 {% endhighlight %}
 
-For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).  If you need a shim for older browsers that don't support the `Blob` constructor, you can use [this one](https://gist.github.com/nolanlawson/10340255).
+For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).  If you need a shim for older browsers that don't support the `Blob` constructor, you can use [blob-util](https://github.com/nolanlawson/blob-util).
 
 ### Save an inline attachment
 
