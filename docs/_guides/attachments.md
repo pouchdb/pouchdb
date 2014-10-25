@@ -11,6 +11,12 @@ The big difference between storage engines like WebSQL/IndexedDB and the older l
 
 PouchDB attachments allow you to use that to full advantage to store images, zip files, or whatever you want.
 
+{% include alert_start.html variant="info" %}
+
+Although it's not required, you may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be useful for working with binary data in the browser.
+
+{% include alert_end.html %}
+
 How attachments are stored
 ----------
 
