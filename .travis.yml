@@ -52,6 +52,9 @@ env:
   - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
+  # test android on cordova using appium
+  - CLIENT=appium:android COMMAND=test
+
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
   - CLIENT=saucelabs:chrome:36 COMMAND=test
