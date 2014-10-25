@@ -41,37 +41,60 @@
     "leveldown": "~0.10.2"
   },
   "devDependencies": {
-    "rimraf": "2.2.8",
-    "pouchdb-server": "^0.5.1",
+    "appium": "^1.3.1",
+    "browserify": "~3.24.13",
+    "chai": "^1.9.1",
+    "chai-as-promised": "^4.1.1",
     "commander": "~2.1.0",
+<<<<<<< HEAD
     "uglify-js": "~2.4.6",
     "jshint": "~2.5.10",
     "pouchdb-http-proxy": "~0.10.3",
+=======
+    "cordova": "~3.4.1-0.1.0",
+>>>>>>> WIP - appium tests
     "corsproxy": "~0.2.13",
+    "es5-shim": "^3.1.1",
+    "exec-sync": "~0.1.6",
+    "glob": "~3.2.9",
     "http-server": "~0.5.5",
+<<<<<<< HEAD
     "wd": "~0.2.8",
     "tin": "~0.4.0",
     "ncp": "~0.5.0",
     "sauce-connect-launcher": "0.2.2",
-    "less": "~1.7.0",
-    "tape": "~2.12.2",
-    "glob": "~3.2.9",
-    "watch-glob": "~0.1.1",
-    "mkdirp": "~0.4.2",
-    "exec-sync": "~0.1.6",
-    "ua-parser-js": "^0.6.2",
-    "chai": "^1.9.1",
-    "mocha": "^1.18.2",
+=======
     "istanbul": "^0.2.7",
-    "cordova": "~3.4.1-0.1.0",
+    "jshint": "~2.3.0",
+>>>>>>> WIP - appium tests
+    "less": "~1.7.0",
+    "mkdirp": "~0.4.2",
+    "mocha": "^1.18.2",
+    "ncp": "~0.5.0",
+    "phantomjs": "^1.9.7-5",
+    "pouchdb-http-proxy": "~0.10.3",
+    "pouchdb-server": "^0.5.1",
     "replace": "^0.2.9",
+<<<<<<< HEAD
     "es5-shim": "^3.1.1",
     "phantomjs": "^1.9.7-5",
     "browserify": "^6.1.0",
     "watchify": "^2.0.0",
     "derequire": "^1.2.0"
+=======
+    "rimraf": "2.2.8",
+    "sauce-connect-launcher": "0.2.2",
+    "tape": "~2.12.2",
+    "tin": "~0.4.0",
+    "ua-parser-js": "^0.6.2",
+    "uglify-js": "~2.4.6",
+    "watch-glob": "~0.1.1",
+    "watchify": "~0.8.2",
+    "wd": "~0.2.8"
+>>>>>>> WIP - appium tests
   },
   "scripts": {
+    "appium": "appium",
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
     "build-main-js": "browserify . -s PouchDB | derequire > dist/pouchdb.js",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
@@ -82,7 +105,9 @@
     "test-unit": "mocha tests/unit",
     "test-node": "sh bin/test-node.sh",
     "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
-    "cordova": "npm run build && sh bin/run-cordova.sh",
+    "test-appium": "node ./bin/test-appium.js",
+    "test-cordova": "./bin/test-cordova.sh",
+    "cordova": "npm run build && ./bin/run-cordova.sh",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/",
     "dev": "npm run version && node ./bin/dev-server.js",
     "test": "npm run version && npm run jshint && bash bin/run-test.sh",
