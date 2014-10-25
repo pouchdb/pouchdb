@@ -23,7 +23,6 @@ TESTS_DIR=./tests/cordova
 rm -fr $TESTS_DIR/www
 mkdir -p $TESTS_DIR/www
 
-cp -r vendor $TESTS_DIR/www/vendor
 mkdir -p $TESTS_DIR/www/node_modules
 cp -r node_modules/mocha node_modules/chai node_modules/es5-shim \
     $TESTS_DIR/www/node_modules
@@ -79,10 +78,19 @@ fi
 cd tests/cordova
 
 ../../node_modules/cordova/bin/cordova platform add $CLIENT
+
+# remove and optionally add sqlite plugin
 if [[ $(cordova plugin list | grep sqlite) ]]; then 
   cordova plugin rm com.phonegap.plugins.sqlite
 fi
 if [[ $SQLITE_PLUGIN == 'true' ]]; then 
   cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
 fi
+
+# add/remove dialog plugin
+if [[ $(cordova plugin list | grep dialogs) ]]; then
+  cordova plugin rm org.apache.cordova.dialogs
+fi
+cordova plugin add https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git
+
 ../../node_modules/cordova/bin/cordova $ACTION $CLIENT

@@ -142,6 +142,8 @@ You can also debug with Weinre by doing:
     $ weinre --boundHost=0.0.0.0
     $ WEINRE_HOST=http://route.to.my.weinre:8080
 
+
+
 ### Testing against PouchDB server
 
 [pouchdb-server](https://github.com/nick-thompson/pouchdb-server) is a project that uses [express-pouchdb](https://github.com/nick-thompson/express-pouchdb) to run a CouchDB-compliant server backed by PouchDB.
