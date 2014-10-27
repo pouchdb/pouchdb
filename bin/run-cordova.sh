@@ -23,7 +23,6 @@ TESTS_DIR=./tests/cordova
 rm -fr $TESTS_DIR/www
 mkdir -p $TESTS_DIR/www
 
-cp -r vendor $TESTS_DIR/www/vendor
 mkdir -p $TESTS_DIR/www/node_modules
 cp -r node_modules/mocha node_modules/chai node_modules/es5-shim \
     $TESTS_DIR/www/node_modules
