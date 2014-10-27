@@ -41,10 +41,10 @@ testUtils.couchHost = function () {
     // magic route to localhost on android emulator
     return 'http://10.0.2.2:2020';
   } else if (testUtils.params().avoidCors) {
-    return 'http://127.0.0.1:8000/couchdb';
+    return 'http://' + window.location.host + '/couchdb';
   }
   // In the browser we default to the CORS server, in future will change
-  return 'http://127.0.0.1:2020';
+  return 'http://' + window.location.hostname + ':2020';
 };
 
 testUtils.makeBlob = function (data, type) {
