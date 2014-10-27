@@ -37,7 +37,18 @@ env:
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
 
   matrix:
-  - CLIENT="saucelabs:android:4.4:Linux" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.4:Linux:Google Nexus 7 HD Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.3:Linux:Google Nexus 7 HD Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.2:Linux:Google Nexus 7 HD Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.4:Linux:Samsung Galaxy S3 Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.4:Linux:Samsung Galaxy S4 Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.4:Linux:LG Nexus 4 Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.4:Linux:Samsung Galaxy Nexus Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.3:Linux:Samsung Galaxy Nexus Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.2:Linux:Samsung Galaxy Nexus Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.4:Linux:Google Nexus 7C Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.3:Linux:Google Nexus 7C Emulator" AVOID_CORS=true COMMAND=test
+  - CLIENT="saucelabs:android:4.2:Linux:Google Nexus 7C Emulator" AVOID_CORS=true COMMAND=test
 
 branches:
   only:
