@@ -30,7 +30,8 @@ var client = {
   runner: tmp[0] || 'selenium',
   browser: tmp[1] || 'firefox',
   version: tmp[2] || null, // Latest
-  platform: tmp[3] || null
+  platform: tmp[3] || null,
+  deviceName: tmp[4] || null
 };
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
@@ -56,6 +57,9 @@ if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
 }
 if (process.env.AUTO_COMPACTION) {
   qs.autoCompaction = true;
+}
+if (process.env.AVOID_CORS) {
+  qs.avoidCors = true;
 }
 if (process.env.SERVER) {
   qs.SERVER = process.env.SERVER;
