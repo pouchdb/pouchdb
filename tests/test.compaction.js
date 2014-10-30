@@ -409,6 +409,78 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2931 - synchronous putAttachment + compact', function () {
+
+      var db = new PouchDB(dbs.name);
+      var queue = db.put({_id: 'doc'});
+
+      var otherPromises = [];
+
+      for (var i = 0; i < 50; i++) {
+        /* jshint loopfunc:true */
+        queue = queue.then(function () {
+          return db.get('doc').then(function (doc) {
+            doc._attachments = doc._attachments || {};
+            var blob = testUtils.makeBlob(
+              PouchDB.utils.btoa(Math.random().toString()),
+              'text/plain');
+            return db.putAttachment(doc._id, 'att.txt', doc._rev, blob,
+              'text/plain');
+          });
+        });
+        queue.then(function () {
+          var promise = PouchDB.utils.Promise.all([
+            db.compact(),
+            db.compact(),
+            db.compact(),
+            db.compact(),
+            db.compact()
+          ]);
+          otherPromises.push(promise);
+          return promise;
+        });
+      }
+      return queue.then(function () {
+        return PouchDB.utils.Promise.all(otherPromises);
+      });
+    });
+
+    it('#2931 - synchronous putAttachment + compact 2', function () {
+
+      var db = new PouchDB(dbs.name);
+      var queue = db.put({_id: 'doc'});
+
+      var compactQueue = PouchDB.utils.Promise.resolve();
+
+      for (var i = 0; i < 50; i++) {
+        /* jshint loopfunc:true */
+        queue = queue.then(function () {
+          return db.get('doc').then(function (doc) {
+            doc._attachments = doc._attachments || {};
+            var blob = testUtils.makeBlob(
+              PouchDB.utils.btoa(Math.random().toString()),
+              'text/plain');
+            return db.putAttachment(doc._id, 'att.txt', doc._rev, blob,
+              'text/plain');
+          });
+        });
+        queue.then(function () {
+          compactQueue = compactQueue.then(function () {
+            return PouchDB.utils.Promise.all([
+              db.compact(),
+              db.compact(),
+              db.compact(),
+              db.compact(),
+              db.compact()
+            ]);
+          });
+        });
+      }
+      return queue.then(function () {
+        return compactQueue;
+      });
+    });
+
     //
     // NO MORE HTTP TESTS AFTER THIS POINT!
     //
