@@ -3,9 +3,7 @@
 'use strict';
 
 var fs = require('fs');
-var glob = require('glob');
 var Promise = require('bluebird');
-var watchGlob = require('watch-glob');
 var through = require('through2');
 var _derequire = require('derequire');
 var watchify = require('watchify');
@@ -38,7 +36,7 @@ if (process.env.AUTO_COMPACTION) {
 
 var indexfile = "./lib/index.js";
 var outfile = "./dist/pouchdb.js";
-var perfRoot = './tests/performance/*.js';
+var perfRoot = './tests/performance/';
 var performanceBundle = './tests/performance-bundle.js';
 
 var w = watchify(browserify(indexfile, {
@@ -47,7 +45,12 @@ var w = watchify(browserify(indexfile, {
   packageCache: {},
   fullPaths: true
 })).on('update', bundle);
-
+var b = watchify(browserify({
+    entries: perfRoot,
+    cache: {},
+    packageCache: {},
+    fullPaths: true
+  })).on('update', bundlePerfTests);
 
 function bundle(callback) {
   w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile))
@@ -60,19 +63,16 @@ function bundle(callback) {
 }
 
 function bundlePerfTests(callback) {
-  glob(perfRoot, function (err, files) {
-    var b = browserify(files);
-    b.bundle().pipe(fs.createWriteStream(performanceBundle))
-    .on('finish', function () {
-      console.log('Updated: ', performanceBundle);
-      if (typeof callback === 'function') {
-        callback();
-      }
-    });
+   
+  b.bundle().pipe(fs.createWriteStream(performanceBundle))
+  .on('finish', function () {
+    console.log('Updated: ', performanceBundle);
+    if (typeof callback === 'function') {
+      callback();
+    }
   });
-}
 
-watchGlob(perfRoot, bundlePerfTests);
+}
 
 var filesWritten = false;
 Promise.all([
