@@ -9,13 +9,7 @@ Attachments are where PouchDB can get really fun.
 
 The big difference between storage engines like WebSQL/IndexedDB and the older localStorage API is that you can stuff [a lot more data](http://www.html5rocks.com/en/tutorials/offline/quota-research/) in it.
 
-PouchDB attachments allow you to use that to full advantage to store images, zip files, or whatever you want.
-
-{% include alert_start.html variant="info" %}
-
-Although it's not required, you may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be useful for working with binary data in the browser.
-
-{% include alert_end.html %}
+PouchDB attachments allow you to use that to full advantage to store images, MP3s, zip files, or whatever you want.
 
 How attachments are stored
 ----------
@@ -144,7 +138,9 @@ Second off, we are using the `getAttachment()` API, which returns a `Blob` rathe
 Directly storing binary data
 -------------
 
-If you want to avoid working with base64-encoded strings, you can also use the `putAttachment()` API to directly store the binary data as a Blob. `putAttachment()` works the same as `put()`, except that it simply modifies the existing document to hold a new attachment.
+Up to now, we've been supplying our attachments as base64-encoded strings. But we can also create the Blobs ourselves and store those directly in PouchDB.
+
+Another shortcut we can use is the `putAttachment()` API, which simply modifies the existing document to hold a new attachment. Or, if the document does not exist, it will create an empty one.
 
 {% include alert_start.html variant="info" %}
 
@@ -159,29 +155,31 @@ function convertImgToBlob(img, callback) {
    var canvas = document.createElement('canvas');
    var context = canvas.getContext('2d');
    context.drawImage(img, 0, 0);
+   
+    // Warning: toBlob() isn't supported by every browser.
+    // You may want to use blob-util.
    canvas.toBlob(callback, 'image/png');
 }
 
 var catImage = document.getElementById('cat');
 convertImgToBlob(catImage, function (blob) {
-  db.put({_id: 'meowth'}).then(function () {
-    return db.get('meowth');
-  }).then(function (doc) {
-    return db.putAttachment('meowth', 'meowth.png', doc._rev, blob, 'image/png');
-  }).then(function () {
+  db.putAttachment('meowth', 'meowth.png', blob, 'image/png').then(function () {
     return db.get('meowth', {attachments: true});
   }).then(function (doc) {
     console.log(doc);
   });
 });
 ```
+
 You can see **[a live example](http://bl.ocks.org/nolanlawson/edaf09b84185418a55d9)** of this code.
 
 This stores exactly the same image content as in the other example, which you can confirm by checking the base64-encoded output.
 
+Whather you supply attachments as base64-encoded strings or as Blobs/Buffers, under the hood PouchDB will try to store them in [the most efficient way](/faq.html#data_types). All of the "write" APIs &ndash; `putAttachment()`, `put()`, `bulkDocs()`, and `post()` &ndash; accept either base64 strings or Blobs/Buffers.
+
 {% include alert_start.html variant="warning" %}
 
-Blobs can be very difficult to support in a cross-browser way. So you may prefer to only interact with the PouchDB API using base64-encoded strings, and allow PouchDB to handle the Blob conversion for you.
+Blobs can be tricky to work with, especially when it comes to cross-browser support. You may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be a useful addition to the attachment API. For instance, it has an `imgSrcToBlob()` method that will work cross-browser.
 
 {% include alert_end.html %}
 
