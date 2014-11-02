@@ -28,6 +28,10 @@ Replicate from PouchDB to Dat.
 
 Implement the Datalog query language on PouchDB, with indexes.
 
+#### [PouchDB Dump](https://github.com/nolanlawson/pouchdb-dump-cli) and [PouchDB Load](https://github.com/nolanlawson/pouchdb-load)
+
+Dump a PouchDB/CouchDB to a file, then load it wholesale. Designed for fast initial replication.
+
 #### [Delta Pouch](https://github.com/redgeoff/delta-pouch)
 
 Implements the handy "every document is a delta" pattern, so you don't have to deal with conflicts.
