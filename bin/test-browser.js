@@ -177,7 +177,7 @@ function startTest() {
     platform: client.platform,
     tunnelTimeout: testTimeout,
     name: client.browser + ' - ' + tunnelId,
-    'max-duration': 60 * 30,
+    'max-duration': 60 * 45,
     'command-timeout': 599,
     'idle-timeout': 599,
     'tunnel-identifier': tunnelId
