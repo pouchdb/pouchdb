@@ -199,6 +199,120 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2935 new_edits=false correct number', function () {
+      var docs = [
+        {
+          "_id": "EE35E",
+          "_rev": "4-70b26",
+          "_deleted": true,
+          "_revisions": {
+            "start": 4,
+            "ids": ["70b26", "9f454", "914bf", "7fdf8"]
+          }
+        }, {
+          "_id": "EE35E",
+          "_rev": "3-f6d28",
+          "_revisions": {"start": 3, "ids": ["f6d28", "914bf", "7fdf8"]}
+        }
+      ];
+
+      var db = new PouchDB(dbs.name);
+
+      return db.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
+        res.should.deep.equal([]);
+        return db.allDocs();
+      }).then(function (res) {
+        console.log(res.rows.map(function (x) { return x.id; }));
+        res.total_rows.should.equal(1);
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1);
+      });
+    });
+
+    it('#2935 new_edits=false correct number 2', function () {
+      var docs = [
+        {
+          "_id": "EE35E",
+          "_rev": "3-f6d28",
+          "_revisions": {"start": 3, "ids": ["f6d28", "914bf", "7fdf8"]}
+        }, {
+          "_id": "EE35E",
+          "_rev": "4-70b26",
+          "_deleted": true,
+          "_revisions": {
+            "start": 4,
+            "ids": ["70b26", "9f454", "914bf", "7fdf8"]
+          }
+        }
+      ];
+
+      var db = new PouchDB(dbs.name);
+
+      return db.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
+        res.should.deep.equal([]);
+        return db.allDocs();
+      }).then(function (res) {
+        console.log(res.rows.map(function (x) { return x.id; }));
+        res.total_rows.should.equal(1);
+        return db.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(1);
+      });
+    });
+
+    if (adapter === 'http') {
+      it('#2935 new_edits=false with single unauthorized', function () {
+        var ddoc = {
+          "_id": "_design/validate",
+          "validate_doc_update": function (newDoc) {
+            if (newDoc.foo === undefined) {
+              throw {unauthorized: 'Document must have a foo.'};
+            }
+          }.toString()
+        };
+
+        var db = new PouchDB(dbs.name);
+
+        return db.put(ddoc).then(function () {
+          return db.bulkDocs({
+              docs: [
+                {
+                  '_id': 'doc0',
+                  '_rev': '1-x',
+                  'foo': 'bar',
+                  '_revisions': {
+                    'start': 1,
+                    'ids': ['x']
+                  }
+                }, {
+                  '_id': 'doc1',
+                  '_rev': '1-x',
+                  '_revisions': {
+                    'start': 1,
+                    'ids': ['x']
+                  }
+                }, {
+                  '_id': 'doc2',
+                  '_rev': '1-x',
+                  'foo': 'bar',
+                  '_revisions': {
+                    'start': 1,
+                    'ids': ['x']
+                  }
+                }
+              ]
+            },
+            {new_edits: false}
+          );
+        }).then(function (res) {
+          res.should.have.length(1);
+          should.exist(res[0].error);
+          res[0].id.should.equal('doc1');
+        });
+      });
+    }
+
     it('Bulk with new_edits=false', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [{
