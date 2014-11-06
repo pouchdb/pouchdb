@@ -357,6 +357,82 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2951 Parallelized gets with 409s/404s', function () {
+      var db = new PouchDB(dbs.name);
+
+      var numSimultaneous = 20;
+      var numDups = 3;
+
+      var tasks = [];
+
+      for (var i = 0; i < numSimultaneous; i++) {
+        var key = Math.random().toString();
+        for (var j = 0; j < numDups; j++) {
+          tasks.push(key);
+        }
+      }
+
+      function getDocWithDefault(db, id, defaultDoc) {
+        return db.get(id).catch(function (err) {
+          /* istanbul ignore if */
+          if (err.status !== 404) {
+            throw err;
+          }
+          defaultDoc._id = id;
+          return db.put(defaultDoc).catch(function (err) {
+            /* istanbul ignore if */
+            if (err.status !== 409) { // conflict
+              throw err;
+            }
+          }).then(function () {
+            return db.get(id);
+          });
+        });
+      }
+
+      return PouchDB.utils.Promise.all(tasks.map(function (task) {
+        return getDocWithDefault(db, task, {foo: 'bar'});
+      }));
+    });
+
+    it('#2951 Parallelized _local gets with 409s/404s', function () {
+      var db = new PouchDB(dbs.name);
+
+      var numSimultaneous = 20;
+      var numDups = 3;
+
+      var tasks = [];
+
+      for (var i = 0; i < numSimultaneous; i++) {
+        var key = Math.random().toString();
+        for (var j = 0; j < numDups; j++) {
+          tasks.push('_local/' + key);
+        }
+      }
+
+      function getDocWithDefault(db, id, defaultDoc) {
+        return db.get(id).catch(function (err) {
+          /* istanbul ignore if */
+          if (err.status !== 404) {
+            throw err;
+          }
+          defaultDoc._id = id;
+          return db.put(defaultDoc).catch(function (err) {
+            /* istanbul ignore if */
+            if (err.status !== 409) { // conflict
+              throw err;
+            }
+          }).then(function () {
+            return db.get(id);
+          });
+        });
+      }
+
+      return PouchDB.utils.Promise.all(tasks.map(function (task) {
+        return getDocWithDefault(db, task, {foo: 'bar'});
+      }));
+    });
+
     it('Test get with conflicts', function (done) {
       var db = new PouchDB(dbs.name);
       var simpleTree = [
