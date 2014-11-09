@@ -75,14 +75,6 @@ env:
   - PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
-
-
-matrix:
-  allow_failures:
-  - env: CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
-  - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
-  fast_finish: true
-
 branches:
   only:
   - master
