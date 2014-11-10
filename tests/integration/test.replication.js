@@ -967,6 +967,106 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#2955 replication of conflicting deletions', function () {
+      var docid = "mydoc";
+      var docrev;
+      var Promise = PouchDB.utils.Promise;
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // put in the starting document
+      return db.put({
+        _id: docid,
+        foo: "bar"
+      })
+      // initial replication so both databases match
+      .then(function (resp) {
+        docrev = resp.rev;
+
+        // Performing one-time, uni-directional replication of
+        // local database to remote database...
+        return new Promise(function (resolve, reject) {
+          db.replicate.to(remote)
+            .on("complete", resolve)
+            .on("error", reject);
+        });
+      })
+
+      // make edits to same document in both databases
+      .then(function (resp) {
+        // Making conflicting changes to documents in both databases...
+        return Promise.all([
+          db.put({ _id: docid, _rev: docrev, foo: "baz" }),
+          remote.put({ _id: docid, _rev: docrev, hello: "world" })
+        ]);
+      })
+
+      // perform the bidirectional sync so the databases conflict
+      .then(function (resp) {
+        // Performing one-time, bi-directional replication of local
+        // and remote database...
+        return new Promise(function (resolve, reject) {
+          var sync = db.sync(remote)
+            .on("complete", resolve)
+            .on("error", reject);
+        });
+      })
+
+      // get local and remote documents with conflicts
+      .then(function (resp) {
+        return Promise.all([
+          db.get(docid, { conflicts: true }),
+          remote.get(docid, { conflicts: true })
+        ]);
+      })
+
+      // print results
+      .then(function (docs) {
+        var lc = docs[0]._conflicts || [],
+          rc = docs[1]._conflicts || [];
+
+        // Both local and remote should have one
+        // matching, conflicting revision
+        rc.should.have.length(1, 'one remote conflicting revision');
+        lc.should.have.length(1, 'one local conflicting revision');
+
+        // Deleting local conflicting revision...
+        return db.remove(docid, lc[0]);
+      })
+
+      // sync local and remote, again
+      .then(function (resp) {
+        // Performing another one-time, bi-directional replication of
+        // local and remote...
+        return new Promise(function (resolve, reject) {
+          var sync = db.sync(remote)
+            .on("complete", resolve)
+            .on("error", reject);
+        });
+      })
+
+      // get local and remote documents
+      .then(function (resp) {
+        return Promise.all([
+          db.get(docid, { conflicts: true }),
+          remote.get(docid, { conflicts: true })
+        ]);
+      })
+
+      // print final results
+      .then(function (docs) {
+        var lc = docs[0]._conflicts || [],
+          rc = docs[1]._conflicts || [];
+
+        // Both local and remote should have one
+        // matching, conflicting revision
+        rc.should.have.length(0, '0 remote conflicting revisions');
+        lc.should.have.length(0, '0 local conflicting revisions');
+
+      });
+    });
+
+
     it('Replication with same filters', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -2213,7 +2313,7 @@ adapters.forEach(function (adapters) {
       }
 
       // a basic map function to mimic our testing situation
-      var map = 'function(doc) {' +
+      var map = 'function (doc) {' +
         'if (doc.common === true) {' +
           'emit(doc._id, doc.rev);' +
         '}' +
