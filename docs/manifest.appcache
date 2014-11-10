@@ -7,7 +7,10 @@ CACHE MANIFEST
 CACHE:
 {% for page in site.pages %}{% if page.url != '/manifest.appcache' %}{{ page.url }}{% endif %}
 {% endfor %}
-{% for page in site.guides %}{{ page.url }}{% endfor %}
+{% for page in site.guides %}{{ page.url }}
+{% endfor %}
+{% for page in site.posts %}{{ page.url }}
+{% endfor %}
 
 /static/css/pouchdb.css
 /static/favicon.ico
