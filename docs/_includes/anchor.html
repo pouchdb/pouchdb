@@ -1,7 +1,0 @@
-{% if include.class %}
-  {% assign class = include.class %}
-{% else %}
-  {% assign class = 'h2' %}
-{% endif %}
-<div id='{{ include.hash }}'></div>
-<a class='{{ class }} anchor' href='#{{ include.hash }}' name='{{ include.hash }}'>{{ include.title }}</a>
