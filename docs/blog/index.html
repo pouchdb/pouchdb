@@ -13,17 +13,17 @@ title: Blog
 
 {% endfor %}
 <ul class='pagination'>
-  <li {% if paginator.page == 1 %}class='disabled'{% endif %}><a href='{{paginator.previous_page_path}}'>&laquo;</a></li>
+  <li {% if paginator.page == 1 %}class='disabled'{% endif %}><a href='{{paginator.previous_page_path | replace:'index.html','' }}/'>&laquo;</a></li>
   {% for page in (1..paginator.total_pages) %}
     {% if page == paginator.page %}
     <li class='active'><a>{{page}}</a></li>
     {% elsif page == 1 %}
-    <li><a href='/blog/index.html'>{{page}}</a></li>
+    <li><a href='/blog/'>{{page}}</a></li>
     {% else %}
-    <li><a href='/blog/page{{page}}'>{{page}}</a></li>
+    <li><a href='/blog/page{{page}}/'>{{page}}</a></li>
     {% endif %}
   {% endfor %}
-  <li {% if paginator.page == paginator.total_pages %} class='disabled' {% endif %}><a href='{{paginator.next_page_path}}'>&raquo;</a></li>
+  <li {% if paginator.page == paginator.total_pages %} class='disabled' {% endif %}><a href='{{paginator.next_page_path}}/'>&raquo;</a></li>
 </ul>
 </div>
 </div>
