@@ -2489,7 +2489,7 @@ adapters.forEach(function (adapters) {
       remote.put({}, 'hazaa');
     });
 
-    it('#2970 should replicate a remote database with deleted conflicted revisions and lots of documents', function(done) {
+    it('#2970 should replicate a remote database with deleted conflicted revisions', function(done) {
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var Promise = PouchDB.utils.Promise;
@@ -2499,14 +2499,6 @@ adapters.forEach(function (adapters) {
         return PouchDB.utils.uuid(32, 16).toLowerCase();
       }
       
-      // create more than batch_size documents
-      var docs = [];
-      var doc_count = 150;
-
-      for (var i = 0; i < doc_count; i++) {
-        docs.push({ foo: "bar" });
-      }
-
       // create a bunch of rando, good revisions
       var numRevs = 5;
       var uuids = [];
@@ -2543,20 +2535,13 @@ adapters.forEach(function (adapters) {
         }
       };
 
-      // save the throwaway documents
-      return remote.bulkDocs(docs)
-
       // push the conflicted documents
-      .then(function() {
-        return remote.bulkDocs([ a_doc, b_doc ], { new_edits: false })
-
-        .then(function() {
-          return remote.get(docid, { deleted_conflicts: true, revs_info: true }).then(function(doc) {
-            doc._id.should.equal(docid, "correct doc id");
-            doc._rev.should.equal(a_doc._rev, "correct _rev");
-            doc._deleted_conflicts.length.should.equal(1, "correct # of deleted conflicts");
-            doc._deleted_conflicts[0].should.equal(b_doc._rev, "correct deleted conflict");
-          });
+      return remote.bulkDocs([ a_doc, b_doc ], { new_edits: false }).then(function() {
+        return remote.get(docid, { deleted_conflicts: true, revs_info: true }).then(function(doc) {
+          doc._id.should.equal(docid, "correct doc id");
+          doc._rev.should.equal(a_doc._rev, "correct _rev");
+          doc._deleted_conflicts.length.should.equal(1, "correct # of deleted conflicts");
+          doc._deleted_conflicts[0].should.equal(b_doc._rev, "correct deleted conflict");
         });
       })
 
@@ -2565,7 +2550,7 @@ adapters.forEach(function (adapters) {
         return local.replicate.from(remote).then(function(result) {
           result.ok.should.equal(true, 'replication result was ok');
           // # of documents is 2 because deleted conflicted revision counts as one
-          result.docs_written.should.equal(doc_count + 2, 'replicated the correct number of documents');
+          result.docs_written.should.equal(2, 'replicated the correct number of documents');
         });
       })
 
