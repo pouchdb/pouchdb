@@ -2564,7 +2564,8 @@ adapters.forEach(function (adapters) {
       .then(function() {
         return local.replicate.from(remote).then(function(result) {
           result.ok.should.equal(true, 'replication result was ok');
-          result.docs_written.should.equal(doc_count + 1, 'replicated the correct number of documents');
+          // # of documents is 2 because deleted conflicted revision counts as one
+          result.docs_written.should.equal(doc_count + 2, 'replicated the correct number of documents');
         });
       })
 
