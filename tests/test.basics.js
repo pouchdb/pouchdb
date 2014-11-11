@@ -897,6 +897,37 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('issue 2888, successive deletes and writes', function () {
+      var db = new PouchDB(dbs.name);
+      var rev;
+
+      function checkNumRevisions(num) {
+        return db.get('foo', {
+          open_revs: 'all',
+          revs: true
+        }).then(function (fullDocs) {
+          fullDocs[0].ok._revisions.ids.should.have.length(num);
+        });
+      }
+      return db.put({ _id: 'foo' }).then(function (resp) {
+        rev = resp.rev;
+        return checkNumRevisions(1);
+      }).then(function () {
+        return db.remove('foo', rev);
+      }).then(function () {
+        return checkNumRevisions(2);
+      }).then(function () {
+        return db.put({ _id: 'foo' });
+      }).then(function (res) {
+        rev = res.rev;
+        return checkNumRevisions(3);
+      }).then(function () {
+        return db.remove('foo', rev);
+      }).then(function () {
+        return checkNumRevisions(4);
+      });
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
