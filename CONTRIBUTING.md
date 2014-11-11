@@ -14,7 +14,7 @@ Most project discussions should happen on the Mailing list / Bug Tracker and IRC
  * Dale Harvey (dale@arandomurl.com, daleharvey on IRC)
  * Calvin Metcalf (calvin.metcalf@gmail.com)
 
-## PouchDB meeting
+#### PouchDB meeting
 
 We hold a weekly 'office hours' meeting on IRC (irc.freenode.net#pouchdb) on Mondays at 5:00PM UTC (9:00 AM Pacific, 12:00 PM Eastern, 10:30 PM IST), this is open to anyone and a time when developers and users discuss issues they are having or working on.
 
