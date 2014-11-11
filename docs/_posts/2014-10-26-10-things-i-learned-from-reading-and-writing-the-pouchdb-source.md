@@ -54,7 +54,7 @@ Additionally, the W3C has done everyone a disservice by using `5*1024*1024` in [
 
 ### 2. IE has race conditions in IndexedDB
 
-Microsoft has a very fast implementation of IndexedDB &ndash; it's a bit slower than Chrome's, but much faster than Firefox's ([here are some tests](https://gist.github.com/nolanlawson/11100235)). However, to get that speed, they must have taken some shortcuts, becuase both IE10 and IE11 have some [nasty](https://connect.microsoft.com/IE/feedbackdetail/view/1009247) [race](https://connect.microsoft.com/IE/feedbackdetail/view/866489) [conditions](https://connect.microsoft.com/IE/feedbackdetail/view/866495).
+Microsoft has a very fast implementation of IndexedDB &ndash; it's a bit slower than Chrome's, but much faster than Firefox's ([here are some tests](https://gist.github.com/nolanlawson/11100235)). However, to get that speed, they must have taken some shortcuts, because both IE10 and IE11 have some [nasty](https://connect.microsoft.com/IE/feedbackdetail/view/1009247) [race](https://connect.microsoft.com/IE/feedbackdetail/view/866489) [conditions](https://connect.microsoft.com/IE/feedbackdetail/view/866495).
 
 Due to that, you'll often see PouchDB code [like this](https://github.com/pouchdb/pouchdb/blob/c32597564160dcaad7b3e715ddf1c0dc923b59cd/lib/adapters/idb.js#L1369-L1372): 
 
@@ -231,7 +231,7 @@ This also heavily influenced our design for [persistent map/reduce](http://pouch
 
 ### 6. IndexedDB throws an error if you try to iterate backwards with start/end keys
 
-This is one of those wonderful "bugs" that is actually part of the IndexedDB spec, so it's faithfully reproduced in all three of Firefox, Chrome, and IE. I guess we should be thankful?
+This is one of those wonderful "bugs" that is actually part of the IndexedDB spec, so it's faithfully reproduced in all three of Firefox, IE, and Chrome. I guess we should be thankful?
 
 Anyway, [here's the code](https://github.com/pouchdb/pouchdb/blob/c32597564160dcaad7b3e715ddf1c0dc923b59cd/lib/adapters/idb.js#L746-L776):
 
