@@ -75,6 +75,12 @@ env:
   - PERF=1 COMMAND=test
   - COMMAND=report-coverage
 
+matrix:
+ allow_failures:
+ - env: CLIENT=node SERVER=couchdb-master COMMAND=test
+ - env: CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+ fast_finish: true
+
 branches:
   only:
   - master
