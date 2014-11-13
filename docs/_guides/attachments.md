@@ -179,7 +179,7 @@ Whather you supply attachments as base64-encoded strings or as Blobs/Buffers, un
 
 {% include alert_start.html variant="warning" %}
 
-Blobs can be tricky to work with, especially when it comes to cross-browser support. You may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be a useful addition to the attachment API. For instance, it has an `imgSrcToBlob()` method that will work cross-browser.
+Blobs can be tricky to work with, especially when it comes to cross-browser support. You may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be a useful addition to the attachment API. For instance, it has an <code>imgSrcToBlob()</code> method that will work cross-browser.
 
 {% include alert_end.html %}
 

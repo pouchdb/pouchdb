@@ -28,7 +28,7 @@ You can see a **[live example](http://bl.ocks.org/nolanlawson/bddac54b92c2d8d392
 <br/>python -m SimpleHTTPServer
 </code>
 <p/>
-Now the site is up and running at <a href='http://localhost:8000'>http://localhost:8000</a>. To find the correct `gist.github.com` URL, just click the "block" number at the top of the page.
+Now the site is up and running at <a href='http://localhost:8000'>http://localhost:8000</a>. To find the correct <code>gist.github.com</code> URL, just click the "block" number at the top of the page.
 
 {% include alert_end.html %}
 
@@ -108,7 +108,18 @@ In Chrome, just choose *Overflow icon* &#9776; &#8594; *Tools* &#8594; *Develope
 
 This is the raw IndexedDB representation of your PouchDB, so it may be a little fine-grained compared to what PouchDB shows. However, it's great for quick debugging.
 
-In Safari <8, the `kittens` database will be under *WebSQL* instead of *IndexedDB*.
+In Safari, the `kittens` database will be under *WebSQL* instead of *IndexedDB*.
+
+Deleting your local database
+----------------
+
+During development, it's often useful to destroy the local database, so you can see what your users will experience when they visit your site for the first time. A page refresh is not enough, because the data will still be there!
+
+In Chrome, you can use the [ClearBrowserData extension](https://chrome.google.com/webstore/detail/clearbrowserdata/apehfighfmpoieeniallefdeibodgmmb), which will add a trashcan icon to your toolbar, which you can click to delete all local data (IndexedDB, WebSQL, LocalStorage, cookies, etc.).
+
+In Firefox, you can use the [Clear Recent History+ add-on](https://addons.mozilla.org/en-US/firefox/addon/clear-recent-history/), so when you right-click a page you can quickly clear all data.
+
+In Safari, you can simply click *Safari* &#8594; *Clear History and Website Data*.
 
 Differences between the local and remote databases
 -------
