@@ -1186,6 +1186,18 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    function waitForChange(db, fun) {
+      return new PouchDB.utils.Promise(function (resolve) {
+        var remoteChanges = db.changes({live: true, include_docs: true});
+        remoteChanges.on('change', function (change) {
+          if (fun(change)) {
+            remoteChanges.cancel();
+            resolve();
+          }
+        });
+      });
+    }
+
     it('Replicates deleted docs (issue #2636)', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -1199,16 +1211,14 @@ adapters.forEach(function (adapters) {
           _id: res.id,
           _rev: res.rev
         };
-
         return db.remove(doc);
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
         res.rows.should.have.length(0, 'deleted locally');
       }).then(function () {
-        // wait for changes to settle
-        return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 5000);
+        return waitForChange(remote, function (change) {
+          return change.deleted === true;
         });
       }).then(function () {
         return remote.allDocs();
@@ -1226,30 +1236,18 @@ adapters.forEach(function (adapters) {
         live: true
       });
 
+      var doc;
       return db.post({}).then(function (res) {
-        var doc = {
-          _id: res.id,
-          _rev: res.rev
-        };
-
-        // this timeout more consistently repros
-        // the issue, so it's not just a race
-        return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 1000);
-        }).then(function () {
-          return doc;
-        });
-      }).then(function (doc) {
+        doc = {_id: res.id, _rev: res.rev};
+        return waitForChange(remote, function () { return true; });
+      }).then(function () {
         return db.remove(doc);
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
         res.rows.should.have.length(0, 'deleted locally');
       }).then(function () {
-        // wait for changes to settle
-        return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 5000);
-        });
+        return waitForChange(remote, function (c) { return c.seq === 2; });
       }).then(function () {
         return remote.allDocs();
       }).then(function (res) {
@@ -1308,9 +1306,8 @@ adapters.forEach(function (adapters) {
         res.rows.should.have.length(1, 'one doc synced locally');
         res.rows[0].doc.modified.should.equal('yep', 'modified locally');
       }).then(function () {
-        // wait for changes to settle
-        return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 5000);
+        return waitForChange(remote, function (change) {
+          return change.doc.modified === 'yep';
         });
       }).then(function () {
         return remote.allDocs({include_docs: true});
