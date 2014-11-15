@@ -2485,6 +2485,77 @@ adapters.forEach(function (adapters) {
       });
       remote.put({}, 'hazaa');
     });
+
+    it('#2970 should replicate a remote database with deleted conflicted revisions', function(done) {
+      var local = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+      var docid = "mydoc";
+
+      function uuid() {
+        return PouchDB.utils.uuid(32, 16).toLowerCase();
+      }
+      
+      // create a bunch of rando, good revisions
+      var numRevs = 5;
+      var uuids = [];
+      for (var i = 0; i < numRevs - 1; i++) {
+        uuids.push(uuid());
+      }
+
+      // good branch
+      // this branch is one revision ahead of the conflicted branch
+      var a_conflict = uuid();
+      var a_burner = uuid();
+      var a_latest = uuid();
+      var a_rev_num = numRevs + 2;
+      var a_doc = {
+        _id: docid,
+        _rev: a_rev_num + '-' + a_latest,
+        _revisions: {
+          start: a_rev_num,
+          ids: [ a_latest, a_burner, a_conflict ].concat(uuids)
+        }
+      };
+
+      // conflicted deleted branch
+      var b_conflict = uuid();
+      var b_deleted = uuid();
+      var b_rev_num = numRevs + 1;
+      var b_doc = {
+        _id: docid,
+        _rev: b_rev_num + '-' + b_deleted,
+        _deleted: true,
+        _revisions: {
+          start: b_rev_num,
+          ids: [ b_deleted, b_conflict ].concat(uuids)
+        }
+      };
+
+      // push the conflicted documents
+      return remote.bulkDocs([ a_doc, b_doc ], { new_edits: false }).then(function() {
+        return remote.get(docid, { open_revs: 'all' }).then(function(revs) {
+          revs.length.should.equal(2, 'correct number of open revisions');
+          revs[0].ok._id.should.equal(docid, 'rev 1, correct document id');
+          revs[1].ok._id.should.equal(docid, 'rev 2, correct document id');
+          // order of revisions is not specified
+          ((revs[0].ok._rev === a_doc._rev && revs[1].ok._rev === b_doc._rev) ||
+          (revs[0].ok._rev === b_doc._rev && revs[1].ok._rev === a_doc._rev)).should.be.true;
+        });
+      })
+
+      // attempt to replicate
+      .then(function() {
+        return local.replicate.from(remote).then(function(result) {
+          result.ok.should.equal(true, 'replication result was ok');
+          // # of documents is 2 because deleted conflicted revision counts as one
+          result.docs_written.should.equal(2, 'replicated the correct number of documents');
+        });
+      })
+
+      .then(function() { done(); }, done);
+    });
+
     if (adapters[1] === 'http') {
       // test validate_doc_update, which is a reasonable substitute
       // for testing design doc replication of non-admin users, since we
