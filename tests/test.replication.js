@@ -2486,10 +2486,10 @@ adapters.forEach(function (adapters) {
       remote.put({}, 'hazaa');
     });
 
-    it('#2970 should replicate a remote database with deleted conflicted revisions', function(done) {
+    it('#2970 should replicate remote database w/ deleted conflicted revisions',
+        function (done) {
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = PouchDB.utils.Promise;
       var docid = "mydoc";
 
       function uuid() {
@@ -2533,27 +2533,36 @@ adapters.forEach(function (adapters) {
       };
 
       // push the conflicted documents
-      return remote.bulkDocs([ a_doc, b_doc ], { new_edits: false }).then(function() {
-        return remote.get(docid, { open_revs: 'all' }).then(function(revs) {
+      return remote.bulkDocs([ a_doc, b_doc ], {
+        new_edits: false
+      }).then(function () {
+        return remote.get(docid, { open_revs: 'all' }).then(function (revs) {
           revs.length.should.equal(2, 'correct number of open revisions');
           revs[0].ok._id.should.equal(docid, 'rev 1, correct document id');
           revs[1].ok._id.should.equal(docid, 'rev 2, correct document id');
           // order of revisions is not specified
-          ((revs[0].ok._rev === a_doc._rev && revs[1].ok._rev === b_doc._rev) ||
-          (revs[0].ok._rev === b_doc._rev && revs[1].ok._rev === a_doc._rev)).should.be.true;
+          ((
+            revs[0].ok._rev === a_doc._rev &&
+            revs[1].ok._rev === b_doc._rev) ||
+          (
+            revs[0].ok._rev === b_doc._rev &&
+            revs[1].ok._rev === a_doc._rev)
+          ).should.equal(true);
         });
       })
 
       // attempt to replicate
-      .then(function() {
-        return local.replicate.from(remote).then(function(result) {
+      .then(function () {
+        return local.replicate.from(remote).then(function (result) {
           result.ok.should.equal(true, 'replication result was ok');
-          // # of documents is 2 because deleted conflicted revision counts as one
-          result.docs_written.should.equal(2, 'replicated the correct number of documents');
+          // # of documents is 2 because deleted
+          // conflicted revision counts as one
+          result.docs_written.should.equal(2,
+            'replicated the correct number of documents');
         });
       })
 
-      .then(function() { done(); }, done);
+      .then(function () { done(); }, done);
     });
 
     if (adapters[1] === 'http') {
