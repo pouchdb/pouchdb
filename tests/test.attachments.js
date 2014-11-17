@@ -1225,6 +1225,108 @@ adapters.forEach(function (adapter) {
           });
         });
       });
+
+      it('putAttachment and getAttachment with big GIF', function () {
+
+        function getImgData() {
+          if (typeof process !== 'undefined' && !process.browser) {
+            return PouchDB.utils.Promise.promisify(
+              require('fs').readFile)('./deps/sonic.gif');
+          } else { // browser
+            return new PouchDB.utils.Promise(function (resolve, reject) {
+              PouchDB.utils.ajax({
+                url: 'deps/sonic.gif',
+                binary: true
+              }, function (err, res) {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(res);
+                }
+              });
+            });
+          }
+        }
+
+        var db = new PouchDB(dbs.name);
+        var origBinaryString;
+        return getImgData().then(function (blob) {
+          return new PouchDB.utils.Promise(function (resolve) {
+            testUtils.readBlob(blob, resolve);
+          }).then(function (binaryString) {
+            binaryString.should.match(/^GIF/);
+            origBinaryString = binaryString;
+            return db.putAttachment('foo', 'sonic.gif', blob, 'image/gif');
+          });
+        }).then(function () {
+          return db.getAttachment('foo', 'sonic.gif');
+        }).then(function (blob) {
+          return new PouchDB.utils.Promise(function (resolve) {
+            testUtils.readBlob(blob, resolve);
+          });
+        }).then(function (binaryString) {
+          binaryString.should.match(/^GIF/);
+          binaryString.should.equal(origBinaryString);
+          return db.get('foo');
+        }).then(function (doc) {
+          var att = doc._attachments['sonic.gif'];
+          att.content_type.should.equal('image/gif');
+          att.length.should.equal(31405);
+          att.stub.should.equal(true);
+          att.digest.should.equal("md5-3fA9FbWj9h7r5XV19hJnvw==");
+        });
+      });
+
+      it('putAttachment and getAttachment with big GIF 2', function () {
+
+        function getImgData() {
+          if (typeof process !== 'undefined' && !process.browser) {
+            return PouchDB.utils.Promise.promisify(
+              require('fs').readFile)('./deps/foxes.gif');
+          } else { // browser
+            return new PouchDB.utils.Promise(function (resolve, reject) {
+              PouchDB.utils.ajax({
+                url: 'deps/foxes.gif',
+                binary: true
+              }, function (err, res) {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(res);
+                }
+              });
+            });
+          }
+        }
+
+        var db = new PouchDB(dbs.name);
+        var origBinaryString;
+        return getImgData().then(function (blob) {
+          return new PouchDB.utils.Promise(function (resolve) {
+            testUtils.readBlob(blob, resolve);
+          }).then(function (binaryString) {
+            binaryString.should.match(/^GIF/);
+            origBinaryString = binaryString;
+            return db.putAttachment('foo', 'foxes.gif', blob, 'image/gif');
+          });
+        }).then(function () {
+          return db.getAttachment('foo', 'foxes.gif');
+        }).then(function (blob) {
+          return new PouchDB.utils.Promise(function (resolve) {
+            testUtils.readBlob(blob, resolve);
+          });
+        }).then(function (binaryString) {
+          binaryString.should.match(/^GIF/);
+          binaryString.should.equal(origBinaryString);
+          return db.get('foo');
+        }).then(function (doc) {
+          var att = doc._attachments['foxes.gif'];
+          att.content_type.should.equal('image/gif');
+          att.length.should.equal(2848549);
+          att.stub.should.equal(true);
+          att.digest.should.equal("md5-B81SXQtFqaE2zEiGAtWF0w==");
+        });
+      });
     }
   });
 });
