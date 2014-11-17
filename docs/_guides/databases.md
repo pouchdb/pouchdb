@@ -115,7 +115,7 @@ Deleting your local database
 
 During development, it's often useful to destroy the local database, so you can see what your users will experience when they visit your site for the first time. A page refresh is not enough, because the data will still be there!
 
-In Chrome, you can use the [ClearBrowserData extension](https://chrome.google.com/webstore/detail/clearbrowserdata/apehfighfmpoieeniallefdeibodgmmb), which will add a trashcan icon to your toolbar, which you can click to delete all local data (IndexedDB, WebSQL, LocalStorage, cookies, etc.).
+In Chrome, you can use the shortcut <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Del</kbd> and with 'Cookies and other site and plug-in data' checked.
 
 In Firefox, you can use the [Clear Recent History+ add-on](https://addons.mozilla.org/en-US/firefox/addon/clear-recent-history/), so when you right-click a page you can quickly clear all data.
 
