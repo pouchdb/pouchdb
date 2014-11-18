@@ -1165,6 +1165,25 @@ adapters.forEach(function (adapter) {
       });
     }
 
+    it('#3008 test correct encoding/decoding of \\u0000 etc.', function () {
+
+      var base64 =
+        'iVBORw0KGgoAAAANSUhEUgAAAhgAAAJLCAYAAAClnu9J' +
+        'AAAgAElEQVR4Xuy9B7ylZXUu/p62T5nOMAPM0BVJICQi' +
+        'ogjEJN5ohEgQ';
+
+      var db = new PouchDB(dbs.name);
+      return db.putAttachment('foo', 'foo.bin', base64, 'image/png').then(function () {
+        return db.getAttachment('foo', 'foo.bin');
+      }).then(function (blob) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          testUtils.readBlob(blob, resolve);
+        });
+      }).then(function (bin) {
+        PouchDB.utils.btoa(bin).should.equal(base64);
+      });
+    });
+
 
     var isSafari = (typeof process === 'undefined' || process.browser) &&
       /Safari/.test(window.navigator.userAgent) &&
