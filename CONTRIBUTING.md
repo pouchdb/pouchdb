@@ -104,6 +104,18 @@ or
 
 For more information about options for testing including please checkout [TESTING.md](TESTING.md).
 
+Debugging PouchDB
+--------------------------------------
+
+PouchDB uses the `debug` [module](https://www.npmjs.org/package/debug) for debug
+logging, to turn on the log output enable the debug flag in node:
+
+    DEBUG=pouchdb:*
+
+Or in the browser:
+
+    PouchDB.debug.enable('pouchdb:*');
+
 Git Essentials
 --------------------------------------
 
