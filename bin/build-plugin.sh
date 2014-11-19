@@ -13,7 +13,6 @@ DEREQUIRE=./node_modules/.bin/derequire
 
 ./node_modules/.bin/browserify lib/plugins/index.js \
     -r $LEVEL_BACKEND:leveldown \
-    -x pouchdb \
     -r ./lib/plugins/config-$LEVEL_BACKEND.js:adapter-config \
     -r ./lib/plugins/migrate-browser.js:./lib/deps/migrate \
     -r ./lib/plugins/migrate-browser.js:./lib/deps/migrate \
