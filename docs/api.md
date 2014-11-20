@@ -410,6 +410,7 @@ All options default to `false` unless otherwise specified.
   * `options.attachments`: Include attachments.
 * `options.descending`: Reverse the order of the output documents.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
+* `options.doc_ids`: Only show changes for docs with these ids (array of strings).
 * `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'now' if you want only new changes.
 * `options.live`: Uses the  `_longpoll_` feed. 
 * `options.limit`: Limit the number of results to this number.
@@ -504,7 +505,7 @@ All options default to `false` unless otherwise specified.
 
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.query_params`: Query params sent to the filter function.
-* `options.doc_ids`: Only replicate docs with these ids.
+* `options.doc_ids`: Only replicate docs with these ids (array of strings).
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.since`: Replicate changes after the given sequence number.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
