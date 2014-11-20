@@ -1135,6 +1135,157 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2569 Non-live doc_ids filter', function () {
+      var docs = [
+        {_id: '0'},
+        {_id: '1'},
+        {_id: '2'},
+        {_id: '3'}
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({
+          doc_ids: ['1', '3']
+        });
+      }).then(function (changes) {
+        var ids = changes.results.map(function (x) {
+          return x.id;
+        });
+        ids.sort().should.deep.equal(['1', '3']);
+      });
+    });
+
+    it('#2569 Big non-live doc_ids filter', function () {
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        var id = '';
+        for (var j = 0; j < 50; j++) {
+          // make a huge id
+          id += PouchDB.utils.btoa(Math.random().toString());
+        }
+        docs.push({_id: id});
+      }
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({
+          doc_ids: [docs[1]._id, docs[3]._id]
+        });
+      }).then(function (changes) {
+        var ids = changes.results.map(function (x) {
+          return x.id;
+        });
+        var expectedIds = [docs[1]._id, docs[3]._id];
+        ids.sort().should.deep.equal(expectedIds.sort());
+      });
+    });
+
+    it('#2569 Live doc_ids filter', function () {
+      var docs = [
+        {_id: '0'},
+        {_id: '1'},
+        {_id: '2'},
+        {_id: '3'}
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var retChanges = [];
+          var changes = db.changes({
+            doc_ids: ['1', '3'],
+            live: true
+          }).on('change', function (change) {
+            retChanges.push(change);
+            if (retChanges.length === 2) {
+              changes.cancel();
+              resolve(retChanges);
+            }
+          }).on('error', reject);
+        });
+      }).then(function (changes) {
+        var ids = changes.map(function (x) {
+          return x.id;
+        });
+        var expectedIds = ['1', '3'];
+        ids.sort().should.deep.equal(expectedIds);
+      });
+    });
+
+    it('#2569 Big live doc_ids filter', function () {
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        var id = '';
+        for (var j = 0; j < 50; j++) {
+          // make a huge id
+          id += PouchDB.utils.btoa(Math.random().toString());
+        }
+        docs.push({_id: id});
+      }
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var retChanges = [];
+          var changes = db.changes({
+            doc_ids: [docs[1]._id, docs[3]._id],
+            live: true
+          }).on('change', function (change) {
+            retChanges.push(change);
+            if (retChanges.length === 2) {
+              changes.cancel();
+              resolve(retChanges);
+            }
+          }).on('error', reject);
+        });
+      }).then(function (changes) {
+        var ids = changes.map(function (x) {
+          return x.id;
+        });
+        var expectedIds = [docs[1]._id, docs[3]._id];
+        ids.sort().should.deep.equal(expectedIds.sort());
+      });
+    });
+
+    it('#2569 Non-live doc_ids filter with filter=_doc_ids', function () {
+      var docs = [
+        {_id: '0'},
+        {_id: '1'},
+        {_id: '2'},
+        {_id: '3'}
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({
+          filter: '_doc_ids',
+          doc_ids: ['1', '3']
+        });
+      }).then(function (changes) {
+        var ids = changes.results.map(function (x) {
+          return x.id;
+        });
+        ids.sort().should.deep.equal(['1', '3']);
+      });
+    });
+
+    it('#2569 Live doc_ids filter with filter=_doc_ids', function () {
+      var docs = [
+        {_id: '0'},
+        {_id: '1'},
+        {_id: '2'},
+        {_id: '3'}
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({
+          filter: '_doc_ids',
+          doc_ids: ['1', '3']
+        });
+      }).then(function (changes) {
+        var ids = changes.results.map(function (x) {
+          return x.id;
+        });
+        ids.sort().should.deep.equal(['1', '3']);
+      });
+    });
+
     it('Changes to same doc are grouped', function (done) {
       var docs1 = [
         {_id: '0', integer: 0},

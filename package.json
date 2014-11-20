@@ -35,7 +35,7 @@
     "through2": "^0.4.1",
     "vuvuzela": "^1.0.0",
     "debug": "^2.1.0",
-    "pouchdb-express-router": "0.0.1",
+    "pouchdb-express-router": "^0.0.2",
     "express": "^4.10.4"
   },
   "devDependencies": {
