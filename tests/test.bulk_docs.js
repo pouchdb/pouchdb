@@ -259,8 +259,13 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    if (adapter === 'http') {
-      it('#2935 new_edits=false with single unauthorized', function () {
+    it('#2935 new_edits=false with single unauthorized', function (done) {
+
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (adapter !== 'http' || !isCouchDB) {
+          return done();
+        }
+
         var ddoc = {
           "_id": "_design/validate",
           "validate_doc_update": function (newDoc) {
@@ -272,44 +277,42 @@ adapters.forEach(function (adapter) {
 
         var db = new PouchDB(dbs.name);
 
-        return db.put(ddoc).then(function () {
+        db.put(ddoc).then(function () {
           return db.bulkDocs({
-              docs: [
-                {
-                  '_id': 'doc0',
-                  '_rev': '1-x',
-                  'foo': 'bar',
-                  '_revisions': {
-                    'start': 1,
-                    'ids': ['x']
-                  }
-                }, {
-                  '_id': 'doc1',
-                  '_rev': '1-x',
-                  '_revisions': {
-                    'start': 1,
-                    'ids': ['x']
-                  }
-                }, {
-                  '_id': 'doc2',
-                  '_rev': '1-x',
-                  'foo': 'bar',
-                  '_revisions': {
-                    'start': 1,
-                    'ids': ['x']
-                  }
+            docs: [
+              {
+                '_id': 'doc0',
+                '_rev': '1-x',
+                'foo': 'bar',
+                '_revisions': {
+                  'start': 1,
+                  'ids': ['x']
                 }
-              ]
-            },
-            {new_edits: false}
-          );
+              }, {
+                '_id': 'doc1',
+                '_rev': '1-x',
+                '_revisions': {
+                  'start': 1,
+                  'ids': ['x']
+                }
+              }, {
+                '_id': 'doc2',
+                '_rev': '1-x',
+                'foo': 'bar',
+                '_revisions': {
+                  'start': 1,
+                  'ids': ['x']
+                }
+              }
+            ]
+          }, {new_edits: false});
         }).then(function (res) {
           res.should.have.length(1);
           should.exist(res[0].error);
           res[0].id.should.equal('doc1');
-        });
+        }).then(done);
       });
-    }
+    });
 
     it('Bulk with new_edits=false', function (done) {
       var db = new PouchDB(dbs.name);
