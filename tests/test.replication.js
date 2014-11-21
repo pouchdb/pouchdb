@@ -2427,6 +2427,7 @@ adapters.forEach(function (adapters) {
       });
       remote.put({}, 'hazaa');
     });
+
     it('retry stuff', function (done) {
       var remote = new PouchDB(dbs.remote);
       var Promise = PouchDB.utils.Promise;
@@ -2486,7 +2487,7 @@ adapters.forEach(function (adapters) {
       remote.put({}, 'hazaa');
     });
 
-    it('#2970 should replicate remote database w/ deleted conflicted revisions',
+    it('#2970 should replicate remote database w/ deleted conflicted revs',
         function (done) {
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -2565,12 +2566,17 @@ adapters.forEach(function (adapters) {
       .then(function () { done(); }, done);
     });
 
-    if (adapters[1] === 'http') {
-      // test validate_doc_update, which is a reasonable substitute
-      // for testing design doc replication of non-admin users, since we
-      // always test in admin party
 
-      it('#2268 don\'t stop replication if single forbidden', function () {
+    // test validate_doc_update, which is a reasonable substitute
+    // for testing design doc replication of non-admin users, since we
+    // always test in admin party
+    it('#2268 dont stop replication if single forbidden', function (done) {
+
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (adapters[1] !== 'http' || !isCouchDB) {
+          return done();
+        }
+
         var ddoc = {
           "_id": "_design/validate",
           "validate_doc_update": function (newDoc) {
@@ -2601,10 +2607,17 @@ adapters.forEach(function (adapters) {
           return db.allDocs({limit: 0});
         }).then(function (res) {
           res.total_rows.should.equal(4); // 3 plus the invalid doc
-        });
+        }).then(done);
       });
+    });
 
-      it('#2268 don\'t stop replication if single unauthorized', function () {
+    it('#2268 dont stop replication if single unauth', function (done) {
+
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (adapters[1] !== 'http' || !isCouchDB) {
+          return done();
+        }
+
         var ddoc = {
           "_id": "_design/validate",
           "validate_doc_update": function (newDoc) {
@@ -2635,10 +2648,17 @@ adapters.forEach(function (adapters) {
           return db.allDocs({limit: 0});
         }).then(function (res) {
           res.total_rows.should.equal(4); // 3 plus the invalid doc
-        });
+        }).then(done);
       });
+    });
 
-      it('#2268 don\'t stop replication if many unauthorized', function () {
+    it('#2268 dont stop replication if many unauth', function (done) {
+
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (adapters[1] !== 'http' || !isCouchDB) {
+          return done();
+        }
+
         var ddoc = {
           "_id": "_design/validate",
           "validate_doc_update": function (newDoc) {
@@ -2653,7 +2673,7 @@ adapters.forEach(function (adapters) {
 
         return remote.put(ddoc).then(function () {
           var docs = [{foo: 'bar'}, {foo: 'baz'}, {}, {foo: 'quux'}, {}, {},
-            {foo: 'toto'}, {}];
+                      {foo: 'toto'}, {}];
           return db.bulkDocs({docs: docs});
         }).then(function () {
           return db.replicate.to(dbs.remote);
@@ -2670,9 +2690,10 @@ adapters.forEach(function (adapters) {
           return db.allDocs({limit: 0});
         }).then(function (res) {
           res.total_rows.should.equal(8); // 4 valid and 4 invalid
-        });
+        }).then(done);
       });
-    }
+    });
+
   });
 });
 

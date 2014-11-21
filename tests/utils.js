@@ -182,6 +182,12 @@ testUtils.putTree = function (db, tree, callback) {
   insert(0);
 };
 
+testUtils.isCouchDB = function (cb) {
+  PouchDB.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
+    cb('couchdb' in res);
+  });
+};
+
 testUtils.writeDocs = function (db, docs, callback, res) {
   if (!res) {
     res = [];
