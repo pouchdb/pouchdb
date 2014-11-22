@@ -79,7 +79,6 @@ matrix:
  allow_failures:
  - env: CLIENT=node SERVER=couchdb-master COMMAND=test
  - env: CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
- - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
  fast_finish: true
 
 branches:
