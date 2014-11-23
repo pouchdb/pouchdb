@@ -745,7 +745,7 @@ All options default to `false` unless otherwise specified.
   * The name of a view in an existing design document (e.g. `'myview'` or `'mydesigndoc/myview'`).
 * `options.reduce`: Reduce function, or the string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.  Defaults to `false` (no reduce).
     * Tip: if you're not using a built-in, [you're probably doing it wrong](http://youtu.be/BKQ9kXKoHS8?t=865s).
-    * On local databases, `rereduce` will always be `false` (since it's single-node).
+    * PouchDB will always call your reduce function with rereduce == false. As for CouchDB, refer to the [CouchDB documentation](http://docs.couchdb.org/en/1.6.1/couchapp/views/intro.html).
 * `options.include_docs`: Include the document in each row in the `doc` field.
     - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
