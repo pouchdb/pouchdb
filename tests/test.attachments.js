@@ -198,6 +198,332 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2771 allDocs() 1, single attachment', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc).then(function () {
+        return db.allDocs({key: binAttDoc._id, include_docs: true});
+      }).then(function (res) {
+        var doc = res.rows[0].doc;
+        delete doc._attachments["foo.txt"].revpos;
+
+        // because of libicu vs. ascii
+        var digest = doc._attachments["foo.txt"].digest;
+        var validDigests = [
+          "md5-qUUYqS41RhwF0TrCsTAxFg==",
+          "md5-aEI7pOYCRBLTRQvvqYrrJQ=="
+        ];
+        validDigests.indexOf(digest).should.not.equal(-1,
+          'expected ' + digest  + ' to be in: ' +
+          JSON.stringify(validDigests));
+        delete doc._attachments["foo.txt"].digest;
+        doc._attachments.should.deep.equal({
+          "foo.txt": {
+            "content_type": "text/plain",
+            "stub": true,
+            length: 29
+          }
+        });
+        return db.allDocs({
+          key: binAttDoc._id,
+          include_docs: true,
+          attachments: true
+        });
+      }).then(function (res) {
+        var doc = res.rows[0].doc;
+        doc._attachments['foo.txt'].content_type.should.equal(
+          binAttDoc._attachments['foo.txt'].content_type);
+        doc._attachments['foo.txt'].data.should.equal(
+          binAttDoc._attachments['foo.txt'].data);
+      });
+    });
+
+    it('#2771 allDocs() 2, many docs same att', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString(),
+          _attachments: {
+            'foo.txt': {
+              data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=',
+              content_type: 'text/plain'
+            }
+          }
+        });
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({include_docs: true, attachments: true});
+      }).then(function (res) {
+        var attachments = res.rows.map(function (row) {
+          var doc = row.doc;
+          delete doc._attachments['foo.txt'].revpos;
+          should.exist(doc._attachments['foo.txt'].digest);
+          delete doc._attachments['foo.txt'].digest;
+          return doc._attachments;
+        });
+        attachments.should.deep.equal([1, 2, 3, 4, 5].map(function () {
+          return {
+            "foo.txt": {
+              "content_type": "text/plain",
+              "data": "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
+            }
+          };
+        }));
+      });
+    });
+
+    it('#2771 allDocs() 3, many docs diff atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString(),
+          _attachments: {
+            'foo.png': {
+              data: icons[i],
+              content_type: 'image/png'
+            }
+          }
+        });
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({include_docs: true, attachments: true});
+      }).then(function (res) {
+        var attachments = res.rows.map(function (row) {
+          var doc = row.doc;
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "foo.png": {
+              "content_type": "image/png",
+              "data": icon,
+              "digest": iconDigests[i]
+            }
+          };
+        }));
+        return db.allDocs({include_docs: true});
+      }).then(function (res) {
+        var attachments = res.rows.map(function (row) {
+          var doc = row.doc;
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments['foo.png'];
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "content_type": "image/png",
+            stub: true,
+            "digest": iconDigests[i],
+            length: iconLengths[i]
+          };
+        }));
+      });
+    });
+
+    it('#2771 allDocs() 4, mix of atts and no atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        var doc = {
+          _id: i.toString()
+        };
+        if (i % 2 === 1) {
+          doc._attachments = {
+            'foo.png': {
+              data: icons[i],
+              content_type: 'image/png'
+            }
+          };
+        }
+        docs.push(doc);
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({include_docs: true, attachments: true});
+      }).then(function (res) {
+        var attachments = res.rows.map(function (row, i) {
+          var doc = row.doc;
+          if (i % 2 === 1) {
+            delete doc._attachments['foo.png'].revpos;
+            return doc._attachments;
+          }
+          return null;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          if (i % 2 === 0) {
+            return null;
+          }
+          return {
+            "foo.png": {
+              "content_type": "image/png",
+              "data": icon,
+              "digest": iconDigests[i]
+            }
+          };
+        }));
+        return db.allDocs({include_docs: true});
+      }).then(function (res) {
+        var attachments = res.rows.map(function (row, i) {
+          var doc = row.doc;
+          if (i % 2 === 1) {
+            delete doc._attachments['foo.png'].revpos;
+            return doc._attachments['foo.png'];
+          }
+          return null;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          if (i % 2 === 0) {
+            return null;
+          }
+          return {
+            "content_type": "image/png",
+            stub: true,
+            "digest": iconDigests[i],
+            length: iconLengths[i]
+          };
+        }));
+      });
+    });
+
+    it('#2771 allDocs() 5, no atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        var doc = {
+          _id: i.toString()
+        };
+        docs.push(doc);
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({include_docs: true, attachments: true});
+      }).then(function (res) {
+        res.rows.should.have.length(5);
+        res.rows.forEach(function (row) {
+          should.exist(row.doc);
+          should.not.exist(row.doc._attachments);
+        });
+        return db.allDocs({include_docs: true});
+      }).then(function (res) {
+        res.rows.should.have.length(5);
+        res.rows.forEach(function (row) {
+          should.exist(row.doc);
+          should.not.exist(row.doc._attachments);
+        });
+      });
+    });
+
+    it('#2771 allDocs() 6, no docs', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        var doc = {
+          _id: i.toString()
+        };
+        docs.push(doc);
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({
+          include_docs: true,
+          attachments: true,
+          keys: []
+        });
+      }).then(function (res) {
+        res.rows.should.have.length(0);
+        return db.allDocs({include_docs: true, keys: []});
+      }).then(function (res) {
+        res.rows.should.have.length(0);
+      });
+    });
+
+    it('#2771 allDocs() 7, revisions and deletions', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = {
+        _id: 'doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'Zm9vYmFy' // 'foobar'
+          }
+        }
+      };
+      var rev;
+      return db.put(doc).then(function () {
+        return db.allDocs({keys: ['doc'], attachments: true, include_docs: true});
+      }).then(function (res) {
+        var doc = res.rows[0].doc;
+        doc._attachments['foo.txt'].data.should.equal('Zm9vYmFy');
+        rev = doc._rev;
+        doc._attachments['foo.txt'] = {
+          content_type: 'text/plain',
+          data: 'dG90bw=='
+        }; // 'toto'
+        return db.put(doc);
+      }).then(function () {
+        return db.allDocs({keys: ['doc'], attachments: true, include_docs: true});
+      }).then(function (res) {
+        var doc = res.rows[0].doc;
+        doc._attachments['foo.txt'].data.should.equal('dG90bw==');
+        return db.remove(doc);
+      }).then(function (res) {
+        rev = res.rev;
+        return db.allDocs({keys: ['doc'], attachments: true, include_docs: true});
+      }).then(function (res) {
+        // technically CouchDB sets this to null, but we won't adhere strictly to that
+        should.not.exist(res.rows[0].doc);
+        delete res.rows[0].doc;
+        res.rows.should.deep.equal([
+          {
+            id: "doc",
+            key: "doc",
+            value: {
+              rev: rev,
+              deleted: true
+            }
+          }
+        ]);
+      });
+    });
+
+    it('#2771 allDocs() 8, empty attachment', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put(binAttDoc2).then(function () {
+        return db.allDocs({key: binAttDoc2._id, include_docs: true});
+      }).then(function (res) {
+        var doc = res.rows[0].doc;
+        delete doc._attachments["foo.txt"].revpos;
+
+        // because of libicu vs. ascii
+        var digest = doc._attachments["foo.txt"].digest;
+        var validDigests = [
+          'md5-1B2M2Y8AsgTpgAmY7PhCfg==',
+          'md5-cCkGbCesb17xjWYNV0GXmg=='
+        ];
+        validDigests.indexOf(digest).should.not.equal(-1,
+          'expected ' + digest  + ' to be in: ' +
+          JSON.stringify(validDigests));
+        delete doc._attachments["foo.txt"].digest;
+        delete doc._attachments["foo.txt"].digest;
+        doc._attachments.should.deep.equal({
+          "foo.txt": {
+            "content_type": "text/plain",
+            "stub": true,
+            length: 0
+          }
+        });
+        return db.allDocs({
+          key: binAttDoc2._id,
+          include_docs: true,
+          attachments: true
+        });
+      }).then(function (res) {
+        var doc = res.rows[0].doc;
+        doc._attachments['foo.txt'].content_type.should.equal(
+          binAttDoc2._attachments['foo.txt'].content_type);
+        doc._attachments['foo.txt'].data.should.equal(
+          binAttDoc2._attachments['foo.txt'].data);
+      });
+    });
+
     it('No length for non-stubs', function () {
       var db = new PouchDB(dbs.name);
       return db.put(binAttDoc).then(function () {
