@@ -109,6 +109,27 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test basic pull replication with funny ids', function (done) {
+      var docs = [
+        {_id: '4/5', integer: 0, string: '0'},
+        {_id: '3&2', integer: 1, string: '1'},
+        {_id: '1>0', integer: 2, string: '2'}
+      ];
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      remote.bulkDocs({docs: docs}, function (err, results) {
+        db.replicate.from(dbs.remote, function (err, result) {
+          result.ok.should.equal(true);
+          result.docs_written.should.equal(docs.length);
+          db.info(function (err, info) {
+            info.update_seq.should.equal(3, 'update_seq');
+            info.doc_count.should.equal(3, 'doc_count');
+            done();
+          });
+        });
+      });
+    });
+
     it('pull replication with many changes + a conflict (#2543)', function () {
       var db = new PouchDB(dbs.remote);
       var remote = new PouchDB(dbs.remote);
