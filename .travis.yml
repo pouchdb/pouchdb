@@ -56,6 +56,7 @@ env:
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
+  - CLIENT=saucelabs:chrome:32 COMMAND=test # roughly corresponds to Android 4.4
   - CLIENT=saucelabs:chrome:37 COMMAND=test
   - CLIENT=saucelabs:chrome ADAPTERS=websql COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
