@@ -44,15 +44,14 @@ In many cases, the most practical solution to the 409 problem is to simply re-tr
 
 ```js
 function upsert(db, docId, deltaFunc) {
-  return db.get(docId, function (err, doc) {
-    if (err) {
-      if (err.status !== 404) {
-        // some error other than "not found"
-        return reject(err);
-      }
-      doc = {_id : docId};
+  return db.get(docId).catch(function (err) {
+    if (err.status !== 404) {
+      // some error other than "not found"
+      throw err;
     }
-    fulfill(tryAndPut(db, deltaFunc(doc), deltaFunc));
+    return {_id : docId}; // default doc
+  }).then(function (doc) {
+    return tryAndPut(db, deltaFunc(doc), deltaFunc);
   });
 }
 
@@ -82,7 +81,7 @@ upsert(db, 'my_id', delta).then(function () {
   // success!
 }).catch(function (err) {
   // error (not a 404 or 409)
-})
+});
 ```
 
 This code is simple and easy to use.
