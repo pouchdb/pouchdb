@@ -466,6 +466,21 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('update with invalid rev', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post({test: 'somestuff'}, function (err, info) {
+        db.put({
+          _id: info.id,
+          _rev: 'undefined',
+          another: 'test'
+        }, function (err, info2) {
+          should.exist(err);
+          err.message.should.equal('Invalid rev format');
+          done();
+        });
+      });
+    });
+
     it('Doc validation', function (done) {
       var bad_docs = [
         {'_zing': 4},

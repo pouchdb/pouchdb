@@ -16,12 +16,17 @@ describe('test.http.js', function () {
 
   it('Create a pouch without DB setup', function (done) {
     var instantDB;
-    PouchDB.destroy(dbs.name, function () {
-      instantDB = new PouchDB(dbs.name, { skipSetup: true });
-      instantDB.post({ test: 'abc' }, function (err, info) {
-        should.exist(err);
-        err.name.should.equal('not_found', 'Skipped setup of database');
-        done();
+    testUtils.isCouchDB(function (isCouchDB) {
+      if (!isCouchDB) {
+        return done();
+      }
+      PouchDB.destroy(dbs.name, function () {
+        instantDB = new PouchDB(dbs.name, { skipSetup: true });
+        instantDB.post({ test: 'abc' }, function (err, info) {
+          should.exist(err);
+          err.name.should.equal('not_found', 'Skipped setup of database');
+          done();
+        });
       });
     });
   });
