@@ -25,6 +25,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
       var randomizer = Math.random();
 
       t.test('setup', function (t) {
+        opts.size = 3000;
         db = new PouchDB('test' + randomizer, opts);
         testCase.setup(db, function (err, res) {
           setupObj = res;

@@ -28,7 +28,7 @@ module.exports = function (PouchDB, opts) {
     {
       name: 'temp-views',
       assertions: 1,
-      iterations: 10,
+      iterations: 1,
       setup: function (db, callback) {
         var tasks = [];
         for (var i = 0; i < 100; i++) {
