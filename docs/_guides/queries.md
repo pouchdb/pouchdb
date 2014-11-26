@@ -193,7 +193,7 @@ The map/reduce API is complex. Part of this problem will be resolved when the mo
 
 1. Avoid the `query()` API altogether if you can. You'd be amazed how much you can do with just `allDocs()`. (In fact, under the hood, the `query()` API is simply implemented on top of `allDocs()`!)
 2. If your data is highly relational, try the [relational-pouch](https://github.com/nolanlawson/relational-pouch) plugin.
-1. Read the [12 tips for better code with PouchDB](2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html).
+1. Read the [12 tips for better code with PouchDB](/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html).
 
 Related API documentation
 --------
