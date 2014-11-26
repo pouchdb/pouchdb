@@ -5,13 +5,13 @@
 // use query parameter pluginFile if present,
 // eg: test.html?pluginFile=memory.pouchdb.js
 var preferredAdapters = window.location.search.match(/[?&]adapters=([^&]+)/);
-var scriptsToLoad = ['../dist/pouchdb.js'];
+var scriptsToLoad = ['../../dist/pouchdb.js'];
 if (preferredAdapters) {
   preferredAdapters = preferredAdapters[1].split(',');
   preferredAdapters.forEach(function (adapter) {
     if (adapter !== 'websql' && adapter !== 'idb') {
       // load from plugin
-      scriptsToLoad.push('../dist/pouchdb.' + adapter + '.js');
+      scriptsToLoad.push('../../dist/pouchdb.' + adapter + '.js');
     }
   });
 }
