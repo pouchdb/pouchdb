@@ -84,7 +84,7 @@ or you can run:
 
     $ npm run dev
 
-and open [http://127.0.0.1:8000/tests/test.html](http://127.0.0.1:8000/tests/test.html) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/test.html](http://localhost:8000/tests/performance/test.html).
+and open [http://127.0.0.1:8000/tests/integration/](http://127.0.0.1:8000/integration/) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/](http://localhost:8000/tests/performance/).
 
 ### Test Options
 

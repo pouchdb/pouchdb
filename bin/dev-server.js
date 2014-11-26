@@ -107,9 +107,9 @@ function startServers(callback) {
         query += key + '=' + encodeURIComponent(queryParams[key]);
       });
       console.log('Integration tests: ' + testRoot +
-        '/tests/test.html' + query);
+        '/tests/integration/' + query);
       console.log('Performance tests: ' + testRoot +
-        '/tests/performance/test.html');
+        '/tests/performance/');
       serversStarted = true;
       checkReady();
     });

@@ -35,7 +35,7 @@ var client = {
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
 var testUrl = testRoot +
-  (process.env.PERF ? 'performance/test.html' : 'test.html');
+  (process.env.PERF ? 'performance/index.html' : 'integration/index.html');
 var qs = {};
 
 var sauceClient;
