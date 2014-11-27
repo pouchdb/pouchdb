@@ -1575,6 +1575,62 @@ adapters.forEach(function (adapter) {
         });
       }, done);
     });
+    it('it handles a bunch of individual changes in live replication',
+      function (done) {
+      var db = new PouchDB(dbs.name);
+      var len = 80;
+      var called = 0;
+      var changes = db.changes({live: true});
+      changes.on('change', function () {
+        called++;
+        if (called === len) {
+          changes.cancel();
+        }
+      }).on('error', done).on('complete', function () {
+        done();
+      });
+      var i = -1;
+      function after() {
+        db.listeners('destroyed').should.have.length.lessThan(5);
+      }
+      while (++i < len) {
+        db.post({}).then(after).catch(done);
+      }
+
+    });
+
+    it('changes-filter without filter', function (done) {
+      var docs1 = [
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {_id: '3', integer: 3},
+      ];
+      var docs2 = [
+        {_id: '4', integer: 4},
+        {_id: '5', integer: 5},
+        {_id: '6', integer: 6},
+        {_id: '7', integer: 7},
+      ];
+      var db = new PouchDB(dbs.name);
+      var count = 0;
+      db.bulkDocs({ docs: docs1 }, function (err, info) {
+        var changes = db.changes({
+          complete: function (err, result) {
+            result.status.should.equal('cancelled');
+            done();
+          },
+          onChange: function (change) {
+            count += 1;
+            if (count === 8) {
+              changes.cancel();
+            }
+          },
+          live: true
+        });
+        db.bulkDocs({ docs: docs2 });
+      });
+    });
   });
 });
 
