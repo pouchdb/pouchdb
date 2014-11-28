@@ -1,5 +1,5 @@
 {
-    "launch_path": "/tests/test.html",
+    "launch_path": "/tests/integration/index.html",
     "installs_allowed_from": [
         "*"
     ],

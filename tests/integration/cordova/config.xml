@@ -7,6 +7,6 @@
     <author email="daleharvey@arandomurl.com" href="http://pouchdb.com">
       The PouchDB Team
     </author>
-    <content src="tests/test.html" />
+    <content src="tests/integration/index.html" />
     <access origin="*" />
 </widget>
