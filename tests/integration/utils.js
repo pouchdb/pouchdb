@@ -359,7 +359,7 @@ testUtils.cleanUpCors = function (dburl, callback_) {
 };
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
-  global.PouchDB = require('../lib');
+  global.PouchDB = require('../../lib');
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 
@@ -380,7 +380,7 @@ if (typeof module !== 'undefined' && module.exports) {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
     testDir = testDir.slice(-1) === '/' ? testDir : testDir + '/';
     global.PouchDB.prefix = testDir + global.PouchDB.prefix;
-    require('../lib/adapters/leveldb').use_prefix = true;
+    require('../../lib/adapters/leveldb').use_prefix = true;
     require('bluebird').onPossiblyUnhandledRejection(function (e, promise) {
       throw e;
     });

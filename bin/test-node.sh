@@ -16,17 +16,17 @@ elif [ ! $COVERAGE ]; then
     ./node_modules/.bin/mocha \
         $BAIL_OPT \
         --timeout $TIMEOUT \
-        --require=./tests/node.setup.js \
+        --require=./tests/integration/node.setup.js \
         --reporter=$REPORTER \
         --grep=$GREP \
-        tests/test.*.js
+        tests/integration/test.*.js
 else
     ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \
         $BAIL_OPT \
         --timeout $TIMEOUT \
-        --require=./tests/node.setup.js \
+        --require=./tests/integration/node.setup.js \
         --reporter=$REPORTER \
         --grep=$GREP \
-        tests/test.*.js
+        tests/integration/test.*.js
 fi
 
