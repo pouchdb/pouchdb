@@ -1129,6 +1129,47 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3026 bulkDocs - many docs with same att', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var docs = [];
+      // post many docs with the same attachment, then
+      // delete all but one and compact. then check that
+      // the attachment is still known
+      for (var i = 0; i < 30; i++) {
+        docs.push({
+          _id: i.toString(),
+          _attachments: {
+            'foo.txt': {
+              data: 'YQ==',
+              content_type: 'text/plain'
+            }
+          }
+        });
+      }
+      var idToKeep = '5';
+      return db.bulkDocs(docs).then(function (infos) {
+        docs.forEach(function (doc, i) {
+          doc._rev = infos[i].rev;
+          doc._deleted = true;
+        });
+        docs = docs.filter(function (doc) {
+          return doc._id !== idToKeep;
+        });
+        return db.bulkDocs(docs);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        return db.get(idToKeep);
+      }).then(function (doc) {
+        // attachment should still be known
+        return db.post({
+          _attachments: {
+            'foo.txt' : doc._attachments['foo.txt']
+          }
+        });
+      });
+    });
+
     //
     // AUTO-COMPACTION TESTS FOLLOW
     // http adapters need not apply!
