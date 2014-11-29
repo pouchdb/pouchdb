@@ -1,8 +1,11 @@
 #!/bin/bash
+set -e
+set -x
 
 CWD=$(pwd)
 
 # Install deps
+sudo apt-get update
 sudo apt-get --no-install-recommends -y install \
     build-essential \
     ca-certificates \
@@ -24,7 +27,8 @@ sudo cp ./rebar /usr/local/bin
 cd ..
 git clone https://github.com/apache/couchdb.git ~/couchdb
 cd ~/couchdb
-./configure && make
+./configure
+make
 
 # All done, run a cluster
 python dev/run &
