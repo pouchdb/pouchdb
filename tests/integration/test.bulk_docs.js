@@ -369,6 +369,35 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3062 bulkDocs with staggered seqs', function () {
+      return new PouchDB(dbs.name).then(function (db) {
+        var docs = [];
+        for (var i = 10; i <= 20; i++) {
+          docs.push({ _id: 'doc-' + i});
+        }
+        return db.bulkDocs({docs: docs}).then(function (infos) {
+          docs.forEach(function (doc, i) {
+            doc._rev = infos[i].rev;
+          });
+          var docsToUpdate = docs.filter(function (doc, i) {
+            return i % 2 === 1;
+          });
+          docsToUpdate.reverse();
+          return db.bulkDocs({docs: docsToUpdate});
+        }).then(function (infos) {
+          infos.map(function (x) {
+            return {id: x.id, error: !!x.error, rev: (typeof x.rev)};
+          }).should.deep.equal([
+            { error: false, id: 'doc-19', rev: 'string'},
+            { error: false, id: 'doc-17', rev: 'string'},
+            { error: false, id: 'doc-15', rev: 'string'},
+            { error: false, id: 'doc-13', rev: 'string'},
+            { error: false, id: 'doc-11', rev: 'string'}
+          ]);
+        });
+      });
+    });
+
     it('Testing successive new_edits to the same doc, different content',
       function (done) {
 
