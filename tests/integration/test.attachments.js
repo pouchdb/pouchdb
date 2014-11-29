@@ -198,6 +198,276 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3074 non-live changes()', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString(),
+          _attachments: {
+            'foo.png': {
+              data: icons[i],
+              content_type: 'image/png'
+            }
+          }
+        });
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({include_docs: true, attachments: true});
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "foo.png": {
+              "content_type": "image/png",
+              "data": icon,
+              "digest": iconDigests[i]
+            }
+          };
+        }), 'when attachments=true');
+        return db.changes({include_docs: true});
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments['foo.png'];
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "content_type": "image/png",
+            stub: true,
+            "digest": iconDigests[i],
+            length: iconLengths[i]
+          };
+        }), 'when attachments=false');
+        return db.changes({attachments: true});
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=true but include_docs=false');
+        });
+        return db.changes();
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=false and include_docs=false');
+        });
+      });
+    });
+
+    it('#3074 live changes()', function () {
+
+      var db = new PouchDB(dbs.name);
+
+      function liveChangesPromise(opts) {
+        opts.live = true;
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var retChanges = {results: []};
+          var changes = db.changes(opts)
+            .on('change', function (change) {
+              retChanges.results.push(change);
+              if (retChanges.results.length === 5) {
+                changes.cancel();
+                resolve(retChanges);
+              }
+            }).on('error', reject);
+        });
+      }
+
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString(),
+          _attachments: {
+            'foo.png': {
+              data: icons[i],
+              content_type: 'image/png'
+            }
+          }
+        });
+      }
+      return db.bulkDocs(docs).then(function () {
+        return liveChangesPromise({
+          include_docs: true,
+          attachments: true
+        });
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "foo.png": {
+              "content_type": "image/png",
+              "data": icon,
+              "digest": iconDigests[i]
+            }
+          };
+        }), 'when attachments=true');
+        return liveChangesPromise({include_docs: true});
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          delete doc._attachments['foo.png'].revpos;
+          return doc._attachments['foo.png'];
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return {
+            "content_type": "image/png",
+            stub: true,
+            "digest": iconDigests[i],
+            length: iconLengths[i]
+          };
+        }), 'when attachments=false');
+        return liveChangesPromise({attachments: true});
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=true but include_docs=false');
+        });
+        return liveChangesPromise({});
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=false and include_docs=false');
+        });
+      });
+    });
+
+    it('#3074 non-live changes(), no attachments', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString()
+        });
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({include_docs: true, attachments: true});
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          return !!doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return false;
+        }), 'when attachments=true');
+        return db.changes({include_docs: true});
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          return !!doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return false;
+        }), 'when attachments=false');
+        return db.changes({attachments: true});
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=true but include_docs=false');
+        });
+        return db.changes();
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=false and include_docs=false');
+        });
+      });
+    });
+
+    it('#3074 live changes(), no attachments', function () {
+
+      var db = new PouchDB(dbs.name);
+
+      function liveChangesPromise(opts) {
+        opts.live = true;
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var retChanges = {results: []};
+          var changes = db.changes(opts)
+            .on('change', function (change) {
+              retChanges.results.push(change);
+              if (retChanges.results.length === 5) {
+                changes.cancel();
+                resolve(retChanges);
+              }
+            }).on('error', reject);
+        });
+      }
+
+      var docs = [];
+      for (var i = 0; i < 5; i++) {
+        docs.push({
+          _id: i.toString()
+        });
+      }
+      return db.bulkDocs(docs).then(function () {
+        return liveChangesPromise({
+          include_docs: true,
+          attachments: true
+        });
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          return !!doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return false;
+        }), 'when attachments=true');
+        return liveChangesPromise({include_docs: true});
+      }).then(function (res) {
+        var attachments = res.results.sort(function (left, right) {
+          return left.id < right.id ? -1 : 1;
+        }).map(function (change) {
+          var doc = change.doc;
+          return !!doc._attachments;
+        });
+        attachments.should.deep.equal(icons.map(function (icon, i) {
+          return false;
+        }), 'when attachments=false');
+        return liveChangesPromise({attachments: true});
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=true but include_docs=false');
+        });
+        return liveChangesPromise({});
+      }).then(function (res) {
+        res.results.should.have.length(5);
+        res.results.forEach(function (row) {
+          should.not.exist(row.doc,
+            'no doc when attachments=false and include_docs=false');
+        });
+      });
+    });
+
     it('#2771 allDocs() 1, single attachment', function () {
       var db = new PouchDB(dbs.name);
       return db.put(binAttDoc).then(function () {
