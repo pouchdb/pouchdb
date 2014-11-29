@@ -101,6 +101,18 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('local docs - remove missing', function () {
+      var db = new PouchDB(dbs.name);
+      return db.remove({
+        _id: '_local/foo',
+        _rev: '1-fake'
+      }).then(function () {
+        throw new Error('should not be here');
+      }, function (err) {
+        err.name.should.be.a('string');
+      });
+    });
+
     it('local docs - put after put w/ deleted:true', function () {
       var db = new PouchDB(dbs.name);
       var doc = {_id: '_local/foo'};
