@@ -109,7 +109,8 @@ adapters.forEach(function (adapter) {
       }).then(function () {
         throw new Error('should not be here');
       }, function (err) {
-        err.name.should.be.a('string');
+        err.error.should.equal('not_found');
+        err.status.should.equal(404);
       });
     });
 
@@ -172,6 +173,7 @@ adapters.forEach(function (adapter) {
         should.not.exist(doc);
       }).catch(function (err) {
         err.name.should.equal('not_found');
+        err.status.should.equal(404);
       });
     });
 
@@ -181,7 +183,11 @@ adapters.forEach(function (adapter) {
       return db.put(doc).then(function (res) {
         should.not.exist(res);
       }).catch(function (err) {
-        err.name.should.be.a('string');
+        // CouchDB's error in this case really makes no
+        // sense - it's a 500 with "unknown_error" as the
+        // reason. So whatever.
+        err.error.should.be.a('string');
+        should.exist(err.status);
       });
     });
 
@@ -193,7 +199,8 @@ adapters.forEach(function (adapter) {
       }).then(function (res) {
         should.not.exist(res);
       }).catch(function (err) {
-        err.name.should.be.a('string');
+        err.error.should.equal('conflict');
+        err.status.should.equal(409);
       });
     });
 
@@ -208,7 +215,8 @@ adapters.forEach(function (adapter) {
       }).then(function (res) {
         should.not.exist(res);
       }).catch(function (err) {
-        err.name.should.be.a('string');
+        err.error.should.equal('conflict');
+        err.status.should.equal(409);
       });
     });
   });
