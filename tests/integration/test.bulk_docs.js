@@ -476,6 +476,106 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3062 fix _bulk_seq ordering, error response', function () {
+
+      var db = new PouchDB(dbs.name);
+
+      var aRev;
+      var cRev;
+
+      return db.put({
+        _id: 'a'
+      }).then(function (res) {
+        aRev = res.rev;
+        return db.put({
+          _id: 'c'
+        });
+      }).then(function (res) {
+        cRev = res.rev;
+
+        return db.bulkDocs([
+          {
+            _id: 'c'
+          },
+          {
+            _id: 'a',
+            _rev: aRev
+          },
+          {
+            _id: 'c',
+            _rev: cRev
+          },
+          {
+            _id: 'c',
+            _rev: '1-fake'
+          },
+          {
+            _id: 'b'
+
+          },
+          {
+            _id: 'a'
+          }
+        ]);
+      }).then(function (res) {
+        res = res.map(function (x) {
+          if (x.error) {
+            return {
+              status: x.status,
+              message: !!x.message,
+              error: x.error,
+              id: x.id,
+              ok: !!x.ok
+            };
+          } else {
+            return {
+              id: x.id,
+              rev: x.rev.substring(0, 2),
+              ok: !!x.ok
+            };
+          }
+        });
+        res.should.deep.equal([
+          {
+            "status": 409,
+            "message": true,
+            "error": 'conflict',
+            "id": "c",
+            "ok": false
+          },
+          {
+            "id": "a",
+            "rev": "2-",
+            "ok": true
+          },
+          {
+            "id": "c",
+            "rev": "2-",
+            "ok": true
+          },
+          {
+            "status": 409,
+            "message": true,
+            "error": 'conflict',
+            "id": "c",
+            "ok": false
+          },
+          {
+            "id": "b",
+            "rev": "1-",
+            "ok": true
+          },
+          {
+            "status": 409,
+            "message": true,
+            "error": 'conflict',
+            "id": "a",
+            "ok": false
+          }
+        ]);
+      });
+    });
+
     it('Deletion with new_edits=false', function () {
 
       var db = new PouchDB(dbs.name);
