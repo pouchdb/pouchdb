@@ -526,13 +526,13 @@ adapters.forEach(function (adapter) {
               error: x.error,
               id: x.id,
               ok: !!x.ok
-            }
+            };
           } else {
             return {
               id: x.id,
               rev: x.rev.substring(0, 2),
               ok: !!x.ok
-            }
+            };
           }
         });
         res.should.deep.equal([
