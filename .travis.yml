@@ -45,6 +45,9 @@ env:
   - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
   - SERVER_ADAPTER=memory LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
 
+  # Test against pouchdb-express-router
+  - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
+
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
