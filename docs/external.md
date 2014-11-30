@@ -20,6 +20,10 @@ Plugin for CouchDB's authentication system.
 
 Collation utilities, so you can use complex keys as doc IDs.
 
+#### [Crypto Pouch](https://github.com/calvinmetcalf/crypto-pouch)
+
+Encrypt a PouchDB/CouchDB database.
+
 #### [Pouch Dat](https://github.com/calvinmetcalf/pouch-dat)
 
 Replicate from PouchDB to Dat. 
