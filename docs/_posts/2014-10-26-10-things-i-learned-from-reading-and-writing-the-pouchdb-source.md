@@ -387,6 +387,8 @@ db.createObjectStore('employees').createIndex('id', 'id', {unique: true});
 
 Better hope you choose the right one the first time! Otherwise you may get a constraint error when you don't expect one, or vice versa.
 
+**Edit:** As pointed out by [Simon Friis Vindum](https://twitter.com/paldepind/status/539012069061033984), you can use `add()` instead of `put()` to get a constraint error with keyPaths. Here's [a live example](http://bl.ocks.org/nolanlawson/c9a4673830de2b185b8b). Thanks for the tip!
+
 ### 10. CouchDB influenced IndexedDB influenced LevelDB influenced...
 
 Databases are not designed in a vacuum, and the more I learn about this stuff, the more I find that everything is related somehow.
