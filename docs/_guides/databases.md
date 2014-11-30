@@ -110,6 +110,21 @@ This is the raw IndexedDB representation of your PouchDB, so it may be a little 
 
 In Safari, the `kittens` database will be under *WebSQL* instead of *IndexedDB*.
 
+### Debug mode
+
+You can also enable debug logging by doing:
+
+```js
+PouchDB.debug.enable('*');
+```
+
+And then disable it by doing:
+
+```js
+PouchDB.debug.disable();
+```
+
+
 Deleting your local database
 ----------------
 
@@ -134,6 +149,7 @@ Related API documentation
 --------
 
 * [new PouchDB() (constructor)](/api.html#create_database)
+* [Debug mode](/api.html#debug_mode)
  
 Next
 -------

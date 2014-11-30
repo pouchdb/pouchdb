@@ -1115,4 +1115,39 @@ PouchDB.plugin({
 new PouchDB('foobar').sayMyName(); // prints "My name is foobar"
 {% endhighlight %}
 
+{% include anchor.html title="Debug mode" hash="debug_mode"%}
+
+PouchDB uses the [debug](https://www.npmjs.org/package/debug) module for fine-grained debug output.
+
+To enable debug mode, just call:
+
+{% highlight js %}
+PouchDB.debug.enable('*');
+{% endhighlight %}
+
+In your browser console, you should then see something like this:
+
+<img alt="colored log output" style="max-width: 700px;" src="static/img/debug_mode.png"/>
+
+In Node.js, you can also set a command-line flag:
+
+{% highlight bash %}
+DEBUG=pouchdb:* node myscript.js
+{% endhighlight %}
+
+You can also enable debugging of specific modules. Currently we only have `pouchb:api` (API-level calls) and `pouchdb:http`  (HTTP requests):
+
+{% highlight js %}
+PouchDB.debug.enable('pouchdb:api'); // or
+PouchDB.debug.enable('pouchdb:http');
+{% endhighlight %}
+
+These settings are saved to the browser's LocalStorage. So to disable them, you must call:
+
+{% highlight js %}
+PouchDB.debug.disable();
+{% endhighlight %}
+
+Your users won't see debug output unless you explicitly call `PouchDB.debug.enable()` within your application code.
+
 [event emitter]: http://nodejs.org/api/events.html#events_class_events_eventemitter
