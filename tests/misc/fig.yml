@@ -1,0 +1,4 @@
+couchdb:
+  image: klaemo/couchdb:1.6.1
+  ports:
+    - "15984:5984"
