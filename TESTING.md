@@ -1,15 +1,20 @@
 Running PouchDB Tests
 --------------------------------------
 
-The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can configure this by sending the `COUCH_HOST` env var.
-
- * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
+The PouchDB test suite expects an instance of CouchDB running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on http://127.0.0.1:5984, you can configure this by sending the `COUCH_HOST` env var.
 
 ### Node Tests
+
+Given that you have [installed a CouchDB server](#installing-a-couchdb-server).
 
 Run all tests with:
 
     $ npm test
+
+If your CouchDB server listen on a different host or port,
+you need to point the tests to the right `COUCH_HOST`:
+
+    $ COUCH_HOST=http://127.0.0.1:15984 npm test
 
 ### Browser Tests
 
@@ -185,3 +190,25 @@ Or even make the `preferredAdapters` list any crazy thing you want:
     http://localhost:8000/tests/test.html?adapters=websql,memory,idb,localstorage
 
 Keep in mind that `preferredAdapters` only applies to non-http, non-https adapters.
+
+### Installing a CouchDB server
+
+Regular install
+---------------------------
+
+See the [official CouchDB documentation](http://docs.couchdb.org/en/1.6.1/install/index.html) for a guide on how to install CouchDB.
+
+Docker install
+-----------------------------
+
+Don't have a CouchDB installed on your machine? Don't want one? Let's use [docker](https://www.docker.com/)
+and [fig](http://www.fig.sh/).
+
+1. [Install Docker](https://docs.docker.com/installation/#installation)
+2. [Install Fig](http://www.fig.sh/install.html)
+3. Run `fig -f tests/misc/fig.yml up -d` from PouchDB project root folder to download and run a CouchDB server in docker
+4. Check with `fig -f tests/misc/fig.yml ps` that `couchdb` is running and listen on `0.0.0.0:15984`
+5. Run the test suite with: `COUCH_HOST=http://127.0.0.1:15984 npm test`
+
+Now everytime you want to run the test suite, you just need to:
+    $ fig -f tests/misc/fig.yml start
