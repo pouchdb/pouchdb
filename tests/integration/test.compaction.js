@@ -705,7 +705,6 @@ adapters.forEach(function (adapter) {
           }
         }, {
           _id: 'fubar',
-          _deleted: true,
           _rev: '3-a3',
           _revisions: { start: 3, ids: [ 'a3', 'a2', 'a1' ] },
           _attachments: {
@@ -1126,6 +1125,70 @@ adapters.forEach(function (adapter) {
             err.status.should.equal(412);
           });
         }));
+      });
+    });
+
+    it('#3092 atts should be ignored when _deleted - bulkDocs', function () {
+      // now that we've established md5sum collisions,
+      // we can use that to detect true attachment replacement
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = { _id: 'doc1',};
+      return db.put(doc).then(function (info) {
+        doc._rev = info.rev;
+        doc._deleted = true;
+        doc._attachments = {
+          'att1.txt': {
+            data: PouchDB.utils.btoa('1'),
+            content_type: 'application/octet-stream'
+          }
+        };
+        return db.bulkDocs([doc]);
+      }).then(function () {
+        return db.post({
+          _attachments: {
+            'baz.txt' : {
+              stub: true,
+              digest: 'md5-xMpCOKC5I4INzFCab3WEmw==',
+              content_type: 'application/octet-stream'
+            }
+          }
+        }).then(function () {
+          throw new Error('shouldn\'t have gotten here');
+        }, function (err) {
+          err.status.should.equal(412);
+        });
+      });
+    });
+
+    it('#3091 atts should be ignored when _deleted - put', function () {
+      // now that we've established md5sum collisions,
+      // we can use that to detect true attachment replacement
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var doc = { _id: 'doc1'};
+      return db.put(doc).then(function (info) {
+        doc._rev = info.rev;
+        doc._deleted = true;
+        doc._attachments = {
+          'att1.txt': {
+            data: PouchDB.utils.btoa('1'),
+            content_type: 'application/octet-stream'
+          }
+        };
+        return db.put(doc);
+      }).then(function () {
+        return db.post({
+          _attachments: {
+            'baz.txt' : {
+              stub: true,
+              digest: 'md5-xMpCOKC5I4INzFCab3WEmw==',
+              content_type: 'application/octet-stream'
+            }
+          }
+        }).then(function () {
+          throw new Error('shouldn\'t have gotten here');
+        }, function (err) {
+          err.status.should.equal(412);
+        });
       });
     });
 
