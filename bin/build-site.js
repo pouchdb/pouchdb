@@ -45,7 +45,7 @@ function buildJekyll(path) {
 if (!process.env.BUILD) {
   watchGlob('**', buildJekyll);
   buildJekyll();
-  http_server.createServer({root: '_site'}).listen(4000);
+  http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://0.0.0.0:4000');
 } else {
   execSync('jekyll build');
