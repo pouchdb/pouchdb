@@ -1127,7 +1127,7 @@ PouchDB.debug.enable('*');
 
 In your browser console, you should then see something like this:
 
-<img alt="colored log output" style="max-width: 700px;" src="static/img/debug_mode.png"/>
+<img alt="colored log output" class="img-responsive" src="static/img/debug_mode.png"/>
 
 In Node.js, you can also set a command-line flag:
 
@@ -1149,5 +1149,13 @@ PouchDB.debug.disable();
 {% endhighlight %}
 
 Your users won't see debug output unless you explicitly call `PouchDB.debug.enable()` within your application code.
+
+{% include anchor.html title="Version" hash="version"%}
+
+To check the current version of PouchDB that's in use call:
+
+{% highlight js %}
+PouchDB.version;
+{% endhighlight %}
 
 [event emitter]: http://nodejs.org/api/events.html#events_class_events_eventemitter
