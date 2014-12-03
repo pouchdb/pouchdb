@@ -124,7 +124,7 @@ function myMapFunction(doc) {
     if (doc.name === 'Pikachu') {
       emit('Pika pi!');
     } else {
-      emit(name);
+      emit(doc.name);
     }
   }
 }
