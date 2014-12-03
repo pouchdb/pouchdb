@@ -39,11 +39,9 @@ For mobile applications, you can use PouchDB within [PhoneGap](http://phonegap.c
 
 {% include anchor.html class="h3" title="How much data can PouchDB store?" hash="data_limits" %}
 
-In **Firefox**, PouchDB uses IndexedDB, which will ask the user if data can be stored the first time it is attempted, then every 50MB after. The amount that can be stored is unlimited.
+In **Firefox**, PouchDB uses IndexedDB. Though Firefox has no upper limit besides disk space, if your application wishes to store more than 50MB locally, Firefox will [ask the user](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) to confirm that this is okay.
 
-**Chrome** calculates the amount of available storage on the user's hard drive and [uses that to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary). 
-
-**Opera** should work the same as Chrome, since it's based on Blink.
+IndexedDB is also used for storage in **Chrome**. Chrome determines the amount of storage left available on the user's hard drive and uses [that to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary). Opera 15+ shares the Chromium / Blink codebase, and behaves similarly.
 
 **Internet Exporer 10+** has a hard 250MB limit.
 
