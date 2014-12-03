@@ -1,5 +1,6 @@
 [PouchDB](http://pouchdb.com/) - The Javascript Database that Syncs
 ==================================================
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/pouchdb/pouchdb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 PouchDB was written to help web developers build applications that work as well offline as well as they do online, applications save data locally so the user can use all the features of an app even while offline and synchronise the data between clients so they have up to date data wherever they go.
 
