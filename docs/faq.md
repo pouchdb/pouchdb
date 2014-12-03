@@ -24,13 +24,11 @@ PouchDB is one of multiple projects that implement the CouchDB protocol and thes
 
 ### Browsers have storage limitations, how much data can PouchDB store?
 
-In Firefox PouchDB uses IndexedDB, this will ask the user if data can be stored the first it is attempted then every 50MB after, the amount that can be stored is not limited.
+In Firefox, PouchDB uses IndexedDB. Though Firefox has no upper limit besides disk space, if your application wishes to store more than 50MB locally, Firefox will [ask the user](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) to confirm that this is okay.
 
-Chrome calculates the amount of storage left available on the users hard drive and uses [that to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary).
+IndexedDB is also used for storage in Chrome. Chrome determines the amount of storage left available on the user&#8217;s hard drive and uses [that to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary). Opera 15+ shares a codebase Chromium / Blink, and behaves similarly. 
 
-Mobile Safari on iOS has a hard 50MB limit, desktop Safari will prompt users wanting to store more than 5MB up to a limit of 500MB.
-
-Opera has no known limit.
+Mobile Safari on iOS has a hard 50MB limit. Safari &le;7 will prompt the user if an application requests more than 5MB of data, up to a limit of 500MB. 
 
 Internet Exporer 10 has a hard 250MB limit.
 
