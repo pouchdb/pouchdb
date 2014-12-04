@@ -30,7 +30,7 @@ can trace their lineage back to CouchDB: [**Couchbase**](http://couchbase.com) a
 
 However, all three of these databases share the same **CouchDB sync protocol**. This means that PouchDB can sync with either one of them, and you can always swap out one database for another. You're never locked in.
 
-In a sense, these databases are like competiting phone companies, and the CouchDB sync protocol is the underlying telephony infrastructure.
+In a sense, these databases are like competing phone companies, and the CouchDB sync protocol is the underlying telephony infrastructure.
 
 CouchDB's one-two punch: HTTP and sync
 ----------
