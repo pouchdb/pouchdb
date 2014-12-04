@@ -69,7 +69,8 @@
     "phantomjs": "^1.9.7-5",
     "browserify": "^6.1.0",
     "watchify": "^2.0.0",
-    "derequire": "^1.2.0"
+    "derequire": "^1.2.0",
+    "http-proxy": "^1.7.1"
   },
   "scripts": {
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
@@ -103,7 +104,8 @@
     "./lib/version.js": "./lib/version-browser.js",
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
     "bluebird": "lie",
-    "leveldown": "level-js"
+    "leveldown": "level-js",
+    "http-proxy": false
   },
   "browserify": {
     "transform": [
