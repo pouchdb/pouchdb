@@ -101,5 +101,56 @@ In Chrome apps, you'll see the warning "window.localStorage is not available in 
 
 Are you using a webserver to host and run your code? This error can be caused by running your script/file locally using the `file:///` setting in Firefox, since Firefox does not [allow access to IndexedDB locally](https://bugzilla.mozilla.org/show_bug.cgi?id=643318). You can use the SimpleHTTPServer to deploy your script by running `python -m SimpleHTTPServer` from the directory containing the script, or use the Apache webserver and then access the script by using `http://localhost/{path_to_your_script}`.
 
+{% include anchor.html class="h3" title="DOM Exception 18 in Android pre-Kitkat WebView" hash="android_pre_kitkat" %}
+
+This applies to hybrid apps designed to run in Android pre-Kitkat (i.e. before 4.4).
+
+If you are directly using a `WebView` and not using Cordova/PhoneGap, you will probably either run into an error where PouchDB silently fails or you see `Error: SECURITY_ERR: DOM Exception 18` in the console. As a sanity test, you can run this JavaScript:
+
+```js
+openDatabase('mydatabase', 1, 'mydatabase', 5000000, function (db) { console.log('it works!'); });
+```
+
+If you see "it works" in the console, then everything's peachy. Otherwise there are a few things you have to do.
+
+First, make sure Web SQL is enabled on your `WebView` in the first place using [setDatabaseEnabled](http://developer.android.com/reference/android/webkit/WebSettings.html#setDatabaseEnabled%28boolean%29):
+
+```java
+myWebView.getSettings().setDatabaseEnabled(true);
+```
+
+Second, specify a path for the database. Yes, you need to do this, even though it's deprecated in Kitkat:
+
+```java
+String databasePath = getContext().getApplicationContext().getDir(
+  "database", Context.MODE_PRIVATE).getPath();
+webView.getSettings().setDatabasePath(databasePath);
+```
+
+Third, you'll need to set an `onExceededDatabaseQuota` handler. Yes, it's also deprecated in Kitkat. Yes, you still need to do it.
+
+```java
+webView.setWebChromeClient(new WebChromeClient() {
+
+  @Override
+  public void onExceededDatabaseQuota(String url, String databaseIdentifier, long currentQuota, long estimatedSize,
+                                      long totalUsedQuota, WebStorage.QuotaUpdater quotaUpdater) {
+    quotaUpdater.updateQuota(estimatedSize * 2);
+  }
+});
+```
+
+If you skip any one of these three steps, then you will get the `DOM Exception 18` error. You need to do all three.
+
+Alternatively, you can also load the `WebView` with a fake `http://` URL, but this may cause other errors when you try to fetch files based on a relative path:
+
+```java
+webView.loadDataWithBaseURL("http://www.example.com", 
+    htmlContent, 
+    "text/html", 
+    "utf-8", 
+    null);
+```
+
 [es5shim]: https://github.com/es-shims/es5-shim
 [sqlite]: https://github.com/brodysoft/Cordova-SQLitePlugin

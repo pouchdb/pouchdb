@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.pouchdb.tests" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>PouchDB Test Runner</name>
+    <description>
+      Runs the unit tests suite for the PouchDB project on Cordova.
+    </description>
+    <author email="daleharvey@arandomurl.com" href="http://pouchdb.com">
+      The PouchDB Team
+    </author>
+    <content src="tests/integration/index.html" />
+    <access origin="*" />
+</widget>

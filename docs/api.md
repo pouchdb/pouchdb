@@ -410,6 +410,7 @@ All options default to `false` unless otherwise specified.
   * `options.attachments`: Include attachments.
 * `options.descending`: Reverse the order of the output documents.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
+* `options.doc_ids`: Only show changes for docs with these ids (array of strings).
 * `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'now' if you want only new changes.
 * `options.live`: Uses the  `_longpoll_` feed. 
 * `options.limit`: Limit the number of results to this number.
@@ -504,7 +505,7 @@ All options default to `false` unless otherwise specified.
 
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.query_params`: Query params sent to the filter function.
-* `options.doc_ids`: Only replicate docs with these ids.
+* `options.doc_ids`: Only replicate docs with these ids (array of strings).
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.since`: Replicate changes after the given sequence number.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
@@ -632,15 +633,15 @@ For any further details, please further to [Replication](api.html#replication).
 {% include anchor.html title="Save an attachment" hash="save_attachment" %}
 
 {% highlight js %}
-db.putAttachment(docId, attachmentId, rev, doc, type, [callback]);
+db.putAttachment(docId, attachmentId, rev, attachment, type, [callback]);
 {% endhighlight %}
 
 Attaches a binary object to a document. Most of PouchDB's API deals with JSON, but if you're dealing with large binary data (such as PNGs), you may incur a performance or storage penalty if you simply include them as base64- or hex-encoded strings. In these cases, you can store the binary data as an attachment. For details, see the [CouchDB documentation on attachments](https://wiki.apache.org/couchdb/HTTP_Document_API#Attachments).
 
 #### Example Usage:
 {% highlight js %}
-var doc = new Blob(["It's a God awful small affair"]);
-db.putAttachment('a', 'text', rev, doc, 'text/plain', function(err, res) {})
+var attachment = new Blob(['Is there life on Mars?']);
+db.putAttachment('a', 'text', rev, attachment, 'text/plain', function(err, res) {})
 {% endhighlight %}
 
 #### Example Response:
@@ -655,10 +656,10 @@ db.putAttachment('a', 'text', rev, doc, 'text/plain', function(err, res) {})
 Within Node, you must use a `Buffer` instead of a `Blob`:
 
 {% highlight js %}
-var doc = new Buffer("It's a God awful small affair");
+var attachment = new Buffer('Is there life on Mars?');
 {% endhighlight %}
 
-For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).  If you need a shim for older browsers that don't support the `Blob` constructor, you can use [this one](https://gist.github.com/nolanlawson/10340255).
+For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).  If you need a shim for older browsers that don't support the `Blob` constructor, you can use [blob-util](https://github.com/nolanlawson/blob-util).
 
 ### Save an inline attachment
 
@@ -745,7 +746,7 @@ All options default to `false` unless otherwise specified.
   * The name of a view in an existing design document (e.g. `'myview'` or `'mydesigndoc/myview'`).
 * `options.reduce`: Reduce function, or the string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.  Defaults to `false` (no reduce).
     * Tip: if you're not using a built-in, [you're probably doing it wrong](http://youtu.be/BKQ9kXKoHS8?t=865s).
-    * On local databases, `rereduce` will always be `false` (since it's single-node).
+    * PouchDB will always call your reduce function with rereduce == false. As for CouchDB, refer to the [CouchDB documentation](http://docs.couchdb.org/en/1.6.1/couchapp/views/intro.html).
 * `options.include_docs`: Include the document in each row in the `doc` field.
     - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
@@ -1114,5 +1115,40 @@ PouchDB.plugin({
 });
 new PouchDB('foobar').sayMyName(); // prints "My name is foobar"
 {% endhighlight %}
+
+{% include anchor.html title="Debug mode" hash="debug_mode"%}
+
+PouchDB uses the [debug](https://www.npmjs.org/package/debug) module for fine-grained debug output.
+
+To enable debug mode, just call:
+
+{% highlight js %}
+PouchDB.debug.enable('*');
+{% endhighlight %}
+
+In your browser console, you should then see something like this:
+
+<img alt="colored log output" style="max-width: 700px;" src="static/img/debug_mode.png"/>
+
+In Node.js, you can also set a command-line flag:
+
+{% highlight bash %}
+DEBUG=pouchdb:* node myscript.js
+{% endhighlight %}
+
+You can also enable debugging of specific modules. Currently we only have `pouchb:api` (API-level calls) and `pouchdb:http`  (HTTP requests):
+
+{% highlight js %}
+PouchDB.debug.enable('pouchdb:api'); // or
+PouchDB.debug.enable('pouchdb:http');
+{% endhighlight %}
+
+These settings are saved to the browser's LocalStorage. So to disable them, you must call:
+
+{% highlight js %}
+PouchDB.debug.disable();
+{% endhighlight %}
+
+Your users won't see debug output unless you explicitly call `PouchDB.debug.enable()` within your application code.
 
 [event emitter]: http://nodejs.org/api/events.html#events_class_events_eventemitter

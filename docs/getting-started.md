@@ -10,7 +10,7 @@ In this tutorial we will write a basic Todo web application based on [TodoMVC](h
 
 If you get stuck or just prefer video tutorials, this guide is available in video format:
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/-Z7UF2TuSp0" frameborder="0" allowfullscreen></iframe>
+{% include iframe.html src="//www.youtube.com/embed/-Z7UF2TuSp0" %}
 
 {% include anchor.html class="h3" title="Download Assets" hash="download" %}
 
@@ -98,12 +98,10 @@ We dont want to refresh the page to see new items. More typically you would upda
 {% highlight js %}
 var remoteCouch = false;
 
-db.info(function(err, info) {
-  db.changes({
-    since: info.update_seq,
-    live: true
-  }).on('change', showTodos);
-});
+db.changes({
+  since: 'now',
+  live: true
+}).on('change', showTodos);
 
 // We have to create a new todo document and enter it in the database
 function addTodo(text) {

@@ -20,9 +20,21 @@ Plugin for CouchDB's authentication system.
 
 Collation utilities, so you can use complex keys as doc IDs.
 
+#### [Crypto Pouch](https://github.com/calvinmetcalf/crypto-pouch)
+
+Encrypt a PouchDB/CouchDB database.
+
 #### [Pouch Dat](https://github.com/calvinmetcalf/pouch-dat)
 
 Replicate from PouchDB to Dat. 
+
+#### [Pouch Datalog](https://github.com/dahjelle/pouch-datalog)
+
+Implement the Datalog query language on PouchDB, with indexes.
+
+#### [PouchDB Dump](https://github.com/nolanlawson/pouchdb-dump-cli) and [PouchDB Load](https://github.com/nolanlawson/pouchdb-load)
+
+Dump a PouchDB/CouchDB to a file, then load it wholesale. Designed for fast initial replication.
 
 #### [Delta Pouch](https://github.com/redgeoff/delta-pouch)
 
@@ -94,19 +106,41 @@ A standalone CouchDB-style REST interface server to PouchDB.
 
 An express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
 
-{% include anchor.html title="MV* Adapters" hash="MV* Adapters" %}
+{% include anchor.html title="Framework adapters" hash="framework_adapters" %}
+
+### Angular
+
+#### [angular-pouchdb](https://github.com/wspringer/angular-pouchdb)
+
+Wrapper for using PouchDB within Angular.js.
+
+#### [Factoryng - AngularJS Adapter](https://github.com/redgeoff/factoryng)
+
+An all-in-one AngularJS factory that wraps PouchDB and Delta Pouch.
+
+#### [ngPouch](https://github.com/jrhicks/ngPouch)
+
+Angular service to persist remote connection settings and maintain continuous replication.
+
+#### [ng-pouchdb](https://github.com/danielzen/ng-pouchdb)
+
+AngularJS binding for PouchDB.
+
+### Backbone
 
 #### [Backbone PouchDB](https://github.com/jo/backbone-pouch)
 
 Backbone PouchDB Sync Adapter.
 
+### Ember
+
 #### [Ember Pouch](https://github.com/nolanlawson/ember-pouch)
 
 Ember Data adapter for PouchDB/CouchDB.
 
-#### [AngularJS PouchDB Support](https://github.com/wspringer/angular-pouchdb)
+#### [ember-pouchdb](https://github.com/taras/ember-pouchdb)
 
-Wrapper for using PouchDB within Angular.js.
+Promisy PouchDB wrapper for Ember.js
 
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
@@ -119,10 +153,14 @@ Android adapter with a native Java interface to PouchDB.
 
 {% include anchor.html title="Tools" hash="Tools" %}
 
-#### [Revision Tree Visualizer](http://neojski.github.io/visualizeRevTree)
+#### [blob-util](https://github.com/nolanlawson/blob-util)
 
-A tool drawing revision tree of a couchdb document. You can see what is a conflict, which revisions are deleted and which is winning. ([Github](https://github.com/neojski/visualizeRevTree))
+Not strictly PouchDB-related, but a useful set of shims and utility functions for working with Blobs in the browser.
 
 #### [Puton](http://puton.jit.su/)
 
 A bookmarklet for inspecting PouchDB databases within the browser. ([Github](http://github.com/ymichael/puton))
+
+#### [Revision Tree Visualizer](http://neojski.github.io/visualizeRevTree)
+
+A tool drawing revision tree of a couchdb document. You can see what is a conflict, which revisions are deleted and which is winning. ([Github](https://github.com/neojski/visualizeRevTree))

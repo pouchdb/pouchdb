@@ -12,13 +12,13 @@ PouchDB is a free open-source project, written in JavaScript by these [wonderful
 
 PouchDB uses various backends so it can work across different browsers and in Node.js. It uses IndexedDB in Firefox/Chrome/Opera/IE, WebSQL in Safari and most mobile browsers, and LevelDB in Node.js. It is currently tested and fully supported in:
 
- * Firefox latest stable (v29)
- * Chrome latest stable (v34)
- * Desktop Safari latest stable (v7)
- * Internet Explorer v10+
- * Opera latest stable (v21)
- * Android 4.3+
- * iOS Safari latest stable (v7.1)
+ * Firefox latest stable (v29+)
+ * Chrome latest stable (v34+)
+ * Desktop Safari latest stable (v6+)
+ * Internet Explorer (v10+)
+ * Opera latest stable (v21+)
+ * Android 4.0+
+ * iOS Safari latest stable (v7.1+)
  * [Node.js](http://nodejs.org/)
 
 PouchDB is experimental on Android 2.x and various mobile browsers and environments including [Apache Cordova](http://cordova.apache.org/). It is known to work, but you may run into issues. As we resolve these issues we will update the fully supported list.
@@ -35,13 +35,15 @@ PouchDB is designed to be a minimal library that is suitable for mobile devices,
 <script src="pouchdb-{{ site.version }}.min.js"></script>
 {% endhighlight %}
 
-##### Downloads
+#### Downloads
 
 Latest and greatest: [pouchdb-{{ site.version }}.min.js][latest]
 
+PouchDB is also hosted on [jsdelivr](http://www.jsdelivr.com/#!pouchdb) and [cdnjs](https://cdnjs.com/libraries/pouchdb).
+
 For past releases and changelog, check out the [Github releases page](https://github.com/daleharvey/pouchdb/releases).
 
-##### Node.js
+#### Node.js
 
 If you are using Node.js then run
 
@@ -51,4 +53,4 @@ For an HTTP API to PouchDB check out [PouchDB Server](https://github.com/nick-th
 
 {% include anchor.html class="h3" title="Using PouchDB" hash="using_pouchdb" %}
 
-To get started using PouchDB, check out our [Getting Started Tutorial](getting-started.html) and the [API Documentation](api.html).
+To get started using PouchDB, check out our [Getting Started Tutorial](getting-started.html), [Guides](/guides/) and the [API Documentation](api.html).
