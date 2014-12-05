@@ -1192,6 +1192,16 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3111 compact should return a falsy value', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.compact(function (err, result) {
+        should.not.exist(err);
+        should.not.exist(result);
+
+        done();
+      });
+    });
+
     //
     // AUTO-COMPACTION TESTS FOLLOW
     // http adapters need not apply!
