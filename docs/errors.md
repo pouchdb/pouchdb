@@ -34,13 +34,13 @@ $ add-cors-to-couchdb http://me.iriscouch.com \
 
 You can check that CORS is now enabled by visiting [http://localhost:5984/_utils/config.html](http://localhost:5984/_utils/config.html) in your browser. You should see something like this:
 
-![CORS settings in CouchDB](static/img/cors_in_couchdb.png)
+{% include img.html src="cors_in_couchdb.png" alt="CORS settings in CouchDB" %}
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
 
 On iOS and Safari, if you expect your app to use more than 5MB of space, you will need to request the space up-front from the user.  In certain versions, notably Safari/iOS 7, you can never request more than what the user originally grants you.
 
-![Safari storage quota popup](static/img/safari_popup.png)
+{% include img.html src="safari_popup.png" alt="Safari storage quota popup" %}
 
 To get around this, when you create your PouchDB, use the `opts.size` option for the expected _maximum_ size of the database in MB.  Valid increments are 10, 50, 100, 500, and 1000.  For instance, if you request 50, then Safari will show a popup saying "allow 50MB?" but if you request 51, then Safari will show a popup saying "allow 100MB?".
 

@@ -13,7 +13,7 @@ While working on and researching improvements for automated testing in PouchDB, 
 
 Every pull request and check-in to the PouchDB repository goes through the following test run:
 
-<a href="https://travis-ci.org/pouchdb/pouchdb/builds/40528881"><img src='/static/img/travis-screenshot.png' title='Travis Passing Screenshot' alt='Travis Passing Screenshot' style='width:100%'/></a>
+{% include img.html href="https://travis-ci.org/pouchdb/pouchdb/builds/40528881" src="travis-screenshot.png" alt="Travis Passing Screenshot" %}
 
 This combination of tests takes around 6 hours running time and covers the minimal options we have found to be confident in not introducing regressions. We test PouchDB against plain CouchDB 1.6.0 on the most popular modern browsers and Node.js, as well as testing alternative backends, servers and options (LocalStorage, PouchDB Server, auto-compaction, etc.). Ideally we would run a full matrix of configurations, however we are hitting the upper limit on how long our tests take to run, so we have picked the ones most likely to surface regressions.
 

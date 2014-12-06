@@ -45,7 +45,7 @@ User agent sniffing! Yes, we should be ashamed of ourselves. But here's why we d
 
 For the recored, here's what the dreaded Safari popup looks like:
 
-<img src='/static/img/safari_popup.png' alt='annoying Safari popup'/>
+{% include img.html src="safari_popup.png" alt="annoying Safari popup" %}
 
 So that's why we sniff for Android and only bump the size to 5000000 in those cases. In all other cases, we set it to 1.
 

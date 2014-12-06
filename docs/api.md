@@ -1128,7 +1128,8 @@ PouchDB.debug.enable('*');
 
 In your browser console, you should then see something like this:
 
-<img alt="colored log output" style="max-width: 700px;" src="static/img/debug_mode.png"/>
+
+{% include img.html src="debug_mode.png" alt="Coloured Log Output" %}
 
 In Node.js, you can also set a command-line flag:
 

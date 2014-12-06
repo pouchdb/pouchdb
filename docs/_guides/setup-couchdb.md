@@ -71,7 +71,8 @@ Next, open up [http://localhost:5984/_utils/fauxton/](http://localhost:5984/_uti
 
 If you see a screen like the following, then you are ready to rock and roll with CouchDB:
 
-<img src="/static/img/fauxton.png" alt="Fauxton interface" style="width:100%;"/>
+
+{% include img.html src="fauxton.png" alt="Fauxton interface" %}
 
 Set up CORS
 -----

@@ -247,7 +247,7 @@ PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true});
 
 Then open up [http://localhost:5984/_utils](http://localhost:5984/_utils). Or if you want to try the new Fauxton API in CouchDB 1.5: [http://localhost:5984/_utils/fauxton/](http://localhost:5984/_utils/fauxton/). You'll get a nice interface that looks like this:
 
-<img src='/static/img/fauxton.png' title='Fauxton UI in PouchDB Server' alt='Fauxton UI in PouchDB Server' style='width:100%'/>
+{% include img.html src="fauxton.png" alt="Fauxton UI in PouchDB Server" %}
 
 And if you don't feel like installing CouchDB, you can install [PouchDB Server](https://github.com/pouchdb/pouchdb-server) instead:
 

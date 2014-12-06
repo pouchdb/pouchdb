@@ -104,7 +104,7 @@ When you create a local PouchDB, you can use the developer tools to see what the
 
 In Chrome, just choose *Overflow icon* &#9776; &#8594; *Tools* &#8594; *Developer Tools*. Then click the *Resources* tab, then *IndexedDB*, and you should see the following:
 
-<img src="/static/img/dev_tools.png" alt="Chrome Developer Tools" style="width:100%"/>
+{% include img.html src="dev_tools.png" alt="Chrome Developer Tools" %}
 
 This is the raw IndexedDB representation of your PouchDB, so it may be a little fine-grained compared to what PouchDB shows. However, it's great for quick debugging.
 
