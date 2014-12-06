@@ -144,7 +144,7 @@ Another shortcut we can use is the `putAttachment()` API, which simply modifies 
 
 {% include alert_start.html variant="info" %}
 
-<strong>Node.js</strong>: in Node.js, PouchDB uses <a href='http://nodejs.org/api/buffer.html'>Buffers</a> instead of Blobs. Otherwise, the same rules apply.
+In <strong>Node.js</strong>, PouchDB uses <a href='http://nodejs.org/api/buffer.html'>Buffers</a> instead of Blobs. Otherwise, the same rules apply.
 
 {% include alert_end.html %}
 
