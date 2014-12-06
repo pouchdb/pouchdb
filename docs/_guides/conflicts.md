@@ -5,9 +5,9 @@ title: Conflicts
 sidebar: guides_nav.html
 ---
 
-Conflicts are an unfortunate reality when dealing with distributed systems. And make no mistake: client-server *is* a distributed system.
+Conflicts are an unavoidable reality when dealing with distributed systems. And make no mistake: client-server *is* a distributed system.
 
-CouchDB and PouchDB differ from many other sync solutions, because they bring the issue of conflicts front-and-center. With PouchDB, how you handle conflicts is entirely under your control.
+CouchDB and PouchDB differ from many other sync solutions, because they bring the issue of conflicts front-and-center. With PouchDB, conflict resolution is entirely under your control.
 
 Two types of conflicts
 -------
@@ -45,8 +45,7 @@ In many cases, the most practical solution to the 409 problem is to simply re-tr
 ```js
 function upsert(db, docId, deltaFunc) {
   return db.get(docId).catch(function (err) {
-    if (err.status !== 404) {
-      // some error other than "not found"
+    if (err.status !== 404) { // some error other than "not found"
       throw err;
     }
     return {_id : docId}; // default doc
@@ -57,8 +56,7 @@ function upsert(db, docId, deltaFunc) {
 
 function tryAndPut(db, doc, deltaFunc) {
   return db.put(doc).catch(function (err) {
-    if (err.status !== 409) {
-      // some error other than "conflict"
+    if (err.status !== 409) { // some error other than "conflict"
       throw err;
     }
     return upsert(db, doc, deltaFunc);
@@ -88,9 +86,9 @@ This code is simple and easy to use.
 
 ### Non-immediate conflicts
 
-Imagine two PouchDB databases that have both gone offline. The two separate users each make modifications to the same document, and then come back online at the same time. They have both successfuly committed changes to the same document, and their local databases did not throw 409 errors. What happens then?
+Imagine two PouchDB databases have both gone offline. The two users each make modifications to the same document, and then come back online at the same time. They both committed changes to the same document, and their local databases did not throw 409 errors. What happens then?
 
-This the classic "conflict" scenario, and CouchDB handles it very elegantly. By default, a winning revision will be chosen arbitrarily, so unfortunately one user will lose their data. However, since the replication history is stored, you can always go back in time and respond to the conflict.
+This is the classic "conflict" scenario, and CouchDB handles it very elegantly. By default, CouchDB will choose an arbitrary winner based on a deterministic algorithm, which means both users will see the same winner once they're back online. However, since the replication history is stored, you can always go back in time to resolve the conflict.
 
 To detect if a document is in conflict, you use the `{conflicts: true}` option when you `get()` it.
 

@@ -62,11 +62,11 @@ Why must we dance this dance?
 
 A common question from new PouchDB/CouchDB users is: why do we have to deal with `_rev` at all? Why can't I just `put()` the document without providing a `_rev`?
 
-The answer is: because this is what enables sync to work so well. PouchDB asks for a little pain up-front with managing document revisions, so that later on down the line, syncing is effortless.
+The answer is: because `_rev`s are what makes sync work so well. PouchDB asks for a little upfront effort with managing document revisions, so that later on, sync is a breeze.
 
 In fact, you are probably already familiar with a system that forces you to go through a similar dance. This system is called [Git](http://www.git-scm.com/).
 
-PouchDB and CouchDB's document revision structure is very similar to Git's. In fact, each document's revision history is stored as a tree (exactly like Git), which allows you to handle conflicts in case any two databases get out of sync.
+PouchDB and CouchDB's document revision structure is very similar to Git's. In fact, each document's revision history is stored as a tree (exactly like Git), which allows you to handle conflicts when any two databases get out of sync.
 
 ```
 rev 3-a  rev 3-b
@@ -92,7 +92,7 @@ Conflicts will be discussed later in this guide. For now, you can think of revis
 Deleting documents
 -------
 
-Deleting documents is actually very simple. The document is not really deleted; it just gets a `_deleted` attribute added to it.
+When you `remove()` a document, it's not really deleted; it just gets a `_deleted` attribute added to it.
 
 That is, the database saves a tombstone at the end of the revision tree.
 
