@@ -1,5 +1,5 @@
 /* global PouchDB, PouchDBVersion110, PouchDBVersion200,
-   PouchDBVersion220, PouchDBVersion306 */
+   PouchDBVersion220, PouchDBVersion306, PouchDBVersion320 */
 'use strict';
 
 var scenarios = [
@@ -7,6 +7,7 @@ var scenarios = [
   'PouchDB v2.0.0',
   'PouchDB v2.2.0',
   'PouchDB v3.0.6',
+  'PouchDB v3.2.0',
   'websql'
 ];
 
@@ -39,6 +40,7 @@ describe('migration', function () {
           'PouchDB v2.0.0': PouchDBVersion200,
           'PouchDB v2.2.0': PouchDBVersion220,
           'PouchDB v3.0.6': PouchDBVersion306,
+          'PouchDB v3.2.0': PouchDBVersion320,
           PouchDB: PouchDB
         };
 
@@ -253,7 +255,10 @@ describe('migration', function () {
         });
       });
 
-      if ((scenario === 'PouchDB v2.2.0' || scenario === 'PouchDB v3.0.6')) {
+      var post220 = ['PouchDB v2.2.0', 'PouchDB v3.0.6', 'PouchDB v3.2.0']
+        .indexOf(scenario) !== -1;
+
+      if (post220) {
         it("Test persistent views don't require update", function (done) {
           if (skip) { return done(); }
           var oldPouch =
@@ -462,7 +467,10 @@ describe('migration', function () {
         });
       }
 
-      if (scenario === 'PouchDB v3.0.6') {
+      var post306 = ['PouchDB v3.0.6', 'PouchDB v3.2.0']
+        .indexOf(scenario) !== -1;
+
+      if (post306) {
         // attachments didn't really work until this release
         it('#2818 Testing attachments with compaction of dups', function () {
           if (skip) { return; }
@@ -873,6 +881,88 @@ describe('migration', function () {
               doc._attachments['att'].content_type.should.equal('image/png');
               doc._attachments['att'].data.should.equal(black1x1Png);
             });
+          });
+        });
+      }
+
+      if (scenario === 'PouchDB v3.2.0') {
+        it('#3136 Testing later winningSeqs', function () {
+          if (skip) {
+            return;
+          }
+
+          var tree = [
+            [
+              {
+                _id: 'foo',
+                _rev: '1-a',
+                _revisions: {start: 1, ids: ['a']}
+              }
+            ], [
+              {
+                _id: 'foo',
+                _rev: '2-b',
+                _revisions: {start: 2, ids: ['b', 'a']}
+              }
+            ], [
+              {
+                _id: 'bar',
+                _rev: '1-x',
+                _revisions: {start: 1, ids: ['x']}
+              }
+            ], [
+              {
+                _id: 'foo',
+                _rev: '2-c',
+                _deleted: true,
+                _revisions: {start: 2, ids: ['c', 'a']}
+              }
+            ]
+          ];
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          var chain = PouchDB.utils.Promise.resolve();
+          tree.forEach(function (docs) {
+            chain = chain.then(function () {
+              return oldPouch.bulkDocs(docs, {new_edits: false});
+            });
+          });
+
+          return chain.then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.changes({
+              include_docs: true,
+              style: 'all_docs'
+            });
+          }).then(function (result) {
+            // order don't matter
+            result.results.forEach(function (ch) {
+              ch.changes = ch.changes.sort(function (a, b) {
+                return a.rev < b.rev ? -1 : 1;
+              });
+            });
+            var expected = {
+              "results": [
+                {
+                  "seq": 3,
+                  "id": "bar",
+                  "changes": [{"rev": "1-x"}],
+                  "doc": {"_id": "bar", "_rev": "1-x"}
+                },
+                {
+                  "seq": 4,
+                  "id": "foo",
+                  "changes": [{"rev": "2-b"}, {"rev": "2-c"}],
+                  "doc": {"_id": "foo", "_rev": "2-b"}
+                }
+              ],
+              "last_seq": 4
+            };
+            result.should.deep.equal(expected);
           });
         });
       }
