@@ -1037,6 +1037,57 @@ adapters.forEach(function (adapter) {
       db.post({ test: 'adoc' });
     });
 
+    it('#3136 style=all_docs, right order', function () {
+
+      var db = new PouchDB(dbs.name);
+
+      var chain = PouchDB.utils.Promise.resolve();
+
+      var docIds = ['b', 'c', 'a', 'z', 'd', 'e'];
+
+      docIds.forEach(function (docId) {
+        chain = chain.then(function () {
+          return db.put({_id: docId});
+        });
+      });
+
+      return chain.then(function () {
+        return db.changes({style: 'all_docs'});
+      }).then(function (res) {
+        var ids = res.results.map(function (x) {
+          return x.id;
+        });
+        ids.should.deep.equal(docIds);
+      });
+    });
+
+    it('#3136 style=all_docs & include_docs, right order', function () {
+
+      var db = new PouchDB(dbs.name);
+
+      var chain = PouchDB.utils.Promise.resolve();
+
+      var docIds = ['b', 'c', 'a', 'z', 'd', 'e'];
+
+      docIds.forEach(function (docId) {
+        chain = chain.then(function () {
+          return db.put({_id: docId});
+        });
+      });
+
+      return chain.then(function () {
+        return db.changes({
+          style: 'all_docs',
+          include_docs: true
+        });
+      }).then(function (res) {
+        var ids = res.results.map(function (x) {
+          return x.id;
+        });
+        ids.should.deep.equal(docIds);
+      });
+    });
+
     it('changes-filter', function (done) {
       var docs1 = [
         {_id: '0', integer: 0},
