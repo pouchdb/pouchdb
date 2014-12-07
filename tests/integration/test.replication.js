@@ -547,6 +547,111 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#3128 Complicated conflicts', function () {
+      var db1 = new PouchDB(dbs.name);
+      var db2 = new PouchDB(dbs.remote);
+      var tree = [
+        [{_id: 'foo', _rev: '1-a', value: 'foo a'},
+          {_id: 'foo', _rev: '2-e', value: 'foo a', _deleted: true},
+          {_id: 'foo', _rev: '3-g', value: 'foo g'}],
+        [{_id: 'foo', _rev: '1-a', value: 'foo a'},
+          {_id: 'foo', _rev: '2-b', value: 'foo b'},
+          {_id: 'foo', _rev: '3-c', value: 'foo c'}],
+        [{_id: 'foo', _rev: '1-a', value: 'foo a'},
+          {_id: 'foo', _rev: '2-d', value: 'foo d'},
+          {_id: 'foo', _rev: '3-e', value: 'foo e'},
+          {_id: 'foo', _rev: '4-f', value: 'foo f'}]
+      ];
+
+      var chain = PouchDB.utils.Promise.resolve();
+      tree.forEach(function (docs) {
+        chain = chain.then(function() {
+          return db1.bulkDocs({
+            docs: docs,
+            new_edits: false
+          }).then(function () {
+            return db1.replicate.to(db2);
+          }).then(function () {
+            return db1.get('foo', {
+              open_revs: 'all',
+              revs: true,
+              conflicts: true
+            });
+          }).then(function (res1) {
+            var revs1 = res1.map(function (x) {
+              return x.ok._rev;
+            });
+            return db2.get('foo', {
+              open_revs: 'all',
+              revs: true,
+              conflicts: true
+            }).then(function (res2) {
+              var revs2 = res2.map(function (x) {
+                return x.ok._rev;
+              });
+              revs1.should.deep.equal(revs2, 'same revs');
+            });
+          });
+        });
+      });
+      return chain;
+    });
+
+    it('#3128 Complicated conflicts 2', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc = {_id: 'foo'};
+      var firstRev;
+
+      var chain = PouchDB.utils.Promise.resolve().then(function () {
+        return db.put(doc).then(function (info) {
+          firstRev = info.rev;
+        });
+      });
+
+      function addConflict(i) {
+        chain = chain.then(function () {
+          return db.bulkDocs({
+            docs: [{
+              _id: 'foo',
+              _rev: '2-' + i
+            }],
+            new_edits: false
+          });
+        });
+      }
+
+      for (var i = 0; i < 50; i++) {
+        addConflict(i);
+      }
+      return chain.then(function () {
+        var revs1;
+        var revs2;
+        return db.get('foo', {
+          conflicts: true,
+          revs: true,
+          open_revs: 'all'
+        }).then(function (res) {
+          revs1 = res.map(function (x) {
+            return x.ok._rev;
+          });
+          return db.replicate.to(remote);
+        }).then(function () {
+          return remote.get('foo', {
+            conflicts: true,
+            revs: true,
+            open_revs: 'all'
+          });
+        }).then(function (res) {
+          revs2 = res.map(function (x) {
+            return x.ok._rev;
+          });
+          revs1.should.deep.equal(revs2);
+        });
+      });
+    });
+
     it('Test checkpoint read only 3 :)', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
