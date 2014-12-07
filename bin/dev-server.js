@@ -11,6 +11,7 @@ var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
 var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
+var mkdirp = require('mkdirp');
 
 function derequire() {
   var out = new Buffer('');
@@ -53,6 +54,7 @@ var b = watchify(browserify({
   })).on('update', bundlePerfTests);
 
 function bundle(callback) {
+  mkdirp.sync('./dist');
   w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile))
   .on('finish', function () {
     console.log('Updated: ', outfile);
