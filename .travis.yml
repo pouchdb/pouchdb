@@ -20,13 +20,8 @@ before_script:
   - "sudo sed -i 's/^127\\.0\\.0\\.1.*$/127.0.0.1 localhost/' /etc/hosts"
 
     # Lets know what CouchDB we are playing with
-    # and make sure its logging debug
   - "curl -X GET http://127.0.0.1:5984/"
-  - "curl -X PUT http://127.0.0.1:5984/_config/log/level -d '\"debug\"'"
 
-
-after_failure:
-  - "curl -X GET http://127.0.0.1:5984/_log?bytes=1000000"
 
 script: npm run $COMMAND
 
