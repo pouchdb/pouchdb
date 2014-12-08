@@ -470,6 +470,42 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2543 excessive recursion with merging', function () {
+      var chain = PouchDB.utils.Promise.resolve();
+
+      var db = new PouchDB(dbs.name);
+
+      function addTask(batch) {
+        return function () {
+          var docs = [];
+          for (var i = 0; i < 50; i++) {
+            var hash = batch + 'a' +  i;
+            docs.push({
+              _id: 'foo',
+              _rev: '2-' + hash,
+              _revisions: {
+                start: 2,
+                ids: [hash, 'a']
+              }
+            });
+          }
+          return db.bulkDocs(docs, {new_edits: false});
+        };
+      }
+
+      chain = chain.then(function () {
+        return db.bulkDocs([{
+          _id: 'foo',
+          _rev: '1-a'
+        }], {new_edits: false});
+      });
+
+      for (var i = 0; i < 10; i++) {
+        chain = chain.then(addTask(i));
+      }
+      return chain;
+    });
+
     it('local conflicts', function (done) {
       if (testUtils.isCouchMaster()) {
         return done();
