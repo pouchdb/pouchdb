@@ -1,5 +1,4 @@
 'use strict';
-var commonUtils = require("../common-utils.js");
 describe('DB Setup', function () {
   it('we can find CouchDB with admin credentials', function (done) {
     PouchDB.ajax({ url: commonUtils.couchHost() + '/_session' },

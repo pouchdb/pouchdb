@@ -2,7 +2,6 @@
 /* jshint -W079 */
 'use strict';
 
-var commonUtils = require('../common-utils.js');
 var testUtils = {};
 
 function uniq(list) {
