@@ -14,7 +14,6 @@ module.exports = function (PouchDB, Promise) {
     this.batchSize = config.batchSize;
     this.maxSockets = config.maxSockets;
     this.iterations = config.iterations;
-    this.addedLatencyInMs = config.addedLatencyInMs;
     this.localPouches = [];
 
     return {
@@ -36,19 +35,6 @@ module.exports = function (PouchDB, Promise) {
           commonUtils.safeRandomDBName();
 
       self.remoteDB = new PouchDB(remoteCouchUrl, remoteDBOpts);
-
-      if (commonUtils.isBrowser()) {
-        self.proxyServer = null;
-        self.proxiedRemoteDB =
-          commonUtils.simulateNetworkLatencyInBrowser(remoteCouchUrl,
-            self.addedLatencyInMs, remoteDBOpts, PouchDB);
-      } else {
-        var proxyAndPouch =
-          commonUtils.simulateNetworkLatencyInNode(remoteCouchUrl,
-            self.addedLatencyInMs, remoteDBOpts, PouchDB);
-        self.proxyServer = proxyAndPouch.proxyServer;
-        self.proxiedRemoteDB = proxyAndPouch.proxiedRemoteDb;
-      }
 
       var docs = [],
         i,
@@ -93,10 +79,9 @@ module.exports = function (PouchDB, Promise) {
   PullRequestTestObject.prototype.test = function () {
     var self = this;
     return function (ignoreDB, itr, ignoreContext, done) {
-      var localDB = self.localPouches[itr],
-        remoteDB = self.proxiedRemoteDB;
+      var localDB = self.localPouches[itr];
 
-      PouchDB.replicate(remoteDB, localDB,
+      PouchDB.replicate(self.remoteDB, localDB,
         {live: false, batch_size: self.batchSize})
       .on('change', function (info) {
         log("replication - info - " + JSON.stringify(info));
@@ -115,14 +100,8 @@ module.exports = function (PouchDB, Promise) {
   PullRequestTestObject.prototype.tearDown = function () {
     var self = this;
     return function (ignoreDB, ignoreContext) {
-      var closeProxy =
-        self.proxyServer ?
-          Promise.promisifyAll(self.proxyServer).closeAsync() :
-          Promise.resolve(true);
-
-      return closeProxy.then(function () {
-        return self.remoteDB.destroy();
-      }).then(function () {
+      return self.remoteDB.destroy()
+      .then(function () {
         return Promise.all(
           self.localPouches.map(function (localPouch) {
             return localPouch.destroy();

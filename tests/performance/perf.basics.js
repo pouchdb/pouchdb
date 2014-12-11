@@ -148,7 +148,6 @@ module.exports = function (PouchDB, opts) {
     generations: 1,
     numberDocs: 1000,
     batchSize: 100,
-    addedLatencyInMs: 10,
     maxSockets: 15
   }));
 
@@ -158,7 +157,6 @@ module.exports = function (PouchDB, opts) {
     generations: 2,
     numberDocs: 1000,
     batchSize: 100,
-    addedLatencyInMs: 10,
     maxSockets: 15
   }));
 
