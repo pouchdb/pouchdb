@@ -1726,24 +1726,40 @@ adapters.forEach(function (adapter) {
         });
       }, done);
     });
+
     it('it handles a bunch of individual changes in live replication',
       function (done) {
       var db = new PouchDB(dbs.name);
       var len = 80;
       var called = 0;
+      var changesDone = false;
+      var changesWritten = 0;
       var changes = db.changes({live: true});
+
       changes.on('change', function () {
         called++;
         if (called === len) {
           changes.cancel();
         }
       }).on('error', done).on('complete', function () {
-        done();
+        changesDone = true;
+        maybeDone();
       });
+
       var i = -1;
-      function after() {
-        db.listeners('destroyed').should.have.length.lessThan(5);
+
+      function maybeDone() {
+        if (changesDone && changesWritten === len) {
+          done();
+        }
       }
+
+      function after() {
+        changesWritten++;
+        db.listeners('destroyed').should.have.length.lessThan(5);
+        maybeDone();
+      }
+
       while (++i < len) {
         db.post({}).then(after).catch(done);
       }
