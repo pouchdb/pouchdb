@@ -182,7 +182,8 @@ adapters.forEach(function (adapter) {
         var digest = doc._attachments["foo.txt"].digest;
         var validDigests = [
           "md5-qUUYqS41RhwF0TrCsTAxFg==",
-          "md5-aEI7pOYCRBLTRQvvqYrrJQ=="
+          "md5-aEI7pOYCRBLTRQvvqYrrJQ==",
+          "md5-jeLnIuUvK7d+6gya044lVA=="
         ];
         validDigests.indexOf(digest).should.not.equal(-1,
           'expected ' + digest  + ' to be in: ' +
@@ -480,7 +481,8 @@ adapters.forEach(function (adapter) {
         var digest = doc._attachments["foo.txt"].digest;
         var validDigests = [
           "md5-qUUYqS41RhwF0TrCsTAxFg==",
-          "md5-aEI7pOYCRBLTRQvvqYrrJQ=="
+          "md5-aEI7pOYCRBLTRQvvqYrrJQ==",
+          "md5-jeLnIuUvK7d+6gya044lVA=="
         ];
         validDigests.indexOf(digest).should.not.equal(-1,
           'expected ' + digest  + ' to be in: ' +
@@ -766,7 +768,8 @@ adapters.forEach(function (adapter) {
         var digest = doc._attachments["foo.txt"].digest;
         var validDigests = [
           'md5-1B2M2Y8AsgTpgAmY7PhCfg==',
-          'md5-cCkGbCesb17xjWYNV0GXmg=='
+          'md5-cCkGbCesb17xjWYNV0GXmg==',
+          'md5-3gIs+o2eJiHrXZqziQZqBA=='
         ];
         validDigests.indexOf(digest).should.not.equal(-1,
           'expected ' + digest  + ' to be in: ' +
@@ -1000,7 +1003,8 @@ adapters.forEach(function (adapter) {
               // both ascii and libicu
               var validDigests = [
                 'md5-1B2M2Y8AsgTpgAmY7PhCfg==',
-                'md5-cCkGbCesb17xjWYNV0GXmg=='
+                'md5-cCkGbCesb17xjWYNV0GXmg==',
+                'md5-3gIs+o2eJiHrXZqziQZqBA=='
               ];
               validDigests.indexOf(att.digest).should.be.above(-1);
               att.content_type.should.equal('text/plain');
@@ -1556,7 +1560,8 @@ adapters.forEach(function (adapter) {
                   var digest = doc._attachments["foo.txt"].digest;
                   var validDigests = [
                     "md5-qUUYqS41RhwF0TrCsTAxFg==",
-                    "md5-aEI7pOYCRBLTRQvvqYrrJQ=="
+                    "md5-aEI7pOYCRBLTRQvvqYrrJQ==",
+                    "md5-jeLnIuUvK7d+6gya044lVA=="
                   ];
                   validDigests.indexOf(digest).should.not.equal(-1,
                     'expected ' + digest  + ' to be in: ' +
