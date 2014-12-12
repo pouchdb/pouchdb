@@ -1264,47 +1264,58 @@ adapters.forEach(function (adapter) {
       var tree = [
         [
           {
-            _id: 'foo', _rev: '1-a',
+            _id: 'foo',
+            _rev: '1-a',
             _revisions: {start: 1, ids: ['a']}
           },
           {
-            _id: 'foo', _rev: '2-e', _deleted: true,
+            _id: 'foo',
+            _rev: '2-e',
+            _deleted: true,
             _revisions: {start: 2, ids: ['e', 'a']}
           },
           {
-            _id: 'foo', _rev: '3-g',
+            _id: 'foo',
+            _rev: '3-g',
             _revisions: {start: 3, ids: ['g', 'e', 'a']}
           }
         ],
         [
           {
-            _id: 'foo', _rev: '1-a',
+            _id: 'foo',
+            _rev: '1-a',
             _revisions: {start: 1, ids: ['a']}
           },
           {
-            _id: 'foo', _rev: '2-b',
+            _id: 'foo',
+            _rev: '2-b',
             _revisions: {start: 2, ids: ['b', 'a']}
           },
           {
-            _id: 'foo', _rev: '3-c',
+            _id: 'foo',
+            _rev: '3-c',
             _revisions: {start: 3, ids: ['c', 'b', 'a']}
           }
         ],
         [
           {
-            _id: 'foo', _rev: '1-a',
+            _id: 'foo',
+            _rev: '1-a',
             _revisions: {start: 1, ids: ['a']}
           },
           {
-            _id: 'foo', _rev: '2-d',
+            _id: 'foo',
+            _rev: '2-d',
             _revisions: {start: 2, ids: ['d', 'a']}
           },
           {
-            _id: 'foo', _rev: '3-h',
+            _id: 'foo',
+            _rev: '3-h',
             _revisions: {start: 3, ids: ['h', 'd', 'a']}
           },
           {
-            _id: 'foo', _rev: '4-f',
+            _id: 'foo',
+            _rev: '4-f',
             _revisions: {start: 4, ids: ['f', 'h', 'd', 'a']}
           }
         ]
@@ -1376,33 +1387,41 @@ adapters.forEach(function (adapter) {
       var tree = [
         [
           {
-            _id: 'foo', _rev: '1-a',
+            _id: 'foo',
+            _rev: '1-a',
             _revisions: {start: 1, ids: ['a']}
           },
           {
-            _id: 'foo', _rev: '2-e', _deleted: true,
+            _id: 'foo',
+            _rev: '2-e',
+            _deleted: true,
             _revisions: {start: 2, ids: ['e', 'a']}
           },
           {
-            _id: 'foo', _rev: '3-g',
+            _id: 'foo',
+            _rev: '3-g',
             _revisions: {start: 3, ids: ['g', 'e', 'a']}
           }
         ], [
           {
-            _id: 'foo', _rev: '1-a',
+            _id: 'foo',
+            _rev: '1-a',
             _revisions: {start: 1, ids: ['a']}
           },
           {
-            _id: 'foo', _rev: '2-b',
+            _id: 'foo',
+            _rev: '2-b',
             _revisions: {start: 2, ids: ['b', 'a']}
           },
           {
-            _id: 'foo', _rev: '3-c',
+            _id: 'foo',
+            _rev: '3-c',
             _revisions: {start: 3, ids: ['c', 'b', 'a']}
           },
         ], [
           {
-            _id: 'bar', _rev: '1-z',
+            _id: 'bar',
+            _rev: '1-z',
             _revisions: {start: 1, ids: ['z']}
           }
         ]
@@ -1451,7 +1470,7 @@ adapters.forEach(function (adapter) {
         var chain2 = PouchDB.utils.Promise.resolve();
 
         seqs.forEach(function (seq, i) {
-          chain2 = chain2.then(function() {
+          chain2 = chain2.then(function () {
             return db.changes({
               since: seq,
               style: 'all_docs'
