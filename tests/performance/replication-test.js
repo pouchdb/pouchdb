@@ -1,56 +1,41 @@
 'use strict';
 
 module.exports = function (PouchDB, Promise) {
-  var commonUtils = require('../common-utils.js'),
-    log = require('debug')('pouchdb:tests:performance');
 
-  var PullRequestTestObject = function (config) {
-    if (config.generations <= 0) {
-      throw new Error("generations must be > 0");
-    }
+  var NUM_DOCS = 1000;
+  var MAX_SOCKETS = 15;
+  var BATCH_SIZE = 1000;
 
-    this.generations = config.generations;
-    this.numberDocs = config.numberDocs;
-    this.batchSize = config.batchSize;
-    this.maxSockets = config.maxSockets;
-    this.iterations = config.iterations;
+  var commonUtils = require('../common-utils.js');
+  var log = require('debug')('pouchdb:tests:performance');
+
+  var PullRequestTestObject = function () {
     this.localPouches = [];
-
-    return {
-      name: config.name,
-      assertions: 1,
-      iterations: this.iterations,
-      setup: this.setup(),
-      test: this.test(),
-      tearDown: this.tearDown()
-    };
   };
 
-  PullRequestTestObject.prototype.setup = function () {
+  PullRequestTestObject.prototype.setup = function (itr, gens) {
     var self = this;
     return function (localDB, callback) {
-      var remoteDBOpts = {ajax: {pool: {maxSockets: self.maxSockets}}},
-        remoteCouchUrl =
-          commonUtils.couchHost() + "/" +
-          commonUtils.safeRandomDBName();
+      var remoteDBOpts = {ajax: {pool: {maxSockets: MAX_SOCKETS}}};
+      var remoteCouchUrl = commonUtils.couchHost() + "/" +
+        commonUtils.safeRandomDBName();
 
       self.remoteDB = new PouchDB(remoteCouchUrl, remoteDBOpts);
 
-      var docs = [],
-        i,
-        localOpts = {ajax: {timeout: 60 * 1000}};
+      var i;
+      var docs = [];
+      var localOpts = {ajax: {timeout: 60 * 1000}};
 
-      for (i = 0; i < self.iterations; ++i) {
+      for (i = 0; i < itr; ++i) {
         self.localPouches[i] = new PouchDB(commonUtils.safeRandomDBName());
       }
 
-      for (i = 0; i < self.numberDocs; i++) {
-        docs.push(
-          {
-            _id: commonUtils.createDocId(i),
-            foo: Math.random(),
-            bar: Math.random()
-          });
+      for (i = 0; i < NUM_DOCS; i++) {
+        docs.push({
+          _id: commonUtils.createDocId(i),
+          foo: Math.random(),
+          bar: Math.random()
+        });
       }
 
       var addGeneration = function (generationCount, docs) {
@@ -72,7 +57,7 @@ module.exports = function (PouchDB, Promise) {
           });
       };
 
-      return addGeneration(self.generations, docs).then(callback);
+      return addGeneration(gens, docs).then(callback);
     };
   };
 
@@ -80,9 +65,8 @@ module.exports = function (PouchDB, Promise) {
     var self = this;
     return function (ignoreDB, itr, ignoreContext, done) {
       var localDB = self.localPouches[itr];
-
       PouchDB.replicate(self.remoteDB, localDB,
-        {live: false, batch_size: self.batchSize})
+        {live: false, batch_size: BATCH_SIZE})
       .on('change', function (info) {
         log("replication - info - " + JSON.stringify(info));
       })
@@ -100,8 +84,7 @@ module.exports = function (PouchDB, Promise) {
   PullRequestTestObject.prototype.tearDown = function () {
     var self = this;
     return function (ignoreDB, ignoreContext) {
-      return self.remoteDB.destroy()
-      .then(function () {
+      return self.remoteDB.destroy().then(function () {
         return Promise.all(
           self.localPouches.map(function (localPouch) {
             return localPouch.destroy();

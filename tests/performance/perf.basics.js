@@ -2,13 +2,13 @@
 
 module.exports = function (PouchDB, opts) {
 
-  // need to use bluebird for promises everywhere, so we're comparing
-  // apples to apples
-  var Promise = require('bluebird'),
-      utils = require('./utils'),
-      PullRequestTestObject =
-        require('./pull.request.test.object.js')(PouchDB, Promise),
-      commonUtils = require('../common-utils.js');
+  var Promise = require('bluebird');
+  var utils = require('./utils');
+  var commonUtils = require('../common-utils.js');
+
+  var RepTest = require('./replication-test.js')(PouchDB, Promise);
+  var oneGen = new RepTest();
+  var twoGen = new RepTest();
 
   var testCases = [
     {
@@ -80,7 +80,11 @@ module.exports = function (PouchDB, opts) {
       setup: function (db, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
-          docs.push({_id: commonUtils.createDocId(i), foo: 'bar', baz: 'quux'});
+          docs.push({
+            _id: commonUtils.createDocId(i),
+            foo: 'bar',
+            baz: 'quux'
+          });
         }
         db.bulkDocs({docs: docs}, callback);
       },
@@ -139,26 +143,24 @@ module.exports = function (PouchDB, opts) {
                   }));
           }
         }
+    },
+    {
+      name: 'pull-replication-one-generation',
+      assertions: 1,
+      iterations: 1,
+      setup: oneGen.setup(1, 1),
+      test: oneGen.test(),
+      tearDown: oneGen.tearDown()
+    },
+    {
+      name: 'pull-replication-two-generation',
+      assertions: 1,
+      iterations: 1,
+      setup: twoGen.setup(1, 2),
+      test: twoGen.test(),
+      tearDown: twoGen.tearDown()
     }
   ];
-
-  testCases.push(new PullRequestTestObject({
-    name: "pull-replication-one-generation",
-    iterations: 1,
-    generations: 1,
-    numberDocs: 1000,
-    batchSize: 100,
-    maxSockets: 15
-  }));
-
-  testCases.push(new PullRequestTestObject({
-    name: "pull-replication-two-generations",
-    iterations: 1,
-    generations: 2,
-    numberDocs: 1000,
-    batchSize: 100,
-    maxSockets: 15
-  }));
 
   utils.runTests(PouchDB, 'basics', testCases, opts);
 };
