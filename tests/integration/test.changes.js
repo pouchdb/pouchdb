@@ -1154,6 +1154,7 @@ adapters.forEach(function (adapter) {
       return chain.then(function () {
         return db.changes();
       }).then(function (result) {
+        delete result.last_seq;
         result.should.deep.equal({
           "results": [
             {
@@ -1175,61 +1176,72 @@ adapters.forEach(function (adapter) {
               "changes": [{ "rev": "3-f"}
               ]
             }
-          ],
-          "last_seq": seqs[5]
+          ]
+          //, "last_seq": seqs[5]
         });
         return db.changes({limit: 0});
       }).then(function (result) {
+        delete result.last_seq;
         result.should.deep.equal({
           "results": [{
             "seq": seqs[2],
             "id": "gamma",
             "changes": [{"rev": "1-b"}]
-          }], "last_seq": seqs[2]
+          }]
+          //, "last_seq": seqs[2]
         }, '1:' + JSON.stringify(result));
         return db.changes({limit: 1});
       }).then(function (result) {
+        delete result.last_seq;
         result.should.deep.equal({
           "results": [{
             "seq": seqs[2],
             "id": "gamma",
             "changes": [{"rev": "1-b"}]
-          }], "last_seq": seqs[2]
+          }]
+          //, "last_seq": seqs[2]
         }, '2:' + JSON.stringify(result));
         return db.changes({limit: 2});
       }).then(function (result) {
+        delete result.last_seq;
         result.should.deep.equal({
           "results": [{
             "seq": seqs[2],
             "id": "gamma",
             "changes": [{"rev": "1-b"}]
-          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}],
-          "last_seq": seqs[3]
+          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}]
+          //, last_seq": seqs[3]
         }, '3:' + JSON.stringify(result));
         return db.changes({limit: 1, descending: true});
       }).then(function (result) {
+        delete result.last_seq;
         result.should.deep.equal({
           "results": [{
             "seq": seqs[5],
             "id": "beta",
             "changes": [{"rev": "3-f"}],
             "deleted": true
-          }], "last_seq": seqs[5]
+          }]
+          //, "last_seq": seqs[5]
         }, '4:' + JSON.stringify(result));
         return db.changes({limit: 2, descending: true});
       }).then(function (result) {
-        result.should.deep.equal({
+        delete result.last_seq;
+        var expected = {
           "results": [{
             "seq": seqs[5],
             "id": "beta",
             "changes": [{"rev": "3-f"}],
             "deleted": true
-          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}],
-          "last_seq": seqs[3]
-        }, '5:' + JSON.stringify(result));
+          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}]
+          //, "last_seq": seqs[3]
+        };
+        result.should.deep.equal(expected, '5:' + JSON.stringify(result) +
+        ', shoulda got: ' + JSON.stringify(expected));
         return db.changes({descending: true});
       }).then(function (result) {
-        result.should.deep.equal({
+        delete result.last_seq;
+        var expected = {
           "results": [{
             "seq": seqs[5],
             "id": "beta",
@@ -1239,8 +1251,11 @@ adapters.forEach(function (adapter) {
             "seq": seqs[2],
             "id": "gamma",
             "changes": [{"rev": "1-b"}]
-          }], "last_seq": seqs[2]
-        }, '6:' + JSON.stringify(result));
+          }]
+          //, "last_seq": seqs[2]
+        };
+        result.should.deep.equal(expected, '6:' + JSON.stringify(result) +
+        ', shoulda got: ' + JSON.stringify(expected));
       });
     });
 
@@ -1430,7 +1445,7 @@ adapters.forEach(function (adapter) {
               "changes": [{"rev": "1-z"}]}],
             "last_seq": seqs[3]
           },
-          {"results": [], "last_seq": 3}
+          {"results": [], "last_seq": seqs[3]}
         ];
 
         var chain2 = PouchDB.utils.Promise.resolve();
