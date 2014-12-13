@@ -16,7 +16,7 @@ or this one:
 
 > Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://[couchDBIP]:[couchDBPort]/[dbname]/?_nonce=[request hash]. This can be fixed by moving the resource to the same domain or enabling CORS
 
-it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same domain.
+it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same origin &#8212; the protocol (ex: _http://_, _https://_), domain, and port number must match. 
 
 You can enable CORS in CouchDB using `curl` or the Futon web interface, but we've saved you some time by making a Node script called [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb). Just run:
 
@@ -35,6 +35,12 @@ $ add-cors-to-couchdb http://me.iriscouch.com \
 You can check that CORS is now enabled by visiting [http://localhost:5984/_utils/config.html](http://localhost:5984/_utils/config.html) in your browser. You should see something like this:
 
 {% include img.html src="cors_in_couchdb.png" alt="CORS settings in CouchDB" %}
+
+{% include anchor.html class="h3" title="PouchDB throws a `No valid adapter found` error" hash="no_valid_adapter" %}
+
+Reading from/writing to a local database from an `iframe` with a different origin will cause PouchDB to throw a `No valid adapter found` error in Firefox. This is due to Firefox's IndexedDB implementation. 
+
+IndexedDB has a same-origin restriction. Read/write operations from another origin will always fail, but only Firefox triggers a `No valid adapter found` error. Chrome / Opera will instead throw an [`UnknownError`](#unknown_error_chrome). 
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
 
@@ -100,6 +106,12 @@ In Chrome apps, you'll see the warning "window.localStorage is not available in 
 {% include anchor.html class="h3" title="Error: UnknownError (Firefox)" hash="unknown_error_ff" %}
 
 Are you using a webserver to host and run your code? This error can be caused by running your script/file locally using the `file:///` setting in Firefox, since Firefox does not [allow access to IndexedDB locally](https://bugzilla.mozilla.org/show_bug.cgi?id=643318). You can use the SimpleHTTPServer to deploy your script by running `python -m SimpleHTTPServer` from the directory containing the script, or use the Apache webserver and then access the script by using `http://localhost/{path_to_your_script}`.
+
+{% include anchor.html class="h3" title="Error: UnknownError (Chrome / Opera)" hash="unknown_error_chrome" %}
+
+This can occur when attempting to read from or write to IndexedDB from a different origin. IndexedDB has a same-origin restriction. Attempting to write to the database associated with _http://example.com_ from an `iframe` served from _http://api.example.com_, for example, will fail. 
+
+In Firefox, PouchDB instead throws a [`No valid adapter found`](#no_valid_adapter) error.
 
 {% include anchor.html class="h3" title="DOM Exception 18 in Android pre-Kitkat WebView" hash="android_pre_kitkat" %}
 
