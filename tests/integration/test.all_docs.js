@@ -203,7 +203,9 @@ adapters.forEach(function (adapter) {
                 style: 'all_docs',
                 complete: function (err, changes) {
                   var result = changes.results[3];
-                  result.id.should.equal('3', 'changes are ordered');
+                  changes.results.map(function (x) { return x.id; })
+                    .should.deep.equal(['0', '1', '2', '3'],
+                      'changes are ordered');
                   result.changes.should.have
                     .length(3, 'correct number of changes');
                   result.doc._rev.should.equal(conflictDoc2._rev);

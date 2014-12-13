@@ -1037,6 +1037,456 @@ adapters.forEach(function (adapter) {
       db.post({ test: 'adoc' });
     });
 
+    it('#3136 style=all_docs, right order', function () {
+
+      var db = new PouchDB(dbs.name);
+
+      var chain = PouchDB.utils.Promise.resolve();
+
+      var docIds = ['b', 'c', 'a', 'z', 'd', 'e'];
+
+      docIds.forEach(function (docId) {
+        chain = chain.then(function () {
+          return db.put({_id: docId});
+        });
+      });
+
+      return chain.then(function () {
+        return db.changes({style: 'all_docs'});
+      }).then(function (res) {
+        var ids = res.results.map(function (x) {
+          return x.id;
+        });
+        ids.should.deep.equal(docIds);
+      });
+    });
+
+    it('#3136 style=all_docs & include_docs, right order', function () {
+
+      var db = new PouchDB(dbs.name);
+
+      var chain = PouchDB.utils.Promise.resolve();
+
+      var docIds = ['b', 'c', 'a', 'z', 'd', 'e'];
+
+      docIds.forEach(function (docId) {
+        chain = chain.then(function () {
+          return db.put({_id: docId});
+        });
+      });
+
+      return chain.then(function () {
+        return db.changes({
+          style: 'all_docs',
+          include_docs: true
+        });
+      }).then(function (res) {
+        var ids = res.results.map(function (x) {
+          return x.id;
+        });
+        ids.should.deep.equal(docIds);
+      });
+    });
+
+    it('#3136 tricky changes, limit/descending', function () {
+      var db = new PouchDB(dbs.name);
+
+      var docs = [
+        {
+          _id: 'alpha',
+          _rev: '1-a',
+          _revisions: {
+            start: 1,
+            ids: ['a']
+          }
+        }, {
+          _id: 'beta',
+          _rev: '1-b',
+          _revisions: {
+            start: 1,
+            ids: ['b']
+          }
+        }, {
+          _id: 'gamma',
+          _rev: '1-b',
+          _revisions: {
+            start: 1,
+            ids: ['b']
+          }
+        }, {
+          _id: 'alpha',
+          _rev: '2-d',
+          _revisions: {
+            start: 2,
+            ids: ['d', 'a']
+          }
+        }, {
+          _id: 'beta',
+          _rev: '2-e',
+          _revisions: {
+            start: 2,
+            ids: ['e', 'b']
+          }
+        }, {
+          _id: 'beta',
+          _rev: '3-f',
+          _deleted: true,
+          _revisions: {
+            start: 3,
+            ids: ['f', 'e', 'b']
+          }
+        }
+      ];
+
+      var chain = PouchDB.utils.Promise.resolve();
+      var seqs = [];
+
+      docs.forEach(function (doc) {
+        chain = chain.then(function () {
+          return db.bulkDocs([doc], {new_edits: false}).then(function () {
+            return db.changes({doc_ids: [doc._id]});
+          }).then(function (res) {
+            seqs.push(res.results[0].seq);
+          });
+        });
+      });
+
+      return chain.then(function () {
+        return db.changes();
+      }).then(function (result) {
+        delete result.last_seq;
+        result.should.deep.equal({
+          "results": [
+            {
+              "seq": seqs[2],
+              "id": "gamma",
+              "changes": [{ "rev": "1-b"}
+              ]
+            },
+            {
+              "seq": seqs[3],
+              "id": "alpha",
+              "changes": [{ "rev": "2-d"}
+              ]
+            },
+            {
+              "seq": seqs[5],
+              "id": "beta",
+              "deleted": true,
+              "changes": [{ "rev": "3-f"}
+              ]
+            }
+          ]
+          //, "last_seq": seqs[5]
+        });
+        return db.changes({limit: 0});
+      }).then(function (result) {
+        delete result.last_seq;
+        result.should.deep.equal({
+          "results": [{
+            "seq": seqs[2],
+            "id": "gamma",
+            "changes": [{"rev": "1-b"}]
+          }]
+          //, "last_seq": seqs[2]
+        }, '1:' + JSON.stringify(result));
+        return db.changes({limit: 1});
+      }).then(function (result) {
+        delete result.last_seq;
+        result.should.deep.equal({
+          "results": [{
+            "seq": seqs[2],
+            "id": "gamma",
+            "changes": [{"rev": "1-b"}]
+          }]
+          //, "last_seq": seqs[2]
+        }, '2:' + JSON.stringify(result));
+        return db.changes({limit: 2});
+      }).then(function (result) {
+        delete result.last_seq;
+        result.should.deep.equal({
+          "results": [{
+            "seq": seqs[2],
+            "id": "gamma",
+            "changes": [{"rev": "1-b"}]
+          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}]
+          //, last_seq": seqs[3]
+        }, '3:' + JSON.stringify(result));
+        return db.changes({limit: 1, descending: true});
+      }).then(function (result) {
+        delete result.last_seq;
+        result.should.deep.equal({
+          "results": [{
+            "seq": seqs[5],
+            "id": "beta",
+            "changes": [{"rev": "3-f"}],
+            "deleted": true
+          }]
+          //, "last_seq": seqs[5]
+        }, '4:' + JSON.stringify(result));
+        return db.changes({limit: 2, descending: true});
+      }).then(function (result) {
+        delete result.last_seq;
+        var expected = {
+          "results": [{
+            "seq": seqs[5],
+            "id": "beta",
+            "changes": [{"rev": "3-f"}],
+            "deleted": true
+          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}]
+          //, "last_seq": seqs[3]
+        };
+        result.should.deep.equal(expected, '5:' + JSON.stringify(result) +
+        ', shoulda got: ' + JSON.stringify(expected));
+        return db.changes({descending: true});
+      }).then(function (result) {
+        delete result.last_seq;
+        var expected = {
+          "results": [{
+            "seq": seqs[5],
+            "id": "beta",
+            "changes": [{"rev": "3-f"}],
+            "deleted": true
+          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}, {
+            "seq": seqs[2],
+            "id": "gamma",
+            "changes": [{"rev": "1-b"}]
+          }]
+          //, "last_seq": seqs[2]
+        };
+        result.should.deep.equal(expected, '6:' + JSON.stringify(result) +
+        ', shoulda got: ' + JSON.stringify(expected));
+      });
+    });
+
+    it('#3136 winningRev has a lower seq, style=all_docs', function () {
+      var db = new PouchDB(dbs.name);
+      var tree = [
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            _revisions: {start: 1, ids: ['a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '2-e',
+            _deleted: true,
+            _revisions: {start: 2, ids: ['e', 'a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '3-g',
+            _revisions: {start: 3, ids: ['g', 'e', 'a']}
+          }
+        ],
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            _revisions: {start: 1, ids: ['a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '2-b',
+            _revisions: {start: 2, ids: ['b', 'a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '3-c',
+            _revisions: {start: 3, ids: ['c', 'b', 'a']}
+          }
+        ],
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            _revisions: {start: 1, ids: ['a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '2-d',
+            _revisions: {start: 2, ids: ['d', 'a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '3-h',
+            _revisions: {start: 3, ids: ['h', 'd', 'a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '4-f',
+            _revisions: {start: 4, ids: ['f', 'h', 'd', 'a']}
+          }
+        ]
+      ];
+
+      var chain = PouchDB.utils.Promise.resolve();
+      var seqs = [0];
+
+      function getExpected(i) {
+        var expecteds = [
+          {
+            "results": [
+              {
+                "seq": seqs[1],
+                "id": "foo",
+                "changes": [{"rev": "3-g"}],
+                "doc": {"_id": "foo", "_rev": "3-g"}
+              }
+            ],
+            "last_seq" : seqs[1]
+          },
+          {
+            "results": [
+              {
+                "seq": seqs[2],
+                "id": "foo",
+                "changes": [{"rev": "3-g"}, {"rev": "3-c"}],
+                "doc": {"_id": "foo", "_rev": "3-g"}
+              }
+            ],
+            "last_seq" : seqs[2]
+          },
+          {
+            "results": [
+              {
+                "seq": seqs[3],
+                "id": "foo",
+                "changes": [{"rev": "4-f"}, {"rev": "3-g"}, {"rev": "3-c"}],
+                "doc": {"_id": "foo", "_rev": "4-f"}
+              }
+            ],
+            "last_seq" : seqs[3]
+          }
+        ];
+        return expecteds[i];
+      }
+      tree.forEach(function (docs, i) {
+        chain = chain.then(function () {
+          return db.bulkDocs(docs, {new_edits: false}).then(function () {
+            return db.changes({
+              style: 'all_docs',
+              since: seqs[seqs.length - 1],
+              include_docs: true
+            });
+          }).then(function (result) {
+            seqs.push(result.last_seq);
+            var expected = getExpected(i);
+            result.should.deep.equal(expected,
+            i + ': should get: ' + JSON.stringify(expected) +
+            ', but got: ' + JSON.stringify(result));
+          });
+        });
+      });
+      return chain;
+    });
+
+    it('#3136 winningRev has a lower seq, style=all_docs 2', function () {
+      var db = new PouchDB(dbs.name);
+      var tree = [
+        [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            _revisions: {start: 1, ids: ['a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '2-e',
+            _deleted: true,
+            _revisions: {start: 2, ids: ['e', 'a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '3-g',
+            _revisions: {start: 3, ids: ['g', 'e', 'a']}
+          }
+        ], [
+          {
+            _id: 'foo',
+            _rev: '1-a',
+            _revisions: {start: 1, ids: ['a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '2-b',
+            _revisions: {start: 2, ids: ['b', 'a']}
+          },
+          {
+            _id: 'foo',
+            _rev: '3-c',
+            _revisions: {start: 3, ids: ['c', 'b', 'a']}
+          },
+        ], [
+          {
+            _id: 'bar',
+            _rev: '1-z',
+            _revisions: {start: 1, ids: ['z']}
+          }
+        ]
+      ];
+
+      var chain = PouchDB.utils.Promise.resolve();
+      var seqs = [0];
+
+      tree.forEach(function (docs, i) {
+        chain = chain.then(function () {
+          return db.bulkDocs(docs, {new_edits: false}).then(function () {
+            return db.changes();
+          }).then(function (result) {
+            seqs.push(result.last_seq);
+          });
+        });
+      });
+
+      return chain.then(function () {
+
+        var expecteds = [
+          {
+            "results": [{
+              "seq": seqs[2],
+              "id": "foo",
+              "changes": [{"rev": "3-g"}, {"rev": "3-c"}]
+            }, {"seq": seqs[3], "id": "bar", "changes": [{"rev": "1-z"}]}],
+            "last_seq": seqs[3]
+          },
+          {
+            "results": [{
+              "seq": seqs[2],
+              "id": "foo",
+              "changes": [{"rev": "3-g"}, {"rev": "3-c"}]
+            }, {"seq": seqs[3], "id": "bar", "changes": [{"rev": "1-z"}]}],
+            "last_seq": seqs[3]
+          },
+          {
+            "results": [{"seq": seqs[3], "id": "bar",
+              "changes": [{"rev": "1-z"}]}],
+            "last_seq": seqs[3]
+          },
+          {"results": [], "last_seq": seqs[3]}
+        ];
+
+        var chain2 = PouchDB.utils.Promise.resolve();
+
+        seqs.forEach(function (seq, i) {
+          chain2 = chain2.then(function () {
+            return db.changes({
+              since: seq,
+              style: 'all_docs'
+            }).then(function (res) {
+              res.should.deep.equal(expecteds[i], 'since=' + seq +
+              ': got: ' +
+              JSON.stringify(res) +
+              ', shoulda got: ' +
+              JSON.stringify(expecteds[i]));
+            });
+          });
+        });
+        return chain2;
+      });
+    });
+
     it('changes-filter', function (done) {
       var docs1 = [
         {_id: '0', integer: 0},
