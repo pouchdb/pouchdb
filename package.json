@@ -83,7 +83,7 @@
     "test-node": "sh bin/test-node.sh",
     "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
     "cordova": "npm run build && sh bin/run-cordova.sh",
-    "jshint": "jshint -c .jshintrc bin/ lib/ tests/ tests/performance/",
+    "jshint": "jshint -c .jshintrc bin/ lib/ tests/",
     "dev": "npm run version && node ./bin/dev-server.js",
     "test": "npm run version && npm run jshint && bash bin/run-test.sh",
     "release": "sh bin/release.sh",
