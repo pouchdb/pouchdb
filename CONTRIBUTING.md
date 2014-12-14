@@ -61,48 +61,10 @@ You will now have various distributions of PouchDB in your `dist` folder, congra
 
  * If you are on windows, you will need `node-gyp` to install levelup, visit https://github.com/TooTallNate/node-gyp#installation for installation instructions.
 
-Running PouchDB Tests
+Testing PouchDB
 --------------------------------------
 
-The PouchDB test suite expects an instance of CouchDB running in Admin Party on http://127.0.0.1:5984, you can configure this by sending the `COUCH_HOST` env var.
-
- * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
-
-### Node Tests
-
-Run all tests with:
-
-    $ npm test
-
-### Browser Tests
-
-Browser tests can be run automatically with:
-
-    $ CLIENT=selenium:firefox npm test
-
-or you can run:
-
-    $ npm run dev
-
-and open [http://127.0.0.1:8000/tests/integration/](http://127.0.0.1:8000/integration/) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/](http://localhost:8000/tests/performance/).
-
-### Test Options
-
-#### Subset of tests:
-
-    $ GREP=test.replication.js npm test
-
-or append `?grep=test.replication.js` if you opened the tests in a browser manually.
-
-#### Test alternative server
-
-    $ COUCH_HOST=http://user:pass@myname.host.com npm run dev
-
-or
-
-    $ COUCH_HOST=http://user:pass@myname.host.com npm test
-
-For more information about options for testing including please checkout [TESTING.md](TESTING.md).
+Running PouchDB tests is really simple (5 minutes), go to [TESTING](./TESTING.md) for instructions.
 
 Debugging PouchDB
 --------------------------------------
