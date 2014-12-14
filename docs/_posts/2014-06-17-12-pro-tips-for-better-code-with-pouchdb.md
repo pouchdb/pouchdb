@@ -77,6 +77,12 @@ You don't need to use `_sum` when a simple `_count` will do.
 
 ### 4. Attachments are overrated
 
+{% include alert_start.html variant="warning" %}
+
+<strong>Update:</strong> since this post was written, the stability and performance of attachments in PouchDB has greatly improved. Replicating large attachments is still not recommended, but attachments can be handy if used correctly. <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> can help.
+
+{% include alert_end.html %}
+
 NPM has [moved away from storing attachments in CouchDB](http://blog.npmjs.org/post/71267056460/fastly-manta-loggly-and-couchdb-attachments). Nowadays they use a CDN for the binaries, and CouchDB just stores the metadata. In PouchDB, attachments have been [one](https://github.com/pouchdb/pouchdb/issues/2098) [of](https://github.com/pouchdb/pouchdb/pull/1078) [the](https://github.com/pouchdb/pouchdb/issues/1992) [biggest](https://github.com/pouchdb/pouchdb/issues/900) [sources](https://github.com/pouchdb/pouchdb/pull/2063) [of](https://github.com/pouchdb/pouchdb/pull/1210) [bugs](https://github.com/pouchdb/pouchdb/pull/502), since every browser seems to handle them differently. Plus, the [attachment API is hard to understand](https://github.com/pouchdb/pouchdb/issues/1251), you need [a Blob shim](https://gist.github.com/nolanlawson/10340255) for older browsers, and let's not even talk about ArrayBuffers, ArrayBufferViews, Uint8Arrays, and browsers that don't even support any of the above.
 
 In general, both CouchDB and PouchDB are just poor fits for storing binary data.  (Databases rarely are.) Instead of attachments, try using a CDN or a simple fileserver, and store the URLs or checksums in the database if you need to.
@@ -146,6 +152,12 @@ Choose whichever one fits your app better, or just concatenate the strings yours
 
 
 ### 8. Use Web SQL for better performance
+
+{% include alert_start.html variant="warning" %}
+
+<strong>Update:</strong> since this post was written, IndexedDB performance has improved, and is often better than WebSQL in Chrome. Your mileage may vary, so try them both out on your target platform(s).
+
+{% include alert_end.html %}
 
 Our performance tests have shown it again and again: Web SQL is faster than IndexedDB. It's hard to tell if that's due to our implementation or the browser vendors', but in any case, if you feel the need for speed, then you'll want to prefer Web SQL to IndexedDB.
 
