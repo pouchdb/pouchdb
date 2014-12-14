@@ -28,6 +28,7 @@
     "afterEach",
     "testUtils",
     "emit",
-    "EventSource"
+    "EventSource",
+    "-Promise"
   ]
 }

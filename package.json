@@ -45,7 +45,7 @@
     "pouchdb-server": "^0.5.1",
     "commander": "~2.1.0",
     "uglify-js": "~2.4.6",
-    "jshint": "~2.3.0",
+    "jshint": "~2.5.10",
     "pouchdb-http-proxy": "~0.10.3",
     "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
