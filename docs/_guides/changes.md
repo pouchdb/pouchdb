@@ -52,7 +52,7 @@ function fetchNextPage() {
     if (changes.results.length < pageSize) {
       // done!
     } else {
-      lastSeq = changes.results[changes.results.length - 1].seq;
+      lastSeq = changes.last_seq;
       return fetchNextPage();
     }
   });
