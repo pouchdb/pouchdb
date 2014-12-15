@@ -168,7 +168,7 @@ webView.loadDataWithBaseURL("http://www.example.com",
 
 It is known that building/compiling Node modules with native code on Windows can be frustrating, as there are lots of required dependencies to be installed, which may take many Gigabytes, as opossed to Unix platforms, where compiling is a breeze. Installing PouchDB on Node for Windows gave many headaches, specifically with the leveldown dep. 
 
-Since v3.3.0 leveldown was changed to be an *optional dependency*: this way, npm will not refuse installing PouchDB even when having compiling errors. That way, you can use PouchDB normally, and will get an error only when trying to use leveldown as the backend. To avoid that, you can specify any compatible adapter, as pointed in the [Adapters](/adapters.html#pouchdb_in_node_js) section.
+Since v3.2.1 leveldown was changed to be an *optional dependency*: this way, npm will not refuse installing PouchDB even when having compiling errors. That way, you can use PouchDB normally, and will get an error only when trying to use leveldown as the backend. To avoid that, you can specify any compatible adapter, as pointed in the [Adapters](/adapters.html#pouchdb_in_node_js) section.
 
 For example, if you want a SQLite backend, you can install:
 
@@ -181,6 +181,19 @@ and then use PouchDB with:
 
 ```js
 var db = new PouchDB('database', { db: require('sqldown') });
+
+```
+
+Also, you have the option to use [leveldown-prebuilt](https://github.com/mafintosh/leveldown-prebuilt), which avoids native leveldown building when installing. Then for use leveldown-prebuilt as backend, you can install:
+
+{% highlight bash %}
+npm install leveldown-prebuilt
+{% endhighlight %}
+
+and instance your PouchDB like this:
+
+```js
+var db = new PouchDB('database', { db: require('leveldown-prebuilt') });
 
 ```
 
