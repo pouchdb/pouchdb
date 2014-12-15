@@ -3088,7 +3088,7 @@ adapters.forEach(function (adapters) {
           res.docs_written.should.equal(3);
           res.doc_write_failures.should.equal(1);
           res.errors.should.have.length(1);
-          console.log(res.errors[0]);
+
           return remote.allDocs({limit: 0});
         }).then(function (res) {
           res.total_rows.should.equal(4); // 3 plus the validate doc
