@@ -12,7 +12,7 @@ var request = require('request').defaults({json: true});
 
 var devserver = require('./dev-server.js');
 
-var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
+var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.44.0.jar';
 var SELENIUM_HUB = 'http://localhost:4444/wd/hub/status';
 
 var testTimeout = 30 * 60 * 1000;
