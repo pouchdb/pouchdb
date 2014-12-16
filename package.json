@@ -38,7 +38,7 @@
     "express": "^4.10.4"
   },
   "optionalDependencies": {
-    "leveldown": "~0.10.2"
+    "leveldown-prebuilt": "~0.10.3"
   },
   "devDependencies": {
     "rimraf": "2.2.8",
@@ -103,7 +103,7 @@
     "./lib/version.js": "./lib/version-browser.js",
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
     "bluebird": "lie",
-    "leveldown": "level-js"
+    "leveldown-prebuilt": "level-js"
   },
   "browserify": {
     "transform": [
