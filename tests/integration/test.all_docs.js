@@ -191,7 +191,12 @@ adapters.forEach(function (adapter) {
         db.changes({
           include_docs: true,
           complete: function (err, changes) {
-            changes.results[0].doc.a.should.equal(1);
+            changes.results.forEach(function (row, i) {
+              if (row.id === '0') {
+                row.doc.a.should.equal(1);
+              }
+            });
+            
             done();
           }
         });
