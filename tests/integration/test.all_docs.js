@@ -227,10 +227,15 @@ adapters.forEach(function (adapter) {
                 conflicts: true,
                 style: 'all_docs',
                 complete: function (err, changes) {
-                  var result = changes.results[3];
-                  changes.results.map(function (x) { return x.id; })
+
+                  changes.results.map(function (x) { return x.id; }).sort()
                     .should.deep.equal(['0', '1', '2', '3'],
-                      'changes are ordered');
+                      'all ids are in _changes');
+
+                  var result = changes.results.filter(function (row, i) {
+                    return row.id === '3';
+                  })[0];
+                  
                   result.changes.should.have
                     .length(3, 'correct number of changes');
                   result.doc._rev.should.equal(conflictDoc2._rev);
