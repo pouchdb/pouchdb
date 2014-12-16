@@ -62,6 +62,7 @@ adapters.forEach(function (adapter) {
 
     it('destroy a pouch', function (done) {
       new PouchDB(dbs.name, function (err, db) {
+        should.exist(db);
         db.destroy(function (err, info) {
           should.not.exist(err);
           should.exist(info);
@@ -73,6 +74,7 @@ adapters.forEach(function (adapter) {
 
     it('destroy a pouch, with a promise', function (done) {
       new PouchDB(dbs.name, function (err, db) {
+        should.exist(db);
         db.destroy().then(function (info) {
           should.exist(info);
           info.ok.should.equal(true);
@@ -469,13 +471,16 @@ adapters.forEach(function (adapter) {
     it('update with invalid rev', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}, function (err, info) {
+        should.not.exist(err);
         db.put({
           _id: info.id,
           _rev: 'undefined',
           another: 'test'
         }, function (err, info2) {
           should.exist(err);
-          err.message.should.equal('Invalid rev format');
+          err.status.should.equal(PouchDB.Errors.INVALID_REV.status);
+          err.message.should.equal(PouchDB.Errors.INVALID_REV.message,
+                                   'correct error message returned');
           done();
         });
       });
@@ -491,7 +496,10 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: bad_docs }, function (err, res) {
-        err.status.should.equal(500);
+        err.status.should.equal(PouchDB.Errors.DOC_VALIDATION.status);
+        err.message.should.equal(PouchDB.Errors.DOC_VALIDATION.message +
+                                 ': _zing',
+                                 'correct error message returned');
         done();
       });
     });
@@ -556,6 +564,8 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err, info) {
         should.exist(err);
+        err.message.should.equal(PouchDB.Errors.INVALID_ID.message,
+                                 'correct error message returned');
         done();
       });
     });
@@ -564,6 +574,8 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.put({test: 'somestuff' }, function (err, info) {
         should.exist(err);
+        err.message.should.equal(PouchDB.Errors.MISSING_ID.message,
+                                 'correct error message returned');
         done();
       });
     });
@@ -575,8 +587,9 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err, info) {
         should.exist(err);
-        err.name.should.equal('TypeError');
-        err.status.should.equal(400);
+        err.status.should.equal(PouchDB.Errors.RESERVED_ID.status);
+        err.message.should.equal(PouchDB.Errors.RESERVED_ID.message,
+                                 'correct error message returned');
         done();
       });
     });
@@ -659,9 +672,11 @@ adapters.forEach(function (adapter) {
     it('Error works', function () {
       var newError = PouchDB.Errors
         .error(PouchDB.Errors.BAD_REQUEST, 'love needs no message');
-      newError.status.should.equal(400);
-      newError.name.should.equal('bad_request');
-      newError.message.should.equal('love needs no message');
+      newError.status.should.equal(PouchDB.Errors.BAD_REQUEST.status);
+      newError.name.should.equal(PouchDB.Errors.BAD_REQUEST.name);
+      newError.message.should.equal(PouchDB.Errors.BAD_REQUEST.message,
+                                    'correct error message returned');
+      newError.reason.should.equal('love needs no message');
     });
 
     it('Fail to fetch a doc after db was deleted', function (done) {
