@@ -313,7 +313,9 @@ adapters.forEach(function (adapter) {
           include_docs: true,
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: odd');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
+            err.reason.should.equal('missing json key: odd');
             should.not.exist(results);
             done();
           }
@@ -344,7 +346,9 @@ adapters.forEach(function (adapter) {
           include_docs: true,
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: filters');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
+            err.reason.should.equal('missing json key: filters');
             should.not.exist(results);
             done();
           }
@@ -428,7 +432,9 @@ adapters.forEach(function (adapter) {
           view: 'foo/odd',
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: odd');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                     'correct error message returned');
+            err.reason.should.equal('missing json key: odd');
             should.not.exist(results);
             done();
           }
@@ -452,7 +458,10 @@ adapters.forEach(function (adapter) {
           view: 'foo/even',
           complete: function (err, results) {
             err.status.should.equal(404);
-            err.message.should.equal('missing json key: views');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
+            err.reason.should.equal('missing json key: views',
+                                    'correct error reason returned');
             should.not.exist(results);
             done();
           }
@@ -477,8 +486,11 @@ adapters.forEach(function (adapter) {
           filter: '_view',
           complete: function (err, results) {
             err.status.should.equal(400);
-            err.message.should
-              .equal('`view` filter parameter is not provided.');
+            err.message.should.equal(PouchDB.Errors.BAD_REQUEST.message,
+                                 'correct error message returned');
+            err.reason.should
+              .equal('`view` filter parameter is not provided.',
+                     'correct error reason returned');
             should.not.exist(results);
             done();
           }

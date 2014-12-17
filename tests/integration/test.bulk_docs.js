@@ -140,6 +140,8 @@ adapters.forEach(function (adapter) {
       }];
       db.bulkDocs({ docs: docs }, function (err, info) {
         err.status.should.equal(400, 'correct error status returned');
+        err.message.should.equal(PouchDB.Errors.RESERVED_ID.message,
+                                 'correct error message returned');
         should.not.exist(info, 'info is empty');
         done();
       });
@@ -165,7 +167,8 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ 'doc': [{ 'foo': 'bar' }] }, function (err, result) {
         err.status.should.equal(400);
-        err.message.should.equal('Missing JSON list of \'docs\'');
+        err.message.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.message,
+                                 'correct error message returned');
         done();
       });
     });
@@ -647,6 +650,10 @@ adapters.forEach(function (adapter) {
       }, { new_edits: false }, function (err, res) {
         db.get('foo', function (err, res) {
           should.exist(err, 'deleted');
+          err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                   'correct error message returned');
+          err.reason.should.equal('deleted',
+                                   'correct error reason returned');
           done();
         });
       });
@@ -743,7 +750,8 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: 'foo' }, function (err, res) {
         should.exist(err, 'error reported');
         err.status.should.equal(400);
-        err.message.should.equal('Missing JSON list of \'docs\'');
+        err.message.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.message,
+                                 'correct error message returned');
         done();
       });
     });
@@ -753,12 +761,14 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: ['foo'] }, function (err, res) {
         should.exist(err, 'error reported');
         err.status.should.equal(400);
-        err.message.should.equal('Document must be a JSON object');
+        err.message.should.equal(PouchDB.Errors.NOT_AN_OBJECT.message,
+                                 'correct error message returned');
       });
       db.bulkDocs({ docs: [[]] }, function (err, res) {
         should.exist(err, 'error reported');
         err.status.should.equal(400);
-        err.message.should.equal('Document must be a JSON object');
+        err.message.should.equal(PouchDB.Errors.NOT_AN_OBJECT.message,
+                                 'correct error message returned');
         done();
       });
     });

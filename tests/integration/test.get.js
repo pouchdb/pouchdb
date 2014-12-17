@@ -41,7 +41,9 @@ adapters.forEach(function (adapter) {
         db.get(info.id, function (err, doc) {
           doc.should.have.property('test');
           db.get(info.id + 'asdf', function (err) {
-            err.should.have.property('name');
+            err.name.should.equal('not_found');
+            err.message.should.equal('missing');
+            err.reason.should.equal('missing');
             done();
           });
         });
@@ -56,7 +58,9 @@ adapters.forEach(function (adapter) {
       }, function (err, info) {
         db.get(info.id, function (err, doc) {
           db.get(info.id + 'asdf', function (err) {
-            err.should.have.property('name');
+            err.name.should.equal('not_found');
+            err.message.should.equal('missing');
+            err.reason.should.equal('missing');
             done();
           });
         });
@@ -72,7 +76,10 @@ adapters.forEach(function (adapter) {
         }, function (err, res) {
           db.get(info.id, function (err, res) {
             err.name.should.equal('not_found');
-            err.message.should.equal('deleted');
+            err.message.should.equal('missing',
+                                      'correct error message returned');
+            err.reason.should.equal('deleted',
+                                     'correct error message returned');
             done();
           });
         });
