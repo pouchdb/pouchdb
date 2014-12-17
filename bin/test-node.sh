@@ -2,7 +2,6 @@
 
 : ${TIMEOUT:=50000}
 : ${REPORTER:="spec"}
-: ${BAIL:=1}
 
 if [ $BAIL -eq 1 ]; then
     BAIL_OPT="--bail"
