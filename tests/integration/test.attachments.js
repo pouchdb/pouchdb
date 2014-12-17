@@ -1167,7 +1167,7 @@ adapters.forEach(function (adapter) {
         },
         live: true,
         onChange: function (change) {
-          if (change.seq === 1) {
+          if (change.id === 'anotherdoc2') {
             change.id.should.equal('anotherdoc2', 'Doc has been created');
             db.get(change.id, { attachments: true }, function (err, doc) {
               doc._attachments.should.be
