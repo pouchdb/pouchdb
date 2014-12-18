@@ -1011,9 +1011,13 @@ db.info(function(err, info) { })
 db.compact([options], [callback])
 {% endhighlight %}
 
-Triggers a compaction operation for `db` on the local or remote database. This reduces the database's size by removing unused and old data. If a `callback` function is specified, Pouch checks compaction status at regular intervals and fires the callback upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more detail about database compaction.
+Triggers a compaction operation in the local or remote database. This reduces the database's size by removing unused and old data, namely non-leaf revisions and attachments that are no longer referenced by those revisions. Note that this is a separate operation from [`viewCleanup()`](#view_cleanup).
 
-* `options.interval`: Number of milliseconds Pouch waits before asking again if compaction is already done. Defaults to 200.
+For remote databases, PouchDB checks the compaction status at regular intervals and fires the callback (or resolves the promise) upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more details.
+
+Also see [auto-compaction](#create_database), which runs compaction automatically (local databases only).
+
+* `options.interval`: Number of milliseconds to wait before asking again if compaction is already done. Defaults to 200. (Only applies to remote databases.)
 
 {% include anchor.html title="Document revisions diff" hash="revisions_diff" %}
 
