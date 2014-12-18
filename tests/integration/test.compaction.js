@@ -3,6 +3,8 @@
 var adapters = ['http', 'local'];
 var autoCompactionAdapters = ['local'];
 
+var MISSING_DOC = PouchDB.Errors.MISSING_DOC;
+
 adapters.forEach(function (adapter) {
   describe('test.compaction.js-' + adapter, function () {
 
@@ -206,7 +208,10 @@ adapters.forEach(function (adapter) {
           db.compact(function () {
             db.get('foo', { rev: firstRev }, function (err, res) {
               should.exist(err, 'got error');
-              err.message.should.equal('missing', 'correct reason');
+              err.status.should.equal(MISSING_DOC.status,
+                                      'correct error status returned');
+              err.message.should.equal(MISSING_DOC.message,
+                                   'correct error message returned');
               done();
             });
           });
@@ -226,7 +231,10 @@ adapters.forEach(function (adapter) {
           db.compact(function () {
             db.get(id, { rev: firstRev }, function (err, res) {
               should.exist(err, 'got error');
-              err.message.should.equal('missing', 'correct reason');
+              err.status.should.equal(MISSING_DOC.status,
+                                      'correct error status returned');
+              err.message.should.equal(MISSING_DOC.message,
+                                   'correct error message returned');
               done();
             });
           });

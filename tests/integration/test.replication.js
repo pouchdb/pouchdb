@@ -7,6 +7,9 @@ var adapters = [
   ['local', 'local']
 ];
 
+var FORBIDDEN = PouchDB.Errors.FORBIDDEN;
+var UNAUTHORIZED = PouchDB.Errors.UNAUTHORIZED;
+
 if ('saucelabs' in testUtils.params()) {
   adapters = [['local', 'http'], ['http', 'local']];
 }
@@ -3161,7 +3164,6 @@ adapters.forEach(function (adapters) {
           }.toString()
         };
 
-        var forbiddenErrorMessage = PouchDB.Errors.FORBIDDEN.message;
         var remote = new PouchDB(dbs.remote);
         var db = new PouchDB(dbs.name);
 
@@ -3177,8 +3179,11 @@ adapters.forEach(function (adapters) {
           res.doc_write_failures.should.equal(2);
           res.errors.should.have.length(2);
           res.errors.forEach(function (e) {
-            e.name.should.equal('forbidden');
-            e.message.should.equal(forbiddenErrorMessage,
+            e.status.should.equal(FORBIDDEN.status,
+                                  'correct error status returned');
+            e.name.should.equal(FORBIDDEN.name,
+                                'correct error name returned');
+            e.message.should.equal(FORBIDDEN,
                                    'correct error message returned');
           });
 
@@ -3210,7 +3215,6 @@ adapters.forEach(function (adapters) {
           }.toString()
         };
 
-        var unauthorizedErrorMessage = PouchDB.Errors.UNAUTHORIZED.message;
         var remote = new PouchDB(dbs.remote);
         var db = new PouchDB(dbs.name);
 
@@ -3226,8 +3230,11 @@ adapters.forEach(function (adapters) {
           res.doc_write_failures.should.equal(2);
           res.errors.should.have.length(2);
           res.errors.forEach(function (e) {
-            e.name.should.equal('unauthorized');
-            e.message.should.equal(unauthorizedErrorMessage,
+            e.status.should.equal(UNAUTHORIZED.status,
+                                  'correct error status returned');
+            e.name.should.equal(UNAUTHORIZED.name,
+                                'correct error name returned');
+            e.message.should.equal(UNAUTHORIZED.message,
                                    'correct error message returned');
           });
 
@@ -3251,15 +3258,12 @@ adapters.forEach(function (adapters) {
         var ddoc = {
           "_id": "_design/validate",
           "validate_doc_update": function (newDoc) {
-            if (newDoc.foo === 'object') {
-              throw { unauthorized: { foo: 'is object' } };
-            } else if (newDoc.foo === 'string') {
-              throw { unauthorized: 'Document foo is string' };
+            if (newDoc.foo) {
+              throw { unauthorized: 'go away, no picture' };
             }
           }.toString()
         };
 
-        var unauthorizedErrorMessage = PouchDB.Errors.UNAUTHORIZED.message;
         var remote = new PouchDB(dbs.remote);
         var db = new PouchDB(dbs.name);
 
@@ -3278,16 +3282,12 @@ adapters.forEach(function (adapters) {
           res.errors.forEach(function (e) {
             should.exist(e.id, 'get doc id with error message');
             ids.push(e.id);
-            e.name.should.equal('unauthorized');
-            e.message.should.equal(unauthorizedErrorMessage,
-                                   'correct error message returned');
           });
           ids.filter(function (id) {
             return ids.indexOf(id) === ids.lastIndexOf(id);
           });
           ids.length.should.equal(res.errors.length,
                                   'doc ids are unique');
-
           return remote.allDocs({limit: 0});
         }).then(function (res) {
           res.total_rows.should.equal(2); // 1 plus the validate doc

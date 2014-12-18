@@ -2,6 +2,13 @@
 
 var adapters = ['http', 'local'];
 
+var BAD_REQUEST = PouchDB.Errors.BAD_REQUEST;
+var INVALID_REV = PouchDB.Errors.INVALID_REV;
+var DOC_VALIDATION = PouchDB.Errors.DOC_VALIDATION;
+var INVALID_ID = PouchDB.Errors.INVALID_ID;
+var MISSING_ID = PouchDB.Errors.MISSING_ID;
+var RESERVED_ID = PouchDB.Errors.RESERVED_ID;
+
 adapters.forEach(function (adapter) {
   describe('test.basics.js-' + adapter, function () {
 
@@ -478,7 +485,8 @@ adapters.forEach(function (adapter) {
           another: 'test'
         }, function (err, info2) {
           should.exist(err);
-          err.message.should.equal(PouchDB.Errors.INVALID_REV.message,
+          err.status.should.equal(INVALID_REV.status);
+          err.message.should.equal(INVALID_REV.message,
                                    'correct error message returned');
           done();
         });
@@ -495,9 +503,9 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: bad_docs }, function (err, res) {
-        err.status.should.equal(500);
-        err.message.should.equal(PouchDB.Errors.DOC_VALIDATION.message +
-                                 ': _zing', 'correct error message returned');
+        err.status.should.equal(DOC_VALIDATION.status);
+        err.message.should.equal(DOC_VALIDATION.message + ': _zing',
+                                 'correct error message returned');
         done();
       });
     });
@@ -562,7 +570,7 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err, info) {
         should.exist(err);
-        err.message.should.equal(PouchDB.Errors.INVALID_ID.message,
+        err.message.should.equal(INVALID_ID.message,
                                  'correct error message returned');
         done();
       });
@@ -572,7 +580,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.put({test: 'somestuff' }, function (err, info) {
         should.exist(err);
-        err.message.should.equal(PouchDB.Errors.MISSING_ID.message,
+        err.message.should.equal(MISSING_ID.message,
                                  'correct error message returned');
         done();
       });
@@ -585,7 +593,8 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err, info) {
         should.exist(err);
-        err.message.should.equal(PouchDB.Errors.RESERVED_ID.message,
+        err.status.should.equal(RESERVED_ID.status);
+        err.message.should.equal(RESERVED_ID.message,
                                  'correct error message returned');
         done();
       });
@@ -668,10 +677,10 @@ adapters.forEach(function (adapter) {
 
     it('Error works', function () {
       var newError = PouchDB.Errors
-        .error(PouchDB.Errors.BAD_REQUEST, 'love needs no message');
-      newError.status.should.equal(400);
-      newError.name.should.equal('bad_request');
-      newError.message.should.equal(PouchDB.Errors.BAD_REQUEST.message,
+        .error(BAD_REQUEST, 'love needs no message');
+      newError.status.should.equal(BAD_REQUEST.status);
+      newError.name.should.equal(BAD_REQUEST.name);
+      newError.message.should.equal(BAD_REQUEST.message,
                                     'correct error message returned');
       newError.reason.should.equal('love needs no message');
     });
