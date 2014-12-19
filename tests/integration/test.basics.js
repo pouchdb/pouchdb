@@ -742,6 +742,11 @@ adapters.forEach(function (adapter) {
         return db.get('foo%bar');
       }).then(function (doc) {
         doc._id.should.equal('foo%bar');
+        doc.foo.should.equal('bar');
+        // return here if testing against CouchDB2.0 - no temporary views
+        if (testUtils.isCouchMaster()) {
+          return true;
+        }
         var queryFun = {
           map: function (doc) {
             emit(doc.foo, doc);
@@ -752,6 +757,10 @@ adapters.forEach(function (adapter) {
           reduce: false
         });
       }).then(function (res) {
+        // return here if testing against CouchDB2.0 - no temporary views
+        if (testUtils.isCouchMaster()) {
+          return true;
+        }
         var x = res.rows[0];
         x.id.should.equal('foo%bar');
         should.exist(x.key);
