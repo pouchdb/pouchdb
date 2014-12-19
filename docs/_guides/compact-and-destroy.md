@@ -7,7 +7,7 @@ sidebar: guides_nav.html
 
 By default, PouchDB and CouchDB are designed to store all document revisions forever. This is very similar to how Git works, and it helps ensure that two databases can consistently replicate with each other.
 
-However, if you allow your database to grow without bounds, it can end up taking up much more space than you need. This can especially be a problem in [browsers with storage quotas](http://localhost:4000/faq.html#data_limits).
+However, if you allow your database to grow without bounds, it can end up taking up much more space than you need. This can especially be a problem in [browsers with storage quotas](/faq.html#data_limits).
 
 To mitigate this problem, PouchDB offers two recourses: compaction and destruction.
 
