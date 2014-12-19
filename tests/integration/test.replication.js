@@ -2946,7 +2946,7 @@ adapters.forEach(function (adapters) {
       function uuid() {
         return PouchDB.utils.uuid(32, 16).toLowerCase();
       }
-      
+
       // create a bunch of rando, good revisions
       var numRevs = 5;
       var uuids = [];
@@ -3183,7 +3183,7 @@ adapters.forEach(function (adapters) {
                                   'correct error status returned');
             e.name.should.equal(FORBIDDEN.name,
                                 'correct error name returned');
-            e.message.should.equal(FORBIDDEN,
+            e.message.should.equal(FORBIDDEN.message,
                                    'correct error message returned');
           });
 
@@ -3283,7 +3283,7 @@ adapters.forEach(function (adapters) {
             should.exist(e.id, 'get doc id with error message');
             ids.push(e.id);
           });
-          ids.filter(function (id) {
+          ids = ids.filter(function (id) {
             return ids.indexOf(id) === ids.lastIndexOf(id);
           });
           ids.length.should.equal(res.errors.length,
