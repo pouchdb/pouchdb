@@ -26,6 +26,13 @@ exports.getIndexes = utils.toPromise(function (callback) {
   adapter.getIndexes(this, callback);
 });
 
+exports.deleteIndex = utils.toPromise(function (indexDef, callback) {
+
+  var adapter = this.type() === 'http' ? httpIndexes : localIndexes;
+
+  adapter.deleteIndex(this, indexDef, callback);
+});
+
 /* istanbul ignore next */
 if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
