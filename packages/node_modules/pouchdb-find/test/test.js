@@ -3,25 +3,22 @@
 
 var Pouch = require('pouchdb');
 
-//
-// your plugin goes here
-//
 var helloPlugin = require('../');
 Pouch.plugin(helloPlugin);
 
 var chai = require('chai');
 chai.use(require("chai-as-promised"));
 
-//
-// more variables you might want
-//
-chai.should(); // var should = chai.should();
+var should = chai.should();
 require('bluebird'); // var Promise = require('bluebird');
+
+var cloudantPassword = require('./.cloudant-password');
 
 var dbs;
 if (process.browser) {
   dbs = 'testdb' + Math.random() +
-    ',http://localhost:5984/testdb' + Math.round(Math.random() * 100000);
+    ',http://pouch:' + cloudantPassword +
+    '@pouch.cloudant.com/testdb' + Math.round(Math.random() * 100000);
 } else {
   dbs = process.env.TEST_DB;
 }
@@ -42,11 +39,24 @@ function tests(dbName, dbType) {
   afterEach(function () {
     return Pouch.destroy(dbName);
   });
-  describe(dbType + ': hello test suite', function () {
-    it('should say hello', function () {
-      return db.sayHello().then(function (response) {
-        response.should.equal('hello');
+  describe(dbType + ' tests', function () {
+
+    it('should create an index', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name" : "foo-index",
+        "type" : "json"
+      };
+      return db.createIndex(index).then(function (response) {
+        should.exist(response);
+        response.should.deep.equal({"result":"created"});
+        return db.createIndex(index);
+      }).then(function (response) {
+        response.should.deep.equal({ result: 'exists' });
       });
     });
+
   });
 }
