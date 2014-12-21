@@ -17,5 +17,13 @@ function find(db, requestDef, callback) {
   }, callback);
 }
 
+function getIndexes(db, callback) {
+  db.request({
+    method: 'GET',
+    url: '_index'
+  }, callback);
+}
+
 exports.createIndex = createIndex;
 exports.find = find;
+exports.getIndexes = getIndexes;
