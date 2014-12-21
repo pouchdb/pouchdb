@@ -223,6 +223,29 @@ function tests(dbName, dbType) {
       });
     });
 
+    it('deletes indexes', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        return db.deleteIndex(resp.indexes[1]);
+      }).then(function (resp) {
+        resp.should.deep.equal({ok: true});
+        return db.getIndexes();
+      }).then(function (resp) {
+        resp.should.deep.equal({"indexes":[
+          {"ddoc":null,"name":"_all_docs","type":"special","def":{"fields":[{"_id":"asc"}]}}
+        ]});
+      });
+    });
+
     it('error: conflicting sort and selector', function () {
       var index = {
         "index": {
