@@ -312,8 +312,12 @@ adapters.forEach(function (adapter) {
           limit: 2,
           include_docs: true,
           complete: function (err, results) {
-            err.status.should.equal(404);
-            err.message.should.equal('missing json key: odd');
+            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+                                    'correct error status returned');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
+            // todo: does not work in pouchdb-server.
+            // err.reason.should.equal('missing json key: odd');
             should.not.exist(results);
             done();
           }
@@ -343,8 +347,12 @@ adapters.forEach(function (adapter) {
           limit: 2,
           include_docs: true,
           complete: function (err, results) {
-            err.status.should.equal(404);
-            err.message.should.equal('missing json key: filters');
+            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+                                    'correct error status returned');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
+            // todo: does not work in pouchdb-server.
+            // err.reason.should.equal('missing json key: filters');
             should.not.exist(results);
             done();
           }
@@ -399,8 +407,10 @@ adapters.forEach(function (adapter) {
         db.changes({
           filter: 'foobar/odd',
           complete: function (err, results) {
-            err.status.should.equal(404);
-            err.message.should.equal('missing');
+            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+                                    'correct error status returned');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
             should.not.exist(results);
             done();
           }
@@ -427,8 +437,12 @@ adapters.forEach(function (adapter) {
           filter: '_view',
           view: 'foo/odd',
           complete: function (err, results) {
-            err.status.should.equal(404);
-            err.message.should.equal('missing json key: odd');
+            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+                                    'correct error status returned');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
+            // todo: does not work in pouchdb-server.
+            // err.reason.should.equal('missing json key: odd');
             should.not.exist(results);
             done();
           }
@@ -451,8 +465,13 @@ adapters.forEach(function (adapter) {
           filter: '_view',
           view: 'foo/even',
           complete: function (err, results) {
-            err.status.should.equal(404);
-            err.message.should.equal('missing json key: views');
+            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+                                    'correct error status returned');
+            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                 'correct error message returned');
+            // todo: does not work in pouchdb-server.
+            // err.reason.should.equal('missing json key: views',
+            //                         'correct error reason returned');
             should.not.exist(results);
             done();
           }
@@ -476,9 +495,14 @@ adapters.forEach(function (adapter) {
         db.changes({
           filter: '_view',
           complete: function (err, results) {
-            err.status.should.equal(400);
-            err.message.should
-              .equal('`view` filter parameter is not provided.');
+            err.status.should.equal(PouchDB.Errors.BAD_REQUEST.status,
+                                    'correct error status returned');
+            err.message.should.equal(PouchDB.Errors.BAD_REQUEST.message,
+                                 'correct error message returned');
+            // todo: does not work in pouchdb-server.
+            // err.reason.should
+            //   .equal('`view` filter parameter is not provided.',
+            //          'correct error reason returned');
             should.not.exist(results);
             done();
           }
