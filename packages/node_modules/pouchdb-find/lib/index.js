@@ -19,6 +19,13 @@ exports.find = utils.toPromise(function (requestDef, callback) {
   adapter.find(this, requestDef, callback);
 });
 
+exports.getIndexes = utils.toPromise(function (callback) {
+
+  var adapter = this.type() === 'http' ? httpIndexes : localIndexes;
+
+  adapter.getIndexes(this, callback);
+});
+
 /* istanbul ignore next */
 if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
