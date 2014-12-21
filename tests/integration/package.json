@@ -1,0 +1,12 @@
+{
+  "name": "pouchdb-tests-node-webkit",
+  "version": "1.0.0",
+  "description": "package.json is required for node-webkit",
+  "main": "./index.html",
+  "window": {
+    "toolbar": true,
+    "width": 800,
+    "height": 600,
+    "resizable": false
+  }
+}
