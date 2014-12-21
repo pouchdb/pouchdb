@@ -7,6 +7,9 @@ var adapters = [
   ['local', 'local']
 ];
 
+var FORBIDDEN = PouchDB.Errors.FORBIDDEN;
+var UNAUTHORIZED = PouchDB.Errors.UNAUTHORIZED;
+
 if ('saucelabs' in testUtils.params()) {
   adapters = [['local', 'http'], ['http', 'local']];
 }
@@ -2943,7 +2946,7 @@ adapters.forEach(function (adapters) {
       function uuid() {
         return PouchDB.utils.uuid(32, 16).toLowerCase();
       }
-      
+
       // create a bunch of rando, good revisions
       var numRevs = 5;
       var uuids = [];
@@ -3141,6 +3144,159 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    // Errors from validate_doc_update should have the message
+    // defined in PourchDB.Errors instead of the thrown value.
+    it('#3171 Forbidden validate_doc_update error message',
+        function (done) {
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (adapters[1] !== 'http' || !isCouchDB) {
+          return done();
+        }
+
+        var ddoc = {
+          "_id": "_design/validate",
+          "validate_doc_update": function (newDoc) {
+            if (newDoc.foo === 'object') {
+              throw { forbidden: { foo: 'is object' } };
+            } else if (newDoc.foo === 'string') {
+              throw { forbidden: 'Document foo is string' };
+            }
+          }.toString()
+        };
+
+        var remote = new PouchDB(dbs.remote);
+        var db = new PouchDB(dbs.name);
+
+        return remote.put(ddoc).then(function () {
+          var docs = [{foo: 'string'}, {}, {foo: 'object'}];
+          return db.bulkDocs({docs: docs});
+        }).then(function () {
+          return db.replicate.to(dbs.remote);
+        }).then(function (res) {
+          res.ok.should.equal(true);
+          res.docs_read.should.equal(3);
+          res.docs_written.should.equal(1);
+          res.doc_write_failures.should.equal(2);
+          res.errors.should.have.length(2);
+          res.errors.forEach(function (e) {
+            e.status.should.equal(FORBIDDEN.status,
+                                  'correct error status returned');
+            e.name.should.equal(FORBIDDEN.name,
+                                'correct error name returned');
+            e.message.should.equal(FORBIDDEN.message,
+                                   'correct error message returned');
+          });
+
+          return remote.allDocs({limit: 0});
+        }).then(function (res) {
+          res.total_rows.should.equal(2); // 1 plus the validate doc
+          return db.allDocs({limit: 0});
+        }).then(function (res) {
+          res.total_rows.should.equal(3); // 1 valid and 2 invalid
+        }).then(done);
+      });
+    });
+
+    it('#3171 Unauthorized validate_doc_update error message',
+        function (done) {
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (adapters[1] !== 'http' || !isCouchDB) {
+          return done();
+        }
+
+        var ddoc = {
+          "_id": "_design/validate",
+          "validate_doc_update": function (newDoc) {
+            if (newDoc.foo === 'object') {
+              throw { unauthorized: { foo: 'is object' } };
+            } else if (newDoc.foo === 'string') {
+              throw { unauthorized: 'Document foo is string' };
+            }
+          }.toString()
+        };
+
+        var remote = new PouchDB(dbs.remote);
+        var db = new PouchDB(dbs.name);
+
+        return remote.put(ddoc).then(function () {
+          var docs = [{foo: 'string'}, {}, {foo: 'object'}];
+          return db.bulkDocs({docs: docs});
+        }).then(function () {
+          return db.replicate.to(dbs.remote);
+        }).then(function (res) {
+          res.ok.should.equal(true);
+          res.docs_read.should.equal(3);
+          res.docs_written.should.equal(1);
+          res.doc_write_failures.should.equal(2);
+          res.errors.should.have.length(2);
+          res.errors.forEach(function (e) {
+            e.status.should.equal(UNAUTHORIZED.status,
+                                  'correct error status returned');
+            e.name.should.equal(UNAUTHORIZED.name,
+                                'correct error name returned');
+            e.message.should.equal(UNAUTHORIZED.message,
+                                   'correct error message returned');
+          });
+
+          return remote.allDocs({limit: 0});
+        }).then(function (res) {
+          res.total_rows.should.equal(2); // 1 plus the validate doc
+          return db.allDocs({limit: 0});
+        }).then(function (res) {
+          res.total_rows.should.equal(3); // 1 valid and 2 invalid
+        }).then(done);
+      });
+    });
+
+    it('#3070 Doc IDs with validate_doc_update errors',
+        function (done) {
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (adapters[1] !== 'http' || !isCouchDB) {
+          return done();
+        }
+
+        var ddoc = {
+          "_id": "_design/validate",
+          "validate_doc_update": function (newDoc) {
+            if (newDoc.foo) {
+              throw { unauthorized: 'go away, no picture' };
+            }
+          }.toString()
+        };
+
+        var remote = new PouchDB(dbs.remote);
+        var db = new PouchDB(dbs.name);
+
+        return remote.put(ddoc).then(function () {
+          var docs = [{foo: 'string'}, {}, {foo: 'object'}];
+          return db.bulkDocs({docs: docs});
+        }).then(function () {
+          return db.replicate.to(dbs.remote);
+        }).then(function (res) {
+          var ids = [];
+          res.ok.should.equal(true);
+          res.docs_read.should.equal(3);
+          res.docs_written.should.equal(1);
+          res.doc_write_failures.should.equal(2);
+          res.errors.should.have.length(2);
+          res.errors.forEach(function (e) {
+            should.exist(e.id, 'get doc id with error message');
+            ids.push(e.id);
+          });
+          ids = ids.filter(function (id) {
+            return ids.indexOf(id) === ids.lastIndexOf(id);
+          });
+          ids.length.should.equal(res.errors.length,
+                                  'doc ids are unique');
+          return remote.allDocs({limit: 0});
+        }).then(function (res) {
+          res.total_rows.should.equal(2); // 1 plus the validate doc
+          return db.allDocs({limit: 0});
+        }).then(function (res) {
+          res.total_rows.should.equal(3); // 1 valid and 2 invalid
+        }).then(done);
+      });
+    });
   });
 });
 
