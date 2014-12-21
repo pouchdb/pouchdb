@@ -25,6 +25,7 @@
     "beforeEach",
     "afterEach",
     "it",
-    "emit"
+    "emit",
+    "-Promise"
   ]
 }

@@ -1,11 +1,11 @@
 'use strict';
 
-var Promise;
+var PouchPromise;
 /* istanbul ignore next */
 if (typeof window !== 'undefined' && window.PouchDB) {
-  Promise = window.PouchDB.utils.Promise;
+  PouchPromise = window.PouchDB.utils.Promise;
 } else {
-  Promise = typeof global.Promise === 'function' ? global.Promise : require('lie');
+  PouchPromise = typeof global.Promise === 'function' ? global.Promise : require('lie');
 }
 /* istanbul ignore next */
 exports.once = function (fun) {
@@ -49,7 +49,7 @@ exports.toPromise = function (func) {
         });
       };
     }
-    var promise = new Promise(function (fulfill, reject) {
+    var promise = new PouchPromise(function (fulfill, reject) {
       try {
         var callback = exports.once(function (err, mesg) {
           if (err) {
@@ -80,4 +80,36 @@ exports.toPromise = function (func) {
 };
 
 exports.inherits = require('inherits');
-exports.Promise = Promise;
+exports.Promise = PouchPromise;
+
+if (!process.browser || !('atob' in global)) {
+  exports.atob = function (str) {
+    var base64 = new Buffer(str, 'base64');
+    // Node.js will just skip the characters it can't encode instead of
+    // throwing and exception
+    if (base64.toString('base64') !== str) {
+      throw ("Cannot base64 encode full string");
+    }
+    return base64.toString('binary');
+  };
+} else {
+  exports.atob = function (str) {
+    return atob(str);
+  };
+}
+
+if (!process.browser || !('btoa' in global)) {
+  exports.btoa = function (str) {
+    return new Buffer(str, 'binary').toString('base64');
+  };
+} else {
+  exports.btoa = function (str) {
+    return btoa(str);
+  };
+}
+
+exports.clone = function (obj) {
+  return exports.extend(true, {}, obj);
+};
+
+exports.extend = require('pouchdb-extend');
