@@ -122,7 +122,11 @@ function testComplete(result) {
 function startSelenium(callback) {
 
   // Start selenium
-  spawn('java', ['-jar', path.resolve(__dirname, SELENIUM_PATH)], {});
+  spawn('java', [
+    '-jar', 
+    path.resolve(__dirname, SELENIUM_PATH), 
+    '-Dwebdriver.chrome.driver=./chromedriver2_server'
+    ], {});
 
   var retries = 0;
   var started = function () {
