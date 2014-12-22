@@ -1,8 +1,10 @@
 'use strict';
 
 var adapters = [
+  ['http', 'http'],
+  ['http', 'local'],
   ['local', 'http'],
-  ['http', 'local']
+  ['local', 'local']
 ];
 
 adapters.forEach(function (adapters) {
@@ -23,39 +25,33 @@ adapters.forEach(function (adapters) {
     var doc = {_id: '0', integer: 0};
 
     it('Testing issue #3179', function (done) {
+
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      
-      local.put(doc, function () {
-        remote.put(doc, function () {
-          local.sync(remote, function () {
-            local.get(doc._id, {
-              conflicts: true
-            }, function (err, localDoc) {
-              remote.get(doc._id, {
-                conflicts: true
-              }, function (err, remoteDoc) {
-                localDoc.should.deep.equal(remoteDoc);
-                
-                local.remove(doc._id, localDoc._conflicts[0], function () {
-                  local.sync(remote, function () {
-                    local.get(doc._id, {
-                      conflicts: true
-                    }, function (err, localDoc) {
-                      remote.get(doc._id, {
-                        conflicts: true
-                      }, function (err, remoteDoc) {
-                        localDoc.should.deep.equal(remoteDoc);
-                        done();
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
+      var localDoc;
+
+      return local.put({_id: '0', doc: 'local'}).then(function () {
+        return remote.put({_id: '0', doc: 'remote'});
+      }).then(function () {
+        return local.sync(remote);
+      }).then(function () {
+        return local.get(doc._id, {conflicts: true});
+      }).then(function(res) {
+        localDoc = res;
+        return remote.get(doc._id, {conflicts: true});
+      }).then(function (res) {
+        localDoc.should.deep.equal(res);
+        return local.remove(doc._id, localDoc._conflicts[0]);
+      }).then(function () {
+        return local.sync(remote);
+      }).then(function () {
+        return local.get(doc._id, {conflicts: true});
+      }).then(function (res) {
+        localDoc = res;
+        return remote.get(doc._id, {conflicts: true});
+      }).then(function (res) {
+        localDoc.should.deep.equal(res);
+      }).then(done);
     });
   });
 });
