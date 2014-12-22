@@ -50,24 +50,33 @@ function runTests() {
       worker.postMessage('version');
     });
 
-    it('create remote db', function (done) {
-      var worker = new Worker('worker.js');
-      worker.addEventListener('error', function (e) {
-        throw e;
+    var isNodeWebkit = typeof window !== 'undefined' &&
+        typeof process !== 'undefined';
+
+    // does not work in NodeWebkit
+    if (!isNodeWebkit) {
+      it('create remote db', function (done) {
+        var worker = new Worker('worker.js');
+        worker.addEventListener('error', function (e) {
+          throw e;
+        });
+        worker.addEventListener('message', function (e) {
+          e.data.should.equal('lala');
+          worker.terminate();
+          done();
+        });
+        worker.postMessage(sourceFile);
+        worker.postMessage(['create', dbs.remote]);
       });
-      worker.addEventListener('message', function (e) {
-        e.data.should.equal('lala');
-        worker.terminate();
-        done();
-      });
-      worker.postMessage(sourceFile);
-      worker.postMessage(['create', dbs.remote]);
-    });
+    }
 
 
     // Mozilla bug: https://bugzilla.mozilla.org/show_bug.cgi?id=701634
     // IE bug: https://connect.microsoft.com/IE/feedback/details/866495
-    if (!('mozIndexedDB' in window || 'msIndexedDB' in window)) {
+    // NodeWebkit bug... who knows
+    if (!('mozIndexedDB' in window) &&
+        !('msIndexedDB' in window) &&
+        !isNodeWebkit) {
       it('create local db', function (done) {
         var worker = new Worker('worker.js');
         worker.addEventListener('error', function (e) {

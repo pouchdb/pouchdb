@@ -13,13 +13,13 @@
   "strict": true,
   "trailing": true,
   "globalstrict": true,
-  "globals": {
-    "PouchDB": true,
-     "should": true
-  },
   "white": true,
   "indent": 2,
   "forin": true,
+  "globals": {
+    "PouchDB": true,
+    "should": true
+  },
   "predef": [
     "describe",
     "it",
@@ -29,6 +29,10 @@
     "testUtils",
     "emit",
     "EventSource",
+    "indexedDB",
+    "IDBKeyRange",
+    "openDatabase",
+    "sqlitePlugin",
     "-Promise"
   ]
 }

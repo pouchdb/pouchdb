@@ -29,7 +29,11 @@ describe('migration', function () {
 
       beforeEach(function (done) {
 
-        if (!usingDefaultPreferredAdapters() || window.msIndexedDB) {
+        var isNodeWebkit = typeof window !== 'undefined' &&
+          typeof process !== 'undefined';
+
+        if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
+            isNodeWebkit) {
           skip = true;
           done();
           return;

@@ -652,7 +652,7 @@ adapters.forEach(function (adapters) {
         });
       });
     });
-    if (typeof process !== 'undefined' && !process.browser) {
+    if (typeof window === 'undefined' && !process.browser) {
       var fs = require('fs');
       it("destroy using prototype", function () {
         return new PouchDB(dbs.name + 1).then(function (db) {
