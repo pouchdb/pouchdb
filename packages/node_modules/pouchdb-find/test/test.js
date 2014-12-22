@@ -169,25 +169,12 @@ function tests(dbName, dbType) {
       };
       return db.createIndex(index).then(function () {
         return db.bulkDocs([
-          {
-            _id: '1',
-            foo: 'AAA'
-          }, {
-            _id: '2',
-            foo: 'aAA'
-          }, {
-            _id: '3',
-            foo: 'BAA'
-          }, {
-            _id: '4',
-            foo: 'bAA'
-          }, {
-            _id: '5',
-            foo: '\u0000aAA'
-          }, {
-            _id: '6',
-            foo: '\u0001AAA'
-          }
+          { _id: '1', foo: 'AAA'},
+          { _id: '2', foo: 'aAA' },
+          { _id: '3', foo: 'BAA'},
+          { _id: '4', foo: 'bAA'},
+          { _id: '5', foo: '\u0000aAA'},
+          { _id: '6', foo: '\u0001AAA'}
         ]);
       }).then(function () {
         return db.find({
@@ -243,6 +230,352 @@ function tests(dbName, dbType) {
         resp.should.deep.equal({"indexes":[
           {"ddoc":null,"name":"_all_docs","type":"special","def":{"fields":[{"_id":"asc"}]}}
         ]});
+      });
+    });
+
+    it('does gt queries', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$gt": "eb"}},
+          fields: ["_id", "foo"],
+          sort: [{foo: "asc"}]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '3', foo: 'eba'},
+            {_id: '2', foo: 'ebb'},
+            {_id: '1', foo: 'eyo'}
+          ]
+        });
+      });
+    });
+
+    it('does lt queries', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$lt": "eb"}},
+          fields: ["_id", "foo"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '4', foo: 'abo'}
+          ]
+        });
+      });
+    });
+
+    it('does lte queries', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$lte": "eba"}},
+          fields: ["_id", "foo"],
+          sort: [{foo: "asc"}]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '4', foo: 'abo'},
+            {_id: '3', foo: 'eba'},
+          ]
+        });
+      });
+    });
+
+    it('does gt queries, desc sort', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$gt": "eb"}},
+          fields: ["_id", "foo"],
+          sort: [{foo: "desc"}]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '1', foo: 'eyo'},
+            {_id: '2', foo: 'ebb'},
+            {_id: '3', foo: 'eba'}
+          ]
+        });
+      });
+    });
+
+    it('does eq queries', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: "eba"},
+          fields: ["_id", "foo"],
+          sort: [{foo: "asc"}]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '3', foo: 'eba'}
+          ]
+        });
+      });
+    });
+
+    it('does eq queries, no fields', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: "eba"},
+          sort: [{foo: "asc"}]
+        });
+      }).then(function (resp) {
+        should.exist(resp.docs[0]._rev);
+        delete resp.docs[0]._rev;
+        resp.should.deep.equal({
+          docs: [
+            {_id: '3', foo: 'eba'}
+          ]
+        });
+      });
+    });
+
+    it('does eq queries, no fields or sort', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: "eba"}
+        });
+      }).then(function (resp) {
+        should.exist(resp.docs[0]._rev);
+        delete resp.docs[0]._rev;
+        resp.should.deep.equal({
+          docs: [
+            {_id: '3', foo: 'eba'}
+          ]
+        });
+      });
+    });
+
+    it('does eq queries, no index name', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        // this is some kind of auto-generated hash
+        resp.indexes[1].ddoc.should.match(/_design\/.*/);
+        var ddocName = resp.indexes[1].ddoc.split('/')[1];
+        resp.indexes[1].name.should.equal(ddocName);
+        delete resp.indexes[1].ddoc;
+        delete resp.indexes[1].name;
+        resp.should.deep.equal({
+          "indexes": [
+            {
+              "ddoc": null,
+              "name": "_all_docs",
+              "type": "special",
+              "def": {
+                "fields": [
+                  {
+                    "_id": "asc"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "json",
+              "def": {
+                "fields": [
+                  {
+                    "foo": "asc"
+                  }
+                ]
+              }
+            }
+          ]
+        });
+        return db.get('_design/' + ddocName);
+      }).then(function (ddoc) {
+        var ddocId = ddoc._id.split('/')[1];
+
+        Object.keys(ddoc.views).should.deep.equal([ddocId]);
+        delete ddoc._id;
+        delete ddoc._rev;
+        ddoc.views.theView = ddoc.views[ddocId];
+        delete ddoc.views[ddocId];
+        delete ddoc.views.theView.options.w;
+
+        ddoc.should.deep.equal({
+          "language": "query",
+          "views": {
+            theView: {
+              "map": {
+                "fields": {
+                  "foo": "asc"
+                }
+              },
+              "reduce": "_count",
+              "options": {
+                "def": {
+                  "fields": [
+                    "foo"
+                  ]
+                }
+              }
+            }
+          }
+        });
+
+        return db.find({
+          selector: {foo: "eba"}
+        });
+      }).then(function (resp) {
+        should.exist(resp.docs[0]._rev);
+        delete resp.docs[0]._rev;
+        resp.should.deep.equal({
+          docs: [
+            {_id: '3', foo: 'eba'}
+          ]
+        });
+      });
+    });
+
+    it('error: invalid sort json', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$lte": "eba"}},
+          fields: ["_id", "foo"],
+          sort: {foo: "asc"}
+        });
+      }).then(function () {
+        throw new Error('shouldnt be here');
+      }, function (err) {
+        should.exist(err);
       });
     });
 
