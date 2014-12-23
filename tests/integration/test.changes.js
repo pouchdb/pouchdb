@@ -207,21 +207,31 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes Since and limit Old Style limit 0', function (done) {
-      var docs = [
+      var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
-        {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '2', integer: 2}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function (err, info) {
-        db.changes({
-          since: 2,
-          limit: 0,
-          complete: function (err, results) {
-            results.results.length.should.equal(1);
-            done();
-          }
+      db.bulkDocs({ docs: docs1 }, function (err, info) {
+        db.info(function (err, info) {
+          var update_seq = info.update_seq;
+
+          var docs2 = [
+            {_id: '3', integer: 3},
+            {_id: '4', integer: 4}
+          ];
+
+          db.bulkDocs({ docs: docs2 }, function (err, info) {
+            db.changes({
+              since: update_seq,
+              limit: 0,
+              complete: function (err, results) {
+                results.results.length.should.equal(1);
+                done();
+              }
+            });
+          });
         });
       });
     });
