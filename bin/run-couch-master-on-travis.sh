@@ -31,7 +31,7 @@ cd ~/couchdb
 make
 
 # All done, run a cluster
-python dev/run &
+python dev/run -n 1 &
 
 # Lets get rid of this at some point :)
 sleep 10
