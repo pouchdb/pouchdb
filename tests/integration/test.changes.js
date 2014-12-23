@@ -361,10 +361,14 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes limit and filter', function (done) {
-      var docs = [
+      var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
-        {_id: '2', integer: 2},
+        {_id: '2', integer: 2}
+      ];
+      var db = new PouchDB(dbs.name);
+
+      var docs2 = [
         {_id: '3', integer: 3},
         {_id: '4', integer: 4},
         {_id: '5', integer: 5},
@@ -374,26 +378,30 @@ adapters.forEach(function (adapter) {
           filters: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
         }
       ];
-      var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
-        var promise = db.changes({
-          filter: 'foo/even',
-          limit: 2,
-          since: 2,
-          include_docs: true,
-          complete: function (err, results) {
-            results.results.length.should.equal(2);
-            results.results[0].id.should.equal('3');
-            results.results[0].seq.should.equal(4);
-            results.results[0].doc.integer.should.equal(3);
-            results.results[1].id.should.equal('5');
-            results.results[1].seq.should.equal(6);
-            results.results[1].doc.integer.should.equal(5);
-            done();
-          }
+
+      db.bulkDocs({ docs: docs1 }, function (err, info) {
+        db.info(function (err, info) {
+          var update_seq = info.update_seq;
+
+          testUtils.writeDocs(db, docs2, function (err, info) {
+            var promise = db.changes({
+              filter: 'foo/even',
+              limit: 2,
+              since: update_seq,
+              include_docs: true,
+              complete: function (err, results) {
+                results.results.length.should.equal(2);
+                results.results[0].id.should.equal('3');
+                results.results[0].doc.integer.should.equal(3);
+                results.results[1].id.should.equal('5');
+                results.results[1].doc.integer.should.equal(5);
+                done();
+              }
+            });
+            should.exist(promise);
+            promise.cancel.should.be.a('function');
+          });
         });
-        should.exist(promise);
-        promise.cancel.should.be.a('function');
       });
     });
 
