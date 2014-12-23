@@ -220,7 +220,7 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var docs2 = [
         {_id: '2', integer: 11},
@@ -232,24 +232,38 @@ adapters.forEach(function (adapter) {
       testUtils.writeDocs(db, docs1, function (err, info) {
         docs2[0]._rev = info[2].rev;
         docs2[1]._rev = info[3].rev;
-        db.put(docs2[0], function (err, info) {
-          db.put(docs2[1], function (err, info) {
-            db.changes({
-              limit: 2,
-              since: 2,
-              include_docs: true,
-              complete: function (err, results) {
-                results.last_seq.should.equal(6);
-                results = results.results;
-                results.length.should.equal(2);
-                results[0].id.should.equal('2');
-                results[0].seq.should.equal(5);
-                results[0].doc.integer.should.equal(11);
-                results[1].id.should.equal('3');
-                results[1].seq.should.equal(6);
-                results[1].doc.integer.should.equal(12);
-                done();
-              }
+
+        db.info(function (err, info) {
+          var update_seq = info.update_seq;
+
+          db.put(docs2[0], function (err, info) {
+            docs2[0]._rev = info.rev;
+            db.put(docs2[1], function (err, info) {
+              docs2[1]._rev = info.rev;
+              db.changes({
+                limit: 2,
+                since: update_seq,
+                include_docs: true,
+                complete: function (err, results) {
+                  results = results.results;
+                  results.length.should.equal(2);
+
+                  // order is not guaranteed
+                  var first = results[0];
+                  var second = results[1];
+                  if (first.id === '3') {
+                    second = first;
+                    first = results[1];
+                  }
+                  first.id.should.equal('2');
+                  first.doc.integer.should.equal(docs2[0].integer);
+                  first.doc._rev.should.equal(docs2[0]._rev);
+                  second.id.should.equal('3');
+                  second.doc.integer.should.equal(docs2[1].integer);
+                  second.doc._rev.should.equal(docs2[1]._rev);
+                  done();
+                }
+              });
             });
           });
         });
