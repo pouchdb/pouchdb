@@ -108,7 +108,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes Since New Style', function (done) {
-      var docs = [
+      var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
@@ -120,20 +120,30 @@ adapters.forEach(function (adapter) {
         {_id: '8', integer: 9},
         {_id: '9', integer: 9},
         {_id: '10', integer: 10},
-        {_id: '11', integer: 11},
-        {_id: '12', integer: 12},
-        {_id: '13', integer: 13}
+        {_id: '11', integer: 11}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function (err, info) {
-        var promise = db.changes({
-          since: 12
-        }).on('complete', function (results) {
-          results.results.length.should.equal(2);
-          done();
+
+      db.bulkDocs({ docs: docs1 }, function (err, info) {
+        db.info(function (err, info) {
+          var update_seq = info.update_seq;
+
+          var docs2 = [
+            {_id: '12', integer: 12},
+            {_id: '13', integer: 13}
+          ];
+
+          db.bulkDocs({ docs: docs2 }, function (err, info) {
+            var promise = db.changes({
+              since: update_seq
+            }).on('complete', function (results) {
+              results.results.length.should.be.at.least(2);
+              done();
+            });
+            should.exist(promise);
+            promise.cancel.should.be.a('function');
+          });
         });
-        should.exist(promise);
-        promise.cancel.should.be.a('function');
       });
     });
 
