@@ -51,7 +51,7 @@ adapters.forEach(function (adapters) {
         return remote.get(doc._id, {conflicts: true});
       }).then(function (res) {
         localDoc.should.deep.equal(res);
-      }).then(done);
+      }).catch(done);
     });
   });
 });
