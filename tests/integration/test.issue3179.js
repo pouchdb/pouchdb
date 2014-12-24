@@ -22,13 +22,12 @@ adapters.forEach(function (adapters) {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
-    var doc = {_id: '0', integer: 0};
-
     it('Testing issue #3179', function (done) {
 
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var localDoc;
+      var doc = {_id: '0', integer: 0};
 
       return local.put({_id: '0', doc: 'local'}).then(function () {
         return remote.put({_id: '0', doc: 'remote'});
@@ -40,7 +39,8 @@ adapters.forEach(function (adapters) {
         localDoc = res;
         return remote.get(doc._id, {conflicts: true});
       }).then(function (res) {
-        localDoc.should.deep.equal(res);
+        localDoc.doc.should.equal(res.doc);
+        localDoc._conflicts.should.deep.equal(res._conflicts);
         return local.remove(doc._id, localDoc._conflicts[0]);
       }).then(function () {
         return local.sync(remote);
@@ -50,8 +50,10 @@ adapters.forEach(function (adapters) {
         localDoc = res;
         return remote.get(doc._id, {conflicts: true});
       }).then(function (res) {
-        localDoc.should.deep.equal(res);
-      }).catch(done);
+        localDoc.doc.should.equal(res.doc);
+        res.should.not.have.property('_conflicts');
+        localDoc.should.not.have.property('_conflicts');
+      }).then(done).catch(done);
     });
   });
 });
