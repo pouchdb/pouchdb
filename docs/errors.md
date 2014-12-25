@@ -75,15 +75,15 @@ There is a limit of one database per app in some versions of the Android WebView
 
 {% include anchor.html class="h3" title="Database size limitation of ~5MB on iOS with Cordova/Phone Gap" hash="size_limitation_5mb" %}
 
-If you're storing large amounts of data, such as PNG attachments, the [SQLite plugin][sqlite] is again your friend. (See [issue #1260](https://github.com/daleharvey/pouchdb/issues/1260) for details.)
+If you're storing large amounts of data, such as PNG attachments, the [SQLite plugin][sqlite] is again your friend. (See [issue #1260](https://github.com/pouchdb/pouchdb/issues/1260) for details.)
 
 {% include anchor.html class="h3" title="CouchDB returns a 404 for GETs from a CouchApp" hash="404_get_couchapp" %}
 
-Certain URL rewrites are broken by PouchDB's cache-busting; try adding `{cache : false}` to the PouchDB constructor. (See [issue #1233](https://github.com/daleharvey/pouchdb/issues/1233) for details.)
+Certain URL rewrites are broken by PouchDB's cache-busting; try adding `{cache : false}` to the PouchDB constructor. (See [issue #1233](https://github.com/pouchdb/pouchdb/issues/1233) for details.)
 
 {% include anchor.html class="h3" title="Uncaught TypeError: object is not a function" hash="typeerror_object_is_not_a_function" %}
 
-Did you include the [es6-promise shim library](https://github.com/jakearchibald/es6-promise)?  Not every browser implements ES6 Promises correctly. (See [issue #1747](https://github.com/daleharvey/pouchdb/issues/1747) for details.)
+Did you include the [es6-promise shim library](https://github.com/jakearchibald/es6-promise)?  Not every browser implements ES6 Promises correctly. (See [issue #1747](https://github.com/pouchdb/pouchdb/issues/1747) for details.)
 
 {% include anchor.html class="h3" title="Uncaught TypeError: 'undefined' is not a function" hash="undefined_is_not_a_function" %}
 

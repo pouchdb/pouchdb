@@ -6,7 +6,7 @@ sidebar: nav.html
 
 PouchDB was written to help web developers build applications that work offline as well as they do online. Applications save data locally, so the user can use all the features of an app even when they're offline. Plus, the data is synchronized between clients, so the user has up-to-date data wherever they go.
 
-PouchDB is a free open-source project, written in JavaScript by these [wonderful contributors](https://github.com/daleharvey/pouchdb/graphs/contributors) and inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a>. If you want to get involved then check out the [contributing guide](https://github.com/daleharvey/pouchdb/blob/master/CONTRIBUTING.md).
+PouchDB is a free open-source project, written in JavaScript by these [wonderful contributors](https://github.com/pouchdb/pouchdb/graphs/contributors) and inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a>. If you want to get involved then check out the [contributing guide](https://github.com/pouchdb/pouchdb/blob/master/CONTRIBUTING.md).
 
 {% include anchor.html class="h3" title="Browser Support" hash="browser_support" %}
 
@@ -41,7 +41,7 @@ Latest and greatest: [pouchdb-{{ site.version }}.min.js][latest]
 
 PouchDB is also hosted on [jsdelivr](http://www.jsdelivr.com/#!pouchdb) and [cdnjs](https://cdnjs.com/libraries/pouchdb).
 
-For past releases and changelog, check out the [Github releases page](https://github.com/daleharvey/pouchdb/releases).
+For past releases and changelog, check out the [Github releases page](https://github.com/pouchdb/pouchdb/releases).
 
 #### Node.js
 
