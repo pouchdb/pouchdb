@@ -82,7 +82,7 @@ You can also delete a database using just the name:
 PouchDB.destroy('dbname', function(err, info) { });
 {% endhighlight %}
 
-{% include anchor.html title="Create / update a document" hash="create_document" %}
+{% include anchor.html title="Create/update a document" hash="create_document" %}
 
 ### Using db.put()
 {% highlight js %}
