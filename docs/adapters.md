@@ -145,9 +145,9 @@ Currently these plugins do not work with Browserify itself; you have to include 
 
 **Downloads:**
 
-* [pouchdb.localstorage.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js)
-* [pouchdb.memory.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js)
-* [pouchdb.idb-alt.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js)
+* [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js)
+* [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js)
+* [pouchdb.idb-alt.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js)
 
 #### LocalStorage plugin
 
