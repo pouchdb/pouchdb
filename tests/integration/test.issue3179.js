@@ -24,7 +24,7 @@ adapters.forEach(function (adapters) {
 
     var doc = {_id: '0', integer: 0};
 
-    it('Testing issue #3179', function (done) {
+    it.skip('Testing issue #3179', function (done) {
 
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
