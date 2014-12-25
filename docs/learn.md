@@ -29,7 +29,7 @@ PouchDB requires an ES5 environment. If your browser does not support this (IE <
 
 PouchDB is designed to be a minimal library that is suitable for mobile devices, tablets, desktops &mdash; anything that runs Javascript. To start using PouchDB in your website, you simply [download][latest] it and include it in your webpage.
 
-  [latest]: https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js
+  [latest]: https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js
 
 {% highlight html %}
 <script src="pouchdb-{{ site.version }}.min.js"></script>
