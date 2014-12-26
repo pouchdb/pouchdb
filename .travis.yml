@@ -47,6 +47,9 @@ env:
   - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
+  # Test in node-webkit on travis
+  - CLIENT=selenium:nodewebkit COMMAND=test
+
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
@@ -62,7 +65,7 @@ env:
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
-
+ 
   # Test CouchDB master (aka bigcouch branch)
   - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test
   - BAIL=0 CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
