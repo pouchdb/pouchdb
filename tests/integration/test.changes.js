@@ -1209,6 +1209,10 @@ adapters.forEach(function (adapter) {
     });
 
     it('#3136 tricky changes, limit/descending', function () {
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var db = new PouchDB(dbs.name);
 
       var docs = [
@@ -1396,6 +1400,10 @@ adapters.forEach(function (adapter) {
     });
 
     it('#3136 winningRev has a lower seq, style=all_docs', function () {
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+      
       var db = new PouchDB(dbs.name);
       var tree = [
         [
@@ -1530,6 +1538,10 @@ adapters.forEach(function (adapter) {
     });
 
     it('#3136 winningRev has a lower seq, style=all_docs 2', function () {
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var db = new PouchDB(dbs.name);
       var tree = [
         [
@@ -1645,6 +1657,10 @@ adapters.forEach(function (adapter) {
     });
 
     it('#3136 winningRev has a higher seq, using limit', function () {
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var db = new PouchDB(dbs.name);
       var tree = [
         [
