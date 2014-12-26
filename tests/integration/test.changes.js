@@ -645,6 +645,14 @@ adapters.forEach(function (adapter) {
 
 
     it('Changes last_seq', function (done) {
+      // this test doesn't really make sense for clustered
+      // CouchDB because changes is unordered and last_seq might
+      // not equal the last seq in the _changes feed (although it
+      // should evaluate to the same thing on the server).
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var docs = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -680,6 +688,14 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes last_seq with view instead of filter', function (done) {
+      // this test doesn't really make sense for clustered
+      // CouchDB because changes is unordered and last_seq might
+      // not equal the last seq in the _changes feed (although it
+      // should evaluate to the same thing on the server).
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var docs = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
