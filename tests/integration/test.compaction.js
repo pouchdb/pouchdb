@@ -38,6 +38,46 @@ adapters.forEach(function (adapter) {
       }));
     });
 
+    it('#3251 massively parallel compaction while getting', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+
+      var doc = {_id: 'foo'};
+
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+      }).then(function () {
+
+        var updatePromise = PouchDB.utils.Promise.resolve();
+
+        for (var i  = 0; i < 20; i++) {
+          /* jshint loopfunc: true */
+          updatePromise = updatePromise.then(function () {
+            return db.put(doc).then(function (res) {
+              doc._rev = res.rev;
+              return db.compact();
+            });
+          });
+        }
+
+        var tasks = [updatePromise];
+        for (var ii = 0; ii < 300; ii++) {
+          /* jshint loopfunc: true */
+          var task = db.get('foo');
+          for (var j =0; j < 10; j++) {
+            task = task.then(function () {
+              return new PouchDB.utils.Promise(function (resolve) {
+                setTimeout(resolve, Math.floor(Math.random() * 10));
+              });
+            }).then(function () {
+              return db.get('foo');
+            });
+          }
+          tasks.push(task);
+        }
+        return PouchDB.utils.Promise.all(tasks);
+      });
+    });
+
     it('Compaction document with no revisions to remove', function (done) {
       var db = new PouchDB(dbs.name);
       var doc = {_id: 'foo', value: 'bar'};
@@ -1429,6 +1469,84 @@ adapters.forEach(function (adapter) {
             });
           });
         });
+      });
+    });
+
+    it('#3251 massively parallel autocompaction while getting', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: true});
+
+      var doc = {_id: 'foo'};
+
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+      }).then(function () {
+
+        var updatePromise = PouchDB.utils.Promise.resolve();
+
+        for (var i  = 0; i < 20; i++) {
+          /* jshint loopfunc: true */
+          updatePromise = updatePromise.then(function () {
+            return db.put(doc).then(function (res) {
+              doc._rev = res.rev;
+            });
+          });
+        }
+
+        var tasks = [updatePromise];
+        for (var ii = 0; ii < 300; ii++) {
+          /* jshint loopfunc: true */
+          var task = db.get('foo');
+          for (var j =0; j < 10; j++) {
+            task = task.then(function () {
+              return new PouchDB.utils.Promise(function (resolve) {
+                setTimeout(resolve, Math.floor(Math.random() * 10));
+              });
+            }).then(function () {
+              return db.get('foo');
+            });
+          }
+          tasks.push(task);
+        }
+        return PouchDB.utils.Promise.all(tasks);
+      });
+    });
+
+    it('#3251 massively parallel autocompaction while allDocsing', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: true});
+
+      var doc = {_id: 'foo'};
+
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+      }).then(function () {
+
+        var updatePromise = PouchDB.utils.Promise.resolve();
+
+        for (var i  = 0; i < 20; i++) {
+          /* jshint loopfunc: true */
+          updatePromise = updatePromise.then(function () {
+            return db.put(doc).then(function (res) {
+              doc._rev = res.rev;
+            });
+          });
+        }
+
+        var tasks = [updatePromise];
+        for (var ii = 0; ii < 300; ii++) {
+          /* jshint loopfunc: true */
+          var task = db.allDocs({key: 'foo', include_docs: true});
+          for (var j =0; j < 10; j++) {
+            task = task.then(function () {
+              return new PouchDB.utils.Promise(function (resolve) {
+                setTimeout(resolve, Math.floor(Math.random() * 10));
+              });
+            }).then(function () {
+              return db.allDocs({key: 'foo', include_docs: true});
+            });
+          }
+          tasks.push(task);
+        }
+        return PouchDB.utils.Promise.all(tasks);
       });
     });
 
