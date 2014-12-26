@@ -1225,7 +1225,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('#3136 style=all_docs & include_docs, right order', function () {
+    it('#3136 style=all_docs & include_docs', function () {
 
       var db = new PouchDB(dbs.name);
 
@@ -1248,7 +1248,7 @@ adapters.forEach(function (adapter) {
         var ids = res.results.map(function (x) {
           return x.id;
         });
-        ids.should.deep.equal(docIds);
+        ids.should.include.members(docIds);
       });
     });
 
