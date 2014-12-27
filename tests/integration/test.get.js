@@ -740,5 +740,33 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3251-2 lots of parallel PUTs', function () {
+      var db = new PouchDB(dbs.name);
+
+      function createDoc(i) {
+        return db.put({_id: 'foo' + i}).then(function (res) {
+          var rev = res.rev;
+          return new PouchDB.utils.Promise(function (resolve) {
+            setTimeout(resolve, Math.floor(Math.random() * 10));
+          }).then(function () {
+            return db.put({_id: 'foo' + i, _rev: rev});
+          });
+        });
+      }
+
+      var tasks = [];
+      for (var i = 0; i < 100; i++) {
+        tasks.push(createDoc(i));
+      }
+
+      return PouchDB.utils.Promise.all(tasks).then(function () {
+        var getTasks = [];
+        for (var i = 0; i < 100; i++) {
+          getTasks.push(db.get('foo' + i));
+        }
+        return PouchDB.utils.Promise.all(getTasks);
+      });
+    });
+
   });
 });
