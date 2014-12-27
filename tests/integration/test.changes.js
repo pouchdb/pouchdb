@@ -9,6 +9,20 @@ adapters.forEach(function (adapter) {
 
     var dbs = {};
 
+    // if it exists, return the single element
+    // which has the specific id. Else retun null.
+    // useful for finding elements within a _changes feed
+    function findById(array, id) {
+      var result = array.filter(function (i) {
+        return i.id === id;
+      });
+
+      //
+      if (result.length === 1) {
+        return result[0];
+      }
+    }
+
     beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       dbs.remote = testUtils.adapterUrl(adapter, 'test_repl_remote');
@@ -607,42 +621,56 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes limit and view instead of filter', function (done) {
-      var docs = [
+      var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
-        {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
-        {_id: '4', integer: 4},
-        {_id: '5', integer: 5},
-        {
-          _id: '_design/foo',
-          integer: 4,
-          views: { even: { map: 'function (doc) { if (doc.integer % 2 === 1) ' +
-                           '{ emit(doc._id, null) }; }' } }
-        }
+        {_id: '2', integer: 2}
       ];
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
-        db.changes({
-          filter: '_view',
-          view: 'foo/even',
-          limit: 2,
-          since: 2,
-          include_docs: true,
-          complete: function (err, results) {
-            results.results.length.should.equal(2);
-            results.results[0].id.should.equal('3');
-            results.results[0].seq.should.equal(4);
-            results.results[0].doc.integer.should.equal(3);
-            results.results[1].id.should.equal('5');
-            results.results[1].seq.should.equal(6);
-            results.results[1].doc.integer.should.equal(5);
-            done();
-          }
+      db.bulkDocs({ docs: docs1 }, function (err, info) {
+        db.info(function (err, info) {
+          var update_seq = info.update_seq;
+
+          var docs2 = [
+            {_id: '3', integer: 3},
+            {_id: '4', integer: 4},
+            {_id: '5', integer: 5},
+            {
+              _id: '_design/foo',
+              integer: 4,
+              views: { even: { map: 'function (doc) ' +
+                '{ if (doc.integer % 2 === 1) ' +
+                '{ emit(doc._id, null) }; }'
+                }
+              }
+            }
+          ];
+
+          db.bulkDocs({ docs: docs2 }, function (err, info) {
+
+            db.changes({
+              filter: '_view',
+              view: 'foo/even',
+              limit: 2,
+              since: update_seq,
+              include_docs: true,
+              complete: function (err, results) {
+                var changes = results.results;
+                changes.length.should.equal(2);
+
+                findById(changes, '3')
+                  .doc.integer.should.equal(3);
+
+                findById(changes, '5')
+                  .doc.integer.should.equal(5);
+
+                done();
+              }
+            });
+          });
         });
       });
     });
-
 
     it('Changes last_seq', function (done) {
       var docs = [
