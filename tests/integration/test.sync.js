@@ -355,5 +355,81 @@ adapters.forEach(function (adapters) {
         done();
       }, done);
     });
+
+    it('#3270 triggers "replicated" events',
+        function(done) {
+      var replicatedDocs = [];
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: '1'},
+        {_id: '2'},
+        {_id: '3'}
+      ];
+      db.bulkDocs({ docs: docs }, {})
+      .then(function(results) {
+        var sync = db.sync(dbs.remote);
+        sync.on('replicated', function(change) {
+          replicatedDocs.push(change);
+        });
+        return sync;
+      })
+      .then(function() {
+        replicatedDocs.length.should.equal(3);
+        replicatedDocs[0].doc._id.should.equal('1');
+        replicatedDocs[1].doc._id.should.equal('2');
+        replicatedDocs[2].doc._id.should.equal('3');
+        replicatedDocs[0].direction.should.equal('push');
+        done();
+      })
+      .catch(done);
+    });
+
+    it('#3270 triggers "denied" events',
+        function (done) {
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (/*adapters[1] !== 'http' || */!isCouchDB) {
+          return done();
+        }
+        if (adapters[0] !== 'local' || adapters[1] !== 'http') {
+          return done();
+        }
+
+        var deniedErrors = [];
+        var ddoc = {
+          "_id": "_design/validate",
+          "validate_doc_update": function (newDoc) {
+            if (newDoc.foo) {
+              throw { unauthorized: 'go away, no picture' };
+            }
+          }.toString()
+        };
+
+        var remote = new PouchDB(dbs.remote);
+        var db = new PouchDB(dbs.name);
+
+        return remote.put(ddoc).then(function () {
+          var docs = [
+            {_id: 'foo1', foo: 'string'},
+            {_id: 'nofoo'},
+            {_id: 'foo2', foo: 'object'}
+          ];
+          return db.bulkDocs({docs: docs});
+        }).then(function () {
+          var sync = db.sync(dbs.remote);
+          sync.on('denied', function(error) {
+            deniedErrors.push(error);
+          });
+          return sync;
+        }).then(function (res) {
+          deniedErrors.length.should.equal(2);
+          deniedErrors[0].doc.id.should.equal('foo1');
+          deniedErrors[0].doc.name.should.equal('unauthorized');
+          deniedErrors[1].doc.id.should.equal('foo2');
+          deniedErrors[1].doc.name.should.equal('unauthorized');
+          deniedErrors[0].direction.should.equal('push');
+        })
+        .then(done, done);
+      });
+    });
   });
 });
