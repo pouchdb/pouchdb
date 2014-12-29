@@ -89,21 +89,11 @@ function startTests() {
         message: e.err.message,
         stack: e.err.stack
       });
-      if (window.cordova) {
-        window.navigator.notification.alert(
-          'Tests failed!');
-      }
     });
 
     runner.on('end', function () {
       window.results.completed = true;
       window.results.passed++;
-      if (window.cordova) {
-        if (!window.results.failed) {
-          window.navigator.notification.alert(
-            'Tests passed!');
-        }
-      }
     });
   }
 
