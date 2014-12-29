@@ -451,11 +451,12 @@ adapters.forEach(function (adapter) {
           ids.should.include("foo");
           ids.should.include("fee");
           ids.should.not.include("faa");
-          result.last_seq.should.equal(2);
+
+          var update_seq = result.last_seq;
           db.bulkDocs({docs: docsB, new_edits: false}, function (err, result) {
             should.not.exist(err);
             db.changes({
-              since : 2,
+              since : update_seq,
               complete: function (err, result) {
                 var ids = result.results.map(function (row) {
                   return row.id;
@@ -463,13 +464,12 @@ adapters.forEach(function (adapter) {
                 ids.should.not.include("foo");
                 ids.should.not.include("fee");
                 ids.should.include("faa");
-                result.last_seq.should.equal(3);
+
                 db.get('foo', function (err, res) {
                   res._rev.should.equal('1-x');
                   res.bar.should.equal("baz");
                   db.info(function (err, info) {
                     info.doc_count.should.equal(3);
-                    info.update_seq.should.equal(3);
                     done();
                   });
                 });
