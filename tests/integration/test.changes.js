@@ -2211,9 +2211,11 @@ adapters.forEach(function (adapter) {
             include_docs: true,
             complete: function (err, changes) {
               changes.results.length.should.equal(4);
-              var ch = changes.results[3];
-              ch.id.should.equal('3');
-              ch.seq.should.equal(5);
+              var ch = findById(changes.results, '3');
+              // sequence numbers are not incremental in CouchDB 2.0
+              if (!testUtils.isCouchMaster()) {
+                ch.seq.should.equal(5);
+              }
               ch.deleted.should.equal(true);
               done();
             }
