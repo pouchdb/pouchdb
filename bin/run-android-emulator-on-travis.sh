@@ -6,7 +6,7 @@ CWD=$(pwd)
 
 # download android sdk
 
-wget http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz
+curl -sLO http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz
 tar -xzf android-sdk_r24.0.2-linux.tgz
 
 export ANDROID_HOME=$CWD/android-sdk-linux
