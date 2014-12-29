@@ -27,8 +27,8 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
 # set up the emulator
 
-android create avd --force -n test -t android-19 --abi x86
+( sleep 5 && while [ 1 ]; do sleep 1; echo n; done ) | android create avd --force -n test -t android-19 --abi x86
 emulator -avd test -no-skin -no-audio -no-window &
 
 # wait for android emulator to start
-sleep 120
+sleep 180
