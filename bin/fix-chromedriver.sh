@@ -3,26 +3,42 @@
 # TODO: once chromedriver 2.13 is bundled with appium,
 # we can get rid of this
 
-CHROMEDRIVER_VERSION=$(node_modules/appium//build/chromedriver/mac/chromedriver -v | python -c "import re, sys; print re.findall('2\.(\d+)', sys.stdin.read())[0]")
-if [[ $CHROMEDRIVER_VERSION == '13' ]]; then
-  echo "chromedriver version is 2.$CHROMEDRIVER_VERSION"
-  exit 0; # done
+if [[ -x $(which md5) ]]; then
+  MD5=md5
+else
+  MD5=md5sum
 fi
 
-curl -O http://chromedriver.storage.googleapis.com/2.13/chromedriver_mac32.zip
+CHROMEDRIVER_DIR=node_modules/appium//build/chromedriver
 
-# validate checksum, because I'm paranoid
-CHECKSUM=$(md5 chromedriver_mac32.zip | grep e37a65a1be68523385761d29decf15d4)
+echo "updating chromedriver to 2.13"
 
-if [[ -z $CHECKSUM ]]; then
-  rm -f rm chromedriver_mac32.zip
-  echo "downloaded chromedriver_mac32.zip doesn't match expected checksum e37a65a1be68523385761d29decf15d4"
-  exit 1
+if [[ -z $($MD5 $CHROMEDRIVER_DIR/mac/chromedriver | grep 92803b51c1f1191c47d35424fb1c917c) ]]; then
+  curl -sO http://chromedriver.storage.googleapis.com/2.13/chromedriver_mac32.zip
+  unzip chromedriver_mac32.zip
+  rm -f chromedriver_mac32.zip
+  mv -f chromedriver $CHROMEDRIVER_DIR/mac/chromedriver
 fi
-  
 
-unzip chromedriver_mac32.zip
-rm -f chromedriver_mac32.zip
-mv -f chromedriver node_modules/appium//build/chromedriver/mac/chromedriver
+if [[ -z $($MD5 $CHROMEDRIVER_DIR/linux/chromedriver32 | grep 5699eefc62c4530caf1d3e5e34e3d4c7) ]]; then
+  curl -sO http://chromedriver.storage.googleapis.com/2.13/chromedriver_linux32.zip
+  unzip chromedriver_linux32.zip
+  rm -f chromedriver_linux32.zip
+  mv -f chromedriver $CHROMEDRIVER_DIR/linux/chromedriver32
+fi
+
+if [[ -z $($MD5 $CHROMEDRIVER_DIR/linux/chromedriver64 | grep fd7819e4999450e717d8b8ec1e9fa8fe) ]]; then
+  curl -sO http://chromedriver.storage.googleapis.com/2.13/chromedriver_linux64.zip
+  unzip chromedriver_linux64.zip
+  rm -f chromedriver_linux64.zip
+  mv -f chromedriver $CHROMEDRIVER_DIR/linux/chromedriver64
+fi
+
+if [[ -z $($MD5 $CHROMEDRIVER_DIR/windows/chromedriver.exe | grep 4b4ef9e3432aa84aed190457b68c01ad) ]]; then
+  curl -sO http://chromedriver.storage.googleapis.com/2.13/chromedriver_win32.zip
+  unzip chromedriver_win32.zip
+  rm -f chromedriver_win32.zip
+  mv -f chromedriver.exe $CHROMEDRIVER_DIR/windows/chromedriver.exe
+fi
 
 echo "chromedriver updated to 2.13"
