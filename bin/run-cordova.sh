@@ -6,15 +6,17 @@ if [[ -z $CLIENT ]]; then
   CLIENT=android
 fi;
 
-if [[ -z $DEVICE ]]; then
-  ACTION=emulate
-  echo -e "\nUsing default "'$DEVICE'"=false, you can also do:"
-  echo -e '$DEVICE'"=true to run on a real device\n"
-else
-  if [[ $DEVICE -ne 'true' ]]; then
+if [[ -z $ACTION ]]; then
+  if [[ -z $DEVICE ]]; then
     ACTION=emulate
+    echo -e "\nUsing default "'$DEVICE'"=false, you can also do:"
+    echo -e '$DEVICE'"=true to run on a real device\n"
   else
-    ACTION=run
+    if [[ $DEVICE -ne 'true' ]]; then
+      ACTION=emulate
+    else
+      ACTION=run
+    fi;
   fi;
 fi;
 

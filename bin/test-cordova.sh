@@ -8,8 +8,8 @@ echo "Running Appium..."
 ./node_modules/.bin/appium &
 export APPIUM_SERVER_PID=$!
 
-echo "Installing and starting Cordova app..."
-npm run cordova
+echo "Building Cordova app..."
+npm run build-cordova
 
 echo "Testing with Appium..."
 npm run test-appium
