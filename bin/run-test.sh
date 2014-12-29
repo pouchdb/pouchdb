@@ -37,7 +37,9 @@ if [[ ! -z $SERVER ]]; then
   fi
 fi
 
-if [ "$CLIENT" == "unit" ]; then
+if [ "$CLIENT" == "android" ]; then
+    npm run test-cordova
+elif [ "$CLIENT" == "unit" ]; then
     npm run test-unit
 elif [ "$CLIENT" == "node" ]; then
     npm run test-node

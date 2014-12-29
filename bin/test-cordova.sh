@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
+  echo "Running Android in Travis..."
+  ./bin/run-android-emulator-on-travis.sh
+fi
+
 echo "Running dev server..."
 ./bin/dev-server.js &
 export DEV_SERVER_PID=$!
