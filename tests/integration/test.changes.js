@@ -2099,10 +2099,10 @@ adapters.forEach(function (adapter) {
               include_docs: true,
               complete: function (err, changes) {
                 changes.results.length.should.equal(4);
-                changes.results[2].seq.should.equal(5);
-                changes.results[2].id.should.equal('2');
-                changes.results[2].changes.length.should.equal(1);
-                changes.results[2].doc.integer.should.equal(11);
+
+                var second = findById(changes.results, '2');
+                second.changes.length.should.equal(1);
+                second.doc.integer.should.equal(11);
                 done();
               }
             });
