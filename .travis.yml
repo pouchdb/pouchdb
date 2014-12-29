@@ -54,6 +54,7 @@ env:
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
+  - CLIENT=saucelabs:chrome:36 COMMAND=test
   - CLIENT=saucelabs:chrome:37 COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
