@@ -2245,7 +2245,12 @@ adapters.forEach(function (adapter) {
             since: 'now',
             complete: function (err, res) {
               should.not.exist(err);
-              res.last_seq.should.equal(info.update_seq);
+
+              // last_seq and update_seq might be encoded differently
+              // in clustered CouchDB - they cannot be reliably compared.
+              if (!testUtils.isCouchMaster()) {
+                res.last_seq.should.equal(info.update_seq);
+              }
               done();
             }
           });
@@ -2264,7 +2269,11 @@ adapters.forEach(function (adapter) {
             since: 'latest',
             complete: function (err, res) {
               should.not.exist(err);
-              res.last_seq.should.equal(info.update_seq);
+              // last_seq and update_seq might be encoded differently
+              // in clustered CouchDB - they cannot be reliably compared.
+              if (!testUtils.isCouchMaster()) {
+                res.last_seq.should.equal(info.update_seq);
+              }
               done();
             }
           });
