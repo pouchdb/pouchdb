@@ -248,9 +248,12 @@ adapters.forEach(function (adapter) {
                   result.doc._rev.should.equal(conflictDoc2._rev);
                   result.doc._id.should.equal('3', 'correct doc id');
                   winRev._rev.should.equal(result.doc._rev);
-                  result.doc._conflicts.should.be.instanceof(Array);
-                  result.doc._conflicts.should.have.length(2);
-                  conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
+                  // blocked on COUCHDB-2518
+                  if (!testUtils.isCouchMaster()) {
+                    result.doc._conflicts.should.be.instanceof(Array);
+                    result.doc._conflicts.should.have.length(2);
+                    conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
+                  }
                   db.allDocs({
                     include_docs: true,
                     conflicts: true
