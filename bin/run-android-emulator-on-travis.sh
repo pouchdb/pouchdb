@@ -20,7 +20,7 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
 # install sdk tools, android sys images
 
-( sleep 5 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk --no-ui --filter platform-tool,android-19,sysimg-19,build-tools-19.0.1
+( sleep 5 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk --no-ui --filter platform-tool,android-19,sys-img-x86-android19,build-tools-19.0.1
 
 # set up the emulator
 
