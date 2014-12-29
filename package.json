@@ -103,7 +103,8 @@
     "./lib/version.js": "./lib/version-browser.js",
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
     "bluebird": "lie",
-    "leveldown": "level-js"
+    "leveldown": "level-js",
+    "fs": false
   },
   "browserify": {
     "transform": [
