@@ -4,6 +4,12 @@ set -x
 
 CWD=$(pwd)
 
+# Install deps
+sudo apt-get update
+sudo apt-get --no-install-recommends -y install \
+    ant \
+    curl
+
 # download android sdk
 
 curl -sLO http://dl.google.com/android/android-sdk_r24.0.2-linux.tgz
