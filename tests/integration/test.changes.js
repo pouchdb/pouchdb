@@ -859,6 +859,11 @@ adapters.forEach(function (adapter) {
     // Note for the following test that CouchDB's implementation of /_changes
     // with `descending=true` ignores any `since` parameter.
     it('Descending changes', function (done) {
+      // _changes in CouchDB 2.0 does not guarantee order
+      // so skip this test
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       db.post({_id: '0', test: 'ing'}, function (err, res) {
         db.post({_id: '1', test: 'ing'}, function (err, res) {
