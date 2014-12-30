@@ -678,7 +678,7 @@ adapters.forEach(function (adapter) {
       // not equal the last seq in the _changes feed (although it
       // should evaluate to the same thing on the server).
       if (testUtils.isCouchMaster()) {
-        return true;
+        return done();
       }
 
       var docs = [
@@ -721,7 +721,7 @@ adapters.forEach(function (adapter) {
       // not equal the last seq in the _changes feed (although it
       // should evaluate to the same thing on the server).
       if (testUtils.isCouchMaster()) {
-        return true;
+        return done();
       }
 
       var docs = [
