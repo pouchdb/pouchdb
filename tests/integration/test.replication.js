@@ -1141,27 +1141,34 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       var doc1 = {_id: 'adoc', foo: 'bar'};
       var doc2 = {_id: 'adoc', bar: 'baz'};
-      db.put(doc1, function (err, localres) {
-        remote.put(doc2, function (err, remoteres) {
-          db.replicate.to(dbs.remote, function (err, _) {
-            var queryFun = {
-              map: function (doc) {
-                if (doc._conflicts) {
-                  emit(doc._id, [doc._rev].concat(doc._conflicts));
-                }
+      var ddoc = {
+        "_id": "_design/conflicts",
+        views: {
+          conflicts: {
+            map: function (doc) {
+              if (doc._conflicts) {
+                emit(doc._id, [doc._rev].concat(doc._conflicts));
               }
-            };
-            remote.query(queryFun, {
-              reduce: false,
-              conflicts: true
-            }, function (_, res) {
-              res.rows.length.should.equal(1);
-              db.info(function (err, info) {
-                verifyInfo(info, {
-                  update_seq: 1,
-                  doc_count: 1
+            }.toString()
+          }
+        }
+      };
+      remote.put(ddoc, function (err, localres) {
+        db.put(doc1, function (err, localres) {
+          remote.put(doc2, function (err, remoteres) {
+            db.replicate.to(dbs.remote, function (err, _) {
+              remote.query('conflicts/conflicts', {
+                reduce: false,
+                conflicts: true
+              }, function (_, res) {
+                res.rows.length.should.equal(1);
+                db.info(function (err, info) {
+                  verifyInfo(info, {
+                    update_seq: 1,
+                    doc_count: 1
+                  });
+                  done();
                 });
-                done();
               });
             });
           });
