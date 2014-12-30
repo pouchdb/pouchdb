@@ -11,7 +11,7 @@ if [ `uname -m` = x86_64 ]; then
     libgd2-xpm ia32-libs ia32-libs-multiarch
 fi
 sudo apt-get --no-install-recommends -y install \
-    ant curl
+    openjdk-6-jdk ant curl
 
 # download android sdk
 
