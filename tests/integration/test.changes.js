@@ -493,10 +493,10 @@ adapters.forEach(function (adapter) {
               include_docs: true,
               complete: function (err, results) {
                 results.results.length.should.equal(2);
-                results.results[0].id.should.equal('3');
-                results.results[0].doc.integer.should.equal(3);
-                results.results[1].id.should.equal('5');
-                results.results[1].doc.integer.should.equal(5);
+                var three = findById(results.results, '3');
+                three.doc.integer.should.equal(3);
+                var five = findById(results.results, '5');
+                five.doc.integer.should.equal(5);
                 done();
               }
             });
