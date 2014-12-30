@@ -1065,7 +1065,9 @@ adapters.forEach(function (adapters) {
                                   // if auto_compaction is enabled, will
                                   // be 5 because 2-c goes "missing" and
                                   // the other db tries to re-put it
-                                  info.update_seq.should.be.within(4, 5);
+                                  if (!testUtils.isCouchMaster()) {
+                                    info.update_seq.should.be.within(4, 5);
+                                  }
                                   info.doc_count.should.equal(1);
                                   db2.info(function (err, info2) {
                                     info2.update_seq.should.equal(3);
