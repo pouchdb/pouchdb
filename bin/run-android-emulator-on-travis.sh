@@ -5,8 +5,15 @@ set -x
 CWD=$(pwd)
 
 # Install deps
+sudo dpkg --add-architecture i386
 sudo apt-get update
 sudo apt-get --no-install-recommends -y install \
+    libstdc++6:i386 \
+    libgcc1:i386 \
+    zlib1g:i386 \
+    libncurses5:i386 \
+    libsdl1.2debian:i386 \
+    ia32-libs \
     ant \
     curl
 
@@ -23,7 +30,7 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 ( sleep 5 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk \
   --all \
   --no-ui \
-  --filter platform-tool,android-19,sys-img-x86-android-19,build-tools-21.1.2
+  --filter tools,platform-tool,android-19,sys-img-x86-android-19,build-tools-21.1.2
 
 # set up the emulator
 
