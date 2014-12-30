@@ -36,6 +36,30 @@ adapters.forEach(function (adapters) {
       {_id: '2', integer: 2, string: '2'}
     ];
 
+    // simplify for easier deep equality checks
+    function simplifyChanges(res) {
+      var changes = res.results.map(function (change) {
+        return {
+          id: change.id,
+          deleted: change.deleted,
+          changes: change.changes.map(function (x) {
+            return x.rev;
+          }).sort(),
+          doc: change.doc
+        };
+      });
+
+      // in CouchDB 2.0, changes is not guaranteed to be
+      // ordered
+      if (testUtils.isCouchMaster()) {
+        changes.sort(function (a, b) {
+          return a.id > b.id;
+        });
+      }
+
+      return changes;
+    }
+
     it('Test basic pull replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -764,19 +788,6 @@ adapters.forEach(function (adapters) {
         ]
       ];
 
-      // simplify for easier deep equality checks
-      function simplifyChanges(res) {
-        return res.results.map(function (change) {
-          return {
-            id: change.id,
-            deleted: change.deleted,
-            changes: change.changes.map(function (x) {
-              return x.rev;
-            }).sort()
-          };
-        });
-      }
-
       var chain = PouchDB.utils.Promise.resolve();
       tree.forEach(function (docs) {
         chain = chain.then(function () {
@@ -804,21 +815,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('#3136 style=all_docs with conflicts', function () {
-
-      // simplify for easier deep equality checks
-      function simplifyChanges(res) {
-        return res.results.map(function (change) {
-          return {
-            id: change.id,
-            deleted: change.deleted,
-            changes: change.changes.map(function (x) {
-              return x.rev;
-            }).sort(),
-            doc: change.doc
-          };
-        });
-      }
-
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -890,21 +886,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('#3136 style=all_docs with conflicts reversed', function () {
-
-      // simplify for easier deep equality checks
-      function simplifyChanges(res) {
-        return res.results.map(function (change) {
-          return {
-            id: change.id,
-            deleted: change.deleted,
-            changes: change.changes.map(function (x) {
-              return x.rev;
-            }).sort(),
-            doc: change.doc
-          };
-        });
-      }
-
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
