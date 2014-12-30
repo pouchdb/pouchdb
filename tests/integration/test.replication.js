@@ -60,6 +60,13 @@ adapters.forEach(function (adapters) {
       return changes;
     }
 
+    function verifyInfo(info, expected) {
+      if (!testUtils.isCouchMaster()) {
+        info.update_seq.should.equal(expected.update_seq, 'update_seq');
+      }
+      info.doc_count.should.equal(expected.doc_count, 'doc_count');
+    }
+
     it('Test basic pull replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -68,8 +75,10 @@ adapters.forEach(function (adapters) {
           result.ok.should.equal(true);
           result.docs_written.should.equal(docs.length);
           db.info(function (err, info) {
-            info.update_seq.should.equal(3, 'update_seq');
-            info.doc_count.should.equal(3, 'doc_count');
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
             done();
           });
         });
@@ -83,8 +92,10 @@ adapters.forEach(function (adapters) {
           result.ok.should.equal(true);
           result.docs_written.should.equal(docs.length);
           new PouchDB(dbs.name).info(function (err, info) {
-            info.update_seq.should.equal(3, 'update_seq');
-            info.doc_count.should.equal(3, 'doc_count');
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
             done();
           });
         });
@@ -99,8 +110,10 @@ adapters.forEach(function (adapters) {
             result.ok.should.equal(true);
             result.docs_written.should.equal(docs.length);
             new PouchDB(dbs.name).info(function (err, info) {
-              info.update_seq.should.equal(3, 'update_seq');
-              info.doc_count.should.equal(3, 'doc_count');
+              verifyInfo(info, {
+                update_seq: 3,
+                doc_count: 3
+              });
               done();
             });
           }
@@ -146,8 +159,10 @@ adapters.forEach(function (adapters) {
           result.ok.should.equal(true);
           result.docs_written.should.equal(docs.length);
           db.info(function (err, info) {
-            info.update_seq.should.equal(3, 'update_seq');
-            info.doc_count.should.equal(3, 'doc_count');
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
             done();
           });
         });
@@ -382,8 +397,10 @@ adapters.forEach(function (adapters) {
           result.ok.should.equal(true);
           result.docs_written.should.equal(docs.length);
           db.info(function (err, info) {
-            info.update_seq.should.equal(3);
-            info.doc_count.should.equal(3);
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
             done();
           });
         });
@@ -398,8 +415,10 @@ adapters.forEach(function (adapters) {
           remote.allDocs(function (err, result) {
             result.rows.length.should.equal(docs.length);
             db.info(function (err, info) {
-              info.update_seq.should.equal(3);
-              info.doc_count.should.equal(3);
+              verifyInfo(info, {
+                update_seq: 3,
+                doc_count: 3
+              });
               done();
             });
           });
@@ -418,8 +437,10 @@ adapters.forEach(function (adapters) {
             db.replicate.to(dbs.remote, function (err, result) {
               result.docs_read.should.equal(0);
               db.info(function (err, info) {
-                info.update_seq.should.equal(1);
-                info.doc_count.should.equal(1);
+                verifyInfo(info, {
+                  update_seq: 1,
+                  doc_count: 1
+                });
                 done();
               });
             });
@@ -440,8 +461,10 @@ adapters.forEach(function (adapters) {
             result.docs_written.should.equal(0);
             result.docs_read.should.equal(0);
             db.info(function (err, info) {
-              info.update_seq.should.equal(3);
-              info.doc_count.should.equal(3);
+              verifyInfo(info, {
+                update_seq: 3,
+                doc_count: 3
+              });
               done();
             });
           });
@@ -468,8 +491,10 @@ adapters.forEach(function (adapters) {
               complete: function (err, details) {
                 details.docs_read.should.equal(0);
                 db.info(function (err, info) {
-                  info.update_seq.should.equal(3);
-                  info.doc_count.should.equal(3);
+                  verifyInfo(info, {
+                    update_seq: 3,
+                    doc_count: 3
+                  });
                   done();
                 });
               }
@@ -494,8 +519,10 @@ adapters.forEach(function (adapters) {
             complete: function (err, details) {
               details.docs_read.should.equal(0);
               db.info(function (err, info) {
-                info.update_seq.should.equal(3);
-                info.doc_count.should.equal(3);
+                verifyInfo(info, {
+                  update_seq: 3,
+                  doc_count: 3
+                });
                 done();
               });
             }
@@ -536,8 +563,10 @@ adapters.forEach(function (adapters) {
                 result.ok.should.equal(true);
                 result.docs_written.should.equal(1);
                 db.info(function (err, info) {
-                  info.update_seq.should.equal(2);
-                  info.doc_count.should.equal(1);
+                  verifyInfo(info, {
+                    update_seq: 2,
+                    doc_count: 1
+                  });
                   done();
                 });
               });
@@ -564,8 +593,10 @@ adapters.forEach(function (adapters) {
                 result.ok.should.equal(true);
                 result.docs_written.should.equal(1);
                 db.info(function (err, info) {
-                  info.update_seq.should.equal(3);
-                  info.doc_count.should.equal(1);
+                  verifyInfo(info, {
+                    update_seq: 3,
+                    doc_count: 1
+                  });
                   done();
                 });
               });
@@ -996,8 +1027,10 @@ adapters.forEach(function (adapters) {
         result.ok.should.equal(true);
         result.docs_written.should.equal(1);
         db.info(function (err, info) {
-          info.update_seq.should.equal(3);
-          info.doc_count.should.equal(1);
+          verifyInfo(info, {
+            update_seq: 3,
+            doc_count: 1
+          });
           done();
         });
       }, function (a) {
@@ -1055,8 +1088,10 @@ adapters.forEach(function (adapters) {
                                   }
                                   info.doc_count.should.equal(1);
                                   db2.info(function (err, info2) {
-                                    info2.update_seq.should.equal(3);
-                                    info2.doc_count.should.equal(1);
+                                    verifyInfo(info2, {
+                                      update_seq: 3,
+                                      doc_count: 1
+                                    });
                                     done();
                                   });
                                 });
@@ -1089,8 +1124,10 @@ adapters.forEach(function (adapters) {
             remote.get('adoc', { conflicts: true }, function (err, result) {
               result.should.have.property('_conflicts');
               db.info(function (err, info) {
-                info.update_seq.should.equal(1);
-                info.doc_count.should.equal(1);
+                verifyInfo(info, {
+                  update_seq: 1,
+                  doc_count: 1
+                });
                 done();
               });
             });
@@ -1120,8 +1157,10 @@ adapters.forEach(function (adapters) {
             }, function (_, res) {
               res.rows.length.should.equal(1);
               db.info(function (err, info) {
-                info.update_seq.should.equal(1);
-                info.doc_count.should.equal(1);
+                verifyInfo(info, {
+                  update_seq: 1,
+                  doc_count: 1
+                });
                 done();
               });
             });
@@ -1142,8 +1181,10 @@ adapters.forEach(function (adapters) {
             return;
           }
           db.info(function (err, info) {
-            info.update_seq.should.equal(4);
-            info.doc_count.should.equal(4);
+            verifyInfo(info, {
+              update_seq: 4,
+              doc_count: 4
+            });
             done();
           });
         };
@@ -1180,8 +1221,10 @@ adapters.forEach(function (adapters) {
             return;
           }
           db.info(function (err, info) {
-            info.update_seq.should.equal(4);
-            info.doc_count.should.equal(4);
+            verifyInfo(info, {
+              update_seq: 4,
+              doc_count: 4
+            });
             done();
           });
         };
@@ -1232,8 +1275,10 @@ adapters.forEach(function (adapters) {
             complete: function (err, reason) {
               count.should.equal(4);
               db.info(function (err, info) {
-                info.update_seq.should.equal(4);
-                info.doc_count.should.equal(4);
+                verifyInfo(info, {
+                  update_seq: 4,
+                  doc_count: 4
+                });
                 done();
               });
             },
@@ -1285,8 +1330,10 @@ adapters.forEach(function (adapters) {
               if (err) { done(err); }
               docs.rows.length.should.equal(2);
               db.info(function (err, info) {
-                info.update_seq.should.equal(2);
-                info.doc_count.should.equal(2);
+                verifyInfo(info, {
+                  update_seq: 2,
+                  doc_count: 2
+                });
                 done();
               });
             });
@@ -1315,8 +1362,10 @@ adapters.forEach(function (adapters) {
             db.replicate.from(remote, {}, function (err, response) {
               response.docs_written.should.equal(3);
               db.info(function (err, info) {
-                info.update_seq.should.equal(5);
-                info.doc_count.should.equal(5);
+                verifyInfo(info, {
+                  update_seq: 5,
+                  doc_count: 5
+                });
                 done();
               });
             });
@@ -1339,8 +1388,10 @@ adapters.forEach(function (adapters) {
         }, function (err, response) {
           response.docs_written.should.equal(2);
           db.info(function (err, info) {
-            info.update_seq.should.equal(2);
-            info.doc_count.should.equal(2);
+            verifyInfo(info, {
+              update_seq: 2,
+              doc_count: 2
+            });
             done();
           });
         });
@@ -1369,8 +1420,10 @@ adapters.forEach(function (adapters) {
                 should.not.exist(err);
                 result.docs_written.should.equal(3);
                 db.info(function (err, info) {
-                  info.update_seq.should.equal(5);
-                  info.doc_count.should.equal(5);
+                  verifyInfo(info, {
+                    update_seq: 5,
+                    doc_count: 5
+                  });
                   done();
                 });
               }
@@ -1401,8 +1454,10 @@ adapters.forEach(function (adapters) {
             }, function (err, response) {
               response.docs_written.should.equal(1);
               db.info(function (err, info) {
-                info.update_seq.should.equal(3);
-                info.doc_count.should.equal(3);
+                verifyInfo(info, {
+                  update_seq: 3,
+                  doc_count: 3
+                });
                 done();
               });
             });
@@ -1434,8 +1489,10 @@ adapters.forEach(function (adapters) {
               if (err) { done(err); }
               docs.rows.length.should.equal(3);
               db.info(function (err, info) {
-                info.update_seq.should.equal(3);
-                info.doc_count.should.equal(3);
+                verifyInfo(info, {
+                  update_seq: 3,
+                  doc_count: 3
+                });
                 done();
               });
             });
@@ -1462,8 +1519,10 @@ adapters.forEach(function (adapters) {
           db.allDocs(function (err, res) {
             res.total_rows.should.equal(4);
             db.info(function (err, info) {
-              info.update_seq.should.equal(5);
-              info.doc_count.should.equal(4);
+              verifyInfo(info, {
+                update_seq: 5,
+                doc_count: 4
+              });
               done();
             });
           });
@@ -1511,8 +1570,10 @@ adapters.forEach(function (adapters) {
       }).then(function (res) {
         res.total_rows.should.equal(2);
         db.info(function (err, info) {
-          info.update_seq.should.equal(4);
-          info.doc_count.should.equal(2);
+          verifyInfo(info, {
+            update_seq: 4,
+            doc_count: 2
+          });
           done();
         });
       }).catch(function (err) {
@@ -1528,8 +1589,10 @@ adapters.forEach(function (adapters) {
         changes++;
         if (changes === 3) {
           db.info(function (err, info) {
-            info.update_seq.should.equal(3);
-            info.doc_count.should.equal(3);
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
             done();
           });
         }
@@ -1563,8 +1626,10 @@ adapters.forEach(function (adapters) {
                         localdoc._rev.should.equal(winningRev);
                         remotedoc._rev.should.equal(winningRev);
                         db.info(function (err, info) {
-                          info.update_seq.should.equal(3);
-                          info.doc_count.should.equal(1);
+                          verifyInfo(info, {
+                            update_seq: 3,
+                            doc_count: 1
+                          });
                           done();
                         });
                       });
@@ -1817,8 +1882,10 @@ adapters.forEach(function (adapters) {
           db.allDocs(function (err, res) {
             res.total_rows.should.equal(num);
             db.info(function (err, info) {
-              info.update_seq.should.equal(30);
-              info.doc_count.should.equal(30);
+              verifyInfo(info, {
+                update_seq: 30,
+                doc_count: 30
+              });
               done();
             });
           });
@@ -1868,8 +1935,10 @@ adapters.forEach(function (adapters) {
           doc_count.should.equal(result.docs_read);
           remote.changes = changes;
           db.info(function (err, info) {
-            info.update_seq.should.equal(3);
-            info.doc_count.should.equal(3);
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
             done();
           });
         });
@@ -1961,8 +2030,10 @@ adapters.forEach(function (adapters) {
         }, function (err, result) {
           result.docs_written.should.equal(docList.length);
           db.info(function (err, info) {
-            info.update_seq.should.equal(3);
-            info.doc_count.should.equal(3);
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
             done();
           });
         });
@@ -2070,8 +2141,10 @@ adapters.forEach(function (adapters) {
             function check_docs(id, exists) {
               if (!id) {
                 db.info(function (err, info) {
-                  info.update_seq.should.equal(6);
-                  info.doc_count.should.equal(6);
+                  verifyInfo(info, {
+                    update_seq: 6,
+                    doc_count: 6
+                  });
                   done();
                 });
                 return;
@@ -2247,8 +2320,10 @@ adapters.forEach(function (adapters) {
             function check_docs(id, exists) {
               if (!id) {
                 db.info(function (err, info) {
-                  info.update_seq.should.equal(6);
-                  info.doc_count.should.equal(6);
+                  verifyInfo(info, {
+                    update_seq: 6,
+                    doc_count: 6
+                  });
                   done();
                 });
                 return;
@@ -2341,8 +2416,10 @@ adapters.forEach(function (adapters) {
           complete: function (err, result) {
             should.exist(err);
             db.info(function (err, info) {
-              info.update_seq.should.equal(2);
-              info.doc_count.should.equal(2);
+              verifyInfo(info, {
+                update_seq: 2,
+                doc_count: 2
+              });
               done();
             });
           }
@@ -2358,8 +2435,10 @@ adapters.forEach(function (adapters) {
         should.exist(result);
         result.docs_written.should.equal(0);
         db.info(function (err, info) {
-          info.update_seq.should.equal(0);
-          info.doc_count.should.equal(0);
+          verifyInfo(info, {
+            update_seq: 0,
+            doc_count: 0
+          });
           done();
         });
       });
@@ -2445,8 +2524,10 @@ adapters.forEach(function (adapters) {
             result.doc_write_failures.should
               .equal(0, 'second replication, doc_write_failures');
             db.info(function (err, info) {
-              info.update_seq.should.equal(2);
-              info.doc_count.should.equal(2);
+              verifyInfo(info, {
+                update_seq: 2,
+                doc_count: 2
+              });
               done();
             });
           });
@@ -2583,8 +2664,10 @@ adapters.forEach(function (adapters) {
             }, function (err, result) {
               result.docs_written.should.equal(0);
               db.info(function (err, info) {
-                info.update_seq.should.equal(5);
-                info.doc_count.should.equal(5);
+                verifyInfo(info, {
+                  update_seq: 5,
+                  doc_count: 5
+                });
                 done();
               });
             });
@@ -2678,8 +2761,10 @@ adapters.forEach(function (adapters) {
                 workflow(name, remote, x);
               } else {
                 db.info(function (err, info) {
-                  info.update_seq.should.equal(4);
-                  info.doc_count.should.equal(4);
+                  verifyInfo(info, {
+                    update_seq: 4,
+                    doc_count: 4
+                  });
                   done();
                 });
               }
@@ -2702,8 +2787,10 @@ adapters.forEach(function (adapters) {
             result.rows[0].id.should.equal('a');
             result.rows[1].id.should.equal('b');
             db.info(function (err, info) {
-              info.update_seq.should.equal(2);
-              info.doc_count.should.equal(2);
+              verifyInfo(info, {
+                update_seq: 2,
+                doc_count: 2
+              });
               done();
             });
           });
@@ -2721,8 +2808,10 @@ adapters.forEach(function (adapters) {
             db.replicate.to(dbs.remote, function (err, result) {
               result.docs_written.should.equal(docs.length);
               db.info(function (err, info) {
-                info.update_seq.should.equal(2);
-                info.doc_count.should.equal(2);
+                verifyInfo(info, {
+                  update_seq: 2,
+                  doc_count: 2
+                });
                 done();
               });
             });
@@ -2753,8 +2842,10 @@ adapters.forEach(function (adapters) {
         return src.replicate.to(target);
       }).then(function () {
         target.info(function (err, info) {
-          info.update_seq.should.equal(3);
-          info.doc_count.should.equal(3);
+          verifyInfo(info, {
+            update_seq: 3,
+            doc_count: 3
+          });
           done();
         });
       }, function (a) {
