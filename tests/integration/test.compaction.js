@@ -5,6 +5,9 @@ var autoCompactionAdapters = ['local'];
 
 adapters.forEach(function (adapter) {
   describe('test.compaction.js-' + adapter, function () {
+    if (testUtils.isCouchMaster()) {
+      return true;
+    }
 
     var dbs = {};
 
