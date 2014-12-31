@@ -93,4 +93,5 @@ fi
 $CORDOVA $ACTION $CLIENT
 
 echo "what did we do"
-find $TESTS_DIR -type f
+pwd
+find . -type f
