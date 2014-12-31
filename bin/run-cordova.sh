@@ -77,12 +77,6 @@ if [[ ! -z $WEINRE_HOST ]]; then
 
 fi
 
-if [ $TRAVIS_REPO_SLUG == 'pouchdb/pouchdb' ]; then
-  # wtf, this isn't getting exported from the travis script?
-  export ANDROID_HOME=$(pwd)/android-sdk-linux
-  export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-fi
-
 cd $TESTS_DIR
 
 CORDOVA=../../../node_modules/cordova/bin/cordova

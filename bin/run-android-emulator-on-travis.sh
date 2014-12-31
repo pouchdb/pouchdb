@@ -33,6 +33,3 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 ( sleep 5 && while [ 1 ]; do sleep 1; echo n; done ) | android create avd \
   --force -n test -t android-19
 emulator -avd test -no-skin -no-audio -no-window &
-
-# wait for android emulator to start
-sleep 180
