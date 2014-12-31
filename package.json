@@ -77,7 +77,7 @@
     "appium": "appium",
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
     "build-main-js": "browserify . -s PouchDB | derequire > dist/pouchdb.js",
-    "build-cordova": "npm run build && ACTION=compile bash ./bin/run-cordova.sh",
+    "build-cordova": "npm run build && ACTION=build bash ./bin/run-cordova.sh",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
     "build-plugins": "bash bin/build-all-plugins.sh",
     "build": "npm run version && mkdirp dist && npm run build-js && npm run license",
