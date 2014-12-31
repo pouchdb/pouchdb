@@ -3294,6 +3294,75 @@ adapters.forEach(function (adapters) {
         }).then(done);
       });
     });
+
+    it('#3270 triggers "replicated" events',
+        function(done) {
+      var replicatedDocs = [];
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: docs }, {})
+      .then(function(results) {
+        var replication = db.replicate.to(dbs.remote);
+        replication.on('replicated', function(doc) {
+          replicatedDocs.push(doc);
+        });
+        return replication;
+      })
+      .then(function() {
+        replicatedDocs.length.should.equal(3);
+        replicatedDocs[0]._id.should.equal('0');
+        replicatedDocs[1]._id.should.equal('1');
+        replicatedDocs[2]._id.should.equal('2');
+        done();
+      })
+      .catch(done);
+    });
+
+    it('#3270 triggers "denied" events',
+        function (done) {
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (/*adapters[1] !== 'http' || */!isCouchDB) {
+          return done();
+        }
+        if (adapters[0] !== 'local' || adapters[1] !== 'http') {
+          return done();
+        }
+
+        var deniedErrors = [];
+        var ddoc = {
+          "_id": "_design/validate",
+          "validate_doc_update": function (newDoc) {
+            if (newDoc.foo) {
+              throw { unauthorized: 'go away, no picture' };
+            }
+          }.toString()
+        };
+
+        var remote = new PouchDB(dbs.remote);
+        var db = new PouchDB(dbs.name);
+
+        return remote.put(ddoc).then(function () {
+          var docs = [
+            {_id: 'foo1', foo: 'string'},
+            {_id: 'nofoo'},
+            {_id: 'foo2', foo: 'object'}
+          ];
+          return db.bulkDocs({docs: docs});
+        }).then(function () {
+          var replication = db.replicate.to(dbs.remote);
+          replication.on('denied', function(error) {
+            deniedErrors.push(error);
+          });
+          return replication;
+        }).then(function (res) {
+          deniedErrors.length.should.equal(2);
+          deniedErrors[0].id.should.equal('foo1');
+          deniedErrors[0].name.should.equal('unauthorized');
+          deniedErrors[1].id.should.equal('foo2');
+          deniedErrors[1].name.should.equal('unauthorized');
+          done();
+        }).catch(done);
+      });
+    });
   });
 });
 
