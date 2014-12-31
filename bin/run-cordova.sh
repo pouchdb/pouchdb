@@ -91,7 +91,3 @@ if [[ $SQLITE_PLUGIN == 'true' ]]; then
 fi
 
 $CORDOVA $ACTION $CLIENT
-
-echo "what did we do"
-pwd
-find . -type f

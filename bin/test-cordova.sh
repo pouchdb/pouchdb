@@ -24,6 +24,8 @@ export APPIUM_SERVER_PID=$!
 # wait for appium, emulator, and dev server to start
 sleep 60
 
+adb lolcat &
+
 echo "Testing with Appium..."
 npm run test-appium
 
