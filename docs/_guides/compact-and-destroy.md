@@ -107,3 +107,8 @@ Related API documentation
 
 * [compact()](/api.html#compaction)
 * [destroy()](/api.html#delete_database)
+
+Next
+----
+
+To wrap up, let's look at a special class of documents in PouchDB &ndash; local docs.
