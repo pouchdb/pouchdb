@@ -19,6 +19,9 @@ echo "Running Appium..."
 ./node_modules/.bin/appium &
 export APPIUM_SERVER_PID=$!
 
+# wait for appium to start
+sleep 5
+
 echo "Testing with Appium..."
 npm run test-appium
 
