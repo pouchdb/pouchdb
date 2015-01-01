@@ -68,6 +68,12 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2882/#2883 last_seq for empty db', function () {
+      // CouchDB 2.0 sequence numbers are not
+      // incremental so skip this test
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+      
       var db = new PouchDB(dbs.name);
       return db.changes().then(function (changes) {
         changes.last_seq.should.equal(0);
@@ -80,6 +86,12 @@ adapters.forEach(function (adapter) {
 
 
     it('#2882/#2883 last_seq when putting parent before leaf', function () {
+      // CouchDB 2.0 sequence numbers are not
+      // incremental so skip this test
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var db = new PouchDB(dbs.name);
       var lastSeq;
       return db.bulkDocs({
