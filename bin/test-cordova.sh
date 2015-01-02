@@ -21,10 +21,9 @@ echo "Running Appium..."
 ./node_modules/.bin/appium &
 export APPIUM_SERVER_PID=$!
 
-# wait for appium, emulator, and dev server to start
-sleep 60
-
-adb lolcat &
+# wait for appium and dev server to start
+sleep 120
+./bin/wait_for_android_emulator.sh
 
 echo "Testing with Appium..."
 npm run test-appium
