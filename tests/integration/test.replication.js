@@ -846,6 +846,11 @@ adapters.forEach(function (adapters) {
     });
 
     it('#3136 style=all_docs with conflicts', function () {
+      // blocked on COUCHDB-2518
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -917,6 +922,11 @@ adapters.forEach(function (adapters) {
     });
 
     it('#3136 style=all_docs with conflicts reversed', function () {
+      // blocked on COUCHDB-2518
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var docs1 = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
