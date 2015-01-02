@@ -2562,7 +2562,6 @@ adapters.forEach(function (adapters) {
               .equal(0, 'second replication, doc_write_failures');
             result.docs_written.should
               .equal(2, 'second replication, docs_written');
-            result.last_seq.should.equal(2, 'second replication, last_seq');
             done();
           });
         });
