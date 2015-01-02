@@ -403,5 +403,32 @@ adapters.forEach(function (adapters) {
         .then(done, done);
       });
     });
+
+    it('#3270 triggers "change" events with .docs property', function(done) {
+      var syncedDocs = [];
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: '1'},
+        {_id: '2'},
+        {_id: '3'}
+      ];
+
+      db.bulkDocs({ docs: docs }, {})
+      .then(function(results) {
+        var sync = db.sync(dbs.remote);
+        sync.on('change', function(change) {
+          syncedDocs = syncedDocs.concat(change.change.docs);
+        });
+        return sync;
+      })
+      .then(function() {
+        syncedDocs.length.should.equal(3);
+        syncedDocs[0]._id.should.equal('1');
+        syncedDocs[1]._id.should.equal('2');
+        syncedDocs[2]._id.should.equal('3');
+        done();
+      })
+      .catch(done);
+    });
   });
 });

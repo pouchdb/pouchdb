@@ -3466,6 +3466,27 @@ adapters.forEach(function (adapters) {
         }).catch(done);
       });
     });
+
+    it('#3270 triggers "change" events with .docs property', function(done) {
+      var replicatedDocs = [];
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs({ docs: docs }, {})
+      .then(function(results) {
+        var replication = db.replicate.to(dbs.remote);
+        replication.on('change', function(change) {
+          replicatedDocs = replicatedDocs.concat(change.docs);
+        });
+        return replication;
+      })
+      .then(function() {
+        replicatedDocs.length.should.equal(3);
+        replicatedDocs[0]._id.should.equal('0');
+        replicatedDocs[1]._id.should.equal('1');
+        replicatedDocs[2]._id.should.equal('2');
+        done();
+      })
+      .catch(done);
+    });
   });
 });
 
