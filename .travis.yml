@@ -27,6 +27,7 @@ script: npm run $COMMAND
 
 env:
   global:
+  - SELENIUM_VERSION=2.42.0
   - secure: "WYQbfTXYwPfqz7t3ycqpXIDQdZ7C9kQJAP+08OF0cuR8eqhm7HxCiu9LjSNqoLAdlDmc55ygeS16Kn3Oht3zZ/i2Y7Gm75HcQfzUIb1sDv1xVm3aQmqZDJfAQ/r7fN8upBCLii/W8IUkJr1k717MpbdsTerIjyfPOb27hw0kJTM="
   - secure: "Ut9pRqzbVJHxg8vt1Cx0bTv4HAroBkvOLjtHF+11f/OzfNnAORIEPnJFHqGbOTozCPOizmzgwvCGqq9gYL8SakrfiI0wBfaL+lk0ub/FPuJ1+hwrLDU0Ju4O5reL0OSu0JB+OTmXfILuRQQkD9/7uwUEbLDFId4phSq3cz1UsK0="
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
