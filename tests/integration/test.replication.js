@@ -2501,6 +2501,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       db.bulkDocs({docs: docs}, {new_edits: false}, function (err, _) {
         var bulkDocs = remote.bulkDocs;
+        var bulkDocsCallCount = 0;
         remote.bulkDocs = function (content, opts, callback) {
           return new PouchDB.utils.Promise(function (fulfill, reject) {
             if (typeof callback !== 'function') {
@@ -2512,12 +2513,17 @@ adapters.forEach(function (adapters) {
                 }
               };
             }
-            var ids = content.docs.map(function (doc) { return doc._id; });
-            if (ids.indexOf('a') >= 0) {
-              callback(null, [{ok: true, id: 'a', rev: '1-a'}]);
-            } else if (ids.indexOf('b') >= 0) {
+
+            // mock a successful write for the first
+            // document and a failed write for the second
+            var doc = content.docs[0];
+            if (bulkDocsCallCount === 0) {
+              bulkDocsCallCount++;
+              callback(null, [{ok: true, id: doc._id, rev: doc._rev}]);
+            } else if (bulkDocsCallCount === 1) {
+              bulkDocsCallCount++;
               callback(null, [{
-                id: 'b',
+                id: doc._id,
                 error: 'internal server error',
                 reason: 'test document write error'
               }]);
