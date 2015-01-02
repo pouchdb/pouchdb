@@ -35,7 +35,8 @@
     "vuvuzela": "^1.0.0",
     "debug": "^2.1.0",
     "pouchdb-express-router": "^0.0.2",
-    "express": "^4.10.4"
+    "express": "^4.10.4",
+    "miller-rabin": "1.1.1"
   },
   "optionalDependencies": {
     "leveldown": "~0.10.2"
