@@ -1418,34 +1418,41 @@ adapters.forEach(function (adapters) {
     it('Replication since', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var thedocs = [
+      var docs1 = [
         {_id: '1', integer: 1, string: '1'},
         {_id: '2', integer: 2, string: '2'},
-        {_id: '3', integer: 3, string: '3'},
-        {_id: '4', integer: 4, string: '4'},
-        {_id: '5', integer: 5, string: '5'}
+        {_id: '3', integer: 3, string: '3'}
       ];
-      remote.bulkDocs({ docs: thedocs }, function (err, info) {
-        db.replicate.from(remote, {
-          since: 3,
-          complete: function (err, result) {
-            should.not.exist(err);
-            result.docs_written.should.equal(2);
+      remote.bulkDocs({ docs: docs1 }, function (err, info) {
+        remote.info(function (err, info) {
+          var update_seq = info.update_seq;
+          var docs2 = [
+            {_id: '4', integer: 4, string: '4'},
+            {_id: '5', integer: 5, string: '5'}
+          ];
+          remote.bulkDocs({ docs: docs2 }, function (err, info) {
             db.replicate.from(remote, {
-              since: 0,
+              since: update_seq,
               complete: function (err, result) {
                 should.not.exist(err);
-                result.docs_written.should.equal(3);
-                db.info(function (err, info) {
-                  verifyInfo(info, {
-                    update_seq: 5,
-                    doc_count: 5
-                  });
-                  done();
+                result.docs_written.should.equal(2);
+                db.replicate.from(remote, {
+                  since: 0,
+                  complete: function (err, result) {
+                    should.not.exist(err);
+                    result.docs_written.should.equal(3);
+                    db.info(function (err, info) {
+                      verifyInfo(info, {
+                        update_seq: 5,
+                        doc_count: 5
+                      });
+                      done();
+                    });
+                  }
                 });
               }
             });
-          }
+          });
         });
       });
     });
