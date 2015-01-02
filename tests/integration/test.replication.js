@@ -1753,7 +1753,9 @@ adapters.forEach(function (adapters) {
       }).then(function (res) {
         res.rows.should.have.length(0, 'deleted locally');
       }).then(function () {
-        return waitForChange(remote, function (c) { return c.seq === 2; });
+        return waitForChange(remote, function (c) {
+          return c.id === doc._id && c.deleted;
+        });
       }).then(function () {
         return remote.allDocs();
       }).then(function (res) {
