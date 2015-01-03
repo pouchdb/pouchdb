@@ -205,6 +205,38 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Remove doc twice within bulkDocs', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: 'yo'},
+        {_id: 'deleteme'},
+        {_id: 'hey'}
+      ];
+      function handleResults(results) {
+        results.forEach(function (res, i) {
+          res.ok.should.equal(true);
+          res.id.should.equal(docs[i]._id);
+          docs[i]._rev = res.rev;
+        });
+      }
+
+      return db.bulkDocs(docs).then(function (results) {
+        handleResults(results);
+        docs[1]._deleted = true;
+        return db.bulkDocs(docs);
+      }).then(function (results) {
+        handleResults(results);
+        delete docs[1]._deleted;
+        delete docs[1]._rev;
+        return db.bulkDocs(docs);
+      }).then(function (results) {
+        handleResults(results);
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(3);
+      });
+    });
+
     it('#2935 new_edits=false correct number', function () {
       var docs = [
         {
