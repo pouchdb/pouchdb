@@ -36,7 +36,8 @@
     "debug": "^2.1.0",
     "pouchdb-express-router": "^0.0.2",
     "express": "^4.10.4",
-    "miller-rabin": "1.1.1"
+    "miller-rabin": "1.1.1",
+    "pouchdb-collate": "^1.2.0"
   },
   "optionalDependencies": {
     "leveldown": "~0.10.2"
