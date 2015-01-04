@@ -497,7 +497,7 @@ PouchDB.replicate(source, target, [options])
 
 Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database URL or the name of a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically. This method returns an object with the method `cancel()`, which you call if you want to cancel live replication.
 
-Replication is an event emiter like `changes()` and emits the `'complete'`, `'uptodate'`, `'change'`, `'denied'` and `'error'` events.
+Replication is an event emiter like `changes()` and emits the `'complete'`, `'active'`, `'paused'`, `'change'`, `'denied'` and `'error'` events.
 
 ### Options
 
@@ -514,18 +514,16 @@ All options default to `false` unless otherwise specified.
 
 #### Example Usage:
 {% highlight js %}
-var replication = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true})
+var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true})
   .on('change', function (info) {
     // handle change
   }).on('complete', function (info) {
     // handle complete
-  }).on('uptodate', function (info) {
-    // handle up-to-date
   }).on('error', function (err) {
     // handle error
   });
 
-replication.cancel(); // whenever you want to cancel
+rep.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 There are also shorthands for replication given existing PouchDB objects. These behave the same as `PouchDB.replicate()`:
@@ -536,12 +534,15 @@ db.replicate.to(remoteDB, [options]);
 db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
 
-**Notes:**
+### Replication events
 
-* The `'complete'` event only fires when you aren't doing live replication, or when live replication fails.
-* The `'uptodate'` event fires during live replication, when the target database is up-to-date and just idling, waiting for new changes.
-* The `'denied'` event fires for objects that could not be replicated because of validation or authorization errors.
-* The `'error'` event fires when an connection error occurs.
+* `change` - The change event fires when the replication has written a new document.
+* `complete` - The complete event fires when replication is completed or cancelled, in a live replication only cancelling the replication should trigger this event.
+* `active` - This event fires when the replication is actively processing changes.
+* `paused(error)` - This event fires when the replication is paused, this is because it is a live replication waiting for changes, or it is waiting to retry a request due to an error.
+* `denied` - This event fires if a document failed to replicate due to validation or authorization errors.
+* `error`` - This event is fired when the replication is stopped due to an unrecoverable failure.
+* `uptodate` *DEPRECATED* - This event fires when a live replication has caught up and is waiting on future changes, this should be replaced by using the `paused` event.
 
 #### Example Response:
 

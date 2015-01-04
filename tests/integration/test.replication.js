@@ -2980,63 +2980,69 @@ adapters.forEach(function (adapters) {
     });
 
     it('retry stuff', function (done) {
+
       var remote = new PouchDB(dbs.remote);
       var Promise = PouchDB.utils.Promise;
       var allDocs = remote.allDocs;
+
+      // Reject attempting to write 'foo' 3 times, then let it succeed
       var i = 0;
-      var started = 0;
       remote.allDocs = function (opts) {
         if (opts.keys[0] === 'foo') {
-          i++;
-          if (i !== 3) {
+          if (++i !== 3) {
             return Promise.reject(new Error('flunking you'));
           }
         }
         return allDocs.apply(remote, arguments);
       };
+
       var db = new PouchDB(dbs.name);
       var rep = db.replicate.from(remote, {
         live: true,
         retry: true
       });
-      rep.once('syncStopped', function () {
-        i.should.equal(1, 'sync stopped event');
-        started.should.equal(1, 'sync stopped event');
-        started++;
-      });
-      rep.on('syncRestarted', function () {
-        i.should.equal(3, 'sync restarted event');
-        started.should.equal(2, 'sync stopped event');
-        started++;
-      });
-      rep.on('syncStarted', function () {
-        i.should.equal(0, 'sync started event');
-        started.should.equal(0, 'sync started event');
-        started++;
-      });
-      rep.catch(done);
-      var called = 3;
-      rep.on('change', function () {
-        if ((--called) === 2) {
-          remote.put({}, 'foo').then(function () {
+
+      var paused = 0;
+      rep.on('paused', function (e) {
+        ++paused;
+        // The first paused event is the replication up to date
+        // and waiting on changes (no error)
+        if (paused === 1) {
+          (typeof e).should.equal('undefined');
+          return remote.put({}, 'foo').then(function () {
             return remote.put({}, 'bar');
           });
-        } else if (!called) {
-          rep.cancel();
-          remote.put({}, 'foo2').then(function () {
-            return remote.put({}, 'bar2');
-          }).then(function () {
-            setTimeout(function () {
-              started.should.equal(3, 'everything was emitted');
-              done();
-            }, 500);
-          });
-        } else if (called < 0) {
-          done(new Error('called too many times'));
+        }
+        // Second paused event is due to failed writes, should
+        // have an error
+        if (paused === 2) {
+          e.should.exist();
         }
       });
+
+      var active = 0;
+      rep.on('active', function () {
+        ++active;
+      });
+
+      rep.on('complete', function() {
+        active.should.equal(2);
+        paused.should.equal(2);
+        done();
+      });
+
+      rep.catch(done);
+
+      var numChanges = 0;
+      rep.on('change', function () {
+        if (++numChanges === 3) {
+          rep.cancel();
+        }
+      });
+
       remote.put({}, 'hazaa');
     });
+
 
     it('#2970 should replicate remote database w/ deleted conflicted revs',
         function (done) {
