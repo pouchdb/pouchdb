@@ -497,16 +497,16 @@ PouchDB.replicate(source, target, [options])
 
 Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database URL or the name of a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically. This method returns an object with the method `cancel()`, which you call if you want to cancel live replication.
 
-Replication is an event emiter like `changes()` and emits the `'complete'`, `'uptodate'`, `'change'`, `'denied'` and `'error'` events.
+Replication is an event emiter like `changes()` and emits the `'complete'`, `'active'`, `'paused'`, `'change'`, `'denied'` and `'error'` events.
 
 ### Options
 
 All options default to `false` unless otherwise specified.
 
+* `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.query_params`: Query params sent to the filter function.
 * `options.doc_ids`: Only replicate docs with these ids (array of strings).
-* `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.since`: Replicate changes after the given sequence number.
 * `options.create_target`: Create target database if it does not exist. Only for server replications.
 * `options.batch_size`: Number of documents to process at a time. Defaults to 100. This affects the number of docs held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low amounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments). If your documents are small in size, then increasing this number will probably speed replication up.
@@ -514,18 +514,16 @@ All options default to `false` unless otherwise specified.
 
 #### Example Usage:
 {% highlight js %}
-var replication = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true})
+var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true})
   .on('change', function (info) {
     // handle change
   }).on('complete', function (info) {
     // handle complete
-  }).on('uptodate', function (info) {
-    // handle up-to-date
   }).on('error', function (err) {
     // handle error
   });
 
-replication.cancel(); // whenever you want to cancel
+rep.cancel(); // whenever you want to cancel
 {% endhighlight %}
 
 There are also shorthands for replication given existing PouchDB objects. These behave the same as `PouchDB.replicate()`:
@@ -536,12 +534,15 @@ db.replicate.to(remoteDB, [options]);
 db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
 
-**Notes:**
+### Replication events
 
-* The `'complete'` event only fires when you aren't doing live replication, or when live replication fails.
-* The `'uptodate'` event fires during live replication, when the target database is up-to-date and just idling, waiting for new changes.
-* The `'denied'` event fires for objects that could not be replicated because of validation or authorization errors.
-* The `'error'` event fires when an connection error occurs.
+* `change` - This event fires when the replication has written a new document.
+* `complete` - This event fires when replication is completed or cancelled. In a live replication, only cancelling the replication should trigger this event.
+* `paused` - This event fires when the replication is paused, either because a live replication is waiting for changes, or replication has temporarily failed and is attempting to resume.
+* `active` - This event fires when the replication starts actively processing changes; e.g. when it recovers from an error or new changes are available.
+* `denied` - This event fires if a document failed to replicate due to validation or authorization errors.
+* `error`` - This event is fired when the replication is stopped due to an unrecoverable failure.
+* `uptodate` (*DEPRECATED*) - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
 
 #### Example Response:
 
