@@ -776,24 +776,19 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('db.info should give auto_compaction = false (#2744)', function (done) {
+    it('db.info should give auto_compaction = false (#2744)', function () {
       var db = new PouchDB(dbs.name, { auto_compaction: false});
-      db.info().then(function (info) {
+      return db.info().then(function (info) {
         info.auto_compaction.should.equal(false);
-        done();
       });
     });
 
-    it('db.info should give auto_compaction = true (#2744)', function (done) {
-      if (dbs.name === 'test.basics.js-local') {
-        var db = new PouchDB(dbs.name, { auto_compaction: true});
-        db.info().then(function (info) {
-          info.auto_compaction.should.equal(true);
-          done();
-        });
-      } else {
-        done();
-      }
+    it('db.info should give auto_compaction = true (#2744)', function () {
+      var db = new PouchDB(dbs.name, { auto_compaction: true});
+      return db.info().then(function (info) {
+        // http doesn't support auto compaction
+        info.auto_compaction.should.equal(db.type() !== 'http');
+      });
     });
 
     it('db.info should give correct doc_count', function (done) {
