@@ -19,6 +19,16 @@ adapters.forEach(function (adapter) {
     after(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
+    
+    it('#3350 compact should return {ok: true}', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.compact(function (err, result) {
+        should.not.exist(err);
+        result.should.eql({ok: true});
+
+        done();
+      });
+    });
 
     it('#2913 massively parallel compaction', function () {
       var db = new PouchDB(dbs.name);
@@ -1198,16 +1208,6 @@ adapters.forEach(function (adapter) {
         }, function (err) {
           err.status.should.equal(412);
         });
-      });
-    });
-
-    it('#3350 compact should return {ok: true}', function (done) {
-      var db = new PouchDB(dbs.name);
-      db.compact(function (err, result) {
-        should.not.exist(err);
-        result.should.eql({ok: true});
-
-        done();
       });
     });
 
