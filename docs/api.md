@@ -1021,6 +1021,13 @@ Also see [auto-compaction](#create_database), which runs compaction automaticall
 
 * `options.interval`: Number of milliseconds to wait before asking again if compaction is already done. Defaults to 200. (Only applies to remote databases.)
 
+#### Example Response:
+{% highlight js %}
+{
+  "ok" : "true"
+}
+{% endhighlight %}
+
 {% include anchor.html title="Document revisions diff" hash="revisions_diff" %}
 
 {% highlight js %}
