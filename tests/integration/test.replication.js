@@ -2920,6 +2920,11 @@ adapters.forEach(function (adapters) {
     });
 
     it('issue #2393 update_seq after new_edits + replication', function (done) {
+      // the assertions below do not hold in a clustered CouchDB
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
+
       var docs = [{
         '_id': 'foo',
         '_rev': '1-x',
