@@ -1201,11 +1201,11 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('#3111 compact should return a falsy value', function (done) {
+    it('#3350 compact should return {ok: true}', function (done) {
       var db = new PouchDB(dbs.name);
       db.compact(function (err, result) {
         should.not.exist(err);
-        should.not.exist(result);
+        result.should.eql({ok: true});
 
         done();
       });
