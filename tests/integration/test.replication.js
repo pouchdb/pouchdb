@@ -3463,15 +3463,13 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it.only('#XXXX triggers "replicated" events', function(done) {
+    it('#3270 triggers "change" events with .docs property', function(done) {
       var replicatedDocs = [];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, {})
       .then(function(results) {
         var replication = db.replicate.to(dbs.remote);
         replication.on('change', function(change) {
-          console.log('\n"change" Event ===')
-          console.log(change)
           replicatedDocs = replicatedDocs.concat(change.docs);
         });
         return replication;
