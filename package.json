@@ -43,6 +43,7 @@
     "leveldown": "~0.10.2"
   },
   "devDependencies": {
+    "bundle-collapser": "^1.1.1",
     "rimraf": "2.2.8",
     "pouchdb-server": "^0.5.1",
     "commander": "~2.1.0",
@@ -75,7 +76,7 @@
   },
   "scripts": {
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
-    "build-main-js": "browserify . -s PouchDB | derequire > dist/pouchdb.js",
+    "build-main-js": "browserify . -s PouchDB -p bundle-collapser/plugin | derequire > dist/pouchdb.js",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
     "build-plugins": "sh bin/build-all-plugins.sh",
     "build": "npm run version && mkdirp dist && npm run build-js && npm run license",
