@@ -9,4 +9,5 @@
     </author>
     <content src="tests/integration/index.html" />
     <access origin="*" />
+    <preference name="load-url-timeout" value="60000" />
 </widget>
