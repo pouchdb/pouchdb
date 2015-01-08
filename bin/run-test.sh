@@ -30,6 +30,10 @@ if [[ ! -z $SERVER ]]; then
     node ./tests/misc/pouchdb-express-router.js &
     sleep 5
     export COUCH_HOST='http://127.0.0.1:3000'
+  elif [ "$SERVER" == "express-pouchdb-minimum" ]; then
+    node ./tests/misc/express-pouchdb-minimum-for-pouchdb.js &
+    sleep 5
+    export COUCH_HOST='http://127.0.0.1:3000'
   else
     # I mistype pouchdb-server a lot
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
