@@ -2540,14 +2540,16 @@ adapters.forEach(function (adapters) {
           });
         };
 
-        db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
+        db.replicate.to(remote, {batch_size: 1, retry: false},
+                        function (err, result) {
           should.not.exist(result);
           should.exist(err);
           err.result.docs_read.should.equal(2, 'docs_read');
           err.result.docs_written.should.equal(1, 'docs_written');
           err.result.doc_write_failures.should.equal(1, 'doc_write_failures');
           remote.bulkDocs = bulkDocs;
-          db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
+          db.replicate.to(remote, {batch_size: 1, retry: false},
+                          function (err, result) {
             // checkpoint should not be moved past first doc
             // should continue from this point and retry second doc
             result.docs_read.should.equal(1, 'second replication, docs_read');
@@ -2581,7 +2583,8 @@ adapters.forEach(function (adapters) {
           callback(new Error());
         };
 
-        db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
+        db.replicate.to(remote, {batch_size: 1, retry: false},
+                        function (err, result) {
           should.not.exist(result);
           should.exist(err);
           err.result.docs_read.should.equal(1, 'docs_read');
@@ -2589,7 +2592,8 @@ adapters.forEach(function (adapters) {
           err.result.doc_write_failures.should.equal(1, 'doc_write_failures');
           err.result.last_seq.should.equal(0, 'last_seq');
           remote.bulkDocs = bulkDocs;
-          db.replicate.to(remote, { batch_size: 1 }, function (err, result) {
+          db.replicate.to(remote, {batch_size: 1, retry: false},
+                          function (err, result) {
             result.doc_write_failures.should
               .equal(0, 'second replication, doc_write_failures');
             result.docs_written.should

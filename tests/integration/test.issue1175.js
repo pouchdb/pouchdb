@@ -75,24 +75,24 @@ describe('replication-http-errors:', function () {
     function (done) {
     var source = new MockDatabase(500, null);
     var target = new MockDatabase(200, {});
-    PouchDB.replicate(source, target, {}, getCallback(true, done));
+    PouchDB.replicate(source, target, {retry: false}, getCallback(true, done));
   });
   it('Initial replication returns err if target returns HTTP 500',
     function (done) {
     var source = new MockDatabase(200, {});
     var target = new MockDatabase(500, null);
-    PouchDB.replicate(source, target, {}, getCallback(true, done));
+    PouchDB.replicate(source, target, {retry: false}, getCallback(true, done));
   });
   it('Initial replication returns err if target and source return HTTP 500',
     function (done) {
     var source = new MockDatabase(500, null);
     var target = new MockDatabase(500, null);
-    PouchDB.replicate(source, target, {}, getCallback(true, done));
+    PouchDB.replicate(source, target, {retry: false}, getCallback(true, done));
   });
   it('Subsequent replication returns err if source return HTTP 500',
     function (done) {
     var source = new MockDatabase(500, null);
     var target = new MockDatabase(200, { last_seq: 456 });
-    PouchDB.replicate(source, target, {}, getCallback(true, done));
+    PouchDB.replicate(source, target, {retry: false}, getCallback(true, done));
   });
 });
