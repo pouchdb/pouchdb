@@ -6,13 +6,14 @@
 
 var version = require('../package.json').version;
 var fs = require('fs');
+var currentYear = new Date().getFullYear();
 
 /* jshint maxlen:100 */
 var comments = {
 
   'pouchdb': 'PouchDB ' + version +
     '\n' +
-    '\n(c) 2012-2014 Dale Harvey and the PouchDB team' +
+    '\n(c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
     '\nPouchDB may be freely distributed under the Apache license, version 2.0.' +
     '\nFor all details and documentation:' +
     '\nhttp://pouchdb.com',
@@ -20,7 +21,7 @@ var comments = {
   'pouchdb.idb-alt': 'PouchDB alternative IndexedDB plugin ' + version +
     '\nBased on level.js: https://github.com/maxogden/level.js' +
     '\n' +
-    '\n(c) 2012-2014 Dale Harvey and the PouchDB team' +
+    '\n(c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
     '\nPouchDB may be freely distributed under the Apache license, version 2.0.' +
     '\nFor all details and documentation:' +
     '\nhttp://pouchdb.com',
@@ -28,7 +29,7 @@ var comments = {
   'pouchdb.memory': 'PouchDB in-memory plugin ' + version +
     '\nBased on MemDOWN: https://github.com/rvagg/memdown' +
     '\n' +
-    '\n(c) 2012-2014 Dale Harvey and the PouchDB team' +
+    '\n(c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
     '\nPouchDB may be freely distributed under the Apache license, version 2.0.' +
     '\nFor all details and documentation:' +
     '\nhttp://pouchdb.com',
@@ -36,7 +37,7 @@ var comments = {
   'pouchdb.localstorage': 'PouchDB localStorage plugin ' + version +
     '\nBased on localstorage-down: https://github.com/No9/localstorage-down' +
     '\n' +
-    '\n(c) 2012-2014 Dale Harvey and the PouchDB team' +
+    '\n(c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
     '\nPouchDB may be freely distributed under the Apache license, version 2.0.' +
     '\nFor all details and documentation:' +
     '\nhttp://pouchdb.com'
