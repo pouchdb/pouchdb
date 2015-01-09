@@ -724,7 +724,9 @@ adapters.forEach(function (adapter) {
             'not an array': 'or all string'
           }
         }, function (err, res) {
-          err.name.should.equal('unknown_error', 'correct error');
+          var acceptable_errors = ['unknown_error','function_clause'];
+          acceptable_errors.indexOf(err.name)
+            .should.not.equal(-1, 'correct error');
           // unfortunately!
           db.get('foo', {
             open_revs: [
