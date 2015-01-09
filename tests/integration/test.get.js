@@ -102,21 +102,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Get local_seq of document', function (done) {
-      var db = new PouchDB(dbs.name);
-      db.post({ test: 'somestuff' }, function (err, info1) {
-        db.get(info1.id, { local_seq: true }, function (err, res) {
-          res._local_seq.should.equal(1);
-          db.post({ test: 'someotherstuff' }, function (err, info2) {
-            db.get(info2.id, { local_seq: true }, function (err, res) {
-              res._local_seq.should.equal(2);
-              done();
-            });
-          });
-        });
-      });
-    });
-
     it('Get revisions of removed doc', function (done) {
       var db = new PouchDB(dbs.name, {auto_compaction: false});
       db.post({ test: 'somestuff' }, function (err, info) {
