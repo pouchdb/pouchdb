@@ -117,9 +117,16 @@ function testComplete(result) {
 
 function startSelenium(callback) {
   // Start selenium
-  selenium({}, {}, function() {
-    sauceClient = wd.promiseChainRemote();
-    callback();
+  var opts = {version: '2.42.0'};
+  selenium.install(opts, function(err) {
+    if (err) {
+      console.error('Failed to install selenium');
+      process.exit(1);
+    }
+    selenium.start(opts, function(err, server) {
+      sauceClient = wd.promiseChainRemote();
+      callback();
+    });
   });
 }
 
