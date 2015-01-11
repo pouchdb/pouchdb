@@ -20,12 +20,14 @@ describe('test.http.js', function () {
       if (!isCouchDB) {
         return done();
       }
-      PouchDB.destroy(dbs.name, function () {
-        instantDB = new PouchDB(dbs.name, { skipSetup: true });
-        instantDB.post({ test: 'abc' }, function (err, info) {
-          should.exist(err);
-          err.name.should.equal('not_found', 'Skipped setup of database');
-          done();
+      new PouchDB(dbs.name).then(function (db) {
+        db.destroy(function () {
+          instantDB = new PouchDB(dbs.name, { skipSetup: true });
+          instantDB.post({ test: 'abc' }, function (err, info) {
+            should.exist(err);
+            err.name.should.equal('not_found', 'Skipped setup of database');
+            done();
+          });
         });
       });
     });
