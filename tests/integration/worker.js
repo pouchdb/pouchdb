@@ -18,7 +18,7 @@ function bigTest(name) {
           throw err;
         }
         self.postMessage(doc.key);
-        PouchDB.destroy(name);
+        db.destroy();
       });
     });
   });

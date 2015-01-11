@@ -25,8 +25,8 @@ adapters.forEach(function (adapter) {
     });
 
     it('PouchDB emits destruction event', function (done) {
-      new PouchDB(dbs.name, function () {
-        PouchDB.destroy(dbs.name);
+      new PouchDB(dbs.name, function (err, db) {
+        db.destroy();
       }).once('destroyed', function () {
         new PouchDB(dbs.name, function () {
           done();
@@ -41,8 +41,8 @@ adapters.forEach(function (adapter) {
           done();
         });
       });
-      new PouchDB(dbs.name, function () {
-        PouchDB.destroy(dbs.name);
+      new PouchDB(dbs.name, function (err, db) {
+        db.destroy();
       });
     });
 

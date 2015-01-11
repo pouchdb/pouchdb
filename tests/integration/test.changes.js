@@ -1187,7 +1187,6 @@ adapters.forEach(function (adapter) {
       db.post({ test: 'adoc' });
     });
 
-    // TODO: https://github.com/daleharvey/pouchdb/issues/1460
     it('Kill database while listening to live changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
@@ -1198,7 +1197,7 @@ adapters.forEach(function (adapter) {
         onChange: function (change) {
           count++;
           if (count === 1) {
-            PouchDB.destroy(dbs.name);
+            db.destroy();
           }
         },
         live: true

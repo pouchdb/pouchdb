@@ -69,7 +69,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         testCaseTeardown(db, setupObj).then(function () {
           reporter.end(testCase);
           var opts = {adapter : db.adapter};
-          return PouchDB.destroy(localDbName, opts);
+          return new PouchDB(localDbName, opts).destroy();
         }).then(function () {
           t.end();
           if (i === testCases.length - 1) {

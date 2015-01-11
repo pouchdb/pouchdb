@@ -9,8 +9,8 @@ if (!process.env.LEVEL_ADAPTER &&
   describe('defaults', function () {
 
     beforeEach(function () {
-      return PouchDB.destroy('mydb').then(function () {
-        return PouchDB.destroy('mydb', {db: require('memdown')});
+      return new PouchDB('mydb').destroy().then(function () {
+        return new PouchDB('mydb', {db: require('memdown')}).destroy();
       });
     });
 

@@ -39,27 +39,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Remove a pouch', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        PouchDB.destroy(dbs, function (err, info) {
-          should.not.exist(err);
-          should.exist(info);
-          info.ok.should.equal(true);
-          done();
-        });
-      });
-    });
-
-    it('Remove a pouch, with a promise', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        PouchDB.destroy(dbs).then(function (info) {
-          should.exist(info);
-          info.ok.should.equal(true);
-          done();
-        }, done);
-      });
-    });
-
     it('destroy a pouch', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         should.exist(db);
@@ -688,7 +667,7 @@ adapters.forEach(function (adapter) {
           db2.put(doc2, function () {
             db.allDocs(function (err, docs) {
               docs.total_rows.should.equal(2);
-              PouchDB.destroy(dbs.name, function (err) {
+              db.destroy(function (err) {
                 should.not.exist(err);
                 db2 = new PouchDB(dbs.name);
                 db2.get(doc._id, function (err, doc) {

@@ -1982,7 +1982,7 @@ adapters.forEach(function (adapters) {
       db1.post(adoc, function () {
         PouchDB.replicate(db1, db2, {
           complete: function () {
-            PouchDB.destroy(db1name, function () {
+            db1.destroy(function () {
               var fresh = new PouchDB(db1name);
               fresh.post(newdoc, function () {
                 PouchDB.replicate(fresh, db2, {
@@ -2837,11 +2837,12 @@ adapters.forEach(function (adapters) {
 
     it('issue #585 Store checkpoint on target db.', function (done) {
       var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
       var docs = [{ _id: 'a' }, { _id: 'b' }];
       db.bulkDocs({ docs: docs }, {}, function (err, _) {
         db.replicate.to(dbs.remote, function (err, result) {
           result.docs_written.should.equal(docs.length);
-          PouchDB.destroy(dbs.remote, function (err, result) {
+          remote.destroy(function (err, result) {
             db.replicate.to(dbs.remote, function (err, result) {
               result.docs_written.should.equal(docs.length);
               db.info(function (err, info) {
