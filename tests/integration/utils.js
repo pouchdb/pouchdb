@@ -334,6 +334,7 @@ testUtils.tearDownAdminAndMemberConfig = function (dburl, callback) {
     });
   });
 };
+
 testUtils.deleteCookieAuth = function (dburl, callback_) {
   var host = 'http://' + dburl.split('/')[2] + '/';
   PouchDB.ajax({
@@ -343,17 +344,18 @@ testUtils.deleteCookieAuth = function (dburl, callback_) {
     json: false
   }, callback_);
 };
+
 testUtils.cleanUpCors = function (dburl, callback_) {
   if (testUtils.PERSIST_DATABASES) {
     return;
   }
   if (typeof module !== 'undefined' && module.exports) {
     testUtils.disableCORS(dburl, function () {
-      PouchDB.destroy(dburl, callback_);
+      new PouchDB(dburl).destroy(callback_);
     });
   } else {
     testUtils.disableCORS(dburl.replace('5984', '2020'), function () {
-      PouchDB.destroy(dburl.replace('5984', '2020'), callback_);
+      new PouchDB(dburl.replace('5984', '2020')).destroy(callback_);
     });
   }
 };
