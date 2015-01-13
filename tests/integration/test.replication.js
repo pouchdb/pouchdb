@@ -137,8 +137,10 @@ adapters.forEach(function (adapters) {
             result.ok.should.equal(true);
             result.docs_written.should.equal(docs.length);
             new PouchDB(dbs.name).info(function (err, info) {
-              info.update_seq.should.equal(numDocs, 'update_seq');
-              info.doc_count.should.equal(numDocs, 'doc_count');
+              verifyInfo(info, {
+                update_seq: numDocs,
+                doc_count: numDocs
+              });
               done();
             });
           }
