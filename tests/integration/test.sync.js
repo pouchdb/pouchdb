@@ -422,6 +422,10 @@ adapters.forEach(function (adapters) {
         return sync;
       })
       .then(function() {
+        syncedDocs.sort(function (a, b) {
+          return a._id > b._id ? 1 : -1;
+        });
+
         syncedDocs.length.should.equal(3);
         syncedDocs[0]._id.should.equal('1');
         syncedDocs[1]._id.should.equal('2');

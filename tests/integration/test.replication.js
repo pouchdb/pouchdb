@@ -3482,6 +3482,9 @@ adapters.forEach(function (adapters) {
         return replication;
       })
       .then(function() {
+        replicatedDocs.sort(function (a, b) {
+          return a._id > b._id ? 1 : -1;
+        });
         replicatedDocs.length.should.equal(3);
         replicatedDocs[0]._id.should.equal('0');
         replicatedDocs[1]._id.should.equal('1');
