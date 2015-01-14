@@ -2916,7 +2916,11 @@ adapters.forEach(function (adapters) {
                 live: true,
                 onChange: function (change) {
                   change.changes.should.have.length(1);
-                  change.seq.should.equal(info.update_seq);
+
+                  // not a valid assertion in CouchDB 2.0
+                  if (!testUtils.isCouchMaster()) {
+                    change.seq.should.equal(info.update_seq);
+                  }
                   done();
                 }
               });
