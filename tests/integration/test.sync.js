@@ -223,12 +223,6 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       var replications = db.sync(remote, {live: true});
 
-      db.on('change', function (ch) {
-        if (ch.seq !== 1) {
-          done(true);
-        }
-      });
-
       replications.on('cancel', function () {
         remote.put(doc2, function () {
           changes.should.equal(2);
