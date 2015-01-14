@@ -3046,7 +3046,7 @@ adapters.forEach(function (adapters) {
 
       rep.on('complete', function() {
         active.should.equal(2);
-        paused.should.equal(2);
+        paused.should.be.at.least(2);
         done();
       });
 
