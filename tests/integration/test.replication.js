@@ -2747,13 +2747,6 @@ adapters.forEach(function (adapters) {
         });
       }
 
-      // a basic map function to mimic our testing situation
-      var map = 'function(doc) {' +
-        'if (doc.common === true) {' +
-          'emit(doc._id, doc.rev);' +
-        '}' +
-      '}';
-
       // The number of workflow cycles to perform. 2+ was always failing
       // reason for this test.
       var workflow = function (name, remote, x) {
@@ -2786,26 +2779,41 @@ adapters.forEach(function (adapters) {
             integer: 3,
             thisVaries: new Date(),
             common: true
+          },
+          {
+            "_id": "_design/common",
+            views: {
+              common: {
+                map: function (doc) {
+                  if (doc.common) {
+                    emit(doc._id, doc._rev);
+                  }
+                }.toString()
+              }
+            }
           }
         ];
         var dbr = new PouchDB(remote);
         rebuildDocuments(dbr, docs, function () {
           var db = new PouchDB(name);
           db.replicate.from(remote, function (err, result) {
-            db.query({ map: map }, { reduce: false }, function (err, result) {
-              result.rows.length.should.equal(docs.length);
-              if (--x) {
-                workflow(name, remote, x);
-              } else {
-                db.info(function (err, info) {
-                  verifyInfo(info, {
-                    update_seq: 4,
-                    doc_count: 4
+            db.query('common/common', { reduce: false },
+              function (err, result) {
+                // -1 for the design doc
+                result.rows.length.should.equal(docs.length - 1);
+                if (--x) {
+                  workflow(name, remote, x);
+                } else {
+                  db.info(function (err, info) {
+                    verifyInfo(info, {
+                      update_seq: 5,
+                      doc_count: 5
+                    });
+                    done();
                   });
-                  done();
-                });
+                }
               }
-            });
+            );
           });
         });
       };
