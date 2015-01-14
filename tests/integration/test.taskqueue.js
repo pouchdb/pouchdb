@@ -25,6 +25,11 @@ adapters.forEach(function (adapter) {
     });
 
     it('Query', function (done) {
+      // temp views are not supported in CouchDB 2.0
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
+
       var db = new PouchDB(dbs.name);
       var queryFun = {
         map: function (doc) {
