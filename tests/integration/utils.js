@@ -97,29 +97,14 @@ testUtils.adapterUrl = function (adapter, name) {
 testUtils.cleanup = function (dbs, done) {
 
   dbs = uniq(dbs);
-
-  var deleted = 0;
   var num = dbs.length;
-  var errors = [];
 
-  function dbDeleted(err, res) {
-    // 400 is for an unexpected return from CouchDB, filed
-    // https://issues.apache.org/jira/browse/COUCHDB-2205
-    if (err && (err.status !== 404 && err.status !== 400)) {
-      errors.push(err);
-    }
-    if (++deleted === num) {
-      if (errors.length > 0) {
-        // TODO: report all the errors
-        done(errors[0]);
-      } else {
+  dbs.forEach(function(db) {
+    new PouchDB(db).destroy(function() {
+      if (--num === 0) {
         done();
       }
-    }
-  }
-
-  dbs.forEach(function (db) {
-    PouchDB.destroy(db, dbDeleted);
+    });
   });
 };
 
