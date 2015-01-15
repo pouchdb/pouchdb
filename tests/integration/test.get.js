@@ -701,8 +701,16 @@ adapters.forEach(function (adapter) {
         res.length.should.equal(1, 'just one result');
         res[0].missing.should.equal('2-whatever', 'just one result');
         db.get('nonexistent', { open_revs: 'all' }, function (err, res) {
-          res.length.should.equal(0, 'no open revisions');
-          done();
+          // CouchDB 1.X doesn't handle this situation correctly
+          // CouchDB 2.0 fixes it (see COUCHDB-2517)
+          testUtils.isCouchDB(function (isCouchDB) {
+            if (isCouchDB && !testUtils.isCouchMaster()) {
+              return done();
+            }
+
+            err.status.should.equal(404);
+            done();
+          });
         });
       });
     });
