@@ -311,6 +311,13 @@ adapters.forEach(function (adapter) {
     });
 
     it('Test get with revs_info on compacted tree', function (done) {
+      // _compact endpoint is not exposed in CouchDB 2.0
+      // (it's exposed via a private port). Skip
+      // this test for now
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
+
       var db = new PouchDB(dbs.name);
       var simpleTree = [
         [
