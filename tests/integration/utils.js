@@ -119,7 +119,7 @@ testUtils.cleanup = function (dbs, done) {
   }
 
   dbs.forEach(function (db) {
-    PouchDB.destroy(db, dbDeleted);
+    new PouchDB(db).destroy(dbDeleted);
   });
 };
 
