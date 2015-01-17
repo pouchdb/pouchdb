@@ -77,6 +77,29 @@ db.query('my_index').then(function (res) {
 });
 ```
 
+Note that, the first time you query, it will be quite slow because the index isn't
+built until you query it. To get around this, you can do an empty query to kick
+off a new build:
+
+```js
+db.query('my_index', {
+  limit: 0 // don't return any results
+}).then(function (res) {
+  // index was built!
+}).catch(function (err) {
+  // some error
+});
+```
+
+After this, your queries will be much faster.
+
+{% include alert_start.html variant="info"%}
+
+CouchDB builds indexes in exactly the same way as PouchDB. So you may want to familiarize yourself with the <a href='/api.html#query_database'>"stale" option</a> in order to get the best possible performance for your app.
+
+{% include alert_end.html %}
+
+
 More about map/reduce
 -----
 
