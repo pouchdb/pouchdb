@@ -74,7 +74,7 @@
     "browserify": "^6.1.0",
     "watchify": "^2.0.0",
     "derequire": "^1.2.0",
-    "selenium-standalone": "^3.0.2"
+    "selenium-standalone": "3.0.2"
   },
   "scripts": {
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
