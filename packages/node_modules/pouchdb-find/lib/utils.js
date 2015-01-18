@@ -113,3 +113,41 @@ exports.clone = function (obj) {
 };
 
 exports.extend = require('pouchdb-extend');
+
+exports.callbackify = function (fun) {
+  return exports.getArguments(function (args) {
+    var cb = args.pop();
+    var promise = fun.apply(this, args);
+    if (typeof cb === 'function') {
+      exports.promisedCallback(promise, cb);
+    }
+    return promise;
+  });
+};
+
+exports.promisedCallback = function (promise, callback) {
+  if (callback) {
+    promise.then(function (res) {
+      process.nextTick(function () {
+        callback(null, res);
+      });
+    }, function (reason) {
+      process.nextTick(function () {
+        callback(reason);
+      });
+    });
+  }
+  return promise;
+};
+
+var crypto = require('crypto');
+var Md5 = require('spark-md5');
+
+exports.MD5 = function (string) {
+  /* istanbul ignore else */
+  if (!process.browser) {
+    return crypto.createHash('md5').update(string).digest('hex');
+  } else {
+    return Md5.hash(string);
+  }
+};
