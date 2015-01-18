@@ -172,3 +172,13 @@ exports.mergeObjects = function (arr) {
   }
   return res;
 };
+
+// like underscore/lodash _.pick()
+exports.pick = function (obj, arr) {
+  var res = {};
+  for (var i = 0, len = arr.length; i < len; i++) {
+    var prop = arr[i];
+    res[prop] = obj[prop];
+  }
+  return res;
+};

@@ -301,6 +301,91 @@ function tests(dbName, dbType) {
       });
     });
 
+    it('sorts correctly - just _id desc', function () {
+      return db.bulkDocs([
+        {_id: 'a', foo: 'a'},
+        {_id: 'b', foo: 'b'}
+      ]).then(function () {
+        return db.find({
+          "selector": {"_id": {$gte: "a"}},
+          "fields": ["_id", "foo"],
+          "sort": [{"_id": "desc"}]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          "docs": [
+            {"_id": "b", "foo": "b"},
+            {"_id": "a", "foo": "a"}
+          ]
+        });
+      });
+    });
+
+    it('sorts correctly - foo desc', function () {
+      var index = {
+        "index": {
+          "fields": [{"foo": "desc"}]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: 'a', foo: 'b'},
+          {_id: 'b', foo: 'a'},
+          {_id: 'c', foo: 'c'},
+          {_id: '0', foo: 'd'}
+        ]);
+      }).then(function () {
+        return db.find({
+          "selector": {"foo": {$lte: "d"}},
+          "fields": ["foo"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          "docs": [
+            {"foo": "a"},
+            {"foo": "b"},
+            {"foo": "c"},
+            {"foo": "d"}
+          ]
+        });
+      });
+    });
+
+    it('sorts correctly - foo desc 2', function () {
+      var index = {
+        "index": {
+          "fields": [{"foo": "desc"}]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: 'a', foo: 'b'},
+          {_id: 'b', foo: 'a'},
+          {_id: 'c', foo: 'c'},
+          {_id: '0', foo: 'd'}
+        ]);
+      }).then(function () {
+        return db.find({
+          "selector": {"foo": {$lte: "d"}},
+          "fields": ["foo"],
+          "sort": [{foo: "desc"}]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          "docs": [
+            {"foo": "d"},
+            {"foo": "c"},
+            {"foo": "b"},
+            {"foo": "a"}
+          ]
+        });
+      });
+    });
+
     it('sorts correctly - complex', function () {
       var index = {
         "index": {
