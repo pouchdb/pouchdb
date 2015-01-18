@@ -151,3 +151,24 @@ exports.MD5 = function (string) {
     return Md5.hash(string);
   }
 };
+
+exports.flatten = exports.getArguments(function (args) {
+  var res = [];
+  for (var i = 0, len = args.length; i < len; i++) {
+    var subArr = args[i];
+    if (Array.isArray(subArr)) {
+      res = res.concat(exports.flatten.apply(null, subArr));
+    } else {
+      res.push(subArr);
+    }
+  }
+  return res;
+});
+
+exports.mergeObjects = function (arr) {
+  var res = {};
+  for (var i = 0, len = arr.length; i < len; i++) {
+    res = exports.extend(true, res, arr[i]);
+  }
+  return res;
+};
