@@ -6,6 +6,18 @@ var callbackify = utils.callbackify;
 
 var abstractMapper = require('./abstract-mapper');
 
+function getKey(obj) {
+  return Object.keys(obj)[0];
+}
+
+function getValue(obj) {
+  return obj[getKey(obj)];
+}
+
+function getSize(obj) {
+  return Object.keys(obj).length;
+}
+
 function putIfNotExists(db, doc) {
   return upsert.putIfNotExists.call(db, doc);
 }
@@ -20,6 +32,24 @@ function massageIndexDef(indexDef) {
     return field;
   });
   return indexDef;
+}
+
+function massageSelector(selector) {
+  if (!selector) {
+    return null;
+  }
+  var field = Object.keys(selector)[0];
+  var matcher = selector[field];
+  if (typeof matcher === 'string') {
+    matcher = {$eq: matcher};
+  }
+  matcher = {
+    operator: getKey(matcher),
+    value: getValue(matcher)
+  };
+  return [
+    {field: field, matcher: matcher}
+  ];
 }
 
 function createIndex(db, requestDef) {
@@ -52,14 +82,74 @@ function createIndex(db, requestDef) {
 
 function find(db, requestDef) {
 
-  requestDef.index = massageIndexDef(requestDef.index);
+  return getIndexes(db).then(function (getIndexesRes) {
 
-  var md5 = utils.MD5(JSON.stringify(requestDef));
+    var selector = massageSelector(requestDef.selector)[0];
+    var matcher = selector.matcher;
 
-  var signature = 'idx-' + md5 + '/' + requestDef.name;
+    var indexToUse;
+    if (selector.field === '_id') {
+      indexToUse = '_all_docs';
+    } else {
+      getIndexesRes.indexes.forEach(function (index) {
+        if (index.def.fields.length === 1 &&
+            getKey(index.def.fields[0]) === selector.field) {
+          var ddoc = index.ddoc.substring(8); // remove '_design/'
+          indexToUse = ddoc + '/' + index.name;
+        }
+      });
+    }
+    if (!indexToUse) {
+      throw new Error('couldn\'t find any index to use');
+    }
 
-  return abstractMapper.query.apply(db, [signature]).then(function (res) {
-    console.log(res);
+    var opts = {
+      include_docs: true,
+      reduce: false
+    };
+
+    if (requestDef.sort && requestDef.sort.length === 1 &&
+        getSize(requestDef.sort[0]) === 1 &&
+        getKey(requestDef.sort[0]) === selector.field &&
+        getValue(requestDef.sort[0]) === 'desc') {
+      opts.descending = true;
+    }
+
+    switch (matcher.operator) {
+      case '$eq':
+        opts.key = matcher.value;
+        break;
+      case '$lte':
+        if (opts.descending) {
+          opts.startkey = matcher.value;
+        } else {
+          opts.endkey = matcher.value;
+        }
+        break;
+      case '$gte':
+        if (opts.descending) {
+          opts.endkey = matcher.value;
+        } else {
+          opts.startkey = matcher.value;
+        }
+        break;
+    }
+
+    if (indexToUse === '_all_docs') {
+      return db.allDocs(opts);
+    } else {
+      return abstractMapper.query.call(db, indexToUse, opts);
+    }
+  }).then(function (res) {
+    return {
+      docs: res.rows.map(function (row) {
+        var doc = row.doc;
+        if (requestDef.fields) {
+          return utils.pick(doc, requestDef.fields);
+        }
+        return doc;
+      })
+    };
   });
 }
 
