@@ -1,8 +1,10 @@
 'use strict';
 
-var utils = require('../utils');
+var utils = require('../../utils');
 var upsert = require('pouchdb-upsert');
 var callbackify = utils.callbackify;
+
+var abstractMapper = require('./abstract-mapper');
 
 function putIfNotExists(db, doc) {
   return upsert.putIfNotExists.call(db, doc);
@@ -52,7 +54,13 @@ function find(db, requestDef) {
 
   requestDef.index = massageIndexDef(requestDef.index);
 
-  throw new Error('not implemented');
+  var md5 = utils.MD5(JSON.stringify(requestDef));
+
+  var signature = 'idx-' + md5 + '/' + requestDef.name;
+
+  return abstractMapper.query.apply(db, [signature]).then(function (res) {
+    console.log(res);
+  });
 }
 
 function getIndexes(db) {
