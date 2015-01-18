@@ -16,6 +16,7 @@
     "pouchdb"
   ],
   "dependencies": {
+    "pouchdb-upsert": "^1.0.2",
     "argsarray": "0.0.1",
     "bluebird": "^1.2.4",
     "double-ended-queue": "^2.0.0-0",
