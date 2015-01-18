@@ -925,6 +925,18 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('2 invalid puts', function (done) {
+      var db = new PouchDB(dbs.name);
+      var called = 0;
+      var cb = function() {
+        if (++called === 2) {
+          done();
+        }
+      };
+      db.put({_id: 'foo', _zing: 'zing'}, cb);
+      db.put({_id: 'bar', _zing: 'zing'}, cb);
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
