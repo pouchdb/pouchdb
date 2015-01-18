@@ -92,6 +92,10 @@ A plugin to let PouchDB talk streams.
 
 A PouchDB plugin that allows you to re-use your CouchDB update functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-update-plug-in))
 
+#### [PouchDB Upsert](https://github.com/nolanlawson/pouchdb-upsert)
+
+Convenience functions for working with documents: `upsert()` and `putIfNotExists()`.
+
 #### [PouchDB Validation](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 A PouchDB plugin that allows you to re-use your CouchDB `validate_doc_update` functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in))
