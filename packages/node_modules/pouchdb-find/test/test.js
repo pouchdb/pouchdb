@@ -30,19 +30,18 @@ dbs.split(',').forEach(function (db) {
 
 function tests(dbName, dbType) {
 
-  var db;
-
-  beforeEach(function () {
-    this.timeout(20000);
-    db = new Pouch(dbName);
-    return db;
-  });
-  afterEach(function () {
-    this.timeout(20000);
-    return Pouch.destroy(dbName);
-  });
   describe(dbType + ' tests', function () {
     this.timeout(100000);
+
+    var db;
+
+    beforeEach(function () {
+      db = new Pouch(dbName);
+      return db;
+    });
+    afterEach(function () {
+      return Pouch.destroy(dbName);
+    });
 
     it('should create an index', function () {
       var index = {
@@ -182,6 +181,97 @@ function tests(dbName, dbType) {
                 "def": {
                   "fields": [
                     "foo"
+                  ]
+                }
+              }
+            }
+          }
+        });
+      });
+    });
+
+    it('should create ddocs automatically 2', function () {
+      var index = {
+        "index": {
+          "fields": [{"foo": "asc"}]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      var ddocId;
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        ddocId = resp.indexes[1].ddoc;
+        return db.get(ddocId);
+      }).then(function (ddoc) {
+        ddoc._id.should.equal(ddocId);
+        should.exist(ddoc._rev);
+        delete ddoc._id;
+        delete ddoc._rev;
+        delete ddoc.views['foo-index'].options.w; // wtf is this?
+        ddoc.should.deep.equal({
+          "language": "query",
+          "views": {
+            "foo-index": {
+              "map": {
+                "fields": {
+                  "foo": "asc"
+                }
+              },
+              "reduce": "_count",
+              "options": {
+                "def": {
+                  "fields": [
+                    {"foo": "asc"}
+                  ]
+                }
+              }
+            }
+          }
+        });
+      });
+    });
+
+    it('should create ddocs automatically 3', function () {
+      var index = {
+        "index": {
+          "fields": [
+            {"foo": "asc"},
+            "bar"
+          ]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      var ddocId;
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        ddocId = resp.indexes[1].ddoc;
+        return db.get(ddocId);
+      }).then(function (ddoc) {
+        ddoc._id.should.equal(ddocId);
+        should.exist(ddoc._rev);
+        delete ddoc._id;
+        delete ddoc._rev;
+        delete ddoc.views['foo-index'].options.w; // wtf is this?
+        ddoc.should.deep.equal({
+          "language": "query",
+          "views": {
+            "foo-index": {
+              "map": {
+                "fields": {
+                  "foo": "asc",
+                  "bar": "asc"
+                }
+              },
+              "reduce": "_count",
+              "options": {
+                "def": {
+                  "fields": [
+                    {"foo": "asc"},
+                    "bar"
                   ]
                 }
               }
@@ -643,6 +733,24 @@ function tests(dbName, dbType) {
             {_id: '3', foo: 'eba'}
           ]
         });
+      });
+    });
+
+    it('error: unsupported mixed sort', function () {
+      var index = {
+        "index": {
+          "fields": [
+            {"foo": "desc"},
+            "bar"
+          ]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function () {
+        throw new Error('should not be here');
+      }, function (err) {
+        should.exist(err);
       });
     });
 
