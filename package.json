@@ -34,7 +34,6 @@
     "through2": "^0.4.1",
     "vuvuzela": "^1.0.0",
     "debug": "^2.1.0",
-    "pouchdb-express-router": "^0.0.2",
     "express": "^4.10.4",
     "miller-rabin": "1.1.1",
     "pouchdb-collate": "^1.2.0"
@@ -43,6 +42,7 @@
     "leveldown": "~0.10.2"
   },
   "devDependencies": {
+    "pouchdb-express-router": "^0.0.2",
     "bundle-collapser": "^1.1.1",
     "rimraf": "2.2.8",
     "pouchdb-server": "^0.6.1",
