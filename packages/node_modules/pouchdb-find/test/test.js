@@ -281,7 +281,27 @@ function tests(dbName, dbType) {
       });
     });
 
-    it('sorts correctly', function () {
+    it('sorts correctly - just _id', function () {
+      return db.bulkDocs([
+        {_id: 'a', foo: 'a'},
+        {_id: 'b', foo: 'b'}
+      ]).then(function () {
+        return db.find({
+          "selector": {"_id": {$gte: "a"}},
+          "fields": ["_id", "foo"],
+          "sort": [{"_id": "asc"}]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          "docs": [
+            {"_id": "a", "foo": "a"},
+            {"_id": "b", "foo": "b"}
+          ]
+        });
+      });
+    });
+
+    it('sorts correctly - complex', function () {
       var index = {
         "index": {
           "fields": ["foo"]

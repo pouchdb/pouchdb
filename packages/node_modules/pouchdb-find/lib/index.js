@@ -2,8 +2,8 @@
 
 var utils = require('./utils');
 
-var httpIndexes = require('./adapters/http');
-var localIndexes = require('./adapters/local');
+var httpIndexes = require('./adapters/http/http');
+var localIndexes = require('./adapters/local/local');
 
 exports.createIndex = utils.toPromise(function (requestDef, callback) {
 
