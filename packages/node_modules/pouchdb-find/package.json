@@ -41,7 +41,9 @@
     "jshint": "^2.5.11",
     "lie": "^2.6.0",
     "pouchdb-extend": "^0.1.2",
-    "request": "^2.51.0"
+    "pouchdb-upsert": "^1.1.0",
+    "request": "^2.51.0",
+    "spark-md5": "0.0.5"
   },
   "devDependencies": {
     "bluebird": "^1.0.7",
