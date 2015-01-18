@@ -60,6 +60,38 @@ function tests(dbName, dbType) {
       });
     });
 
+    it('should not recognize duplicate indexes', function () {
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      var index2 = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "bar-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function (response) {
+        response.should.deep.equal({"result": "created"});
+        return db.createIndex(index2);
+      }).then(function (response) {
+        response.should.deep.equal({result: 'created'});
+        return db.getIndexes();
+      }).then(function (res) {
+        res.indexes.should.have.length(3);
+        var ddoc1 = res.indexes[1].ddoc;
+        var ddoc2 = res.indexes[2].ddoc;
+        ddoc1.should.not.equal(ddoc2,
+          'essentially duplicate indexes are not md5summed to the' +
+          'same ddoc');
+      });
+    });
+
     it('should find existing indexes', function () {
 
       return db.getIndexes().then(function (response) {
