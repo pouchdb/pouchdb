@@ -108,18 +108,23 @@ function createIndex(db, requestDef) {
 
 function find(db, requestDef) {
 
-  var selector = massageSelector(requestDef.selector)[0];
-  var matcher = selector.matcher;
+  if (typeof requestDef.selector !== 'object') {
+    throw new Error('you must provide a selector when you find()');
+  }
+
+  var selectors = massageSelector(requestDef.selector);
+  var selectorFields = selectors.map(function (selector) {
+    return selector.field;
+  });
 
   return getIndexes(db).then(function (getIndexesRes) {
 
     var indexToUse;
-    if (selector.field === '_id') {
+    if (selectors.length === 1 && selectors[0].field === '_id') {
       indexToUse = '_all_docs';
     } else {
       getIndexesRes.indexes.forEach(function (index) {
-        if (index.def.fields.length === 1 &&
-            getKey(index.def.fields[0]) === selector.field) {
+        if (collate.collate(selectorFields, index.def.fields) === 0) {
           var ddoc = index.ddoc.substring(8); // remove '_design/'
           indexToUse = ddoc + '/' + index.name;
         }
@@ -136,7 +141,6 @@ function find(db, requestDef) {
 
     if (requestDef.sort && requestDef.sort.length === 1 &&
         getSize(requestDef.sort[0]) === 1 &&
-        getKey(requestDef.sort[0]) === selector.field &&
         getValue(requestDef.sort[0]) === 'desc') {
       opts.descending = true;
     }
