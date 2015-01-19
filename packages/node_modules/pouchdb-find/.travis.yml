@@ -20,7 +20,7 @@ before_script:
   - "curl -X PUT http://127.0.0.1:5984/_config/log/level -d '\"debug\"'"
 
     # cloudant password setup
-  - "echo \"module.exports = '$CLOUDANT_PASSWORD';\" > test/.cloudant-password.js
+  - "echo \"module.exports = '$CLOUDANT_PASSWORD';\" > test/.cloudant-password.js"
 
 after_failure:
   - "curl -X GET http://127.0.0.1:5984/_log?bytes=1000000"
