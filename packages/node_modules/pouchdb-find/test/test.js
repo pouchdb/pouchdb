@@ -889,6 +889,44 @@ function tests(dbName, dbType) {
       });
     });
 
+    it('supported mixed sort 2', function () {
+      var index = {
+        "index": {
+          "fields": [
+            "foo",
+            "bar"
+          ]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: 'a1', foo: 'a', bar: '1'},
+          {_id: 'a2', foo: 'a', bar: '2'},
+          {_id: 'b1', foo: 'b', bar: '1'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {$gte: 'b'}}
+        });
+      }).then(function (res) {
+        res.docs.forEach(function (doc) {
+          should.exist(doc._rev);
+          delete doc._rev;
+        });
+        res.should.deep.equal({
+          "docs": [
+            {
+              "_id": "b1",
+              "foo": "b",
+              "bar": "1"
+            }
+          ]
+        });
+      });
+    });
+
     it('error: gimme some args', function () {
       return db.find().then(function () {
         throw Error('should not be here');
