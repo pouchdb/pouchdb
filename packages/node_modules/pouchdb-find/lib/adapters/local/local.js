@@ -135,6 +135,8 @@ function find(db, requestDef) {
       opts = reverseOptions(opts);
     }
 
+    console.log(opts);
+
     return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {
         return db.allDocs(opts);
