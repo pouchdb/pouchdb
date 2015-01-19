@@ -6,18 +6,11 @@ var callbackify = utils.callbackify;
 var collate = require('pouchdb-collate');
 
 var abstractMapper = require('./abstract-mapper');
-
-function getKey(obj) {
-  return Object.keys(obj)[0];
-}
-
-function getValue(obj) {
-  return obj[getKey(obj)];
-}
-
-function getSize(obj) {
-  return Object.keys(obj).length;
-}
+var planQuery = require('./query-planner');
+var localUtils = require('./local-utils');
+var getKey = localUtils.getKey;
+var getValue = localUtils.getValue;
+var getSize = localUtils.getSize;
 
 function putIfNotExists(db, doc) {
   return upsert.putIfNotExists.call(db, doc);
@@ -33,24 +26,6 @@ function massageIndexDef(indexDef) {
     return field;
   });
   return indexDef;
-}
-
-function massageSelector(selector) {
-  if (!selector) {
-    return null;
-  }
-  var field = Object.keys(selector)[0];
-  var matcher = selector[field];
-  if (typeof matcher === 'string') {
-    matcher = {$eq: matcher};
-  }
-  matcher = {
-    operator: getKey(matcher),
-    value: getValue(matcher)
-  };
-  return [
-    {field: field, matcher: matcher}
-  ];
 }
 
 function filterInclusiveStart(rows, targetValue) {
@@ -112,12 +87,16 @@ function find(db, requestDef) {
     throw new Error('you must provide a selector when you find()');
   }
 
-  var selectors = massageSelector(requestDef.selector);
-  var selectorFields = selectors.map(function (selector) {
-    return selector.field;
-  });
-
   return getIndexes(db).then(function (getIndexesRes) {
+
+    var queryPlan = planQuery(requestDef.selector, getIndexesRes.indexes);
+    var matcher = selector.matcher;
+
+    var selectors = massageSelector(requestDef.selector);
+    var selectorFields = selectors.map(function (selector) {
+      return selector.field;
+    });
+
 
     var indexToUse;
     if (selectors.length === 1 && selectors[0].field === '_id') {
