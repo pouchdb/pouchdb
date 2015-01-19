@@ -8,7 +8,7 @@ var collate = require('pouchdb-collate');
 var abstractMapper = require('./abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('./local-utils');
-var getKey = localUtils.getKey;
+//var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var getSize = localUtils.getSize;
 
@@ -26,6 +26,11 @@ function massageIndexDef(indexDef) {
     return field;
   });
   return indexDef;
+}
+
+function indexToSignature(index) {
+  // remove '_design/'
+  return index.ddoc.substring(8) + '/' + index.name;
 }
 
 function filterInclusiveStart(rows, targetValue) {
@@ -90,25 +95,9 @@ function find(db, requestDef) {
   return getIndexes(db).then(function (getIndexesRes) {
 
     var queryPlan = planQuery(requestDef.selector, getIndexesRes.indexes);
-    var matcher = selector.matcher;
+    var matcher = queryPlan.matcher;
 
-    var selectors = massageSelector(requestDef.selector);
-    var selectorFields = selectors.map(function (selector) {
-      return selector.field;
-    });
-
-
-    var indexToUse;
-    if (selectors.length === 1 && selectors[0].field === '_id') {
-      indexToUse = '_all_docs';
-    } else {
-      getIndexesRes.indexes.forEach(function (index) {
-        if (collate.collate(selectorFields, index.def.fields) === 0) {
-          var ddoc = index.ddoc.substring(8); // remove '_design/'
-          indexToUse = ddoc + '/' + index.name;
-        }
-      });
-    }
+    var indexToUse = queryPlan.index;
     if (!indexToUse) {
       throw new Error('couldn\'t find any index to use');
     }
@@ -165,10 +154,11 @@ function find(db, requestDef) {
     }
 
     return Promise.resolve().then(function () {
-      if (indexToUse === '_all_docs') {
+      if (indexToUse.name === '_all_docs') {
         return db.allDocs(opts);
       } else {
-        return abstractMapper.query.call(db, indexToUse, opts);
+        var signature = indexToSignature(indexToUse);
+        return abstractMapper.query.call(db, signature, opts);
       }
     }).then(function (res) {
 
