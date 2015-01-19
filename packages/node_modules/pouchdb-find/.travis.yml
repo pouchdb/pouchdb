@@ -33,7 +33,8 @@ env:
 
 matrix:
  allow_failures:
-   env: COMMAND=coverage
+ - env: COMMAND=coverage
+ fast_finish: true
 
 branches:
   only:
