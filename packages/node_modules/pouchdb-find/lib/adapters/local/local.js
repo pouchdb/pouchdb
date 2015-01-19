@@ -3,6 +3,7 @@
 var utils = require('../../utils');
 var upsert = require('pouchdb-upsert');
 var callbackify = utils.callbackify;
+var collate = require('pouchdb-collate');
 
 var abstractMapper = require('./abstract-mapper');
 
@@ -50,6 +51,20 @@ function massageSelector(selector) {
   return [
     {field: field, matcher: matcher}
   ];
+}
+
+function filterInclusiveStart(rows, targetValue) {
+  for (var i = 0, len = rows.length; i < len; i++) {
+    var row = rows[i];
+    if (collate.collate(row.key, targetValue) > 0) {
+      if (i > 0) {
+        return rows.slice(i);
+      } else {
+        return rows;
+      }
+    }
+  }
+  return rows;
 }
 
 function createIndex(db, requestDef) {
@@ -115,6 +130,8 @@ function find(db, requestDef) {
       opts.descending = true;
     }
 
+    var inclusiveStart = true;
+
     switch (matcher.operator) {
       case '$eq':
         opts.key = matcher.value;
@@ -133,23 +150,50 @@ function find(db, requestDef) {
           opts.startkey = matcher.value;
         }
         break;
+      case '$lt':
+        if (opts.descending) {
+          opts.startkey = matcher.value;
+          inclusiveStart = false;
+        } else {
+          opts.endkey = matcher.value;
+          opts.inclusive_end = false;
+        }
+        break;
+      case '$gt':
+        if (opts.descending) {
+          opts.endkey = matcher.value;
+          opts.inclusive_end = false;
+        } else {
+          opts.startkey = matcher.value;
+          inclusiveStart = false;
+        }
+        break;
     }
 
-    if (indexToUse === '_all_docs') {
-      return db.allDocs(opts);
-    } else {
-      return abstractMapper.query.call(db, indexToUse, opts);
-    }
-  }).then(function (res) {
-    return {
-      docs: res.rows.map(function (row) {
-        var doc = row.doc;
-        if (requestDef.fields) {
-          return utils.pick(doc, requestDef.fields);
-        }
-        return doc;
-      })
-    };
+    return Promise.resolve().then(function () {
+      if (indexToUse === '_all_docs') {
+        return db.allDocs(opts);
+      } else {
+        return abstractMapper.query.call(db, indexToUse, opts);
+      }
+    }).then(function (res) {
+
+      if (!inclusiveStart) {
+        // may have to manually filter the first one,
+        // since couchdb has no inclusive_start option
+        res.rows = filterInclusiveStart(res.rows, matcher.value);
+      }
+
+      return {
+        docs: res.rows.map(function (row) {
+          var doc = row.doc;
+          if (requestDef.fields) {
+            return utils.pick(doc, requestDef.fields);
+          }
+          return doc;
+        })
+      };
+    });
   });
 }
 
