@@ -93,7 +93,16 @@ function createIndex(db, requestDef) {
     views: views,
     language: 'query'
   }).then(function (res) {
-    return {result: res.updated ? 'created' : 'exists'};
+    // kick off a build
+    // TODO: abstract-pouchdb-mapreduce should support auto-updating
+    var signature = 'idx-' + md5 + '/' + viewName;
+    return abstractMapper.query.call(db, signature, {
+        limit: 0,
+        stale: 'update_after',
+        reduce: false
+    }).then(function () {
+      return {result: res.updated ? 'created' : 'exists'};
+    });
   });
 }
 
