@@ -30,6 +30,8 @@ dbs.split(',').forEach(function (db) {
 
 function tests(dbName, dbType) {
 
+  Pouch.debug.enable('*');
+
   describe(dbType + ' tests', function () {
     this.timeout(100000);
 
