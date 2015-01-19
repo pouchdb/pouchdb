@@ -47,6 +47,28 @@ function filterInclusiveStart(rows, targetValue) {
   return rows;
 }
 
+function reverseOptions(opts) {
+  var newOpts = utils.clone(opts);
+  delete newOpts.startkey;
+  delete newOpts.endkey;
+  delete newOpts.inclusive_start;
+  delete newOpts.inclusive_end;
+
+  if ('endkey' in opts) {
+    newOpts.startkey = opts.endkey;
+  }
+  if ('startkey' in opts) {
+    newOpts.endkey = opts.startkey;
+  }
+  if ('inclusive_start' in opts) {
+    newOpts.inclusive_end = opts.inclusive_start;
+  }
+  if ('inclusive_end' in opts) {
+    newOpts.inclusive_start = opts.inclusive_end;
+  }
+  return newOpts;
+}
+
 function createIndex(db, requestDef) {
 
   var originalIndexDef = utils.clone(requestDef.index);
@@ -95,62 +117,22 @@ function find(db, requestDef) {
   return getIndexes(db).then(function (getIndexesRes) {
 
     var queryPlan = planQuery(requestDef.selector, getIndexesRes.indexes);
-    var matcher = queryPlan.matcher;
 
     var indexToUse = queryPlan.index;
     if (!indexToUse) {
       throw new Error('couldn\'t find any index to use');
     }
 
-    var opts = {
+    var opts = utils.extend(true, {
       include_docs: true,
       reduce: false
-    };
+    }, queryPlan.queryOpts);
 
     if (requestDef.sort && requestDef.sort.length === 1 &&
         getSize(requestDef.sort[0]) === 1 &&
         getValue(requestDef.sort[0]) === 'desc') {
       opts.descending = true;
-    }
-
-    var inclusiveStart = true;
-
-    switch (matcher.operator) {
-      case '$eq':
-        opts.key = matcher.value;
-        break;
-      case '$lte':
-        if (opts.descending) {
-          opts.startkey = matcher.value;
-        } else {
-          opts.endkey = matcher.value;
-        }
-        break;
-      case '$gte':
-        if (opts.descending) {
-          opts.endkey = matcher.value;
-        } else {
-          opts.startkey = matcher.value;
-        }
-        break;
-      case '$lt':
-        if (opts.descending) {
-          opts.startkey = matcher.value;
-          inclusiveStart = false;
-        } else {
-          opts.endkey = matcher.value;
-          opts.inclusive_end = false;
-        }
-        break;
-      case '$gt':
-        if (opts.descending) {
-          opts.endkey = matcher.value;
-          opts.inclusive_end = false;
-        } else {
-          opts.startkey = matcher.value;
-          inclusiveStart = false;
-        }
-        break;
+      opts = reverseOptions(opts);
     }
 
     return Promise.resolve().then(function () {
@@ -162,10 +144,10 @@ function find(db, requestDef) {
       }
     }).then(function (res) {
 
-      if (!inclusiveStart) {
+      if (opts.inclusive_start === false) {
         // may have to manually filter the first one,
-        // since couchdb has no inclusive_start option
-        res.rows = filterInclusiveStart(res.rows, matcher.value);
+        // since couchdb has no true inclusive_start option
+        res.rows = filterInclusiveStart(res.rows, opts.startkey);
       }
 
       return {
