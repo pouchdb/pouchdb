@@ -11,6 +11,7 @@ var localUtils = require('./local-utils');
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var getSize = localUtils.getSize;
+var Promise = utils.Promise;
 
 function putIfNotExists(db, doc) {
   return upsert.putIfNotExists.call(db, doc);
@@ -166,8 +167,6 @@ function find(db, requestDef) {
       opts.descending = true;
       opts = reverseOptions(opts);
     }
-
-    console.log(opts);
 
     return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {

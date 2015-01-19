@@ -14,11 +14,6 @@ before_script:
     # Workaround for Selenium #3280 issue
   - "sudo sed -i 's/^127\\.0\\.0\\.1.*$/127.0.0.1 localhost/' /etc/hosts"
 
-    # Lets know what CouchDB we are playing with
-    # and make sure its logging debug
-  - "curl -X GET http://127.0.0.1:5984/"
-  - "curl -X PUT http://127.0.0.1:5984/_config/log/level -d '\"debug\"'"
-
     # cloudant password setup
   - "echo \"module.exports = '$CLOUDANT_PASSWORD';\" > test/.cloudant-password.js"
 

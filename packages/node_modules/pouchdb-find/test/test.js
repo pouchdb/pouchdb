@@ -14,14 +14,9 @@ require('bluebird'); // var Promise = require('bluebird');
 
 var cloudantPassword = require('./.cloudant-password');
 
-var dbs;
-if (process.browser) {
-  dbs = 'testdb' + Math.random() +
-    ',http://pouch:' + cloudantPassword +
-    '@pouch.cloudant.com/testdb' + Math.round(Math.random() * 100000);
-} else {
-  dbs = process.env.TEST_DB;
-}
+var  dbs = 'testdb' + Math.random() +
+  ',http://pouch:' + cloudantPassword +
+  '@pouch.cloudant.com/testdb' + Math.round(Math.random() * 100000);
 
 dbs.split(',').forEach(function (db) {
   var dbType = /^http/.test(db) ? 'http' : 'local';
@@ -29,8 +24,6 @@ dbs.split(',').forEach(function (db) {
 });
 
 function tests(dbName, dbType) {
-
-  Pouch.debug.enable('*');
 
   describe(dbType + ' tests', function () {
     this.timeout(100000);
