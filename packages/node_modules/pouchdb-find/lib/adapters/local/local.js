@@ -76,7 +76,9 @@ function createIndex(db, requestDef) {
 
   var views = {};
 
-  views[requestDef.name] = {
+  var viewName = requestDef.name || ('idx-' + md5);
+
+  views[viewName] = {
     map: {
       fields: utils.mergeObjects(requestDef.index.fields)
     },
@@ -97,10 +99,10 @@ function createIndex(db, requestDef) {
 
 function find(db, requestDef) {
 
-  return getIndexes(db).then(function (getIndexesRes) {
+  var selector = massageSelector(requestDef.selector)[0];
+  var matcher = selector.matcher;
 
-    var selector = massageSelector(requestDef.selector)[0];
-    var matcher = selector.matcher;
+  return getIndexes(db).then(function (getIndexesRes) {
 
     var indexToUse;
     if (selector.field === '_id') {
@@ -232,8 +234,17 @@ function getIndexes(db) {
   });
 }
 
-function deleteIndex(db, indexDef) {
-  throw new Error('not implemented');
+function deleteIndex(db, index) {
+
+  var docId = index.ddoc;
+
+  return db.get(docId).then(function (doc) {
+    return db.remove(doc);
+  }).then(function () {
+    return abstractMapper.viewCleanup.apply(db);
+  }).then(function () {
+    return {ok: true};
+  });
 }
 
 exports.createIndex = callbackify(createIndex);
