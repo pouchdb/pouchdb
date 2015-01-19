@@ -1,4 +1,4 @@
-PouchDB Indexes Plugin
+PouchDB Find Plugin
 =====
 
 [![Build Status](https://travis-ci.org/nolanlawson/pouchdb-indexes.svg)](https://travis-ci.org/nolanlawson/pouchdb-indexes)
