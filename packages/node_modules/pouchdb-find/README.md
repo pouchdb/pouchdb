@@ -1,7 +1,7 @@
 PouchDB Find Plugin
 =====
 
-[![Build Status](https://travis-ci.org/nolanlawson/pouchdb-indexes.svg)](https://travis-ci.org/nolanlawson/pouchdb-indexes)
+[![Build Status](https://travis-ci.org/nolanlawson/pouchdb-find.svg)](https://travis-ci.org/nolanlawson/pouchdb-find)
 
 THIS IS A WORK IN PROGRESS! IT DOESN'T WORK YET!
 ===================
