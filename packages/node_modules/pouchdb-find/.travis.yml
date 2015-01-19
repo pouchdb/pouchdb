@@ -23,6 +23,10 @@ after_failure:
   - "curl -X GET http://127.0.0.1:5984/_log?bytes=1000000"
 
 env:
+  global:
+    # TODO: use CouchDB instead of cloudant when query support lands
+    - secure: "IuZJh2co8kU7QSet53h4iY2qwgOcAGiLoLj1SzLsHyx6v9IxzL9diptT/c5HFVSnq+Gkqi+Rwr7JhPfEnYkWgRM8rFTBxE9nMAup1NofjpzMVt0EVeEzZCtTg/UbVHIPilr2KPVhQL1lKsppBVOsBnCezZT00rCL9NsBIzHDw9s="
+    - secure: "dIK/FHR/hC9MTOaUWHvbsq/cv3KDEBdhw4/FVx933ifwiL0KhrV5Qd3Ed8YT//gQ5kak3HBeP42QQHTeL5WU3qfx6Ecsg4KGsQWwknPrHySr0fm4cp97+BsnBXzi7onKYnhKZlUbJZhNlkGCloaoD4gUkJsbcWOTNh9sVf9zy+c="
   matrix:
   - COMMAND=test
   - CLIENT=selenium:firefox COMMAND=test
