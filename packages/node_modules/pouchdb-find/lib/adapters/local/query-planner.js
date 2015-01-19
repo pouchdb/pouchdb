@@ -22,13 +22,30 @@ function planQuery(selector, indexes) {
     if (indexField === field) {
       // found a good index
       res.index = index;
+
       if (index.def.fields.length > 1) {
-        // index has 2 fields, but user is only looking at first one
-        if (userOperator === '$eq') {
-          queryOpts.startkey = [userValue];
-          queryOpts.endkey = [userValue, {}, {}];
+        // user querying one field, but index has more than one
+        switch (userOperator) {
+          case '$eq':
+            queryOpts.startkey = [userValue];
+            queryOpts.endkey = [userValue, {}, {}];
+            break;
+          case '$lte':
+            queryOpts.endkey = [userValue, {}, {}];
+            break;
+          case '$gte':
+            queryOpts.startkey = [userValue];
+            break;
+          case '$lt':
+            queryOpts.endkey = [userValue, {}, {}];
+            queryOpts.inclusive_end = false;
+            break;
+          case '$gt':
+            queryOpts.startkey = [userValue];
+            queryOpts.inclusive_start = false;
+            break;
         }
-      } else { // same number of fields
+      } else { // 1 field in both query and index
         switch (userOperator) {
           case '$eq':
             queryOpts.key = userValue;
