@@ -8,7 +8,7 @@ var collate = require('pouchdb-collate');
 var abstractMapper = require('./abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('./local-utils');
-//var getKey = localUtils.getKey;
+var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var getSize = localUtils.getSize;
 
@@ -69,10 +69,43 @@ function reverseOptions(opts) {
   return newOpts;
 }
 
+function validateIndex(index) {
+  var ascFields = index.fields.filter(function (field) {
+    return getValue(field) === 'asc';
+  });
+  if (ascFields.length !== 0 && ascFields.length !== index.fields.length) {
+    throw new Error('unsupported mixed sorting');
+  }
+}
+
+function validateFindRequest(requestDef) {
+  if (typeof requestDef.selector !== 'object') {
+    throw new Error('you must provide a selector when you find()');
+  }
+  if ('sort' in requestDef && (!requestDef.sort || !Array.isArray(requestDef.sort))) {
+    throw new Error('invalid sort json - should be an array');
+  }
+  // TODO: could be >1 field
+  var selectorFields = [getKey(requestDef.selector)];
+  var sortFields = !requestDef.sort ? [] : requestDef.sort.map(function (sorting) {
+    if (typeof sorting === 'string') {
+      return sorting;
+    } else {
+      return getKey(sorting);
+    }
+  });
+
+  if (!utils.oneArrayIsSubArrayOfOther(selectorFields, sortFields)) {
+    throw new Error('conflicting sort and selector fields');
+  }
+}
+
 function createIndex(db, requestDef) {
 
   var originalIndexDef = utils.clone(requestDef.index);
   requestDef.index = massageIndexDef(requestDef.index);
+
+  validateIndex(requestDef.index);
 
   var md5 = utils.MD5(JSON.stringify(requestDef));
 
@@ -97,22 +130,21 @@ function createIndex(db, requestDef) {
   }).then(function (res) {
     // kick off a build
     // TODO: abstract-pouchdb-mapreduce should support auto-updating
-    var signature = 'idx-' + md5 + '/' + viewName;
+    // TODO: I should also be able to call this, but there's a race somewhere
+    /*var signature = 'idx-' + md5 + '/' + viewName;
     return abstractMapper.query.call(db, signature, {
         limit: 0,
         stale: 'update_after',
         reduce: false
-    }).then(function () {
-      return {result: res.updated ? 'created' : 'exists'};
-    });
+    }).then(function () {*/
+    return {result: res.updated ? 'created' : 'exists'};
+    //});
   });
 }
 
 function find(db, requestDef) {
 
-  if (typeof requestDef.selector !== 'object') {
-    throw new Error('you must provide a selector when you find()');
-  }
+  validateFindRequest(requestDef);
 
   return getIndexes(db).then(function (getIndexesRes) {
 

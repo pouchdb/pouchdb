@@ -182,3 +182,12 @@ exports.pick = function (obj, arr) {
   }
   return res;
 };
+
+exports.oneArrayIsSubArrayOfOther = function (left, right) {
+  for (var i = 0, len = Math.min(left.length, right.length); i < len; i++) {
+    if (left[i] !== right[i]) {
+      return false;
+    }
+  }
+  return true;
+};
