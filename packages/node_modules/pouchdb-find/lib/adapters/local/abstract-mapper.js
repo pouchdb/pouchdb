@@ -7,14 +7,16 @@ function createMapper(fields, asc, emit) {
     // optimization for the simplest case
     var field = fields[0];
     return function indexesMapFun(doc) {
+      console.log('emitting', doc[field]);
       emit(doc[field]);
     };
   } else {
     return function indexesMapFun(doc) {
       var toEmit = [];
-      for (var i = 0, len = i < fields; i < len; i++) {
-        toEmit.push(doc[field]);
+      for (var i = 0, len = fields.length; i < len; i++) {
+        toEmit.push(doc[fields[i]]);
       }
+      console.log('emitting', toEmit);
       emit(toEmit);
     };
   }
