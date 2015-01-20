@@ -19,7 +19,7 @@ if [[ ! -z $SERVER ]]; then
       FLAGS="-d $TESTDIR"
     fi
     ./node_modules/.bin/pouchdb-server -p 6984 $FLAGS &
-    export POUCHDB_SERVER_PID=$!
+    export SERVER_PID=$!
     sleep 15 # give it a chance to start up
   elif [ "$SERVER" == "couchdb-master" ]; then
     if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
@@ -28,10 +28,12 @@ if [[ ! -z $SERVER ]]; then
     export COUCH_HOST='http://127.0.0.1:15984'
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     node ./tests/misc/pouchdb-express-router.js &
+    export SERVER_PID=$!
     sleep 5
     export COUCH_HOST='http://127.0.0.1:3000'
   elif [ "$SERVER" == "express-pouchdb-minimum" ]; then
     node ./tests/misc/express-pouchdb-minimum-for-pouchdb.js &
+    export SERVER_PID=$!
     sleep 5
     export COUCH_HOST='http://127.0.0.1:3000'
   else
@@ -50,7 +52,7 @@ else
 fi
 
 EXIT_STATUS=$?
-if [[ ! -z $POUCHDB_SERVER_PID ]]; then 
-  kill $POUCHDB_SERVER_PID
+if [[ ! -z $SERVER_PID ]]; then
+  kill $SERVER_PID
 fi
 exit $EXIT_STATUS
