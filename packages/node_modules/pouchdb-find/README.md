@@ -6,6 +6,11 @@ PouchDB Find Plugin
 THIS IS A WORK IN PROGRESS! IT DOESN'T WORK YET!
 ===================
 
+How to contribute to this thing
+----------
+
+Instructions are in CONTRIBUTING.md.
+
 Usage
 ------
 
