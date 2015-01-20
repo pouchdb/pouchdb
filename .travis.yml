@@ -72,7 +72,8 @@ env:
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
-  - CLIENT=unit COMMAND=test
+  - COMMAND=test-unit
+  - COMMAND=test-component
   - COMMAND=report-coverage
 
 matrix:

@@ -27,6 +27,8 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `options.adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
 * `options.ajax`: An object of options to be sent to the ajax requester. In Node they are sent verbatim to [request][] with the exception of:
     * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
+* `options.ajax.headers`: The `ajax.headers` option allows you to customise headers that are sent to the remote HTTP Server.
+* `options.auth.username` + `options.auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `username` + `password` options.
 
 **Notes:**
 
