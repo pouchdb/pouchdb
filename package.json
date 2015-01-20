@@ -87,6 +87,7 @@
     "version": "node ./bin/get-version.js",
     "test-unit": "mocha tests/unit",
     "test-node": "sh bin/test-node.sh",
+    "test-component": "mocha tests/component",
     "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
     "cordova": "npm run build && sh bin/run-cordova.sh",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/",
