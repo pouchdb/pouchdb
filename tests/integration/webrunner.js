@@ -71,6 +71,7 @@ function startTests() {
     modifyGlobals();
     var runner = mocha.run();
     window.results = {
+      browser: navigator.userAgent,
       lastPassed: '',
       passed: 0,
       failed: 0,
