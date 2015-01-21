@@ -102,11 +102,10 @@
     "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js"
   },
   "browser": {
-    "request": false,
+    "request": "./lib/deps/request-browser.js",
     "crypto": false,
     "./adapters/leveldb/leveldb": false,
     "./adapters/levelalt": false,
-    "./lib/deps/ajax.js": "./lib/deps/ajax-browser.js",
     "./lib/version.js": "./lib/version-browser.js",
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
     "./lib/deps/buffer.js": "./lib/deps/buffer-browser.js",

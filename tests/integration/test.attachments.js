@@ -1749,7 +1749,7 @@ adapters.forEach(function (adapter) {
                 cache: true,
                 binary: true
               }, function (err, res) {
-                if (err && err.status === 405) {
+                if (err && err.status === 500) {
                   // firefox won't let us use ajax to get the blob.
                   // too bad, but firefox wasn't the problem anyway
                   return done();
