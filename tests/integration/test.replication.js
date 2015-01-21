@@ -2962,19 +2962,25 @@ adapters.forEach(function (adapters) {
           should.not.exist(err);
           db.replicate.from(dbs.remote, function (err, _) {
             db.info(function (err, info) {
-              db.changes({
+              var changes = db.changes({
                 since: 'latest',
                 live: true,
                 onChange: function (change) {
                   change.changes.should.have.length(1);
                   change.seq.should.equal(info.update_seq);
+                  changes.cancel();
+                },
+                complete: function() {
                   remote.info(function (err, info) {
-                    remote.changes({
+                    var rchanges = remote.changes({
                       since: 'latest',
                       live: true,
                       onChange: function (change) {
                         change.changes.should.have.length(1);
                         change.seq.should.equal(info.update_seq);
+                        rchanges.cancel();
+                      },
+                      complete: function() {
                         done();
                       }
                     });
@@ -3508,8 +3514,8 @@ adapters.forEach(function (adapters) {
   });
 });
 
-// // This test only needs to run for one configuration, and it slows stuff
-// // down
+// This test only needs to run for one configuration, and it slows stuff
+// down
 downAdapters.map(function (adapter) {
 
   describe('test.replication.js-down-test', function () {
