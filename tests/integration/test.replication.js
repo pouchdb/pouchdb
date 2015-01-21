@@ -541,7 +541,7 @@ adapters.forEach(function (adapters) {
           },
           complete: isFinished
         });
-        var replication = db.replicate.to(dbs.remote, {
+        var replication = db.replicate.to(remote, {
           live: true,
           complete: isFinished
         });
