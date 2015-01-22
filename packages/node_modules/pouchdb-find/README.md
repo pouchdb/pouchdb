@@ -3,8 +3,22 @@ PouchDB Find Plugin
 
 [![Build Status](https://travis-ci.org/nolanlawson/pouchdb-find.svg)](https://travis-ci.org/nolanlawson/pouchdb-find)
 
-THIS IS A WORK IN PROGRESS! IT DOESN'T WORK YET!
-===================
+["Mango" query API](https://github.com/cloudant/mango) for PouchDB, basically replacing the old [map/reduce API](http://pouchdb.com/api.html#query_database) with something human beings can understand.
+
+**THIS IS A WORK IN PROGRESS! IT DOESN'T WORK YET!**
+
+API
+-----
+
+
+### db.createIndex()
+
+### db.getIndexes()
+
+### db.deleteIndex()
+
+### db.find()
+
 
 How to contribute to this thing
 ----------
