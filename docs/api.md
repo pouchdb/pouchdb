@@ -78,6 +78,10 @@ Delete database.
 db.destroy(function(err, info) { });
 {% endhighlight %}
 
+{% include alert_start.html variant="warning"%}
+PouchDB.destroy() is deprecated and will be removed in future versions of PouchDB.
+{% include alert_end.html %}
+
 You can also delete a database using just the name:
 
 {% highlight js %}
