@@ -71,5 +71,37 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3415 simultaneous allDocs while destroying', function () {
+      var db = new PouchDB(dbs.name);
+      var promise = db.bulkDocs([
+        {_id: 'foo'},
+        {_id: 'bar'},
+        {_id: 'baz'},
+        {_id: '_local/foo'},
+        {_id: '_design/myview', views: {
+          myview: {
+            map: function (doc) {
+              emit(doc._id);
+            }.toString()
+          }
+        }}
+      ]);
+
+      function destroyFactory() {
+        return db.destroy();
+      }
+
+      for (var i = 0; i < 5; i++) {
+        /* jshint loopfunc:true */
+        promise = promise.then(function () {
+          return db.info().catch(function () {});
+        }).then(destroyFactory()).then(function () {
+          db = new PouchDB(dbs.name);
+        });
+      }
+
+      return promise;
+    });
+
   });
 });
