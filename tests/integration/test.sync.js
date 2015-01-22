@@ -170,9 +170,6 @@ adapters.forEach(function (adapters) {
       }, done);
     });
 
-    // Skipped due to https://github.com/daleharvey/pouchdb/issues/1409
-    // This will only call once in the case of being cancelled before starting
-    // but will call twice when cancelled after starting
     it('Test sync cancel', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -223,7 +220,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       var replications = db.sync(remote, {live: true});
 
-      replications.on('cancel', function () {
+      replications.on('complete', function () {
         remote.put(doc2, function () {
           changes.should.equal(2);
           done();
