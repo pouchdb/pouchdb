@@ -24,6 +24,7 @@
     "describe",
     "it",
     "after",
+    "before",
     "beforeEach",
     "afterEach",
     "testUtils",
