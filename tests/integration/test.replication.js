@@ -2920,8 +2920,8 @@ adapters.forEach(function (adapters) {
           db.replicate.from(dbs.remote, function (err, _) {
             db.info(function (err, info) {
               db.changes({
-                since: 'latest',
-                live: true,
+                descending: true,
+                limit: 1,
                 onChange: function (change) {
                   change.changes.should.have.length(1);
 
@@ -2963,8 +2963,8 @@ adapters.forEach(function (adapters) {
           db.replicate.from(dbs.remote, function (err, _) {
             db.info(function (err, info) {
               var changes = db.changes({
-                since: 'latest',
-                live: true,
+                descending: true,
+                limit: 1,
                 onChange: function (change) {
                   change.changes.should.have.length(1);
                   change.seq.should.equal(info.update_seq);
@@ -2973,8 +2973,8 @@ adapters.forEach(function (adapters) {
                 complete: function() {
                   remote.info(function (err, info) {
                     var rchanges = remote.changes({
-                      since: 'latest',
-                      live: true,
+                      descending: true,
+                      limit: 1,
                       onChange: function (change) {
                         change.changes.should.have.length(1);
                         change.seq.should.equal(info.update_seq);
