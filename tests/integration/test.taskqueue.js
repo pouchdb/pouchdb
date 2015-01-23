@@ -71,31 +71,38 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('#3415 simultaneous allDocs while destroying', function () {
+    it('#3415 query while destroying', function () {
       var db = new PouchDB(dbs.name);
-      var promise = db.bulkDocs([
-        {_id: 'foo'},
-        {_id: 'bar'},
-        {_id: 'baz'},
-        {_id: '_local/foo'},
-        {_id: '_design/myview', views: {
-          myview: {
-            map: function (doc) {
-              emit(doc._id);
-            }.toString()
-          }
-        }}
-      ]);
-
-      function destroyFactory() {
-        return db.destroy();
-      }
+      var promise = PouchDB.utils.Promise.resolve();
 
       for (var i = 0; i < 5; i++) {
         /* jshint loopfunc:true */
         promise = promise.then(function () {
-          return db.info().catch(function () {});
-        }).then(destroyFactory()).then(function () {
+          console.log('bulking docs');
+          return db.bulkDocs([
+            {_id: 'foo'},
+            {_id: 'bar'},
+            {_id: 'baz'},
+            {_id: '_local/foo'},
+            {
+              _id: '_design/myview', views: {
+              myview: {
+                map: function (doc) {
+                  emit(doc._id);
+                }.toString()
+              }
+            }
+            }
+          ]);
+        }).then(function () {
+          return PouchDB.utils.Promise.all([
+            db.query('myview', {
+              limit: 0,
+              stale: 'update_after'
+            }),
+            db.destroy()
+          ]);
+        }).then(function () {
           db = new PouchDB(dbs.name);
         });
       }
