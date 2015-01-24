@@ -86,7 +86,6 @@ Here are the strategies used by various browsers in PouchDB:
 	<th><img src="static/img/browser-logos/internet-explorer_32x32.png" alt="IE"/></th>
 	<th><img src="static/img/browser-logos/firefox_32x32.png" alt="Firefox"/></th>
 	<th><img src="static/img/browser-logos/chrome_32x32.png" alt="Chrome"/></th>
-	<th><img src="static/img/browser-logos/chrome_32x32.png" alt="Chrome"/></th>
 	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
 	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
 </tr>
@@ -94,8 +93,7 @@ Here are the strategies used by various browsers in PouchDB:
     <th>Adapter</th>
 	<th>IE (10+)</th>
 	<th>Firefox</th>
-	<th>Chrome < 38, <br/>Android <= 4.4</th>
-	<th>Chrome >= 38</th>
+	<th>Chrome, Android</th>
 	<th>Safari < 7.1 <br/>iOS < 8</th>	
 	<th>Safari >= 7.1, <br/>iOS >= 8</th>
 </tr>
@@ -104,7 +102,6 @@ Here are the strategies used by various browsers in PouchDB:
 	<td>Blob</td>
 	<td>Blob</td>
 	<td>Base-64</td>
-	<td>Blob</td>
 	<td></td>
 	<td></td>
 </tr>
@@ -112,7 +109,6 @@ Here are the strategies used by various browsers in PouchDB:
 	<td>WebSQL</td>
 	<td></td>
 	<td></td>
-	<td>Blob</td>
 	<td>Blob</td>
 	<td>UTF-16 Blob</td>
 	<td>Blob</td>
