@@ -131,15 +131,14 @@ function createIndex(db, requestDef) {
   }).then(function (res) {
     // kick off a build
     // TODO: abstract-pouchdb-mapreduce should support auto-updating
-    // TODO: I should also be able to call this, but there's a race somewhere
-    /*var signature = 'idx-' + md5 + '/' + viewName;
+    // TODO: should also use update_after, but pouchdb/pouchdb#3415 blocks me
+    var signature = 'idx-' + md5 + '/' + viewName;
     return abstractMapper.query.call(db, signature, {
-        limit: 0,
-        stale: 'update_after',
-        reduce: false
-    }).then(function () {*/
-    return {result: res.updated ? 'created' : 'exists'};
-    //});
+      limit: 0,
+      reduce: false
+    }).then(function () {
+      return {result: res.updated ? 'created' : 'exists'};
+    });
   });
 }
 
