@@ -69,6 +69,23 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('emit changes event with existing docs', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        var id = 'emiting';
+        var obj = {
+          something: 'here',
+          somethingElse: 'overHere'
+        };
+        db.put({'foo': 'bar'}, 'foo');
+        db.on('change', function (change) {
+          change.id.should.equal('emiting');
+          change.seq.should.equal(2, 'changed');
+          done(err);
+        });
+        db.put(obj, id);
+      });
+    });
+
     it('emit create event', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         var id = 'creating';
