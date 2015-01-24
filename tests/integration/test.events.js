@@ -55,17 +55,59 @@ adapters.forEach(function (adapter) {
 
     it('emit changes event', function (done) {
       new PouchDB(dbs.name, function (err, db) {
-        var id = 'emiting';
         var obj = {
           something: 'here',
           somethingElse: 'overHere'
         };
+        var isCancelled = false;
         db.on('change', function (change) {
-          change.seq.should.equal(1, 'changed');
-          change.id.should.equal('emiting');
-          done(err);
+          if (change.doc.something === 'here') {
+            isCancelled = true;
+            done(err);
+          }
         });
-        db.put(obj, id);
+
+        // on('change') sets up the listener asynchronously.
+        // keep posting until a change is recognised
+        var docId = 0;
+        function doPut() {
+          if (!isCancelled) {
+            db.put(obj, 'change_' + docId++);
+            setTimeout(doPut, 100);
+          }
+        }
+
+        doPut();
+      });
+    });
+
+    it('emit changes event with existing docs', function (done) {
+      new PouchDB(dbs.name, function (err, db) {
+        var obj = {
+          something: 'here',
+          somethingElse: 'overHere'
+        };
+        db.put({'foo': 'bar'}, 'foo').then(function () {
+          var isCancelled = false;
+          db.on('change', function (change) {
+            if (change.doc.something === 'here') {
+              isCancelled = true;
+              done(err);
+            }
+          });
+
+          // on('change') sets up the listener asynchronously.
+          // keep posting until a change is recognised
+          var docId = 0;
+          function doPut() {
+            if (!isCancelled) {
+              db.put(obj, 'change_' + docId++);
+              setTimeout(doPut, 100);
+            }
+          }
+
+          doPut();
+        });
       });
     });
 
