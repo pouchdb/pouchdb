@@ -71,5 +71,54 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Doesn\'t throw sync error while destroying', function () {
+      var chain = PouchDB.utils.Promise.resolve();
+
+      var db;
+
+      function noop() {}
+
+      function timeout(delay) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          setTimeout(resolve, delay);
+        });
+      }
+
+      function randomTimeout() {
+        return timeout(1 + Math.floor(10 * Math.random()));
+      }
+
+      function doIt() {
+        chain = chain.then(function () {
+          db = new PouchDB(dbs.name);
+        }).then(function () {
+          var tasks = [];
+
+          for (var i = 0; i < 10; i++) {
+            /* jshint loopfunc:true */
+            tasks.push(randomTimeout().then(function () {
+              return db.bulkDocs([{}, {}, {}, {}, {},
+                {_id: '_local/' + Math.random()}]).catch(noop);
+            }));
+          }
+          for (var i = 0; i < 10; i++) {
+            /* jshint loopfunc:true */
+            tasks.push(randomTimeout().then(function () {
+              return db.allDocs({include_docs: true}).catch(noop);
+            }));
+          }
+          tasks.push(randomTimeout().then(function () {
+            return db.destroy();
+          }));
+
+          return PouchDB.utils.Promise.all(tasks);
+        });
+      }
+      for (var i = 0; i < 100; i++) {
+        doIt();
+      }
+      return chain;
+    });
+
   });
 });
