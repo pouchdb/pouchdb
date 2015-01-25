@@ -18,6 +18,35 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, multi-fiel
 
 Not implemented yet: `$ne`, `$regex`, `$in`, `$nin`, `$and`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`, `limit`, `offset`, probably a bunch of other stuff.
 
+Usage
+------
+
+To use this plugin, include it after `pouchdb.js` in your HTML page:
+
+```html
+<script src="pouchdb.js"></script>
+<script src="pouchdb.find.js"></script>
+```
+
+You can also download it from Bower:
+
+```
+bower install pouchdb-find
+```
+
+Or to use it in Node.js, just npm install it:
+
+```
+npm install pouchdb-find
+```
+
+And then attach it to the `PouchDB` object:
+
+```js
+var PouchDB = require('pouchdb');
+PouchDB.plugin(require('pouchdb-find'));
+```
+
 API
 -----
 
@@ -209,35 +238,6 @@ PouchDB.debug.enable('pouchdb:find')
 ```
 
 Then `pouchdb-find` will start logging some debug information to the console. This can be useful if, for instance, you want to see the query plan that is being used to execute your queries.
-
-Usage
-------
-
-To use this plugin, include it after `pouchdb.js` in your HTML page:
-
-```html
-<script src="pouchdb.js"></script>
-<script src="pouchdb.find.js"></script>
-```
-
-You can also download it from Bower:
-
-```
-bower install pouchdb-find
-```
-
-Or to use it in Node.js, just npm install it:
-
-```
-npm install pouchdb-find
-```
-
-And then attach it to the `PouchDB` object:
-
-```js
-var PouchDB = require('pouchdb');
-PouchDB.plugin(require('pouchdb-find'));
-```
 
 How to contribute to this thing
 ----------
