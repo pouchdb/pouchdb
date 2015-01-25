@@ -69,7 +69,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('emit changes event with existing docs', function (done) {
+    it.skip('emit changes event with existing docs', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         var id = 'emiting';
         var obj = {
