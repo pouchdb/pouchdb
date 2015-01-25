@@ -26,7 +26,7 @@
     "write-cloudant-password": "echo 'module.exports = \"'$CLOUDANT_PASSWORD'\";' > test/.cloudant-password.js",
     "test-node": "istanbul test ./node_modules/mocha/bin/_mocha test/test.js",
     "test-browser": "./bin/test-browser.js",
-    "jshint": "jshint -c .jshintrc lib/*.js test/test.js",
+    "jshint": "jshint -c .jshintrc lib/*.js test/test.js test/test-utils.js test/tests/*",
     "test": "npm run jshint && ./bin/run-test.sh",
     "build": "mkdir -p dist && browserify lib/index.js -o dist/pouchdb.indexes.js && npm run min",
     "min": "uglifyjs dist/pouchdb.indexes.js -mc > dist/pouchdb.indexes.min.js",
