@@ -55,14 +55,35 @@ function massageSelector(selector) {
 function getUserFields(selector, sort) {
   var selectorFields = Object.keys(selector);
   var sortFields = sort? sort.map(getKey) : [];
+  var userFields;
   if (selectorFields.length > sortFields.length) {
+    userFields = selectorFields;
+  } else {
+    userFields = sortFields;
+  }
+
+  if (sortFields.length === 0) {
     return {
-      fields: selectorFields,
+      fields: userFields,
       orderMatters: false
     };
   }
+
+  // sort according to the user's preferred sorting
+  userFields = userFields.sort(function (left, right) {
+    var leftIdx = sortFields.indexOf(left);
+    if (leftIdx === -1) {
+      leftIdx = Number.MAX_VALUE;
+    }
+    var rightIdx = sortFields.indexOf(right);
+    if (rightIdx === -1) {
+      rightIdx = Number.MAX_VALUE;
+    }
+    return leftIdx < rightIdx ? -1 : leftIdx > rightIdx ? 1 : 0;
+  });
+
   return {
-    fields: sortFields,
+    fields: userFields,
     orderMatters: true
   };
 }
@@ -87,9 +108,16 @@ function checkIndexMatches(index, orderMatters, fields) {
     }
   }
 
-  // array has to be a strict subset
-  return !orderMatters || utils.oneArrayIsSubArrayOfOther(fields,
-    index.def.fields.map(getKey));
+  var indexFields = index.def.fields.map(getKey);
+
+  if (orderMatters) {
+    // array has to be a strict subset of index array
+    return utils.oneArrayIsSubArrayOfOther(fields, indexFields);
+  } else {
+    // all of the user's specified fields still need to be
+    // on the left of the index array
+    return utils.oneSetIsSubArrayOfOther(fields, indexFields);
+  }
 }
 
 //

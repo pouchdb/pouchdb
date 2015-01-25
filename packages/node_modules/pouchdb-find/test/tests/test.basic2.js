@@ -1,7 +1,7 @@
 'use strict';
 
-//var testUtils = require('../test-utils');
-//var should = testUtils.should;
+var testUtils = require('../test-utils');
+var sortById = testUtils.sortById;
 
 module.exports = function (dbType, context) {
 
@@ -112,6 +112,37 @@ module.exports = function (dbType, context) {
         response.docs.should.deep.equal([
           {"_id":"kirby"},
           {"_id":"fox"},
+          {"_id":"ness"},
+          {"_id":"pikachu"},
+          {"_id":"puff"}
+        ]);
+      });
+    });
+
+    it('should find debut > 1990 3', function () {
+      var db = context.db;
+      return db.createIndex({
+        "index": {
+          "fields": ["name"]
+        }
+      }).then(function () {
+        return db.createIndex({
+          index: {fields: ['debut']}
+        });
+      }).then(function () {
+        return db.createIndex({
+          index: {fields: ['series', 'debut']}
+        });
+      }).then(function () {
+        return db.find({
+          selector: {debut: {$gt: 1990}},
+          fields: ['_id']
+        });
+      }).then(function (response) {
+        response.docs.sort(sortById);
+        response.docs.should.deep.equal([
+          {"_id":"fox"},
+          {"_id":"kirby"},
           {"_id":"ness"},
           {"_id":"pikachu"},
           {"_id":"puff"}

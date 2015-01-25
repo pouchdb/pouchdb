@@ -183,10 +183,30 @@ exports.pick = function (obj, arr) {
   return res;
 };
 
+// e.g. ['a'], ['a', 'b'] is true, but ['b'], ['a', 'b'] is false
 exports.oneArrayIsSubArrayOfOther = function (left, right) {
   for (var i = 0, len = Math.min(left.length, right.length); i < len; i++) {
     if (left[i] !== right[i]) {
       return false;
+    }
+  }
+  return true;
+};
+
+// same as above, but treat the left array as an unordered set
+// e.g. ['b', 'a'], ['a', 'b', 'c'] is true, but ['c'], ['a', 'b', 'c'] is false
+exports.oneSetIsSubArrayOfOther = function (left, right) {
+  left = left.slice();
+  for (var i = 0, len = right.length; i < len; i++) {
+    var field = right[i];
+    if (!left.length) {
+      break;
+    }
+    var leftIdx = left.indexOf(field);
+    if (leftIdx === -1) {
+      return false;
+    } else {
+      left.splice(leftIdx, 1);
     }
   }
   return true;

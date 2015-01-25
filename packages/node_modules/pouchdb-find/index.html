@@ -64,13 +64,27 @@
     }
 
     #smashers {
+      margin-top: 5px;
       opacity: 0;
+
 
       transition: opacity 0.3s ease-in-out;
       -webkit-transition: opacity 0.3s ease-in-out;
     }
 
     #smashers.shown {
+      opacity: 1;
+    }
+
+    #smashers-raw {
+      margin-top: 5px;
+      opacity: 0;
+
+      transition: opacity 0.3s ease-in-out;
+      -webkit-transition: opacity 0.3s ease-in-out;
+    }
+
+    #smashers-raw.shown {
       opacity: 1;
     }
 
@@ -149,8 +163,10 @@
     </div>
   </div>
 </div>
-<div id="smashers" class="shown container-fluid">
+<div id="smashers" class="container-fluid">
 </div>
+<pre id="smashers-raw">
+</pre>
 
 <a href="https://github.com/nolanlawson/pouchdb-find">
   <img style="position: absolute; top: 0; right: 0; border: 0;"
