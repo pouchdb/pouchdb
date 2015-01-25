@@ -40,7 +40,7 @@
     "inherits": "~2.0.1",
     "jshint": "^2.5.11",
     "lie": "^2.6.0",
-    "pouchdb-abstract-mapreduce": "^0.1.5",
+    "pouchdb-abstract-mapreduce": "^0.2.2",
     "pouchdb-collate": "^1.2.0",
     "pouchdb-extend": "^0.1.2",
     "pouchdb-upsert": "^1.1.0",

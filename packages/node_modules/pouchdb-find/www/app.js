@@ -3,9 +3,9 @@
 
   // set up editor
   var snippets = [
-    "// The _id field is the primary index.\ndb.find({\n  selector: {_id: {$exists: true}},\n  sort: ['_id']\n});",
-    "// For other fields, you must create an index first.\ndb.createIndex({\n  index: {fields: ['name']}\n}).then(function () {\n  return db.find({\n    selector: {name: {$exists: true}},\n    sort: ['name']\n  });\n});",
-    "// Available selectors: $gt, $gte, $lt, $lte, \n// $eq, $ne, $exists, $type, and more.\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$gt: 1990}}\n  });\n});",
+    "// The _id field is the primary index\ndb.find({\n  selector: {_id: {$gt: 'a'}},\n  sort: ['_id']\n});",
+    "// For other fields, you must create an index first\ndb.createIndex({\n  index: {fields: ['name']}\n}).then(function () {\n  return db.find({\n    selector: {name: {$exists: true}},\n    sort: ['name']\n  });\n});",
+    "// Available selectors are $gt, $gte, $lt, $lte, \n// $eq, $ne, $exists, $type, and more\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$gt: 1990}}\n  });\n});",
     "// Multi-field querying is also supported\ndb.createIndex({\n  index: {fields: ['series', 'debut']}\n}).then(function () {\n  return db.find({\n    selector: {series: {$eq: 'Mario'}},\n    sort: [{series: 'desc'}, {debut: 'desc'}]\n  });\n});"
   ];
 
@@ -50,10 +50,7 @@
       return db.bulkDocs(smashers); // initial DB
     }
   }).then(function () {
-    return db.find({
-      selector: {_id: {$exists: true}},
-      sort: ['_id']
-    });
+    return eval(snippets[0]);
   }).then(updateList);
 
   // set up buttons

@@ -1,6 +1,7 @@
 'use strict';
 
 var utils = require('../../utils');
+var log = utils.log;
 var upsert = require('pouchdb-upsert');
 var callbackify = utils.callbackify;
 var collate = require('pouchdb-collate');
@@ -8,9 +9,9 @@ var collate = require('pouchdb-collate');
 var abstractMapper = require('./abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('./local-utils');
+var massageSort = localUtils.massageSort;
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
-var getSize = localUtils.getSize;
 var Promise = utils.Promise;
 
 function putIfNotExists(db, doc) {
@@ -87,14 +88,9 @@ function validateFindRequest(requestDef) {
     throw new Error('invalid sort json - should be an array');
   }
   // TODO: could be >1 field
-  var selectorFields = [getKey(requestDef.selector)];
-  var sortFields = !requestDef.sort ? [] : requestDef.sort.map(function (sorting) {
-    if (typeof sorting === 'string') {
-      return sorting;
-    } else {
-      return getKey(sorting);
-    }
-  });
+  var selectorFields = Object.keys(requestDef.selector);
+  var sortFields = requestDef.sort ?
+    massageSort(requestDef.sort).map(getKey) : [];
 
   if (!utils.oneArrayIsSubArrayOfOther(selectorFields, sortFields)) {
     throw new Error('conflicting sort and selector fields');
@@ -124,11 +120,15 @@ function createIndex(db, requestDef) {
     }
   };
 
-  return putIfNotExists(db, {
+  var ddoc = {
     _id: '_design/idx-' + md5,
     views: views,
     language: 'query'
-  }).then(function (res) {
+  };
+
+  log('creating index', ddoc);
+
+  return putIfNotExists(db, ddoc).then(function (res) {
     // kick off a build
     // TODO: abstract-pouchdb-mapreduce should support auto-updating
     // TODO: should also use update_after, but pouchdb/pouchdb#3415 blocks me
@@ -148,7 +148,7 @@ function find(db, requestDef) {
 
   return getIndexes(db).then(function (getIndexesRes) {
 
-    var queryPlan = planQuery(requestDef.selector, getIndexesRes.indexes);
+    var queryPlan = planQuery(requestDef, getIndexesRes.indexes);
 
     var indexToUse = queryPlan.index;
 
@@ -157,9 +157,12 @@ function find(db, requestDef) {
       reduce: false
     }, queryPlan.queryOpts);
 
-    if (requestDef.sort && requestDef.sort.length === 1 &&
-        getSize(requestDef.sort[0]) === 1 &&
-        getValue(requestDef.sort[0]) === 'desc') {
+    var isDescending = requestDef.sort &&
+      typeof requestDef.sort[0] !== 'string' &&
+      getValue(requestDef.sort[0]) === 'desc';
+
+    if (isDescending) {
+      // either all descending or all ascending
       opts.descending = true;
       opts = reverseOptions(opts);
     }
