@@ -5,7 +5,7 @@ PouchDB Find Plugin
 
 ([Live demo](http://nolanlawson.github.io/pouchdb-find/))
 
-The [map/reduce API](http://pouchdb.com/api.html#query_database) is very powerful, but it's also very complicated. `pouchdb-find` solves this problem by providing a simple, [MongoDB-inspired](https://github.com/cloudant/mango) query languages that accomplishes the same thing with less code.
+Provides a simple, [MongoDB-inspired](https://github.com/cloudant/mango) query language that accomplishes the same thing as the [map/reduce API](http://pouchdb.com/api.html#query_database), but with far less code.
 
 Eventually this will replace PouchDB's map/reduce API entirely. You'll still be able to use map/reduce, but it will be distributed as a separate plugin.
 
