@@ -1,17 +1,17 @@
 {
-  "name": "pouchdb-indexes",
+  "name": "pouchdb-find",
   "version": "0.1.0",
   "description": "PouchDB Indexes",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/nolanlawson/pouchdb-indexes.git"
+    "url": "git://github.com/nolanlawson/pouchdb-find.git"
   },
   "keywords": [
     "pouch",
     "pouchdb",
     "plugin",
-    "indexes",
+    "find",
     "mango",
     "query",
     "couch",
@@ -20,7 +20,7 @@
   "author": "",
   "license": "Apache",
   "bugs": {
-    "url": "https://github.com/nolanlawson/pouchdb-indexes/issues"
+    "url": "https://github.com/nolanlawson/pouchdb-find/issues"
   },
   "scripts": {
     "write-cloudant-password": "echo 'module.exports = [\"'$CLOUDANT_USERNAME'\", \"'$CLOUDANT_PASSWORD'\", \"'$CLOUDANT_HOST'\"];' > test/.cloudant-password.js",
@@ -28,8 +28,8 @@
     "test-browser": "./bin/test-browser.js",
     "jshint": "jshint -c .jshintrc lib/*.js test/test.js test/test-utils.js test/tests/*",
     "test": "npm run jshint && ./bin/run-test.sh",
-    "build": "mkdir -p dist && browserify lib/index.js -o dist/pouchdb.indexes.js && npm run min",
-    "min": "uglifyjs dist/pouchdb.indexes.js -mc > dist/pouchdb.indexes.min.js",
+    "build": "mkdir -p dist && browserify lib/index.js -o dist/pouchdb.find.js && npm run min",
+    "min": "uglifyjs dist/pouchdb.find.js -mc > dist/pouchdb.find.min.js",
     "dev": "browserify test/test.js > test/test-bundle.js && npm run dev-server",
     "dev-server": "npm run write-cloudant-password && ./bin/dev-server.js",
     "coverage": "npm test --coverage && istanbul check-coverage --lines 100 --function 100 --statements 100 --branches 100"

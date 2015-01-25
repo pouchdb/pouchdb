@@ -1,0 +1,273 @@
+<html>
+<head>
+  <title>
+    Learn you pouchdb-find
+  </title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="www/bootstrap/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="www/smashbros.css"/>
+  <style>
+    html {
+      padding: 20px 10px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    button:focus {outline:0 !important;}
+
+    button.btn-info.btn-selected {
+      color: #fff;
+      background-color: #1c6a7e;
+      border-color: #0f3b48;
+    }
+
+    button.btn-info.btn-selected:hover {
+      color: #fff;
+      background-color: #258aa5;
+      border-color: #165c70;
+    }
+
+    /* Small devices (tablets, 768px and up) */
+    @media (max-width: 767px) {
+      .marketing {
+        margin: 0 50px 0 25px;
+      }
+    }
+
+    /* Medium to large devices (desktops, 992px and up) */
+    @media (min-width: 768px) {
+      .marketing {
+        margin: 0 100px 0 50px;
+        max-width: 700px;
+      }
+    }
+
+    #editor {
+      min-height: 200px;
+      opacity: 0;
+
+      transition: opacity 0.5s ease-in-out .1s;
+      -webkit-transition: opacity 0.5s ease-in-out .1s;
+    }
+
+    #editor.shown {
+      opacity: 1;
+    }
+
+    #smashers {
+      opacity: 0;
+
+      transition: opacity 0.3s ease-in-out;
+      -webkit-transition: opacity 0.3s ease-in-out;
+    }
+
+    #smashers.shown {
+      opacity: 1;
+    }
+
+    .btn {
+      width: 95%;
+      max-width: 200px;
+      margin: 5px;
+    }
+
+    span.monospace {
+      font-family: monospace;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<h1>Learn you pouchdb-find</h1>
+
+<div class="marketing">
+  <p>
+    <code>pouchdb-find</code> is an advanced query language for PouchDB.
+  </p>
+  <p>
+    Inspired by MongoDB, it
+    provides a simple API with operators like
+    <code>$gt</code> (greater-than) and <code>$eq</code> (equals), so you can write less
+    code to achieve the same performance as the <a target="_blank" href="http://pouchdb.com/guides/queries.html">map/reduce
+    API</a>.
+  </p>
+  <p>
+    This API is also available as
+    <a target="_blank" href="http://docs.cloudant.com/api/cloudant-query.html">Cloudant Query Language</a>
+    and will be released in <a target="_blank" href="https://github.com/cloudant/mango">CouchDB 2.0</a>.
+  </p>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-4 col-md-4">
+      <button class="sortable btn btn-info btn-selected" type="button">
+        Sort by _id
+      </button>
+      <button class="sortable btn btn-info" type="button">
+        Sort by name
+      </button>
+      <button class="sortable btn btn-info" type="button">
+        Debut > 1990
+      </button>
+      <button class="sortable btn btn-info" type="button">
+        Mario series only
+      </button>
+    </div>
+    <div class="col-xs-8 col-md-8"><div id="editor"></div></div>
+  </div>
+  <div class="row">
+    <div class="col-xs-4 col-md-4">
+    </div>
+    <div class="col-xs-8 col-md-8">
+      <button class="run-code btn btn-primary" type="button">
+        Run code!
+      </button>
+    </div>
+  </div>
+</div>
+<div id="smashers" class="shown container-fluid">
+</div>
+
+<a href="https://github.com/nolanlawson/pouchdb-find">
+  <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png">
+</a>
+
+<script src="www/jquery.min.js"></script>
+<script src="www/bootstrap/js/bootstrap.min.js"></script>
+<script src="www/ace.js"></script>
+<script src="www/handlebars-v2.0.0.js"></script>
+<script src="www/handlebars.runtime-v2.0.0.js"></script>
+<script src="www/pouchdb-3.2.2-prerelease.js"></script>
+<script src="dist/pouchdb.find.js"></script>
+<script id="smashers-template" type="text/x-handlebars-template">
+  <div class="row">
+    <div class="col-xs-1">
+      <strong>&nbsp;</strong>
+    </div>
+    <div class="col-xs-2">
+      <strong>_id</strong>
+    </div>
+    <div class="col-xs-3">
+      <strong>Name</strong>
+    </div>
+    <div class="col-xs-2">
+      <strong>Debut</strong>
+    </div>
+    <div class="col-xs-2">
+      <strong>Series</strong>
+    </div>
+    <div class="col-xs-2">
+      <strong>Rank</strong>
+    </div>
+  </div>
+  {{#each smashers}}
+    <div class="row">
+      <div class="col-xs-1">
+        <span class="flair flair-{{_id}}melee"></span>
+      </div>
+      <div class="col-xs-2">
+        <span class="monospace">{{_id}}</span>
+      </div>
+      <div class="col-xs-3">
+        {{name}}
+      </div>
+      <div class="col-xs-2">
+        {{debut}}
+      </div>
+      <div class="col-xs-2">
+        {{series}}
+      </div>
+      <div class="col-xs-2">
+        {{rank}}
+      </div>
+    </div>
+  {{/each}}
+  </script>
+<script>
+  (function ($) {
+
+    // set up editor
+    var snippets = [
+      "// The _id field is the primary index.\ndb.find({\n  selector: {_id: {$exists: true}},\n  sort: ['_id']\n});",
+      "// For other fields, you must create an index first.\ndb.createIndex({\n  index: {fields: ['name']}\n}).then(function () {\n  return db.find({\n    selector: {name: {$exists: true}},\n    sort: ['name']\n  });\n});",
+      "// Available selectors: $gt, $gte, $lt, $lte, \n// $eq, $ne, $exists, $type, and more.\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$gt: 1990}}\n  });\n});",
+      "// Multi-field querying is also supported\ndb.createIndex({\n  index: {fields: ['series', 'debut']}\n}).then(function () {\n  return db.find({\n    selector: {series: {$eq: 'Mario'}},\n    sort: [{series: 'desc'}, {debut: 'desc'}]\n  });\n});"
+    ];
+
+    var editor = ace.edit("editor");
+    editor.setValue(snippets[0]);
+    editor.setTheme("ace/theme/xcode");
+    var session = editor.getSession();
+    session.setMode("ace/mode/javascript");
+    session.setTabSize(2);
+    var editorDiv = $('#editor');
+    editorDiv.addClass('shown');
+
+    // set up pouch
+    var template = Handlebars.compile($("#smashers-template").html());
+    var div = $('#smashers');
+
+    function updateList(res) {
+      div.empty().append(template({smashers: res.docs})).addClass('shown');
+    }
+
+    function showError(err) {
+      div.empty().append($('<pre/>').append(err.stack)).addClass('shown');
+    }
+
+    var smashers = [
+      { name: 'Mario', _id: 'mario', rank: 5, series: 'Mario', debut: 1981 },
+      { name: 'Jigglypuff', _id: 'puff', rank: 8, series: 'Pokemon', debut: 1996 },
+      { name: 'Link', rank: 10, _id: 'link', series: 'Zelda', debut: 1986 },
+      { name: 'Donkey Kong', rank: 7, _id: 'dk', series: 'Mario', debut: 1981 },
+      { name: 'Pikachu', series: 'Pokemon', _id: 'pikachu', rank: 1, debut: 1996 },
+      { name: 'Captain Falcon', _id: 'falcon', rank: 4, series: 'F-Zero', debut: 1990 },
+      { name: 'Luigi', rank: 11, _id: 'luigi', series: 'Mario', debut: 1983 },
+      { name: 'Fox', _id: 'fox', rank: 3, series: 'Star Fox', debut: 1993 },
+      { name: 'Ness', rank: 9, _id: 'ness', series: 'Earthbound', debut: 1994 },
+      { name: 'Samus', rank: 12, _id: 'samus', series: 'Metroid', debut: 1986 },
+      { name: 'Yoshi', _id: 'yoshi', rank: 6, series: 'Mario', debut: 1990 },
+      { name: 'Kirby', _id: 'kirby', series: 'Kirby', rank: 2, debut: 1992 }
+    ];
+    var db = new PouchDB('smashers');
+    db.info().then(function (info) {
+      if (info.update_seq === 0) {
+        return db.bulkDocs(smashers); // initial DB
+      }
+    }).then(function () {
+      return db.find({
+        selector: {_id: {$exists: true}},
+        sort: ['_id']
+      });
+    }).then(updateList);
+
+    // set up buttons
+    $('.sortable').each(function (i, btn) {
+      $(btn).click(function () {
+        editor.setValue(snippets[i]);
+        $('.sortable').each(function (j, otherBtn) {
+          $(otherBtn).toggleClass('btn-selected', i === j);
+        });
+      });
+    });
+
+    // set up "Run code"
+
+    $('.run-code').click(function () {
+      div.removeClass('shown');
+      setTimeout(function () {
+        var promise = eval(editor.getValue());
+        promise.then(updateList).catch(showError);
+      }, 200);
+    });
+
+  })(jQuery);
+</script>
+</body>
+
+</html>
