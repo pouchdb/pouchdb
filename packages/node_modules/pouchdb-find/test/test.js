@@ -35,6 +35,7 @@ function tests(dbName, dbType) {
     });
 
     require('./tests/test.basic')(dbType, context);
+    require('./tests/test.basic2')(dbType, context);
     require('./tests/test.sorting')(dbType, context);
     require('./tests/test.fields')(dbType, context);
     require('./tests/test.ltgt')(dbType, context);
