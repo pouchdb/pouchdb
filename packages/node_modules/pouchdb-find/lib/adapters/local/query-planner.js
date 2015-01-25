@@ -6,6 +6,9 @@ var COLLATE_LO = null;
 // couchdb highest collation value (TODO: well not really, but close)
 var COLLATE_HI = {"\uffff": {}};
 
+// couchdb second-lowest collation value
+var COLLATE_LO_PLUS_1 = false;
+
 var utils = require('../../utils');
 var log = utils.log;
 var localUtils = require('./local-utils');
@@ -95,6 +98,16 @@ function getSingleFieldQueryOpts(selector, index) {
         startkey: userValue,
         inclusive_start: false
       };
+    case '$exists':
+      if (userValue) {
+        return {
+          startkey: COLLATE_LO_PLUS_1
+        };
+      } else {
+        return {
+          endkey: COLLATE_LO
+        };
+      }
   }
 }
 
@@ -144,6 +157,15 @@ function getMultiFieldQueryOpts(selector, index) {
         startkey.push(userValue);
         endkey.push(COLLATE_HI);
         inclusiveStart = false;
+        break;
+      case '$exists':
+        if (userValue) {
+          startkey.push(COLLATE_LO_PLUS_1);
+          endkey.push(COLLATE_HI);
+        } else {
+          startkey.push(COLLATE_LO);
+          endkey.push(COLLATE_LO);
+        }
         break;
     }
   }
