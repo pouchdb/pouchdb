@@ -27,6 +27,7 @@ var log = utils.log;
 var localUtils = require('./local-utils');
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
+var massageSort = localUtils.massageSort;
 
 //
 // normalize the selector
@@ -45,6 +46,19 @@ function massageSelector(selector) {
   });
 
   return selector;
+}
+
+// determine the maximum number of fields
+// we're going to need to query, e.g. if the user
+// has selection ['a'] and sorting ['a', 'b'], then we
+// need to use the longer of the two: ['a', 'b']
+function getUserFields(selector, sort) {
+  var selectorFields = Object.keys(selector);
+  var sortFields = sort? sort.map(getKey) : [];
+  if (selectorFields.length >= sortFields.length) {
+    return selectorFields;
+  }
+  return sortFields;
 }
 
 function checkFieldInIndex(index, field) {
@@ -75,12 +89,11 @@ function checkIndexMatches(index, fields) {
 // are a strict subset of the fields in some index,
 // then use that index
 //
-function findMatchingIndex(selector, indexes) {
-  var fields = Object.keys(selector);
+function findMatchingIndex(userFields, indexes) {
 
   for (var i = 0, iLen = indexes.length; i < iLen; i++) {
     var index = indexes[i];
-    var indexMatches = checkIndexMatches(index, fields);
+    var indexMatches = checkIndexMatches(index, userFields);
     if (indexMatches) {
       return index;
     }
@@ -241,13 +254,16 @@ function getQueryOpts(selector, index) {
   return getMultiFieldQueryOpts(selector, index);
 }
 
-function planQuery(origSelector, indexes) {
+function planQuery(request, indexes) {
 
-  log('planning query', origSelector);
+  log('planning query', request);
 
-  var selector = massageSelector(origSelector);
+  var selector = massageSelector(request.selector);
+  var sort = massageSort(request.sort);
 
-  var index = findMatchingIndex(selector, indexes);
+  var userFields = getUserFields(selector, sort);
+
+  var index = findMatchingIndex(userFields, indexes);
 
   if (!index) {
     throw new Error('couldn\'t find any index to use');
