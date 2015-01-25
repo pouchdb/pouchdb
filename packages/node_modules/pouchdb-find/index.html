@@ -38,6 +38,11 @@
       .marketing {
         margin: 5px 10px 5px 15px;
       }
+
+      /* github ribbon is too big on mobile */
+      #github-ribbon img {
+        max-width: 100px;
+      }
     }
 
     /* Medium to large devices (desktops, 992px and up) */
@@ -168,12 +173,14 @@
 <pre id="smashers-raw">
 </pre>
 
-<a href="https://github.com/nolanlawson/pouchdb-find">
-  <img style="position: absolute; top: 0; right: 0; border: 0;"
-       src="www/ribbon.png"
-       alt="Fork me on GitHub"
-       data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png">
-</a>
+<div id="github-ribbon">
+  <a href="https://github.com/nolanlawson/pouchdb-find">
+    <img style="position: absolute; top: 0; right: 0; border: 0;"
+         src="www/ribbon.png"
+         alt="Fork me on GitHub"
+         data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png">
+  </a>
+</div>
 
 <script src="www/jquery/jquery.min.js"></script>
 <script src="www/bootstrap/js/bootstrap.min.js"></script>
