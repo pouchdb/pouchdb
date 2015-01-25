@@ -88,6 +88,37 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('should find debut > 1990 2', function () {
+      var db = context.db;
+      return db.createIndex({
+        "index": {
+          "fields": ["name"]
+        }
+      }).then(function () {
+        return db.createIndex({
+          index: {fields: ['debut']}
+        });
+      }).then(function () {
+        return db.createIndex({
+          index: {fields: ['series', 'debut']}
+        });
+      }).then(function () {
+        return db.find({
+          selector: {debut: {$gt: 1990}},
+          fields: ['_id'],
+          sort: ['debut']
+        });
+      }).then(function (response) {
+        response.docs.should.deep.equal([
+          {"_id":"kirby"},
+          {"_id":"fox"},
+          {"_id":"ness"},
+          {"_id":"pikachu"},
+          {"_id":"puff"}
+        ]);
+      });
+    });
+
     it('should find series == mario', function () {
       var db = context.db;
       return db.createIndex({
