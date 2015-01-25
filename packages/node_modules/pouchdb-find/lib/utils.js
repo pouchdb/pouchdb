@@ -191,3 +191,5 @@ exports.oneArrayIsSubArrayOfOther = function (left, right) {
   }
   return true;
 };
+
+exports.log = require('debug')('pouchdb:find');

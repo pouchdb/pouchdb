@@ -45,7 +45,8 @@
     "pouchdb-extend": "^0.1.2",
     "pouchdb-upsert": "^1.1.0",
     "request": "^2.51.0",
-    "spark-md5": "0.0.5"
+    "spark-md5": "0.0.5",
+    "debug": "^2.1.0"
   },
   "devDependencies": {
     "bluebird": "^1.0.7",

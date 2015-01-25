@@ -151,9 +151,6 @@ function find(db, requestDef) {
     var queryPlan = planQuery(requestDef.selector, getIndexesRes.indexes);
 
     var indexToUse = queryPlan.index;
-    if (!indexToUse) {
-      throw new Error('couldn\'t find any index to use');
-    }
 
     var opts = utils.extend(true, {
       include_docs: true,
