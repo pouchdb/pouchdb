@@ -1,14 +1,16 @@
 'use strict';
 
-var COLLATE_LO = null; // couchdb lowest collation value
-var COLLATE_HI = {};   // couchdb highest collation value (TODO: not really)
+// couchdb lowest collation value
+var COLLATE_LO = null;
+
+// couchdb highest collation value (TODO: well not really, but close)
+var COLLATE_HI = {"\uffff": {}};
 
 var utils = require('../../utils');
 var log = utils.log;
 var localUtils = require('./local-utils');
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
-//var getSize = localUtils.getSize;
 
 //
 // normalize the selector
