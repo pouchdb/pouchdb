@@ -6,7 +6,8 @@
     "// The _id field is the primary index\ndb.find({\n  selector: {_id: {$gt: 'a'}},\n  sort: ['_id']\n});",
     "// For other fields, you must create an index first\ndb.createIndex({\n  index: {fields: ['name']}\n}).then(function () {\n  return db.find({\n    selector: {name: {$exists: true}},\n    sort: ['name']\n  });\n});",
     "// Available selectors are $gt, $gte, $lt, $lte, \n// $eq, $ne, $exists, $type, and more\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$gt: 1990}}\n  });\n});",
-    "// Multi-field querying is also supported\ndb.createIndex({\n  index: {fields: ['series', 'debut']}\n}).then(function () {\n  return db.find({\n    selector: {series: {$eq: 'Mario'}},\n    sort: [{series: 'desc'}, {debut: 'desc'}]\n  });\n});"
+    "// Multi-field queries and sorting are also supported\ndb.createIndex({\n  index: {fields: ['series', 'debut']}\n}).then(function () {\n  return db.find({\n    selector: {series: {$eq: 'Mario'}},\n    sort: [{series: 'desc'}, {debut: 'desc'}]\n  });\n});",
+    "// You can also select certain fields.\n// Change this code to try it yourself!\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$exists: true}},\n    fields: ['_id', 'name', 'rank'],\n    sort: ['debut']\n  });\n});"
   ];
 
   var editor = ace.edit("editor");
