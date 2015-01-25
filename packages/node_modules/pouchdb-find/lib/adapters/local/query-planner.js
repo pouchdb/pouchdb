@@ -9,6 +9,19 @@ var COLLATE_HI = {"\uffff": {}};
 // couchdb second-lowest collation value
 var COLLATE_LO_PLUS_1 = false;
 
+var COLLATE_NULL_LO = null;
+var COLLATE_NULL_HI = null;
+var COLLATE_BOOL_LO = false;
+var COLLATE_BOOL_HI = true;
+var COLLATE_NUM_LO = 0;
+var COLLATE_NUM_HI = Number.MAX_VALUE;
+var COLLATE_STR_LO = '';
+var COLLATE_STR_HI = '\uffff\uffff\uffff'; // TODO: yah I know
+var COLLATE_ARR_LO = [];
+var COLLATE_ARR_HI = [{'\uffff': {}}]; // TODO: yah I know
+var COLLATE_OBJ_LO = {};
+var COLLATE_OBJ_HI = {'\uffff': {}}; // TODO: yah I know
+
 var utils = require('../../utils');
 var log = utils.log;
 var localUtils = require('./local-utils');
@@ -103,10 +116,44 @@ function getSingleFieldQueryOpts(selector, index) {
         return {
           startkey: COLLATE_LO_PLUS_1
         };
-      } else {
-        return {
-          endkey: COLLATE_LO
-        };
+      }
+      return {
+        endkey: COLLATE_LO
+      };
+    // cloudant docs: Valid values are “null”, “boolean”, “number”, “string”,
+    // “array”, and “object”.
+    case '$type':
+      switch (userValue) {
+        case 'null':
+          return {
+            startkey: COLLATE_NULL_LO,
+            endkey: COLLATE_NULL_HI
+          };
+        case 'boolean':
+          return {
+            startkey: COLLATE_BOOL_LO,
+            endkey: COLLATE_BOOL_HI
+          };
+        case 'number':
+          return {
+            startkey: COLLATE_NUM_LO,
+            endkey: COLLATE_NUM_HI
+          };
+        case 'string':
+          return {
+            startkey: COLLATE_STR_LO,
+            endkey: COLLATE_STR_HI
+          };
+        case 'array':
+          return {
+            startkey: COLLATE_ARR_LO,
+            endkey: COLLATE_ARR_HI
+          };
+        case 'object':
+          return {
+            startkey: COLLATE_OBJ_LO,
+            endkey: COLLATE_OBJ_HI
+          };
       }
   }
 }
