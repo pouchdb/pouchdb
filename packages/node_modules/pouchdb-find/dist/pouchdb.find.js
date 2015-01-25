@@ -210,15 +210,30 @@ function getSize(obj) {
   return Object.keys(obj).length;
 }
 
+// normalize the "sort" value
+function massageSort(sort) {
+  return sort && sort.map(function (sorting) {
+    if (typeof sorting === 'string') {
+      var obj = {};
+      obj[sorting] = 'asc';
+      return obj;
+    } else {
+      return sorting;
+    }
+  });
+}
+
 module.exports = {
   getKey: getKey,
   getValue: getValue,
-  getSize: getSize
+  getSize: getSize,
+  massageSort: massageSort
 };
 },{}],4:[function(require,module,exports){
 'use strict';
 
 var utils = require('../../utils');
+var log = utils.log;
 var upsert = require('pouchdb-upsert');
 var callbackify = utils.callbackify;
 var collate = require('pouchdb-collate');
@@ -226,9 +241,9 @@ var collate = require('pouchdb-collate');
 var abstractMapper = require('./abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('./local-utils');
+var massageSort = localUtils.massageSort;
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
-var getSize = localUtils.getSize;
 var Promise = utils.Promise;
 
 function putIfNotExists(db, doc) {
@@ -305,14 +320,9 @@ function validateFindRequest(requestDef) {
     throw new Error('invalid sort json - should be an array');
   }
   // TODO: could be >1 field
-  var selectorFields = [getKey(requestDef.selector)];
-  var sortFields = !requestDef.sort ? [] : requestDef.sort.map(function (sorting) {
-    if (typeof sorting === 'string') {
-      return sorting;
-    } else {
-      return getKey(sorting);
-    }
-  });
+  var selectorFields = Object.keys(requestDef.selector);
+  var sortFields = requestDef.sort ?
+    massageSort(requestDef.sort).map(getKey) : [];
 
   if (!utils.oneArrayIsSubArrayOfOther(selectorFields, sortFields)) {
     throw new Error('conflicting sort and selector fields');
@@ -342,11 +352,15 @@ function createIndex(db, requestDef) {
     }
   };
 
-  return putIfNotExists(db, {
+  var ddoc = {
     _id: '_design/idx-' + md5,
     views: views,
     language: 'query'
-  }).then(function (res) {
+  };
+
+  log('creating index', ddoc);
+
+  return putIfNotExists(db, ddoc).then(function (res) {
     // kick off a build
     // TODO: abstract-pouchdb-mapreduce should support auto-updating
     // TODO: should also use update_after, but pouchdb/pouchdb#3415 blocks me
@@ -366,7 +380,7 @@ function find(db, requestDef) {
 
   return getIndexes(db).then(function (getIndexesRes) {
 
-    var queryPlan = planQuery(requestDef.selector, getIndexesRes.indexes);
+    var queryPlan = planQuery(requestDef, getIndexesRes.indexes);
 
     var indexToUse = queryPlan.index;
 
@@ -375,9 +389,12 @@ function find(db, requestDef) {
       reduce: false
     }, queryPlan.queryOpts);
 
-    if (requestDef.sort && requestDef.sort.length === 1 &&
-        getSize(requestDef.sort[0]) === 1 &&
-        getValue(requestDef.sort[0]) === 'desc') {
+    var isDescending = requestDef.sort &&
+      typeof requestDef.sort[0] !== 'string' &&
+      getValue(requestDef.sort[0]) === 'desc';
+
+    if (isDescending) {
+      // either all descending or all ascending
       opts.descending = true;
       opts = reverseOptions(opts);
     }
@@ -492,6 +509,7 @@ var log = utils.log;
 var localUtils = require('./local-utils');
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
+var massageSort = localUtils.massageSort;
 
 //
 // normalize the selector
@@ -510,6 +528,19 @@ function massageSelector(selector) {
   });
 
   return selector;
+}
+
+// determine the maximum number of fields
+// we're going to need to query, e.g. if the user
+// has selection ['a'] and sorting ['a', 'b'], then we
+// need to use the longer of the two: ['a', 'b']
+function getUserFields(selector, sort) {
+  var selectorFields = Object.keys(selector);
+  var sortFields = sort? sort.map(getKey) : [];
+  if (selectorFields.length >= sortFields.length) {
+    return selectorFields;
+  }
+  return sortFields;
 }
 
 function checkFieldInIndex(index, field) {
@@ -540,12 +571,11 @@ function checkIndexMatches(index, fields) {
 // are a strict subset of the fields in some index,
 // then use that index
 //
-function findMatchingIndex(selector, indexes) {
-  var fields = Object.keys(selector);
+function findMatchingIndex(userFields, indexes) {
 
   for (var i = 0, iLen = indexes.length; i < iLen; i++) {
     var index = indexes[i];
-    var indexMatches = checkIndexMatches(index, fields);
+    var indexMatches = checkIndexMatches(index, userFields);
     if (indexMatches) {
       return index;
     }
@@ -706,13 +736,16 @@ function getQueryOpts(selector, index) {
   return getMultiFieldQueryOpts(selector, index);
 }
 
-function planQuery(origSelector, indexes) {
+function planQuery(request, indexes) {
 
-  log('planning query', origSelector);
+  log('planning query', request);
 
-  var selector = massageSelector(origSelector);
+  var selector = massageSelector(request.selector);
+  var sort = massageSort(request.sort);
 
-  var index = findMatchingIndex(selector, indexes);
+  var userFields = getUserFields(selector, sort);
+
+  var index = findMatchingIndex(userFields, indexes);
 
   if (!index) {
     throw new Error('couldn\'t find any index to use');
@@ -4417,6 +4450,25 @@ var upsert = require('./upsert');
 var utils = require('./utils');
 var Promise = utils.Promise;
 
+function stringify(input) {
+  if (!input) {
+    return 'undefined'; // backwards compat for empty reduce
+  }
+  // for backwards compat with mapreduce, functions/strings are stringified
+  // as-is. everything else is JSON-stringified.
+  switch (typeof input) {
+    case 'function':
+      // e.g. a mapreduce map
+      return input.toString();
+    case 'string':
+      // e.g. a mapreduce built-in _reduce function
+      return input.toString();
+    default:
+      // e.g. a JSON object in the case of mango queries
+      return JSON.stringify(input);
+  }
+}
+
 module.exports = function (opts) {
   var sourceDB = opts.db;
   var viewName = opts.viewName;
@@ -4426,7 +4478,7 @@ module.exports = function (opts) {
   var pluginName = opts.pluginName;
 
   // the "undefined" part is for backwards compatibility
-  var viewSignature = mapFun.toString() + (reduceFun && reduceFun.toString()) +
+  var viewSignature = stringify(mapFun) + stringify(reduceFun) +
     'undefined';
 
   if (!temporary && sourceDB._cachedViews) {
@@ -4542,6 +4594,12 @@ function parseViewName(name) {
   return name.indexOf('/') === -1 ? [name, name] : name.split('/');
 }
 
+function isGenOne(changes) {
+  // only return true if the current change is 1-
+  // and there are no other leafs
+  return changes.length === 1 && /^1-/.test(changes[0].rev);
+}
+
 function sortByKeyThenValue(x, y) {
   var keyCompare = collate(x.key, y.key);
   return keyCompare !== 0 ? keyCompare : collate(x.value, y.value);
@@ -4624,91 +4682,102 @@ function createIndexer(def) {
   var reducer = def.reducer;
   var ddocValidator = def.ddocValidator;
 
+
   // returns a promise for a list of docs to update, based on the input docId.
-  // we update the metaDoc first (i.e. the doc that points from the sourceDB
-  // document Id to the ids of the documents in the mrview database), then
-  // the key/value docs.  that way, if lightning strikes the user's computer
-  // in the middle of an update, we don't write any docs that we wouldn't
-  // be able to find later using the metaDoc.
-  function getDocsToPersist(docId, view, docIdsToEmits) {
+  // the order doesn't matter, because post-3.2.0, bulkDocs
+  // is an atomic operation in all three adapters.
+  function getDocsToPersist(docId, view, docIdsToChangesAndEmits) {
     var metaDocId = '_local/doc_' + docId;
-    return view.db.get(metaDocId)[
-      "catch"](defaultsTo({_id: metaDocId, keys: []}))
-      .then(function (metaDoc) {
-        return Promise.resolve().then(function () {
-          if (metaDoc.keys.length) {
-            return view.db.allDocs({
-              keys: metaDoc.keys,
-              include_docs: true
-            });
-          }
-          return {rows: []}; // no keys, no need for a lookup
-        }).then(function (res) {
-          var kvDocs = res.rows.map(function (row) {
-            return row.doc;
-          }).filter(function (row) {
-            return row;
-          });
+    var defaultMetaDoc = {_id: metaDocId, keys: []};
+    var docData = docIdsToChangesAndEmits[docId];
+    var indexableKeysToKeyValues = docData.indexableKeysToKeyValues;
+    var changes = docData.changes;
 
-          var indexableKeysToKeyValues = docIdsToEmits[docId];
-          var oldKeysMap = {};
-          kvDocs.forEach(function (kvDoc) {
-            oldKeysMap[kvDoc._id] = true;
-            kvDoc._deleted = !indexableKeysToKeyValues[kvDoc._id];
-            if (!kvDoc._deleted) {
-              var keyValue = indexableKeysToKeyValues[kvDoc._id];
-              if ('value' in keyValue) {
-                kvDoc.value = keyValue.value;
-              }
-            }
-          });
+    function getMetaDoc() {
+      if (isGenOne(changes)) {
+        // generation 1, so we can safely assume initial state
+        // for performance reasons (avoids unnecessary GETs)
+        return Promise.resolve(defaultMetaDoc);
+      }
+      return view.db.get(metaDocId)["catch"](defaultsTo(defaultMetaDoc));
+    }
 
-          var newKeys = Object.keys(indexableKeysToKeyValues);
-          newKeys.forEach(function (key) {
-            if (!oldKeysMap[key]) {
-              // new doc
-              var kvDoc = {
-                _id: key
-              };
-              var keyValue = indexableKeysToKeyValues[key];
-              if ('value' in keyValue) {
-                kvDoc.value = keyValue.value;
-              }
-              kvDocs.push(kvDoc);
-            }
-          });
-          metaDoc.keys = utils.uniq(newKeys.concat(metaDoc.keys));
-          kvDocs.splice(0, 0, metaDoc);
-
-          return kvDocs;
-        });
+    function getKeyValueDocs(metaDoc) {
+      if (!metaDoc.keys.length) {
+        // no keys, no need for a lookup
+        return Promise.resolve({rows: []});
+      }
+      return view.db.allDocs({
+        keys: metaDoc.keys,
+        include_docs: true
       });
+    }
+
+    function processKvDocs(metaDoc, kvDocsRes) {
+      var kvDocs = [];
+      var oldKeysMap = {};
+
+      for (var i = 0, len = kvDocsRes.rows.length; i < len; i++) {
+        var row = kvDocsRes.rows[i];
+        var doc = row.doc;
+        if (!doc) { // deleted
+          continue;
+        }
+        kvDocs.push(doc);
+        oldKeysMap[doc._id] = true;
+        doc._deleted = !indexableKeysToKeyValues[doc._id];
+        if (!doc._deleted) {
+          var keyValue = indexableKeysToKeyValues[doc._id];
+          if ('value' in keyValue) {
+            doc.value = keyValue.value;
+          }
+        }
+      }
+
+      var newKeys = Object.keys(indexableKeysToKeyValues);
+      newKeys.forEach(function (key) {
+        if (!oldKeysMap[key]) {
+          // new doc
+          var kvDoc = {
+            _id: key
+          };
+          var keyValue = indexableKeysToKeyValues[key];
+          if ('value' in keyValue) {
+            kvDoc.value = keyValue.value;
+          }
+          kvDocs.push(kvDoc);
+        }
+      });
+      metaDoc.keys = utils.uniq(newKeys.concat(metaDoc.keys));
+      kvDocs.push(metaDoc);
+
+      return kvDocs;
+    }
+
+    return getMetaDoc().then(function (metaDoc) {
+      return getKeyValueDocs(metaDoc).then(function (kvDocsRes) {
+        return processKvDocs(metaDoc, kvDocsRes);
+      });
+    });
   }
 
   // updates all emitted key/value docs and metaDocs in the mrview database
   // for the given batch of documents from the source database
-  function saveKeyValues(view, docIdsToEmits, seq) {
+  function saveKeyValues(view, docIdsToChangesAndEmits, seq) {
     var seqDocId = '_local/lastSeq';
     return view.db.get(seqDocId)[
     "catch"](defaultsTo({_id: seqDocId, seq: 0}))
     .then(function (lastSeqDoc) {
-      var docIds = Object.keys(docIdsToEmits);
+      var docIds = Object.keys(docIdsToChangesAndEmits);
       return Promise.all(docIds.map(function (docId) {
-          return getDocsToPersist(docId, view, docIdsToEmits);
-        })).then(function (listOfDocsToPersist) {
-          var docsToPersist = [];
-          listOfDocsToPersist.forEach(function (docList) {
-            docsToPersist = docsToPersist.concat(docList);
-          });
-
-          // update the seq doc last, so that if a meteor strikes the user's
-          // computer in the middle of an update, we can apply the idempotent
-          // batch update operation again
-          lastSeqDoc.seq = seq;
-          docsToPersist.push(lastSeqDoc);
-
-          return view.db.bulkDocs({docs : docsToPersist});
-        });
+        return getDocsToPersist(docId, view, docIdsToChangesAndEmits);
+      })).then(function (listOfDocsToPersist) {
+        var docsToPersist = utils.flatten(listOfDocsToPersist);
+        lastSeqDoc.seq = seq;
+        docsToPersist.push(lastSeqDoc);
+        // write all docs in a single operation, update the seq once
+        return view.db.bulkDocs({docs : docsToPersist});
+      });
     });
   }
 
@@ -4746,9 +4815,9 @@ function createIndexer(def) {
 
     var currentSeq = view.seq || 0;
 
-    function processChange(docIdsToEmits, seq) {
+    function processChange(docIdsToChangesAndEmits, seq) {
       return function () {
-        return saveKeyValues(view, docIdsToEmits, seq);
+        return saveKeyValues(view, docIdsToChangesAndEmits, seq);
       };
     }
 
@@ -4767,6 +4836,7 @@ function createIndexer(def) {
         view.sourceDB.changes({
           conflicts: true,
           include_docs: true,
+          style: 'all_docs',
           since: currentSeq,
           limit: CHANGES_BATCH_SIZE
         }).on('complete', function (response) {
@@ -4774,7 +4844,7 @@ function createIndexer(def) {
           if (!results.length) {
             return complete();
           }
-          var docIdsToEmits = {};
+          var docIdsToChangesAndEmits = {};
           for (var i = 0, l = results.length; i < l; i++) {
             var change = results[i];
             if (change.doc._id[0] !== '_') {
@@ -4798,11 +4868,14 @@ function createIndexer(def) {
                 indexableKeysToKeyValues[indexableKey] = obj;
                 lastKey = obj.key;
               }
-              docIdsToEmits[change.doc._id] = indexableKeysToKeyValues;
+              docIdsToChangesAndEmits[change.doc._id] = {
+                indexableKeysToKeyValues: indexableKeysToKeyValues,
+                changes: change.changes
+              };
             }
             currentSeq = change.seq;
           }
-          queue.add(processChange(docIdsToEmits, currentSeq));
+          queue.add(processChange(docIdsToChangesAndEmits, currentSeq));
           if (results.length < CHANGES_BATCH_SIZE) {
             return complete();
           }
@@ -5174,48 +5247,13 @@ module.exports = TaskQueue;
 
 },{"./utils":38}],37:[function(require,module,exports){
 'use strict';
-var Promise = require('./utils').Promise;
 
-// this is essentially the "update sugar" function from daleharvey/pouchdb#1388
-// the diffFun tells us what delta to apply to the doc.  it either returns
-// the doc, or false if it doesn't need to do an update after all
-function upsert(db, docId, diffFun) {
-  return new Promise(function (fulfill, reject) {
-    if (docId && typeof docId === 'object') {
-      docId = docId._id;
-    }
-    if (typeof docId !== 'string') {
-      return reject(new Error('doc id is required'));
-    }
+var upsert = require('pouchdb-upsert').upsert;
 
-    db.get(docId, function (err, doc) {
-      if (err) {
-        if (err.status !== 404) {
-          return reject(err);
-        }
-        return fulfill(tryAndPut(db, diffFun({_id : docId}), diffFun));
-      }
-      var newDoc = diffFun(doc);
-      if (!newDoc) {
-        return fulfill(doc);
-      }
-      fulfill(tryAndPut(db, newDoc, diffFun));
-    });
-  });
-}
-
-function tryAndPut(db, doc, diffFun) {
-  return db.put(doc)["catch"](function (err) {
-    if (err.status !== 409) {
-      throw err;
-    }
-    return upsert(db, doc, diffFun);
-  });
-}
-
-module.exports = upsert;
-
-},{"./utils":38}],38:[function(require,module,exports){
+module.exports = function (db, doc, diffFun) {
+  return upsert.apply(db, [doc, diffFun]);
+};
+},{"pouchdb-upsert":42}],38:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 /* istanbul ignore if */
 if (typeof global.Promise === 'function') {
@@ -5283,6 +5321,14 @@ exports.sequentialize = function (queue, promiseFactory) {
       return promiseFactory.apply(that, args);
     });
   };
+};
+
+exports.flatten = function (arrs) {
+  var res = [];
+  for (var i = 0, len = arrs.length; i < len; i++) {
+    res = res.concat(arrs[i]);
+  }
+  return res;
 };
 
 // uniq an array of strings, order not guaranteed
