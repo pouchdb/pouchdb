@@ -27,10 +27,10 @@ As with PouchDB, the entire API accepts either the callback or the Promise style
 
 **Overview**
 
-* `db.createIndex(index [, callback])`
-* `db.getIndexes([callback])`
-* `db.deleteIndex(index [, callback])`
-* `db.find(request [, callback])`
+* [`db.createIndex(index [, callback])`](#dbcreateindexindex--callback)
+* [`db.getIndexes([callback])`](#dbgetindexescallback)
+* [`db.deleteIndex(index [, callback])`](#dbdeleteindexindex--callback)
+* [`db.find(request [, callback])`](#dbfindrequest--callback)
 
 ### db.createIndex(index [, callback])
 
