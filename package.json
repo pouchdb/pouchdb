@@ -44,6 +44,7 @@
     "leveldown": "~0.10.2"
   },
   "devDependencies": {
+    "blob-util": "^1.1.1",
     "pouchdb-express-router": "^0.0.2",
     "bundle-collapser": "^1.1.1",
     "rimraf": "2.2.8",
