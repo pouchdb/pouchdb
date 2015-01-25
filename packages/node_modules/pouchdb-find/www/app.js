@@ -7,7 +7,7 @@
     "// For other fields, you must create an index first\ndb.createIndex({\n  index: {fields: ['name']}\n}).then(function () {\n  return db.find({\n    selector: {name: {$exists: true}},\n    sort: ['name']\n  });\n});",
     "// Available selectors are $gt, $gte, $lt, $lte, \n// $eq, $ne, $exists, $type, and more\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$gt: 1990}}\n  });\n});",
     "// Multi-field queries and sorting are also supported\ndb.createIndex({\n  index: {fields: ['series', 'debut']}\n}).then(function () {\n  return db.find({\n    selector: {series: {$eq: 'Mario'}},\n    sort: [{series: 'desc'}, {debut: 'desc'}]\n  });\n});",
-    "// You can also select certain fields.\n// Change this code to try it yourself!\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$exists: true}},\n    fields: ['_id', 'name', 'rank'],\n    sort: ['debut']\n  });\n});"
+    "// You can also select certain fields.\n// Change this code to try it yourself!\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$exists: true}},\n    fields: ['_id', 'name', 'debut'],\n    sort: ['debut']\n  });\n});"
   ];
 
   var editor = ace.edit("editor");
@@ -21,14 +21,17 @@
 
   // set up pouch
   var template = Handlebars.compile($("#smashers-template").html());
-  var div = $('#smashers');
+  var listDiv = $('#smashers');
+  var rawDiv = $('#smashers-raw');
 
   function updateList(res) {
-    div.empty().append(template({smashers: res.docs})).addClass('shown');
+    rawDiv.empty().append(JSON.stringify(res, undefined, 2)).addClass('shown');
+    listDiv.empty().append(template({smashers: res.docs})).addClass('shown');
   }
 
   function showError(err) {
-    div.empty().append($('<pre/>').append(err.stack)).addClass('shown');
+    rawDiv.empty();
+    listDiv.empty().append($('<pre/>').append(err.stack)).addClass('shown');
   }
 
   var smashers = [
@@ -67,7 +70,8 @@
   // set up "Run code"
 
   $('.run-code').click(function () {
-    div.removeClass('shown');
+    listDiv.removeClass('shown');
+    rawDiv.removeClass('shown');
     setTimeout(function () {
       var promise = eval(editor.getValue());
       promise.then(updateList).catch(showError);
