@@ -168,7 +168,7 @@ db.find({
   // yo, a result
 }).catch(function (err) {
   // ouch, an error
-})
+});
 ```
 
 Example result:
