@@ -6,15 +6,20 @@ Cloudant setup
 
 Right now Mango queries are only supported by Cloudant. So I use a Cloudant account to do all the HTTP testing.
 
-To hook up your own Cloudant account, just do:
+To hook up your own Cloudant account, just run:
 
 ```
+# yes, you need all these environment vars
+export CLOUDANT_HOST=something.cloudant.com
+export CLOUDANT_USERNAME=myusername
 export CLOUDANT_PASSWORD=mypassword
-export COUCHDB_HOST=http://myusername:mypassword@whatever.cloudant.com
+export COUCH_HOST=http://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@$CLOUDANT_HOST
+
+# writes the javascript files we need
 npm run write-cloudant-password
 ```
 
-Right now the username is hard-coded to `pouch` in `test.js`; I should fix that.
+When it runs in Travis, it uses the credentials for `pouch.cloudant.com`, which is a special database for Pouch stuff donated by Cloudant.
 
 Building
 ----

@@ -11,8 +11,8 @@ require('./test-utils');
 var cloudantPassword = require('./.cloudant-password');
 
 var  dbs = 'testdb' + Math.random() +
-  ',http://pouch:' + cloudantPassword +
-  '@pouch.cloudant.com/testdb' + Math.round(Math.random() * 100000);
+  ',http://' + cloudantPassword[0] + ':' + cloudantPassword[1] +
+  '@' + cloudantPassword[2] + '/testdb' + Math.round(Math.random() * 100000);
 
 dbs.split(',').forEach(function (db) {
   var dbType = /^http/.test(db) ? 'http' : 'local';
