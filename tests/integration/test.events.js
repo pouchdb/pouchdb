@@ -130,17 +130,27 @@ adapters.forEach(function (adapter) {
 
     it('emit create event', function (done) {
       new PouchDB(dbs.name, function (err, db) {
-        var id = 'creating';
+        var isCancelled = false;
+        var timer;
         var obj = {
           something: 'here',
           somethingElse: 'overHere'
         };
+
         db.on('create', function (change) {
-          change.id.should.equal('creating');
-          change.seq.should.equal(1, 'created');
+          isCancelled = true;
+          clearTimeout(timer);
           done(err);
         });
-        db.put(obj, id);
+
+        var i = 0;
+        function doCreate() {
+          if (!isCancelled) {
+            db.put(obj, 'creating_' + (++i));
+            timer = setTimeout(doCreate, 100);
+          }
+        }
+        doCreate();
       });
     });
 
