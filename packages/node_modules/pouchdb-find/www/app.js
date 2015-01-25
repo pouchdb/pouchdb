@@ -5,9 +5,9 @@
   var snippets = [
     "// The _id field is the primary index\ndb.find({\n  selector: {_id: {$gt: 'a'}},\n  sort: ['_id']\n});",
     "// For other fields, you must create an index first\ndb.createIndex({\n  index: {fields: ['name']}\n}).then(function () {\n  return db.find({\n    selector: {name: {$exists: true}},\n    sort: ['name']\n  });\n});",
-    "// Available selectors are $gt, $gte, $lt, $lte, \n// $eq, $ne, $exists, $type, and more\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$gt: 1990}}\n  });\n});",
+    "// Available selectors are $gt, $gte, $lt, $lte, \n// $eq, $ne, $exists, $type, and more\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$gte: 1990}}\n  });\n});",
     "// Multi-field queries and sorting are also supported\ndb.createIndex({\n  index: {fields: ['series', 'debut']}\n}).then(function () {\n  return db.find({\n    selector: {series: {$eq: 'Mario'}},\n    sort: [{series: 'desc'}, {debut: 'desc'}]\n  });\n});",
-    "// You can also select certain fields.\n// Change this code to try it yourself!\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$exists: true}},\n    fields: ['_id', 'name', 'debut'],\n    sort: ['debut']\n  });\n});"
+    "// You can also select certain fields.\n// Change this code to try it yourself!\ndb.createIndex({\n  index: {fields: ['debut']}\n}).then(function () {\n  return db.find({\n    selector: {debut: {$exists: true}},\n    fields: ['_id', 'debut'],\n    sort: ['debut']\n  });\n});"
   ];
 
   var editor = ace.edit("editor");
@@ -35,18 +35,18 @@
   }
 
   var smashers = [
-    { name: 'Mario', _id: 'mario', rank: 5, series: 'Mario', debut: 1981 },
-    { name: 'Jigglypuff', _id: 'puff', rank: 8, series: 'Pokemon', debut: 1996 },
-    { name: 'Link', rank: 10, _id: 'link', series: 'Zelda', debut: 1986 },
-    { name: 'Donkey Kong', rank: 7, _id: 'dk', series: 'Mario', debut: 1981 },
-    { name: 'Pikachu', series: 'Pokemon', _id: 'pikachu', rank: 1, debut: 1996 },
-    { name: 'Captain Falcon', _id: 'falcon', rank: 4, series: 'F-Zero', debut: 1990 },
-    { name: 'Luigi', rank: 11, _id: 'luigi', series: 'Mario', debut: 1983 },
-    { name: 'Fox', _id: 'fox', rank: 3, series: 'Star Fox', debut: 1993 },
-    { name: 'Ness', rank: 9, _id: 'ness', series: 'Earthbound', debut: 1994 },
-    { name: 'Samus', rank: 12, _id: 'samus', series: 'Metroid', debut: 1986 },
-    { name: 'Yoshi', _id: 'yoshi', rank: 6, series: 'Mario', debut: 1990 },
-    { name: 'Kirby', _id: 'kirby', series: 'Kirby', rank: 2, debut: 1992 }
+    { name: 'Mario', _id: 'mario', series: 'Mario', debut: 1981 },
+    { name: 'Jigglypuff', _id: 'puff', series: 'Pokemon', debut: 1996 },
+    { name: 'Link', _id: 'link', series: 'Zelda', debut: 1986 },
+    { name: 'Donkey Kong', _id: 'dk', series: 'Mario', debut: 1981 },
+    { name: 'Pikachu', series: 'Pokemon', _id: 'pikachu', debut: 1996 },
+    { name: 'Captain Falcon', _id: 'falcon', series: 'F-Zero', debut: 1990 },
+    { name: 'Luigi', _id: 'luigi', series: 'Mario', debut: 1983 },
+    { name: 'Fox', _id: 'fox', series: 'Star Fox', debut: 1993 },
+    { name: 'Ness', _id: 'ness', series: 'Earthbound', debut: 1994 },
+    { name: 'Samus', _id: 'samus', series: 'Metroid', debut: 1986 },
+    { name: 'Yoshi', _id: 'yoshi', series: 'Mario', debut: 1990 },
+    { name: 'Kirby', _id: 'kirby', series: 'Kirby', debut: 1992 }
   ];
   var db = new PouchDB('smashers');
   db.info().then(function (info) {
