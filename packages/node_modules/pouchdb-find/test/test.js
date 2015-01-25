@@ -41,6 +41,7 @@ function tests(dbName, dbType) {
     require('./tests/test.eq')(dbType, context);
     require('./tests/test.deep-fields')(dbType, context);
     require('./tests/test.exists')(dbType, context);
+    require('./tests/test.type')(dbType, context);
     require('./tests/test.ne')(dbType, context);
     require('./tests/test.errors')(dbType, context);
 
