@@ -32,58 +32,26 @@ env:
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
 
   matrix:
-  - CLIENT=node COMMAND=test
-  - CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
-
-  # Test against pouchdb-server
-  - CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
-  - SERVER_ADAPTER=memory LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
-
-  # Test against pouchdb-express-router
-  - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
-
-  # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox COMMAND=test
-  - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
-
-  # Test auto-compaction in Node, Phantom, and Firefox
-  - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
-
-  # Testing in saucelabs
-  - CLIENT=saucelabs:chrome:36 COMMAND=test
-  - CLIENT=saucelabs:chrome:37 COMMAND=test
-  - CLIENT=saucelabs:chrome:39 COMMAND=test
-  - CLIENT=saucelabs:safari:6 COMMAND=test
-  - CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
-  - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
-
-  - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
-
-  # Test CouchDB master (aka bigcouch branch)
-  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - BAIL=0 CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
-
-  # Performance tests
-  - CLIENT=selenium:firefox PERF=1 COMMAND=test
-  - PERF=1 COMMAND=test
-
-  - COMMAND=test-unit
-  - COMMAND=test-component
-  - COMMAND=report-coverage
-
-matrix:
- allow_failures:
- - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
- - env: CLIENT="saucelabs:iphone:7.1:OS X 10.9" COMMAND=test
- - env: BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test
- - env: BAIL=0 CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
- - env: CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
- fast_finish: true
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=0
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=1
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=2
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=3
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=4
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=5
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=6
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=7
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=8
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=9
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=10
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=11
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=12
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=13
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=14
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=15
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=16
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=17
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=18
+  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test TRY=19
 
 branches:
   only:
