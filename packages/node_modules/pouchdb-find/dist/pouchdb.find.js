@@ -537,10 +537,16 @@ function massageSelector(selector) {
 function getUserFields(selector, sort) {
   var selectorFields = Object.keys(selector);
   var sortFields = sort? sort.map(getKey) : [];
-  if (selectorFields.length >= sortFields.length) {
-    return selectorFields;
+  if (selectorFields.length > sortFields.length) {
+    return {
+      fields: selectorFields,
+      orderMatters: false
+    };
   }
-  return sortFields;
+  return {
+    fields: sortFields,
+    orderMatters: true
+  };
 }
 
 function checkFieldInIndex(index, field) {
@@ -554,7 +560,7 @@ function checkFieldInIndex(index, field) {
   return false;
 }
 
-function checkIndexMatches(index, fields) {
+function checkIndexMatches(index, orderMatters, fields) {
   for (var i = 0, len = fields.length; i < len; i++) {
     var field = fields[i];
     var fieldInIndex = checkFieldInIndex(index, field);
@@ -562,7 +568,10 @@ function checkIndexMatches(index, fields) {
       return false;
     }
   }
-  return true;
+
+  // array has to be a strict subset
+  return !orderMatters || utils.oneArrayIsSubArrayOfOther(fields,
+    index.def.fields.map(getKey));
 }
 
 //
@@ -571,11 +580,11 @@ function checkIndexMatches(index, fields) {
 // are a strict subset of the fields in some index,
 // then use that index
 //
-function findMatchingIndex(userFields, indexes) {
+function findMatchingIndex(userFields, orderMatters, indexes) {
 
   for (var i = 0, iLen = indexes.length; i < iLen; i++) {
     var index = indexes[i];
-    var indexMatches = checkIndexMatches(index, userFields);
+    var indexMatches = checkIndexMatches(index, orderMatters, userFields);
     if (indexMatches) {
       return index;
     }
@@ -743,9 +752,11 @@ function planQuery(request, indexes) {
   var selector = massageSelector(request.selector);
   var sort = massageSort(request.sort);
 
-  var userFields = getUserFields(selector, sort);
+  var userFieldsRes = getUserFields(selector, sort);
 
-  var index = findMatchingIndex(userFields, indexes);
+  var userFields = userFieldsRes.fields;
+  var orderMatters = userFieldsRes.orderMatters;
+  var index = findMatchingIndex(userFields, orderMatters, indexes);
 
   if (!index) {
     throw new Error('couldn\'t find any index to use');
