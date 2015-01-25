@@ -192,6 +192,13 @@ Example result:
 
 If there's no index that matches your `selector`/`sort`, then this method will throw an error. This is a good thing, because it means it's pretty much impossible to write a slow query. :)
 
+With a remote database
+----
+
+Over HTTP, this plugin currently only works with Cloudant. Cloudant is the reference implementation, so the API should be the same.
+
+Eventually CouchDB 2.0 and PouchDB Server will be supported.
+
 Debugging
 ----
 
