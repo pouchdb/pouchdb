@@ -11,6 +11,7 @@ function runTestSuites(PouchDB) {
 
   require('./perf.basics')(PouchDB, opts);
   require('./perf.views')(PouchDB, opts);
+  require('./perf.attachments')(PouchDB, opts);
 }
 var startNow = true;
 if (global.window && global.window.location && global.window.location.search) {
