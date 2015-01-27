@@ -17,6 +17,11 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isSyncGateway = function () {
+  return 'SERVER' in testUtils.params() &&
+    testUtils.params().SERVER === 'sync-gateway';
+};
+
 testUtils.params = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env;
