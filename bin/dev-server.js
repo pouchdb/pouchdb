@@ -94,6 +94,20 @@ var COUCH_HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
 
 var HTTP_PORT = 8000;
 var CORS_PORT = 2020;
+var SG_CONFIG_PORT = 8001;
+
+var sgDBConfig = {
+    "server": "walrus:",
+    "users": {
+      "GUEST": {"disabled": false, "admin_channels": ["*"] }
+    }
+  }
+
+function sgConfig(req, res) {
+  res.writeHead(200, {'Content-Type': 'application/json'});
+  console.log("sgDBConfig",req.url)
+  res.end(JSON.stringify(sgDBConfig));
+}
 
 function createSyncGatewayConfigServer() {
   if (process.env.SERVER !== 'sync-gateway') {return;}
