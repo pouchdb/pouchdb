@@ -36,6 +36,13 @@ if [[ ! -z $SERVER ]]; then
     export SERVER_PID=$!
     sleep 5
     export COUCH_HOST='http://127.0.0.1:3000'
+  elif [ "$SERVER" == "sync-gateway" ]; then
+    if [[ -z $COUCH_HOST ]]; then
+      export COUCH_HOST='http://127.0.0.1:4985'
+    fi
+    node ./tests/misc/sync-gateway-config-server.js &
+    # not the Sync Gateway pid, the config server pid
+    export SERVER_PID=$!
   else
     # I mistype pouchdb-server a lot
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
@@ -47,6 +54,8 @@ if [ "$CLIENT" == "unit" ]; then
     npm run test-unit
 elif [ "$CLIENT" == "node" ]; then
     npm run test-node
+elif [ "$CLIENT" == "dev" ]; then
+    npm run launch-dev-server
 else
     npm run test-browser
 fi
