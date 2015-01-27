@@ -9,7 +9,6 @@ var _derequire = require('derequire');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
-var http = require('http');
 var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
 var mkdirp = require('mkdirp');
@@ -95,30 +94,15 @@ var COUCH_HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
 var HTTP_PORT = 8000;
 var CORS_PORT = 2020;
 
-function createSyncGatewayConfigServer() {
-  if (process.env.SERVER !== 'sync-gateway') {return;}
-  // Sync Gateway should be configured with tests/misc/sync-gateway-config.json
-  // which causes it to query this port for database-level config.
-  var SG_CONFIG_PORT = 8001;
-  var sgDBConfig = {
-      "server": "walrus:",
-      "users": {
-        "GUEST": {"disabled": false, "admin_channels": ["*"] }
-      }
-    };
-  function sgConfig(req, res) {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify(sgDBConfig));
-  }
-  http.createServer(sgConfig).listen(SG_CONFIG_PORT);
-}
+// if SERVER=sync-gateway we also have 
+// tests/misc/sync-gateway-config-server.js 
+// listening on port 8001
 
 var serversStarted;
 var readyCallback;
 
 function startServers(callback) {
   readyCallback = callback;
-  createSyncGatewayConfigServer();
   http_server.createServer().listen(HTTP_PORT, function () {
     cors_proxy.options = {target: COUCH_HOST};
     http_proxy.createServer(cors_proxy).listen(CORS_PORT, function () {
