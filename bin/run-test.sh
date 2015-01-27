@@ -36,6 +36,9 @@ if [[ ! -z $SERVER ]]; then
     export SERVER_PID=$!
     sleep 5
     export COUCH_HOST='http://127.0.0.1:3000'
+  elif [ "$SERVER" == "sync-gateway" ]; then
+    # see dev-server.js for Sync Gateway configuration
+    export COUCH_HOST='http://127.0.0.1:4985'
   else
     # I mistype pouchdb-server a lot
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
