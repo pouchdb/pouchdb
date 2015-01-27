@@ -50,6 +50,8 @@ if [ "$CLIENT" == "unit" ]; then
     npm run test-unit
 elif [ "$CLIENT" == "node" ]; then
     npm run test-node
+elif [ "$CLIENT" == "dev" ]; then
+    npm run launch-dev-server
 else
     npm run test-browser
 fi
