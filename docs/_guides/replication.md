@@ -128,7 +128,7 @@ A slightly more sophisicated technique is to do an [exponential backoff](https:/
 var timeout = 5000;
 var backoff = 2;
 function retryReplication() {
-  localDB.sync.to(remoteDB, {live: true}).on('change', function (change) {
+  localDB.sync(remoteDB, {live: true}).on('change', function (change) {
     // yo, something changed!
     timeout = 5000; // reset
   }).on('error', function (err) {
@@ -136,7 +136,7 @@ function retryReplication() {
       timeout *= backoff;
       retryReplication();
     }, timeout);
-  })));
+  });
 }
 ```
 
