@@ -175,7 +175,7 @@ You can see **[a live example](http://bl.ocks.org/nolanlawson/edaf09b84185418a55
 
 This stores exactly the same image content as in the other example, which you can confirm by checking the base64-encoded output.
 
-Whather you supply attachments as base64-encoded strings or as Blobs/Buffers, under the hood PouchDB will try to store them in [the most efficient way](/faq.html#data_types). All of the "write" APIs &ndash; `putAttachment()`, `put()`, `bulkDocs()`, and `post()` &ndash; accept either base64 strings or Blobs/Buffers.
+Whether you supply attachments as base64-encoded strings or as Blobs/Buffers, under the hood PouchDB will try to store them in [the most efficient way](/faq.html#data_types). All of the "write" APIs &ndash; `putAttachment()`, `put()`, `bulkDocs()`, and `post()` &ndash; accept either base64 strings or Blobs/Buffers.
 
 {% include alert_start.html variant="warning" %}
 

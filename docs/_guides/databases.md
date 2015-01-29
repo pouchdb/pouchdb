@@ -67,7 +67,7 @@ If instead you see:
 {"error":"not_found","reason":"no_db_file"}
 ```
 
-Then check to make sure that your remote PouchDB has started up correctly. Common errors (such as CORS) are [listed here](/errors.html).
+Then check to make sure that your remote CouchDB has started up correctly. Common errors (such as CORS) are [listed here](/errors.html).
 
 Get basic info about the database
 ---------
