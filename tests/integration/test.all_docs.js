@@ -101,19 +101,12 @@ adapters.forEach(function (adapter) {
                 keys: keys,
                 startkey: 'a'
               }, function (err, result) {
-                
-                // blocked on COUCHDB-2523
-                if (!testUtils.isCouchMaster()) {
-                  should.exist(err);
-                }
+                should.exist(err);
                 db.allDocs({
                   keys: keys,
                   endkey: 'a'
                 }, function (err, result) {
-                  // blocked on COUCHDB-2523
-                  if (!testUtils.isCouchMaster()) {
-                    should.exist(err);
-                  }
+                  should.exist(err);
                   db.allDocs({ keys: [] }, function (err, result) {
                     result.rows.should.have.length(0);
                     db.get('2', function (err, doc) {
@@ -516,10 +509,7 @@ adapters.forEach(function (adapter) {
               '2'
             ]
           }, function (err) {
-            // blocked on COUCHDB-2523
-            if (!testUtils.isCouchMaster()) {
-              should.exist(err);
-            }
+            should.exist(err);
             db.allDocs({
               key: '1',
               startkey: '1'
