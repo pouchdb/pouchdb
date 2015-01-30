@@ -26,7 +26,7 @@ var db = new PouchDB('dbname');
 db.put({
  _id: 'dave@gmail.com',
  name: 'David',
- age: 66
+ age: 68
 });
 
 db.changes().on('change', function() {
