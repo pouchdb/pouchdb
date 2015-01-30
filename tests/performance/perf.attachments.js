@@ -10,7 +10,12 @@ function randomNum(limit) {
 }
 
 function makeCanvas(size) {
-  var canvas = document.createElement('canvas');
+  var canvas;
+  if (process.browser) {
+    canvas = document.createElement('canvas');
+  } else {
+    canvas = new require('canvas');
+  }
   canvas.width = size;
   canvas.height = size;
   return canvas;
@@ -47,10 +52,15 @@ module.exports = function (PouchDB, opts) {
         for (var i = 0; i < 100; i++) {
           drawRandomCircle(context, 300);
         }
-        blobUtil.canvasToBlob(canvas).then(function (blob) {
-          db._blob = blob;
+        if (process.browser) {
+          blobUtil.canvasToBlob(canvas).then(function (blob) {
+            db._blob = blob;
+            callback();
+          });
+        } else {
+          db._blob = canvas.toBuffer();
           callback();
-        });
+        }
       },
       test: function (db, itr, doc, done) {
         db.putAttachment(Math.random().toString(), 'foo.txt', db._blob,
