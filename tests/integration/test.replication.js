@@ -1227,6 +1227,99 @@ adapters.forEach(function (adapters) {
         });
       });
     });
+    it('Test deleted conflict replication 1 (#1825)', function (done) {
+      var local = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var doc1a = {_id: 'adoc', value: '1a'};
+      var doc1b = {_id: 'adoc', _rev: '1-b', value: '1b'};
+      var doc1c = {_id: 'adoc', _rev: '1-c', value: '1b'};
+      local.put({_id: 'adoc', _rev: '1-a', value: '1a'}, {new_edits: false}, function (err, res) {
+        local.put(doc1b, {new_edits: false}, function (err, res) {
+          local.put(doc1c, {new_edits: false}, function (err, res) {
+            local.put(doc1a, res.rev, function (err, res) {
+              var rev = res.rev;
+              local.remove({_id: 'adoc', _rev: '1-b'}, function () {
+                local.remove({_id: 'adoc', _rev: '1-c'}, function () {
+                  PouchDB.replicate(local, remote, function (err, res) {
+                    remote.get('adoc', {conflicts: true, revs_info: true}, function (err, res) {
+                      console.log(JSON.stringify(res, null, 2));
+                      res._rev.should.equal(rev);
+                      done();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it('Test deleted conflict replication 2 (#1825)', function () {
+      var local = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc1aFirst = {_id: 'adoc', _rev: '1-a', value: '1a'};
+      var doc1aSecond = {_id: 'adoc', value: '1a'};
+      var doc1b = {_id: 'adoc', _rev: '1-b', value: '1b'};
+      var doc1c = {_id: 'adoc', _rev: '1-c', value: '1b'};
+
+      return local.put(doc1aFirst, {new_edits: false}).then(function () {
+        return local.put(doc1b, {new_edits: false});
+      }).then(function () {
+        return local.put(doc1c, {new_edits: false});
+      }).then(function (res) {
+        return local.put(doc1aSecond, res.rev);
+      }).then(function (res) {
+        var rev = res.rev;
+        return local.remove({_id: 'adoc', _rev: '1-b'}).then(function () {
+          return local.remove({_id: 'adoc', _rev: '1-c'}).catch(function (err) {
+            if (err.status !== 409) {
+              throw err;
+            }
+          });
+        }).then(function () {
+          return local.replicate.to(remote);
+        }).then(function () {
+          return remote.get('adoc', {conflicts: true, revs_info: true});
+        }).then(function (res) {
+          res._rev.should.equal(rev);
+        });
+      });
+    });
+
+    it('Test deleted conflict replication 3 (#1825)', function () {
+      var local = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc1aFirst = {_id: 'adoc', _rev: '1-a', value: '1a', _revisions: {start: 0, ids: ['a']}};
+      var doc1aSecond = {_id: 'adoc', value: '1a'};
+      var doc1b = {_id: 'adoc', _rev: '1-b', value: '1b', _revisions: {start: 0, ids: ['b']}};
+      var doc1c = {_id: 'adoc', _rev: '1-c', value: '1b', _revisions: {start: 0, ids: ['c']}};
+
+      return local.put(doc1aFirst, {new_edits: false}).then(function () {
+        return local.put(doc1b, {new_edits: false});
+      }).then(function () {
+        return local.put(doc1c, {new_edits: false});
+      }).then(function (res) {
+        return local.put(doc1aSecond, res.rev);
+      }).then(function (res) {
+        var rev = res.rev;
+        return local.remove({_id: 'adoc', _rev: '1-b'}).then(function () {
+          return local.remove({_id: 'adoc', _rev: '1-c'}).catch(function (err) {
+            if (err.status !== 409) {
+              throw err;
+            }
+          });
+        }).then(function () {
+          return local.replicate.to(remote);
+        }).then(function () {
+          return remote.get('adoc', {conflicts: true, revs_info: true});
+        }).then(function (res) {
+          res._rev.should.equal(rev);
+        });
+      });
+    });
 
     it('Test basic live push replication', function (done) {
       var db = new PouchDB(dbs.name);
