@@ -32,8 +32,11 @@ describe('migration', function () {
         var isNodeWebkit = typeof window !== 'undefined' &&
           typeof process !== 'undefined';
 
+        var skipMigration = 'SKIP_MIGRATION' in testUtils.params() &&
+          testUtils.params().SKIP_MIGRATION;
+
         if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
-            isNodeWebkit) {
+            isNodeWebkit || skipMigration) {
           skip = true;
           done();
           return;

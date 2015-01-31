@@ -57,7 +57,7 @@ env:
   - CLIENT=saucelabs:chrome:37 COMMAND=test
   - CLIENT=saucelabs:chrome:39 COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
-  - CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
+  - SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
@@ -78,7 +78,6 @@ env:
 
 matrix:
  allow_failures:
- - env: CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
  - env: BAIL=0 CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
  fast_finish: true
 
