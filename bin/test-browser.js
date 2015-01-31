@@ -56,6 +56,9 @@ if (process.env.AUTO_COMPACTION) {
 if (process.env.SERVER) {
   qs.SERVER = process.env.SERVER;
 }
+if (process.env.SKIP_MIGRATION) {
+  qs.SKIP_MIGRATION = process.env.SKIP_MIGRATION;
+}
 
 testUrl += '?';
 testUrl += querystring.stringify(qs);
