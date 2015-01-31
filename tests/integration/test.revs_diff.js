@@ -102,11 +102,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Revs diff with empty revs', function () {
-      // blocked on COUCHDB-2531
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-
       return new PouchDB(dbs.name).then(function (db) {
         return db.revsDiff({}).then(function (res) {
           should.exist(res);
