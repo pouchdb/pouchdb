@@ -79,4 +79,3 @@ env:
 branches:
   only:
   - master
-  - /^pull*$/
