@@ -65,8 +65,8 @@ env:
   - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
   # Test CouchDB master (aka bigcouch branch)
-  - BAIL=0 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - BAIL=0 CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+  - CLIENT=node SERVER=couchdb-master COMMAND=test
+  - SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
 
   # Performance tests
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
@@ -75,11 +75,6 @@ env:
   - COMMAND=test-unit
   - COMMAND=test-component
   - COMMAND=report-coverage
-
-matrix:
- allow_failures:
- - env: BAIL=0 CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
- fast_finish: true
 
 branches:
   only:
