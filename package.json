@@ -16,6 +16,7 @@
     "pouchdb"
   ],
   "dependencies": {
+    "bloomfilter": "^0.0.14",
     "pouchdb-upsert": "^1.0.2",
     "pouchdb-collections": "^1.0.0",
     "argsarray": "0.0.1",
