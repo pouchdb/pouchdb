@@ -355,7 +355,7 @@ All options default to `false` unless otherwise specified.
 
 * `options.include_docs`: Include the document itself in each row in the `doc` field. Otherwise by default you only get the `_id` and `_rev` properties.
     - `options.conflicts`: Include conflict information in the `_conflicts` field of a doc.
-  - `options.attachments`: Include attachment data.
+  - `options.attachments`: Include attachment data (as base64-encoded string)
 * `options.startkey` & `options.endkey`: Get documents with IDs in a certain range (inclusive/inclusive).
 * `options.inclusive_end`: Include documents having an ID equal to the given `options.endkey`. Default: `true`.
 * `options.limit`: Maximum number of documents to return.
@@ -373,7 +373,7 @@ All options default to `false` unless otherwise specified.
 
 #### Example Usage:
 {% highlight js %}
-db.allDocs({include_docs: true}, function(err, response) { });
+db.allDocs({include_docs: true, attachments: true}, function(err, response) { });
 {% endhighlight %}
 
 #### Example Response:
@@ -385,7 +385,14 @@ db.allDocs({include_docs: true}, function(err, response) { });
     "doc": {
       "_id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
       "_rev": "1-5782E71F1E4BF698FA3793D9D5A96393",
-      "title": "Sound and Vision"
+      "title": "Sound and Vision",
+      "_attachments": {
+      	"attachment/its-id": {
+      	  "content_type": "image/jpg",
+      	  "data": "R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",
+      	  "digest": "md5-57e396baedfe1a034590339082b9abce"
+      	}
+      }
     },
    "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
    "key": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
