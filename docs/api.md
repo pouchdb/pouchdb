@@ -355,7 +355,7 @@ All options default to `false` unless otherwise specified.
 
 * `options.include_docs`: Include the document itself in each row in the `doc` field. Otherwise by default you only get the `_id` and `_rev` properties.
     - `options.conflicts`: Include conflict information in the `_conflicts` field of a doc.
-  - `options.attachments`: Include attachment data (as base64-encoded string)
+  - `options.attachments`: Include attachment data as base64-encoded string.
 * `options.startkey` & `options.endkey`: Get documents with IDs in a certain range (inclusive/inclusive).
 * `options.inclusive_end`: Include documents having an ID equal to the given `options.endkey`. Default: `true`.
 * `options.limit`: Maximum number of documents to return.
