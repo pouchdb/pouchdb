@@ -2295,11 +2295,6 @@ adapters.forEach(function (adapter) {
                               { rev: remoterev }
                             ]);
 
-                            // Blocked on COUCHDB-2518
-                            if (testUtils.isCouchMaster()) {
-                              return;
-                            }
-
                             ch.doc.should.have.property('_conflicts');
                             ch.doc._conflicts.length.should.equal(1);
                             ch.doc._conflicts[0].should.equal(remoterev);
