@@ -10,7 +10,7 @@ A new month means a new PouchDB release. Over the last month we have been lookin
 
 ### PouchDB-Inspector
 
-[Martin de Vries](https://twitter.com/commandoline) has taken the awesome work done by the CouchDB Fauxton team and wrapped Fauxton up in Firefox and Chrome plugins so you can inspect your local data in each browser.
+[Marten de Vries](https://twitter.com/commandoline) has taken the awesome work done by the CouchDB Fauxton team and wrapped Fauxton up in Firefox and Chrome plugins so you can inspect your local data in each browser.
 
  * [Install as Firefox Addon](https://addons.mozilla.org/firefox/addon/pouchdb-inspector/) - [Github](https://github.com/marten-de-vries/pouchdb-fauxton-firefox-addon)
  * [Install from Chrome Web Store](https://chrome.google.com/webstore/detail/pouchdb-inspector/hbhhpaojmpfimakffndmpmpndcmonkfa) - [Github](https://github.com/marten-de-vries/pouchdb-fauxton-chrome-extension)
