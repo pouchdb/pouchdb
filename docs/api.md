@@ -51,7 +51,7 @@ var db = new PouchDB('http://localhost:5984/dbname');
 
 Create a WebSQL-only Pouch (e.g. when using the [SQLite Plugin][] for Cordova/PhoneGap):
 
-  [sqlite plugin]: https://github.com/lite4cordova/Cordova-SQLitePlugin
+  [sqlite plugin]: https://github.com/brodysoft/Cordova-SQLitePlugin
 
 {% highlight js %}
 var db = new PouchDB('dbname', {adapter : 'websql'});
@@ -1019,6 +1019,12 @@ db.info(function(err, info) { })
 * `db_name` is the name of the database you gave when you called `new PouchDB()`, and also the unique identifier for the database.
 * `doc_count` is the total number of non-deleted documents in the database.
 * `update_seq` is the sequence number of the database.  It starts at 0 and gets incremented every time a document is added or modified.
+
+There are also some details you can use for debugging. These are unofficial and may change at any time:
+
+* `idb_attachment_format`: (IndexedDB) either `'base64'` or `'binary'`, depending on whether the browser [supports binary blobs](/faq.html#data_types).
+* `sqlite_plugin`: (WebSQL) true if the [SQLite Plugin][] is being used.
+* `websql_encoding`: (WebSQL) either `'UTF-8'` or `'UTF-16'`, depending on the [WebSQL implementation](http://pouchdb.com/faq.html#data_types)
 
 {% include anchor.html title="Compact the database" hash="compaction" %}
 
