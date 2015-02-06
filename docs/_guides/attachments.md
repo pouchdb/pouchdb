@@ -175,13 +175,67 @@ You can see **[a live example](http://bl.ocks.org/nolanlawson/edaf09b84185418a55
 
 This stores exactly the same image content as in the other example, which you can confirm by checking the base64-encoded output.
 
-Whether you supply attachments as base64-encoded strings or as Blobs/Buffers, under the hood PouchDB will try to store them in [the most efficient way](/faq.html#data_types). All of the "write" APIs &ndash; `putAttachment()`, `put()`, `bulkDocs()`, and `post()` &ndash; accept either base64 strings or Blobs/Buffers.
-
 {% include alert_start.html variant="warning" %}
 
-Blobs can be tricky to work with, especially when it comes to cross-browser support. You may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be a useful addition to the attachment API. For instance, it has an <code>imgSrcToBlob()</code> method that will work cross-browser.
+Blobs can be tricky to work with, especially when it comes to cross-browser support.
+You may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be a useful
+addition to the attachment API. For instance, it has an
+<code>imgSrcToBlob()</code> method that will work cross-browser.
 
 {% include alert_end.html %}
+
+Base64 vs Blobs/Buffers
+-------
+
+Whether you supply attachments as base64-encoded strings or as Blobs/Buffers, PouchDB will try to store them in [the most efficient way](/faq.html#data_types). 
+
+So when you insert your attachments, either format is acceptable. For instance, you can put Blobs/Buffers using `put()`:
+
+```js
+db.put({
+  _id: 'mydoc',
+  _attachments: {
+    'myattachment.txt': {
+      content_type: 'text/plain',
+      data: myBlob
+    }
+  }
+});
+```
+
+And you can also pass base64-encoded strings to `putAttachment()`:
+
+```js
+db.putAttachment('mydoc', 'myattachment.png', myBase64String, 'image/png');
+```
+
+You can also insert multiple attachments at once using `put()`:
+
+```js
+db.put({
+  _id: 'mydoc',
+  _attachments: {
+    'myattachment1.txt': {
+      content_type: 'text/plain',
+      data: myBlob1
+    },
+    'myattachment2.txt': {
+      content_type: 'text/plain',
+      data: myBlob2
+    },
+    'myattachment3.txt': {
+      content_type: 'text/plain',
+      data: myBlob3
+    },
+    // etc.
+  }
+});
+```
+
+The `bulkDocs()` and `post()` APIs also accept attachments in either format.
+
+When you fetch attachments, however, `getAttachment()` will always return Blobs/Buffers, whereas
+`get()`/`allDocs()`/`query()` with `{attachments: true}` will always return base64-encoded strings. 
 
 Related API documentation
 --------
