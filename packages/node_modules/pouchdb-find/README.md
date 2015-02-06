@@ -94,8 +94,8 @@ or:
 **Options**
 
 * `fields` is a list of fields to index
-* `name` can be omitted if you don't care
-* `type` only supports `'json'`, and it's also the default.
+* `name` (optional) name of the index, will be auto-generated if you don't include it
+* `type` (optional) only supports `'json'`, and it's also the default
 
 ### db.getIndexes([callback])
 
@@ -215,9 +215,9 @@ Example result:
 
 **Options**;
 
-* `selector`: Required. Defines a selector to filter the results. See the Cloudant docs for more details.
-* `fields`: Optional. Defines a list of fields that you want to receive. If omitted, you get the full documents.
-* `sort`: Optional. Defines a list of fields defining how you want to sort. Note that sorted fields also have to be selected in the `selector`.
+* `selector` Defines a selector to filter the results. See the Cloudant docs for more details.
+* `fields` (Optional) Defines a list of fields that you want to receive. If omitted, you get the full documents.
+* `sort` (Optional) Defines a list of fields defining how you want to sort. Note that sorted fields also have to be selected in the `selector`.
 
 If there's no index that matches your `selector`/`sort`, then this method will throw an error. This is a good thing, because it means it's pretty much impossible to write a slow query. :)
 
