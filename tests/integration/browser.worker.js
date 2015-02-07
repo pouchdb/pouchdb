@@ -28,7 +28,7 @@ function runTests() {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
-    it.skip('create it', function (done) {
+    it('create it', function (done) {
       var worker = new Worker('worker.js');
       worker.addEventListener('message', function (e) {
         e.data.should.equal('pong');
@@ -39,7 +39,7 @@ function runTests() {
       worker.postMessage('ping');
     });
 
-    it.skip('check pouch version', function (done) {
+    it('check pouch version', function (done) {
       var worker = new Worker('worker.js');
       worker.addEventListener('message', function (e) {
         PouchDB.version.should.equal(e.data);
@@ -55,7 +55,7 @@ function runTests() {
 
     // does not work in NodeWebkit
     if (!isNodeWebkit) {
-      it.skip('create remote db', function (done) {
+      it('create remote db', function (done) {
         var worker = new Worker('worker.js');
         worker.addEventListener('error', function (e) {
           throw e;
@@ -77,7 +77,7 @@ function runTests() {
     if (!('mozIndexedDB' in window) &&
         !('msIndexedDB' in window) &&
         !isNodeWebkit) {
-      it.skip('create local db', function (done) {
+      it('create local db', function (done) {
         var worker = new Worker('worker.js');
         worker.addEventListener('error', function (e) {
           throw e;
