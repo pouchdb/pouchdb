@@ -47,7 +47,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('emit creation event', function (done) {
-      var db = new PouchDB(dbs.name).on('created', function (newDB) {
+      var db = new PouchDB(dbs.name).once('created', function (newDB) {
         db.should.equal(newDB, 'should be same thing');
         done();
       });

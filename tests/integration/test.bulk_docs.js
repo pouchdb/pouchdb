@@ -685,6 +685,12 @@ adapters.forEach(function (adapter) {
     });
 
     it('handles simultaneous writes', function (done) {
+      if (testUtils.isCouchMaster()) {
+        // couch might give a 201 for both writes
+        true.should.equal(true);
+        return done();
+      }
+
       var db1 = new PouchDB(dbs.name);
       var db2 = new PouchDB(dbs.name);
       var id = 'fooId';
@@ -701,6 +707,36 @@ adapters.forEach(function (adapter) {
         if (++numDone === 2) {
           errorNames.should.deep.equal(['conflict']);
           ids.should.deep.equal([id]);
+          done();
+        }
+      }
+      db1.bulkDocs({docs : [{_id : id}]}, callback);
+      db2.bulkDocs({docs : [{_id : id}]}, callback);
+    });
+
+    it('handles simultaneous _local writes', function (done) {
+      if (testUtils.isCouchMaster()) {
+        // couch might give a 201 for both writes
+        true.should.equal(true);
+        return done();
+      }
+
+      var db1 = new PouchDB(dbs.name);
+      var db2 = new PouchDB(dbs.name);
+      var id = '_local/fooId';
+      var errorNames = [];
+      var ids = [];
+      var numDone = 0;
+      function callback(err, res) {
+        should.not.exist(err);
+        if (res[0].error) {
+          errorNames.push(res[0].name);
+        } else {
+          ids.push(res[0].ok);
+        }
+        if (++numDone === 2) {
+          errorNames.should.deep.equal(['conflict']);
+          ids.should.deep.equal([true]);
           done();
         }
       }
