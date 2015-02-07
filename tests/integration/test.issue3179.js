@@ -24,6 +24,46 @@ adapters.forEach(function (adapters) {
 
     var doc = {_id: '0', integer: 0};
 
+    it('#3179 conflicts synced, dup docs, non-live repl', function () {
+      var local = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return local.put({ _id: '1'}).then(function () {
+        return local.replicate.to(remote).then(function () {
+          return remote.replicate.to(local);
+        });
+      }).then(function () {
+        return local.get('1').then(function (doc) {
+          return local.put(doc);
+        });
+      }).then(function () {
+        return remote.get('1').then(function (doc) {
+          return remote.put(doc);
+        });
+      }).then(function () {
+        return local.replicate.to(remote).then(function () {
+          return remote.replicate.to(local);
+        });
+      }).then(function () {
+        return local.get('1', {conflicts: true}).then(function (doc) {
+          return local.remove(doc._id, doc._conflicts[0]);
+        });
+      }).then(function () {
+        return local.replicate.to(remote).then(function () {
+          return remote.replicate.to(local);
+        });
+      }).then(function () {
+        return local.get('1', {conflicts: true, revs: true});
+      }).then(function (localDoc) {
+        return remote.get('1', {
+          conflicts: true,
+          revs: true
+        }).then(function (remoteDoc) {
+          remoteDoc.should.deep.equal(localDoc);
+        });
+      });
+    });
+
     it.skip('Testing issue #3179', function (done) {
 
       var local = new PouchDB(dbs.name);
