@@ -8,7 +8,7 @@ if (!sourceFile) {
   sourceFile = '../../dist/' + sourceFile[1];
 }
 
-if (typeof window.Worker === 'function') {
+if (typeof window.Worker === 'function' && window.chrome) {
   runTests();
 }
 
