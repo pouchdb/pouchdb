@@ -28,6 +28,20 @@ function runTests() {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
+    it('add doc with blob attachemnt', function (done) {
+      var worker = new Worker('worker.js');
+      worker.addEventListener('error', function (e) {
+        throw e;
+      });
+      worker.addEventListener('message', function (e) {
+        e.data.title.should.equal('lalaa');
+        worker.terminate();
+        done();
+      });
+      worker.postMessage(sourceFile);
+      worker.postMessage(['allDocs', 'testdb']);
+    });
+
     it('create it', function (done) {
       var worker = new Worker('worker.js');
       worker.addEventListener('message', function (e) {
@@ -91,6 +105,5 @@ function runTests() {
         worker.postMessage(['create', dbs.name]);
       });
     }
-
   });
 }
