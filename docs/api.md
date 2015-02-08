@@ -550,13 +550,13 @@ db.replicate.from(remoteDB, [options]);
 
 ### Replication events
 
-* `change` - This event fires when the replication has written a new document.
-* `complete` - This event fires when replication is completed or cancelled. In a live replication, only cancelling the replication should trigger this event.
-* `paused` - This event fires when the replication is paused, either because a live replication is waiting for changes, or replication has temporarily failed and is attempting to resume.
-* `active` - This event fires when the replication starts actively processing changes; e.g. when it recovers from an error or new changes are available.
-* `denied` - This event fires if a document failed to replicate due to validation or authorization errors.
-* `error`` - This event is fired when the replication is stopped due to an unrecoverable failure.
-* `uptodate` (*DEPRECATED*) - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
+* __`change`__ (`info`) - This event fires when the replication has written a new document. `info` will contain details about the change. See below for an example response.
+* __`complete`__ (`info`) - This event fires when replication is completed or cancelled. In a live replication, only cancelling the replication should trigger this event. `info` will contain details about the replication. See below for an example response.
+* __`paused`__ (`err`) - This event fires when the replication is paused, either because a live replication is waiting for changes, or replication has temporarily failed, with `err`, and is attempting to resume.
+* __`active`__ - This event fires when the replication starts actively processing changes; e.g. when it recovers from an error or new changes are available.
+* __`denied`__ (`err`) - This event fires if a document failed to replicate due to validation or authorization errors.
+* __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure.
+* __`uptodate`__ [*DEPRECATED*] - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
 
 #### Example Response:
 
