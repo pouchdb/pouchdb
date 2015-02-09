@@ -69,9 +69,11 @@ Example:
 
 ```js
 db.createIndex({
-  name: 'myindex',
-  fields: ['foo', 'bar'],
-  type: 'json'
+  index: {
+    name: 'myindex',
+    fields: ['foo', 'bar'],
+    type: 'json'
+  }
 }).then(function (result) {
   // yo, a result
 }).catch(function (err) {
