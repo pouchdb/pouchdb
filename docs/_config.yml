@@ -1,3 +1,6 @@
+name: PouchDB
+description: PouchDB, the JavaScript Database that Syncs!
+url: http://pouchdb.com
 highlighter: pygments
 markdown: redcarpet
 baseurl:
