@@ -68,6 +68,9 @@ env:
   - CLIENT=node SERVER=couchdb-master COMMAND=test
   - SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
 
+  # Test Couchbase Sync Gateway
+  - GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
+
   # Performance tests
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
