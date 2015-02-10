@@ -20,7 +20,7 @@ before_script:
   - "sudo sed -i 's/^127\\.0\\.0\\.1.*$/127.0.0.1 localhost/' /etc/hosts"
 
     # Lets know what CouchDB we are playing with
-  - "curl -X GET http://127.0.0.1:5984/"
+  - "curl -X GET http://127.0.0.1:5984/" # should this use COUCH_HOST variable?
 
 
 script: npm run $COMMAND
@@ -67,6 +67,9 @@ env:
   # Test CouchDB master (aka bigcouch branch)
   - CLIENT=node SERVER=couchdb-master COMMAND=test
   - SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+
+  # Test Couchbase Sync Gateway
+  - CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
 
   # Performance tests
   - CLIENT=selenium:firefox PERF=1 COMMAND=test

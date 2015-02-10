@@ -40,6 +40,9 @@ if [[ ! -z $SERVER ]]; then
     if [[ -z $COUCH_HOST ]]; then
       export COUCH_HOST='http://127.0.0.1:4985'
     fi
+    if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
+      ./bin/run-csg-on-travis.sh
+    fi
     node ./tests/misc/sync-gateway-config-server.js &
     # not the Sync Gateway pid, the config server pid
     export SERVER_PID=$!
