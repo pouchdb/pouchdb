@@ -200,11 +200,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('#3074 non-live changes()', function () {
-      // blocked on COUCHDB-2519
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-      
       var db = new PouchDB(dbs.name);
       var docs = [];
       for (var i = 0; i < 5; i++) {
@@ -272,11 +267,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('#3074 live changes()', function () {
-      // blocked on COUCHDB-2519
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-
       var db = new PouchDB(dbs.name);
 
       function liveChangesPromise(opts) {
@@ -717,11 +707,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2771 allDocs() 7, revisions and deletions', function () {
-      // blocked on COUCHDB-2519
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-
       var db = new PouchDB(dbs.name, {auto_compaction: false});
       var doc = {
         _id: 'doc',
