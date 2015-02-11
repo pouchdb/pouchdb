@@ -82,7 +82,6 @@ env:
   matrix:
     allow_failures:
     - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
-    fast_finish: true
 
 branches:
   only:
