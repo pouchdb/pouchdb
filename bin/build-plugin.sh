@@ -12,8 +12,9 @@ fi
 DEREQUIRE=./node_modules/.bin/derequire
 
 ./node_modules/.bin/browserify lib/plugins/index.js \
-    -r $LEVEL_BACKEND:leveldown \
     -x pouchdb \
+    -r $LEVEL_BACKEND \
+    -r leveldown:$LEVEL_BACKEND \
     -r ./lib/plugins/config-$LEVEL_BACKEND.js:adapter-config \
     -r ./lib/plugins/migrate-browser.js:migrate \
     | $DEREQUIRE > ./dist/$OUTPUT_FILENAME
