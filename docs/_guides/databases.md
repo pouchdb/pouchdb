@@ -97,20 +97,37 @@ The most important bits of information are:
 * `doc_count`: the number of undeleted documents in the database
 * `db_name`: the name of the database
 
-Debugging your local database
+Debugging
 ---------
 
-When you create a local PouchDB, you can use the developer tools to see what the database looks like under the hood.
+When you create a PouchDB database, there are many ways to debug and inspect it.
+
+### PouchDB Inspector
+
+PouchDB Inspector is an add-on for Chrome and Firefox that allows you to inspect your local databases.
+
+* [Download PouchDB Inspector for Chrome](https://chrome.google.com/webstore/detail/pouchdb-inspector/hbhhpaojmpfimakffndmpmpndcmonkfa)
+* [Download PouchDB Inspector for Firefox](https://addons.mozilla.org/en-US/firefox/addon/pouchdb-inspector/)
+
+{% include img.html src="pouchdb_inspector.png" alt="PouchDB Inspector in Chrome" %}
+
+It provides the full "Fauxton" interface, which is the same interface you will see in CouchDB and PouchDB Server.
+
+### IndexedDB/WebSQL inspectors
+
+You can also use the normal developer tools to see what your database looks like under the hood.
 
 In Chrome, just choose *Overflow icon* &#9776; &#8594; *Tools* &#8594; *Developer Tools*. Then click the *Resources* tab, then *IndexedDB*, and you should see the following:
 
 {% include img.html src="dev_tools.png" alt="Chrome Developer Tools" %}
 
-This is the raw IndexedDB representation of your PouchDB, so it may be a little fine-grained compared to what PouchDB shows. However, it's great for quick debugging.
+This is the raw IndexedDB representation of your PouchDB, so it is very fine-grained compared to what PouchDB Inspector shows. However, you may find it useful.
 
-In Safari, the `kittens` database will be under *WebSQL* instead of *IndexedDB*.
+In Safari, your database will be under *Develop* &#8594; *Show Web Inspector* &#8594; *Resources* &#8594; *Databases*.
 
-### Debug mode
+{% include img.html src="safari_inspector.png" alt="Web Inspector in Safari" %}
+
+### Debug logging
 
 You can also enable debug logging by doing:
 
