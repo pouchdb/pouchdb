@@ -41,6 +41,14 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
+    var binAttDocNoId = {
+      _attachments: {
+        'foo.txt': {
+          content_type: 'text/plain',
+          data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
+        }
+      }
+    };
     var binAttDoc = {
       _id: 'bin_doc',
       _attachments: {
@@ -84,6 +92,200 @@ adapters.forEach(function (adapter) {
         }
       }
     };
+
+    it('atts_since with empty array, no attachments',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        db.put({ _id: 'foo' }, function (err, res) {
+          db.get('foo', {
+            atts_since: [],
+            attachments: true
+          }, function (err, res) {
+            should.not.exist(err);
+            should.not.exist(res._attachments);
+            done();
+          });
+        });
+      }
+    );
+
+    it('atts_since with empty array, doc has attachments',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        db.post(binAttDocNoId, function (err, res) {
+          db.get(res.id, {
+            atts_since: [],
+            attachments: true
+          }, function (err, res) {
+            should.not.exist(err);
+            should.exist(res._attachments["foo.txt"]);
+            done();
+          });
+        });
+      }
+    );
+
+    it('atts_since with single revision, no attachments',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        db.put({ _id: 'foo' }, function (err, res) {
+          var rev = res.rev;
+          should.exist(rev);
+          db.get('foo', {
+            atts_since: [rev],
+            attachments: true
+          }, function (err, res) {
+            should.not.exist(err);
+            should.not.exist(res._attachments);
+            done();
+          });
+        });
+      }
+    );
+
+    it('atts_since with single revision, doc has attachments',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        db.post(binAttDocNoId, function (err, res) {
+          var rev = res.rev;
+          should.exist(rev);
+          db.get(res.id, {
+            atts_since: [rev],
+            attachments: true
+          }, function (err, res) {
+            should.not.exist(err);
+            should.not.exist(res._attachments["foo.txt"].data);
+            res._attachments["foo.txt"].stub.should.equal(true);
+            done();
+          });
+        });
+      }
+    );
+
+    it('atts_since with multiple revisions, atts_since before attachment',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        db.post({}, function (err, res) {
+          var rev = res.rev;
+          var update = {
+            "_id": res.id,
+            "_rev": res.rev,
+            "_attachments": binAttDocNoId._attachments
+          };
+          db.put(update, function (err, res) {
+            should.exist(rev);
+            db.get(res.id, {
+              atts_since: [rev],
+              attachments: true
+            }, function (err, res) {
+              should.not.exist(err);
+              should.exist(res._attachments["foo.txt"].data);
+              should.not.exist(res._attachments["foo.txt"].stub);
+              done();
+            });
+          });
+        });
+      }
+    );
+
+    it('atts_since with multiple revisions, atts_since after attachment',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        db.post(binAttDocNoId, function (err, res) {
+          db.get(res.id, function (err, res) {
+            db.put(res, function (err, res) {
+              db.get(res.id, {
+                atts_since: [res.rev],
+                attachments: true
+              }, function (err, res) {
+                should.not.exist(err);
+                should.exist(res._attachments["foo.txt"].stub);
+                should.not.exist(res._attachments["foo.txt"].data);
+                done();
+              });
+            });
+          });
+        });
+      }
+    );
+
+    it('atts_since where winning branch has attachments',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        var revs = [];
+        db.post({}, function (err, res) {
+          var id = res.id;
+          revs.push(res.rev);
+          // add attachment to the winning revision
+          var update = {
+            "_id": id,
+            "_rev": res.rev,
+            "_attachments": binAttDocNoId._attachments
+          };
+          db.put(update, function (err, res) {
+            revs.push(res.rev);
+            // now create a conflicting branch at position 0
+            db.bulkDocs({
+              docs: [{
+                "_id": id,
+                "_rev": "1-123456"
+              }],
+              new_edits: false
+            }, function (err, res) {
+              revs.push("1-123456");
+              db.get(id, {
+                atts_since: revs,
+                attachments: true
+              }, function (err, res) {
+                should.not.exist(err);
+                should.not.exist(res._attachments["foo.txt"].data);
+                should.exist(res._attachments["foo.txt"].stub);
+                done();
+              });
+            });
+          });
+        });
+      }
+    );
+
+    it('atts_since where losing branch has attachments',
+      function (done) {
+        var db = new PouchDB(dbs.name);
+        var revs = [];
+        db.post({}, function (err, res) {
+          var id = res.id;
+          revs.push(res.rev);
+
+          var update = {
+            "_id": id,
+            "_rev": res.rev
+          };
+          // second revision
+          db.put(update, function (err, res) {
+            revs.push(res.rev);
+            // now create a conflicting branch at position 0
+            db.bulkDocs({
+              docs: [{
+                "_id": id,
+                "_rev": "1-123456",
+                "_attachments": binAttDocNoId._attachments
+              }],
+              new_edits: false
+            }, function (err, res) {
+              revs.push("1-123456");
+              db.get(id, {
+                atts_since: revs,
+                attachments: true
+              }, function (err, res) {
+                should.not.exist(err);
+                should.not.exist(res._attachments);
+                done();
+              });
+            });
+          });
+        });
+      }
+    );
 
     it('issue 2803 should throw 412', function () {
       var db = new PouchDB(dbs.name);
