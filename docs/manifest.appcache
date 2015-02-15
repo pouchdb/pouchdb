@@ -17,6 +17,7 @@ CACHE:
 
 http://code.jquery.com/jquery.min.js
 http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js
+http://cdn.jsdelivr.net/pouchdb/latest/pouchdb.min.js
 
 http://fonts.googleapis.com/css?family=Lato:400,700|Open+Sans:400,700
 http://fonts.gstatic.com/s/lato/v11/8qcEw_nrk_5HEcCpYdJu8BTbgVql8nDJpwnrE27mub0.woff2
