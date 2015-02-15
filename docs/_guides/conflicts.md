@@ -40,49 +40,27 @@ For instance, if you are doing live replication, a document may be modified by s
 
 #### Upsert
 
-In many cases, the most practical solution to the 409 problem is to simply re-try the `put()` until it works. If the user's intended change can be expressed as a **delta**, i.e. a change that doesn't depend on the current revision, then this is very easy to achieve. Borrowing a phrase from MongoDB, we can call this an **upsert**, and implement it like so:
+In many cases, the most practical solution to the 409 problem is to retry the `put()` until it succeeds. If the user's intended change can be expressed as a **delta** (i.e. a change that doesn't depend on the current revision), then this is very easy to achieve.
+
+Borrowing a phrase from MongoDB, let's call this an **upsert** ("update or insert"), and use the [pouchdb-upsert](https://github.com/pouchdb/pouchdb-upsert) plugin to implement it:
 
 ```js
-function upsert(db, docId, deltaFunc) {
-  return db.get(docId).catch(function (err) {
-    if (err.status !== 404) { // some error other than "not found"
-      throw err;
-    }
-    return {_id : docId}; // default doc
-  }).then(function (doc) {
-    return tryAndPut(db, deltaFunc(doc), deltaFunc);
-  });
-}
-
-function tryAndPut(db, doc, deltaFunc) {
-  return db.put(doc).catch(function (err) {
-    if (err.status !== 409) { // some error other than "conflict"
-      throw err;
-    }
-    return upsert(db, doc, deltaFunc);
-  });
-}
-```
-
-This `upsert()` function takes a `db`, a `docId`, and `deltaFunc`, where the `deltaFunc` is just a function that takes a document as input and outputs a new document.
-
-For instance, imagine your `upsert` just increments some counter:
-
-```js
-function delta(doc) {
+function myDeltaFunction(doc) {
   doc.counter = doc.counter || 0;
   doc.counter++;
   return doc;
 }
 
-upsert(db, 'my_id', delta).then(function () {
+db.upsert('my_id', myDeltaFunction).then(function () {
   // success!
 }).catch(function (err) {
   // error (not a 404 or 409)
 });
 ```
 
-This code is simple and easy to use.
+This `upsert()` function takes a `docId` and `deltaFunction`, where the `deltaFunction` is just a function that takes a document and outputs a new document. (If the document does not exist, then an empty document is provided.)
+
+`pouchdb-upsert` also offers a `putIfNotExists()` function, which will create a document if it doesn't exist already. For more details, see [the plugin's documentation](https://github.com/pouchdb/pouchdb-upsert#readme). 
 
 ### Non-immediate conflicts
 

@@ -95,52 +95,88 @@ Live replication (or "continuous" replication) is a separate mode where changes 
 To enable live replication, you simply specify `{live: true}`:
 
 ```js
-localDB.sync(remoteDB, {live: true});
-```
-
-However, there is one little gotcha with live replication: what if the user goes offline? In those cases, an error will be thrown, and you'll want to restart the replication process.
-
-Luckily. PouchDB provides a way to do this:
-
-```js
-localDB.sync(remoteDB, {live: true}).on('change', function (change) {
+localDB.sync(remoteDB, {
+  live: true
+}).on('change', function (change) {
   // yo, something changed!
 }).on('error', function (err) {
-  // yo, we got an error!
+  // yo, we got an error! (maybe the user went offline?)
 })));
 ```
 
-When that `'error'` function is invoked, it's usually because of a network error. That means you can easily set up an infinite retry mechanism:
+However, there is one gotcha with live replication: what if the user goes offline? In those cases, an error will be thrown and replication will stop.
+
+You can allow PouchDB to automatically handle this error, and retry until the connection is re-established, by using the `retry` option:
 
 ```js
-function retryReplication() {
-  localDB.sync(remoteDB, {live: true}).on('change', function (change) {
-    // yo, something changed!
-  }).on('error', function (err) {
-    setTimeout(retryReplication, 5000);
-  })));
-}
-```
-
-A slightly more sophisicated technique is to do an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff). This will try to reconnect less and less frequently, until the user goes back online, at which point it resets.
-
-```js
-var timeout = 5000;
-var backoff = 2;
-function retryReplication() {
-  localDB.sync(remoteDB, {live: true}).on('change', function (change) {
-    // yo, something changed!
-    timeout = 5000; // reset
-  }).on('error', function (err) {
-    setTimeout(function () {
-      timeout *= backoff;
-      retryReplication();
-    }, timeout);
-  });
-}
+localDB.sync(remoteDB, {
+  live: true,
+  retry: true
+}).on('change', function (change) {
+  // yo, something changed!
+}).on('pause', function (info) {
+  // replication was paused, usually because of a lost connection
+}).on('active', function (info) {
+  // replication was resumed
+}).on('error', function (err) {
+  // totally unhandled error (shouldn't happen)
+})));
 ```
 
 This is ideal for scenarios where the user may be flitting in and out of connectivity, such as on mobile devices.
+
+Canceling replication
+----
+
+Sometimes, you may want to manually cancel replication &ndash; for instance, because the user logged out. You can do so by calling `cancel()` and then waiting for the `'complete'` event:
+
+```js
+var syncHandler = localDB.sync(remoteDB, {
+  live: true,
+  retry: true
+});
+
+syncHandler.on('complete', function (info) {
+  // replication was canceled!
+});
+
+syncHandler.cancel(); // <-- this cancels it
+```
+
+The `replicate` API also supports canceling:
+
+```js
+var replicationHandler = localDB.replicate.to(remoteDB, {
+  live: true,
+  retry: true
+});
+
+replicationHandler.on('complete', function (info) {
+  // replication was canceled!
+});
+
+replicationHandler.cancel(); // <-- this cancels it
+```
+
+Fancy replication
+-----
+
+Any PouchDB object can replicate to any other PouchDB object. So for instance, you can replicate two remote databases, or two local databases. You can also replicate from multiple databases into a single one, or from a single database into many others.
+
+This can be very powerful, because it enables lots of fancy scenarios. For example:
+
+1. You have an [in-memory PouchDB](http://pouchdb.com/adapters.html#pouchdb_in_the_browser) that replicates with a local PouchDB, acting as a cache.
+2. You have many remote CouchDB databases that the user may access, and they are all replicated to the same local PouchDB.
+3. You have many local PouchDB databases, which are mirrored to a single remote CouchDB as a backup store.
+
+The only limits are your imagination and your disk space.
+
+{% include alert_start.html variant="warning" %}
+
+When you replicate between two remote databases, the changes flow through PouchDB. If this is not what you want, then you should <code>POST</code> directly to the CouchDB <code>_replicate</code> endpoint, as described in <a href='http://guide.couchdb.org/draft/replication.html'>the CouchDB replication guide</a>.
+
+{% include alert_end.html %}
+
 
 Related API documentation
 --------
