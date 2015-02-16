@@ -50,13 +50,6 @@ module.exports = function (dbType, context) {
       }).then(function (res) {
         res.docs.sort(sortById);
         res.docs.should.deep.equal([{_id: 'yoshi'}]);
-        return db.find({
-          selector: {
-            series: 'Mario',
-            debut: {$gte: 1990}
-          },
-          fields: ['_id']
-        });
       });
     });
 
@@ -79,13 +72,6 @@ module.exports = function (dbType, context) {
       }).then(function (res) {
         res.docs.sort(sortById);
         res.docs.should.deep.equal([{_id: 'yoshi'}]);
-        return db.find({
-          selector: {
-            series: 'Mario',
-            debut: {$gte: 1990}
-          },
-          fields: ['_id']
-        });
       });
     });
 
@@ -114,13 +100,6 @@ module.exports = function (dbType, context) {
       }).then(function (res) {
         res.docs.sort(sortById);
         res.docs.should.deep.equal([{_id: 'yoshi'}]);
-        return db.find({
-          selector: {
-            series: 'Mario',
-            debut: {$gte: 1990}
-          },
-          fields: ['_id']
-        });
       });
     });
 
