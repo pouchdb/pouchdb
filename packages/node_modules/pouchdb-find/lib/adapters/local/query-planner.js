@@ -99,14 +99,30 @@ function checkFieldInIndex(index, field) {
   return false;
 }
 
+// so when you do e.g. $eq/$eq, we can do it entirely in the database.
+// but when you do e.g. $gt/$eq, the first part can be done
+// in the database, but the second part has to be done in-memory,
+// because $gt has forced us to lose precision.
+// so that's what this determines
+function userOperatorLosesPrecision(selector, field) {
+  var matcher = selector[field];
+  var userOperator = getKey(matcher);
+
+  return userOperator !== '$eq';
+}
+
+
 // get any fields that will need to be filtered in-memory
 // (i.e. because they aren't covered by the index)
-function getInMemoryFields(index, fields) {
+function getInMemoryFields(index, selector, fields) {
+  var needToFilterInMemory = false;
   for (var i = 0, len = fields.length; i < len; i++) {
     var field = fields[i];
-    var fieldInIndex = checkFieldInIndex(index, field);
-    if (!fieldInIndex) {
+    if (needToFilterInMemory || !checkFieldInIndex(index, field)) {
       return fields.slice(i);
+    }
+    if (i < len - 1 && userOperatorLosesPrecision(selector, field)) {
+      needToFilterInMemory = true;
     }
   }
   return [];
@@ -314,9 +330,14 @@ function planQuery(request, indexes) {
     throw new Error('couldn\'t find any index to use');
   }
 
+  var firstUserOperator = getKey(selector[getKey(index.def.fields[0])]);
+  if (firstUserOperator === '$ne') {
+    throw new Error('$ne can\'t be used here. try $gt/$lt instead');
+  }
+
   var queryOpts = getQueryOpts(selector, index);
 
-  var inMemoryFields = getInMemoryFields(index, userFields);
+  var inMemoryFields = getInMemoryFields(index, selector, userFields);
 
   var res = {
     queryOpts: queryOpts,
