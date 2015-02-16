@@ -16,7 +16,9 @@ Status
 
 Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, multi-field queries, multi-field indexes, multi-field sort, `'deep.fields.like.this'`, ascending and descending sort.
 
-Not implemented yet: `$ne`, `$regex`, `$in`, `$nin`, `$and`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`, `limit`, `offset`, probably a bunch of other stuff.
+**0.2.0**: `$and`, `$ne`
+
+Not implemented yet: `$regex`, `$in`, `$nin`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`, `limit`, `offset`, probably a bunch of other stuff.
 
 Usage
 ------
