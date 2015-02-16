@@ -9,7 +9,9 @@ var collate = require('pouchdb-collate');
 var abstractMapper = require('./abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('./local-utils');
+var filterInMemoryFields = require('./in-memory-filter');
 var massageSort = localUtils.massageSort;
+var massageSelector = localUtils.massageSelector;
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var Promise = utils.Promise;
@@ -35,6 +37,8 @@ function indexToSignature(index) {
   return index.ddoc.substring(8) + '/' + index.name;
 }
 
+// have to do this manually because REASONS. I don't know why
+// CouchDB didn't implement inclusive_start
 function filterInclusiveStart(rows, targetValue) {
   for (var i = 0, len = rows.length; i < len; i++) {
     var row = rows[i];
@@ -146,6 +150,8 @@ function find(db, requestDef) {
 
   validateFindRequest(requestDef);
 
+  requestDef.selector = massageSelector(requestDef.selector);
+
   return getIndexes(db).then(function (getIndexesRes) {
 
     var queryPlan = planQuery(requestDef, getIndexesRes.indexes);
@@ -180,6 +186,11 @@ function find(db, requestDef) {
         // may have to manually filter the first one,
         // since couchdb has no true inclusive_start option
         res.rows = filterInclusiveStart(res.rows, opts.startkey);
+      }
+
+      if (queryPlan.inMemoryFields.length) {
+        // need to filter some stuff in-memory
+        res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
       }
 
       return {
