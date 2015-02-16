@@ -247,3 +247,4 @@ How to contribute to this thing
 ----------
 
 Instructions are in [CONTRIBUTING.md](https://github.com/nolanlawson/pouchdb-find/blob/master/CONTRIBUTING.md).
+
