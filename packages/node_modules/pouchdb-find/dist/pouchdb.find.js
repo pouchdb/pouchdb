@@ -56,6 +56,7 @@ exports.deleteIndex = deleteIndex;
 'use strict';
 
 var abstractMapReduce = require('pouchdb-abstract-mapreduce');
+var parseField = require('./parse-field');
 
 //
 // One thing about these mappers:
@@ -68,28 +69,6 @@ var abstractMapReduce = require('pouchdb-abstract-mapreduce');
 // the function, but it would also be a lot less performant.
 //
 
-function parseField(fieldName) {
-  // fields may be deep (e.g. "foo.bar.baz"), so parse
-  var fields = [];
-  var current = '';
-  for (var i = 0, len = fieldName.length; i < len; i++) {
-    var ch = fieldName[i];
-    if (ch === '.') {
-      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
-        current = current.substring(0, current.length - 1) + '.';
-      } else { // not escaped, so delimiter
-        fields.push(current);
-        current = '';
-      }
-    } else { // normal character
-      current += ch;
-    }
-  }
-  if (current) {
-    fields.push(current);
-  }
-  return fields;
-}
 
 function createDeepMultiMapper(fields, emit) {
   return function (doc) {
@@ -195,8 +174,107 @@ var abstractMapper = abstractMapReduce({
 });
 
 module.exports = abstractMapper;
-},{"pouchdb-abstract-mapreduce":35}],3:[function(require,module,exports){
+},{"./parse-field":6,"pouchdb-abstract-mapreduce":37}],3:[function(require,module,exports){
 'use strict';
+
+//
+// Do an in-memory filtering of rows that aren't covered by the index.
+// E.g. if the user is asking for foo=1 and bar=2, but the index
+// only covers "foo", then this in-memory filter would take care of
+// "bar".
+//
+
+var localUtils = require('./local-utils');
+var getKey = localUtils.getKey;
+var getValue = localUtils.getValue;
+var collate = require('pouchdb-collate').collate;
+var parseField = require('./parse-field');
+
+// this would just be "return doc[field]", but fields
+// can be "deep" due to dot notation
+function getFieldFromDoc(doc, parsedField) {
+  var value = doc;
+  for (var i = 0, len = parsedField.length; i < len; i++) {
+    var key = parsedField[i];
+    value = value[key];
+    if (!value) {
+      break;
+    }
+  }
+  return value;
+}
+
+function createFilterRowFunction(requestDef, inMemoryFields) {
+
+  var criteria = inMemoryFields.map(function (field) {
+    var matcher = requestDef.selector[field];
+    var parsedField = parseField(field);
+
+    var userOperator = getKey(matcher);
+    var userValue = getValue(matcher);
+
+    // compare the value of the field in the doc
+    // to the user-supplied value, using the couchdb collation scheme
+    function getDocFieldCollate(doc) {
+      return collate(getFieldFromDoc(doc, parsedField), userValue);
+    }
+
+    switch (userOperator) {
+      case '$eq':
+        return function (doc) {
+          return getDocFieldCollate(doc) === 0;
+        };
+      case '$lte':
+        return function (doc) {
+          return getDocFieldCollate(doc) <= 0;
+        };
+      case '$gte':
+        return function (doc) {
+          return getDocFieldCollate(doc) >= 0;
+        };
+      case '$lt':
+        return function (doc) {
+          return getDocFieldCollate(doc) < 0;
+        };
+      case '$gt':
+        return function (doc) {
+          return getDocFieldCollate(doc) > 0;
+        };
+      case '$exists':
+        return function (doc) {
+          var docFieldValue = getFieldFromDoc(doc, parsedField);
+          return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
+        };
+      case '$ne':
+        return function (doc) {
+          return getDocFieldCollate(doc) !== 0;
+        };
+    }
+  });
+
+  return function filterRowFunction(row) {
+    for (var i = 0, len = criteria.length; i < len; i++) {
+      var criterion = criteria[i];
+      if (!criterion(row.doc)) {
+        return false;
+      }
+    }
+    return true;
+  };
+}
+
+// filter any fields not covered by the index
+function filterInMemoryFields(rows, requestDef, inMemoryFields) {
+
+  var filter = createFilterRowFunction(requestDef, inMemoryFields);
+  return rows.filter(filter);
+}
+
+module.exports = filterInMemoryFields;
+},{"./local-utils":4,"./parse-field":6,"pouchdb-collate":41}],4:[function(require,module,exports){
+'use strict';
+
+var utils = require('../../utils');
 
 function getKey(obj) {
   return Object.keys(obj)[0];
@@ -223,13 +301,22 @@ function massageSort(sort) {
   });
 }
 
+function massageSelector(selector) {
+  var result = utils.clone(selector);
+  if ('$and' in result) {
+    result = utils.mergeObjects(result.$and);
+  }
+  return result;
+}
+
 module.exports = {
   getKey: getKey,
   getValue: getValue,
   getSize: getSize,
-  massageSort: massageSort
+  massageSort: massageSort,
+  massageSelector: massageSelector
 };
-},{}],4:[function(require,module,exports){
+},{"../../utils":9}],5:[function(require,module,exports){
 'use strict';
 
 var utils = require('../../utils');
@@ -241,7 +328,9 @@ var collate = require('pouchdb-collate');
 var abstractMapper = require('./abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('./local-utils');
+var filterInMemoryFields = require('./in-memory-filter');
 var massageSort = localUtils.massageSort;
+var massageSelector = localUtils.massageSelector;
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var Promise = utils.Promise;
@@ -267,6 +356,8 @@ function indexToSignature(index) {
   return index.ddoc.substring(8) + '/' + index.name;
 }
 
+// have to do this manually because REASONS. I don't know why
+// CouchDB didn't implement inclusive_start
 function filterInclusiveStart(rows, targetValue) {
   for (var i = 0, len = rows.length; i < len; i++) {
     var row = rows[i];
@@ -378,6 +469,8 @@ function find(db, requestDef) {
 
   validateFindRequest(requestDef);
 
+  requestDef.selector = massageSelector(requestDef.selector);
+
   return getIndexes(db).then(function (getIndexesRes) {
 
     var queryPlan = planQuery(requestDef, getIndexesRes.indexes);
@@ -412,6 +505,11 @@ function find(db, requestDef) {
         // may have to manually filter the first one,
         // since couchdb has no true inclusive_start option
         res.rows = filterInclusiveStart(res.rows, opts.startkey);
+      }
+
+      if (queryPlan.inMemoryFields.length) {
+        // need to filter some stuff in-memory
+        res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
       }
 
       return {
@@ -479,7 +577,34 @@ exports.createIndex = callbackify(createIndex);
 exports.find = callbackify(find);
 exports.getIndexes = callbackify(getIndexes);
 exports.deleteIndex = callbackify(deleteIndex);
-},{"../../utils":7,"./abstract-mapper":2,"./local-utils":3,"./query-planner":5,"pouchdb-collate":39,"pouchdb-upsert":42}],5:[function(require,module,exports){
+},{"../../utils":9,"./abstract-mapper":2,"./in-memory-filter":3,"./local-utils":4,"./query-planner":7,"pouchdb-collate":41,"pouchdb-upsert":44}],6:[function(require,module,exports){
+'use strict';
+
+function parseField(fieldName) {
+  // fields may be deep (e.g. "foo.bar.baz"), so parse
+  var fields = [];
+  var current = '';
+  for (var i = 0, len = fieldName.length; i < len; i++) {
+    var ch = fieldName[i];
+    if (ch === '.') {
+      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
+        current = current.substring(0, current.length - 1) + '.';
+      } else { // not escaped, so delimiter
+        fields.push(current);
+        current = '';
+      }
+    } else { // normal character
+      current += ch;
+    }
+  }
+  if (current) {
+    fields.push(current);
+  }
+  return fields;
+}
+
+module.exports = parseField;
+},{}],7:[function(require,module,exports){
 'use strict';
 
 // couchdb lowest collation value
@@ -581,14 +706,36 @@ function checkFieldInIndex(index, field) {
   return false;
 }
 
-function checkIndexMatches(index, orderMatters, fields) {
+// so when you do e.g. $eq/$eq, we can do it entirely in the database.
+// but when you do e.g. $gt/$eq, the first part can be done
+// in the database, but the second part has to be done in-memory,
+// because $gt has forced us to lose precision.
+// so that's what this determines
+function userOperatorLosesPrecision(selector, field) {
+  var matcher = selector[field];
+  var userOperator = getKey(matcher);
+
+  return userOperator !== '$eq';
+}
+
+
+// get any fields that will need to be filtered in-memory
+// (i.e. because they aren't covered by the index)
+function getInMemoryFields(index, selector, fields) {
+  var needToFilterInMemory = false;
   for (var i = 0, len = fields.length; i < len; i++) {
     var field = fields[i];
-    var fieldInIndex = checkFieldInIndex(index, field);
-    if (!fieldInIndex) {
-      return false;
+    if (needToFilterInMemory || !checkFieldInIndex(index, field)) {
+      return fields.slice(i);
+    }
+    if (i < len - 1 && userOperatorLosesPrecision(selector, field)) {
+      needToFilterInMemory = true;
     }
   }
+  return [];
+}
+
+function checkIndexMatches(index, orderMatters, fields) {
 
   var indexFields = index.def.fields.map(getKey);
 
@@ -790,18 +937,26 @@ function planQuery(request, indexes) {
     throw new Error('couldn\'t find any index to use');
   }
 
+  var firstUserOperator = getKey(selector[getKey(index.def.fields[0])]);
+  if (firstUserOperator === '$ne') {
+    throw new Error('$ne can\'t be used here. try $gt/$lt instead');
+  }
+
   var queryOpts = getQueryOpts(selector, index);
+
+  var inMemoryFields = getInMemoryFields(index, selector, userFields);
 
   var res = {
     queryOpts: queryOpts,
-    index: index
+    index: index,
+    inMemoryFields: inMemoryFields
   };
   log('query plan', res);
   return res;
 }
 
 module.exports = planQuery;
-},{"../../utils":7,"./local-utils":3}],6:[function(require,module,exports){
+},{"../../utils":9,"./local-utils":4}],8:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -869,7 +1024,7 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-},{"./adapters/http/http":1,"./adapters/local/local":4,"./utils":7}],7:[function(require,module,exports){
+},{"./adapters/http/http":1,"./adapters/local/local":5,"./utils":9}],9:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},Buffer=require("__browserify_Buffer").Buffer;'use strict';
 
 var PouchPromise;
@@ -1085,7 +1240,7 @@ exports.oneSetIsSubArrayOfOther = function (left, right) {
 };
 
 exports.log = require('debug')('pouchdb:find');
-},{"__browserify_Buffer":10,"__browserify_process":11,"crypto":9,"debug":12,"inherits":15,"lie":19,"pouchdb-extend":41,"spark-md5":43}],8:[function(require,module,exports){
+},{"__browserify_Buffer":12,"__browserify_process":13,"crypto":11,"debug":14,"inherits":17,"lie":21,"pouchdb-extend":43,"spark-md5":45}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -1105,9 +1260,9 @@ function argsArray(fun) {
     }
   };
 }
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 exports.readIEEE754 = function(buffer, offset, isBE, mLen, nBytes) {
   var e, m,
@@ -3487,7 +3642,7 @@ function hasOwnProperty(obj, prop) {
 },{"_shims":5}]},{},[])
 ;;module.exports=require("buffer-browserify")
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -3542,7 +3697,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -3702,7 +3857,7 @@ function load() {
 
 exports.enable(load());
 
-},{"./debug":13}],13:[function(require,module,exports){
+},{"./debug":15}],15:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -3901,7 +4056,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":14}],14:[function(require,module,exports){
+},{"ms":16}],16:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -4014,7 +4169,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -4039,13 +4194,13 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = INTERNAL;
 
 function INTERNAL() {}
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 var Promise = require('./promise');
 var reject = require('./reject');
@@ -4089,7 +4244,7 @@ function all(iterable) {
     }
   }
 }
-},{"./INTERNAL":16,"./handlers":18,"./promise":20,"./reject":23,"./resolve":24}],18:[function(require,module,exports){
+},{"./INTERNAL":18,"./handlers":20,"./promise":22,"./reject":25,"./resolve":26}],20:[function(require,module,exports){
 'use strict';
 var tryCatch = require('./tryCatch');
 var resolveThenable = require('./resolveThenable');
@@ -4135,14 +4290,14 @@ function getThen(obj) {
     };
   }
 }
-},{"./resolveThenable":25,"./states":26,"./tryCatch":27}],19:[function(require,module,exports){
+},{"./resolveThenable":27,"./states":28,"./tryCatch":29}],21:[function(require,module,exports){
 module.exports = exports = require('./promise');
 
 exports.resolve = require('./resolve');
 exports.reject = require('./reject');
 exports.all = require('./all');
 exports.race = require('./race');
-},{"./all":17,"./promise":20,"./race":22,"./reject":23,"./resolve":24}],20:[function(require,module,exports){
+},{"./all":19,"./promise":22,"./race":24,"./reject":25,"./resolve":26}],22:[function(require,module,exports){
 'use strict';
 
 var unwrap = require('./unwrap');
@@ -4188,7 +4343,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
   return promise;
 };
 
-},{"./INTERNAL":16,"./queueItem":21,"./resolveThenable":25,"./states":26,"./unwrap":28}],21:[function(require,module,exports){
+},{"./INTERNAL":18,"./queueItem":23,"./resolveThenable":27,"./states":28,"./unwrap":30}],23:[function(require,module,exports){
 'use strict';
 var handlers = require('./handlers');
 var unwrap = require('./unwrap');
@@ -4217,7 +4372,7 @@ QueueItem.prototype.callRejected = function (value) {
 QueueItem.prototype.otherCallRejected = function (value) {
   unwrap(this.promise, this.onRejected, value);
 };
-},{"./handlers":18,"./unwrap":28}],22:[function(require,module,exports){
+},{"./handlers":20,"./unwrap":30}],24:[function(require,module,exports){
 'use strict';
 var Promise = require('./promise');
 var reject = require('./reject');
@@ -4258,7 +4413,7 @@ function race(iterable) {
     });
   }
 }
-},{"./INTERNAL":16,"./handlers":18,"./promise":20,"./reject":23,"./resolve":24}],23:[function(require,module,exports){
+},{"./INTERNAL":18,"./handlers":20,"./promise":22,"./reject":25,"./resolve":26}],25:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./promise');
@@ -4270,7 +4425,7 @@ function reject(reason) {
 	var promise = new Promise(INTERNAL);
 	return handlers.reject(promise, reason);
 }
-},{"./INTERNAL":16,"./handlers":18,"./promise":20}],24:[function(require,module,exports){
+},{"./INTERNAL":18,"./handlers":20,"./promise":22}],26:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./promise');
@@ -4305,7 +4460,7 @@ function resolve(value) {
       return EMPTYSTRING;
   }
 }
-},{"./INTERNAL":16,"./handlers":18,"./promise":20}],25:[function(require,module,exports){
+},{"./INTERNAL":18,"./handlers":20,"./promise":22}],27:[function(require,module,exports){
 'use strict';
 var handlers = require('./handlers');
 var tryCatch = require('./tryCatch');
@@ -4338,13 +4493,13 @@ function safelyResolveThenable(self, thenable) {
   }
 }
 exports.safely = safelyResolveThenable;
-},{"./handlers":18,"./tryCatch":27}],26:[function(require,module,exports){
+},{"./handlers":20,"./tryCatch":29}],28:[function(require,module,exports){
 // Lazy man's symbols for states
 
 exports.REJECTED = ['REJECTED'];
 exports.FULFILLED = ['FULFILLED'];
 exports.PENDING = ['PENDING'];
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 module.exports = tryCatch;
@@ -4360,7 +4515,7 @@ function tryCatch(func, value) {
   }
   return out;
 }
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 var immediate = require('immediate');
@@ -4382,7 +4537,7 @@ function unwrap(promise, func, value) {
     }
   });
 }
-},{"./handlers":18,"immediate":29}],29:[function(require,module,exports){
+},{"./handlers":20,"immediate":31}],31:[function(require,module,exports){
 'use strict';
 var types = [
   require('./nextTick'),
@@ -4424,7 +4579,7 @@ function immediate(task) {
     scheduleDrain();
   }
 }
-},{"./messageChannel":30,"./mutation.js":31,"./nextTick":9,"./stateChange":32,"./timeout":33}],30:[function(require,module,exports){
+},{"./messageChannel":32,"./mutation.js":33,"./nextTick":11,"./stateChange":34,"./timeout":35}],32:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 
 exports.test = function () {
@@ -4443,7 +4598,7 @@ exports.install = function (func) {
     channel.port2.postMessage(0);
   };
 };
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 //based off rsvp https://github.com/tildeio/rsvp.js
 //license https://github.com/tildeio/rsvp.js/blob/master/LICENSE
@@ -4466,7 +4621,7 @@ exports.install = function (handle) {
     element.data = (called = ++called % 2);
   };
 };
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 
 exports.test = function () {
@@ -4491,7 +4646,7 @@ exports.install = function (handle) {
     return handle;
   };
 };
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 exports.test = function () {
   return true;
@@ -4502,7 +4657,7 @@ exports.install = function (t) {
     setTimeout(t, 0);
   };
 };
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 var upsert = require('./upsert');
@@ -4601,7 +4756,7 @@ module.exports = function (opts) {
   });
 };
 
-},{"./upsert":37,"./utils":38}],35:[function(require,module,exports){
+},{"./upsert":39,"./utils":40}],37:[function(require,module,exports){
 var process=require("__browserify_process");'use strict';
 
 var pouchCollate = require('pouchdb-collate');
@@ -5279,7 +5434,7 @@ function createIndexer(def) {
 
 module.exports = createIndexer;
 
-},{"./create-view":34,"./taskqueue":36,"./utils":38,"__browserify_process":11,"pouchdb-collate":39}],36:[function(require,module,exports){
+},{"./create-view":36,"./taskqueue":38,"./utils":40,"__browserify_process":13,"pouchdb-collate":41}],38:[function(require,module,exports){
 'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes callbacks will eventually fire (once).
@@ -5304,7 +5459,7 @@ TaskQueue.prototype.finish = function () {
 
 module.exports = TaskQueue;
 
-},{"./utils":38}],37:[function(require,module,exports){
+},{"./utils":40}],39:[function(require,module,exports){
 'use strict';
 
 var upsert = require('pouchdb-upsert').upsert;
@@ -5312,7 +5467,7 @@ var upsert = require('pouchdb-upsert').upsert;
 module.exports = function (db, doc, diffFun) {
   return upsert.apply(db, [doc, diffFun]);
 };
-},{"pouchdb-upsert":42}],38:[function(require,module,exports){
+},{"pouchdb-upsert":44}],40:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 /* istanbul ignore if */
 if (typeof global.Promise === 'function') {
@@ -5419,7 +5574,7 @@ exports.MD5 = function (string) {
     return Md5.hash(string);
   }
 };
-},{"__browserify_process":11,"argsarray":8,"crypto":9,"inherits":15,"lie":19,"pouchdb-extend":41,"spark-md5":43}],39:[function(require,module,exports){
+},{"__browserify_process":13,"argsarray":10,"crypto":11,"inherits":17,"lie":21,"pouchdb-extend":43,"spark-md5":45}],41:[function(require,module,exports){
 'use strict';
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
@@ -5774,7 +5929,7 @@ function numToIndexableString(num) {
   return result;
 }
 
-},{"./utils":40}],40:[function(require,module,exports){
+},{"./utils":42}],42:[function(require,module,exports){
 'use strict';
 
 function pad(str, padWith, upToLength) {
@@ -5845,7 +6000,7 @@ exports.intToDecimalForm = function (int) {
 
   return result;
 };
-},{}],41:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 
 // Extends method
@@ -6026,7 +6181,7 @@ module.exports = extend;
 
 
 
-},{}],42:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 
 var PouchPromise;
@@ -6122,7 +6277,7 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-},{"lie":19}],43:[function(require,module,exports){
+},{"lie":21}],45:[function(require,module,exports){
 /*jshint bitwise:false*/
 /*global unescape*/
 
@@ -6723,5 +6878,5 @@ if (typeof window !== 'undefined' && window.PouchDB) {
     return SparkMD5;
 }));
 
-},{}]},{},[6])
+},{}]},{},[8])
 ;
