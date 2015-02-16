@@ -1,6 +1,7 @@
 'use strict';
 
 var abstractMapReduce = require('pouchdb-abstract-mapreduce');
+var parseField = require('./parse-field');
 
 //
 // One thing about these mappers:
@@ -13,28 +14,6 @@ var abstractMapReduce = require('pouchdb-abstract-mapreduce');
 // the function, but it would also be a lot less performant.
 //
 
-function parseField(fieldName) {
-  // fields may be deep (e.g. "foo.bar.baz"), so parse
-  var fields = [];
-  var current = '';
-  for (var i = 0, len = fieldName.length; i < len; i++) {
-    var ch = fieldName[i];
-    if (ch === '.') {
-      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
-        current = current.substring(0, current.length - 1) + '.';
-      } else { // not escaped, so delimiter
-        fields.push(current);
-        current = '';
-      }
-    } else { // normal character
-      current += ch;
-    }
-  }
-  if (current) {
-    fields.push(current);
-  }
-  return fields;
-}
 
 function createDeepMultiMapper(fields, emit) {
   return function (doc) {

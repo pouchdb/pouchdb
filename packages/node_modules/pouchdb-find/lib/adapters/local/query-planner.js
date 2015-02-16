@@ -99,14 +99,20 @@ function checkFieldInIndex(index, field) {
   return false;
 }
 
-function checkIndexMatches(index, orderMatters, fields) {
+// get any fields that will need to be filtered in-memory
+// (i.e. because they aren't covered by the index)
+function getInMemoryFields(index, fields) {
   for (var i = 0, len = fields.length; i < len; i++) {
     var field = fields[i];
     var fieldInIndex = checkFieldInIndex(index, field);
     if (!fieldInIndex) {
-      return false;
+      return fields.slice(i);
     }
   }
+  return [];
+}
+
+function checkIndexMatches(index, orderMatters, fields) {
 
   var indexFields = index.def.fields.map(getKey);
 
@@ -310,9 +316,12 @@ function planQuery(request, indexes) {
 
   var queryOpts = getQueryOpts(selector, index);
 
+  var inMemoryFields = getInMemoryFields(index, userFields);
+
   var res = {
     queryOpts: queryOpts,
-    index: index
+    index: index,
+    inMemoryFields: inMemoryFields
   };
   log('query plan', res);
   return res;

@@ -1,5 +1,7 @@
 'use strict';
 
+var utils = require('../../utils');
+
 function getKey(obj) {
   return Object.keys(obj)[0];
 }
@@ -25,9 +27,18 @@ function massageSort(sort) {
   });
 }
 
+function massageSelector(selector) {
+  var result = utils.clone(selector);
+  if ('$and' in result) {
+    result = utils.mergeObjects(result.$and);
+  }
+  return result;
+}
+
 module.exports = {
   getKey: getKey,
   getValue: getValue,
   getSize: getSize,
-  massageSort: massageSort
+  massageSort: massageSort,
+  massageSelector: massageSelector
 };
