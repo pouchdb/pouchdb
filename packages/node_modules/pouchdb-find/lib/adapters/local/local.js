@@ -96,7 +96,7 @@ function validateFindRequest(requestDef) {
   var sortFields = requestDef.sort ?
     massageSort(requestDef.sort).map(getKey) : [];
 
-  if (!utils.oneArrayIsSubArrayOfOther(selectorFields, sortFields)) {
+  if (!utils.oneSetIsSubArrayOfOther(selectorFields, sortFields)) {
     throw new Error('conflicting sort and selector fields');
   }
 }
@@ -148,9 +148,11 @@ function createIndex(db, requestDef) {
 
 function find(db, requestDef) {
 
-  validateFindRequest(requestDef);
+  if (requestDef.selector) {
+    requestDef.selector = massageSelector(requestDef.selector);
+  }
 
-  requestDef.selector = massageSelector(requestDef.selector);
+  validateFindRequest(requestDef);
 
   return getIndexes(db).then(function (getIndexesRes) {
 
@@ -173,6 +175,17 @@ function find(db, requestDef) {
       opts = reverseOptions(opts);
     }
 
+    if (!queryPlan.inMemoryFields.length) {
+      // no in-memory filtering necessary, so we can let the
+      // database do the limit/skip for us
+      if ('limit' in requestDef) {
+        opts.limit = requestDef.limit;
+      }
+      if ('skip' in requestDef) {
+        opts.skip = requestDef.skip;
+      }
+    }
+
     return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {
         return db.allDocs(opts);
@@ -191,6 +204,13 @@ function find(db, requestDef) {
       if (queryPlan.inMemoryFields.length) {
         // need to filter some stuff in-memory
         res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
+
+        if ('limit' in requestDef || 'skip' in requestDef) {
+          // have to do the limit in-memory
+          var skip = requestDef.skip || 0;
+          var limit = ('limit' in requestDef ? requestDef.limit : res.rows.length) + skip;
+          res.rows = res.rows.slice(skip, limit);
+        }
       }
 
       return {
