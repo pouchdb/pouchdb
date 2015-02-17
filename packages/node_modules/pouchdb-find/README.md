@@ -18,7 +18,9 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, multi-fiel
 
 **0.2.0**: `$and`, `$ne`
 
-Not implemented yet: `$regex`, `$in`, `$nin`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`, `limit`, `offset`, probably a bunch of other stuff.
+**0.3.0**: `limit`, `offset`, `ddoc` when creating an index
+
+Not implemented yet: `$regex`, `$in`, `$nin`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`
 
 Usage
 ------
