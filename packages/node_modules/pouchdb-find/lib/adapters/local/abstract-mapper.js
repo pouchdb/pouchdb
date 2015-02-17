@@ -1,7 +1,8 @@
 'use strict';
 
+var localUtils = require('./utils');
 var abstractMapReduce = require('pouchdb-abstract-mapreduce');
-var parseField = require('./parse-field');
+var parseField = localUtils.parseField;
 
 //
 // One thing about these mappers:
