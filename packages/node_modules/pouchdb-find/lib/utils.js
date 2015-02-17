@@ -212,4 +212,8 @@ exports.oneSetIsSubArrayOfOther = function (left, right) {
   return true;
 };
 
+exports.compare = function (left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+};
+
 exports.log = require('debug')('pouchdb:find');

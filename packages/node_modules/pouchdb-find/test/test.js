@@ -36,6 +36,7 @@ function tests(dbName, dbType) {
 
     require('./tests/test.basic')(dbType, context);
     require('./tests/test.basic2')(dbType, context);
+    require('./tests/test.ddoc')(dbType, context);
     require('./tests/test.set-operations')(dbType, context);
     require('./tests/test.limit')(dbType, context);
     require('./tests/test.skip')(dbType, context);

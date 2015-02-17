@@ -2,103 +2,29 @@
 
 var utils = require('../../utils');
 var log = utils.log;
-var upsert = require('pouchdb-upsert');
 var callbackify = utils.callbackify;
-var collate = require('pouchdb-collate');
 
+var pouchUpsert = require('pouchdb-upsert');
 var abstractMapper = require('./abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('./local-utils');
 var filterInMemoryFields = require('./in-memory-filter');
-var massageSort = localUtils.massageSort;
 var massageSelector = localUtils.massageSelector;
-var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
+var validateIndex = localUtils.validateIndex;
+var massageIndexDef = localUtils.massageIndexDef;
+var validateFindRequest = localUtils.validateFindRequest;
+var reverseOptions = localUtils.reverseOptions;
+var filterInclusiveStart = localUtils.filterInclusiveStart;
 var Promise = utils.Promise;
-
-function putIfNotExists(db, doc) {
-  return upsert.putIfNotExists.call(db, doc);
-}
-
-function massageIndexDef(indexDef) {
-  indexDef.fields = indexDef.fields.map(function (field) {
-    if (typeof field === 'string') {
-      var obj = {};
-      obj[field] = 'asc';
-      return obj;
-    }
-    return field;
-  });
-  return indexDef;
-}
 
 function indexToSignature(index) {
   // remove '_design/'
   return index.ddoc.substring(8) + '/' + index.name;
 }
 
-// have to do this manually because REASONS. I don't know why
-// CouchDB didn't implement inclusive_start
-function filterInclusiveStart(rows, targetValue) {
-  for (var i = 0, len = rows.length; i < len; i++) {
-    var row = rows[i];
-    if (collate.collate(row.key, targetValue) > 0) {
-      if (i > 0) {
-        return rows.slice(i);
-      } else {
-        return rows;
-      }
-    }
-  }
-  return rows;
-}
-
-function reverseOptions(opts) {
-  var newOpts = utils.clone(opts);
-  delete newOpts.startkey;
-  delete newOpts.endkey;
-  delete newOpts.inclusive_start;
-  delete newOpts.inclusive_end;
-
-  if ('endkey' in opts) {
-    newOpts.startkey = opts.endkey;
-  }
-  if ('startkey' in opts) {
-    newOpts.endkey = opts.startkey;
-  }
-  if ('inclusive_start' in opts) {
-    newOpts.inclusive_end = opts.inclusive_start;
-  }
-  if ('inclusive_end' in opts) {
-    newOpts.inclusive_start = opts.inclusive_end;
-  }
-  return newOpts;
-}
-
-function validateIndex(index) {
-  var ascFields = index.fields.filter(function (field) {
-    return getValue(field) === 'asc';
-  });
-  if (ascFields.length !== 0 && ascFields.length !== index.fields.length) {
-    throw new Error('unsupported mixed sorting');
-  }
-}
-
-function validateFindRequest(requestDef) {
-  if (typeof requestDef.selector !== 'object') {
-    throw new Error('you must provide a selector when you find()');
-  }
-  if ('sort' in requestDef && (!requestDef.sort || !Array.isArray(requestDef.sort))) {
-    throw new Error('invalid sort json - should be an array');
-  }
-  // TODO: could be >1 field
-  var selectorFields = Object.keys(requestDef.selector);
-  var sortFields = requestDef.sort ?
-    massageSort(requestDef.sort).map(getKey) : [];
-
-  if (!utils.oneSetIsSubArrayOfOther(selectorFields, sortFields)) {
-    throw new Error('conflicting sort and selector fields');
-  }
+function upsert(db, docId, diffFun) {
+  return pouchUpsert.upsert.call(db, docId, diffFun);
 }
 
 function createIndex(db, requestDef) {
@@ -110,38 +36,54 @@ function createIndex(db, requestDef) {
 
   var md5 = utils.MD5(JSON.stringify(requestDef));
 
-  var views = {};
-
   var viewName = requestDef.name || ('idx-' + md5);
 
-  views[viewName] = {
-    map: {
-      fields: utils.mergeObjects(requestDef.index.fields)
-    },
-    reduce: '_count',
-    options: {
-      def: originalIndexDef
+  var ddocName = requestDef.ddoc || ('idx-' + md5);
+  var ddocId = '_design/' + ddocName;
+
+  var hasInvalidLanguage = false;
+  var viewExists = false;
+
+  function updateDdoc(doc) {
+    if (doc._rev && doc.language !== 'query') {
+      hasInvalidLanguage = true;
     }
-  };
+    doc.language = 'query';
+    doc.views = doc.views || {};
 
-  var ddoc = {
-    _id: '_design/idx-' + md5,
-    views: views,
-    language: 'query'
-  };
+    viewExists = !!doc.views[viewName];
 
-  log('creating index', ddoc);
+    doc.views[viewName] = {
+      map: {
+        fields: utils.mergeObjects(requestDef.index.fields)
+      },
+      reduce: '_count',
+      options: {
+        def: originalIndexDef
+      }
+    };
 
-  return putIfNotExists(db, ddoc).then(function (res) {
+    return doc;
+  }
+
+  log('creating index', ddocId);
+
+  return upsert(db, ddocId, updateDdoc).then(function () {
+    if (hasInvalidLanguage) {
+      throw new Error('invalid language for ddoc with id "' +
+        ddocId +
+        '" (should be "query")');
+    }
+  }).then(function () {
     // kick off a build
     // TODO: abstract-pouchdb-mapreduce should support auto-updating
     // TODO: should also use update_after, but pouchdb/pouchdb#3415 blocks me
-    var signature = 'idx-' + md5 + '/' + viewName;
+    var signature = ddocName + '/' + viewName;
     return abstractMapper.query.call(db, signature, {
       limit: 0,
       reduce: false
     }).then(function () {
-      return {result: res.updated ? 'created' : 'exists'};
+      return {result: viewExists ? 'exists' : 'created'};
     });
   });
 }
@@ -227,9 +169,11 @@ function find(db, requestDef) {
 }
 
 function getIndexes(db) {
+  // just search through all the design docs and filter in-memory.
+  // hopefully there aren't that many ddocs.
   return db.allDocs({
-    startkey: '_design/idx-',
-    endkey: '_design/idx-\uffff',
+    startkey: '_design/',
+    endkey: '_design/\uffff',
     include_docs: true
   }).then(function (allDocsRes) {
     var res = {
@@ -243,7 +187,9 @@ function getIndexes(db) {
       }]
     };
 
-    res.indexes = utils.flatten(res.indexes, allDocsRes.rows.map(function (row) {
+    res.indexes = utils.flatten(res.indexes, allDocsRes.rows.filter(function (row) {
+      return row.doc.language === 'query';
+    }).map(function (row) {
       var viewNames = Object.keys(row.doc.views);
 
       return viewNames.map(function (viewName) {
@@ -256,6 +202,11 @@ function getIndexes(db) {
         };
       });
     }));
+
+    // these are sorted by view name for some reason
+    res.indexes.sort(function (left, right) {
+      return utils.compare(left.name, right.name);
+    });
 
     return res;
   });
