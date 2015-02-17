@@ -55,8 +55,9 @@ exports.deleteIndex = deleteIndex;
 },{}],2:[function(require,module,exports){
 'use strict';
 
+var localUtils = require('./utils');
 var abstractMapReduce = require('pouchdb-abstract-mapreduce');
-var parseField = require('./parse-field');
+var parseField = localUtils.parseField;
 
 //
 // One thing about these mappers:
@@ -174,7 +175,104 @@ var abstractMapper = abstractMapReduce({
 });
 
 module.exports = abstractMapper;
-},{"./parse-field":6,"pouchdb-abstract-mapreduce":37}],3:[function(require,module,exports){
+},{"./utils":10,"pouchdb-abstract-mapreduce":40}],3:[function(require,module,exports){
+'use strict';
+
+var utils = require('../../../utils');
+var log = utils.log;
+
+var pouchUpsert = require('pouchdb-upsert');
+var abstractMapper = require('../abstract-mapper');
+var localUtils = require('../utils');
+var validateIndex = localUtils.validateIndex;
+var massageIndexDef = localUtils.massageIndexDef;
+
+function upsert(db, docId, diffFun) {
+  return pouchUpsert.upsert.call(db, docId, diffFun);
+}
+
+function createIndex(db, requestDef) {
+
+  var originalIndexDef = utils.clone(requestDef.index);
+  requestDef.index = massageIndexDef(requestDef.index);
+
+  validateIndex(requestDef.index);
+
+  var md5 = utils.MD5(JSON.stringify(requestDef));
+
+  var viewName = requestDef.name || ('idx-' + md5);
+
+  var ddocName = requestDef.ddoc || ('idx-' + md5);
+  var ddocId = '_design/' + ddocName;
+
+  var hasInvalidLanguage = false;
+  var viewExists = false;
+
+  function updateDdoc(doc) {
+    if (doc._rev && doc.language !== 'query') {
+      hasInvalidLanguage = true;
+    }
+    doc.language = 'query';
+    doc.views = doc.views || {};
+
+    viewExists = !!doc.views[viewName];
+
+    doc.views[viewName] = {
+      map: {
+        fields: utils.mergeObjects(requestDef.index.fields)
+      },
+      reduce: '_count',
+      options: {
+        def: originalIndexDef
+      }
+    };
+
+    return doc;
+  }
+
+  log('creating index', ddocId);
+
+  return upsert(db, ddocId, updateDdoc).then(function () {
+    if (hasInvalidLanguage) {
+      throw new Error('invalid language for ddoc with id "' +
+      ddocId +
+      '" (should be "query")');
+    }
+  }).then(function () {
+    // kick off a build
+    // TODO: abstract-pouchdb-mapreduce should support auto-updating
+    // TODO: should also use update_after, but pouchdb/pouchdb#3415 blocks me
+    var signature = ddocName + '/' + viewName;
+    return abstractMapper.query.call(db, signature, {
+      limit: 0,
+      reduce: false
+    }).then(function () {
+      return {result: viewExists ? 'exists' : 'created'};
+    });
+  });
+}
+
+module.exports = createIndex;
+},{"../../../utils":12,"../abstract-mapper":2,"../utils":10,"pouchdb-upsert":47}],4:[function(require,module,exports){
+'use strict';
+
+var abstractMapper = require('../abstract-mapper');
+
+function deleteIndex(db, index) {
+
+  var docId = index.ddoc;
+
+  return db.get(docId).then(function (doc) {
+    return db.remove(doc);
+  }).then(function () {
+    return abstractMapper.viewCleanup.apply(db);
+  }).then(function () {
+    return {ok: true};
+  });
+}
+
+module.exports = deleteIndex;
+},{"../abstract-mapper":2}],5:[function(require,module,exports){
 'use strict';
 
 //
@@ -184,11 +282,11 @@ module.exports = abstractMapper;
 // "bar".
 //
 
-var localUtils = require('./local-utils');
+var collate = require('pouchdb-collate').collate;
+var localUtils = require('../utils');
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
-var collate = require('pouchdb-collate').collate;
-var parseField = require('./parse-field');
+var parseField = localUtils.parseField;
 
 // this would just be "return doc[field]", but fields
 // can be "deep" due to dot notation
@@ -271,205 +369,35 @@ function filterInMemoryFields(rows, requestDef, inMemoryFields) {
 }
 
 module.exports = filterInMemoryFields;
-},{"./local-utils":4,"./parse-field":6,"pouchdb-collate":41}],4:[function(require,module,exports){
+},{"../utils":10,"pouchdb-collate":44}],6:[function(require,module,exports){
 'use strict';
 
-var utils = require('../../utils');
+var utils = require('../../../utils');
+var getIndexes = require('../get-indexes');
 
-function getKey(obj) {
-  return Object.keys(obj)[0];
-}
-
-function getValue(obj) {
-  return obj[getKey(obj)];
-}
-
-function getSize(obj) {
-  return Object.keys(obj).length;
-}
-
-// normalize the "sort" value
-function massageSort(sort) {
-  return sort && sort.map(function (sorting) {
-    if (typeof sorting === 'string') {
-      var obj = {};
-      obj[sorting] = 'asc';
-      return obj;
-    } else {
-      return sorting;
-    }
-  });
-}
-
-function massageSelector(selector) {
-  var result = utils.clone(selector);
-  if ('$and' in result) {
-    result = utils.mergeObjects(result.$and);
-  }
-  return result;
-}
-
-module.exports = {
-  getKey: getKey,
-  getValue: getValue,
-  getSize: getSize,
-  massageSort: massageSort,
-  massageSelector: massageSelector
-};
-},{"../../utils":9}],5:[function(require,module,exports){
-'use strict';
-
-var utils = require('../../utils');
-var log = utils.log;
-var upsert = require('pouchdb-upsert');
-var callbackify = utils.callbackify;
-var collate = require('pouchdb-collate');
-
-var abstractMapper = require('./abstract-mapper');
+var abstractMapper = require('../abstract-mapper');
 var planQuery = require('./query-planner');
-var localUtils = require('./local-utils');
+var localUtils = require('../utils');
 var filterInMemoryFields = require('./in-memory-filter');
-var massageSort = localUtils.massageSort;
 var massageSelector = localUtils.massageSelector;
-var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
+var validateFindRequest = localUtils.validateFindRequest;
+var reverseOptions = localUtils.reverseOptions;
+var filterInclusiveStart = localUtils.filterInclusiveStart;
 var Promise = utils.Promise;
-
-function putIfNotExists(db, doc) {
-  return upsert.putIfNotExists.call(db, doc);
-}
-
-function massageIndexDef(indexDef) {
-  indexDef.fields = indexDef.fields.map(function (field) {
-    if (typeof field === 'string') {
-      var obj = {};
-      obj[field] = 'asc';
-      return obj;
-    }
-    return field;
-  });
-  return indexDef;
-}
 
 function indexToSignature(index) {
   // remove '_design/'
   return index.ddoc.substring(8) + '/' + index.name;
 }
 
-// have to do this manually because REASONS. I don't know why
-// CouchDB didn't implement inclusive_start
-function filterInclusiveStart(rows, targetValue) {
-  for (var i = 0, len = rows.length; i < len; i++) {
-    var row = rows[i];
-    if (collate.collate(row.key, targetValue) > 0) {
-      if (i > 0) {
-        return rows.slice(i);
-      } else {
-        return rows;
-      }
-    }
-  }
-  return rows;
-}
-
-function reverseOptions(opts) {
-  var newOpts = utils.clone(opts);
-  delete newOpts.startkey;
-  delete newOpts.endkey;
-  delete newOpts.inclusive_start;
-  delete newOpts.inclusive_end;
-
-  if ('endkey' in opts) {
-    newOpts.startkey = opts.endkey;
-  }
-  if ('startkey' in opts) {
-    newOpts.endkey = opts.startkey;
-  }
-  if ('inclusive_start' in opts) {
-    newOpts.inclusive_end = opts.inclusive_start;
-  }
-  if ('inclusive_end' in opts) {
-    newOpts.inclusive_start = opts.inclusive_end;
-  }
-  return newOpts;
-}
-
-function validateIndex(index) {
-  var ascFields = index.fields.filter(function (field) {
-    return getValue(field) === 'asc';
-  });
-  if (ascFields.length !== 0 && ascFields.length !== index.fields.length) {
-    throw new Error('unsupported mixed sorting');
-  }
-}
-
-function validateFindRequest(requestDef) {
-  if (typeof requestDef.selector !== 'object') {
-    throw new Error('you must provide a selector when you find()');
-  }
-  if ('sort' in requestDef && (!requestDef.sort || !Array.isArray(requestDef.sort))) {
-    throw new Error('invalid sort json - should be an array');
-  }
-  // TODO: could be >1 field
-  var selectorFields = Object.keys(requestDef.selector);
-  var sortFields = requestDef.sort ?
-    massageSort(requestDef.sort).map(getKey) : [];
-
-  if (!utils.oneArrayIsSubArrayOfOther(selectorFields, sortFields)) {
-    throw new Error('conflicting sort and selector fields');
-  }
-}
-
-function createIndex(db, requestDef) {
-
-  var originalIndexDef = utils.clone(requestDef.index);
-  requestDef.index = massageIndexDef(requestDef.index);
-
-  validateIndex(requestDef.index);
-
-  var md5 = utils.MD5(JSON.stringify(requestDef));
-
-  var views = {};
-
-  var viewName = requestDef.name || ('idx-' + md5);
-
-  views[viewName] = {
-    map: {
-      fields: utils.mergeObjects(requestDef.index.fields)
-    },
-    reduce: '_count',
-    options: {
-      def: originalIndexDef
-    }
-  };
-
-  var ddoc = {
-    _id: '_design/idx-' + md5,
-    views: views,
-    language: 'query'
-  };
-
-  log('creating index', ddoc);
-
-  return putIfNotExists(db, ddoc).then(function (res) {
-    // kick off a build
-    // TODO: abstract-pouchdb-mapreduce should support auto-updating
-    // TODO: should also use update_after, but pouchdb/pouchdb#3415 blocks me
-    var signature = 'idx-' + md5 + '/' + viewName;
-    return abstractMapper.query.call(db, signature, {
-      limit: 0,
-      reduce: false
-    }).then(function () {
-      return {result: res.updated ? 'created' : 'exists'};
-    });
-  });
-}
-
 function find(db, requestDef) {
 
-  validateFindRequest(requestDef);
+  if (requestDef.selector) {
+    requestDef.selector = massageSelector(requestDef.selector);
+  }
 
-  requestDef.selector = massageSelector(requestDef.selector);
+  validateFindRequest(requestDef);
 
   return getIndexes(db).then(function (getIndexesRes) {
 
@@ -492,6 +420,17 @@ function find(db, requestDef) {
       opts = reverseOptions(opts);
     }
 
+    if (!queryPlan.inMemoryFields.length) {
+      // no in-memory filtering necessary, so we can let the
+      // database do the limit/skip for us
+      if ('limit' in requestDef) {
+        opts.limit = requestDef.limit;
+      }
+      if ('skip' in requestDef) {
+        opts.skip = requestDef.skip;
+      }
+    }
+
     return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {
         return db.allDocs(opts);
@@ -510,6 +449,13 @@ function find(db, requestDef) {
       if (queryPlan.inMemoryFields.length) {
         // need to filter some stuff in-memory
         res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
+
+        if ('limit' in requestDef || 'skip' in requestDef) {
+          // have to do the limit in-memory
+          var skip = requestDef.skip || 0;
+          var limit = ('limit' in requestDef ? requestDef.limit : res.rows.length) + skip;
+          res.rows = res.rows.slice(skip, limit);
+        }
       }
 
       return {
@@ -525,87 +471,16 @@ function find(db, requestDef) {
   });
 }
 
-function getIndexes(db) {
-  return db.allDocs({
-    startkey: '_design/idx-',
-    endkey: '_design/idx-\uffff',
-    include_docs: true
-  }).then(function (allDocsRes) {
-    var res = {
-      indexes: [{
-        ddoc: null,
-        name: '_all_docs',
-        type: 'special',
-        def: {
-          fields: [{_id: 'asc'}]
-        }
-      }]
-    };
-
-    res.indexes = utils.flatten(res.indexes, allDocsRes.rows.map(function (row) {
-      var viewNames = Object.keys(row.doc.views);
-
-      return viewNames.map(function (viewName) {
-        var view = row.doc.views[viewName];
-        return {
-          ddoc: row.id,
-          name: viewName,
-          type: 'json',
-          def: massageIndexDef(view.options.def)
-        };
-      });
-    }));
-
-    return res;
-  });
-}
-
-function deleteIndex(db, index) {
-
-  var docId = index.ddoc;
-
-  return db.get(docId).then(function (doc) {
-    return db.remove(doc);
-  }).then(function () {
-    return abstractMapper.viewCleanup.apply(db);
-  }).then(function () {
-    return {ok: true};
-  });
-}
-
-exports.createIndex = callbackify(createIndex);
-exports.find = callbackify(find);
-exports.getIndexes = callbackify(getIndexes);
-exports.deleteIndex = callbackify(deleteIndex);
-},{"../../utils":9,"./abstract-mapper":2,"./in-memory-filter":3,"./local-utils":4,"./query-planner":7,"pouchdb-collate":41,"pouchdb-upsert":44}],6:[function(require,module,exports){
+module.exports = find;
+},{"../../../utils":12,"../abstract-mapper":2,"../get-indexes":8,"../utils":10,"./in-memory-filter":5,"./query-planner":7}],7:[function(require,module,exports){
 'use strict';
 
-function parseField(fieldName) {
-  // fields may be deep (e.g. "foo.bar.baz"), so parse
-  var fields = [];
-  var current = '';
-  for (var i = 0, len = fieldName.length; i < len; i++) {
-    var ch = fieldName[i];
-    if (ch === '.') {
-      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
-        current = current.substring(0, current.length - 1) + '.';
-      } else { // not escaped, so delimiter
-        fields.push(current);
-        current = '';
-      }
-    } else { // normal character
-      current += ch;
-    }
-  }
-  if (current) {
-    fields.push(current);
-  }
-  return fields;
-}
-
-module.exports = parseField;
-},{}],7:[function(require,module,exports){
-'use strict';
+var utils = require('../../../utils');
+var log = utils.log;
+var localUtils = require('../utils');
+var getKey = localUtils.getKey;
+var getValue = localUtils.getValue;
+var massageSort = localUtils.massageSort;
 
 // couchdb lowest collation value
 var COLLATE_LO = null;
@@ -628,13 +503,6 @@ var COLLATE_ARR_LO = [];
 var COLLATE_ARR_HI = [{'\uffff': {}}]; // TODO: yah I know
 var COLLATE_OBJ_LO = {};
 var COLLATE_OBJ_HI = {'\uffff': {}}; // TODO: yah I know
-
-var utils = require('../../utils');
-var log = utils.log;
-var localUtils = require('./local-utils');
-var getKey = localUtils.getKey;
-var getValue = localUtils.getValue;
-var massageSort = localUtils.massageSort;
 
 //
 // normalize the selector
@@ -956,13 +824,228 @@ function planQuery(request, indexes) {
 }
 
 module.exports = planQuery;
-},{"../../utils":9,"./local-utils":4}],8:[function(require,module,exports){
+},{"../../../utils":12,"../utils":10}],8:[function(require,module,exports){
+'use strict';
+
+var utils = require('../../../utils');
+
+var localUtils = require('../utils');
+var massageIndexDef = localUtils.massageIndexDef;
+
+function getIndexes(db) {
+  // just search through all the design docs and filter in-memory.
+  // hopefully there aren't that many ddocs.
+  return db.allDocs({
+    startkey: '_design/',
+    endkey: '_design/\uffff',
+    include_docs: true
+  }).then(function (allDocsRes) {
+    var res = {
+      indexes: [{
+        ddoc: null,
+        name: '_all_docs',
+        type: 'special',
+        def: {
+          fields: [{_id: 'asc'}]
+        }
+      }]
+    };
+
+    res.indexes = utils.flatten(res.indexes, allDocsRes.rows.filter(function (row) {
+      return row.doc.language === 'query';
+    }).map(function (row) {
+      var viewNames = Object.keys(row.doc.views);
+
+      return viewNames.map(function (viewName) {
+        var view = row.doc.views[viewName];
+        return {
+          ddoc: row.id,
+          name: viewName,
+          type: 'json',
+          def: massageIndexDef(view.options.def)
+        };
+      });
+    }));
+
+    // these are sorted by view name for some reason
+    res.indexes.sort(function (left, right) {
+      return utils.compare(left.name, right.name);
+    });
+
+    return res;
+  });
+}
+
+module.exports = getIndexes;
+},{"../../../utils":12,"../utils":10}],9:[function(require,module,exports){
+'use strict';
+
+var utils = require('../../utils');
+var callbackify = utils.callbackify;
+
+exports.createIndex = callbackify(require('./create-index'));
+exports.find = callbackify(require('./find'));
+exports.getIndexes = callbackify(require('./get-indexes'));
+exports.deleteIndex = callbackify(require('./delete-index'));
+},{"../../utils":12,"./create-index":3,"./delete-index":4,"./find":6,"./get-indexes":8}],10:[function(require,module,exports){
+'use strict';
+
+var utils = require('../../utils');
+var collate = require('pouchdb-collate');
+
+function getKey(obj) {
+  return Object.keys(obj)[0];
+}
+
+function getValue(obj) {
+  return obj[getKey(obj)];
+}
+
+function getSize(obj) {
+  return Object.keys(obj).length;
+}
+
+// normalize the "sort" value
+function massageSort(sort) {
+  return sort && sort.map(function (sorting) {
+    if (typeof sorting === 'string') {
+      var obj = {};
+      obj[sorting] = 'asc';
+      return obj;
+    } else {
+      return sorting;
+    }
+  });
+}
+
+function massageSelector(selector) {
+  var result = utils.clone(selector);
+  if ('$and' in result) {
+    result = utils.mergeObjects(result.$and);
+  }
+  return result;
+}
+
+
+function massageIndexDef(indexDef) {
+  indexDef.fields = indexDef.fields.map(function (field) {
+    if (typeof field === 'string') {
+      var obj = {};
+      obj[field] = 'asc';
+      return obj;
+    }
+    return field;
+  });
+  return indexDef;
+}
+
+// have to do this manually because REASONS. I don't know why
+// CouchDB didn't implement inclusive_start
+function filterInclusiveStart(rows, targetValue) {
+  for (var i = 0, len = rows.length; i < len; i++) {
+    var row = rows[i];
+    if (collate.collate(row.key, targetValue) > 0) {
+      if (i > 0) {
+        return rows.slice(i);
+      } else {
+        return rows;
+      }
+    }
+  }
+  return rows;
+}
+
+function reverseOptions(opts) {
+  var newOpts = utils.clone(opts);
+  delete newOpts.startkey;
+  delete newOpts.endkey;
+  delete newOpts.inclusive_start;
+  delete newOpts.inclusive_end;
+
+  if ('endkey' in opts) {
+    newOpts.startkey = opts.endkey;
+  }
+  if ('startkey' in opts) {
+    newOpts.endkey = opts.startkey;
+  }
+  if ('inclusive_start' in opts) {
+    newOpts.inclusive_end = opts.inclusive_start;
+  }
+  if ('inclusive_end' in opts) {
+    newOpts.inclusive_start = opts.inclusive_end;
+  }
+  return newOpts;
+}
+
+function validateIndex(index) {
+  var ascFields = index.fields.filter(function (field) {
+    return getValue(field) === 'asc';
+  });
+  if (ascFields.length !== 0 && ascFields.length !== index.fields.length) {
+    throw new Error('unsupported mixed sorting');
+  }
+}
+
+function validateFindRequest(requestDef) {
+  if (typeof requestDef.selector !== 'object') {
+    throw new Error('you must provide a selector when you find()');
+  }
+  if ('sort' in requestDef && (!requestDef.sort || !Array.isArray(requestDef.sort))) {
+    throw new Error('invalid sort json - should be an array');
+  }
+  // TODO: could be >1 field
+  var selectorFields = Object.keys(requestDef.selector);
+  var sortFields = requestDef.sort ?
+    massageSort(requestDef.sort).map(getKey) : [];
+
+  if (!utils.oneSetIsSubArrayOfOther(selectorFields, sortFields)) {
+    throw new Error('conflicting sort and selector fields');
+  }
+}
+
+function parseField(fieldName) {
+  // fields may be deep (e.g. "foo.bar.baz"), so parse
+  var fields = [];
+  var current = '';
+  for (var i = 0, len = fieldName.length; i < len; i++) {
+    var ch = fieldName[i];
+    if (ch === '.') {
+      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
+        current = current.substring(0, current.length - 1) + '.';
+      } else { // not escaped, so delimiter
+        fields.push(current);
+        current = '';
+      }
+    } else { // normal character
+      current += ch;
+    }
+  }
+  if (current) {
+    fields.push(current);
+  }
+  return fields;
+}
+
+module.exports = {
+  getKey: getKey,
+  getValue: getValue,
+  getSize: getSize,
+  massageSort: massageSort,
+  massageSelector: massageSelector,
+  validateIndex: validateIndex,
+  validateFindRequest: validateFindRequest,
+  reverseOptions: reverseOptions,
+  filterInclusiveStart: filterInclusiveStart,
+  massageIndexDef: massageIndexDef,
+  parseField: parseField
+};
+},{"../../utils":12,"pouchdb-collate":44}],11:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
 
-var httpIndexes = require('./adapters/http/http');
-var localIndexes = require('./adapters/local/local');
+var httpIndexes = require('./adapters/http');
+var localIndexes = require('./adapters/local');
 
 exports.createIndex = utils.toPromise(function (requestDef, callback) {
 
@@ -1024,7 +1107,7 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-},{"./adapters/http/http":1,"./adapters/local/local":5,"./utils":9}],9:[function(require,module,exports){
+},{"./adapters/http":1,"./adapters/local":9,"./utils":12}],12:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},Buffer=require("__browserify_Buffer").Buffer;'use strict';
 
 var PouchPromise;
@@ -1239,8 +1322,12 @@ exports.oneSetIsSubArrayOfOther = function (left, right) {
   return true;
 };
 
+exports.compare = function (left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+};
+
 exports.log = require('debug')('pouchdb:find');
-},{"__browserify_Buffer":12,"__browserify_process":13,"crypto":11,"debug":14,"inherits":17,"lie":21,"pouchdb-extend":43,"spark-md5":45}],10:[function(require,module,exports){
+},{"__browserify_Buffer":15,"__browserify_process":16,"crypto":14,"debug":17,"inherits":20,"lie":24,"pouchdb-extend":46,"spark-md5":48}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -1260,9 +1347,9 @@ function argsArray(fun) {
     }
   };
 }
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 exports.readIEEE754 = function(buffer, offset, isBE, mLen, nBytes) {
   var e, m,
@@ -3642,7 +3729,7 @@ function hasOwnProperty(obj, prop) {
 },{"_shims":5}]},{},[])
 ;;module.exports=require("buffer-browserify")
 
-},{}],13:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -3697,7 +3784,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -3857,7 +3944,7 @@ function load() {
 
 exports.enable(load());
 
-},{"./debug":15}],15:[function(require,module,exports){
+},{"./debug":18}],18:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -4056,7 +4143,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":16}],16:[function(require,module,exports){
+},{"ms":19}],19:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -4169,7 +4256,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -4194,13 +4281,13 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = INTERNAL;
 
 function INTERNAL() {}
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 var Promise = require('./promise');
 var reject = require('./reject');
@@ -4244,7 +4331,7 @@ function all(iterable) {
     }
   }
 }
-},{"./INTERNAL":18,"./handlers":20,"./promise":22,"./reject":25,"./resolve":26}],20:[function(require,module,exports){
+},{"./INTERNAL":21,"./handlers":23,"./promise":25,"./reject":28,"./resolve":29}],23:[function(require,module,exports){
 'use strict';
 var tryCatch = require('./tryCatch');
 var resolveThenable = require('./resolveThenable');
@@ -4290,14 +4377,14 @@ function getThen(obj) {
     };
   }
 }
-},{"./resolveThenable":27,"./states":28,"./tryCatch":29}],21:[function(require,module,exports){
+},{"./resolveThenable":30,"./states":31,"./tryCatch":32}],24:[function(require,module,exports){
 module.exports = exports = require('./promise');
 
 exports.resolve = require('./resolve');
 exports.reject = require('./reject');
 exports.all = require('./all');
 exports.race = require('./race');
-},{"./all":19,"./promise":22,"./race":24,"./reject":25,"./resolve":26}],22:[function(require,module,exports){
+},{"./all":22,"./promise":25,"./race":27,"./reject":28,"./resolve":29}],25:[function(require,module,exports){
 'use strict';
 
 var unwrap = require('./unwrap');
@@ -4343,7 +4430,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
   return promise;
 };
 
-},{"./INTERNAL":18,"./queueItem":23,"./resolveThenable":27,"./states":28,"./unwrap":30}],23:[function(require,module,exports){
+},{"./INTERNAL":21,"./queueItem":26,"./resolveThenable":30,"./states":31,"./unwrap":33}],26:[function(require,module,exports){
 'use strict';
 var handlers = require('./handlers');
 var unwrap = require('./unwrap');
@@ -4372,7 +4459,7 @@ QueueItem.prototype.callRejected = function (value) {
 QueueItem.prototype.otherCallRejected = function (value) {
   unwrap(this.promise, this.onRejected, value);
 };
-},{"./handlers":20,"./unwrap":30}],24:[function(require,module,exports){
+},{"./handlers":23,"./unwrap":33}],27:[function(require,module,exports){
 'use strict';
 var Promise = require('./promise');
 var reject = require('./reject');
@@ -4413,7 +4500,7 @@ function race(iterable) {
     });
   }
 }
-},{"./INTERNAL":18,"./handlers":20,"./promise":22,"./reject":25,"./resolve":26}],25:[function(require,module,exports){
+},{"./INTERNAL":21,"./handlers":23,"./promise":25,"./reject":28,"./resolve":29}],28:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./promise');
@@ -4425,7 +4512,7 @@ function reject(reason) {
 	var promise = new Promise(INTERNAL);
 	return handlers.reject(promise, reason);
 }
-},{"./INTERNAL":18,"./handlers":20,"./promise":22}],26:[function(require,module,exports){
+},{"./INTERNAL":21,"./handlers":23,"./promise":25}],29:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./promise');
@@ -4460,7 +4547,7 @@ function resolve(value) {
       return EMPTYSTRING;
   }
 }
-},{"./INTERNAL":18,"./handlers":20,"./promise":22}],27:[function(require,module,exports){
+},{"./INTERNAL":21,"./handlers":23,"./promise":25}],30:[function(require,module,exports){
 'use strict';
 var handlers = require('./handlers');
 var tryCatch = require('./tryCatch');
@@ -4493,13 +4580,13 @@ function safelyResolveThenable(self, thenable) {
   }
 }
 exports.safely = safelyResolveThenable;
-},{"./handlers":20,"./tryCatch":29}],28:[function(require,module,exports){
+},{"./handlers":23,"./tryCatch":32}],31:[function(require,module,exports){
 // Lazy man's symbols for states
 
 exports.REJECTED = ['REJECTED'];
 exports.FULFILLED = ['FULFILLED'];
 exports.PENDING = ['PENDING'];
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 module.exports = tryCatch;
@@ -4515,7 +4602,7 @@ function tryCatch(func, value) {
   }
   return out;
 }
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 var immediate = require('immediate');
@@ -4537,7 +4624,7 @@ function unwrap(promise, func, value) {
     }
   });
 }
-},{"./handlers":20,"immediate":31}],31:[function(require,module,exports){
+},{"./handlers":23,"immediate":34}],34:[function(require,module,exports){
 'use strict';
 var types = [
   require('./nextTick'),
@@ -4579,7 +4666,7 @@ function immediate(task) {
     scheduleDrain();
   }
 }
-},{"./messageChannel":32,"./mutation.js":33,"./nextTick":11,"./stateChange":34,"./timeout":35}],32:[function(require,module,exports){
+},{"./messageChannel":35,"./mutation.js":36,"./nextTick":14,"./stateChange":37,"./timeout":38}],35:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 
 exports.test = function () {
@@ -4598,7 +4685,7 @@ exports.install = function (func) {
     channel.port2.postMessage(0);
   };
 };
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 //based off rsvp https://github.com/tildeio/rsvp.js
 //license https://github.com/tildeio/rsvp.js/blob/master/LICENSE
@@ -4621,7 +4708,7 @@ exports.install = function (handle) {
     element.data = (called = ++called % 2);
   };
 };
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 
 exports.test = function () {
@@ -4646,7 +4733,7 @@ exports.install = function (handle) {
     return handle;
   };
 };
-},{}],35:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 exports.test = function () {
   return true;
@@ -4657,7 +4744,7 @@ exports.install = function (t) {
     setTimeout(t, 0);
   };
 };
-},{}],36:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 var upsert = require('./upsert');
@@ -4756,7 +4843,7 @@ module.exports = function (opts) {
   });
 };
 
-},{"./upsert":39,"./utils":40}],37:[function(require,module,exports){
+},{"./upsert":42,"./utils":43}],40:[function(require,module,exports){
 var process=require("__browserify_process");'use strict';
 
 var pouchCollate = require('pouchdb-collate');
@@ -5434,7 +5521,7 @@ function createIndexer(def) {
 
 module.exports = createIndexer;
 
-},{"./create-view":36,"./taskqueue":38,"./utils":40,"__browserify_process":13,"pouchdb-collate":41}],38:[function(require,module,exports){
+},{"./create-view":39,"./taskqueue":41,"./utils":43,"__browserify_process":16,"pouchdb-collate":44}],41:[function(require,module,exports){
 'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes callbacks will eventually fire (once).
@@ -5459,7 +5546,7 @@ TaskQueue.prototype.finish = function () {
 
 module.exports = TaskQueue;
 
-},{"./utils":40}],39:[function(require,module,exports){
+},{"./utils":43}],42:[function(require,module,exports){
 'use strict';
 
 var upsert = require('pouchdb-upsert').upsert;
@@ -5467,7 +5554,7 @@ var upsert = require('pouchdb-upsert').upsert;
 module.exports = function (db, doc, diffFun) {
   return upsert.apply(db, [doc, diffFun]);
 };
-},{"pouchdb-upsert":44}],40:[function(require,module,exports){
+},{"pouchdb-upsert":47}],43:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 /* istanbul ignore if */
 if (typeof global.Promise === 'function') {
@@ -5574,7 +5661,7 @@ exports.MD5 = function (string) {
     return Md5.hash(string);
   }
 };
-},{"__browserify_process":13,"argsarray":10,"crypto":11,"inherits":17,"lie":21,"pouchdb-extend":43,"spark-md5":45}],41:[function(require,module,exports){
+},{"__browserify_process":16,"argsarray":13,"crypto":14,"inherits":20,"lie":24,"pouchdb-extend":46,"spark-md5":48}],44:[function(require,module,exports){
 'use strict';
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
@@ -5929,7 +6016,7 @@ function numToIndexableString(num) {
   return result;
 }
 
-},{"./utils":42}],42:[function(require,module,exports){
+},{"./utils":45}],45:[function(require,module,exports){
 'use strict';
 
 function pad(str, padWith, upToLength) {
@@ -6000,7 +6087,7 @@ exports.intToDecimalForm = function (int) {
 
   return result;
 };
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 
 // Extends method
@@ -6181,7 +6268,7 @@ module.exports = extend;
 
 
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};'use strict';
 
 var PouchPromise;
@@ -6277,7 +6364,7 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-},{"lie":21}],45:[function(require,module,exports){
+},{"lie":24}],48:[function(require,module,exports){
 /*jshint bitwise:false*/
 /*global unescape*/
 
@@ -6878,5 +6965,5 @@ if (typeof window !== 'undefined' && window.PouchDB) {
     return SparkMD5;
 }));
 
-},{}]},{},[8])
+},{}]},{},[11])
 ;
