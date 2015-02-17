@@ -7,11 +7,11 @@
 // "bar".
 //
 
-var localUtils = require('./local-utils');
+var collate = require('pouchdb-collate').collate;
+var localUtils = require('../utils');
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
-var collate = require('pouchdb-collate').collate;
-var parseField = require('./parse-field');
+var parseField = localUtils.parseField;
 
 // this would just be "return doc[field]", but fields
 // can be "deep" due to dot notation

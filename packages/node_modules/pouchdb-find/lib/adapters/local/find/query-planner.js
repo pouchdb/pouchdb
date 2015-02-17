@@ -1,5 +1,12 @@
 'use strict';
 
+var utils = require('../../../utils');
+var log = utils.log;
+var localUtils = require('../utils');
+var getKey = localUtils.getKey;
+var getValue = localUtils.getValue;
+var massageSort = localUtils.massageSort;
+
 // couchdb lowest collation value
 var COLLATE_LO = null;
 
@@ -21,13 +28,6 @@ var COLLATE_ARR_LO = [];
 var COLLATE_ARR_HI = [{'\uffff': {}}]; // TODO: yah I know
 var COLLATE_OBJ_LO = {};
 var COLLATE_OBJ_HI = {'\uffff': {}}; // TODO: yah I know
-
-var utils = require('../../utils');
-var log = utils.log;
-var localUtils = require('./local-utils');
-var getKey = localUtils.getKey;
-var getValue = localUtils.getValue;
-var massageSort = localUtils.massageSort;
 
 //
 // normalize the selector
