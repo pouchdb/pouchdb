@@ -1,11 +1,11 @@
 {
   "name": "pouchdb-find",
-  "version": "0.2.0",
+  "version": "0.3.0",
+  "description": "Easy-to-use query language for PouchDB",
   "homepage": "https://github.com/nolanlawson/pouchdb-find",
   "authors": [
     "Nolan Lawson <nolan.lawson@gmail.com>"
   ],
-  "description": "PouchDB indexes",
   "main": "dist/pouchdb.find.min.js",
   "moduleType": [
     "node"
