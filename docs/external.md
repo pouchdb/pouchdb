@@ -44,6 +44,14 @@ Implements the handy "every document is a delta" pattern, so you don't have to d
 
 Applies filter functions to documents before and after storage, e.g. for encryption, compression, or massaging data.
 
+#### [PouchDB Erase](https://github.com/marten-de-vries/pouchdb-erase)
+
+A replicating `db.destroy()` alternative.
+
+#### [PouchDB Find](https://github.com/nolanlawson/pouchdb-find)
+
+MongoDB-like query language, based on CouchDB 2.0. ([Live demo](http://nolanlawson.github.io/pouchdb-find/))
+
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
 Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
@@ -114,7 +122,7 @@ An express submodule with a CouchDB-style REST interface to PouchDB. Powers Pouc
 
 ### Angular
 
-#### [angular-pouchdb](https://github.com/wspringer/angular-pouchdb)
+#### [angular-pouchdb](https://github.com/angular-pouchdb/angular-pouchdb)
 
 Wrapper for using PouchDB within Angular.js.
 
@@ -129,6 +137,12 @@ Angular service to persist remote connection settings and maintain continuous re
 #### [ng-pouchdb](https://github.com/danielzen/ng-pouchdb)
 
 AngularJS binding for PouchDB.
+
+### Ampersand
+
+#### [ampersand-collection-pouchdb-mixin](https://github.com/svnlto/ampersand-collection-pouchdb-mixin)
+
+A mixin for extending ampersand-collection with pouchdb persistance. 
 
 ### Backbone
 
@@ -159,7 +173,7 @@ Android adapter with a native Java interface to PouchDB.
 
 #### [blob-util](https://github.com/nolanlawson/blob-util)
 
-Not strictly PouchDB-related, but a useful set of shims and utility functions for working with Blobs in the browser.
+Shims and utils for working with binary Blobs in the browser.
 
 #### [Puton](http://puton.jit.su/)
 
