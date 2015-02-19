@@ -217,10 +217,13 @@ adapters.forEach(function (adapters) {
         result.docs_written.should.equal(0, 'correct # docs written (1)');
         return db.info();
       }).then(function (info) {
-        info.doc_count.should.equal(1, 'doc_count');
+        if (!testUtils.isSyncGateway() || info.doc_count) {
+          info.doc_count.should.equal(1, 'doc_count');
+        }
         return db.get('doc', {open_revs: "all"});
       }).then(function (doc) {
-        doc.should.deep.equal([{"ok": {"_id": "doc", "_rev": doc1._rev}}]);
+        doc[0].ok._id.should.equal("doc");
+        doc[0].ok._rev.should.equal(doc1._rev);
         return remote.bulkDocs([doc2], {new_edits: false});
       }).then(function () {
         return remote.replicate.to(db);
@@ -229,17 +232,19 @@ adapters.forEach(function (adapters) {
         result.docs_written.should.equal(0, 'correct # docs written (2)');
         return db.info();
       }).then(function (info) {
-        info.doc_count.should.equal(1, 'doc_count');
+        if (!testUtils.isSyncGateway() || info.doc_count) {
+          info.doc_count.should.equal(1, 'doc_count');
+        }
         return db.get('doc', {open_revs: "all"});
       }).then(function (docs) {
         // order with open_revs is unspecified
         docs.sort(function (a, b) {
           return a.ok._rev < b.ok._rev ? -1 : 1;
         });
-        docs.should.deep.equal([
-          {"ok": {"_id": "doc", "_rev": doc1._rev}},
-          {"ok": {"_id": "doc", "_rev": doc2._rev}}
-        ]);
+        docs[0].ok._id.should.equal("doc");
+        docs[1].ok._id.should.equal("doc");
+        docs[0].ok._rev.should.equal(doc1._rev);
+        docs[1].ok._rev.should.equal(doc2._rev);
       });
     });
 
