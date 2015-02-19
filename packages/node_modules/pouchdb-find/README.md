@@ -266,7 +266,9 @@ With a remote database
 
 Over HTTP, this plugin currently only works with Cloudant. Cloudant is the reference implementation, so the API should be the same.
 
-Eventually CouchDB 2.0 and PouchDB Server will be supported.
+PouchDB Server also has this API, since it includes this very plugin by default.
+
+Eventually CouchDB 2.0 will also be supported.
 
 Debugging
 ----
