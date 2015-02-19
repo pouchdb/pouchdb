@@ -74,9 +74,7 @@ Example:
 ```js
 db.createIndex({
   index: {
-    name: 'myindex',
-    fields: ['foo', 'bar'],
-    type: 'json'
+    fields: ['foo', 'bar']
   }
 }).then(function (result) {
   // yo, a result
@@ -97,10 +95,26 @@ or:
 {"result": "exists"}
 ```
 
+You can also specify additional options, if you want more control over how your index is created:
+
+db.createIndex({
+  index: {
+    fields: ['foo', 'bar'],
+    name: 'myindex',
+    ddoc: 'mydesigndoc'
+    type: 'json',
+  }
+}).then(function (result) {
+  // yo, a result
+}).catch(function (err) {
+  // ouch, an error
+});
+
 **Options**
 
 * `fields` is a list of fields to index
-* `name` (optional) name of the index, will be auto-generated if you don't include it
+* `name` (optional) name of the index, auto-generated if you don't include it
+* `ddoc` (optional) design document name (i.e. the part after `'_design/'`, auto-generated if you don't include it
 * `type` (optional) only supports `'json'`, and it's also the default
 
 ### db.getIndexes([callback])
