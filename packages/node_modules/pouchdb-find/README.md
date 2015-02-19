@@ -117,6 +117,7 @@ db.createIndex({
 
 You can also specify additional options, if you want more control over how your index is created:
 
+```js
 db.createIndex({
   index: {
     fields: ['foo', 'bar'],
@@ -125,6 +126,7 @@ db.createIndex({
     type: 'json',
   }
 });
+```
 
 **Options**
 
