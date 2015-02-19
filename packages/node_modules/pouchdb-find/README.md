@@ -74,7 +74,7 @@ Example:
 ```js
 db.createIndex({
   index: {
-    fields: ['foo', 'bar']
+    fields: ['foo']
   }
 }).then(function (result) {
   // yo, a result
@@ -86,13 +86,33 @@ db.createIndex({
 The result can be either:
 
 ```js
-{"result": "created"}
+{"result": "created"} // index was created
 ```
 
 or:
 
 ```js
-{"result": "exists"}
+{"result": "exists"} // index already exists
+```
+
+You can also create an index on multiple fields:
+
+```js
+db.createIndex({
+  index: {
+    fields: ['foo', 'bar', 'baz']
+  }
+});
+```
+
+Or an index on deep fields: 
+
+```js
+db.createIndex({
+  index: {
+    fields: ['person.address.zipcode']
+  }
+});
 ```
 
 You can also specify additional options, if you want more control over how your index is created:
@@ -104,10 +124,6 @@ db.createIndex({
     ddoc: 'mydesigndoc'
     type: 'json',
   }
-}).then(function (result) {
-  // yo, a result
-}).catch(function (err) {
-  // ouch, an error
 });
 
 **Options**
@@ -240,6 +256,8 @@ Example result:
 * `sort` (Optional) Defines a list of fields defining how you want to sort. Note that sorted fields also have to be selected in the `selector`.
 
 If there's no index that matches your `selector`/`sort`, then this method will throw an error. This is a good thing, because it means it's pretty much impossible to write a slow query. :)
+
+The best index will be chosen automatically. If you want to see the query plan for your query, then turn on [debugging](#debugging).
 
 With a remote database
 ----
