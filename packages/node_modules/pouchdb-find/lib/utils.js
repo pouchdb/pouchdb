@@ -216,4 +216,26 @@ exports.compare = function (left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 };
 
+exports.arrayToObject = function (arr) {
+  var res = {};
+  for (var i = 0, len = arr.length; i < len; i++) {
+    res[arr[i]] = true;
+  }
+  return res;
+};
+
+exports.max = function (arr, fun) {
+  var max = null;
+  var maxScore = -1;
+  for (var i = 0, len = arr.length; i < len; i++) {
+    var element = arr[i];
+    var score = fun(element);
+    if (score > maxScore) {
+      maxScore = score;
+      max = element;
+    }
+  }
+  return max;
+};
+
 exports.log = require('debug')('pouchdb:find');
