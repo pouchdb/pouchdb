@@ -148,16 +148,48 @@ function checkIndexMatches(index, orderMatters, fields) {
 // are a strict subset of the fields in some index,
 // then use that index
 //
-function findMatchingIndex(userFields, orderMatters, indexes) {
+//
+function findMatchingIndexes(userFields, orderMatters, indexes) {
 
+  var res = [];
   for (var i = 0, iLen = indexes.length; i < iLen; i++) {
     var index = indexes[i];
     var indexMatches = checkIndexMatches(index, orderMatters, userFields);
     if (indexMatches) {
-      return index;
+      res.push(index);
     }
   }
-  return null;
+  return res;
+}
+
+// find the best index, i.e. the one that matches the most fields
+// in the user's query
+function findBestMatchingIndex(userFields, orderMatters, indexes) {
+
+  var matchingIndexes = findMatchingIndexes(userFields, orderMatters, indexes);
+
+  if (matchingIndexes.length === 0) {
+    return null;
+  }
+  if (matchingIndexes.length === 1) {
+    return matchingIndexes[0];
+  }
+
+  var userFieldsMap = utils.arrayToObject(userFields);
+
+  function scoreIndex(index) {
+    var indexFields = index.def.fields.map(getKey);
+    var score = 0;
+    for (var i = 0, len = indexFields.length; i < len; i++) {
+      var indexField = indexFields[i];
+      if (userFieldsMap[indexField]) {
+        score++;
+      }
+    }
+    return score;
+  }
+
+  return utils.max(matchingIndexes, scoreIndex);
 }
 
 function getSingleFieldQueryOpts(selector, index) {
@@ -324,7 +356,7 @@ function planQuery(request, indexes) {
 
   var userFields = userFieldsRes.fields;
   var orderMatters = userFieldsRes.orderMatters;
-  var index = findMatchingIndex(userFields, orderMatters, indexes);
+  var index = findBestMatchingIndex(userFields, orderMatters, indexes);
 
   if (!index) {
     throw new Error('couldn\'t find any index to use');
