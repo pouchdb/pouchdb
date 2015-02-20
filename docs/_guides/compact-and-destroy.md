@@ -98,6 +98,10 @@ PouchDB.destroy('mydb').then(function () {
 
 These two methods are equivalent.
 
+{% include alert_start.html variant="warning"%}
+<code>PouchDB.destroy()</code> is deprecated and will be removed in a future version of PouchDB. You are encouraged to use the <code>db.destroy()</code> format instead.
+{% include alert_end.html %}
+
 Note that destroying a database does not mean that replicated databases will also be destroyed. Destruction has nothing to do with the normal `put()`/`remove()` operations on documents, so it has no impact on replication.
 
 Also note that in Web SQL, the database will not really be destroyed &ndash; it will just have its tables dropped. This is because Web SQL does not support true database deletion.

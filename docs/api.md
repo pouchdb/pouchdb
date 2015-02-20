@@ -69,7 +69,9 @@ var db = new PouchDB('dbname', {db : require('memdown')});
 db.destroy([options], [callback])
 {% endhighlight %}
 
-Delete database.
+Destroy the entire database, removing all data.
+
+This doesn't affect replication, so you will have to separately `destroy()` any synced databases, if you really want to remove all data.
 
 **Notes:** With a remote CouchDB on Node, options are passed to [request][].
 
@@ -78,15 +80,15 @@ Delete database.
 db.destroy(function(err, info) { });
 {% endhighlight %}
 
-{% include alert_start.html variant="warning"%}
-PouchDB.destroy() is deprecated and will be removed in future versions of PouchDB.
-{% include alert_end.html %}
-
 You can also delete a database using just the name:
 
 {% highlight js %}
 PouchDB.destroy('dbname', function(err, info) { });
 {% endhighlight %}
+
+{% include alert_start.html variant="warning"%}
+<code>PouchDB.destroy()</code> is deprecated and will be removed in a future version of PouchDB. You are encouraged to use the <code>db.destroy()</code> format instead.
+{% include alert_end.html %}
 
 {% include anchor.html title="Create/update a document" hash="create_document" %}
 
