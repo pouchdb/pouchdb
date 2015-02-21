@@ -382,7 +382,9 @@ adapters.forEach(function (adapters) {
                   if (!testUtils.isCouchMaster()) {
                     info.update_seq.should.be.above(2, 'update_seq remote');
                   }
-                  info.doc_count.should.equal(3, 'doc_count remote');
+                  if (!testUtils.isSyncGateway() || info.doc_count) {
+                    info.doc_count.should.equal(3, 'doc_count remote');
+                  }
                   done();
                 });
               });
