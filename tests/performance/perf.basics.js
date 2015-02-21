@@ -102,6 +102,32 @@ module.exports = function (PouchDB, opts) {
           done();
         }, done);
       }
+    }, {
+      name: 'all-docs-include-docs',
+      assertions: 1,
+      iterations: 100,
+      setup: function (db, callback) {
+        var docs = [];
+        for (var i = 0; i < 1000; i++) {
+          docs.push({
+            _id: commonUtils.createDocId(i),
+            foo: 'bar',
+            baz: 'quux',
+            _deleted: i % 2 === 1
+          });
+        }
+        db.bulkDocs({docs: docs}, callback);
+      },
+      test: function (db, itr, docs, done) {
+        return db.allDocs({
+          include_docs: true,
+          limit: 100
+        }).then(function () {
+          return db.post({}); // to invalidate the doc count
+        }).then(function () {
+          done();
+        }, done);
+      }
     },
     {
       name: 'pull-replication-perf-skimdb',
