@@ -286,7 +286,7 @@ adapters.forEach(function (adapters) {
         if (testUtils.isSyncGateway() && !res.rows[0].value) {
           return remote.get('foo', {open_revs:'all'}).then(function(doc){
             return db.put({_id: 'foo', _rev: doc[0].ok._rev});
-          })
+          });
         } else {
           rev = res.rows[0].value.rev;
           return db.put({_id: 'foo', _rev: rev});
