@@ -31,7 +31,7 @@ function tests(dbName, dbType) {
       return context.db;
     });
     afterEach(function () {
-      return Pouch.destroy(dbName);
+      return context.db.destroy();
     });
 
     require('./tests/test.basic')(dbType, context);
@@ -51,6 +51,7 @@ function tests(dbName, dbType) {
     require('./tests/test.ne')(dbType, context);
     require('./tests/test.matching-indexes')(dbType, context);
     require('./tests/test.errors')(dbType, context);
+    require('./tests/test.kitchen-sink')(dbType, context);
 
   });
 }

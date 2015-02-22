@@ -15,6 +15,12 @@ function getSize(obj) {
   return Object.keys(obj).length;
 }
 
+function objectFrom(key, value) {
+  var res = {};
+  res[key] = value;
+  return res;
+}
+
 // normalize the "sort" value
 function massageSort(sort) {
   return sort && sort.map(function (sorting) {
@@ -28,11 +34,159 @@ function massageSort(sort) {
   });
 }
 
-function massageSelector(selector) {
-  var result = utils.clone(selector);
-  if ('$and' in result) {
-    result = utils.mergeObjects(result.$and);
+// collapse logically equivalent gt/gte values
+function mergeGtGte(operator, value, fieldMatchers) {
+  if (typeof fieldMatchers.$eq !== 'undefined') {
+    // TODO: check for logical errors here
+    return; // do nothing
   }
+  if (typeof fieldMatchers.$gte !== 'undefined') {
+    if (operator === '$gte') {
+      if (value > fieldMatchers.$gte) { // more specificity
+        fieldMatchers.$gte = value;
+      }
+    } else { // operator === '$gt'
+      if (value >= fieldMatchers.$gte) { // more specificity
+        delete fieldMatchers.$gte;
+        fieldMatchers.$gt = value;
+      }
+    }
+  } else if (typeof fieldMatchers.$gt !== 'undefined') {
+    if (operator === '$gte') {
+      if (value > fieldMatchers.$gt) { // more specificity
+        delete fieldMatchers.$gt;
+        fieldMatchers.$gte = value;
+      }
+    } else { // operator === '$gt'
+      if (value > fieldMatchers.$gt) { // more specificity
+        fieldMatchers.$gt = value;
+      }
+    }
+  } else {
+    fieldMatchers[operator] = value;
+  }
+}
+
+// collapse logically equivalent lt/lte values
+function mergeLtLte(operator, value, fieldMatchers) {
+  if (typeof fieldMatchers.$eq !== 'undefined') {
+    // TODO: check for logical errors here
+    return; // do nothing
+  }
+  if (typeof fieldMatchers.$lte !== 'undefined') {
+    if (operator === '$lte') {
+      if (value < fieldMatchers.$lte) { // more specificity
+        fieldMatchers.$lte = value;
+      }
+    } else { // operator === '$gt'
+      if (value <= fieldMatchers.$lte) { // more specificity
+        delete fieldMatchers.$lte;
+        fieldMatchers.$lt = value;
+      }
+    }
+  } else if (typeof fieldMatchers.$lt !== 'undefined') {
+    if (operator === '$lte') {
+      if (value < fieldMatchers.$lt) { // more specificity
+        delete fieldMatchers.$lt;
+        fieldMatchers.$lte = value;
+      }
+    } else { // operator === '$gt'
+      if (value < fieldMatchers.$lt) { // more specificity
+        fieldMatchers.$lt = value;
+      }
+    }
+  } else {
+    fieldMatchers[operator] = value;
+  }
+}
+
+// combine $ne values into one array
+function mergeNe(value, fieldMatchers) {
+  if (typeof fieldMatchers.$eq !== 'undefined') {
+    // TODO: check for logical errors here
+    return; // do nothing
+  }
+  if ('$ne' in fieldMatchers) {
+    // there are many things this could "not" be
+    fieldMatchers.$ne.push(value);
+  } else { // doesn't exist yet
+    fieldMatchers.$ne = [value];
+  }
+}
+
+// add $eq into the mix
+function mergeEq(value, fieldMatchers) {
+  // these all have less specificity than the $eq
+  // TODO: check for user errors here
+  delete fieldMatchers.$gt;
+  delete fieldMatchers.$gte;
+  delete fieldMatchers.$lt;
+  delete fieldMatchers.$lte;
+  delete fieldMatchers.$ne;
+  fieldMatchers.$eq = value;
+}
+
+// flatten an array of selectors joined by an $and operator
+function mergeAndedSelectors(selectors) {
+
+  // sort to ensure that e.g. if the user specified
+  // $and: [{$gt: 'a'}, {$gt: 'b'}], then it's collapsed into
+  // just {$gt: 'b'}
+  var res = {};
+
+  selectors.forEach(function (selector) {
+    Object.keys(selector).forEach(function (field) {
+      var matcher = selector[field];
+      if (typeof matcher === 'string') {
+        matcher = {$eq: matcher};
+      }
+      var fieldMatchers = res[field] = res[field] || {};
+      Object.keys(matcher).forEach(function (operator) {
+        var value = matcher[operator];
+
+        if (operator === '$gt' || operator === '$gte') {
+          return mergeGtGte(operator, value, fieldMatchers);
+        } else if (operator === '$lt' || operator === '$lte') {
+          return mergeLtLte(operator, value, fieldMatchers);
+        } else if (operator === '$ne') {
+          return mergeNe(value, fieldMatchers);
+        } else if (operator === '$eq') {
+          return mergeEq(value, fieldMatchers);
+        }
+        fieldMatchers[operator] = value;
+      });
+    });
+  });
+
+  return res;
+}
+
+//
+// normalize the selector
+//
+function massageSelector(input) {
+  var result = utils.clone(input);
+  var wasAnded = false;
+  if ('$and' in result) {
+    result = mergeAndedSelectors(result['$and']);
+    wasAnded = true;
+  }
+  var fields = Object.keys(result);
+
+  for (var i = 0; i < fields.length; i++) {
+    var field = fields[i];
+    var matcher = result[field];
+
+    if (typeof matcher === 'string') {
+      matcher = {$eq: matcher};
+    } else if ('$ne' in matcher && !wasAnded) {
+      // I put these in an array, since there may be more than one
+      // but in the "mergeAnded" operation, I already take care of that
+      matcher.$ne = [matcher.$ne];
+    }
+    result[field] = matcher;
+  }
+
   return result;
 }
 
@@ -55,14 +209,10 @@ function filterInclusiveStart(rows, targetValue) {
   for (var i = 0, len = rows.length; i < len; i++) {
     var row = rows[i];
     if (collate.collate(row.key, targetValue) > 0) {
-      if (i > 0) {
-        return rows.slice(i);
-      } else {
-        return rows;
-      }
+      break;
     }
   }
-  return rows;
+  return i > 0 ? rows.slice(i) : rows;
 }
 
 function reverseOptions(opts) {
@@ -111,6 +261,20 @@ function validateFindRequest(requestDef) {
   if (!utils.oneSetIsSubArrayOfOther(selectorFields, sortFields)) {
     throw new Error('conflicting sort and selector fields');
   }
+
+  var selectors = requestDef.selector['$and'] || [requestDef.selector];
+  for (var i = 0; i < selectors.length; i++) {
+    var selector = selectors[i];
+    var keys = Object.keys(selector);
+    if (keys.length === 0) {
+      throw new Error('invalid empty selector');
+    }
+    //var selection = selector[keys[0]];
+    /*if (Object.keys(selection).length !== 1) {
+      throw new Error('invalid selector: ' + JSON.stringify(selection) +
+        ' - it must have exactly one key/value');
+    }*/
+  }
 }
 
 function parseField(fieldName) {
@@ -147,5 +311,6 @@ module.exports = {
   reverseOptions: reverseOptions,
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
-  parseField: parseField
+  parseField: parseField,
+  objectFrom: objectFrom
 };
