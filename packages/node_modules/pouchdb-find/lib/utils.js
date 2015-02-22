@@ -185,12 +185,23 @@ exports.pick = function (obj, arr) {
 
 // e.g. ['a'], ['a', 'b'] is true, but ['b'], ['a', 'b'] is false
 exports.oneArrayIsSubArrayOfOther = function (left, right) {
+
   for (var i = 0, len = Math.min(left.length, right.length); i < len; i++) {
     if (left[i] !== right[i]) {
       return false;
     }
   }
   return true;
+};
+
+// e.g.['a', 'b', 'c'], ['a', 'b'] is false
+exports.oneArrayIsStrictSubArrayOfOther = function (left, right) {
+
+  if (left.length > right.length) {
+    return false;
+  }
+
+  return exports.oneArrayIsSubArrayOfOther(left, right);
 };
 
 // same as above, but treat the left array as an unordered set

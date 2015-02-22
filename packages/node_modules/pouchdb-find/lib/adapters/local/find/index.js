@@ -2,7 +2,7 @@
 
 var utils = require('../../../utils');
 var getIndexes = require('../get-indexes');
-
+var collate = require('pouchdb-collate').collate;
 var abstractMapper = require('../abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('../utils');
@@ -37,6 +37,12 @@ function find(db, requestDef) {
       include_docs: true,
       reduce: false
     }, queryPlan.queryOpts);
+
+    if ('startkey' in opts && 'endkey' in opts &&
+        collate(opts.startkey, opts.endkey) > 0) {
+      // can't possibly return any results, startkey > endkey
+      return {docs: []};
+    }
 
     var isDescending = requestDef.sort &&
       typeof requestDef.sort[0] !== 'string' &&
@@ -77,13 +83,6 @@ function find(db, requestDef) {
       if (queryPlan.inMemoryFields.length) {
         // need to filter some stuff in-memory
         res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
-
-        if ('limit' in requestDef || 'skip' in requestDef) {
-          // have to do the limit in-memory
-          var skip = requestDef.skip || 0;
-          var limit = ('limit' in requestDef ? requestDef.limit : res.rows.length) + skip;
-          res.rows = res.rows.slice(skip, limit);
-        }
       }
 
       return {
