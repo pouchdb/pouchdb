@@ -3545,6 +3545,32 @@ adapters.forEach(function (adapters) {
       })
       .catch(done);
     });
+
+    it('#3543 replication with a ddoc filter', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc._id === 'a';
+          }.toString()
+        }
+      },
+        {_id: 'a'},
+        {_id: 'b'},
+        {_id: 'c'}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('a');
+      });
+    });
+
   });
 });
 
