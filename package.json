@@ -30,8 +30,11 @@
     "localstorage-down": "^0.6.2",
     "memdown": "^1.0.0",
     "miller-rabin": "1.1.1",
+    "pouchdb-ajax": "^1.0.0",
+    "pouchdb-binary-util": "^1.0.0",
     "pouchdb-collate": "^1.2.0",
     "pouchdb-collections": "^1.0.0",
+    "pouchdb-errors": "^1.0.0",
     "pouchdb-extend": "^0.1.2",
     "pouchdb-mapreduce": "~2.3.2",
     "pouchdb-upsert": "^1.0.2",
@@ -103,7 +106,6 @@
     "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js"
   },
   "browser": {
-    "request": "./lib/deps/request-browser.js",
     "crypto": false,
     "./adapters/leveldb/leveldb": false,
     "./adapters/levelalt": false,
