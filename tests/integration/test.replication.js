@@ -288,8 +288,14 @@ adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs({keys: ['foo']});
       }).then(function (res) {
-        rev = res.rows[0].value.rev;
-        return db.put({_id: 'foo', _rev: rev});
+        if (testUtils.isSyncGateway() && !res.rows[0].value) {
+          return remote.get('foo', {open_revs:'all'}).then(function(doc){
+            return db.put({_id: 'foo', _rev: doc[0].ok._rev});
+          });
+        } else {
+          rev = res.rows[0].value.rev;
+          return db.put({_id: 'foo', _rev: rev});
+        }
       }).then(function () {
         return db.replicate.to(remote);
       }).then(function () {
