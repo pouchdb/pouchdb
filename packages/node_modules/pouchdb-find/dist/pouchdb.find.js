@@ -302,52 +302,73 @@ function getFieldFromDoc(doc, parsedField) {
   return value;
 }
 
+function createCriterion(userOperator, userValue, parsedField) {
+
+  // compare the value of the field in the doc
+  // to the user-supplied value, using the couchdb collation scheme
+  function getDocFieldCollate(doc) {
+    return collate(getFieldFromDoc(doc, parsedField), userValue);
+  }
+
+  function fieldExists(doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
+  }
+
+  switch (userOperator) {
+    case '$eq':
+      return function (doc) {
+        return fieldExists(doc) && getDocFieldCollate(doc) === 0;
+      };
+    case '$lte':
+      return function (doc) {
+        return fieldExists(doc) && getDocFieldCollate(doc) <= 0;
+      };
+    case '$gte':
+      return function (doc) {
+        return fieldExists(doc) && getDocFieldCollate(doc) >= 0;
+      };
+    case '$lt':
+      return function (doc) {
+        return fieldExists(doc) && getDocFieldCollate(doc) < 0;
+      };
+    case '$gt':
+      return function (doc) {
+        return fieldExists(doc) && getDocFieldCollate(doc) > 0;
+      };
+    case '$exists':
+      return function (doc) {
+        return fieldExists(doc);
+      };
+    case '$ne':
+      return function (doc) {
+        // might have to check multiple values, so I store this in an array
+        var docFieldValue = getFieldFromDoc(doc, parsedField);
+        return userValue.every(function (neValue) {
+          return collate(docFieldValue, neValue) !== 0;
+        });
+      };
+  }
+}
+
 function createFilterRowFunction(requestDef, inMemoryFields) {
 
-  var criteria = inMemoryFields.map(function (field) {
+  var criteria = [];
+  inMemoryFields.forEach(function (field) {
     var matcher = requestDef.selector[field];
     var parsedField = parseField(field);
 
-    var userOperator = getKey(matcher);
-    var userValue = getValue(matcher);
-
-    // compare the value of the field in the doc
-    // to the user-supplied value, using the couchdb collation scheme
-    function getDocFieldCollate(doc) {
-      return collate(getFieldFromDoc(doc, parsedField), userValue);
+    if (!matcher) {
+      // no filtering necessary; this field is just needed for sorting
+      return;
     }
 
-    switch (userOperator) {
-      case '$eq':
-        return function (doc) {
-          return getDocFieldCollate(doc) === 0;
-        };
-      case '$lte':
-        return function (doc) {
-          return getDocFieldCollate(doc) <= 0;
-        };
-      case '$gte':
-        return function (doc) {
-          return getDocFieldCollate(doc) >= 0;
-        };
-      case '$lt':
-        return function (doc) {
-          return getDocFieldCollate(doc) < 0;
-        };
-      case '$gt':
-        return function (doc) {
-          return getDocFieldCollate(doc) > 0;
-        };
-      case '$exists':
-        return function (doc) {
-          var docFieldValue = getFieldFromDoc(doc, parsedField);
-          return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
-        };
-      case '$ne':
-        return function (doc) {
-          return getDocFieldCollate(doc) !== 0;
-        };
-    }
+    Object.keys(matcher).forEach(function (userOperator) {
+      var userValue = matcher[userOperator];
+
+      var criterion = createCriterion(userOperator, userValue, parsedField);
+      criteria.push(criterion);
+    });
   });
 
   return function filterRowFunction(row) {
@@ -361,11 +382,47 @@ function createFilterRowFunction(requestDef, inMemoryFields) {
   };
 }
 
+// create a comparator based on the sort object
+function createFieldSorter(sort) {
+
+  function getFieldValuesAsArray(doc) {
+    return sort.map(function (sorting) {
+      var fieldName = typeof sorting === 'string' ? sorting : getKey(sorting);
+      var docFieldValue = getFieldFromDoc(doc, fieldName);
+      return docFieldValue;
+    });
+  }
+
+  return function (aDoc, bDoc) {
+    var aFieldValues = getFieldValuesAsArray(aDoc);
+    var bFieldValues = getFieldValuesAsArray(bDoc);
+    return collate(aFieldValues, bFieldValues);
+  };
+}
+
 // filter any fields not covered by the index
 function filterInMemoryFields(rows, requestDef, inMemoryFields) {
 
   var filter = createFilterRowFunction(requestDef, inMemoryFields);
-  return rows.filter(filter);
+  rows =  rows.filter(filter);
+
+  if (requestDef.sort) {
+    // in-memory sort
+    var fieldSorter = createFieldSorter(requestDef.sort);
+    rows.sort(fieldSorter);
+    if (typeof requestDef.sort[0] !== 'string' &&
+        getValue(requestDef.sort[0]) === 'desc') {
+      rows.reverse();
+    }
+  }
+
+  if ('limit' in requestDef || 'skip' in requestDef) {
+    // have to do the limit in-memory
+    var skip = requestDef.skip || 0;
+    var limit = ('limit' in requestDef ? requestDef.limit : rows.length) + skip;
+    rows = rows.slice(skip, limit);
+  }
+  return rows;
 }
 
 module.exports = filterInMemoryFields;
@@ -374,7 +431,7 @@ module.exports = filterInMemoryFields;
 
 var utils = require('../../../utils');
 var getIndexes = require('../get-indexes');
-
+var collate = require('pouchdb-collate').collate;
 var abstractMapper = require('../abstract-mapper');
 var planQuery = require('./query-planner');
 var localUtils = require('../utils');
@@ -409,6 +466,12 @@ function find(db, requestDef) {
       include_docs: true,
       reduce: false
     }, queryPlan.queryOpts);
+
+    if ('startkey' in opts && 'endkey' in opts &&
+        collate(opts.startkey, opts.endkey) > 0) {
+      // can't possibly return any results, startkey > endkey
+      return {docs: []};
+    }
 
     var isDescending = requestDef.sort &&
       typeof requestDef.sort[0] !== 'string' &&
@@ -449,13 +512,6 @@ function find(db, requestDef) {
       if (queryPlan.inMemoryFields.length) {
         // need to filter some stuff in-memory
         res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
-
-        if ('limit' in requestDef || 'skip' in requestDef) {
-          // have to do the limit in-memory
-          var skip = requestDef.skip || 0;
-          var limit = ('limit' in requestDef ? requestDef.limit : res.rows.length) + skip;
-          res.rows = res.rows.slice(skip, limit);
-        }
       }
 
       return {
@@ -472,20 +528,19 @@ function find(db, requestDef) {
 }
 
 module.exports = find;
-},{"../../../utils":12,"../abstract-mapper":2,"../get-indexes":8,"../utils":10,"./in-memory-filter":5,"./query-planner":7}],7:[function(require,module,exports){
+},{"../../../utils":12,"../abstract-mapper":2,"../get-indexes":8,"../utils":10,"./in-memory-filter":5,"./query-planner":7,"pouchdb-collate":44}],7:[function(require,module,exports){
 'use strict';
 
 var utils = require('../../../utils');
 var log = utils.log;
 var localUtils = require('../utils');
 var getKey = localUtils.getKey;
-var getValue = localUtils.getValue;
 var massageSort = localUtils.massageSort;
 
 // couchdb lowest collation value
 var COLLATE_LO = null;
 
-// couchdb highest collation value (TODO: well not really, but close)
+// couchdb highest collation value (TODO: well not really, but close enough amirite)
 var COLLATE_HI = {"\uffff": {}};
 
 // couchdb second-lowest collation value
@@ -504,25 +559,6 @@ var COLLATE_ARR_HI = [{'\uffff': {}}]; // TODO: yah I know
 var COLLATE_OBJ_LO = {};
 var COLLATE_OBJ_HI = {'\uffff': {}}; // TODO: yah I know
 
-//
-// normalize the selector
-//
-function massageSelector(selector) {
-  selector = utils.clone(selector);
-  var fields = Object.keys(selector);
-
-  fields.forEach(function (field) {
-    var matcher = selector[field];
-
-    if (typeof matcher === 'string') {
-      matcher = {$eq: matcher};
-    }
-    selector[field] = matcher;
-  });
-
-  return selector;
-}
-
 // determine the maximum number of fields
 // we're going to need to query, e.g. if the user
 // has selection ['a'] and sorting ['a', 'b'], then we
@@ -539,8 +575,7 @@ function getUserFields(selector, sort) {
 
   if (sortFields.length === 0) {
     return {
-      fields: userFields,
-      orderMatters: false
+      fields: userFields
     };
   }
 
@@ -559,7 +594,7 @@ function getUserFields(selector, sort) {
 
   return {
     fields: userFields,
-    orderMatters: true
+    sortOrder: sort.map(getKey)
   };
 }
 
@@ -586,15 +621,35 @@ function userOperatorLosesPrecision(selector, field) {
   return userOperator !== '$eq';
 }
 
+// sort the user fields by their position in the index,
+// if they're in the index
+function sortFieldsByIndex(userFields, index) {
+  var indexFields = index.def.fields.map(getKey);
 
-// get any fields that will need to be filtered in-memory
-// (i.e. because they aren't covered by the index)
-function getInMemoryFields(index, selector, fields) {
+  return userFields.slice().sort(function (a, b) {
+    var aIdx = indexFields.indexOf(a);
+    var bIdx = indexFields.indexOf(b);
+    if (aIdx === -1) {
+      aIdx = Number.MAX_VALUE;
+    }
+    if (bIdx === -1) {
+      bIdx = Number.MAX_VALUE;
+    }
+    return utils.compare(aIdx, bIdx);
+  });
+}
+
+// first pass to try to find fields that will need to be sorted in-memory
+function getBasicInMemoryFields(index, selector, userFields) {
+
+  userFields = sortFieldsByIndex(userFields, index);
+
+  // check if any of the user selectors lose precision
   var needToFilterInMemory = false;
-  for (var i = 0, len = fields.length; i < len; i++) {
-    var field = fields[i];
+  for (var i = 0, len = userFields.length; i < len; i++) {
+    var field = userFields[i];
     if (needToFilterInMemory || !checkFieldInIndex(index, field)) {
-      return fields.slice(i);
+      return userFields.slice(i);
     }
     if (i < len - 1 && userOperatorLosesPrecision(selector, field)) {
       needToFilterInMemory = true;
@@ -603,18 +658,68 @@ function getInMemoryFields(index, selector, fields) {
   return [];
 }
 
-function checkIndexMatches(index, orderMatters, fields) {
+// get any fields that will need to be filtered in-memory
+// (i.e. because they aren't covered by the index)
+function getInMemoryFields(index, selector, userFields) {
+
+  var inMemoryFields = getBasicInMemoryFields(index, selector, userFields);
+
+  // now check for any $ne fields at any position, because those will have to be
+  // filtered in-memory no matter what
+  Object.keys(selector).forEach(function (field) {
+    var matcher = selector[field];
+    if ('$ne' in matcher && inMemoryFields.indexOf(field) === -1) {
+      inMemoryFields.push(field);
+    }
+  });
+  return inMemoryFields;
+}
+
+// check that at least one field in the user's query is represented
+// in the index. order matters in the case of sorts
+function checkIndexFieldsMatch(indexFields, sortOrder, fields) {
+  if (sortOrder) {
+    // array has to be a strict subarray of index array. furthermore,
+    // the sortOrder fields need to all be represented in the index
+    var sortMatches = utils.oneArrayIsStrictSubArrayOfOther(sortOrder, indexFields);
+    var selectorMatches = utils.oneArrayIsSubArrayOfOther(fields, indexFields);
+
+    return sortMatches && selectorMatches;
+  }
+
+  // all of the user's specified fields still need to be
+  // on the left side of the index array, although the order
+  // doesn't matter
+  return utils.oneSetIsSubArrayOfOther(fields, indexFields);
+}
+
+// check all the index fields for usages of '$ne'
+// e.g. if the user queries {foo: {$ne: 'foo'}, bar: {$eq: 'bar'}},
+// then we can neither use an index on ['foo'] nor an index on
+// ['foo', 'bar'], but we can use an index on ['bar'] or ['bar', 'foo']
+function checkFieldsLogicallySound(indexFields, selector) {
+  var firstField = indexFields[0];
+  var matcher = selector[firstField];
+
+  var isInvalidNe = Object.keys(matcher).length === 1 &&
+    getKey(matcher) === '$ne';
+
+  return !isInvalidNe;
+}
+
+function checkIndexMatches(index, sortOrder, fields, selector) {
 
   var indexFields = index.def.fields.map(getKey);
 
-  if (orderMatters) {
-    // array has to be a strict subset of index array
-    return utils.oneArrayIsSubArrayOfOther(fields, indexFields);
-  } else {
-    // all of the user's specified fields still need to be
-    // on the left of the index array
-    return utils.oneSetIsSubArrayOfOther(fields, indexFields);
+  var fieldsMatch = checkIndexFieldsMatch(indexFields, sortOrder, fields);
+
+  if (!fieldsMatch) {
+    return false;
   }
+
+  var logicallySound = checkFieldsLogicallySound(indexFields, selector);
+
+  return logicallySound;
 }
 
 //
@@ -624,12 +729,12 @@ function checkIndexMatches(index, orderMatters, fields) {
 // then use that index
 //
 //
-function findMatchingIndexes(userFields, orderMatters, indexes) {
+function findMatchingIndexes(selector, userFields, sortOrder, indexes) {
 
   var res = [];
   for (var i = 0, iLen = indexes.length; i < iLen; i++) {
     var index = indexes[i];
-    var indexMatches = checkIndexMatches(index, orderMatters, userFields);
+    var indexMatches = checkIndexMatches(index, sortOrder, userFields, selector);
     if (indexMatches) {
       res.push(index);
     }
@@ -639,9 +744,9 @@ function findMatchingIndexes(userFields, orderMatters, indexes) {
 
 // find the best index, i.e. the one that matches the most fields
 // in the user's query
-function findBestMatchingIndex(userFields, orderMatters, indexes) {
+function findBestMatchingIndex(selector, userFields, sortOrder, indexes) {
 
-  var matchingIndexes = findMatchingIndexes(userFields, orderMatters, indexes);
+  var matchingIndexes = findMatchingIndexes(selector, userFields, sortOrder, indexes);
 
   if (matchingIndexes.length === 0) {
     return null;
@@ -667,12 +772,7 @@ function findBestMatchingIndex(userFields, orderMatters, indexes) {
   return utils.max(matchingIndexes, scoreIndex);
 }
 
-function getSingleFieldQueryOpts(selector, index) {
-  var field = getKey(index.def.fields[0]);
-  var matcher = selector[field];
-  var userOperator = getKey(matcher);
-  var userValue = getValue(matcher);
-
+function getSingleFieldQueryOptsFor(userOperator, userValue) {
   switch (userOperator) {
     case '$eq':
       return {key: userValue};
@@ -737,6 +837,68 @@ function getSingleFieldQueryOpts(selector, index) {
   }
 }
 
+function getSingleFieldQueryOpts(selector, index) {
+  var field = getKey(index.def.fields[0]);
+  var matcher = selector[field];
+
+  var userOperators = Object.keys(matcher);
+
+  var combinedOpts;
+
+  for (var i = 0; i < userOperators.length; i++) {
+    var userOperator = userOperators[i];
+    var userValue = matcher[userOperator];
+
+    var newQueryOpts = getSingleFieldQueryOptsFor(userOperator, userValue);
+    if (combinedOpts) {
+      combinedOpts = utils.mergeObjects([combinedOpts, newQueryOpts]);
+    } else {
+      combinedOpts = newQueryOpts;
+    }
+  }
+  return combinedOpts;
+}
+
+function getMultiFieldQueryOptsFor(userOperator, userValue) {
+  switch (userOperator) {
+    case '$eq':
+      return {
+        startkey: userValue,
+        endkey: userValue
+      };
+    case '$lte':
+      return {
+        endkey: userValue
+      };
+    case '$gte':
+      return {
+        startkey: userValue
+      };
+    case '$lt':
+      return {
+        endkey: userValue,
+        inclusive_end: false
+      };
+    case '$gt':
+      return {
+        startkey: userValue,
+        inclusive_start: false
+      };
+    case '$exists':
+      if (userValue) {
+        return {
+          startkey: COLLATE_LO_PLUS_1,
+          endkey: COLLATE_HI
+        };
+      } else {
+        return {
+          startkey: COLLATE_LO,
+          endkey: COLLATE_LO
+        };
+      }
+  }
+}
+
 function getMultiFieldQueryOpts(selector, index) {
 
   var indexFields = index.def.fields.map(getKey);
@@ -751,48 +913,41 @@ function getMultiFieldQueryOpts(selector, index) {
 
     var matcher = selector[indexField];
 
-    if (!matcher) {
-      // fewer fields in user query than in index
-      startkey.push(COLLATE_LO);
-      endkey.push(COLLATE_HI);
+    if (!matcher || getKey(matcher) === '$ne') {
+      // fewer fields in user query than in index, or unusable $ne field
+      if (inclusiveStart !== false) {
+        startkey.push(COLLATE_LO);
+      }
+      if (inclusiveEnd !== false) {
+        endkey.push(COLLATE_HI);
+      }
       continue;
     }
 
-    var userOperator = getKey(matcher);
-    var userValue = getValue(matcher);
+    var userOperators = Object.keys(matcher);
 
-    switch (userOperator) {
-      case '$eq':
-        startkey.push(userValue);
-        endkey.push(userValue);
-        break;
-      case '$lte':
-        startkey.push(COLLATE_LO);
-        endkey.push(userValue);
-        break;
-      case '$gte':
-        startkey.push(userValue);
-        endkey.push(COLLATE_HI);
-        break;
-      case '$lt':
-        startkey.push(COLLATE_LO);
-        endkey.push(userValue);
-        inclusiveEnd = false;
-        break;
-      case '$gt':
-        startkey.push(userValue);
-        endkey.push(COLLATE_HI);
-        inclusiveStart = false;
-        break;
-      case '$exists':
-        if (userValue) {
-          startkey.push(COLLATE_LO_PLUS_1);
-          endkey.push(COLLATE_HI);
-        } else {
-          startkey.push(COLLATE_LO);
-          endkey.push(COLLATE_LO);
-        }
-        break;
+    var combinedOpts = null;
+
+    for (var j = 0; j < userOperators.length; j++) {
+      var userOperator = userOperators[j];
+      var userValue = matcher[userOperator];
+
+      var newOpts = getMultiFieldQueryOptsFor(userOperator, userValue);
+
+      if (combinedOpts) {
+        combinedOpts = utils.mergeObjects([combinedOpts, newOpts]);
+      } else {
+        combinedOpts = newOpts;
+      }
+    }
+
+    startkey.push('startkey' in combinedOpts ? combinedOpts.startkey : COLLATE_LO);
+    endkey.push('endkey' in combinedOpts ? combinedOpts.endkey : COLLATE_HI);
+    if ('inclusive_start' in combinedOpts) {
+      inclusiveStart = combinedOpts.inclusive_start;
+    }
+    if ('inclusive_end' in combinedOpts) {
+      inclusiveEnd = combinedOpts.inclusive_end;
     }
   }
 
@@ -820,25 +975,32 @@ function getQueryOpts(selector, index) {
   return getMultiFieldQueryOpts(selector, index);
 }
 
+function noIndexFoundError(userFields) {
+  var message = 'couldn\'t find a usable index. try creating an index on: ' +
+      userFields.join(', ');
+  return new Error(message);
+}
+
 function planQuery(request, indexes) {
 
   log('planning query', request);
 
-  var selector = massageSelector(request.selector);
+  var selector = request.selector;
   var sort = massageSort(request.sort);
 
   var userFieldsRes = getUserFields(selector, sort);
 
   var userFields = userFieldsRes.fields;
-  var orderMatters = userFieldsRes.orderMatters;
-  var index = findBestMatchingIndex(userFields, orderMatters, indexes);
+  var sortOrder = userFieldsRes.sortOrder;
+  var index = findBestMatchingIndex(selector, userFields, sortOrder, indexes);
 
   if (!index) {
-    throw new Error('couldn\'t find any index to use');
+    throw noIndexFoundError(userFields);
   }
 
-  var firstUserOperator = getKey(selector[getKey(index.def.fields[0])]);
-  if (firstUserOperator === '$ne') {
+  var firstIndexField = index.def.fields[0];
+  var firstMatcher = selector[getKey(firstIndexField)];
+  if (Object.keys(firstMatcher).length === 1 && getKey(firstMatcher) === '$ne') {
     throw new Error('$ne can\'t be used here. try $gt/$lt instead');
   }
 
@@ -937,6 +1099,12 @@ function getSize(obj) {
   return Object.keys(obj).length;
 }
 
+function objectFrom(key, value) {
+  var res = {};
+  res[key] = value;
+  return res;
+}
+
 // normalize the "sort" value
 function massageSort(sort) {
   return sort && sort.map(function (sorting) {
@@ -950,11 +1118,159 @@ function massageSort(sort) {
   });
 }
 
-function massageSelector(selector) {
-  var result = utils.clone(selector);
-  if ('$and' in result) {
-    result = utils.mergeObjects(result.$and);
+// collapse logically equivalent gt/gte values
+function mergeGtGte(operator, value, fieldMatchers) {
+  if (typeof fieldMatchers.$eq !== 'undefined') {
+    // TODO: check for logical errors here
+    return; // do nothing
   }
+  if (typeof fieldMatchers.$gte !== 'undefined') {
+    if (operator === '$gte') {
+      if (value > fieldMatchers.$gte) { // more specificity
+        fieldMatchers.$gte = value;
+      }
+    } else { // operator === '$gt'
+      if (value >= fieldMatchers.$gte) { // more specificity
+        delete fieldMatchers.$gte;
+        fieldMatchers.$gt = value;
+      }
+    }
+  } else if (typeof fieldMatchers.$gt !== 'undefined') {
+    if (operator === '$gte') {
+      if (value > fieldMatchers.$gt) { // more specificity
+        delete fieldMatchers.$gt;
+        fieldMatchers.$gte = value;
+      }
+    } else { // operator === '$gt'
+      if (value > fieldMatchers.$gt) { // more specificity
+        fieldMatchers.$gt = value;
+      }
+    }
+  } else {
+    fieldMatchers[operator] = value;
+  }
+}
+
+// collapse logically equivalent lt/lte values
+function mergeLtLte(operator, value, fieldMatchers) {
+  if (typeof fieldMatchers.$eq !== 'undefined') {
+    // TODO: check for logical errors here
+    return; // do nothing
+  }
+  if (typeof fieldMatchers.$lte !== 'undefined') {
+    if (operator === '$lte') {
+      if (value < fieldMatchers.$lte) { // more specificity
+        fieldMatchers.$lte = value;
+      }
+    } else { // operator === '$gt'
+      if (value <= fieldMatchers.$lte) { // more specificity
+        delete fieldMatchers.$lte;
+        fieldMatchers.$lt = value;
+      }
+    }
+  } else if (typeof fieldMatchers.$lt !== 'undefined') {
+    if (operator === '$lte') {
+      if (value < fieldMatchers.$lt) { // more specificity
+        delete fieldMatchers.$lt;
+        fieldMatchers.$lte = value;
+      }
+    } else { // operator === '$gt'
+      if (value < fieldMatchers.$lt) { // more specificity
+        fieldMatchers.$lt = value;
+      }
+    }
+  } else {
+    fieldMatchers[operator] = value;
+  }
+}
+
+// combine $ne values into one array
+function mergeNe(value, fieldMatchers) {
+  if (typeof fieldMatchers.$eq !== 'undefined') {
+    // TODO: check for logical errors here
+    return; // do nothing
+  }
+  if ('$ne' in fieldMatchers) {
+    // there are many things this could "not" be
+    fieldMatchers.$ne.push(value);
+  } else { // doesn't exist yet
+    fieldMatchers.$ne = [value];
+  }
+}
+
+// add $eq into the mix
+function mergeEq(value, fieldMatchers) {
+  // these all have less specificity than the $eq
+  // TODO: check for user errors here
+  delete fieldMatchers.$gt;
+  delete fieldMatchers.$gte;
+  delete fieldMatchers.$lt;
+  delete fieldMatchers.$lte;
+  delete fieldMatchers.$ne;
+  fieldMatchers.$eq = value;
+}
+
+// flatten an array of selectors joined by an $and operator
+function mergeAndedSelectors(selectors) {
+
+  // sort to ensure that e.g. if the user specified
+  // $and: [{$gt: 'a'}, {$gt: 'b'}], then it's collapsed into
+  // just {$gt: 'b'}
+  var res = {};
+
+  selectors.forEach(function (selector) {
+    Object.keys(selector).forEach(function (field) {
+      var matcher = selector[field];
+      if (typeof matcher === 'string') {
+        matcher = {$eq: matcher};
+      }
+      var fieldMatchers = res[field] = res[field] || {};
+      Object.keys(matcher).forEach(function (operator) {
+        var value = matcher[operator];
+
+        if (operator === '$gt' || operator === '$gte') {
+          return mergeGtGte(operator, value, fieldMatchers);
+        } else if (operator === '$lt' || operator === '$lte') {
+          return mergeLtLte(operator, value, fieldMatchers);
+        } else if (operator === '$ne') {
+          return mergeNe(value, fieldMatchers);
+        } else if (operator === '$eq') {
+          return mergeEq(value, fieldMatchers);
+        }
+        fieldMatchers[operator] = value;
+      });
+    });
+  });
+
+  return res;
+}
+
+//
+// normalize the selector
+//
+function massageSelector(input) {
+  var result = utils.clone(input);
+  var wasAnded = false;
+  if ('$and' in result) {
+    result = mergeAndedSelectors(result['$and']);
+    wasAnded = true;
+  }
+  var fields = Object.keys(result);
+
+  for (var i = 0; i < fields.length; i++) {
+    var field = fields[i];
+    var matcher = result[field];
+
+    if (typeof matcher === 'string') {
+      matcher = {$eq: matcher};
+    } else if ('$ne' in matcher && !wasAnded) {
+      // I put these in an array, since there may be more than one
+      // but in the "mergeAnded" operation, I already take care of that
+      matcher.$ne = [matcher.$ne];
+    }
+    result[field] = matcher;
+  }
+
   return result;
 }
 
@@ -977,14 +1293,10 @@ function filterInclusiveStart(rows, targetValue) {
   for (var i = 0, len = rows.length; i < len; i++) {
     var row = rows[i];
     if (collate.collate(row.key, targetValue) > 0) {
-      if (i > 0) {
-        return rows.slice(i);
-      } else {
-        return rows;
-      }
+      break;
     }
   }
-  return rows;
+  return i > 0 ? rows.slice(i) : rows;
 }
 
 function reverseOptions(opts) {
@@ -1033,6 +1345,20 @@ function validateFindRequest(requestDef) {
   if (!utils.oneSetIsSubArrayOfOther(selectorFields, sortFields)) {
     throw new Error('conflicting sort and selector fields');
   }
+
+  var selectors = requestDef.selector['$and'] || [requestDef.selector];
+  for (var i = 0; i < selectors.length; i++) {
+    var selector = selectors[i];
+    var keys = Object.keys(selector);
+    if (keys.length === 0) {
+      throw new Error('invalid empty selector');
+    }
+    //var selection = selector[keys[0]];
+    /*if (Object.keys(selection).length !== 1) {
+      throw new Error('invalid selector: ' + JSON.stringify(selection) +
+        ' - it must have exactly one key/value');
+    }*/
+  }
 }
 
 function parseField(fieldName) {
@@ -1069,7 +1395,8 @@ module.exports = {
   reverseOptions: reverseOptions,
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
-  parseField: parseField
+  parseField: parseField,
+  objectFrom: objectFrom
 };
 },{"../../utils":12,"pouchdb-collate":44}],11:[function(require,module,exports){
 'use strict';
@@ -1327,12 +1654,23 @@ exports.pick = function (obj, arr) {
 
 // e.g. ['a'], ['a', 'b'] is true, but ['b'], ['a', 'b'] is false
 exports.oneArrayIsSubArrayOfOther = function (left, right) {
+
   for (var i = 0, len = Math.min(left.length, right.length); i < len; i++) {
     if (left[i] !== right[i]) {
       return false;
     }
   }
   return true;
+};
+
+// e.g.['a', 'b', 'c'], ['a', 'b'] is false
+exports.oneArrayIsStrictSubArrayOfOther = function (left, right) {
+
+  if (left.length > right.length) {
+    return false;
+  }
+
+  return exports.oneArrayIsSubArrayOfOther(left, right);
 };
 
 // same as above, but treat the left array as an unordered set
