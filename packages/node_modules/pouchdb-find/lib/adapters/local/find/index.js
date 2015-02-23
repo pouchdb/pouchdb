@@ -8,6 +8,7 @@ var planQuery = require('./query-planner');
 var localUtils = require('../utils');
 var filterInMemoryFields = require('./in-memory-filter');
 var massageSelector = localUtils.massageSelector;
+var massageSort = localUtils.massageSort;
 var getValue = localUtils.getValue;
 var validateFindRequest = localUtils.validateFindRequest;
 var reverseOptions = localUtils.reverseOptions;
@@ -23,6 +24,9 @@ function find(db, requestDef) {
 
   if (requestDef.selector) {
     requestDef.selector = massageSelector(requestDef.selector);
+  }
+  if (requestDef.sort) {
+    requestDef.sort = massageSort(requestDef.sort);
   }
 
   validateFindRequest(requestDef);
@@ -77,7 +81,7 @@ function find(db, requestDef) {
       if (opts.inclusive_start === false) {
         // may have to manually filter the first one,
         // since couchdb has no true inclusive_start option
-        res.rows = filterInclusiveStart(res.rows, opts.startkey);
+        res.rows = filterInclusiveStart(res.rows, opts.startkey, indexToUse);
       }
 
       if (queryPlan.inMemoryFields.length) {

@@ -1,0 +1,37 @@
+'use strict';
+
+module.exports = function (dbName, dbType, Pouch) {
+  describe(dbType + ' test suite 1', function () {
+    this.timeout(100000);
+
+    var context = {};
+
+    beforeEach(function () {
+      this.timeout(60000);
+      context.db = new Pouch(dbName);
+      return context.db;
+    });
+    afterEach(function () {
+      this.timeout(60000);
+      return context.db.destroy();
+    });
+
+    require('./test.basic')(dbType, context);
+    require('./test.basic2')(dbType, context);
+    require('./test.ddoc')(dbType, context);
+    require('./test.set-operations')(dbType, context);
+    require('./test.limit')(dbType, context);
+    require('./test.skip')(dbType, context);
+    require('./test.limit-skip')(dbType, context);
+    require('./test.sorting')(dbType, context);
+    require('./test.fields')(dbType, context);
+    require('./test.ltgt')(dbType, context);
+    require('./test.eq')(dbType, context);
+    require('./test.deep-fields')(dbType, context);
+    require('./test.exists')(dbType, context);
+    require('./test.type')(dbType, context);
+    require('./test.ne')(dbType, context);
+    require('./test.matching-indexes')(dbType, context);
+    require('./test.errors')(dbType, context);
+  });
+};

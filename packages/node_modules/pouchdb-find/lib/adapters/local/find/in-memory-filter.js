@@ -12,6 +12,7 @@ var localUtils = require('../utils');
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var parseField = localUtils.parseField;
+var utils = require('../../../utils');
 
 // this would just be "return doc[field]", but fields
 // can be "deep" due to dot notation
@@ -113,15 +114,21 @@ function createFieldSorter(sort) {
   function getFieldValuesAsArray(doc) {
     return sort.map(function (sorting) {
       var fieldName = typeof sorting === 'string' ? sorting : getKey(sorting);
-      var docFieldValue = getFieldFromDoc(doc, fieldName);
+      var parsedField = parseField(fieldName);
+      var docFieldValue = getFieldFromDoc(doc, parsedField);
       return docFieldValue;
     });
   }
 
-  return function (aDoc, bDoc) {
-    var aFieldValues = getFieldValuesAsArray(aDoc);
-    var bFieldValues = getFieldValuesAsArray(bDoc);
-    return collate(aFieldValues, bFieldValues);
+  return function (aRow, bRow) {
+    var aFieldValues = getFieldValuesAsArray(aRow.doc);
+    var bFieldValues = getFieldValuesAsArray(bRow.doc);
+    var collation = collate(aFieldValues, bFieldValues);
+    if (collation !== 0) {
+      return collation;
+    }
+    // this is what mango seems to do
+    return utils.compare(aRow.doc._id, bRow.doc._id);
   };
 }
 
@@ -134,10 +141,10 @@ function filterInMemoryFields(rows, requestDef, inMemoryFields) {
   if (requestDef.sort) {
     // in-memory sort
     var fieldSorter = createFieldSorter(requestDef.sort);
-    rows.sort(fieldSorter);
+    rows = rows.sort(fieldSorter);
     if (typeof requestDef.sort[0] !== 'string' &&
         getValue(requestDef.sort[0]) === 'desc') {
-      rows.reverse();
+      rows = rows.reverse();
     }
   }
 

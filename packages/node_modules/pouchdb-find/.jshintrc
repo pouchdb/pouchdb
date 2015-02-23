@@ -22,6 +22,8 @@
     "require",
     "console",
     "describe",
+    "before",
+    "after",
     "beforeEach",
     "afterEach",
     "it",
