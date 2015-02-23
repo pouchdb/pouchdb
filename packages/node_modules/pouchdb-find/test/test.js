@@ -27,10 +27,12 @@ function tests(dbName, dbType) {
     var context = {};
 
     beforeEach(function () {
+      this.timeout(60000);
       context.db = new Pouch(dbName);
       return context.db;
     });
     afterEach(function () {
+      this.timeout(60000);
       return context.db.destroy();
     });
 
