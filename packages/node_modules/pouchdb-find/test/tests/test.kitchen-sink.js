@@ -22,6 +22,7 @@ module.exports = function (dbType, context) {
   describe(dbType + ': kitchen-sink', function () {
 
     beforeEach(function () {
+      this.timeout(60000);
       return context.db.bulkDocs([
         { name: 'mario', _id: 'mario', rank: 5, series: 'mario', debut: 1981 },
         { name: 'jigglypuff', _id: 'puff', rank: 8, series: 'pokemon', debut: 1996 },
