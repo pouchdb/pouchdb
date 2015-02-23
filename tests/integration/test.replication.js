@@ -62,9 +62,18 @@ adapters.forEach(function (adapters) {
 
     function verifyInfo(info, expected) {
       if (!testUtils.isCouchMaster()) {
-        info.update_seq.should.equal(expected.update_seq, 'update_seq');
+        if (typeof info.doc_count === 'undefined') { 
+          // info is from Sync Gateway, which allocates an extra seqnum
+          // for user access control purposes.
+          info.update_seq.should.be.within(expected.update_seq, 
+            expected.update_seq + 1, 'update_seq');
+        } else {
+          info.update_seq.should.equal(expected.update_seq, 'update_seq');
+        }
       }
-      info.doc_count.should.equal(expected.doc_count, 'doc_count');
+      if (info.doc_count) { // info is NOT from Sync Gateway
+        info.doc_count.should.equal(expected.doc_count, 'doc_count');
+      }
     }
 
     it('Test basic pull replication', function (done) {
