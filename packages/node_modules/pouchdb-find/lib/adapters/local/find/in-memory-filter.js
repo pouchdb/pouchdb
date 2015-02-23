@@ -112,7 +112,7 @@ function createFieldSorter(sort) {
 
   function getFieldValuesAsArray(doc) {
     return sort.map(function (sorting) {
-      var fieldName = getKey(sorting);
+      var fieldName = typeof sorting === 'string' ? sorting : getKey(sorting);
       var docFieldValue = getFieldFromDoc(doc, fieldName);
       return docFieldValue;
     });
@@ -135,7 +135,8 @@ function filterInMemoryFields(rows, requestDef, inMemoryFields) {
     // in-memory sort
     var fieldSorter = createFieldSorter(requestDef.sort);
     rows.sort(fieldSorter);
-    if (getValue(requestDef.sort[0]) === 'desc') {
+    if (typeof requestDef.sort[0] !== 'string' &&
+        getValue(requestDef.sort[0]) === 'desc') {
       rows.reverse();
     }
   }
