@@ -4,7 +4,8 @@ var utils = require('../../../utils');
 var log = utils.log;
 var localUtils = require('../utils');
 var getKey = localUtils.getKey;
-var massageSort = localUtils.massageSort;
+var getValue = localUtils.getValue;
+var getUserFields = localUtils.getUserFields;
 
 // couchdb lowest collation value
 var COLLATE_LO = null;
@@ -27,45 +28,6 @@ var COLLATE_ARR_LO = [];
 var COLLATE_ARR_HI = [{'\uffff': {}}]; // TODO: yah I know
 var COLLATE_OBJ_LO = {};
 var COLLATE_OBJ_HI = {'\uffff': {}}; // TODO: yah I know
-
-// determine the maximum number of fields
-// we're going to need to query, e.g. if the user
-// has selection ['a'] and sorting ['a', 'b'], then we
-// need to use the longer of the two: ['a', 'b']
-function getUserFields(selector, sort) {
-  var selectorFields = Object.keys(selector);
-  var sortFields = sort? sort.map(getKey) : [];
-  var userFields;
-  if (selectorFields.length > sortFields.length) {
-    userFields = selectorFields;
-  } else {
-    userFields = sortFields;
-  }
-
-  if (sortFields.length === 0) {
-    return {
-      fields: userFields
-    };
-  }
-
-  // sort according to the user's preferred sorting
-  userFields = userFields.sort(function (left, right) {
-    var leftIdx = sortFields.indexOf(left);
-    if (leftIdx === -1) {
-      leftIdx = Number.MAX_VALUE;
-    }
-    var rightIdx = sortFields.indexOf(right);
-    if (rightIdx === -1) {
-      rightIdx = Number.MAX_VALUE;
-    }
-    return leftIdx < rightIdx ? -1 : leftIdx > rightIdx ? 1 : 0;
-  });
-
-  return {
-    fields: userFields,
-    sortOrder: sort.map(getKey)
-  };
-}
 
 function checkFieldInIndex(index, field) {
   var indexFields = index.def.fields.map(getKey);
@@ -127,21 +89,31 @@ function getBasicInMemoryFields(index, selector, userFields) {
   return [];
 }
 
-// get any fields that will need to be filtered in-memory
-// (i.e. because they aren't covered by the index)
-function getInMemoryFields(index, selector, userFields) {
-
-  var inMemoryFields = getBasicInMemoryFields(index, selector, userFields);
-
-  // now check for any $ne fields at any position, because those will have to be
-  // filtered in-memory no matter what
+function getInMemoryFieldsFromNe(selector) {
+  var fields = [];
   Object.keys(selector).forEach(function (field) {
     var matcher = selector[field];
-    if ('$ne' in matcher && inMemoryFields.indexOf(field) === -1) {
-      inMemoryFields.push(field);
-    }
+    Object.keys(matcher).forEach(function (operator) {
+      if (operator === '$ne') {
+        fields.push(field);
+      }
+    });
   });
-  return inMemoryFields;
+  return fields;
+}
+
+function getInMemoryFields(coreInMemoryFields, index, selector, userFields) {
+
+  var result = utils.flatten(
+    // in-memory fields reported as necessary by the query planner
+    coreInMemoryFields,
+    // combine with another pass that checks for any we may have missed
+    getBasicInMemoryFields(index, selector, userFields),
+    // combine with another pass that checks for $ne's
+    getInMemoryFieldsFromNe(selector)
+  );
+
+  return sortFieldsByIndex(utils.uniq(result), index);
 }
 
 // check that at least one field in the user's query is represented
@@ -306,7 +278,7 @@ function getSingleFieldQueryOptsFor(userOperator, userValue) {
   }
 }
 
-function getSingleFieldQueryOpts(selector, index) {
+function getSingleFieldCoreQueryPlan(selector, index) {
   var field = getKey(index.def.fields[0]);
   var matcher = selector[field];
 
@@ -325,10 +297,15 @@ function getSingleFieldQueryOpts(selector, index) {
       combinedOpts = newQueryOpts;
     }
   }
-  return combinedOpts;
+
+  return {
+    queryOpts: combinedOpts,
+    // can't possibly require in-memory fields, since one field
+    inMemoryFields: []
+  };
 }
 
-function getMultiFieldQueryOptsFor(userOperator, userValue) {
+function getMultiFieldCoreQueryPlan(userOperator, userValue) {
   switch (userOperator) {
     case '$eq':
       return {
@@ -372,25 +349,50 @@ function getMultiFieldQueryOpts(selector, index) {
 
   var indexFields = index.def.fields.map(getKey);
 
+  var inMemoryFields = [];
   var startkey = [];
   var endkey = [];
   var inclusiveStart;
   var inclusiveEnd;
+
+
+  function finish(i) {
+
+    if (inclusiveStart !== false) {
+      startkey.push(COLLATE_LO);
+    }
+    if (inclusiveEnd !== false) {
+      endkey.push(COLLATE_HI);
+    }
+    // keep track of the fields where we lost specificity,
+    // and therefore need to filter in-memory
+    inMemoryFields = indexFields.slice(i);
+  }
 
   for (var i = 0, len = indexFields.length; i < len; i++) {
     var indexField = indexFields[i];
 
     var matcher = selector[indexField];
 
-    if (!matcher || getKey(matcher) === '$ne') {
-      // fewer fields in user query than in index, or unusable $ne field
-      if (inclusiveStart !== false) {
-        startkey.push(COLLATE_LO);
+    if (!matcher) { // fewer fields in user query than in index
+      finish(i);
+      break;
+    } else if (i > 0) {
+      if ('$ne' in matcher) { // unusable $ne index
+        finish(i);
+        break;
       }
-      if (inclusiveEnd !== false) {
-        endkey.push(COLLATE_HI);
+      var usingGtlt = (
+        '$gt' in matcher || '$gte' in matcher ||
+        '$lt' in matcher || '$lte' in matcher);
+      var previousKeys = Object.keys(indexFields[i - 1]);
+      var previousWasEq = utils.arrayEquals(previousKeys, ['$eq']);
+      var previousWasSame = utils.arrayEquals(previousKeys, Object.keys(matcher));
+      var gtltLostSpecificity = usingGtlt && !previousWasEq && !previousWasSame;
+      if (gtltLostSpecificity) {
+        finish(i);
+        break;
       }
-      continue;
     }
 
     var userOperators = Object.keys(matcher);
@@ -401,7 +403,7 @@ function getMultiFieldQueryOpts(selector, index) {
       var userOperator = userOperators[j];
       var userValue = matcher[userOperator];
 
-      var newOpts = getMultiFieldQueryOptsFor(userOperator, userValue);
+      var newOpts = getMultiFieldCoreQueryPlan(userOperator, userValue);
 
       if (combinedOpts) {
         combinedOpts = utils.mergeObjects([combinedOpts, newOpts]);
@@ -432,22 +434,36 @@ function getMultiFieldQueryOpts(selector, index) {
     res.inclusive_end = inclusiveEnd;
   }
 
-  return res;
+  return {
+    queryOpts: res,
+    inMemoryFields: inMemoryFields
+  };
 }
 
-function getQueryOpts(selector, index) {
+function getCoreQueryPlan(selector, index) {
   if (index.def.fields.length === 1) {
     // one field in index, so the value was indexed as a singleton
-    return getSingleFieldQueryOpts(selector, index);
+    return getSingleFieldCoreQueryPlan(selector, index);
   }
   // else index has multiple fields, so the value was indexed as an array
   return getMultiFieldQueryOpts(selector, index);
 }
 
-function noIndexFoundError(userFields) {
-  var message = 'couldn\'t find a usable index. try creating an index on: ' +
-      userFields.join(', ');
-  return new Error(message);
+function createNoIndexFoundError(userFields, sortFields, selector) {
+
+  if (getKey(getValue(selector)) === '$ne') {
+    // blame it on the $ne
+    return new Error('couldn\'t find a usable index. try using ' +
+      '$and with $lt/$gt instead of $ne');
+  }
+
+  var fieldsToSuggest = (sortFields && sortFields.length >= userFields.length) ?
+    sortFields : userFields;
+
+  return new Error(
+    'couldn\'t find a usable index. try creating an index on: ' +
+    fieldsToSuggest.join(', ')
+  );
 }
 
 function planQuery(request, indexes) {
@@ -455,7 +471,7 @@ function planQuery(request, indexes) {
   log('planning query', request);
 
   var selector = request.selector;
-  var sort = massageSort(request.sort);
+  var sort = request.sort;
 
   var userFieldsRes = getUserFields(selector, sort);
 
@@ -464,7 +480,7 @@ function planQuery(request, indexes) {
   var index = findBestMatchingIndex(selector, userFields, sortOrder, indexes);
 
   if (!index) {
-    throw noIndexFoundError(userFields);
+    throw createNoIndexFoundError(userFields, sortOrder, selector);
   }
 
   var firstIndexField = index.def.fields[0];
@@ -473,9 +489,11 @@ function planQuery(request, indexes) {
     throw new Error('$ne can\'t be used here. try $gt/$lt instead');
   }
 
-  var queryOpts = getQueryOpts(selector, index);
+  var coreQueryPlan = getCoreQueryPlan(selector, index);
+  var queryOpts = coreQueryPlan.queryOpts;
+  var coreInMemoryFields = coreQueryPlan.inMemoryFields;
 
-  var inMemoryFields = getInMemoryFields(index, selector, userFields);
+  var inMemoryFields = getInMemoryFields(coreInMemoryFields, index, selector, userFields);
 
   var res = {
     queryOpts: queryOpts,

@@ -249,4 +249,26 @@ exports.max = function (arr, fun) {
   return max;
 };
 
+exports.arrayEquals = function (arr1, arr2) {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  for (var i = 0, len = arr1.length; i < len; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+  return true;
+};
+
+exports.uniq = function(arr) {
+  var obj = {};
+  for (var i = 0; i < arr.length; i++) {
+    obj['$' + arr[i]] = true;
+  }
+  return Object.keys(obj).map(function (key) {
+    return key.substring(1);
+  });
+};
+
 exports.log = require('debug')('pouchdb:find');

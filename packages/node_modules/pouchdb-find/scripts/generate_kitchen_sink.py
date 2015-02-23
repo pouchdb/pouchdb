@@ -8,18 +8,18 @@ operators = ['$gt', '$gte', '$eq', '$ne', '$lt', '$lte']
 fields = ['_id', 'rank', 'series', 'debut', 'name']
 
 docs = [
-  {'debut': 1981, 'series': 'Mario', '_id': 'mario', 'name': 'Mario', 'rank': 5}, 
-  {'debut': 1996, 'series': 'Pokemon', '_id': 'puff', 'name': 'Jigglypuff', 'rank': 8}, 
-  {'debut': 1986, 'series': 'Zelda', '_id': 'link', 'name': 'Link', 'rank': 10}, 
-  {'debut': 1981, 'series': 'Mario', '_id': 'dk', 'name': 'Donkey Kong', 'rank': 7}, 
-  {'debut': 1996, 'series': 'Pokemon', '_id': 'pikach', 'name': 'Pikach', 'rank': 1}, 
-  {'debut': 1990, 'series': 'F-Zero', '_id': 'falcon', 'name': 'Captain Falcon', 'rank': 4},
-  {'debut': 1983, 'series': 'Mario', '_id': 'luigi', 'name': 'Luigi', 'rank': 11}, 
-  {'debut': 1993, 'series': 'Star Fox', '_id': 'fox', 'name': 'Fox', 'rank': 3}, 
-  {'debut': 1994, 'series': 'Earthbound', '_id': 'ness', 'name': 'Ness', 'rank': 9}, 
-  {'debut': 1986, 'series': 'Metroid', '_id': 'samus', 'name': 'Samus', 'rank': 12}, 
-  {'debut': 1990, 'series': 'Mario', '_id': 'yoshi', 'name': 'Yoshi', 'rank': 6}, 
-  {'debut': 1992, 'series': 'Kirby', '_id': 'kirby', 'name': 'Kirby', 'rank': 2}]
+  {'debut': 1981, 'series': 'mario', '_id': 'mario', 'name': 'mario', 'rank': 5},
+  {'debut': 1996, 'series': 'pokemon', '_id': 'puff', 'name': 'jigglypuff', 'rank': 8},
+  {'debut': 1986, 'series': 'zelda', '_id': 'link', 'name': 'link', 'rank': 10},
+  {'debut': 1981, 'series': 'mario', '_id': 'dk', 'name': 'donkey kong', 'rank': 7},
+  {'debut': 1996, 'series': 'pokemon', '_id': 'pikach', 'name': 'pikach', 'rank': 1},
+  {'debut': 1990, 'series': 'f-zero', '_id': 'falcon', 'name': 'captain falcon', 'rank': 4},
+  {'debut': 1983, 'series': 'mario', '_id': 'luigi', 'name': 'luigi', 'rank': 11},
+  {'debut': 1993, 'series': 'star fox', '_id': 'fox', 'name': 'fox', 'rank': 3},
+  {'debut': 1994, 'series': 'earthbound', '_id': 'ness', 'name': 'ness', 'rank': 9},
+  {'debut': 1986, 'series': 'metroid', '_id': 'samus', 'name': 'samus', 'rank': 12},
+  {'debut': 1990, 'series': 'mario', '_id': 'yoshi', 'name': 'yoshi', 'rank': 6},
+  {'debut': 1992, 'series': 'kirby', '_id': 'kirby', 'name': 'kirby', 'rank': 2}]
 
 def create_random_selector():
   operator = random.choice(operators)

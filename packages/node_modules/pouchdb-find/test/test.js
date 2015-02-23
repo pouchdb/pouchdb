@@ -21,39 +21,7 @@ dbs.split(',').forEach(function (db) {
 
 function tests(dbName, dbType) {
 
-  describe(dbType + ' tests', function () {
-    this.timeout(100000);
+  require('./test-suite-1')(dbName, dbType, Pouch);
+  require('./test-suite-2')(dbName, dbType, Pouch);
 
-    var context = {};
-
-    beforeEach(function () {
-      this.timeout(60000);
-      context.db = new Pouch(dbName);
-      return context.db;
-    });
-    afterEach(function () {
-      this.timeout(60000);
-      return context.db.destroy();
-    });
-
-    require('./tests/test.basic')(dbType, context);
-    require('./tests/test.basic2')(dbType, context);
-    require('./tests/test.ddoc')(dbType, context);
-    require('./tests/test.set-operations')(dbType, context);
-    require('./tests/test.limit')(dbType, context);
-    require('./tests/test.skip')(dbType, context);
-    require('./tests/test.limit-skip')(dbType, context);
-    require('./tests/test.sorting')(dbType, context);
-    require('./tests/test.fields')(dbType, context);
-    require('./tests/test.ltgt')(dbType, context);
-    require('./tests/test.eq')(dbType, context);
-    require('./tests/test.deep-fields')(dbType, context);
-    require('./tests/test.exists')(dbType, context);
-    require('./tests/test.type')(dbType, context);
-    require('./tests/test.ne')(dbType, context);
-    require('./tests/test.matching-indexes')(dbType, context);
-    require('./tests/test.errors')(dbType, context);
-    require('./tests/test.kitchen-sink')(dbType, context);
-
-  });
 }

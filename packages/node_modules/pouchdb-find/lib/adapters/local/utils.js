@@ -205,10 +205,24 @@ function massageIndexDef(indexDef) {
 
 // have to do this manually because REASONS. I don't know why
 // CouchDB didn't implement inclusive_start
-function filterInclusiveStart(rows, targetValue) {
+function filterInclusiveStart(rows, targetValue, index) {
+  var indexFields = index.def.fields;
   for (var i = 0, len = rows.length; i < len; i++) {
     var row = rows[i];
-    if (collate.collate(row.key, targetValue) > 0) {
+
+    // in the case of indexes with more than one field,
+    // the inclusive_start==false option can only
+    // really be used to exclude the first value. so grab
+    // the first element from the array.
+    var left = row.key;
+    var right = targetValue;
+    if (indexFields.length > 1) {
+      left = left[0];
+      right = right[0];
+    }
+
+    if (collate.collate(left, right) > 0) {
+      // no need to filter any further; we're past the key
       break;
     }
   }
@@ -300,6 +314,45 @@ function parseField(fieldName) {
   return fields;
 }
 
+// determine the maximum number of fields
+// we're going to need to query, e.g. if the user
+// has selection ['a'] and sorting ['a', 'b'], then we
+// need to use the longer of the two: ['a', 'b']
+function getUserFields(selector, sort) {
+  var selectorFields = Object.keys(selector);
+  var sortFields = sort? sort.map(getKey) : [];
+  var userFields;
+  if (selectorFields.length > sortFields.length) {
+    userFields = selectorFields;
+  } else {
+    userFields = sortFields;
+  }
+
+  if (sortFields.length === 0) {
+    return {
+      fields: userFields
+    };
+  }
+
+  // sort according to the user's preferred sorting
+  userFields = userFields.sort(function (left, right) {
+    var leftIdx = sortFields.indexOf(left);
+    if (leftIdx === -1) {
+      leftIdx = Number.MAX_VALUE;
+    }
+    var rightIdx = sortFields.indexOf(right);
+    if (rightIdx === -1) {
+      rightIdx = Number.MAX_VALUE;
+    }
+    return leftIdx < rightIdx ? -1 : leftIdx > rightIdx ? 1 : 0;
+  });
+
+  return {
+    fields: userFields,
+    sortOrder: sort.map(getKey)
+  };
+}
+
 module.exports = {
   getKey: getKey,
   getValue: getValue,
@@ -312,5 +365,6 @@ module.exports = {
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
   parseField: parseField,
-  objectFrom: objectFrom
+  objectFrom: objectFrom,
+  getUserFields: getUserFields
 };
