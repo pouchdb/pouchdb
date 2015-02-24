@@ -385,7 +385,7 @@ function getMultiFieldQueryOpts(selector, index) {
       var usingGtlt = (
         '$gt' in matcher || '$gte' in matcher ||
         '$lt' in matcher || '$lte' in matcher);
-      var previousKeys = Object.keys(indexFields[i - 1]);
+      var previousKeys = Object.keys(selector[indexFields[i - 1]]);
       var previousWasEq = utils.arrayEquals(previousKeys, ['$eq']);
       var previousWasSame = utils.arrayEquals(previousKeys, Object.keys(matcher));
       var gtltLostSpecificity = usingGtlt && !previousWasEq && !previousWasSame;
