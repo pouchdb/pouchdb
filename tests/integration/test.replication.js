@@ -39,6 +39,10 @@ adapters.forEach(function (adapters) {
     // simplify for easier deep equality checks
     function simplifyChanges(res) {
       var changes = res.results.map(function (change) {
+        if (testUtils.isSyncGateway() &&
+          change.doc && change.doc._conflicts) {
+          delete change.doc._conflicts;
+        }
         return {
           id: change.id,
           deleted: change.deleted,
@@ -51,7 +55,7 @@ adapters.forEach(function (adapters) {
 
       // in CouchDB 2.0, changes is not guaranteed to be
       // ordered
-      if (testUtils.isCouchMaster()) {
+      if (testUtils.isCouchMaster() || testUtils.isSyncGateway()) {
         changes.sort(function (a, b) {
           return a.id > b.id;
         });
