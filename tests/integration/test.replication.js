@@ -542,8 +542,12 @@ adapters.forEach(function (adapters) {
           db.replicate.to(dbs.remote, {
             complete: function (err, details) {
               if (testUtils.isSyncGateway()) {
-                // TODO investigate why Sync Gateway reads a document.
-                details.docs_read.should.be.within(0,1);
+                if (adapters[0] === 'local' && adapters[1] === 'http') {
+                  // TODO investigate why Sync Gateway reads a document.
+                  details.docs_read.should.equal(1);
+                } else {
+                  details.docs_read.should.equal(0);
+                }
               } else {
                 details.docs_read.should.equal(0);
               }
