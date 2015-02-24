@@ -56,7 +56,12 @@ adapters.forEach(function (adapters) {
           return a.id > b.id;
         });
       }
-
+      // CSG will send a change event when just the ACL changed
+      if (testUtils.isSyncGateway()) {
+        changes = changes.filter(function(change){
+          return change.id !== "_user/";
+        });
+      }
       return changes;
     }
 
