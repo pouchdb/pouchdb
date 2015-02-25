@@ -5,7 +5,7 @@ set -x
 CWD=$(pwd)
 
 # Install CSG
-curl -o csg.deb http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-community_1.0.3_x86_64.deb
+curl -o csg.deb http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/0.0.0/0.0.0-358/couchbase-sync-gateway-community_0.0.0-358_x86_64.deb
 
 sudo dpkg -i csg.deb
 
