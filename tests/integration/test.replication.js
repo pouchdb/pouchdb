@@ -3522,6 +3522,44 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#3569 - 409 during replication', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      function timeoutPromise(delay, fun) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, delay);
+        }).then(fun);
+      }
+
+      return Promise.all([
+        db.put({_id: 'foo'}).then(function () {
+          return db.get('foo');
+        }).then(function (doc) {
+          return db.remove(doc);
+        }).then(function () {
+          return db.replicate.to(remote);
+        }),
+        db.replicate.to(remote),
+        timeoutPromise(0, function () {
+          return db.replicate.to(remote);
+        }),
+        timeoutPromise(1, function () {
+          return db.replicate.to(remote);
+        }),
+        timeoutPromise(2, function () {
+          return db.replicate.to(remote);
+        })
+      ]).then(function () {
+        return db.info();
+      }).then(function (localInfo) {
+        return remote.info().then(function (remoteInfo) {
+          localInfo.doc_count.should.equal(remoteInfo.doc_count);
+        });
+      });
+    });
+
     it('#3270 triggers "change" events with .docs property', function(done) {
       var replicatedDocs = [];
       var db = new PouchDB(dbs.name);
