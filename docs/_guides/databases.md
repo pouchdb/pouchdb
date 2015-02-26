@@ -18,7 +18,7 @@ var db = new PouchDB('kittens');
 
 You can see a **[live example](http://bl.ocks.org/nolanlawson/bddac54b92c2d8d39241)** of this code.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 <strong>Protip:</strong> whenever you see a live example in this guide, you can download it to follow along at home! For example, to run this example, just enter the following commands in your command prompt:
 <p/>
@@ -30,7 +30,7 @@ You can see a **[live example](http://bl.ocks.org/nolanlawson/bddac54b92c2d8d392
 <p/>
 Now the site is up and running at <a href='http://localhost:8000'>http://localhost:8000</a>. To find the correct <code>gist.github.com</code> URL, just click the "block" number at the top of the page.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Remote databases
 --------

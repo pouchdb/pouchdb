@@ -109,9 +109,9 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 </table>
 </div>
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 Safari 7.1+ and iOS 8+ supposedly support IndexedDB, but their implementation has many bugs, so PouchDB currently ignores it.
-{% include alert_end.html%}
+{% include alert/end.html%}
 
 If you're ever curious which adapter is being used in a particular browser, you can use the following method:
 
@@ -139,9 +139,9 @@ The SQLite plugin is known to pass the PouchDB test suite on both iOS and Androi
 
 PouchDB also offers separate browser plugins that use backends other than IndexedDB and WebSQL. These plugins pass our test suite at 100%, but are not yet part of the official release due to build issues with Browserify. They also add a hefty footprint due to external dependencies, so take them with a grain of salt.
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 Currently these plugins do not work with Browserify itself; you have to include them as separate scripts in your HTML page.
-{% include alert_end.html%}
+{% include alert/end.html%}
 
 **Downloads:**
 
@@ -162,9 +162,9 @@ If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, yo
 </script>
 ```
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 #### Memory plugin
 
@@ -253,9 +253,9 @@ var pouch = new PouchDB('riak://localhost:8087/somebucket', {db: require('riakdo
 There are many other LevelDOWN-based plugins &ndash; far too many to list here. You can find a [mostly-complete list on Github](https://github.com/rvagg/node-levelup/wiki/Modules) that includes implementations on top of MySQL, Windows Azure Table Storage, and SQLite.
 
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 We do not currently test against any LevelDOWN adapters other than LevelDB and MemDOWN, so the other backends should be considered experimental.
-{% include alert_end.html%}
+{% include alert/end.html%}
 
 {% include anchor.html title="PouchDB over HTTP" hash="pouchdb_over_http"%}
 

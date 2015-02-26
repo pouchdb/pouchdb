@@ -65,13 +65,13 @@ Bulk operations tend to be faster than individual operations, because they can b
 
 You can also update or delete multiple documents this way. You just need to include the `_rev` and `_deleted` values as previously discussed. The same rules as for `put()` apply to each individual document.
 
-{% include alert_start.html variant="warning" %}
+{% include alert/start.html variant="warning" %}
 
 Neither <code>bulkDocs()</code> nor <code>allDocs()</code> constitutes a transaction in the traditional sense. That means that, if a single <code>put()</code> fails, you should not assume that the others will fail.
 <p/>
 <p/>
 By design, CouchDB and PouchDB do not support transactions. A document is the smallest unit of operations.
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Use `allDocs()` to read many docs
 --------
