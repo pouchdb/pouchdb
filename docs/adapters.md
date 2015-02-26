@@ -250,7 +250,7 @@ var pouch = new PouchDB('riak://localhost:8087/somebucket', {db: require('riakdo
 
 #### More LevelDOWN adapters
 
-There are many other LevelDOWN-based plugins &ndash; far too many to list here. You can find a [mostly-complete list on Github](https://github.com/rvagg/node-levelup/wiki/Modules) that includes implementations on top of MySQL, Windows Azure Table Storage, and SQLite.
+There are many other LevelDOWN-based plugins &ndash; far too many to list here. You can find a [mostly-complete list on Github](https://github.com/rvagg/node-levelup/wiki/Modules#storage-back-ends) that includes implementations on top of MySQL, Windows Azure Table Storage, and SQLite.
 
 
 {% include alert/start.html variant="warning"%}
