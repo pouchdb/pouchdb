@@ -6,6 +6,8 @@ sidebar: api.html
 
 {% include anchor.html title="API overview" hash="overview" %}
 
+Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, and the second argument holds the result.
+
 PouchDB has an asynchronous API, supporting both [callbacks](http://docs.nodejitsu.com/articles/getting-started/control-flow/what-are-callbacks) and [promises][promise].
 
 Most of the API is exposed as:
@@ -98,9 +100,9 @@ Delete database.
 db.destroy(function(err, info) { });
 {% endhighlight %}
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 PouchDB.destroy() is deprecated and will be removed in future versions of PouchDB.
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 You can also delete a database using just the name:
 
@@ -123,21 +125,25 @@ There are some restrictions on valid property names of the documents. These are 
 
 Create a new doc with an `_id` of `'mydoc'`:
 
-{% highlight js %}
-db.put({ title: 'Heroes' }, 'mydoc', function(err, response) {
-  /* ... */
-});
-{% endhighlight %}
+  {% include code/start.html id="newDoc" type="callback" %}
 
-Like all API methods, you can also use promises:
+    {% highlight js %}
+      db.put({
+        title: 'Heroes'
+      }, 'mydoc', function(err, response) { });
+    {% endhighlight %}
 
-{% highlight js %}
-db.put({ title: 'Heroes' }, 'mydoc').then(function(response) {
-  /* ... */
-}).catch(function (err) {
-  /* ... */
-});
-{% endhighlight %}
+  {% include code/end.html %}
+
+  {% include code/start.html id="newDoc" type="promise" %}
+
+    {% highlight js %}
+      db.put({
+        title: 'Lady Stardust'
+      }, 'myOtherDoc').then(function(response) { });
+    {% endhighlight %}
+
+  {% include code/end.html %}
 
 You can update an existing doc using `_rev`:
 
@@ -1206,3 +1212,5 @@ PouchDB.debug.disable();
 Your users won't see debug output unless you explicitly call `PouchDB.debug.enable()` within your application code.
 
 [event emitter]: http://nodejs.org/api/events.html#events_class_events_eventemitter
+
+{% endmarkdown %}

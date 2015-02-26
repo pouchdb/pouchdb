@@ -55,3 +55,27 @@
   .nav-head,
   .nav.nav-sidebar { text-align: center; }
 }
+
+
+.nav-code > li {
+  float: right;
+}
+.nav-code > li > a {
+  padding: .5em .75em;
+  font-size: .8em;
+  margin-right: 0;
+  margin-left: 1px;
+}
+.nav-code > li.active > a,
+.nav-code > li.active > a:hover,
+.nav-code > li.active > a:focus {
+  border-color: #3f3f3f;
+  background: #3f3f3f;
+  color: #eee;
+}
+.nav-code + .tab-content pre {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}

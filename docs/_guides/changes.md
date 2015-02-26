@@ -130,13 +130,13 @@ Notice that `change.doc` contains the document (unless it's deleted), because we
 
 Also notice that new documents always have revisions starting with the string `'1-'`. Subsequent revisions start with `'2-'`, `'3-'`, `'4-'`, etc.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 <p><strong>How can I distinguish between added and modified documents?</strong> Checking if the revision starts with <code>'1-'</code> is a pretty good trick. However, this will not work for databases that are replication targets, because replication only sends the latest versions of documents. This means that the <code>'1-'</code> revision may get skipped entirely, and the local database will only receive the 2nd, 3rd or 4th (etc.) revision. Conflicting revisions will also appear in the changes feed.</p>
 
 <p>So the short answer is that you cannot. If you are trying to mirror changes in a non-Pouch structure (e.g. a list of DOM elements), then the best solution is to search all the DOM elements to see if the document already exists, or to re-run <code>allDocs()</code> for every change.</p>
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 
 Related API documentation

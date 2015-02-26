@@ -69,11 +69,11 @@ Here's the response:
 }
 ```
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 
 <strong>Potential gotcha!</strong> Somewhat unintuitively, <code>allDocs()</code> doesn't return the full document data by default.  It only returns the document <code>id</code> and revision hash <code>rev</code>, unless you pass in the option <code>{include_docs : true}</code>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 All 20 documents are returned, no pagination involved.  We can visualize it graphically like this:
 
@@ -225,7 +225,7 @@ In our initial query, we simply tell PouchDB to give us the first 5 documents (o
 
 Of course, you could also fetch `pageSize + 1` docs each time, and simply omit the last document when you display the results to the user.  The choice is yours, but either method is preferable to using `skip` and `limit` alone.
 
-{% include alert_start.html  variant="info"%}
+{% include alert/start.html  variant="info"%}
 
 <strong>Aside</strong>: To be fair, WebSQL and CouchDB (since <a href='https://issues.apache
 .org/jira/browse/COUCHDB-977'>version 1.1.1</a>) do not
@@ -235,7 +235,7 @@ However, since IndexedDB and LevelDB (and other backends modeled on <a href='htt
 traditional key-value stores, they don't have a good way to count offsets.  Also, some <a href='http://danielwertheim.se/2014/04/01/couchdb-pagination-is-skip-and-limit-enough/
 '>experimental data</a> suggests that CouchDB 1.5 is still faster with the <code>startkey</code> pattern. So you're better off just using <code>startkey</code> everywhere.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 ## Paginating in backwards land
 
@@ -358,11 +358,11 @@ now.toJSON()          // "2014-03-15T00:04:00.000Z"
 partyLikeIts.toJSON() < now.toJSON(); // true
 ```
 
-{% include alert_start.html variant="warning" %}
+{% include alert/start.html variant="warning" %}
 
 <strong>Note:</strong> If you're worried about ID collisions, you could also use <code>new Date().toJSON() + Math.random()</code>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Now we can fetch the 10 most recent docs:
 

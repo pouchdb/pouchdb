@@ -31,11 +31,11 @@ pouch.query(function (doc) {
 });
 ```
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 The <code>emit</code> pattern is part of the standard <a href='http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html'>CouchDB map/reduce API</a>.  What the function basically says is, "for each document, emit <code>doc.name</code> as a key."
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 And here's the new way:
 
@@ -131,11 +131,11 @@ pouch.query(myMapFunction, {
 });
 ```
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 
 The pagination options for <code>query()</code> &ndash; i.e., <code>startkey</code>/<code>endkey</code>/<code>key</code>/<code>keys</code>/<code>skip</code>/<code>limit</code>/<code>descending</code> &ndash; are exactly the same as with <code>allDocs()</code>. For a beginner's guide to pagination, read <a href='http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html'>Pagination strategies with PouchDB</a>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 #### Reduce functions
 
@@ -183,11 +183,11 @@ Crucially, though, temporary views have to do a full scan of all documents _ever
 
 **Persistent views**, on the other hand, are a much better solution if you want your queries to be fast.  Persistent views need to be saved in a design document (hence "persistent"), so that the emitted fields are already indexed by the time you look them up.  Subsequent lookups don't need to do any additional writes to disk, unless documents have been added or modified, in which case only the updated documents need to be processed.
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 
 <strong>Why design docs?</strong> <a href='http://guide.couchdb.org/draft/design.html'>Design documents</a> are special meta-documents that CouchDB uses for things like indexes, security, and schema validation (think: "designing" your database).  They are stored, updated, and deleted exactly like normal documents, but their <code>_id</code>s are prefixed with the reserved string <code>'_design/'</code>.  They also show up in <code>allDocs()</code> queries, but you can filter them out by using <code>{startkey: '_design0'}</code>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 #### Writing your first view
 
@@ -227,11 +227,11 @@ pouch.query('my_index').then(function(result) {
 
 Whatever name you give, be sure to use the same one in both the `_id` (after `'_design/'`) and in the `views`; otherwise you will need to use the awkward format `'my_design_doc_name/my_view_name'` when you query.
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 
 Technically, a design doc can contain multiple views, but there's really no advantage to this. Plus, it can even cause performance problems in CouchDB, since all the indexes are written to a single file. So we recommend that you create one view per design doc, and use the same name for both, in order to make things simpler.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Since there's a lot of boilerplate involved in creating views, you can use the following helper function to create a simple design doc based on a name and a map function:
 
@@ -267,11 +267,11 @@ Just like regular documents, design docs can always be deleted or changed later.
 
 If you do this a lot, though, then old indexes will build up on disk.  You can call `pouch.viewCleanup()` to clean up any orphaned indexes. 
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 
 <strong>Performance tip</strong>: Technically, the view will not be built up on disk until the first time you <code>query()</code> it.  So a good trick is to always call <code>query(viewName, {stale: 'update_after'})</code> after creating a view, to ensure that it starts building in the background.  You can also use <code>{stale: 'ok'}</code> to avoid waiting for the most up-to-date results. In the future, we may add an API for auto-updating.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 #### For those who get nostalgic
 
@@ -380,11 +380,11 @@ In this example, you're getting all those "indexes" for free, each time a docume
 
 Of course, this system starts to get shaky when you need to search by a variety of criteria: e.g. all albums sorted by year, artists sorted by age, etc. And you can only sort strings &ndash; not numbers, booleans, arrays, or arbitrary JSON objects, like the map/reduce API supports.  But for a lot of simple applications, you can get by without using the `query()` API at all.
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 
 <strong>Performance tip</strong>: if you're just using the randomly-generated doc IDs, then you're not only missing out on an opportunity to get a free index &ndash; you're also incurring the overhead of building an index you're never going to use. So use and abuse your doc IDs!
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Tips for writing views
 -----
@@ -405,11 +405,11 @@ function (doc) {
 
 If you took out the `if` statement, you'd emit a `null` key for every non-person in your database, which needlessly bloats the size of your index.
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 
 If the <code>null</code> field is meaningful for some reason, though, you can emit it and look it up later using <code>query(viewName, {key: null})</code>.  Any <code>undefined</code> fields are treated as <code>null</code>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
  
 **2. Move logic to the query params**
 
