@@ -160,11 +160,11 @@ db.get('mittens').then(function (doc) {
 
 You can see a **[live example](http://bl.ocks.org/nolanlawson/d6daa02ca3875d1222dd)** of this code.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 Don't worry if the structure of this code seems strange! It's using <strong>promises</strong>, which will be discussed in the next chapter.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Now you should see the following:
 

@@ -171,11 +171,11 @@ This can be very powerful, because it enables lots of fancy scenarios. For examp
 
 The only limits are your imagination and your disk space.
 
-{% include alert_start.html variant="warning" %}
+{% include alert/start.html variant="warning" %}
 
 When you replicate between two remote databases, the changes flow through PouchDB. If this is not what you want, then you should <code>POST</code> directly to the CouchDB <code>_replicate</code> endpoint, as described in <a href='http://guide.couchdb.org/draft/replication.html'>the CouchDB replication guide</a>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 
 Related API documentation

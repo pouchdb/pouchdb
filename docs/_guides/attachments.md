@@ -32,11 +32,11 @@ db.put({
 
 Our document has the usual `_id` field, but it also has a special `_attachments` field that holds the attachments. Documents can have as many attachments as you want.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 When you create an attachment, you need to specify its <code>content_type</code>, otherwise known as the <a href='https://en.wikipedia.org/wiki/MIME'>MIME type</a>. Common MIME types include <code>'text/plain'</code> for plain text, <code>'image/png'</code> for PNG images, and <code>'image/jpeg'</code> for JPG images.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 As it turns out, `'aGVsbG8gd29ybGQ='` is just the string `'hello world'` encoded in base64. You can use the `atob()` and `btoa()` methods in your browser to verify.
 
@@ -142,11 +142,11 @@ Up to now, we've been supplying our attachments as base64-encoded strings. But w
 
 Another shortcut we can use is the `putAttachment()` API, which simply modifies the existing document to hold a new attachment. Or, if the document does not exist, it will create an empty one.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 In <strong>Node.js</strong>, PouchDB uses <a href='http://nodejs.org/api/buffer.html'>Buffers</a> instead of Blobs. Otherwise, the same rules apply.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 For instance, we can read the image data from an `<img>` tag using a `canvas` element, and then directly write that Blob to PouchDB:
 
@@ -175,14 +175,14 @@ You can see **[a live example](http://bl.ocks.org/nolanlawson/edaf09b84185418a55
 
 This stores exactly the same image content as in the other example, which you can confirm by checking the base64-encoded output.
 
-{% include alert_start.html variant="warning" %}
+{% include alert/start.html variant="warning" %}
 
 Blobs can be tricky to work with, especially when it comes to cross-browser support.
 You may find <a href='https://github.com/nolanlawson/blob-util'>blob-util</a> to be a useful
 addition to the attachment API. For instance, it has an
 <code>imgSrcToBlob()</code> method that will work cross-browser.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Base64 vs Blobs/Buffers
 -------

@@ -1,0 +1,13 @@
+{% if include.type == 'promise' %}
+  {% assign class = 'active' %}
+{% else %}
+  {% assign class = '' %}
+{% endif %}
+<strong data-code-hide>{{ include.type | capitalize }}:</strong>
+
+<div
+  class="tab-pane {{ class }}"
+  id="{{ include.type }}"
+  data-code-id="{{ include.id }}"
+  data-code-type="{{ include.type }}"
+>

@@ -117,11 +117,11 @@ There you have it! Now the `docs` array will be kept perfectly in sync with Pouc
 
 And even if you're not displaying the entire database in memory (which may be unfeasible for large databases), you can still use this pattern. You'll just need to change the way you render your initial state (e.g. using a `query()` instead of `allDocs()`), and to filter the documents in your `on('change')` listener. You can either do it directly in code, or you can have PouchDB do it for you with the `filter`/`view`/`doc_ids` options.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 There's no performance benefit to using <code>filter</code>/<code>view</code>/<code>doc_ids</code> on a local database. With a remote database, however, you may get a performance boost, because it's not sending so much data over the wire.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Another neat thing about this code is that it elegantly handles conflicts. Since `{include_docs: true}` will only give us the *winning* revision of a document, we are guaranteed that we'll never show conflicting versions of the same document in the array. We can still handle conflicts in [the usual way](http://pouchdb.com/guides/conflicts.html), and the changes feed will simply tell us if the winning revision has changed.
 

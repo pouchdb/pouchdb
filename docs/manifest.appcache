@@ -14,6 +14,7 @@ CACHE:
 
 /static/css/pouchdb.css
 /static/favicon.ico
+/static/js/code.min.js
 
 http://code.jquery.com/jquery.min.js
 http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js

@@ -1,0 +1,36 @@
+{% include anchor.html title="View cleanup" hash="view_cleanup" %} 
+
+{% highlight js %}
+db.viewCleanup([callback])
+{% endhighlight %}
+
+Cleans up any stale map/reduce indexes.
+
+As design docs are deleted or modified, their associated index files (in CouchDB) or companion databases (in local PouchDBs) continue to take up space on disk. `viewCleanup()` removes these unnecessary index files.
+
+See [the CouchDB documentation on view cleanup](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html#views-cleanup) for details.
+
+#### Example Usage:
+
+{% include code/start.html id="viewcleanup" type="callback" %}
+{% highlight js %}
+db.viewCleanup(function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="viewcleanup" type="promise" %}
+{% highlight js %}
+db.viewCleanup().then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+{% highlight js %}
+{ "ok" : "true" }
+{% endhighlight %}

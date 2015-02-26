@@ -1,0 +1,67 @@
+{% include anchor.html title="Get an attachment" hash="get_attachment" %} 
+
+{% highlight js %}
+db.getAttachment(docId, attachmentId, [options], [callback])
+{% endhighlight %}
+
+Get attachment data.
+
+#### Example Usage:
+
+{% include code/start.html id="get_att1" type="callback" %}
+{% highlight js %}
+db.getAttachment('doc', 'att.txt', function(err, res) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="get_att1" type="promise" %}
+{% highlight js %}
+db.getAttachment('doc', 'att.txt').then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+
+The response will be a `Blob` object in the browser, and a `Buffer` object in Node.js.
+
+#### Inline base64 attachments
+
+You can specify `{attachments: true}` to most "read" operations, such as `get()`, `allDocs()`, `changes()`, and `query()`. The attachment data will then be included inlined in the resulting doc(s). However, it will always be supplied as base64. For example:
+
+{% highlight js %}
+{
+  "_attachments": {
+    "att.txt": {
+      "content_type": "text/plain",
+      "digest": "d5ccfd24a8748bed4e2c9a279a2b6089",
+      "data": "SXMgdGhlcmUgbGlmZSBvbiBNYXJzPw=="
+    }
+  },
+  "_id": "mydoc",
+  "_rev": "1-e147d9ec9c85139dfe7e93bc17148d1a"
+}
+{% endhighlight %}
+
+For such APIs, when you don't specify `{attachments: true}`, you will instead get metadata about the attachments. For example:
+
+{% highlight js %}
+{
+  "_attachments": {
+    "att.txt": {
+      "content_type": "text/plain",
+      "digest": "d5ccfd24a8748bed4e2c9a279a2b6089",
+      "stub": true
+    }
+  },
+  "_id": "mydoc",
+  "_rev": "1-e147d9ec9c85139dfe7e93bc17148d1a"
+}
+{% endhighlight %}
+
+This "summary" operation may be faster in some cases, because the attachment itself does not need to be read from disk.

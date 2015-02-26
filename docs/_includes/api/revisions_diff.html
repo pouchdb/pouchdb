@@ -1,0 +1,49 @@
+{% include anchor.html title="Document revisions diff" hash="revisions_diff" %} 
+
+{% highlight js %}
+db.revsDiff(diff, [callback])
+{% endhighlight %}
+
+Given a set of document/revision IDs, returns the subset of those that do not correspond
+to revisions stored in the database. Primarily used in replication.
+
+#### Example Usage:
+
+{% include code/start.html id="revsdiff1" type="callback" %}
+{% highlight js %}
+db.revsDiff({
+  myDoc1: [
+    "1-b2e54331db828310f3c772d6e042ac9c",
+    "2-3a24009a9525bde9e4bfa8a99046b00d"
+  ]
+}, function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="revsdiff1" type="promise" %}
+{% highlight js %}
+db.revsDiff({
+  myDoc1: [
+    "1-b2e54331db828310f3c772d6e042ac9c",
+    "2-3a24009a9525bde9e4bfa8a99046b00d"
+  ]
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "myDoc1": {
+    "missing": ["2-3a24009a9525bde9e4bfa8a99046b00d"]
+  }
+}
+{% endhighlight %}
+
+

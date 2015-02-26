@@ -1,0 +1,195 @@
+{% include anchor.html title="Create/update a batch of documents" hash="batch_create" %} 
+
+{% highlight js %}
+db.bulkDocs(docs, [options], [callback])
+{% endhighlight %}
+
+Create, update or delete multiple documents. The `docs` argument is an array of documents.
+
+If you omit an `_id` parameter on a given document, the database will create a new document and assign the ID for you. To update a document, you must include both an `_id` parameter and a `_rev` parameter, which should match the ID and revision of the document on which to base your updates. Finally, to delete a document, include a `_deleted` parameter with the value `true`.
+
+#### Example Usage:
+
+Put some new docs, providing the `_id`s:
+
+{% include code/start.html id="bulk_docs_1" type="callback" %}
+{% highlight js %}
+db.bulkDocs([
+  {title : 'Lisa Says', _id: 'doc1'},
+  {title : 'Space Oddity', _id: 'doc2'}
+], function(err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="bulk_docs_1" type="promise" %}
+{% highlight js %}
+db.bulkDocs([
+  {title : 'Lisa Says', _id: 'doc1'},
+  {title : 'Space Oddity', _id: 'doc2'}
+]).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+Post some new docs and auto-generate the `_id`s:
+
+{% include code/start.html id="bulk_docs_2" type="callback" %}
+{% highlight js %}
+db.bulkDocs([
+  {title : 'Lisa Says'},
+  {title : 'Space Oddity'}
+], function(err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="bulk_docs_2" type="promise" %}
+{% highlight js %}
+db.bulkDocs([
+  {title : 'Lisa Says'},
+  {title : 'Space Oddity'}
+]).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+{% highlight js %}
+[
+  {
+    "ok": true,
+    "id": "doc1",
+    "rev": "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    "ok": true,
+    "id": "doc2",
+    "rev": "1-7b80fc50b6af7a905f368670429a757e"
+  }
+]
+{% endhighlight %}
+
+The response contains an array of the familiar `ok`/`rev`/`id` 
+from the [put()/post() API](#create_document). If there are any errors, they
+will be provided individually like so:
+
+{% highlight js %}
+[
+  { status: 409,
+    name: 'conflict',
+    message: 'Document update conflict',
+    error: true 
+  }
+]
+{% endhighlight %}
+
+Note that `bulkDocs()` is not transactional, and that you may get
+back a mixed array of errors/non-errors. In CouchDB/PouchDB, the smallest
+atomic unit is the document.
+
+#### Bulk update/delete:
+
+You can also use `bulkDocs()` to update/delete many documents at once:
+
+{% include code/start.html id="bulk_docs3" type="callback" %}
+{% highlight js %}
+db.bulkDocs([
+  {
+    title  : 'Lisa Says',
+    artist : 'Velvet Underground',
+    _id    : "doc1",
+    _rev   : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title  : 'Space Oddity',
+    artist : 'David Bowie',
+    _id    : "doc2",
+    _rev   : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+], function(err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="bulk_docs3" type="promise" %}
+{% highlight js %}
+db.bulkDocs([
+  {
+    title  : 'Lisa Says',
+    artist : 'Velvet Underground',
+    _id    : "doc1",
+    _rev   : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title  : 'Space Oddity',
+    artist : 'David Bowie',
+    _id    : "doc2",
+    _rev   : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+]).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+Or delete them:
+
+{% include code/start.html id="bulk_docs_4" type="callback" %}
+{% highlight js %}
+db.bulkDocs([
+  {
+    title    : 'Lisa Says',
+    _deleted : true,
+    _id      : "doc1",
+    _rev     : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title    : 'Space Oddity',
+    _deleted : true,
+    _id      : "doc2",
+    _rev     : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+], function(err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="bulk_docs_4" type="promise" %}
+{% highlight js %}
+db.bulkDocs([
+  {
+    title    : 'Lisa Says',
+    _deleted : true,
+    _id      : "doc1",
+    _rev     : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title    : 'Space Oddity',
+    _deleted : true,
+    _id      : "doc2",
+    _rev     : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+]).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+**Note:** You can also specify a `new_edits` property on the options object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
+
+

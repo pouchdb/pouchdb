@@ -7,13 +7,13 @@ sidebar: guides_nav.html
 
 Map/reduce queries, also known as *secondary indexes*, are one of the most powerful features in PouchDB. However, they can be quite tricky to use, so this guide is designed to dispell some of the mysteries around them.
 
- {% include alert_start.html variant="warning" %}
+ {% include alert/start.html variant="warning" %}
 
 Many developers make the mistake of using the <code>query()</code> API when the more performant <code>allDocs()</code> API, would be a better fit.
 <p/>&nbsp;<p/>
 Before you solve a problem with secondary indexes, you should ask yourself: can I solve this with the <em>primary index</em> (<code>_id</code>) instead?
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 Mappin' and reducin'
 -------
@@ -36,11 +36,11 @@ db(function (doc) {
 
 In the above example, the `result` object will contain all documents where the `name` attribute is equal to `'foo'`.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 The <code>emit</code> pattern is part of the standard <a href='http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html'>CouchDB map/reduce API</a>.  What the function basically says is, "for each document, emit <code>doc.name</code> as a key."
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 ### Persistent queries
 
@@ -96,11 +96,11 @@ db.query('my_index', {
 
 After this, your queries will be much faster.
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 
 CouchDB builds indexes in exactly the same way as PouchDB. So you may want to familiarize yourself with the <a href='/api.html#query_database'>"stale" option</a> in order to get the best possible performance for your app.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 
 More about map/reduce
@@ -182,11 +182,11 @@ pouch.query(myMapFunction, {
 });
 ```
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 
 The pagination options for <code>query()</code> &ndash; i.e., <code>startkey</code>/<code>endkey</code>/<code>key</code>/<code>keys</code>/<code>skip</code>/<code>limit</code>/<code>descending</code> &ndash; are exactly the same as with <code>allDocs()</code>. For a guide to pagination, read the <a href="/guides/bulk-operations.html">Bulk operations guide</a> or <a href='http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html'>Pagination strategies with PouchDB</a>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 #### Reduce functions
 
