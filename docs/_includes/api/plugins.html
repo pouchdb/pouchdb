@@ -8,20 +8,18 @@ PouchDB.plugin({
 });
 {% endhighlight %}
 
-This will add the function as a method of all databases with the given method name.  It will always be called in context, so that `this` always refers to the database object.
+This will add a `db.methodName()` to all databases, which runs `myFunction`.It will always be called in context, so that within the function, `this` refers to the database object.
 
-We also offer a [PouchDB Plugin Seed project](https://github.com/pouchdb/plugin-seed), which is the fastest way to get started writing, building and testing your very own plugin.
+There is a [PouchDB Plugin Seed project](https://github.com/pouchdb/plugin-seed), which is the fastest way to get started writing, building and testing your very own plugin.
 
 #### Example Usage:
 {% highlight js %}
 PouchDB.plugin({
-  sayMyName : function () {
-    this.info().then(function (info)   {
-      console.log('My name is ' + info.db_name);
-    }).catch(function (err) { });
+  sayHello : function () {
+    console.log("Hello!");
   }
 });
-new PouchDB('foobar').sayMyName(); // prints "My name is foobar"
+new PouchDB('foobar').sayHello(); // prints "Hello!"
 {% endhighlight %}
 
 

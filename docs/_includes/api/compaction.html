@@ -12,6 +12,26 @@ Also see [auto-compaction](#create_database), which runs compaction automaticall
 
 * `options.interval`: Number of milliseconds to wait before asking again if compaction is already done. Defaults to 200. (Only applies to remote databases.)
 
+#### Example Usage:
+
+{% include code/start.html id="compact" type="callback" %}
+{% highlight js %}
+db.compact(function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="compact" type="promise" %}
+{% highlight js %}
+db.compact().then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
 #### Example Response:
 {% highlight js %}
 {
