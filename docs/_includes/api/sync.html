@@ -27,14 +27,22 @@ Please refer to [Replication](api.html#replication) for documentation on options
 
 #### Example Usage:
 {% highlight js %}
-var sync = PouchDB.sync('mydb', 'http://localhost:5984/mydb', {live: true})
-  .on('change', function (info) {
-    // handle change
-  }).on('complete', function (info) {
-    // handle complete
-  }).on('error', function (err) {
-    // handle error
-  });
+var sync = PouchDB.sync('mydb', 'http://localhost:5984/mydb', {
+  live: true,
+  retry: true
+}).on('change', function (info) {
+  // handle change
+}).on('paused', function () {
+  // replication paused (e.g. user went offline)
+}).on('active', function () {
+  // replicate resumed (e.g. user went back online)
+}).on('denied', function (info) {
+  // a document failed to replicate, e.g. due to permissions
+}).on('complete', function (info) {
+  // handle complete
+}).on('error', function (err) {
+  // handle error
+});
 
 sync.cancel(); // whenever you want to cancel
 {% endhighlight %}
@@ -45,6 +53,6 @@ There is also a shorthand for syncing given existing PouchDB objects. This behav
 db.sync(remoteDB, [options]);
 {% endhighlight %}
 
-For any further details, please further to [Replication](api.html#replication).
+For any further details, please refer to [Replication](api.html#replication).
 
 

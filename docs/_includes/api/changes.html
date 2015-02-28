@@ -17,7 +17,7 @@ All options default to `false` unless otherwise specified.
   * `options.conflicts`: Include conflicts.
   * `options.attachments`: Include attachments.
 * `options.descending`: Reverse the order of the output documents.
-* `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'now' if you want only new changes.
+* `options.since`: Start the results from the change immediately after the given sequence number. You can also pass 'now' if you want only new changes (when `live` is `true`).
 * `options.live`: Uses the  `_longpoll_` feed.
 * `options.timeout`: Request timeout (in milliseconds).
 * `options.limit`: Limit the number of results to this number.
@@ -30,11 +30,17 @@ All options default to `false` unless otherwise specified.
 * `options.style`: Specifies how many revisions are returned in the changes array. The default, `'main_only'`, will only return the current "winning" revision; `'all_docs'` will return all leaf revisions (including conflicts and deleted former conflicts). Most likely you won't need this unless you're writing a replicator.
 
 #### Example Usage:
+
 {% highlight js %}
 var changes = db.changes({
-  since: 20,
-  live: true
-}).on('change', function(change) { });
+  since: 'now',
+  live: true,
+  include_docs: true
+}).on('change', function(change) {
+  // handle change
+}).on('error', function (err) {
+  console.log(err);
+});
 
 changes.cancel(); // whenever you want to cancel
 {% endhighlight %}
@@ -55,14 +61,105 @@ changes.cancel(); // whenever you want to cancel
 }
 {% endhighlight %}
 
-#### Example Usage:
+#### Change events
+
+* __`change`__ (`info`) - This event fires when a change has been found. `info` will contain details about the change, such as whether it was deleted and what the new `_rev` is. `info.doc` will contain the doc if you set `include_docs` to `true`. See below for an example response.
+* __`complete`__ (`info`) - This event fires when all changes have been read. In live changes, only cancelling the changes should trigger this event. `info.results` will contain the list of changes. See below for an example.
+* __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure.
+
+#### Example response
+
+Example response in the `'change'` listener (using `{include_docs: true}`):
+
 {% highlight js %}
-db.changes()
-  .on('error', function (err) {})
-  .on('complete', function (resp) {});
+{ id: 'doc1',
+  changes: [ { rev: '1-9152679630cc461b9477792d93b83eae' } ],
+  doc: { 
+    _id: 'doc1', 
+    _rev: '1-9152679630cc461b9477792d93b83eae' 
+  },
+  seq: 1 
+} 
 {% endhighlight %}
 
+Example response in the `'change'` listener when a doc was deleted:
+
+{% highlight js %}
+{ id: 'doc2',
+  changes: [ { rev: '2-9b50a4b63008378e8d0718a9ad05c7af' } ],
+  doc: { _id: 'doc2',
+    _rev: '2-9b50a4b63008378e8d0718a9ad05c7af',
+    _deleted: true 
+  },
+  deleted: true,
+  seq: 3
+}
+{% endhighlight %}
+
+Example response in the `'complete'` listener:
+
+{% highlight js %}
+{
+  "results": [
+    {
+      "id": "doc1",
+      "changes": [ { "rev": "1-9152679630cc461b9477792d93b83eae" } ],
+      "doc": {
+        "_id": "doc1",
+        "_rev": "1-9152679630cc461b9477792d93b83eae"
+      },
+      "seq": 1
+    },
+    {
+      "id": "doc2",
+      "changes": [ { "rev": "2-9b50a4b63008378e8d0718a9ad05c7af" } ],
+      "doc": {
+        "_id": "doc2",
+        "_rev": "2-9b50a4b63008378e8d0718a9ad05c7af",
+        "_deleted": true
+      },
+      "deleted": true,
+      "seq": 3
+    }
+  ],
+  "last_seq": 3
+}
+{% endhighlight %}
+
+`seq` and `last_seq` correspond to the overall sequence number of the entire database, and it's what is passed in when using `since` (except for the special `'now'`). It is the primary key for the changes feed, and is also used as a checkpointer by the replication algorithm.
+
+#### Single-shot
+
+If you don't specify `{live: true}`, then you can also use `changes()` in the standard
+callback/promise style, and it will be treated as a single-shot request, which
+returns a list of the changes:
+
+{% include code/start.html id="changes1" type="callback" %}
+{% highlight js %}
+db.changes({
+  limit: 10,
+  since: 0
+}, function (err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="changes1" type="promise" %}
+{% highlight js %}
+db.changes({
+  limit: 10,
+  since: 0
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
 #### Example Response:
+
 {% highlight js %}
 {
   "results": [{
@@ -93,10 +190,7 @@ db.changes()
 }
 {% endhighlight %}
 
-**Note:**
+When `live` is `false`, the returned object is also an event emitter as well as a promise,
+and will fire the `'complete'` event when the results are ready.
 
-* The `'complete'` event only fires when you aren't doing live changes. With live changes, use the `'paused'` event instead.
-* The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
-* The `'since'`option formerly took 'latest' but has been changed to 'now' to keep consistency with CouchDB. 'latest' is deprecated but will still work to ensure backwards compatibility.
-
-
+Note that this `'complete'` event only fires when you aren't doing live changes. With live changes, use the `'paused'` event instead.

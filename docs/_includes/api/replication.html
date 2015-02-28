@@ -6,14 +6,14 @@ PouchDB.replicate(source, target, [options])
 
 Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database URL or the name of a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically. This method returns an object with the method `cancel()`, which you call if you want to cancel live replication.
 
-Replication is an event emiter like `changes()` and emits the `'complete'`, `'active'`, `'paused'`, `'change'`, `'denied'` and `'error'` events.
+Replication is an [event emitter][] like [changes()](#changes) and emits the `'complete'`, `'active'`, `'paused'`, `'change'`, `'denied'` and `'error'` events.
 
 ### Options
 
 All options default to `false` unless otherwise specified.
 
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
-* `options.retry`: If `true` will attempt to retry replications in the case of failure (due to being offline). Only applicable if `options.live` is also `true`.
+* `options.retry`: If `true` will attempt to retry replications in the case of failure (due to being offline), using a backoff algorithm that retries at longer and longer intervals until a connection is re-established. Only applicable if `options.live` is also `true`.
 * `options.filter`: Reference a filter function from a design document to selectively get updates.
 * `options.query_params`: Query params sent to the filter function.
 * `options.doc_ids`: Only replicate docs with these ids (array of strings).
@@ -23,15 +23,24 @@ All options default to `false` unless otherwise specified.
 * `options.batches_limit`: Number of batches to process at a time. Defaults to 10. This (along wtih `batch_size`) controls how many docs are kept in memory at a time, so the maximum docs in memory at once would equal `batch_size` &times; `batches_limit`.
 
 #### Example Usage:
+
 {% highlight js %}
-var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {live: true})
-  .on('change', function (info) {
-    // handle change
-  }).on('complete', function (info) {
-    // handle complete
-  }).on('error', function (err) {
-    // handle error
-  });
+var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
+  live: true,
+  retry: true
+}).on('change', function (info) {
+  // handle change
+}).on('paused', function () {
+  // replication paused (e.g. user went offline)
+}).on('active', function () {
+  // replicate resumed (e.g. user went back online)
+}).on('denied', function (info) {
+  // a document failed to replicate, e.g. due to permissions
+}).on('complete', function (info) {
+  // handle complete
+}).on('error', function (err) {
+  // handle error
+});
 
 rep.cancel(); // whenever you want to cancel
 {% endhighlight %}
@@ -44,17 +53,43 @@ db.replicate.to(remoteDB, [options]);
 db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
 
-### Replication events
+`db` and `remoteDB` can both either be strings, or the `PouchDB` objects themselves. If you have special HTTP options on a remote database, you will want to use `PouchDB` objects instead of strings, so that the options are used.
 
-* __`change`__ (`info`) - This event fires when the replication has written a new document. `info` will contain details about the change. See below for an example response.
+#### Replication events
+
+* __`change`__ (`info`) - This event fires when the replication has written a new document. `info` will contain details about the change. `info.doc` will contain the doc if you set `include_docs` to `true`. See below for an example response.
 * __`complete`__ (`info`) - This event fires when replication is completed or cancelled. In a live replication, only cancelling the replication should trigger this event. `info` will contain details about the replication. See below for an example response.
 * __`paused`__ (`err`) - This event fires when the replication is paused, either because a live replication is waiting for changes, or replication has temporarily failed, with `err`, and is attempting to resume.
 * __`active`__ - This event fires when the replication starts actively processing changes; e.g. when it recovers from an error or new changes are available.
 * __`denied`__ (`err`) - This event fires if a document failed to replicate due to validation or authorization errors.
-* __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure.
-* __`uptodate`__ [*DEPRECATED*] - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
+* __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure. If `retry` is `false`, this will also fire when the user goes offline or another network error occurs (so you can handle retries yourself, if you want).
+* __`uptodate`__ *deprecated* - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
 
-#### Example Response:
+#### Single-shot
+
+As with [changes()](#changes), you can also omit `live`, in which case you can use `replicate()` in the callback/promise style and it will be treated as a single-shot operation.
+
+{% include code/start.html id="replication1" type="callback" %}
+{% highlight js %}
+db.replicate.to(remote, function (err, result) {
+  if (err) { return console.log(err); }
+  // handle 'completed' result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="replication1" type="promise" %}
+{% highlight js %}
+db.replicate.to(remote).then(function (result) {
+  // handle 'completed' result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+For non-live replications, the returned object is also an event emitter as well as a promise, and you can use all the events described above (except for `'paused'` and `'active'`, which only apply to `retry` replications).
+
+#### Example response
 
 Example response in the `'change'` listener:
 
@@ -86,10 +121,6 @@ Example response in the `'complete'` listener:
 }
 {% endhighlight %}
 
-**Notes:**
+Note that replication is supported for both local and remote databases. So you can replicate from local to local or from remote to remote.
 
-* The response for server replications (via `options.server`) is slightly different. See the [CouchDB replication documentation](http://wiki.apache.org/couchdb/Replication) for details.
-* The `'live'` option was formerly called `'continuous'`. You can still use `'continuous'` if you can spell it.
-* The replicate() method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
-
-
+However, if you replicate from remote to remote, then the changes will flow through PouchDB. If you want to trigger a server-initiated replication, please use regular ajax to POST to the CouchDB `_replicate` endpoint, as described [in the CouchDB docs](https://wiki.apache.org/couchdb/Replication).
