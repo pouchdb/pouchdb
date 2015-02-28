@@ -53,7 +53,7 @@ db.replicate.to(remoteDB, [options]);
 db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
 
-`db` and `remoteDB` can both either be strings, or the `PouchDB` objects themselves. If you have special HTTP options on a remote database, you will want to use `PouchDB` objects instead of strings, so that the options are used.
+The `remoteDB` can either be a string or a `PouchDB` object. If you have special ajax options on a remote database, you will want to use `PouchDB` objects instead of strings, so that the options are used.
 
 #### Replication events
 
@@ -63,7 +63,7 @@ db.replicate.from(remoteDB, [options]);
 * __`active`__ - This event fires when the replication starts actively processing changes; e.g. when it recovers from an error or new changes are available.
 * __`denied`__ (`err`) - This event fires if a document failed to replicate due to validation or authorization errors.
 * __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure. If `retry` is `false`, this will also fire when the user goes offline or another network error occurs (so you can handle retries yourself, if you want).
-* __`uptodate`__ *deprecated* - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
+* __`uptodate`__ (*deprecated*) - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
 
 #### Single-shot
 

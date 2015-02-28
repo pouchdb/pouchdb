@@ -4,7 +4,7 @@
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Retrieves a view, which allows you to perform more complex queries on PouchDB. The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
+Invoke a map/reduce function, which allows you to perform more complex queries on PouchDB than what you get with [allDocs()](#batch_fetch). The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
 
 Since views perform a full scan of all documents, this method may be slow, unless you first save your view in a design document. Read the [query guide](http://localhost:4000/guides/queries.html) for a good tutorial.
 
@@ -23,8 +23,8 @@ Since views perform a full scan of all documents, this method may be slow, unles
 All options default to `false` unless otherwise specified.
 
 * `fun`: Map/reduce function, which can be one of the following:
+  * A full CouchDB-style map/reduce view: `{map : ..., reduce: ...}`.
   * A map function by itself (no reduce).
-  * A full CouchDB-style map/reduce object: `{map : ..., reduce: ...}`.
   * The name of a view in an existing design document (e.g. `'mydesigndoc/myview'`, or `'myview'` as a shorthand for `'myview/myview'`).
 * `options.reduce`: Reduce function, or the string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.  Defaults to `false` (no reduce).
     * Tip: if you're not using a built-in, [you're probably doing it wrong](http://youtu.be/BKQ9kXKoHS8?t=865s).

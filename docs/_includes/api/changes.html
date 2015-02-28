@@ -38,6 +38,8 @@ var changes = db.changes({
   include_docs: true
 }).on('change', function(change) {
   // handle change
+}).on('complete', function(info) {
+  // changes() was canceled
 }).on('error', function (err) {
   console.log(err);
 });
@@ -132,7 +134,7 @@ Example response in the `'complete'` listener:
 
 If you don't specify `{live: true}`, then you can also use `changes()` in the standard
 callback/promise style, and it will be treated as a single-shot request, which
-returns a list of the changes:
+returns a list of the changes (i.e. what the `'complete'` event emits):
 
 {% include code/start.html id="changes1" type="callback" %}
 {% highlight js %}

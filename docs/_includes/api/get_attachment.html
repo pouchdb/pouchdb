@@ -32,7 +32,7 @@ The response will be a `Blob` object in the browser, and a `Buffer` object in No
 
 #### Inline base64 attachments
 
-You can specify `{attachments: true}` to most read operations (such as `get()`, `allDocs()`, `changes()`, and `query()`). The attachment data will then be included inlined in the resulting list of docs. However, it will always be supplied as base64. For example:
+You can specify `{attachments: true}` to most "read" operations, such as `get()`, `allDocs()`, `changes()`, and `query()`. The attachment data will then be included inlined in the resulting doc(s). However, it will always be supplied as base64. For example:
 
 {% highlight js %}
 {
