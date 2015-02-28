@@ -422,16 +422,17 @@ All options default to `false` unless otherwise specified.
   * `options.conflicts`: Include conflicts.
   * `options.attachments`: Include attachments.
 * `options.descending`: Reverse the order of the output documents.
-* `options.filter`: Reference a filter function from a design document to selectively get updates. To use a view function, pass `_view` here and provide a reference to the view function in `options.view`.
-* `options.doc_ids`: Only show changes for docs with these ids (array of strings).
 * `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'now' if you want only new changes.
 * `options.live`: Uses the  `_longpoll_` feed.
 * `options.timeout`: Request timeout (in milliseconds).
 * `options.limit`: Limit the number of results to this number.
-* `options.style`: Specifies how many revisions are returned in the changes array. The default, `'main_only'`, will only return the current "winning" revision; `'all_docs'` will return all leaf revisions (including conflicts and deleted former conflicts).
-* `options.view`: Specify a view function (i.e. `'design_doc_name/view_name'`) to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them. **Note**: `options.filter` must be set to `'_view'` for this option to work.
-* `options.returnDocs`: Is available for non http databases and defaults to true, passing `false` prevents the changes feed from keeping all the documents in memory, in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
+* `options.doc_ids`: Only show changes for docs with these ids (array of strings).
+* `options.filter`: Reference a filter function from a design document to selectively get updates. To use a view function, pass `_view` here and provide a reference to the view function in `options.view`.
+* `options.query_params`: Object containing properties that are passed to the filter function, e.g. `{"foo:"bar"}`, where `"bar"` will be available in the filter function as `params.query.foo`. To access the `params`, define your filter function like `function (doc, params) {/* ... */}`.
+* `options.view`: Specify a view function (e.g. `'design_doc_name/view_name'`) to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them. **Note**: `options.filter` must be set to `'_view'` for this option to work.
+* `options.returnDocs`: Is available for non-http databases and defaults to `true`. Passing `false` prevents the changes feed from keeping all the documents in memory &ndash; in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
 * `options.batch_size`: Only available for http databases, this configures how many changes to fetch at a time. Increasing this can reduce the number of requests made. Default is 25.
+* `options.style`: Specifies how many revisions are returned in the changes array. The default, `'main_only'`, will only return the current "winning" revision; `'all_docs'` will return all leaf revisions (including conflicts and deleted former conflicts). Most likely you won't need this unless you're writing a replicator.
 
 #### Example Usage:
 {% highlight js %}
