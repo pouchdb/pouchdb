@@ -4,11 +4,31 @@ title: API Reference
 sidebar: api.html
 ---
 
-Most of the PouchDB API is exposed as `fun(arg, [options], [callback])` where both the options and the callback are optional. Callbacks use the `function(err, result)` idiom where the first argument will be undefined unless there is an error, and the second argument holds the result.
+{% include anchor.html title="API overview" hash="overview" %}
 
-Additionally, any method that only returns a single thing (e.g. `db.get`) also returns a [promise][]. Promises come from the minimal library [lie][] in the browser, and the feature-rich [Bluebird][] in Node.
+PouchDB has an asynchronous API, supporting both [callbacks](http://docs.nodejitsu.com/articles/getting-started/control-flow/what-are-callbacks) and [promises][promise].
 
-  [promise]: http://www.html5rocks.com/en/tutorials/es6/promises/
+Most of the API is exposed as:
+
+{% highlight js %}
+db.doSomething(args..., [options], [callback])
+{% endhighlight %}
+
+&hellip; where both the `options` and `callback` are optional.
+
+Callbacks use the standard Node.js idiom of:
+
+{% highlight js %}
+function(error, result) { /* ... */ }
+{% endhighlight %}
+
+&hellip; where the `error` will be undefined if there's no error.
+
+If you don't specify a `callback`, then the API returns a [promise][]. In [supported browsers](http://caniuse.com/#feat=promises), native promises are used, falling back to the minimal library [lie][] as needed. In Node.js, promises come from [Bluebird][].
+
+For more info, check out the [guide to asynchronous code](/guides/async-code.html).
+
+  [promise]: https://www.promisejs.org/
   [lie]: https://github.com/calvinmetcalf/lie
   [bluebird]: https://github.com/petkaantonov/bluebird
 
@@ -18,7 +38,7 @@ Additionally, any method that only returns a single thing (e.g. `db.get`) also r
 new PouchDB([name], [options])
 {% endhighlight %}
 
-This method creates a database or opens an existing one. If you use a URL like `'http://domain.com/dbname'` then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using whatever backend is present (i.e. IndexedDB, WebSQL, or LevelDB).
+This method creates a database or opens an existing one. If you use a URL like `'http://domain.com/dbname'`, then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using whatever backend is present (i.e. IndexedDB, WebSQL, or LevelDB).
 
 ### Options
 
@@ -71,7 +91,7 @@ db.destroy([options], [callback])
 
 Delete database.
 
-**Notes:** With a remote CouchDB on Node, options are passed to [request][].
+**Note:** With a remote CouchDB on Node, options are passed to [request][].
 
 #### Example Usage:
 {% highlight js %}
@@ -101,48 +121,47 @@ There are some restrictions on valid property names of the documents. These are 
 
 #### Example Usage:
 
-Create a new doc with an `_id`:
+Create a new doc with an `_id` of `'mydoc'`:
 
 {% highlight js %}
-db.put({
-  title: 'Heroes'
-}, 'mydoc', function(err, response) { });
+db.put({ title: 'Heroes' }, 'mydoc', function(err, response) {
+  /* ... */
+});
 {% endhighlight %}
 
-Like all methods, you can also use a promise:
+Like all API methods, you can also use promises:
 
 {% highlight js %}
-db.put({
-  title: 'Lady Stardust'
-}, 'myOtherDoc').then(function(response) { });
+db.put({ title: 'Heroes' }, 'mydoc').then(function(response) {
+  /* ... */
+}).catch(function (err) {
+  /* ... */
+});
 {% endhighlight %}
 
-Update an existing doc using `_rev`:
+You can update an existing doc using `_rev`:
 
 {% highlight js %}
-db.get('myOtherDoc', function(err, otherDoc) {
-  db.put({
-    title: "Let's Dance"
-  }, 'myOtherDoc', otherDoc._rev, function(err, response) {
+db.get('mydoc', function(err, doc) {
+  if (err) { return console.log(err); }
+  db.put({ title: "Let's Dance" }, 'mydoc', doc._rev, function(err, response) {
+    if (err) { return console.log(err); }
+    /* ... */  
   });
 });
 {% endhighlight %}
 
-You can also include the `_id` and `_rev` directly in the document:
+You can also include the `_id` and `_rev` directly in the document. Here's an example with Promises:
 
 {% highlight js %}
-db.get('myOtherDoc').then(function(otherDoc) {
-  return db.put({
-    _id: 'myOtherDoc',
-    _rev: otherDoc._rev,
-    title: 'Be My Wife',
-  });
-}, function(err, response) {
-  if (err) {
-    // on error
-  } else {
-    // on success
-  }
+db.put({
+  _id: 'mydoc',
+  _rev: doc._rev,
+  title: 'Be My Wife'
+}).then(function(response) {
+  /* ... */
+}).catch(function (err) {
+  /* ... */
 });
 {% endhighlight %}
 
