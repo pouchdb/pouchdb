@@ -1,0 +1,155 @@
+{% include anchor.html title="Fetch a batch of documents" hash="batch_fetch" %} 
+
+{% highlight js %}
+db.allDocs([options], [callback])
+{% endhighlight %}
+
+Fetch multiple documents, indexed and sorted by the `_id`.  Deleted documents are only included if `options.keys` is specified.
+
+### Options
+
+All options default to `false` unless otherwise specified.
+
+* `options.include_docs`: Include the document itself in each row in the `doc` field. Otherwise by default you only get the `_id` and `_rev` properties.
+    - `options.conflicts`: Include conflict information in the `_conflicts` field of a doc.
+  - `options.attachments`: Include attachment data as base64-encoded string.
+* `options.startkey` &amp; `options.endkey`: Get documents with IDs in a certain range (inclusive/inclusive).
+* `options.inclusive_end`: Include documents having an ID equal to the given `options.endkey`. Default: `true`.
+* `options.limit`: Maximum number of documents to return.
+* `options.skip`: Number of docs to skip before returning (warning: poor performance on IndexedDB/LevelDB!).
+* `options.descending`: Reverse the order of the output documents.
+* `options.key`: Only return documents with IDs matching this string key.
+* `options.keys`: Array of string keys to fetch in a single shot.
+    - Neither `startkey` nor `endkey` can be specified with this option.
+    - The rows are returned in the same order as the supplied `keys` array.
+    - The row for a deleted document will have the revision ID of the deletion, and an extra key `"deleted":true` in the `value` property.
+    - The row for a nonexistent document will just contain an `"error"` property with the value `"not_found"`.
+    - For details, see the [CouchDB query options documentation](http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options).
+
+**Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](http://docs.couchdb.org/en/latest/couchapp/views/pagination.html) instead.
+
+#### Example Usage:
+
+{% include code/start.html id="all_docs" type="callback" %}
+{% highlight js %}
+db.allDocs({
+  include_docs: true, 
+  attachments: true
+}, function(err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="all_docs" type="promise" %}
+{% highlight js %}
+db.allDocs({
+  include_docs: true, 
+  attachments: true
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+
+{% highlight js %}
+{
+  "offset": 0,
+  "total_rows": 1,
+  "rows": [{
+    "doc": {
+      "_id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+      "_rev": "1-5782E71F1E4BF698FA3793D9D5A96393",
+      "title": "Sound and Vision",
+      "_attachments": {
+      	"attachment/its-id": {
+      	  "content_type": "image/jpg",
+      	  "data": "R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",
+      	  "digest": "md5-57e396baedfe1a034590339082b9abce"
+      	}
+      }
+    },
+   "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+   "key": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+   "value": {
+    "rev": "1-5782E71F1E4BF698FA3793D9D5A96393"
+   }
+ }]
+}
+{% endhighlight %}
+
+In the response, you have three things:
+
+* `total_rows` the total number of non-deleted documents in the database
+* `offset` the `skip` if provided, or in CouchDB the actual offset
+* `rows`: rows containing the documents, or just the `_id`/`_revs` if you didn't set `include_docs` to `true`.
+
+You can use `startkey`/`endkey` to find all docs in a range:
+
+{% include code/start.html id="all_docs_2" type="callback" %}
+{% highlight js %}
+db.allDocs({
+  include_docs: true, 
+  attachments: true,
+  startkey: 'bar',
+  endkey: 'quux'
+}, function(err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="all_docs_2" type="promise" %}
+{% highlight js %}
+db.allDocs({
+  include_docs: true, 
+  attachments: true,
+  startkey: 'bar',
+  endkey: 'quux'
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+This will return all docs with `_id`s between `'bar'` and `'quux'`.
+
+#### Prefix search
+
+You can do prefix search in `allDocs()` &ndash; i.e. "give me all the documents whose `_id`s start with `'foo'`" &ndash; by using the special high Unicode character `'\uffff'`:
+
+{% include code/start.html id="all_docs_3" type="callback" %}
+{% highlight js %}
+db.allDocs({
+  include_docs: true, 
+  attachments: true,
+  startkey: 'foo',
+  endkey: 'foo\uffff'
+}, function(err, response) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="all_docs_3" type="promise" %}
+{% highlight js %}
+db.allDocs({
+  include_docs: true, 
+  attachments: true,
+  startkey: 'foo',
+  endkey: 'foo\uffff'
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+This works because CouchDB/PouchDB `_id`s are sorted [lexicographically](http://docs.couchdb.org/en/latest/couchapp/views/collation.html).

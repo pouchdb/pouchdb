@@ -1,0 +1,40 @@
+{% include anchor.html title="Compact the database" hash="compaction" %} 
+
+{% highlight js %}
+db.compact([options], [callback])
+{% endhighlight %}
+
+Triggers a compaction operation in the local or remote database. This reduces the database's size by removing unused and old data, namely non-leaf revisions and attachments that are no longer referenced by those revisions. Note that this is a separate operation from [`viewCleanup()`](#view_cleanup).
+
+For remote databases, PouchDB checks the compaction status at regular intervals and fires the callback (or resolves the promise) upon completion. Consult the [compaction section of CouchDB's maintenance documentation](http://couchdb.readthedocs.org/en/latest/maintenance/compaction.html) for more details.
+
+Also see [auto-compaction](#create_database), which runs compaction automatically (local databases only).
+
+* `options.interval`: Number of milliseconds to wait before asking again if compaction is already done. Defaults to 200. (Only applies to remote databases.)
+
+#### Example Usage:
+
+{% include code/start.html id="compact" type="callback" %}
+{% highlight js %}
+db.compact(function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="compact" type="promise" %}
+{% highlight js %}
+db.compact().then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+{% highlight js %}
+{ "ok" : "true" }
+{% endhighlight %}
+
+
