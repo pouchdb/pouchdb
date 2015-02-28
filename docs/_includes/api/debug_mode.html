@@ -1,0 +1,14 @@
+{% include anchor.html title="Debug mode" hash="debug_mode" %} 
+
+PouchDB uses the [debug](https://www.npmjs.org/package/debug) module for fine-grained debug output.
+
+To enable debug mode, just call:
+
+{% highlight js %}
+PouchDB.debug.enable('*');
+{% endhighlight %}
+
+In your browser console, you should then see something like this:
+
+
+

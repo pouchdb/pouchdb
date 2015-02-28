@@ -1,0 +1,68 @@
+{% include anchor.html title="Create a database" hash="create_database" %}
+
+{% highlight js %}
+new PouchDB([name], [options])
+{% endhighlight %}
+
+This method creates a database or opens an existing one. If you use a URL like `'http://domain.com/dbname'`, then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using [whatever backend is present](/adapters.html).
+
+### Options
+
+* `options.name`: You can omit the `name` argument and specify it via `options` instead. Note that the name is required.
+* `options.auto_compaction`: This turns on auto compaction, which means `compact()` is called after every change to the database. Defaults to `false`.
+* `options.adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
+* `options.ajax`: (Remote databases only.) Ajax requester options. For instance, passing in the options `{ajax: {timeout: 10000}}` will allow you to set the max timeout for an HTTP request. These are passed ver batim to [request][] (in Node.js) or  [a request shim](https://github.com/pouchdb/pouchdb/blob/master/lib/deps/request-browser.js) (in the browser), with the exception of:
+  * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
+  * `options.ajax.headers`: The `ajax.headers` option allows you to customise headers that are sent to the remote HTTP Server.
+  * `options.auth.username` + `options.auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `username` + `password` options.
+
+**Notes:**
+
+1. In IndexedDB and WebSQL, PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
+2. When acting as a client on Node, any other options given will be passed to [request][].
+3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][]. The storage layer of leveldb can be replaced by passing a level backend factory (such as [MemDOWN][]) as `options.db`. The rest of the supported options are [documented here][levelup_options].
+4. When using the `'websql'` adapter, you can use `options.size` to request more than 5MB up-front, in order to avoid errors caused by reaching the storage limit on iOS/Safari. Details [here](errors.html).
+
+[request]: https://github.com/mikeal/request
+[levelup]: https://github.com/rvagg/node-levelup
+[MemDOWN]: https://github.com/rvagg/memdown
+[levelup_options]: https://github.com/rvagg/node-levelup/#options
+
+#### Example Usage:
+{% highlight js %}
+var db = new PouchDB('dbname');
+// or
+var db = new PouchDB('http://localhost:5984/dbname');
+{% endhighlight %}
+
+Create a WebSQL-only Pouch (e.g. when using the [SQLite Plugin][] for Cordova/PhoneGap):
+
+[sqlite plugin]: https://github.com/brodysoft/Cordova-SQLitePlugin
+
+{% highlight js %}
+var db = new PouchDB('dbname', {adapter : 'websql'});
+{% endhighlight %}
+
+Create an in-memory Pouch (in Node):
+
+{% highlight js %}
+var db = new PouchDB('dbname', {db : require('memdown')});
+{% endhighlight %}
+
+Create a remote PouchDB with special Ajax options:
+
+{% highlight js %}
+var db = new PouchDB('http://example.com/dbname', {
+  ajax: {
+    cache: false,
+    timeout: 10000,
+    headers: {
+      'X-Some-Special-Header': 'foo'
+    },
+    username: 'mysecretusername',
+    password: 'mysecretpassword'
+  }
+});
+{% endhighlight %}
+
+For more info, check out [adapters](/adapters.html).

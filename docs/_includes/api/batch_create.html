@@ -1,0 +1,82 @@
+{% include anchor.html title="Create/update a batch of documents" hash="batch_create" %} 
+
+{% highlight js %}
+db.bulkDocs(docs, [options], [callback])
+{% endhighlight %}
+
+Create, update or delete multiple documents. The `docs` argument is an array of documents.
+
+If you omit an `_id` parameter on a given document, the database will create a new document and assign the ID for you. To update a document, you must include both an `_id` parameter and a `_rev` parameter, which should match the ID and revision of the document on which to base your updates. Finally, to delete a document, include a `_deleted` parameter with the value `true`.
+
+**Note**: Previously `bulkDocs()` took an object with a key `docs` holding the array of documents. This is deprecated, but still works.
+
+#### Example Usage:
+
+Post some new docs and auto-generate the `_id`s:
+
+{% highlight js %}
+db.bulkDocs([
+  {title : 'Lisa Says'},
+  {title : 'Space Oddity'}
+], function(err, response) { });
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+[
+    {
+        "ok": true,
+        "id": "06F1740A-8E8A-4645-A2E9-0D8A8C0C983A",
+        "rev": "1-84abc2a942007bee7cf55007cba56198"
+    },
+    {
+        "ok": true,
+        "id": "6244FB45-91DB-41E5-94FF-58C540E91844",
+        "rev": "1-7b80fc50b6af7a905f368670429a757e"
+    }
+]
+{% endhighlight %}
+
+#### Bulk update/delete:
+
+Then you can update those same docs:
+
+{% highlight js %}
+db.bulkDocs([
+  {
+    title  : 'Lisa Says',
+    artist : 'Velvet Underground',
+    _id    : "06F1740A-8E8A-4645-A2E9-0D8A8C0C983A",
+    _rev   : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title  : 'Space Oddity',
+	artist : 'David Bowie',
+    _id    : "6244FB45-91DB-41E5-94FF-58C540E91844",
+    _rev   : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+], function(err, response) { });
+{% endhighlight %}
+
+Or delete them:
+
+{% highlight js %}
+db.bulkDocs([
+  {
+    title    : 'Lisa Says',
+    _deleted : true,
+    _id      : "06F1740A-8E8A-4645-A2E9-0D8A8C0C983A",
+    _rev     : "1-84abc2a942007bee7cf55007cba56198"
+  },
+  {
+    title    : 'Space Oddity',
+	_deleted : true,
+    _id      : "6244FB45-91DB-41E5-94FF-58C540E91844",
+    _rev     : "1-7b80fc50b6af7a905f368670429a757e"
+  }
+], function(err, response) { });
+{% endhighlight %}
+
+**Note:** You can also specify a `new_edits` property on the options object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
+
+

@@ -1,0 +1,25 @@
+{% include anchor.html title="Delete an attachment" hash="delete_attachment" %} 
+
+{% highlight js %}
+db.removeAttachment(docId, attachmentId, rev, [callback])
+{% endhighlight %}
+
+Delete an attachment from a doc.
+
+#### Example Usage:
+{% highlight js %}
+db.removeAttachment('otherdoc',
+                    'text',
+                    '2-068E73F5B44FEC987B51354DFC772891',
+                    function(err, res) { });
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "ok": true,
+  "rev": "3-1F983211AB87EFCCC980974DFC27382F"
+}
+{% endhighlight %}
+
+

@@ -1,0 +1,27 @@
+{% include anchor.html title="Plugins" hash="plugins" %} 
+
+Writing a plugin is easy! The API is:
+
+{% highlight js %}
+PouchDB.plugin({
+  methodName: myFunction
+});
+{% endhighlight %}
+
+This will add the function as a method of all databases with the given method name.  It will always be called in context, so that `this` always refers to the database object.
+
+We also offer a [PouchDB Plugin Seed project](https://github.com/pouchdb/plugin-seed), which is the fastest way to get started writing, building and testing your very own plugin.
+
+#### Example Usage:
+{% highlight js %}
+PouchDB.plugin({
+  sayMyName : function () {
+    this.info().then(function (info)   {
+      console.log('My name is ' + info.db_name);
+    }).catch(function (err) { });
+  }
+});
+new PouchDB('foobar').sayMyName(); // prints "My name is foobar"
+{% endhighlight %}
+
+

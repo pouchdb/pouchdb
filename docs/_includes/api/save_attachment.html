@@ -1,0 +1,53 @@
+{% include anchor.html title="Save an attachment" hash="save_attachment" %} 
+
+{% highlight js %}
+db.putAttachment(docId, attachmentId, rev, attachment, type, [callback]);
+{% endhighlight %}
+
+Attaches a binary object to a document. Most of PouchDB's API deals with JSON, but if you're dealing with large binary data (such as PNGs), you may incur a performance or storage penalty if you simply include them as base64- or hex-encoded strings. In these cases, you can store the binary data as an attachment. For details, see the [CouchDB documentation on attachments](https://wiki.apache.org/couchdb/HTTP_Document_API#Attachments).
+
+#### Example Usage:
+{% highlight js %}
+var attachment = new Blob(['Is there life on Mars?']);
+db.putAttachment('a', 'text', rev, attachment, 'text/plain', function(err, res) {})
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "ok": true,
+  "id": "otherdoc",
+  "rev": "2-068E73F5B44FEC987B51354DFC772891"
+}
+{% endhighlight %}
+
+Within Node, you must use a `Buffer` instead of a `Blob`:
+
+{% highlight js %}
+var attachment = new Buffer('Is there life on Mars?');
+{% endhighlight %}
+
+For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).  If you need a shim for older browsers that don't support the `Blob` constructor, you can use [blob-util](https://github.com/nolanlawson/blob-util).
+
+### Save an inline attachment
+
+You can also inline attachments inside the document. In this case, the attachment data must be supplied as a base64-encoded string:
+
+{% highlight js %}
+{
+  '_id': 'otherdoc',
+  'title': 'Legendary Hearts',
+  '_attachments': {
+    "text": {
+      "content_type": "text/plain",
+       "data": "TGVnZW5kYXJ5IGhlYXJ0cywgdGVhciB1cyBhbGwgYXBhcnQKT" +
+         "WFrZSBvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA=="
+    }
+  }
+}
+{% endhighlight %}
+
+See [Inline Attachments](http://wiki.apache.org/couchdb/HTTP_Document_API#Inline_Attachments)
+on the CouchDB wiki for details.
+
+

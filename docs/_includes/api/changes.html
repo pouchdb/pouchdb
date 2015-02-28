@@ -1,0 +1,102 @@
+{% include anchor.html title="Listen to database changes" hash="changes" %} 
+
+{% highlight js %}
+db.changes(options)
+{% endhighlight %}
+
+A list of changes made to documents in the database, in the order they were made.
+It returns an object with the method `cancel()`, which you call if you don't want to listen to new changes anymore.
+
+It is an [event emitter][event emitter] and will emit a `'change'` event on each document change, a `'complete'` event when all the changes have been processed, and an `'error'` event when an error occurs. In addition to the `'change'` event, any change will also emit a `'create'`, `'update'`, or `'delete'` event.
+
+### Options
+
+All options default to `false` unless otherwise specified.
+
+* `options.include_docs`: Include the associated document with each change.
+  * `options.conflicts`: Include conflicts.
+  * `options.attachments`: Include attachments.
+* `options.descending`: Reverse the order of the output documents.
+* `options.since`: Start the results from the change immediately after the given sequence number, you can also pass 'now' if you want only new changes.
+* `options.live`: Uses the  `_longpoll_` feed.
+* `options.timeout`: Request timeout (in milliseconds).
+* `options.limit`: Limit the number of results to this number.
+* `options.doc_ids`: Only show changes for docs with these ids (array of strings).
+* `options.filter`: Reference a filter function from a design document to selectively get updates. To use a view function, pass `_view` here and provide a reference to the view function in `options.view`.
+* `options.query_params`: Object containing properties that are passed to the filter function, e.g. `{"foo:"bar"}`, where `"bar"` will be available in the filter function as `params.query.foo`. To access the `params`, define your filter function like `function (doc, params) {/* ... */}`.
+* `options.view`: Specify a view function (e.g. `'design_doc_name/view_name'`) to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them. **Note**: `options.filter` must be set to `'_view'` for this option to work.
+* `options.returnDocs`: Is available for non-http databases and defaults to `true`. Passing `false` prevents the changes feed from keeping all the documents in memory &ndash; in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
+* `options.batch_size`: Only available for http databases, this configures how many changes to fetch at a time. Increasing this can reduce the number of requests made. Default is 25.
+* `options.style`: Specifies how many revisions are returned in the changes array. The default, `'main_only'`, will only return the current "winning" revision; `'all_docs'` will return all leaf revisions (including conflicts and deleted former conflicts). Most likely you won't need this unless you're writing a replicator.
+
+#### Example Usage:
+{% highlight js %}
+var changes = db.changes({
+  since: 20,
+  live: true
+}).on('change', function(change) { });
+
+changes.cancel(); // whenever you want to cancel
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "id":"somestuff",
+  "seq":21,
+  "changes":[{
+    "rev":"1-8e6e4c0beac3ec54b27d1df75c7183a8"
+  }],
+  "doc":{
+    "title":"Ch-Ch-Ch-Ch-Changes",
+    "_id":"someDocId",
+    "_rev":"1-8e6e4c0beac3ec54b27d1df75c7183a8"
+  }
+}
+{% endhighlight %}
+
+#### Example Usage:
+{% highlight js %}
+db.changes()
+  .on('error', function (err) {})
+  .on('complete', function (resp) {});
+{% endhighlight %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "results": [{
+    "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+    "seq": 1,
+    "changes": [{
+      "rev": "1-5782E71F1E4BF698FA3793D9D5A96393"
+    }]
+  }, {
+    "id": "mydoc",
+    "seq": 2,
+    "changes": [{
+      "rev": "1-A6157A5EA545C99B00FF904EEF05FD9F"
+    }]
+  }, {
+    "id": "otherdoc",
+    "seq": 3,
+    "changes": [{
+      "rev": "1-3753476B70A49EA4D8C9039E7B04254C"
+    }]
+  }, {
+    "id": "828124B9-3973-4AF3-9DFD-A94CE4544005",
+    "seq": 4,
+    "changes": [{
+      "rev": "1-A8BC08745E62E58830CA066D99E5F457"
+    }]
+  }]
+}
+{% endhighlight %}
+
+**Note:**
+
+* The `'complete'` event only fires when you aren't doing live changes. With live changes, use the `'paused'` event instead.
+* The `changes()` method was not an event emitter before PouchDB 2.2.0, and instead of the `'change'` and `'complete'` events it took `complete` and `onChange` function options. This is deprecated and could be removed in PouchDB version 3.
+* The `'since'`option formerly took 'latest' but has been changed to 'now' to keep consistency with CouchDB. 'latest' is deprecated but will still work to ensure backwards compatibility.
+
+

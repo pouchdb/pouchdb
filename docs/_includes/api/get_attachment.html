@@ -1,0 +1,21 @@
+{% include anchor.html title="Get an attachment" hash="get_attachment" %} 
+
+{% highlight js %}
+db.getAttachment(docId, attachmentId, [options], [callback])
+{% endhighlight %}
+
+Get attachment data.
+
+#### Example Usage:
+
+{% highlight js %}
+db.getAttachment('otherdoc', 'text', function(err, res) { });
+{% endhighlight %}
+
+In Node you get `Buffer`s, and in the browser you get `Blob`s.
+
+### Inline attachments
+
+You can specify `attachments: true` to most read operations. The attachment data will then be included inlined in the resulting list of docs.
+
+
