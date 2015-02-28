@@ -1187,6 +1187,37 @@ adapters.forEach(function (adapter) {
       db.post({ test: 'adoc' });
     });
 
+
+    it("#3579 changes firing 1 too many times", function () {
+      var db = new PouchDB(dbs.name);
+      var Promise = PouchDB.utils.Promise;
+      return db.bulkDocs([{}, {}, {}]).then(function () {
+        var changes = db.changes({
+          since: 'now',
+          live: true,
+          include_docs: true
+        });
+        return Promise.all([
+          new Promise(function (resolve, reject) {
+            changes.on('error', reject);
+            changes.on('change', function (change) {
+              changes.cancel();
+              resolve(change);
+            });
+          }),
+          new Promise(function (resolve) {
+            setTimeout(resolve, 50);
+          }).then(function () {
+              return db.put({_id: 'foobar'});
+            })
+        ]);
+      }).then(function (result) {
+        var change = result[0];
+        change.id.should.equal('foobar');
+        change.doc._id.should.equal('foobar');
+      });
+    });
+
     it('Kill database while listening to live changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
