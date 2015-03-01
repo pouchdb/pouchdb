@@ -22,16 +22,29 @@ function codeWrap(){
       .forEach(function(id){
         var $code = $("[data-code-id='" + id + "']");
 
+        var paneHeight = 0;
+
         var paneHtml = $code.get().map(function(div){
+          if(div.clientHeight > paneHeight){
+            paneHeight = div.clientHeight;
+          }
           return div.outerHTML;
         }).join('');
 
-        var codeHtml = codeTpl.replace(/{{tapPanes}}/g, paneHtml);
+        // Pad the pane height
+        paneHeight = paneHeight + 15;
+
+        var codeHtml = codeTpl
+                         .replace(/{{tapPanes}}/g, paneHtml)
+                         .replace(/<pre>/g, "<pre style='height: " + paneHeight + "px;'");
 
         $code
           .first()
           .replaceWith(codeHtml);
         $code.remove();
+
+        // Remove items that are only useful for non-JS users.
+        $('[data-code-hide]').addClass('hide');
       });
 
   $('[data-code-tablist] [href]').on('click', function(e){

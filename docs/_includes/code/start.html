@@ -3,6 +3,8 @@
 {% else %}
   {% assign class = '' %}
 {% endif %}
+<strong data-code-hide>{{ include.type | capitalize }}:</strong>
+
 <div
   class="tab-pane {{ class }}"
   id="{{ include.type }}"
