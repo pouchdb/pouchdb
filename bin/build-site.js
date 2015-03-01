@@ -8,6 +8,7 @@ var http_server = require('http-server');
 var execSync = require('exec-sync');
 var mkdirp = require('mkdirp');
 var watchGlob = require('watch-glob');
+var replace = require('replace');
 
 var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
 var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
@@ -40,6 +41,23 @@ function buildJekyll(path) {
   }
   execSync('jekyll build');
   console.log('=> Rebuilt jekyll');
+  highlightEs6();
+  console.log('=> Highlighted ES6');
+}
+
+function highlightEs6() {
+
+  var path = require('path').resolve(__dirname, '../docs/_site');
+
+  // TODO: this is a fragile and hacky way to get
+  // 'async' and 'await' to highlight correctly
+  // in this blog post.
+  replace({
+    regex: '<span class="nx">(await|async)</span>',
+    replacement: '<span class="kd">$1</span>',
+    paths: [path],
+    recursive: true
+  });
 }
 
 if (!process.env.BUILD) {
