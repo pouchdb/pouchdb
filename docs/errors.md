@@ -113,6 +113,30 @@ This can occur when attempting to read from or write to IndexedDB from a differe
 
 In Firefox, PouchDB instead throws a [`No valid adapter found`](#no_valid_adapter) error.
 
+{% include anchor.html class="h3" title="DataCloneError: An object could not be cloned" hash="could_not_be_cloned" %}
+
+If you ever see:
+
+    Uncaught DataCloneError:
+      Failed to execute 'put' on 'IDBObjectStore':
+      An object could not be cloned.
+
+Or:
+
+    DataCloneError: The object could not be cloned.
+
+Then the problem is that the document you are trying to store is not a pure JSON object. For example, an object with its own class (`new Foo()`) or with special methods like getters and setters cannot be stored in PouchDB/CouchDB.
+
+If you are ever unsure, then run this on the document:
+
+```js
+JSON.parse(JSON.stringify(myDocument));
+```
+
+If the object you get out is the same as the object you put in, then you are storing the right kind of object.
+
+Note that this also means that you cannot store `Date`s in your document. You must convert them to strings or numbers first. `Date`s will be stored as-is in IndexedDB, but in the other adapters and in CouchDB, they will be automatically converted to ISO string format, e.g. `'2015-01-01T12:00:00.000Z'`. This can caused unwanted results. See [#2351](https://github.com/pouchdb/pouchdb/issues/2351) and [#2158](https://github.com/pouchdb/pouchdb/issues/2158) for details.
+
 {% include anchor.html class="h3" title="DOM Exception 18 in Android pre-Kitkat WebView" hash="android_pre_kitkat" %}
 
 This applies to hybrid apps designed to run in Android pre-Kitkat (i.e. before 4.4).
