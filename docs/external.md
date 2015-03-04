@@ -40,9 +40,9 @@ Dump a PouchDB/CouchDB to a file, then load it wholesale. Designed for fast init
 
 Implements the handy "every document is a delta" pattern, so you don't have to deal with conflicts.
 
-#### [Filter Pouch](https://github.com/nolanlawson/filter-pouch)
+#### [Transform Pouch](https://github.com/nolanlawson/transform-pouch)
 
-Applies filter functions to documents before and after storage, e.g. for encryption, compression, or massaging data.
+Transforms documents before and after storage, e.g. for encryption, compression, or massaging data.
 
 #### [PouchDB Erase](https://github.com/marten-de-vries/pouchdb-erase)
 
