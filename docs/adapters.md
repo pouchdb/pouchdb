@@ -274,7 +274,7 @@ Currently PouchDB has full support for:
 * [IrisCouch](http://www.iriscouch.com/) (same as 1.x)
 * [Couchappy](https://www.couchappy.com/) (same as 1.x)
 * CouchDB 2.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
-* [Cloudant](https://cloudant.com/) (rougly the same as 2.x)
+* [Cloudant](https://cloudant.com/) (roughly the same as 2.x)
 * [PouchDB Server](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
 * [PouchDB Server --in-memory mode](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
 
