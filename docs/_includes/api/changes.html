@@ -36,8 +36,14 @@ var changes = db.changes({
   since: 'now',
   live: true,
   include_docs: true
-}).on('change', function(change) {
-  // handle change
+}).on('create', function (info) {
+  // document was created
+}).on('update', function (info) {
+  // document was updated
+}).on('delete', function (info) {
+  // document was deleted
+}).on('change', function(info) {
+  // any document was created/updated/deleted
 }).on('complete', function(info) {
   // changes() was canceled
 }).on('error', function (err) {
@@ -65,7 +71,10 @@ changes.cancel(); // whenever you want to cancel
 
 #### Change events
 
-* __`change`__ (`info`) - This event fires when a change has been found. `info` will contain details about the change, such as whether it was deleted and what the new `_rev` is. `info.doc` will contain the doc if you set `include_docs` to `true`. See below for an example response.
+* __`change`__ (`info`) - This event fires when a change has been found. `info` will contain details about the change, such as whether it was deleted and what the new `_rev` is. `info.doc` will contain the doc if you set `include_docs` to `true`. `info.deleted` will be `true` if the document was deleted. (See below for an example response.) When a `'change'` event fires, one of the three of `'create'`/`'update'`/`'delete'` events will also fire, emitting the same `info`.
+* __`create`__ (`info`) - Event indicating a new document was created.
+* __`update`__ (`info`) - Event indicating a document was updated.
+* __`delete`__ (`info`) - Event indicating a document was deleted.
 * __`complete`__ (`info`) - This event fires when all changes have been read. In live changes, only cancelling the changes should trigger this event. `info.results` will contain the list of changes. See below for an example.
 * __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure.
 
