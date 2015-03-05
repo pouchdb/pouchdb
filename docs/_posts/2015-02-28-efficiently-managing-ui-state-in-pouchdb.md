@@ -57,7 +57,7 @@ function fetchInitialDocs() {
 }
 
 function reactToChanges() {
-  db.change({live: true, since: 'now', include_docs: true}).on('change', function (change) {
+  db.changes({live: true, since: 'now', include_docs: true}).on('change', function (change) {
     if (change.deleted) {
       // change.id holds the deleted id
       onDeleted(change.id);
