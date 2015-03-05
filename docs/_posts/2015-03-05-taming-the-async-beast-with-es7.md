@@ -7,11 +7,11 @@ author: Nolan Lawson
 
 ---
 
-One of the trickiest aspects of PouchDB is that the API is asynchronous. I see no shortage of confused questions on Stack Overflow, Github, and IRC, and most often they stem from a misunderstanding of callbacks and promises.
+One of the trickiest aspects of PouchDB is that its API is asynchronous. I see no shortage of confused questions on Stack Overflow, Github, and IRC, and most often they stem from a misunderstanding of callbacks and promises.
 
 We can't really help it. PouchDB is an abstraction over IndexedDB, WebSQL, LevelDB (in Node), and CouchDB (via Ajax). All of those APIs are asynchronous; hence PouchDB must be asynchronous.
 
-When I try to think of elegant database APIs, however, I'm still struck by the simplicity of LocalStorage:
+When I think of elegant database APIs, however, I'm still struck by the simplicity of LocalStorage:
 
 {% highlight js %}
 if (!localStorage.foo) {
@@ -22,7 +22,7 @@ console.log(localStorage.foo);
 
 To work with LocalStorage, you simply treat it like a magical JavaScript object that happens to persist your data. It uses the same synchronous toolset that you're already used to from working with JavaScript itself.
 
-For all of [LocalStorage's](http://www.html5rocks.com/en/tutorials/offline/quota-research/) [faults](https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/), the ergonomics of this API help explain its continuing popularity. People keep using it, because it *just works*.
+For all of [LocalStorage's](http://www.html5rocks.com/en/tutorials/offline/quota-research/) [faults](https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/), the ergonomics of this API go a long way to explain its continuing popularity. People keep using LocalStorage because it's simple, and it works exactly as you'd expect.
 
 ### Promises aren't a panacea
 
