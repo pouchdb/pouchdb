@@ -3767,6 +3767,65 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it("#3578 replication with a ddoc filter remove server-side", function(){
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc._id === 'a' || doc._id === 'b';
+          }.toString()
+        }
+      },
+        {_id: 'a'},
+        {_id: 'b'},
+        {_id: 'c'}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function(){
+        return remote.get('a');
+      }).then(function(doc){ 
+        return remote.remove(doc);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (docs) {
+        docs.rows.should.have.length(1);
+      });
+
+    });
+
+    it("#3578 replication with a ddoc filter change server-side", function(){
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc.replicate;
+          }.toString()
+        }
+      },
+        {_id: 'a', replicate: true},
+        {_id: 'b', replicate: false},
+        {_id: 'c', replicate: false}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function(){
+        return remote.get('a').then(function(doc) {
+           doc.replicate = false;
+           remote.put(doc);
+        });
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (docs) {
+        docs.rows.should.have.length(0);
+      });
+
+    });
+
   });
 });
 
