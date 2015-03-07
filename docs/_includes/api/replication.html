@@ -14,11 +14,17 @@ All options default to `false` unless otherwise specified.
 
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.retry`: If `true` will attempt to retry replications in the case of failure (due to being offline), using a backoff algorithm that retries at longer and longer intervals until a connection is re-established. Only applicable if `options.live` is also `true`.
-* `options.filter`: Reference a filter function from a design document to selectively get updates.
-* `options.query_params`: Query params sent to the filter function.
-* `options.doc_ids`: Only replicate docs with these ids (array of strings).
 * `options.since`: Replicate changes after the given sequence number.
-* `options.create_target`: Create target database if it does not exist. Only for server replications.
+
+**Filtering Options:**
+
+* `options.filter`: Reference a filter function from a design document to selectively get updates. To use a view function, pass `_view` here and provide a reference to the view function in `options.view`. See [filtered replication](#filtered-replication) for details.
+* `options.doc_ids`: Only show changes for docs with these ids (array of strings).
+* `options.query_params`: Object containing properties that are passed to the filter function, e.g. `{"foo:"bar"}`, where `"bar"` will be available in the filter function as `params.query.foo`. To access the `params`, define your filter function like `function (doc, params) {/* ... */}`.
+* `options.view`: Specify a view function (e.g. `'design_doc_name/view_name'`) to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them. **Note**: `options.filter` must be set to `'_view'` for this option to work.
+
+**Advanced Options:**
+
 * `options.batch_size`: Number of documents to process at a time. Defaults to 100. This affects the number of docs held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low amounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments). If your documents are small in size, then increasing this number will probably speed replication up.
 * `options.batches_limit`: Number of batches to process at a time. Defaults to 10. This (along wtih `batch_size`) controls how many docs are kept in memory at a time, so the maximum docs in memory at once would equal `batch_size` &times; `batches_limit`.
 
@@ -124,3 +130,144 @@ Example response in the `'complete'` listener:
 Note that replication is supported for both local and remote databases. So you can replicate from local to local or from remote to remote.
 
 However, if you replicate from remote to remote, then the changes will flow through PouchDB. If you want to trigger a server-initiated replication, please use regular ajax to POST to the CouchDB `_replicate` endpoint, as described [in the CouchDB docs](https://wiki.apache.org/couchdb/Replication).
+
+#### Filtered replication
+
+As with [changes()](#changes), you can filter from the source database using:
+
+* an ad-hoc `filter` function
+* an array of `doc_ids`
+* a `filter` function inside of a design document
+* a `filter` function inside of a design document, with `query_params`
+* a `view` function inside of a design document
+
+If you are replicating from a remote CouchDB, then the first method will run client-side, whereas the last four will filter on the server side. Therefore the last four should be preferred, especially if the database is large, because you want to send as few documents over the wire as possible.
+
+You should also beware trying to use filtered replication to enforce security, e.g. to partition a database per user. A better strategy is the ["one database per user" method](https://github.com/nolanlawson/pouchdb-authentication#couchdb-authentication-recipes).
+
+{% include alert/start.html variant="warning" %}
+
+{% markdown %}
+
+**Deleting filtered docs**: When you use filtered replication, you should avoid using `remove()` to delete documents, because that removes all their fields as well, which means means they might not pass the filter function anymore, causing the deleted revision to not be replicated. Instead, set the `doc._deleted` flag to `true` and then use `put()` or `bulkDocs()`.
+
+{% endmarkdown %}
+
+{% include alert/end.html %}
+
+#### Filtering examples
+
+In these examples, we'll work with some mammals. Let's imagine our docs are:
+
+{% highlight js %}
+[
+  {_id: 'a', name: 'Kangaroo', type: 'marsupial'},
+  {_id: 'b', name: 'Koala', type: 'marsupial'},
+  {_id: 'c', name: 'Platypus', type: 'monotreme'}
+]
+{% endhighlight %}
+
+Here are 5 examples using the 5 different systems.
+
+**Example 1: Ad-hoc `filter` function**
+
+*Warning*: this runs client-side, if you are replicating from a remote database.
+
+Filter by `type === 'marsupial'`:
+
+{% highlight js %}
+remote.replicate.to(local, {
+  filter: function (doc) {
+    return doc.type === 'marsupial';
+  }
+});
+{% endhighlight %}
+
+**Example 2: Array of `doc_ids`**
+
+Filter documents with `_id`s `['a', 'c']`.
+
+{% highlight js %}
+remote.replicate.to(local, {
+  doc_ids: ['a', 'c']
+});
+{% endhighlight %}
+
+**Example 3: `filter` function inside of a design document**
+
+First `put()` a design document in the remote database:
+
+{% highlight js %}
+{
+  _id: '_design/mydesign',
+  filters: {
+    myfilter: function (doc) {
+      return doc.type === 'marsupial';
+    }.toString()
+  }
+}
+{% endhighlight %}
+
+Then filter by `type === 'marsupial'`:
+
+{% highlight js %}
+remote.replicate.to(local, {
+  filter: 'mydesign/myfilter'
+});
+{% endhighlight %}
+
+**Example 4: `filter` function inside of a design document, with `query_params`**
+
+This is the most powerful way to filter, because it allows you to pass in arbitrary options to your filter function.
+
+First `put()` a design document in the remote database:
+
+{% highlight js %}
+{
+  _id: '_design/mydesign',
+  filters: {
+    myfilter: function (doc, req) {
+      return doc.type === req.query.type;
+    }.toString()
+  }
+}
+{% endhighlight %}
+
+Then filter by `type === 'marsupial'`:
+
+{% highlight js %}
+remote.replicate.to(local, {
+  filter: 'mydesign/myfilter',
+  query_params: {type: 'marsupial'}
+});
+{% endhighlight %}
+
+**Example 5: `view` function inside of a design document**
+
+This doesn't really offer any advantages compared to the previous two methods, unless you are already using a `view` for map/reduce queries, and you want to reuse it.
+
+Any documents that `emit()` anything will be considered to have passed this filter method.
+
+First `put()` a design document in the remote database:
+
+{% highlight js %}
+{
+  _id: '_design/mydesign',
+  views: {
+    myview: function (doc) {
+      if (doc.type === 'marsupial') {
+        emit(doc._id);
+      }
+    }.toString()
+  }
+}
+{% endhighlight %}
+
+Then filter by `type === 'marsupial'`:
+
+{% highlight js %}
+remote.replicate.to(local, {
+  filter: '_view',
+  view: 'mydesign/myview'
+});
+{% endhighlight %}
