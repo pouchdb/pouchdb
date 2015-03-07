@@ -3375,6 +3375,22 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test immediate replication canceling', function (done) {
+      //See  http://pouchdb.com/guides/replication.html : Cancelling replication
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var replicationHandler = remote.replicate.to(db, {
+        live: true,
+        retry: true
+      });
+
+      replicationHandler.on('complete', function () {
+        done();
+      }).on('error', done);
+
+      replicationHandler.cancel();
+    });
+
     it('#3171 Unauthorized validate_doc_update error message',
         function (done) {
       testUtils.isCouchDB(function (isCouchDB) {
