@@ -3767,7 +3767,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it("#3578 replication with a ddoc filter remove server-side", function(){
+    it("#3578 replication with a ddoc filter w/ _deleted=true", function() {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -3784,19 +3784,25 @@ adapters.forEach(function (adapters) {
         {_id: 'c'}
       ]).then(function () {
         return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
-      }).then(function(){
+      }).then(function() {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(2);
+      }).then(function () {
         return remote.get('a');
-      }).then(function(doc){ 
-        return remote.remove(doc);
+      }).then(function(doc) {
+        doc._deleted = true;
+        return remote.put(doc);
+      }).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
       }).then(function () {
         return db.allDocs();
-      }).then(function (docs) {
-        docs.rows.should.have.length(1);
+      }).then(function (res) {
+        res.rows.should.have.length(1);
       });
-
     });
 
-    it("#3578 replication with a ddoc filter change server-side", function(){
+    it("#3578 replication with a ddoc filter w/ remove()", function() {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -3804,28 +3810,31 @@ adapters.forEach(function (adapters) {
         _id: '_design/myddoc',
         filters: {
           myfilter: function (doc) {
-            return doc.replicate;
+            return doc._id === 'a' || doc._id === 'b';
           }.toString()
         }
       },
-        {_id: 'a', replicate: true},
-        {_id: 'b', replicate: false},
-        {_id: 'c', replicate: false}
+        {_id: 'a'},
+        {_id: 'b'},
+        {_id: 'c'}
       ]).then(function () {
         return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function() {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(2);
       }).then(function(){
-        return remote.get('a').then(function(doc) {
-           doc.replicate = false;
-           remote.put(doc);
-        });
+        return remote.get('a');
+      }).then(function(doc) {
+        return remote.remove(doc);
+      }).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
       }).then(function () {
         return db.allDocs();
       }).then(function (docs) {
-        docs.rows.should.have.length(0);
+        docs.rows.should.have.length(1);
       });
-
     });
-
   });
 });
 
