@@ -3560,6 +3560,42 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it("#3578-2 repl with a ddoc, filter on field, _deleted", function() {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc.name === 'barbara';
+          }.toString()
+        }
+      },
+        {_id: 'a', name: 'anna'},
+        {_id: 'b', name: 'barbara',},
+        {_id: 'c', name: 'charlie'}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function() {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+      }).then(function(){
+        return remote.get('a');
+      }).then(function(doc) {
+        doc._deleted = true;
+        return remote.put(doc);
+      }).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (docs) {
+        docs.rows.should.have.length(0,
+          'deleted because _deleted=true was used');
+      });
+    });
+
     it('#3270 triggers "change" events with .docs property', function(done) {
       var replicatedDocs = [];
       var db = new PouchDB(dbs.name);
