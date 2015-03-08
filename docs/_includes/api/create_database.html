@@ -8,20 +8,34 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 ### Options
 
-* `options.name`: You can omit the `name` argument and specify it via `options` instead. Note that the name is required.
-* `options.auto_compaction`: This turns on auto compaction, which means `compact()` is called after every change to the database. Defaults to `false`.
-* `options.adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
-* `options.ajax`: (Remote databases only.) Ajax requester options. For instance, passing in the options `{ajax: {timeout: 10000}}` will allow you to set the max timeout for an HTTP request. These are passed ver batim to [request][] (in Node.js) or  [a request shim](https://github.com/pouchdb/pouchdb/blob/master/lib/deps/request-browser.js) (in the browser), with the exception of:
-  * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
-  * `options.ajax.headers`: The `ajax.headers` option allows you to customise headers that are sent to the remote HTTP Server.
-  * `options.auth.username` + `options.auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `username` + `password` options.
+* `name`: You can omit the `name` argument and specify it via `options` instead. Note that the name is required.
+
+**Options for local databases:**
+
+* `auto_compaction`: This turns on auto compaction, which means `compact()` is called after every change to the database. Defaults to `false`.
+* `adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
+
+**Options for remote databases:**
+
+* `ajax`: (Remote databases only.) Ajax requester options. For instance, passing in the options `{ajax: {timeout: 10000}}` will allow you to set the max timeout for an HTTP request. These are passed ver batim to [request][] (in Node.js) or  [a request shim](https://github.com/pouchdb/pouchdb/blob/master/lib/deps/request-browser.js) (in the browser), with the exception of:
+* `ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
+* `ajax.headers`: The `ajax.headers` option allows you to customise headers that are sent to the remote HTTP Server.
+* `ajax.username` + `ajax.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `username` + `password` options.
+  
+**WebSQL-only options:**
+
+* `size`: amount in MB to request for storage, which you will need if you are storing >5MB in order to avoid storage limit errors on iOS/Safari. Details [here](/errors.html#not_enough_space).
+
+**SQLite Plugin-only options:**
+
+* `location`: where to store data on iOS, which may affect iTunes/iCloud backup, and thus whether or not your app gets rejected by Apple. See [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#opening-a-database) and [iOS data storage guidelines](https://developer.apple.com/icloud/documentation/data-storage/index.html).
+* `createFromLocation`: use a pre-populated database, so you can package it with your app and users don't have to wait for it to load. See the [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#pre-populated-database).
 
 **Notes:**
 
 1. In IndexedDB and WebSQL, PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
 2. When acting as a client on Node, any other options given will be passed to [request][].
 3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][]. The storage layer of leveldb can be replaced by passing a level backend factory (such as [MemDOWN][]) as `options.db`. The rest of the supported options are [documented here][levelup_options].
-4. When using the `'websql'` adapter, you can use `options.size` to request more than 5MB up-front, in order to avoid errors caused by reaching the storage limit on iOS/Safari. Details [here](errors.html).
 
 [request]: https://github.com/mikeal/request
 [levelup]: https://github.com/rvagg/node-levelup
