@@ -75,7 +75,7 @@
     "phantomjs": "^1.9.7-5",
     "browserify": "^6.1.0",
     "watchify": "^2.0.0",
-    "derequire": "^1.2.0",
+    "derequire": "^2.0.0",
     "selenium-standalone": "3.0.2"
   },
   "scripts": {
