@@ -22,7 +22,7 @@ console.log(localStorage.foo);
 
 To work with LocalStorage, you simply treat it like a magical JavaScript object that happens to persist your data. It uses the same synchronous toolset that you're already used to from working with JavaScript itself.
 
-For all of [LocalStorage's](http://www.html5rocks.com/en/tutorials/offline/quota-research/) [faults](https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/), the ergonomics of this API go a long way to explain its continuing popularity. People keep using LocalStorage because it's simple, and it works exactly as you'd expect.
+For all of [LocalStorage's](http://www.html5rocks.com/en/tutorials/offline/quota-research/) [faults](https://blog.mozilla.org/tglek/2012/02/22/psa-dom-local-storage-considered-harmful/), the ergonomics of this API go a long way to explain its continuing popularity. People keep using LocalStorage, because it's simple and works exactly as expected.
 
 ### Promises aren't a panacea
 
