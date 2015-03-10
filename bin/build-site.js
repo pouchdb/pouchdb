@@ -53,7 +53,7 @@ function highlightEs6() {
   // 'async' and 'await' to highlight correctly
   // in this blog post.
   replace({
-    regex: '<span class="nx">(await|async)</span>',
+    regex: '<span class="nx">(await|async|of)</span>',
     replacement: '<span class="kd">$1</span>',
     paths: [path],
     recursive: true
@@ -67,4 +67,5 @@ if (!process.env.BUILD) {
   console.log('Server address: http://0.0.0.0:4000');
 } else {
   execSync('jekyll build');
+  highlightEs6();
 }
