@@ -80,6 +80,10 @@ Full-text search engine on top of PouchDB.
 
 A relational database API on top of PouchDB/CouchDB.
 
+#### [PouchDB Replication Stream](https://github.com/nolanlawson/pouchdb-replication-stream)
+
+Replicate between CouchDB/PouchDB using streams.
+
 #### [PouchDB Rewrite](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 A PouchDB plugin that allows you to re-use your CouchDB rewrites on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-list-plug-in))
@@ -116,7 +120,11 @@ A standalone CouchDB-style REST interface server to PouchDB.
 
 #### [Express PouchDB](https://github.com/pouchdb/express-pouchdb)
 
-An express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
+An Express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
+
+#### [Express PouchDB Replication Stream](https://github.com/conor-mac-aoidh/express-pouchdb-replication-stream)
+
+Server-side Express endpoint to deliver a stream from [PouchDB Replication Stream](https://github.com/nolanlawson/pouchdb-replication-stream).
 
 {% include anchor.html title="Framework adapters" hash="framework_adapters" %}
 
