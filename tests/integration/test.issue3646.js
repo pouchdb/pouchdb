@@ -10,9 +10,12 @@ adapters.forEach(function (adapter) {
       return Promise.all(data.map(function (docs) {
         return db.bulkDocs(docs, {new_edits: false});
       })).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(0, 'all docs length is 0');
         return db.info();
       }).then(function (info) {
-        info.doc_count.should.equal(0);
+        info.doc_count.should.equal(0, 'doc_count is 0');
       });
     });
 
