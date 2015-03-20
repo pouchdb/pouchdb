@@ -4,15 +4,22 @@ var adapters = ['local', 'http'];
 
 adapters.forEach(function (adapter) {
   describe('#3646 WebSQL deleted documents - ' + adapter, function () {
+  
+    var dbs = {};
+  
+    beforeEach(function (done) {
+      dbs.name = testUtils.adapterUrl(adapter, 'issue3646');
+      testUtils.cleanup([dbs.name], done);
+    });
+    
+    after(function (done) {
+      testUtils.cleanup([dbs.name], done);
+    });
+  
     it('Should finish with 0 documents', function () {
       data.length.should.equal(2);
-      var db = new PouchDB('issue3646');
-      // idb backend behaves differently when data[1] comes first
-      return db.destroy().then(function() {
-        return db = new PouchDB('issue3646');
-      }).then(function() {
-        db.bulkDocs(data[0], {new_edits: false});
-      }).then(function() {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs(data[0], {new_edits: false}).then(function() {
           db.bulkDocs(data[1], {new_edits: false});
       }).then(function () {
         return db.info();
