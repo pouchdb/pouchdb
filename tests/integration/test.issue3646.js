@@ -5,11 +5,16 @@ var adapters = ['local', 'http'];
 adapters.forEach(function (adapter) {
   describe('#3646 WebSQL deleted documents - ' + adapter, function () {
     it('Should finish with 0 documents', function () {
-      var Promise = PouchDB.utils.Promise;
+      data.length.should.equal(2);
       var db = new PouchDB('issue3646');
-      return Promise.all(data.map(function (docs) {
-        return db.bulkDocs(docs, {new_edits: false});
-      })).then(function () {
+      // idb backend behaves differently when data[1] comes first
+      return db.destroy().then(function() {
+        return db = new PouchDB('issue3646');
+      }).then(function() {
+        db.bulkDocs(data[0], {new_edits: false});
+      }).then(function() {
+          db.bulkDocs(data[1], {new_edits: false});
+      }).then(function () {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(0);
