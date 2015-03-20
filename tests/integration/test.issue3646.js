@@ -19,7 +19,7 @@ adapters.forEach(function (adapter) {
     it('Should finish with 0 documents', function () {
       data.length.should.equal(2);
       var db = new PouchDB(dbs.name);
-      db.bulkDocs(data[0], {new_edits: false}).then(function() {
+      return db.bulkDocs(data[0], {new_edits: false}).then(function() {
           db.bulkDocs(data[1], {new_edits: false});
       }).then(function () {
         return db.info();
