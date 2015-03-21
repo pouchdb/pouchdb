@@ -3609,6 +3609,37 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#3658 replication with ddoc filter, update doc', function() {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+	      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc._id === 'a';
+          }.toString()
+        }
+      },
+        {_id: 'a', dank: false},
+        {_id: 'b', dank: false},
+        {_id: 'c', dank: false}
+      ]).then(function () {
+	db.replicate.to(remote, {filter: 'myddoc/myfilter', live: true});
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function () {
+        return db.get('a');
+      }).then(function(doc){
+	doc.dank = true;
+	return db.put(doc);
+      }).then(function(result){
+	return remote.get('a');
+      }).then(function (doc) {
+        doc._id.should.equal('a');
+	doc.dank.should.equal(true);
+      });
+    });
+
   });
 });
 
