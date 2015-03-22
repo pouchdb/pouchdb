@@ -3625,7 +3625,7 @@ adapters.forEach(function (adapters) {
         {_id: 'b', dank: false},
         {_id: 'c', dank: false}
       ]).then(function () {
-	db.replicate.to(remote, {filter: 'myddoc/myfilter', live: true});
+	db.replicate.to(remote, {live: true});
         return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
       }).then(function () {
         return db.get('a');
