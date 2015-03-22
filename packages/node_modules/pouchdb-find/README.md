@@ -18,7 +18,7 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, multi-fiel
 
 **0.2.0**: `$and`, `$ne`
 
-**0.3.0**: `limit`, `offset`, `ddoc` when creating an index
+**0.3.0**: `limit`, `skip`, `ddoc` when creating an index
 
 Not implemented yet: `$regex`, `$in`, `$nin`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`
 
@@ -253,7 +253,15 @@ Example result:
 
 **Options**;
 
-* `selector` Defines a selector to filter the results. See the Cloudant docs for more details.
+* `selector` Defines a selector to filter the results. Required.
+  * `$lt` Match fields "less than" this one.
+  * `$gt` Match fields "greater than" this one.
+  * `$lte` Match fields "less than or equal to" this one.
+  * `$gte` Match fields "greater than or equal to" this one.
+  * `$eq` Match fields equal to this one.
+  * `$ne` Match fields not equal to this one.
+  * `$exists` True if the field should exist, false otherwise.
+  * `$type` One of: "null", "boolean", "number", "string", "array", or "object".
 * `fields` (Optional) Defines a list of fields that you want to receive. If omitted, you get the full documents.
 * `sort` (Optional) Defines a list of fields defining how you want to sort. Note that sorted fields also have to be selected in the `selector`.
 * `limit` (Optional) Maximum number of documents to return.
@@ -262,6 +270,8 @@ Example result:
 If there's no index that matches your `selector`/`sort`, then this method will throw an error. This is a good thing, because it means it's pretty much impossible to write a slow query. :)
 
 The best index will be chosen automatically. If you want to see the query plan for your query, then turn on [debugging](#debugging).
+
+See [the Cloudant docs](https://docs.cloudant.com/api.html#cloudant-query) for more details.
 
 With a remote database
 ----
