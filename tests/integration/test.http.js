@@ -64,6 +64,20 @@ describe('test.http.js', function () {
     });
   });
 
+  it('handle ddocs with slashes', function (done) {
+    var ddoc = {
+      _id: '_design/foo/bar'
+    };
+    var db = new PouchDB(dbs.name);
+    db.bulkDocs({ docs: [ddoc] }, function (err, result) {
+      db.get(ddoc._id, function (err, doc) {
+        should.not.exist(err);
+        doc._id.should.equal(ddoc._id, 'Correct doc returned');
+        done();
+      })
+    });
+  });
+
   it('#2853 test uri parsing usernames/passwords', function () {
     var uri = PouchDB.utils.parseUri(
       'http://u%24ern%40me:p%26%24%24w%40rd@foo.com');
