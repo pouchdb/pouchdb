@@ -3097,8 +3097,8 @@ adapters.forEach(function (adapters) {
       });
 
       rep.on('complete', function() {
-        active.should.equal(2);
-        paused.should.be.at.least(2);
+        active.should.equal(4);
+        paused.should.be.at.least(3);
         done();
       });
 
@@ -3110,6 +3110,51 @@ adapters.forEach(function (adapters) {
           rep.cancel();
         }
       });
+
+      remote.put({}, 'hazaa');
+    });
+
+
+    it('#3687 active event only fired once...', function (done) {
+
+      var remote = new PouchDB(dbs.remote);
+      var db = new PouchDB(dbs.name);
+      var rep = db.replicate.from(remote, {
+        live: true,
+        retry: true
+      });
+
+      var paused = 0;
+      rep.on('paused', function (e) {
+        ++paused;
+        // The first paused event is the replication up to date
+        // and waiting on changes (no error)
+        (typeof e).should.equal('undefined');
+        if (paused === 1) {
+          return remote.put({}, 'foo');
+        } else {
+          rep.cancel();
+        }
+      });
+
+      var active = 0;
+      rep.on('active', function () {
+        ++active;
+      });
+
+      var numChanges = 0;
+      rep.on('change', function () {
+        ++numChanges;
+      });
+
+      rep.on('complete', function() {
+        active.should.equal(2);
+        paused.should.equal(2);
+        numChanges.should.equal(2);
+        done();
+      });
+
+      rep.catch(done);
 
       remote.put({}, 'hazaa');
     });
