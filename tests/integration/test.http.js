@@ -74,7 +74,7 @@ describe('test.http.js', function () {
         should.not.exist(err);
         doc._id.should.equal(ddoc._id, 'Correct doc returned');
         done();
-      })
+      });
     });
   });
 
