@@ -3718,6 +3718,77 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it("#3578-2 ddoc repl, filter on field, put() _deleted=true", function() {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc.name === 'barbara';
+          }.toString()
+        }
+      },
+        {_id: 'a', name: 'anna'},
+        {_id: 'b', name: 'barbara'},
+        {_id: 'c', name: 'charlie'}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function() {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+      }).then(function(){
+        return remote.get('b');
+      }).then(function(doc) {
+        doc._deleted = true;
+        return remote.put(doc);
+      }).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (docs) {
+        docs.rows.should.have.length(0,
+          'deleted because _deleted=true was used');
+      });
+    });
+
+    it("#3578-2 ddoc repl, filter on field, remove()", function() {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc.name === 'barbara';
+          }.toString()
+        }
+      },
+        {_id: 'a', name: 'anna'},
+        {_id: 'b', name: 'barbara'},
+        {_id: 'c', name: 'charlie'}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function() {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+      }).then(function(){
+        return remote.get('b');
+      }).then(function(doc) {
+        return remote.remove(doc);
+      }).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (docs) {
+        docs.rows.should.have.length(1,
+          'not deleted because remove() was used');
+      });
+    });
+
     it('#3270 triggers "change" events with .docs property', function(done) {
       var replicatedDocs = [];
       var db = new PouchDB(dbs.name);
