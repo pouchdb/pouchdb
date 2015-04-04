@@ -2,6 +2,10 @@
 
 : ${CLIENT:="node"}
 
+if [[ "$#" == "1" ]]; then
+  CLIENT="$1"
+fi
+
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then

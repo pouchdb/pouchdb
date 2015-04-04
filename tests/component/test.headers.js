@@ -2,7 +2,10 @@
 
 var http = require('http');
 var PouchDB = require('../../lib');
-var assert = require("assert");
+var should = require("chai").should();
+require('bluebird').onPossiblyUnhandledRejection(function (e, promise) {
+  throw e;
+});
 
 describe('test.headers.js', function () {
 
@@ -19,25 +22,43 @@ describe('test.headers.js', function () {
     server.listen(PORT, done);
   });
 
-  after(function (done) {
-    server.close(done);
+  after(function () {
+    return server.close();
   });
 
-
-  it('Test headers are sent correctly', function (done) {
+  it('Test headers are sent correctly', function () {
     var opts = {ajax: {headers: {foo: 'bar'}}};
-    new PouchDB('http://127.0.0.1:' + PORT, opts, function() {
-      assert.equal(headers.foo, 'bar');
-      done();
+    return new PouchDB('http://127.0.0.1:' + PORT, opts)
+    .then(function() {
+        should.equal(headers.foo, 'bar');
     });
   });
 
-  it('Test auth params are sent correctly', function (done) {
+  it('Test auth params are sent correctly', function () {
     var opts = {auth: {username: 'foo', password: 'bar'}};
-    new PouchDB('http://127.0.0.1:' + PORT, opts, function() {
-      assert.equal(typeof headers.authorization, 'string');
-      done();
+    return new PouchDB('http://127.0.0.1:' + PORT, opts)
+    .then(function() {
+      should.equal(typeof headers.authorization, 'string');
     });
   });
 
+  it('Test headers are sent correctly on GET request', function() {
+    var pouchDB = new PouchDB('http://127.0.0.1:' + PORT);
+    var opts = { ajax: { headers: { ick: "slick" } } };
+    return pouchDB.get("fake", opts).then(function() {
+      should.equal(headers.ick, "slick");
+    });
+  });
+
+  it('Test that we combine ajax options both globally and locally on GET',
+      function() {
+    var opts = { ajax: { headers: { aheader: "whyyes" } } };
+    var pouchDB = new PouchDB('http://127.0.0.1:' + PORT, opts);
+    var getOpts = { ajax: { headers: { ick: "slick", aheader: "override!" } } };
+    return pouchDB.get("fake", getOpts).
+    then(function() {
+      should.equal(headers.ick, "slick");
+      should.equal(headers.aheader, "override!");
+    });
+  });
 });
