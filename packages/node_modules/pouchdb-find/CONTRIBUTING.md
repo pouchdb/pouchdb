@@ -19,6 +19,8 @@ export COUCH_HOST=http://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@$CLOUDANT_HOST
 npm run write-cloudant-password
 ```
 
+**Note**: you should probably put these commands into a file and `source` them so that the password doesn't show up in your bash history.
+
 When it runs in Travis, it uses the credentials for `pouch.cloudant.com`, which is a special database for Pouch stuff donated by Cloudant.
 
 Building
@@ -40,16 +42,6 @@ This will run the tests in Node using LevelDB:
 You can also check for 100% code coverage using:
 
     npm run coverage
-
-If you don't like the coverage results, change the values from 100 to something else in `package.json`, or add `/*istanbul ignore */` comments.
-
-
-If you have mocha installed globally you can run single test with:
-```
-TEST_DB=local mocha --reporter spec --grep search_phrase
-```
-
-The `TEST_DB` environment variable specifies the database that PouchDB should use (see `package.json`).
 
 ### In the browser
 
