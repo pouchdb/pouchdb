@@ -141,7 +141,7 @@ If you fail to include the correct `_rev`, you will get the following sad error:
 Updating documents correctly
 -----------
 
-So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put him back.
+So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put him back. We don't need to manually assign the `_rev` value here (like we did above), as it is already in the `doc` we're fetching. 
 
 ```js
 // fetch mittens
