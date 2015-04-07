@@ -28,7 +28,7 @@ For instance, let's say we have a configuration object. We want to provide some 
 
 This is a pretty good default setting! So let's write the code to set it as our default.
 
-Thankfully, promises makes this rather easy:
+Thankfully, promises make this rather easy:
 
 ```js
 db.get('config').catch(function (err) {
