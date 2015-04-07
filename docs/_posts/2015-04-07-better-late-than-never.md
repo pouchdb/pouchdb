@@ -6,13 +6,13 @@ author: Dale Harvey
 
 ---
 
-Everyone needs a break and for March PouchDB relaxed and enjoyed the arrival of Spring. However regularly scheduled programming has resumed and today I am happy to announce PouchDB 3.4.0.
+Everyone needs a break, and for March PouchDB relaxed and enjoyed the arrival of spring. However, regularly scheduled programming has resumed, and today I am happy to announce PouchDB 3.4.0.
 
 ### Documentation, Documentation, Documentation
 
-Over the last 2 months a huge amount of work has gone into PouchDB's documentation including [#3584](https://github.com/pouchdb/pouchdb/pull/3584) which allows you to switch between a Promises and a callback format for your code examples.
+Over the last 2 months a huge amount of work has gone into PouchDB's documentation, including [#3584](https://github.com/pouchdb/pouchdb/pull/3584), which allows you to switch between a Promises and a callback format for your code examples.
 
-We have hugely expanded the coverage of the documentation so if there is anything missing please feel free to point it out.
+We have hugely expanded the coverage of the documentation, so if there is anything missing please feel free to point it out.
 
 ### Changelog:
 
