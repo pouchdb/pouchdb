@@ -26,7 +26,7 @@ In the PouchDB world, there are two shapes of filtered replication:
 ### A simple implementation
 
 {% include alert/start.html variant="warning" %}
-To reproduce the examples you’ll need PouchDB v3.3.0, which contains some bugfixes for filtered replication.
+To reproduce the examples you’ll need PouchDB v3.4.0, which contains some bugfixes for filtered replication.
 {% include alert/end.html %}
 
 The first step in implementing your server-side filtering solution is to create the design document. This is an example:
