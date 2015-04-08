@@ -71,7 +71,7 @@ The returned document will look like this:
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/0a4b1267d3a5b5edd7b1)** of this code.
 
-By default, PouchDB will only give you an attachment **stub**, which contains a `digest`, i.e. the <a href="http://en.wikipedia.org/wiki/Md5sum">MD5 sum</a> of the binary attachment.
+By default, PouchDB will only give you an attachment **stub**, which contains a `digest`, i.e. the [md5sum](http://en.wikipedia.org/wiki/Md5sum) of the binary attachment.
 
 To get the full attachments when using `get()` or `allDocs()`, you need to specify `{attachments: true}`:
 
