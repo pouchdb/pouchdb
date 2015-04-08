@@ -18,6 +18,10 @@ To start using PouchDB in your website, simply [download][latest-min] it and inc
 <script src="pouchdb-{{ site.version }}.min.js"></script>
 {% endhighlight %}
 
+Or install it with Bower:
+
+{% highlight bash %}$ bower install --save pouchdb{% endhighlight %}
+
 Or install it as a Node.js module:
 
 {% highlight bash %}$ npm install --save pouchdb{% endhighlight %}
