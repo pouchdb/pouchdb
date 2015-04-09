@@ -24,17 +24,6 @@ adapters.forEach(function (adapter) {
       {_id: '2', a: 3, b: 9}
     ];
 
-    function writeDocs(db, docs, callback) {
-      if (!docs.length) {
-        return callback();
-      }
-      var doc = docs.shift();
-      db.put(doc, function (err, doc) {
-        should.exist(doc.ok);
-        writeDocs(db, docs, callback);
-      });
-    }
-
     it('Get doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({ test: 'somestuff' }, function (err, info) {
@@ -121,7 +110,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing get with rev', function (done) {
       new PouchDB(dbs.name, function (err, db) {
-        writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+          function () {
           db.get('3', function (err, parent) {
             // add conflicts
             var pRevId = parent._rev.split('-')[1];
@@ -521,7 +511,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing get open_revs="all"', function (done) {
       var db = new PouchDB(dbs.name);
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         db.get('3', function (err, parent) {
           // add conflicts
           var previd = parent._rev.split('-')[1];
@@ -593,7 +584,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing get with some open_revs', function (done) {
       var db = new PouchDB(dbs.name);
-      writeDocs(db, JSON.parse(JSON.stringify(origDocs)), function () {
+      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+        function () {
         db.get('3', function (err, parent) {
           // add conflicts
           var previd = parent._rev.split('-')[1];
