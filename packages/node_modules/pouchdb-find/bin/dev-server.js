@@ -10,7 +10,13 @@ var indexfile = "./test/test.js";
 var dotfile = "./test/.test-bundle.js";
 var outfile = "./test/test-bundle.js";
 var watchify = require("watchify");
-var w = watchify(indexfile);
+var browserify = require('browserify');
+var w = watchify(browserify(indexfile, {
+  cache: {},
+  packageCache: {},
+  fullPaths: true,
+  debug: true
+}));
 
 w.on('update', bundle);
 bundle();
