@@ -44,13 +44,15 @@ var w = watchify(browserify(indexfile, {
   standalone: "PouchDB",
   cache: {},
   packageCache: {},
-  fullPaths: true
+  fullPaths: true,
+  debug: true
 })).on('update', bundle);
 var b = watchify(browserify({
     entries: perfRoot,
     cache: {},
     packageCache: {},
-    fullPaths: true
+    fullPaths: true,
+    debug: true
   })).on('update', bundlePerfTests);
 
 function bundle(callback) {
