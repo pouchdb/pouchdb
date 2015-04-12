@@ -36,12 +36,6 @@ if (client.runner === 'saucelabs') {
 if (process.env.GREP) {
   qs.grep = process.env.GREP;
 }
-if (process.env.ADAPTERS) {
-  qs.adapters = process.env.ADAPTERS;
-}
-if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
-  qs.es5shim = true;
-}
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 
@@ -81,7 +75,7 @@ function testComplete(result) {
 
 function startSelenium(callback) {
   // Start selenium
-  var opts = {version: '2.42.0'};
+  var opts = {version: '2.45.0'};
   selenium.install(opts, function(err) {
     if (err) {
       console.error('Failed to install selenium');
