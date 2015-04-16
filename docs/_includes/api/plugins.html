@@ -22,4 +22,38 @@ PouchDB.plugin({
 new PouchDB('foobar').sayHello(); // prints "Hello!"
 {% endhighlight %}
 
+### Extra APIs
 
+In order to reduce code size when your plugin is browserified/webpacked, PouchDB exposes some of its internal modules to plugin authors.
+
+To use them, you should save PouchDB as a required npm dependency (`npm install --save pouchdb`) and then require them like so:
+
+#### Ajax
+
+{% highlight js %}
+var ajax = require('pouchdb/extras/ajax');
+{% endhighlight %}
+
+The `ajax()` function as used by PouchDB. Essentially a shim in the style of `jQuery.ajax`.
+
+#### Checkpointer
+
+{% highlight js %}
+var Checkpointer = require('pouchdb/extras/checkpointer');
+{% endhighlight %}
+
+The `Checkpointer` function as used by PouchDB's replicator. Writes checkpoints as `_local` docs so that replication can resume where it last left off.
+
+#### Promise
+
+{% highlight js %}
+var Promise = require('pouchdb/extras/promise');
+{% endhighlight %}
+
+The ES6 `Promise` shim as used by PouchDB. Expect this to be `bluebird` in Node, `lie` in browsers without Promise support, and the global `Promise` in browsers with Promise support.
+
+#### Caveats
+
+These "extras" should not be considered stable parts of the API, and may change unpredictably between PouchDB versions. Refer to the [source code](https://github.com/pouchdb/pouchdb/tree/master/extras) for the details of the API.
+
+If your plugin depends on a particular version of PouchDB, please notify your users. Unless you like to live dangerously, you should also nail down the version of PouchDB you are using in your `package.json`. And if you need any other internal modules, please submit a pull request.
