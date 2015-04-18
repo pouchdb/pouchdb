@@ -9,7 +9,7 @@ Map/reduce queries, also known as *secondary indexes*, are one of the most power
 
  {% include alert/start.html variant="warning" %}
 
-Many developers make the mistake of using the <code>query()</code> API when the more performant <code>allDocs()</code> API, would be a better fit.
+Many developers make the mistake of using the <code>query()</code> API when the more performant <code>allDocs()</code> API would be a better fit.
 <p/>&nbsp;<p/>
 Before you solve a problem with secondary indexes, you should ask yourself: can I solve this with the <em>primary index</em> (<code>_id</code>) instead?
 
@@ -67,8 +67,12 @@ pouch.put(ddoc).then(function () {
 });
 ```
 
-NOTE: `.toString()` at the end of the map function is necessary to prep the
-object for turning into valid JSON.
+{% include alert/start.html variant="info" %}
+
+The <code>.toString()</code> at the end of the map function is necessary to prep the
+object for becoming valid JSON.
+
+{% include alert/end.html %}
 
 Then you actually query it, by using the name you gave the design document when you saved it:
 
@@ -85,7 +89,7 @@ built until you query it. To get around this, you can do an empty query to kick
 off a new build:
 
 ```js
-db.query('my_index', {
+db.query('my_index/by_name', {
   limit: 0 // don't return any results
 }).then(function (res) {
   // index was built!
