@@ -16,6 +16,10 @@ Revives the `allDbs()` function, which lists all PouchDB databases.
 
 Plugin for CouchDB's authentication system.
 
+#### [Pouch Box](https://github.com/jo/pouch-box)
+
+Allows decentralized authentication and access control per document, using asymmetric encryption.
+
 #### [PouchDB Collate](https://github.com/pouchdb/collate)
 
 Collation utilities, so you can use complex keys as doc IDs.
@@ -74,7 +78,7 @@ Allows you to use the `query()` API in environments that disallow `eval()`, like
 
 #### [Peer Pouch](https://github.com/natevw/PeerPouch)
 
-PouchDB over WebRTC.
+PouchDB over WebRTC. (Note: only works with PouchDB 1.1.)
 
 #### [PouchDB Quick Search](https://github.com/nolanlawson/pouchdb-quick-search)
 
@@ -99,6 +103,10 @@ A PouchDB plugin that allows you to re-use your CouchDB show functions on the cl
 #### [PouchDB Spatial](https://github.com/pouchdb/geopouch)
 
 Multidimensional and spatial queries with PouchDB.
+
+#### [Store.PouchDB](https://github.com/chunksnbits/store.pouchdb)
+
+ORM-style storage plugin for PouchDB.
 
 #### [Pouch Stream](https://github.com/calvinmetcalf/PouchStream)
 
