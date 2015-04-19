@@ -595,6 +595,22 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Destroy view when db created with {name: foo}', function () {
+      var db = new PouchDB({name: dbs.name});
+      var doc = {
+        _id: '_design/index',
+        views: {
+          index:
+          { map: 'function (doc) { emit(doc._id); }' }
+        }
+      };
+      return db.put(doc).then(function () {
+        return db.query('index');
+      }).then(function () {
+        return db.destroy();
+      });
+    });
+
     it('Map documents on 0/null/undefined/empty string', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [
