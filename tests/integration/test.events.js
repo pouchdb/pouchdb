@@ -1,6 +1,6 @@
 'use strict';
 
-var adapters = ['local'];
+var adapters = ['local', 'http'];
 
 adapters.forEach(function (adapter) {
   describe('test.events.js-' + adapter, function () {
@@ -46,153 +46,22 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('PouchDB emits destroyed when using {name: foo}', function () {
+      return new PouchDB({name: 'testdb'}).then(function (db) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          PouchDB.once('destroyed', function (name) {
+            name.should.equal('testdb');
+            resolve();
+          });
+          db.destroy();
+        });
+      });
+    });
+
     it('emit creation event', function (done) {
       var db = new PouchDB(dbs.name).on('created', function (newDB) {
         db.should.equal(newDB, 'should be same thing');
         done();
-      });
-    });
-
-    it('emit changes event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        var isCancelled = false;
-        db.on('change', function (change) {
-          if (change.doc.something === 'here') {
-            isCancelled = true;
-            done(err);
-          }
-        });
-
-        // on('change') sets up the listener asynchronously.
-        // keep posting until a change is recognised
-        var docId = 0;
-        function doPut() {
-          if (!isCancelled) {
-            db.put(obj, 'change_' + docId++);
-            setTimeout(doPut, 100);
-          }
-        }
-
-        doPut();
-      });
-    });
-
-    it('emit changes event with existing docs', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.put({'foo': 'bar'}, 'foo').then(function () {
-          var isCancelled = false;
-          db.on('change', function (change) {
-            if (change.doc.something === 'here') {
-              isCancelled = true;
-              done(err);
-            }
-          });
-
-          // on('change') sets up the listener asynchronously.
-          // keep posting until a change is recognised
-          var docId = 0;
-          function doPut() {
-            if (!isCancelled) {
-              db.put(obj, 'change_' + docId++);
-              setTimeout(doPut, 100);
-            }
-          }
-
-          doPut();
-        });
-      });
-    });
-
-    it.skip('emit changes event with existing docs', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var id = 'emiting';
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.put({'foo': 'bar'}, 'foo');
-        db.on('change', function (change) {
-          change.id.should.equal('emiting');
-          change.seq.should.equal(2, 'changed');
-          done(err);
-        });
-        db.put(obj, id);
-      });
-    });
-
-    it('emit create event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var isCancelled = false;
-        var timer;
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-
-        db.on('create', function (change) {
-          isCancelled = true;
-          clearTimeout(timer);
-          done(err);
-        });
-
-        var i = 0;
-        function doCreate() {
-          if (!isCancelled) {
-            db.put(obj, 'creating_' + (++i));
-            timer = setTimeout(doCreate, 100);
-          }
-        }
-        doCreate();
-      });
-    });
-
-    it('emit update event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var id = 'updating';
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.on('update', function (change) {
-          change.id.should.equal('updating');
-          change.seq.should.equal(2, 'seq 2, updated');
-          done(err);
-        });
-
-        db.put(obj, id).then(function (doc) {
-          db.put({'something': 'else'}, id, doc.rev);
-        });
-
-      });
-    });
-
-    it('emit delete event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var id = 'emiting';
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.on('delete', function (change) {
-          change.seq.should.equal(2, 'deleted');
-          change.id.should.equal('emiting');
-          done(err);
-        });
-
-        db.put(obj, id).then(function (doc) {
-          db.remove({
-            _id: id,
-            _rev: doc.rev
-          });
-        });
       });
     });
 
