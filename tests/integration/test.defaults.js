@@ -117,5 +117,69 @@ if (!process.env.LEVEL_ADAPTER &&
         });
       });
     });
+
+    it('constructor emits destroyed when using defaults', function () {
+      var CustomPouch = PouchDB.defaults({db: require('memdown')});
+
+      return new CustomPouch('mydb').then(function (db) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          CustomPouch.once('destroyed', function (name) {
+            name.should.equal('mydb');
+            resolve();
+          });
+          db.destroy();
+        });
+      });
+    });
+
+    it('db emits destroyed when using defaults', function () {
+      var CustomPouch = PouchDB.defaults({db: require('memdown')});
+
+      return new CustomPouch('mydb').then(function (db) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          db.once('destroyed', resolve);
+          db.destroy();
+        });
+      });
+    });
+
+    it('constructor emits creation event', function (done) {
+      var CustomPouch = PouchDB.defaults({db: require('memdown')});
+
+      CustomPouch.once('created', function (name) {
+        name.should.equal('mydb', 'should be same thing');
+        done();
+      });
+      new PouchDB('mydb');
+    });
+
+    // somewhat odd behavior (CustomPouch constructor always mirrors PouchDB),
+    // but better to test it explicitly
+    it('PouchDB emits destroyed when using defaults', function () {
+      var CustomPouch = PouchDB.defaults({db: require('memdown')});
+
+      return new CustomPouch('mydb').then(function (db) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          PouchDB.once('destroyed', function (name) {
+            name.should.equal('mydb');
+            resolve();
+          });
+          db.destroy();
+        });
+      });
+    });
+
+    // somewhat odd behavior (CustomPouch constructor always mirrors PouchDB),
+    // but better to test it explicitly
+    it('PouchDB emits created when using defaults', function (done) {
+      var CustomPouch = PouchDB.defaults({db: require('memdown')});
+
+      PouchDB.once('created', function (name) {
+        name.should.equal('mydb', 'should be same thing');
+        done();
+      });
+      new CustomPouch('mydb');
+    });
+
   });
 }
