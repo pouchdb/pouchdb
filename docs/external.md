@@ -168,6 +168,12 @@ Ember Data adapter for PouchDB/CouchDB.
 
 Promisy PouchDB wrapper for Ember.js
 
+### Kendo UI
+
+#### [kendo-pouchdb](https://github.com/terikon/kendo-pouchdb)
+
+Kendo UI DataSource adapter.
+
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
 #### [Python-PouchDB](http://python-pouchdb.marten-de-vries.nl/)
