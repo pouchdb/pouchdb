@@ -192,7 +192,7 @@ adapters.forEach(function (adapters) {
     });
 
     it('pull replication with many changes + a conflict (#2543)', function () {
-      var db = new PouchDB(dbs.remote);
+      var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // simulate 5000 normal commits with two conflicts at the very end
       function uuid() {
@@ -234,7 +234,7 @@ adapters.forEach(function (adapters) {
         return remote.replicate.to(db);
       }).then(function (result) {
         result.ok.should.equal(true);
-        result.docs_written.should.equal(0, 'correct # docs written (1)');
+        result.docs_written.should.equal(1, 'correct # docs written (1)');
         return db.info();
       }).then(function (info) {
         if (!testUtils.isSyncGateway() || info.doc_count) {
@@ -249,7 +249,7 @@ adapters.forEach(function (adapters) {
         return remote.replicate.to(db);
       }).then(function (result) {
         result.ok.should.equal(true);
-        result.docs_written.should.equal(0, 'correct # docs written (2)');
+        result.docs_written.should.equal(1, 'correct # docs written (2)');
         return db.info();
       }).then(function (info) {
         if (!testUtils.isSyncGateway() || info.doc_count) {
