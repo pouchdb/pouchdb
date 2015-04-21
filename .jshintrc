@@ -16,9 +16,11 @@
   "white": true,
   "indent": 2,
   "forin": true,
+  "futurehostile": true,
   "globals": {
     "PouchDB": true,
-    "should": true
+    "should": true,
+    "Promise": true
   },
   "predef": [
     "describe",
@@ -33,7 +35,6 @@
     "indexedDB",
     "IDBKeyRange",
     "openDatabase",
-    "sqlitePlugin",
-    "-Promise"
+    "sqlitePlugin"
   ]
 }

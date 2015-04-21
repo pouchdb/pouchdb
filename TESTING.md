@@ -83,6 +83,12 @@ You can also debug with Weinre by doing:
     $ weinre --boundHost=0.0.0.0
     $ WEINRE_HOST=http://route.to.my.weinre:8080
 
+You can also run automated Appium tests by doing:
+
+    $ npm run test-cordova
+    
+...with the exact same options specified above.  Also available is `npm run build-cordova`, which will simply build the app.
+
 ### Testing against PouchDB server
 
 [pouchdb-server](https://github.com/nick-thompson/pouchdb-server) is a project that uses [express-pouchdb](https://github.com/nick-thompson/express-pouchdb) to run a CouchDB-compliant server backed by PouchDB.
