@@ -12,7 +12,7 @@ echo "Running Appium..."
 export APPIUM_SERVER_PID=$!
 
 echo "Starting emulator..."
-echo no | android create avd --force -n test -t android-18 --abi armeabi-v7a
+echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
 emulator -avd test -no-skin -no-audio -no-window &
 export EMULATOR_PID=$!
 ./bin/android-wait-for-emulator.sh
