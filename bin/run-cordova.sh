@@ -77,9 +77,9 @@ if [[ ! -z $WEINRE_HOST ]]; then
 
 fi
 
-cd $TESTS_DIR
+CORDOVA=$(pwd)/node_modules/cordova/bin/cordova
 
-CORDOVA=./node_modules/cordova/bin/cordova
+cd $TESTS_DIR
 
 $CORDOVA platform add $CLIENT
 if [[ $($CORDOVA plugin list | grep sqlite) ]]; then 
