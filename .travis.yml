@@ -8,6 +8,8 @@ android:
     - platform-tools
     - tools
     - build-tools-22.0.1
+     - android-19
+     - sys-img-armeabi-v7a-android-19
 
 services:
   - couchdb

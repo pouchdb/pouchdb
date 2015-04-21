@@ -11,15 +11,8 @@ echo "Running Appium..."
 ./node_modules/.bin/appium &
 export APPIUM_SERVER_PID=$!
 
-if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
-  ( sleep 5 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk \
-    --all \
-    --no-ui \
-    --filter android-18,android-19,android-20,sys-img-armeabi-v7a-android-18,sys-img-armeabi-v7a-android-19,sys-img-armeabi-v7a-android-20
-fi
-
 echo "Starting emulator..."
-echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
+echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a
 emulator -avd test -no-skin -no-audio -no-window &
 export EMULATOR_PID=$!
 ./bin/android-wait-for-emulator.sh
