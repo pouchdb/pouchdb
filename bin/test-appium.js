@@ -2,12 +2,9 @@
 
 var wd = require("wd");
 var chai = require("chai");
-var chaiAsPromised = require("chai-as-promised");
 var path = require('path');
 
-chai.use(chaiAsPromised);
 chai.should();
-chaiAsPromised.transferPromiseness = wd.transferPromiseness;
 
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
