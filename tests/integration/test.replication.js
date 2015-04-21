@@ -3901,8 +3901,11 @@ downAdapters.map(function (adapter) {
     });
 
     it('replicate from down server test', function (done) {
-      var db = new PouchDB(dbs.name);
-      db.replicate.to('http://infiniterequest.com', function (err, changes) {
+      var source = new PouchDB('http://infiniterequest.com', {
+        ajax: {timeout: 10}
+      });
+      var target = new PouchDB(dbs.name);
+      source.replicate.to(target, function (err, changes) {
         should.exist(err);
         done();
       });
