@@ -43,8 +43,9 @@ testUtils.couchHost = function () {
   } else if (window && window.COUCH_HOST) {
     return window.COUCH_HOST;
   } else if (window && window.cordova) {
-    // magic route to localhost on android emulator
-    return 'http://10.0.2.2:2020';
+    // magic route to localhost on android emulator,
+    // cors not needed because cordova
+    return 'http://10.0.2.2:5984';
   }
   // In the browser we default to the CORS server, in future will change
   return 'http://localhost:2020';

@@ -33,7 +33,7 @@ mkdir -p $TESTS_DIR/www/dist
 cp dist/pouchdb*js $TESTS_DIR/www/dist
 
 ./node_modules/replace/bin/replace.js '<body>' \
-  '<body><script src="../cordova.js"></script>' \
+  '<body><script src="../../cordova.js"></script>' \
   $TESTS_DIR/www/tests/integration/index.html
 
 if [[ ! -z $GREP ]]; then
@@ -81,9 +81,9 @@ CORDOVA=../../../node_modules/cordova/bin/cordova
 
 $CORDOVA platform add $CLIENT
 if [[ $($CORDOVA plugin list | grep sqlite) ]]; then 
-  $CORDOVA plugin rm com.phonegap.plugins.sqlite
+  $CORDOVA plugin rm io.litehelpers.cordova.sqlite
 fi
 if [[ $SQLITE_PLUGIN == 'true' ]]; then 
-  $CORDOVA plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
+  $CORDOVA plugin add https://github.com/litehelpers/Cordova-sqlite-storage.git
 fi
 $CORDOVA $ACTION $CLIENT
