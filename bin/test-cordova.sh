@@ -1,17 +1,7 @@
 #!/bin/bash
 
-if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
-  echo "Running Android in Travis..."
-  ./bin/run-android-emulator-on-travis.sh
-  export ANDROID_HOME=$(pwd)/android-sdk-linux
-  export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-fi
-
 echo "Building Cordova app..."
 npm run build-cordova
-
-echo "Fixing chromedriver..."
-./bin/fix-chromedriver.sh
 
 echo "Running dev server..."
 ./bin/dev-server.js &
@@ -21,9 +11,11 @@ echo "Running Appium..."
 ./node_modules/.bin/appium &
 export APPIUM_SERVER_PID=$!
 
-# wait for appium and dev server to start
-sleep 120
-./bin/wait_for_android_emulator.sh
+echo "Starting emulator..."
+echo no | android create avd --force -n test -t android-19 --abi x86
+emulator -avd test -no-skin -no-audio -no-window &
+./bin/android-wait-for-emulator.sh
+adb shell input keyevent 82
 
 echo "Testing with Appium..."
 npm run test-appium
