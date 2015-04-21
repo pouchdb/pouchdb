@@ -79,7 +79,7 @@ fi
 
 cd $TESTS_DIR
 
-CORDOVA=./node_modules/.bin/cordova
+CORDOVA=./node_modules/cordova/bin/cordova
 
 $CORDOVA platform add $CLIENT
 if [[ $($CORDOVA plugin list | grep sqlite) ]]; then 
