@@ -16,4 +16,5 @@ DEREQUIRE=./node_modules/.bin/derequire
     -x pouchdb \
     -r ./lib/plugins/config-$LEVEL_BACKEND.js:adapter-config \
     -r ./lib/plugins/migrate-browser.js:migrate \
+    | ./bin/es3ify.js \
     | $DEREQUIRE > ./dist/$OUTPUT_FILENAME

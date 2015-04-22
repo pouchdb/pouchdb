@@ -25,7 +25,7 @@ The PouchDB `query()` API (which corresponds to the `_view` API in CouchDB) has 
 **Temporary queries** are very slow, and we only recommend them for quick debugging during development. To use a temporary query, you simply pass in a `map` function:
 
 ```js
-db(function (doc) {
+db.query(function (doc, emit) {
   emit(doc.name);
 }, {key: 'foo'}).then(function (result) {
   // found docs with name === 'foo'

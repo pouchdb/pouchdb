@@ -5,5 +5,5 @@
 {% endif %}
 
 <a href="{{ href }}" target="_blank">
-<img class="img-responsive" src="{{ site.baseurl }}/static/img/{{ include.src }}" alt="{{ include.alt }}">
+  <img class="img-responsive" {% if include.width %} width="{{include.width}}" {% endif %} src="{{ site.baseurl }}/static/img/{{ include.src }}" alt="{{ include.alt }}" />
 </a>

@@ -3097,8 +3097,8 @@ adapters.forEach(function (adapters) {
       });
 
       rep.on('complete', function() {
-        active.should.equal(2);
-        paused.should.be.at.least(2);
+        active.should.equal(4);
+        paused.should.be.at.least(3);
         done();
       });
 
@@ -3110,6 +3110,51 @@ adapters.forEach(function (adapters) {
           rep.cancel();
         }
       });
+
+      remote.put({}, 'hazaa');
+    });
+
+
+    it('#3687 active event only fired once...', function (done) {
+
+      var remote = new PouchDB(dbs.remote);
+      var db = new PouchDB(dbs.name);
+      var rep = db.replicate.from(remote, {
+        live: true,
+        retry: true
+      });
+
+      var paused = 0;
+      rep.on('paused', function (e) {
+        ++paused;
+        // The first paused event is the replication up to date
+        // and waiting on changes (no error)
+        (typeof e).should.equal('undefined');
+        if (paused === 1) {
+          return remote.put({}, 'foo');
+        } else {
+          rep.cancel();
+        }
+      });
+
+      var active = 0;
+      rep.on('active', function () {
+        ++active;
+      });
+
+      var numChanges = 0;
+      rep.on('change', function () {
+        ++numChanges;
+      });
+
+      rep.on('complete', function() {
+        active.should.equal(2);
+        paused.should.equal(2);
+        numChanges.should.equal(2);
+        done();
+      });
+
+      rep.catch(done);
 
       remote.put({}, 'hazaa');
     });
@@ -3375,6 +3420,22 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test immediate replication canceling', function (done) {
+      //See  http://pouchdb.com/guides/replication.html : Cancelling replication
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var replicationHandler = remote.replicate.to(db, {
+        live: true,
+        retry: true
+      });
+
+      replicationHandler.on('complete', function () {
+        done();
+      }).on('error', done);
+
+      replicationHandler.cancel();
+    });
+
     it('#3171 Unauthorized validate_doc_update error message',
         function (done) {
       testUtils.isCouchDB(function (isCouchDB) {
@@ -3522,6 +3583,148 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#3606 - live replication with filtered ddoc', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      return remote.bulkDocs([{
+          _id: '_design/myddoc',
+          filters: {
+            myfilter: function (doc) {
+              return doc.name === 'barbara';
+            }.toString()
+          }
+        },
+        {_id: 'a', name: 'anna'},
+        {_id: 'b', name: 'barbara'},
+        {_id: 'c', name: 'charlie'}
+      ]).then(function () {
+        return new Promise(function (resolve, reject) {
+          var replicate = remote.replicate.to(db, {
+            filter: 'myddoc/myfilter',
+            live: true
+          }).on('change', function () {
+            replicate.cancel();
+          }).on('complete', resolve)
+            .on('error', reject);
+        });
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('b');
+      });
+    });
+
+    it('#3606 - live repl with filtered ddoc+query_params', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      return remote.bulkDocs([{
+          _id: '_design/myddoc',
+          filters: {
+            myfilter: function (doc, req) {
+              return doc.name === req.query.name;
+            }.toString()
+          }
+        },
+        {_id: 'a', name: 'anna'},
+        {_id: 'b', name: 'barbara'},
+        {_id: 'c', name: 'charlie'}
+      ]).then(function () {
+        return new Promise(function (resolve, reject) {
+          var replicate = remote.replicate.to(db, {
+            filter: 'myddoc/myfilter',
+            query_params: {name: 'barbara'},
+            live: true
+          }).on('change', function () {
+            replicate.cancel();
+          }).on('complete', resolve)
+            .on('error', reject);
+        });
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('b');
+      });
+    });
+
+    it('#3606 - live repl with doc_ids', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+          filters: {
+            myfilter: function (doc, req) {
+              return doc.name === req.query.name;
+            }.toString()
+          }
+        },
+        {_id: 'a', name: 'anna'},
+        {_id: 'b', name: 'barbara'},
+        {_id: 'c', name: 'charlie'}
+      ]).then(function () {
+        return new Promise(function (resolve, reject) {
+          var replicate = remote.replicate.to(db, {
+            doc_ids: ['b'],
+            live: true
+          }).on('change', function () {
+            replicate.cancel();
+          }).on('complete', resolve)
+            .on('error', reject);
+        });
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('b');
+      });
+    });
+
+    it('#3606 - live repl with view', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        views: {
+          mymap: {
+            map: function (doc) {
+              if (doc.name === 'barbara') {
+                emit(doc._id, null);
+              }
+            }.toString()
+          }
+        }
+      },
+        {_id: 'a', name: 'anna'},
+        {_id: 'b', name: 'barbara'},
+        {_id: 'c', name: 'charlie'}
+      ]).then(function () {
+        return new Promise(function (resolve, reject) {
+          var replicate = remote.replicate.to(db, {
+            filter: '_view',
+            view: 'myddoc/mymap',
+            live: true
+          }).on('change', function () {
+            replicate.cancel();
+          }).on('complete', resolve)
+            .on('error', reject);
+        });
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('b');
+      });
+    });
+
     it('#3569 - 409 during replication', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -3609,6 +3812,74 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it("#3578 replication with a ddoc filter w/ _deleted=true", function() {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc._id === 'a' || doc._id === 'b';
+          }.toString()
+        }
+      },
+        {_id: 'a'},
+        {_id: 'b'},
+        {_id: 'c'}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function() {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(2);
+      }).then(function () {
+        return remote.get('a');
+      }).then(function(doc) {
+        doc._deleted = true;
+        return remote.put(doc);
+      }).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+      });
+    });
+
+    it("#3578 replication with a ddoc filter w/ remove()", function() {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{
+        _id: '_design/myddoc',
+        filters: {
+          myfilter: function (doc) {
+            return doc._id === 'a' || doc._id === 'b';
+          }.toString()
+        }
+      },
+        {_id: 'a'},
+        {_id: 'b'},
+        {_id: 'c'}
+      ]).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function() {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(2);
+      }).then(function(){
+        return remote.get('a');
+      }).then(function(doc) {
+        return remote.remove(doc);
+      }).then(function () {
+        return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (docs) {
+        docs.rows.should.have.length(1);
+      });
+    });
   });
 });
 

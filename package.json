@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "3.3.2-prerelease",
+  "version": "3.4.1-prerelease",
   "description": "PouchDB is a pocket-sized database.",
   "main": "./lib/index.js",
   "homepage": "http://pouchdb.com/",
@@ -18,7 +18,7 @@
   "dependencies": {
     "argsarray": "0.0.1",
     "bluebird": "^1.2.4",
-    "debug": "git://github.com/visionmedia/debug.git",
+    "debug": "^2.1.2",
     "double-ended-queue": "^2.0.0-0",
     "es3ify": "^0.1.3",
     "express": "^4.10.4",
@@ -51,7 +51,7 @@
     "express-pouchdb": "^0.13.0",
     "commander": "~2.1.0",
     "uglify-js": "~2.4.6",
-    "jshint": "~2.5.10",
+    "jshint": "^2.7.0",
     "pouchdb-http-proxy": "~0.10.3",
     "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
@@ -73,14 +73,14 @@
     "replace": "^0.2.9",
     "es5-shim": "^3.1.1",
     "phantomjs": "^1.9.7-5",
-    "browserify": "^6.1.0",
-    "watchify": "^2.0.0",
+    "browserify": "^9.0.3",
+    "watchify": "^2.4.0",
     "derequire": "^2.0.0",
     "selenium-standalone": "3.0.2"
   },
   "scripts": {
     "build-js": "npm run build-main-js && npm run min && npm run build-plugins",
-    "build-main-js": "browserify . -s PouchDB -p bundle-collapser/plugin | derequire > dist/pouchdb.js",
+    "build-main-js": "browserify . -s PouchDB -p bundle-collapser/plugin | ./bin/es3ify.js | derequire > dist/pouchdb.js",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
     "build-plugins": "sh bin/build-all-plugins.sh",
     "build": "npm run version && mkdirp dist && npm run build-js && npm run license",
