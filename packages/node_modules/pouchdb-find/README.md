@@ -25,7 +25,9 @@ Not implemented yet: `$regex`, `$in`, `$nin`, `$or`, `$not`, `$nor`, `$all`, `$e
 Usage
 ------
 
-To use this plugin, include it after `pouchdb.js` in your HTML page:
+#### In the browser
+
+To use this plugin in the browser, include it after `pouchdb.js` in your HTML page:
 
 ```html
 <script src="pouchdb.js"></script>
@@ -37,6 +39,8 @@ You can also download it from Bower:
 ```
 bower install pouchdb-find
 ```
+
+#### In Node.js/Browserify
 
 Or to use it in Node.js, just npm install it:
 
