@@ -26,7 +26,7 @@ Encrypt a PouchDB/CouchDB database.
 
 #### [Pouch Dat](https://github.com/calvinmetcalf/pouch-dat)
 
-Replicate from PouchDB to Dat. 
+Replicate from PouchDB to Dat.
 
 #### [Pouch Datalog](https://github.com/dahjelle/pouch-datalog)
 
@@ -55,6 +55,10 @@ MongoDB-like query language, based on CouchDB 2.0. ([Live demo](http://nolanlaws
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
 Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
+
+#### [PouchDB Hoodie API](https://github.com/hoodiehq/pouchdb-hoodie-api)
+
+Hoodie-like API for PouchDB. ([Documentation](http://hoodiehq.github.io/pouchdb-hoodie-api/))
 
 #### [PouchDB List](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
@@ -150,7 +154,7 @@ AngularJS binding for PouchDB.
 
 #### [ampersand-collection-pouchdb-mixin](https://github.com/svnlto/ampersand-collection-pouchdb-mixin)
 
-A mixin for extending ampersand-collection with pouchdb persistance. 
+A mixin for extending ampersand-collection with pouchdb persistance.
 
 ### Backbone
 
