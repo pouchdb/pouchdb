@@ -80,6 +80,10 @@ Allows you to use the `query()` API in environments that disallow `eval()`, like
 
 PouchDB over WebRTC. (Note: only works with PouchDB 1.1.)
 
+#### [pouch-resolve-conflicts](https://github.com/jo/pouch-resolve-conflicts)
+
+Plugin to assist in PouchDB conflict resolving.
+
 #### [PouchDB Quick Search](https://github.com/nolanlawson/pouchdb-quick-search)
 
 Full-text search engine on top of PouchDB.
@@ -99,6 +103,10 @@ A PouchDB plugin that allows you to re-use your CouchDB rewrites on the client s
 #### [PouchDB Show](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 A PouchDB plugin that allows you to re-use your CouchDB show functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-show-plug-in))
+
+#### [SocketPouch](https://github.com/nolanlawson/socket-pouch)
+
+PouchDB/CouchDB replication over WebSockets, using Engine.io (Socket.io).
 
 #### [PouchDB Spatial](https://github.com/pouchdb/geopouch)
 
