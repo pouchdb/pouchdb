@@ -231,6 +231,16 @@ This also heavily influenced our design for [persistent map/reduce](http://pouch
 
 ### 6. IndexedDB throws an error if you try to iterate backwards with start/end keys
 
+{% include alert/start.html variant="info" %}
+
+{% markdown %}
+
+**Update:** it turned out I just misunderstood the IndexedDB spec. You can actually swap the start and end in the `IDBKeyRange`, and that allows you to iterate backwards in all browsers. [We updated PouchDB accordingly](https://github.com/pouchdb/pouchdb/issues/3488).
+
+{% endmarkdown %}
+
+{% include alert/end.html %}
+
 This is one of those wonderful "bugs" that is actually part of the IndexedDB spec, so it's faithfully reproduced in all three of Firefox, IE, and Chrome. I guess we should be thankful?
 
 Anyway, [here's the code](https://github.com/pouchdb/pouchdb/blob/c32597564160dcaad7b3e715ddf1c0dc923b59cd/lib/adapters/idb.js#L746-L776):
