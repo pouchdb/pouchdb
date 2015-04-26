@@ -137,7 +137,7 @@ function mergeAndedSelectors(selectors) {
   selectors.forEach(function (selector) {
     Object.keys(selector).forEach(function (field) {
       var matcher = selector[field];
-      if (typeof matcher === 'string') {
+      if (typeof matcher !== 'object') {
         matcher = {$eq: matcher};
       }
       var fieldMatchers = res[field] = res[field] || {};
@@ -177,7 +177,7 @@ function massageSelector(input) {
     var field = fields[i];
     var matcher = result[field];
 
-    if (typeof matcher === 'string') {
+    if (typeof matcher !== 'object') {
       matcher = {$eq: matcher};
     } else if ('$ne' in matcher && !wasAnded) {
       // I put these in an array, since there may be more than one
