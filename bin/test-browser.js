@@ -30,8 +30,15 @@ var client = {
 };
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
-var testUrl = testRoot +
-  (process.env.PERF ? 'performance/index.html' : 'integration/index.html');
+var testUrl;
+if (process.env.PERF) {
+  testUrl = testRoot + 'performance/index.html';
+} else if (process.env.type === 'fuzzy') {
+  testUrl = testRoot + 'fuzzy/index.html';
+} else {
+  testUrl = testRoot + 'integration/index.html';
+}
+
 var qs = {};
 
 var sauceClient;
