@@ -18,6 +18,7 @@ module.exports = function (dbName, dbType, Pouch) {
 
     require('./test.basic')(dbType, context);
     require('./test.basic2')(dbType, context);
+    require('./test.basic3')(dbType, context);
     require('./test.ddoc')(dbType, context);
     require('./test.set-operations')(dbType, context);
     require('./test.limit')(dbType, context);
