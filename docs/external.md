@@ -44,10 +44,6 @@ Dump a PouchDB/CouchDB to a file, then load it wholesale. Designed for fast init
 
 Implements the handy "every document is a delta" pattern, so you don't have to deal with conflicts.
 
-#### [Transform Pouch](https://github.com/nolanlawson/transform-pouch)
-
-Transforms documents before and after storage, e.g. for encryption, compression, or massaging data.
-
 #### [PouchDB Erase](https://github.com/marten-de-vries/pouchdb-erase)
 
 A replicating `db.destroy()` alternative.
@@ -55,6 +51,10 @@ A replicating `db.destroy()` alternative.
 #### [PouchDB Find](https://github.com/nolanlawson/pouchdb-find)
 
 MongoDB-like query language, based on CouchDB 2.0. ([Live demo](http://nolanlawson.github.io/pouchdb-find/))
+
+#### [PouchDB Full Sync](https://github.com/nolanlawson/pouchdb-full-sync)
+
+Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revision history.
 
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
@@ -111,6 +111,11 @@ ORM-style storage plugin for PouchDB.
 #### [Pouch Stream](https://github.com/calvinmetcalf/PouchStream)
 
 A plugin to let PouchDB talk streams.
+
+#### [Transform Pouch](https://github.com/nolanlawson/transform-pouch)
+
+Transforms documents before and after storage, e.g. for encryption, compression, or massaging data.
+
 
 #### [PouchDB Update](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
