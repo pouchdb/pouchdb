@@ -937,6 +937,20 @@ adapters.forEach(function (adapter) {
       db.put({_id: 'bar', _zing: 'zing'}, cb);
     });
 
+    it('replace PouchDB.destroy() (express-pouchdb#203)', function (done) {
+      var old = PouchDB.destroy;
+      PouchDB.destroy = function (name, callback) {
+        var db = new PouchDB(name);
+        return db.destroy(callback);
+      };
+      // delete a non-existing db, should be fine.
+      PouchDB.destroy(dbs.name, function (err, resp) {
+        PouchDB.destroy = old;
+
+        done(err, resp);
+      });
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
