@@ -39,17 +39,17 @@ For mobile applications, you can use PouchDB within [PhoneGap](http://phonegap.c
 
 {% include anchor.html class="h3" title="How much data can PouchDB store?" hash="data_limits" %}
 
-In **Firefox**, PouchDB uses IndexedDB. Though Firefox has no upper limit besides disk space, if your application wishes to store more than 50MB locally, Firefox will [ask the user](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) to confirm that this is okay.
+In **Firefox**, PouchDB uses IndexedDB. Though Firefox has no upper limit besides disk space, if your application wishes to store more than 50MB locally, Firefox will [ask the user](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) using a non-modal dialog to confirm that this is okay.
 
-**Chrome** also uses IndexedDB, it determines the amount of storage left available on the user&#8217;s hard drive and uses [that to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary).
+**Chrome** also uses IndexedDB, and it determines the amount of storage available on the user&#8217;s hard drive and uses that [to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary).
 
-**Opera 15+** shares a codebase Chromium / Blink, and behaves similarly.
+**Opera 15+** shares a codebase with Chromium/Blink, and behaves similarly.
 
-**Internet Exporer 10+** has a hard 250MB limit.
+**Internet Exporer 10+** has a hard 250MB limit, and will prompt the user with a non-modal dialog at 10MB.
 
-**Mobile Safari** on iOS has a hard 50MB limit, while **desktop Safari &le;7** will prompt the user if an application requests more than 5MB of data, up to a limit of 500MB. Some versions of Safari will only let you request additional storage once, but you can get around this using [the `size` option](http://pouchdb.com/api.html#create_database).
+**Mobile Safari** on iOS has a hard 50MB limit, whereas **desktop Safari** has no limit. Both will prompt the user with a modal dialog if an application requests more than 5MB of data, at increments of 5MB, 10MB, 50MB, 100MB, etc. Some versions of Safari have a bug where they only let you request additional storage once, so you'll need to request the desired space up-front. PouchDB allows you to do this using [the `size` option](http://pouchdb.com/api.html#create_database).
 
-**Android** works the same as Chrome as of 4.4+, while older version can store up to 200MB. 
+**Android** works the same as Chrome as of 4.4+ (IndexedDB), while older versions can store up to 200MB (WebSQL). 
 
 In [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/), you can have unlimited data on both iOS and Android by using the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin).
 
