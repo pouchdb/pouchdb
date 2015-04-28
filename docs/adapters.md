@@ -123,31 +123,47 @@ console.log(pouch.adapter); // prints either 'idb' or 'websql'
 
 ### SQLite plugin for Cordova/PhoneGap
 
-On Cordova/PhoneGap, it is often more performant to use the native SQLite database rather than the WebSQL database.  This is also a good way to avoid [HTML5 storage quotas](http://www.html5rocks.com/en/tutorials/offline/quota-research).
+On Cordova/PhoneGap, the native SQLite database is often a popular choice, because it allows unlimited storage (compared to [IndexedDB/WebSQL storage limits](http://www.html5rocks.com/en/tutorials/offline/quota-research)). It also offers more flexibility in backing up and pre-loading databases, because the SQLite files are directly accessible to app developers.
 
-Luckily, there is a [SQLite Plugin][] that accomplishes exactly this.  If you include this plugin in your project, then PouchDB will automatically pick it up based on the `window.sqlitePlugin` object.
+Luckily, there is a [SQLite Plugin][] (also known as SQLite Storage) that accomplishes exactly this.  If you include this plugin in your project, then PouchDB will automatically pick it up based on the `window.sqlitePlugin` object.
 
 However, this only occurs if the adapter is `'websql'`, not `'idb'` (e.g. on Android 4.4+).  To force PouchDB to use the WebSQL adapter, you can do:
 
 ```js
-var websqlPouch = new PouchDB('myDB', {adapter: 'websql'});
+var db = new PouchDB('myDB', {adapter: 'websql'});
 ```
 
-The SQLite plugin is known to pass the PouchDB test suite on both iOS and Android. You may run into issues on Windows Phone 8.
+If you are unsure whether PouchDB is using the SQLite Plugin or not, just run:
+
+```js
+db.info().then(console.log.bind(console));
+```
+
+This will print some database information, including the attribute `sqlite_plugin`, which will be `true` is the SQLite Plugin is being used.
+
+{% include alert/start.html variant="warning"%}
+{% markdown %}
+
+The SQLite Plugin is known to pass the PouchDB test suite on both iOS and Android, although Windows Phone 8 is untested. Note that the SQLite Plugin code changes frequently, and is not tested in PouchDB's automated test suite.
+
+Furthermore, you may experience slower performance with the SQLite Plugin than with IndexedDB/WebSQL, due to the cost of serializing data between JavaScript and the native code.
+
+{% endmarkdown %}
+{% include alert/end.html%}
 
 ### Experimental adapter plugins
 
 PouchDB also offers separate browser plugins that use backends other than IndexedDB and WebSQL. These plugins pass our test suite at 100%, but are not yet part of the official release due to build issues with Browserify. They also add a hefty footprint due to external dependencies, so take them with a grain of salt.
-
-{% include alert/start.html variant="warning"%}
-Currently these plugins do not work with Browserify itself; you have to include them as separate scripts in your HTML page.
-{% include alert/end.html%}
 
 **Downloads:**
 
 * [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js)
 * [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js)
 * [pouchdb.idb-alt.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js)
+
+{% include alert/start.html variant="warning"%}
+Currently these plugins do not work with Browserify itself; you have to include them as separate scripts in your HTML page.
+{% include alert/end.html%}
 
 #### LocalStorage plugin
 
