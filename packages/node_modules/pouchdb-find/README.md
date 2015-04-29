@@ -277,6 +277,71 @@ The best index will be chosen automatically. If you want to see the query plan f
 
 See [the Cloudant docs](https://docs.cloudant.com/api.html#cloudant-query) for more details.
 
+More examples
+----
+
+### Equals
+
+Find all docs where `doc.name === 'Mario'`:
+
+```js
+db.find({
+  selector: {name: {$eq: 'Mario'}}
+}
+```
+
+This is equivalent to:
+
+```js
+db.find({
+  selector: {name: 'Mario'}
+}
+```
+
+### Multi-selectors
+
+Find all docs where `doc.series === 'Mario'` and `doc.debut > 1990`:
+
+```js
+db.find({
+  selector: {
+    series: 'Mario',
+    debut: {
+      $gt: 1990
+    }
+  }
+}
+```
+
+This is equivalent to:
+
+```js
+db.find({
+  selector: {
+    $and: [
+      { series: 'Mario' },
+      { debut: { $gt: 1990 } }
+    ]
+  }
+}
+```
+
+### Sorting
+
+Return all docs sorted by `doc.debut` descending:
+
+```js
+db.find({
+  selector: {
+    $exists: 'debut'
+  },
+  sort: [{debut: 'desc'}]
+}
+```
+
+For more examples, refer to [Cloudant's `_find` documentation](https://docs.cloudant.com/api.html#finding-documents-using-an-index).
+
+
 With a remote database
 ----
 
