@@ -287,7 +287,7 @@ Find all docs where `doc.name === 'Mario'`:
 ```js
 db.find({
   selector: {name: {$eq: 'Mario'}}
-}
+});
 ```
 
 This is equivalent to:
@@ -295,7 +295,7 @@ This is equivalent to:
 ```js
 db.find({
   selector: {name: 'Mario'}
-}
+});
 ```
 
 ### Multi-selectors
@@ -310,7 +310,7 @@ db.find({
       $gt: 1990
     }
   }
-}
+});
 ```
 
 This is equivalent to:
@@ -323,7 +323,7 @@ db.find({
       { debut: { $gt: 1990 } }
     ]
   }
-}
+});
 ```
 
 ### Sorting
@@ -336,7 +336,7 @@ db.find({
     $exists: 'debut'
   },
   sort: [{debut: 'desc'}]
-}
+});
 ```
 
 For more examples, refer to [Cloudant's `_find` documentation](https://docs.cloudant.com/api.html#finding-documents-using-an-index).
