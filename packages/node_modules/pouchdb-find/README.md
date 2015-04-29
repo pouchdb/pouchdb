@@ -277,7 +277,7 @@ The best index will be chosen automatically. If you want to see the query plan f
 
 See [the Cloudant docs](https://docs.cloudant.com/api.html#cloudant-query) for more details.
 
-More examples
+Examples
 ----
 
 ### Equals
