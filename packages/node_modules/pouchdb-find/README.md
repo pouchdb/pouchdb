@@ -306,9 +306,7 @@ Find all docs where `doc.series === 'Mario'` and `doc.debut > 1990`:
 db.find({
   selector: {
     series: 'Mario',
-    debut: {
-      $gt: 1990
-    }
+    debut: { $gt: 1990 }
   }
 });
 ```
