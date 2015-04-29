@@ -14,7 +14,6 @@ All options default to `false` unless otherwise specified.
 
 * `options.live`: If `true`, starts subscribing to future changes in the `source` database and continue replicating them.
 * `options.retry`: If `true` will attempt to retry replications in the case of failure (due to being offline), using a backoff algorithm that retries at longer and longer intervals until a connection is re-established. Only applicable if `options.live` is also `true`.
-* `options.since`: Replicate changes after the given sequence number.
 
 **Filtering Options:**
 
@@ -25,6 +24,7 @@ All options default to `false` unless otherwise specified.
 
 **Advanced Options:**
 
+* `options.since`: Replicate changes after the given sequence number.
 * `options.batch_size`: Number of documents to process at a time. Defaults to 100. This affects the number of docs held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low amounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments). If your documents are small in size, then increasing this number will probably speed replication up.
 * `options.batches_limit`: Number of batches to process at a time. Defaults to 10. This (along wtih `batch_size`) controls how many docs are kept in memory at a time, so the maximum docs in memory at once would equal `batch_size` &times; `batches_limit`.
 
@@ -149,7 +149,7 @@ You should also beware trying to use filtered replication to enforce security, e
 
 {% markdown %}
 
-**Deleting filtered docs**: When you use filtered replication, you should avoid using `remove()` to delete documents, because that removes all their fields as well, which means means they might not pass the filter function anymore, causing the deleted revision to not be replicated. Instead, set the `doc._deleted` flag to `true` and then use `put()` or `bulkDocs()`.
+**Deleting filtered docs**: When you use filtered replication, you should avoid using `remove()` to delete documents, because that removes all their fields as well, which means they might not pass the filter function anymore, causing the deleted revision to not be replicated. Instead, set the `doc._deleted` flag to `true` and then use `put()` or `bulkDocs()`.
 
 {% endmarkdown %}
 
