@@ -18,11 +18,11 @@ PouchDB exactly implements CouchDB's replication algorithm, so conflict resoluti
 Two types of conflicts
 -------
 
-In CouchDB, conflicts can occur in two places: immediately, when you try to commit a new revision, or later, when two peers have committed changes to the same document.
+In CouchDB, conflicts can occur in two places: immediately, when you try to commit a new revision, or later, when two peers have committed changes to the same document. Let's call these **immediate conflicts** and **eventual conflicts**.
 
 ### Immediate conflicts
 
-**Immediate conflicts** can occur with any API that can take a `rev` or a document with a `_rev` as input &ndash; `put()`, `post()`, `remove()`, `bulkDocs()`, and `putAttachment()`. They manifest as a `409` (conflict) error:
+**Immediate conflicts** can occur with any API that takes a `rev` or a document with `_rev` as input &ndash; `put()`, `post()`, `remove()`, `bulkDocs()`, and `putAttachment()`. They manifest as a `409` (conflict) error:
 
 ```js
 var myDoc = {
@@ -68,9 +68,13 @@ This `upsert()` function takes a `docId` and `deltaFunction`, where the `deltaFu
 
 `pouchdb-upsert` also offers a `putIfNotExists()` function, which will create a document if it doesn't exist already. For more details, see [the plugin's documentation](https://github.com/pouchdb/pouchdb-upsert#readme). 
 
-### Non-immediate conflicts
+### Eventual conflicts
 
-Imagine two PouchDB databases have both gone offline. The two users each make modifications to the same document, and then come back online at the same time. They both committed changes to the same document, and their local databases did not throw 409 errors. What happens then?
+Now, let's move on to the second type: **eventual conflicts**.
+
+Imagine two PouchDB databases have both gone offline. The two separate users each make modifications to the same document, and then they come back online at a later time.
+
+Both users committed changes to the same version of the document, and their local databases did not throw 409 errors. What happens then?
 
 This is the classic "conflict" scenario, and CouchDB handles it very elegantly. By default, CouchDB will choose an arbitrary winner based on a deterministic algorithm, which means both users will see the same winner once they're back online. However, since the replication history is stored, you can always go back in time to resolve the conflict.
 
@@ -91,19 +95,29 @@ For instance, imagine the `doc` returned is the following:
 ```js
 {
   "_id": "docid",
-  "_rev": "2-f3d4c66dcd7596419c76b2498b3ba21f",
-  "_conflicts": ["2-c1592ce7b31cc26e91d2f2029c57e621"]
+  "_rev": "2-x",
+  "_conflicts": ["2-y"]
 }
 ```
 
-Here we have a conflict introduced from another database, and that database's revision has arbitrarily won. This document's current revision starts with 2-, and the conflicting version also starts with 2-, indicating that they're both at the same level of the revision tree. (Recall that revision hashes start with `1-`, `2-`, `3-`, etc.)
+Here we have two separate revisions (`2-x` and `2-y`) written by two separate databases, and one database's revision (`2-x`) has arbitrarily won.
+
+{% include alert/start.html variant="warning" %}
+{% markdown %}
+
+Normally, `_rev`s look more like `2-c1592ce7b31cc26e91d2f2029c57e621`, i.e. a digit followed by a very long hash. In these examples, `x` and `y` are used in place of the hash, for simplicity's sake.
+
+{% endmarkdown %} 
+{% include alert/end.html %}
+
+Notice that the document's current revision starts with `2-`, and the conflicting version also starts with `2-`, indicating that they're both at the same level of the revision tree. (Revision hashes start with `1-`, `2-`, `3-`, etc., which indicates their distance from the first, "root" revision. The root always starts with `1-`.)
 
 Both databases will see the same conflict, assuming replication has completed. In fact, all databases in the network will see the exact same revision history &ndash; much like Git.
 
 To fetch the losing revision, you simply `get()` it using the `rev` option:
 
 ```js
-db.get('docid', {rev: '2-c1592ce7b31cc26e91d2f2029c57e621'}).then(function (doc) {
+db.get('docid', {rev: '2-x'}).then(function (doc) {
   // do something with the doc
 }).catch(function (err) {
   // handle any errors
@@ -112,10 +126,10 @@ db.get('docid', {rev: '2-c1592ce7b31cc26e91d2f2029c57e621'}).then(function (doc)
 
 At this point, you can present both versions to the user, or resolve the conflict automatically using your preferred conflict resolution strategy: last write wins, first write wins, [RCS](https://www.gnu.org/software/rcs/), etc.
 
-To mark a conflict as resolved, all you need to do is `remove()` the unwanted revisions. So for instance, to remove `'2-f3d4c66dcd7596419c76b2498b3ba21f'`, you would do:
+To mark a conflict as resolved, all you need to do is `remove()` the unwanted revisions. So for instance, to remove `'2-y'`, you would do:
 
 ```js
-db.remove('docid', '2-f3d4c66dcd7596419c76b2498b3ba21f').then(function (doc) {
+db.remove('docid', '2-y').then(function (doc) {
   // yay, we're done
 }).catch(function (err) {
   // handle any errors

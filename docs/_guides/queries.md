@@ -7,7 +7,7 @@ sidebar: guides_nav.html
 
 Map/reduce queries, also known as *secondary indexes*, are one of the most powerful features in PouchDB. However, they can be quite tricky to use, so this guide is designed to dispell some of the mysteries around them.
 
- {% include alert/start.html variant="warning" %}
+{% include alert/start.html variant="warning" %}
 
 Many developers make the mistake of using the <code>query()</code> API when the more performant <code>allDocs()</code> API would be a better fit.
 <p/>&nbsp;<p/>
@@ -219,7 +219,15 @@ If you're adventurous, though, you should check out the [CouchDB documentation](
 More about map/reduce
 -------
 
-The map/reduce API is complex. Part of this problem will be resolved when the more developer-friendly [Cloudant query language](http://docs.cloudant.com/api/cloudant-query.html) is merged into CouchDB 2.0 (and eventually, PouchDB). In the meantime, there are a few tricks you can use to avoid unnecessarily complicating your codebase:
+The map/reduce API is complex. Part of this problem will be resolved when the more developer-friendly [Cloudant query language](http://docs.cloudant.com/api/cloudant-query.html) is released in CouchDB 2.0, and the equivalent [pouchdb-find plugin](https://github.com/nolanlawson/pouchdb-find) is finished.
+
+{% include alert/start.html variant="warning" %}
+{% markdown %}
+[pouchdb-find](https://github.com/nolanlawson/pouchdb-find) is in beta, but you may find it is already sufficient for simple queries. Eventually it will replace map/reduce as PouchDB's "flagship" query engine.
+{% endmarkdown %}
+{% include alert/end.html %}
+
+In the meantime, there are a few tricks you can use to avoid unnecessarily complicating your codebase:
 
 1. Avoid the `query()` API altogether if you can. You'd be amazed how much you can do with just `allDocs()`. (In fact, under the hood, the `query()` API is simply implemented on top of `allDocs()`!)
 2. If your data is highly relational, try the [relational-pouch](https://github.com/nolanlawson/relational-pouch) plugin.
