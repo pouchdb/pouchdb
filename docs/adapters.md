@@ -17,7 +17,7 @@ PouchDB attempts to provide a consistent API that "just works" across every brow
 
 {% include anchor.html title="PouchDB in the browser" hash="pouchdb_in_the_browser"%}
 
-In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB is not available.  As of 2014, the browser support looks like this:
+In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB is not available.  As of 2015, the browser support looks like this:
 
 ### Desktop
 
