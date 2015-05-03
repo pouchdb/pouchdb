@@ -151,21 +151,23 @@ Furthermore, you may experience slower performance with the SQLite Plugin than w
 {% endmarkdown %}
 {% include alert/end.html%}
 
-### Experimental adapter plugins
+### Browser adapter plugins
 
-PouchDB also offers separate browser plugins that use backends other than IndexedDB and WebSQL. These plugins pass our test suite at 100%, but are not yet part of the official release due to build issues with Browserify. They also add a hefty footprint due to external dependencies, so take them with a grain of salt.
+PouchDB also offers separate browser plugins that use backends other than IndexedDB and WebSQL. These plugins fully pass the PouchDB test suite and are rigorously tested in our CI process.
 
 **Downloads:**
 
-* [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js)
-* [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js)
-* [pouchdb.idb-alt.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js)
+* [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js) (Minified: [pouchdb.localstorage.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.min.js))
+* [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js) (Minified: [pouchdb.memory.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.min.js))
+* [pouchdb.idb-alt.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js) (Minified: [pouchdb.idb-alt.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.min.js))
 
 {% include alert/start.html variant="warning"%}
-Currently these plugins do not work with Browserify itself; you have to include them as separate scripts in your HTML page.
+{% markdown %}
+These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt. You may want to [use the Browserify/Webpack versions](/api.html#extras) to deduplicate code and create a smaller bundle.
+{% endmarkdown %}
 {% include alert/end.html%}
 
-#### LocalStorage plugin
+#### LocalStorage adapter
 
 If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, you can use the `pouchdb.localstorage.js` plugin, which allows PouchDB to fall back to [LocalStorage][] on browsers that don't support either IndexedDB or WebSQL.  The [es5-shims][] will also be necessary.
 
@@ -182,7 +184,7 @@ If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, yo
 The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
 {% include alert/end.html %}
 
-#### Memory plugin
+#### In-memory adapter
 
 If you want a quick database for your unit tests, you can use the `pouchdb.memory.js` plugin, which offers a pure in-memory PouchDB:
 
