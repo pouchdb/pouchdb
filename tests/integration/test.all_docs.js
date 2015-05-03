@@ -581,6 +581,57 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3082 test wrong num results returned', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 1000; i++) {
+        docs.push({});
+      }
+
+      var lastkey;
+      var allkeys = [];
+
+      function paginate() {
+        var opts = {include_doc: true, limit: 100};
+        if (lastkey) {
+          opts.startkey = lastkey;
+          opts.skip = 1;
+        }
+        return db.allDocs(opts).then(function (res) {
+          if (!res.rows.length) {
+            return;
+          }
+          if (lastkey) {
+            res.rows[0].key.should.be.above(lastkey);
+          }
+          res.rows.should.have.length(100);
+          lastkey = res.rows.pop().key;
+          allkeys.push(lastkey);
+          return paginate();
+        });
+      }
+
+      return db.bulkDocs(docs).then(function () {
+        return paginate().then(function () {
+          // try running all queries at once to try to isolate race condition
+          return PouchDB.utils.Promise.all(allkeys.map(function (key) {
+            return db.allDocs({
+              limit: 100,
+              include_docs: true,
+              startkey: key,
+              skip: 1
+            }).then(function (res) {
+              if (!res.rows.length) {
+                return;
+              }
+              res.rows[0].key.should.be.above(key);
+              res.rows.should.have.length(100);
+            });
+          }));
+        });
+      });
+    });
+
     it('test empty db', function (done) {
       return new PouchDB(dbs.name).then(function (db) {
         return db.allDocs().then(function (res) {
