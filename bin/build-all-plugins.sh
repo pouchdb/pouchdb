@@ -1,19 +1,14 @@
 #!/bin/sh
 
-LEVEL_BACKEND=memdown \
-  OUTPUT_FILENAME=pouchdb.memory.js \
-  ./bin/build-plugin.sh
+DEREQUIRE=./node_modules/.bin/derequire
+BROWSERIFY=./node_modules/.bin/browserify
+UGLIFY=./node_modules/.bin/uglifyjs
 
-LEVEL_BACKEND=localstorage-down \
-  OUTPUT_FILENAME=pouchdb.localstorage.js \
-  ./bin/build-plugin.sh
-
-LEVEL_BACKEND=level-js \
-  OUTPUT_FILENAME=pouchdb.idb-alt.js \
-  ./bin/build-plugin.sh
-
-UGLIFY=./node_modules/uglify-js/bin/uglifyjs
-
-$UGLIFY dist/pouchdb.memory.js -mc > dist/pouchdb.memory.min.js
-$UGLIFY dist/pouchdb.localstorage.js -mc > dist/pouchdb.localstorage.min.js
-$UGLIFY dist/pouchdb.idb-alt.js -mc > dist/pouchdb.idb-alt.min.js
+for plugin in memory localstorage idb-alt; do
+  $BROWSERIFY ./extras/${plugin} \
+      -x pouchdb \
+      -p bundle-collapser/plugin \
+      | ./bin/es3ify.js \
+      | $DEREQUIRE > ./dist/pouchdb.${plugin}.js
+  $UGLIFY dist/pouchdb.${plugin}.js -mc > dist/pouchdb.${plugin}.min.js
+done
