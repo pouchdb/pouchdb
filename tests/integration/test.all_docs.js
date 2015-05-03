@@ -581,6 +581,36 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3082 test wrong num results returned', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 1000; i++) {
+        docs.push({});
+      }
+
+      var lastkey;
+
+      function paginate() {
+        var opts = {include_doc: true, limit: 100};
+        if (lastkey) {
+          opts.startkey = lastkey;
+          opts.skip = 1;
+        }
+        return db.allDocs(opts).then(function (res) {
+          if (!res.rows.length) {
+            return;
+          }
+          res.rows.should.have.length(100);
+          lastkey = res.rows.pop().key;
+          return paginate();
+        });
+      }
+
+      return db.bulkDocs(docs).then(function () {
+        return paginate();
+      });
+    });
+
     it('test empty db', function (done) {
       return new PouchDB(dbs.name).then(function (db) {
         return db.allDocs().then(function (res) {
