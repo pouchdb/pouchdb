@@ -10,14 +10,16 @@ if [[ ! -z $SERVER ]]; then
       ln -s ../../.. ./node_modules/pouchdb-server/node_modules/pouchdb
     fi
     export COUCH_HOST='http://127.0.0.1:6984'
-    echo -e "Starting up pouchdb-server\n"
     TESTDIR=./tests/pouchdb_server
     rm -rf $TESTDIR && mkdir -p $TESTDIR
-    if [[ "$SERVER_ADAPTER" == "memory" ]]; then
-      FLAGS='--in-memory'
-    else
-      FLAGS="-d $TESTDIR"
+    FLAGS="--dir $TESTDIR"
+    if [[ ! -z $SERVER_ADAPTER ]]; then
+      FLAGS="$FLAGS --level-backend $SERVER_ADAPTER"
     fi
+    if [[ ! -z $SERVER_PREFIX ]]; then
+      FLAGS="$FLAGS --level-prefix $SERVER_PREFIX"
+    fi
+    echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
     ./node_modules/.bin/pouchdb-server -p 6984 $FLAGS &
     export SERVER_PID=$!
     sleep 15 # give it a chance to start up
