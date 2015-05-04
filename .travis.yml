@@ -38,7 +38,7 @@ env:
   # Test against pouchdb-server
   - CLIENT=node SERVER=pouchdb-server COMMAND=test
   - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
-  - SERVER_ADAPTER=memory LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
+  - SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
 
   # Test against pouchdb-express-router
   - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
