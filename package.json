@@ -111,6 +111,7 @@
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
     "./lib/deps/buffer.js": "./lib/deps/buffer-browser.js",
     "bluebird": "lie",
-    "fs": false
+    "fs": false,
+    "leveldown": false
   }
 }
