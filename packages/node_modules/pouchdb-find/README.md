@@ -331,7 +331,7 @@ Return all docs sorted by `doc.debut` descending:
 ```js
 db.find({
   selector: {
-    $exists: 'debut'
+    debut: {'$exists': true}
   },
   sort: [{debut: 'desc'}]
 });
