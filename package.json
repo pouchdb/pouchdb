@@ -16,6 +16,7 @@
     "pouchdb"
   ],
   "dependencies": {
+    "Base64": "^0.3.0",
     "argsarray": "0.0.1",
     "bluebird": "^1.2.4",
     "debug": "^2.1.2",
