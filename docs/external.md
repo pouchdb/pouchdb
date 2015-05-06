@@ -80,9 +80,13 @@ Allows you to use the `query()` API in environments that disallow `eval()`, like
 
 PouchDB over WebRTC. (Note: only works with PouchDB 1.1.)
 
-#### [pouch-resolve-conflicts](https://github.com/jo/pouch-resolve-conflicts)
+#### [PouchDB Resolve Conflicts](https://github.com/jo/pouch-resolve-conflicts)
 
 Plugin to assist in PouchDB conflict resolving.
+
+#### [PouchDB Migrate](https://github.com/eHealthAfrica/pouchdb-migrate)
+
+PouchDB plugin for running data migrations.
 
 #### [PouchDB Quick Search](https://github.com/nolanlawson/pouchdb-quick-search)
 
