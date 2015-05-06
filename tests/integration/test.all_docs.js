@@ -270,6 +270,23 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('repro IDB DomException', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 100; i++) {
+        docs.push({});
+      }
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        return PouchDB.utils.Promise.all(res.rows.map(function (row) {
+          return db.get(row.id).then(function (doc) {
+            return db.remove(doc);
+          });
+        }));
+      });
+    });
+
     it('test basic collation', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = {
