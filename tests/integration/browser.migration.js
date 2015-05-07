@@ -763,7 +763,7 @@ describe('migration', function () {
               _id: 'doc' + i,
               _attachments: {
                 'att.txt' : {
-                  data: PouchDB.utils.btoa(Math.random().toString()),
+                  data: testUtils.base64.btoa(Math.random().toString()),
                   content_type: 'text/plain'
                 }
               }

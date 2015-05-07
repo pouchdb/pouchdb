@@ -1085,7 +1085,7 @@ adapters.forEach(function (adapter) {
         db.get('foo', function (err, doc) {
           var data = pngAttDoc._attachments['foo.png'].data;
           var blob = testUtils
-            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+            .makeBlob(PouchDB.utils.fixBinary(testUtils.base64.atob(data)),
               'image/png');
           db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
               function (err, info) {
@@ -1545,7 +1545,7 @@ adapters.forEach(function (adapter) {
         db.get('foo', function (err, doc) {
           var data = binAttDoc._attachments['foo.txt'].data;
           var blob = testUtils
-            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+            .makeBlob(PouchDB.utils.fixBinary(testUtils.base64.atob(data)),
               'text/plain');
           db.putAttachment('foo', 'foo.txt', doc._rev, blob, 'text/plain',
                            function (err, info) {
@@ -1553,7 +1553,7 @@ adapters.forEach(function (adapter) {
             db.getAttachment('foo', 'foo.txt', function (err, blob) {
               should.not.exist(err, 'attachment gotten');
               testUtils.readBlob(blob, function (returnedData) {
-                PouchDB.utils.btoa(returnedData).should.equal(data);
+                testUtils.base64.btoa(returnedData).should.equal(data);
                 db.get('foo', function (err, doc) {
                   should.not.exist(err, 'err on get');
                   delete doc._attachments["foo.txt"].revpos;
@@ -1592,7 +1592,7 @@ adapters.forEach(function (adapter) {
         db.get('foo', function (err, doc) {
           var data = pngAttDoc._attachments['foo.png'].data;
           var blob = testUtils
-            .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+            .makeBlob(PouchDB.utils.fixBinary(testUtils.base64.atob(data)),
                                               'image/png');
           db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
                            function (err, info) {
@@ -1600,7 +1600,7 @@ adapters.forEach(function (adapter) {
             db.getAttachment('foo', 'foo.png', function (err, blob) {
               should.not.exist(err, 'attachment gotten');
               testUtils.readBlob(blob, function (returnedData) {
-                PouchDB.utils.btoa(returnedData).should.equal(data);
+                testUtils.base64.btoa(returnedData).should.equal(data);
                 db.get('foo', function (err, doc) {
                   should.not.exist(err, 'err on get');
                   delete doc._attachments["foo.png"].revpos;
@@ -1720,7 +1720,7 @@ adapters.forEach(function (adapter) {
           db.get('foo', function (err, doc) {
             var data = pngAttDoc._attachments['foo.png'].data;
             var blob = testUtils
-              .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+              .makeBlob(PouchDB.utils.fixBinary(testUtils.base64.atob(data)),
                 'image/png');
             if (typeof URL === 'undefined') {
               // phantomjs doesn't have this, give up on this test
@@ -1784,7 +1784,7 @@ adapters.forEach(function (adapter) {
           testUtils.readBlob(blob, resolve);
         });
       }).then(function (bin) {
-        PouchDB.utils.btoa(bin).should.equal(base64);
+        testUtils.base64.btoa(bin).should.equal(base64);
       });
     });
 
@@ -1819,7 +1819,7 @@ adapters.forEach(function (adapter) {
 
             getData(function (err, data) {
               var blob = testUtils
-                .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+                .makeBlob(PouchDB.utils.fixBinary(testUtils.base64.atob(data)),
                   'image/png');
               db.putAttachment('foo', 'foo.png', doc._rev, blob, 'image/png',
                   function (err, info) {
@@ -1827,7 +1827,7 @@ adapters.forEach(function (adapter) {
                 db.getAttachment('foo', 'foo.png', function (err, blob) {
                   should.not.exist(err, 'attachment gotten');
                   testUtils.readBlob(blob, function (returnedData) {
-                    PouchDB.utils.btoa(returnedData).should.equal(data);
+                    testUtils.base64.btoa(returnedData).should.equal(data);
                     db.get('foo', function (err, doc) {
                       should.not.exist(err, 'err on get');
                       delete doc._attachments["foo.png"].revpos;
@@ -1907,9 +1907,9 @@ repl_adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       var rev;
 
-      var data = PouchDB.utils.btoa('foobar');
+      var data = testUtils.base64.btoa('foobar');
       var blob = testUtils
-        .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+        .makeBlob(PouchDB.utils.fixBinary(testUtils.base64.atob(data)),
           'text/plain');
 
       doc._attachments = {};
@@ -1948,7 +1948,7 @@ repl_adapters.forEach(function (adapters) {
         'UgNoMoyxBwSMH/WnAzy5cnfLFu+dK2l5gMvuPGLGJd1/9AOiBQiEgkzOpg' +
         'AAAABJRU5ErkJggg==';
       var blob = testUtils
-        .makeBlob(PouchDB.utils.fixBinary(PouchDB.utils.atob(data)),
+        .makeBlob(PouchDB.utils.fixBinary(testUtils.base64.atob(data)),
           'image/png');
 
       doc._attachments = {};

@@ -441,7 +441,7 @@ adapters.forEach(function (adapter) {
           return db.get('doc').then(function (doc) {
             doc._attachments = doc._attachments || {};
             var blob = testUtils.makeBlob(
-              PouchDB.utils.btoa(Math.random().toString()),
+              testUtils.base64.btoa(Math.random().toString()),
               'text/plain');
             return db.putAttachment(doc._id, 'att.txt', doc._rev, blob,
               'text/plain');
@@ -477,7 +477,7 @@ adapters.forEach(function (adapter) {
           return db.get('doc').then(function (doc) {
             doc._attachments = doc._attachments || {};
             var blob = testUtils.makeBlob(
-              PouchDB.utils.btoa(Math.random().toString()),
+              testUtils.base64.btoa(Math.random().toString()),
               'text/plain');
             return db.putAttachment(doc._id, 'att.txt', doc._rev, blob,
               'text/plain');
@@ -1021,23 +1021,23 @@ adapters.forEach(function (adapter) {
           _id: 'doc1',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att2.txt': {
-              data: PouchDB.utils.btoa('2'),
+              data: testUtils.base64.btoa('2'),
               content_type: 'text/plain'
             },
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             }
           }
@@ -1045,19 +1045,19 @@ adapters.forEach(function (adapter) {
           _id: 'doc2',
           _attachments: {
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             }
           }
@@ -1065,15 +1065,15 @@ adapters.forEach(function (adapter) {
           _id: 'doc3',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             },
             'att7.txt': {
-              data: PouchDB.utils.btoa('7'),
+              data: testUtils.base64.btoa('7'),
               content_type: 'text/plain'
             }
           }
@@ -1157,7 +1157,7 @@ adapters.forEach(function (adapter) {
         doc._deleted = true;
         doc._attachments = {
           'att1.txt': {
-            data: PouchDB.utils.btoa('1'),
+            data: testUtils.base64.btoa('1'),
             content_type: 'application/octet-stream'
           }
         };
@@ -1189,7 +1189,7 @@ adapters.forEach(function (adapter) {
         doc._deleted = true;
         doc._attachments = {
           'att1.txt': {
-            data: PouchDB.utils.btoa('1'),
+            data: testUtils.base64.btoa('1'),
             content_type: 'application/octet-stream'
           }
         };
@@ -1220,23 +1220,23 @@ adapters.forEach(function (adapter) {
           _id: 'doc1',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att2.txt': {
-              data: PouchDB.utils.btoa('2'),
+              data: testUtils.base64.btoa('2'),
               content_type: 'text/plain'
             },
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             }
           }
@@ -1244,19 +1244,19 @@ adapters.forEach(function (adapter) {
           _id: 'doc2',
           _attachments: {
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             }
           }
@@ -1264,15 +1264,15 @@ adapters.forEach(function (adapter) {
           _id: 'doc3',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             },
             'att7.txt': {
-              data: PouchDB.utils.btoa('7'),
+              data: testUtils.base64.btoa('7'),
               content_type: 'text/plain'
             }
           }
@@ -1360,7 +1360,7 @@ adapters.forEach(function (adapter) {
           _id: i.toString(),
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             }
           }
@@ -1561,23 +1561,23 @@ adapters.forEach(function (adapter) {
           _id: 'doc1',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att2.txt': {
-              data: PouchDB.utils.btoa('2'),
+              data: testUtils.base64.btoa('2'),
               content_type: 'text/plain'
             },
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             }
           }
@@ -1585,19 +1585,19 @@ adapters.forEach(function (adapter) {
           _id: 'doc2',
           _attachments: {
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             }
           }
@@ -1605,15 +1605,15 @@ adapters.forEach(function (adapter) {
           _id: 'doc3',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             },
             'att7.txt': {
-              data: PouchDB.utils.btoa('7'),
+              data: testUtils.base64.btoa('7'),
               content_type: 'text/plain'
             }
           }
@@ -1692,23 +1692,23 @@ adapters.forEach(function (adapter) {
           _id: 'doc1',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att2.txt': {
-              data: PouchDB.utils.btoa('2'),
+              data: testUtils.base64.btoa('2'),
               content_type: 'text/plain'
             },
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             }
           }
@@ -1716,19 +1716,19 @@ adapters.forEach(function (adapter) {
           _id: 'doc2',
           _attachments: {
             'att3.txt': {
-              data: PouchDB.utils.btoa('3'),
+              data: testUtils.base64.btoa('3'),
               content_type: 'text/plain'
             },
             'att4.txt': {
-              data: PouchDB.utils.btoa('4'),
+              data: testUtils.base64.btoa('4'),
               content_type: 'text/plain'
             },
             'att5.txt': {
-              data: PouchDB.utils.btoa('5'),
+              data: testUtils.base64.btoa('5'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             }
           }
@@ -1736,15 +1736,15 @@ adapters.forEach(function (adapter) {
           _id: 'doc3',
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             },
             'att6.txt': {
-              data: PouchDB.utils.btoa('6'),
+              data: testUtils.base64.btoa('6'),
               content_type: 'text/plain'
             },
             'att7.txt': {
-              data: PouchDB.utils.btoa('7'),
+              data: testUtils.base64.btoa('7'),
               content_type: 'text/plain'
             }
           }
@@ -2061,7 +2061,7 @@ adapters.forEach(function (adapter) {
           _id: i.toString(),
           _attachments: {
             'att1.txt': {
-              data: PouchDB.utils.btoa('1'),
+              data: testUtils.base64.btoa('1'),
               content_type: 'text/plain'
             }
           }
