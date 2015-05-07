@@ -509,8 +509,8 @@ adapters.forEach(function (adapter) {
 
     it('Testing issue #48', function (done) {
       var docs = [
-        {'id': '0'}, {'id': '1'}, {'id': '2'},
-        {'id': '3'}, {'id': '4'}, {'id': '5'}
+        {'_id': '0'}, {'_id': '1'}, {'_id': '2'},
+        {'_id': '3'}, {'_id': '4'}, {'_id': '5'}
       ];
       var TO_SEND = 5;
       var sent = 0;
