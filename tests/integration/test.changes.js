@@ -2108,7 +2108,7 @@ adapters.forEach(function (adapter) {
         var id = '';
         for (var j = 0; j < 50; j++) {
           // make a huge id
-          id += PouchDB.utils.btoa(Math.random().toString());
+          id += testUtils.base64.btoa(Math.random().toString());
         }
         docs.push({_id: id});
       }
@@ -2163,7 +2163,7 @@ adapters.forEach(function (adapter) {
         var id = '';
         for (var j = 0; j < 50; j++) {
           // make a huge id
-          id += PouchDB.utils.btoa(Math.random().toString());
+          id += testUtils.base64.btoa(Math.random().toString());
         }
         docs.push({_id: id});
       }

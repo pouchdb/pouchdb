@@ -50,6 +50,9 @@ testUtils.couchHost = function () {
   return 'http://localhost:2020';
 };
 
+var base64 = require('../../lib/deps/base64');
+testUtils.base64 = base64;
+
 testUtils.makeBlob = function (data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data, 'binary');
@@ -84,7 +87,7 @@ testUtils.base64Blob = function (blob, callback) {
     callback(blob.toString('base64'));
   } else {
     testUtils.readBlob(blob, function (binary) {
-      callback(PouchDB.utils.btoa(binary));
+      callback(base64.btoa(binary));
     });
   }
 };
