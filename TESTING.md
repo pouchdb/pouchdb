@@ -72,10 +72,14 @@ Run the tests against a connected Android device, using the given COUCH_HOST
 Run the tests against the FirefoxOS simulator:
 
     $ CLIENT=firefoxos npm run cordova
+    
+Run the tests against a BlackBerry 10 device:
+
+    $ CLIENT=blackberry10 DEVICE=true npm run cordova
 
 Use a custom Couch host:
 
-    $ COUCH_HOST=http://myurl:2020 npm run cordova
+    $ COUCH_HOST=http://myurl:5984 npm run cordova
 
 Grep some tests:    
 
