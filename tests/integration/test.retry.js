@@ -149,5 +149,66 @@ adapters.forEach(function (adapters) {
       remote.post({}).catch(done);
     });
 
+    ['complete', 'error', 'paused', 'active'].forEach(function (event) {
+      it('returnValue doesn\'t leak "' + event + '" event', function (done) {
+
+        var db = new PouchDB(dbs.name);
+        var remote = new PouchDB(dbs.remote);
+        var Promise = PouchDB.utils.Promise;
+
+        var origGet = remote.get;
+        var i = 0;
+        remote.get = function (opts) {
+          // Reject get() every 5 times
+          if ((++i % 5) === 0) {
+            return Promise.reject(new Error('flunking you'));
+          }
+          return origGet.apply(remote, arguments);
+        };
+
+        var rep = db.replicate.from(remote, {
+          live: true,
+          retry: true
+        });
+
+        // TODO: fix all leaks
+        rep.setMaxListeners(100);
+        db.setMaxListeners(100);
+        remote.setMaxListeners(100);
+
+        var numDocsToWrite = 10;
+
+        rep.on('complete', function () {
+          done();
+        }).on('error', done);
+
+        function checkDone() {
+          db.info().then(function (info) {
+            if (info.doc_count === numDocsToWrite) {
+              rep.cancel();
+            }
+          }).catch(done);
+        }
+
+        var originalNumListeners;
+        var posted = 0;
+        rep.on('change', function () {
+          if (++posted < numDocsToWrite) {
+            remote.post({}).catch(done);
+          }
+          var numListeners = rep.listeners(event).length;
+          if (typeof originalNumListeners !== 'number') {
+            originalNumListeners = numListeners;
+          } else {
+            numListeners.should.equal(originalNumListeners,
+              'numListeners should never increase');
+          }
+          checkDone();
+        });
+
+        remote.post({}).catch(done);
+      });
+    });
+
   });
 });
