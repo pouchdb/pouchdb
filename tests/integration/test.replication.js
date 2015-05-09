@@ -1928,7 +1928,6 @@ adapters.forEach(function (adapters) {
       if ('saucelabs' in testUtils.params()) {
         return done();
       }
-      this.timeout(15000);
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docs = [];
@@ -2934,7 +2933,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('issue #2342 update_seq after replication', function (done) {
-      this.timeout(30000);
       var docs = [];
       for (var i = 0; i < 10; i++) {
         docs.push({_id: i.toString()});
