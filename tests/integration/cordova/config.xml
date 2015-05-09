@@ -9,4 +9,5 @@
     </author>
     <content src="tests/integration/index.html" />
     <access origin="*" />
+    <preference name="websecurity" value="disable" gap:platform="blackberry10" />
 </widget>
