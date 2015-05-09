@@ -149,7 +149,10 @@ adapters.forEach(function (adapters) {
       remote.post({}).catch(done);
     });
 
-    ['complete', 'error', 'paused', 'active'].forEach(function (event) {
+    [
+      'complete', 'error', 'paused', 'active',
+      'change'
+    ].forEach(function (event) {
       it('returnValue doesn\'t leak "' + event + '" event', function (done) {
 
         var db = new PouchDB(dbs.name);
