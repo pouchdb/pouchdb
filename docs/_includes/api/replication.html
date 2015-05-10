@@ -27,6 +27,7 @@ All options default to `false` unless otherwise specified.
 * `options.since`: Replicate changes after the given sequence number.
 * `options.batch_size`: Number of documents to process at a time. Defaults to 100. This affects the number of docs held in memory and the number sent at a time to the target server. You may need to adjust downward if targeting devices with low amounts of memory (e.g. phones) or if the documents are large in size (e.g. with attachments). If your documents are small in size, then increasing this number will probably speed replication up.
 * `options.batches_limit`: Number of batches to process at a time. Defaults to 10. This (along wtih `batch_size`) controls how many docs are kept in memory at a time, so the maximum docs in memory at once would equal `batch_size` &times; `batches_limit`.
+* `options.back_off_function`: backoff function to be used in `retry` replication. This is a function that takes the current backoff as input (or 0 the first time) and returns a new backoff in milliseconds. You can use this to tweak when and how replication will try to reconnect to a remote database when the user goes offline. Defaults to a function that chooses a random backoff between 0 and 2 seconds and doubles every time it fails to connect. (See [Customizing retry replication](#customizing-retry-replication) below.)
 
 #### Example Usage:
 
@@ -271,3 +272,28 @@ remote.replicate.to(local, {
   view: 'mydesign/myview'
 });
 {% endhighlight %}
+
+#### Customizing retry replication
+
+During `retry` replication, you can customize the backoff function that determines how long to wait before reconnecting when the user goes offline.
+
+Here's a simple backoff function that starts at 1000 milliseconds and triples it every time a remote request fails:
+
+{% highlight js %}
+
+db.replicate.to(remote, {
+  live: true,
+  retry: true,
+  back_off_function: function (delay) {
+    if (delay === 0) {
+      return 1000;
+    }
+    return delay * 3;
+  }
+});
+
+{% endhighlight %}
+
+The first time a request fails, this function will receive 0 as input. The next time it fails, 1000 will be passed in, then 3000, then 9000, etc. When the user comes back online, the `delay` goes back to 0.
+
+By default, PouchDB uses a backoff function that chooses a random starting number between 0 and 2000 milliseconds and will roughly double every time, with some randommness to prevent client requests from occurring simultaneously.
