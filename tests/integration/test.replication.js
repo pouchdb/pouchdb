@@ -1757,6 +1757,37 @@ adapters.forEach(function (adapters) {
       });
     }
 
+    it('live replication, starting offline', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      // id() is the first thing called
+      var origId = remote.id;
+      var i = 0;
+      remote.id = function () {
+        // Reject only the first 3 times
+        if (++i <= 3) {
+          return Promise.reject(new Error('flunking you'));
+        }
+        return origId.apply(remote, arguments);
+      };
+
+      return remote.post({}).then(function() {
+        return new Promise(function (resolve, reject) {
+          var rep = db.replicate.from(remote, {
+            live: true
+          });
+          rep.on('error', reject);
+        }).then(function () {
+          throw new Error('should have thrown error');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
     it('Replicates deleted docs (issue #2636)', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -3047,72 +3078,6 @@ adapters.forEach(function (adapters) {
       });
       remote.put({}, 'hazaa');
     });
-
-    it('retry stuff', function (done) {
-      this.timeout(2000000);
-
-      var remote = new PouchDB(dbs.remote);
-      var Promise = PouchDB.utils.Promise;
-      var allDocs = remote.allDocs;
-
-      // Reject attempting to write 'foo' 3 times, then let it succeed
-      var i = 0;
-      remote.allDocs = function (opts) {
-        if (opts.keys[0] === 'foo') {
-          if (++i !== 3) {
-            return Promise.reject(new Error('flunking you'));
-          }
-        }
-        return allDocs.apply(remote, arguments);
-      };
-
-      var db = new PouchDB(dbs.name);
-      var rep = db.replicate.from(remote, {
-        live: true,
-        retry: true
-      });
-
-      var paused = 0;
-      rep.on('paused', function (e) {
-        ++paused;
-        // The first paused event is the replication up to date
-        // and waiting on changes (no error)
-        if (paused === 1) {
-          (typeof e).should.equal('undefined');
-          return remote.put({}, 'foo').then(function () {
-            return remote.put({}, 'bar');
-          });
-        }
-        // Second paused event is due to failed writes, should
-        // have an error
-        if (paused === 2) {
-          e.should.exist();
-        }
-      });
-
-      var active = 0;
-      rep.on('active', function () {
-        ++active;
-      });
-
-      rep.on('complete', function() {
-        active.should.equal(4);
-        paused.should.be.at.least(3);
-        done();
-      });
-
-      rep.catch(done);
-
-      var numChanges = 0;
-      rep.on('change', function () {
-        if (++numChanges === 3) {
-          rep.cancel();
-        }
-      });
-
-      remote.put({}, 'hazaa');
-    });
-
 
     it('#3687 active event only fired once...', function (done) {
 
