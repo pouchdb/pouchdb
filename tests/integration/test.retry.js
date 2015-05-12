@@ -75,7 +75,7 @@ adapters.forEach(function (adapters) {
       });
 
       rep.on('complete', function () {
-        active.should.equal(4);
+        active.should.be.within(3, 4);
         paused.should.be.at.least(3);
         done();
       });
@@ -133,7 +133,7 @@ adapters.forEach(function (adapters) {
 
       rep.on('complete', function() {
         try {
-          active.should.equal(2);
+          active.should.be.within(1, 2);
           paused.should.equal(2);
           numChanges.should.equal(2);
           done(error);
@@ -536,6 +536,66 @@ adapters.forEach(function (adapters) {
         flunked.should.equal(5);
         active.should.be.at.least(5);
         paused.should.be.at.least(5);
+      });
+    });
+
+    it('retry while starting offline', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      // id() is the first thing called
+      var origId = remote.id;
+      var i = 0;
+      remote.id = function () {
+        // Reject only the first 3 times
+        if (++i <= 3) {
+          return Promise.reject(new Error('flunking you'));
+        }
+        return origId.apply(remote, arguments);
+      };
+
+      var rep = db.replicate.from(remote, {
+        live: true,
+        retry: true,
+        back_off_function: function () { return 0; }
+      });
+
+      var numDocsToWrite = 5;
+
+      return remote.post({}).then(function() {
+        var posted = 0;
+
+        return new Promise(function (resolve, reject) {
+
+          var error;
+          function cleanup(err) {
+            if (err) {
+              error = err;
+            }
+            rep.cancel();
+          }
+          function finish() {
+            if (error) {
+              return reject(error);
+            }
+            resolve();
+          }
+
+          rep.on('complete', finish).on('error', cleanup);
+          rep.on('change', function () {
+            if (++posted < numDocsToWrite) {
+              remote.post({}).catch(cleanup);
+            } else {
+              db.info().then(function (info) {
+                if (info.doc_count === numDocsToWrite) {
+                  cleanup();
+                }
+              }).catch(cleanup);
+            }
+          });
+        });
       });
     });
 

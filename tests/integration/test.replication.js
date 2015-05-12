@@ -1355,7 +1355,7 @@ adapters.forEach(function (adapters) {
         db.replicate.to(dbs.remote)
         .on('complete', function (res) {
           should.exist(res);
-          db.replicate.to('http://0.0.0.0:0')
+          db.replicate.to('http://0.0.0.0:13370')
           .on('error', function (res) {
             should.exist(res);
             done();
@@ -1756,6 +1756,37 @@ adapters.forEach(function (adapters) {
         });
       });
     }
+
+    it('live replication, starting offline', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      // id() is the first thing called
+      var origId = remote.id;
+      var i = 0;
+      remote.id = function () {
+        // Reject only the first 3 times
+        if (++i <= 3) {
+          return Promise.reject(new Error('flunking you'));
+        }
+        return origId.apply(remote, arguments);
+      };
+
+      return remote.post({}).then(function() {
+        return new Promise(function (resolve, reject) {
+          var rep = db.replicate.from(remote, {
+            live: true
+          });
+          rep.on('error', reject);
+        }).then(function () {
+            throw new Error('should have thrown error');
+          }, function (err) {
+            should.exist(err);
+          });
+      });
+    });
 
     it('Replicates deleted docs (issue #2636)', function () {
       var db = new PouchDB(dbs.name);
