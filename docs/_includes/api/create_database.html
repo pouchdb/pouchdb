@@ -30,6 +30,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 * `location`: where to store data on iOS, which may affect iTunes/iCloud backup, and thus whether or not your app gets rejected by Apple. See [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#opening-a-database) and [iOS data storage guidelines](https://developer.apple.com/icloud/documentation/data-storage/index.html).
 * `createFromLocation`: use a pre-populated database, so you can package it with your app and users don't have to wait for it to load. See the [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#pre-populated-database).
+* `androidDatabaseImplementation`: `1` to use the new `sqlite4java` implementation, `2` to use the older version based on the native Android APIs. Defaults to `1`. See the [SQLite Plugin documentation](https://github.com/litehelpers/Cordova-sqlite-storage#android-sqlite-implementation).
 
 **Notes:**
 
