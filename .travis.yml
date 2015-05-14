@@ -1,9 +1,7 @@
 language: node_js
 
-
 node_js:
   - "0.10"
-
 
 services:
   - couchdb
@@ -21,7 +19,6 @@ before_script:
 
     # Lets know what CouchDB we are playing with
   - "curl -X GET http://127.0.0.1:5984/"
-
 
 script: npm run $COMMAND
 
@@ -81,11 +78,31 @@ env:
   - COMMAND=report-coverage
 
 matrix:
+
   allow_failures:
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
   - env: CLIENT=node SERVER=couchdb-master COMMAND=test
   - env: SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+  - node_js: "0.11"
+    env: CLIENT=node COMMAND=test
+  - node_js: "0.12"
+    env: CLIENT=node COMMAND=test
+  - node_js: "stable"
+    env: CLIENT=node COMMAND=test
+  - node_js: "iojs"
+    env: CLIENT=node COMMAND=test
+
   fast_finish: true
+
+  include:
+    - node_js: "0.11"
+      env: CLIENT=node COMMAND=test
+    - node_js: "0.12"
+      env: CLIENT=node COMMAND=test
+    - node_js: "stable"
+      env: CLIENT=node COMMAND=test
+    - node_js: "iojs"
+      env: CLIENT=node COMMAND=test
 
 branches:
   only:
