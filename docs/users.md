@@ -40,6 +40,10 @@ Squarespace Blog is an [Android](https://play.google.com/store/apps/details?id=c
 
 [Thali](http://thaliproject.org/) is a Microsoft-sponsored open-source platform for creating apps that exploit the power of personal devices and put people in control of their data. It uses Cordova, PouchDB, OpenSSL, and Tor.
 
+## Story-writer
+
+Story-writer is a free Markdown editor, with a [web version](http://markdown.xiaoshujiang.com) and [NW.js client version](http://soft.xiaoshujiang.com), built using Node.js, NW.js, LevelDB, and PouchDB.
+
 ## BikeCommute
 
 [BikeCommute](https://github.com/autonome/bikecommute) is a FirefoxOS app that registers an NFC tag to track bike commuters in the Mozilla Portland office. Built using Famo.us, PouchDB, and CouchDB. See [a video of it in action](https://youtu.be/3BVZYcQ-TYA) or [read about it on Mozilla Hacks](https://hacks.mozilla.org/2014/11/nfc-in-firefox-os/).
