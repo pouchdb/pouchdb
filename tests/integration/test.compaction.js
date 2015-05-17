@@ -1518,6 +1518,10 @@ adapters.forEach(function (adapter) {
 
       var doc = {_id: 'foo'};
 
+      // we know we're going to reach this because of all the changes()
+      // we're doing at once
+      db.setMaxListeners(1000);
+
       return db.put(doc).then(function (res) {
         doc._rev = res.rev;
       }).then(function () {

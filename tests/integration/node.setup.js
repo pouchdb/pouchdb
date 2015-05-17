@@ -1,5 +1,8 @@
 "use strict";
 
+// throw an error if any EventEmitter adds too many listeners
+require('throw-max-listeners-error');
+
 var testsDir = process.env.TESTS_DIR || './tmp';
 var exec = require('child_process').exec;
 function cleanup() {

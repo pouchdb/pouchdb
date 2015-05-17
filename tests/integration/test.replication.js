@@ -3649,6 +3649,10 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       var Promise = PouchDB.utils.Promise;
 
+      // we know we're easily going to go over that limit
+      // because of all the parallel replications we're doing
+      db.setMaxListeners(100);
+
       function timeoutPromise(delay, fun) {
         return new Promise(function (resolve) {
           setTimeout(resolve, delay);
