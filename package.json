@@ -44,6 +44,7 @@
     "leveldown": "~0.10.2"
   },
   "devDependencies": {
+    "throw-max-listeners-error": "^1.0.0",
     "child-process-promise": "^1.1.0",
     "pouchdb-express-router": "^0.0.2",
     "bundle-collapser": "^1.1.1",
