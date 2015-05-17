@@ -28,6 +28,9 @@ var queryParams = {};
 if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
   queryParams.es5shim = true;
 }
+if (process.env.FAKE_IDB) {
+  queryParams.fakeIDB = true;
+}
 if (process.env.ADAPTERS) {
   queryParams.adapters = process.env.ADAPTERS;
 }

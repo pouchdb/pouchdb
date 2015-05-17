@@ -13,6 +13,13 @@
         document.write('<script src="../../node_modules/es5-shim/es5-shim.js"></' + 'script>');
       }
     </script>
+    <script>
+      var val = window.location.search.match(/[&\?]fakeIDB?=([^&\?]+)/);
+      if (val && val[1] === 'true') {
+        document.write('<script src="../../node_modules/fake-indexeddb/dist/fakeIndexedDB.js"></' + 'script>');
+        document.write('<script src="fake-idb-setup.js"></' + 'script>');
+      }
+    </script>
     <script src="../../node_modules/mocha/mocha.js"></script>
     <script src="../../node_modules/chai/chai.js"></script>
     <script>
