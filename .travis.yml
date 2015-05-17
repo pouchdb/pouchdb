@@ -83,14 +83,6 @@ matrix:
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
   - env: CLIENT=node SERVER=couchdb-master COMMAND=test
   - env: SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
-  - node_js: "0.11"
-    env: CLIENT=node COMMAND=test
-  - node_js: "0.12"
-    env: CLIENT=node COMMAND=test
-  - node_js: "stable"
-    env: CLIENT=node COMMAND=test
-  - node_js: "iojs"
-    env: CLIENT=node COMMAND=test
 
   fast_finish: true
 

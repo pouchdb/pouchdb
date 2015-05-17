@@ -44,6 +44,7 @@
     "leveldown": "~0.10.2"
   },
   "devDependencies": {
+    "child-process-promise": "^1.1.0",
     "pouchdb-express-router": "^0.0.2",
     "bundle-collapser": "^1.1.1",
     "rimraf": "2.2.8",
@@ -64,7 +65,6 @@
     "glob": "~3.2.9",
     "watch-glob": "~0.1.1",
     "mkdirp": "~0.4.2",
-    "exec-sync": "~0.1.6",
     "ua-parser-js": "^0.6.2",
     "chai": "^1.9.1",
     "mocha": "^1.18.2",
