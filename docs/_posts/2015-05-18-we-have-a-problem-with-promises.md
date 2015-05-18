@@ -1,14 +1,20 @@
 ---
 layout: post
 
-title: You 	&#40;probably&#41; don't understand promises
+title: We have a problem with promises
 author: Nolan Lawson
 
 ---
 
-I know, I know &ndash; you *think* you understand promises. Maybe you clicked on this article hoping to be reassured of your own mastery, and to have a chuckle at everyone else's ignorance. But if so, the joke's on you.
+Fellow JavaScripters, it's time to admit it: we have a problem with promises.
 
-Even if you're an experienced JavaScript programmer, I can say with high certainty that you don't understand promises nearly as well as you think you do. If you find that hard to believe, consider this puzzle [I recently posted to Twitter](https://twitter.com/nolanlawson/status/578948854411878400):
+No, not with promises themselves. Promises, as defined by the [A+ spec](https://promisesaplus.com/), are awesome.
+
+The big problem, which has revealed itself to me over the course of the past year, as I've watched numerous programmers struggle with the PouchDB API and other promise-heavy APIs, is this:
+
+Many of us are using promises *without really understanding them*.
+
+If you find that hard to believe, consider this puzzle [I recently posted to Twitter](https://twitter.com/nolanlawson/status/578948854411878400):
 
 **Q: What is the difference between these four promises?**
 
@@ -26,18 +32,20 @@ doSomething().then(doSomethingElse());
 doSomething().then(doSomethingElse);
 ```
 
-If you know the answer, then congratulations: you're a promises ninja. I hereby grant you permission to stop reading this blog post.
+If you know the answer, then congratulations: you're a promises ninja. You have my permission to stop reading this blog post.
 
 For the other 99.99% of you, you're in good company. Nobody who responded to my tweet could solve it, and I myself was surprised by the answer to #3. Yes, even though I wrote the quiz!
 
-The answers to this quiz are at the end, but first, I'd like to explore why promises are so tricky in the first place, and why so many of us &ndash; novices and experts alike &ndash; tend to mess them up. To start with, let's challenge some basic assumptions about promises.
+The answers are at the end of this post, but first, I'd like to explore why promises are so tricky in the first place, and why so many of us &ndash; novices and experts alike &ndash; get tripped up by them. I'm also going to offer what I consider to be the singular insight, the *one weird trick*, that makes promises a cinch to understand. And yes, I really do believe they're not so hard after that!
+
+But to start with, let's challenge some common assumptions about promises.
 
 Wherefore promises?
 ------
 
-If you read the promises literature, you'll often find references to [the pyramid of doom](https://medium.com/@wavded/managing-node-js-callback-hell-1fe03ba8baf), with some horrible callback-y code that steadily stretches toward the right side of the screen.
+If you read the literature on promises, you'll often find references to [the pyramid of doom](https://medium.com/@wavded/managing-node-js-callback-hell-1fe03ba8baf), with some horrible callback-y code that steadily stretches toward the right side of the screen.
 
-Promises do indeed solve this problem, but it's more than just an indentation issue. As explained in the brilliant talk ["Redemption from Callback Hell"](http://youtu.be/hf1T_AONQJU), the real problem with callbacks it that they deprive us of keywords like `return` and `throw`. Instead, our program's entire flow is based on *side effects*: one function incidentally calling another one.
+Promises do indeed solve this problem, but it's about more than just indentation. As explained in the brilliant talk ["Redemption from Callback Hell"](http://youtu.be/hf1T_AONQJU), the real problem with callbacks it that they deprive us of keywords like `return` and `throw`. Instead, our program's entire flow is based on *side effects*: one function incidentally calling another one.
 
 And in fact, callbacks do something even more sinister: they deprive us of the *stack*, which is something we usually take for granted in programming languages. Writing code without a stack is a lot like driving a car without a brake pedal: you don't realize how badly you need it, until you reach for it and it's not there.
 
@@ -48,9 +56,9 @@ Rookie mistakes
 
 Some people try to explain promises [as a cartoon](http://andyshora.com/promises-angularjs-explained-as-cartoon.html), or in a very noun-oriented way: "Oh, it's this thing you can pass around that represents an asynchronous value."
 
-I don't find such explanations very helpful. To me, promises are all about code structure and flow. So it's better to just go over some common rookie mistakes and show how to fix them.
+I don't find such explanations very helpful. To me, promises are all about code structure and flow. So I think it's better to just go over some common mistakes and show how to fix them.
 
-Quick digression: "promises" mean a lot of different things to different people, but for the purposes of this article, I'm only going to talk about the official [ES6 Promise spec](https://promisesaplus.com/), as exposed in modern browsers as `window.Promise`. Not all browsers have `window.Promise` though, so for a good polyfill, check out the cheekily-named [Lie](https://github.com/calvinmetcalf/lie), which is about the smallest spec-compliant library out there.
+Quick digression: "promises" mean a lot of different things to different people, but for the purposes of this article, I'm only going to talk about [the official spec](https://promisesaplus.com/), as exposed in modern browsers as `window.Promise`. Not all browsers have `window.Promise` though, so for a good polyfill, check out the cheekily-named [Lie](https://github.com/calvinmetcalf/lie), which is about the smallest spec-compliant library out there.
 
 Rookie mistake #1: the promisey pyramid of doom
 ---
