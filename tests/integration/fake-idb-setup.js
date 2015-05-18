@@ -1,0 +1,12 @@
+window.indexedDB = window.fakeIndexedDB;
+window.IDBCursor = window.FDBCursor;
+window.IDBCursorWithValue = window.FDBCursorWithValue;
+window.IDBDatabase = window.FDBDatabase;
+window.IDBFactory = window.FDBFactory;
+window.IDBIndex = window.FDBIndex;
+window.IDBKeyRange = window.FDBKeyRange;
+window.IDBObjectStore = window.FDBObjectStore;
+window.IDBOpenDBRequest = window.FDBOpenDBRequest;
+window.IDBRequest = window.FDBRequest;
+window.IDBTransaction = window.FDBTransaction;
+window.IDBVersionChangeEvent = window.FDBVersionChangeEvent;

@@ -50,6 +50,7 @@
     "bundle-collapser": "^1.1.1",
     "rimraf": "2.2.8",
     "pouchdb-server": "^0.6.1",
+    "fake-indexeddb": "^1.0.0",
     "express-pouchdb": "^0.13.0",
     "commander": "~2.1.0",
     "uglify-js": "~2.4.6",
