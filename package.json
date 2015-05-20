@@ -23,6 +23,7 @@
     "es3ify": "^0.1.3",
     "express": "^4.10.4",
     "inherits": "~2.0.1",
+    "inline-process-browser": "^1.0.0",
     "level-js": "^2.1.3",
     "level-sublevel": "~5.2.0",
     "levelup": "~0.18.4",
@@ -38,6 +39,7 @@
     "request": "~2.28.0",
     "spark-md5": "0.0.5",
     "through2": "^0.4.1",
+    "unreachable-branch-transform": "^0.2.3",
     "vuvuzela": "^1.0.0"
   },
   "optionalDependencies": {
@@ -116,5 +118,8 @@
     "bluebird": "lie",
     "fs": false,
     "leveldown": false
+  },
+  "browserify": {
+    "transform": ["inline-process-browser", "unreachable-branch-transform"]
   }
 }
