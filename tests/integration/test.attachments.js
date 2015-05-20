@@ -1621,6 +1621,17 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('putAttachment in new doc with base64', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+
+      return db.putAttachment('foo', 'att', 'Zm9v', 'text/plain').then(function () {
+        return db.get('foo', {attachments: true});
+      }).then(function (doc) {
+        doc._attachments['att'].content_type.should.match(/^text\/plain/);
+        doc._attachments['att'].data.should.equal('Zm9v');
+      });
+    });
+
     it('#2818 - save same attachment in different revs', function () {
       var db = new PouchDB(dbs.name, {auto_compaction: false});
 
