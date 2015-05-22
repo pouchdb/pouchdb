@@ -127,7 +127,7 @@ The TLDR of all this is that `forEach()`/`for`/`while` are not the constructs yo
 db.allDocs({include_docs: true}).then(function (result) {
   return Promise.all(result.rows.map(function (row) {
     return db.remove(row.doc);
-  });
+  }));
 }).then(function (arrayOfResults) {
   // All docs have really been removed() now!
 });
@@ -378,7 +378,7 @@ it('should throw an error', function () {
   return doSomethingThatThrows().then(function () {
     throw new Error('I expected an error!');
   }, function (err) {
-    err.should.exist();
+    should.exist(err);
   });
 });
 ```
@@ -619,6 +619,12 @@ doSomething
 
 If these answers still don't make sense, then I encourage you to re-read the post, or to define the `doSomething()` and `doSomethingElse()` methods and try it out yourself in your browser.
 
+{% include alert/start.html variant="info"%}
+{% markdown %}
+**Clarification:** for these examples, I'm assuming that both `doSomething()` and `doSomethingElse()` return promises, and that those promises represent something done outside of the JavaScript event loop (e.g. IndexedDB, network, `setTimeout`), which is why they're shown as being concurrent when appropriate. Here's a [JSBin](http://jsbin.com/tuqukakawo/1/edit?js,console,output) to demonstrate.
+{% endmarkdown %}
+{% include alert/end.html %}
+
 And for more advanced uses of promises, check out my [promise protips cheat sheet](https://gist.github.com/nolanlawson/6ce81186421d2fa109a4).
 
 Final word about promises
@@ -648,3 +654,9 @@ To take an example from JavaScript's history, I think it's fair to say that [JSL
 The beauty of ES7 `async`/`await` is that, for the most part, your mistakes will reveal themselves as syntax/compiler errors rather than subtle runtime bugs. Until then, though, it's good to have a grasp of what promises are capable of, and how to use them properly in ES5 and ES6.
 
 So while I recognize that, like *JavaScript: The Good Parts*, this blog post can only have a limited impact, it's hopefully something you can point people to when you see them making these same mistakes. Because there are still way too many of us who just need to admit: "I have a problem with promises!"
+
+{% include alert/start.html variant="info"%}
+{% markdown %}
+**Update:** it's been pointed out to me that Bluebird 3.0 will [print out warnings](http://imgur.com/a/t3xng) that can prevent many of the mistakes I've identified in this post. So using Bluebird is another great option while we wait for ES7!
+{% endmarkdown %}
+{% include alert/end.html %}
