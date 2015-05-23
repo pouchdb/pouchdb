@@ -298,6 +298,211 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('active/paused called correct num times, 0 retries', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      var rep = db.replicate.from(remote, {
+        live: true,
+        retry: true
+      });
+
+      var numDocsToWrite = 10;
+      var active = 0;
+      var paused = 0;
+
+      return remote.post({}).then(function() {
+        var posted = 0;
+
+        return new Promise(function (resolve, reject) {
+
+          var error;
+          function cleanup(err) {
+            if (err) {
+              error = err;
+            }
+            rep.cancel();
+          }
+          function finish() {
+            if (error) {
+              return reject(error);
+            }
+            resolve();
+          }
+
+          rep.on('complete', finish).on('error', cleanup);
+          rep.on('active', function () {
+            active++;
+          }).on('paused', function () {
+            paused++;
+          });
+          rep.on('change', function () {
+            if (++posted < numDocsToWrite) {
+              remote.post({}).catch(cleanup);
+            } else {
+              db.info().then(function (info) {
+                if (info.doc_count === numDocsToWrite) {
+                  cleanup();
+                }
+              }).catch(cleanup);
+            }
+          });
+        });
+      }).then(function () {
+        // becomes active at the beginning, then paused
+        // after there are no more changes left
+        active.should.equal(1, 'correct num active');
+        paused.should.equal(1, 'correct num paused');
+      });
+    });
+
+    it('active/paused called correct num times, 1 retry', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      var origGet = remote.get;
+      var i = 0;
+      remote.get = function (opts) {
+        // Reject only once
+        if (++i === 1) {
+          return Promise.reject(new Error('flunking you'));
+        }
+        return origGet.apply(remote, arguments);
+      };
+
+      var rep = db.replicate.from(remote, {
+        live: true,
+        retry: true,
+        back_off_function: function () { return 0; }
+      });
+
+      var numDocsToWrite = 10;
+      var active = 0;
+      var paused = 0;
+
+      return remote.post({}).then(function() {
+        var posted = 0;
+
+        return new Promise(function (resolve, reject) {
+
+          var error;
+          function cleanup(err) {
+            if (err) {
+              error = err;
+            }
+            rep.cancel();
+          }
+          function finish() {
+            if (error) {
+              return reject(error);
+            }
+            resolve();
+          }
+
+          rep.on('complete', finish).on('error', cleanup);
+          rep.on('active', function () {
+            active++;
+          }).on('paused', function () {
+            paused++;
+          });
+          rep.on('change', function () {
+            if (++posted < numDocsToWrite) {
+              remote.post({}).catch(cleanup);
+            } else {
+              db.info().then(function (info) {
+                if (info.doc_count === numDocsToWrite) {
+                  cleanup();
+                }
+              }).catch(cleanup);
+            }
+          });
+        });
+      }).then(function () {
+        // becomes active at the beginning, then paused due to the
+        // one error, then active again when it recovers from the error,
+        // then one final paused when it's pending
+        active.should.equal(2, 'correct num active');
+        paused.should.equal(2, 'correct num paused');
+      });
+    });
+
+    it('active/paused called correct num times, 2 retries', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var Promise = PouchDB.utils.Promise;
+
+      var origGet = remote.get;
+      var i = 0;
+      remote.get = function (opts) {
+        // Reject only twice
+        i++;
+        if (i === 1 || i === 7) {
+          return Promise.reject(new Error('flunking you'));
+        }
+        return origGet.apply(remote, arguments);
+      };
+
+      var rep = db.replicate.from(remote, {
+        live: true,
+        retry: true,
+        back_off_function: function () { return 0; }
+      });
+
+      var numDocsToWrite = 10;
+      var active = 0;
+      var paused = 0;
+
+      return remote.post({}).then(function() {
+        var posted = 0;
+
+        return new Promise(function (resolve, reject) {
+
+          var error;
+          function cleanup(err) {
+            if (err) {
+              error = err;
+            }
+            rep.cancel();
+          }
+          function finish() {
+            if (error) {
+              return reject(error);
+            }
+            resolve();
+          }
+
+          rep.on('complete', finish).on('error', cleanup);
+          rep.on('active', function () {
+            active++;
+          }).on('paused', function () {
+            paused++;
+          });
+          rep.on('change', function () {
+            if (++posted < numDocsToWrite) {
+              remote.post({}).catch(cleanup);
+            } else {
+              db.info().then(function (info) {
+                if (info.doc_count === numDocsToWrite) {
+                  cleanup();
+                }
+              }).catch(cleanup);
+            }
+          });
+        });
+      }).then(function () {
+        // becomes active at the beginning, paused twice due to the
+        // two errors, then active twice after recovering from the errors,
+        // then one final paused when it's pending
+        active.should.equal(3, 'correct num active');
+        paused.should.equal(3, 'correct num paused');
+      });
+    });
+
     [
       'complete', 'error', 'paused', 'active',
       'change', 'cancel'
