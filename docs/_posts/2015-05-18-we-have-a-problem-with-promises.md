@@ -184,6 +184,13 @@ new Promise(function (resolve, reject) {
 
 Done! We have defeated the dreaded def... Aha, caught myself. :)
 
+{% include alert/start.html variant="info"%}
+{% markdown %}
+For more about why this is an anti-pattern, check out [the Bluebird wiki page on promise anti-patterns](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns#the-deferred-anti-pattern).
+{% endmarkdown %}
+{% include alert/end.html %}
+
+
 Rookie mistake #5: using side effects instead of returning
 ----
 
@@ -202,9 +209,9 @@ Okay, this is a good point to talk about everything you ever need to know about 
 
 Seriously, this is the *one weird trick* that, once you understand it, will prevent all of the errors I've been talking about. You ready?
 
-I said before that the magic of promises is that they give us back our precious `return` and `throw`. But what does this actually look like in practice?
+As I said before, the magic of promises is that they give us back our precious `return` and `throw`. But what does this actually look like in practice?
 
-Every promises gives you a `then()` method (or `catch()`, which is just sugar for `then(null, ...)`). Here we are inside of a `then()` function:
+Every promise gives you a `then()` method (or `catch()`, which is just sugar for `then(null, ...)`). Here we are inside of a `then()` function:
 
 ```js
 somePromise().then(function () {
