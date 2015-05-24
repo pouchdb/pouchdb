@@ -20,7 +20,9 @@
   "globals": {
     "PouchDB": true,
     "should": true,
-    "Promise": true
+    "Promise": true,
+    "atob": true,
+    "btoa": true
   },
   "predef": [
     "describe",
