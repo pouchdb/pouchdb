@@ -1,4 +1,4 @@
-{% include anchor.html title="Query the database" hash="query_database" %} 
+{% include anchor.html title="Query the database" hash="query_database" %}
 
 {% highlight js %}
 db.query(fun, [options], [callback])
@@ -78,7 +78,7 @@ db.put(ddoc, function (err) {
   // ignore if doc already exists
   // find docs where title === 'Lisa Says'
   db.query('index', {
-    key: 'Lisa Says', 
+    key: 'Lisa Says',
     include_docs: true
   }, function (err, result) {
     if (err) { return console.log(err); }
@@ -112,7 +112,7 @@ db.put(ddoc).catch(function (err) {
 }).then(function () {
   // find docs where title === 'Lisa Says'
   return db.query('index', {
-    key: 'Lisa Says', 
+    key: 'Lisa Says',
     include_docs: true
   });
 }).then(function (result) {
@@ -252,10 +252,10 @@ db.query(map, {include_docs : true}).then(function (result) {
                 "firstName": "David",
                 "lastName": "Bowie"
             },
-            "id": "bowie",
+            "id": "album_hunkeydory",
             "key": "Hunky Dory",
             "value": {
-                "_id": "album_hunkydory",
+                "_id": "bowie",
                 "albumYear": 1971
             }
         },
