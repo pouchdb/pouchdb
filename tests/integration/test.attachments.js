@@ -815,6 +815,7 @@ adapters.forEach(function (adapter) {
           should.exist(doc._attachments['foo.txt'], 'doc has attachment');
           doc._attachments['foo.txt'].content_type.should.equal('text/plain');
           db.getAttachment('bin_doc', 'foo.txt', function (err, res) {
+            should.not.exist(err, 'fetched attachment');
             testUtils.readBlob(res, function (data) {
               data.should.equal('This is a base64 encoded text');
               db.put(binAttDoc2, function (err, rev) {
@@ -1516,6 +1517,106 @@ adapters.forEach(function (adapter) {
             att.content_type.should.equal('text/plain');
           });
         });
+    });
+
+    it('Test getAttachment with specific rev', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+
+      var doc = {
+        _id: 'a'
+      };
+      var rev1;
+      var rev2;
+      var rev3;
+      return db.put(doc).then(function (res) {
+        doc._rev = rev1 = res.rev;
+        doc._attachments = {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'Zm9v'
+          }
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev2 = res.rev;
+
+        delete doc._attachments;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev3 = res.rev;
+
+        return db.getAttachment('a', 'foo.txt', {rev: rev2});
+      }).then(function (blob) {
+        should.exist(blob);
+
+        return PouchDB.utils.Promise.all([
+          db.getAttachment('a', 'foo.txt', {rev: rev1}),
+          db.getAttachment('a', 'foo.txt', {rev: '3-fake'}),
+          db.getAttachment('a', 'foo.txt'),
+          db.getAttachment('a', 'foo.txt', {}),
+          db.getAttachment('a', 'foo.txt', {rev: rev3})
+        ].map(function (promise) {
+          return promise.then(function () {
+            throw new Error('expected an error');
+          }, function (err) {
+            should.exist(err);
+            err.status.should.equal(404);
+          });
+        }));
+      });
+    });
+
+    it('Test getAttachment with diff revs and content', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+
+      var doc = {
+        _id: 'a',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'Zm9v'
+          }
+        }
+      };
+      var rev1;
+      var rev2;
+      var rev3;
+      return db.put(doc).then(function (res) {
+        doc._rev = rev1 = res.rev;
+        doc._attachments = {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'YmFy'
+          }
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev2 = res.rev;
+        doc._attachments = {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'YmF6'
+          }
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev3 = res.rev;
+
+        var testCases = [
+          [db.getAttachment('a', 'foo.txt'), 'baz'],
+          [db.getAttachment('a', 'foo.txt', {rev: rev3}), 'baz'],
+          [db.getAttachment('a', 'foo.txt', {rev: rev2}), 'bar'],
+          [db.getAttachment('a', 'foo.txt', {rev: rev1}), 'foo']
+        ];
+
+        return PouchDB.utils.Promise.all(testCases.map(function (testCase) {
+          var promise = testCase[0];
+          var expected = testCase[1];
+          return promise.then(testUtils.readBlobPromise).then(function (bin) {
+            bin.should.equal(expected, 'didn\'t get blob we expected for rev');
+          });
+        }));
+      });
     });
 
     it('Test stubs', function (done) {

@@ -80,6 +80,12 @@ testUtils.readBlob = function (blob, callback) {
   }
 };
 
+testUtils.readBlobPromise = function (blob) {
+  return new PouchDB.utils.Promise(function (resolve) {
+    testUtils.readBlob(blob, resolve);
+  });
+};
+
 testUtils.base64Blob = function (blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString('base64'));
