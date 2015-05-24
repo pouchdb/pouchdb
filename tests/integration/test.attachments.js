@@ -1409,10 +1409,8 @@ adapters.forEach(function (adapter) {
           }
         }
       };
-      db.put(doc, function (err, res) {
+      db.put(doc, function (err) {
         should.exist(err);
-        err.status.should.equal(500, 'correct error');
-        err.name.should.equal('badarg', 'correct error');
         done();
       });
     });
