@@ -31,10 +31,12 @@ adapters.forEach(function (adapter) {
   describe('test.attachments.js-' + adapter, function () {
 
     var dbs = {};
+    var Promise;
 
     beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       testUtils.cleanup([dbs.name], done);
+      Promise = PouchDB.utils.Promise;
     });
 
     after(function (done) {
@@ -271,7 +273,7 @@ adapters.forEach(function (adapter) {
 
       function liveChangesPromise(opts) {
         opts.live = true;
-        return new PouchDB.utils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = {results: []};
           var changes = db.changes(opts)
             .on('change', function (change) {
@@ -406,7 +408,7 @@ adapters.forEach(function (adapter) {
 
       function liveChangesPromise(opts) {
         opts.live = true;
-        return new PouchDB.utils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = {results: []};
           var changes = db.changes(opts)
             .on('change', function (change) {
@@ -815,6 +817,7 @@ adapters.forEach(function (adapter) {
           should.exist(doc._attachments['foo.txt'], 'doc has attachment');
           doc._attachments['foo.txt'].content_type.should.equal('text/plain');
           db.getAttachment('bin_doc', 'foo.txt', function (err, res) {
+            should.not.exist(err, 'fetched attachment');
             testUtils.readBlob(res, function (data) {
               data.should.equal('This is a base64 encoded text');
               db.put(binAttDoc2, function (err, rev) {
@@ -968,7 +971,7 @@ adapters.forEach(function (adapter) {
       return db.putAttachment('doc', 'att', null, 'Zm9v', 'text/plain').then(function () {
         return db.getAttachment('doc', 'att');
       }).then(function (blob) {
-        return new PouchDB.utils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           testUtils.base64Blob(blob, function (data) {
             data.should.equal('Zm9v', 'should get the correct base64 back');
             resolve();
@@ -1518,6 +1521,106 @@ adapters.forEach(function (adapter) {
         });
     });
 
+    it('Test getAttachment with specific rev', function () {
+      var db = new PouchDB(dbs.name);
+
+      var doc = {
+        _id: 'a'
+      };
+      var rev1;
+      var rev2;
+      var rev3;
+      return db.put(doc).then(function (res) {
+        doc._rev = rev1 = res.rev;
+        doc._attachments = {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'Zm9v'
+          }
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev2 = res.rev;
+
+        delete doc._attachments;
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev3 = res.rev;
+
+        return db.getAttachment('a', 'foo.txt', {rev: rev2});
+      }).then(function (blob) {
+        should.exist(blob);
+
+        return Promise.all([
+          db.getAttachment('a', 'foo.txt', {rev: rev1}),
+          db.getAttachment('a', 'foo.txt', {rev: '3-fake'}),
+          db.getAttachment('a', 'foo.txt'),
+          db.getAttachment('a', 'foo.txt', {}),
+          db.getAttachment('a', 'foo.txt', {rev: rev3})
+        ].map(function (promise) {
+          return promise.then(function () {
+            throw new Error('expected an error');
+          }, function (err) {
+            should.exist(err);
+            err.status.should.equal(404);
+          });
+        }));
+      });
+    });
+
+    it('Test getAttachment with diff revs and content', function () {
+      var db = new PouchDB(dbs.name);
+
+      var doc = {
+        _id: 'a',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'Zm9v'
+          }
+        }
+      };
+      var rev1;
+      var rev2;
+      var rev3;
+      return db.put(doc).then(function (res) {
+        doc._rev = rev1 = res.rev;
+        doc._attachments = {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'YmFy'
+          }
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev2 = res.rev;
+        doc._attachments = {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'YmF6'
+          }
+        };
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = rev3 = res.rev;
+
+        var testCases = [
+          [db.getAttachment('a', 'foo.txt'), 'baz'],
+          [db.getAttachment('a', 'foo.txt', {rev: rev3}), 'baz'],
+          [db.getAttachment('a', 'foo.txt', {rev: rev2}), 'bar'],
+          [db.getAttachment('a', 'foo.txt', {rev: rev1}), 'foo']
+        ];
+
+        return Promise.all(testCases.map(function (testCase) {
+          var promise = testCase[0];
+          var expected = testCase[1];
+          return promise.then(testUtils.readBlobPromise).then(function (bin) {
+            bin.should.equal(expected, 'didn\'t get blob we expected for rev');
+          });
+        }));
+      });
+    });
+
     it('Test stubs', function (done) {
       var db = new PouchDB(dbs.name);
       db.putAttachment('a', 'foo2.txt', '', '', 'text/plain', function (err) {
@@ -1791,7 +1894,7 @@ adapters.forEach(function (adapter) {
       return db.putAttachment('foo', 'foo.bin', base64, 'image/png').then(function () {
         return db.getAttachment('foo', 'foo.bin');
       }).then(function (blob) {
-        return new PouchDB.utils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           testUtils.readBlob(blob, resolve);
         });
       }).then(function (bin) {
@@ -2034,7 +2137,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
-        return PouchDB.utils.Promise.all(res.rows.map(function (row) {
+        return Promise.all(res.rows.map(function (row) {
           return db.get(row.id, {attachments: true});
         }));
       }).then(function (docs) {
@@ -2074,7 +2177,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
-        return PouchDB.utils.Promise.all(res.rows.map(function (row) {
+        return Promise.all(res.rows.map(function (row) {
           return db.get(row.id, {attachments: true});
         }));
       }).then(function (docs) {
@@ -2092,7 +2195,7 @@ repl_adapters.forEach(function (adapters) {
           };
         }));
 
-        return PouchDB.utils.Promise.all(docs.map(function (doc) {
+        return Promise.all(docs.map(function (doc) {
           return db.get(doc._id);
         }));
       }).then(function (docs) {
