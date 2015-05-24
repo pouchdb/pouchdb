@@ -81,8 +81,6 @@ matrix:
 
   allow_failures:
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
-  - env: CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
 
   fast_finish: true
 
