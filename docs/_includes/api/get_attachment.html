@@ -6,11 +6,17 @@ db.getAttachment(docId, attachmentId, [options], [callback])
 
 Get attachment data.
 
+### Options
+
+* `options.rev`: as with [get()](#fetch_document), you can pass a `rev` in and get back an attachment for the document at that particular revision.
+
 #### Example Usage:
+
+Get an attachment with filename `'att.txt'` from document with ID `'doc'`:
 
 {% include code/start.html id="get_att1" type="callback" %}
 {% highlight js %}
-db.getAttachment('doc', 'att.txt', function(err, res) {
+db.getAttachment('doc', 'att.txt', function(err, blobOrBuffer) {
   if (err) { return console.log(err); }
   // handle result
 });
@@ -18,7 +24,7 @@ db.getAttachment('doc', 'att.txt', function(err, res) {
 {% include code/end.html %}
 {% include code/start.html id="get_att1" type="promise" %}
 {% highlight js %}
-db.getAttachment('doc', 'att.txt').then(function (result) {
+db.getAttachment('doc', 'att.txt').then(function (blobOrBuffer) {
   // handle result
 }).catch(function (err) {
   console.log(err);
@@ -26,9 +32,30 @@ db.getAttachment('doc', 'att.txt').then(function (result) {
 {% endhighlight %}
 {% include code/end.html %}
 
-#### Example Response:
+Get an attachment with filename `'att.txt'` from document with ID `'doc'`, at
+the revision `'1-abcd'`:
 
-The response will be a `Blob` object in the browser, and a `Buffer` object in Node.js.
+{% include code/start.html id="get_att2" type="callback" %}
+{% highlight js %}
+db.getAttachment('doc', 'att.txt', {rev: '1-abcd'}, function(err, blobOrBuffer) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="get_att2" type="promise" %}
+{% highlight js %}
+db.getAttachment('doc', 'att.txt', {rev: '1-abcd'}).then(function (blobOrBuffer) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Response type:
+
+The response will be a `Blob` object in the browser, and a `Buffer` object in Node.js. See [blob-util](https://github.com/nolanlawson/blob-util) for utilities to transform `Blob`s to other formats, such as base64-encoded strings, data URLs, array buffers, etc.
 
 #### Inline base64 attachments
 
