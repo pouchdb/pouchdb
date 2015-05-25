@@ -99,7 +99,6 @@ module.exports = function (dbType, context) {
           fields: ['_id']
         }).then(function (response) {
           response.docs.sort(sortById);
-          console.log(response.docs);
           response.docs.should.deep.equal([{"_id":"dk"},{"_id":"luigi"},
             {"_id":"master_hand"},{"_id":"puff"}]);
         });
