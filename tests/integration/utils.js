@@ -59,6 +59,21 @@ testUtils.makeBlob = function (data, type) {
   }
 };
 
+testUtils.binaryStringToBlob = function (bin, type) {
+  if (typeof module !== 'undefined' && module.exports) {
+    return new Buffer(bin, 'binary');
+  }
+  return PouchDB.utils.binaryStringToBlob(bin, type);
+};
+
+testUtils.btoa = function (arg) {
+  return PouchDB.utils.btoa(arg);
+};
+
+testUtils.atob = function (arg) {
+  return PouchDB.utils.atob(arg);
+};
+
 testUtils.readBlob = function (blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString('binary'));
@@ -78,6 +93,12 @@ testUtils.readBlob = function (blob, callback) {
     };
     reader.readAsArrayBuffer(blob);
   }
+};
+
+testUtils.readBlobPromise = function (blob) {
+  return new PouchDB.utils.Promise(function (resolve) {
+    testUtils.readBlob(blob, resolve);
+  });
 };
 
 testUtils.base64Blob = function (blob, callback) {
