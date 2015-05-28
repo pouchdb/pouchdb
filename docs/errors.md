@@ -16,7 +16,7 @@ or this one:
 
 > Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://[couchDBIP]:[couchDBPort]/[dbname]/?_nonce=[request hash]. This can be fixed by moving the resource to the same domain or enabling CORS
 
-it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same origin &#8212; the protocol (ex: _http://_, _https://_), domain, and port number must match. 
+it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same origin &#8212; the protocol (ex: _http://_, _https://_), domain, and port number must match.
 
 You can enable CORS in CouchDB using `curl` or the Futon web interface, but we've saved you some time by making a Node script called [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb). Just run:
 
@@ -38,9 +38,9 @@ You can check that CORS is now enabled by visiting [http://localhost:5984/_utils
 
 {% include anchor.html class="h3" title="PouchDB throws a `No valid adapter found` error" hash="no_valid_adapter" %}
 
-Reading from/writing to a local database from an `iframe` with a different origin will cause PouchDB to throw a `No valid adapter found` error in Firefox. This is due to Firefox's IndexedDB implementation. 
+Reading from/writing to a local database from an `iframe` with a different origin will cause PouchDB to throw a `No valid adapter found` error in Firefox. This is due to Firefox's IndexedDB implementation.
 
-IndexedDB has a same-origin restriction. Read/write operations from another origin will always fail, but only Firefox triggers a `No valid adapter found` error. Chrome / Opera will instead throw an [`UnknownError`](#unknown_error_chrome). 
+IndexedDB has a same-origin restriction. Read/write operations from another origin will always fail, but only Firefox triggers a `No valid adapter found` error. Chrome / Opera will instead throw an [`UnknownError`](#unknown_error_chrome).
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
 
@@ -109,7 +109,7 @@ Are you using a webserver to host and run your code? This error can be caused by
 
 {% include anchor.html class="h3" title="Error: UnknownError (Chrome / Opera)" hash="unknown_error_chrome" %}
 
-This can occur when attempting to read from or write to IndexedDB from a different origin. IndexedDB has a same-origin restriction. Attempting to write to the database associated with _http://example.com_ from an `iframe` served from _http://api.example.com_, for example, will fail. 
+This can occur when attempting to read from or write to IndexedDB from a different origin. IndexedDB has a same-origin restriction. Attempting to write to the database associated with _http://example.com_ from an `iframe` served from _http://api.example.com_, for example, will fail.
 
 In Firefox, PouchDB instead throws a [`No valid adapter found`](#no_valid_adapter) error.
 
@@ -181,16 +181,16 @@ If you skip any one of these three steps, then you will get the `DOM Exception 1
 Alternatively, you can also load the `WebView` with a fake `http://` URL, but this may cause other errors when you try to fetch files based on a relative path:
 
 ```java
-webView.loadDataWithBaseURL("http://www.example.com", 
-    htmlContent, 
-    "text/html", 
-    "utf-8", 
+webView.loadDataWithBaseURL("http://www.example.com",
+    htmlContent,
+    "text/html",
+    "utf-8",
     null);
 ```
 
 {% include anchor.html class="h3" title="PouchDB on Windows" hash="windows_leveldown" %}
 
-It is known that building/compiling Node modules with native code on Windows can be frustrating, as there are lots of required dependencies to be installed, which may take many Gigabytes, as opossed to Unix platforms, where compiling is a breeze. Installing PouchDB on Node for Windows gave many headaches, specifically with the leveldown dep. 
+It is known that building/compiling Node modules with native code on Windows can be frustrating, as there are lots of required dependencies to be installed, which may take many Gigabytes, as opossed to Unix platforms, where compiling is a breeze. Installing PouchDB on Node for Windows gave many headaches, specifically with the leveldown dep.
 
 Since v3.2.1 leveldown was changed to be an *optional dependency*: this way, npm will not refuse installing PouchDB even when having compiling errors. That way, you can use PouchDB normally, and will get an error only when trying to use leveldown as the backend. To avoid that, you can specify any compatible adapter, as pointed in the [Adapters](/adapters.html#pouchdb_in_node_js) section.
 
@@ -220,6 +220,36 @@ and instance your PouchDB like this:
 var db = new PouchDB('database', { db: require('leveldown-prebuilt') });
 
 ```
+
+{% include anchor.html class="h3" title="Replication with attachments is slow or fails" hash="replicating_attachments_slow" %}
+
+The symptoms for this issues are:
+
+1. Replicating a database that has many attachments from a CouchDB server is either slow or fails randomly.
+2. You get server error message of the nature `No buffer space available`.
+
+Chances are that your server runs inside a virtual machine. The host system, or hypervisor, imposes limits on how much data each virtual machine can use for networking. If you are on a cheap virtual server, it is possible, that the default settings for PouchDB pull-replication (10 parallel batches of 100 documents each) exhaust the narrow limit of your server. Even a single client can cause this.
+
+The solution is to move to a better server, but if that is not an immediate option, a workaround would be reducing the `options.batch_size` and `options.batches_limit` [replication options](http://pouchdb.com/api.html#replication).
+
+To find optimal values, start by setting them both to 1 (meaning that PouchDB should download one document after the other) and increase from there and stop when the symptoms begin again. Note that multiple concurrent clients can still cause an issue, if you get too many. If all your documents have one or more attachments (e.g. a photos database), setting both options to `1` is probably a good idea.
+
+{% include alert/start.html variant="info" %}
+
+Generally, reducing these options that replicating the database down will take more time. Please test various settings to see what works for you and your hardware.
+
+{% include alert/end.html %}
+
+{% include alert/start.html variant="info" %}
+
+This issue has been found on OpenVZ systems, but other Hypervisors might also be affected. See
+<a
+  href="http://blog.aplikacja.info/2010/01/105-no-buffer-space-available-on-openvz-vps/"
+  target="_blank"
+>http://blog.aplikacja.info/2010/01/105-no-buffer-space-available-on-openvz-vps/</a>
+on how to diagnose this issue.
+
+{% include alert/end.html %}
 
 [es5shim]: https://github.com/es-shims/es5-shim
 [sqlite]: https://github.com/brodysoft/Cordova-SQLitePlugin
