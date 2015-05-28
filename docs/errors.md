@@ -221,5 +221,23 @@ var db = new PouchDB('database', { db: require('leveldown-prebuilt') });
 
 ```
 
+{% include anchor.html class="h3" title="Replication with attachments is slow or fails" hash="replicating_attachments_slow" %}
+
+The symptoms for this issues are:
+
+1. Replicating a database that has many attachments from a CouchDB server is either slow or fails randomly.
+2. You get server error message of the nature `No buffer space available`.
+
+Chances are that your server runs inside a virtual machine. The host system, or hypervisor, imposes limits on how much data each virtual machine can use for networking. If you are on a cheap virtual server, it is possible, that the default settings for PouchDB pull-replication (10 parallel batches of 100 documents each) exhaust the narrow limit of your server. Even a single client can cause this.
+
+The solution is to move to a better server, but if that is not an immediate option, a workaround would be reducing the `options.batch_size` and `options.batches_limit` [replication options](http://pouchdb.com/api.html#replication).
+
+To find optimal values, start by setting them both to 1 (meaning that PouchDB should download one document after the other) and increase from there and stop when the symptoms begin again. Note that multiple concurrent clients can still cause an issue, if you get too many. If all your documents have one or more attachments (e.g. a photos database), setting both options to `1` is probably a good idea.
+
+Note: Generally, reducing these options that replicating the database down will take more time. Please test various settings to see what works for you and your hardware.
+
+Note: This issue has been found on OpenVZ systems, but other Hypervisors might also be affected. See http://blog.aplikacja.info/2010/01/105-no-buffer-space-available-on-openvz-vps/ on how to diagnose this issue.
+
+
 [es5shim]: https://github.com/es-shims/es5-shim
 [sqlite]: https://github.com/brodysoft/Cordova-SQLitePlugin
