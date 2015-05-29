@@ -468,6 +468,30 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3881 filter extraneous keys from _attachments', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put({
+        _id: 'foo',
+        _attachments: {
+          'foo.txt': {
+            data: '',
+            content_type: 'text/plain',
+            follows: false,
+            foo: 'bar',
+            baz: true,
+            quux: 1
+          }
+        }
+      }).then(function () {
+        return db.get('foo', {attachments: true});
+      }).then(function (doc) {
+        var keys = Object.keys(doc._attachments['foo.txt']).filter(function (x) {
+          return x !== 'revpos'; // not supported by PouchDB right now
+        }).sort();
+        keys.should.deep.equal(['content_type', 'data', 'digest']);
+      });
+    });
+
     it('#2771 allDocs() 1, single attachment', function () {
       var db = new PouchDB(dbs.name);
       return db.put(binAttDoc).then(function () {
