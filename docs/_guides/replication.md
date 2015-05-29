@@ -19,14 +19,19 @@ CouchDB sync
 CouchDB sync has a unique design. Rather than relying on a master/slave architecture, CouchDB
 supports a **multi-master** architecture. You can think of this as a system where any node can be written to or read from, and where you don't have to care which one is the "master" and which one is the "slave." In CouchDB's egalitarian world, every citizen is as worthy as another.
 
-{% include img.html src="offline_replication.gif" alt="Offline replication with CouchDB. Thanks to IBM for the image: http://www.ibm.com/developerworks/library/wa-couchdb/" %}
+<figure>
+  {% include img.html src="offline_replication.gif" alt="Offline replication with CouchDB." %}
+  <figcaption>
+    <p>(Thanks to IBM for the image: http://www.ibm.com/developerworks/library/wa-couchdb/)</p>
+  </figcaption>
+</figure>
 
 When you use PouchDB, CouchDB, and other members of the Couch family, you
-don't have to worry which database is the "single source of truth." They all are. According to the CAP theorem, CouchDB is an AP database, meaning that it's **P**artitioned, 
+don't have to worry which database is the "single source of truth." They all are. According to the CAP theorem, CouchDB is an AP database, meaning that it's **P**artitioned,
 every node is **A**vailable, and it's only eventually **C**onsistent.
 
-To illustrate, imagine a multi-node architecture with CouchDB servers spread across several continents. As long as you're willing to wait, the data will eventually flow 
-from Australia to Europe to North America to wherever. Users around the world running PouchDB in their browsers or [Couchbase Lite](https://github.com/couchbase/couchbase-lite-ios)/[Cloudant Sync](https://github.com/cloudant/CDTDatastore) in their smartphones experience the 
+To illustrate, imagine a multi-node architecture with CouchDB servers spread across several continents. As long as you're willing to wait, the data will eventually flow
+from Australia to Europe to North America to wherever. Users around the world running PouchDB in their browsers or [Couchbase Lite](https://github.com/couchbase/couchbase-lite-ios)/[Cloudant Sync](https://github.com/cloudant/CDTDatastore) in their smartphones experience the
 same privileges. The data won't show up instantaneously, but depending on the Internet connection speed, it's usually close enough to real-time.
 
 In cases of conflict, CouchDB will choose an arbitrary winner that every node can agree upon deterministically. However, conflicts are still stored in the **revision tree** (similar to a Git history tree), which means that app developers can either surface the conflicts to the user, or just ignore them.

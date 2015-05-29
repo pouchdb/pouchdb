@@ -7,7 +7,7 @@ db.put(doc, [docId], [docRev], [options], [callback])
 
 Create a new document or update an existing document. If the document already exists, you must specify its revision `_rev`, otherwise a conflict will occur.
 
-There are some restrictions on valid property names of the documents. These are explained [here](http://wiki.apache.org/couchdb/HTTP_Document_API#Special_Fields).
+There are some [restrictions on valid property names of the documents](http://wiki.apache.org/couchdb/HTTP_Document_API#Special_Fields).
 
 #### Example Usage:
 
@@ -72,7 +72,7 @@ db.get('mydoc').then(function(doc) {
 {% endhighlight %}
 {% include code/end.html %}
 
-Instead of including the `_id` and `_rev` in the document, you can 
+Instead of including the `_id` and `_rev` in the document, you can
 also pass them in as options:
 
 {% include code/start.html id="updateDoc2" type="callback" %}
