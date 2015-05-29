@@ -17,6 +17,7 @@ All options default to `false` unless otherwise specified.
 * `options.include_docs`: Include the associated document with each change.
   * `options.conflicts`: Include conflicts.
   * `options.attachments`: Include attachments.
+    - `options.binary`: Return attachment data as Blobs/Buffers, instead of as base64-encoded strings.
 * `options.descending`: Reverse the order of the output documents.
 * `options.since`: Start the results from the change immediately after the given sequence number. You can also pass `'now'` if you want only new changes (when `live` is `true`).
 * `options.limit`: Limit the number of results to this number.

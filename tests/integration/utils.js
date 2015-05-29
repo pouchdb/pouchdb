@@ -60,10 +60,7 @@ testUtils.makeBlob = function (data, type) {
 };
 
 testUtils.binaryStringToBlob = function (bin, type) {
-  if (typeof module !== 'undefined' && module.exports) {
-    return new Buffer(bin, 'binary');
-  }
-  return PouchDB.utils.binaryStringToBlob(bin, type);
+  return PouchDB.utils.binaryStringToBlobOrBuffer(bin, type);
 };
 
 testUtils.btoa = function (arg) {
