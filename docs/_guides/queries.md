@@ -119,13 +119,13 @@ Quick refresher on how indexes work: in relational databases like MySQL and Post
 ```sql
 SELECT * FROM pokemon WHERE name = 'Pikachu';
 ```
-    
+
 But if you don't want your performance to be terrible, you first add an index:
 
 ```sql
 ALTER TABLE pokemon ADD INDEX myIndex ON (name);
 ```
-    
+
 The job of the index is to ensure the field is stored in a B-tree within the database, so your queries run in _O(log(n))_ time instead of _O(n)_ time.
 
 #### Indexes in NoSQL databases
@@ -165,7 +165,7 @@ Then you can query it:
 ```js
 // find pokemon with name === 'Pika pi!'
 pouch.query(myMapFunction, {
-  key          : 'Pika pi!', 
+  key          : 'Pika pi!',
   include_docs : true
 }).then(function (result) {
   // handle result
@@ -175,9 +175,9 @@ pouch.query(myMapFunction, {
 
 // find the first 5 pokemon whose name starts with 'P'
 pouch.query(myMapFunction, {
-  startkey     : 'P', 
-  endkey       : 'P\uffff', 
-  limit        : 5, 
+  startkey     : 'P',
+  endkey       : 'P\uffff',
+  limit        : 5,
   include_docs : true
 }).then(function (result) {
   // handle result
@@ -223,7 +223,7 @@ The map/reduce API is complex. Part of this problem will be resolved when the mo
 
 {% include alert/start.html variant="warning" %}
 {% markdown %}
-[pouchdb-find](https://github.com/nolanlawson/pouchdb-find) is in beta, but you may find it is already sufficient for simple queries. Eventually it will replace map/reduce as PouchDB's "flagship" query engine.
+pouchdb-find is in beta, but you may find it is already sufficient for simple queries. Eventually it will replace map/reduce as PouchDB's "flagship" query engine.
 {% endmarkdown %}
 {% include alert/end.html %}
 

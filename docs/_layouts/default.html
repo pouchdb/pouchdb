@@ -26,7 +26,7 @@
 
   <body data-spy="scroll" data-target="#sidebar">
 
-    <header>
+    <header role="banner">
 
       <a href="https://github.com/pouchdb/pouchdb" target="_blank">
          <div class="ribbon">GitHub</div>
@@ -39,7 +39,7 @@
           <span class='logo-type'>PouchDB</span>
         </a>
 
-        <ul class='nav nav-header nav-pills'>
+        <ul class='nav nav-header nav-pills' role="navigation">
           <li>
             <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/blog/">Blog</a>
           </li>
@@ -80,8 +80,9 @@
       </div>
     {% endif %}
 
-
-    {{ content }}
+    <div role="main">
+      {{ content }}
+    </div>
 
     <div class="icons">
 
@@ -92,36 +93,42 @@
           <div class='col-xs-4 col-md-offset-0 col-md-2'>
             <a href='https://twitter.com/pouchdb' target='_blank'>
               <div class="icon icon-twitter"></div>
+              <span class="sr-only">PouchDB's Twitter</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://github.com/rvagg/node-levelup' target='_blank'>
               <div class="icon icon-leveldb"></div>
+              <span class="sr-only">Node Levelup</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://github.com/pouchdb/pouchdb' target='_blank'>
               <div class="icon icon-github"></div>
+              <span class="sr-only">PouchDB's Github Repo</span>
             </a>
             </div>
 
           <div class='col-xs-4 col-md-offset-0 col-md-2'>
             <a href='https://travis-ci.org/pouchdb/pouchdb' target='_blank'>
               <div class="icon icon-travis"></div>
+              <span class="sr-only">PouchDB's Travis CI</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='http://couchdb.apache.org/' target='_blank'>
               <div class="icon icon-couchdb"></div>
+              <span class="sr-only">CouchDB</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://saucelabs.com' target='_blank'>
               <div class="icon icon-saucelabs"></div>
+              <span class="sr-only">Saucelabs</span>
             </a>
           </div>
 
@@ -181,6 +188,7 @@
           giveIntro();
         }
       }
+
       function giveIntro() {
         console.log('%c\n..............................................................................\n.?I...........~+: ............................................................\n.???.........++++.............................................................\n:????+......+++++.............................................................\n.??????+++++++++:.................................H...........D..B............\n...????++++++++...................................H...........D..B............\n...=????++++++.......PPPPP...OOOO...U....U...CCCC.HHHHH...DDDDD..BBBBB........\n...?????+++++++......P...:P.OO...O..U....U..C.....H...H..D....D..B....B.......\n..???????+++++++ ....P. ..P.O....O..U....U.CC.....H...H..D....D..B....B.......\n..?????????????......P...:P.OO...O..U....U..C.....H...H..D....D..B....B.......\n...I??????????~......PPPPP...OOOO...=UUUUU...CCCC.H...H...DDDDD..BBBBB........\n....?????????~.......P.... ...................................................\n.....???????+........P........................................................\n......??????..................................................................\n..............................................................................\n..............................................................................\n..............................................................................', 'color: #4ec084');
         console.log('%c\nPouchDB itself is hosted at PouchDB.com!\nTo get started, try typing:\nvar db = new PouchDB(\'mydb\');', 'color: #4ec084');
