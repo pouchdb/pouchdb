@@ -171,6 +171,1005 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#2858 {binary: true} in get()', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc];
+      return db.bulkDocs(docs).then(function () {
+        return PouchDB.utils.Promise.all(docs.map(function(doc) {
+          var attName = Object.keys(doc._attachments)[0];
+          var expected = doc._attachments[attName];
+          return db.get(doc._id, {
+            attachments: true,
+            binary: true
+          }).then(function (savedDoc) {
+            var att = savedDoc._attachments[attName];
+            should.not.exist(att.stub);
+            should.exist(att.digest);
+            att.content_type.should.equal(expected.content_type);
+            att.data.should.not.be.a('string');
+            return testUtils.readBlobPromise(att.data);
+          }).then(function (b64) {
+            testUtils.btoa(b64).should.equal(expected.data);
+          });
+        }));
+      });
+    });
+
+    it('#2858 {binary: true} in allDocs() 1', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc, {_id: 'foo'}];
+      return db.bulkDocs(docs).then(function () {
+        return PouchDB.utils.Promise.all(docs.map(function(doc) {
+          var atts = doc._attachments;
+          var attName = atts && Object.keys(atts)[0];
+          var expected = atts && atts[attName];
+          return db.allDocs({
+            key: doc._id,
+            attachments: true,
+            binary: true,
+            include_docs: true
+          }).then(function (res) {
+            res.rows.should.have.length(1);
+            var savedDoc = res.rows[0].doc;
+            if (!atts) {
+              should.not.exist(savedDoc._attachments);
+              return;
+            }
+            var att = savedDoc._attachments[attName];
+            should.not.exist(att.stub);
+            should.exist(att.digest);
+            att.content_type.should.equal(expected.content_type);
+            att.data.should.not.be.a('string');
+            return testUtils.readBlobPromise(att.data).then(function (b64) {
+              testUtils.btoa(b64).should.equal(expected.data);
+            });
+          });
+        }));
+      });
+    });
+
+    it('#2858 {binary: true} in allDocs() 2', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc, {_id: 'foo'}];
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({
+          include_docs: true,
+          attachments: true,
+          binary: true
+        }).then(function (res) {
+          var savedDocs = res.rows.map(function (x) {
+            return x.doc;
+          });
+          return PouchDB.utils.Promise.all(docs.map(function (doc) {
+            var atts = doc._attachments;
+            var attName = atts && Object.keys(atts)[0];
+            var expected = atts && atts[attName];
+            var savedDoc = savedDocs.filter(function (x) {
+              return x._id === doc._id;
+            })[0];
+            if (!atts) {
+              should.not.exist(savedDoc._attachments);
+              return;
+            }
+            var att = savedDoc._attachments[attName];
+            should.not.exist(att.stub);
+            should.exist(att.digest);
+            att.content_type.should.equal(expected.content_type);
+            att.data.should.not.be.a('string');
+            return testUtils.readBlobPromise(att.data).then(function (b64) {
+              testUtils.btoa(b64).should.equal(expected.data);
+            });
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in allDocs() 3', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', _deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({
+          include_docs: true,
+          attachments: true,
+          binary: true
+        }).then(function (res) {
+          res.rows.should.have.length(4);
+          var savedDocs = res.rows.map(function (x) {
+            return x.doc;
+          });
+          return PouchDB.utils.Promise.all(docs.filter(function (doc) {
+            return !doc._deleted;
+          }).map(function (doc) {
+            var atts = doc._attachments;
+            var attName = atts && Object.keys(atts)[0];
+            var expected = atts && atts[attName];
+            var savedDoc = savedDocs.filter(function (x) {
+              return x._id === doc._id;
+            })[0];
+            if (!atts) {
+              should.not.exist(savedDoc._attachments);
+              return;
+            }
+            var att = savedDoc._attachments[attName];
+            should.not.exist(att.stub);
+            should.exist(att.digest);
+            att.content_type.should.equal(expected.content_type);
+            att.data.should.not.be.a('string');
+            return testUtils.readBlobPromise(att.data).then(function (b64) {
+              testUtils.btoa(b64).should.equal(expected.data);
+            });
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in allDocs() 4', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', _deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({
+          attachments: true,
+          binary: true
+        }).then(function (res) {
+          res.rows.should.have.length(4);
+          res.rows.forEach(function (row) {
+            should.not.exist(row.doc);
+          });
+          return db.allDocs({
+            binary: true
+          });
+        }).then(function (res) {
+          res.rows.should.have.length(4);
+          res.rows.forEach(function (row) {
+            should.not.exist(row.doc);
+          });
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in allDocs() 5', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({
+          keys: [
+            binAttDoc._id, binAttDoc2._id, pngAttDoc._id, 'foo', 'bar'
+          ],
+          attachments: true,
+          binary: true,
+          include_docs: true
+        }).then(function (res) {
+          res.rows.should.have.length(5);
+
+          return PouchDB.utils.Promise.all(res.rows.map(function (row, i) {
+            if (docs[i]._deleted) {
+              should.not.exist(row.doc);
+              return;
+            }
+            var atts = docs[i]._attachments;
+            var attName = atts && Object.keys(atts)[0];
+            var expected = atts && atts[attName];
+            var savedDoc = row.doc;
+            if (!atts) {
+              should.not.exist(savedDoc._attachments);
+              return;
+            }
+            var att = savedDoc._attachments[attName];
+            should.not.exist(att.stub);
+            should.exist(att.digest);
+            att.content_type.should.equal(expected.content_type);
+            att.data.should.not.be.a('string');
+            return testUtils.readBlobPromise(att.data).then(function (b64) {
+              testUtils.btoa(b64).should.equal(expected.data);
+            });
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in allDocs(), many atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: 'baz', _attachments: {
+          'text1.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text1')
+          },
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          }
+        }},
+        {_id: 'foo', _attachments: {
+          'text5.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text5')
+          }
+        }},
+        {_id: 'quux', _attachments: {
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          },
+          'text4.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text4')
+          }
+        }},
+        {_id: 'zob', _attachments: {
+          'text6.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+        {_id: 'zorb', _attachments: {
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          },
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }}
+      ];
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({
+          attachments: true,
+          binary: true,
+          include_docs: true
+        }).then(function (res) {
+          res.rows.should.have.length(5);
+
+          return PouchDB.utils.Promise.all(res.rows.map(function (row) {
+            var doc = docs.filter(function (x) {
+              return x._id === row.id;
+            })[0];
+            var atts = doc._attachments;
+            var attNames = Object.keys(atts);
+            return PouchDB.utils.Promise.all(attNames.map(function (attName) {
+              var expected = atts && atts[attName];
+              var savedDoc = row.doc;
+              var att = savedDoc._attachments[attName];
+              should.not.exist(att.stub);
+              should.exist(att.digest);
+              att.content_type.should.equal(expected.content_type);
+              att.data.should.not.be.a('string');
+              return testUtils.readBlobPromise(att.data).then(function (b64) {
+                testUtils.btoa(b64).should.equal(expected.data);
+              });
+            }));
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in allDocs(), mixed atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: 'baz', _attachments: {
+          'text1.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text1')
+          },
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          }
+        }},
+        {_id: 'foo', _attachments: {
+          'text5.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text5')
+          }
+        }},
+        {_id: 'imdeleted', _deleted: true},
+        {_id: 'quux', _attachments: {
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          },
+          'text4.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text4')
+          }
+        }},
+        {_id: 'imempty'},
+        {_id: 'zob', _attachments: {
+          'text6.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+
+        {_id: 'imempty2'},
+        {_id: 'zorb', _attachments: {
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          },
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+        {_id: 'imkindaempty', _attachments: {
+          'text0.txt': {
+            content_type: 'text/plain',
+            data: ''
+          }
+        }}
+      ];
+      return db.bulkDocs(docs).then(function () {
+        return db.allDocs({
+          attachments: true,
+          binary: true,
+          include_docs: true
+        }).then(function (res) {
+          res.rows.should.have.length(8);
+
+          return PouchDB.utils.Promise.all(res.rows.map(function (row) {
+            var doc = docs.filter(function (x) {
+              return x._id === row.id;
+            })[0];
+            if (doc._deleted) {
+              should.not.exist(row.doc);
+              return;
+            }
+            var atts = doc._attachments;
+            if (!atts) {
+              should.not.exist(row.doc._attachments);
+              return;
+            }
+            var attNames = Object.keys(atts);
+            return PouchDB.utils.Promise.all(attNames.map(function (attName) {
+              var expected = atts && atts[attName];
+              var savedDoc = row.doc;
+              var att = savedDoc._attachments[attName];
+              should.not.exist(att.stub);
+              should.exist(att.digest);
+              att.content_type.should.equal(expected.content_type);
+              att.data.should.not.be.a('string');
+              return testUtils.readBlobPromise(att.data).then(function (b64) {
+                testUtils.btoa(b64).should.equal(expected.data);
+              });
+            }));
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in changes() non-live', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({
+          attachments: true,
+          binary: true,
+          include_docs: true
+        }).then(function (res) {
+          res.results.should.have.length(5);
+
+          return PouchDB.utils.Promise.all(res.results.map(function (row) {
+            var doc = docs.filter(function (x) {
+              return x._id === row.id;
+            })[0];
+            if (doc._deleted) {
+              should.not.exist(row.doc);
+              return;
+            }
+            var atts = doc._attachments;
+            var attName = atts && Object.keys(atts)[0];
+            var expected = atts && atts[attName];
+            var savedDoc = row.doc;
+            if (!atts) {
+              should.not.exist(savedDoc._attachments);
+              return;
+            }
+            var att = savedDoc._attachments[attName];
+            should.not.exist(att.stub);
+            should.exist(att.digest);
+            att.content_type.should.equal(expected.content_type);
+            att.data.should.not.be.a('string');
+            return testUtils.readBlobPromise(att.data).then(function (b64) {
+              testUtils.btoa(b64).should.equal(expected.data);
+            });
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in changes() non-live, many atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: 'baz', _attachments: {
+          'text1.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text1')
+          },
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          }
+        }},
+        {_id: 'foo', _attachments: {
+          'text5.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text5')
+          }
+        }},
+        {_id: 'quux', _attachments: {
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          },
+          'text4.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text4')
+          }
+        }},
+        {_id: 'zob', _attachments: {
+          'text6.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+        {_id: 'zorb', _attachments: {
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          },
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }}
+      ];
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({
+          attachments: true,
+          binary: true,
+          include_docs: true
+        }).then(function (res) {
+          res.results.should.have.length(5);
+
+          return PouchDB.utils.Promise.all(res.results.map(function (row) {
+            var doc = docs.filter(function (x) {
+              return x._id === row.id;
+            })[0];
+            var atts = doc._attachments;
+            var attNames = Object.keys(atts);
+            return PouchDB.utils.Promise.all(attNames.map(function (attName) {
+              var expected = atts && atts[attName];
+              var savedDoc = row.doc;
+              var att = savedDoc._attachments[attName];
+              should.not.exist(att.stub);
+              should.exist(att.digest);
+              att.content_type.should.equal(expected.content_type);
+              att.data.should.not.be.a('string');
+              return testUtils.readBlobPromise(att.data).then(function (b64) {
+                testUtils.btoa(b64).should.equal(expected.data);
+              });
+            }));
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in changes() non-live, mixed atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: 'baz', _attachments: {
+          'text1.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text1')
+          },
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          }
+        }},
+        {_id: 'foo', _attachments: {
+          'text5.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text5')
+          }
+        }},
+        {_id: 'imdeleted', _deleted: true},
+        {_id: 'quux', _attachments: {
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          },
+          'text4.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text4')
+          }
+        }},
+        {_id: 'imempty'},
+        {_id: 'zob', _attachments: {
+          'text6.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+
+        {_id: 'imempty2'},
+        {_id: 'zorb', _attachments: {
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          },
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+        {_id: 'imkindaempty', _attachments: {
+          'text0.txt': {
+            content_type: 'text/plain',
+            data: ''
+          }
+        }}
+      ];
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({
+          attachments: true,
+          binary: true,
+          include_docs: true
+        }).then(function (res) {
+          res.results.should.have.length(9);
+
+          return PouchDB.utils.Promise.all(res.results.map(function (row) {
+            var doc = docs.filter(function (x) {
+              return x._id === row.id;
+            })[0];
+            var atts = doc._attachments;
+            if (!atts) {
+              should.not.exist(row.doc._attachments);
+              return;
+            }
+            var attNames = Object.keys(atts);
+            return PouchDB.utils.Promise.all(attNames.map(function (attName) {
+              var expected = atts && atts[attName];
+              var savedDoc = row.doc;
+              var att = savedDoc._attachments[attName];
+              should.not.exist(att.stub);
+              should.exist(att.digest);
+              att.content_type.should.equal(expected.content_type);
+              att.data.should.not.be.a('string');
+              return testUtils.readBlobPromise(att.data).then(function (b64) {
+                testUtils.btoa(b64).should.equal(expected.data);
+              });
+            }));
+          }));
+        });
+      });
+    });
+
+    it('#2858 {binary: true} non-live changes, complete event', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: 'baz', _attachments: {
+          'text1.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text1')
+          },
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          }
+        }},
+        {_id: 'foo', _attachments: {
+          'text5.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text5')
+          }
+        }},
+        {_id: 'imdeleted', _deleted: true},
+        {_id: 'quux', _attachments: {
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          },
+          'text4.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text4')
+          }
+        }},
+        {_id: 'imempty'},
+        {_id: 'zob', _attachments: {
+          'text6.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+
+        {_id: 'imempty2'},
+        {_id: 'zorb', _attachments: {
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          },
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+        {_id: 'imkindaempty', _attachments: {
+          'text0.txt': {
+            content_type: 'text/plain',
+            data: ''
+          }
+        }}
+      ];
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          db.changes({
+            attachments: true,
+            binary: true,
+            include_docs: true
+          }).on('error', reject).on('complete', resolve);
+        }).then(function (results) {
+            return PouchDB.utils.Promise.all(results.results.map(function (row) {
+              var doc = docs.filter(function (x) {
+                return x._id === row.id;
+              })[0];
+              if (row.deleted) {
+                should.not.exist(row.doc._attachments);
+                return;
+              }
+              var atts = doc._attachments;
+              var savedDoc = row.doc;
+              if (!atts) {
+                should.not.exist(savedDoc._attachments);
+                return;
+              }
+              var attNames = Object.keys(atts);
+              return PouchDB.utils.Promise.all(attNames.map(function (attName) {
+                var expected = atts && atts[attName];
+                var att = savedDoc._attachments[attName];
+                should.not.exist(att.stub);
+                should.exist(att.digest);
+                att.content_type.should.equal(expected.content_type);
+                att.data.should.not.be.a('string');
+                return testUtils.readBlobPromise(att.data).then(function (b64) {
+                  testUtils.btoa(b64).should.equal(expected.data);
+                });
+              }));
+            }));
+          });
+      });
+    });
+
+    it('#2858 {binary: true} in live changes', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var ret = db.changes({
+            attachments: true,
+            binary: true,
+            include_docs: true,
+            live: true
+          }).on('error', reject)
+            .on('change', handleChange)
+            .on('complete', resolve);
+
+          var promise = PouchDB.utils.Promise.resolve();
+          var done = 0;
+
+          function doneWithDoc() {
+            if (++done === 5 && changes === 5) {
+              ret.cancel();
+            }
+          }
+
+          var changes = 0;
+          function handleChange(change) {
+            changes++;
+            promise = promise.then(function () {
+              var doc = docs.filter(function (x) {
+                return x._id === change.id;
+              })[0];
+              if (change.deleted) {
+                should.not.exist(change.doc);
+                return doneWithDoc();
+              }
+              var atts = doc._attachments;
+              var attName = atts && Object.keys(atts)[0];
+              var expected = atts && atts[attName];
+              var savedDoc = change.doc;
+              if (!atts) {
+                should.not.exist(savedDoc._attachments);
+                return doneWithDoc();
+              }
+              var att = savedDoc._attachments[attName];
+              should.not.exist(att.stub);
+              should.exist(att.digest);
+              att.content_type.should.equal(expected.content_type);
+              att.data.should.not.be.a('string');
+              return testUtils.readBlobPromise(att.data).then(function (b64) {
+                testUtils.btoa(b64).should.equal(expected.data);
+                doneWithDoc();
+              });
+            }).catch(reject);
+          }
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in live changes, mixed atts', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: 'baz', _attachments: {
+          'text1.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text1')
+          },
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          }
+        }},
+        {_id: 'foo', _attachments: {
+          'text5.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text5')
+          }
+        }},
+        {_id: 'imdeleted', _deleted: true},
+        {_id: 'quux', _attachments: {
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          },
+          'text4.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text4')
+          }
+        }},
+        {_id: 'imempty'},
+        {_id: 'zob', _attachments: {
+          'text6.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+
+        {_id: 'imempty2'},
+        {_id: 'zorb', _attachments: {
+          'text2.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text2')
+          },
+          'text3.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('text3')
+          }
+        }},
+        {_id: 'imkindaempty', _attachments: {
+          'text0.txt': {
+            content_type: 'text/plain',
+            data: ''
+          }
+        }}
+      ];
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var ret = db.changes({
+            attachments: true,
+            binary: true,
+            include_docs: true,
+            live: true
+          }).on('error', reject)
+            .on('change', handleChange)
+            .on('complete', resolve);
+
+          var promise = PouchDB.utils.Promise.resolve();
+          var done = 0;
+
+          function doneWithDoc() {
+            if (++done === 9 && changes === 9) {
+              ret.cancel();
+            }
+          }
+
+          var changes = 0;
+          function handleChange(change) {
+            changes++;
+            promise = promise.then(function () {
+              var doc = docs.filter(function (x) {
+                return x._id === change.id;
+              })[0];
+              if (change.deleted) {
+                should.not.exist(change.doc._attachments);
+                return doneWithDoc();
+              }
+              var atts = doc._attachments;
+              var savedDoc = change.doc;
+              if (!atts) {
+                should.not.exist(savedDoc._attachments);
+                return doneWithDoc();
+              }
+              var attNames = Object.keys(atts);
+              return PouchDB.utils.Promise.all(attNames.map(function (attName) {
+                var expected = atts && atts[attName];
+                var att = savedDoc._attachments[attName];
+                should.not.exist(att.stub);
+                should.exist(att.digest);
+                att.content_type.should.equal(expected.content_type);
+                att.data.should.not.be.a('string');
+                return testUtils.readBlobPromise(att.data).then(function (b64) {
+                  testUtils.btoa(b64).should.equal(expected.data);
+                });
+              })).then(doneWithDoc);
+            }).catch(reject);
+          }
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in live+retry changes', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var ret = db.changes({
+            attachments: true,
+            binary: true,
+            include_docs: true,
+            live: true
+          }).on('error', reject)
+            .on('change', handleChange)
+            .on('complete', resolve);
+
+          var promise = PouchDB.utils.Promise.resolve();
+          var done = 0;
+
+          function doneWithDoc() {
+            if (++done === 5 && changes === 5) {
+              ret.cancel();
+            }
+          }
+
+          var changes = 0;
+          function handleChange(change) {
+            changes++;
+            promise = promise.then(function () {
+              var doc = docs.filter(function (x) {
+                return x._id === change.id;
+              })[0];
+              if (change.deleted) {
+                should.not.exist(change.doc);
+                return doneWithDoc();
+              }
+              var atts = doc._attachments;
+              var attName = atts && Object.keys(atts)[0];
+              var expected = atts && atts[attName];
+              var savedDoc = change.doc;
+              if (!atts) {
+                should.not.exist(savedDoc._attachments);
+                return doneWithDoc();
+              }
+              var att = savedDoc._attachments[attName];
+              should.not.exist(att.stub);
+              should.exist(att.digest);
+              att.content_type.should.equal(expected.content_type);
+              att.data.should.not.be.a('string');
+              return testUtils.readBlobPromise(att.data).then(function (b64) {
+                testUtils.btoa(b64).should.equal(expected.data);
+                doneWithDoc();
+              });
+            }).catch(reject);
+          }
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in live changes, attachments:false', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var ret = db.changes({
+            include_docs: true,
+            binary: true,
+            live: true
+          }).on('error', reject)
+            .on('change', handleChange)
+            .on('complete', resolve);
+
+          var promise = PouchDB.utils.Promise.resolve();
+          var done = 0;
+
+          function doneWithDoc() {
+            if (++done === 5 && changes === 5) {
+              ret.cancel();
+            }
+          }
+
+          var changes = 0;
+          function handleChange(change) {
+            changes++;
+            promise = promise.then(function () {
+              var doc = docs.filter(function (x) {
+                return x._id === change.id;
+              })[0];
+              if (change.deleted) {
+                should.not.exist(change.doc);
+                return doneWithDoc();
+              }
+              var atts = doc._attachments;
+              var attName = atts && Object.keys(atts)[0];
+              var expected = atts && atts[attName];
+              var savedDoc = change.doc;
+              if (!atts) {
+                should.not.exist(savedDoc._attachments);
+                return doneWithDoc();
+              }
+              var att = savedDoc._attachments[attName];
+              att.stub.should.equal(true);
+              should.exist(att.digest);
+              att.content_type.should.equal(expected.content_type);
+              should.not.exist(att.data);
+              doneWithDoc();
+            }).catch(reject);
+          }
+        });
+      });
+    });
+
+    it('#2858 {binary: true} in live changes, include_docs:false', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc, binAttDoc2, pngAttDoc,
+        {_id: 'bar'},
+        {_id: 'foo', deleted: true}];
+      return db.bulkDocs(docs).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var ret = db.changes({
+            attachments: true,
+            binary: true,
+            live: true
+          }).on('error', reject)
+            .on('change', handleChange)
+            .on('complete', resolve);
+
+          var promise = PouchDB.utils.Promise.resolve();
+          var done = 0;
+
+          function doneWithDoc() {
+            if (++done === 5 && changes === 5) {
+              ret.cancel();
+            }
+          }
+
+          var changes = 0;
+          function handleChange(change) {
+            changes++;
+            promise = promise.then(function () {
+              should.not.exist(change.doc);
+              return doneWithDoc();
+            }).catch(reject);
+          }
+        });
+      });
+    });
+
     it('Measures length correctly after put()', function () {
       var db = new PouchDB(dbs.name);
       return db.put(binAttDoc).then(function () {

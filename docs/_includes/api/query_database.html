@@ -32,6 +32,7 @@ All options default to `false` unless otherwise specified.
 * `options.include_docs`: Include the document in each row in the `doc` field.
     - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
+    - `options.binary`: Return attachment data as Blobs/Buffers, instead of as base64-encoded strings.
 * `options.startkey` &amp; `options.endkey`: Get rows with keys in a certain range (inclusive/inclusive).
 * `options.inclusive_end`: Include rows having a key equal to the given `options.endkey`. Default: `true`.
 * `options.limit`: Maximum number of rows to return.

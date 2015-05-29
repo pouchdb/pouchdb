@@ -17,6 +17,7 @@ All options default to `false` unless otherwise specified.
 * `options.open_revs`: Fetch all leaf revisions if `open_revs="all"` or fetch all leaf revisions specified in `open_revs` array. Leaves will be returned in the same order as specified in input array.
 * `options.conflicts`: If specified, conflicting leaf revisions will be attached in `_conflicts` array.
 * `options.attachments`: Include attachment data.
+  * `options.binary`: Return attachment data as Blobs/Buffers, instead of as base64-encoded strings.
 * `options.local_seq` (*DEPRECATED*): Include sequence number of the revision in the database, this will be removed in the next major version.
 * `options.ajax`: An object of options to be sent to the ajax requester. In Node they are sent verbatim to [request][] with the exception of:
 * `options.ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
