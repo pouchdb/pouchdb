@@ -183,7 +183,7 @@ adapters.forEach(function (adapters) {
       return;
     });
 
-    it('Test syncing two endpoints (issue 838)', function (done) {
+    it('Test syncing two endpoints (issue 838)', function () {
       var doc1 = {
           _id: 'adoc',
           foo: 'bar'
@@ -194,22 +194,60 @@ adapters.forEach(function (adapters) {
         };
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      // Replication isn't finished until onComplete has been called twice
-      function onComplete() {
-        db.allDocs(function (err, res1) {
-          should.not.exist(err);
-          remote.allDocs(function (err, res2) {
-            should.not.exist(err);
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          db.replicate.sync(remote).on('complete', resolve).on('error', reject);
+        });
+      }).then(function () {
+        // Replication isn't finished until onComplete has been called twice
+        return db.allDocs().then(function (res1) {
+          return remote.allDocs().then(function(res2) {
             res1.total_rows.should.equal(res2.total_rows);
-            done();
+          });
+        });
+      });
+    });
+
+    it('3894 re-sync after immediate cancel', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.setMaxListeners(100);
+      remote.setMaxListeners(100);
+
+      var promise = PouchDB.utils.Promise.resolve();
+
+      function syncThenCancel() {
+        promise = promise.then(function () {
+          return new PouchDB.utils.Promise(function (resolve, reject) {
+            db = new PouchDB(dbs.name);
+            remote = new PouchDB(dbs.remote);
+            var sync = db.sync(remote, {
+              complete: function (err) {
+                if (err) {
+                  return reject(err);
+                }
+                resolve();
+              }
+            });
+            sync.cancel();
+          }).then(function () {
+            return PouchDB.utils.Promise.all([
+              db.destroy(),
+              remote.destroy()
+            ]);
           });
         });
       }
-      db.put(doc1, function (err) {
-        remote.put(doc2, function (err) {
-          db.replicate.sync(remote).on('complete', onComplete);
-        });
-      });
+
+      for (var i = 0; i < 5; i++) {
+        syncThenCancel();
+      }
+
+      return promise;
     });
 
     it('Syncing should stop if one replication fails (issue 838)',
