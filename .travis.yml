@@ -81,6 +81,7 @@ matrix:
 
   allow_failures:
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
+  - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
 
   fast_finish: true
 
