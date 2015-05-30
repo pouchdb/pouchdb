@@ -8,8 +8,6 @@ var through = require('through2');
 var _derequire = require('derequire');
 var watchify = require('watchify');
 var browserify = require('browserify');
-var cors_proxy = require('corsproxy');
-var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
 var mkdirp = require('mkdirp');
 
@@ -33,6 +31,9 @@ if (process.env.ADAPTERS) {
 }
 if (process.env.AUTO_COMPACTION) {
   queryParams.autoCompaction = true;
+}
+if (process.env.COUCH_HOST) {
+  queryParams.couchHost = process.env.COUCH_HOST;
 }
 
 var indexfile = "./lib/index.js";
@@ -91,10 +92,7 @@ Promise.all([
   checkReady();
 });
 
-var COUCH_HOST = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
-
 var HTTP_PORT = 8000;
-var CORS_PORT = 2020;
 
 // if SERVER=sync-gateway we also have 
 // tests/misc/sync-gateway-config-server.js 
@@ -106,21 +104,18 @@ var readyCallback;
 function startServers(callback) {
   readyCallback = callback;
   http_server.createServer().listen(HTTP_PORT, function () {
-    cors_proxy.options = {target: COUCH_HOST};
-    http_proxy.createServer(cors_proxy).listen(CORS_PORT, function () {
-      var testRoot = 'http://127.0.0.1:' + HTTP_PORT;
-      var query = '';
-      Object.keys(queryParams).forEach(function (key) {
-        query += (query ? '&' : '?');
-        query += key + '=' + encodeURIComponent(queryParams[key]);
-      });
-      console.log('Integration tests: ' + testRoot +
-        '/tests/integration/' + query);
-      console.log('Performance tests: ' + testRoot +
-        '/tests/performance/');
-      serversStarted = true;
-      checkReady();
+    var testRoot = 'http://127.0.0.1:' + HTTP_PORT;
+    var query = '';
+    Object.keys(queryParams).forEach(function (key) {
+      query += (query ? '&' : '?');
+      query += key + '=' + encodeURIComponent(queryParams[key]);
     });
+    console.log('Integration tests: ' + testRoot +
+      '/tests/integration/' + query);
+    console.log('Performance tests: ' + testRoot +
+      '/tests/performance/');
+    serversStarted = true;
+    checkReady();
   });
 }
 

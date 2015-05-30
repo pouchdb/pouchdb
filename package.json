@@ -44,6 +44,7 @@
     "leveldown": "~0.10.2"
   },
   "devDependencies": {
+    "add-cors-to-couchdb": "^0.0.4",
     "throw-max-listeners-error": "^1.0.0",
     "child-process-promise": "^1.1.0",
     "pouchdb-express-router": "^0.0.5",
@@ -55,7 +56,6 @@
     "uglify-js": "~2.4.6",
     "jshint": "^2.7.0",
     "pouchdb-http-proxy": "~0.10.3",
-    "corsproxy": "~0.2.13",
     "http-server": "~0.5.5",
     "wd": "~0.2.8",
     "tin": "~0.4.0",
