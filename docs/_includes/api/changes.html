@@ -28,7 +28,7 @@ All options default to `false` unless otherwise specified.
 * `options.filter`: Reference a filter function from a design document to selectively get updates. To use a view function, pass `_view` here and provide a reference to the view function in `options.view`. See [filtered changes](#filtered-changes) for details.
 * `options.doc_ids`: Only show changes for docs with these ids (array of strings).
 * `options.query_params`: Object containing properties that are passed to the filter function, e.g. `{"foo:"bar"}`, where `"bar"` will be available in the filter function as `params.query.foo`. To access the `params`, define your filter function like `function (doc, params) {/* ... */}`.
-* `options.view`: Specify a view function (e.g. `'design_doc_name/view_name'`) to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them. **Note**: `options.filter` must be set to `'_view'` for this option to work.
+* `options.view`: Specify a view function (e.g. `'design_doc_name/view_name'` or `'view_name'` as shorthand for `'view_name/view_name'`) to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them. **Note**: `options.filter` must be set to `'_view'` for this option to work.
 
 **Advanced Options:**
 
@@ -218,6 +218,8 @@ If you are running `changes()` on a remote CouchDB, then the first method will r
 
 If you are running `changes()` on a local PouchDB, then obviously all five methods will run client-side. There are also no performance benefits to using any of the five, so can also just filter yourself, in your own `on('change')` handler. These methods are implemented in PouchDB purely for consistency with CouchDB.
 
+The named functions can either be specified with `'designdoc_id/function_name'` or (if both design doc id and function name are equal) as `'fname'` as shorthand for `'fname/fname'`.
+
 #### Filtering examples
 
 In these examples, we'll work with some mammals. Let's imagine our docs are:
@@ -287,7 +289,7 @@ First `put()` a design document:
 
 {% highlight js %}
 {
-  _id: '_design/mydesign',
+  _id: '_design/myfilter',
   filters: {
     myfilter: function (doc, req) {
       return doc.type === req.query.type;
@@ -300,10 +302,12 @@ Then filter by `type === 'marsupial'`:
 
 {% highlight js %}
 db.changes({
-  filter: 'mydesign/myfilter',
+  filter: 'myfilter',
   query_params: {type: 'marsupial'}
 });
 {% endhighlight %}
+
+Since both the design document and the filter function have the same name, we can shorten the function name to `'myfilter'`.
 
 **Example 5: `view` function inside of a design document**
 
