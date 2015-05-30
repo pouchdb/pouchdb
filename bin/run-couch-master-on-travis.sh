@@ -37,3 +37,6 @@ python dev/run -n 1 --with-admin-party-please &
 sleep 10
 
 cd $CWD
+
+# Add CORS to this CouchDB
+./node_modules/.bin/add-cors-to-couchdb http://127.0.0.1:15986

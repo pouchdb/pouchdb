@@ -32,7 +32,7 @@ testUtils.params = function () {
       return acc;
     }
     var tmp = val.split('=');
-    acc[tmp[0]] = tmp[1] || true;
+    acc[tmp[0]] = tmp[1] ? decodeURIComponent(tmp[1]) : true;
     return acc;
   }, {});
 };
@@ -42,13 +42,14 @@ testUtils.couchHost = function () {
     return process.env.COUCH_HOST || 'http://localhost:5984';
   } else if (window && window.COUCH_HOST) {
     return window.COUCH_HOST;
+  } else if ('couchHost' in testUtils.params()) {
+    return testUtils.params()['couchHost'];
   } else if (window && window.cordova) {
     // magic route to localhost on android emulator,
     // cors not needed because cordova
     return 'http://10.0.2.2:5984';
   }
-  // In the browser we default to the CORS server, in future will change
-  return 'http://localhost:2020';
+  return 'http://127.0.0.1:5984';
 };
 
 testUtils.makeBlob = function (data, type) {
