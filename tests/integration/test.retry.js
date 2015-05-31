@@ -65,7 +65,7 @@ adapters.forEach(function (adapters) {
         // Second paused event is due to failed writes, should
         // have an error
         if (paused === 2) {
-          e.should.exist();
+          should.exist(e);
         }
       });
 
