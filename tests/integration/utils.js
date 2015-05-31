@@ -227,9 +227,50 @@ testUtils.eliminateDuplicates = function (arr) {
   return out;
 };
 
+// Promise finally util similar to Q.finally
+testUtils.fin = function (promise, cb) {
+  return promise.then(function (res) {
+    var promise2 = cb();
+    if (typeof promise2.then === 'function') {
+      return promise2.then(function () {
+        return res;
+      });
+    }
+    return res;
+  }, function (reason) {
+    var promise2 = cb();
+    if (typeof promise2.then === 'function') {
+      return promise2.then(function () {
+        throw reason;
+      });
+    }
+    throw reason;
+  });
+};
+
+testUtils.promisify = function (fun, context) {
+  return function() {
+    var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+      args[i] = arguments[i];
+    }
+    return new PouchDB.utils.Promise(function (resolve, reject) {
+      args.push(function (err, res) {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(res);
+      });
+      fun.apply(context, args);
+    });
+  };
+};
+
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
   global.PouchDB = require('../../lib');
+  global.binaryStringToBlobOrBuffer =
+    require('../../lib/deps/binary/binaryStringToBlobOrBuffer');
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 

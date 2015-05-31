@@ -46,10 +46,10 @@ adapters.forEach(function (adapters) {
               res.rows.should.have.length(1, 'Dont include deleted documents');
               res.total_rows.should.equal(1, 'Include total_rows property.');
               res.rows.forEach(function (x, i) {
-                x.id.should.exist;
-                x.key.should.exist;
-                x.value._rev.should.exist;
-                x.doc._rev.should.exist;
+                should.exist(x.id);
+                should.exist(x.key);
+                should.exist(x.value._rev);
+                should.exist(x.doc._rev);
               });
               done();
             });
@@ -80,10 +80,10 @@ adapters.forEach(function (adapters) {
             }, function (_, res) {
               res.rows.should.have.length(1, 'Dont include deleted documents');
               res.rows.forEach(function (x, i) {
-                x.id.should.exist;
-                x.key.should.exist;
-                x.value._rev.should.exist;
-                x.doc._rev.should.exist;
+                should.exist(x.id);
+                should.exist(x.key);
+                should.exist(x.value._rev);
+                should.exist(x.doc._rev);
               });
               done();
             });
@@ -294,7 +294,7 @@ adapters.forEach(function (adapters) {
           include_docs: true,
           reduce: false
         }, function (_, res) {
-          res.rows[0].doc.should.exist;
+          should.exist(res.rows[0].doc);
           res.rows[0].doc._id.should.equal('mydoc', 'mydoc included');
           done();
         });
@@ -429,9 +429,9 @@ adapters.forEach(function (adapters) {
         remote.post(doc2, function (err, res) {
           db.replicate.from(remote, function (err, res) {
             db.get(doc1._id, { conflicts: true }, function (err, res) {
-              res._conflicts.should.exist;
+              should.exist(res._conflicts);
               db.query(queryFun, function (err, res) {
-                res.rows[0].value.should.exist;
+                should.exist(res.rows[0].value);
                 done();
               });
             });
@@ -470,7 +470,7 @@ adapters.forEach(function (adapters) {
             db.get(docs1[0]._id, { conflicts: true }, function (err, res) {
               var winner = res._rev;
               var looser = winner === revId1 ? revId2 : revId1;
-              res._conflicts.should.exist;
+              should.exist(res._conflicts);
               db.query(queryFun, function (err, res) {
                 res.rows.should.have.length(1, 'One doc with conflicts');
                 res.rows[0].key.should
