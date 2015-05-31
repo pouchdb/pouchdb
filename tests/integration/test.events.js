@@ -58,6 +58,27 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('3900 db emits destroyed event', function () {
+      return new PouchDB('testdb').then(function (db) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          db.once('destroyed', function () {
+            resolve();
+          });
+          db.destroy();
+        });
+      });
+    });
+
+    it('3900 db emits destroyed event 2', function () {
+      var db = new PouchDB('testdb');
+      return new PouchDB.utils.Promise(function (resolve) {
+        db.once('destroyed', function () {
+          resolve();
+        });
+        db.destroy();
+      });
+    });
+
     it('emit creation event', function (done) {
       var db = new PouchDB(dbs.name).on('created', function (newDB) {
         db.should.equal(newDB, 'should be same thing');
