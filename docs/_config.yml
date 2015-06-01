@@ -4,7 +4,7 @@ url: http://pouchdb.com
 highlighter: pygments
 markdown: redcarpet
 baseurl:
-version: 3.5.0
+version: 3.5.1
 paginate: 5
 paginate_path: "blog/page:num"
 collections:
