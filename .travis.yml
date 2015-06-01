@@ -56,6 +56,8 @@ env:
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
+
 
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
@@ -82,6 +84,7 @@ matrix:
   allow_failures:
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
+  - env: CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
   - node_js: "iojs"
     env: CLIENT=node COMMAND=test
 
