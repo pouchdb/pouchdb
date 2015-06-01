@@ -169,6 +169,8 @@ function startTest() {
     version: client.version,
     platform: client.platform,
     tunnelTimeout: testTimeout,
+    deviceName: 'Android Emulator',
+    'device-orientation': 'portrait',
     name: client.browser + ' - ' + tunnelId,
     'max-duration': 60 * 45,
     'command-timeout': 599,
