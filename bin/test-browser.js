@@ -49,6 +49,9 @@ if (client.runner === 'saucelabs') {
   qs.saucelabs = true;
 }
 if (process.env.GREP) {
+  qs.invert = process.env.INVERT;
+}
+if (process.env.GREP) {
   qs.grep = process.env.GREP;
 }
 if (process.env.ADAPTERS) {
