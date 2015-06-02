@@ -143,7 +143,7 @@ adapters.forEach(function (adapters) {
       function delay() {
         // prove a negative
         return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 10000);
+          setTimeout(resolve, 1000);
         });
       }
 
@@ -238,7 +238,7 @@ adapters.forEach(function (adapters) {
       function delay() {
         // prove a negative
         return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 10000);
+          setTimeout(resolve, 1000);
         });
       }
 
