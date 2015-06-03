@@ -48,7 +48,7 @@ var tunnelId = process.env.TRAVIS_JOB_NUMBER || 'tunnel-' + Date.now();
 if (client.runner === 'saucelabs') {
   qs.saucelabs = true;
 }
-if (process.env.GREP) {
+if (process.env.INVERT) {
   qs.invert = process.env.INVERT;
 }
 if (process.env.GREP) {
