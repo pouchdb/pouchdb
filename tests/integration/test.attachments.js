@@ -1997,6 +1997,201 @@ repl_adapters.forEach(function (adapters) {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
+    it('#3932 attachments with tricky revpos', function () {
+      var db = PouchDB(dbs.name, {auto_compaction: true});
+      var remote = new PouchDB(dbs.remote);
+
+      var doc = {
+        _id:"test1",
+        type:"XX",
+        name: "Test1",
+        _attachments:{
+          "1.txt":{ content_type:"text/plain", data: "Wlpa"} }
+      };
+
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.putAttachment('test1', '2.txt', doc._rev,
+          'Wlpa', 'text/plain');
+      }).then(function () {
+        return remote.replicate.to(db);
+      }).then(function () {
+        return db.get('test1', {attachments: true});
+      }).then(function (doc) {
+        console.log('local', doc);
+        return remote.get('test1', {attachments: true});
+      }).then(function (fetchedDoc) {
+        doc = fetchedDoc;
+        console.log('remote', doc);
+        doc._attachments = {
+          "1.txt": {content_type: "text/plain", data: "Wlpa"},
+          "2.txt": {content_type: "text/plain", data: "Wlpa"}
+        };
+        return db.put(doc);
+      }).then(function () {
+        return db.get("test1", {attachments:true});
+      }).then(function (doc) {
+        console.log(doc);
+        return db.put(doc);
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return PouchDB.utils.Promise.all([db, remote].map(function (pouch) {
+          return pouch.get('test1', {attachments: true}).then(function (doc) {
+            console.log('final doc', doc);
+            var filenames = Object.keys(doc._attachments);
+            filenames.should.have.length(2);
+            filenames.forEach(function (filename) {
+              var data = doc._attachments[filename].data;
+              console.log('data', data);
+              data.should.equal('Wlpa');
+            });
+          });
+        }));
+      });
+    });
+
+    it('Attachments replicate back and forth', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc = {
+        _id: 'doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('foo')
+          }
+        }
+      };
+
+      return db.bulkDocs({ docs: [doc] }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        doc._id = 'doc2';
+        return remote.put(doc);
+      }).then(function () {
+        doc._id = 'doc3';
+        return db.put(doc);
+      }).then(function () {
+        return db.sync(remote);
+      }).then(function () {
+        return PouchDB.utils.Promise.all([db, remote].map(function (pouch) {
+          return pouch.allDocs({
+            include_docs: true,
+            attachments: true
+          }).then(function (res) {
+            res.rows.should.have.length(3);
+            res.rows.forEach(function (row) {
+              Object.keys(row.doc._attachments).should.have.length(1);
+              var att = row.doc._attachments['foo.txt'];
+              att.content_type.should.equal('text/plain');
+              att.data.should.equal(testUtils.btoa('foo'));
+              att.digest.should.be.a('string');
+              should.not.exist(att.length);
+              should.not.exist(att.stub);
+            });
+          });
+        }));
+      });
+    });
+
+    it('Replicate same doc, same atts', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc = {
+        _id: 'doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('foo')
+          }
+        }
+      };
+
+      return remote.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.replicate.from(remote);
+      }).then(function () {
+        return db.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.put(doc);
+      }).then(function () {
+        return db.sync(remote);
+      }).then(function () {
+        return PouchDB.utils.Promise.all([db, remote].map(function (pouch) {
+          return pouch.allDocs({
+            include_docs: true,
+            attachments: true
+          }).then(function (res) {
+            res.rows.should.have.length(1);
+            res.rows.forEach(function (row) {
+              Object.keys(row.doc._attachments).should.have.length(1);
+              var att = row.doc._attachments['foo.txt'];
+              att.content_type.should.equal('text/plain');
+              att.data.should.equal(testUtils.btoa('foo'));
+              att.digest.should.be.a('string');
+              should.not.exist(att.length);
+              should.not.exist(att.stub);
+            });
+          });
+        }));
+      });
+    });
+
+    it('Replicate same doc, same atts 2', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var doc = {
+        _id: 'doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: testUtils.btoa('foo')
+          }
+        }
+      };
+
+      return db.put(doc).then(function (res) {
+        doc._rev = res.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.put(doc);
+      }).then(function (res) {
+        doc._rev = res.rev;
+        return db.replicate.from(remote);
+      }).then(function () {
+        return db.put(doc);
+      }).then(function () {
+        return db.sync(remote);
+      }).then(function () {
+        return PouchDB.utils.Promise.all([db, remote].map(function (pouch) {
+          return pouch.allDocs({
+            include_docs: true,
+            attachments: true
+          }).then(function (res) {
+            res.rows.should.have.length(1);
+            res.rows.forEach(function (row) {
+              Object.keys(row.doc._attachments).should.have.length(1);
+              var att = row.doc._attachments['foo.txt'];
+              att.content_type.should.equal('text/plain');
+              att.data.should.equal(testUtils.btoa('foo'));
+              att.digest.should.be.a('string');
+              should.not.exist(att.length);
+              should.not.exist(att.stub);
+            });
+          });
+        }));
+      });
+    });
+
     it('Attachments replicate', function (done) {
       var binAttDoc = {
         _id: 'bin_doc',
