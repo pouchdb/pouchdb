@@ -3226,6 +3226,62 @@ repl_adapters.forEach(function (adapters) {
       });
     });
 
+    it('#3932 attachments with tricky revpos', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var rev;
+
+      return remote.put({
+        _id:"test1",
+        type:"XX",
+        name: "Test1",
+        _attachments:{
+          "1.txt":{ content_type:"text/plain", data: "Wlpa"} }
+      }).then(function () {
+        return db.replicate.from(remote);
+      }).then(function () {
+        return db.get('test1');
+      }).then(function (doc) {
+        return db.put(doc);
+      }).then(function (res) {
+        rev = res.rev;
+        return db.replicate.to(remote);
+      }).then(function () {
+        return remote.putAttachment('test1', '2.txt', rev,
+          'Wlpa', 'text/plain');
+      }).then(function () {
+        return remote.replicate.to(db);
+      }).then(function () {
+        return db.get('test1', {attachments: true});
+      }).then(function (doc) {
+        return remote.get('test1', {attachments: true});
+      }).then(function (doc) {
+        doc._attachments = {
+          "1.txt": {content_type: "text/plain", data: "Wlpa"},
+          "2.txt": {content_type: "text/plain", data: "Wlpa"}
+        };
+        return db.put(doc);
+      }).then(function () {
+        return db.get("test1", {attachments:true});
+      }).then(function (doc) {
+        return db.put(doc);
+      }).then(function () {
+        return db.replicate.to(remote);
+      }).then(function () {
+        return PouchDB.utils.Promise.all([db, remote].map(function (pouch) {
+          return pouch.get('test1', {attachments: true}).then(function (doc) {
+            var filenames = Object.keys(doc._attachments);
+            filenames.should.have.length(2);
+            filenames.forEach(function (filename) {
+              var data = doc._attachments[filename].data;
+              data.should.equal('Wlpa');
+            });
+          });
+        }));
+      });
+    });
+
     it('replication with changing attachments', function () {
       var attachment = {
         content_type: 'text/plain',
