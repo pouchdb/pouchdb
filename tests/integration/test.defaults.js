@@ -118,6 +118,15 @@ if (!process.env.LEVEL_ADAPTER &&
       });
     });
 
+    it('should inform us when using memdown', function () {
+      var opts = { name: 'mydb', db: require('memdown') };
+      return new PouchDB(opts).then(function (db) {
+        return db.info().then(function (info) {
+          info.backend_adapter.should.equal('MemDOWN');
+        });
+      });
+    });
+
     it('constructor emits destroyed when using defaults', function () {
       var CustomPouch = PouchDB.defaults({db: require('memdown')});
 
