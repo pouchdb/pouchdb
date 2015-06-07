@@ -30,9 +30,7 @@ function randomBlob(size) {
 
 module.exports = function (PouchDB, opts) {
 
-  // need to use bluebird for promises everywhere, so we're comparing
-  // apples to apples
-  require('bluebird'); // var Promise = require('bluebird');
+  require('lie');
   var utils = require('./utils');
 
   var testCases = [

@@ -3,9 +3,6 @@
 var http = require('http');
 var PouchDB = require('../../lib');
 var should = require("chai").should();
-require('bluebird').onPossiblyUnhandledRejection(function (e, promise) {
-  throw e;
-});
 
 describe('test.headers.js', function () {
 

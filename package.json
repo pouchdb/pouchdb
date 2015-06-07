@@ -17,7 +17,6 @@
   ],
   "dependencies": {
     "argsarray": "0.0.1",
-    "bluebird": "^1.2.4",
     "debug": "^2.1.2",
     "double-ended-queue": "^2.0.0-0",
     "es3ify": "^0.1.3",
@@ -115,7 +114,6 @@
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
     "./lib/deps/binary/buffer.js": "./lib/deps/binary/buffer-browser.js",
     "./lib/deps/migrate.js": "./lib/deps/migrate-browser.js",
-    "bluebird": "lie",
     "fs": false,
     "leveldown": false
   }

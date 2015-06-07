@@ -3,12 +3,12 @@
 'use strict';
 
 var http_server = require('http-server');
-var bluebird = require('bluebird');
-var fs = bluebird.promisifyAll(require('fs'));
+var Promise = require('lie');
+var fs = require('fs');
 var watchGlob = require('watch-glob');
 var replace = require('replace');
 var exec = require('child-process-promise').exec;
-var mkdirp = bluebird.promisify(require('mkdirp'));
+var mkdirp = require('mkdirp');
 
 var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
 var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
@@ -24,12 +24,10 @@ function checkJekyll() {
 }
 
 function buildCSS() {
-  return mkdirp(__dirname + '/../docs/static/css').then(function () {
-    var cmd = __dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS;
-    return exec(cmd);
-  }).then(function (child) {
-    return fs.writeFileAsync(POUCHDB_CSS, child.stdout);
-  }).then(function () {
+  mkdirp.sync(__dirname + '/../docs/static/css');
+  var cmd = __dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS;
+  return exec(cmd).then(function (child) {
+    fs.writeFileSync(POUCHDB_CSS, child.stdout);
     console.log('Updated: ', POUCHDB_CSS);
   });
 }
@@ -67,7 +65,7 @@ function onError(err) {
 }
 
 function buildEverything() {
-  return bluebird.resolve()
+  return Promise.resolve()
     .then(checkJekyll)
     .then(buildCSS)
     .then(buildJekyll)
