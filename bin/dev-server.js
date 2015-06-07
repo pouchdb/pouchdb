@@ -3,7 +3,7 @@
 'use strict';
 
 var fs = require('fs');
-var Promise = require('bluebird');
+var Promise = require('lie');
 var through = require('through2');
 var _derequire = require('derequire');
 var watchify = require('watchify');

@@ -95,7 +95,7 @@ The `Checkpointer` function as used by PouchDB's replicator. Writes checkpoints 
 var Promise = require('pouchdb/extras/promise');
 {% endhighlight %}
 
-The ES6 `Promise` shim as used by PouchDB. Expect this to be `bluebird` in Node, `lie` in browsers without Promise support, and the global `Promise` in browsers with Promise support.
+The ES6 `Promise` shim as used by PouchDB. Expect this to be `lie` where a global `Promise` does not exist, the global `Promise` is used when supported.
 
 #### Caveats
 

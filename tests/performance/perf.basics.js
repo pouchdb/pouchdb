@@ -2,7 +2,7 @@
 
 module.exports = function (PouchDB, opts) {
 
-  var Promise = require('bluebird');
+  var Promise = require('lie');
   var utils = require('./utils');
   var commonUtils = require('../common-utils.js');
 

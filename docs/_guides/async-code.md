@@ -206,7 +206,7 @@ db.get('charlie').then(function (charlie) {
 Promises in PouchDB
 -------
 
-Promises are supported natively in [some browsers](http://caniuse.com/#feat=promises). But since they're not universally supported, PouchDB uses [lie](https://github.com/calvinmetcalf/lie) in browsers that don't support them. In Node.js PouchDB uses [bluebird](https://github.com/petkaantonov/bluebird).
+Promises are supported natively in [some browsers](http://caniuse.com/#feat=promises). But since they're not universally supported, PouchDB uses [lie](https://github.com/calvinmetcalf/lie) in browsers and Node.js when they are not supported.
 
 You are free to integrate any Promise library you like with PouchDB, as long as it is compliant with [the Promises A+ spec](http://promisesaplus.com/). Some libraries that fit the bill:
 
