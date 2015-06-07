@@ -774,7 +774,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       return db.info().then(function (info) {
         // http doesn't support auto compaction
-        info.adapter.should.equal(db.adapter);
+        info.adapter.should.equal(db.type());
       });
     });
 
