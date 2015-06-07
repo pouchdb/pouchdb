@@ -23,9 +23,11 @@ adapters.forEach(function (adapter) {
           case 'websql':
             info.sqlite_plugin.should.be.a('boolean');
             info.websql_encoding.should.be.a('string');
+            info.adapter.should.equal('websql');
             break;
           case 'idb':
             info.idb_attachment_format.should.be.a('string');
+            info.adapter.should.equal('idb');
             break;
           default:
             should.exist(info); // can't make any guarantees

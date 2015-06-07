@@ -770,6 +770,14 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('db.info should give adapter name (#3567)', function () {
+      var db = new PouchDB(dbs.name);
+      return db.info().then(function (info) {
+        // http doesn't support auto compaction
+        info.adapter.should.equal(db.adapter);
+      });
+    });
+
     it('db.info should give correct doc_count', function (done) {
       new PouchDB(dbs.name).then(function (db) {
         db.info().then(function (info) {
