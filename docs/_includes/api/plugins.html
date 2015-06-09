@@ -22,6 +22,34 @@ PouchDB.plugin({
 new PouchDB('foobar').sayHello(); // prints "Hello!"
 {% endhighlight %}
 
+#### Load Plugins from require()
+
+You can load plugins into PouchDB when you load it via `require()`.
+
+{% highlight js %}
+var greet = {sayHello: function() { console.log("Hello!"); }};
+
+var PouchDB = require('pouchdb').plugin(greet);
+
+var db = new PouchDB('foobar');
+db.sayHello(); // prints "Hello!"
+{% endhighlight %}
+
+You can chain plugins, as well:
+
+{% highlight js %}
+var greet = {sayHello: function() { console.log("Hello!"); }};
+var manners = {thank: function(name) { console.log("Thank you, " + name); }};
+
+var PouchDB = require('pouchdb')
+  .plugin(greet)
+  .plugin(manners);
+
+var db = new PouchDB('foobar');
+db.sayHello(); // prints "Hello!"
+db.thank('Mom'); // prints "Thank you, Mom"
+{% endhighlight %}
+
 #### Example Plugin: Intercept Updates
 
 A useful feature of plugins is to intercept updates before they are stored in PouchDB. In this way, a plugin might validate that the data is correct for the application, or even alter documents before they are committed to the database.
