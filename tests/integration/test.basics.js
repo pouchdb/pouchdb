@@ -944,6 +944,17 @@ adapters.forEach(function (adapter) {
       db.put({_id: 'bar', _zing: 'zing'}, cb);
     });
 
+    it('Docs save "null" value', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put({_id: 'doc', foo: null}).then(function () {
+        return db.get('doc');
+      }).then(function (doc) {
+        (typeof doc.foo).should.equal('object');
+        should.not.exist(doc.foo);
+        Object.keys(doc).sort().should.deep.equal(['_id', '_rev', 'foo']);
+      });
+    });
+
     it('replace PouchDB.destroy() (express-pouchdb#203)', function (done) {
       var old = PouchDB.destroy;
       PouchDB.destroy = function (name, callback) {
