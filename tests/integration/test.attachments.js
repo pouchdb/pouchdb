@@ -187,9 +187,10 @@ adapters.forEach(function (adapter) {
             should.exist(att.digest);
             att.content_type.should.equal(expected.content_type);
             att.data.should.not.be.a('string');
+            att.data.type.should.equal(expected.content_type);
             return testUtils.readBlobPromise(att.data);
-          }).then(function (b64) {
-            testUtils.btoa(b64).should.equal(expected.data);
+          }).then(function (bin) {
+            testUtils.btoa(bin).should.equal(expected.data);
           });
         }));
       });
@@ -220,8 +221,9 @@ adapters.forEach(function (adapter) {
             should.exist(att.digest);
             att.content_type.should.equal(expected.content_type);
             att.data.should.not.be.a('string');
-            return testUtils.readBlobPromise(att.data).then(function (b64) {
-              testUtils.btoa(b64).should.equal(expected.data);
+            att.data.type.should.equal(expected.content_type);
+            return testUtils.readBlobPromise(att.data).then(function (bin) {
+              testUtils.btoa(bin).should.equal(expected.data);
             });
           });
         }));
@@ -256,8 +258,9 @@ adapters.forEach(function (adapter) {
             should.exist(att.digest);
             att.content_type.should.equal(expected.content_type);
             att.data.should.not.be.a('string');
-            return testUtils.readBlobPromise(att.data).then(function (b64) {
-              testUtils.btoa(b64).should.equal(expected.data);
+            att.data.type.should.equal(expected.content_type);
+            return testUtils.readBlobPromise(att.data).then(function (bin) {
+              testUtils.btoa(bin).should.equal(expected.data);
             });
           }));
         });
@@ -297,8 +300,9 @@ adapters.forEach(function (adapter) {
             should.exist(att.digest);
             att.content_type.should.equal(expected.content_type);
             att.data.should.not.be.a('string');
-            return testUtils.readBlobPromise(att.data).then(function (b64) {
-              testUtils.btoa(b64).should.equal(expected.data);
+            att.data.type.should.equal(expected.content_type);
+            return testUtils.readBlobPromise(att.data).then(function (bin) {
+              testUtils.btoa(bin).should.equal(expected.data);
             });
           }));
         });
@@ -365,8 +369,9 @@ adapters.forEach(function (adapter) {
             should.exist(att.digest);
             att.content_type.should.equal(expected.content_type);
             att.data.should.not.be.a('string');
-            return testUtils.readBlobPromise(att.data).then(function (b64) {
-              testUtils.btoa(b64).should.equal(expected.data);
+            att.data.type.should.equal(expected.content_type);
+            return testUtils.readBlobPromise(att.data).then(function (bin) {
+              testUtils.btoa(bin).should.equal(expected.data);
             });
           }));
         });
@@ -441,8 +446,9 @@ adapters.forEach(function (adapter) {
               should.exist(att.digest);
               att.content_type.should.equal(expected.content_type);
               att.data.should.not.be.a('string');
-              return testUtils.readBlobPromise(att.data).then(function (b64) {
-                testUtils.btoa(b64).should.equal(expected.data);
+              att.data.type.should.equal(expected.content_type);
+              return testUtils.readBlobPromise(att.data).then(function (bin) {
+                testUtils.btoa(bin).should.equal(expected.data);
               });
             }));
           }));
@@ -536,8 +542,9 @@ adapters.forEach(function (adapter) {
               should.exist(att.digest);
               att.content_type.should.equal(expected.content_type);
               att.data.should.not.be.a('string');
-              return testUtils.readBlobPromise(att.data).then(function (b64) {
-                testUtils.btoa(b64).should.equal(expected.data);
+              att.data.type.should.equal(expected.content_type);
+              return testUtils.readBlobPromise(att.data).then(function (bin) {
+                testUtils.btoa(bin).should.equal(expected.data);
               });
             }));
           }));
@@ -579,8 +586,9 @@ adapters.forEach(function (adapter) {
             should.exist(att.digest);
             att.content_type.should.equal(expected.content_type);
             att.data.should.not.be.a('string');
-            return testUtils.readBlobPromise(att.data).then(function (b64) {
-              testUtils.btoa(b64).should.equal(expected.data);
+            att.data.type.should.equal(expected.content_type);
+            return testUtils.readBlobPromise(att.data).then(function (bin) {
+              testUtils.btoa(bin).should.equal(expected.data);
             });
           }));
         });
@@ -655,8 +663,9 @@ adapters.forEach(function (adapter) {
               should.exist(att.digest);
               att.content_type.should.equal(expected.content_type);
               att.data.should.not.be.a('string');
-              return testUtils.readBlobPromise(att.data).then(function (b64) {
-                testUtils.btoa(b64).should.equal(expected.data);
+              att.data.type.should.equal(expected.content_type);
+              return testUtils.readBlobPromise(att.data).then(function (bin) {
+                testUtils.btoa(bin).should.equal(expected.data);
               });
             }));
           }));
@@ -746,8 +755,9 @@ adapters.forEach(function (adapter) {
               should.exist(att.digest);
               att.content_type.should.equal(expected.content_type);
               att.data.should.not.be.a('string');
-              return testUtils.readBlobPromise(att.data).then(function (b64) {
-                testUtils.btoa(b64).should.equal(expected.data);
+              att.data.type.should.equal(expected.content_type);
+              return testUtils.readBlobPromise(att.data).then(function (bin) {
+                testUtils.btoa(bin).should.equal(expected.data);
               });
             }));
           }));
@@ -841,8 +851,9 @@ adapters.forEach(function (adapter) {
                 should.exist(att.digest);
                 att.content_type.should.equal(expected.content_type);
                 att.data.should.not.be.a('string');
-                return testUtils.readBlobPromise(att.data).then(function (b64) {
-                  testUtils.btoa(b64).should.equal(expected.data);
+                att.data.type.should.equal(expected.content_type);
+                return testUtils.readBlobPromise(att.data).then(function (bin) {
+                  testUtils.btoa(bin).should.equal(expected.data);
                 });
               }));
             }));
@@ -899,8 +910,9 @@ adapters.forEach(function (adapter) {
               should.exist(att.digest);
               att.content_type.should.equal(expected.content_type);
               att.data.should.not.be.a('string');
-              return testUtils.readBlobPromise(att.data).then(function (b64) {
-                testUtils.btoa(b64).should.equal(expected.data);
+              att.data.type.should.equal(expected.content_type);
+              return testUtils.readBlobPromise(att.data).then(function (bin) {
+                testUtils.btoa(bin).should.equal(expected.data);
                 doneWithDoc();
               });
             }).catch(reject);
@@ -1010,8 +1022,9 @@ adapters.forEach(function (adapter) {
                 should.exist(att.digest);
                 att.content_type.should.equal(expected.content_type);
                 att.data.should.not.be.a('string');
-                return testUtils.readBlobPromise(att.data).then(function (b64) {
-                  testUtils.btoa(b64).should.equal(expected.data);
+                att.data.type.should.equal(expected.content_type);
+                return testUtils.readBlobPromise(att.data).then(function (bin) {
+                  testUtils.btoa(bin).should.equal(expected.data);
                 });
               })).then(doneWithDoc);
             }).catch(reject);
@@ -1069,8 +1082,9 @@ adapters.forEach(function (adapter) {
               should.exist(att.digest);
               att.content_type.should.equal(expected.content_type);
               att.data.should.not.be.a('string');
-              return testUtils.readBlobPromise(att.data).then(function (b64) {
-                testUtils.btoa(b64).should.equal(expected.data);
+              att.data.type.should.equal(expected.content_type);
+              return testUtils.readBlobPromise(att.data).then(function (bin) {
+                testUtils.btoa(bin).should.equal(expected.data);
                 doneWithDoc();
               });
             }).catch(reject);
@@ -1839,11 +1853,14 @@ adapters.forEach(function (adapter) {
           doc._attachments['foo.txt'].content_type.should.equal('text/plain');
           db.getAttachment('bin_doc', 'foo.txt', function (err, res) {
             should.not.exist(err, 'fetched attachment');
+            res.type.should.equal('text/plain');
             testUtils.readBlob(res, function (data) {
               data.should.equal('This is a base64 encoded text');
               db.put(binAttDoc2, function (err, rev) {
                 db.getAttachment('bin_doc2', 'foo.txt',
-                  function (err, res, xhr) {
+                  function (err, res) {
+                  should.not.exist(err);
+                  res.type.should.equal('text/plain');
                   testUtils.readBlob(res, function (data) {
                     data.should.equal('', 'Correct data returned');
                     moreTests(rev.rev);
@@ -1861,10 +1878,13 @@ adapters.forEach(function (adapter) {
                          function (err, info) {
           info.ok.should.equal(true);
           db.getAttachment('bin_doc2', 'foo2.txt', function (err, res, xhr) {
+            should.not.exist(err);
+            res.type.should.equal('text/plain');
             testUtils.readBlob(res, function (data) {
               should.exist(data);
               db.get('bin_doc2', { attachments: true },
                 function (err, res, xhr) {
+                should.not.exist(err);
                 should.exist(res._attachments, 'Result has attachments field');
                 should.not
                   .exist(res._attachments['foo2.txt'].stub, 'stub is false');
@@ -1884,14 +1904,84 @@ adapters.forEach(function (adapter) {
     it('Test getAttachment', function (done) {
       var db = new PouchDB(dbs.name);
       db.put(binAttDoc, function (err, res) {
+        should.not.exist(err);
         db.getAttachment('bin_doc', 'foo.txt', function (err, res) {
           if (err) {
             return done(err);
           }
+          res.type.should.equal('text/plain');
           testUtils.readBlob(res, function (data) {
             data.should.equal('This is a base64 encoded text', 'correct data');
             done();
           });
+        });
+      });
+    });
+
+    it('Test getAttachment with stubs', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put({
+        _id: 'doc',
+        _attachments: {
+          '1': {
+            content_type: 'application/octet-stream',
+            data: testUtils.btoa('1\u00002\u00013\u0002')
+          }
+        }
+      }).then(function (res) {
+        return db.get('doc');
+      }).then(function (doc) {
+        doc._attachments['2'] = {
+          content_type: 'application/octet-stream',
+          data: testUtils.btoa('3\u00002\u00011\u0002')
+        };
+        return db.put(doc);
+      }).then(function () {
+        return db.getAttachment('doc', '1');
+      }).then(function (att) {
+        att.type.should.equal('application/octet-stream');
+        return testUtils.readBlobPromise(att);
+      }).then(function (bin) {
+        bin.should.equal('1\u00002\u00013\u0002');
+        return db.getAttachment('doc', '2');
+      }).then(function (att) {
+        att.type.should.equal('application/octet-stream');
+        return testUtils.readBlobPromise(att);
+      }).then(function (bin) {
+        bin.should.equal('3\u00002\u00011\u0002');
+      });
+    });
+
+    it('Test get() with binary:true and stubs', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put({
+        _id: 'doc',
+        _attachments: {
+          '1': {
+            content_type: 'application/octet-stream',
+            data: testUtils.btoa('1\u00002\u00013\u0002')
+          }
+        }
+      }).then(function (res) {
+        return db.get('doc');
+      }).then(function (doc) {
+        doc._attachments['2'] = {
+          content_type: 'application/octet-stream',
+          data: testUtils.btoa('3\u00002\u00011\u0002')
+        };
+        return db.put(doc);
+      }).then(function () {
+        return db.get('doc', {attachments: true, binary: true});
+      }).then(function (doc) {
+        var att1 = doc._attachments['1'].data;
+        var att2 = doc._attachments['2'].data;
+        att1.type.should.equal('application/octet-stream');
+        att2.type.should.equal('application/octet-stream');
+        return testUtils.readBlobPromise(att1).then(function (bin) {
+          bin.should.equal('1\u00002\u00013\u0002');
+          return testUtils.readBlobPromise(att2);
+        }).then(function (bin) {
+          bin.should.equal('3\u00002\u00011\u0002');
         });
       });
     });
@@ -2264,6 +2354,8 @@ adapters.forEach(function (adapter) {
             should.exist(res._attachments['my/text?@']);
 
             db.getAttachment('mydoc', 'my/text?@', function (err, attachment) {
+              should.not.exist(err);
+              attachment.type.should.equal('text/plain');
               testUtils.readBlob(attachment, function (data) {
                 data.should.eql('Mytext');
 
@@ -2371,6 +2463,8 @@ adapters.forEach(function (adapter) {
           doc._attachments['foo.json'].content_type.should
             .equal('application/json', 'doc has correct content type');
           db.getAttachment(results.id, 'foo.json', function (err, attachment) {
+            should.not.exist(err);
+            attachment.type.should.equal('application/json');
             testUtils.readBlob(attachment, function (data) {
               jsonDoc._attachments['foo.json'].data.should
                 .equal('eyJIZWxsbyI6IndvcmxkIn0=', 'correct data');
@@ -2632,7 +2726,10 @@ adapters.forEach(function (adapter) {
         return PouchDB.utils.Promise.all(testCases.map(function (testCase) {
           var promise = testCase[0];
           var expected = testCase[1];
-          return promise.then(testUtils.readBlobPromise).then(function (bin) {
+          return promise.then(function (blob) {
+            blob.type.should.equal('text/plain');
+            return testUtils.readBlobPromise(blob);
+          }).then(function (bin) {
             bin.should.equal(expected, 'didn\'t get blob we expected for rev');
           });
         }));
@@ -2672,6 +2769,7 @@ adapters.forEach(function (adapter) {
             should.not.exist(err, 'attachment inserted');
             db.getAttachment('foo', 'foo.txt', function (err, blob) {
               should.not.exist(err, 'attachment gotten');
+              blob.type.should.equal('text/plain');
               testUtils.readBlob(blob, function (returnedData) {
                 testUtils.btoa(returnedData).should.equal(data);
                 db.get('foo', function (err, doc) {
@@ -2718,6 +2816,7 @@ adapters.forEach(function (adapter) {
             should.not.exist(err, 'attachment inserted');
             db.getAttachment('foo', 'foo.png', function (err, blob) {
               should.not.exist(err, 'attachment gotten');
+              blob.type.should.equal('image/png');
               testUtils.readBlob(blob, function (returnedData) {
                 testUtils.btoa(returnedData).should.equal(data);
                 db.get('foo', function (err, doc) {
@@ -2909,9 +3008,8 @@ adapters.forEach(function (adapter) {
       return db.putAttachment('foo', 'foo.bin', base64, 'image/png').then(function () {
         return db.getAttachment('foo', 'foo.bin');
       }).then(function (blob) {
-        return new PouchDB.utils.Promise(function (resolve) {
-          testUtils.readBlob(blob, resolve);
-        });
+        blob.type.should.equal('image/png');
+        return testUtils.readBlobPromise(blob);
       }).then(function (bin) {
         testUtils.btoa(bin).should.equal(base64);
       });
@@ -2954,6 +3052,7 @@ adapters.forEach(function (adapter) {
                 should.not.exist(err, 'attachment inserted');
                 db.getAttachment('foo', 'foo.png', function (err, blob) {
                   should.not.exist(err, 'attachment gotten');
+                  blob.type.should.equal('image/png');
                   testUtils.readBlob(blob, function (returnedData) {
                     testUtils.btoa(returnedData).should.equal(data);
                     db.get('foo', function (err, doc) {
@@ -3167,6 +3266,41 @@ repl_adapters.forEach(function (adapters) {
       });
     });
 
+    it('Attachment types replicate', function () {
+      var binAttDoc = {
+        _id: 'bin_doc',
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
+          }
+        }
+      };
+      var docs1 = [
+        binAttDoc,
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {_id: '3', integer: 3}
+      ];
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs({ docs: docs1 }).then(function(info) {
+        return db.replicate.from(remote);
+      }).then(function () {
+        return db.get('bin_doc', {attachments: true, binary: true});
+      }).then(function (doc) {
+        var blob = doc._attachments['foo.txt'].data;
+        blob.type.should.equal('text/plain');
+        return testUtils.readBlobPromise(blob);
+      }).then(function (bin) {
+        bin.should.equal(testUtils.atob(
+          'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='));
+      });
+    });
+
     it('Many many attachments replicate', function () {
       var doc = {_id: 'foo'};
 
@@ -3323,7 +3457,7 @@ repl_adapters.forEach(function (adapters) {
           }
         });
       }
-      return remote.bulkDocs(docs).then(function (info) {
+      return remote.bulkDocs(docs).then(function () {
         return remote.replicate.to(db);
       }).then(function () {
         return db.allDocs();
