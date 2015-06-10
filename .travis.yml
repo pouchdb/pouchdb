@@ -88,6 +88,10 @@ matrix:
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
   - node_js: "iojs"
     env: CLIENT=node COMMAND=test
+  - CLIENT=node SERVER=couchdb-master COMMAND=test
+  - SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+
+
 
   fast_finish: true
 
