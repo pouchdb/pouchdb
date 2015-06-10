@@ -111,7 +111,7 @@
     "./adapters/levelalt": false,
     "./lib/version.js": "./lib/version-browser.js",
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
-    "./lib/deps/buffer.js": "./lib/deps/buffer-browser.js",
+    "./lib/deps/binary/buffer.js": "./lib/deps/binary/buffer-browser.js",
     "./lib/deps/migrate.js": "./lib/deps/migrate-browser.js",
     "bluebird": "lie",
     "fs": false,
