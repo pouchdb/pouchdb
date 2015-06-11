@@ -507,6 +507,37 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Changes with shorthand function name', function (done) {
+      var docs = [
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {
+          _id: '_design/even',
+          integer: 3,
+          filters: { even: 'function (doc) { return doc.integer % 2 === 0; }' }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+
+      db.bulkDocs({ docs: docs }, function (err, info) {
+        var promise = db.changes({
+          filter: 'even',
+          include_docs: true,
+          complete: function (err, results) {
+            results.results.length.should.equal(2);
+            var zero = findById(results.results, '0');
+            zero.doc.integer.should.equal(0);
+            var two = findById(results.results, '2');
+            two.doc.integer.should.equal(2);
+            done();
+          }
+        });
+        should.exist(promise);
+        promise.cancel.should.be.a('function');
+      });
+    });
+
     it('Changes with filter from nonexistent ddoc', function (done) {
       var docs = [
         {_id: '0', integer: 0},
