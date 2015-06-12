@@ -8,6 +8,7 @@ var scenarios = [
   'PouchDB v2.2.0',
   'PouchDB v3.0.6',
   'PouchDB v3.2.0',
+  'PouchDB v3.5.0',
   'websql'
 ];
 
@@ -48,6 +49,7 @@ describe('migration', function () {
           'PouchDB v2.2.0': PouchDBVersion220,
           'PouchDB v3.0.6': PouchDBVersion306,
           'PouchDB v3.2.0': PouchDBVersion320,
+          'PouchDB v3.5.0': PouchDBVersion350,
           PouchDB: PouchDB
         };
 
@@ -970,6 +972,64 @@ describe('migration', function () {
               "last_seq": 4
             };
             result.should.deep.equal(expected);
+          });
+        });
+      }
+
+      if (scenario === 'PouchDB v3.5.0') {
+        it('#3942 replication of attachments', function () {
+          if (skip) { return; }
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+
+          var transparent1x1Png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HA' +
+            'wCAAAAC0lEQVR4nGP6zwAAAgcBApocMXEA' +
+            'AAAASUVORK5CYII=';
+          var black1x1Png =
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACkl' +
+            'EQVR4nGNiAAAABgADNjd8qAAA' +
+            'AABJRU5ErkJggg==';
+          var plaintext = 'Wlpa';
+
+          var lastRev;
+          return oldPouch.put({_id: 'foo'}).then(function (res) {
+            return oldPouch.putAttachment('foo', 'att', res.rev,
+              transparent1x1Png, 'image/png');
+          }).then(function (res) {
+            return oldPouch.putAttachment('foo', 'att2', res.rev,
+              black1x1Png, 'image/png');
+          }).then(function (res) {
+            lastRev = res.rev;
+            return oldPouch.replicate.to(dbs.first.remote);
+          }).then(function () {
+            return oldPouch.putAttachment('foo', 'att3', lastRev, plaintext,
+              'text/plain');
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local);
+            return newPouch.destroy().then(function () {
+              newPouch = new dbs.second.pouch(dbs.second.local);
+              return newPouch.replicate.from(dbs.second.remote);
+            }).then(function () {
+              return newPouch.replicate.to(dbs.second.remote);
+            }).then(function () {
+              var newRemote = new PouchDB(dbs.second.remote);
+              return PouchDB.utils.Promise.all([
+                newPouch, newRemote
+              ].map(function (pouch) {
+                return pouch.get('foo', {
+                  attachments: true
+                }).then(function (doc) {
+                  var atts = doc._attachments;
+                  atts['att'].content_type.should.equal('image/png');
+                  atts['att'].data.should.equal(transparent1x1Png);
+                  atts['att2'].content_type.should.equal('image/png');
+                  atts['att2'].data.should.equal(black1x1Png);
+                  atts['att3'].content_type.should.equal('text/plain');
+                  atts['att3'].data.should.equal(plaintext);
+                });
+              }));
+            });
           });
         });
       }
