@@ -2367,6 +2367,49 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('3963 length property on stubs', function () {
+      var db = new PouchDB(dbs.name);
+
+      function checkAttachments() {
+        return db.get('bin_doc').then(function (doc) {
+          doc._attachments['foo.txt'].stub.should.equal(true);
+          doc._attachments['foo.txt'].length.should.equal(29);
+          return db.changes({include_docs: true});
+        }).then(function (res) {
+          var doc = res.results[0].doc;
+          doc._attachments['foo.txt'].stub.should.equal(true);
+          doc._attachments['foo.txt'].length.should.equal(29);
+          return db.allDocs({include_docs: true});
+        }).then(function (res) {
+          var doc = res.rows[0].doc;
+          doc._attachments['foo.txt'].stub.should.equal(true);
+          doc._attachments['foo.txt'].length.should.equal(29);
+          return new PouchDB.utils.Promise(function (resolve, reject) {
+            var change;
+            var changes = db.changes({include_docs: true, live: true})
+              .on('change', function (x) {
+                change = x;
+                changes.cancel();
+              })
+              .on('error', reject)
+              .on('complete', function () {
+                resolve(change);
+              });
+          });
+        }).then(function (change) {
+          var doc = change.doc;
+          doc._attachments['foo.txt'].stub.should.equal(true);
+          doc._attachments['foo.txt'].length.should.equal(29);
+        });
+      }
+
+      return db.put(binAttDoc).then(checkAttachments).then(function () {
+        return db.get('bin_doc');
+      }).then(function (doc) {
+        return db.put(doc);
+      }).then(checkAttachments);
+    });
+
     it('Testing with invalid rev', function (done) {
       var db = new PouchDB(dbs.name);
       var doc = { _id: 'adoc' };
