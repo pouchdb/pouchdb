@@ -101,6 +101,64 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('#41 another complex multifield query', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["datetime"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1',
+            datetime: 1434054640000,
+            glucoseType: 'fasting',
+            patientId: 1
+          },
+          {_id: '2',
+            datetime: 1434054650000,
+            glucoseType: 'fasting',
+            patientId: 1
+          },
+          {_id: '3',
+            datetime: 1434054660000,
+            glucoseType: 'fasting',
+            patientId: 1
+          },
+          {_id: '4',
+            datetime: 1434054670000,
+            glucoseType: 'fasting',
+            patientId: 1
+          }
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {
+            datetime: { "$lt": 1434054660000 },
+            glucoseType: { "$eq": 'fasting' },
+            patientId: { "$eq": 1 }
+          }
+        });
+      }).then(function (res) {
+        var docs = res.docs.map(function (x) { delete x._rev; return x; });
+        docs.should.deep.equal([
+          {
+            "_id": "1",
+            "datetime": 1434054640000,
+            "glucoseType": "fasting",
+            "patientId": 1
+          },
+          {
+            "_id": "2",
+            "datetime": 1434054650000,
+            "glucoseType": "fasting",
+            "patientId": 1
+          }
+        ]);
+      });
+    });
+
     it('does gt queries, desc sort', function () {
       var db = context.db;
       var index = {
