@@ -203,6 +203,15 @@ function massageIndexDef(indexDef) {
   return indexDef;
 }
 
+function getKeyFromDoc(doc, index) {
+  var res = [];
+  for (var i = 0; i < index.def.fields.length; i++) {
+    var field = getKey(index.def.fields[i]);
+    res.push(doc[field]);
+  }
+  return res;
+}
+
 // have to do this manually because REASONS. I don't know why
 // CouchDB didn't implement inclusive_start
 function filterInclusiveStart(rows, targetValue, index) {
@@ -210,18 +219,20 @@ function filterInclusiveStart(rows, targetValue, index) {
   for (var i = 0, len = rows.length; i < len; i++) {
     var row = rows[i];
 
-    // in the case of indexes with more than one field,
-    // the inclusive_start==false option can only
-    // really be used to exclude the first value. so grab
-    // the first element from the array.
-    var left = row.key;
-    var right = targetValue;
-    if (indexFields.length > 1) {
-      left = left[0];
-      right = right[0];
-    }
+    // shave off any docs at the beginning that are <= the
+    // target value
 
-    if (collate.collate(left, right) > 0) {
+    var docKey = getKeyFromDoc(row.doc, index);
+    if (indexFields.length === 1) {
+      docKey = docKey[0]; // only one field, not multi-field
+    } else { // more than one field in index
+      // in the case where e.g. the user is searching {$gt: {a: 1}}
+      // but the index is [a, b], then we need to shorten the doc key
+      while (docKey.length > targetValue.length) {
+        docKey.pop();
+      }
+    }
+    if (collate.collate(docKey, targetValue) > 0) {
       // no need to filter any further; we're past the key
       break;
     }

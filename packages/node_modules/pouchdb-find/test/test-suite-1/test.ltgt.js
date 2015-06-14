@@ -134,5 +134,113 @@ module.exports = function (dbType, context) {
         });
       });
     });
+
+    it('#38 $gt with dates', function () {
+      var db = context.db;
+
+      var startDate = "2015-05-25T00:00:00.000Z";
+      var endDate = "2015-05-26T00:00:00.000Z";
+
+      return db.createIndex({
+        index: {
+          fields: ['docType', 'logDate']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', docType: 'log', logDate: "2015-05-24T00:00:00.000Z"},
+          {_id: '2', docType: 'log', logDate: "2015-05-25T00:00:00.000Z"},
+          {_id: '3', docType: 'log', logDate: "2015-05-26T00:00:00.000Z"},
+          {_id: '4', docType: 'log', logDate: "2015-05-27T00:00:00.000Z"}
+        ]);
+      }).then(function() {
+        return db.find({
+          selector: {docType: 'log'}
+        }).then(function (result) {
+          result.docs.map(function (x) { delete x._rev; return x; }).should.deep.equal([
+            {
+              "_id": "1",
+              "docType": "log",
+              "logDate": "2015-05-24T00:00:00.000Z"
+            },
+            {
+              "_id": "2",
+              "docType": "log",
+              "logDate": "2015-05-25T00:00:00.000Z"
+            },
+            {
+              "_id": "3",
+              "docType": "log",
+              "logDate": "2015-05-26T00:00:00.000Z"
+            },
+            {
+              "_id": "4",
+              "docType": "log",
+              "logDate": "2015-05-27T00:00:00.000Z"
+            }
+          ], 'test 1');
+        });
+      }).then(function () {
+        return db.find({
+          selector: {docType: 'log', logDate: {$gt: startDate}}
+        }).then(function (result) {
+          result.docs.map(function (x) { delete x._rev; return x; }).should.deep.equal([
+            {
+              "_id": "3",
+              "docType": "log",
+              "logDate": "2015-05-26T00:00:00.000Z"
+            },
+            {
+              "_id": "4",
+              "docType": "log",
+              "logDate": "2015-05-27T00:00:00.000Z"
+            }
+          ], 'test 2');
+        });
+      }).then(function () {
+        return db.find({
+          selector: {docType: 'log', logDate: {$gte: startDate}}
+        }).then(function (result) {
+          result.docs.map(function (x) { delete x._rev; return x; }).should.deep.equal([
+            {
+              "_id": "2",
+              "docType": "log",
+              "logDate": "2015-05-25T00:00:00.000Z"
+            },
+            {
+              "_id": "3",
+              "docType": "log",
+              "logDate": "2015-05-26T00:00:00.000Z"
+            },
+            {
+              "_id": "4",
+              "docType": "log",
+              "logDate": "2015-05-27T00:00:00.000Z"
+            }
+          ], 'test 3');
+        });
+      }).then(function () {
+        return db.find({
+          selector: {
+            docType: 'log',
+            logDate: {$gte: startDate, $lte: endDate}
+          }
+        }).then(function (result) {
+          result.docs.map(function (x) { delete x._rev; return x; }).should.deep.equal([
+            {
+              "_id": "2",
+              "docType": "log",
+              "logDate": "2015-05-25T00:00:00.000Z"
+            },
+            {
+              "_id": "3",
+              "docType": "log",
+              "logDate": "2015-05-26T00:00:00.000Z"
+            }
+          ], 'test 4');
+        });
+      });
+    });
+
+
   });
 };
