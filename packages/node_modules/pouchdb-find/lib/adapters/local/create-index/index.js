@@ -69,7 +69,11 @@ function createIndex(db, requestDef) {
       limit: 0,
       reduce: false
     }).then(function () {
-      return {result: viewExists ? 'exists' : 'created'};
+      return {
+        id: ddocId,
+        name: viewName,
+        result: viewExists ? 'exists' : 'created'
+      };
     });
   });
 }

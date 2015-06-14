@@ -18,10 +18,14 @@ module.exports = function (dbType, context) {
         ddoc: 'foo'
       };
       return db.createIndex(index).then(function (response) {
-        response.should.deep.equal({"result": "created"});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('created');
         return db.createIndex(index);
       }).then(function (response) {
-        response.should.deep.equal({result: 'exists'});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('exists');
         return db.getIndexes();
       }).then(function (resp) {
         resp.should.deep.equal({
@@ -71,10 +75,14 @@ module.exports = function (dbType, context) {
       }).then(function () {
         return db.createIndex(index);
       }).then(function (response) {
-        response.should.deep.equal({"result": "created"});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('created');
         return db.createIndex(index);
       }).then(function (response) {
-        response.should.deep.equal({result: 'exists'});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('exists');
         return db.getIndexes();
       }).then(function (resp) {
         resp.should.deep.equal({
@@ -126,16 +134,24 @@ module.exports = function (dbType, context) {
         ddoc: 'myddoc'
       };
       return db.createIndex(index).then(function (response) {
-        response.should.deep.equal({"result": "created"});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('created');
         return db.createIndex(index);
       }).then(function (response) {
-        response.should.deep.equal({result: 'exists'});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('exists');
         return db.createIndex(index2);
       }).then(function (response) {
-        response.should.deep.equal({"result": "created"});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('bar-index');
+        response.result.should.equal('created');
         return db.createIndex(index2);
       }).then(function (response) {
-        response.should.deep.equal({result: 'exists'});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('bar-index');
+        response.result.should.equal('exists');
       }).then(function () {
         return db.getIndexes();
       }).then(function (resp) {

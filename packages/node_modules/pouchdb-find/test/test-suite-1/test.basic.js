@@ -17,10 +17,14 @@ module.exports = function (dbType, context) {
         "type": "json"
       };
       return db.createIndex(index).then(function (response) {
-        response.should.deep.equal({"result": "created"});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('created');
         return db.createIndex(index);
       }).then(function (response) {
-        response.should.deep.equal({result: 'exists'});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('exists');
       });
     });
 
@@ -42,10 +46,14 @@ module.exports = function (dbType, context) {
       };
 
       return db.createIndex(index).then(function (response) {
-        response.should.deep.equal({"result": "created"});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('created');
         return db.createIndex(index2);
       }).then(function (response) {
-        response.should.deep.equal({result: 'created'});
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('bar-index');
+        response.result.should.equal('created');
         return db.getIndexes();
       }).then(function (res) {
         res.indexes.should.have.length(3);
