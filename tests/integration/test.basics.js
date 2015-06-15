@@ -847,6 +847,31 @@ adapters.forEach(function (adapter) {
       }, done);
     });
 
+    it('issue 3968, keeps all object fields', function () {
+      var db =  new PouchDB(dbs.name);
+      /* jshint -W001 */
+      var doc = {
+        _id: "x",
+        type: "testdoc",
+        watch: 1,
+        unwatch: 1,
+        constructor: 1,
+        toString: 1,
+        toSource: 1,
+        toLocaleString: 1,
+        propertyIsEnumerable: 1,
+        isPrototypeOf: 1,
+        hasOwnProperty: 1
+      };
+      return db.put(doc).then(function () {
+        return db.get(doc);
+      }).then(function (savedDoc) {
+        delete savedDoc._rev;
+        savedDoc.should.deep.equal(doc);
+        JSON.stringify(savedDoc).should.deep.equal(JSON.stringify(doc));
+      });
+    });
+
     it('issue 2779, deleted docs, old revs COUCHDB-292', function (done) {
       var db =  new PouchDB(dbs.name);
       var rev;
