@@ -57,6 +57,14 @@ or e.g.:
 
 or you can append it as `?es5shim=true` if you manually opened a browser window.
 
+#### Run the map/reduce tests
+
+The map/reduce tests are done separately from the normal integration tests, because
+they take a long time. They'll also cause a ton of popups in Safari due to exceeding
+the 5MB limit.
+
+    $ TYPE=mapreduce npm test
+
 ### Cordova tests
 
 You may need to install `ant` in order for the Android tests to run (e.g. `brew install ant`). You'll also need the Android SDK, and to make sure your `$ANDROID_HOME` is set.

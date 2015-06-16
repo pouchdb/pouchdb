@@ -10,21 +10,6 @@ adapters.forEach(function (adapter) {
     var suiteName = 'test.mapreduce.js-' + adapter + '-' + viewType;
     var dbName = testUtils.adapterUrl(adapter, 'testdb');
 
-    if (viewType === 'temp' && adapter === 'http' &&
-        testUtils.isCouchMaster()) {
-      // temp views are removed in couch master
-      return;
-    }
-    var isSafari = (typeof process === 'undefined' || process.browser) &&
-      /Safari/.test(window.navigator.userAgent) &&
-      !/Chrome/.test(window.navigator.userAgent);
-
-    if (isSafari && adapter === 'local') {
-      // Screw Safari and its stupid popup.
-      // TODO: see if we can remove this when native secondary indexes are in
-      return;
-    }
-
     tests(suiteName, dbName, adapter, viewType);
   });
 });

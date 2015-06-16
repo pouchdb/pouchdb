@@ -49,6 +49,11 @@ env:
   - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
+  # Test map/reduce
+  - TYPE=mapreduce CLIENT=node COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome:36 COMMAND=test
   - CLIENT=saucelabs:chrome:37 COMMAND=test
