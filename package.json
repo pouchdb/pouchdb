@@ -68,7 +68,7 @@
     "pouchdb-server": "^0.6.1",
     "replace": "^0.2.9",
     "rimraf": "2.2.8",
-    "sauce-connect-launcher": "0.2.2",
+    "sauce-connect-launcher": "0.11.1",
     "selenium-standalone": "3.0.2",
     "tape": "~2.12.2",
     "throw-max-listeners-error": "^1.0.0",
