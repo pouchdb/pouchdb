@@ -140,10 +140,18 @@ adapters.forEach(function (adapters) {
         });
       }
 
-      function delay() {
-        // prove a negative
-        return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 1000);
+      function waitForConflictsResolved() {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var changes = remote.changes({
+            live: true,
+            include_docs: true,
+            conflicts: true
+          }).on('change', function(change) {
+            if (!('_conflicts' in change.doc)) {
+              changes.cancel();
+            }
+          });
+          changes.on('complete', resolve);
         });
       }
 
@@ -178,8 +186,8 @@ adapters.forEach(function (adapters) {
         return local.get('1', {conflicts: true}).then(function (doc) {
           return local.remove(doc._id, doc._conflicts[0]);
         });
-      }).then(function () {
-        return delay();
+      }).then(function (x) {
+        return waitForConflictsResolved();
       }).then(function () {
         return local.get('1', {conflicts: true, revs: true});
       }).then(function (localDoc) {
@@ -204,6 +212,21 @@ adapters.forEach(function (adapters) {
 
       var repl1 = local.replicate.to(remote, { live: true });
       var repl2 = local.replicate.from(remote, { live: true });
+
+      function waitForConflictsResolved() {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var changes = remote.changes({
+            live: true,
+            include_docs: true,
+            conflicts: true
+          }).on('change', function(change) {
+            if (!('_conflicts' in change.doc)) {
+              changes.cancel();
+            }
+          });
+          changes.on('complete', resolve);
+        });
+      }
 
       function waitForUptodate() {
 
@@ -232,13 +255,6 @@ adapters.forEach(function (adapters) {
               return waitForUptodate();
             }
           });
-        });
-      }
-
-      function delay() {
-        // prove a negative
-        return new PouchDB.utils.Promise(function (resolve) {
-          setTimeout(resolve, 1000);
         });
       }
 
@@ -286,8 +302,8 @@ adapters.forEach(function (adapters) {
         return local.get('1', {conflicts: true}).then(function (doc) {
           return local.remove(doc._id, doc._conflicts[0]);
         });
-      }).then(function () {
-        return delay();
+      }).then(function() {
+        return waitForConflictsResolved();
       }).then(function () {
         return local.get('1', {conflicts: true, revs: true});
       }).then(function (localDoc) {
