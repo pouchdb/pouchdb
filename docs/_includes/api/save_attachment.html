@@ -16,7 +16,7 @@ For details, see the [CouchDB documentation on attachments](https://wiki.apache.
 
 {% include code/start.html id="attach1" type="callback" %}
 {% highlight js %}
-var attachment = new Blob(['Is there life on Mars?']);
+var attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
 db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) {
   if (err) { return console.log(err); }
   // handle result
@@ -25,7 +25,7 @@ db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) 
 {% include code/end.html %}
 {% include code/start.html id="attach1" type="promise" %}
 {% highlight js %}
-var attachment = new Blob(['Is there life on Mars?']);
+var attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
 db.putAttachment('doc', 'att.txt', attachment, 'text/plain').then(function (result) {
   // handle result
 }).catch(function (err) {
@@ -140,7 +140,7 @@ var doc = {
     "_attachments": {
       "att.txt": {
         "content_type": "text/plain",
-        "data": new Blob(['Is there life on Mars?'])
+        "data": new Blob(['Is there life on Mars?'], {type: 'text/plain'})
       }
     }
   }
@@ -159,7 +159,7 @@ var doc = {
   "_attachments": {
     "att.txt": {
       "content_type": "text/plain",
-      "data": new Blob(['Is there life on Mars?'])
+      "data": new Blob(['Is there life on Mars?'], {type: 'text/plain'})
     }
   }
 }
@@ -184,15 +184,21 @@ var doc = {
     "_attachments": {
       "att.txt": {
         "content_type": "text/plain",
-        "data": new Blob(["And she's hooked to the silver screen"])
+        "data": new Blob(
+          ["And she's hooked to the silver screen"], 
+          {type: 'text/plain'})
       },
       "att2.txt": {
         "content_type": "text/plain",
-        "data": new Blob(["But the film is a saddening bore"])
+        "data": new Blob(
+          ["But the film is a saddening bore"], 
+          {type: 'text/plain'})
       },
       "att3.txt": {
         "content_type": "text/plain",
-        "data": new Blob(["For she's lived it ten times or more"])
+        "data": new Blob(
+          ["For she's lived it ten times or more"], 
+          {type: 'text/plain'})
       }
     }
   }
@@ -211,15 +217,21 @@ var doc = {
   "_attachments": {
     "att.txt": {
       "content_type": "text/plain",
-      "data": new Blob(["And she's hooked to the silver screen"])
+      "data": new Blob(
+        ["And she's hooked to the silver screen"], 
+        {type: 'text/plain'})
     },
     "att2.txt": {
       "content_type": "text/plain",
-      "data": new Blob(["But the film is a saddening bore"])
+      "data": new Blob(
+        ["But the film is a saddening bore"], 
+        {type: 'text/plain'})
     },
     "att3.txt": {
       "content_type": "text/plain",
-      "data": new Blob(["For she's lived it ten times or more"])
+      "data": new Blob(
+        ["For she's lived it ten times or more"], 
+        {type: 'text/plain'})
     }
   }
 }

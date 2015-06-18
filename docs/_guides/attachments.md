@@ -238,6 +238,30 @@ When you fetch attachments, however, `getAttachment()` will always return Blobs/
 
 The other "read" APIs, such as `get()`, `allDocs()`, `changes()`, and `query()` have an `{attachments: true}` option that returns the attachments base64-encoded strings. If you add `{binary: true}`, though, they will return Blobs/Buffers.
 
+Blob types
+----
+
+Blobs have their own `type`, but there is also a `content_type` that you specify when you store it in PouchDB:
+
+```js
+var myBlob = new Blob(['I am plain text!'], {type: 'text/plain'});
+console.log(myBlob.type); // 'text/plain'
+
+db.put({
+  _id: 'mydoc',
+  _attachments: {
+    'myattachment.txt': {
+      content_type: 'text/plain',
+      data: myBlob
+    }
+  }
+});
+```
+
+The reason for this redundancy is 1) Buffers in Node do not have a `type`, and 2) the CouchDB attachment format requires it.
+
+So for best results, you should ensure that your Blobs have the same type as the one reported to PouchDB. Otherwise you may see inconsistent behavior (e.g. in IndexedDB, where the Blob is stored as-is on compatible browsers).
+
 Related API documentation
 --------
 
