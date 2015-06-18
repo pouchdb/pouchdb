@@ -33,8 +33,10 @@ var testRoot = 'http://127.0.0.1:8000/tests/';
 var testUrl;
 if (process.env.PERF) {
   testUrl = testRoot + 'performance/index.html';
-} else if (process.env.type === 'fuzzy') {
+} else if (process.env.TYPE === 'fuzzy') {
   testUrl = testRoot + 'fuzzy/index.html';
+} else if (process.env.TYPE === 'mapreduce') {
+  testUrl = testRoot + 'mapreduce/index.html';
 } else {
   testUrl = testRoot + 'integration/index.html';
 }

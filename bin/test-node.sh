@@ -17,6 +17,9 @@ fi
 if [ $TYPE = "fuzzy" ]; then
     TESTS_PATH="tests/fuzzy/test.*.js"
 fi
+if [ $TYPE = "mapreduce" ]; then
+    TESTS_PATH="tests/mapreduce/test.*.js"
+fi
 
 
 if [ $PERF ]; then

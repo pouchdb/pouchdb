@@ -33,7 +33,6 @@
     "pouchdb-collate": "^1.2.0",
     "pouchdb-collections": "^1.0.0",
     "pouchdb-extend": "^0.1.2",
-    "pouchdb-mapreduce": "~2.3.2",
     "pouchdb-upsert": "^1.0.2",
     "request": "~2.28.0",
     "spark-md5": "0.0.5",
@@ -46,7 +45,8 @@
   "devDependencies": {
     "browserify": "^10.2.4",
     "bundle-collapser": "^1.1.1",
-    "chai": "^1.9.1",
+    "chai": "^2.3.0",
+    "chai-as-promised": "^5.0.0",
     "child-process-promise": "^1.1.0",
     "commander": "~2.1.0",
     "cordova": "~3.4.1-0.1.0",

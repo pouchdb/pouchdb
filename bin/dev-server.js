@@ -116,6 +116,8 @@ function startServers(callback) {
       });
       console.log('Integration tests: ' + testRoot +
         '/tests/integration/' + query);
+      console.log('Map/reduce  tests: ' + testRoot +
+      '/tests/mapreduce' + query);
       console.log('Performance tests: ' + testRoot +
         '/tests/performance/');
       serversStarted = true;
