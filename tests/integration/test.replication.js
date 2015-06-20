@@ -14,7 +14,7 @@ if ('saucelabs' in testUtils.params()) {
 var downAdapters = ['local'];
 
 adapters.forEach(function (adapters) {
-  describe('test.replication.js-' + adapters[0] + '-' + adapters[1],
+  describe('suite2 test.replication.js-' + adapters[0] + '-' + adapters[1],
     function () {
 
     var dbs = {};
@@ -3810,7 +3810,7 @@ adapters.forEach(function (adapters) {
 // down
 downAdapters.map(function (adapter) {
 
-  describe('test.replication.js-down-test', function () {
+  describe('suite2 test.replication.js-down-test', function () {
 
     var dbs = {};
 

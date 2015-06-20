@@ -63,8 +63,8 @@ env:
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
   # split up the android tests as it goes over time
-  - GREP=test.replication.js CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
-  - GREP=test.replication.js INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
+  - GREP=suite2 CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
+  - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
 
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
