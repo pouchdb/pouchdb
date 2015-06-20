@@ -33,7 +33,7 @@ describe('test.http.js', function () {
     });
   });
 
-  it('Issue 1269 redundant _changes requests', function (done) {
+  it.skip('Issue 1269 redundant _changes requests', function (done) {
     var docs = [];
     var num = 100;
     for (var i = 0; i < num; i++) {
