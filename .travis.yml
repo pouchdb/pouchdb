@@ -45,9 +45,9 @@ env:
   - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
-  - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - AUTO_COMPACTION=false CLIENT=node COMMAND=test
+  - AUTO_COMPACTION=false CLIENT=selenium:firefox COMMAND=test
+  - AUTO_COMPACTION=false CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
