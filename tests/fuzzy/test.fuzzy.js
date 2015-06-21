@@ -11,6 +11,15 @@
 // perform those actions on a random database. Once we have run enough actions
 // we sync the 2 databases together and assert that they have the same contents
 
+// We can take an optional seed from the url (?seed=hello) otherwise we just
+// generate an arbitrary one. With any given seed the 'random' generations
+// are deteministic so if we find a seed that fails the test we can provide
+// that seed again to rerun the same actions and generate the same failure
+var seed = testUtils.params().seed || Date.now();
+if (Math.seedrandom) {
+  Math.seedrandom(seed);
+}
+
 // This is the amount of random actions we do
 var actionCount = 100;
 
