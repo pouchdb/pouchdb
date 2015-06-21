@@ -107,7 +107,7 @@
   "browser": {
     "request": "./lib/deps/request-browser.js",
     "crypto": false,
-    "./adapters/leveldb/leveldb": false,
+    "./adapters/leveldb": false,
     "./adapters/levelalt": false,
     "./lib/version.js": "./lib/version-browser.js",
     "./lib/adapters/preferredAdapters.js": "./lib/adapters/preferredAdapters-browser.js",
