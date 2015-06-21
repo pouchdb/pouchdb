@@ -4,11 +4,11 @@ Code of Conduct
 Introduction
 ------------
 
-This code of conduct governs how we behave in any forum and whenever we will be judged by our actions. We expect it to be honoured by everyone who participates in the PouchDB community formally or informally, or claims any affiliation with the project.
+This code of conduct *governs how we behave* in any forum and whenever we will be judged by our actions. We expect it to be honoured by everyone who participates in the PouchDB community formally or informally, or claims any affiliation with the project.
 
-This code of conduct also applies to all spaces managed by the PouchDB project, including IRC, all public and private mailing lists, the issue tracker, the wiki, the blogs, Twitter, and any other forum which the community uses for communication.
+This code of conduct also *applies to all spaces* managed by the PouchDB project, including IRC, all public and private mailing lists, the issue tracker, the wiki, the blogs, Twitter, and any other forum which the community uses for communication.
 
-This code is not exhaustive or complete. It serves to distill our common understanding of a collaborative, shared environment and goals. We expect it to be followed in spirit as much as in the letter, so that it can enrich all of us and the technical communities in which we participate.
+This code is not *exhaustive or complete*. It serves to distill our common understanding of a collaborative, shared environment and goals. We expect it to be followed in spirit as much as in the letter, so that it can enrich all of us and the technical communities in which we participate.
 
 Specific Guidelines
 -------------------
