@@ -3445,6 +3445,53 @@ repl_adapters.forEach(function (adapters) {
       });
     });
 
+      it('#3961 Many attachments on same doc', function () {
+        var doc = {_id: 'foo', _attachments: {}};
+
+        var db = new PouchDB(dbs.name);
+        var remote = new PouchDB(dbs.remote);
+
+        for (var i = 0; i < 100; i++) {
+          doc._attachments[i + '.txt'] = {
+            data: testUtils.btoa(i.toString()),
+            content_type: 'text/plain'
+          };
+        }
+
+        var rev;
+        return db.put(doc).then(function (info) {
+          rev = info.rev;
+          return db.replicate.to(remote);
+        }).then(function () {
+          return PouchDB.utils.Promise.all([
+            db, remote
+          ].map(function (pouch) {
+            return pouch.get('foo', {attachments: true}).then(function (doc) {
+              var atts = doc._attachments;
+              Object.keys(atts).length.should.equal(100);
+              for (var i = 0; i < 100; i++) {
+                var att = atts[i + '.txt'];
+                should.not.exist(att.stub);
+                att.data.should.equal(testUtils.btoa(i.toString()));
+                att.content_type.should.equal('text/plain');
+              }
+            }).then(function () {
+              return pouch.get('foo');
+            }).then(function (doc) {
+              var atts = doc._attachments;
+              Object.keys(atts).length.should.equal(100);
+              for (var i = 0; i < 100; i++) {
+                var att = atts[i + '.txt'];
+                att.stub.should.equal(true);
+                att.content_type.should.equal('text/plain');
+                att.length.should.equal(i.toString().length);
+                should.exist(att.digest);
+              }
+            });
+          }));
+        });
+      });
+
     it('Multiple attachments replicate, different docs (#2698)', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
