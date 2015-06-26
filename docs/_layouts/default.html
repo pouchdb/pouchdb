@@ -181,13 +181,25 @@
           giveIntro();
         }
       }
-      
       function giveIntro() {
         console.log('%c\n..............................................................................\n.?I...........~+: ............................................................\n.???.........++++.............................................................\n:????+......+++++.............................................................\n.??????+++++++++:.................................H...........D..B............\n...????++++++++...................................H...........D..B............\n...=????++++++.......PPPPP...OOOO...U....U...CCCC.HHHHH...DDDDD..BBBBB........\n...?????+++++++......P...:P.OO...O..U....U..C.....H...H..D....D..B....B.......\n..???????+++++++ ....P. ..P.O....O..U....U.CC.....H...H..D....D..B....B.......\n..?????????????......P...:P.OO...O..U....U..C.....H...H..D....D..B....B.......\n...I??????????~......PPPPP...OOOO...=UUUUU...CCCC.H...H...DDDDD..BBBBB........\n....?????????~.......P.... ...................................................\n.....???????+........P........................................................\n......??????..................................................................\n..............................................................................\n..............................................................................\n..............................................................................', 'color: #4ec084');
         console.log('%c\nPouchDB itself is hosted at PouchDB.com!\nTo get started, try typing:\nvar db = new PouchDB(\'mydb\');', 'color: #4ec084');
       }
-      applicationCache.addEventListener('cached', onCached, false);
-      applicationCache.addEventListener('noupdate', giveIntro, false);
+      function offerToReload() {
+        $('.js-update-notification')
+          .removeClass('btn-update-hidden')
+          .on('click', function(){
+            window.location.reload();
+          });
+      }
+      if (window.applicationCache) {
+        applicationCache.addEventListener('cached', onCached, false);
+        applicationCache.addEventListener('noupdate', giveIntro, false);
+        applicationCache.addEventListener('updateready', offerToReload, false);
+      }
     </script>
+    <button type="button" class="js-update-notification btn btn-primary btn-update btn-update-hidden">
+      Content updated, reload now? ↻
+    </button>
   </body>
 </html>
