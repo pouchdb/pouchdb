@@ -7,6 +7,8 @@ baseurl:
 version: 3.6.0
 paginate: 5
 paginate_path: "blog/page:num"
+github:
+  repository_url: https://github.com/pouchdb/pouchdb
 collections:
   guides:
     output: true

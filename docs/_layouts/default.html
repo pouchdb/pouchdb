@@ -70,7 +70,12 @@
 
         <div class="container">
 
-          <h1>{{ page.title }}</h1>
+          <h1 class="page-title">{{ page.title }}</h1>
+          {% if page.edit != false %}
+            <span class="h1">
+              {% include edit_button.html %}
+            </span>
+          {% endif %}
           {% if page.sub_title %}
             <h4>{{ page.sub_title}}</h4>
           {% endif %}
@@ -183,6 +188,7 @@
     <script type="text/javascript" src="{{ site.baseurl }}/static/js/code.min.js"></script>
     <script type="text/javascript" src="http://cdn.jsdelivr.net/pouchdb/latest/pouchdb.min.js"></script>
     <script type="text/javascript">
+      $('[data-toggle="tooltip"]').tooltip();
       function onCached(e) {
         if (applicationCache.status === 1) {
           giveIntro();
