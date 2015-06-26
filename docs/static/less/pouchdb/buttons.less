@@ -27,3 +27,23 @@
     width: 100%;
   }
 }
+
+// Notification button-variant
+.btn-update {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 25em;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  text-align: center;
+  transition: opacity .5s, transform .25s;
+}
+.btn-update-hidden {
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-100%);
+}
