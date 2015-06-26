@@ -1,4 +1,4 @@
-{% include anchor.html title="Fetch a batch of documents" hash="batch_fetch" %} 
+{% include anchor.html edit="true" title="Fetch a batch of documents" hash="batch_fetch" %}
 
 {% highlight js %}
 db.allDocs([options], [callback])
@@ -34,7 +34,7 @@ All options default to `false` unless otherwise specified.
 {% include code/start.html id="all_docs" type="callback" %}
 {% highlight js %}
 db.allDocs({
-  include_docs: true, 
+  include_docs: true,
   attachments: true
 }, function(err, response) {
   if (err) { return console.log(err); }
@@ -45,7 +45,7 @@ db.allDocs({
 {% include code/start.html id="all_docs" type="promise" %}
 {% highlight js %}
 db.allDocs({
-  include_docs: true, 
+  include_docs: true,
   attachments: true
 }).then(function (result) {
   // handle result
@@ -94,7 +94,7 @@ You can use `startkey`/`endkey` to find all docs in a range:
 {% include code/start.html id="all_docs_2" type="callback" %}
 {% highlight js %}
 db.allDocs({
-  include_docs: true, 
+  include_docs: true,
   attachments: true,
   startkey: 'bar',
   endkey: 'quux'
@@ -107,7 +107,7 @@ db.allDocs({
 {% include code/start.html id="all_docs_2" type="promise" %}
 {% highlight js %}
 db.allDocs({
-  include_docs: true, 
+  include_docs: true,
   attachments: true,
   startkey: 'bar',
   endkey: 'quux'
@@ -128,7 +128,7 @@ You can do prefix search in `allDocs()` &ndash; i.e. "give me all the documents 
 {% include code/start.html id="all_docs_3" type="callback" %}
 {% highlight js %}
 db.allDocs({
-  include_docs: true, 
+  include_docs: true,
   attachments: true,
   startkey: 'foo',
   endkey: 'foo\uffff'
@@ -141,7 +141,7 @@ db.allDocs({
 {% include code/start.html id="all_docs_3" type="promise" %}
 {% highlight js %}
 db.allDocs({
-  include_docs: true, 
+  include_docs: true,
   attachments: true,
   startkey: 'foo',
   endkey: 'foo\uffff'

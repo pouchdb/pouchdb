@@ -1,4 +1,4 @@
-{% include anchor.html title="Create/update a batch of documents" hash="batch_create" %} 
+{% include anchor.html edit="true" title="Create/update a batch of documents" hash="batch_create" %}
 
 {% highlight js %}
 db.bulkDocs(docs, [options], [callback])
@@ -78,7 +78,7 @@ db.bulkDocs([
 ]
 {% endhighlight %}
 
-The response contains an array of the familiar `ok`/`rev`/`id` 
+The response contains an array of the familiar `ok`/`rev`/`id`
 from the [put()/post() API](#create_document). If there are any errors, they
 will be provided individually like so:
 
@@ -87,7 +87,7 @@ will be provided individually like so:
   { status: 409,
     name: 'conflict',
     message: 'Document update conflict',
-    error: true 
+    error: true
   }
 ]
 {% endhighlight %}
@@ -191,5 +191,3 @@ db.bulkDocs([
 {% include code/end.html %}
 
 **Note:** You can also specify a `new_edits` property on the options object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
-
-

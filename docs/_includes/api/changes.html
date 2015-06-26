@@ -1,4 +1,4 @@
-{% include anchor.html title="Listen to database changes" hash="changes" %} 
+{% include anchor.html edit="true" title="Listen to database changes" hash="changes" %}
 
 {% highlight js %}
 db.changes(options)
@@ -83,12 +83,12 @@ Example response in the `'change'` listener (using `{include_docs: true}`):
 {% highlight js %}
 { id: 'doc1',
   changes: [ { rev: '1-9152679630cc461b9477792d93b83eae' } ],
-  doc: { 
-    _id: 'doc1', 
-    _rev: '1-9152679630cc461b9477792d93b83eae' 
+  doc: {
+    _id: 'doc1',
+    _rev: '1-9152679630cc461b9477792d93b83eae'
   },
-  seq: 1 
-} 
+  seq: 1
+}
 {% endhighlight %}
 
 Example response in the `'change'` listener when a doc was deleted:
@@ -98,7 +98,7 @@ Example response in the `'change'` listener when a doc was deleted:
   changes: [ { rev: '2-9b50a4b63008378e8d0718a9ad05c7af' } ],
   doc: { _id: 'doc2',
     _rev: '2-9b50a4b63008378e8d0718a9ad05c7af',
-    _deleted: true 
+    _deleted: true
   },
   deleted: true,
   seq: 3

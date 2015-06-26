@@ -4,7 +4,7 @@ title: Who's using PouchDB?
 sidebar: nav.html
 ---
 
-A list of known products and services that are using PouchDB. [Fork this page](https://github.com/pouchdb/pouchdb/blob/master/docs/users.md) to add your own!
+A list of known products and services that are using PouchDB.
 
 ## Cozy Cloud
 

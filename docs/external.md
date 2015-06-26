@@ -4,7 +4,7 @@ title: Plugins and External Projects
 sidebar: nav.html
 ---
 
-Below is a list of known plugins, tools and projects can be used with PouchDB. [Fork this page](https://github.com/pouchdb/pouchdb/blob/master/docs/external.md) to add your own!
+Below is a list of known plugins, tools and projects can be used with PouchDB.
 
 {% include anchor.html title="Plugins" hash="plugins" %}
 

@@ -49,7 +49,7 @@ In **Firefox**, PouchDB uses IndexedDB. Though Firefox has no upper limit beside
 
 **Mobile Safari** on iOS has a hard 50MB limit, whereas **desktop Safari** has no limit. Both will prompt the user with a modal dialog if an application requests more than 5MB of data, at increments of 5MB, 10MB, 50MB, 100MB, etc. Some versions of Safari have a bug where they only let you request additional storage once, so you'll need to request the desired space up-front. PouchDB allows you to do this using [the `size` option](http://pouchdb.com/api.html#create_database).
 
-**Android** works the same as Chrome as of 4.4+ (IndexedDB), while older versions can store up to 200MB (WebSQL). 
+**Android** works the same as Chrome as of 4.4+ (IndexedDB), while older versions can store up to 200MB (WebSQL).
 
 In [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/), you can have unlimited data on both iOS and Android by using the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin).
 
@@ -96,7 +96,7 @@ Here are the strategies used by various browsers in PouchDB:
 	<th>Firefox</th>
 	<th>Chrome < 43,<br/>Android</th>
 	<th>Chrome >= 43</th>
-	<th>Safari < 7.1,<br/>iOS < 8</th>	
+	<th>Safari < 7.1,<br/>iOS < 8</th>
 	<th>Safari >= 7.1,<br/>iOS >= 8</th>
 </tr>
 <tr>
@@ -120,9 +120,9 @@ Here are the strategies used by various browsers in PouchDB:
 </table>
 </div>
 
-Attachments are deduplicated based on their MD5 sum, so duplicate attachments won't take up extra space. 
+Attachments are deduplicated based on their MD5 sum, so duplicate attachments won't take up extra space.
 
-To truly remove an attachment from the data store, you will need to use [compaction](http://pouchdb.com/api.html#compaction) to remove document revisions that reference that attachment. 
+To truly remove an attachment from the data store, you will need to use [compaction](http://pouchdb.com/api.html#compaction) to remove document revisions that reference that attachment.
 
 {% include anchor.html class="h3" title="Is it safe to upgrade PouchDB?" hash="safe_to_upgrade" %}
 
