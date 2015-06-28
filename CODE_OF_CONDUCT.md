@@ -60,7 +60,7 @@ Reporting Guidelines
 
 PouchDB maintainers have the primary responsibility to ensure this code of conduct is adhered to however all in the community are invited to participate in cultivating a respectful atmosphere. If you believe someone is violating this code of conduct, you may reply to them and point out this code of conduct. Such messages may be in public or in private, whatever is most appropriate. However, regardless of whether the message is public or not, it should still adhere to the relevant parts of this code of conduct; in particular, it should not be abusive or disrespectful. Should there be difficulties in dealing with the situation, you may report your compliance issues in confidence dale@arandomurl.com.
 
-Anyone voilating the code of conduct will be notified and asked to stop, if anyone repeatedly voilates the code of conduct then the actions may include but not be limited to closing problematic bugs, temporary or permanent exclusion from GitHub, mailing lists or other PouchDB controlled communities.
+Anyone violating the code of conduct will be notified and asked to stop, if anyone repeatedly voilates the code of conduct then the actions may include but not be limited to closing problematic bugs, temporary or permanent exclusion from GitHub, mailing lists or other PouchDB controlled communities.
 
 Endnotes
 --------
