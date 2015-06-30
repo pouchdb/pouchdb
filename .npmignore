@@ -9,4 +9,4 @@ tests/cordova/www
 .idea
 phantomjsdriver.log
 bower_components
-docs
+./docs/
