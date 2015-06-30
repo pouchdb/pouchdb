@@ -34,6 +34,6 @@ make
 python dev/run -n 1 --with-admin-party-please &
 
 # Lets get rid of this at some point :)
-sleep 10
+sleep 20
 
 cd $CWD
