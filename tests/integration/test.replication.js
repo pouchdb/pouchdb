@@ -73,10 +73,10 @@ adapters.forEach(function (adapters) {
 
     function verifyInfo(info, expected) {
       if (!testUtils.isCouchMaster()) {
-        if (typeof info.doc_count === 'undefined') { 
+        if (typeof info.doc_count === 'undefined') {
           // info is from Sync Gateway, which allocates an extra seqnum
           // for user access control purposes.
-          info.update_seq.should.be.within(expected.update_seq, 
+          info.update_seq.should.be.within(expected.update_seq,
             expected.update_seq + 1, 'update_seq');
         } else {
           info.update_seq.should.equal(expected.update_seq, 'update_seq');
@@ -2517,6 +2517,325 @@ adapters.forEach(function (adapters) {
           }
         });
       });
+    });
+
+    // Should not start replication over if last_seq mismatches in checkpoints
+    // and it can be resolved some other way
+    it('#3999-1 should not start over if last_seq mismatches', function () {
+
+      var source = new PouchDB(dbs.remote);
+      var mismatch = false;
+      var failWrite = false;
+      var checkpoint;
+
+      // 1. This is where we fake the mismatch:
+      var putte = source.put;
+      source.put = function (doc) {
+
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
+        }
+
+        if (!failWrite || doc.last_seq !== 2) {
+          return putte.apply(this, arguments);
+        }
+
+        return PouchDB.utils.Promise.reject({
+          status: 0,
+          message: 'Database encountered an unknown error'
+        });
+      };
+
+      // 2. We measure that the replication starts in the expected
+      // place in the 'changes' function
+      var changes = source.changes;
+      source.changes = function (opts) {
+
+        if (mismatch) {
+          opts.since.should.not.equal(0);
+        }
+        return changes.apply(source, arguments);
+      };
+
+
+      var doc = { _id: '3', count: 0 };
+      var put;
+
+      return source.put({ _id: '4', count: 1 }, {}).then(function() {
+          return source.put(doc, {});
+      }).then(function(_put) {
+        put = _put;
+        // Do one replication, this replication
+        // will fail writing one checkpoint
+        failWrite = true;
+        return source.replicate.to(dbs.name, { batch_size: 1 });
+      }).catch(function () {
+        failWrite = false;
+      }).then(function () {
+        // Verify that checkpoints are indeed mismatching:
+        should.exist(checkpoint);
+        var target = new PouchDB(dbs.name);
+        return PouchDB.utils.Promise.all([
+          target.get(checkpoint),
+          source.get(checkpoint)
+        ]);
+      }).then(function(res) {
+        // res[0] = target checkpoint
+        // res[1] = source checkpoint
+        res[0].session_id.should.equal(res[1].session_id);
+        res[0].last_seq.should.not.equal(res[1].last_seq);
+
+        doc._rev = put.rev;
+        doc.count++;
+        return source.put(doc, {});
+      }).then(function(err, results) {
+        // Trigger the mismatch on the 2nd replication
+        mismatch = true;
+        return source.replicate.to(dbs.name);
+      });
+    });
+
+    it('#3999-2 should start over if no common session is found', function () {
+
+      var source = new PouchDB(dbs.remote);
+      var mismatch = false;
+      var writeStrange = false;
+      var checkpoint;
+
+      // 1. This is where we fake the mismatch:
+      var putte = source.put;
+      source.put = function (doc) {
+
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
+        }
+
+        if (!writeStrange || (doc.last_seq !== 1 && doc.last_seq[0] !== 1)) {
+          return putte.apply(this, arguments);
+        }
+
+        // Change session id of source checkpoint to mismatch
+        doc.session_id = "aaabbbbb";
+        doc.history[0].session_id = "aaabbbbb";
+        return putte.apply(this, arguments);
+      };
+
+      // 2. We measure that the replication starts in the expected
+      // place in the 'changes' function
+      var changes = source.changes;
+      source.changes = function (opts) {
+        if(mismatch) {
+          // We expect this replication to start over,
+          // so the correct value of since is 0
+          // if it's higher, the replication read the checkpoint
+          // without caring for session id
+          opts.since.should.equal(0);
+          mismatch = false;
+        }
+
+        return changes.apply(source, arguments);
+      };
+
+      var doc = { _id: '3', count: 0 };
+      var put;
+
+      return source.put(doc, {}).then(function (_put) {
+        put = _put;
+        writeStrange = true;
+        // Do one replication, to not start from 0
+        return source.replicate.to(dbs.name);
+      }).then(function (result) {
+        writeStrange = false;
+
+        // Verify that checkpoints are indeed mismatching:
+        should.exist(checkpoint);
+        var target = new PouchDB(dbs.name);
+        return PouchDB.utils.Promise.all([
+          target.get(checkpoint),
+          source.get(checkpoint)
+        ]);
+      }).then(function (res) {
+        // [0] = target checkpoint, [1] = source checkpoint
+        res[0].session_id.should.not.equal(res[1].session_id);
+
+        doc._rev = put.rev;
+        doc.count++;
+        return source.put(doc, {});
+      }).then(function (results) {
+        // Trigger the mismatch on the 2nd replication
+        mismatch = true;
+        return source.replicate.to(dbs.name);
+      });
+    });
+
+    it('#3999-3 should not start over if common session is found', function () {
+
+      var source = new PouchDB(dbs.remote);
+      var mismatch = false;
+      var writeStrange = false;
+      var checkpoint;
+
+      // 1. This is where we fake the mismatch:
+      var putte = source.put;
+      source.put = function (doc) {
+
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
+        }
+
+        if (!writeStrange || (doc.last_seq !== 1 && doc.last_seq[0] !== 1)) {
+          return putte.apply(this, arguments);
+        }
+
+        // Change session id of source checkpoint to mismatch
+        var session = doc.session_id;
+
+        doc.session_id = "aaabbbbb";
+        doc.history[0].session_id = "aaabbbbb";
+        // put a working session id in the history:
+        doc.history.push({
+          session_id: session,
+          last_seq: doc.last_seq
+        });
+        return putte.apply(this, arguments);
+      };
+
+      // 2. We measure that the replication starts in the expected
+      // place in the 'changes' function
+      var changes = source.changes;
+
+      source.changes = function (opts) {
+        if(mismatch) {
+          // If we resolve to 0, the checkpoint resolver has not
+          // been going through the sessions
+          opts.since.should.not.equal(0);
+
+          mismatch = false;
+        }
+
+        return changes.apply(source, arguments);
+      };
+
+
+      var doc = { _id: '3', count: 0 };
+      var put;
+
+      return source.put(doc, {}).then(function (_put) {
+        put = _put;
+        // Do one replication, to not start from 0
+        writeStrange = true;
+        return source.replicate.to(dbs.name);
+      }).then(function (result) {
+        writeStrange = false;
+        // Verify that checkpoints are indeed mismatching:
+        should.exist(checkpoint);
+        var target = new PouchDB(dbs.name);
+        return PouchDB.utils.Promise.all([
+          target.get(checkpoint),
+          source.get(checkpoint)
+        ]);
+      }).then(function (res) {
+        // [0] = target checkpoint, [1] = source checkpoint
+        res[0].session_id.should.not.equal(res[1].session_id);
+
+        doc._rev = put.rev;
+        doc.count++;
+        return source.put(doc, {});
+      }).then(function (err, result) {
+        // Trigger the mismatch on the 2nd replication
+        mismatch = true;
+        return source.replicate.to(dbs.name);
+      });
+    });
+
+    it('#3999-4 should "upgrade" an old checkpoint', function() {
+
+      var secondRound = false;
+      var writeStrange = false;
+      var checkpoint;
+      var source = new PouchDB(dbs.remote);
+      var target = new PouchDB(dbs.name);
+
+      // 1. This is where we fake the mismatch:
+      var putter = function (doc) {
+
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
+        }
+
+        var args = [].slice.call(arguments, 0);
+
+        // Write an old-style checkpoint on the first replication:
+        if (writeStrange && (doc.last_seq === 1 || doc.last_seq[0] === 1)) {
+          var newDoc = {
+            _id: doc._id,
+            last_seq: doc.last_seq
+          };
+
+          args.shift();
+          args.unshift(newDoc);
+        }
+
+        if(this === source) {
+          return sourcePut.apply(this, args);
+        }
+
+        return targetPut.apply(this, args);
+      };
+
+      var sourcePut = source.put;
+      source.put = putter;
+      var targetPut =  target.put;
+      target.put = putter;
+
+      var changes = source.changes;
+      source.changes = function (opts) {
+        if (secondRound) {
+          // Test 1: Check that we read the old style local doc
+          // and didn't start from 0
+          opts.since.should.not.equal(0);
+        }
+        return changes.apply(source, arguments);
+      };
+
+       var doc = { _id: '3', count: 0 };
+
+       return source.put({ _id: '4', count: 1 }, {}).then(function () {
+         writeStrange = true;
+         return source.replicate.to(target);
+       }).then(function() {
+         writeStrange = false;
+         // Verify that we have old checkpoints:
+         should.exist(checkpoint);
+         var target = new PouchDB(dbs.name);
+         return PouchDB.utils.Promise.all([
+           target.get(checkpoint),
+           source.get(checkpoint)
+         ]);
+       }).then(function (res) {
+        // [0] = target checkpoint, [1] = source checkpoint
+        should.not.exist(res[0].session_id);
+        should.not.exist(res[1].session_id);
+
+         return source.put(doc, {});
+       }).then(function () {
+         // Do one replication, check that we start from expected last_seq
+         secondRound = true;
+         return source.replicate.to(target);
+       }).then(function () {
+         should.exist(checkpoint);
+         return source.get(checkpoint);
+       }).then(function (res) {
+         should.exist(res.version);
+         should.exist(res.replicator);
+         should.exist(res.session_id);
+         res.version.should.equal(1);
+         res.session_id.should.be.a('string');
+       });
     });
 
     it('(#1307) - replicate empty database', function (done) {
