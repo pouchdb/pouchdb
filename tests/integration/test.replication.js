@@ -2758,7 +2758,7 @@ adapters.forEach(function (adapters) {
            if(callback) {
              callback.call(this, null, checkPoint);
            }
-           return Promise.resolve(checkPoint);
+           return PouchDB.utils.Promise.resolve(checkPoint);
          }
 
          if(this === remote) {
