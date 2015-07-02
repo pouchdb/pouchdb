@@ -2711,10 +2711,14 @@ adapters.forEach(function (adapters) {
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
       var changes = remote.changes;
+      var called = false;
       remote.changes = function(opts) {
         if(mismatch) {
-          opts.since.should.equal(1);
-          done();
+          opts.since.should.be.at.least(1);
+          if(!called) {
+            done();
+            called = true;
+          }
         }
 
         return changes.apply(remote, arguments);
@@ -2739,58 +2743,61 @@ adapters.forEach(function (adapters) {
 
     it('#3999-4 should "upgrade" an old checkpoint to a new one ' +
        'without losing sequence', function(done) {
-      var get = PouchDB.prototype.get;
-      var checkpointId;
+       var oldstyle = true;
+       var checkpointId;
 
-      function getChecker (id, callback) {
-        if(/^_local/.test(id)) {
-          checkpointId = id;
+       function getChecker (id, callback) {
+         if(oldstyle && /^_local/.test(id)) {
+           checkpointId = id;
 
-          var checkPoint = {
-            _id: id,
-            last_seq: 1
-          };
+           var checkPoint = {
+             _id: id,
+             last_seq: 1
+           };
 
-          if(callback) {
-            callback.call(this, null, checkPoint);
-          }
-          return Promise.resolve(checkPoint);
-        }
+           if(callback) {
+             callback.call(this, null, checkPoint);
+           }
+           return Promise.resolve(checkPoint);
+         }
 
-        if(this.adapter === 'http') {
-          return remoteGet.apply(this, arguments);
-        }
-        return get.apply(this, arguments);
-      }
-      PouchDB.prototype.get = getChecker;
-      var remote = new PouchDB(dbs.remote);
-      var remoteGet = remote.get;
-      remote.get = getChecker;
+         if(this === remote) {
+           return remoteGet.apply(this, arguments);
+         }
+         return dbGet.apply(this, arguments);
+       }
 
-      var changes = remote.changes;
-      remote.changes = function(opts) {
-        // Test 1: Check that we didn't start from 0
-        opts.since.should.be.at.least(1);
-        return changes.apply(remote, arguments);
-      };
+       var db = new PouchDB(dbs.name);
+       var remote = new PouchDB(dbs.remote);
+       // To make the test work across local/http adapters,
+       // need to shadow both 'get' functions
+       var remoteGet = remote.get;
+       remote.get = getChecker;
+       var dbGet = db.get;
+       db.get = getChecker;
 
-      var doc = { _id: '3', count: 0 };
-      remote.put({ _id: '4', count: 1 }, {}, function(err, put) {
-        remote.put(doc, {}, function(err, put) {
-          // Do one replication, check that we start from expected last_seq
-          remote.replicate.to(dbs.name, function(err, result) {
-            // restore get, so we can check the new checkpoint
-            PouchDB.prototype.get = get;
-            remote.get = remoteGet;
-            remote.get(checkpointId, function(err, res) {
-              // Test 2: check that the checkpoint has been upgraded
-              res.replication_id_version.should.equal(2);
-              res.session_id.should.be.a.string;
-              done();
-            });
-          });
-        });
-      });
+       var changes = remote.changes;
+       remote.changes = function(opts) {
+         // Test 1: Check that we didn't start from 0
+         opts.since.should.be.at.least(1);
+         return changes.apply(remote, arguments);
+       };
+
+       var doc = { _id: '3', count: 0 };
+       remote.put({ _id: '4', count: 1 }, {}, function(err, put) {
+         remote.put(doc, {}, function(err, put) {
+           // Do one replication, check that we start from expected last_seq
+           remote.replicate.to(db, function(err, result) {
+             oldstyle = false;
+             remote.get(checkpointId, function(err, res) {
+               // Test 2: check that the checkpoint has been upgraded
+               res.replication_id_version.should.equal(2);
+               res.session_id.should.be.a('string');
+               done();
+             });
+           });
+         });
+       });
     });
 
     it('(#1307) - replicate empty database', function (done) {
