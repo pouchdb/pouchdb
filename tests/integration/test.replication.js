@@ -2532,7 +2532,7 @@ adapters.forEach(function (adapters) {
       remote.get = function(id, callback) {
         if(mismatch && /_local/.test(id)) {
           var cb;
-          var pr = new Promise(function(resolve, reject) {
+          var pr = new PouchDB.utils.Promise(function(resolve, reject) {
             cb = function(err, res) {
               if(err) {
                 return reject(err);
@@ -2596,7 +2596,7 @@ adapters.forEach(function (adapters) {
       remote.get = function(id, callback) {
         if(mismatch && /_local/.test(id)) {
           var cb;
-          var pr = new Promise(function(resolve, reject) {
+          var pr = new PouchDB.utils.Promise(function(resolve, reject) {
             cb = function(err, res) {
               if(err) {
                 return reject(err);
@@ -2670,7 +2670,7 @@ adapters.forEach(function (adapters) {
       remote.get = function(id, callback) {
         if(mismatch && /_local/.test(id)) {
           var cb;
-          var pr = new Promise(function(resolve, reject) {
+          var pr = new PouchDB.utils.Promise(function(resolve, reject) {
             cb = function(err, res) {
               if(err) {
                 return reject(err);
@@ -2746,7 +2746,7 @@ adapters.forEach(function (adapters) {
        var oldstyle = true;
        var checkpointId;
 
-       function getChecker (id, callback) {
+       var getChecker = function(id, callback) {
          if(oldstyle && /^_local/.test(id)) {
            checkpointId = id;
 
@@ -2765,7 +2765,7 @@ adapters.forEach(function (adapters) {
            return remoteGet.apply(this, arguments);
          }
          return dbGet.apply(this, arguments);
-       }
+       };
 
        var db = new PouchDB(dbs.name);
        var remote = new PouchDB(dbs.remote);
