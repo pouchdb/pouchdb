@@ -2519,6 +2519,280 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#3999-1 should not start replication over ' +
+       'if last_seq mismatches in checkpoints, ' +
+       'and it can be resolved some other way', function (done) {
+      var remote = new PouchDB(dbs.remote);
+
+
+      var mismatch = false;
+
+      // 1. This is where we fake the mismatch:
+      var get = remote.get;
+      remote.get = function(id, callback) {
+        if(mismatch && /_local/.test(id)) {
+          var cb;
+          var pr = new Promise(function(resolve, reject) {
+            cb = function(err, res) {
+              if(err) {
+                return reject(err);
+              }
+              resolve(res);
+            };
+          });
+
+          get.call(this, id, function(err, res) {
+            // manipulate res to be a mismatching number
+            res.last_seq = 2;
+            if(callback) {
+              callback.call(null, err, res);
+            }
+
+            cb(err, res);
+          });
+
+          return pr;
+        } else {
+          return get.apply(this, arguments);
+        }
+      };
+
+      // 2. We measure that the replication starts in the expected
+      // place in the 'changes' function
+      var changes = remote.changes;
+      remote.changes = function(opts) {
+        if(mismatch) {
+          opts.since.should.be.at.least(1);
+          done();
+        }
+
+        return changes.apply(remote, arguments);
+      };
+
+
+      var doc = { _id: '3', count: 0 };
+
+      remote.put(doc, {}, function(err, put) {
+        // Do one replication, to not start from 0
+        remote.replicate.to(dbs.name, function(err, result) {
+          doc._rev = put.rev;
+          doc.count++;
+          remote.put(doc, {}, function(err, results) {
+            // Trigger the mismatch on the 2nd replication
+            mismatch = true;
+            remote.replicate.to(dbs.name, function(err, result) { });
+          });
+        });
+      });
+    });
+
+    it('#3999-2 should start replication over ' +
+       'if no common session is found in the checkpoint', function (done) {
+      var remote = new PouchDB(dbs.remote);
+      var mismatch = false;
+
+      // 1. This is where we fake the mismatch:
+      var get = remote.get;
+      remote.get = function(id, callback) {
+        if(mismatch && /_local/.test(id)) {
+          var cb;
+          var pr = new Promise(function(resolve, reject) {
+            cb = function(err, res) {
+              if(err) {
+                return reject(err);
+              }
+              resolve(res);
+            };
+          });
+
+          get.call(this, id, function(err, res) {
+            // manipulate res to be a mismatching session and history
+            var result = {
+              _id: res._id,
+              _rev: res._rev,
+              last_seq: 1,
+              replication_id_version: 2,
+              session_id: "aaaa11111aaaaaaaa",
+              history: [{
+                session_id:  "aaaa11111aaaaaaaa",
+                last_seq: 1
+              }]
+            };
+            if(callback) {
+              callback.call(null, err, result);
+            }
+
+            cb(err, result);
+          });
+
+          return pr;
+        } else {
+          return get.apply(this, arguments);
+        }
+      };
+
+      // 2. We measure that the replication starts in the expected
+      // place in the 'changes' function
+      var changes = remote.changes;
+      remote.changes = function(opts) {
+        if(mismatch) {
+          opts.since.should.equal(0);
+          done();
+        }
+
+        return changes.apply(remote, arguments);
+      };
+
+
+      var doc = { _id: '3', count: 0 };
+
+      remote.put(doc, {}, function(err, put) {
+        // Do one replication, to not start from 0
+        remote.replicate.to(dbs.name, function(err, result) {
+          doc._rev = put.rev;
+          doc.count++;
+          remote.put(doc, {}, function(err, results) {
+            // Trigger the mismatch on the 2nd replication
+            mismatch = true;
+            remote.replicate.to(dbs.name, function(err, result) { });
+          });
+        });
+      });
+    });
+
+    it('#3999-3 should not start replication over ' +
+       'if common session is found in the checkpoints', function (done) {
+      var remote = new PouchDB(dbs.remote);
+      var mismatch = false;
+
+      // 1. This is where we fake the mismatch:
+      var get = remote.get;
+      remote.get = function(id, callback) {
+        if(mismatch && /_local/.test(id)) {
+          var cb;
+          var pr = new Promise(function(resolve, reject) {
+            cb = function(err, res) {
+              if(err) {
+                return reject(err);
+              }
+              resolve(res);
+            };
+          });
+
+          get.call(this, id, function(err, res) {
+            // manipulate res to be a mismatching session and history
+            var result = {
+              _id: res._id,
+              _rev: res._rev,
+              last_seq: 1,
+              replication_id_version: 2,
+              session_id: "weirdo_checkpoint",
+              history: [{
+                session_id: "weirdo_checkpoint",
+                last_seq: 2222
+              }, {
+                session_id:  res.session_id,
+                last_seq: res.last_seq
+              }]
+            };
+            if(callback) {
+              callback.call(null, err, result);
+            }
+
+            cb(err, result);
+          });
+
+          return pr;
+        } else {
+          return get.apply(this, arguments);
+        }
+      };
+
+      // 2. We measure that the replication starts in the expected
+      // place in the 'changes' function
+      var changes = remote.changes;
+      remote.changes = function(opts) {
+        if(mismatch) {
+          opts.since.should.equal(1);
+          done();
+        }
+
+        return changes.apply(remote, arguments);
+      };
+
+
+      var doc = { _id: '3', count: 0 };
+
+      remote.put(doc, {}, function(err, put) {
+        // Do one replication, to not start from 0
+        remote.replicate.to(dbs.name, function(err, result) {
+          doc._rev = put.rev;
+          doc.count++;
+          remote.put(doc, {}, function(err, result) {
+            // Trigger the mismatch on the 2nd replication
+            mismatch = true;
+            remote.replicate.to(dbs.name, function(err, result) { });
+          });
+        });
+      });
+    });
+
+    it('#3999-4 should "upgrade" an old checkpoint to a new one ' +
+       'without losing sequence', function(done) {
+      var get = PouchDB.prototype.get;
+      var checkpointId;
+
+      function getChecker (id, callback) {
+        if(/^_local/.test(id)) {
+          checkpointId = id;
+
+          var checkPoint = {
+            _id: id,
+            last_seq: 1
+          };
+
+          if(callback) {
+            callback.call(this, null, checkPoint);
+          }
+          return Promise.resolve(checkPoint);
+        }
+
+        if(this.adapter === 'http') {
+          return remoteGet.apply(this, arguments);
+        }
+        return get.apply(this, arguments);
+      }
+      PouchDB.prototype.get = getChecker;
+      var remote = new PouchDB(dbs.remote);
+      var remoteGet = remote.get;
+      remote.get = getChecker;
+
+      var changes = remote.changes;
+      remote.changes = function(opts) {
+        // Test 1: Check that we didn't start from 0
+        opts.since.should.be.at.least(1);
+        return changes.apply(remote, arguments);
+      };
+
+      var doc = { _id: '3', count: 0 };
+      remote.put({ _id: '4', count: 1 }, {}, function(err, put) {
+        remote.put(doc, {}, function(err, put) {
+          // Do one replication, check that we start from expected last_seq
+          remote.replicate.to(dbs.name, function(err, result) {
+            // restore get, so we can check the new checkpoint
+            PouchDB.prototype.get = get;
+            remote.get = remoteGet;
+            remote.get(checkpointId, function(err, res) {
+              // Test 2: check that the checkpoint has been upgraded
+              res.replication_id_version.should.equal(2);
+              res.session_id.should.be.a.string;
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('(#1307) - replicate empty database', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
