@@ -86,4 +86,31 @@ describe('test.http.js', function () {
     uri.host.should.equal('foo.com');
   });
 
+
+  it('Allows the "ajax timeout" to extend "changes timeout"', function() {
+    var timeout = 120000;
+    var db = new PouchDB(dbs.name, {
+      skipSetup: true,
+      ajax: {
+        timeout: timeout
+      }
+    });
+
+    var ajax = PouchDB.utils.ajax;
+    var ajaxOpts;
+    PouchDB.utils.ajax = function(opts) {
+      if(/changes/.test(opts.url)) {
+        ajaxOpts = opts;
+      }
+    };
+
+    db.changes({
+      onChange: function(change) {}
+    });
+
+    should.exist(ajaxOpts);
+    ajaxOpts.timeout.should.equal(timeout);
+
+    PouchDB.utils.ajax = ajax;
+  });
 });
