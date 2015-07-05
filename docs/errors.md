@@ -208,16 +208,16 @@ var db = new PouchDB('database', { db: require('sqldown') });
 
 ```
 
-Also, you have the option to use [leveldown-prebuilt](https://github.com/mafintosh/leveldown-prebuilt), which avoids native leveldown building when installing. Then for use leveldown-prebuilt as backend, you can install:
+Also, you have the option to use [leveldown] (>= 1.2.2)(https://github.com/level/leveldown), which avoids native leveldown building when installing. Make sure the `win32-x64.tar.gz` is uploaded for your [leveldown] (https://github.com/Level/leveldown/releases) version. Then for use leveldown as backend, you can install:
 
 {% highlight bash %}
-npm install leveldown-prebuilt
+npm install leveldown@1.2.2
 {% endhighlight %}
 
 and instance your PouchDB like this:
 
 ```js
-var db = new PouchDB('database', { db: require('leveldown-prebuilt') });
+var db = new PouchDB('database', { db: require('leveldown') });
 
 ```
 
