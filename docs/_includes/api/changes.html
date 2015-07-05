@@ -13,7 +13,7 @@ It is an [event emitter][event emitter] and will emit a `'change'` event on each
 
 All options default to `false` unless otherwise specified.
 
-* `options.live`: Does "live" changes, using CouchDB's  `_longpoll_` feed if remote.
+* `options.live`: Will emit change events for all future changes until cancelled.
 * `options.include_docs`: Include the associated document with each change.
   * `options.conflicts`: Include conflicts.
   * `options.attachments`: Include attachments.
