@@ -86,6 +86,17 @@ describe('test.http.js', function () {
     uri.host.should.equal('foo.com');
   });
 
+  it('Properly escape url params #4008', function() {
+    var ajax = PouchDB.utils.ajax;
+    PouchDB.utils.ajax = function(opts) {
+      opts.url.should.not.contain('[');
+      ajax.apply(this, arguments);
+    };
+    var db = new PouchDB(dbs.name);
+    return db.changes({doc_ids: ['1']}).then(function() {
+      PouchDB.utils.ajax = ajax;
+    });
+  });
 
   it('Allows the "ajax timeout" to extend "changes timeout"', function() {
     var timeout = 120000;
