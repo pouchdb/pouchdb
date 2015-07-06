@@ -73,10 +73,10 @@ adapters.forEach(function (adapters) {
 
     function verifyInfo(info, expected) {
       if (!testUtils.isCouchMaster()) {
-        if (typeof info.doc_count === 'undefined') { 
+        if (typeof info.doc_count === 'undefined') {
           // info is from Sync Gateway, which allocates an extra seqnum
           // for user access control purposes.
-          info.update_seq.should.be.within(expected.update_seq, 
+          info.update_seq.should.be.within(expected.update_seq,
             expected.update_seq + 1, 'update_seq');
         } else {
           info.update_seq.should.equal(expected.update_seq, 'update_seq');
@@ -2562,7 +2562,13 @@ adapters.forEach(function (adapters) {
       var changes = remote.changes;
       remote.changes = function(opts) {
         if(mismatch) {
-          opts.since.should.be.at.least(1);
+          try {
+            opts.since.should.be.at.least(1);
+          } catch(e) {
+            e.message = 'The replication started at last_seq: ' + opts.since +
+              ' but was expected to be start at least at 1';
+            return done(e);
+          }
           done();
         }
 
@@ -2636,7 +2642,18 @@ adapters.forEach(function (adapters) {
       var changes = remote.changes;
       remote.changes = function(opts) {
         if(mismatch) {
-          opts.since.should.equal(0);
+          try {
+            // We expect this replication to start over,
+            // so the correct value of since is 0
+            // if it's higher, the replication read the checkpoint
+            // without caring for session id
+            opts.since.should.equal(0);
+          } catch(e) {
+            e.message = 'The replication started at last_seq: ' + opts.since +
+              ' but was expected to be start at 0';
+            return done(e);
+          }
+          mismatch = false;
           done();
         }
 
@@ -2681,10 +2698,13 @@ adapters.forEach(function (adapters) {
 
           get.call(this, id, function(err, res) {
             // manipulate res to be a mismatching session and history
+            // The session resolution function is expected to resolve
+            // to the 2nd entry in history, which should exist on both
+            // source and target.
             var result = {
               _id: res._id,
               _rev: res._rev,
-              last_seq: 1,
+              last_seq: 2222,
               replication_id_version: 2,
               session_id: "weirdo_checkpoint",
               history: [{
@@ -2714,7 +2734,16 @@ adapters.forEach(function (adapters) {
       var called = false;
       remote.changes = function(opts) {
         if(mismatch) {
-          opts.since.should.be.at.least(1);
+          // If we resolve to 0, the checkpoint resolver has not
+          // been going through the sessions
+          try {
+            opts.since.should.be.at.least(1);
+          } catch(e) {
+            e.message = 'The replication started at last_seq: ' + opts.since +
+              ' but was expected to be start at least at 1';
+            return done(e);
+          }
+
           if(!called) {
             done();
             called = true;
@@ -2749,7 +2778,8 @@ adapters.forEach(function (adapters) {
        var getChecker = function(id, callback) {
          if(oldstyle && /^_local/.test(id)) {
            checkpointId = id;
-
+           // This code is used to return an 'old style'
+           // checkpoing then GET:ing the local ldoc
            var checkPoint = {
              _id: id,
              last_seq: 1
@@ -2778,8 +2808,15 @@ adapters.forEach(function (adapters) {
 
        var changes = remote.changes;
        remote.changes = function(opts) {
-         // Test 1: Check that we didn't start from 0
-         opts.since.should.be.at.least(1);
+         // Test 1: Check that we read the old style local doc
+         // and didn't start from 0
+         try {
+           opts.since.should.be.at.least(1);
+         } catch(e) {
+           done(e);
+           return;
+         }
+
          return changes.apply(remote, arguments);
        };
 
@@ -2791,8 +2828,18 @@ adapters.forEach(function (adapters) {
              oldstyle = false;
              remote.get(checkpointId, function(err, res) {
                // Test 2: check that the checkpoint has been upgraded
-               res.replication_id_version.should.equal(2);
-               res.session_id.should.be.a('string');
+               // the properties replication_id_version and
+               // session_id should have been added
+               try {
+                 should.exist(res.replication_id_version);
+                 should.exist(res.session_id);
+                 res.replication_id_version.should.equal(2);
+                 res.session_id.should.be.a('string');
+               } catch(e) {
+                 e.message = 'expected properties \'replication_id_version\' ' +
+                    'and \'session_id\' to be added to the checkpoint';
+                 return done(e);
+               }
                done();
              });
            });
