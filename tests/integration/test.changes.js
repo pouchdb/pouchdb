@@ -2471,35 +2471,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Closing db does not cause a crash if changes cancelled',
-      function (done) {
-      var db = new PouchDB(dbs.name);
-      var called = 0;
-      function checkDone() {
-        called++;
-        if (called === 2) {
-          done();
-        }
-      }
-      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
-        var changes = db.changes({
-          live: true,
-          onChange: function () { },
-          complete: function (err, result) {
-            result.status.should.equal('cancelled');
-            checkDone();
-          }
-        });
-        should.exist(changes);
-        changes.cancel.should.be.a('function');
-        changes.cancel();
-        db.close(function (error) {
-          should.not.exist(error);
-          checkDone();
-        });
-      });
-    });
-
     it('fire-complete-on-cancel', function (done) {
       var db = new PouchDB(dbs.name);
       var cancelled = false;

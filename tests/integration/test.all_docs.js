@@ -642,17 +642,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('test after db close', function (done) {
-      return new PouchDB(dbs.name).then(function (db) {
-        return db.close().then(function () {
-          return db.allDocs().catch(function (err) {
-            err.message.should.equal('database is closed');
-            done();
-          });
-        });
-      });
-    });
-
     if (adapter === 'local') { // chrome doesn't like \u0000 in URLs
       it('test unicode ids and revs', function (done) {
         var db = new PouchDB(dbs.name);
