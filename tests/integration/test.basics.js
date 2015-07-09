@@ -152,30 +152,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Close db', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        db.close(done);
-      });
-    });
-
-    it('Close db with a promise', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        db.close().then(done, done);
-      });
-    });
-
-    it('Read db id after closing Close', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        db.close(function (error) {
-          db = new PouchDB(dbs.name);
-          db.id(function (err, id) {
-            id.should.be.a('string');
-            done();
-          });
-        });
-      });
-    });
-
     it('Modify a doc with incorrect rev', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({ test: 'somestuff' }, function (err, info) {
