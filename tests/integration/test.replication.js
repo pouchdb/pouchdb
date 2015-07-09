@@ -540,7 +540,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Test live push checkpoint', function (done) {
+    it('Test live push checkpoint wtf', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       db.bulkDocs({ docs: docs }, {}, function (err, results) {
@@ -557,7 +557,7 @@ adapters.forEach(function (adapters) {
                   // TODO investigate why Sync Gateway sometimes reads a
                   // document. This seems to come up 1 more in the browser
                   // and 0 more in node, but I've seen 1 in node.
-                  details.docs_read.should.be.within(0,1);
+                  details.docs_read.should.be.within(0, 1);
                 } else {
                   details.docs_read.should.equal(0);
                 }
@@ -2590,6 +2590,11 @@ adapters.forEach(function (adapters) {
             // mock a successful write for the first
             // document and a failed write for the second
             var doc = content.docs[0];
+
+            if (/^_local/.test(doc._id)) {
+              return bulkDocs.apply(remote, [content, opts, callback]);
+            }
+
             if (bulkDocsCallCount === 0) {
               bulkDocsCallCount++;
               callback(null, [{ok: true, id: doc._id, rev: doc._rev}]);

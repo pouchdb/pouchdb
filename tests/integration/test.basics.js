@@ -538,13 +538,9 @@ adapters.forEach(function (adapter) {
 
     it('Testing valid id', function (done) {
       var db = new PouchDB(dbs.name);
-      db.post({
-        '_id': 123,
-        test: 'somestuff'
-      }, function (err, info) {
+      db.post({'_id': 123, test: 'somestuff'}, function (err, info) {
         should.exist(err);
-        err.message.should.equal(PouchDB.Errors.INVALID_ID.message,
-                                 'correct error message returned');
+        err.error.should.equal(PouchDB.Errors.INVALID_ID.error);
         done();
       });
     });
