@@ -2134,6 +2134,9 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2569 Big non-live doc_ids filter', function () {
+      if (!testUtils.isCouchMaster()) {
+        return PouchDB.utils.Promise.resolve();
+      }
       var docs = [];
       for (var i = 0; i < 5; i++) {
         var id = '';
@@ -2189,6 +2192,9 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2569 Big live doc_ids filter', function () {
+      if (!testUtils.isCouchMaster()) {
+        return PouchDB.utils.Promise.resolve();
+      }
       var docs = [];
       for (var i = 0; i < 5; i++) {
         var id = '';
