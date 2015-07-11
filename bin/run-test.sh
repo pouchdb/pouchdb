@@ -1,6 +1,7 @@
 #!/bin/bash
 
 : ${CLIENT:="node"}
+: ${COUCH_HOST:="http://127.0.0.1:5984"}
 
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
@@ -31,12 +32,10 @@ if [[ ! -z $SERVER ]]; then
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     node ./tests/misc/pouchdb-express-router.js &
     export SERVER_PID=$!
-    sleep 5
     export COUCH_HOST='http://127.0.0.1:3000'
   elif [ "$SERVER" == "express-pouchdb-minimum" ]; then
     node ./tests/misc/express-pouchdb-minimum-for-pouchdb.js &
     export SERVER_PID=$!
-    sleep 5
     export COUCH_HOST='http://127.0.0.1:3000'
   elif [ "$SERVER" == "sync-gateway" ]; then
     if [[ -z $COUCH_HOST ]]; then
@@ -54,6 +53,13 @@ if [[ ! -z $SERVER ]]; then
     exit 1
   fi
 fi
+
+printf 'Waiting for host to start .'
+until $(curl --output /dev/null --silent --head --fail $COUCH_HOST); do
+    printf '.'
+    sleep 5
+done
+printf '\nHost started :)'
 
 if [ "$CLIENT" == "unit" ]; then
     npm run test-unit
