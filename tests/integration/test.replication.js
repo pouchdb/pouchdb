@@ -2745,6 +2745,7 @@ adapters.forEach(function (adapters) {
           }
 
           if(!called) {
+            mismatch = false;
             done();
             called = true;
           }
