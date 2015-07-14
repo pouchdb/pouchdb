@@ -2519,76 +2519,66 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('#3999-1 should not start replication over ' +
-       'if last_seq mismatches in checkpoints, ' +
-       'and it can be resolved some other way', function (done) {
+    // Should not start replication over if last_seq mismatches in checkpoints
+    // and it can be resolved some other way
+    it('#3999-1 should not start over if last_seq mismatches', function () {
+
       var remote = new PouchDB(dbs.remote);
-
-
       var mismatch = false;
 
       // 1. This is where we fake the mismatch:
       var get = remote.get;
-      remote.get = function(id, callback) {
-        if(mismatch && /_local/.test(id)) {
-          var cb;
-          var pr = new PouchDB.utils.Promise(function(resolve, reject) {
-            cb = function(err, res) {
-              if(err) {
-                return reject(err);
-              }
-              resolve(res);
-            };
-          });
+      remote.get = function (id, callback) {
 
-          get.call(this, id, function(err, res) {
-            // manipulate res to be a mismatching number
-            res.last_seq = 2;
-            if(callback) {
-              callback.call(null, err, res);
-            }
-
-            cb(err, res);
-          });
-
-          return pr;
-        } else {
+        if (!(mismatch && /_local/.test(id))) {
           return get.apply(this, arguments);
         }
+
+        var cb;
+        var pr = new PouchDB.utils.Promise(function (resolve, reject) {
+          cb = function (err, res) {
+            if (err) {
+              return reject(err);
+            }
+            resolve(res);
+          };
+        });
+
+        get.call(this, id, function (err, res) {
+          // manipulate res to be a mismatching number
+          res.last_seq = 2;
+          cb(err, res);
+        });
+
+        return pr;
       };
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
       var changes = remote.changes;
       remote.changes = function(opts) {
-        if(mismatch) {
-          try {
-            opts.since.should.be.at.least(1);
-          } catch(e) {
-            e.message = 'The replication started at last_seq: ' + opts.since +
-              ' but was expected to be start at least at 1';
-            return done(e);
-          }
-          done();
+        if (mismatch) {
+          opts.since.should.be.at.least(1);
         }
-
         return changes.apply(remote, arguments);
       };
 
 
       var doc = { _id: '3', count: 0 };
+      var put;
 
-      remote.put(doc, {}, function(err, put) {
+      return remote.put(doc, {}).then(function(_put) {
+        put = _put;
         // Do one replication, to not start from 0
-        remote.replicate.to(dbs.name, function(err, result) {
-          doc._rev = put.rev;
-          doc.count++;
-          remote.put(doc, {}, function(err, results) {
-            // Trigger the mismatch on the 2nd replication
-            mismatch = true;
-            remote.replicate.to(dbs.name, function(err, result) { });
-          });
-        });
+        return remote.replicate.to(dbs.name);
+      }).then(function(result) {
+        doc._rev = put.rev;
+        doc.count++;
+        return remote.put(doc, {});
+      }).then(function(err, results) {
+        // Trigger the mismatch on the 2nd replication
+        mismatch = true;
+        return remote.replicate.to(dbs.name);
       });
     });
 
@@ -2654,7 +2644,6 @@ adapters.forEach(function (adapters) {
             return done(e);
           }
           mismatch = false;
-          done();
         }
 
         return changes.apply(remote, arguments);
@@ -2671,7 +2660,7 @@ adapters.forEach(function (adapters) {
           remote.put(doc, {}, function(err, results) {
             // Trigger the mismatch on the 2nd replication
             mismatch = true;
-            remote.replicate.to(dbs.name, function(err, result) { });
+            remote.replicate.to(dbs.name, done);
           });
         });
       });
@@ -2746,7 +2735,6 @@ adapters.forEach(function (adapters) {
 
           if(!called) {
             mismatch = false;
-            done();
             called = true;
           }
         }
@@ -2765,7 +2753,7 @@ adapters.forEach(function (adapters) {
           remote.put(doc, {}, function(err, result) {
             // Trigger the mismatch on the 2nd replication
             mismatch = true;
-            remote.replicate.to(dbs.name, function(err, result) { });
+            remote.replicate.to(dbs.name, done);
           });
         });
       });
