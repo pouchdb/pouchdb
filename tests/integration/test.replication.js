@@ -2611,7 +2611,8 @@ adapters.forEach(function (adapters) {
             _id: res._id,
             _rev: res._rev,
             last_seq: 1,
-            replication_id_version: 2,
+            version: 1,
+            replicator: "pouchdb",
             session_id: "aaaa11111aaaaaaaa",
             history: [{
               session_id:  "aaaa11111aaaaaaaa",
@@ -2695,7 +2696,8 @@ adapters.forEach(function (adapters) {
             _id: res._id,
             _rev: res._rev,
             last_seq: 2222,
-            replication_id_version: 2,
+            version: 1,
+            replicator: "pouchdb",
             session_id: "weirdo_checkpoint",
             history: [{
               session_id: "weirdo_checkpoint",
@@ -2809,9 +2811,10 @@ adapters.forEach(function (adapters) {
          should.exist(checkpointId);
          return remote.get(checkpointId);
        }).then(function (res) {
-         should.exist(res.replication_id_version);
+         should.exist(res.version);
+         should.exist(res.replicator);
          should.exist(res.session_id);
-         res.replication_id_version.should.equal(2);
+         res.version.should.equal(1);
          res.session_id.should.be.a('string');
        });
     });
