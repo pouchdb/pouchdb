@@ -2523,117 +2523,109 @@ adapters.forEach(function (adapters) {
     // and it can be resolved some other way
     it('#3999-1 should not start over if last_seq mismatches', function () {
 
-      var remote = new PouchDB(dbs.remote);
+      var source = new PouchDB(dbs.remote);
       var mismatch = false;
+      var failWrite = false;
+      var checkpoint;
 
       // 1. This is where we fake the mismatch:
-      var get = remote.get;
-      remote.get = function (id, callback) {
+      var putte = source.put;
+      source.put = function (doc) {
 
-        if (!(mismatch && /_local/.test(id))) {
-          return get.apply(this, arguments);
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
         }
 
-        var cb;
-        var pr = new PouchDB.utils.Promise(function (resolve, reject) {
-          cb = function (err, res) {
-            if (err) {
-              return reject(err);
-            }
-            resolve(res);
-          };
-        });
+        if (!failWrite || doc.last_seq !== 2) {
+          return putte.apply(this, arguments);
+        }
 
-        get.call(this, id, function (err, res) {
-          // manipulate res to be a mismatching number
-          res.last_seq = 2;
-          cb(err, res);
+        return PouchDB.utils.Promise.reject({
+          status: 0,
+          message: 'Database encountered an unknown error'
         });
-
-        return pr;
       };
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = remote.changes;
-      remote.changes = function(opts) {
+      var changes = source.changes;
+      source.changes = function (opts) {
+
         if (mismatch) {
           opts.since.should.be.at.least(1);
         }
-        return changes.apply(remote, arguments);
+        return changes.apply(source, arguments);
       };
 
 
       var doc = { _id: '3', count: 0 };
       var put;
 
-      return remote.put(doc, {}).then(function(_put) {
+      return source.put({ _id: '4', count: 1 }, {}).then(function() {
+          return source.put(doc, {});
+      }).then(function(_put) {
         put = _put;
-        // Do one replication, to not start from 0
-        return remote.replicate.to(dbs.name);
-      }).then(function(result) {
+        // Do one replication, this replication
+        // will fail writing one checkpoint
+        failWrite = true;
+        return source.replicate.to(dbs.name, { batch_size: 1 });
+      }).catch(function () {
+        failWrite = false;
+      }).then(function () {
+        // Verify that checkpoints are indeed mismatching:
+        should.exist(checkpoint);
+        var target = new PouchDB(dbs.name);
+        return PouchDB.utils.Promise.all([
+          target.get(checkpoint),
+          source.get(checkpoint)
+        ]);
+      }).then(function(res) {
+        // res[0] = target checkpoint
+        // res[1] = source checkpoint
+        res[0].session_id.should.equal(res[1].session_id);
+        res[0].last_seq.should.not.equal(res[1].last_seq);
+
         doc._rev = put.rev;
         doc.count++;
-        return remote.put(doc, {});
+        return source.put(doc, {});
       }).then(function(err, results) {
         // Trigger the mismatch on the 2nd replication
         mismatch = true;
-        return remote.replicate.to(dbs.name);
+        return source.replicate.to(dbs.name);
       });
     });
 
     it('#3999-2 should start over if no common session is found', function () {
 
-      var remote = new PouchDB(dbs.remote);
+      var source = new PouchDB(dbs.remote);
       var mismatch = false;
+      var writeStrange = false;
+      var checkpoint;
 
       // 1. This is where we fake the mismatch:
-      var get = remote.get;
-      remote.get = function(id, callback) {
+      var putte = source.put;
+      source.put = function (doc) {
 
-        if(!(mismatch && /_local/.test(id))) {
-          return get.apply(this, arguments);
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
         }
 
-        var cb;
-        var pr = new PouchDB.utils.Promise(function(resolve, reject) {
-          cb = function(err, res) {
-            if(err) {
-              return reject(err);
-            }
-            resolve(res);
-          };
-        });
+        if (!writeStrange || doc.last_seq !== 1) {
+          return putte.apply(this, arguments);
+        }
 
-        get.call(this, id, function(err, res) {
-          // manipulate res to be a mismatching session and history
-          var result = {
-            _id: res._id,
-            _rev: res._rev,
-            last_seq: 1,
-            version: 1,
-            replicator: "pouchdb",
-            session_id: "aaaa11111aaaaaaaa",
-            history: [{
-              session_id:  "aaaa11111aaaaaaaa",
-              last_seq: 1
-            }]
-          };
-
-          if(callback) {
-            callback.call(null, err, result);
-          }
-
-          cb(err, result);
-        });
-
-        return pr;
+        // Change session id of source checkpoint to mismatch
+        doc.session_id = "aaabbbbb";
+        doc.history[0].session_id = "aaabbbbb";
+        return putte.apply(this, arguments);
       };
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = remote.changes;
-      remote.changes = function (opts) {
+      var changes = source.changes;
+      source.changes = function (opts) {
         if(mismatch) {
           // We expect this replication to start over,
           // so the correct value of since is 0
@@ -2643,86 +2635,79 @@ adapters.forEach(function (adapters) {
           mismatch = false;
         }
 
-        return changes.apply(remote, arguments);
+        return changes.apply(source, arguments);
       };
-
 
       var doc = { _id: '3', count: 0 };
       var put;
 
-      return remote.put(doc, {}).then(function (_put) {
+      return source.put(doc, {}).then(function (_put) {
         put = _put;
+        writeStrange = true;
         // Do one replication, to not start from 0
-        return remote.replicate.to(dbs.name);
+        return source.replicate.to(dbs.name);
       }).then(function (result) {
+        writeStrange = false;
+
+        // Verify that checkpoints are indeed mismatching:
+        should.exist(checkpoint);
+        var target = new PouchDB(dbs.name);
+        return PouchDB.utils.Promise.all([
+          target.get(checkpoint),
+          source.get(checkpoint)
+        ]);
+      }).then(function (res) {
+        // [0] = target checkpoint, [1] = source checkpoint
+        res[0].session_id.should.not.equal(res[1].session_id);
+
         doc._rev = put.rev;
         doc.count++;
-        return remote.put(doc, {});
+        return source.put(doc, {});
       }).then(function (results) {
         // Trigger the mismatch on the 2nd replication
         mismatch = true;
-        return remote.replicate.to(dbs.name);
+        return source.replicate.to(dbs.name);
       });
     });
 
     it('#3999-3 should not start over if common session is found', function () {
 
-      var remote = new PouchDB(dbs.remote);
+      var source = new PouchDB(dbs.remote);
       var mismatch = false;
+      var writeStrange = false;
+      var checkpoint;
 
       // 1. This is where we fake the mismatch:
-      var get = remote.get;
-      remote.get = function(id, callback) {
-        if(!(mismatch && /_local/.test(id))) {
-          return get.apply(this, arguments);
+      var putte = source.put;
+      source.put = function (doc) {
+
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
         }
 
-        var cb;
-        var pr = new PouchDB.utils.Promise(function (resolve, reject) {
-          cb = function (err, res) {
-            if(err) {
-              return reject(err);
-            }
-            resolve(res);
-          };
+        if (!writeStrange || doc.last_seq !== 1) {
+          return putte.apply(this, arguments);
+        }
+
+        // Change session id of source checkpoint to mismatch
+        var session = doc.session_id;
+
+        doc.session_id = "aaabbbbb";
+        doc.history[0].session_id = "aaabbbbb";
+        // put a working session id in the history:
+        doc.history.push({
+          session_id: session,
+          last_seq: doc.last_seq
         });
-
-        get.call(this, id, function(err, res) {
-          // manipulate res to be a mismatching session and history
-          // The session resolution function is expected to resolve
-          // to the 2nd entry in history, which should exist on both
-          // source and target.
-          var result = {
-            _id: res._id,
-            _rev: res._rev,
-            last_seq: 2222,
-            version: 1,
-            replicator: "pouchdb",
-            session_id: "weirdo_checkpoint",
-            history: [{
-              session_id: "weirdo_checkpoint",
-              last_seq: 2222
-            }, {
-              session_id:  res.session_id,
-              last_seq: res.last_seq
-            }]
-          };
-
-          if(callback) {
-            callback.call(null, err, result);
-          }
-
-          cb(err, result);
-        });
-
-        return pr;
+        return putte.apply(this, arguments);
       };
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = remote.changes;
+      var changes = source.changes;
 
-      remote.changes = function (opts) {
+      source.changes = function (opts) {
         if(mismatch) {
           // If we resolve to 0, the checkpoint resolver has not
           // been going through the sessions
@@ -2731,85 +2716,120 @@ adapters.forEach(function (adapters) {
           mismatch = false;
         }
 
-        return changes.apply(remote, arguments);
+        return changes.apply(source, arguments);
       };
 
 
       var doc = { _id: '3', count: 0 };
       var put;
 
-      return remote.put(doc, {}).then(function (_put) {
+      return source.put(doc, {}).then(function (_put) {
         put = _put;
         // Do one replication, to not start from 0
-        return remote.replicate.to(dbs.name);
+        writeStrange = true;
+        return source.replicate.to(dbs.name);
       }).then(function (result) {
+        writeStrange = false;
+        // Verify that checkpoints are indeed mismatching:
+        should.exist(checkpoint);
+        var target = new PouchDB(dbs.name);
+        return PouchDB.utils.Promise.all([
+          target.get(checkpoint),
+          source.get(checkpoint)
+        ]);
+      }).then(function (res) {
+        // [0] = target checkpoint, [1] = source checkpoint
+        res[0].session_id.should.not.equal(res[1].session_id);
+
         doc._rev = put.rev;
         doc.count++;
-        return remote.put(doc, {});
+        return source.put(doc, {});
       }).then(function (err, result) {
         // Trigger the mismatch on the 2nd replication
         mismatch = true;
-        return remote.replicate.to(dbs.name);
+        return source.replicate.to(dbs.name);
       });
     });
 
     it('#3999-4 should "upgrade" an old checkpoint', function() {
 
-       var oldstyle = true;
-       var checkpointId;
+      var secondRound = false;
+      var writeStrange = false;
+      var checkpoint;
+      var source = new PouchDB(dbs.remote);
+      var target = new PouchDB(dbs.name);
 
-       var getChecker = function (id, callback) {
+      // 1. This is where we fake the mismatch:
+      var putter = function (doc) {
 
-         if(oldstyle && /^_local/.test(id)) {
-           checkpointId = id;
-           // This code is used to return an 'old style'
-           // checkpoing then GET:ing the local ldoc
-           var checkPoint = {
-             _id: id,
-             last_seq: 1
-           };
+        // We need the checkpoint id so we can inspect it later
+        if (/local/.test(doc._id)) {
+          checkpoint = doc._id;
+        }
 
-           if(callback) {
-             callback.call(this, null, checkPoint);
-           }
-           return PouchDB.utils.Promise.resolve(checkPoint);
-         }
+        var args = [].slice.call(arguments, 0);
 
-         if(this === remote) {
-           return remoteGet.apply(this, arguments);
-         }
-         return dbGet.apply(this, arguments);
-       };
+        // Write an old-style checkpoint on the first replication:
+        if (writeStrange && doc.last_seq === 1) {
+          var newDoc = {
+            _id: doc._id,
+            last_seq: doc.last_seq
+          };
 
-       var db = new PouchDB(dbs.name);
-       var remote = new PouchDB(dbs.remote);
-       // To make the test work across local/http adapters,
-       // need to shadow both 'get' functions
-       var remoteGet = remote.get;
-       remote.get = getChecker;
-       var dbGet = db.get;
-       db.get = getChecker;
+          args.shift();
+          args.unshift(newDoc);
+        }
 
-       var changes = remote.changes;
-       remote.changes = function (opts) {
+        if(this === source) {
+          return sourcePut.apply(this, args);
+        }
 
-         // Test 1: Check that we read the old style local doc
-         // and didn't start from 0
-         opts.since.should.be.at.least(1);
-         return changes.apply(remote, arguments);
-       };
+        return targetPut.apply(this, args);
+      };
+
+      var sourcePut = source.put;
+      source.put = putter;
+      var targetPut =  target.put;
+      target.put = putter;
+
+      var changes = source.changes;
+      source.changes = function (opts) {
+        if (secondRound) {
+          // Test 1: Check that we read the old style local doc
+          // and didn't start from 0
+          opts.since.should.be.at.least(1);
+        }
+        return changes.apply(source, arguments);
+      };
 
        var doc = { _id: '3', count: 0 };
 
-       return remote.put({ _id: '4', count: 1 }, {}).then(function () {
-         return remote.put(doc, {});
+       return source.put({ _id: '4', count: 1 }, {}).then(function () {
+         writeStrange = true;
+         return source.replicate.to(target);
+       }).then(function() {
+         writeStrange = false;
+         // Verify that we have old checkpoints:
+         should.exist(checkpoint);
+         var target = new PouchDB(dbs.name);
+         return PouchDB.utils.Promise.all([
+           target.get(checkpoint),
+           source.get(checkpoint)
+         ]);
+       }).then(function (res) {
+        // [0] = target checkpoint, [1] = source checkpoint
+        res[0].last_seq.should.equal(res[1].last_seq);
+        should.not.exist(res[0].session_id);
+        should.not.exist(res[1].session_id);
+
+         return source.put(doc, {});
        }).then(function () {
          // Do one replication, check that we start from expected last_seq
-         return remote.replicate.to(db);
+         secondRound = true;
+         return source.replicate.to(target);
        }).then(function () {
-         oldstyle = false;
-         should.exist(checkpointId);
-         return remote.get(checkpointId);
+         should.exist(checkpoint);
+         return source.get(checkpoint);
        }).then(function (res) {
          should.exist(res.version);
          should.exist(res.replicator);
