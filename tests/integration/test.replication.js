@@ -2553,7 +2553,7 @@ adapters.forEach(function (adapters) {
       source.changes = function (opts) {
 
         if (mismatch) {
-          opts.since.should.be.at.least(1);
+          opts.since.should.not.equal(0);
         }
         return changes.apply(source, arguments);
       };
@@ -2612,7 +2612,7 @@ adapters.forEach(function (adapters) {
           checkpoint = doc._id;
         }
 
-        if (!writeStrange || doc.last_seq !== 1) {
+        if (!writeStrange || (doc.last_seq !== 1 && doc.last_seq[0] !== 1)) {
           return putte.apply(this, arguments);
         }
 
@@ -2686,7 +2686,7 @@ adapters.forEach(function (adapters) {
           checkpoint = doc._id;
         }
 
-        if (!writeStrange || doc.last_seq !== 1) {
+        if (!writeStrange || (doc.last_seq !== 1 && doc.last_seq[0] !== 1)) {
           return putte.apply(this, arguments);
         }
 
@@ -2711,7 +2711,7 @@ adapters.forEach(function (adapters) {
         if(mismatch) {
           // If we resolve to 0, the checkpoint resolver has not
           // been going through the sessions
-          opts.since.should.be.at.least(1);
+          opts.since.should.not.equal(0);
 
           mismatch = false;
         }
@@ -2770,7 +2770,7 @@ adapters.forEach(function (adapters) {
         var args = [].slice.call(arguments, 0);
 
         // Write an old-style checkpoint on the first replication:
-        if (writeStrange && doc.last_seq === 1) {
+        if (writeStrange && (doc.last_seq === 1 || doc.last_seq[0] === 1)) {
           var newDoc = {
             _id: doc._id,
             last_seq: doc.last_seq
@@ -2797,7 +2797,7 @@ adapters.forEach(function (adapters) {
         if (secondRound) {
           // Test 1: Check that we read the old style local doc
           // and didn't start from 0
-          opts.since.should.be.at.least(1);
+          opts.since.should.not.equal(0);
         }
         return changes.apply(source, arguments);
       };
@@ -2818,7 +2818,6 @@ adapters.forEach(function (adapters) {
          ]);
        }).then(function (res) {
         // [0] = target checkpoint, [1] = source checkpoint
-        res[0].last_seq.should.equal(res[1].last_seq);
         should.not.exist(res[0].session_id);
         should.not.exist(res[1].session_id);
 
