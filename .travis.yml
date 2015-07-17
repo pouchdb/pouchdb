@@ -28,8 +28,8 @@ env:
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
 
   matrix:
-  - CLIENT=node COMMAND=test
-  - CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
+  - SERVER=couchdb CLIENT=node COMMAND=test
+  - SERVER=couchdb CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
 
   # Test against pouchdb-server
   - CLIENT=node SERVER=pouchdb-server COMMAND=test
@@ -40,34 +40,34 @@ env:
   - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
 
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox COMMAND=test
-  - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - SERVER=couchdb CLIENT=selenium:firefox COMMAND=test
+  - SERVER=couchdb CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
-  - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - SERVER=couchdb AUTO_COMPACTION=true CLIENT=node COMMAND=test
+  - SERVER=couchdb AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
+  - SERVER=couchdb AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Test map/reduce
-  - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - SERVER=couchdb TYPE=mapreduce CLIENT=node COMMAND=test
+  - SERVER=couchdb TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
+  - SERVER=couchdb TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Testing in saucelabs
-  - CLIENT=saucelabs:chrome:36 COMMAND=test
-  - CLIENT=saucelabs:chrome:37 COMMAND=test
-  - CLIENT=saucelabs:chrome COMMAND=test
-  - CLIENT=saucelabs:safari:6 COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
-  - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - SERVER=couchdb CLIENT=saucelabs:chrome:36 COMMAND=test
+  - SERVER=couchdb CLIENT=saucelabs:chrome:37 COMMAND=test
+  - SERVER=couchdb CLIENT=saucelabs:chrome COMMAND=test
+  - SERVER=couchdb CLIENT=saucelabs:safari:6 COMMAND=test
+  - SERVER=couchdb SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
+  - SERVER=couchdb CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
   # split up the android tests as it goes over time
-  - GREP=suite2 CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
-  - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
+  - SERVER=couchdb GREP=suite2 CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
+  - SERVER=couchdb GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
 
-  - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
+  - SERVER=couchdb CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
+  - SERVER=couchdb CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
+  - SERVER=couchdb CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
   # Test CouchDB master (aka bigcouch branch)
   - CLIENT=node SERVER=couchdb-master COMMAND=test
@@ -77,8 +77,8 @@ env:
   - GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
 
   # Performance tests
-  - CLIENT=selenium:firefox PERF=1 COMMAND=test
-  - PERF=1 COMMAND=test
+  - SERVER=couchdb CLIENT=selenium:firefox PERF=1 COMMAND=test
+  - SERVER=couchdb PERF=1 COMMAND=test
 
   - COMMAND=test-unit
   - COMMAND=test-component
