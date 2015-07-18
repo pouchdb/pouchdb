@@ -4,7 +4,7 @@ var memdown = require('memdown');
 var PouchDB = require('../../lib/index');
 var sourceDb = new PouchDB({name: 'local_db', db: memdown});
 var targetDb = new PouchDB({name: 'target_db', db: memdown});
-var genReplicationId = require('../../lib/replicate/genReplicationId');
+var genReplicationId = require('../../lib/replicate/generateReplicationId');
 
 require('chai').should();
 
