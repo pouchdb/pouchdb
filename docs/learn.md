@@ -55,7 +55,7 @@ To learn more about how to use PouchDB, check out our [Getting Started Tutorial]
 
 PouchDB supports all modern browsers, using [IndexedDB][] under the hood and falling back to [WebSQL][] where IndexedDB isn't supported. It is [fully tested](https://travis-ci.org/pouchdb/pouchdb/) and supported in:
 
- * Firefox 29+
+ * Firefox 29+ (Including Firefox OS and Firefox for Android)
  * Chrome 30+
  * Safari 5+
  * Internet Explorer 10+
@@ -76,7 +76,7 @@ PouchDB can also run as its own CouchDB-compatible web server, using [PouchDB Se
 
 {% include anchor.html class="h3" title="Downloads" hash="downloads" %}
 
-Latest and greatest: 
+Latest and greatest:
 
 * [pouchdb-{{ site.version }}.min.js][latest-min] (compressed for production)
 * [pouchdb-{{ site.version }}.js][latest] (uncompressed for debugging)
