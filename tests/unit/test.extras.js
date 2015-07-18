@@ -25,4 +25,11 @@ describe('test.extras.js', function () {
     promise.name.should.equal('Promise');
   });
 
+  it('extras/generateReplicationId should exist', function () {
+    var genReplicationId = require('../../extras/generateReplicationId');
+    should.exist(genReplicationId);
+    genReplicationId.should.be.a('function');
+    genReplicationId.name.should.equal('generateReplicationId');
+  });
+
 });
