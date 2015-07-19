@@ -14,9 +14,9 @@ Delete the database. Note that this has no impact on other replicated databases.
 
 {% include code/start.html id="destroy_db" type="callback" %}
 {% highlight js %}
-db.destroy(function (error) {
-  if (error) {
-    return console.log(error);
+db.destroy(function (err, response) {
+  if (err) {
+    return console.log(err);
   } else {
     // success
   }
@@ -26,10 +26,18 @@ db.destroy(function (error) {
 
 {% include code/start.html id="destroy_db" type="promise" %}
 {% highlight js %}
-db.destroy().then(function () {
+db.destroy().then(function (response) {
   // success
-}).catch(function (error) {
-  console.log(error);
+}).catch(function (err) {
+  console.log(err);
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "ok" : true
+}
+{% endhighlight %}
+
