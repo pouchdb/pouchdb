@@ -16,6 +16,8 @@ var testTimeout = 30 * 60 * 1000;
 var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
 
+var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '2.46.0';
+
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
@@ -132,7 +134,7 @@ function testComplete(result) {
 
 function startSelenium(callback) {
   // Start selenium
-  var opts = {version: '2.42.0'};
+  var opts = {version: SELENIUM_VERSION};
   selenium.install(opts, function(err) {
     if (err) {
       console.error('Failed to install selenium');
