@@ -1,7 +1,7 @@
 #!/bin/bash
 
 : ${CLIENT:="node"}
-: ${COUCH_HOST:="http://127.0.0.1:5984"}
+: ${SERVER:="pouchdb-express-router"}
 
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
@@ -47,6 +47,8 @@ if [[ ! -z $SERVER ]]; then
     node ./tests/misc/sync-gateway-config-server.js &
     # not the Sync Gateway pid, the config server pid
     export SERVER_PID=$!
+  elif [ "$SERVER" == "couchdb" ]; then
+    export COUCH_HOST='http://127.0.0.1:5984'
   else
     # I mistype pouchdb-server a lot
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
