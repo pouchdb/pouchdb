@@ -290,7 +290,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Remove doc, no callback', function (done) {
+    it.skip('Remove doc, no callback', function (done) {
       var db = new PouchDB(dbs.name);
       var changes = db.changes({
         live: true,
