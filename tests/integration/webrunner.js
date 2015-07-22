@@ -96,6 +96,10 @@ function startTests() {
       window.results.completed = true;
       window.results.passed++;
     });
+
+    window.onerror = function(e) {
+      window.results.error = 'Something screwed up: ' + e.toString();
+    };
   }
 
   loadNext();

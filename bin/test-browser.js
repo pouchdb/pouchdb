@@ -180,7 +180,11 @@ function startTest() {
     'max-duration': 60 * 45,
     'command-timeout': 599,
     'idle-timeout': 599,
-    'tunnel-identifier': tunnelId
+    'tunnel-identifier': tunnelId,
+    'appium-version': '1.4',
+    javascriptEnabled: true,
+    webStorageEnabled: true,
+    databaseEnabled: true
   };
 
   sauceClient.init(opts).get(testUrl, function () {
