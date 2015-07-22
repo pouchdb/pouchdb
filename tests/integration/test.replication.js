@@ -4122,6 +4122,22 @@ adapters.forEach(function (adapters) {
         docs.rows.should.have.length(1);
       });
     });
+
+    it("#2454 info() call breaks taskqueue", function(done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      remote.bulkDocs(docs).then(function() {
+
+        var repl = db.replicate.from(remote, {live: true});
+        repl.on('complete', done.bind(null, null));
+
+        remote.info().then(function(results) {
+          repl.cancel();
+        }).catch(done);
+      }).catch(done);
+    });
+
   });
 });
 
