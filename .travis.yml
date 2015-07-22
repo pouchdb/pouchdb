@@ -58,10 +58,12 @@ env:
   - CLIENT=saucelabs:chrome:37 COMMAND=test
   - CLIENT=saucelabs:chrome COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
-  # split up the android tests as it goes over time
+  # split up the android+iphone tests as it goes over time
+  - GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
+  - GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
+
   - GREP=suite2 CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
   - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
 
