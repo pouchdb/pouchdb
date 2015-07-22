@@ -29,12 +29,12 @@ env:
 
   matrix:
   # split up the android tests as it goes over time
-  - GREP=suite2 CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
-  - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
+  - GREP=suite2 CLIENT="saucelabs:Browser:5.1:Android" COMMAND=test
+  - GREP=suite2 INVERT=true CLIENT="saucelabs:Browser:5.1:Android" COMMAND=test
 
   # split up the android tests as it goes over time
-  - GREP=suite2 CLIENT="saucelabs:Android:4.4:Linux" COMMAND=test
-  - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:4.4:Linux" COMMAND=test
+  - GREP=suite2 CLIENT="saucelabs:Browser:4.4:Android" COMMAND=test
+  - GREP=suite2 INVERT=true CLIENT="saucelabs:Browser:4.4:Android" COMMAND=test
 
 branches:
   only:
