@@ -253,3 +253,36 @@ on how to diagnose this issue.
 
 [es5shim]: https://github.com/es-shims/es5-shim
 [sqlite]: https://github.com/brodysoft/Cordova-SQLitePlugin
+
+{% include anchor.html class="h3" title="Packaging PouchDB in an app with WebPack" hash="package_pouchdb_webpack" %}
+
+PouchDB may have various dependencies that may not play nicely with WebPack. Here are some issues you may run into and their resolutions:
+
+**You may need an appropriate loader to handle this file type.**
+
+If you run into the following error (or similar):
+
+```sh
+ERROR in ./~/pouchdb/~/levelup/package.json
+Module parse failed: /path/to/node_modules/pouchdb/node_modules/levelup/package.json Line 2: Unexpected token :
+You may need an appropriate loader to handle this file type.
+| {
+|   "name": "levelup",
+|   "description": "Fast & simple storage - a Node.js-style LevelDB wrapper",
+|   "version": "0.18.6",
+ @ ./~/pouchdb/~/levelup/lib/util.js 102:30-56
+
+```
+WebPack needs to be configured to recognize how to load json files. Simply, install `json-loader` and edit `webpack.config.js` as follows: 
+
+```js
+module: {
+    loaders: [
+        // https://github.com/pouchdb/pouchdb/issues/3319
+        {
+            test: /\.json$/,
+            loader: "json-loader"
+        }
+    ]
+}
+```
