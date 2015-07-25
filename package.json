@@ -103,7 +103,8 @@
     "build-site": "node ./bin/build-site.js",
     "shell": "node ./bin/repl.js",
     "report-coverage": "node ./bin/run-coverage.js",
-    "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js"
+    "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js",
+    "verify-bundle-size": "sh bin/verify-bundle-size.sh"
   },
   "browser": {
     "request": "./lib/deps/request-browser.js",
