@@ -85,7 +85,7 @@
     "build-main-js": "browserify . -s PouchDB -p bundle-collapser/plugin | node ./bin/es3ify.js | derequire > dist/pouchdb.js",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
     "build-plugins": "sh bin/build-all-plugins.sh",
-    "build": "npm run version && mkdirp dist && npm run build-js && npm run license",
+    "build": "npm run version && rimraf dist && mkdirp dist && npm run build-js && npm run license",
     "license": "node ./bin/add-license.js",
     "version": "node ./bin/get-version.js",
     "test-unit": "mocha tests/unit",
