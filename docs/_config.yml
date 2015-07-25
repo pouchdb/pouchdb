@@ -12,3 +12,5 @@ github:
 collections:
   guides:
     output: true
+languages: ["en", "es"]
+exclude_from_localizations: ["static"]
