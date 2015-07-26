@@ -355,8 +355,9 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       var docs = [{
-        '_id': 'foo',
+        '_id': 'foobar123',
         '_rev': '1-x',
+        'bar': 'huzzah',
         '_revisions': {
           'start': 1,
           'ids': ['x']
@@ -367,7 +368,7 @@ adapters.forEach(function (adapter) {
         should.not.exist(err);
         db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
           should.not.exist(err);
-          db.get('foo', function (err, res) {
+          db.get('foobar123', function (err, res) {
             res._rev.should.equal('1-x');
             done();
           });
@@ -409,7 +410,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       var docsA = [{
-        '_id': 'foo',
+        '_id': 'foo321',
         '_rev': '1-x',
         'bar' : 'baz',
         '_revisions': {
@@ -417,7 +418,8 @@ adapters.forEach(function (adapter) {
           'ids': ['x']
         }
       }, {
-        '_id' : 'fee',
+        '_id' : 'fee321',
+        'bar': 'quux',
         '_rev': '1-x',
         '_revisions': {
           'start': 1,
@@ -426,7 +428,7 @@ adapters.forEach(function (adapter) {
       }];
 
       var docsB = [{
-        '_id': 'foo',
+        '_id': 'foo321',
         '_rev': '1-x',
         'bar' : 'zam', // this update should be rejected
         '_revisions': {
@@ -434,8 +436,9 @@ adapters.forEach(function (adapter) {
           'ids': ['x']
         }
       }, {
-        '_id' : 'faa',
+        '_id' : 'faa321',
         '_rev': '1-x',
+        'bar': 'zul',
         '_revisions': {
           'start': 1,
           'ids': ['x']
@@ -448,9 +451,9 @@ adapters.forEach(function (adapter) {
           var ids = result.results.map(function (row) {
             return row.id;
           });
-          ids.should.include("foo");
-          ids.should.include("fee");
-          ids.should.not.include("faa");
+          ids.should.include("foo321");
+          ids.should.include("fee321");
+          ids.should.not.include("faa321");
 
           var update_seq = result.last_seq;
           db.bulkDocs({docs: docsB, new_edits: false}, function (err, result) {
@@ -461,11 +464,11 @@ adapters.forEach(function (adapter) {
                 var ids = result.results.map(function (row) {
                   return row.id;
                 });
-                ids.should.not.include("foo");
-                ids.should.not.include("fee");
-                ids.should.include("faa");
+                ids.should.not.include("foo321");
+                ids.should.not.include("fee321");
+                ids.should.include("faa321");
 
-                db.get('foo', function (err, res) {
+                db.get('foo321', function (err, res) {
                   res._rev.should.equal('1-x');
                   res.bar.should.equal("baz");
                   db.info(function (err, info) {
