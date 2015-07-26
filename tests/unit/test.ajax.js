@@ -21,7 +21,7 @@ describe('test.ajax.js', function () {
     }
 
     mockery.registerMock('request', requestStub);
-    ajax = require('../../lib/deps/ajax');
+    ajax = require('../../lib/deps/ajax/ajax-core');
   });
 
   it('should exist', function () {
@@ -67,7 +67,7 @@ describe('test.ajax.js', function () {
         headers: {
           'Content-Type': 'image/jpeg'
         }
-      }, 'sure this is binary data');
+      }, new Buffer('sure this is binary data'));
     }, 4);
   });
 
