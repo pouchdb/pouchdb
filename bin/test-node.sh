@@ -20,6 +20,10 @@ fi
 if [ $TYPE = "mapreduce" ]; then
     TESTS_PATH="tests/mapreduce/test.*.js"
 fi
+if [ $COVERAGE ]; then
+    # run all tests when testing for coverage
+    TESTS_PATH="tests/{unit,integration,mapreduce}/test*.js"
+fi
 
 
 if [ $PERF ]; then

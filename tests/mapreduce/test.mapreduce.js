@@ -1169,6 +1169,21 @@ function tests(suiteName, dbName, dbType, viewType) {
         });
       });
 
+      it('Returns ok for viewCleanup on empty db, callback style', function () {
+        return new PouchDB(dbName).then(function (db) {
+          return new Promise(function (resolve, reject) {
+            db.viewCleanup(function (err, res) {
+              if (err) {
+                return reject(err);
+              }
+              resolve(res);
+            });
+          }).then(function (res) {
+            res.ok.should.equal(true);
+          });
+        });
+      });
+
       it('Returns ok for viewCleanup after modifying view', function () {
         return new PouchDB(dbName).then(function (db) {
           var ddoc = {

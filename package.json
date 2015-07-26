@@ -120,6 +120,8 @@
     "./lib/deps/ajax/createMultipartPart.js": "./lib/deps/ajax/createMultipartPart-browser.js",
     "./lib/deps/ajax/defaultBody.js": "./lib/deps/ajax/defaultBody-browser.js",
     "./lib/deps/ajax/explain404.js": "./lib/deps/ajax/explain404-browser.js",
+    "./lib/deps/env/hasLocalStorage.js": "./lib/deps/env/hasLocalStorage-browser.js",
+    "./lib/deps/env/isChromeApp.js": "./lib/deps/env/isChromeApp-browser.js",
     "./lib/deps/binary/base64StringToBlobOrBuffer.js": "./lib/deps/binary/base64StringToBlobOrBuffer-browser.js",
     "./lib/deps/binary/binaryStringToBlobOrBuffer.js": "./lib/deps/binary/binaryStringToBlobOrBuffer-browser.js",
     "./lib/deps/binary/blobOrBufferToBase64.js": "./lib/deps/binary/blobOrBufferToBase64-browser.js",

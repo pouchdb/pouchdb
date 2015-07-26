@@ -37,6 +37,7 @@
     "indexedDB",
     "IDBKeyRange",
     "openDatabase",
-    "sqlitePlugin"
+    "sqlitePlugin",
+    "chrome"
   ]
 }
