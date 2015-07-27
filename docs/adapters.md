@@ -139,14 +139,14 @@ If you are unsure whether PouchDB is using the SQLite Plugin or not, just run:
 db.info().then(console.log.bind(console));
 ```
 
-This will print some database information, including the attribute `sqlite_plugin`, which will be `true` is the SQLite Plugin is being used.
+This will print some database information, including the attribute `sqlite_plugin`, which will be `true` if the SQLite Plugin is being used.
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
 
-The SQLite Plugin is known to pass the PouchDB test suite on both iOS and Android, although Windows Phone 8 is untested. Note that the SQLite Plugin code changes frequently, and is not tested in PouchDB's automated test suite.
+The SQLite Plugin does not currently pass the PouchDB test suite. It also tends to be slower than direct IndexedDB/WebSQL.
 
-Furthermore, you may experience slower performance with the SQLite Plugin than with IndexedDB/WebSQL, due to the cost of serializing data between JavaScript and the native code.
+We recommend avoiding the SQLite Plugin, unless you are hitting the 50MB storage limit in iOS or you require native or preloaded access to the database files.
 
 {% endmarkdown %}
 {% include alert/end.html%}
