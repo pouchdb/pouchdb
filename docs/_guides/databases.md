@@ -25,7 +25,8 @@ You can see a **[live example](http://bl.ocks.org/nolanlawson/bddac54b92c2d8d392
 <code>
 <br/>git clone https://gist.github.com/bddac54b92c2d8d39241.git kittens
 <br/>cd kittens
-<br/>python -m SimpleHTTPServer
+<br/>python -m SimpleHTTPServer (for Python 2)
+<br/>python -m http.server (for Python 3+)
 </code>
 <p/>
 Now the site is up and running at <a href='http://localhost:8000'>http://localhost:8000</a>. To find the correct <code>gist.github.com</code> URL, just click the "block" number at the top of the page.
