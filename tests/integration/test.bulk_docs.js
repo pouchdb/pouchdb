@@ -320,6 +320,90 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Deleting _local docs with bulkDocs' , function () {
+      var db = new PouchDB(dbs.name);
+
+      var rev1;
+      var rev2;
+      var rev3;
+      return db.put({_id: '_local/godzilla'}).then(function (info) {
+        rev1 = info.rev;
+        return db.put({_id: 'mothra'});
+      }).then(function (info) {
+        rev2 = info.rev;
+        return db.put({_id: 'rodan'});
+      }).then(function (info) {
+        rev3 = info.rev;
+        return db.bulkDocs([
+          {_id: 'mothra', _rev: rev2, _deleted: true},
+          {_id: '_local/godzilla', _rev: rev1, _deleted: true},
+          {_id: 'rodan', _rev: rev3, _deleted: true}
+        ]);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (info) {
+        info.rows.should.have.length(0);
+        return db.get('_local/godzilla').then(function () {
+          throw new Error('expected 404');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
+    if (adapter === 'local') {
+      // these tests crash CouchDB with a 500, neat
+      // https://issues.apache.org/jira/browse/COUCHDB-2758
+
+      it('Deleting _local docs with bulkDocs, not found', function () {
+        var db = new PouchDB(dbs.name);
+
+        var rev2;
+        var rev3;
+        return db.put({_id: 'mothra'}).then(function (info) {
+          rev2 = info.rev;
+          return db.put({_id: 'rodan'});
+        }).then(function (info) {
+          rev3 = info.rev;
+          return db.bulkDocs([
+            {_id: 'mothra', _rev: rev2, _deleted: true},
+            {_id: '_local/godzilla', _rev: '1-fake', _deleted: true},
+            {_id: 'rodan', _rev: rev3, _deleted: true}
+          ]);
+        }).then(function (res) {
+          should.not.exist(res[0].error);
+          should.exist(res[1].error);
+          should.not.exist(res[2].error);
+        });
+      });
+
+      it('Deleting _local docs with bulkDocs, wrong rev', function () {
+        var db = new PouchDB(dbs.name);
+
+        var rev1;
+        var rev2;
+        var rev3;
+        return db.put({_id: '_local/godzilla'}).then(function (info) {
+          rev1 = info.rev;
+          return db.put({_id: 'mothra'});
+        }).then(function (info) {
+          rev2 = info.rev;
+          return db.put({_id: 'rodan'});
+        }).then(function (info) {
+          rev3 = info.rev;
+          return db.bulkDocs([
+            {_id: 'mothra', _rev: rev2, _deleted: true},
+            {_id: '_local/godzilla', _rev: '1-fake', _deleted: true},
+            {_id: 'rodan', _rev: rev3, _deleted: true}
+          ]);
+        }).then(function (res) {
+          should.not.exist(res[0].error);
+          should.exist(res[1].error);
+          should.not.exist(res[2].error);
+        });
+      });
+    }
+
     it('Bulk with new_edits=false', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [{
