@@ -568,6 +568,86 @@ adapters.forEach(function (adapter) {
       }).on('error', done);
     });
 
+    it('Immediately cancel changes', function () {
+      // fixes code coverage by ensuring the changes() listener
+      // emits 'complete' even if the db's task queue isn't
+      // ready yet
+      return new PouchDB.utils.Promise(function (resolve, reject) {
+        var db = new PouchDB(dbs.name);
+        var changes = db.changes({live: true});
+        changes.on('error', reject);
+        changes.on('complete', resolve);
+        changes.cancel();
+      });
+    });
+
+    it('Changes with invalid ddoc view name', function () {
+      return new PouchDB.utils.Promise(function (resolve, reject) {
+        var db = new PouchDB(dbs.name);
+        db.post({});
+        var changes = db.changes({live: true, filter: '_view', view: ''});
+        changes.on('error', resolve);
+        changes.on('change', reject);
+      });
+    });
+
+    it('Changes with invalid ddoc view name 2', function () {
+      return new PouchDB.utils.Promise(function (resolve, reject) {
+        var db = new PouchDB(dbs.name);
+        db.post({});
+        var changes = db.changes({live: true, filter: '_view', view: 'a/b/c'});
+        changes.on('error', resolve);
+        changes.on('change', reject);
+      });
+    });
+
+    if (adapter === 'local') {
+      // This test crashes CouchDB due to
+      // https://issues.apache.org/jira/browse/COUCHDB-2765
+      it('Changes with invalid ddoc with no map function', function () {
+        var db = new PouchDB(dbs.name);
+        return db.put({
+          _id: '_design/name',
+          views: {
+            name: {
+              empty: 'sad face'
+            }
+          }
+        }).then(function () {
+          return new PouchDB.utils.Promise(function (resolve, reject) {
+            var changes = db.changes({
+              live: true,
+              filter: '_view',
+              view: 'name/name'
+            });
+            changes.on('error', resolve);
+            changes.on('change', reject);
+          });
+        });
+      });
+    }
+
+    it('Changes with invalid ddoc with no filter function', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put({
+        _id: '_design/name',
+        views: {
+          name: {
+            empty: 'sad face'
+          }
+        }
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var changes = db.changes({
+            live: true,
+            filter: 'name/name'
+          });
+          changes.on('error', resolve);
+          changes.on('change', reject);
+        });
+      });
+    });
+
     it('Changes last_seq with view instead of filter', function (done) {
       // this test doesn't really make sense for clustered
       // CouchDB because changes is unordered and last_seq might

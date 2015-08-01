@@ -2,30 +2,33 @@
 'use strict';
 
 var should = require('chai').should();
-var utils = require('../../lib/utils.js');
+var normalizeDdocFunctionName =
+  require('../../lib/deps/docs/normalizeDdocFunctionName');
+var parseDdocFunctionName =
+  require('../../lib/deps/docs/parseDdocFunctionName');
 
 describe('test.utils.js', function () {
   describe('the design doc function name normalizer', function () {
     it('normalizes foo to foo/foo', function () {
-      utils.normalizeDesignDocFunctionName('foo').should.be.eql('foo/foo');
+      normalizeDdocFunctionName('foo').should.be.eql('foo/foo');
     });
     it('normalizes foo/bar to foo/bar', function () {
-      utils.normalizeDesignDocFunctionName('foo/bar').should.be.eql('foo/bar');
+      normalizeDdocFunctionName('foo/bar').should.be.eql('foo/bar');
     });
     it('normalizes null to a non existing value', function () {
-      should.not.exist(utils.normalizeDesignDocFunctionName(null));
+      should.not.exist(normalizeDdocFunctionName(null));
     });
   });
   describe('ddoc function name parser', function () {
     it('parses foo/bar as [foo,bar]', function () {
-      utils.parseDesignDocFunctionName('foo/bar').should.be.eql(['foo', 'bar']);
+      parseDdocFunctionName('foo/bar').should.be.eql(['foo', 'bar']);
     });
     it('parses foo as [foo,foo]', function () {
-      utils.parseDesignDocFunctionName('foo').should.be.eql(['foo', 'foo']);
+      parseDdocFunctionName('foo').should.be.eql(['foo', 'foo']);
     });
     it('throws if it can\'t parse the function name', function () {
-      should.not.exist(utils.parseDesignDocFunctionName(null));
-      should.not.exist(utils.parseDesignDocFunctionName('foo/bar/baz'));
+      should.not.exist(parseDdocFunctionName(null));
+      should.not.exist(parseDdocFunctionName('foo/bar/baz'));
     });
   });
 });
