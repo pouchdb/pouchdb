@@ -58,6 +58,23 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('db emits destroyed on all DBs', function () {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+
+      return new PouchDB.utils.Promise(function (resolve) {
+        var called = 0;
+        function checkDone() {
+          if (++called === 2) {
+            resolve();
+          }
+        }
+        db1.once('destroyed', checkDone);
+        db2.once('destroyed', checkDone);
+        db1.destroy();
+      });
+    });
+
     it('3900 db emits destroyed event', function () {
       return new PouchDB('testdb').then(function (db) {
         return new PouchDB.utils.Promise(function (resolve) {
