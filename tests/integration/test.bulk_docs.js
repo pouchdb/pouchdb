@@ -531,7 +531,7 @@ adapters.forEach(function (adapter) {
 
       db.bulkDocs({docs: docsA, new_edits: false}, function (err, result) {
         should.not.exist(err);
-        db.changes({complete: function (err, result) {
+        db.changes().on('complete', function (result) {
           var ids = result.results.map(function (row) {
             return row.id;
           });
@@ -543,27 +543,26 @@ adapters.forEach(function (adapter) {
           db.bulkDocs({docs: docsB, new_edits: false}, function (err, result) {
             should.not.exist(err);
             db.changes({
-              since : update_seq,
-              complete: function (err, result) {
-                var ids = result.results.map(function (row) {
-                  return row.id;
-                });
-                ids.should.not.include("foo321");
-                ids.should.not.include("fee321");
-                ids.should.include("faa321");
+              since: update_seq
+            }).on('complete', function (result) {
+              var ids = result.results.map(function (row) {
+                return row.id;
+              });
+              ids.should.not.include("foo321");
+              ids.should.not.include("fee321");
+              ids.should.include("faa321");
 
-                db.get('foo321', function (err, res) {
-                  res._rev.should.equal('1-x');
-                  res.bar.should.equal("baz");
-                  db.info(function (err, info) {
-                    info.doc_count.should.equal(3);
-                    done();
-                  });
+              db.get('foo321', function (err, res) {
+                res._rev.should.equal('1-x');
+                res.bar.should.equal("baz");
+                db.info(function (err, info) {
+                  info.doc_count.should.equal(3);
+                  done();
                 });
-              }
-            });
+              });
+            }).on('error', done);
           });
-        }});
+        }).on('error', done);
       });
     });
 

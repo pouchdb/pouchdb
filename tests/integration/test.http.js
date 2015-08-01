@@ -53,14 +53,13 @@ describe('test.http.js', function () {
         ajax.apply(this, arguments);
       };
       db.changes({
-        since: 100,
-        onChange: function (change) { },
-        complete: function (err, result) {
-          callCount.should.equal(1, 'One _changes call to complete changes');
-          PouchDB.utils.ajax = ajax;
-          done();
-        }
-      });
+        since: 100
+      }).on('change', function (change) {
+      }).on('complete', function (result) {
+        callCount.should.equal(1, 'One _changes call to complete changes');
+        PouchDB.utils.ajax = ajax;
+        done();
+      }).on('error', done);
     });
   });
 

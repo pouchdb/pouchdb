@@ -173,10 +173,8 @@ adapters.forEach(function (adapters) {
     it('Test sync cancel', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var replications = db.sync(remote, {
-        complete: function (err, result) {
-          done();
-        }
+      var replications = db.sync(remote).on('complete', function () {
+        done();
       });
       should.exist(replications);
       replications.cancel();
@@ -225,14 +223,9 @@ adapters.forEach(function (adapters) {
           return new PouchDB.utils.Promise(function (resolve, reject) {
             db = new PouchDB(dbs.name);
             remote = new PouchDB(dbs.remote);
-            var sync = db.sync(remote, {
-              complete: function (err) {
-                if (err) {
-                  return reject(err);
-                }
-                resolve();
-              }
-            });
+            var sync = db.sync(remote)
+              .on('error', reject)
+              .on('complete', resolve);
             sync.cancel();
           }).then(function () {
             return PouchDB.utils.Promise.all([
