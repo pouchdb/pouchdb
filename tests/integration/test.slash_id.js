@@ -78,18 +78,16 @@ adapters.forEach(function (adapter) {
           }
           res.rows[1].doc._attachments.should.include
             .keys('attachment/with/slash');
-          db.changes({
-            complete: function (err, res) {
-              res.results.sort(function (a, b) {
-                return a.id.localeCompare(b.id);
-              });
-              for (var i = 0; i < 3; i++) {
-                res.results[i].id.should
-                  .equal(docs[i]._id, 'correctly inserted');
-              }
-              done();
+          db.changes().on('complete', function (res) {
+            res.results.sort(function (a, b) {
+              return a.id.localeCompare(b.id);
+            });
+            for (var i = 0; i < 3; i++) {
+              res.results[i].id.should
+                .equal(docs[i]._id, 'correctly inserted');
             }
-          });
+            done();
+          }).on('error', done);
         });
       });
     });

@@ -58,19 +58,16 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: docs1 }, function (err, info) {
         var changes = db.changes({
           live: true,
-          filter: 'foo/even',
-          onChange: function (change) {
-            count += 1;
-            if (count === 4) {
-              changes.cancel();
-            }
-          },
-          complete: function (err, result) {
-            result.status.should.equal('cancelled');
-            done();
-          },
-
-        });
+          filter: 'foo/even'
+        }).on('change', function (change) {
+          count += 1;
+          if (count === 4) {
+            changes.cancel();
+          }
+        }).on('complete', function (result) {
+          result.status.should.equal('cancelled');
+          done();
+        }).on('error', done);
         db.bulkDocs({ docs: docs2 }, {});
       });
     });

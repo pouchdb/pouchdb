@@ -50,27 +50,24 @@ adapters.forEach(function (adapter) {
             db.allDocs(opts, function (err, raw) {
               raw.rows.should.have.length(0, 'raw collation');
               var ids = ['0', '3', '1', '2'];
-              db.changes({
-                complete: function (err, changes) {
-                  // order of changes is not guaranteed in a 
-                  // clustered changes feed
+              db.changes().on('complete', function (changes) {
+                // order of changes is not guaranteed in a
+                // clustered changes feed
+                changes.results.forEach(function (row, i) {
+                  ids.should.include(row.id, 'seq order');
+                });
+                db.changes({
+                  descending: true
+                }).on('complete', function (changes) {
+                  // again, order is not guaranteed so
+                  // unsure if this is a useful test
+                  ids = ['2', '1', '3', '0'];
                   changes.results.forEach(function (row, i) {
-                    ids.should.include(row.id, 'seq order');
+                    ids.should.include(row.id, 'descending=true');
                   });
-                  db.changes({
-                    descending: true,
-                    complete: function (err, changes) {
-                      // again, order is not guaranteed so 
-                      // unsure if this is a useful test
-                      ids = ['2', '1', '3', '0'];
-                      changes.results.forEach(function (row, i) {
-                        ids.should.include(row.id, 'descending=true');
-                      });
-                      done();
-                    }
-                  });
-                }
-              });
+                  done();
+                }).on('error', done);
+              }).on('error', done);
             });
           });
         });
@@ -142,16 +139,15 @@ adapters.forEach(function (adapter) {
               should.exist(deleted.ok);
 
               db.changes({
-                since: update_seq,
-                complete: function (err, changes) {
-                  var deleted_ids = changes.results.map(function (c) {
-                    if (c.deleted) { return c.id; }
-                  });
-                  deleted_ids.should.include('1');
+                since: update_seq
+              }).on('complete', function (changes) {
+                var deleted_ids = changes.results.map(function (c) {
+                  if (c.deleted) { return c.id; }
+                });
+                deleted_ids.should.include('1');
 
-                  done();
-                }
-              });
+                done();
+              }).on('error', done);
             });
           });
         });
@@ -170,14 +166,13 @@ adapters.forEach(function (adapter) {
             doc.updated = 'totally';
             db.put(doc, function (err, doc) {
               db.changes({
-                since: update_seq,
-                complete: function (err, changes) {
-                  var ids = changes.results.map(function (c) { return c.id; });
-                  ids.should.include('3');
+                since: update_seq
+              }).on('complete', function (changes) {
+                var ids = changes.results.map(function (c) { return c.id; });
+                ids.should.include('3');
 
-                  done();
-                }
-              });
+                done();
+              }).on('error', done);
             });
           });
         });
@@ -189,17 +184,15 @@ adapters.forEach(function (adapter) {
       testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
         function () {
         db.changes({
-          include_docs: true,
-          complete: function (err, changes) {
-            changes.results.forEach(function (row, i) {
-              if (row.id === '0') {
-                row.doc.a.should.equal(1);
-              }
-            });
-            
-            done();
-          }
-        });
+          include_docs: true
+        }).on('complete', function (changes) {
+          changes.results.forEach(function (row, i) {
+            if (row.id === '0') {
+              row.doc.a.should.equal(1);
+            }
+          });
+          done();
+        }).on('error', done);
       });
     });
 
@@ -225,45 +218,43 @@ adapters.forEach(function (adapter) {
               db.changes({
                 include_docs: true,
                 conflicts: true,
-                style: 'all_docs',
-                complete: function (err, changes) {
+                style: 'all_docs'
+              }).on('complete', function (changes) {
+                changes.results.map(function (x) { return x.id; }).sort()
+                  .should.deep.equal(['0', '1', '2', '3'],
+                    'all ids are in _changes');
 
-                  changes.results.map(function (x) { return x.id; }).sort()
-                    .should.deep.equal(['0', '1', '2', '3'],
-                      'all ids are in _changes');
+                var result = changes.results.filter(function (row, i) {
+                  return row.id === '3';
+                })[0];
 
-                  var result = changes.results.filter(function (row, i) {
-                    return row.id === '3';
-                  })[0];
-                  
-                  result.changes.should.have
-                    .length(3, 'correct number of changes');
-                  result.doc._rev.should.equal(conflictDoc2._rev);
-                  result.doc._id.should.equal('3', 'correct doc id');
-                  winRev._rev.should.equal(result.doc._rev);
-                  result.doc._conflicts.should.be.instanceof(Array);
-                  result.doc._conflicts.should.have.length(2);
-                  conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
+                result.changes.should.have
+                  .length(3, 'correct number of changes');
+                result.doc._rev.should.equal(conflictDoc2._rev);
+                result.doc._id.should.equal('3', 'correct doc id');
+                winRev._rev.should.equal(result.doc._rev);
+                result.doc._conflicts.should.be.instanceof(Array);
+                result.doc._conflicts.should.have.length(2);
+                conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
 
-                  db.allDocs({
-                    include_docs: true,
-                    conflicts: true
-                  }, function (err, res) {
-                    var row = res.rows[3];
-                    res.rows.should.have.length(4, 'correct number of changes');
-                    row.key.should.equal('3', 'correct key');
-                    row.id.should.equal('3', 'correct id');
-                    row.value.rev.should.equal(winRev._rev, 'correct rev');
-                    row.doc._rev.should.equal(winRev._rev, 'correct rev');
-                    row.doc._id.should.equal('3', 'correct order');
-                    row.doc._conflicts.should.be.instanceof(Array);
-                    row.doc._conflicts.should.have.length(2);
-                    conflictDoc1._rev.should
-                      .equal(res.rows[3].doc._conflicts[0]);
-                    done();
-                  });
-                }
-              });
+                db.allDocs({
+                  include_docs: true,
+                  conflicts: true
+                }, function (err, res) {
+                  var row = res.rows[3];
+                  res.rows.should.have.length(4, 'correct number of changes');
+                  row.key.should.equal('3', 'correct key');
+                  row.id.should.equal('3', 'correct id');
+                  row.value.rev.should.equal(winRev._rev, 'correct rev');
+                  row.doc._rev.should.equal(winRev._rev, 'correct rev');
+                  row.doc._id.should.equal('3', 'correct order');
+                  row.doc._conflicts.should.be.instanceof(Array);
+                  row.doc._conflicts.should.have.length(2);
+                  conflictDoc1._rev.should
+                    .equal(res.rows[3].doc._conflicts[0]);
+                  done();
+                });
+              }).on('error', done);
             });
           });
         });

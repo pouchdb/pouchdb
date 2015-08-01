@@ -294,17 +294,15 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var changes = db.changes({
         live: true,
-        include_docs: true,
-        onChange: function (change) {
-          if (change.doc._deleted) {
-            changes.cancel();
-          }
-        },
-        complete: function (err, result) {
-          result.status.should.equal('cancelled');
-          done();
+        include_docs: true
+      }).on('change', function (change) {
+        if (change.doc._deleted) {
+          changes.cancel();
         }
-      });
+      }).on('complete', function (result) {
+        result.status.should.equal('cancelled');
+        done();
+      }).on('error', done);
       db.post({ _id: 'somestuff' }, function (err, res) {
         db.remove({
           _id: res.id,
