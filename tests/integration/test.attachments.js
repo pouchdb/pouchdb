@@ -2039,39 +2039,37 @@ adapters.forEach(function (adapter) {
           should.not.exist(res.rows[0].doc._attachments,
                            '(allDocs) doc0 contains no attachments');
           db.changes({
-            include_docs: true,
-            onChange: function (change) {
-              var i = +change.id.substr(3);
-              if (i === 0) {
-                should.not.exist(res.rows[0].doc._attachments,
-                                 '(onChange) doc0 contains no attachments');
-              } else {
-                var attachmentsNb =
-                  typeof docs[i]._attachments !== 'undefined' ?
-                  Object.keys(docs[i]._attachments).length : 0;
-                for (var j = 0; j < attachmentsNb; j++) {
-                  res.rows[i].doc._attachments['att' + j].stub.should
-                    .equal(true, '(onChange) doc' + i + ' contains att' + j +
-                           ' stub');
-                }
+            include_docs: true
+          }).on('change', function (change) {
+            var i = +change.id.substr(3);
+            if (i === 0) {
+              should.not.exist(res.rows[0].doc._attachments,
+                               '(onChange) doc0 contains no attachments');
+            } else {
+              var attachmentsNb =
+                typeof docs[i]._attachments !== 'undefined' ?
+                Object.keys(docs[i]._attachments).length : 0;
+              for (var j = 0; j < attachmentsNb; j++) {
+                res.rows[i].doc._attachments['att' + j].stub.should
+                  .equal(true, '(onChange) doc' + i + ' contains att' + j +
+                         ' stub');
               }
-            },
-            complete: function (err, res) {
-              var attachmentsNb = 0;
-              res.results.sort(sort);
-              for (var i = 0; i < 3; i++) {
-                attachmentsNb = typeof docs[i]._attachments !== 'undefined' ?
-                  Object.keys(docs[i]._attachments).length : 0;
-                for (var j = 0; j < attachmentsNb; j++) {
-                  res.results[i].doc._attachments['att' + j].stub.should
-                    .equal(true, '(complete) doc' + i + ' contains att' + j +
-                           ' stub');
-                }
-              }
-              should.not.exist(res.results[0].doc._attachments,
-                               '(complete) doc0 contains no attachments');
-              done();
             }
+          }).on('complete', function (res) {
+            var attachmentsNb = 0;
+            res.results.sort(sort);
+            for (var i = 0; i < 3; i++) {
+              attachmentsNb = typeof docs[i]._attachments !== 'undefined' ?
+                Object.keys(docs[i]._attachments).length : 0;
+              for (var j = 0; j < attachmentsNb; j++) {
+                res.results[i].doc._attachments['att' + j].stub.should
+                  .equal(true, '(complete) doc' + i + ' contains att' + j +
+                         ' stub');
+              }
+            }
+            should.not.exist(res.results[0].doc._attachments,
+                             '(complete) doc0 contains no attachments');
+            done();
           });
         });
       });
@@ -2273,27 +2271,25 @@ adapters.forEach(function (adapter) {
       function (done) {
       var db = new PouchDB(dbs.name);
       var changes = db.changes({
-        complete: function (err, result) {
-          result.status.should.equal('cancelled');
-          done();
-        },
-        live: true,
-        onChange: function (change) {
-          if (change.id === 'anotherdoc2') {
-            change.id.should.equal('anotherdoc2', 'Doc has been created');
-            db.get(change.id, { attachments: true }, function (err, doc) {
-              doc._attachments.should.be
-                .an('object', 'doc has attachments object');
-              should.exist(doc._attachments.mytext,
-                           'doc has attachments attachment');
-              doc._attachments.mytext.data.should
-                .equal('TXl0ZXh0', 'doc has attachments attachment');
-              changes.cancel();
-            });
-          }
+        live: true
+      }).on('complete', function (result) {
+        result.status.should.equal('cancelled');
+        done();
+      }).on('change', function (change) {
+        if (change.id === 'anotherdoc2') {
+          change.id.should.equal('anotherdoc2', 'Doc has been created');
+          db.get(change.id, { attachments: true }, function (err, doc) {
+            doc._attachments.should.be
+              .an('object', 'doc has attachments object');
+            should.exist(doc._attachments.mytext,
+                         'doc has attachments attachment');
+            doc._attachments.mytext.data.should
+              .equal('TXl0ZXh0', 'doc has attachments attachment');
+            changes.cancel();
+          });
         }
       });
-      var blob = testUtils.makeBlob('Mytext');
+        var blob = testUtils.makeBlob('Mytext');
       db.putAttachment('anotherdoc2', 'mytext', blob, 'text/plain');
     });
 
@@ -2305,22 +2301,20 @@ adapters.forEach(function (adapter) {
 
           var changes = db.changes({
             since: info.update_seq,
-            complete: function (err, result) {
-              result.status.should.equal('cancelled');
-              done();
-            },
             live: true,
             include_docs: true,
-            onChange: function (change) {
-              if (change.id === 'anotherdoc3') {
-                db.get(change.id, { attachments: true }, function (err, doc) {
-                  doc._attachments.should.be.an('object',
-                                              'doc has attachments object');
-                  should.exist(doc._attachments.mytext);
-                  doc._attachments.mytext.data.should.equal('TXl0ZXh0');
-                  changes.cancel();
-                });
-              }
+          }).on('complete', function (result) {
+            result.status.should.equal('cancelled');
+            done();
+          }).on('change', function (change) {
+            if (change.id === 'anotherdoc3') {
+              db.get(change.id, { attachments: true }, function (err, doc) {
+                doc._attachments.should.be.an('object',
+                                            'doc has attachments object');
+                should.exist(doc._attachments.mytext);
+                doc._attachments.mytext.data.should.equal('TXl0ZXh0');
+                changes.cancel();
+              });
             }
           });
           var blob = testUtils.makeBlob('Mytext');

@@ -60,13 +60,5 @@ describe('constructor errors', function () {
         done();
       });
     });
-    it('changes', function (done) {
-      new PouchDB().changes({
-        complete: function (err, resp) {
-            should.exist(err);
-            done(resp);
-          }
-      });
-    });
   });
 });
