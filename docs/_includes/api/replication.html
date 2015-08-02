@@ -70,7 +70,6 @@ The `remoteDB` can either be a string or a `PouchDB` object. If you have special
 * __`active`__ - This event fires when the replication starts actively processing changes; e.g. when it recovers from an error or new changes are available.
 * __`denied`__ (`err`) - This event fires if a document failed to replicate due to validation or authorization errors.
 * __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure. If `retry` is `false`, this will also fire when the user goes offline or another network error occurs (so you can handle retries yourself, if you want).
-* __`uptodate`__ (*deprecated*) - This event fires when a live replication has caught up and is waiting on future changes. This should be replaced by using the `paused` event.
 
 #### Single-shot
 
