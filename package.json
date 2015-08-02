@@ -23,8 +23,8 @@
     "express": "^4.10.4",
     "inherits": "~2.0.1",
     "level-js": "^2.1.3",
-    "level-sublevel": "~5.2.0",
-    "levelup": "~0.18.4",
+    "level-sublevel": "^6.4.6",
+    "levelup": "^1.2.1",
     "lie": "^2.6.0",
     "localstorage-down": "^0.6.2",
     "memdown": "^1.0.0",
@@ -39,7 +39,7 @@
     "vuvuzela": "^1.0.0"
   },
   "optionalDependencies": {
-    "leveldown": "~0.10.2"
+    "leveldown": "^1.4.0"
   },
   "devDependencies": {
     "browserify": "^10.2.4",
