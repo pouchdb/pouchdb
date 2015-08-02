@@ -165,4 +165,22 @@ describe('test.http.js', function () {
     db.getHeaders().should.deep.equal({});
   });
 
+  it('test url too long error for allDocs()', function () {
+    var docs = [];
+    var numDocs = 75;
+    for (var i = 0; i < numDocs; i++) {
+      docs.push({
+        _id: 'fairly_long_doc_name_' + i
+      });
+    }
+    var db = new PouchDB(dbs.name);
+    return db.bulkDocs(docs).then(function () {
+      return db.allDocs({
+        keys: docs.map(function (x) { return x._id; })
+      });
+    }).then(function (res) {
+      res.rows.should.have.length(numDocs);
+    });
+  });
+
 });
