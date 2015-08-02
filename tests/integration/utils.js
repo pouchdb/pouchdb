@@ -22,6 +22,11 @@ testUtils.isSyncGateway = function () {
     testUtils.params().SERVER === 'sync-gateway';
 };
 
+testUtils.isExpressRouter = function () {
+  return 'SERVER' in testUtils.params() &&
+    testUtils.params().SERVER === 'pouchdb-express-router';
+};
+
 testUtils.params = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env;

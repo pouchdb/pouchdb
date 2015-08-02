@@ -44,6 +44,33 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test revs diff with opts object', function (done) {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      var revs = [];
+      db.post({
+        test: 'somestuff',
+        _id: 'somestuff'
+      }, function (err, info) {
+        revs.push(info.rev);
+        db.put({
+          _id: info.id,
+          _rev: info.rev,
+          another: 'test'
+        }, function (err, info2) {
+          revs.push(info2.rev);
+          db.revsDiff({ 'somestuff': revs }, {}, function (err, results) {
+            results.should.not.include.keys('somestuff');
+            revs.push('2-randomid');
+            db.revsDiff({ 'somestuff': revs }, function (err, results) {
+              results.should.include.keys('somestuff');
+              results.somestuff.missing.should.have.length(1);
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('Missing docs should be returned with all revisions', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         var revs = ['1-a', '2-a', '2-b'];
