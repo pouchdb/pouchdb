@@ -623,6 +623,20 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    /*
+    it('test url too long error', function () {
+      var docs = [];
+      for (var i = 0; i < 100; i++) {
+        docs.push({
+          _id: 'fairly_long_doc_name_' + i
+        });
+      }
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return db.allDoc
+      });
+    });*/
+
     it('test empty db', function (done) {
       return new PouchDB(dbs.name).then(function (db) {
         return db.allDocs().then(function (res) {

@@ -121,4 +121,48 @@ describe('test.http.js', function () {
 
     PouchDB.utils.ajax = ajax;
   });
+
+  it('Test unauthorized user', function () {
+    var db = new PouchDB(dbs.name, {
+      auth: {
+        user: 'foo',
+        password: 'bar'
+      }
+    });
+    return db.info().then(function () {
+      throw new Error('expected an error');
+    }, function (err) {
+      should.exist(err); // 401 error
+    });
+  });
+
+  it('Test unauthorized user, user/pass in url itself', function () {
+    var dbname = dbs.name.replace(/\/\//, '//foo:bar@');
+    var db = new PouchDB(dbname);
+    return db.info().then(function () {
+      throw new Error('expected an error');
+    }, function (err) {
+      should.exist(err); // 401 error
+    });
+  });
+
+  it('Test custom header', function () {
+    var db = new PouchDB(dbs.name, {
+      headers: {
+        'X-Custom': 'some-custom-header'
+      }
+    });
+    return db.info();
+  });
+
+  it('getUrl() works (used by plugins)', function () {
+    var db = new PouchDB(dbs.name);
+    db.getUrl().should.match(/^http/);
+  });
+
+  it('getHeaders() works (used by plugins)', function () {
+    var db = new PouchDB(dbs.name);
+    db.getHeaders().should.deep.equal({});
+  });
+
 });

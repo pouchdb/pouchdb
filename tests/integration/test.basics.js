@@ -77,6 +77,14 @@ adapters.forEach(function (adapter) {
       }, done);
     });
 
+    it('Add a doc with opts object', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post({test: 'somestuff'}, {}, function (err, info) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
     it('Modify a doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}, function (err, info) {
