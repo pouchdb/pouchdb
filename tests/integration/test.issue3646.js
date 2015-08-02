@@ -3,7 +3,7 @@
 var adapters = ['local', 'http'];
 
 adapters.forEach(function (adapter) {
-  describe('#3646 WebSQL deleted documents - ' + adapter, function () {
+  describe('test.issue3646.js- ' + adapter, function () {
 
     var dbs = {};
 
