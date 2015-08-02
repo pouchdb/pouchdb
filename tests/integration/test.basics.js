@@ -25,6 +25,12 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Create a pouch without new keyword', function () {
+      /* jshint newcap:false */
+      var db = PouchDB(dbs.name);
+      db.should.be.an.instanceof(PouchDB);
+    });
+
     it('Create a pouch with a promise', function (done) {
       new PouchDB(dbs.name).then(function (db) {
         db.should.be.an.instanceof(PouchDB);
