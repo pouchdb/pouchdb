@@ -124,7 +124,6 @@ adapters.forEach(function (adapters) {
 
       // intentionally throw an error during replication
       remote.allDocs = function (opts) {
-        // Chrome shows an "uncaught (in Promise)" error, but it's okay
         return PouchDB.utils.Promise.reject(new Error('flunking you'));
       };
 
@@ -133,6 +132,8 @@ adapters.forEach(function (adapters) {
       }).then(function () {
         return new PouchDB.utils.Promise(function (resolve) {
           db.sync(remote).on('error', resolve);
+        }).catch(function () {
+          // avoid annoying chrome warning about uncaught (in promise)
         });
       }).then(function (err) {
         should.exist(err);
@@ -153,7 +154,6 @@ adapters.forEach(function (adapters) {
 
       // intentionally throw an error during replication
       remote.allDocs = function (opts) {
-        // Chrome shows an "uncaught (in Promise)" error, but it's okay
         return PouchDB.utils.Promise.reject(new Error('flunking you'));
       };
 
@@ -163,6 +163,8 @@ adapters.forEach(function (adapters) {
         return new PouchDB.utils.Promise(function (resolve) {
           db.sync(remote, function (err) {
             resolve(err);
+          }).catch(function () {
+            // avoid annoying chrome warning about uncaught (in promise)
           });
         });
       }).then(function (err) {
