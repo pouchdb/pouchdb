@@ -121,4 +121,72 @@ describe('test.http.js', function () {
 
     PouchDB.utils.ajax = ajax;
   });
+
+  it('Test unauthorized user', function () {
+    var db = new PouchDB(dbs.name, {
+      auth: {
+        user: 'foo',
+        password: 'bar'
+      }
+    });
+    return db.info().then(function () {
+      if (testUtils.isExpressRouter()) {
+        return; // express-router doesn't do auth
+      }
+      throw new Error('expected an error');
+    }, function (err) {
+      should.exist(err); // 401 error
+    });
+  });
+
+  it('Test unauthorized user, user/pass in url itself', function () {
+    var dbname = dbs.name.replace(/\/\//, '//foo:bar@');
+    var db = new PouchDB(dbname);
+    return db.info().then(function () {
+      if (testUtils.isExpressRouter()) {
+        return; // express-router doesn't do auth
+      }
+      throw new Error('expected an error');
+    }, function (err) {
+      should.exist(err); // 401 error
+    });
+  });
+
+  it('Test custom header', function () {
+    var db = new PouchDB(dbs.name, {
+      headers: {
+        'X-Custom': 'some-custom-header'
+      }
+    });
+    return db.info();
+  });
+
+  it('getUrl() works (used by plugins)', function () {
+    var db = new PouchDB(dbs.name);
+    db.getUrl().should.match(/^http/);
+  });
+
+  it('getHeaders() works (used by plugins)', function () {
+    var db = new PouchDB(dbs.name);
+    db.getHeaders().should.deep.equal({});
+  });
+
+  it('test url too long error for allDocs()', function () {
+    var docs = [];
+    var numDocs = 75;
+    for (var i = 0; i < numDocs; i++) {
+      docs.push({
+        _id: 'fairly_long_doc_name_' + i
+      });
+    }
+    var db = new PouchDB(dbs.name);
+    return db.bulkDocs(docs).then(function () {
+      return db.allDocs({
+        keys: docs.map(function (x) { return x._id; })
+      });
+    }).then(function (res) {
+      res.rows.should.have.length(numDocs);
+    });
+  });
+
 });

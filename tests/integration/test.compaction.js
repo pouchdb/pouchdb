@@ -30,6 +30,13 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('compact with options object', function () {
+      var db = new PouchDB(dbs.name);
+      return db.compact({}).then(function (result) {
+        result.should.eql({ok: true});
+      });
+    });
+
     it('#2913 massively parallel compaction', function () {
       var db = new PouchDB(dbs.name);
       var tasks = [];

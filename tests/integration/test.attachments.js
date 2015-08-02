@@ -85,6 +85,43 @@ adapters.forEach(function (adapter) {
       }
     };
 
+    it('fetch atts with open_revs and missing', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {
+        _id: 'frog',
+        _rev: '1-x',
+        _revisions: {
+          start: 1,
+          ids: ['x']
+        },
+        _attachments: {
+          'foo.txt': {
+            content_type: 'text/plain',
+            data: ''
+          }
+        }
+      };
+      return db.bulkDocs({
+        docs: [doc],
+        new_edits: false
+      }).then(function () {
+        return db.get('frog', {
+          revs: true,
+          open_revs: ['1-x', '2-fake'],
+          attachments: true
+        });
+      }).then(function (res) {
+        // there should be exactly one "ok" result
+        // and one result with attachments
+        res.filter(function (x) {
+          return x.ok;
+        }).should.have.length(1);
+        res.filter(function (x) {
+          return x.ok && x.ok._attachments;
+        }).should.have.length(1);
+      });
+    });
+
     it('issue 2803 should throw 412', function () {
       var db = new PouchDB(dbs.name);
       return db.put(binAttDoc).then(function () {
