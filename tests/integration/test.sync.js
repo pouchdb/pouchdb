@@ -50,6 +50,154 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('sync throws errors in promise', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return db.sync(remote);
+      }).then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
+      });
+    });
+
+    it('sync throws errors in promise catch()', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      var landedInCatch = false;
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return db.sync(remote).catch(function (err) {
+          landedInCatch = true;
+          should.exist(err);
+        });
+      }).then(function () {
+        if (!landedInCatch) {
+          throw new Error('expected catch(), not then()');
+        }
+      });
+    });
+
+    it('sync throws errors in error listener', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        // Chrome shows an "uncaught (in Promise)" error, but it's okay
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve) {
+          db.sync(remote).on('error', resolve);
+        });
+      }).then(function (err) {
+        should.exist(err);
+      });
+    });
+
+    it('sync throws errors in callback', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        // Chrome shows an "uncaught (in Promise)" error, but it's okay
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve) {
+          db.sync(remote, function (err) {
+            resolve(err);
+          });
+        });
+      }).then(function (err) {
+        should.exist(err);
+      });
+    });
+
+    it('sync returns result in callback', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          db.sync(remote, function (err, res) {
+            if (err) {
+              return reject(err);
+            }
+            resolve(res);
+          });
+        });
+      }).then(function (res) {
+        should.exist(res);
+      });
+    });
+
     it('PouchDB.sync callback', function (done) {
       var doc1 = {
           _id: 'adoc',
@@ -432,6 +580,54 @@ adapters.forEach(function (adapters) {
         .then(done, done);
       });
     });
+
+    it('#3270 triggers "denied" events, reverse direction',
+      function (done) {
+        testUtils.isCouchDB(function (isCouchDB) {
+          if (/*adapters[1] !== 'http' || */!isCouchDB) {
+            return done();
+          }
+          if (adapters[0] !== 'local' || adapters[1] !== 'http') {
+            return done();
+          }
+
+          var deniedErrors = [];
+          var ddoc = {
+            "_id": "_design/validate",
+            "validate_doc_update": function (newDoc) {
+              if (newDoc.foo) {
+                throw { unauthorized: 'go away, no picture' };
+              }
+            }.toString()
+          };
+
+          var remote = new PouchDB(dbs.remote);
+          var db = new PouchDB(dbs.name);
+
+          return remote.put(ddoc).then(function () {
+            var docs = [
+              {_id: 'foo1', foo: 'string'},
+              {_id: 'nofoo'},
+              {_id: 'foo2', foo: 'object'}
+            ];
+            return db.bulkDocs({docs: docs});
+          }).then(function () {
+            var sync = remote.sync(db);
+            sync.on('denied', function(error) {
+              deniedErrors.push(error);
+            });
+            return sync;
+          }).then(function (res) {
+            deniedErrors.length.should.equal(2);
+            deniedErrors[0].doc.id.should.equal('foo1');
+            deniedErrors[0].doc.name.should.equal('unauthorized');
+            deniedErrors[1].doc.id.should.equal('foo2');
+            deniedErrors[1].doc.name.should.equal('unauthorized');
+            deniedErrors[0].direction.should.equal('pull');
+          })
+            .then(done, done);
+        });
+      });
 
     it('#3270 triggers "change" events with .docs property', function(done) {
       var syncedDocs = [];
