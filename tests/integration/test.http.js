@@ -44,22 +44,26 @@ describe('test.http.js', function () {
     }
     var db = new PouchDB(dbs.name);
     db.bulkDocs({ docs: docs }, function (err, result) {
-      var callCount = 0;
-      var ajax = PouchDB.utils.ajax;
-      PouchDB.utils.ajax = function (opts) {
-        if (/_changes/.test(opts.url)) {
-          callCount++;
-        }
-        ajax.apply(this, arguments);
-      };
-      db.changes({
-        since: 100
-      }).on('change', function (change) {
-      }).on('complete', function (result) {
-        callCount.should.equal(1, 'One _changes call to complete changes');
-        PouchDB.utils.ajax = ajax;
-        done();
-      }).on('error', done);
+      db.info(function (err, info) {
+        var update_seq = info.update_seq;
+
+        var callCount = 0;
+        var ajax = PouchDB.utils.ajax;
+        PouchDB.utils.ajax = function (opts) {
+          if (/_changes/.test(opts.url)) {
+            callCount++;
+          }
+          ajax.apply(this, arguments);
+        };
+        db.changes({
+          since: update_seq
+        }).on('change', function (change) {
+        }).on('complete', function (result) {
+          callCount.should.equal(1, 'One _changes call to complete changes');
+          PouchDB.utils.ajax = ajax;
+          done();
+        }).on('error', done);
+      });
     });
   });
 
