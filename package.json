@@ -102,7 +102,6 @@
     "release": "sh bin/release.sh",
     "publish-site": "sh bin/publish-site.sh",
     "build-site": "node ./bin/build-site.js",
-    "shell": "node ./bin/repl.js",
     "report-coverage": "COVERAGE=1 npm test && istanbul-coveralls --no-rm",
     "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js",
     "verify-bundle-size": "sh bin/verify-bundle-size.sh"
