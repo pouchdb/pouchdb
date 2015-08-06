@@ -152,12 +152,6 @@ Some Level adapters also require a standard database name prefix (e.g. `riak://`
 
     LEVEL_PREFIX=riak://localhost:8087/
 
-### Testing Pouch in a shell
-
-For quick debugging, you can run an interactive Node shell with the `PouchDB` variable already available:
-
-    npm run shell
-
 ### Performance tests
 
     PERF=1 npm test
