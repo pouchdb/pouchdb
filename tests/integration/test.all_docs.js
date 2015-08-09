@@ -520,6 +520,17 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('1974 test "key" + "keys" option', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [{ _id: '0' }, { _id: '1' }, { _id: '2' }];
+      return db.bulkDocs(docs).then(function (err) {
+        return db.allDocs({key: '1', keys: ['1', '2']});
+      }).catch(function(err) {
+        err.reason.should.equal("`keys` is incompatible with `key`, " +
+                                "`start_key` and `end_key`");
+      });
+    });
+
     it('test inclusive_end=false', function (done) {
       new PouchDB(dbs.name).then(function (db) {
         var docs = [
