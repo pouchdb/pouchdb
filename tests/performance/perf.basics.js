@@ -36,6 +36,26 @@ module.exports = function (PouchDB, opts) {
         db.bulkDocs(docs, done);
       }
     }, {
+      name: 'basic-updates',
+      assertions: 1,
+      iterations: 100,
+      setup: function (db, callback) {
+        var docs = [];
+        for (var i = 0; i < 100; i++) {
+          docs.push({});
+        }
+        db.bulkDocs(docs, callback);
+      },
+      test: function (db, itr, _, done) {
+        db.allDocs({include_docs: true}, function (err, res) {
+          if (err) {
+            return done(err);
+          }
+          var docs = res.rows.map(function (x) { return x.doc; });
+          db.bulkDocs(docs, done);
+        });
+      }
+    }, {
       name: 'basic-gets',
       assertions: 1,
       iterations: 10000,
