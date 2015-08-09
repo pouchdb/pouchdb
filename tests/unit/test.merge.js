@@ -10,45 +10,68 @@ var winningRev = mergeJs.winningRev;
 
 describe('test.merge.js', function () {
 
-  var simple = {pos: 1, ids: ['1', {}, []]};
-  var two0 = {pos: 1, ids: ['1', {}, [['2_0', {}, []]]]};
-  var two1 = {pos: 1, ids: ['1', {}, [['2_1', {}, []]]]};
-  var newleaf = {pos: 2, ids: ['2_0', {}, [['3', {}, []]]]};
-  var withnewleaf = {pos: 1, ids: ['1', {}, [['2_0', {}, [['3', {}, []]]]]]};
-  var newbranch = {pos: 1, ids: ['1', {}, [['2_0', {}, []], ['2_1', {}, []]]]};
-  var newdeepbranch = {pos: 2, ids: ['2_0', {}, [['3_1', {}, []]]]};
+  var simple;
+  var two0;
+  var two1;
+  var newleaf;
+  var withnewleaf;
+  var newbranch;
+  var newdeepbranch;
+  var stemmededit;
+  var stemmedconflicts;
+  var newbranchleaf;
+  var newbranchleafbranch;
+  var stemmed2;
+  var stemmed3;
+  var partialrecover;
 
-  var stemmededit = {pos: 3, ids: ['3', {}, []]};
-  var stemmedconflicts = [simple, stemmededit];
+  /*
+   * Our merge() function actually mutates the input object, because it's
+   * more performant than deep cloning the object every time it's passed
+   * into merge(). So in order for these tests to pass, we need to redefine
+   * these objects every time.
+   */
+  beforeEach(function () {
+    simple = {pos: 1, ids: ['1', {}, []]};
+    two0 = {pos: 1, ids: ['1', {}, [['2_0', {}, []]]]};
+    two1 = {pos: 1, ids: ['1', {}, [['2_1', {}, []]]]};
+    newleaf = {pos: 2, ids: ['2_0', {}, [['3', {}, []]]]};
+    withnewleaf = {pos: 1, ids: ['1', {}, [['2_0', {}, [['3', {}, []]]]]]};
+    newbranch = {pos: 1, ids: ['1', {}, [['2_0', {}, []], ['2_1', {}, []]]]};
+    newdeepbranch = {pos: 2, ids: ['2_0', {}, [['3_1', {}, []]]]};
 
-  var newbranchleaf = {
-    pos: 1,
-    ids: ['1', {}, [['2_0', {}, [['3', {}, []]]], ['2_1', {}, []]]]
-  };
+    stemmededit = {pos: 3, ids: ['3', {}, []]};
+    stemmedconflicts = [simple, stemmededit];
 
-  var newbranchleafbranch = {
-    pos: 1,
-    ids: ['1', {}, [
-      ['2_0', {}, [['3', {}, []], ['3_1', {}, []]]], ['2_1', {}, []]
-    ]]
-  };
+    newbranchleaf = {
+      pos: 1,
+      ids: ['1', {}, [['2_0', {}, [['3', {}, []]]], ['2_1', {}, []]]]
+    };
 
-  var stemmed2 = [
-    {pos: 1, ids: ['1', {}, [['2_1', {}, []]]]},
-    {pos: 2, ids: ['2_0', {}, [['3', {}, []], ['3_1', {}, []]]]}
-  ];
+    newbranchleafbranch = {
+      pos: 1,
+      ids: ['1', {}, [
+        ['2_0', {}, [['3', {}, []], ['3_1', {}, []]]], ['2_1', {}, []]
+      ]]
+    };
 
-  var stemmed3 = [
-    {pos: 2, ids: ['2_1', {}, []]},
-    {pos: 3, ids: ['3', {}, []]},
-    {pos: 3, ids: ['3_1', {}, []]}
-  ];
+    stemmed2 = [
+      {pos: 1, ids: ['1', {}, [['2_1', {}, []]]]},
+      {pos: 2, ids: ['2_0', {}, [['3', {}, []], ['3_1', {}, []]]]}
+    ];
 
-  var partialrecover = [
-    {pos: 1, ids: ['1', {}, [['2_0', {}, [['3', {}, []]]]]]},
-    {pos: 2, ids: ['2_1', {}, []]},
-    {pos: 3, ids: ['3_1', {}, []]}
-  ];
+    stemmed3 = [
+      {pos: 2, ids: ['2_1', {}, []]},
+      {pos: 3, ids: ['3', {}, []]},
+      {pos: 3, ids: ['3_1', {}, []]}
+    ];
+
+    partialrecover = [
+      {pos: 1, ids: ['1', {}, [['2_0', {}, [['3', {}, []]]]]]},
+      {pos: 2, ids: ['2_1', {}, []]},
+      {pos: 3, ids: ['3_1', {}, []]}
+    ];
+  });
 
   it('Merging a path into an empty tree is the path', function () {
     merge([], simple, 10).should.deep.equal({
