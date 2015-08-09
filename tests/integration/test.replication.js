@@ -1434,6 +1434,22 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('2204 Invalid doc_ids', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var thedocs = [
+        {_id: '3', integer: 3, string: '3'},
+        {_id: '4', integer: 4, string: '4'},
+        {_id: '5', integer: 5, string: '5'}
+      ];
+      return remote.bulkDocs({docs: thedocs}).then(function (err, info) {
+        return db.replicate.from(remote, {doc_ids: 'foo'});
+      }).catch(function (err) {
+        err.name.should.equal('bad_request');
+        err.reason.should.equal("`doc_ids` filter parameter is not a list.");
+      });
+    });
+
     it('Replication since', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
