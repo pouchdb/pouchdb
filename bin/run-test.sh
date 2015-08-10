@@ -3,10 +3,14 @@
 : ${CLIENT:="node"}
 : ${COUCH_HOST:="http://127.0.0.1:5984"}
 
+echo "hello"
+echo $TRAVIS_REPO_SLUG
+
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
       # for pouchdb-server to link to pouchdb, only in travis
+      echo "USING NEW POUCHDB"
       rm -fr ./node_modules/pouchdb-server/node_modules/pouchdb
       ln -s ../../.. ./node_modules/pouchdb-server/node_modules/pouchdb
     fi
