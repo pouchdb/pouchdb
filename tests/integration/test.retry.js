@@ -539,64 +539,35 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('retry while starting offline', function () {
+
+    it('4049 retry while starting offline', function (done) {
+
+      var ajax = PouchDB.utils.ajax;
+      var _called = 0;
+      var startFailing = false;
+
+      PouchDB.utils.ajax = function (opts, cb) {
+        if (!startFailing || ++_called > 3) {
+          ajax.apply(this, arguments);
+        } else {
+          cb(new Error('flunking you'));
+        }
+      };
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = PouchDB.utils.Promise;
 
-      // id() is the first thing called
-      var origId = remote.id;
-      var i = 0;
-      remote.id = function () {
-        // Reject only the first 3 times
-        if (++i <= 3) {
-          return Promise.reject(new Error('flunking you'));
-        }
-        return origId.apply(remote, arguments);
-      };
+      remote.post({a: 'doc'}).then(function(doc) {
+        startFailing = true;
+        var rep = db.replicate.from(remote, {live: true, retry: true})
+          .on('change', function() { rep.cancel(); });
 
-      var rep = db.replicate.from(remote, {
-        live: true,
-        retry: true,
-        back_off_function: function () { return 0; }
-      });
-
-      var numDocsToWrite = 5;
-
-      return remote.post({}).then(function() {
-        var posted = 0;
-
-        return new Promise(function (resolve, reject) {
-
-          var error;
-          function cleanup(err) {
-            if (err) {
-              error = err;
-            }
-            rep.cancel();
-          }
-          function finish() {
-            if (error) {
-              return reject(error);
-            }
-            resolve();
-          }
-
-          rep.on('complete', finish).on('error', cleanup);
-          rep.on('change', function () {
-            if (++posted < numDocsToWrite) {
-              remote.post({}).catch(cleanup);
-            } else {
-              db.info().then(function (info) {
-                if (info.doc_count === numDocsToWrite) {
-                  cleanup();
-                }
-              }).catch(cleanup);
-            }
-          });
+        rep.on('complete', function() {
+          PouchDB.utils.ajax = ajax;
+          done();
         });
       });
+
     });
 
   });
