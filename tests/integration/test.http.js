@@ -101,7 +101,7 @@ describe('test.http.js', function () {
     });
   });
 
-  it('Allows the "ajax timeout" to extend "changes timeout"', function() {
+  it('Allows the "ajax timeout" to extend "changes timeout"', function(done) {
     var timeout = 120000;
     var db = new PouchDB(dbs.name, {
       skipSetup: true,
@@ -113,17 +113,22 @@ describe('test.http.js', function () {
     var ajax = PouchDB.utils.ajax;
     var ajaxOpts;
     PouchDB.utils.ajax = function(opts) {
-      if(/changes/.test(opts.url)) {
+      if (/changes/.test(opts.url)) {
         ajaxOpts = opts;
+        changes.cancel();
       }
+      ajax.apply(this, arguments);
     };
 
-    db.changes().on('change', function(change) {});
+    var changes = db.changes();
 
-    should.exist(ajaxOpts);
-    ajaxOpts.timeout.should.equal(timeout);
+    changes.on('complete', function(change) {
+      should.exist(ajaxOpts);
+      ajaxOpts.timeout.should.equal(timeout);
+      PouchDB.utils.ajax = ajax;
+      done();
+    });
 
-    PouchDB.utils.ajax = ajax;
   });
 
   // we can't guarantee that every server will throw an error

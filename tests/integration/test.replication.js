@@ -1997,15 +1997,11 @@ adapters.forEach(function (adapters) {
     });
 
     it('issue #1001 cb as 4th argument', function (done) {
-      PouchDB.replicate(
-        'http://example.com',
-        dbs.name,
-        {},
-        function (err, result) {
-          should.exist(err);
-          done();
-        }
-      );
+      var url = 'http://example.com';
+      PouchDB.replicate(url, dbs.name, {}, function (err, result) {
+        should.exist(err);
+        done();
+      });
     });
 
     it('issue #909 Filtered replication bails at paging limit',
