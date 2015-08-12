@@ -280,6 +280,16 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('3883 start_key end_key aliases', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [{_id: 'a', foo: 'a'}, {_id: 'z', foo: 'z'}];
+      return db.bulkDocs(docs).then(function() {
+        return db.allDocs({start_key: 'z', end_key: 'z'});
+      }).then(function (result) {
+        result.rows.should.have.length(1, 'Exclude a result');
+      });
+    });
+
     it('test total_rows with a variety of criteria', function (done) {
       this.timeout(20000);
       var db = new PouchDB(dbs.name);
