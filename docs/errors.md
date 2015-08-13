@@ -73,6 +73,31 @@ Are you in private browsing mode? IndexedDB is [disabled in private browsing mod
 
 There is a limit of one database per app in some versions of the Android WebView. Install the [SQLite plugin][sqlite], then PouchDB will use that if it is available.
 
+{% include anchor.html class="h3" title="Possible EventEmitter memory leak detected" hash="event_emitter_limit" %}
+
+If you see this warning:
+
+    (node) warning: possible EventEmitter memory leak detected. 11 listeners added.
+    Use emitter.setMaxListeners() to increase limit.
+
+This is because PouchDB uses Node-style [EventEmitters](https://nodejs.org/api/events.html) for its events. An EventEmitter is any object that has an `.on()` or `once()` method, such as `db.changes().on('change', ...`.
+
+By default, all EventEmitters have 10 listeners, and if you exceed that limit, e.g. by attaching many `changes()` listeners, creating many `PouchDB` objects, or running many simultaneous `replicate()` or `sync()` events, then you may exceed this limit.
+
+**This could indicate a memory leak in your code**. Check to make sure that you are calling `cancel()` on any `changes()`, `replicate()`, or `sync()` handlers, if you are constantly starting and stopping those events.
+
+If you're sure it's not a memory leak, though, you can increase the limit by doing:
+
+{% highlight javascript %}
+PouchDB.setMaxListeners(20); // or 30 or 40 or however many you need
+{% endhighlight %}
+
+Sometimes the EventEmitter is the `PouchDB` object itself, though, and in that case you need to do:
+
+{% highlight javascript %}
+db.setMaxListeners(20);  // or 30 or 40 or however many you need
+{% endhighlight %}
+
 {% include anchor.html class="h3" title="Database size limitation of ~5MB on iOS with Cordova/Phone Gap" hash="size_limitation_5mb" %}
 
 If you're storing large amounts of data, such as PNG attachments, the [SQLite plugin][sqlite] is again your friend. (See [issue #1260](https://github.com/pouchdb/pouchdb/issues/1260) for details.)
