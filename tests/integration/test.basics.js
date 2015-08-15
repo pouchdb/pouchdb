@@ -626,6 +626,38 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#4126 should not store raw Dates', function () {
+      var date = new Date();
+      var date2 = new Date();
+      var date3 = new Date();
+      var origDocs = [
+        { _id: '1', mydate: date },
+        { _id: '2', array: [date2] },
+        { _id: '3', deep: { deeper: { deeperstill: date3 } }
+        }
+      ];
+      return new PouchDB(dbs.name).then(function (db) {
+        return db.bulkDocs(origDocs).then(function () {
+          return db.allDocs({include_docs: true});
+        }).then(function (res) {
+          var docs = res.rows.map(function (row) {
+            delete row.doc._rev;
+            return row.doc;
+          });
+          docs.should.deep.equal([
+            { _id: '1', mydate: date.toJSON() },
+            { _id: '2', array: [date2.toJSON()] },
+            { _id: '3', deep: { deeper: { deeperstill: date3.toJSON() } }
+            }
+          ]);
+          origDocs[0].mydate.should.be.instanceof(Date, 'date not modified');
+          origDocs[1].array[0].should.be.instanceof(Date, 'date not modified');
+          origDocs[2].deep.deeper.deeperstill.should.be.instanceof(Date,
+            'date not modified');
+        });
+      });
+    });
+
     it('Error when document is not an object', function (done) {
       var db = new PouchDB(dbs.name);
       var doc1 = [{ _id: 'foo' }, { _id: 'bar' }];
