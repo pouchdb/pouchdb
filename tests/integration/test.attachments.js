@@ -3096,6 +3096,7 @@ adapters.forEach(function (adapter) {
     if (!isSafari) {
       // skip in safari/ios because of size limit popup
       it('putAttachment and getAttachment with big png data', function (done) {
+        this.timeout(90000);
 
         function getData(cb) {
           if (typeof process !== 'undefined' && !process.browser) {
