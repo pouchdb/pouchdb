@@ -46,13 +46,13 @@ function tests(suiteName, dbName, dbType) {
     }
 
     before(function () {
-      // briefly increase the limit from 10 because we momentarily
+      // briefly increase the limit from 20 because we momentarily
       // go over during these tests
       PouchDB.setMaxListeners(30);
     });
 
     after(function () {
-      PouchDB.setMaxListeners(10);
+      PouchDB.setMaxListeners(20);
     });
 
     beforeEach(function () {

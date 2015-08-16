@@ -19,16 +19,6 @@ adapters.forEach(function (adapters) {
 
     var dbs = {};
 
-    before(function () {
-      // briefly increase the limit from 10 because we momentarily
-      // go over during these tests
-      PouchDB.setMaxListeners(20);
-    });
-
-    after(function () {
-      PouchDB.setMaxListeners(10);
-    });
-
     beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapters[0], 'testdb');
       dbs.remote = testUtils.adapterUrl(adapters[1], 'test_repl_remote');

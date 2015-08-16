@@ -1177,7 +1177,6 @@ function tests(suiteName, dbName, dbType, viewType) {
     });
 
     it('multiple view creations and cleanups', function () {
-      PouchDB.setMaxListeners(20); // we briefly go over
       return new PouchDB(dbName).then(function (db) {
         var map = function (doc) {
           emit(doc.num);
@@ -1228,8 +1227,6 @@ function tests(suiteName, dbName, dbType, viewType) {
             res.ok.should.equal(true);
           });
         });
-      }).then(function () {
-        PouchDB.setMaxListeners(10);
       });
     });
 
