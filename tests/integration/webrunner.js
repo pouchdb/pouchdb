@@ -104,20 +104,15 @@ function startTests() {
 if (window.cordova) {
   var hasGrep = window.GREP &&
       window.location.search.indexOf('grep=') === -1;
-  var hasEs5Shim = window.ES5_SHIM &&
-      window.location.search.indexOf('es5Shim=') === -1;
   var hasAutoCompaction = window.AUTO_COMPACTION &&
     window.location.search.indexOf('autoCompaction') === -1;
   var hasAdapters = window.ADAPTERS &&
     window.location.search.indexOf('adapters=') === -1;
 
-  if (hasGrep || hasEs5Shim || hasAutoCompaction || hasAdapters) {
+  if (hasGrep || hasAutoCompaction || hasAdapters) {
     var params = [];
     if (hasGrep) {
       params.push('grep=' + encodeURIComponent(window.GREP));
-    }
-    if (hasEs5Shim) {
-      params.push('es5Shim=' + encodeURIComponent(window.ES5_SHIM));
     }
     if (hasAutoCompaction) {
       params.push('autoCompaction=' +

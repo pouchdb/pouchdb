@@ -42,16 +42,6 @@ if [[ ! -z $GREP ]]; then
     $TESTS_DIR/www/tests/integration/index.html
 fi
 
-if [[ ! -z $ES5_SHIMS ]]; then
-  ES5_SHIM=$ES5_SHIMS # synonym
-fi
-
-if [[ ! -z $ES5_SHIM ]]; then
-  ./node_modules/replace/bin/replace.js '<body>' \
-    "<body><script>window.ES5_SHIM = ""'"$ES5_SHIM"'"";</script>" \
-    $TESTS_DIR/www/tests/integration/index.html
-fi
-
 if [[ ! -z $COUCH_HOST ]]; then
   ./node_modules/replace/bin/replace.js '<body>' \
     "<body><script>window.COUCH_HOST = ""'"$COUCH_HOST"'"";</script>" \

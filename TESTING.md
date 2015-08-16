@@ -45,18 +45,6 @@ or
 
     $ COUCH_HOST=http://user:pass@myname.host.com npm test
 
-#### Test with ES5 shims
-
-Some older browsers require [es5 shims](https://github.com/es-shims/es5-shim). Enable them with:
-
-    $ ES5_SHIM=true npm run dev
-
-or e.g.:
-
-    $ ES5_SHIM=true CLIENT=selenium:phantomjs npm test
-
-or you can append it as `?es5shim=true` if you manually opened a browser window.
-
 #### Run the map/reduce tests
 
 The map/reduce tests are done separately from the normal integration tests, because
@@ -104,7 +92,6 @@ Test against the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlug
 * `SQLITE_PLUGIN=true` will install and use the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin).
 * `ADAPTERS=websql` should be used if you want to skip using IndexedDB on Android 4.4+ or if you want to force the SQLite Plugin.
 * `COUCH_HOST` should be the full URL; you can only omit this is in the Android emulator due to the magic `10.0.2.2` route to `localhost`.
-* `ES5_SHIM=true` should be used on devices that don't support ES5 (e.g. Android 2.x).
 
 **WEINRE debugging:**
 
