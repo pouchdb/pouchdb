@@ -21,24 +21,25 @@
     "double-ended-queue": "^2.0.0-0",
     "es3ify": "^0.1.3",
     "inherits": "~2.0.1",
-    "level-js": "^2.1.3",
-    "level-sublevel": "~5.2.0",
-    "levelup": "~0.18.4",
+    "level-js": "^2.2.1",
+    "level-sublevel": "juliangruber/level-sublevel#3428144dbbabf8ce48fd5fd7e5def83c891db76d",
+    "level-write-stream": "^1.0.0",
+    "levelup": "^1.2.1",
     "lie": "3.0.0",
-    "localstorage-down": "^0.6.2",
+    "localstorage-down": "^0.6.3",
     "memdown": "^1.0.0",
     "pouchdb-collate": "^1.2.0",
     "pouchdb-collections": "^1.0.0",
     "request": "^2.61.0",
     "spark-md5": "0.0.5",
-    "through2": "^0.4.1",
+    "through2": "^2.0.0",
     "vuvuzela": "^1.0.0"
   },
   "optionalDependencies": {
-    "leveldown": "~0.10.2"
+    "leveldown": "^1.4.1"
   },
   "devDependencies": {
-    "browserify": "^10.2.4",
+    "browserify": "^11.0.1",
     "bundle-collapser": "^1.1.1",
     "chai": "^2.3.0",
     "chai-as-promised": "^5.0.0",
