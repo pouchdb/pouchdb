@@ -77,12 +77,12 @@ There is a limit of one database per app in some versions of the Android WebView
 
 If you see this warning:
 
-    (node) warning: possible EventEmitter memory leak detected. 11 listeners added.
+    (node) warning: possible EventEmitter memory leak detected. 21 listeners added.
     Use emitter.setMaxListeners() to increase limit.
 
 This is because PouchDB uses Node-style [EventEmitters](https://nodejs.org/api/events.html) for its events. An EventEmitter is any object that has an `.on()` or `once()` method, such as `db.changes().on('change', ...`.
 
-By default, all EventEmitters have 10 listeners, and if you exceed that limit, e.g. by attaching many `changes()` listeners, creating many `PouchDB` objects, or running many simultaneous `replicate()` or `sync()` events, then you may exceed this limit.
+By default, all EventEmitters have 10 listeners, although the `PouchDB` object defaults to 20. If you exceed that limit, e.g. by attaching many `changes()` listeners, creating many `PouchDB` objects, or running many simultaneous `replicate()` or `sync()` events, then you may exceed this limit.
 
 **This could indicate a memory leak in your code**. Check to make sure that you are calling `cancel()` on any `changes()`, `replicate()`, or `sync()` handlers, if you are constantly starting and stopping those events.
 
