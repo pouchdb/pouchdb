@@ -28,7 +28,6 @@
     "lie": "3.0.0",
     "localstorage-down": "^0.6.2",
     "memdown": "^1.0.0",
-    "miller-rabin": "1.1.1",
     "pouchdb-collate": "^1.2.0",
     "pouchdb-collections": "^1.0.0",
     "pouchdb-extend": "^0.1.2",
