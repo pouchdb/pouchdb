@@ -41,7 +41,7 @@ env:
 
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
-  - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - CLIENT=selenium:phantomjs COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
