@@ -21,7 +21,7 @@ if [[ ! -z $SERVER ]]; then
       FLAGS="$FLAGS --level-prefix $SERVER_PREFIX"
     fi
     echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
-    ./node_modules/.bin/pouchdb-server -p 6984 $FLAGS &
+    ./node_modules/.bin/pouchdb-server --no-stdout-logs --port 6984 $FLAGS &
     export SERVER_PID=$!
     sleep 15 # give it a chance to start up
   elif [ "$SERVER" == "couchdb-master" ]; then
