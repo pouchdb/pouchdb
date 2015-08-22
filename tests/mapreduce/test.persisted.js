@@ -45,16 +45,6 @@ function tests(suiteName, dbName, dbType) {
       });
     }
 
-    before(function () {
-      // briefly increase the limit from 20 because we momentarily
-      // go over during these tests
-      PouchDB.setMaxListeners(30);
-    });
-
-    after(function () {
-      PouchDB.setMaxListeners(20);
-    });
-
     beforeEach(function () {
       Promise = PouchDB.utils.Promise;
       return new PouchDB(dbName).destroy();
@@ -586,7 +576,6 @@ function tests(suiteName, dbName, dbType) {
     if (dbType === 'local' && isNode) {
       it('#239 test memdown db', function () {
         var destroyedDBs = [];
-        PouchDB.setMaxListeners(100);
         PouchDB.on('destroyed', function (db) {
           destroyedDBs.push(db);
         });

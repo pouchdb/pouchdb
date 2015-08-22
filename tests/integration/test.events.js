@@ -103,5 +103,11 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#4168 multiple constructor calls don\'t leak listeners', function () {
+      for (var i = 0; i < 50; i++) {
+        new PouchDB(dbs.name);
+      }
+    });
+
   });
 });
