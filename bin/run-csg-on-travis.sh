@@ -4,6 +4,10 @@ set -x
 
 CWD=$(pwd)
 
+# TODO: fix this
+echo "Can't run sudo in Travis anymore; bailing"
+exit 1
+
 # Install CSG
 curl -o csg.deb http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-community_1.0.3_x86_64.deb
 
