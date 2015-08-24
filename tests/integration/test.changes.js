@@ -1034,6 +1034,37 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#4191 revs_diff causes endless loop', function () {
+      var db = new PouchDB(dbs.name, {auto_compaction: false});
+      return db.bulkDocs({
+        "new_edits": false,
+        "docs": [{"_id": "799","_rev":"1-d22"}
+        ]}).then(function () {
+        return db.bulkDocs({
+          "new_edits": false,
+          "docs": [{"_id": "3E1", "_rev": "1-ab5"}]
+        });
+      }).then(function () {
+        return db.bulkDocs(
+          { new_edits: false,
+            docs:
+              [ { _id: 'FB3', _rev: '1-363' },
+                { _id: '27C', _rev: '1-4c3' },
+                { _id: 'BD6', _rev: '1-de0' },
+                { _id: '1E9', _rev: '1-451' } ] }
+        );
+      }).then(function () {
+        return db.changes({style: 'all_docs', limit: 100});
+      }).then(function (res) {
+        console.log(JSON.stringify(res, null, '  '));
+        var lastSeq = res.last_seq;
+        return db.changes({since: lastSeq, style: 'all_docs', limit: 100});
+      }).then(function (res) {
+        console.log(JSON.stringify(res, null, '  '));
+        res.results.should.have.length(0);
+      });
+    });
+
     it('#3136 style=all_docs & include_docs', function () {
 
       var db = new PouchDB(dbs.name);
