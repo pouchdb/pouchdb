@@ -4,24 +4,11 @@ set -x
 
 CWD=$(pwd)
 
-# Install deps
-sudo apt-get update
-sudo apt-get --no-install-recommends -y install \
-    build-essential \
-    ca-certificates \
-    curl \
-    erlang-dev \
-    erlang-nox \
-    git \
-    libicu-dev \
-    libmozjs185-dev \
-    python
-
 # Rebar isnt in apt
 git clone git://github.com/rebar/rebar.git ~/rebar
 cd ~/rebar
 ./bootstrap
-sudo cp ./rebar /usr/local/bin
+export PATH=$(pwd):$PATH
 
 # Sweet, build CouchDB
 cd ..
