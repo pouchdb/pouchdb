@@ -74,7 +74,7 @@
     "throw-max-listeners-error": "^1.0.0",
     "tin": "~0.4.0",
     "ua-parser-js": "^0.6.2",
-    "uglify-js": "~2.4.6",
+    "uglify-js": "^2.4.24",
     "watch-glob": "~0.1.1",
     "watchify": "^2.4.0",
     "wd": "~0.2.8"
