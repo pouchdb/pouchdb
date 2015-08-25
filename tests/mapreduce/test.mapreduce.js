@@ -241,6 +241,45 @@ function tests(suiteName, dbName, dbType, viewType) {
       });
     });
 
+    it("#4154 opts.start_key/opts.end_key are synonyms", function () {
+      return new PouchDB(dbName).then(function (db) {
+        return createView(db, {
+          map: function (doc) {
+            emit(doc.key, doc);
+          }
+        }).then(function (queryFun) {
+          return db.bulkDocs({docs: [
+            {key: 'key1'},
+            {key: 'key2'},
+            {key: 'key3'},
+            {key: 'key4'},
+            {key: 'key5'}
+          ]}).then(function () {
+            return db.query(queryFun, {reduce: false, start_key: 'key2'});
+          }).then(function (res) {
+            res.rows.should.have.length(4, 'Startkey is inclusive');
+            return db.query(queryFun, {reduce: false, end_key: 'key3'});
+          }).then(function (res) {
+            res.rows.should.have.length(3, 'Endkey is inclusive');
+            return db.query(queryFun, {
+              reduce: false,
+              start_key: 'key2',
+              end_key: 'key3'
+            });
+          }).then(function (res) {
+            res.rows.should.have.length(2, 'Startkey and endkey together');
+            return db.query(queryFun, {
+              reduce: false,
+              start_key: 'key4',
+              end_key: 'key4'
+            });
+          }).then(function (res) {
+            res.rows.should.have.length(1, 'Startkey=endkey');
+          });
+        });
+      });
+    });
+
     //TODO: split this to their own tests within a describe block
     it("Test opts.inclusive_end = false", function () {
       return new PouchDB(dbName).then(function (db) {
