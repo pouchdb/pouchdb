@@ -1,7 +1,7 @@
 'use strict';
 
 var should = require('chai').should();
-var upsert = require('../../lib/mapreduce/upsert');
+var upsert = require('../../lib/deps/upsert');
 var utils = require('../../lib/mapreduce/utils');
 var Promise = require('../../lib/deps/promise');
 
