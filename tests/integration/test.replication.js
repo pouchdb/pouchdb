@@ -2441,24 +2441,27 @@ adapters.forEach(function (adapters) {
       var mismatch = false;
       var failWrite = false;
       var checkpoint;
+      var checkpointCount = 0;
 
       // 1. This is where we fake the mismatch:
       var putte = source.put;
+
       source.put = function (doc) {
 
         // We need the checkpoint id so we can inspect it later
         if (/local/.test(doc._id)) {
+          checkpointCount++;
           checkpoint = doc._id;
         }
 
-        if (!failWrite || doc.last_seq !== 2) {
-          return putte.apply(this, arguments);
+        if (failWrite && checkpointCount > 1) {
+          return PouchDB.utils.Promise.reject({
+            status: 0,
+            message: 'Database encountered an unknown error'
+          });
         }
 
-        return PouchDB.utils.Promise.reject({
-          status: 0,
-          message: 'Database encountered an unknown error'
-        });
+        return putte.apply(this, arguments);
       };
 
       // 2. We measure that the replication starts in the expected
@@ -2477,7 +2480,7 @@ adapters.forEach(function (adapters) {
       var put;
 
       return source.put({ _id: '4', count: 1 }, {}).then(function() {
-          return source.put(doc, {});
+        return source.put(doc, {});
       }).then(function(_put) {
         put = _put;
         // Do one replication, this replication
@@ -2495,8 +2498,6 @@ adapters.forEach(function (adapters) {
           source.get(checkpoint)
         ]);
       }).then(function(res) {
-        // res[0] = target checkpoint
-        // res[1] = source checkpoint
         res[0].session_id.should.equal(res[1].session_id);
         res[0].last_seq.should.not.equal(res[1].last_seq);
 
@@ -2516,6 +2517,7 @@ adapters.forEach(function (adapters) {
       var mismatch = false;
       var writeStrange = false;
       var checkpoint;
+      var checkpointCount = 0;
 
       // 1. This is where we fake the mismatch:
       var putte = source.put;
@@ -2523,10 +2525,11 @@ adapters.forEach(function (adapters) {
 
         // We need the checkpoint id so we can inspect it later
         if (/local/.test(doc._id)) {
+          checkpointCount++;
           checkpoint = doc._id;
         }
 
-        if (!writeStrange || (doc.last_seq !== 1 && doc.last_seq[0] !== 1)) {
+        if (!writeStrange || checkpointCount < 1) {
           return putte.apply(this, arguments);
         }
 
@@ -2590,6 +2593,7 @@ adapters.forEach(function (adapters) {
       var mismatch = false;
       var writeStrange = false;
       var checkpoint;
+      var checkpointCount = 0;
 
       // 1. This is where we fake the mismatch:
       var putte = source.put;
@@ -2597,10 +2601,11 @@ adapters.forEach(function (adapters) {
 
         // We need the checkpoint id so we can inspect it later
         if (/local/.test(doc._id)) {
+          checkpointCount++;
           checkpoint = doc._id;
         }
 
-        if (!writeStrange || (doc.last_seq !== 1 && doc.last_seq[0] !== 1)) {
+        if (!writeStrange || checkpointCount < 1) {
           return putte.apply(this, arguments);
         }
 
@@ -2670,6 +2675,7 @@ adapters.forEach(function (adapters) {
       var secondRound = false;
       var writeStrange = false;
       var checkpoint;
+      var checkpointCount = 0;
       var source = new PouchDB(dbs.remote);
       var target = new PouchDB(dbs.name);
 
@@ -2678,13 +2684,14 @@ adapters.forEach(function (adapters) {
 
         // We need the checkpoint id so we can inspect it later
         if (/local/.test(doc._id)) {
+          checkpointCount++;
           checkpoint = doc._id;
         }
 
         var args = [].slice.call(arguments, 0);
 
         // Write an old-style checkpoint on the first replication:
-        if (writeStrange && (doc.last_seq === 1 || doc.last_seq[0] === 1)) {
+        if (writeStrange && checkpointCount >= 1) {
           var newDoc = {
             _id: doc._id,
             last_seq: doc.last_seq
@@ -2694,7 +2701,7 @@ adapters.forEach(function (adapters) {
           args.unshift(newDoc);
         }
 
-        if(this === source) {
+        if (this === source) {
           return sourcePut.apply(this, args);
         }
 
