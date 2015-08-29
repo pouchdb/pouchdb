@@ -270,10 +270,15 @@ var pouch = new PouchDB('riak://localhost:8087/somebucket', {db: require('riakdo
 
 There are many other LevelDOWN-based plugins &ndash; far too many to list here. You can find a [mostly-complete list on Github](https://github.com/rvagg/node-levelup/wiki/Modules#storage-back-ends) that includes implementations on top of MySQL, Windows Azure Table Storage, and SQLite.
 
+{% include alert/start.html variant="warning"%}
+We do not currently test against any Node.js-based LevelDOWN adapters other than LevelDOWN and MemDOWN, so the other backends should be considered experimental.
+{% include alert/end.html%}
 
 {% include alert/start.html variant="warning"%}
-We do not currently test against any LevelDOWN adapters other than LevelDB and MemDOWN, so the other backends should be considered experimental.
-{% include alert/end.html%}
+{% markdown %}
+If you open two databases with the same name but different `db`s, then the first one will override the second. Namespace your names if you are using multiple adapters at once! 
+{% endmarkdown %}
+{% include alert/end.html %}
 
 {% include anchor.html title="PouchDB over HTTP" hash="pouchdb_over_http"%}
 
