@@ -68,7 +68,6 @@ env:
   - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
 
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=idb-alt COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
   # Test CouchDB master (aka bigcouch branch)

@@ -8,19 +8,6 @@ These can be especially useful when you are using [Browserify](http://browserify
 
 These adapters are alternatives to PouchDB's built-in IndexedDB/WebSQL adapters. They fully pass the PouchDB test suite.
 
-#### LocalStorage adapter
-
-{% highlight js %}
-var PouchDB = require('pouchdb');
-require('pouchdb/extras/localstorage');
-
-var db = new PouchDB('mydb', {adapter: 'localstorage'});
-{% endhighlight %}
-
-PouchDB adapter using [LocalStorage](http://www.w3.org/TR/webstorage/). Intended for browsers and environments that don't support IndexedDB or WebSQL. Based on [localstorage-down](https://github.com/No9/localstorage-down).
-
-You can also download this plugin [as a standalone script](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js).
-
 #### In-memory adapter
 
 {% highlight js %}
@@ -44,18 +31,18 @@ If you want to use an in-memory PouchDB in Node.js/io.js, you should [directly r
 {% endmarkdown %}
 {% include alert/end.html%}
 
-#### Alternative IndexedDB adapter
+#### LocalStorage adapter
 
 {% highlight js %}
 var PouchDB = require('pouchdb');
-require('pouchdb/extras/idb-alt');
+require('pouchdb/extras/localstorage');
 
-var db = new PouchDB('mydb', {adapter: 'idb-alt'});
+var db = new PouchDB('mydb', {adapter: 'localstorage'});
 {% endhighlight %}
 
-PouchDB adapter using [level-js](https://github.com/maxogden/level.js) over IndexedDB as a storage backend. Mostly only interesting to PouchDB developers; someday, this may replace the standard IndexedDB adapter.
+PouchDB adapter using [LocalStorage](http://www.w3.org/TR/webstorage/). Intended for browsers and environments that don't support IndexedDB or WebSQL. Based on [localstorage-down](https://github.com/No9/localstorage-down).
 
-You can also download this plugin [as a standalone script](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js).
+You can also download this plugin [as a standalone script](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js).
 
 {% include alert/start.html variant="info"%}
 {% markdown %}
