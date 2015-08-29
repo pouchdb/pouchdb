@@ -4053,6 +4053,42 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
+
+    it('4094 cant fetch server uuid', function (done) {
+
+      var ajax = PouchDB.utils.ajax;
+
+      PouchDB.utils.ajax = function (opts, cb) {
+        var uri = PouchDB.utils.parseUri(opts.url);
+        if (uri.path === '/') {
+          cb(new Error('flunking you'));
+        } else {
+          ajax.apply(this, arguments);
+        }
+      };
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var _complete = 0;
+      function complete() {
+        if (++_complete === 2) {
+          PouchDB.utils.ajax = ajax;
+          done();
+        }
+      }
+
+      var rep = db.replicate.from(remote, {live: true, retry: true})
+        .on('complete', complete);
+
+      var changes = db.changes({live: true}).on('change', function (change) {
+        rep.cancel();
+        changes.cancel();
+      }).on('complete', complete);
+
+      remote.post({a: 'doc'});
+    });
+
   });
 });
 
