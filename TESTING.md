@@ -178,7 +178,7 @@ You can specify a particular version of PouchDB or a particular adapter by doing
     http://localhost:8000/tests/performance/index.html?adapter=websql
     http://localhost:8000/tests/performance/index.html?adapter=idb&src=//site.com/pouchdb.js
 
-All of the browser plugin adapters (i.e. `idb-alt`, `memory`, and `localstorage`) are also available this way.
+All of the browser plugin adapters (i.e. `memory`, and `localstorage`) are also available this way.
 
 You can also specify particular tests by using `grep=`, e.g.:
 
@@ -196,11 +196,10 @@ Run `npm run dev`, then open it in Safari or iOS.
 Adapter plugins and adapter order
 --------------------------------------
 
-We are currently building three adapters-as-plugins: `memory`, `localstorage`, and `idb-alt`.  All are based on the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown):
+We are currently building two adapters-as-plugins: `memory` and `localstorage`.  All are based on the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown):
 
 * `memory`: based on [MemDOWN](https://github.com/rvagg/memdown)
 * `localstorage`: based on [localstorage-down](https://github.com/no9/localstorage-down)
-* `idb-alt`: based on [level-js](https://github.com/maxogden/level.js), will probably replace `idb.js` someday
 
 These adapters are built and included in the `dist/` folder as e.g. `pouchdb.memory.js`.  Including these scripts after `pouchdb.js` will load the adapters, placing them in the `PouchDB.preferredAdapters` list after `idb` and `websql` by default.
 

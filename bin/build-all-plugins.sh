@@ -4,7 +4,7 @@ DEREQUIRE=./node_modules/.bin/derequire
 BROWSERIFY=./node_modules/.bin/browserify
 UGLIFY=./node_modules/.bin/uglifyjs
 
-for plugin in memory localstorage idb-alt; do
+for plugin in memory localstorage; do
   $BROWSERIFY ./extras/${plugin} \
       -x pouchdb \
       -p bundle-collapser/plugin \
