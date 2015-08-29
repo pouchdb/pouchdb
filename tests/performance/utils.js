@@ -13,6 +13,9 @@ if (global.window && global.window.location && global.window.location.search) {
   grep = process.env.GREP;
 }
 
+var levelAdapter = typeof process !== 'undefined' && process.env &&
+    process.env.LEVEL_ADAPTER;
+
 exports.runTests = function (PouchDB, suiteName, testCases, opts) {
   testCases.forEach(function (testCase, i) {
     if (grep && suiteName.indexOf(grep) === -1 &&
@@ -33,6 +36,9 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
 
       t.test('setup', function (t) {
         opts.size = 3000;
+        if (levelAdapter) {
+          opts.db = require(levelAdapter);
+        }
         db = new PouchDB(localDbName, opts);
         testCase.setup(db, function (err, res) {
           setupObj = res;
@@ -70,6 +76,9 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         testCaseTeardown.then(function () {
           reporter.end(testCase);
           var opts = {adapter : db.adapter};
+          if (levelAdapter) {
+            opts.db = require(levelAdapter);
+          }
           return new PouchDB(localDbName, opts).destroy();
         }).then(function () {
           t.end();

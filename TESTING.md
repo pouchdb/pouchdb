@@ -23,7 +23,7 @@ or you can run:
 
     $ npm run dev
 
-and open [http://127.0.0.1:8000/tests/test.html](http://127.0.0.1:8000/tests/test.html) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/test.html](http://localhost:8000/tests/performance/test.html).
+and open [http://127.0.0.1:8000/tests/integration/index.html](http://127.0.0.1:8000/tests/integration/index.html) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/index.html](http://localhost:8000/tests/performance/index.html).
 
 ### Test Options
 
@@ -154,24 +154,36 @@ Some Level adapters also require a standard database name prefix (e.g. `riak://`
 
 ### Performance tests
 
-    PERF=1 npm test
+To run the performance test suite in node.js:
 
-To run the performance test suite in node.js or the automated browser runner.
+    PERF=1 npm test
+    
+Or the automated browser runner:
+
+    PERF=1 CLIENT=selenium:firefox npm test
+
+You can also use `GREP` to run certain tests, or `LEVEL_ADAPTER` to use a certain *down adapter:
+
+    PERF=1 GREP=basic-inserts LEVEL_ADAPTER=memdown npm test
 
 ### Performance tests in the browser
 
+When you run `npm run dev`, performance tests are available at:
+
+    http://localhost:8000/tests/performance/index.html
+
 You can specify a particular version of PouchDB or a particular adapter by doing e.g.:
 
-    http://localhost:8000/tests/performance/test.html?src=http://site.com/path/to/pouchdb.js
-    http://localhost:8000/tests/performance/test.html?adapter=websql
-    http://localhost:8000/tests/performance/test.html?adapter=idb&src=//site.com/pouchdb.js
+    http://localhost:8000/tests/performance/index.html?src=http://site.com/path/to/pouchdb.js
+    http://localhost:8000/tests/performance/index.html?adapter=websql
+    http://localhost:8000/tests/performance/index.html?adapter=idb&src=//site.com/pouchdb.js
 
 All of the browser plugin adapters (i.e. `idb-alt`, `memory`, and `localstorage`) are also available this way.
 
 You can also specify particular tests by using `grep=`, e.g.:
 
-    http://127.0.0.1:8000/tests/performance/test.html?grep=basics
-    http://127.0.0.1:8000/tests/performance/test.html?grep=basic-inserts
+    http://127.0.0.1:8000/tests/performance/index.html?grep=basics
+    http://127.0.0.1:8000/tests/performance/index.html?grep=basic-inserts
 
 ### Ad-hoc tests
 
@@ -203,16 +215,16 @@ To test these adapters, you can run e.g.
 
 Or append them as query params in the browser:
 
-    http://localhost:8000/tests/test.html?adapters=memory
+    http://localhost:8000/tests/index.html?adapters=memory
 
 The `adapters` list is a comma-separated list that will be used for `PouchDB.preferredAdapters`.  So e.g. if you want to test `websql` in Chrome, you can do:
 
-    http://localhost:8000/tests/test.html?adapters=websql
+    http://localhost:8000/tests/index.html?adapters=websql
 
 Or even make the `preferredAdapters` list any crazy thing you want:
 
     # loads websql, then memory, then idb, then localstorage
-    http://localhost:8000/tests/test.html?adapters=websql,memory,idb,localstorage
+    http://localhost:8000/tests/index.html?adapters=websql,memory,idb,localstorage
 
 Keep in mind that `preferredAdapters` only applies to non-http, non-https adapters.
 
