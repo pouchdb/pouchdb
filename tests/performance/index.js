@@ -3,10 +3,14 @@
 
 var opts = {};
 
+var levelAdapter = typeof process !== 'undefined' && process.env &&
+    process.env.LEVEL_ADAPTER;
+
 function runTestSuites(PouchDB) {
   var reporter = require('./perf.reporter');
   reporter.log('Testing PouchDB version ' + PouchDB.version +
-    (opts.adapter ? (', using adapter: ' + opts.adapter) : '') +
+    ((opts.adapter || levelAdapter) ?
+      (', using adapter: ' + (opts.adapter || levelAdapter)) : '') +
     '\n\n');
 
   require('./perf.basics')(PouchDB, opts);
