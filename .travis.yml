@@ -104,6 +104,9 @@ matrix:
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
   - node_js: "iojs"
     env: CLIENT=node COMMAND=test
+  - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
+  - env: CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+
 
   fast_finish: true
 
