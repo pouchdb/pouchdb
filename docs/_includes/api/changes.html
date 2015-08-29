@@ -7,7 +7,7 @@ db.changes(options)
 A list of changes made to documents in the database, in the order they were made.
 It returns an object with the method `cancel()`, which you call if you don't want to listen to new changes anymore.
 
-It is an [event emitter][event emitter] and will emit a `'change'` event on each document change, a `'complete'` event when all the changes have been processed, and an `'error'` event when an error occurs. In addition to the `'change'` event, any change will also emit a `'create'`, `'update'`, or `'delete'` event.
+It is an [event emitter][event emitter] and will emit a `'change'` event on each document change, a `'complete'` event when all the changes have been processed, and an `'error'` event when an error occurs.
 
 ### Options
 
