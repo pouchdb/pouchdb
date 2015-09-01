@@ -55,7 +55,7 @@ env:
 
   # Test against pouchdb-server
   - CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+  - CLIENT=selenium:phantomjs ES5_SHIM=true SERVER=pouchdb-server COMMAND=test
   - SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
 
   # Test against pouchdb-express-router
@@ -123,7 +123,7 @@ matrix:
   - node_js: "iojs"
     env: CLIENT=node COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - env: CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+  - env: CLIENT=selenium:phantomjs ES5_SHIM=true SERVER=pouchdb-server COMMAND=test
 
 
   fast_finish: true
