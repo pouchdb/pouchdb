@@ -17,6 +17,7 @@ cache:
     - /tmp/phantomjs
 
 addons:
+  firefox: "40.0"
   apt:
     packages:
       - build-essential
