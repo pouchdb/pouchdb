@@ -124,6 +124,7 @@ matrix:
     env: CLIENT=node COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
   - env: CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+  - env: COMMAND=report-coverage
 
 
   fast_finish: true
