@@ -23,7 +23,6 @@ if [[ ! -z $SERVER ]]; then
     echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
     ./node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!
-    sleep 15 # give it a chance to start up
   elif [ "$SERVER" == "couchdb-master" ]; then
     if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
       ./bin/run-couch-master-on-travis.sh
@@ -55,7 +54,13 @@ if [[ ! -z $SERVER ]]; then
 fi
 
 printf 'Waiting for host to start .'
-until $(curl --output /dev/null --silent --head --fail $COUCH_HOST); do
+WAITING=0
+until $(curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST); do
+    if [ $WAITING -eq 4 ]; then
+        printf '\nHost failed to start\n'
+        exit 1
+    fi
+    let WAITING=WAITING+1
     printf '.'
     sleep 5
 done
