@@ -27,6 +27,21 @@ adapters.forEach(function (adapters) {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
+    it('#4251 paused fires during sync', function (done) {
+      var db = new PouchDB(dbs.name);
+
+      var sync = db.sync(dbs.remote, {
+        live: true,
+        retry: true,
+        back_off_function: function () { return 0; }
+      });
+
+      sync.on('paused', function () { sync.cancel(); });
+      sync.on('complete', function () { done(); });
+
+      sync.catch(done);
+    });
+
     it('retry stuff', function (done) {
       this.timeout(2000000);
       var remote = new PouchDB(dbs.remote);
