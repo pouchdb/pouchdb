@@ -57,6 +57,10 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('4219 destroy a pouch', function () {
+      return new PouchDB(dbs.name).destroy({});
+    });
+
     it('destroy a pouch, with a promise', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         should.exist(db);
