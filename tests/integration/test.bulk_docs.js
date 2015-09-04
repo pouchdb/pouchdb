@@ -913,7 +913,7 @@ adapters.forEach(function (adapter) {
           resp.length.should.equal(2, 'correct number of open revisions');
           resp[0].ok._id.should.equal(docid, 'rev 1, correct document id');
           resp[1].ok._id.should.equal(docid, 'rev 2, correct document id');
-          
+
           // order of revisions is not specified
           ((resp[0].ok._rev === a_doc._rev &&
             resp[1].ok._rev === b_doc._rev) ||
@@ -923,6 +923,43 @@ adapters.forEach(function (adapter) {
       })
 
       .then(function() { done(); }, done);
+    });
+
+    it('4204 respect revs_limit', function () {
+      var db = new PouchDB(dbs.name);
+
+      // simulate 5000 normal commits with two conflicts at the very end
+      function uuid() {
+        return PouchDB.utils.uuid(32, 16).toLowerCase();
+      }
+
+      var isSafari = (typeof process === 'undefined' || process.browser) &&
+        /Safari/.test(window.navigator.userAgent) &&
+        !/Chrome/.test(window.navigator.userAgent);
+
+      var numRevs = isSafari ? 10 : 5000;
+      var expected = isSafari ? 10 : 1000;
+      var uuids = [];
+
+      for (var i = 0; i < numRevs - 1; i++) {
+        uuids.push(uuid());
+      }
+      var conflict1 = 'a' + uuid();
+
+      var doc1 = {
+        _id: 'doc',
+        _rev: numRevs + '-' + conflict1,
+        _revisions: {
+          start: numRevs,
+          ids: [conflict1].concat(uuids)
+        }
+      };
+
+      return db.bulkDocs([doc1], {new_edits: false}).then(function () {
+        return db.get('doc', {revs: true});
+      }).then(function (doc) {
+        doc._revisions.ids.length.should.equal(expected);
+      });
     });
 
   });
