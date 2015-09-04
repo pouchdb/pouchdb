@@ -1017,6 +1017,34 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('3968, keeps all object fields', function () {
+      var db =  new PouchDB(dbs.name);
+      /* jshint -W001 */
+      var doc = {
+        _id: "x",
+        type: "testdoc",
+        watch: 1,
+        unwatch: 1,
+        constructor: 1,
+        toString: 1,
+        toSource: 1,
+        toLocaleString: 1,
+        propertyIsEnumerable: 1,
+        isPrototypeOf: 1,
+        hasOwnProperty: 1
+      };
+      return db.put(doc).then(function () {
+        return db.get(doc._id);
+      }).then(function (savedDoc) {
+        // We shouldnt need to delete from doc here (#4273)
+        delete doc._rev;
+        delete doc._rev_tree;
+
+        delete savedDoc._rev;
+        savedDoc.should.deep.equal(doc);
+      });
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
