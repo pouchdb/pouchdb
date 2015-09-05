@@ -141,14 +141,14 @@ If you fail to include the correct `_rev`, you will get the following sad error:
 Updating documents correctly
 -----------
 
-So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put him back. We don't need to manually assign the `_rev` value here (like we did above), as it is already in the `doc` we're fetching. 
+So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put them back. We don't need to manually assign the `_rev` value here (like we did above), as it is already in the `doc` we're fetching. 
 
 ```js
 // fetch mittens
 db.get('mittens').then(function (doc) {
-  // update his age
+  // update their age
   doc.age = 4;
-  // put him back
+  // put them back
   return db.put(doc);
 }).then(function () {
   // fetch mittens again
@@ -183,7 +183,7 @@ Now you should see the following:
 }
 ```
 
-As you can see, we have successfully updated Mittens' age to 4 (they grow up so fast!), and his revision marker has also changed to `"2-3e3fd988b331193beeeea2d4221b57e7"`. If we wanted to increment his age to 5, we would need to supply this new revision marker.
+As you can see, we have successfully updated Mittens' age to 4 (they grow up so fast!), and their revision marker has also changed to `"2-3e3fd988b331193beeeea2d4221b57e7"`. If we wanted to increment their age to 5, we would need to supply this new revision marker.
 
 Related API documentation
 --------
