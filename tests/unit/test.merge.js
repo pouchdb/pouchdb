@@ -4,9 +4,8 @@
 // https://github.com/davisp/couchdb/blob/local_doc_revs/test/
 // etap/060-kt-merging.t
 
-var mergeJs = require('../../lib/merge.js');
-var merge = mergeJs.merge;
-var winningRev = mergeJs.winningRev;
+var merge = require('../../lib/deps/merge');
+var winningRev = require('../../lib/deps/merge/winningRev');
 
 describe('test.merge.js', function () {
 
