@@ -5,7 +5,7 @@ title: Setting up CouchDB
 sidebar: guides_nav.html
 ---
 
-CouchDB: PouchDB's big brother
+CouchDB: PouchDB's older sibling
 --------
 
 One of the main benefits of learning PouchDB is that it's exactly the same as CouchDB. In fact, PouchDB is a shameless plagiarist: all of the API methods are the same, with only slight modifications to make it more JavaScript-y.
