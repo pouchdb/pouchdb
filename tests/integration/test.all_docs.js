@@ -464,8 +464,8 @@ adapters.forEach(function (adapter) {
 
     it('test escaped startkey/endkey', function (done) {
       var db = new PouchDB(dbs.name);
-      var id1 = '"crazy id!" a';
-      var id2 = '"crazy id!" z';
+      var id1 = '"weird id!" a';
+      var id2 = '"weird id!" z';
       var docs = {
         docs: [
           {

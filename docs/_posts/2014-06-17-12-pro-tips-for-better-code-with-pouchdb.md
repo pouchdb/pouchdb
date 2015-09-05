@@ -134,7 +134,7 @@ myDoc._id = pouchCollate.toIndexableString(
   [myDoc.age, myDoc.male, mydoc.lastName, mydoc.firstName]);
 ```
 
-In the above example, the doc ID will be a crazy string, which will sort correctly in both CouchDB and PouchDB:
+In the above example, the doc ID will be a strange string, which will sort correctly in both CouchDB and PouchDB:
 
 ```js
 '5323256.70000000000000017764\u000021\u00004McDuck\u00004Scrooge\u0000\u0000'

@@ -1433,7 +1433,7 @@ function tests(suiteName, dbName, dbType, viewType) {
             opts.keys = [2, 1, 2, 3, 2];
             return db.query(queryFun, opts);
           }).then(function (data) {
-            // duplicates and unknowns at the same time, for maximum crazy
+            // duplicates and unknowns at the same time, for maximum weirdness
             data.rows.should.have.length(4, 'returns 2 docs with duplicates/unknowns');
             data.rows[0].doc._id.should.equal('doc_2');
             data.rows[1].doc._id.should.equal('doc_1');
@@ -1504,7 +1504,7 @@ function tests(suiteName, dbName, dbType, viewType) {
             emit(doc.bar);
             emit(doc.foo);
             emit(doc.bar, 'multiple values!');
-            emit(doc.bar, 'crazy!');
+            emit(doc.bar, 'crayon!');
           }
         }).then(function (mapFunction) {
           return db.bulkDocs({
@@ -1535,7 +1535,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           should.not.exist(data.rows[4].value);
           data.rows[5].key.should.equal('bar');
           data.rows[5].id.should.equal('doc1');
-          data.rows[5].value.should.equal('crazy!');
+          data.rows[5].value.should.equal('crayon!');
           data.rows[6].key.should.equal('bar');
           data.rows[6].id.should.equal('doc1');
           data.rows[6].value.should.equal('multiple values!');
@@ -1545,7 +1545,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           should.not.exist(data.rows[7].value);
           data.rows[8].key.should.equal('bar');
           data.rows[8].id.should.equal('doc2');
-          data.rows[8].value.should.equal('crazy!');
+          data.rows[8].value.should.equal('crayon!');
           data.rows[9].key.should.equal('bar');
           data.rows[9].id.should.equal('doc2');
           data.rows[9].value.should.equal('multiple values!');
@@ -2044,9 +2044,9 @@ function tests(suiteName, dbName, dbType, viewType) {
           emit(doc.foo, 'fooValue');
           emit(doc.foo);
           emit(doc.bar);
-          emit(doc.bar, 'crazy!');
+          emit(doc.bar, 'crayon!');
           emit(doc.bar, 'multiple values!');
-          emit(doc.bar, 'crazy!');
+          emit(doc.bar, 'crayon!');
         }
       }).then(function (mapFun) {
 
@@ -2056,8 +2056,8 @@ function tests(suiteName, dbName, dbType, viewType) {
           res.rows.should.have.length(12, 'correctly return rows');
           res.total_rows.should.equal(12, 'correctly return total_rows');
           res.rows.map(getValues).should.deep.equal(
-            [null, 'crazy!', 'crazy!', 'multiple values!',
-              null, 'crazy!', 'crazy!', 'multiple values!',
+            [null, 'crayon!', 'crayon!', 'multiple values!',
+              null, 'crayon!', 'crayon!', 'multiple values!',
               null, 'fooValue', null, 'fooValue']);
           res.rows.map(getIds).should.deep.equal(
             ['doc1', 'doc1', 'doc1', 'doc1',
