@@ -220,7 +220,7 @@ The `adapters` list is a comma-separated list that will be used for `PouchDB.pre
 
     http://localhost:8000/tests/index.html?adapters=websql
 
-Or even make the `preferredAdapters` list any crazy thing you want:
+Or even make the `preferredAdapters` list anything you want:
 
     # loads websql, then memory, then idb, then localstorage
     http://localhost:8000/tests/index.html?adapters=websql,memory,idb,localstorage
