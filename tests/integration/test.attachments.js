@@ -85,6 +85,22 @@ adapters.forEach(function (adapter) {
       }
     };
 
+    it('3357 Attachment names cant start with _', function (done) {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: 'baz', _attachments: {
+        '_text1.txt': {
+          content_type: 'text/plain',
+          data: testUtils.btoa('text1')
+        }
+      }};
+      return db.put(doc).then(function() {
+        done('Should not succeed');
+      }).catch(function(err) {
+        err.name.should.equal('bad_request');
+        done();
+      });
+    });
+
     it('fetch atts with open_revs and missing', function () {
       var db = new PouchDB(dbs.name);
       var doc = {
