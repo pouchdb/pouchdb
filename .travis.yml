@@ -15,6 +15,7 @@ cache:
   directories:
     - node_modules
     - /tmp/phantomjs
+
 env:
   - CXX=g++-4.8
 
@@ -32,7 +33,6 @@ addons:
       - libicu-dev
       - libmozjs185-dev
       - python
-      - g++
       - g++-4.8
 
 before_script:
