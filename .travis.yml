@@ -9,13 +9,6 @@ services:
 git:
   depth: 30
 
-sudo: false
-
-cache:
-  directories:
-    - node_modules
-    - /tmp/phantomjs
-
 env:
   - CXX=g++-4.8
 
@@ -36,11 +29,9 @@ addons:
       - g++-4.8
 
 before_script:
-  - "export DISPLAY=:99.0"
+  - export CXX=g++-4.8
+  - export DISPLAY=:99.0
   - "sh -e /etc/init.d/xvfb start"
-
-    # Lets know what CouchDB we are playing with
-  - "curl -X GET http://127.0.0.1:5984/"
 
     # Fail early so we dont run ours of saucelabs if we know there
     # is a lint failure
