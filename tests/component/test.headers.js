@@ -47,8 +47,31 @@ describe('test.headers.js', function () {
     });
   });
 
-  it('Test that we combine ajax options both globally and locally on GET',
-     function() {
+  it('3491 Test headers are sent correctly on put', function() {
+    var db = new PouchDB('http://127.0.0.1:' + PORT);
+    var opts = { ajax: { headers: { ick: "slick" } } };
+    return db.post({'fake': 'obj'}, opts).then(function() {
+      should.equal(headers.ick, 'slick');
+    });
+  });
+
+  it('3491 Test headers are sent correctly on changes', function() {
+    var db = new PouchDB('http://127.0.0.1:' + PORT);
+    var opts = { ajax: { headers: { ick: "slick" } } };
+    return db.changes(opts).then(function() {
+      should.equal(headers.ick, 'slick');
+    });
+  });
+
+  it('3491 Test headers are sent correctly on destroy', function() {
+    var db = new PouchDB('http://127.0.0.1:' + PORT);
+    var opts = { ajax: { headers: { ick: "slick" } } };
+    return db.destroy(opts).then(function() {
+      should.equal(headers.ick, 'slick');
+    });
+  });
+
+  it('Test that we combine local and global ajax options', function() {
     var opts = { ajax: { headers: { aheader: 'whyyes' } } };
     var db = new PouchDB('http://127.0.0.1:' + PORT, opts);
     var getOpts = {ajax: { headers: { ick: "slick", aheader: "override!" } } };
@@ -57,4 +80,5 @@ describe('test.headers.js', function () {
       should.equal(headers.aheader, 'override!');
     });
   });
+
 });
