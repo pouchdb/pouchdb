@@ -15,9 +15,13 @@ cache:
   directories:
     - node_modules
     - /tmp/phantomjs
+env:
+  - CXX=g++-4.8
 
 addons:
   apt:
+    source:
+      - ubuntu-toolchain-r-test
     packages:
       - build-essential
       - ca-certificates
@@ -29,6 +33,7 @@ addons:
       - libmozjs185-dev
       - python
       - g++
+      - g++-4.8
 
 before_script:
   - "export DISPLAY=:99.0"
