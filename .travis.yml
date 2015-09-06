@@ -20,7 +20,7 @@ env:
 
 addons:
   apt:
-    source:
+    sources:
       - ubuntu-toolchain-r-test
     packages:
       - build-essential
