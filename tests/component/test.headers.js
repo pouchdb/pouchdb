@@ -25,14 +25,16 @@ describe('test.headers.js', function () {
 
   it('Test headers are sent correctly', function () {
     var opts = {ajax: {headers: {foo: 'bar'}}};
-    return new PouchDB('http://127.0.0.1:' + PORT, opts).then(function() {
+    var url = 'http://127.0.0.1:' + PORT;
+    return new PouchDB(url, opts).info().then(function() {
       should.equal(headers.foo, 'bar');
     });
   });
 
   it('Test auth params are sent correctly', function () {
     var opts = {auth: {username: 'foo', password: 'bar'}};
-    return new PouchDB('http://127.0.0.1:' + PORT, opts).then(function() {
+    var url = 'http://127.0.0.1:' + PORT;
+    return new PouchDB(url, opts).info().then(function() {
       should.equal(typeof headers.authorization, 'string');
     });
   });

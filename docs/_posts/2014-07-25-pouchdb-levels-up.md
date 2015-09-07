@@ -60,7 +60,7 @@ However, the fact that we can have dozens of PouchDB backends, while only mainta
 
 ### Conclusion
 
-PouchDB has a bright future as part of the LevelUP ecosystem. What would have sounded like a crazy dream half a year ago is now a verifiable reality, with unit tests to boot.  Today you can write an app that:
+PouchDB has a bright future as part of the LevelUP ecosystem. What would have sounded like a dream half a year ago is now a verifiable reality, with unit tests to boot.  Today you can write an app that:
 
 * Syncs from CouchDB to an in-memory [PouchDB Server](https://github.com/pouchdb/pouchdb-server),
 * Then syncs to LocalStorage on IE 8,
@@ -68,7 +68,7 @@ PouchDB has a bright future as part of the LevelUP ecosystem. What would have so
 * Then syncs to a PhoneGap app using the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin),
 * Then syncs to any one of Redis, Riak, SQLite, LevelDB, MySQL, PostgreSQL, and potentially [many more](https://github.com/rvagg/node-levelup/wiki/Modules#storage-back-ends).
 
-Or whatever other crazy combination you can cook up!
+Or whatever other combination you can cook up!
 
 The marriage of PouchDB and LevelUP has essentially resulted in a marriage of the CouchDB sync protocol to the LevelUP API. Any database that exposes a LevelUP interface is now a full-fledged CouchDB replication target, which is a huge win for application developers.
 

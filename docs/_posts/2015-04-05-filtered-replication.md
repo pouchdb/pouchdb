@@ -85,7 +85,7 @@ Now, this looks easy, and it is, but there are a few gotchas:
 * Since we're doing live replication, the `complete` event will not trigger, so use `paused` instead.
 * Documents will come in batches, so you might not get the whole `_changes` feed at once.
 * You cannot really delete documents in the local database. Purging is a feature the PouchDB team is [still working on](https://github.com/pouchdb/pouchdb/issues/802).
-* If you change something on the server side to cause the document to no longer pass the filter, then the document won't pass the filter. Crazy, right? CouchDB won't check the last two versions of the document &ndash; just the last one. This simply means that those documents will persist on the client and never be present in the `_changes` feed.
+* If you change something on the server side to cause the document to no longer pass the filter, then the document won't pass the filter. Weird, right? CouchDB won't check the last two versions of the document &ndash; just the last one. This simply means that those documents will persist on the client and never be present in the `_changes` feed.
 * Watch how you delete your documents! Simply going into Futon and happily clicking "Delete Document&hellip;" won't replicate the deletion. What you want to do is update the document, adding a `_deleted: true` field. From the [CouchDB docs](https://wiki.apache.org/couchdb/Replication):
 
 > When using filtered replication, you should not use the `DELETE` method to remove documents, but instead use `PUT` and add a `_deleted:true`
