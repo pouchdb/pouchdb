@@ -135,6 +135,54 @@ How does this code work? First off, we are making use of the `URL.createObjectUR
 
 Second off, we are using the `getAttachment()` API, which returns a `Blob` rather than a base64-encoded string. To be clear: we can always convert between base64 and `Blob`s, but in this case, `getAttachment()` is just more convenient.
 
+
+Image Upload with a HTML input
+------------
+You can also upload a File with the HTML5 API **Blob**. 
+
+```js
+function fileUpload() {
+    var getFile = inputFile.files[0];
+    uploadedFile = {
+        file: getFile,
+        size: getFile.size,
+        type: getFile.type,
+        name: getFile.name
+    };
+    new PouchDB('sample').destroy().then(function () {
+      return new PouchDB('sample');
+    }).then(function (db) {
+      //
+      // IMPORTANT CODE STARTS HERE
+      //
+      db.put({
+        _id: 'image', 
+        _attachments: {
+          "file": {
+            size: uploadedFile.size,
+            type: uploadedFile.type,
+            data: uploadedFile.file
+          }
+        }
+      }).then(function () {
+        return db.getAttachment('image', 'file');
+      }).then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var img = document.createElement('img');
+        img.src = url;
+        document.body.appendChild(img);
+        imageMetaData.innerText = 'Filesize: ' + JSON.stringify(Math.floor(blob.size/1024)) + 'KB, Content-Type: ' + JSON.stringify(blob.type);
+      }).catch(function (err) {
+        console.log(err);
+      });
+      //
+      // IMPORTANT CODE ENDS HERE
+      //
+    });
+}
+```
+You can see **[a live example](http://bl.ocks.org/ntwcklng/e1d89dca684b1a7e6fc1)** of this code.
+
 Directly storing binary data
 -------------
 
