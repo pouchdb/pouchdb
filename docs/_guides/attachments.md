@@ -136,11 +136,16 @@ How does this code work? First off, we are making use of the `URL.createObjectUR
 Second off, we are using the `getAttachment()` API, which returns a `Blob` rather than a base64-encoded string. To be clear: we can always convert between base64 and `Blob`s, but in this case, `getAttachment()` is just more convenient.
 
 
-Image Upload with a HTML input
+Image attachments using the File/Blob API
 ------------
-You can also upload a File with the HTML5 API **Blob**. 
+You can also upload a File with the HTML5 `File` API and store it directly in the DB, because the data you get from the `<input type='file'>` element is already a `Blob`.
+See: [Blob API](https://developer.mozilla.org/en-US/docs/Web/API/Blob) and [File API](https://developer.mozilla.org/en-US/docs/Web/API/File), which inherits properties from the `Blob` Interface.
 
 ```js
+var inputFile = document.querySelector('#inputFile');
+var imageMetaData = document.querySelector('#img_meta_data');
+var uploadedFile = {};
+
 function fileUpload() {
     var getFile = inputFile.files[0];
     uploadedFile = {
@@ -149,6 +154,8 @@ function fileUpload() {
         type: getFile.type,
         name: getFile.name
     };
+
+
     new PouchDB('sample').destroy().then(function () {
       return new PouchDB('sample');
     }).then(function (db) {
@@ -180,8 +187,12 @@ function fileUpload() {
       //
     });
 }
+
+// wait for change, then call the function
+inputFile.addEventListener('change', fileUpload, false);
 ```
-You can see **[a live example](http://bl.ocks.org/ntwcklng/e1d89dca684b1a7e6fc1)** of this code.
+You can see **[a live example](https://jsbin.com/xerofo/edit?js,output)** of this code.
+Select a file, upload it and you will see the stored file, `size` and the `type` which are valid `Blob` properties.
 
 Directly storing binary data
 -------------
