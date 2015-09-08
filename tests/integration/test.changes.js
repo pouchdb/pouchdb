@@ -450,6 +450,24 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('3356 throw inside a filter', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({
+        _id: "_design/test",
+        filters: {
+          test: function (doc, req) {
+            throw new Error(); // syntaxerrors can't be caught either.
+          }.toString()
+        }
+      }).then(function() {
+        db.changes({filter: 'test/test'}).then(function() {
+          done('should have thrown');
+        }).catch(function (err) {
+          done();
+        });
+      });
+    });
+
     it('Changes with missing param `view` in request', function (done) {
       var docs = [
         {_id: '0', integer: 0},
