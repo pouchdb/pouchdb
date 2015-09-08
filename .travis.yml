@@ -41,6 +41,9 @@ before_script:
     # is a lint failure
   - npm run jshint
 
+after_failure:
+  - "cat log.txt"
+
 script: npm run $COMMAND
 
 env:
