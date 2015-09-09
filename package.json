@@ -50,7 +50,7 @@
     "derequire": "^2.0.0",
     "es5-shim": "^4.1.11",
     "express": "^4.10.4",
-    "express-pouchdb": "^0.17.0",
+    "express-pouchdb": "^0.17.2",
     "glob": "~3.2.9",
     "http-server": "~0.5.5",
     "istanbul": "^0.2.7",
