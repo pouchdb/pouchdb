@@ -142,56 +142,58 @@ You can also upload a File with the HTML5 `File` API and store it directly in th
 See: [Blob API](https://developer.mozilla.org/en-US/docs/Web/API/Blob) and [File API](https://developer.mozilla.org/en-US/docs/Web/API/File), which inherits properties from the `Blob` Interface.
 
 ```js
-var inputFile = document.querySelector('#inputFile');
-var imageMetaData = document.querySelector('#img_meta_data');
-var uploadedFile = {};
+document.addEventListener('DOMContentLoaded', function () {
+  var inputFile = document.querySelector('#inputFile');
+  var imageMetaData = document.querySelector('#img_meta_data');
+  var getFile;
 
-function fileUpload() {
-    var getFile = inputFile.files[0];
-    uploadedFile = {
-        file: getFile,
-        size: getFile.size,
-        type: getFile.type,
-        name: getFile.name
-    };
+  function fileUpload() {
+      getFile = inputFile.files[0];
+      // getFile is now a Blob
 
-
-    new PouchDB('sample').destroy().then(function () {
-      return new PouchDB('sample');
-    }).then(function (db) {
-      //
-      // IMPORTANT CODE STARTS HERE
-      //
-      db.put({
-        _id: 'image', 
-        _attachments: {
-          "file": {
-            size: uploadedFile.size,
-            type: uploadedFile.type,
-            data: uploadedFile.file
+      // Destroy the database before doing anything, because I want 
+      // you to see the same thing if you reload.
+      // Ignore the man behind the curtain!
+      new PouchDB('sample').destroy().then(function () {
+        return new PouchDB('sample');
+      }).then(function (db) {
+        //
+        // IMPORTANT CODE STARTS HERE
+        //
+        db.put({
+          _id: 'image', 
+          _attachments: {
+            "file": {
+              type: getFile.type,
+              data: getFile
+            }
           }
-        }
-      }).then(function () {
-        return db.getAttachment('image', 'file');
-      }).then(function (blob) {
-        var url = URL.createObjectURL(blob);
-        var img = document.createElement('img');
-        img.src = url;
-        document.body.appendChild(img);
-        imageMetaData.innerText = 'Filesize: ' + JSON.stringify(Math.floor(blob.size/1024)) + 'KB, Content-Type: ' + JSON.stringify(blob.type);
-      }).catch(function (err) {
-        console.log(err);
-      });
-      //
-      // IMPORTANT CODE ENDS HERE
-      //
-    });
-}
+        }).then(function () {
+          return db.getAttachment('image', 'file');
+        }).then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          var img = document.createElement('img');
+          img.src = url;
+          document.body.appendChild(img);
 
-// wait for change, then call the function
-inputFile.addEventListener('change', fileUpload, false);
+          var fileSize = JSON.stringify(Math.floor(blob.size/1024));
+          var contentType = JSON.stringify(blob.type);
+
+          imageMetaData.innerText = 'Filesize: ' + fileSize + 'KB, Content-Type: ' + contentType;
+        }).catch(function (err) {
+          console.log(err);
+        });
+        //
+        // IMPORTANT CODE ENDS HERE
+        //
+      });
+  }
+
+  // wait for change, then call the function
+  inputFile.addEventListener('change', fileUpload, false);
+});
 ```
-You can see **[a live example](https://jsbin.com/xerofo/edit?js,output)** of this code.
+You can see **[a live example](http://bl.ocks.org/ntwcklng/f57b03c15e91c25e2cb5)** of this code.
 Select a file, upload it and you will see the stored file, `size` and the `type` which are valid `Blob` properties.
 
 Directly storing binary data
