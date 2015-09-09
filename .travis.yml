@@ -18,6 +18,8 @@ cache:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - build-essential
       - ca-certificates
@@ -29,6 +31,7 @@ addons:
       - libmozjs185-dev
       - python
       - g++
+      - g++-4.8
 
 before_script:
   - "export DISPLAY=:99.0"
@@ -136,7 +139,7 @@ matrix:
     - node_js: "0.12"
       env: CLIENT=node COMMAND=test
     - node_js: "stable"
-      env: CLIENT=node COMMAND=test
+      env: CXX=g++-4.8 CLIENT=node COMMAND=test
     - node_js: "iojs"
       env: CLIENT=node COMMAND=test
 
