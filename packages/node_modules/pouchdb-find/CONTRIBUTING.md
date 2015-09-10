@@ -1,27 +1,12 @@
 How to contribute to pouchdb-find
 =======
 
-Cloudant setup
+CouchDB setup
 -------
 
-Right now Mango queries are only supported by Cloudant. So I use a Cloudant account to do all the HTTP testing.
-
-To hook up your own Cloudant account, just run:
-
-```
-# yes, you need all these environment vars
-export CLOUDANT_HOST=something.cloudant.com
-export CLOUDANT_USERNAME=myusername
-export CLOUDANT_PASSWORD=mypassword
-export COUCH_HOST=http://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@$CLOUDANT_HOST
-
-# writes the javascript files we need
-npm run write-cloudant-password
-```
-
-**Note**: you should probably put these commands into a file and `source` them so that the password doesn't show up in your bash history.
-
-When it runs in Travis, it uses the credentials for `pouch.cloudant.com`, which is a special database for Pouch stuff donated by Cloudant.
+For the HTTP tests you need the master branch of CouchDB running. See the CouchDB [Readme](https://github.com/apache/couchdb) for instructions on running.
+Then setup a 1 node cluster for testing - `./dev/run --with-admin-party-please --with-haproxy -n 1`.
+You will also need to enable cors on that node by running `./bin/enable-couchdb-cors.sh`.
 
 Building
 ----
@@ -38,7 +23,7 @@ Testing
 This will run the tests in Node using LevelDB:
 
     npm test
-    
+
 You can also check for 100% code coverage using:
 
     npm run coverage
