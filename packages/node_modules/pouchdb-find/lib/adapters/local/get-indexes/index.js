@@ -44,7 +44,7 @@ function getIndexes(db) {
     res.indexes.sort(function (left, right) {
       return utils.compare(left.name, right.name);
     });
-
+    res.total_rows = res.indexes.length;
     return res;
   });
 }

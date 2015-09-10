@@ -160,6 +160,7 @@ module.exports = function (dbType, context) {
         delete resp.indexes[1].ddoc;
         delete resp.indexes[1].name;
         resp.should.deep.equal({
+          "total_rows":2,
           "indexes": [
             {
               "ddoc": null,

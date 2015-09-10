@@ -69,6 +69,7 @@ module.exports = function (dbType, context) {
       var db = context.db;
       return db.getIndexes().then(function (response) {
         response.should.deep.equal({
+          "total_rows": 1,
           indexes: [{
             ddoc: null,
             name: '_all_docs',
@@ -91,6 +92,7 @@ module.exports = function (dbType, context) {
         ddoc.should.match(/_design\/.+/);
         delete resp.indexes[1].ddoc;
         resp.should.deep.equal({
+          "total_rows": 2,
           "indexes": [
             {
               "ddoc": null,
@@ -105,7 +107,6 @@ module.exports = function (dbType, context) {
               }
             },
             {
-              //"ddoc": "_design/a5f4711fc9448864a13c81dc71e660b524d7410c",
               "name": "foo-index",
               "type": "json",
               "def": {
@@ -276,8 +277,21 @@ module.exports = function (dbType, context) {
         resp.should.deep.equal({ok: true});
         return db.getIndexes();
       }).then(function (resp) {
-        resp.should.deep.equal({"indexes":[
-          {"ddoc":null,"name":"_all_docs","type":"special","def":{"fields":[{"_id":"asc"}]}}
+        resp.should.deep.equal({
+          "total_rows": 1,
+            "indexes":[
+              {
+                "ddoc":null,
+                "name":"_all_docs",
+                "type":"special",
+                "def":{
+                  "fields":[
+                    {
+                      "_id":"asc"
+                    }
+            ]
+          }
+        }
         ]});
       });
     });

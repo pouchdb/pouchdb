@@ -4,15 +4,39 @@ node_js:
 
 node_js:
   - "0.10"
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - build-essential
+      - ca-certificates
+      - curl
+      - erlang-dev
+      - erlang-nox
+      - git
+      - libicu-dev
+      - libmozjs185-dev
+      - python
+      - g++
+      - g++-4.8
+
+before_install:
+  #haproxy is not on the apt approved list. So manually install
+  - sudo apt-get -y install haproxy
+
 script: npm run $COMMAND
+
 before_script:
+    # Install and run CouchDB master for http tests
+  - 'npm run install-couch'
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - "sleep 5"
 
     # Workaround for Selenium #3280 issue
   - "sudo sed -i 's/^127\\.0\\.0\\.1.*$/127.0.0.1 localhost/' /etc/hosts"
-  - 'npm run write-cloudant-password'
 
 after_failure:
   - "curl -X GET http://127.0.0.1:5984/_log?bytes=1000000"
