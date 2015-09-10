@@ -29,6 +29,7 @@ module.exports = function (dbType, context) {
         return db.getIndexes();
       }).then(function (resp) {
         resp.should.deep.equal({
+          "total_rows": 2,
           "indexes": [
             {
               "ddoc": null,
@@ -86,6 +87,7 @@ module.exports = function (dbType, context) {
         return db.getIndexes();
       }).then(function (resp) {
         resp.should.deep.equal({
+          "total_rows": 2,
           "indexes": [
             {
               "ddoc": null,
@@ -156,6 +158,7 @@ module.exports = function (dbType, context) {
         return db.getIndexes();
       }).then(function (resp) {
         resp.should.deep.equal({
+          "total_rows":3,
           "indexes": [
             {
               "ddoc": null,

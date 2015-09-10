@@ -8,11 +8,8 @@ Pouch.plugin(thePlugin);
 
 require('./test-utils');
 
-var cloudantPassword = require('./.cloudant-password');
-
 var  dbs = 'testdb' + Math.random() +
-  ',http://' + cloudantPassword[0] + ':' + cloudantPassword[1] +
-  '@' + cloudantPassword[2] + '/testdb' + Math.round(Math.random() * 100000);
+  ',http://127.0.0.1:5984/testdb' + Math.round(Math.random() * 100000);
 
 dbs.split(',').forEach(function (db) {
   var dbType = /^http/.test(db) ? 'http' : 'local';
