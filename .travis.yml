@@ -9,12 +9,12 @@ services:
 git:
   depth: 30
 
-sudo: false
+# sudo: false
 
-cache:
-  directories:
-    - node_modules
-    - /tmp/phantomjs
+# cache:
+#   directories:
+#     - node_modules
+#     - /tmp/phantomjs
 
 addons:
   apt:
