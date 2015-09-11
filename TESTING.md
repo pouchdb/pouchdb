@@ -233,18 +233,3 @@ Regular install
 ---------------------------
 
 See the [official CouchDB documentation](http://docs.couchdb.org/en/1.6.1/install/index.html) for a guide on how to install CouchDB.
-
-Docker install
------------------------------
-
-Don't have a CouchDB installed on your machine? Don't want one? Let's use [docker](https://www.docker.com/)
-and [fig](http://www.fig.sh/).
-
-1. [Install Docker](https://docs.docker.com/installation/#installation)
-2. [Install Fig](http://www.fig.sh/install.html)
-3. Run `fig -f tests/misc/fig.yml up -d` from PouchDB project root folder to download and run a CouchDB server in docker
-4. Check with `fig -f tests/misc/fig.yml ps` that `couchdb` is running and listen on `0.0.0.0:15984`
-5. Run the test suite with: `COUCH_HOST=http://127.0.0.1:15984 npm test`
-
-Now everytime you want to run the test suite, you just need to:
-    $ fig -f tests/misc/fig.yml start
