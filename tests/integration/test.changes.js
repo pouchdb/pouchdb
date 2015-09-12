@@ -2309,6 +2309,88 @@ adapters.forEach(function (adapter) {
       });
       db.post({key: 'value'});
     });
+    function waitASec(fun, time) {
+      return new PouchDB.utils.Promise(function (fulfill) {
+        setTimeout(function () {
+          fulfill(fun());
+        }, time);
+      });
+    }
+    it('CRUD events are handled correclty', function (done) {
+      var db = new PouchDB(dbs.name);
+      var changes = db.changes({
+        live: true,
+        style: 'all_docs'
+      });
+      var deleted = 0;
+      var updated = 0;
+      var created = 0;
+      function chuckDone() {
+        if ((deleted + updated + created) === 6) {
+          changes.cancel();
+        }
+      }
+      changes.on('cancel', function () {
+        setTimeout(function () {
+          deleted.should.equal(1, 'correct number of deleted');
+          created.should.equal(2, 'create number of created');
+          updated.should.equal(3, 'correct number of updates');
+          done();
+        }, 100);
+      }).on('delete', function (change) {
+        deleted++;
+        chuckDone();
+      }).on('create', function (change) {
+        created++;
+        chuckDone();
+      }).on('update', function (change) {
+        updated++;
+        chuckDone();
+      }).on('error', function (err) {
+        done(err);
+      });
+      var rev1, rev2;
+      db.put({
+        title: 'Holding On For Life'
+      }, 'currentSong').then(function (resp) {
+        rev1 = resp.rev;
+        return waitASec(function () {
+          return db.put({
+            title: 'Sushi'
+          }, 'nextSong');
+        }, 100);
+      }).then(function (resp) {
+        rev2 = resp.rev;
+        return waitASec(function () {
+          return db.put({
+            title: 'Holding On For Life',
+            artist: 'Broken Bells'
+          }, 'currentSong', rev1);
+        }, 100);
+      }).then(function (resp) {
+        rev1 = resp.rev;
+        return waitASec(function () {
+          return db.put({
+              title: 'Sushi',
+              artist: 'Kyle Andrews'
+            }, 'nextSong', rev2);
+        }, 100);
+      }).then(function (resp) {
+        rev2 = resp.rev;
+        return waitASec(function () {
+          return db.remove({
+            _id: 'currentSong',
+            _rev: rev1
+          });
+        }, 100);
+      }).then(function (resp) {
+        return db.put({
+          title: 'Sushi',
+          artist: 'Kyle Andrews',
+          album: 'Real Blasty'
+        }, 'nextSong', rev2);
+      });
+    });
 
     it('supports returnDocs=false', function (done) {
       var db = new PouchDB(dbs.name);

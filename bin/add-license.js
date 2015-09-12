@@ -18,6 +18,14 @@ var comments = {
     '\nFor all details and documentation:' +
     '\nhttp://pouchdb.com',
 
+  'pouchdb.idb-alt': 'PouchDB alternative IndexedDB plugin ' + version +
+    '\nBased on level.js: https://github.com/maxogden/level.js' +
+    '\n' +
+    '\n(c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
+    '\nPouchDB may be freely distributed under the Apache license, version 2.0.' +
+    '\nFor all details and documentation:' +
+    '\nhttp://pouchdb.com',
+
   'pouchdb.memory': 'PouchDB in-memory plugin ' + version +
     '\nBased on MemDOWN: https://github.com/rvagg/memdown' +
     '\n' +
