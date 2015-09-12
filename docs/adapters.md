@@ -157,14 +157,32 @@ PouchDB also offers separate browser plugins that use backends other than Indexe
 
 **Downloads:**
 
-* [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js) (Minified: [pouchdb.memory.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.min.js))
 * [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js) (Minified: [pouchdb.localstorage.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.min.js))
+* [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js) (Minified: [pouchdb.memory.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.min.js))
+* [pouchdb.idb-alt.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js) (Minified: [pouchdb.idb-alt.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.min.js))
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
 These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt. You may want to [use the Browserify/Webpack versions](/api.html#extras) to deduplicate code and create a smaller bundle.
 {% endmarkdown %}
 {% include alert/end.html%}
+
+#### LocalStorage adapter
+
+If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, you can use the `pouchdb.localstorage.js` plugin, which allows PouchDB to fall back to [LocalStorage][] on browsers that don't support either IndexedDB or WebSQL.  The [es5-shims][] will also be necessary.
+
+```html
+<script src="pouchdb.js"></script>
+<script src="pouchdb.localstorage.js"></script>
+<script>
+  // this pouch is backed by LocalStorage
+  var pouch = new PouchDB('mydb', {adapter: 'localstorage'});
+</script>
+```
+
+{% include alert/start.html variant="warning"%}
+The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
+{% include alert/end.html %}
 
 #### In-memory adapter
 
@@ -190,22 +208,21 @@ var pouch2 = new PouchDB('myDB', {adapter: 'memory'});
 var pouch3 = new PouchDB('myOtherDB', {adapter: 'memory'});
 ```
 
-#### LocalStorage adapter
+#### Alternative IndexedDB adapter
 
-If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, you can use the `pouchdb.localstorage.js` plugin, which allows PouchDB to fall back to [LocalStorage][] on browsers that don't support either IndexedDB or WebSQL.  The [es5-shims][] will also be necessary.
+We are currently experimenting with a [LevelDOWN][]-based IndexedDB adapter (using [level-js][]) which may eventually replace the current IndexedDB adapter.  If you would like to experiment with this, you may use the `pouchdb.idb-alt.js` plugin:
 
 ```html
 <script src="pouchdb.js"></script>
-<script src="pouchdb.localstorage.js"></script>
+<script src="pouchdb.idb-alt.js"></script>
 <script>
-  // this pouch is backed by LocalStorage
-  var pouch = new PouchDB('mydb', {adapter: 'localstorage'});
+  // this pouch is backed by IndexedDB but uses
+  // a different structure than the main one
+  var pouch = new PouchDB('mydb', {adapter: 'idb-alt'});
 </script>
 ```
 
-{% include alert/start.html variant="warning"%}
-The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
-{% include alert/end.html %}
+This adapter does not currently offer any advantages over the `'idb'` adapter, but PouchDB developers will be interested in testing it.
 
 {% include anchor.html title="PouchDB in Node.js" hash="pouchdb_in_node_js"%}
 
