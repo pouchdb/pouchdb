@@ -13,8 +13,8 @@ describe('test.http.js', function () {
     testUtils.cleanup([dbs.name], done);
   });
 
-
-  it('Create a pouch without DB setup', function (done) {
+  // TODO: Remove `skipSetup` in favor of `skip_setup` in a future release
+  it('Create a pouch without DB setup (skipSetup)', function (done) {
     var instantDB;
     testUtils.isCouchDB(function (isCouchDB) {
       if (!isCouchDB) {
@@ -23,6 +23,25 @@ describe('test.http.js', function () {
       new PouchDB(dbs.name).then(function (db) {
         db.destroy(function () {
           instantDB = new PouchDB(dbs.name, { skipSetup: true });
+          instantDB.post({ test: 'abc' }, function (err, info) {
+            should.exist(err);
+            err.name.should.equal('not_found', 'Skipped setup of database');
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('Create a pouch without DB setup (skip_setup)', function (done) {
+    var instantDB;
+    testUtils.isCouchDB(function (isCouchDB) {
+      if (!isCouchDB) {
+        return done();
+      }
+      new PouchDB(dbs.name).then(function (db) {
+        db.destroy(function () {
+          instantDB = new PouchDB(dbs.name, { skip_setup: true });
           instantDB.post({ test: 'abc' }, function (err, info) {
             should.exist(err);
             err.name.should.equal('not_found', 'Skipped setup of database');
