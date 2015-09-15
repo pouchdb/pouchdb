@@ -32,8 +32,7 @@
     "pouchdb-collections": "^1.0.0",
     "request": "^2.61.0",
     "spark-md5": "0.0.5",
-    "through2": "^2.0.0",
-    "vuvuzela": "^1.0.0"
+    "through2": "^2.0.0"
   },
   "optionalDependencies": {
     "leveldown": "^1.4.1"
