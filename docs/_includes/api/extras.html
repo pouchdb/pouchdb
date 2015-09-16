@@ -8,20 +8,6 @@ These can be especially useful when you are using [Browserify](http://browserify
 
 These adapters are alternatives to PouchDB's built-in IndexedDB/WebSQL adapters. They fully pass the PouchDB test suite.
 
-#### FruitDOWN adapter
-
-{% highlight js %}
-var PouchDB = require('pouchdb');
-require('pouchdb/extras/fruitdown');
-
-var db = new PouchDB('mydb', {adapter: 'fruitdown'});
-{% endhighlight %}
-
-PouchDB adapter using [FruitDOWN](https://github.com/nolanlawson/fruitdown).
-This is an alternative to the default IndexedDB adapter that ships with PouchDB, which works over all implementations of IndexedDB, including Apple's buggy version.
-
-You can also download this plugin [as a standalone script](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js).
-
 #### In-memory adapter
 
 {% highlight js %}
@@ -67,6 +53,22 @@ So for instance, if the user loads PouchDB in a browser that does not support We
 
 {% endmarkdown %}
 {% include alert/end.html%}
+
+#### FruitDOWN adapter
+
+{% highlight js %}
+var PouchDB = require('pouchdb');
+require('pouchdb/extras/fruitdown');
+
+var db = new PouchDB('mydb', {adapter: 'fruitdown'});
+{% endhighlight %}
+
+PouchDB adapter using [FruitDOWN](https://github.com/nolanlawson/fruitdown).
+This is an alternative to the default IndexedDB adapter that ships with PouchDB, which works over all implementations of IndexedDB, including Apple's version.
+
+It is slower and more inefficient than PouchDB's default IndexedDB adapter, but it's handy if you need to use IndexedDB in Safari, iOS, WKWebView, etc.
+
+You can also download this plugin [as a standalone script](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js).
 
 ### APIs for plugin authors
 
