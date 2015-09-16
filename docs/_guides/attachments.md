@@ -135,6 +135,67 @@ How does this code work? First off, we are making use of the `URL.createObjectUR
 
 Second off, we are using the `getAttachment()` API, which returns a `Blob` rather than a base64-encoded string. To be clear: we can always convert between base64 and `Blob`s, but in this case, `getAttachment()` is just more convenient.
 
+
+Image attachments using the File/Blob API
+------------
+You can also upload a File with the HTML5 `File` API and store it directly in the DB, because the data you get from the `<input type='file'>` element is already a `Blob`.
+See: [Blob API](https://developer.mozilla.org/en-US/docs/Web/API/Blob) and [File API](https://developer.mozilla.org/en-US/docs/Web/API/File), which inherits properties from the `Blob` Interface.
+
+```js
+document.addEventListener('DOMContentLoaded', function () {
+  var inputFile = document.querySelector('#inputFile');
+  var imageMetaData = document.querySelector('#img_meta_data');
+  var getFile;
+
+  function fileUpload() {
+      getFile = inputFile.files[0];
+      // getFile is now a Blob
+
+      // Destroy the database before doing anything, because I want 
+      // you to see the same thing if you reload.
+      // Ignore the man behind the curtain!
+      new PouchDB('sample').destroy().then(function () {
+        return new PouchDB('sample');
+      }).then(function (db) {
+        //
+        // IMPORTANT CODE STARTS HERE
+        //
+        db.put({
+          _id: 'image', 
+          _attachments: {
+            "file": {
+              type: getFile.type,
+              data: getFile
+            }
+          }
+        }).then(function () {
+          return db.getAttachment('image', 'file');
+        }).then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          var img = document.createElement('img');
+          img.src = url;
+          document.body.appendChild(img);
+
+          var fileSize = JSON.stringify(Math.floor(blob.size/1024));
+          var contentType = JSON.stringify(blob.type);
+
+          imageMetaData.innerText = 'Filesize: ' + fileSize + 'KB, Content-Type: ' + contentType;
+        }).catch(function (err) {
+          console.log(err);
+        });
+        //
+        // IMPORTANT CODE ENDS HERE
+        //
+      });
+  }
+
+  // wait for change, then call the function
+  inputFile.addEventListener('change', fileUpload, false);
+});
+```
+You can see **[a live example](http://bl.ocks.org/ntwcklng/f57b03c15e91c25e2cb5)** of this code.
+Select a file, upload it and you will see the stored file, `size` and the `type` which are valid `Blob` properties.
+
 Directly storing binary data
 -------------
 
