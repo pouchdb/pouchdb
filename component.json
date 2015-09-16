@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "PouchDB is a pocket-sized database.",
   "repo": "daleharvey/pouchdb",
   "keywords": [
