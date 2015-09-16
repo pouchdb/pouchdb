@@ -84,6 +84,8 @@ env:
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" ADAPTERS=memory COMMAND=test
+  - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown GREP=suite2 INVERT=true COMMAND=test
+  - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown GREP=suite2 COMMAND=test
 
   # split up the android+iphone tests as it goes over time
   - GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
