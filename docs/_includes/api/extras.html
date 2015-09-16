@@ -1,4 +1,4 @@
-{% include anchor.html edit="true" title="Extras" hash="extras" %} 
+{% include anchor.html edit="true" title="Extras" hash="extras" %}
 
 PouchDB offers some "extra" APIs that are designed for PouchDB plugin authors, or for those who want to use non-standard adapters like in-memory and LocalStorage.
 
@@ -7,6 +7,20 @@ These can be especially useful when you are using [Browserify](http://browserify
 ### Browser adapter plugins
 
 These adapters are alternatives to PouchDB's built-in IndexedDB/WebSQL adapters. They fully pass the PouchDB test suite.
+
+#### FruitDOWN adapter
+
+{% highlight js %}
+var PouchDB = require('pouchdb');
+require('pouchdb/extras/fruitdown');
+
+var db = new PouchDB('mydb', {adapter: 'fruitdown'});
+{% endhighlight %}
+
+PouchDB adapter using [FruitDOWN](https://github.com/nolanlawson/fruitdown).
+This is an alternative to the default IndexedDB adapter that ships with PouchDB, which works over all implementations of IndexedDB, including Apple's buggy version.
+
+You can also download this plugin [as a standalone script](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js).
 
 #### In-memory adapter
 
@@ -56,7 +70,7 @@ So for instance, if the user loads PouchDB in a browser that does not support We
 
 ### APIs for plugin authors
 
-These APIs are designed for PouchDB plugin authors, who may want to re-use some PouchDB code to avoid duplication. 
+These APIs are designed for PouchDB plugin authors, who may want to re-use some PouchDB code to avoid duplication.
 
 To use these APIs, you should save PouchDB as a required npm dependency (`npm install --save pouchdb`) and then require them like so:
 
