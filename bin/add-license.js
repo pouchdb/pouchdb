@@ -32,6 +32,14 @@ var comments = {
     '\n(c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
     '\nPouchDB may be freely distributed under the Apache license, version 2.0.' +
     '\nFor all details and documentation:' +
+    '\nhttp://pouchdb.com',
+
+  'pouchdb.fruitdown': 'PouchDB fruitdown plugin ' + version +
+    '\nBased on FruitDOWN: https://github.com/nolanlawson/fruitdown' +
+    '\n' +
+    '\n(c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
+    '\nPouchDB may be freely distributed under the Apache license, version 2.0.' +
+    '\nFor all details and documentation:' +
     '\nhttp://pouchdb.com'
 };
 
@@ -49,6 +57,3 @@ Object.keys(comments).forEach(function (name) {
     fs.writeFileSync(filename, contents);
   });
 });
-
-
-
