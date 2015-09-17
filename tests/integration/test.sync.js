@@ -415,7 +415,7 @@ adapters.forEach(function (adapters) {
 
       replications.on('complete', function () {
         remote.put(doc2, function () {
-          changes.should.equal(2);
+          changes.should.equal(1);
           done();
         });
       });
@@ -423,7 +423,7 @@ adapters.forEach(function (adapters) {
       var changes = 0;
       replications.on('change', function (ch) {
         changes++;
-        if (changes === 2) {
+        if (changes === 1) {
           replications.pull.cancel();
         }
       });
