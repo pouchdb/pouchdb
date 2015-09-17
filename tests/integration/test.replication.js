@@ -4085,6 +4085,49 @@ adapters.forEach(function (adapters) {
       remote.post({a: 'doc'});
     });
 
+    it('#4293 Triggers extra replication events', function (done) {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var hasChange = false;
+      function change() {
+        hasChange = true;
+      }
+
+      var _complete = 0;
+      function complete() {
+        if (++_complete === 2) {
+          hasChange.should.equal(false);
+          done();
+        }
+      }
+
+      function paused() {
+        // Because every setTimeout should be justified :)
+        // We are testing a negative, that there are no extra events
+        // triggered from our replication, cancelling the replication will
+        // cancel the event anyway so we wait a short period and give it time
+        // to fire (since there is nothing to wait deteministically for)
+        // Without the setTimeout this will pass, just less likely to catch
+        // the failing case
+        setTimeout(function() {
+          push.cancel();
+          pull.cancel();
+        }, 100);
+      }
+
+      var push = remote.replicate.from(db, {live: true})
+        .on('paused', paused)
+        .on('complete', complete);
+
+      var pull = db.replicate.from(remote, {live: true})
+        .on('change', change)
+        .on('complete', complete);
+
+      db.post({a: 'doc'});
+    });
+
   });
 });
 
