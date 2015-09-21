@@ -16,7 +16,7 @@ A list of known products and services that are using PouchDB.
 
 {% include img.html width=200 src="ehealth_africa.png" alt="eHealth Africa" %}
 
-[eHealth Africa](http://ehealthafrica.org/) is an American-Nigerian NGO specialising in the development and deployment of tech for health. To tackle the Ebola outbreak, they built [software to manage applications](https://github.com/eHealthAfrica), which is based on CouchDB and PouchDB.
+[eHealth Africa](http://ehealthafrica.org/) is an American-Nigerian NGO specialising in the development and deployment of tech for health. To tackle the Ebola outbreak, they built [mobile apps and dashboards](https://github.com/eHealthAfrica) to help track the spread of infection in the field. The combination of CouchDB and PouchDB enabled these apps to work consistently despite the extreme network unreliability of sub-saharan Africa.
 
 ## Cloudwall
 
