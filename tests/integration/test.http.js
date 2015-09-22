@@ -235,7 +235,7 @@ describe('test.http.js', function () {
 
   it('4358 db.destroy rejects when server is down', function() {
     var db = new PouchDB('http://example.com/foo');
-    return db.info()
+    return db.destroy()
       .catch(function(err) {
         err.name.should.equal('unknown_error');
       });
