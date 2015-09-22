@@ -225,4 +225,20 @@ describe('test.http.js', function () {
     });
   });
 
+  it('4358 db.info rejects when server is down', function() {
+    var db = new PouchDB('http://example.com/foo');
+    return db.info()
+      .catch(function(err) {
+        err.name.should.equal('unknown_error');
+      });
+  });
+
+  it('4358 db.destroy rejects when server is down', function() {
+    var db = new PouchDB('http://example.com/foo');
+    return db.info()
+      .catch(function(err) {
+        err.name.should.equal('unknown_error');
+      });
+  });
+
 });
