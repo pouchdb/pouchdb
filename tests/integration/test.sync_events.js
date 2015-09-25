@@ -32,28 +32,40 @@ adapters.forEach(function (adapters) {
     it('#4251 Should fire paused and active on sync', function (done) {
 
       var db = new PouchDB(dbs.name);
-      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]);
-      var repl = db.sync(dbs.remote, {retry: true, live: true});
-      var pausedCount = 0;
-      var activeCount = 0;
+      var remote = new PouchDB(dbs.remote);
 
-      repl.on('complete', function() {
-        done();
+      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function() {
+
+        var repl = db.sync(remote, {retry: true, live: true});
+        var counter = 0;
+
+        repl.on('complete', function() {
+          done();
+        });
+
+        repl.on('active', function(evt) {
+          counter++;
+          if (counter === 1) {
+            // We are good, initial replication
+          } else if (counter === 3) {
+            remote.bulkDocs([{_id: 'e'}, {_id: 'f'}]);
+          }
+        });
+
+        repl.on('paused', function(evt) {
+          counter++;
+          if (counter === 1) {
+            // Maybe a bug, if we have data should probably
+            // call active first
+            counter--;
+          } if (counter === 2) {
+            db.bulkDocs([{_id: 'c'}, {_id: 'd'}]);
+          } else if (counter === 4) {
+            repl.cancel();
+          }
+        });
       });
 
-      repl.on('active', function(evt) {
-        activeCount++;
-        console.log('active', activeCount);
-      });
-
-      repl.on('paused', function(evt) {
-        pausedCount++;
-        console.log('paused', pausedCount);
-        if(pausedCount > 0 && activeCount > 0) {
-          console.log('finished');
-          repl.cancel();
-        }
-      });
     });
 
   });
