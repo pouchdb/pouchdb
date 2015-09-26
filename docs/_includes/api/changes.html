@@ -32,7 +32,7 @@ All options default to `false` unless otherwise specified.
 
 **Advanced Options:**
 
-* `options.returnDocs`: Is available for non-http databases and defaults to `true`. Passing `false` prevents the changes feed from keeping all the documents in memory &ndash; in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
+* `options.returnDocs` deprecated in favor of `options.return_docs`: Is available for non-http databases and defaults to `true`. Passing `false` prevents the changes feed from keeping all the documents in memory &ndash; in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
 * `options.batch_size`: Only available for http databases, this configures how many changes to fetch at a time. Increasing this can reduce the number of requests made. Default is 25.
 * `options.style`: Specifies how many revisions are returned in the changes array. The default, `'main_only'`, will only return the current "winning" revision; `'all_docs'` will return all leaf revisions (including conflicts and deleted former conflicts). Most likely you won't need this unless you're writing a replicator.
 

@@ -432,7 +432,7 @@ AbstractPouchDBVersion220.prototype.compact =
   }});
 });
 
-/* Begin api wrappers. Specific functionality to storage belongs in the 
+/* Begin api wrappers. Specific functionality to storage belongs in the
    _[method] */
 AbstractPouchDBVersion220.prototype.get =
   utils.adapterFun('get', function (id, opts, callback) {
@@ -1267,7 +1267,7 @@ function HttpPouch(opts, callback) {
   }));
 
   // Add the document given by doc (in JSON string format) to the database
-  // given by host. This does not assume that doc is a new document 
+  // given by host. This does not assume that doc is a new document
   // (i.e. does not have a _id or a _rev field.)
   api.post = utils.adapterFun('post', function (doc, opts, callback) {
     // If no options were given, set the callback to be the second parameter
@@ -1332,7 +1332,7 @@ function HttpPouch(opts, callback) {
     var method = 'GET';
 
     // TODO I don't see conflicts as a valid parameter for a
-    // _all_docs request 
+    // _all_docs request
     // (see http://wiki.apache.org/couchdb/HTTP_Document_API#all_docs)
     if (opts.conflicts) {
       params.push('conflicts=true');
@@ -1439,11 +1439,11 @@ function HttpPouch(opts, callback) {
     if (limit === 0) {
       limit = 1;
     }
-    var returnDocs;
-    if ('returnDocs' in opts) {
-      returnDocs = opts.returnDocs;
+    var return_docs;
+    if ('return_docs' in opts) {
+      return_docs = opts.return_docs;
     } else {
-      returnDocs = true;
+      return_docs = true;
     }
     //
     var leftToFetch = limit;
@@ -1552,7 +1552,7 @@ function HttpPouch(opts, callback) {
           leftToFetch--;
           var ret = utils.filterChange(opts)(c);
           if (ret) {
-            if (returnDocs) {
+            if (return_docs) {
               results.results.push(c);
             }
             utils.call(opts.onChange, c);
@@ -2539,11 +2539,11 @@ function IdbPouch(opts, callback) {
     if (limit === 0) {
       limit = 1; // per CouchDB _changes spec
     }
-    var returnDocs;
-    if ('returnDocs' in opts) {
-      returnDocs = opts.returnDocs;
+    var return_docs;
+    if ('return_docs' in opts) {
+      return_docs = opts.return_docs;
     } else {
-      returnDocs = true;
+      return_docs = true;
     }
 
     var results = [];
@@ -2606,7 +2606,7 @@ function IdbPouch(opts, callback) {
         change.seq = cursor.key;
         if (filter(change)) {
           numResults++;
-          if (returnDocs) {
+          if (return_docs) {
             results.push(change);
           }
           opts.onChange(change);
@@ -3554,11 +3554,11 @@ function WebSqlPouch(opts, callback) {
       limit = 1; // per CouchDB _changes spec
     }
 
-    var returnDocs;
-    if ('returnDocs' in opts) {
-      returnDocs = opts.returnDocs;
+    var return_docs;
+    if ('return_docs' in opts) {
+      return_docs = opts.return_docs;
     } else {
-      returnDocs = true;
+      return_docs = true;
     }
     var results = [];
     var numResults = 0;
@@ -3600,7 +3600,7 @@ function WebSqlPouch(opts, callback) {
             change.seq = res.seq;
             if (filter(change)) {
               numResults++;
-              if (returnDocs) {
+              if (return_docs) {
                 results.push(change);
               }
               opts.onChange(change);
@@ -3943,7 +3943,7 @@ Changes.prototype.filterChanges = function (opts) {
         return;
       }
       if (ddoc && ddoc.views && ddoc.views[viewName[1]]) {
-        
+
         var filter = evalView(ddoc.views[viewName[1]].map);
         opts.filter = filter;
         self.doChanges(opts);
@@ -4041,7 +4041,7 @@ function PouchDBVersion220(name, opts, callback) {
       delete resp.then;
       fulfill(resp);
     };
-  
+
     opts = utils.clone(opts);
     var originalName = opts.name || name;
     var backend, error;
@@ -4055,7 +4055,7 @@ function PouchDBVersion220(name, opts, callback) {
         }
 
         backend = PouchDBVersion220.parseAdapter(originalName, opts);
-        
+
         opts.originalName = originalName;
         opts.name = backend.name;
         opts.adapter = opts.adapter || backend.adapter;
@@ -4131,7 +4131,7 @@ function PouchDBVersion220(name, opts, callback) {
       PouchDBVersion220.emit('created', opts.originalName);
       self.taskqueue.ready(self);
       callback(null, self);
-      
+
     });
     if (opts.skipSetup) {
       self.taskqueue.ready(self);
@@ -4614,7 +4614,7 @@ Dual licensed under the MIT and GPL licenses.
  *   >>> Math.uuid(15)     // 15 character ID (default base=62)
  *   "VcydxgltxrVZSTV"
  *
- *   // Two arguments - returns ID of the specified length, and radix. 
+ *   // Two arguments - returns ID of the specified length, and radix.
  *   // (Radix must be <= 62)
  *   >>> Math.uuid(8, 2)  // 8 character ID (base=2)
  *   "01001010"
@@ -5484,7 +5484,7 @@ function replicate(repId, src, target, opts, returnValue) {
         limit: batch_size,
         style: 'all_docs',
         doc_ids: doc_ids,
-        returnDocs: false
+        return_docs: false
       };
       if (opts.filter) {
         changesOpts.filter = opts.filter;
@@ -6005,7 +6005,7 @@ exports.clone = function (obj) {
 };
 exports.inherits = _dereq_('inherits');
 // Determine id an ID is valid
-//   - invalid IDs begin with an underescore that does not begin '_design' or 
+//   - invalid IDs begin with an underescore that does not begin '_design' or
 //     '_local'
 //   - any other string value is a valid id
 // Returns the specific error object for each case
@@ -7022,7 +7022,7 @@ module.exports = function all(iterable) {
       promise.reject(error);
     });
   }
-  
+
   while (++i < len) {
     allResolver(iterable[i], i);
   }
@@ -7494,7 +7494,7 @@ module.exports = function (opts) {
         db.auto_compaction = true;
         var view = {
           name: depDbName,
-          db: db, 
+          db: db,
           sourceDB: sourceDB,
           adapter: sourceDB.adapter,
           mapFun: mapFun,
@@ -7540,7 +7540,7 @@ var toIndexableString = pouchCollate.toIndexableString;
 var normalizeKey = pouchCollate.normalizeKey;
 var createView = _dereq_('./create-view');
 var evalFunc = _dereq_('./evalfunc');
-var log; 
+var log;
 /* istanbul ignore else */
 if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
   log = Function.prototype.bind.call(console.log, console);
@@ -8284,7 +8284,7 @@ utils.inherits(QueryParseError, Error);
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto
-var SEP = ''; // set to '_' for easier debugging 
+var SEP = ''; // set to '_' for easier debugging
 
 var utils = _dereq_('./utils');
 
