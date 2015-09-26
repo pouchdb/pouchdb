@@ -3745,5 +3745,73 @@ repl_adapters.forEach(function (adapters) {
         should.exist(doc);
       });
     });
+
+    it('3955 race condition in put', function (done) {
+
+      var db = new PouchDB(dbs.name);
+      var btoa = testUtils.btoa;
+      var srcdata = ['', '', ''];
+
+      for (var i = 0; i < 50; i++) {
+        srcdata[0] += 'AAA';
+        srcdata[1] += 'BBB';
+        srcdata[2] += 'CCC';
+      }
+
+      var doc = {
+        _id: 'x',
+        type: 'testdoc',
+        _attachments:{
+          'a.txt': {
+            content_type: 'text/plain',
+            data:btoa(srcdata[0])
+          },
+          'b.txt': {
+            content_type: 'text/plain',
+            data:btoa(srcdata[1])
+          },
+          'c.txt': {
+            content_type: 'text/plain',
+            data:btoa(srcdata[2])
+          },
+          'zzz.txt': {
+            content_type: 'text/plain',
+            data:btoa('ZZZ')
+          }
+        }
+      };
+
+      db.put(doc).then(function () {
+        return db.get('x');
+      }).then(function(doc){
+        var digests = Object.keys(doc._attachments).map(function (a) {
+          return doc._attachments[a].digest;
+        });
+        if (isUnique(digests)) {
+          done();
+        } else {
+          done('digests are not unique');
+        }
+      });
+
+      setTimeout(changeSrcDoc, 2);
+
+      function isUnique(arr) {
+        arr.sort();
+        for (var i = 1; i < arr.length; i++ ) {
+          if (arr[i-1] === arr[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function changeSrcDoc() {
+        doc._attachments['c.txt'].data = btoa('ZZZ');
+        doc._attachments['b.txt'].data = btoa('ZZZ');
+      }
+
+    });
+
   });
 });
