@@ -1397,7 +1397,7 @@ adapters.forEach(function (adapter) {
       if (testUtils.isCouchMaster()) {
         return true;
       }
-      
+
       var db = new PouchDB(dbs.name);
       var tree = [
         [
@@ -2098,7 +2098,7 @@ adapters.forEach(function (adapter) {
               var rev2 = info.rev;
               return PouchDB.replicate(localdb, remotedb).then(function (done) {
                 // update remote once, local twice, then replicate from
-                // remote to local so the remote losing conflict is later in 
+                // remote to local so the remote losing conflict is later in
                 // the tree
                 return localdb.put({
                   _id: '3',
@@ -2310,7 +2310,7 @@ adapters.forEach(function (adapter) {
       db.post({key: 'value'});
     });
 
-    it('supports returnDocs=false', function (done) {
+    it('supports return_docs=false', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [];
       var num = 10;
@@ -2324,7 +2324,7 @@ adapters.forEach(function (adapter) {
         }
         db.changes({
           descending: true,
-          returnDocs : false
+          return_docs : false
         }).on('change', function (change) {
           changes++;
         }).on('complete', function (results) {
