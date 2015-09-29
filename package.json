@@ -62,7 +62,7 @@
     "mockery": "1.4.0",
     "ncp": "0.5.1",
     "phantomjs": "1.9.18",
-    "pouchdb-express-router": "0.0.7",
+    "pouchdb-express-router": "0.0.8",
     "pouchdb-http-proxy": "0.10.4",
     "pouchdb-server": "0.9.0",
     "replace": "0.2.10",
