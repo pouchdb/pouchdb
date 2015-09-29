@@ -53,7 +53,7 @@
     "express-pouchdb": "0.17.2",
     "glob": "3.2.11",
     "http-server": "0.5.5",
-    "istanbul": "0.2.16",
+    "istanbul": "0.3.21",
     "istanbul-coveralls": "1.0.3",
     "jshint": "2.8.0",
     "less": "1.7.5",
