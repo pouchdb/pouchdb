@@ -20,6 +20,8 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, multi-fiel
 
 **0.3.0**: `limit`, `skip`, `ddoc` when creating an index
 
+**0.4.0**: `total_rows` (thanks [@garrensmith](https://github.com/garrensmith)!)
+
 Not implemented yet: `$regex`, `$in`, `$nin`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`
 
 Usage
