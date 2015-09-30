@@ -18,7 +18,7 @@
     "couchdb"
   ],
   "author": "",
-  "license": "Apache",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/nolanlawson/pouchdb-find/issues"
   },
