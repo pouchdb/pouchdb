@@ -27,7 +27,7 @@
     "levelup": "1.2.1",
     "lie": "3.0.0",
     "localstorage-down": "0.6.3",
-    "memdown": "1.0.0",
+    "memdown": "1.1.0",
     "pouchdb-collate": "1.2.0",
     "pouchdb-collections": "1.0.1",
     "request": "2.64.0",
