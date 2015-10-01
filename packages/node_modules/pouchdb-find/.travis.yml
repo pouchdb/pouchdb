@@ -1,9 +1,7 @@
 language: node_js
 node_js:
-  - iojs
-
-node_js:
-  - "0.10"
+  - "4.1"
+  #- "0.10"
 
 addons:
   apt:
@@ -13,8 +11,6 @@ addons:
       - build-essential
       - ca-certificates
       - curl
-      - erlang-dev
-      - erlang-nox
       - git
       - libicu-dev
       - libmozjs185-dev
