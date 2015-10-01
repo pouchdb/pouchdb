@@ -4,14 +4,12 @@ set -x
 
 CWD=$(pwd)
 
-# Rebar isnt in apt
-git clone git://github.com/rebar/rebar.git ~/rebar
-cd ~/rebar
-./bootstrap
-export PATH=$(pwd):$PATH
+sudo apt-get remove erlang-base erlang-crypto erlang-base-hipe
+sudo apt-get -y install haproxy default-jdk libwxgtk3.0
+wget http://packages.erlang-solutions.com/site/esl/esl-erlang/FLAVOUR_1_general/esl-erlang_18.1-1~ubuntu~precise_amd64.deb
+sudo dpkg -i esl-erlang_18.1-1~ubuntu~precise_amd64.deb
 
 # Sweet, build CouchDB
-cd ..
 git clone https://github.com/apache/couchdb.git ~/couchdb
 cd ~/couchdb
 ./configure --disable-docs
