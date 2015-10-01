@@ -48,7 +48,7 @@
     "cordova": "3.4.1-0.1.0",
     "corsproxy": "0.2.14",
     "derequire": "2.0.2",
-    "es5-shim": "4.1.13",
+    "es5-shim": "4.1.14",
     "express": "4.13.3",
     "express-pouchdb": "0.17.2",
     "glob": "3.2.11",
