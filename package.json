@@ -126,6 +126,8 @@
     "./lib/deps/binary/binaryStringToBlobOrBuffer.js": "./lib/deps/binary/binaryStringToBlobOrBuffer-browser.js",
     "./lib/deps/binary/blobOrBufferToBase64.js": "./lib/deps/binary/blobOrBufferToBase64-browser.js",
     "./lib/deps/binary/buffer.js": "./lib/deps/binary/buffer-browser.js",
+    "./lib/deps/binary/cloneBinaryObject.js": "./lib/deps/binary/cloneBinaryObject-browser.js",
+    "./lib/deps/binary/isBinaryObject.js": "./lib/deps/binary/isBinaryObject-browser.js",
     "./lib/deps/md5.js": "./lib/deps/md5-browser.js",
     "./lib/deps/migrate.js": "./lib/deps/migrate-browser.js",
     "./lib/mapreduce/md5.js": "./lib/mapreduce/md5-browser.js",
