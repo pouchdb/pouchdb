@@ -68,6 +68,41 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('#20 - lt queries with sort descending return correct number of docs', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["debut"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', debut: 1983},
+          { _id: '2', debut: 1981},
+          { _id: '3', debut: 1989},
+          { _id: '4', debut: 1990}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {debut: {$lt: 1990}},
+          sort: [{debut: 'desc'}]
+        });
+      }).then(function (resp) {
+        var docs = resp.docs.map(function (x) { delete x._rev; return x; });
+        docs.should.deep.equal([
+          { _id: '3', debut: 1989},
+          { _id: '1', debut: 1983},
+          { _id: '2', debut: 1981}
+        ]);
+      });
+    });
+    // ltge - {include_docs: true, reduce: false, descending: true, startkey: 1990}
+    // lt no sort {include_docs: true, reduce: false, endkey: 1990, inclusive_end: false}
+    // lt sort {include_docs: true, reduce: false, descending: true, startkey: 1990, inclusive_start: false}
+
     it('does lte queries', function () {
       var db = context.db;
       var index = {
