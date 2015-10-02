@@ -232,7 +232,8 @@ function filterInclusiveStart(rows, targetValue, index) {
         docKey.pop();
       }
     }
-    if (collate.collate(docKey, targetValue) > 0) {
+    //ABS as we just looking for values that don't match
+    if (Math.abs(collate.collate(docKey, targetValue)) > 0) {
       // no need to filter any further; we're past the key
       break;
     }
