@@ -41,7 +41,7 @@
   "devDependencies": {
     "browserify": "11.2.0",
     "bundle-collapser": "1.2.1",
-    "chai": "2.3.0",
+    "chai": "3.3.0",
     "chai-as-promised": "5.1.0",
     "child-process-promise": "1.1.0",
     "commander": "2.1.0",
