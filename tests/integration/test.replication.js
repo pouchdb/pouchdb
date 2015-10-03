@@ -4128,6 +4128,42 @@ adapters.forEach(function (adapters) {
       db.post({a: 'doc'});
     });
 
+    it('#4276 Triggers paused error', function (done) {
+
+      if (!(/http/.test(dbs.remote) && !/http/.test(dbs.name))) {
+        return done();
+      }
+
+      var err = {
+        "message": "_writer access is required for this request",
+        "name": "unauthorized",
+        "status": 401
+      };
+
+      var ajax = PouchDB.utils.ajax;
+      PouchDB.utils.ajax = function (opts, cb) {
+        cb(err);
+      };
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs([{foo: 'bar'}]).then(function() {
+
+        var repl = db.replicate.to(remote, {live: true, retry: true});
+
+        repl.on('paused', function(err) {
+          if (err) {
+            repl.cancel();
+          }
+        });
+        repl.on('complete', function(res) {
+          PouchDB.utils.ajax = ajax;
+          done();
+        });
+      });
+    });
+
   });
 });
 
