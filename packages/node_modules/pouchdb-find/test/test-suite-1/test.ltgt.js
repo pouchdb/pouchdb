@@ -101,7 +101,8 @@ module.exports = function (dbType, context) {
     });
     // ltge - {include_docs: true, reduce: false, descending: true, startkey: 1990}
     // lt no sort {include_docs: true, reduce: false, endkey: 1990, inclusive_end: false}
-    // lt sort {include_docs: true, reduce: false, descending: true, startkey: 1990, inclusive_start: false}
+    // lt sort {include_docs: true, reduce: false, descending: true, 
+    // startkey: 1990, inclusive_start: false}
 
     it('does lte queries', function () {
       var db = context.db;
