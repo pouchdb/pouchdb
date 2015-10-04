@@ -159,6 +159,7 @@ PouchDB also offers separate browser plugins that use backends other than Indexe
 
 * [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js) (Minified: [pouchdb.memory.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.min.js))
 * [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js) (Minified: [pouchdb.localstorage.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.min.js))
+* [pouchdb.fruitdown.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js) (Minified: [pouchdb.fruitdown.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.min.js))
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
@@ -206,6 +207,19 @@ If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, yo
 {% include alert/start.html variant="warning"%}
 The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
 {% include alert/end.html %}
+
+#### FruitDOWN adapter
+
+If you need to support IndexedDB in Apple browsers (which PouchDB normally does not support due to instability), then you can use FruitDOWN, which works over all IndexedDB implementations at the expense of using a much smaller part of the IndexedDB API and therefore being slower and less efficient.
+
+```html
+<script src="pouchdb.js"></script>
+<script src="pouchdb.fruitdown.js"></script>
+<script>
+  // this pouch is backed by FruitDOWN
+  var pouch = new PouchDB('mydb', {adapter: 'fruitdown'});
+</script>
+```
 
 {% include anchor.html title="PouchDB in Node.js" hash="pouchdb_in_node_js"%}
 
