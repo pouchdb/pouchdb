@@ -17,6 +17,7 @@ git:
 #     - /tmp/phantomjs
 
 addons:
+  firefox: "41.0.1"
   apt:
     sources:
       - ubuntu-toolchain-r-test
@@ -58,29 +59,27 @@ env:
 
   # Test against pouchdb-server
   - CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+  - CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
   - SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
 
   # Test against pouchdb-express-router
   - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
 
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox COMMAND=test
+  - CLIENT=selenium:firefox:41.0.1 COMMAND=test
   - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:firefox:41.0.1 COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:firefox:41.0.1 COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Testing in saucelabs
-  - CLIENT=saucelabs:chrome:36 COMMAND=test
-  - CLIENT=saucelabs:chrome:37 COMMAND=test
   - CLIENT=saucelabs:chrome COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
@@ -93,18 +92,18 @@ env:
   - GREP=suite2 CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
   - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
 
-  - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
+  - CLIENT=selenium:firefox:41.0.1 ADAPTERS=memory COMMAND=test
+  - CLIENT=selenium:firefox:41.0.1 ADAPTERS=localstorage COMMAND=test
 
   # Test CouchDB master (aka bigcouch branch)
   - CLIENT=node SERVER=couchdb-master COMMAND=test
-  - SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+  - SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
 
   # Test Couchbase Sync Gateway
   - GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
 
   # Performance tests
-  - CLIENT=selenium:firefox PERF=1 COMMAND=test
+  - CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
   - COMMAND=test-unit
@@ -121,12 +120,12 @@ matrix:
 
   # Allowed failures
   - env: CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+  - env: SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
   - node_js: "iojs"
     env: CLIENT=node COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - env: CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+  - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
   - env: COMMAND=report-coverage
 
