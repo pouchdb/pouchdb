@@ -38,6 +38,7 @@
     "IDBKeyRange",
     "openDatabase",
     "sqlitePlugin",
-    "chrome"
+    "chrome",
+    "FileReaderSync"
   ]
 }
