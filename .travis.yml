@@ -17,7 +17,8 @@ git:
 #     - /tmp/phantomjs
 
 addons:
-  firefox: latest
+  firefox:
+    latest
   apt:
     sources:
       - ubuntu-toolchain-r-test
