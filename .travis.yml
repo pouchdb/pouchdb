@@ -17,23 +17,7 @@ git:
 #     - /tmp/phantomjs
 
 addons:
-  firefox:
-    latest
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - build-essential
-      - ca-certificates
-      - curl
-      - erlang-dev
-      - erlang-nox
-      - git
-      - libicu-dev
-      - libmozjs185-dev
-      - python
-      - g++
-      - g++-4.8
+  firefox: latest
 
 before_script:
   - "export DISPLAY=:99.0"
