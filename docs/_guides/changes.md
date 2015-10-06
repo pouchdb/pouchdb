@@ -42,7 +42,7 @@ Also notice the the option `{include_docs: true}`. By default, the documents the
 Changes pagination
 ------
 
-If you expect this to be a very large number of changess, you can also use the `limit` option to do pagination:
+If you expect this to be a very large number of changes, you can also use the `limit` option to do pagination:
 
 ```js
 var pageSize = 10;
