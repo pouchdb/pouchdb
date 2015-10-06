@@ -72,15 +72,15 @@ You may need to install `ant` in order for the Android tests to run (e.g. `brew 
 Run the tests against an iOS simulator:
 
     $ CLIENT=ios npm run cordova
-    
-Run the tests against a connected Android device, using the given COUCH_HOST    
-    
+
+Run the tests against a connected Android device, using the given COUCH_HOST
+
     $ CLIENT=android DEVICE=true COUCH_HOST=http://example.com:5984
 
 Run the tests against the FirefoxOS simulator:
 
     $ CLIENT=firefoxos npm run cordova
-    
+
 Run the tests against a BlackBerry 10 device:
 
     $ CLIENT=blackberry10 DEVICE=true npm run cordova
@@ -89,10 +89,10 @@ Use a custom Couch host:
 
     $ COUCH_HOST=http://myurl:5984 npm run cordova
 
-Grep some tests:    
+Grep some tests:
 
     $ GREP=basics npm run cordova
-    
+
 Test against the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin):
 
     $ SQLITE_PLUGIN=true ADAPTERS=websql npm run cordova
@@ -112,7 +112,7 @@ You can also debug with Weinre by doing:
 
     $ npm install -g weinre
     $ weinre --boundHost=0.0.0.0
-    
+
 Then run the tests with:
 
     $ WEINRE_HOST=http://route.to.my.weinre:8080 npm run cordova
@@ -157,7 +157,7 @@ Some Level adapters also require a standard database name prefix (e.g. `riak://`
 To run the performance test suite in node.js:
 
     PERF=1 npm test
-    
+
 Or the automated browser runner:
 
     PERF=1 CLIENT=selenium:firefox npm test
@@ -178,7 +178,7 @@ You can specify a particular version of PouchDB or a particular adapter by doing
     http://localhost:8000/tests/performance/index.html?adapter=websql
     http://localhost:8000/tests/performance/index.html?adapter=idb&src=//site.com/pouchdb.js
 
-All of the browser plugin adapters (i.e. `memory`, and `localstorage`) are also available this way.
+All of the browser plugin adapters (i.e. `fruitdown`, `memory`, and `localstorage`) are also available this way.
 
 You can also specify particular tests by using `grep=`, e.g.:
 
@@ -196,8 +196,9 @@ Run `npm run dev`, then open it in Safari or iOS.
 Adapter plugins and adapter order
 --------------------------------------
 
-We are currently building two adapters-as-plugins: `memory` and `localstorage`.  All are based on the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown):
+We are currently building three adapters-as-plugins: `fruitdown`, `memory` and `localstorage`.  All are based on the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown):
 
+* `fruitdown`: based on [FruitDOWN](https://github.com/nolanlawson/fruitdown)
 * `memory`: based on [MemDOWN](https://github.com/rvagg/memdown)
 * `localstorage`: based on [localstorage-down](https://github.com/no9/localstorage-down)
 

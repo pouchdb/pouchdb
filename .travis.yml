@@ -95,6 +95,8 @@ env:
 
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
+  - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown GREP=suite2 INVERT=true COMMAND=test
+  - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown GREP=suite2 COMMAND=test
 
   # Test CouchDB master (aka bigcouch branch)
   - CLIENT=node SERVER=couchdb-master COMMAND=test
