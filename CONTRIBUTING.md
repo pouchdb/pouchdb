@@ -127,7 +127,7 @@ With great power comes great responsibility yada yada yada:
  * Get the link to the patch of the pull request, which can be found under 'view command line instructions'
  next to the green 'Merge pull request' button on the page on GitHub for the pull request
  * In your command line, run the following:
-    * `https://patch-diff.githubusercontent.com/raw/pouchdb/pouchdb/pull/[PATCH NUMBER].patch | git am - && git push origin master`, replacing [PATCH NUMBER] with the number of the patch you want to merge.
+    * `curl https://patch-diff.githubusercontent.com/raw/pouchdb/pouchdb/pull/[PATCH NUMBER].patch | git am - && git push origin master`, replacing [PATCH NUMBER] with the number of the patch you want to merge.
  * Close the pull request once it has been merged, so no-one accidentally tries to merge it themselves
  * Make sure the issue associated with the pull request is closed, if the issue was resolved by that pull
  request
