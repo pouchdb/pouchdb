@@ -2024,7 +2024,6 @@ function tests(suiteName, dbName, dbType, viewType) {
     });
 
     it('should query correctly with skip/limit and multiple keys/values', function () {
-      this.timeout(20000);
       var db = new PouchDB(dbName);
       var docs = {
         docs: [
@@ -3071,7 +3070,6 @@ function tests(suiteName, dbName, dbType, viewType) {
     });
 
     it('should update the emitted value', function () {
-      this.timeout(30000);
       return new PouchDB(dbName).then(function (db) {
         var docs = [];
         for (var i = 0; i < 300; i++) {

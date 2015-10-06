@@ -249,7 +249,7 @@ function tests(suiteName, dbName, dbType) {
     });
 
     it('many simultaneous persisted views', function () {
-      this.timeout(90000);
+      this.timeout(120000);
       var db = new PouchDB(dbName);
 
       var views = [];
@@ -302,7 +302,6 @@ function tests(suiteName, dbName, dbType) {
     });
 
     it('should query correctly when stale', function () {
-      this.timeout(20000);
       return new PouchDB(dbName).then(function (db) {
         return createView(db, {
           map : function (doc) {
@@ -367,7 +366,6 @@ function tests(suiteName, dbName, dbType) {
     });
 
     it('should query correctly with stale update_after', function () {
-      this.timeout(20000);
       var pouch = new PouchDB(dbName);
 
       return createView(pouch, {map: function (doc) {
