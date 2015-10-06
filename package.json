@@ -63,7 +63,7 @@
     "phantomjs": "1.9.18",
     "pouchdb-express-router": "0.0.8",
     "pouchdb-http-proxy": "0.10.4",
-    "pouchdb-server": "0.9.0",
+    "pouchdb-server": "1.0.0",
     "replace": "0.3.0",
     "rimraf": "2.4.3",
     "sauce-connect-launcher": "0.13.0",
