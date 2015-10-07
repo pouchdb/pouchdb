@@ -685,6 +685,10 @@ adapters.forEach(function (adapter) {
           changes.on('error', resolve);
           changes.on('change', reject);
         });
+      }).catch(function (err) {
+        // CouchDB Master has changed behaviour and now rejects invalid
+        // design documents
+        err.status.should.equal(400);
       });
     });
 
