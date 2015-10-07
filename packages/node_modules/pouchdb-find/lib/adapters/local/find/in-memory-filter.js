@@ -41,6 +41,31 @@ function createCriterion(userOperator, userValue, parsedField) {
     return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
   }
 
+  function fieldIsArray (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    return fieldExists(doc) && docFieldValue instanceof Array;
+  }
+
+  function arrayContainsValue (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    return userValue.some(function (val) {
+      return docFieldValue.indexOf(val) > -1;
+    });
+  }
+
+  function arrayContainsAllValues (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    return userValue.every(function (val) {
+      return docFieldValue.indexOf(val) > -1;
+    });
+  }
+
+  function arraySize (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    return docFieldValue.length === userValue;
+
+  }
+
   switch (userOperator) {
     case '$eq':
       return function (doc) {
@@ -73,6 +98,22 @@ function createCriterion(userOperator, userValue, parsedField) {
         return userValue.every(function (neValue) {
           return collate(docFieldValue, neValue) !== 0;
         });
+      };
+    case '$in':
+      return function (doc) {
+        return fieldIsArray(doc) && arrayContainsValue(doc);
+      };
+    case '$nin':
+      return function (doc) {
+        return fieldIsArray(doc) && !arrayContainsValue(doc);
+      };
+    case '$size':
+      return function (doc) {
+        return fieldIsArray(doc) && arraySize(doc);
+      };
+    case '$all':
+      return function (doc) {
+        return fieldIsArray(doc) && arrayContainsAllValues(doc);
       };
   }
 }

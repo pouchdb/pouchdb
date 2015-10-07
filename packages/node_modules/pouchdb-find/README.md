@@ -14,7 +14,7 @@ Eventually this will replace PouchDB's map/reduce API entirely. You'll still be 
 Status
 ---
 
-Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, multi-field queries, multi-field indexes, multi-field sort, `'deep.fields.like.this'`, ascending and descending sort.
+Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$nin`, `$all`, `$size`, multi-field queries, multi-field indexes, multi-field sort, `'deep.fields.like.this'`, ascending and descending sort.
 
 **0.2.0**: `$and`, `$ne`
 
@@ -22,7 +22,7 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, multi-fiel
 
 **0.4.0**: `total_rows` (thanks [@garrensmith](https://github.com/garrensmith)!)
 
-Not implemented yet: `$regex`, `$in`, `$nin`, `$or`, `$not`, `$nor`, `$all`, `$elemMatch`, `$size`, `$mod`
+Not implemented yet: `$regex`, , `$or`, `$not`, `$nor`, `$elemMatch`, `$mod`
 
 Usage
 ------
@@ -111,7 +111,7 @@ db.createIndex({
 });
 ```
 
-Or an index on deep fields: 
+Or an index on deep fields:
 
 ```js
 db.createIndex({
@@ -366,4 +366,3 @@ How to contribute to this thing
 ----------
 
 Instructions are in [CONTRIBUTING.md](https://github.com/nolanlawson/pouchdb-find/blob/master/CONTRIBUTING.md).
-
