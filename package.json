@@ -22,7 +22,6 @@
     "es3ify": "0.1.4",
     "fruitdown": "1.0.1",
     "inherits": "2.0.1",
-    "level-js": "2.2.2",
     "level-sublevel": "6.5.2",
     "level-write-stream": "1.0.0",
     "levelup": "1.2.1",
