@@ -124,8 +124,6 @@ matrix:
   - env: CLIENT=node SERVER=couchdb-master COMMAND=test
   - env: SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
-  - node_js: "iojs"
-    env: CLIENT=node COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
@@ -141,8 +139,6 @@ matrix:
       env: CLIENT=node COMMAND=test
     - node_js: "stable"
       env: CXX=g++-4.8 CLIENT=node COMMAND=test
-    - node_js: "iojs"
-      env: CLIENT=node COMMAND=test
 
 branches:
   only:
