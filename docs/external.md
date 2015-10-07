@@ -64,6 +64,10 @@ Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchd
 
 Hoodie-like API for PouchDB. ([Documentation](http://hoodiehq.github.io/pouchdb-hoodie-api/))
 
+#### [PouchDB Hoodie Store](https://www.npmjs.com/package/pouchdb-hoodie-store)
+
+PouchDB with Hoodie's Store API.
+
 #### [PouchDB List](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 Allows you to re-use your CouchDB list functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-rewrite-plug-in))
@@ -116,6 +120,10 @@ PouchDB/CouchDB replication over WebSockets, using Engine.io (Socket.io).
 
 Multidimensional and spatial queries with PouchDB.
 
+#### [Superlogin](https://www.npmjs.com/package/superlogin)
+
+Powerful authentication for APIs and single page apps using the CouchDB ecosystem, which supports a variety of providers.
+
 #### [Store.PouchDB](https://github.com/chunksnbits/store.pouchdb)
 
 ORM-style storage plugin for PouchDB.
@@ -140,6 +148,10 @@ Convenience functions for working with documents: `upsert()` and `putIfNotExists
 #### [PouchDB Validation](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 A PouchDB plugin that allows you to re-use your CouchDB `validate_doc_update` functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in))
+
+#### [WorkerPouch](http://github.com/nolanlawson/worker-pouch)
+
+PouchDB adapter for web workers, so that PouchDB blocks the DOM less.
 
 {% include anchor.html title="Server Side" hash="Server Side" %}
 
@@ -202,6 +214,16 @@ Promisy PouchDB wrapper for Ember.js
 #### [kendo-pouchdb](https://github.com/terikon/kendo-pouchdb)
 
 Kendo UI DataSource adapter.
+
+### React/Flux
+
+#### [redux-pouchdb](https://github.com/vicentedealencar/redux-pouchdb)
+
+Sync store state to PouchDB.
+
+#### [redux-pouch](https://github.com/UXtemple/redux-pouch)
+
+PouchDB-backed Redux.
 
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
