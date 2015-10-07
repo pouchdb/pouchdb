@@ -116,7 +116,7 @@
     "./lib/deps/ajax/createBlobOrBufferFromParts.js": "./lib/deps/ajax/createBlobOrBufferFromParts-browser.js",
     "./lib/deps/ajax/createMultipartPart.js": "./lib/deps/ajax/createMultipartPart-browser.js",
     "./lib/deps/ajax/defaultBody.js": "./lib/deps/ajax/defaultBody-browser.js",
-    "./lib/deps/ajax/explain404.js": "./lib/deps/ajax/explain404-browser.js",
+    "./lib/deps/ajax/explainError.js": "./lib/deps/ajax/explainError-browser.js",
     "./lib/deps/ajax/explainCors.js": "./lib/deps/ajax/explainCors-browser.js",
     "./lib/deps/env/hasLocalStorage.js": "./lib/deps/env/hasLocalStorage-browser.js",
     "./lib/deps/env/isChromeApp.js": "./lib/deps/env/isChromeApp-browser.js",
