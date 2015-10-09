@@ -4164,6 +4164,33 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Heartbeat gets passed', function (done) {
+
+      if (!(/http/.test(dbs.remote) && !/http/.test(dbs.name))) {
+        return done();
+      }
+
+      var seenHeartBeat = false;
+      var ajax = PouchDB.utils.ajax;
+      PouchDB.utils.ajax = function (opts, cb) {
+        if (/heartbeat/.test(opts.url)) {
+          seenHeartBeat = true;
+        }
+        ajax.apply(this, arguments);
+      };
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{foo: 'bar'}]).then(function() {
+        return db.replicate.from(remote, {heartbeat: 10});
+      }).then(function() {
+        seenHeartBeat.should.equal(true);
+        PouchDB.utils.ajax = ajax;
+        done();
+      });
+    });
+
   });
 });
 
