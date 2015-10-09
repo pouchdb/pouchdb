@@ -28,7 +28,7 @@
     "jshint": "jshint -c .jshintrc lib/*.js bin/*.js test/test.js test/test-utils.js test/*suite*/*",
     "test": "npm run jshint && ./bin/run-test.sh",
     "build": "mkdirp dist && npm run browserify && npm run min",
-    "browserify": "browserify lib/index.js | ./bin/es3ify.js | derequire > dist/pouchdb.find.js",
+    "browserify": "browserify . -s pouchdbFind -p bundle-collapser/plugin | ./bin/es3ify.js | derequire > dist/pouchdb.find.js",
     "min": "uglifyjs dist/pouchdb.find.js -mc > dist/pouchdb.find.min.js",
     "dev": "browserify test/test.js > test/test-bundle.js && npm run dev-server",
     "dev-server": "./bin/dev-server.js",
@@ -48,6 +48,7 @@
   "devDependencies": {
     "bluebird": "^1.0.7",
     "browserify": "^9.0.8",
+    "bundle-collapser": "1.2.1",
     "chai": "~1.8.1",
     "chai-as-promised": "~4.1.0",
     "derequire": "^2.0.0",
