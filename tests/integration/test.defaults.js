@@ -51,11 +51,11 @@ if (!process.env.LEVEL_ADAPTER &&
       var CustomPouch = PouchDB.defaults({
         prefix: prefix
       });
-      return new CustomPouch('mydb').then(function (db) {
-        return db.info().then(function (info1) {
-          info1.db_name.should.equal('mydb');
-          return db.destroy();
-        });
+      /* jshint newcap:false */
+      var db = CustomPouch({name: 'mydb'});
+      return db.info().then(function (info1) {
+        info1.db_name.should.equal('mydb');
+        return db.destroy();
       });
     });
 
