@@ -1,9 +1,9 @@
 language: node_js
 node_js:
   - "4.1"
-  #- "0.10"
 
 addons:
+  firefox: latest
   apt:
     sources:
       - ubuntu-toolchain-r-test
@@ -38,12 +38,6 @@ after_failure:
   - "curl -X GET http://127.0.0.1:5984/_log?bytes=1000000"
 
 env:
-  global:
-    # TODO: use CouchDB instead of cloudant when query support lands
-    - secure: "UqAKdQlW048Tyfwgvk5zPypl/oFYOnWMB2t53Xcmjl7Jz/LpNQSlVd6xBvNuhKXZs0Ilv3/dbhdKDVivSAoruTGOlPc0iSPMf7fI9KbRxF7s5eofJYvaeSLDi6QguI9BNCbuprdMBFYl7V5pC59yCOc+R11PKB+cxws+vMBTRVU="
-    - secure: "g09ZNSWHq/zBijdP5FJBHxLFpgXDFgVnk3iOzFgUJyhDzdVK82ie207aduJ3O5uv+RDVh2cD8/D13mbQxCC+VS1lg7woAG/bJGa++MUI1ZMsr4FkS5fUrsS7i8ElUw8FbFuAbt+RceeffB5Um2uTg36FfafhUH0SLl1+RoFpQXw="
-    - secure: "VcJZUeYksS0bmgwlKpkO4jTJoRdxzex0wwa782XRnR9P/q/qWt2C2CWmFUxvAdQRhKfivkkhQRMDTrYo4b9SoWf6h/h1LOMlEiKm466GM8a1Td6aTueUdYLtO8fEOSwHlad0sj27aFDfoACFPjHxQTDYDn0dPPy9GHm5oAqwVHw="
-    - secure: "gG51ywlPugFb5zbBr8DzYLenv4aVSO6PVRNxXV7lMgVnggbAcxrviKd9qGOvrjfDZYsG4w8tI2Rs8bpNMmZRL/WEDSMAutYQsXJHjmYxk/hW3BEZxuDVns1CwKpBZtLircQLiczWzf41mOz40Hv3Pc8/6Dd1htAOR7FMS+scyL0="
   matrix:
   - COMMAND=test
   - CLIENT=selenium:firefox COMMAND=test
