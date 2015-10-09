@@ -1,15 +1,23 @@
 /*jshint expr:true */
 'use strict';
 
+var queryString = require('query-string');
 var Pouch = require('pouchdb');
-
 var thePlugin = require('../');
 Pouch.plugin(thePlugin);
 
 require('./test-utils');
 
+var couch;
+if (typeof process === 'undefined' || process.browser) {
+  couch = queryString.parse(location.search).couchHost ||
+    'http://127.0.0.1:5984';
+} else {
+  couch = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
+}
+
 var  dbs = 'testdb' + Math.random() +
-  ',http://127.0.0.1:5984/testdb' + Math.round(Math.random() * 100000);
+  ',' + couch + '/testdb' + Math.round(Math.random() * 100000);
 
 dbs.split(',').forEach(function (db) {
   var dbType = /^http/.test(db) ? 'http' : 'local';
