@@ -22,6 +22,8 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$n
 
 **0.4.0**: `total_rows` (thanks [@garrensmith](https://github.com/garrensmith)!)
 
+**0.5.0**: `$in`, `$nin`, `$all`, `$size`  (thanks again [@garrensmith](https://github.com/garrensmith)!)
+
 Not implemented yet: `$regex`, , `$or`, `$not`, `$nor`, `$elemMatch`, `$mod`
 
 Usage
