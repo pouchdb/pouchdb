@@ -46,7 +46,11 @@ function bundle() {
 function startServers(callback) {
   readyCallback = callback;
   http_server.createServer().listen(HTTP_PORT);
-  console.log('Tests: http://127.0.0.1:' + HTTP_PORT + '/test/index.html');
+  var msg = 'Tests: http://127.0.0.1:' + HTTP_PORT + '/test/index.html';
+  if (process.env.COUCH_HOST) {
+    msg += '?couchHost=' + process.env.COUCH_HOST;
+  }
+  console.log(msg);
   serverStarted = true;
   checkReady();
 }
