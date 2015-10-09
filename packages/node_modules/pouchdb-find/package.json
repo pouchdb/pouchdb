@@ -65,5 +65,9 @@
     "uglify-js": "^2.4.13",
     "watchify": "^3.1.0",
     "wd": "^0.2.21"
+  },
+  "browser": {
+    "crypto": false,
+    "buffer": false
   }
 }
