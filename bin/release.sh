@@ -26,6 +26,14 @@ git commit -m "build $VERSION"
 git tag $VERSION
 git push --tags git@github.com:pouchdb/pouchdb.git $VERSION
 
+# Build the site and custom builds for posterity
+npm run build-custom
+BUILD=1 npm run build-site
+git add -f docs
+git commit -m "build $VERSION with custom builds"
+git tag ${VERSION}-with-custom
+git push --tags git@github.com:pouchdb/pouchdb.git $VERSION-with-custom
+
 # Cleanup
 git checkout master
 git branch -D build

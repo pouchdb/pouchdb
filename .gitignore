@@ -3,6 +3,7 @@ tmp
 node_modules
 docs/_site
 docs/static/css
+docs/static/js/custom
 npm-debug.log
 *~
 coverage
