@@ -126,6 +126,15 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Testing allDocs invalid opts.keys', function () {
+      var db = new PouchDB(dbs.name);
+      return db.allDocs({keys: 1234}).then(function() {
+        throw 'should not be here';
+      }).catch(function(err) {
+        should.exist(err);
+      });
+    });
+
     it('Testing deleting in changes', function (done) {
       var db = new PouchDB(dbs.name);
 
