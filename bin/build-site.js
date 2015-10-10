@@ -9,6 +9,7 @@ var watchGlob = require('watch-glob');
 var replace = require('replace');
 var exec = require('child-process-promise').exec;
 var mkdirp = require('mkdirp');
+var yaml = require('js-yaml');
 
 var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
 var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
@@ -77,6 +78,15 @@ if (!process.env.BUILD) {
   watchGlob('docs/static/less/*/*.less', buildCSS);
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://0.0.0.0:4000');
+  if (!fs.existsSync(__dirname + '/../docs/static/js/custom')) {
+    var version = yaml.safeLoad(fs.readFileSync(__dirname +
+      '/../docs/_config.yml', 'utf8')).version;
+    var msg = 'You need to do `npm run build-custom` beforehand ' +
+      'to build the builder UI, or check out the builds from Git using ' +
+      '`git checkout origin/refs/tags/' + version +
+      '-with-custom -- docs/static/js/custom`';
+    throw new Error(msg);
+  }
 }
 
 buildEverything();
