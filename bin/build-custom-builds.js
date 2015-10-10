@@ -2,10 +2,9 @@
 
 'use strict';
 
-var TARGET_DIR = __dirname + '/../docs/_site/custom';
+var TARGET_DIR = __dirname + '/../docs/static/custom';
 var NUM_CONCURRENT_PROMISES = require('os').cpus().length;
 
-var options = require('../lib/customOptions');
 var combinations = require('combinations');
 var browserify = require('browserify');
 var bluebird = require('bluebird');
@@ -16,34 +15,12 @@ var mkdirp = require('mkdirp');
 var streamToPromise = require('stream-to-promise');
 var uglify = require('uglify-js');
 var zlib = bluebird.promisifyAll(require('zlib'));
+var options = require('../lib/custom/options');
+var generateName = require('../lib/custom/generateName');
+var generateCode = require('../lib/custom/generateCode');
 
 rimraf.sync(TARGET_DIR);
 mkdirp.sync(TARGET_DIR);
-
-// generate a nice short hext code for the given option
-function generateName(combo) {
-  var str = '';
-  for (var i = 0; i < options.length; i++) {
-    var option = options[i];
-    str += combo.indexOf(option) === -1 ? '0' : '1';
-  }
-  // binary -> hex
-  return parseInt(str, 2).toString(16);
-}
-
-function generateCode(combo) {
-  var str = '\'use strict\';\n' +
-    '\n' +
-    'var PouchDB = require(\'pouchdb/custom/pouchdb\');\n' +
-    '\n';
-  for (var i = 0; i < combo.length; i++) {
-    var option = combo[i];
-    str += option.code + '\n';
-  }
-  str += '\n' +
-    'module.exports = PouchDB;';
-  return str;
-}
 
 function build(comboName, code) {
   var sourceFile = TARGET_DIR + '/pouchdb-custom-source-' + comboName + '.js';
@@ -88,49 +65,50 @@ function build(comboName, code) {
   });
 }
 
+// don't overload the user's CPU, but also don't try to do absolutely
+// everything at once. it's a better UX to see a little bit of progress
+function createPromiseChains() {
+  var promises = [];
+  for (var i = 0; i < NUM_CONCURRENT_PROMISES; i++) {
+      promises.push(bluebird.resolve());
+    }
+  return promises;
+}
+
 var builtInfo = {};
+var promises = createPromiseChains();
+var counter = 0;
+var promiseIndex = 0;
 
 function buildPromise(combo, comboName, code) {
+  var thisCounter = ++counter;
   var debuggableComboName = combo.map(function (x) {
     return x.name;
   });
   return function () {
-    console.log('Building combo',
-      JSON.stringify(debuggableComboName),
-      'with ID',
-      comboName,
-      '...');
     return build(comboName, code).then(function (info) {
+      console.log('Built custom build',
+        JSON.stringify(debuggableComboName),
+        'with ID',
+        comboName,
+        '(' + (thisCounter + 1) + '/' + counter +')...');
       builtInfo[comboName] = info;
     });
   };
 }
 
-function createPromiseChains() {
-  var promises = [];
-  for (var i = 0; i < NUM_CONCURRENT_PROMISES; i++) {
-    promises.push(bluebird.resolve());
+console.log('Building with', promises.length, 'concurrent promises...');
+
+var combos = combinations(options);
+combos.forEach(function (combo) {
+  var comboName = generateName(combo);
+  var code = generateCode(combo);
+  promises[promiseIndex] = promises[promiseIndex].then(
+    buildPromise(combo, comboName, code));
+  if (++promiseIndex === promises.length) {
+    promiseIndex = 0;
   }
-  return promises;
-}
-
-var promises = createPromiseChains();
-var idx = 0;
-
-console.log('Building using', promises.length, 'concurrent promises...');
-
-for (var i = 1; i < options.length; i++) {
-  var combos = combinations(options, i);
-  for (var j = 0; j < combos.length; j++) {
-    var combo = combos[j];
-    var comboName = generateName(combo);
-    var code = generateCode(combo);
-    promises[idx] = promises[idx].then(buildPromise(combo, comboName, code));
-    if (++idx === promises.length) {
-      idx = 0;
-    }
-  }
-}
+});
 
 bluebird.all(promises).then(function () {
   return fs.writeFileAsync(TARGET_DIR + '/info.json',

@@ -55,6 +55,8 @@ http://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzBampu5_7CjHW5spxoeN
 /static/img/browser-logos/opera_32x32.png
 /static/img/browser-logos/safari_32x32.png
 
+/static/custom/info.json
+
 NETWORK:
 *
 http://*
