@@ -22,7 +22,7 @@ if [ $TYPE = "mapreduce" ]; then
 fi
 if [ $COVERAGE ]; then
     # run all tests when testing for coverage
-    TESTS_PATH="tests/{unit,integration,mapreduce}/test*.js"
+    TESTS_PATH="tests/{unit,integration,mapreduce,component}/test*.js"
 fi
 
 
