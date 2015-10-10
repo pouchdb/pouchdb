@@ -80,6 +80,15 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Get invalid id', function () {
+      var db = new PouchDB(dbs.name);
+      return db.get(1234).then(function() {
+        throw 'show not be here';
+      }).catch(function(err) {
+        should.exist(err);
+      });
+    });
+
     it('Add a doc with a promise', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}).then(function (info) {
