@@ -15,6 +15,8 @@ CACHE:
 /static/css/pouchdb.css
 /static/favicon.ico
 /static/js/code.min.js
+/static/js/custom/info.js
+/static/js/custom/builder.js
 
 http://code.jquery.com/jquery.min.js
 http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js
@@ -55,7 +57,6 @@ http://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzBampu5_7CjHW5spxoeN
 /static/img/browser-logos/opera_32x32.png
 /static/img/browser-logos/safari_32x32.png
 
-/static/custom/info.json
 
 NETWORK:
 *

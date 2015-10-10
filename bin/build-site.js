@@ -78,13 +78,13 @@ if (!process.env.BUILD) {
   watchGlob('docs/static/less/*/*.less', buildCSS);
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://0.0.0.0:4000');
-  if (!fs.existsSync(__dirname + '/../docs/static/custom')) {
+  if (!fs.existsSync(__dirname + '/../docs/static/js/custom')) {
     var version = yaml.safeLoad(fs.readFileSync(__dirname +
       '/../docs/_config.yml', 'utf8')).version;
     var msg = 'You need to do `npm run build-custom` beforehand ' +
       'to build the builder UI, or check out the builds from Git using ' +
       '`git checkout origin/refs/tags/' + version +
-      '-with-custom -- docs/static/custom`';
+      '-with-custom -- docs/static/js/custom`';
     throw new Error(msg);
   }
 }

@@ -101,6 +101,24 @@ The source for the website http://pouchdb.com is stored inside the `docs` direct
 
 You should now find the documentation at http://127.0.0.1:4000
 
+Note that you also need to build the custom builds for the "Custom Builds" page.
+You can do so by running:
+
+    $ npm run build-custom
+
+If you don't do this, then `npm run build-site` will fail. Note that this step
+takes a few minutes.
+
+Also, if you want to only publish the builds for the *last* build (not the master
+branch), then these are checked in to Git using a special tag,
+`$VERSION-with-custom`.
+
+So you can do
+
+    $ git checkout origin/refs/tags/$VERSION-with-custom -- docs/static/js/custom
+
+in order to check them out.
+
 Writing a PouchDB Blog Post
 --------------------------------------
 
@@ -145,4 +163,5 @@ Release Procedure
  * Put the new prerelease version in `lib/version-browser.js` too
  * Update docs/_config.yml to the current version
  * Push updated versions to master
+ * Check out the custom builds using `git checkout $VERSION-with-custom -- docs/static/js/custom`
  * `npm run publish-site`

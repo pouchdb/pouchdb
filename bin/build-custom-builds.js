@@ -2,7 +2,7 @@
 
 'use strict';
 
-var TARGET_DIR = __dirname + '/../docs/static/custom';
+var TARGET_DIR = __dirname + '/../docs/static/js/custom';
 var NUM_CONCURRENT_PROMISES = require('os').cpus().length;
 
 var combinations = require('combinations');
@@ -100,6 +100,7 @@ function buildPromise(combo, comboName, code) {
 console.log('Building with', promises.length, 'concurrent promises...');
 
 var combos = combinations(options);
+combos.unshift([]); // add an empty one as well, at the beginning
 combos.forEach(function (combo) {
   var comboName = generateName(combo);
   var code = generateCode(combo);
@@ -111,6 +112,8 @@ combos.forEach(function (combo) {
 });
 
 bluebird.all(promises).then(function () {
-  return fs.writeFileAsync(TARGET_DIR + '/info.json',
-    JSON.stringify(builtInfo), 'utf8');
+  return fs.writeFileAsync(TARGET_DIR + '/info.js',
+    'window.customBuildsInfo = ' +
+    JSON.stringify(builtInfo) +
+    ';', 'utf8');
 });
