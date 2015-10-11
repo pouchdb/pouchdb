@@ -36,7 +36,7 @@ if (process.env.AUTO_COMPACTION) {
 }
 
 var indexfile = "./lib/index.js";
-var outfile = "./dist/pouchdb.js";
+var outfile = "./dist/pouchdb-browserify.js";
 var perfRoot = './tests/performance/';
 var performanceBundle = './tests/performance-bundle.js';
 
