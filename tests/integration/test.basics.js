@@ -80,6 +80,15 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Get invalid id', function () {
+      var db = new PouchDB(dbs.name);
+      return db.get(1234).then(function() {
+        throw 'show not be here';
+      }).catch(function(err) {
+        should.exist(err);
+      });
+    });
+
     it('Add a doc with a promise', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}).then(function (info) {
@@ -1037,8 +1046,8 @@ adapters.forEach(function (adapter) {
         return db.get(doc._id);
       }).then(function (savedDoc) {
         // We shouldnt need to delete from doc here (#4273)
-        delete doc._rev;
-        delete doc._rev_tree;
+        should.not.exist(doc._rev);
+        should.not.exist(doc._rev_tree);
 
         delete savedDoc._rev;
         savedDoc.should.deep.equal(doc);

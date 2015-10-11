@@ -450,6 +450,24 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it.skip('#4451 Changes with invalid view filter', function (done) {
+      var docs = [
+        {_id: '1', integer: 1},
+        {
+          _id: '_design/foo',
+          filters: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs(docs).then(function() {
+        db.changes({filter: 'a/b/c'}).on('error', function (err) {
+          done();
+        }).on('complete', function(res) {
+          throw 'should not be called';
+        });
+      });
+    });
+
     it('3356 throw inside a filter', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({
@@ -667,6 +685,10 @@ adapters.forEach(function (adapter) {
           changes.on('error', resolve);
           changes.on('change', reject);
         });
+      }).catch(function (err) {
+        // CouchDB Master has changed behaviour and now rejects invalid
+        // design documents
+        err.status.should.equal(400);
       });
     });
 

@@ -150,44 +150,6 @@ describe('test.http.js', function () {
 
   });
 
-  // we can't guarantee that every server will throw an error
-  // (e.g. minimum-for-pouchdb, pouchdb-express-router), so we are
-  // unfortunately skipping this test for now
-  it.skip('Test unauthorized user', function () {
-    var db = new PouchDB(dbs.name, {
-      auth: {
-        user: 'foo',
-        password: 'bar'
-      }
-    });
-    return db.info().then(function () {
-      // TODO: add testUtils.isMinimumForPouchDB()
-      if (testUtils.isExpressRouter()) {
-        return; // express-router doesn't do auth
-      }
-      throw new Error('expected an error');
-    }, function (err) {
-      should.exist(err); // 401 error
-    });
-  });
-
-  // we can't guarantee that every server will throw an error
-  // (e.g. minimum-for-pouchdb, pouchdb-express-router), so we are
-  // unfortunately skipping this test for now
-  it.skip('Test unauthorized user, user/pass in url itself', function () {
-    var dbname = dbs.name.replace(/\/\//, '//foo:bar@');
-    var db = new PouchDB(dbname);
-    return db.info().then(function () {
-      // TODO: add testUtils.isMinimumForPouchDB()
-      if (testUtils.isExpressRouter()) {
-        return; // express-router doesn't do auth
-      }
-      throw new Error('expected an error');
-    }, function (err) {
-      should.exist(err); // 401 error
-    });
-  });
-
   it('Test custom header', function () {
     var db = new PouchDB(dbs.name, {
       headers: {

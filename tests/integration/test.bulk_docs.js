@@ -141,8 +141,6 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: docs }, function (err, info) {
         err.status.should.equal(PouchDB.Errors.RESERVED_ID.status,
                                 'correct error status returned');
-        err.message.should.equal(PouchDB.Errors.RESERVED_ID.message,
-                                 'correct error message returned');
         should.not.exist(info, 'info is empty');
         done();
       });
@@ -158,8 +156,6 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: docs }, function (err, info) {
         err.status.should.equal(PouchDB.Errors.RESERVED_ID.status,
                                 'correct error returned');
-        err.message.should.equal(PouchDB.Errors.RESERVED_ID.message,
-                                 'correct error message returned');
         should.not.exist(info, 'info is empty');
         done();
       });
