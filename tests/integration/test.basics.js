@@ -568,8 +568,7 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err, info) {
         should.exist(err);
-        err.message.should.equal(PouchDB.Errors.INVALID_ID.message,
-                                 'correct error message returned');
+        err.error.should.equal(PouchDB.Errors.INVALID_ID.error);
         done();
       });
     });
