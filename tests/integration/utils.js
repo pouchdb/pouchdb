@@ -153,16 +153,16 @@ testUtils.adapterUrl = function (adapter, name) {
 
 // Delete specified databases
 testUtils.cleanup = function (dbs, done) {
-
   dbs = uniq(dbs);
   var num = dbs.length;
+  var finished = function() {
+    if (--num === 0) {
+      done();
+    }
+  };
 
   dbs.forEach(function(db) {
-    new PouchDB(db).destroy(function() {
-      if (--num === 0) {
-        done();
-      }
-    });
+    new PouchDB(db).destroy(finished, finished);
   });
 };
 
