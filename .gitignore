@@ -13,3 +13,4 @@ phantomjsdriver.log
 tests/pouchdb_server
 tests/performance-bundle.js
 dist/*
+lib_staging
