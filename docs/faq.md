@@ -23,7 +23,7 @@ There are a number of databases that implement a CouchDB-like protocol, and Pouc
 
 PouchDB is one of multiple projects that implement the CouchDB protocol, and these can all be used to sync the same set of data.
 
-For desktop applications, you may want to look into embedding CouchDB (or [rcouch](https://github.com/refuge/rcouch)). PouchDB also works great with web-based frameworks like [node-webkit](https://github.com/rogerwang/node-webkit), [Chrome apps](https://developer.chrome.com/apps/about_apps), [Atom Shell](https://github.com/atom/atom-shell) and [WinJS](http://try.buildwinjs.com/#listview).
+For desktop applications, you may want to look into embedding CouchDB (or [rcouch](https://github.com/refuge/rcouch)). PouchDB also works great with web-based frameworks like [node-webkit](https://github.com/rogerwang/node-webkit), [Chrome apps](https://developer.chrome.com/apps/about_apps), [Electron](https://github.com/atom/electron) and [WinJS](http://try.buildwinjs.com/#listview).
 
 For mobile applications, you can use PouchDB within [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/) (optionally using the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin)), or there are several native libraries:
 
