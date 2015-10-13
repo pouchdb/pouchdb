@@ -13,8 +13,8 @@ describe('test.headers.js', function () {
   before(function (done) {
     server = http.createServer(function (req, res) {
       headers = req.headers;
-      res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end('');
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.end('[]');
     });
     server.listen(PORT, done);
   });
