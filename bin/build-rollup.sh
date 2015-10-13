@@ -21,4 +21,4 @@ done
   | ./node_modules/.bin/derequire > \
   dist/pouchdb.js
 
-#rm -fr lib_staging
+rm -fr lib_staging
