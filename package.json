@@ -121,6 +121,7 @@
     "./lib/deps/ajax/explainCors.js": "./lib/deps/ajax/explainCors-browser.js",
     "./lib/deps/env/hasLocalStorage.js": "./lib/deps/env/hasLocalStorage-browser.js",
     "./lib/deps/env/isChromeApp.js": "./lib/deps/env/isChromeApp-browser.js",
+    "./lib/deps/binary/base64.js": "./lib/deps/binary/base64-browser.js",
     "./lib/deps/binary/base64StringToBlobOrBuffer.js": "./lib/deps/binary/base64StringToBlobOrBuffer-browser.js",
     "./lib/deps/binary/binaryStringToBlobOrBuffer.js": "./lib/deps/binary/binaryStringToBlobOrBuffer-browser.js",
     "./lib/deps/binary/blobOrBufferToBase64.js": "./lib/deps/binary/blobOrBufferToBase64-browser.js",
