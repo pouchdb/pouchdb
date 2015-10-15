@@ -36,6 +36,9 @@
     "through2": "2.0.0",
     "vuvuzela": "1.0.1"
   },
+  "jspm": {
+    "main": "dist/pouchdb.js"
+  },
   "optionalDependencies": {
     "leveldown": "1.4.1"
   },
