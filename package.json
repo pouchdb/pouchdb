@@ -33,8 +33,7 @@
     "pouchdb-collections": "1.0.1",
     "request": "2.64.0",
     "spark-md5": "1.0.0",
-    "through2": "2.0.0",
-    "vuvuzela": "1.0.1"
+    "through2": "2.0.0"
   },
   "jspm": {
     "main": "dist/pouchdb.js"

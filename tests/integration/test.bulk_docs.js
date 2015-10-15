@@ -929,12 +929,8 @@ adapters.forEach(function (adapter) {
         return PouchDB.utils.uuid(32, 16).toLowerCase();
       }
 
-      var isSafari = (typeof process === 'undefined' || process.browser) &&
-        /Safari/.test(window.navigator.userAgent) &&
-        !/Chrome/.test(window.navigator.userAgent);
-
-      var numRevs = isSafari ? 10 : 5000;
-      var expected = isSafari ? 10 : 1000;
+      var numRevs = 5000;
+      var expected = adapter === 'http' ? 1000 : 100;
       var uuids = [];
 
       for (var i = 0; i < numRevs - 1; i++) {
