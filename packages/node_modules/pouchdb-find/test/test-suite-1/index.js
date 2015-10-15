@@ -35,5 +35,6 @@ module.exports = function (dbName, dbType, Pouch) {
     require('./test.matching-indexes')(dbType, context);
     require('./test.errors')(dbType, context);
     require('./test.array')(dbType, context);
+    require('./test.combinational')(dbType, context);
   });
 };
