@@ -9,6 +9,7 @@
 
 var collate = require('pouchdb-collate').collate;
 var localUtils = require('../utils');
+var isCombinationalField = localUtils.isCombinationalField;
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var parseField = localUtils.parseField;
@@ -118,6 +119,38 @@ function createCriterion(userOperator, userValue, parsedField) {
   }
 }
 
+function createCombinationalCriterion (operator, selectors) {
+  var criterions = [];
+  selectors.forEach(function (selector) {
+    Object.keys(selector).forEach(function (field) {
+      var matcher = selector[field];
+      var parsedField = parseField(field);
+
+      Object.keys(matcher).forEach(function (userOperator) {
+        var userValue = matcher[userOperator];
+        var out = createCriterion(userOperator, userValue, parsedField);
+        criterions.push(out);
+      });
+    });
+  });
+
+  if (operator === '$or') {
+    return function (doc) {
+      return criterions.some(function (criterion) {
+        return criterion(doc);
+      });
+    };
+  }
+
+  if (operator === '$nor') {
+    return function (doc) {
+      return !criterions.find(function (criterion) {
+        return criterion(doc);
+      });
+    };
+  }
+}
+
 function createFilterRowFunction(requestDef, inMemoryFields) {
 
   var criteria = [];
@@ -127,6 +160,12 @@ function createFilterRowFunction(requestDef, inMemoryFields) {
 
     if (!matcher) {
       // no filtering necessary; this field is just needed for sorting
+      return;
+    }
+
+    if (isCombinationalField(field)) {
+      var criterion = createCombinationalCriterion(field, matcher);
+      criteria.push(criterion);
       return;
     }
 
