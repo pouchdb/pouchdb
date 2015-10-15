@@ -34,6 +34,11 @@ function massageSort(sort) {
   });
 }
 
+var combinationFields = ['$or', '$nor'];
+function isCombinationalField (field) {
+  return combinationFields.indexOf(field) > -1;
+}
+
 // collapse logically equivalent gt/gte values
 function mergeGtGte(operator, value, fieldMatchers) {
   if (typeof fieldMatchers.$eq !== 'undefined') {
@@ -140,21 +145,28 @@ function mergeAndedSelectors(selectors) {
       if (typeof matcher !== 'object') {
         matcher = {$eq: matcher};
       }
-      var fieldMatchers = res[field] = res[field] || {};
-      Object.keys(matcher).forEach(function (operator) {
-        var value = matcher[operator];
 
-        if (operator === '$gt' || operator === '$gte') {
-          return mergeGtGte(operator, value, fieldMatchers);
-        } else if (operator === '$lt' || operator === '$lte') {
-          return mergeLtLte(operator, value, fieldMatchers);
-        } else if (operator === '$ne') {
-          return mergeNe(value, fieldMatchers);
-        } else if (operator === '$eq') {
-          return mergeEq(value, fieldMatchers);
-        }
-        fieldMatchers[operator] = value;
-      });
+      if (isCombinationalField(field)) {
+        res[field] = matcher.map(function (m) {
+          return mergeAndedSelectors([m]);
+        });
+      } else {
+        var fieldMatchers = res[field] = res[field] || {};
+        Object.keys(matcher).forEach(function (operator) {
+          var value = matcher[operator];
+
+          if (operator === '$gt' || operator === '$gte') {
+            return mergeGtGte(operator, value, fieldMatchers);
+          } else if (operator === '$lt' || operator === '$lte') {
+            return mergeLtLte(operator, value, fieldMatchers);
+          } else if (operator === '$ne') {
+            return mergeNe(value, fieldMatchers);
+          } else if (operator === '$eq') {
+            return mergeEq(value, fieldMatchers);
+          }
+          fieldMatchers[operator] = value;
+        });
+      }
     });
   });
 
@@ -171,6 +183,7 @@ function massageSelector(input) {
     result = mergeAndedSelectors(result['$and']);
     wasAnded = true;
   }
+
   var fields = Object.keys(result);
 
   for (var i = 0; i < fields.length; i++) {
@@ -378,5 +391,6 @@ module.exports = {
   massageIndexDef: massageIndexDef,
   parseField: parseField,
   objectFrom: objectFrom,
-  getUserFields: getUserFields
+  getUserFields: getUserFields,
+  isCombinationalField: isCombinationalField
 };
