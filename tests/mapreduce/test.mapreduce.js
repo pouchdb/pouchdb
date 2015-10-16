@@ -94,6 +94,37 @@ function tests(suiteName, dbName, dbType, viewType) {
         });
       });
     });
+
+    it("Test collation empty results bug", function () {
+      return new PouchDB(dbName).then(function (db) {
+        return createView(db, {
+          map: function (doc) {
+            emit([doc._id], doc);
+          }
+        }).then(function (view) {
+          return db.bulkDocs({docs: [
+            {_id: 'a'},
+            {_id: 'b'},
+            {_id: 'bbb'},
+            {_id: 'c'}
+          ]}).then(function () {
+            return db.query(view, {startkey: ['b'], endkey: ['b', {}]});
+          }).then(function (res) {
+            var rows = res.rows.map(function (x) { return x.id; });
+            rows.should.deep.equal(['b']);
+            return db.query(view, {startkey: ['b'], endkey: ['b\uffff', {}]});
+          }).then(function (res) {
+            var rows = res.rows.map(function (x) { return x.id; });
+            rows.should.deep.equal(['b', 'bbb']);
+            return db.query(view, {startkey: ['b'], endkey: ['b\ufffd', {}]});
+          }).then(function (res) {
+            var rows = res.rows.map(function (x) { return x.id; });
+            rows.should.deep.equal(['b', 'bbb']);
+          });
+        });
+      });
+    });
+
     it("Test basic view, no emitted value", function () {
       return new PouchDB(dbName).then(function (db) {
         return createView(db, {
