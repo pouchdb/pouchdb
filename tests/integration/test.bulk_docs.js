@@ -929,12 +929,8 @@ adapters.forEach(function (adapter) {
         return PouchDB.utils.uuid(32, 16).toLowerCase();
       }
 
-      var isSafari = (typeof process === 'undefined' || process.browser) &&
-        /Safari/.test(window.navigator.userAgent) &&
-        !/Chrome/.test(window.navigator.userAgent);
-
-      var numRevs = isSafari ? 10 : 5000;
-      var expected = isSafari ? 10 : 1000;
+      var numRevs = 5000;
+      var expected = adapter === 'http' ? 1000 : 100;
       var uuids = [];
 
       for (var i = 0; i < numRevs - 1; i++) {
@@ -957,6 +953,45 @@ adapters.forEach(function (adapter) {
         doc._revisions.ids.length.should.equal(expected);
       });
     });
+
+    it('2839 implement revs_limit', function (done) {
+
+      // We only implement revs_limit locally
+      if (adapter === 'http') {
+        return done();
+      }
+
+      var LIMIT = 50;
+      var db = new PouchDB(dbs.name, {revs_limit: LIMIT});
+
+      // simulate 5000 normal commits with two conflicts at the very end
+      function uuid() {
+        return PouchDB.utils.uuid(32, 16).toLowerCase();
+      }
+
+      var numRevs = 5000;
+      var uuids = [];
+      for (var i = 0; i < numRevs - 1; i++) {
+        uuids.push(uuid());
+      }
+      var conflict1 = 'a' + uuid();
+      var doc1 = {
+        _id: 'doc',
+        _rev: numRevs + '-' + conflict1,
+        _revisions: {
+          start: numRevs,
+          ids: [conflict1].concat(uuids)
+        }
+      };
+
+      db.bulkDocs([doc1], {new_edits: false}).then(function () {
+        return db.get('doc', {revs: true});
+      }).then(function (doc) {
+        doc._revisions.ids.length.should.equal(LIMIT);
+        done();
+      }).catch(done);
+    });
+
 
   });
 });
