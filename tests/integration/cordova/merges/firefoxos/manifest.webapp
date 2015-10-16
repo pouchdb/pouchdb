@@ -1,0 +1,18 @@
+{
+    "launch_path": "/tests/integration/index.html",
+    "installs_allowed_from": [
+        "*"
+    ],
+    "version": "0.0.1",
+    "name": "PouchDB Test Runner",
+    "pkgName": "com.pouchdb.tests",
+    "description": "Runs the unit tests suite for the PouchDB project on Cordova.",
+    "developer": {
+        "name": "The PouchDB Team",
+        "url": "http://pouchdb.com"
+    },
+    "icons": {
+      "128": "./icons/icon-128x128.png",
+      "60": "./icons/icon-60x60.png"
+    }
+}

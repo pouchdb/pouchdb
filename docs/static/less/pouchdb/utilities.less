@@ -1,0 +1,21 @@
+@import "@{bootstrap}/utilities.less";
+
+.affix {
+  padding: 1em 0;
+  position: static;
+}
+
+@media (min-width: @affix-min-width) and (min-height: @affix-min-height) {
+
+  .affix { position: fixed; }
+
+  .affix,
+  .affix-top {
+    top: 0;
+  }
+
+  .affix-top,
+  .affix-bottom {
+    position: absolute;
+  }
+}

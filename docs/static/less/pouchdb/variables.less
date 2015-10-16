@@ -1,0 +1,69 @@
+@import "@{bootstrap}/variables.less";
+
+// Base img dir
+@img_dir: "../img";
+
+// Color
+@brand-accent: #fa3649;
+@brand-primary: #6ccb99;
+@twitter: cornflowerblue;
+@github: darkslategray;
+
+// Social colors
+@btn-twitter-color: lighten(@twitter, 25%);
+@btn-twitter-bg: @twitter;
+@btn-twitter-border: darken(@twitter, 10%);
+@btn-github-color: lighten(@github, 50%);
+@btn-github-bg: @github;
+@btn-github-border: darken(@github, 10%);
+
+// Scaffolding
+@body-bg: #f6f6f6;
+@text-color: @gray;
+
+// Container sizes
+@container-large-desktop: ((950px + @grid-gutter-width));
+
+// Code
+@code-color: darken(@brand-primary, 30%);
+@code-bg: lighten(@brand-primary, 30%);
+
+// Type
+@font-family-sans-serif: "Open Sans", Helvetica, Arial, sans-serif;
+
+@link-color: @brand-accent;
+@nav-link-hover-bg: none;
+
+@headings-font-family: "Lato", Helvetica, Arial, sans-serif;
+@header-color: #ffffff;
+@header-border-color: #c8c8c8;
+
+// Logo
+@logo-img: '@{img_dir}/mark.svg';
+@logo-fallback-img: '@{img_dir}/mark.png';
+@logo-img-ratio: .78;
+@logo-img-height: 70px;
+@logo-width: 250px;
+// When it gets silly small display only the mark.
+@logo-breakpoint: 330px;
+
+// Navs
+
+// Switch nav into justified view
+@navs-breakpoint-justified: @screen-sm-max;
+// Switch nav into horizontal view
+@navs-breakpoint-horizontal: 510px;
+
+// Minimum width and height for fixed sidebars
+@affix-min-width: @screen-sm-min;
+@affix-min-height: 475px;
+
+// Alerts
+@alert-before-size: 35px;
+@alert-before-info-text: 'i';
+@alert-before-success-text: '\2713';
+@alert-before-warning-text: '!';
+@alert-before-danger-text: 'x';
+
+// Pre
+@pre-padding: 15px;

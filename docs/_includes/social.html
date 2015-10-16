@@ -1,0 +1,7 @@
+{% for author in site.data.authors %}
+  {% if author.name == page.author %}
+    {% capture author_twitter %}@{{ author.twitter }}{% endcapture %}
+  {% endif %}
+{% endfor %}
+<a class='btn btn-github' href='https://github.com/daleharvey/pouchdb/tree/master/docs/{{ page.path }}'>View on GitHub</a>
+<a class='btn btn-twitter' href="https://twitter.com/intent/tweet?text={{ page.title }}: {{ site.host }}{{ site.baseurl }}{{ page.url }} -- @pouchdb {{ author_twitter }}">Tweet this article</a>
