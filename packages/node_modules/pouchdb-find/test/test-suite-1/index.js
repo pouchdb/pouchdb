@@ -16,6 +16,7 @@ module.exports = function (dbName, dbType, Pouch) {
       return context.db.destroy();
     });
 
+    require('./test.callbacks')(dbType, context);
     require('./test.basic')(dbType, context);
     require('./test.basic2')(dbType, context);
     require('./test.basic3')(dbType, context);
