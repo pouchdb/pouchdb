@@ -35,14 +35,13 @@ if (global.window && global.window.location && global.window.location.search) {
 
     var script = global.document.createElement('script');
     script.src = params.src;
-    global.document.getElementsByTagName('body')[0].appendChild(script);
-
-    var timeoutId = setInterval(function () {
-      if (global.window.PouchDB) {
-        clearInterval(timeoutId);
+    script.onreadystatechange = function () {
+      if ("loaded" === script.readyState || "complete" === script.readyState) {
         runTestSuites(global.window.PouchDB);
       }
-    }, 100);
+    };
+
+    global.document.getElementsByTagName('body')[0].appendChild(script);
     startNow = false;
   }
 }
