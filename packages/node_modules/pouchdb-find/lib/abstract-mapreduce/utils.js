@@ -1,10 +1,6 @@
 'use strict';
 /* istanbul ignore if */
-if (typeof global.Promise === 'function') {
-  exports.Promise = global.Promise;
-} else {
-  exports.Promise = require('lie');
-}
+exports.Promise = require('pouchdb/extras/promise');
 
 exports.inherits = require('inherits');
 exports.extend = require('pouchdb-extend');
