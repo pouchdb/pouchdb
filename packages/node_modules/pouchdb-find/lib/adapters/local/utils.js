@@ -11,16 +11,6 @@ function getValue(obj) {
   return obj[getKey(obj)];
 }
 
-function getSize(obj) {
-  return Object.keys(obj).length;
-}
-
-function objectFrom(key, value) {
-  var res = {};
-  res[key] = value;
-  return res;
-}
-
 // normalize the "sort" value
 function massageSort(sort) {
   return sort && sort.map(function (sorting) {
@@ -381,7 +371,6 @@ function getUserFields(selector, sort) {
 module.exports = {
   getKey: getKey,
   getValue: getValue,
-  getSize: getSize,
   massageSort: massageSort,
   massageSelector: massageSelector,
   validateIndex: validateIndex,
@@ -390,7 +379,6 @@ module.exports = {
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
   parseField: parseField,
-  objectFrom: objectFrom,
   getUserFields: getUserFields,
   isCombinationalField: isCombinationalField
 };
