@@ -1,6 +1,9 @@
 'use strict';
 
+var massageCreateIndexRequest = require('../../massageCreateIndexRequest');
+
 function createIndex(db, requestDef, callback) {
+  requestDef = massageCreateIndexRequest(requestDef);
 
   db.request({
     method: 'POST',
