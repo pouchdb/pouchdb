@@ -268,7 +268,6 @@ module.exports = function (dbType, context) {
         "name": "foo-index",
         "type": "json"
       };
-
       return db.createIndex(index).then(function () {
         return db.getIndexes();
       }).then(function (resp) {
@@ -279,20 +278,133 @@ module.exports = function (dbType, context) {
       }).then(function (resp) {
         resp.should.deep.equal({
           "total_rows": 1,
-            "indexes":[
-              {
-                "ddoc":null,
-                "name":"_all_docs",
+            "indexes":[{
+              "ddoc": null,
+              "name":"_all_docs",
                 "type":"special",
-                "def":{
-                  "fields":[
-                    {
-                      "_id":"asc"
-                    }
-            ]
-          }
-        }
-        ]});
+                "def":{ "fields": [{"_id": "asc"}] }
+            }]
+        });
+      });
+    });
+
+    it('deletes indexes, no type', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index"
+      };
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        delete resp.indexes[1].type;
+        return db.deleteIndex(resp.indexes[1]);
+      }).then(function (resp) {
+        resp.should.deep.equal({ok: true});
+        return db.getIndexes();
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          "total_rows": 1,
+          "indexes":[{
+            "ddoc": null,
+            "name":"_all_docs",
+            "type":"special",
+            "def":{ "fields": [{"_id": "asc"}] }
+          }]
+        });
+      });
+    });
+
+    it('deletes indexes, no ddoc', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index"
+      };
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        delete resp.indexes[1].ddoc;
+        return db.deleteIndex(resp.indexes[1]);
+      }).then(function () {
+        throw new Error('expected an error due to no ddoc');
+      }, function (err) {
+        should.exist(err);
+      });
+    });
+
+    it('deletes indexes, no name', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index"
+      };
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        delete resp.indexes[1].name;
+        return db.deleteIndex(resp.indexes[1]);
+      }).then(function () {
+        throw new Error('expected an error due to no name');
+      }, function (err) {
+        should.exist(err);
+      });
+    });
+
+    it('deletes indexes, one name per ddoc', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "myname",
+        "ddoc": "myddoc"
+      };
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        return db.deleteIndex(resp.indexes[1]);
+      }).then(function () {
+        return db.get('_design/myddoc');
+      }).then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
+      });
+    });
+
+    it('deletes indexes, many names per ddoc', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "myname",
+        "ddoc": "myddoc"
+      };
+      var index2 = {
+        "index": {
+          "fields": ["bar"]
+        },
+        "name": "myname2",
+        "ddoc": "myddoc"
+      };
+      return db.createIndex(index).then(function () {
+        return db.createIndex(index2);
+      }).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        return db.deleteIndex(resp.indexes[1]);
+      }).then(function () {
+        return db.get('_design/myddoc');
+      }).then(function (ddoc) {
+        Object.keys(ddoc.views).should.deep.equal(['myname2']);
       });
     });
 

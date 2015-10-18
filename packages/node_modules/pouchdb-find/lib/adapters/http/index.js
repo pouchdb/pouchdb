@@ -35,11 +35,11 @@ function deleteIndex(db, indexDef, callback) {
   var name = indexDef.name;
 
   if (!ddoc) {
-    return callback(null, new Error('you must provide an index\'s ddoc'));
+    return callback(new Error('you must provide an index\'s ddoc'));
   }
 
   if (!name) {
-    return callback(null, new Error('you must provide an index\'s name'));
+    return callback(new Error('you must provide an index\'s name'));
   }
 
   var url = '_index/' + [ddoc, type, name].map(encodeURIComponent).join('/');
