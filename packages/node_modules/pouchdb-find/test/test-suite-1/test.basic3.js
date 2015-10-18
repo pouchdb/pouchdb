@@ -104,5 +104,108 @@ module.exports = function (dbType, context) {
         });
       });
     });
+
+    it('#73 should be able to create a custom index name', function () {
+      var db = context.db;
+      var index = {
+        index: {
+          fields: ["awesome"],
+          name: 'myindex',
+          ddoc: 'mydesigndoc'
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (res) {
+        var indexes = res.indexes.map(function (index) {
+          return {
+            name: index.name,
+            ddoc: index.ddoc,
+            type: index.type
+          };
+        });
+        indexes.should.deep.equal([
+          {
+            name: '_all_docs',
+            type: 'special',
+            ddoc: null
+          },
+          {
+            name: 'myindex',
+            ddoc: '_design/mydesigndoc',
+            type: 'json'
+          }
+        ]);
+        return db.get('_design/mydesigndoc');
+      });
+    });
+
+    it('#73 should be able to create a custom index, alt style', function () {
+      var db = context.db;
+      var index = {
+        index: {
+          fields: ["awesome"],
+        },
+        name: 'myindex',
+        ddoc: 'mydesigndoc'
+      };
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (res) {
+        var indexes = res.indexes.map(function (index) {
+          return {
+            name: index.name,
+            ddoc: index.ddoc,
+            type: index.type
+          };
+        });
+        indexes.should.deep.equal([
+          {
+            name: '_all_docs',
+            type: 'special',
+            ddoc: null
+          },
+          {
+            name: 'myindex',
+            ddoc: '_design/mydesigndoc',
+            type: 'json'
+          }
+        ]);
+        return db.get('_design/mydesigndoc');
+      });
+    });
+
+    it('#73 should be able to create a custom index, alt style 2', function () {
+      var db = context.db;
+      var index = {
+        name: 'myindex',
+        ddoc: 'mydesigndoc',
+        fields: ["awesome"]
+      };
+      return db.createIndex(index).then(function () {
+        return db.getIndexes();
+      }).then(function (res) {
+        var indexes = res.indexes.map(function (index) {
+          return {
+            name: index.name,
+            ddoc: index.ddoc,
+            type: index.type
+          };
+        });
+        indexes.should.deep.equal([
+          {
+            name: '_all_docs',
+            type: 'special',
+            ddoc: null
+          },
+          {
+            name: 'myindex',
+            ddoc: '_design/mydesigndoc',
+            type: 'json'
+          }
+        ]);
+        return db.get('_design/mydesigndoc');
+      });
+    });
   });
 };
