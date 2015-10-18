@@ -31,11 +31,13 @@ adapters.forEach(function (adapter) {
       db.should.be.an.instanceof(PouchDB);
     });
 
-    it('Create a pouch with a promise', function (done) {
-      new PouchDB(dbs.name).then(function (db) {
-        db.should.be.an.instanceof(PouchDB);
-        done();
-      }, done);
+    it('Create a pouch with a promise', function () {
+      return new PouchDB(dbs.name);
+    });
+
+    it('4314 Create a pouch with + in name', function () {
+      var db = new PouchDB(dbs.name + '+suffix');
+      return db.info();
     });
 
     it('Catch an error when creating a pouch with a promise', function (done) {
