@@ -66,5 +66,63 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('$ne/$eq inconsistency', function () {
+      var db = context.db;
+
+      function normalize(res) {
+        return res.docs.map(function getId(x) {
+          return x._id;
+        }).sort();
+      }
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {$and: [{foo: {$eq: 1}}, {foo: {$ne: 1}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal([]);
+      });
+    });
+
+    it('$ne/$eq consistency', function () {
+      var db = context.db;
+
+      function normalize(res) {
+        return res.docs.map(function getId(x) {
+          return x._id;
+        }).sort();
+      }
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {$and: [{foo: {$eq: 1}}, {foo: {$ne: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1']);
+      });
+    });
+
   });
 };

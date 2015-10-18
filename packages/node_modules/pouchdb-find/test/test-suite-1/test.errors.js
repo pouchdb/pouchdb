@@ -168,5 +168,82 @@ module.exports = function (dbType, context) {
         should.exist(err);
       });
     });
+
+    it('invalid ddoc', function () {
+      var db = context.db;
+
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "ddoc": "myddoc",
+        "type": "json"
+      };
+
+      return db.put({
+        _id: '_design/myddoc',
+        views: {
+          'foo-index': {
+            map: "function (){emit(1)}"
+          }
+        }
+      }).then(function () {
+        return db.createIndex(index).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
+    it('invalid existing ddoc', function () {
+      var db = context.db;
+
+      return db.put({
+        _id: '_design/myddoc',
+        views: {
+          'foo-index': {
+            map: "function (){emit(1)}"
+          }
+        }
+      }).then(function () {
+        return db.find({
+          selector: {foo: {$ne: "eba"}},
+          fields: ["_id", "foo"],
+          sort: [{foo: "asc"}]
+        }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
+    it('$and error, empty selector', function () {
+      var db = context.db;
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {$and: [{}, {}]}
+        }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
   });
 };

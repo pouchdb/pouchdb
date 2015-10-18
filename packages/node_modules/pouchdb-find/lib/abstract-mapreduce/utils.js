@@ -6,6 +6,7 @@ exports.inherits = require('inherits');
 exports.extend = require('pouchdb-extend');
 var argsarray = require('argsarray');
 
+/* istanbul ignore next */
 exports.promisedCallback = function (promise, callback) {
   if (callback) {
     promise.then(function (res) {
@@ -21,6 +22,7 @@ exports.promisedCallback = function (promise, callback) {
   return promise;
 };
 
+/* istanbul ignore next */
 exports.callbackify = function (fun) {
   return argsarray(function (args) {
     var cb = args.pop();
@@ -33,6 +35,7 @@ exports.callbackify = function (fun) {
 };
 
 // Promise finally util similar to Q.finally
+/* istanbul ignore next */
 exports.fin = function (promise, cb) {
   return promise.then(function (res) {
     var promise2 = cb();

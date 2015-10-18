@@ -97,26 +97,36 @@ function createMapper(fields, emit) {
   }
 }
 
-var abstractMapper = abstractMapReduce({
-  name: 'indexes',
-  mapper: function (mapFunDef, emit) {
-    // mapFunDef is a list of fields
+function mapper(mapFunDef, emit) {
+  // mapFunDef is a list of fields
 
-    var fields = Object.keys(mapFunDef.fields);
+  var fields = Object.keys(mapFunDef.fields);
 
-    return createMapper(fields, emit);
-  },
-  reducer: function (/*reduceFunDef*/) {
-    throw new Error('reduce not supported');
-  },
-  ddocValidator: function (ddoc, viewName) {
-    var view = ddoc.views[viewName];
-    if (!view.map || !view.map.fields) {
-      throw new Error('ddoc ' + ddoc._id +' with view ' + viewName +
+  return createMapper(fields, emit);
+}
+
+/* istanbul ignore next */
+function reducer(/*reduceFunDef*/) {
+  throw new Error('reduce not supported');
+}
+
+function ddocValidator(ddoc, viewName) {
+  var view = ddoc.views[viewName];
+  // This doesn't actually need to be here apparently, but
+  // I feel safer keeping it.
+  /* istanbul ignore if */
+  if (!view.map || !view.map.fields) {
+    throw new Error('ddoc ' + ddoc._id +' with view ' + viewName +
       ' doesn\'t have map.fields defined. ' +
       'maybe it wasn\'t created by this plugin?');
-    }
   }
+}
+
+var abstractMapper = abstractMapReduce({
+  name: 'indexes',
+  mapper: mapper,
+  reducer: reducer,
+  ddocValidator: ddocValidator
 });
 
 module.exports = abstractMapper;

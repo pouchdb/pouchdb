@@ -256,5 +256,31 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('sort error, not an array', function () {
+      var db = context.db;
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {$eq: 1}},
+          sort: {}
+        }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
   });
 };
