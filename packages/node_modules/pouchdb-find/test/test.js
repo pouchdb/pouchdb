@@ -29,4 +29,8 @@ function tests(dbName, dbType) {
   require('./test-suite-1')(dbName, dbType, Pouch);
   require('./test-suite-2')(dbName, dbType, Pouch);
 
+  if (dbType === 'local') {
+    require('./test-abstract-mapreduce')(dbName, dbType, Pouch);
+  }
+
 }

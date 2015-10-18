@@ -78,6 +78,19 @@ function rowToDocId(row) {
   return docId;
 }
 
+function emitError(db, e) {
+  try {
+    db.emit('error', e);
+  } catch (err) {
+    console.error(
+      'The user\'s map/reduce function threw an uncaught error.\n' +
+      'You can debug this error by doing:\n' +
+      'myDatabase.on(\'error\', function (err) { debugger; });\n' +
+      'Please double-check your map/reduce function.');
+    console.error(e);
+  }
+}
+
 function tryCode(db, fun, args) {
   // emit an event if there was an error thrown by a map/reduce function.
   // putting try/catches in a single function also avoids deoptimizations.
@@ -86,8 +99,8 @@ function tryCode(db, fun, args) {
       output : fun.apply(null, args)
     };
   } catch (e) {
-    db.emit('error', e);
-    return {error : e};
+    emitError(db, e);
+    return {error: e};
   }
 }
 
@@ -316,7 +329,7 @@ function createIndexer(def) {
               for (var j = 0, jl = mapResults.length; j < jl; j++) {
                 var obj = mapResults[j];
                 var complexKey = [obj.key, obj.id];
-                if (obj.key === lastKey) {
+                if (collate(obj.key, lastKey) === 0) {
                   complexKey.push(j); // dup key+id, so make it unique
                 }
                 var indexableKey = toIndexableString(complexKey);
@@ -378,7 +391,13 @@ function createIndexer(def) {
     for (var i = 0, len = groups.length; i < len; i++) {
       var e = groups[i];
       var reduceTry = tryCode(view.sourceDB, reduceFun, [e.key, e.value, false]);
-      // CouchDB typically just sets the value to null if reduce errors out
+      // TODO: can't do instanceof BuiltInError because this class is buried
+      // in mapreduce.js
+      if (reduceTry.error && /BuiltInError/.test(reduceTry.error.constructor)) {
+        // CouchDB returns an error if a built-in errors out
+        throw reduceTry.error;
+      }
+      // CouchDB just sets the value to null if a non-built-in errors out
       e.value = reduceTry.error ? null : reduceTry.output;
       e.key = e.key[0][0];
     }
@@ -451,7 +470,8 @@ function createIndexer(def) {
           keys: docIds,
           include_docs: true,
           conflicts: opts.conflicts,
-          attachments: opts.attachments
+          attachments: opts.attachments,
+          binary: opts.binary
         }).then(function (allDocsRes) {
           var docIdsToDocs = {};
           allDocsRes.rows.forEach(function (row) {
