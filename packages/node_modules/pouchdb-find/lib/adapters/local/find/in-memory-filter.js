@@ -117,6 +117,11 @@ function createCriterion(userOperator, userValue, parsedField) {
         return fieldIsArray(doc) && arrayContainsAllValues(doc);
       };
   }
+
+  throw new Error('unknown operator "' + parsedField[0] +
+    '" - should be one of $eq, $lte, $lt, $gt, $gte, $exists, $ne, $in, ' +
+    '$nin, $size, or $all');
+
 }
 
 function createCombinationalCriterion (operator, selectors) {
@@ -142,13 +147,12 @@ function createCombinationalCriterion (operator, selectors) {
     };
   }
 
-  if (operator === '$nor') {
-    return function (doc) {
-      return !criterions.find(function (criterion) {
-        return criterion(doc);
-      });
-    };
-  }
+  // '$nor'
+  return function (doc) {
+    return !criterions.find(function (criterion) {
+      return criterion(doc);
+    });
+  };
 }
 
 function createFilterRowFunction(requestDef, inMemoryFields) {
