@@ -32,7 +32,8 @@
     "min": "uglifyjs dist/pouchdb.find.js -mc > dist/pouchdb.find.min.js",
     "dev": "browserify test/test.js > test/test-bundle.js && npm run dev-server",
     "dev-server": "./bin/dev-server.js",
-    "coverage": "npm test --coverage && istanbul check-coverage --lines 100 --function 100 --statements 100 --branches 100",
+    "coverage": "npm test --coverage && istanbul check-coverage --lines 60 --function 60 --statements 60 --branches 60",
+    "report-coverage": "npm run coverage && istanbul-coveralls --no-rm",
     "install-couch": "sh ./bin/run-couch-master-on-travis.sh && sh ./bin/enable-couchdb-cors.sh"
   },
   "dependencies": {
@@ -55,6 +56,7 @@
     "es3ify": "^0.1.3",
     "http-server": "~0.5.5",
     "istanbul": "^0.2.7",
+    "istanbul-coveralls": "^1.0.3",
     "jshint": "^2.3.0",
     "memdown": "^1.1.0",
     "mkdirp": "^0.5.0",
