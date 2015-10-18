@@ -193,7 +193,7 @@ function createFieldSorter(sort) {
 
   function getFieldValuesAsArray(doc) {
     return sort.map(function (sorting) {
-      var fieldName = typeof sorting === 'string' ? sorting : getKey(sorting);
+      var fieldName = getKey(sorting);
       var parsedField = parseField(fieldName);
       var docFieldValue = getFieldFromDoc(doc, parsedField);
       return docFieldValue;
