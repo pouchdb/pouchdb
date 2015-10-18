@@ -336,12 +336,11 @@ function getMultiFieldCoreQueryPlan(userOperator, userValue) {
           startkey: COLLATE_LO_PLUS_1,
           endkey: COLLATE_HI
         };
-      } else {
-        return {
-          startkey: COLLATE_LO,
-          endkey: COLLATE_LO
-        };
       }
+      return {
+        startkey: COLLATE_NULL_LO,
+        endkey: COLLATE_NULL_HI
+      };
   }
 }
 
@@ -485,9 +484,6 @@ function planQuery(request, indexes) {
 
   var firstIndexField = index.def.fields[0];
   var firstMatcher = selector[getKey(firstIndexField)];
-  if (Object.keys(firstMatcher).length === 1 && getKey(firstMatcher) === '$ne') {
-    throw new Error('$ne can\'t be used here. try $gt/$lt instead');
-  }
 
   var coreQueryPlan = getCoreQueryPlan(selector, index);
   var queryOpts = coreQueryPlan.queryOpts;

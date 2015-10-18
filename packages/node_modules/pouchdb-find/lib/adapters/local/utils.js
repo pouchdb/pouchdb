@@ -13,7 +13,10 @@ function getValue(obj) {
 
 // normalize the "sort" value
 function massageSort(sort) {
-  return sort && sort.map(function (sorting) {
+  if (!Array.isArray(sort)) {
+    throw new Error('invalid sort json - should be an array');
+  }
+  return sort.map(function (sorting) {
     if (typeof sorting === 'string') {
       var obj = {};
       obj[sorting] = 'asc';
@@ -32,7 +35,6 @@ function isCombinationalField (field) {
 // collapse logically equivalent gt/gte values
 function mergeGtGte(operator, value, fieldMatchers) {
   if (typeof fieldMatchers.$eq !== 'undefined') {
-    // TODO: check for logical errors here
     return; // do nothing
   }
   if (typeof fieldMatchers.$gte !== 'undefined') {
@@ -65,7 +67,6 @@ function mergeGtGte(operator, value, fieldMatchers) {
 // collapse logically equivalent lt/lte values
 function mergeLtLte(operator, value, fieldMatchers) {
   if (typeof fieldMatchers.$eq !== 'undefined') {
-    // TODO: check for logical errors here
     return; // do nothing
   }
   if (typeof fieldMatchers.$lte !== 'undefined') {
@@ -97,10 +98,6 @@ function mergeLtLte(operator, value, fieldMatchers) {
 
 // combine $ne values into one array
 function mergeNe(value, fieldMatchers) {
-  if (typeof fieldMatchers.$eq !== 'undefined') {
-    // TODO: check for logical errors here
-    return; // do nothing
-  }
   if ('$ne' in fieldMatchers) {
     // there are many things this could "not" be
     fieldMatchers.$ne.push(value);
@@ -279,9 +276,6 @@ function validateFindRequest(requestDef) {
   if (typeof requestDef.selector !== 'object') {
     throw new Error('you must provide a selector when you find()');
   }
-  if ('sort' in requestDef && (!requestDef.sort || !Array.isArray(requestDef.sort))) {
-    throw new Error('invalid sort json - should be an array');
-  }
   // TODO: could be >1 field
   var selectorFields = Object.keys(requestDef.selector);
   var sortFields = requestDef.sort ?
@@ -323,9 +317,7 @@ function parseField(fieldName) {
       current += ch;
     }
   }
-  if (current) {
-    fields.push(current);
-  }
+  fields.push(current);
   return fields;
 }
 

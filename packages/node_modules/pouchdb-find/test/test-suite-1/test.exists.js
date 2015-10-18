@@ -131,6 +131,35 @@ module.exports = function (dbType, context) {
         });
       });
 
+      it('does $exists queries - $eq/false (multi-field)', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": ["foo", "bar"]
+          },
+          "name": "foo-index",
+          "type": "json"
+        };
+        return db.createIndex(index).then(function () {
+          return db.bulkDocs([
+            {_id: 'a', foo: 'bar', bar: 'baz'},
+            {_id: 'b', foo: 'bar', bar: {yo: 'dude'}},
+            {_id: 'c', foo: 'bar', bar: 'yo'},
+            {_id: 'd', foo: 'bar'}
+          ]);
+        }).then(function () {
+          return db.find({
+            selector: {'foo': 'bar', bar: {$exists: false}},
+            fields: ['_id']
+          });
+        }).then(function (res) {
+          res.docs.sort(sortById);
+          res.docs.should.deep.equal([
+            {"_id": "d"}
+          ]);
+        });
+      });
+
       // TODO: multi-field $exists is hard
       it.skip('does $exists queries - true/true (multi-field)', function () {
         var db = context.db;

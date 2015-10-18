@@ -335,6 +335,197 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('bunch of equivalent queries', function () {
+      var db = context.db;
+
+      function normalize(res) {
+        return res.docs.map(function getId(x) {
+          return x._id;
+        }).sort();
+      }
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function() {
+        return db.find({
+          selector: { $and: [{foo: {$gt: 2}}, {foo: {$gte: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['3', '4']);
+        return db.find({
+          selector: { $and: [{foo: {$eq: 2}}, {foo: {$gte: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['2']);
+        return db.find({
+          selector: { $and: [{foo: {$eq: 2}}, {foo: {$lte: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['2']);
+        return db.find({
+          selector: { $and: [{foo: {$lte: 3}}, {foo: {$lt: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1', '2']);
+        return db.find({
+          selector: { $and: [{foo: {$eq: 4}}, {foo: {$gte: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['4']);
+        return db.find({
+          selector: { $and: [{foo: {$lte: 3}}, {foo: {$eq: 1}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1']);
+        return db.find({
+          selector: { $and: [{foo: {$eq: 4}}, {foo: {$gt: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['4']);
+        return db.find({
+          selector: { $and: [{foo: {$lt: 3}}, {foo: {$eq: 1}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1']);
+      });
+    });
+
+    it('bunch of equivalent queries 2', function () {
+      var db = context.db;
+
+      function normalize(res) {
+        return res.docs.map(function getId(x) {
+          return x._id;
+        }).sort();
+      }
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function() {
+        return db.find({
+          selector: { $and: [{foo: {$gt: 2}}, {foo: {$gte: 1}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['3', '4']);
+        return db.find({
+          selector: { $and: [{foo: {$lt: 3}}, {foo: {$lte: 4}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1', '2']);
+        return db.find({
+          selector: { $and: [{foo: {$gt: 2}}, {foo: {$gte: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['3', '4']);
+        return db.find({
+          selector: { $and: [{foo: {$lt: 3}}, {foo: {$lte: 1}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1']);
+        return db.find({
+          selector: { $and: [{foo: {$gte: 2}}, {foo: {$gte: 1}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['2', '3', '4']);
+        return db.find({
+          selector: { $and: [{foo: {$lte: 3}}, {foo: {$lte: 4}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1', '2', '3']);
+        return db.find({
+          selector: { $and: [{foo: {$gt: 2}}, {foo: {$gt: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['4']);
+        return db.find({
+          selector: { $and: [{foo: {$lt: 3}}, {foo: {$lt: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1']);
+      });
+    });
+
+    it('bunch of equivalent queries 3', function () {
+      var db = context.db;
+
+      function normalize(res) {
+        return res.docs.map(function getId(x) {
+          return x._id;
+        }).sort();
+      }
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function() {
+        return db.find({
+          selector: { $and: [{foo: {$gte: 1}}, {foo: {$gt: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['3', '4']);
+        return db.find({
+          selector: { $and: [{foo: {$lte: 4}}, {foo: {$lt: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1', '2']);
+        return db.find({
+          selector: { $and: [{foo: {$gte: 3}}, {foo: {$gt: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['3', '4']);
+        return db.find({
+          selector: { $and: [{foo: {$lte: 1}}, {foo: {$lt: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1']);
+        return db.find({
+          selector: { $and: [{foo: {$gte: 1}}, {foo: {$gte: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['2', '3', '4']);
+        return db.find({
+          selector: { $and: [{foo: {$lte: 4}}, {foo: {$lte: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1', '2', '3']);
+        return db.find({
+          selector: { $and: [{foo: {$gt: 3}}, {foo: {$gt: 2}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['4']);
+        return db.find({
+          selector: { $and: [{foo: {$lt: 2}}, {foo: {$lt: 3}}]}
+        });
+      }).then(function (res) {
+        normalize(res).should.deep.equal(['1']);
+      });
+    });
 
   });
 };
