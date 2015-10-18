@@ -8,13 +8,14 @@ var abstractMapper = require('../abstract-mapper');
 var localUtils = require('../utils');
 var validateIndex = localUtils.validateIndex;
 var massageIndexDef = localUtils.massageIndexDef;
+var massageCreateIndexRequest = require('../../../massageCreateIndexRequest');
 
 function upsert(db, docId, diffFun) {
   return pouchUpsert.upsert.call(db, docId, diffFun);
 }
 
 function createIndex(db, requestDef) {
-
+  requestDef = massageCreateIndexRequest(requestDef);
   var originalIndexDef = utils.clone(requestDef.index);
   requestDef.index = massageIndexDef(requestDef.index);
 
