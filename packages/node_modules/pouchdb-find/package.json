@@ -25,7 +25,7 @@
   "scripts": {
     "test-node": "istanbul test ./node_modules/mocha/bin/_mocha test/test.js",
     "test-browser": "./bin/test-browser.js",
-    "jshint": "jshint -c .jshintrc lib/*.js bin/*.js test/test.js test/test-utils.js test/*suite*/*",
+    "jshint": "jshint -c .jshintrc lib/*.js bin/*.js test/test.js test/test-utils.js test/*/*.js",
     "test": "npm run jshint && ./bin/run-test.sh",
     "build": "mkdirp dist && npm run browserify && npm run min",
     "browserify": "browserify . -s pouchdbFind -p bundle-collapser/plugin | ./bin/es3ify.js | derequire > dist/pouchdb.find.js",
@@ -56,6 +56,7 @@
     "http-server": "~0.5.5",
     "istanbul": "^0.2.7",
     "jshint": "^2.3.0",
+    "memdown": "^1.1.0",
     "mkdirp": "^0.5.0",
     "mocha": "~1.18",
     "phantomjs": "^1.9.7-5",
