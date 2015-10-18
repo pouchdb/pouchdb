@@ -47,6 +47,25 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('should use $exists for an in-memory filter', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["rank"]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {rank: 12, name: {$exists: true}},
+          fields: ['_id']
+        }).then(function (response) {
+          response.docs.should.deep.equal([
+            {"_id": "samus"}
+          ]);
+        });
+      });
+    });
+
     it('should be able to search for 0', function () {
       var db = context.db;
       var index = {
