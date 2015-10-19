@@ -1,12 +1,7 @@
 'use strict';
 
-var PouchPromise;
-/* istanbul ignore next */
-if (typeof window !== 'undefined' && window.PouchDB) {
-  PouchPromise = window.PouchDB.utils.Promise;
-} else {
-  PouchPromise = typeof global.Promise === 'function' ? global.Promise : require('lie');
-}
+var Promise = require('pouchdb/extras/promise');
+
 /* istanbul ignore next */
 exports.once = function (fun) {
   var called = false;
@@ -49,7 +44,7 @@ exports.toPromise = function (func) {
         });
       };
     }
-    var promise = new PouchPromise(function (fulfill, reject) {
+    var promise = new Promise(function (fulfill, reject) {
       try {
         var callback = exports.once(function (err, mesg) {
           if (err) {
@@ -80,33 +75,7 @@ exports.toPromise = function (func) {
 };
 
 exports.inherits = require('inherits');
-exports.Promise = PouchPromise;
-
-if (!process.browser || !('atob' in global)) {
-  exports.atob = function (str) {
-    var base64 = new Buffer(str, 'base64');
-    // Node.js will just skip the characters it can't encode instead of
-    // throwing and exception
-    if (base64.toString('base64') !== str) {
-      throw ("Cannot base64 encode full string");
-    }
-    return base64.toString('binary');
-  };
-} else {
-  exports.atob = function (str) {
-    return atob(str);
-  };
-}
-
-if (!process.browser || !('btoa' in global)) {
-  exports.btoa = function (str) {
-    return new Buffer(str, 'binary').toString('base64');
-  };
-} else {
-  exports.btoa = function (str) {
-    return btoa(str);
-  };
-}
+exports.Promise = Promise;
 
 exports.clone = function (obj) {
   return exports.extend(true, {}, obj);
@@ -118,25 +87,21 @@ exports.callbackify = function (fun) {
   return exports.getArguments(function (args) {
     var cb = args.pop();
     var promise = fun.apply(this, args);
-    if (typeof cb === 'function') {
-      exports.promisedCallback(promise, cb);
-    }
+    exports.promisedCallback(promise, cb);
     return promise;
   });
 };
 
 exports.promisedCallback = function (promise, callback) {
-  if (callback) {
-    promise.then(function (res) {
-      process.nextTick(function () {
-        callback(null, res);
-      });
-    }, function (reason) {
-      process.nextTick(function () {
-        callback(reason);
-      });
+  promise.then(function (res) {
+    process.nextTick(function () {
+      callback(null, res);
     });
-  }
+  }, function (reason) {
+    process.nextTick(function () {
+      callback(reason);
+    });
+  });
   return promise;
 };
 

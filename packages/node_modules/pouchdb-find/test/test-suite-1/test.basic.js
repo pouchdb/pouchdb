@@ -2,6 +2,7 @@
 
 var testUtils = require('../test-utils');
 var should = testUtils.should;
+var Promise = testUtils.Promise;
 
 module.exports = function (dbType, context) {
 
@@ -25,6 +26,24 @@ module.exports = function (dbType, context) {
         response.id.should.match(/^_design\//);
         response.name.should.equal('foo-index');
         response.result.should.equal('exists');
+      });
+    });
+
+    it('throws an error for an invalid index creation', function () {
+      var db = context.db;
+      return db.createIndex('yo yo yo').then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
+      });
+    });
+
+    it('throws an error for an invalid index deletion', function () {
+      var db = context.db;
+      return db.deleteIndex('yo yo yo').then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
       });
     });
 
@@ -255,6 +274,49 @@ module.exports = function (dbType, context) {
               }
             }
           }
+        });
+      });
+    });
+
+    it('deletes indexes, callback style', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return new Promise(function (resolve, reject) {
+        db.createIndex(index, function (err) {
+          if (err) {
+            return reject(err);
+          }
+          resolve();
+        });
+      }).then(function () {
+        return db.getIndexes();
+      }).then(function (resp) {
+        return new Promise(function (resolve, reject) {
+          db.deleteIndex(resp.indexes[1], function (err, resp) {
+            if (err) {
+              return reject(err);
+            }
+            resolve(resp);
+          });
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({ok: true});
+        return db.getIndexes();
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          "total_rows": 1,
+          "indexes":[{
+            "ddoc": null,
+            "name":"_all_docs",
+            "type":"special",
+            "def":{ "fields": [{"_id": "asc"}] }
+          }]
         });
       });
     });
