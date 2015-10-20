@@ -18,9 +18,12 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$n
 
 **0.3.0**: `limit`, `skip`, `ddoc` when creating an index
 
-**0.4.0**: `total_rows` (thanks [@garrensmith](https://github.com/garrensmith)!)
+**0.4.0**: `total_rows`
 
-**0.5.0**: `$in`, `$nin`, `$all`, `$size`  (thanks again [@garrensmith](https://github.com/garrensmith)!)
+**0.5.0**: `$in`, `$nin`, `$all`, `$size` 
+
+**0.6.0**: `$or`, `$nor`, `$not`
+
 
 Not implemented yet: `$regex`, `$elemMatch`, `$mod`
 
@@ -361,6 +364,11 @@ PouchDB.debug.enable('pouchdb:find')
 ```
 
 Then `pouchdb-find` will start logging some debug information to the console. This can be useful if, for instance, you want to see the query plan that is being used to execute your queries.
+
+Kudos
+---
+
+Thanks very much to [@garrensmith](https://github.com/garrensmith) for implementing all the new features from 0.4.0 to 0.6.0!
 
 How to contribute to this thing
 ----------
