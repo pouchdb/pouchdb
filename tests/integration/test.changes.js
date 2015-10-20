@@ -450,7 +450,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.skip('#4451 Changes with invalid view filter', function (done) {
+    it('#4451 Changes with invalid view filter', function (done) {
       var docs = [
         {_id: '1', integer: 1},
         {
@@ -461,9 +461,9 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs(docs).then(function() {
         db.changes({filter: 'a/b/c'}).on('error', function (err) {
-          done();
+          done('should not be called');
         }).on('complete', function(res) {
-          throw 'should not be called';
+          done();
         });
       });
     });
