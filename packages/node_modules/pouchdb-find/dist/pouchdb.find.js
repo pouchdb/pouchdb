@@ -101,7 +101,7 @@ module.exports = function (opts) {
 (function (process){
 'use strict';
 
-var pouchCollate = _dereq_(37);
+var pouchCollate = _dereq_(38);
 var TaskQueue = _dereq_(3);
 var collate = pouchCollate.collate;
 var toIndexableString = pouchCollate.toIndexableString;
@@ -179,6 +179,19 @@ function rowToDocId(row) {
   return docId;
 }
 
+function emitError(db, e) {
+  try {
+    db.emit('error', e);
+  } catch (err) {
+    console.error(
+      'The user\'s map/reduce function threw an uncaught error.\n' +
+      'You can debug this error by doing:\n' +
+      'myDatabase.on(\'error\', function (err) { debugger; });\n' +
+      'Please double-check your map/reduce function.');
+    console.error(e);
+  }
+}
+
 function tryCode(db, fun, args) {
   // emit an event if there was an error thrown by a map/reduce function.
   // putting try/catches in a single function also avoids deoptimizations.
@@ -187,8 +200,8 @@ function tryCode(db, fun, args) {
       output : fun.apply(null, args)
     };
   } catch (e) {
-    db.emit('error', e);
-    return {error : e};
+    emitError(db, e);
+    return {error: e};
   }
 }
 
@@ -417,7 +430,7 @@ function createIndexer(def) {
               for (var j = 0, jl = mapResults.length; j < jl; j++) {
                 var obj = mapResults[j];
                 var complexKey = [obj.key, obj.id];
-                if (obj.key === lastKey) {
+                if (collate(obj.key, lastKey) === 0) {
                   complexKey.push(j); // dup key+id, so make it unique
                 }
                 var indexableKey = toIndexableString(complexKey);
@@ -479,7 +492,13 @@ function createIndexer(def) {
     for (var i = 0, len = groups.length; i < len; i++) {
       var e = groups[i];
       var reduceTry = tryCode(view.sourceDB, reduceFun, [e.key, e.value, false]);
-      // CouchDB typically just sets the value to null if reduce errors out
+      // TODO: can't do instanceof BuiltInError because this class is buried
+      // in mapreduce.js
+      if (reduceTry.error && /BuiltInError/.test(reduceTry.error.constructor)) {
+        // CouchDB returns an error if a built-in errors out
+        throw reduceTry.error;
+      }
+      // CouchDB just sets the value to null if a non-built-in errors out
       e.value = reduceTry.error ? null : reduceTry.output;
       e.key = e.key[0][0];
     }
@@ -552,7 +571,8 @@ function createIndexer(def) {
           keys: docIds,
           include_docs: true,
           conflicts: opts.conflicts,
-          attachments: opts.attachments
+          attachments: opts.attachments,
+          binary: opts.binary
         }).then(function (allDocsRes) {
           var docIdsToDocs = {};
           allDocsRes.rows.forEach(function (row) {
@@ -776,8 +796,8 @@ function createIndexer(def) {
 
 module.exports = createIndexer;
 
-}).call(this,_dereq_(41))
-},{"1":1,"3":3,"37":37,"41":41,"5":5}],3:[function(_dereq_,module,exports){
+}).call(this,_dereq_(45))
+},{"1":1,"3":3,"38":38,"45":45,"5":5}],3:[function(_dereq_,module,exports){
 'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes callbacks will eventually fire (once).
@@ -805,25 +825,22 @@ module.exports = TaskQueue;
 },{"5":5}],4:[function(_dereq_,module,exports){
 'use strict';
 
-var upsert = _dereq_(40).upsert;
+var upsert = _dereq_(41).upsert;
 
 module.exports = function (db, doc, diffFun) {
   return upsert.apply(db, [doc, diffFun]);
 };
-},{"40":40}],5:[function(_dereq_,module,exports){
-(function (process,global){
+},{"41":41}],5:[function(_dereq_,module,exports){
+(function (process){
 'use strict';
 /* istanbul ignore if */
-if (typeof global.Promise === 'function') {
-  exports.Promise = global.Promise;
-} else {
-  exports.Promise = _dereq_(26);
-}
+exports.Promise = _dereq_(42);
 
-exports.inherits = _dereq_(22);
-exports.extend = _dereq_(39);
-var argsarray = _dereq_(17);
+exports.inherits = _dereq_(23);
+exports.extend = _dereq_(40);
+var argsarray = _dereq_(18);
 
+/* istanbul ignore next */
 exports.promisedCallback = function (promise, callback) {
   if (callback) {
     promise.then(function (res) {
@@ -839,6 +856,7 @@ exports.promisedCallback = function (promise, callback) {
   return promise;
 };
 
+/* istanbul ignore next */
 exports.callbackify = function (fun) {
   return argsarray(function (args) {
     var cb = args.pop();
@@ -851,6 +869,7 @@ exports.callbackify = function (fun) {
 };
 
 // Promise finally util similar to Q.finally
+/* istanbul ignore next */
 exports.fin = function (promise, cb) {
   return promise.then(function (res) {
     var promise2 = cb();
@@ -907,8 +926,8 @@ exports.uniq = function (arr) {
   return output;
 };
 
-var crypto = _dereq_(18);
-var Md5 = _dereq_(42);
+var crypto = _dereq_(19);
+var Md5 = _dereq_(46);
 
 exports.MD5 = function (string) {
   /* istanbul ignore else */
@@ -918,11 +937,14 @@ exports.MD5 = function (string) {
     return Md5.hash(string);
   }
 };
-}).call(this,_dereq_(41),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"17":17,"18":18,"22":22,"26":26,"39":39,"41":41,"42":42}],6:[function(_dereq_,module,exports){
+}).call(this,_dereq_(45))
+},{"18":18,"19":19,"23":23,"40":40,"42":42,"45":45,"46":46}],6:[function(_dereq_,module,exports){
 'use strict';
 
+var massageCreateIndexRequest = _dereq_(16);
+
 function createIndex(db, requestDef, callback) {
+  requestDef = massageCreateIndexRequest(requestDef);
 
   db.request({
     method: 'POST',
@@ -954,11 +976,11 @@ function deleteIndex(db, indexDef, callback) {
   var name = indexDef.name;
 
   if (!ddoc) {
-    return callback(null, new Error('you must provide an index\'s ddoc'));
+    return callback(new Error('you must provide an index\'s ddoc'));
   }
 
   if (!name) {
-    return callback(null, new Error('you must provide an index\'s name'));
+    return callback(new Error('you must provide an index\'s name'));
   }
 
   var url = '_index/' + [ddoc, type, name].map(encodeURIComponent).join('/');
@@ -973,7 +995,7 @@ exports.createIndex = createIndex;
 exports.find = find;
 exports.getIndexes = getIndexes;
 exports.deleteIndex = deleteIndex;
-},{}],7:[function(_dereq_,module,exports){
+},{"16":16}],7:[function(_dereq_,module,exports){
 'use strict';
 
 var localUtils = _dereq_(15);
@@ -1073,47 +1095,58 @@ function createMapper(fields, emit) {
   }
 }
 
-var abstractMapper = abstractMapReduce({
-  name: 'indexes',
-  mapper: function (mapFunDef, emit) {
-    // mapFunDef is a list of fields
+function mapper(mapFunDef, emit) {
+  // mapFunDef is a list of fields
 
-    var fields = Object.keys(mapFunDef.fields);
+  var fields = Object.keys(mapFunDef.fields);
 
-    return createMapper(fields, emit);
-  },
-  reducer: function (/*reduceFunDef*/) {
-    throw new Error('reduce not supported');
-  },
-  ddocValidator: function (ddoc, viewName) {
-    var view = ddoc.views[viewName];
-    if (!view.map || !view.map.fields) {
-      throw new Error('ddoc ' + ddoc._id +' with view ' + viewName +
+  return createMapper(fields, emit);
+}
+
+/* istanbul ignore next */
+function reducer(/*reduceFunDef*/) {
+  throw new Error('reduce not supported');
+}
+
+function ddocValidator(ddoc, viewName) {
+  var view = ddoc.views[viewName];
+  // This doesn't actually need to be here apparently, but
+  // I feel safer keeping it.
+  /* istanbul ignore if */
+  if (!view.map || !view.map.fields) {
+    throw new Error('ddoc ' + ddoc._id +' with view ' + viewName +
       ' doesn\'t have map.fields defined. ' +
       'maybe it wasn\'t created by this plugin?');
-    }
   }
+}
+
+var abstractMapper = abstractMapReduce({
+  name: 'indexes',
+  mapper: mapper,
+  reducer: reducer,
+  ddocValidator: ddocValidator
 });
 
 module.exports = abstractMapper;
 },{"15":15,"2":2}],8:[function(_dereq_,module,exports){
 'use strict';
 
-var utils = _dereq_(16);
+var utils = _dereq_(17);
 var log = utils.log;
 
-var pouchUpsert = _dereq_(40);
+var pouchUpsert = _dereq_(41);
 var abstractMapper = _dereq_(7);
 var localUtils = _dereq_(15);
 var validateIndex = localUtils.validateIndex;
 var massageIndexDef = localUtils.massageIndexDef;
+var massageCreateIndexRequest = _dereq_(16);
 
 function upsert(db, docId, diffFun) {
   return pouchUpsert.upsert.call(db, docId, diffFun);
 }
 
 function createIndex(db, requestDef) {
-
+  requestDef = massageCreateIndexRequest(requestDef);
   var originalIndexDef = utils.clone(requestDef.index);
   requestDef.index = massageIndexDef(requestDef.index);
 
@@ -1179,18 +1212,36 @@ function createIndex(db, requestDef) {
 
 module.exports = createIndex;
 
-},{"15":15,"16":16,"40":40,"7":7}],9:[function(_dereq_,module,exports){
+},{"15":15,"16":16,"17":17,"41":41,"7":7}],9:[function(_dereq_,module,exports){
 'use strict';
 
 var abstractMapper = _dereq_(7);
+var upsert = _dereq_(4);
 
 function deleteIndex(db, index) {
 
-  var docId = index.ddoc;
+  if (!index.ddoc) {
+    throw new Error('you must supply an index.ddoc when deleting');
+  }
 
-  return db.get(docId).then(function (doc) {
-    return db.remove(doc);
-  }).then(function () {
+  if (!index.name) {
+    throw new Error('you must supply an index.name when deleting');
+  }
+
+  var docId = index.ddoc;
+  var viewName = index.name;
+
+  function deltaFun (doc) {
+    if (Object.keys(doc.views).length === 1 && doc.views[viewName]) {
+      // only one view in this ddoc, delete the whole ddoc
+      return {_id: docId, _deleted: true};
+    }
+    // more than one view here, just remove the view
+    delete doc.views[viewName];
+    return doc;
+  }
+
+  return upsert(db, docId, deltaFun).then(function () {
     return abstractMapper.viewCleanup.apply(db);
   }).then(function () {
     return {ok: true};
@@ -1198,7 +1249,7 @@ function deleteIndex(db, index) {
 }
 
 module.exports = deleteIndex;
-},{"7":7}],10:[function(_dereq_,module,exports){
+},{"4":4,"7":7}],10:[function(_dereq_,module,exports){
 'use strict';
 
 //
@@ -1208,12 +1259,13 @@ module.exports = deleteIndex;
 // "bar".
 //
 
-var collate = _dereq_(37).collate;
+var collate = _dereq_(38).collate;
 var localUtils = _dereq_(15);
+var isCombinationalField = localUtils.isCombinationalField;
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var parseField = localUtils.parseField;
-var utils = _dereq_(16);
+var utils = _dereq_(17);
 
 // this would just be "return doc[field]", but fields
 // can be "deep" due to dot notation
@@ -1317,6 +1369,52 @@ function createCriterion(userOperator, userValue, parsedField) {
         return fieldIsArray(doc) && arrayContainsAllValues(doc);
       };
   }
+
+  throw new Error('unknown operator "' + parsedField[0] +
+    '" - should be one of $eq, $lte, $lt, $gt, $gte, $exists, $ne, $in, ' +
+    '$nin, $size, or $all');
+
+}
+
+function createCombinationalCriterion (operator, selectors) {
+  var criterions = [];
+
+  //The $not selector isn't an array, so convert it to an array
+  selectors = (selectors instanceof Array) ? selectors : [selectors];
+
+  selectors.forEach(function (selector) {
+    Object.keys(selector).forEach(function (field) {
+      var matcher = selector[field];
+      var parsedField = parseField(field);
+
+      Object.keys(matcher).forEach(function (userOperator) {
+        var userValue = matcher[userOperator];
+        var out = createCriterion(userOperator, userValue, parsedField);
+        criterions.push(out);
+      });
+    });
+  });
+
+  if (operator === '$or') {
+    return function (doc) {
+      return criterions.some(function (criterion) {
+        return criterion(doc);
+      });
+    };
+  }
+
+  if (operator === '$not') {
+    return function (doc) {
+      return !criterions[0](doc);
+    };
+  }
+
+  // '$nor'
+  return function (doc) {
+    return !criterions.find(function (criterion) {
+      return criterion(doc);
+    });
+  };
 }
 
 function createFilterRowFunction(requestDef, inMemoryFields) {
@@ -1328,6 +1426,12 @@ function createFilterRowFunction(requestDef, inMemoryFields) {
 
     if (!matcher) {
       // no filtering necessary; this field is just needed for sorting
+      return;
+    }
+
+    if (isCombinationalField(field)) {
+      var criterion = createCombinationalCriterion(field, matcher);
+      criteria.push(criterion);
       return;
     }
 
@@ -1355,7 +1459,7 @@ function createFieldSorter(sort) {
 
   function getFieldValuesAsArray(doc) {
     return sort.map(function (sorting) {
-      var fieldName = typeof sorting === 'string' ? sorting : getKey(sorting);
+      var fieldName = getKey(sorting);
       var parsedField = parseField(fieldName);
       var docFieldValue = getFieldFromDoc(doc, parsedField);
       return docFieldValue;
@@ -1401,12 +1505,12 @@ function filterInMemoryFields(rows, requestDef, inMemoryFields) {
 
 module.exports = filterInMemoryFields;
 
-},{"15":15,"16":16,"37":37}],11:[function(_dereq_,module,exports){
+},{"15":15,"17":17,"38":38}],11:[function(_dereq_,module,exports){
 'use strict';
 
-var utils = _dereq_(16);
+var utils = _dereq_(17);
 var getIndexes = _dereq_(13);
-var collate = _dereq_(37).collate;
+var collate = _dereq_(38).collate;
 var abstractMapper = _dereq_(7);
 var planQuery = _dereq_(12);
 var localUtils = _dereq_(15);
@@ -1508,10 +1612,10 @@ function find(db, requestDef) {
 
 module.exports = find;
 
-},{"10":10,"12":12,"13":13,"15":15,"16":16,"37":37,"7":7}],12:[function(_dereq_,module,exports){
+},{"10":10,"12":12,"13":13,"15":15,"17":17,"38":38,"7":7}],12:[function(_dereq_,module,exports){
 'use strict';
 
-var utils = _dereq_(16);
+var utils = _dereq_(17);
 var log = utils.log;
 var localUtils = _dereq_(15);
 var getKey = localUtils.getKey;
@@ -1847,12 +1951,11 @@ function getMultiFieldCoreQueryPlan(userOperator, userValue) {
           startkey: COLLATE_LO_PLUS_1,
           endkey: COLLATE_HI
         };
-      } else {
-        return {
-          startkey: COLLATE_LO,
-          endkey: COLLATE_LO
-        };
       }
+      return {
+        startkey: COLLATE_NULL_LO,
+        endkey: COLLATE_NULL_HI
+      };
   }
 }
 
@@ -1996,9 +2099,6 @@ function planQuery(request, indexes) {
 
   var firstIndexField = index.def.fields[0];
   var firstMatcher = selector[getKey(firstIndexField)];
-  if (Object.keys(firstMatcher).length === 1 && getKey(firstMatcher) === '$ne') {
-    throw new Error('$ne can\'t be used here. try $gt/$lt instead');
-  }
 
   var coreQueryPlan = getCoreQueryPlan(selector, index);
   var queryOpts = coreQueryPlan.queryOpts;
@@ -2017,10 +2117,10 @@ function planQuery(request, indexes) {
 
 module.exports = planQuery;
 
-},{"15":15,"16":16}],13:[function(_dereq_,module,exports){
+},{"15":15,"17":17}],13:[function(_dereq_,module,exports){
 'use strict';
 
-var utils = _dereq_(16);
+var utils = _dereq_(17);
 
 var localUtils = _dereq_(15);
 var massageIndexDef = localUtils.massageIndexDef;
@@ -2071,21 +2171,21 @@ function getIndexes(db) {
 
 module.exports = getIndexes;
 
-},{"15":15,"16":16}],14:[function(_dereq_,module,exports){
+},{"15":15,"17":17}],14:[function(_dereq_,module,exports){
 'use strict';
 
-var utils = _dereq_(16);
+var utils = _dereq_(17);
 var callbackify = utils.callbackify;
 
 exports.createIndex = callbackify(_dereq_(8));
 exports.find = callbackify(_dereq_(11));
 exports.getIndexes = callbackify(_dereq_(13));
 exports.deleteIndex = callbackify(_dereq_(9));
-},{"11":11,"13":13,"16":16,"8":8,"9":9}],15:[function(_dereq_,module,exports){
+},{"11":11,"13":13,"17":17,"8":8,"9":9}],15:[function(_dereq_,module,exports){
 'use strict';
 
-var utils = _dereq_(16);
-var collate = _dereq_(37);
+var utils = _dereq_(17);
+var collate = _dereq_(38);
 
 function getKey(obj) {
   return Object.keys(obj)[0];
@@ -2095,19 +2195,12 @@ function getValue(obj) {
   return obj[getKey(obj)];
 }
 
-function getSize(obj) {
-  return Object.keys(obj).length;
-}
-
-function objectFrom(key, value) {
-  var res = {};
-  res[key] = value;
-  return res;
-}
-
 // normalize the "sort" value
 function massageSort(sort) {
-  return sort && sort.map(function (sorting) {
+  if (!Array.isArray(sort)) {
+    throw new Error('invalid sort json - should be an array');
+  }
+  return sort.map(function (sorting) {
     if (typeof sorting === 'string') {
       var obj = {};
       obj[sorting] = 'asc';
@@ -2118,10 +2211,14 @@ function massageSort(sort) {
   });
 }
 
+var combinationFields = ['$or', '$nor', '$not'];
+function isCombinationalField (field) {
+  return combinationFields.indexOf(field) > -1;
+}
+
 // collapse logically equivalent gt/gte values
 function mergeGtGte(operator, value, fieldMatchers) {
   if (typeof fieldMatchers.$eq !== 'undefined') {
-    // TODO: check for logical errors here
     return; // do nothing
   }
   if (typeof fieldMatchers.$gte !== 'undefined') {
@@ -2154,7 +2251,6 @@ function mergeGtGte(operator, value, fieldMatchers) {
 // collapse logically equivalent lt/lte values
 function mergeLtLte(operator, value, fieldMatchers) {
   if (typeof fieldMatchers.$eq !== 'undefined') {
-    // TODO: check for logical errors here
     return; // do nothing
   }
   if (typeof fieldMatchers.$lte !== 'undefined') {
@@ -2186,10 +2282,6 @@ function mergeLtLte(operator, value, fieldMatchers) {
 
 // combine $ne values into one array
 function mergeNe(value, fieldMatchers) {
-  if (typeof fieldMatchers.$eq !== 'undefined') {
-    // TODO: check for logical errors here
-    return; // do nothing
-  }
   if ('$ne' in fieldMatchers) {
     // there are many things this could "not" be
     fieldMatchers.$ne.push(value);
@@ -2224,21 +2316,32 @@ function mergeAndedSelectors(selectors) {
       if (typeof matcher !== 'object') {
         matcher = {$eq: matcher};
       }
-      var fieldMatchers = res[field] = res[field] || {};
-      Object.keys(matcher).forEach(function (operator) {
-        var value = matcher[operator];
 
-        if (operator === '$gt' || operator === '$gte') {
-          return mergeGtGte(operator, value, fieldMatchers);
-        } else if (operator === '$lt' || operator === '$lte') {
-          return mergeLtLte(operator, value, fieldMatchers);
-        } else if (operator === '$ne') {
-          return mergeNe(value, fieldMatchers);
-        } else if (operator === '$eq') {
-          return mergeEq(value, fieldMatchers);
+      if (isCombinationalField(field)) {
+        if (matcher instanceof Array) {
+          res[field] = matcher.map(function (m) {
+            return mergeAndedSelectors([m]);
+          });
+        } else {
+          res[field] = mergeAndedSelectors([matcher]);
         }
-        fieldMatchers[operator] = value;
-      });
+      } else {
+        var fieldMatchers = res[field] = res[field] || {};
+        Object.keys(matcher).forEach(function (operator) {
+          var value = matcher[operator];
+
+          if (operator === '$gt' || operator === '$gte') {
+            return mergeGtGte(operator, value, fieldMatchers);
+          } else if (operator === '$lt' || operator === '$lte') {
+            return mergeLtLte(operator, value, fieldMatchers);
+          } else if (operator === '$ne') {
+            return mergeNe(value, fieldMatchers);
+          } else if (operator === '$eq') {
+            return mergeEq(value, fieldMatchers);
+          }
+          fieldMatchers[operator] = value;
+        });
+      }
     });
   });
 
@@ -2255,6 +2358,13 @@ function massageSelector(input) {
     result = mergeAndedSelectors(result['$and']);
     wasAnded = true;
   }
+
+  if ('$not' in result) {
+    //This feels a little like forcing, but it will work for now,
+    //I would like to come back to this and make the merging of selectors a little more generic
+    result['$not'] = mergeAndedSelectors([result['$not']]);
+  }
+
   var fields = Object.keys(result);
 
   for (var i = 0; i < fields.length; i++) {
@@ -2360,9 +2470,6 @@ function validateFindRequest(requestDef) {
   if (typeof requestDef.selector !== 'object') {
     throw new Error('you must provide a selector when you find()');
   }
-  if ('sort' in requestDef && (!requestDef.sort || !Array.isArray(requestDef.sort))) {
-    throw new Error('invalid sort json - should be an array');
-  }
   // TODO: could be >1 field
   var selectorFields = Object.keys(requestDef.selector);
   var sortFields = requestDef.sort ?
@@ -2404,9 +2511,7 @@ function parseField(fieldName) {
       current += ch;
     }
   }
-  if (current) {
-    fields.push(current);
-  }
+  fields.push(current);
   return fields;
 }
 
@@ -2452,7 +2557,6 @@ function getUserFields(selector, sort) {
 module.exports = {
   getKey: getKey,
   getValue: getValue,
-  getSize: getSize,
   massageSort: massageSort,
   massageSelector: massageSelector,
   validateIndex: validateIndex,
@@ -2461,21 +2565,50 @@ module.exports = {
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
   parseField: parseField,
-  objectFrom: objectFrom,
-  getUserFields: getUserFields
+  getUserFields: getUserFields,
+  isCombinationalField: isCombinationalField
 };
 
-},{"16":16,"37":37}],16:[function(_dereq_,module,exports){
-(function (process,global,Buffer){
+},{"17":17,"38":38}],16:[function(_dereq_,module,exports){
 'use strict';
 
-var PouchPromise;
-/* istanbul ignore next */
-if (typeof window !== 'undefined' && window.PouchDB) {
-  PouchPromise = window.PouchDB.utils.Promise;
-} else {
-  PouchPromise = typeof global.Promise === 'function' ? global.Promise : _dereq_(26);
-}
+var utils = _dereq_(17);
+var clone = utils.clone;
+
+// we restucture the supplied JSON considerably, because the official
+// Mango API is very particular about a lot of this stuff, but we like
+// to be liberal with what we accept in order to prevent mental
+// breakdowns in our users
+module.exports = function (requestDef) {
+  requestDef = clone(requestDef);
+
+  if (!requestDef.index) {
+    requestDef.index = {};
+  }
+
+  ['type', 'name', 'ddoc'].forEach(function (key) {
+    if (requestDef.index[key]) {
+      requestDef[key] = requestDef.index[key];
+      delete requestDef.index[key];
+    }
+  });
+
+  if (requestDef.fields) {
+    requestDef.index.fields = requestDef.fields;
+    delete requestDef.fields;
+  }
+
+  if (!requestDef.type) {
+    requestDef.type = 'json';
+  }
+  return requestDef;
+};
+},{"17":17}],17:[function(_dereq_,module,exports){
+(function (process){
+'use strict';
+
+var Promise = _dereq_(42);
+
 /* istanbul ignore next */
 exports.once = function (fun) {
   var called = false;
@@ -2518,7 +2651,7 @@ exports.toPromise = function (func) {
         });
       };
     }
-    var promise = new PouchPromise(function (fulfill, reject) {
+    var promise = new Promise(function (fulfill, reject) {
       try {
         var callback = exports.once(function (err, mesg) {
           if (err) {
@@ -2548,69 +2681,39 @@ exports.toPromise = function (func) {
   });
 };
 
-exports.inherits = _dereq_(22);
-exports.Promise = PouchPromise;
-
-if (!process.browser || !('atob' in global)) {
-  exports.atob = function (str) {
-    var base64 = new Buffer(str, 'base64');
-    // Node.js will just skip the characters it can't encode instead of
-    // throwing and exception
-    if (base64.toString('base64') !== str) {
-      throw ("Cannot base64 encode full string");
-    }
-    return base64.toString('binary');
-  };
-} else {
-  exports.atob = function (str) {
-    return atob(str);
-  };
-}
-
-if (!process.browser || !('btoa' in global)) {
-  exports.btoa = function (str) {
-    return new Buffer(str, 'binary').toString('base64');
-  };
-} else {
-  exports.btoa = function (str) {
-    return btoa(str);
-  };
-}
+exports.inherits = _dereq_(23);
+exports.Promise = Promise;
 
 exports.clone = function (obj) {
   return exports.extend(true, {}, obj);
 };
 
-exports.extend = _dereq_(39);
+exports.extend = _dereq_(40);
 
 exports.callbackify = function (fun) {
   return exports.getArguments(function (args) {
     var cb = args.pop();
     var promise = fun.apply(this, args);
-    if (typeof cb === 'function') {
-      exports.promisedCallback(promise, cb);
-    }
+    exports.promisedCallback(promise, cb);
     return promise;
   });
 };
 
 exports.promisedCallback = function (promise, callback) {
-  if (callback) {
-    promise.then(function (res) {
-      process.nextTick(function () {
-        callback(null, res);
-      });
-    }, function (reason) {
-      process.nextTick(function () {
-        callback(reason);
-      });
+  promise.then(function (res) {
+    process.nextTick(function () {
+      callback(null, res);
     });
-  }
+  }, function (reason) {
+    process.nextTick(function () {
+      callback(reason);
+    });
+  });
   return promise;
 };
 
-var crypto = _dereq_(18);
-var Md5 = _dereq_(42);
+var crypto = _dereq_(19);
+var Md5 = _dereq_(46);
 
 exports.MD5 = function (string) {
   /* istanbul ignore else */
@@ -2740,10 +2843,10 @@ exports.uniq = function(arr) {
   });
 };
 
-exports.log = _dereq_(19)('pouchdb:find');
+exports.log = _dereq_(20)('pouchdb:find');
 
-}).call(this,_dereq_(41),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_(18).Buffer)
-},{"18":18,"19":19,"22":22,"26":26,"39":39,"41":41,"42":42}],17:[function(_dereq_,module,exports){
+}).call(this,_dereq_(45))
+},{"19":19,"20":20,"23":23,"40":40,"42":42,"45":45,"46":46}],18:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -2763,9 +2866,9 @@ function argsArray(fun) {
     }
   };
 }
-},{}],18:[function(_dereq_,module,exports){
-
 },{}],19:[function(_dereq_,module,exports){
+
+},{}],20:[function(_dereq_,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -2773,7 +2876,7 @@ function argsArray(fun) {
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = _dereq_(20);
+exports = module.exports = _dereq_(21);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -2935,7 +3038,7 @@ function localstorage(){
   } catch (e) {}
 }
 
-},{"20":20}],20:[function(_dereq_,module,exports){
+},{"21":21}],21:[function(_dereq_,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -2949,7 +3052,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = _dereq_(36);
+exports.humanize = _dereq_(37);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -3134,7 +3237,7 @@ function coerce(val) {
   return val;
 }
 
-},{"36":36}],21:[function(_dereq_,module,exports){
+},{"37":37}],22:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 var Mutation = global.MutationObserver || global.WebKitMutationObserver;
@@ -3207,7 +3310,7 @@ function immediate(task) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],22:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -3232,19 +3335,19 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],23:[function(_dereq_,module,exports){
+},{}],24:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = INTERNAL;
 
 function INTERNAL() {}
-},{}],24:[function(_dereq_,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 'use strict';
-var Promise = _dereq_(27);
-var reject = _dereq_(30);
-var resolve = _dereq_(31);
-var INTERNAL = _dereq_(23);
-var handlers = _dereq_(25);
+var Promise = _dereq_(28);
+var reject = _dereq_(31);
+var resolve = _dereq_(32);
+var INTERNAL = _dereq_(24);
+var handlers = _dereq_(26);
 module.exports = all;
 function all(iterable) {
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
@@ -3282,11 +3385,11 @@ function all(iterable) {
     }
   }
 }
-},{"23":23,"25":25,"27":27,"30":30,"31":31}],25:[function(_dereq_,module,exports){
+},{"24":24,"26":26,"28":28,"31":31,"32":32}],26:[function(_dereq_,module,exports){
 'use strict';
-var tryCatch = _dereq_(34);
-var resolveThenable = _dereq_(32);
-var states = _dereq_(33);
+var tryCatch = _dereq_(35);
+var resolveThenable = _dereq_(33);
+var states = _dereq_(34);
 
 exports.resolve = function (self, value) {
   var result = tryCatch(getThen, value);
@@ -3329,22 +3432,22 @@ function getThen(obj) {
   }
 }
 
-},{"32":32,"33":33,"34":34}],26:[function(_dereq_,module,exports){
-module.exports = exports = _dereq_(27);
+},{"33":33,"34":34,"35":35}],27:[function(_dereq_,module,exports){
+module.exports = exports = _dereq_(28);
 
-exports.resolve = _dereq_(31);
-exports.reject = _dereq_(30);
-exports.all = _dereq_(24);
-exports.race = _dereq_(29);
+exports.resolve = _dereq_(32);
+exports.reject = _dereq_(31);
+exports.all = _dereq_(25);
+exports.race = _dereq_(30);
 
-},{"24":24,"27":27,"29":29,"30":30,"31":31}],27:[function(_dereq_,module,exports){
+},{"25":25,"28":28,"30":30,"31":31,"32":32}],28:[function(_dereq_,module,exports){
 'use strict';
 
-var unwrap = _dereq_(35);
-var INTERNAL = _dereq_(23);
-var resolveThenable = _dereq_(32);
-var states = _dereq_(33);
-var QueueItem = _dereq_(28);
+var unwrap = _dereq_(36);
+var INTERNAL = _dereq_(24);
+var resolveThenable = _dereq_(33);
+var states = _dereq_(34);
+var QueueItem = _dereq_(29);
 
 module.exports = Promise;
 function Promise(resolver) {
@@ -3381,10 +3484,10 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
   return promise;
 };
 
-},{"23":23,"28":28,"32":32,"33":33,"35":35}],28:[function(_dereq_,module,exports){
+},{"24":24,"29":29,"33":33,"34":34,"36":36}],29:[function(_dereq_,module,exports){
 'use strict';
-var handlers = _dereq_(25);
-var unwrap = _dereq_(35);
+var handlers = _dereq_(26);
+var unwrap = _dereq_(36);
 
 module.exports = QueueItem;
 function QueueItem(promise, onFulfilled, onRejected) {
@@ -3411,13 +3514,13 @@ QueueItem.prototype.otherCallRejected = function (value) {
   unwrap(this.promise, this.onRejected, value);
 };
 
-},{"25":25,"35":35}],29:[function(_dereq_,module,exports){
+},{"26":26,"36":36}],30:[function(_dereq_,module,exports){
 'use strict';
-var Promise = _dereq_(27);
-var reject = _dereq_(30);
-var resolve = _dereq_(31);
-var INTERNAL = _dereq_(23);
-var handlers = _dereq_(25);
+var Promise = _dereq_(28);
+var reject = _dereq_(31);
+var resolve = _dereq_(32);
+var INTERNAL = _dereq_(24);
+var handlers = _dereq_(26);
 module.exports = race;
 function race(iterable) {
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
@@ -3452,24 +3555,24 @@ function race(iterable) {
   }
 }
 
-},{"23":23,"25":25,"27":27,"30":30,"31":31}],30:[function(_dereq_,module,exports){
+},{"24":24,"26":26,"28":28,"31":31,"32":32}],31:[function(_dereq_,module,exports){
 'use strict';
 
-var Promise = _dereq_(27);
-var INTERNAL = _dereq_(23);
-var handlers = _dereq_(25);
+var Promise = _dereq_(28);
+var INTERNAL = _dereq_(24);
+var handlers = _dereq_(26);
 module.exports = reject;
 
 function reject(reason) {
 	var promise = new Promise(INTERNAL);
 	return handlers.reject(promise, reason);
 }
-},{"23":23,"25":25,"27":27}],31:[function(_dereq_,module,exports){
+},{"24":24,"26":26,"28":28}],32:[function(_dereq_,module,exports){
 'use strict';
 
-var Promise = _dereq_(27);
-var INTERNAL = _dereq_(23);
-var handlers = _dereq_(25);
+var Promise = _dereq_(28);
+var INTERNAL = _dereq_(24);
+var handlers = _dereq_(26);
 module.exports = resolve;
 
 var FALSE = handlers.resolve(new Promise(INTERNAL), false);
@@ -3499,10 +3602,10 @@ function resolve(value) {
       return EMPTYSTRING;
   }
 }
-},{"23":23,"25":25,"27":27}],32:[function(_dereq_,module,exports){
+},{"24":24,"26":26,"28":28}],33:[function(_dereq_,module,exports){
 'use strict';
-var handlers = _dereq_(25);
-var tryCatch = _dereq_(34);
+var handlers = _dereq_(26);
+var tryCatch = _dereq_(35);
 function safelyResolveThenable(self, thenable) {
   // Either fulfill, reject or reject with error
   var called = false;
@@ -3532,14 +3635,14 @@ function safelyResolveThenable(self, thenable) {
   }
 }
 exports.safely = safelyResolveThenable;
-},{"25":25,"34":34}],33:[function(_dereq_,module,exports){
+},{"26":26,"35":35}],34:[function(_dereq_,module,exports){
 // Lazy man's symbols for states
 
 exports.REJECTED = ['REJECTED'];
 exports.FULFILLED = ['FULFILLED'];
 exports.PENDING = ['PENDING'];
 
-},{}],34:[function(_dereq_,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = tryCatch;
@@ -3555,11 +3658,11 @@ function tryCatch(func, value) {
   }
   return out;
 }
-},{}],35:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 'use strict';
 
-var immediate = _dereq_(21);
-var handlers = _dereq_(25);
+var immediate = _dereq_(22);
+var handlers = _dereq_(26);
 module.exports = unwrap;
 
 function unwrap(promise, func, value) {
@@ -3577,7 +3680,7 @@ function unwrap(promise, func, value) {
     }
   });
 }
-},{"21":21,"25":25}],36:[function(_dereq_,module,exports){
+},{"22":22,"26":26}],37:[function(_dereq_,module,exports){
 /**
  * Helpers.
  */
@@ -3704,14 +3807,14 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],37:[function(_dereq_,module,exports){
+},{}],38:[function(_dereq_,module,exports){
 'use strict';
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto
 var SEP = ''; // set to '_' for easier debugging 
 
-var utils = _dereq_(38);
+var utils = _dereq_(39);
 
 exports.collate = function (a, b) {
 
@@ -4059,7 +4162,7 @@ function numToIndexableString(num) {
   return result;
 }
 
-},{"38":38}],38:[function(_dereq_,module,exports){
+},{"39":39}],39:[function(_dereq_,module,exports){
 'use strict';
 
 function pad(str, padWith, upToLength) {
@@ -4130,7 +4233,7 @@ exports.intToDecimalForm = function (int) {
 
   return result;
 };
-},{}],39:[function(_dereq_,module,exports){
+},{}],40:[function(_dereq_,module,exports){
 "use strict";
 
 // Extends method
@@ -4311,7 +4414,7 @@ module.exports = extend;
 
 
 
-},{}],40:[function(_dereq_,module,exports){
+},{}],41:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 
@@ -4320,7 +4423,7 @@ var PouchPromise;
 if (typeof window !== 'undefined' && window.PouchDB) {
   PouchPromise = window.PouchDB.utils.Promise;
 } else {
-  PouchPromise = typeof global.Promise === 'function' ? global.Promise : _dereq_(26);
+  PouchPromise = typeof global.Promise === 'function' ? global.Promise : _dereq_(27);
 }
 
 // this is essentially the "update sugar" function from daleharvey/pouchdb#1388
@@ -4418,7 +4521,272 @@ if (typeof window !== 'undefined' && window.PouchDB) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"26":26}],41:[function(_dereq_,module,exports){
+},{"27":27}],42:[function(_dereq_,module,exports){
+'use strict';
+
+// allow external plugins to require('pouchdb/extras/promise')
+module.exports = _dereq_(43);
+},{"43":43}],43:[function(_dereq_,module,exports){
+'use strict';
+/* istanbul ignore next */
+module.exports = typeof Promise === 'function' ? Promise : _dereq_(44);
+
+},{"44":44}],44:[function(_dereq_,module,exports){
+'use strict';
+var immediate = _dereq_(22);
+
+/* istanbul ignore next */
+function INTERNAL() {}
+
+var handlers = {};
+
+var REJECTED = ['REJECTED'];
+var FULFILLED = ['FULFILLED'];
+var PENDING = ['PENDING'];
+
+module.exports = exports = Promise;
+
+function Promise(resolver) {
+  if (typeof resolver !== 'function') {
+    throw new TypeError('resolver must be a function');
+  }
+  this.state = PENDING;
+  this.queue = [];
+  this.outcome = void 0;
+  if (resolver !== INTERNAL) {
+    safelyResolveThenable(this, resolver);
+  }
+}
+
+Promise.prototype["catch"] = function (onRejected) {
+  return this.then(null, onRejected);
+};
+Promise.prototype.then = function (onFulfilled, onRejected) {
+  if (typeof onFulfilled !== 'function' && this.state === FULFILLED ||
+    typeof onRejected !== 'function' && this.state === REJECTED) {
+    return this;
+  }
+  var promise = new this.constructor(INTERNAL);
+  if (this.state !== PENDING) {
+    var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
+    unwrap(promise, resolver, this.outcome);
+  } else {
+    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
+  }
+
+  return promise;
+};
+function QueueItem(promise, onFulfilled, onRejected) {
+  this.promise = promise;
+  if (typeof onFulfilled === 'function') {
+    this.onFulfilled = onFulfilled;
+    this.callFulfilled = this.otherCallFulfilled;
+  }
+  if (typeof onRejected === 'function') {
+    this.onRejected = onRejected;
+    this.callRejected = this.otherCallRejected;
+  }
+}
+QueueItem.prototype.callFulfilled = function (value) {
+  handlers.resolve(this.promise, value);
+};
+QueueItem.prototype.otherCallFulfilled = function (value) {
+  unwrap(this.promise, this.onFulfilled, value);
+};
+QueueItem.prototype.callRejected = function (value) {
+  handlers.reject(this.promise, value);
+};
+QueueItem.prototype.otherCallRejected = function (value) {
+  unwrap(this.promise, this.onRejected, value);
+};
+
+function unwrap(promise, func, value) {
+  immediate(function () {
+    var returnValue;
+    try {
+      returnValue = func(value);
+    } catch (e) {
+      return handlers.reject(promise, e);
+    }
+    if (returnValue === promise) {
+      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
+    } else {
+      handlers.resolve(promise, returnValue);
+    }
+  });
+}
+
+handlers.resolve = function (self, value) {
+  var result = tryCatch(getThen, value);
+  if (result.status === 'error') {
+    return handlers.reject(self, result.value);
+  }
+  var thenable = result.value;
+
+  if (thenable) {
+    safelyResolveThenable(self, thenable);
+  } else {
+    self.state = FULFILLED;
+    self.outcome = value;
+    var i = -1;
+    var len = self.queue.length;
+    while (++i < len) {
+      self.queue[i].callFulfilled(value);
+    }
+  }
+  return self;
+};
+handlers.reject = function (self, error) {
+  self.state = REJECTED;
+  self.outcome = error;
+  var i = -1;
+  var len = self.queue.length;
+  while (++i < len) {
+    self.queue[i].callRejected(error);
+  }
+  return self;
+};
+
+function getThen(obj) {
+  // Make sure we only access the accessor once as required by the spec
+  var then = obj && obj.then;
+  if (obj && typeof obj === 'object' && typeof then === 'function') {
+    return function appyThen() {
+      then.apply(obj, arguments);
+    };
+  }
+}
+
+function safelyResolveThenable(self, thenable) {
+  // Either fulfill, reject or reject with error
+  var called = false;
+  function onError(value) {
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.reject(self, value);
+  }
+
+  function onSuccess(value) {
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.resolve(self, value);
+  }
+
+  function tryToUnwrap() {
+    thenable(onSuccess, onError);
+  }
+
+  var result = tryCatch(tryToUnwrap);
+  if (result.status === 'error') {
+    onError(result.value);
+  }
+}
+
+function tryCatch(func, value) {
+  var out = {};
+  try {
+    out.value = func(value);
+    out.status = 'success';
+  } catch (e) {
+    out.status = 'error';
+    out.value = e;
+  }
+  return out;
+}
+
+exports.resolve = resolve;
+function resolve(value) {
+  if (value instanceof this) {
+    return value;
+  }
+  return handlers.resolve(new this(INTERNAL), value);
+}
+
+exports.reject = reject;
+function reject(reason) {
+  var promise = new this(INTERNAL);
+  return handlers.reject(promise, reason);
+}
+
+exports.all = all;
+function all(iterable) {
+  var self = this;
+  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+    return this.reject(new TypeError('must be an array'));
+  }
+
+  var len = iterable.length;
+  var called = false;
+  if (!len) {
+    return this.resolve([]);
+  }
+
+  var values = new Array(len);
+  var resolved = 0;
+  var i = -1;
+  var promise = new this(INTERNAL);
+
+  while (++i < len) {
+    allResolver(iterable[i], i);
+  }
+  return promise;
+  function allResolver(value, i) {
+    self.resolve(value).then(resolveFromAll, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
+    function resolveFromAll(outValue) {
+      values[i] = outValue;
+      if (++resolved === len && !called) {
+        called = true;
+        handlers.resolve(promise, values);
+      }
+    }
+  }
+}
+
+exports.race = race;
+function race(iterable) {
+  var self = this;
+  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+    return this.reject(new TypeError('must be an array'));
+  }
+
+  var len = iterable.length;
+  var called = false;
+  if (!len) {
+    return this.resolve([]);
+  }
+
+  var i = -1;
+  var promise = new this(INTERNAL);
+
+  while (++i < len) {
+    resolver(iterable[i]);
+  }
+  return promise;
+  function resolver(value) {
+    self.resolve(value).then(function (response) {
+      if (!called) {
+        called = true;
+        handlers.resolve(promise, response);
+      }
+    }, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
+  }
+}
+
+},{"22":22}],45:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -4478,7 +4846,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],42:[function(_dereq_,module,exports){
+},{}],46:[function(_dereq_,module,exports){
 /*jshint bitwise:false*/
 /*global unescape*/
 
@@ -5079,20 +5447,15 @@ process.umask = function() { return 0; };
     return SparkMD5;
 }));
 
-},{}],43:[function(_dereq_,module,exports){
+},{}],47:[function(_dereq_,module,exports){
 'use strict';
 
-var utils = _dereq_(16);
+var utils = _dereq_(17);
 
 var httpIndexes = _dereq_(6);
 var localIndexes = _dereq_(14);
 
 exports.createIndex = utils.toPromise(function (requestDef, callback) {
-
-  if (typeof callback === 'undefined') {
-    callback = requestDef;
-    requestDef = undefined;
-  }
 
   if (typeof requestDef !== 'object') {
     return callback(new Error('you must provide an index to create'));
@@ -5128,11 +5491,6 @@ exports.getIndexes = utils.toPromise(function (callback) {
 
 exports.deleteIndex = utils.toPromise(function (indexDef, callback) {
 
-  if (typeof callback === 'undefined') {
-    callback = indexDef;
-    indexDef = undefined;
-  }
-
   if (typeof indexDef !== 'object') {
     return callback(new Error('you must provide an index to delete'));
   }
@@ -5147,5 +5505,5 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-},{"14":14,"16":16,"6":6}]},{},[43])(43)
+},{"14":14,"17":17,"6":6}]},{},[47])(47)
 });
