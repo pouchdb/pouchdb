@@ -126,6 +126,10 @@ function createCriterion(userOperator, userValue, parsedField) {
 
 function createCombinationalCriterion (operator, selectors) {
   var criterions = [];
+
+  //The $not selector isn't an array, so convert it to an array
+  selectors = (selectors instanceof Array) ? selectors : [selectors];
+
   selectors.forEach(function (selector) {
     Object.keys(selector).forEach(function (field) {
       var matcher = selector[field];
@@ -144,6 +148,12 @@ function createCombinationalCriterion (operator, selectors) {
       return criterions.some(function (criterion) {
         return criterion(doc);
       });
+    };
+  }
+
+  if (operator === '$not') {
+    return function (doc) {
+      return !criterions[0](doc);
     };
   }
 
