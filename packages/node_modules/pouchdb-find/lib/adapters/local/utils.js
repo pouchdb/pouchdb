@@ -27,7 +27,7 @@ function massageSort(sort) {
   });
 }
 
-var combinationFields = ['$or', '$nor'];
+var combinationFields = ['$or', '$nor', '$not'];
 function isCombinationalField (field) {
   return combinationFields.indexOf(field) > -1;
 }
@@ -134,9 +134,13 @@ function mergeAndedSelectors(selectors) {
       }
 
       if (isCombinationalField(field)) {
-        res[field] = matcher.map(function (m) {
-          return mergeAndedSelectors([m]);
-        });
+        if (matcher instanceof Array) {
+          res[field] = matcher.map(function (m) {
+            return mergeAndedSelectors([m]);
+          });
+        } else {
+          res[field] = mergeAndedSelectors([matcher]);
+        }
       } else {
         var fieldMatchers = res[field] = res[field] || {};
         Object.keys(matcher).forEach(function (operator) {
@@ -169,6 +173,12 @@ function massageSelector(input) {
   if ('$and' in result) {
     result = mergeAndedSelectors(result['$and']);
     wasAnded = true;
+  }
+
+  if ('$not' in result) {
+    //This feels a little like forcing, but it will work for now,
+    //I would like to come back to this and make the merging of selectors a little more generic
+    result['$not'] = mergeAndedSelectors([result['$not']]);
   }
 
   var fields = Object.keys(result);
