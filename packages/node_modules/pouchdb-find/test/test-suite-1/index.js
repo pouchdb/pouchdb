@@ -37,5 +37,6 @@ module.exports = function (dbName, dbType, Pouch) {
     require('./test.errors')(dbType, context);
     require('./test.array')(dbType, context);
     require('./test.combinational')(dbType, context);
+    require('./test.not')(dbType, context);
   });
 };
