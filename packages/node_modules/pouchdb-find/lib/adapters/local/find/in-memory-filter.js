@@ -64,7 +64,29 @@ function createCriterion(userOperator, userValue, parsedField) {
   function arraySize (doc) {
     var docFieldValue = getFieldFromDoc(doc, parsedField);
     return docFieldValue.length === userValue;
+  }
 
+  function modField (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    var divisor = userValue[0];
+    var mod = userValue[1];
+    if (divisor === 0) {
+      throw new Error('Bad divisor, cannot divide by zero');
+    }
+
+    if (parseInt(divisor, 10) !== divisor ) {
+      throw new Error('Divisor is not an integer');
+    }
+
+    if (parseInt(mod, 10) !== mod ) {
+      throw new Error('Modulus is not an integer');
+    }
+
+    if (parseInt(docFieldValue, 10) !== docFieldValue) {
+      return false;
+    }
+
+    return docFieldValue % divisor === mod;
   }
 
   switch (userOperator) {
@@ -116,11 +138,15 @@ function createCriterion(userOperator, userValue, parsedField) {
       return function (doc) {
         return fieldIsArray(doc) && arrayContainsAllValues(doc);
       };
+    case '$mod':
+      return function (doc) {
+        return fieldExists(doc) && modField(doc);
+      };
   }
 
   throw new Error('unknown operator "' + parsedField[0] +
     '" - should be one of $eq, $lte, $lt, $gt, $gte, $exists, $ne, $in, ' +
-    '$nin, $size, or $all');
+    '$nin, $size, $mod or $all');
 
 }
 
