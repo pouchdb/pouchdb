@@ -89,6 +89,13 @@ function createCriterion(userOperator, userValue, parsedField) {
     return docFieldValue % divisor === mod;
   }
 
+  function regexMatch(doc) {
+    var re = new RegExp(userValue);
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+
+    return re.test(docFieldValue);
+  }
+
   switch (userOperator) {
     case '$eq':
       return function (doc) {
@@ -141,6 +148,10 @@ function createCriterion(userOperator, userValue, parsedField) {
     case '$mod':
       return function (doc) {
         return fieldExists(doc) && modField(doc);
+      };
+    case '$regex':
+      return function (doc) {
+        return fieldExists(doc) && regexMatch(doc);
       };
   }
 
