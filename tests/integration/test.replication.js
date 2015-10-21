@@ -2825,6 +2825,11 @@ adapters.forEach(function (adapters) {
             // mock a successful write for the first
             // document and a failed write for the second
             var doc = content.docs[0];
+
+            if (/^_local/.test(doc._id)) {
+              return bulkDocs.apply(remote, [content, opts, callback]);
+            }
+
             if (bulkDocsCallCount === 0) {
               bulkDocsCallCount++;
               callback(null, [{ok: true, id: doc._id, rev: doc._rev}]);
