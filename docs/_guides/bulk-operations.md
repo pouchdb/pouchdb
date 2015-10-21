@@ -55,7 +55,7 @@ db.put({
     occupation: 'kitten',
     cuteness: 8.0
   });
-]);
+});
 ```
 
 Why bulk up with `bulkDocs()`?
@@ -106,7 +106,7 @@ db.put({
     occupation: 'kitten',
     cuteness: 8.0
   });
-]).then(function () {
+}).then(function () {
   return db.allDocs({include_docs: true});
 }).then(function (response) {
   console.log(response);
