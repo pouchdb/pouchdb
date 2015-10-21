@@ -72,7 +72,7 @@
     "sauce-connect-launcher": "0.13.0",
     "seedrandom": "2.4.2",
     "selenium-standalone": "4.7.0",
-    "tape": "4.2.1",
+    "tape": "4.2.2",
     "throw-max-listeners-error": "1.0.1",
     "tin": "0.5.0",
     "ua-parser-js": "0.7.9",
