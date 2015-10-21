@@ -55,6 +55,23 @@ There is also a shorthand for syncing given existing PouchDB objects. This behav
 db.sync(remoteDB, [options]);
 {% endhighlight %}
 
+#### Example Response:
+
+Change events in `sync` have an extra property `direction` which refers to the direction the change was going. Its value will either be `push` or `pull`.
+
+{% highlight js %}
+{ direction: 'push',
+  change:
+   { ok: true,
+     start_time: '2015-10-21T15:26:51.151Z',
+     docs_read: 1,
+     docs_written: 1,
+     doc_write_failures: 0,
+     errors: [],
+     last_seq: 1,
+     docs: [ [Object] ] } }
+{% endhighlight %}
+
 For any further details, please refer to [replicate()](api.html#replication).
 
 
