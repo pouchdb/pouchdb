@@ -40,7 +40,7 @@
     "main": "dist/pouchdb.js"
   },
   "optionalDependencies": {
-    "leveldown": "1.4.1"
+    "leveldown": "1.4.2"
   },
   "devDependencies": {
     "browserify": "11.2.0",
