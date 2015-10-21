@@ -6,10 +6,10 @@ module.exports = function (dbType, context) {
 
     beforeEach(function () {
       return context.db.bulkDocs([
-        { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'] },
-        { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'] },
-        { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon']},
-        { name: 'William', _id: 'william', favorites: ['Mario'] }
+        { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20 },
+        { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'], age: 21 },
+        { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon'], age: 22},
+        { name: 'William', _id: 'william', favorites: ['Mario'], age: 23}
       ]).then(function () {
         var index = {
           "index": {
@@ -41,11 +41,60 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'] },
-            { name: 'William', _id: 'william', favorites: ['Mario'] }
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20},
+            { name: 'William', _id: 'william', favorites: ['Mario'], age: 23 }
           ]);
         });
       });
+
+      it('should return docs match single field that is not an array', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            _id: {
+              $gt: 'a'
+            },
+            name: {
+              $in: ['James', 'William']
+            }
+          },
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20 },
+            { name: 'William', _id: 'william', favorites: ['Mario'], age: 23 }
+          ]);
+        });
+      });
+
+      it('should return docs match single field that is not an array and number', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            name: {
+              $gt: null
+            },
+            age: {
+              $in: [20, 23]
+            }
+          },
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20 },
+            { name: 'William', _id: 'william', favorites: ['Mario'], age: 23 }
+          ]);
+        });
+      });
+
 
       it('should return docs match two values in array', function () {
         var db = context.db;
@@ -65,9 +114,9 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'] },
-            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon']},
-            { name: 'William', _id: 'william', favorites: ['Mario'] }
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20 },
+            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon'], age: 22},
+            { name: 'William', _id: 'william', favorites: ['Mario'], age: 23 }
           ]);
         });
       });
@@ -108,8 +157,8 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'] },
-            { name: 'William', _id: 'william', favorites: ['Mario'] }
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20},
+            { name: 'William', _id: 'william', favorites: ['Mario'], age: 23}
           ]);
         });
       });
@@ -132,7 +181,7 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'] },
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20},
           ]);
         });
       });
@@ -173,8 +222,8 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'] },
-            { name: 'William', _id: 'william', favorites: ['Mario'] }
+            { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'], age: 21 },
+            { name: 'William', _id: 'william', favorites: ['Mario'], age: 23 }
           ]);
         });
       });
@@ -197,8 +246,8 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'] },
-            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon']},
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20 },
+            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon'], age: 22 },
           ]);
         });
       });
@@ -239,8 +288,56 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon']},
-            { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'] },
+            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon'], age: 22},
+            { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'], age: 21 },
+          ]);
+        });
+      });
+
+      it('should return docs that do not match single field that is not an array', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            _id: {
+              $gt: 'a'
+            },
+            name: {
+              $nin: ['James', 'William']
+            }
+          },
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon'], age: 22},
+            { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'], age: 21 },
+          ]);
+        });
+      });
+
+      it('should return docs with single field that is not an array and number', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            name: {
+              $gt: null
+            },
+            age: {
+              $nin: [20, 23]
+            }
+          },
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon'], age: 22},
+            { name: 'Mary', _id: 'mary',  favorites: ['Pokemon'], age: 21 },
           ]);
         });
       });
@@ -263,7 +360,7 @@ module.exports = function (dbType, context) {
           });
 
           docs.should.deep.equal([
-            { name: 'William', _id: 'william', favorites: ['Mario'] }
+            { name: 'William', _id: 'william', favorites: ['Mario'], age: 23 }
           ]);
         });
       });

@@ -50,7 +50,11 @@ function createCriterion(userOperator, userValue, parsedField) {
   function arrayContainsValue (doc) {
     var docFieldValue = getFieldFromDoc(doc, parsedField);
     return userValue.some(function (val) {
-      return docFieldValue.indexOf(val) > -1;
+      if (docFieldValue instanceof Array) {
+        return docFieldValue.indexOf(val) > -1;
+      }
+
+      return docFieldValue === val;
     });
   }
 
@@ -131,11 +135,11 @@ function createCriterion(userOperator, userValue, parsedField) {
       };
     case '$in':
       return function (doc) {
-        return fieldIsArray(doc) && arrayContainsValue(doc);
+        return fieldExists(doc) && arrayContainsValue(doc);
       };
     case '$nin':
       return function (doc) {
-        return fieldIsArray(doc) && !arrayContainsValue(doc);
+        return fieldExists(doc) && !arrayContainsValue(doc);
       };
     case '$size':
       return function (doc) {
