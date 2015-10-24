@@ -16,8 +16,7 @@ if (typeof process === 'undefined' || process.browser) {
   couch = process.env.COUCH_HOST || 'http://127.0.0.1:5984';
 }
 
-var  dbs = 'testdb' + Math.random() +
-  ',' + couch + '/testdb' + Math.round(Math.random() * 100000);
+var  dbs = 'testdb_find,' + couch + '/testdb_find';
 
 dbs.split(',').forEach(function (db) {
   var dbType = /^http/.test(db) ? 'http' : 'local';

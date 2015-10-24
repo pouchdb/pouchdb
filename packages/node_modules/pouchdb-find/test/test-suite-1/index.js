@@ -40,5 +40,6 @@ module.exports = function (dbName, dbType, Pouch) {
     require('./test.mod')(dbType, context);
     require('./test.regex')(dbType, context);
     require('./test.not')(dbType, context);
+    require('./test.issue66')(dbType, context);
   });
 };

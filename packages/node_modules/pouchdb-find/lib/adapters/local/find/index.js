@@ -1,6 +1,7 @@
 'use strict';
 
 var utils = require('../../../utils');
+var clone = utils.clone;
 var getIndexes = require('../get-indexes');
 var collate = require('pouchdb-collate').collate;
 var abstractMapper = require('../abstract-mapper');
@@ -18,6 +19,34 @@ var Promise = utils.Promise;
 function indexToSignature(index) {
   // remove '_design/'
   return index.ddoc.substring(8) + '/' + index.name;
+}
+
+function doAllDocs(db, originalOpts) {
+  var opts = clone(originalOpts);
+
+  // CouchDB responds in weird ways when you provide a non-string to _id;
+  // we mimic the behavior for consistency. See issue66 tests for details.
+
+  if (opts.descending) {
+    if ('endkey' in opts && typeof opts.endkey !== 'string') {
+      opts.endkey = '';
+    }
+    if ('startkey' in opts && typeof opts.startkey !== 'string') {
+      opts.limit = 0;
+    }
+  } else {
+    if ('startkey' in opts && typeof opts.startkey !== 'string') {
+      opts.startkey = '';
+    }
+    if ('endkey' in opts && typeof opts.endkey !== 'string') {
+      opts.limit = 0;
+    }
+  }
+  if ('key' in opts && typeof opts.key !== 'string') {
+    opts.limit = 0;
+  }
+
+  return db.allDocs(opts);
 }
 
 function find(db, requestDef) {
@@ -71,7 +100,7 @@ function find(db, requestDef) {
 
     return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {
-        return db.allDocs(opts);
+        return doAllDocs(db, opts);
       } else {
         var signature = indexToSignature(indexToUse);
         return abstractMapper.query.call(db, signature, opts);
