@@ -23,7 +23,7 @@
     "url": "https://github.com/nolanlawson/pouchdb-find/issues"
   },
   "scripts": {
-    "test-node": "istanbul test ./node_modules/mocha/bin/_mocha test/test.js",
+    "test-node": "./bin/test-node.sh",
     "test-browser": "./bin/test-browser.js",
     "jshint": "jshint -c .jshintrc lib/*.js bin/*.js test/test.js test/test-utils.js test/*/*.js",
     "test": "npm run jshint && ./bin/run-test.sh",
@@ -32,7 +32,7 @@
     "min": "uglifyjs dist/pouchdb.find.js -mc > dist/pouchdb.find.min.js",
     "dev": "browserify test/test.js > test/test-bundle.js && npm run dev-server",
     "dev-server": "./bin/dev-server.js",
-    "coverage": "npm test --coverage && istanbul check-coverage --lines 60 --function 60 --statements 60 --branches 60",
+    "coverage": "COVERAGE=1 npm test && istanbul check-coverage --lines 100 --function 100 --statements 100 --branches 100",
     "report-coverage": "npm run coverage && istanbul-coveralls --no-rm",
     "install-couch": "sh ./bin/run-couch-master-on-travis.sh && sh ./bin/enable-couchdb-cors.sh"
   },
