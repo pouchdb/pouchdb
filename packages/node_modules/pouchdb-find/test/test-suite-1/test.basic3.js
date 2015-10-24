@@ -227,41 +227,5 @@ module.exports = function (dbType, context) {
       });
     });
 
-    it('issue66 should query all docs with $gt: null', function () {
-      var db = context.db;
-      return db.bulkDocs(
-        [{_id: 'a'}, {_id: 'b'}, {_id: 'c'}]
-      ).then(function () {
-        return db.find({
-          selector: {
-            _id: { $gt: null }
-          }
-        }).then(function (response) {
-          response.docs = response.docs.map(function (doc) {
-            return doc._id;
-          });
-          response.docs.sort(sortById);
-          response.docs.should.deep.equal(
-            ["luigi",
-              "yoshi",
-              "mario",
-              "a",
-              "master_hand",
-              "c",
-              "falcon",
-              "samus",
-              "puff",
-              "pikachu",
-              "ness",
-              "fox",
-              "dk",
-              "b",
-              "link",
-              "kirby"]
-          );
-        });
-      });
-    });
-
   });
 };
