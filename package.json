@@ -50,7 +50,7 @@
     "child-process-promise": "1.1.0",
     "cordova": "5.3.3",
     "corsproxy": "0.2.14",
-    "derequire": "2.0.2",
+    "derequire": "2.0.3",
     "es5-shim": "4.1.15",
     "express": "4.13.3",
     "express-pouchdb": "1.0.0",
