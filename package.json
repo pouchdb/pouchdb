@@ -53,7 +53,7 @@
     "derequire": "2.0.2",
     "es5-shim": "4.1.15",
     "express": "4.13.3",
-    "express-pouchdb": "1.0.0",
+    "express-pouchdb": "1.0.1",
     "http-server": "0.8.5",
     "istanbul": "0.4.0",
     "istanbul-coveralls": "1.0.3",
