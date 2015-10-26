@@ -3794,7 +3794,8 @@ repl_adapters.forEach(function (adapters) {
         }
       });
 
-      setTimeout(changeSrcDoc, 2);
+      doc._attachments['c.txt'].data = btoa('ZZZ');
+      doc._attachments['b.txt'].data = btoa('ZZZ');
 
       function isUnique(arr) {
         arr.sort();
@@ -3805,12 +3806,6 @@ repl_adapters.forEach(function (adapters) {
         }
         return true;
       }
-
-      function changeSrcDoc() {
-        doc._attachments['c.txt'].data = btoa('ZZZ');
-        doc._attachments['b.txt'].data = btoa('ZZZ');
-      }
-
     });
 
   });
