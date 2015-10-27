@@ -27,7 +27,8 @@ function getIndexes(db) {
     res.indexes = utils.flatten(res.indexes, allDocsRes.rows.filter(function (row) {
       return row.doc.language === 'query';
     }).map(function (row) {
-      var viewNames = Object.keys(row.doc.views);
+      var viewNames = row.doc.views !== undefined ?
+        Object.keys(row.doc.views) : [];
 
       return viewNames.map(function (viewName) {
         var view = row.doc.views[viewName];
