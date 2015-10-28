@@ -37,7 +37,9 @@ adapters.forEach(function (adapter) {
 
     it('4314 Create a pouch with + in name', function () {
       var db = new PouchDB(dbs.name + '+suffix');
-      return db.info();
+      return db.info().then(function () {
+        return db.destroy();
+      });
     });
 
     it('Catch an error when creating a pouch with a promise', function (done) {
