@@ -1,7 +1,7 @@
 {% include anchor.html edit="true" title="Create a database" hash="create_database" %}
 
 {% highlight js %}
-new PouchDB([name], [options])
+new PouchDB([name], [options], [callback])
 {% endhighlight %}
 
 This method creates a database or opens an existing one. If you use a URL like `'http://domain.com/dbname'`, then PouchDB will work as a client to an online CouchDB instance.  Otherwise it will create a local database using [whatever backend is present](/adapters.html).
