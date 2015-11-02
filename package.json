@@ -32,7 +32,7 @@
     "pouchdb-collate": "1.2.0",
     "pouchdb-collections": "1.0.1",
     "request": "2.65.0",
-    "spark-md5": "1.0.0",
+    "spark-md5": "2.0.0",
     "through2": "2.0.0",
     "vuvuzela": "1.0.1"
   },
