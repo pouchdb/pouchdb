@@ -157,6 +157,20 @@ function createCriterion(userOperator, userValue, parsedField) {
       return function (doc) {
         return fieldExists(doc) && regexMatch(doc);
       };
+    case '$elemMatch':
+      return function (doc) {
+        var docFieldValue = getFieldFromDoc(doc, parsedField);
+        if (!fieldIsArray(doc)) { return false;}
+        // Not the prettiest code I've ever written so I think I need to explain what I'm doing
+        // I get the array field that we want to do the $elemMatch on and then call createCriterion
+        // with a fake document just to check if this operator passes or not. If any of them do
+        // then this document is a match
+        return docFieldValue.some(function (value) {
+          return Object.keys(userValue).every(function (matcher) {
+            return createCriterion(matcher, userValue[matcher], 'a')({'a': value});
+          });
+        });
+      };
   }
 
   throw new Error('unknown operator "' + parsedField[0] +
