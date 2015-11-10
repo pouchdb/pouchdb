@@ -51,20 +51,20 @@ if [[ ! -z $SERVER ]]; then
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
     exit 1
   fi
-fi
 
-printf 'Waiting for host to start .'
-WAITING=0
-until $(curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST); do
-    if [ $WAITING -eq 4 ]; then
-        printf '\nHost failed to start\n'
-        exit 1
-    fi
-    let WAITING=WAITING+1
-    printf '.'
-    sleep 5
-done
-printf '\nHost started :)'
+  printf 'Waiting for host to start .'
+  WAITING=0
+  until $(curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST); do
+      if [ $WAITING -eq 4 ]; then
+          printf '\nHost failed to start\n'
+          exit 1
+      fi
+      let WAITING=WAITING+1
+      printf '.'
+      sleep 5
+  done
+  printf '\nHost started :)'
+fi
 
 if [ "$CLIENT" == "unit" ]; then
     npm run test-unit
