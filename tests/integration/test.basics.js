@@ -42,6 +42,13 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('4314 Create a pouch with urlencoded name', function () {
+      var db = new PouchDB(dbs.name + 'some%2Ftest');
+      return db.info().then(function () {
+        return db.destroy();
+      });
+    });
+
     it('Catch an error when creating a pouch with a promise', function (done) {
       new PouchDB().catch(function (err) {
         should.exist(err);
