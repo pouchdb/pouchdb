@@ -221,5 +221,21 @@ module.exports = function (dbType, context) {
         should.exist(err);
       });
     });
+
+    it('handles ddoc with no views and ignores it', function () {
+      var db = context.db;
+
+      return db.put({
+        _id: '_design/missing-view',
+        language: 'query'
+      })
+      .then(function () {
+        return db.getIndexes();
+      })
+      .then(function (resp) {
+        resp.indexes.length.should.equal(1);
+      });
+
+    });
   });
 };
