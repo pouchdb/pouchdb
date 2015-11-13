@@ -12,7 +12,7 @@ sudo dpkg -i esl-erlang_18.1-1~ubuntu~precise_amd64.deb
 # Sweet, build CouchDB
 git clone https://github.com/apache/couchdb.git ~/couchdb
 cd ~/couchdb
-./configure --disable-docs
+./configure --disable-docs --disable-fauxton
 make
 
 # All done, run a cluster
