@@ -1302,7 +1302,11 @@ function createCriterion(userOperator, userValue, parsedField) {
   function arrayContainsValue (doc) {
     var docFieldValue = getFieldFromDoc(doc, parsedField);
     return userValue.some(function (val) {
-      return docFieldValue.indexOf(val) > -1;
+      if (docFieldValue instanceof Array) {
+        return docFieldValue.indexOf(val) > -1;
+      }
+
+      return docFieldValue === val;
     });
   }
 
@@ -1316,7 +1320,36 @@ function createCriterion(userOperator, userValue, parsedField) {
   function arraySize (doc) {
     var docFieldValue = getFieldFromDoc(doc, parsedField);
     return docFieldValue.length === userValue;
+  }
 
+  function modField (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    var divisor = userValue[0];
+    var mod = userValue[1];
+    if (divisor === 0) {
+      throw new Error('Bad divisor, cannot divide by zero');
+    }
+
+    if (parseInt(divisor, 10) !== divisor ) {
+      throw new Error('Divisor is not an integer');
+    }
+
+    if (parseInt(mod, 10) !== mod ) {
+      throw new Error('Modulus is not an integer');
+    }
+
+    if (parseInt(docFieldValue, 10) !== docFieldValue) {
+      return false;
+    }
+
+    return docFieldValue % divisor === mod;
+  }
+
+  function regexMatch(doc) {
+    var re = new RegExp(userValue);
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+
+    return re.test(docFieldValue);
   }
 
   switch (userOperator) {
@@ -1354,11 +1387,11 @@ function createCriterion(userOperator, userValue, parsedField) {
       };
     case '$in':
       return function (doc) {
-        return fieldIsArray(doc) && arrayContainsValue(doc);
+        return fieldExists(doc) && arrayContainsValue(doc);
       };
     case '$nin':
       return function (doc) {
-        return fieldIsArray(doc) && !arrayContainsValue(doc);
+        return fieldExists(doc) && !arrayContainsValue(doc);
       };
     case '$size':
       return function (doc) {
@@ -1368,11 +1401,33 @@ function createCriterion(userOperator, userValue, parsedField) {
       return function (doc) {
         return fieldIsArray(doc) && arrayContainsAllValues(doc);
       };
+    case '$mod':
+      return function (doc) {
+        return fieldExists(doc) && modField(doc);
+      };
+    case '$regex':
+      return function (doc) {
+        return fieldExists(doc) && regexMatch(doc);
+      };
+    case '$elemMatch':
+      return function (doc) {
+        var docFieldValue = getFieldFromDoc(doc, parsedField);
+        if (!fieldIsArray(doc)) { return false;}
+        // Not the prettiest code I've ever written so I think I need to explain what I'm doing
+        // I get the array field that we want to do the $elemMatch on and then call createCriterion
+        // with a fake document just to check if this operator passes or not. If any of them do
+        // then this document is a match
+        return docFieldValue.some(function (value) {
+          return Object.keys(userValue).every(function (matcher) {
+            return createCriterion(matcher, userValue[matcher], 'a')({'a': value});
+          });
+        });
+      };
   }
 
   throw new Error('unknown operator "' + parsedField[0] +
     '" - should be one of $eq, $lte, $lt, $gt, $gte, $exists, $ne, $in, ' +
-    '$nin, $size, or $all');
+    '$nin, $size, $mod or $all');
 
 }
 
@@ -1509,6 +1564,7 @@ module.exports = filterInMemoryFields;
 'use strict';
 
 var utils = _dereq_(17);
+var clone = utils.clone;
 var getIndexes = _dereq_(13);
 var collate = _dereq_(38).collate;
 var abstractMapper = _dereq_(7);
@@ -1526,6 +1582,34 @@ var Promise = utils.Promise;
 function indexToSignature(index) {
   // remove '_design/'
   return index.ddoc.substring(8) + '/' + index.name;
+}
+
+function doAllDocs(db, originalOpts) {
+  var opts = clone(originalOpts);
+
+  // CouchDB responds in weird ways when you provide a non-string to _id;
+  // we mimic the behavior for consistency. See issue66 tests for details.
+
+  if (opts.descending) {
+    if ('endkey' in opts && typeof opts.endkey !== 'string') {
+      opts.endkey = '';
+    }
+    if ('startkey' in opts && typeof opts.startkey !== 'string') {
+      opts.limit = 0;
+    }
+  } else {
+    if ('startkey' in opts && typeof opts.startkey !== 'string') {
+      opts.startkey = '';
+    }
+    if ('endkey' in opts && typeof opts.endkey !== 'string') {
+      opts.limit = 0;
+    }
+  }
+  if ('key' in opts && typeof opts.key !== 'string') {
+    opts.limit = 0;
+  }
+
+  return db.allDocs(opts);
 }
 
 function find(db, requestDef) {
@@ -1579,7 +1663,7 @@ function find(db, requestDef) {
 
     return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {
-        return db.allDocs(opts);
+        return doAllDocs(db, opts);
       } else {
         var signature = indexToSignature(indexToUse);
         return abstractMapper.query.call(db, signature, opts);
@@ -2147,7 +2231,7 @@ function getIndexes(db) {
     res.indexes = utils.flatten(res.indexes, allDocsRes.rows.filter(function (row) {
       return row.doc.language === 'query';
     }).map(function (row) {
-      var viewNames = Object.keys(row.doc.views);
+      var viewNames = row.doc.views !== undefined ? Object.keys(row.doc.views) : [];
 
       return viewNames.map(function (viewName) {
         var view = row.doc.views[viewName];
