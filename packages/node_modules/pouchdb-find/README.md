@@ -12,7 +12,7 @@ Eventually this will replace PouchDB's map/reduce API entirely. You'll still be 
 Status
 ---
 
-Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$nin`, `$all`, `$size`, `$or`, `$nor`, `$not`, `$mod`, `$regex`, multi-field queries, multi-field indexes, multi-field sort, `'deep.fields.like.this'`, ascending and descending sort.
+Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$nin`, `$all`, `$size`, `$or`, `$nor`, `$not`, `$mod`, `$regex`, `$elemMatch`, multi-field queries, multi-field indexes, multi-field sort, `'deep.fields.like.this'`, ascending and descending sort.
 
 **0.2.0**: `$and`, `$ne`
 
@@ -24,8 +24,7 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$n
 
 **0.6.0**: `$or`, `$nor`, `$not`
 
-
-Not implemented yet: `$elemMatch`
+**0.7.0**: `$elemMatch`, `$regex`
 
 Usage
 ------
