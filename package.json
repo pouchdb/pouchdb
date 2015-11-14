@@ -18,6 +18,7 @@
     "pouchdb"
   ],
   "dependencies": {
+    "add-cors-to-couchdb": "0.0.4",
     "argsarray": "0.0.1",
     "debug": "2.2.0",
     "double-ended-queue": "2.0.0-0",
@@ -46,6 +47,7 @@
     "leveldown": "1.4.3"
   },
   "devDependencies": {
+    "add-cors-to-couchdb": "0.0.4",
     "babel-cli": "^6.3.17",
     "babel-plugin-add-module-exports": "^0.1.2",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.3.16",
@@ -55,7 +57,6 @@
     "chai-as-promised": "5.2.0",
     "child-process-promise": "1.1.0",
     "cordova": "5.4.1",
-    "corsproxy": "0.2.14",
     "derequire": "2.0.3",
     "es5-shim": "4.4.1",
     "express": "4.13.3",
