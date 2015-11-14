@@ -19,3 +19,7 @@ make
 python dev/run -n 1 --with-admin-party-please &
 
 cd $CWD
+
+sleep 2
+./node_modules/.bin/add-cors-to-couchdb http://127.0.0.1:15986
+

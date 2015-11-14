@@ -73,6 +73,9 @@ if (process.env.SERVER) {
 if (process.env.SKIP_MIGRATION) {
   qs.SKIP_MIGRATION = process.env.SKIP_MIGRATION;
 }
+if (process.env.COUCH_HOST) {
+  qs.couchHost = process.env.COUCH_HOST;
+}
 
 testUrl += '?';
 testUrl += querystring.stringify(qs);
