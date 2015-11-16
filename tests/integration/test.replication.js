@@ -4196,6 +4196,34 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Timeout gets passed', function (done) {
+
+      if (!(/http/.test(dbs.remote) && !/http/.test(dbs.name))) {
+        return done();
+      }
+
+      var seenTimeout = false;
+      var ajax = PouchDB.utils.ajax;
+      PouchDB.utils.ajax = function (opts, cb) {
+        // the http adapter takes 5s off the provided timeout
+        if (/timeout=15000/.test(opts.url)) {
+          seenTimeout = true;
+        }
+        ajax.apply(this, arguments);
+      };
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return remote.bulkDocs([{foo: 'bar'}]).then(function() {
+        return db.replicate.from(remote, {timeout: 20000});
+      }).then(function() {
+        seenTimeout.should.equal(true);
+        PouchDB.utils.ajax = ajax;
+        done();
+      });
+    });
+
   });
 });
 
