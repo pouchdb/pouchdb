@@ -231,15 +231,6 @@ function getSingleFieldQueryOptsFor(userOperator, userValue) {
         startkey: userValue,
         inclusive_start: false
       };
-    case '$exists':
-      if (userValue) {
-        return {
-          startkey: COLLATE_LO_PLUS_1
-        };
-      }
-      return {
-        endkey: COLLATE_LO
-      };
     // cloudant docs: Valid values are “null”, “boolean”, “number”, “string”,
     // “array”, and “object”.
     case '$type':
@@ -329,17 +320,6 @@ function getMultiFieldCoreQueryPlan(userOperator, userValue) {
       return {
         startkey: userValue,
         inclusive_start: false
-      };
-    case '$exists':
-      if (userValue) {
-        return {
-          startkey: COLLATE_LO_PLUS_1,
-          endkey: COLLATE_HI
-        };
-      }
-      return {
-        startkey: COLLATE_NULL_LO,
-        endkey: COLLATE_NULL_HI
       };
   }
 }
