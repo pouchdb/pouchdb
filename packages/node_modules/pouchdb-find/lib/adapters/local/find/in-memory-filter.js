@@ -42,6 +42,11 @@ function createCriterion(userOperator, userValue, parsedField) {
     return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
   }
 
+  function fieldNotUndefined (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    return typeof docFieldValue !== 'undefined';
+  }
+
   function fieldIsArray (doc) {
     var docFieldValue = getFieldFromDoc(doc, parsedField);
     return fieldExists(doc) && docFieldValue instanceof Array;
@@ -123,7 +128,12 @@ function createCriterion(userOperator, userValue, parsedField) {
       };
     case '$exists':
       return function (doc) {
-        return fieldExists(doc);
+        //a field that is null is still considered to exist
+        if (userValue) {
+          return fieldNotUndefined(doc);
+        }
+
+        return !fieldNotUndefined(doc);
       };
     case '$ne':
       return function (doc) {
