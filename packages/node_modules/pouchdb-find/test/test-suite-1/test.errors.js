@@ -245,5 +245,88 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('$elemMatch errors with no other selector', function () {
+      var db = context.db;
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: [1]},
+          {_id: '2', foo: [2]},
+          {_id: '3', foo: [3]},
+          {_id: '4', foo: [4]}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {
+            foo: {$elemMatch: {gte: 3}}
+          }
+        }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
+    it('non-logical errors with no other selector', function () {
+      var db = context.db;
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {
+            foo: {$mod: {gte: 3}}
+          }
+        }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
+
+    it('_id errors with non-logical selector', function () {
+      var db = context.db;
+
+      return db.createIndex({
+        index: {
+          fields: ['foo']
+        }
+      }).then(function () {
+        return db.bulkDocs([
+          {_id: '1', foo: 1},
+          {_id: '2', foo: 2},
+          {_id: '3', foo: 3},
+          {_id: '4', foo: 4}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {
+            _id: {$regex: /1/}
+          }
+        }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+          console.log('err', err);
+          should.exist(err);
+        });
+      });
+    });
+
   });
 };
