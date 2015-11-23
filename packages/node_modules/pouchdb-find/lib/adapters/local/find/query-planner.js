@@ -14,20 +14,6 @@ var COLLATE_LO = null;
 var COLLATE_HI = {"\uffff": {}};
 
 // couchdb second-lowest collation value
-var COLLATE_LO_PLUS_1 = false;
-
-var COLLATE_NULL_LO = null;
-var COLLATE_NULL_HI = null;
-var COLLATE_BOOL_LO = false;
-var COLLATE_BOOL_HI = true;
-var COLLATE_NUM_LO = 0;
-var COLLATE_NUM_HI = Number.MAX_VALUE;
-var COLLATE_STR_LO = '';
-var COLLATE_STR_HI = '\uffff\uffff\uffff'; // TODO: yah I know
-var COLLATE_ARR_LO = [];
-var COLLATE_ARR_HI = [{'\uffff': {}}]; // TODO: yah I know
-var COLLATE_OBJ_LO = {};
-var COLLATE_OBJ_HI = {'\uffff': {}}; // TODO: yah I know
 
 function checkFieldInIndex(index, field) {
   var indexFields = index.def.fields.map(getKey);
@@ -138,9 +124,18 @@ function checkIndexFieldsMatch(indexFields, sortOrder, fields) {
 // e.g. if the user queries {foo: {$ne: 'foo'}, bar: {$eq: 'bar'}},
 // then we can neither use an index on ['foo'] nor an index on
 // ['foo', 'bar'], but we can use an index on ['bar'] or ['bar', 'foo']
+var logicalMatchers = ['$eq', '$gt', '$gte', '$lt', '$lte'];
 function checkFieldsLogicallySound(indexFields, selector) {
   var firstField = indexFields[0];
   var matcher = selector[firstField];
+
+  var hasLogicalOperator = Object.keys(matcher).some(function (matcherKey) {
+    return !(logicalMatchers.indexOf(matcherKey) === -1);
+  });
+
+  if (!hasLogicalOperator) {
+    return false;
+  }
 
   var isInvalidNe = Object.keys(matcher).length === 1 &&
     getKey(matcher) === '$ne';
@@ -406,7 +401,8 @@ function createNoIndexFoundError(userFields, sortFields, selector) {
 
   return new Error(
     'couldn\'t find a usable index. try creating an index on: ' +
-    fieldsToSuggest.join(', ')
+    fieldsToSuggest.join(', ') +
+    '. Make sure that only $eq, $gt, $gte, $lt, and $lte are used for the indexed fields.'
   );
 }
 
