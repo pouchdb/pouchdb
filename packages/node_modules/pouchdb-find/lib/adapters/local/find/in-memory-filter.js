@@ -105,6 +105,27 @@ function createCriterion(userOperator, userValue, parsedField) {
     return re.test(docFieldValue);
   }
 
+  function typeMatch(doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+
+    switch (userValue) {
+      case 'null':
+        return docFieldValue === null;
+      case 'boolean':
+        return typeof(docFieldValue) === 'boolean';
+      case 'number':
+        return typeof(docFieldValue) === 'number';
+      case 'string':
+        return typeof(docFieldValue) === 'string';
+      case 'array':
+        return docFieldValue instanceof Array;
+      case 'object':
+        return ({}).toString.call(docFieldValue) === '[object Object]';
+    }
+
+    return false;
+  }
+
   switch (userOperator) {
     case '$eq':
       return function (doc) {
@@ -180,6 +201,10 @@ function createCriterion(userOperator, userValue, parsedField) {
             return createCriterion(matcher, userValue[matcher], 'a')({'a': value});
           });
         });
+      };
+    case '$type':
+      return function (doc) {
+        return typeMatch(doc);
       };
   }
 

@@ -231,41 +231,6 @@ function getSingleFieldQueryOptsFor(userOperator, userValue) {
         startkey: userValue,
         inclusive_start: false
       };
-    // cloudant docs: Valid values are “null”, “boolean”, “number”, “string”,
-    // “array”, and “object”.
-    case '$type':
-      switch (userValue) {
-        case 'null':
-          return {
-            startkey: COLLATE_NULL_LO,
-            endkey: COLLATE_NULL_HI
-          };
-        case 'boolean':
-          return {
-            startkey: COLLATE_BOOL_LO,
-            endkey: COLLATE_BOOL_HI
-          };
-        case 'number':
-          return {
-            startkey: COLLATE_NUM_LO,
-            endkey: COLLATE_NUM_HI
-          };
-        case 'string':
-          return {
-            startkey: COLLATE_STR_LO,
-            endkey: COLLATE_STR_HI
-          };
-        case 'array':
-          return {
-            startkey: COLLATE_ARR_LO,
-            endkey: COLLATE_ARR_HI
-          };
-        case 'object':
-          return {
-            startkey: COLLATE_OBJ_LO,
-            endkey: COLLATE_OBJ_HI
-          };
-      }
   }
 }
 
