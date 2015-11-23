@@ -645,6 +645,12 @@ adapters.forEach(function (adapter) {
       // worth our time. This test does increase code coverage for our
       // own local code, though.
       it('Changes with invalid ddoc with no map function', function () {
+        // CouchDB 2.X does not allow saving of invalid design docs,
+        // so this test is not valid
+        if (testUtils.isCouchMaster()) {
+          return PouchDB.utils.Promise.resolve();
+        }
+
         var db = new PouchDB(dbs.name);
         return db.put({
           _id: '_design/name',
@@ -668,6 +674,12 @@ adapters.forEach(function (adapter) {
     }
 
     it('Changes with invalid ddoc with no filter function', function () {
+      // CouchDB 2.X does not allow saving of invalid design docs,
+      // so this test is not valid
+      if (testUtils.isCouchMaster()) {
+        return PouchDB.utils.Promise.resolve();
+      }
+
       var db = new PouchDB(dbs.name);
       return db.put({
         _id: '_design/name',
@@ -685,10 +697,6 @@ adapters.forEach(function (adapter) {
           changes.on('error', resolve);
           changes.on('change', reject);
         });
-      }).catch(function (err) {
-        // CouchDB Master has changed behaviour and now rejects invalid
-        // design documents
-        err.status.should.equal(400);
       });
     });
 
@@ -1419,7 +1427,7 @@ adapters.forEach(function (adapter) {
       if (testUtils.isCouchMaster()) {
         return true;
       }
-      
+
       var db = new PouchDB(dbs.name);
       var tree = [
         [
@@ -2120,7 +2128,7 @@ adapters.forEach(function (adapter) {
               var rev2 = info.rev;
               return PouchDB.replicate(localdb, remotedb).then(function (done) {
                 // update remote once, local twice, then replicate from
-                // remote to local so the remote losing conflict is later in 
+                // remote to local so the remote losing conflict is later in
                 // the tree
                 return localdb.put({
                   _id: '3',
