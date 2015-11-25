@@ -89,7 +89,6 @@ function getInMemoryFieldsFromNe(selector) {
 }
 
 function getInMemoryFields(coreInMemoryFields, index, selector, userFields) {
-
   var result = utils.flatten(
     // in-memory fields reported as necessary by the query planner
     coreInMemoryFields,
@@ -120,17 +119,21 @@ function checkIndexFieldsMatch(indexFields, sortOrder, fields) {
   return utils.oneSetIsSubArrayOfOther(fields, indexFields);
 }
 
+var logicalMatchers = ['$eq', '$gt', '$gte', '$lt', '$lte'];
+function isNonLogicalMatcher (matcher) {
+  return logicalMatchers.indexOf(matcher) === -1;
+}
+
 // check all the index fields for usages of '$ne'
 // e.g. if the user queries {foo: {$ne: 'foo'}, bar: {$eq: 'bar'}},
 // then we can neither use an index on ['foo'] nor an index on
 // ['foo', 'bar'], but we can use an index on ['bar'] or ['bar', 'foo']
-var logicalMatchers = ['$eq', '$gt', '$gte', '$lt', '$lte'];
 function checkFieldsLogicallySound(indexFields, selector) {
   var firstField = indexFields[0];
   var matcher = selector[firstField];
 
   var hasLogicalOperator = Object.keys(matcher).some(function (matcherKey) {
-    return !(logicalMatchers.indexOf(matcherKey) === -1);
+    return !(isNonLogicalMatcher(matcherKey));
   });
 
   if (!hasLogicalOperator) {
@@ -232,27 +235,33 @@ function getSingleFieldQueryOptsFor(userOperator, userValue) {
 function getSingleFieldCoreQueryPlan(selector, index) {
   var field = getKey(index.def.fields[0]);
   var matcher = selector[field];
+  var inMemoryFields = [];
 
   var userOperators = Object.keys(matcher);
 
   var combinedOpts;
 
-  for (var i = 0; i < userOperators.length; i++) {
-    var userOperator = userOperators[i];
+  userOperators.forEach(function (userOperator) {
+
+    if (isNonLogicalMatcher(userOperator)) {
+      inMemoryFields.push(field);
+      return;
+    }
+
     var userValue = matcher[userOperator];
 
     var newQueryOpts = getSingleFieldQueryOptsFor(userOperator, userValue);
+
     if (combinedOpts) {
       combinedOpts = utils.mergeObjects([combinedOpts, newQueryOpts]);
     } else {
       combinedOpts = newQueryOpts;
     }
-  }
+  });
 
   return {
     queryOpts: combinedOpts,
-    // can't possibly require in-memory fields, since one field
-    inMemoryFields: []
+    inMemoryFields: inMemoryFields
   };
 }
 
