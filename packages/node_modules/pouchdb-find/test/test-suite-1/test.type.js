@@ -103,5 +103,18 @@ module.exports = function (dbType, context) {
         res.docs.should.deep.equal([{_id: 'e'}]);
       });
     });
+
+    it('throws error for unmatched type', function () {
+      var db = context.db;
+      return db.find({
+        selector: {
+          _id: {$gt: null},
+          'foo': {$type: 'made-up'}
+        },
+        fields: ['_id']
+      }).catch(function (err) {
+        err.message.should.match(/made-up not supported/);
+      });
+    });
   });
 };

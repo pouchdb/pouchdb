@@ -25,7 +25,7 @@
   "scripts": {
     "test-node": "./bin/test-node.sh",
     "test-browser": "./bin/test-browser.js",
-    "jshint": "jshint -v && jshint -c .jshintrc lib/*.js bin/*.js test/test.js test/test-utils.js test/*/*.js",
+    "jshint": "jshint -c .jshintrc lib/*.js bin/*.js test/test.js test/test-utils.js test/*/*.js",
     "test": "npm run jshint && ./bin/run-test.sh",
     "build": "mkdirp dist && npm run browserify && npm run min",
     "browserify": "browserify . -s pouchdbFind -p bundle-collapser/plugin | ./bin/es3ify.js | derequire > dist/pouchdb.find.js",
@@ -62,7 +62,7 @@
     "mkdirp": "^0.5.0",
     "mocha": "~1.18",
     "phantomjs": "^1.9.7-5",
-    "pouchdb": "pouchdb/pouchdb",
+    "pouchdb": "^5.2.0",
     "query-string": "^2.4.2",
     "request": "^2.36.0",
     "sauce-connect-launcher": "^0.4.2",
