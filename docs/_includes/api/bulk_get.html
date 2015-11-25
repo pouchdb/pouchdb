@@ -12,9 +12,9 @@ Given a set of document/revision IDs, returns the document bodies (and, optional
   - `id`: ID of the document to fetch.
   - `rev`: Revision of the document to fetch. If this is not specified, all available revisions are fetched.
   - `atts_since`: Optional and supported by the http adapter only. Includes attachments only since specified revisions. Doesn’t includes attachments for specified revisions.
-* `options.revs`: Each returned revision body will include its revision history as a `_revisions` property. Default is `true`.
-* `options.attachments`: Include attachments in the response. Default is `true`.
-* `options.binary`: Return attachment data as Blobs/Buffers, instead of as base64-encoded strings.
+* `options.revs`: Each returned revision body will include its revision history as a `_revisions` property. Default is `false`.
+* `options.attachments`: Include attachment data in the response. Default is `false`, resulting in only stubs being returned.
+* `options.binary`: Return attachment data as Blobs/Buffers, instead of as base64-encoded strings. Default is `false`.
 
 
 
@@ -68,7 +68,7 @@ db.bulkGet({
         }
       }
     }],
-    "id": "good-doc"
+    "id": "doc-that-exists"
   },
   {
     "docs": [
