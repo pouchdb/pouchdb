@@ -5,7 +5,7 @@ var sortById = testUtils.sortById;
 
 module.exports = function (dbType, context) {
 
-  describe(dbType + ': exists123', function () {
+  describe(dbType + ': exists', function () {
 
     it('does $exists queries - true', function () {
       var db = context.db;
