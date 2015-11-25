@@ -124,7 +124,7 @@ module.exports = function (dbType, context) {
       });
     });
 
-    it('boom123 does ne queries with gt', function () {
+    it('does ne queries with gt', function () {
       var db = context.db;
       return db.bulkDocs([
         { name: 'mario', _id: 'mario', rank: 5, series: 'mario', debut: 1981 },
