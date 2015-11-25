@@ -4,8 +4,6 @@ module.exports = function (dbType, context) {
 
   describe(dbType + ': $not', function () {
 
-    //if (dbType === 'http') { return;}
-
     it('works with simple syntax', function () {
       var db = context.db;
       var index = {
