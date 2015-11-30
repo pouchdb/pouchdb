@@ -39,7 +39,7 @@ var sync = PouchDB.sync('mydb', 'http://localhost:5984/mydb', {
 }).on('active', function () {
   // replicate resumed (e.g. user went back online)
 }).on('denied', function (info) {
-  // a document failed to replicate, e.g. due to permissions
+  // a document failed to replicate (e.g. due to permissions)
 }).on('complete', function (info) {
   // handle complete
 }).on('error', function (err) {

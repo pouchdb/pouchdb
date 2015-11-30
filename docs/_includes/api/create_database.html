@@ -14,6 +14,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 * `auto_compaction`: This turns on auto compaction, which means `compact()` is called after every change to the database. Defaults to `false`.
 * `adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
+* `revs_limit`: Specify how many old revisions we keep track (not a copy) of.
 
 **Options for remote databases:**
 
