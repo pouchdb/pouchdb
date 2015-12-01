@@ -1294,6 +1294,11 @@ function createCriterion(userOperator, userValue, parsedField) {
     return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
   }
 
+  function fieldNotUndefined (doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    return typeof docFieldValue !== 'undefined';
+  }
+
   function fieldIsArray (doc) {
     var docFieldValue = getFieldFromDoc(doc, parsedField);
     return fieldExists(doc) && docFieldValue instanceof Array;
@@ -1352,6 +1357,27 @@ function createCriterion(userOperator, userValue, parsedField) {
     return re.test(docFieldValue);
   }
 
+  function typeMatch(doc) {
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+
+    switch (userValue) {
+      case 'null':
+        return docFieldValue === null;
+      case 'boolean':
+        return typeof(docFieldValue) === 'boolean';
+      case 'number':
+        return typeof(docFieldValue) === 'number';
+      case 'string':
+        return typeof(docFieldValue) === 'string';
+      case 'array':
+        return docFieldValue instanceof Array;
+      case 'object':
+        return ({}).toString.call(docFieldValue) === '[object Object]';
+    }
+
+    return false;
+  }
+
   switch (userOperator) {
     case '$eq':
       return function (doc) {
@@ -1375,7 +1401,12 @@ function createCriterion(userOperator, userValue, parsedField) {
       };
     case '$exists':
       return function (doc) {
-        return fieldExists(doc);
+        //a field that is null is still considered to exist
+        if (userValue) {
+          return fieldNotUndefined(doc);
+        }
+
+        return !fieldNotUndefined(doc);
       };
     case '$ne':
       return function (doc) {
@@ -1422,6 +1453,10 @@ function createCriterion(userOperator, userValue, parsedField) {
             return createCriterion(matcher, userValue[matcher], 'a')({'a': value});
           });
         });
+      };
+    case '$type':
+      return function (doc) {
+        return typeMatch(doc);
       };
   }
 
@@ -1713,20 +1748,6 @@ var COLLATE_LO = null;
 var COLLATE_HI = {"\uffff": {}};
 
 // couchdb second-lowest collation value
-var COLLATE_LO_PLUS_1 = false;
-
-var COLLATE_NULL_LO = null;
-var COLLATE_NULL_HI = null;
-var COLLATE_BOOL_LO = false;
-var COLLATE_BOOL_HI = true;
-var COLLATE_NUM_LO = 0;
-var COLLATE_NUM_HI = Number.MAX_VALUE;
-var COLLATE_STR_LO = '';
-var COLLATE_STR_HI = '\uffff\uffff\uffff'; // TODO: yah I know
-var COLLATE_ARR_LO = [];
-var COLLATE_ARR_HI = [{'\uffff': {}}]; // TODO: yah I know
-var COLLATE_OBJ_LO = {};
-var COLLATE_OBJ_HI = {'\uffff': {}}; // TODO: yah I know
 
 function checkFieldInIndex(index, field) {
   var indexFields = index.def.fields.map(getKey);
@@ -1802,7 +1823,6 @@ function getInMemoryFieldsFromNe(selector) {
 }
 
 function getInMemoryFields(coreInMemoryFields, index, selector, userFields) {
-
   var result = utils.flatten(
     // in-memory fields reported as necessary by the query planner
     coreInMemoryFields,
@@ -1833,6 +1853,11 @@ function checkIndexFieldsMatch(indexFields, sortOrder, fields) {
   return utils.oneSetIsSubArrayOfOther(fields, indexFields);
 }
 
+var logicalMatchers = ['$eq', '$gt', '$gte', '$lt', '$lte'];
+function isNonLogicalMatcher (matcher) {
+  return logicalMatchers.indexOf(matcher) === -1;
+}
+
 // check all the index fields for usages of '$ne'
 // e.g. if the user queries {foo: {$ne: 'foo'}, bar: {$eq: 'bar'}},
 // then we can neither use an index on ['foo'] nor an index on
@@ -1840,6 +1865,14 @@ function checkIndexFieldsMatch(indexFields, sortOrder, fields) {
 function checkFieldsLogicallySound(indexFields, selector) {
   var firstField = indexFields[0];
   var matcher = selector[firstField];
+
+  var hasLogicalOperator = Object.keys(matcher).some(function (matcherKey) {
+    return !(isNonLogicalMatcher(matcherKey));
+  });
+
+  if (!hasLogicalOperator) {
+    return false;
+  }
 
   var isInvalidNe = Object.keys(matcher).length === 1 &&
     getKey(matcher) === '$ne';
@@ -1930,77 +1963,39 @@ function getSingleFieldQueryOptsFor(userOperator, userValue) {
         startkey: userValue,
         inclusive_start: false
       };
-    case '$exists':
-      if (userValue) {
-        return {
-          startkey: COLLATE_LO_PLUS_1
-        };
-      }
-      return {
-        endkey: COLLATE_LO
-      };
-    // cloudant docs: Valid values are “null”, “boolean”, “number”, “string”,
-    // “array”, and “object”.
-    case '$type':
-      switch (userValue) {
-        case 'null':
-          return {
-            startkey: COLLATE_NULL_LO,
-            endkey: COLLATE_NULL_HI
-          };
-        case 'boolean':
-          return {
-            startkey: COLLATE_BOOL_LO,
-            endkey: COLLATE_BOOL_HI
-          };
-        case 'number':
-          return {
-            startkey: COLLATE_NUM_LO,
-            endkey: COLLATE_NUM_HI
-          };
-        case 'string':
-          return {
-            startkey: COLLATE_STR_LO,
-            endkey: COLLATE_STR_HI
-          };
-        case 'array':
-          return {
-            startkey: COLLATE_ARR_LO,
-            endkey: COLLATE_ARR_HI
-          };
-        case 'object':
-          return {
-            startkey: COLLATE_OBJ_LO,
-            endkey: COLLATE_OBJ_HI
-          };
-      }
   }
 }
 
 function getSingleFieldCoreQueryPlan(selector, index) {
   var field = getKey(index.def.fields[0]);
   var matcher = selector[field];
+  var inMemoryFields = [];
 
   var userOperators = Object.keys(matcher);
 
   var combinedOpts;
 
-  for (var i = 0; i < userOperators.length; i++) {
-    var userOperator = userOperators[i];
+  userOperators.forEach(function (userOperator) {
+
+    if (isNonLogicalMatcher(userOperator)) {
+      inMemoryFields.push(field);
+      return;
+    }
+
     var userValue = matcher[userOperator];
 
     var newQueryOpts = getSingleFieldQueryOptsFor(userOperator, userValue);
+
     if (combinedOpts) {
       combinedOpts = utils.mergeObjects([combinedOpts, newQueryOpts]);
     } else {
       combinedOpts = newQueryOpts;
     }
-  }
+  });
 
   return {
     queryOpts: combinedOpts,
-    // can't possibly require in-memory fields, since one field
-    inMemoryFields: []
+    inMemoryFields: inMemoryFields
   };
 }
 
@@ -2028,17 +2023,6 @@ function getMultiFieldCoreQueryPlan(userOperator, userValue) {
       return {
         startkey: userValue,
         inclusive_start: false
-      };
-    case '$exists':
-      if (userValue) {
-        return {
-          startkey: COLLATE_LO_PLUS_1,
-          endkey: COLLATE_HI
-        };
-      }
-      return {
-        startkey: COLLATE_NULL_LO,
-        endkey: COLLATE_NULL_HI
       };
   }
 }
@@ -2160,7 +2144,8 @@ function createNoIndexFoundError(userFields, sortFields, selector) {
 
   return new Error(
     'couldn\'t find a usable index. try creating an index on: ' +
-    fieldsToSuggest.join(', ')
+    fieldsToSuggest.join(', ') +
+    '. Make sure that only $eq, $gt, $gte, $lt, and $lte are used for the indexed fields.'
   );
 }
 
