@@ -5,6 +5,7 @@
   "main": "./lib/index.js",
   "homepage": "http://pouchdb.com/",
   "repository": "https://github.com/pouchdb/pouchdb",
+  "tonicExampleFilename": "tonic-example.js",
   "keywords": [
     "db",
     "couchdb",
