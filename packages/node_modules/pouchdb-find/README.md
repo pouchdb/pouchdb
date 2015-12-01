@@ -26,6 +26,8 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$n
 
 **0.7.0**: `$elemMatch`, `$regex`
 
+**0.8.0**: Bug fixes for $and, $type, $exists
+
 Usage
 ------
 
