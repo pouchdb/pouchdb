@@ -2142,13 +2142,12 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Test putAttachment with incorrect base64', function () {
+    it('Test putAttachment with invalid base64', function (done) {
       var db = new PouchDB(dbs.name);
-      return db.putAttachment('doc', 'att', null, '\u65e5\u672c\u8a9e', 'text/plain').then(function () {
-        throw new Error('shouldnt have gotten here');
-      }, function (err) {
-        should.exist(err);
-      });
+      db.putAttachment('doc', 'att', null, '\u65e5\u672c\u8a9e', 'text/plain')
+        .should.eventually.be.rejected
+        .and.have.property("reason", "Attachment is not a valid base64 string")
+        .and.notify(done);
     });
 
     it('Test getAttachment with empty text', function (done) {
