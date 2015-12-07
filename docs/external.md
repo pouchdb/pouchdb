@@ -207,7 +207,7 @@ Ember Data adapter for PouchDB/CouchDB.
 
 #### [ember-pouchdb](https://github.com/taras/ember-pouchdb)
 
-Promisy PouchDB wrapper for Ember.js
+Promisy PouchDB wrapper for Ember.js.
 
 ### Kendo UI
 
@@ -216,6 +216,10 @@ Promisy PouchDB wrapper for Ember.js
 Kendo UI DataSource adapter.
 
 ### React/Flux
+
+#### [pouch-redux](https://github.com/UXtemple/pouch-redux)
+
+Pouch and Redux integration. With Pouch in control this time around. 
 
 #### [redux-pouchdb](https://github.com/vicentedealencar/redux-pouchdb)
 
