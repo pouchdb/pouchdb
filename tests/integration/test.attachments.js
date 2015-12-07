@@ -2145,9 +2145,9 @@ adapters.forEach(function (adapter) {
     it('Test putAttachment with invalid base64', function (done) {
       var db = new PouchDB(dbs.name);
       db.putAttachment('doc', 'att', null, '\u65e5\u672c\u8a9e', 'text/plain')
-        .should.eventually.be.rejected
-        .and.have.property("reason", "Attachment is not a valid base64 string")
-        .and.notify(done);
+        .should.be.rejected.then(function (err) {
+          err.should.have.property("reason", "Attachment is not a valid base64 string");
+        }).should.notify(done);
     });
 
     it('Test getAttachment with empty text', function (done) {
