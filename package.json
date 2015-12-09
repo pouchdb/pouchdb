@@ -132,6 +132,7 @@
     "./lib/deps/binary/cloneBinaryObject.js": "./lib/deps/binary/cloneBinaryObject-browser.js",
     "./lib/deps/binary/isBinaryObject.js": "./lib/deps/binary/isBinaryObject-browser.js",
     "./lib/deps/md5.js": "./lib/deps/md5-browser.js",
+    "./lib/deps/docs/rev.js": "./lib/deps/docs/rev-browser.js",
     "./lib/deps/migrate.js": "./lib/deps/migrate-browser.js",
     "./lib/mapreduce/md5.js": "./lib/mapreduce/md5-browser.js",
     "./lib/version.js": "./lib/version-browser.js",
