@@ -104,9 +104,15 @@ You should now find the documentation at http://127.0.0.1:4000
 Writing a PouchDB Blog Post
 --------------------------------------
 
-Writing a blog post for PouchDB is exactly the same process as other contributions, the blog posts are kept @ https://github.com/pouchdb/pouchdb/tree/master/docs/_posts, just build the site as documented above, its usually easiest to copy an existing post and write away.
+Writing a blog post for PouchDB is exactly the same process as other contributions; all the blog posts are kept at https://github.com/pouchdb/pouchdb/tree/master/docs/_posts. We always welcome blog posts from new contributors!
 
-If you want to be sure the blog post is relevant, open an issue on what you want to write about to hear back from reviewers.
+### Steps
+
+1. Open up an issue proposing the blog post if you need help getting ideas or structuring it.
+2. Add yourself as an author to https://github.com/pouchdb/pouchdb/blob/master/docs/_data/authors.yml. (Make sure you have a [Gravatar](http://en.gravatar.com/) too.)
+3. Add a new blog post with the date that you expect it will be published (we can always change it later).
+4. Write something!
+5. Run `npm run build-site` and you will always have a fresh version of the site at localhost:4000. You may need to Cmd-Shift-R or Ctrl-Shift-R (hard refresh) to see the latest version, since we use AppCache.
 
 Committers!
 --------------
