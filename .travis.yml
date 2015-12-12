@@ -45,6 +45,10 @@ before_script:
     # is a lint failure
   - npm run jshint
 
+    # set up CORS
+  - "npm install add-cors-to-couchdb"
+  - "./node_modules/.bin/add-cors-to-couchdb"
+
 script: npm run $COMMAND
 
 env:
