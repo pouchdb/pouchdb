@@ -18,6 +18,7 @@
   ],
   "dependencies": {
     "argsarray": "0.0.1",
+    "browserify-versionify": "^1.0.6",
     "debug": "2.2.0",
     "double-ended-queue": "2.0.0-0",
     "es3ify": "0.1.4",
@@ -87,9 +88,8 @@
     "build-main-js": "browserify . -s PouchDB -p bundle-collapser/plugin | node ./bin/es3ify.js | derequire > dist/pouchdb.js",
     "min": "uglifyjs dist/pouchdb.js -mc > dist/pouchdb.min.js",
     "build-plugins": "sh bin/build-all-plugins.sh",
-    "build": "npm run version && rimraf dist && mkdirp dist && npm run build-js && npm run license",
+    "build": "rimraf dist && mkdirp dist && npm run build-js && npm run license",
     "license": "node ./bin/add-license.js",
-    "version": "node ./bin/get-version.js",
     "test-unit": "mocha tests/unit",
     "test-node": "sh bin/test-node.sh",
     "test-component": "mocha tests/component",
@@ -97,9 +97,9 @@
     "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
     "cordova": "npm run build && sh bin/run-cordova.sh",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/",
-    "dev": "npm run version && CLIENT=dev bash bin/run-test.sh",
-    "launch-dev-server": "npm run version && node ./bin/dev-server.js",
-    "test": "npm run version && bash bin/run-test.sh",
+    "dev": "CLIENT=dev bash bin/run-test.sh",
+    "launch-dev-server": "node ./bin/dev-server.js",
+    "test": "bash bin/run-test.sh",
     "posttest": "npm run jshint",
     "release": "sh bin/release.sh",
     "publish-site": "sh bin/publish-site.sh",
@@ -140,5 +140,8 @@
     "fs": false,
     "leveldown": false,
     "request": "./lib/deps/ajax/request-browser.js"
+  },
+  "browserify": {
+    "transform": ["browserify-versionify"]
   }
 }
