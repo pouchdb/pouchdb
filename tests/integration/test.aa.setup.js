@@ -10,4 +10,9 @@ describe('DB Setup', function () {
       }
     );
   });
+
+  it('PouchDB has a version', function () {
+    PouchDB.version.should.be.a('string');
+    PouchDB.version.should.match(/\d+\.\d+\.\d+/);
+  });
 });
