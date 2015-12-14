@@ -42,7 +42,7 @@
     "main": "dist/pouchdb.js"
   },
   "optionalDependencies": {
-    "leveldown": "1.4.2"
+    "leveldown": "1.4.3"
   },
   "devDependencies": {
     "browserify": "12.0.1",
@@ -142,6 +142,8 @@
     "request": "./lib/deps/ajax/request-browser.js"
   },
   "browserify": {
-    "transform": ["browserify-versionify"]
+    "transform": [
+      "browserify-versionify"
+    ]
   }
 }
