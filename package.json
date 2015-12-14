@@ -94,7 +94,7 @@
     "test-node": "sh bin/test-node.sh",
     "test-component": "mocha tests/component",
     "test-fuzzy": "TYPE=fuzzy npm run test",
-    "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
+    "test-browser": "npm run build-test && node ./bin/test-browser.js",
     "cordova": "npm run build && sh bin/run-cordova.sh",
     "jshint": "jshint -c .jshintrc bin/ lib/ tests/",
     "dev": "npm run version && CLIENT=dev bash bin/run-test.sh",
@@ -105,6 +105,7 @@
     "publish-site": "sh bin/publish-site.sh",
     "build-site": "node ./bin/build-site.js",
     "report-coverage": "COVERAGE=1 npm test && istanbul-coveralls --no-rm",
+    "build-test": "browserify tests/integration/index.js > tests/integration/test-bundle.js",
     "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js",
     "verify-bundle-size": "sh bin/verify-bundle-size.sh"
   },

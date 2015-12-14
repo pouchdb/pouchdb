@@ -1,5 +1,7 @@
 'use strict';
 
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
 var adapters = ['local', 'http'];
 
 adapters.forEach(function (adapter) {

@@ -1,4 +1,8 @@
 'use strict';
+
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
+
 if (!process.env.LEVEL_ADAPTER &&
     !process.env.LEVEL_PREFIX && !process.env.AUTO_COMPACTION) {
   // these tests don't make sense for anything other than default leveldown

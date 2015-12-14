@@ -35,13 +35,12 @@ if (process.env.AUTO_COMPACTION) {
   queryParams.autoCompaction = true;
 }
 
-var indexfile = "./lib/index.js";
-var outfile = "./dist/pouchdb.js";
+var integrationRoot = "./tests/integration/index.js";
+var integrationBundle = "./tests/integration/test-bundle.js";
 var perfRoot = './tests/performance/';
 var performanceBundle = './tests/performance-bundle.js';
 
-var w = watchify(browserify(indexfile, {
-  standalone: "PouchDB",
+var w = watchify(browserify(integrationRoot, {
   cache: {},
   packageCache: {},
   fullPaths: true,
@@ -57,9 +56,9 @@ var b = watchify(browserify({
 
 function bundle(callback) {
   mkdirp.sync('./dist');
-  w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile))
+  w.bundle().pipe(derequire()).pipe(fs.createWriteStream(integrationBundle))
   .on('finish', function () {
-    console.log('Updated: ', outfile);
+    console.log('Updated: ', integrationBundle);
     if (typeof callback === 'function') {
       callback();
     }

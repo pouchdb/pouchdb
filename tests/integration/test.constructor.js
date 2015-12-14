@@ -1,5 +1,8 @@
 'use strict';
 
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
+
 describe('constructor errors', function () {
   it('should error on an undefined name', function (done) {
     var notAName;

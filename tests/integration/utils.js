@@ -1,8 +1,8 @@
-/* global PouchDB */
 /* jshint -W079 */
 'use strict';
 
-var testUtils = {};
+var testUtils = require('./utils');
+var PouchDB = require('../../lib');
 
 function uniq(list) {
   var map = {};
@@ -12,22 +12,7 @@ function uniq(list) {
   return Object.keys(map);
 }
 
-testUtils.isCouchMaster = function () {
-  return 'SERVER' in testUtils.params() &&
-    testUtils.params().SERVER === 'couchdb-master';
-};
-
-testUtils.isSyncGateway = function () {
-  return 'SERVER' in testUtils.params() &&
-    testUtils.params().SERVER === 'sync-gateway';
-};
-
-testUtils.isExpressRouter = function () {
-  return 'SERVER' in testUtils.params() &&
-    testUtils.params().SERVER === 'pouchdb-express-router';
-};
-
-testUtils.params = function () {
+function params() {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env;
   }
@@ -40,9 +25,26 @@ testUtils.params = function () {
     acc[tmp[0]] = tmp[1] || true;
     return acc;
   }, {});
+}
+
+exports.isCouchMaster = function () {
+  return 'SERVER' in params() &&
+    params().SERVER === 'couchdb-master';
 };
 
-testUtils.couchHost = function () {
+exports.isSyncGateway = function () {
+  return 'SERVER' in params() &&
+    params().SERVER === 'sync-gateway';
+};
+
+exports.isExpressRouter = function () {
+  return 'SERVER' in params() &&
+    params().SERVER === 'pouchdb-express-router';
+};
+
+exports.params = params;
+
+exports.couchHost = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env.COUCH_HOST || 'http://localhost:5984';
   } else if (window && window.COUCH_HOST) {
@@ -83,7 +85,7 @@ function createBlob(parts, properties) {
   }
 }
 
-testUtils.makeBlob = function (data, type) {
+exports.makeBlob = function (data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data, 'binary');
   } else {
@@ -93,19 +95,19 @@ testUtils.makeBlob = function (data, type) {
   }
 };
 
-testUtils.binaryStringToBlob = function (bin, type) {
+exports.binaryStringToBlob = function (bin, type) {
   return PouchDB.utils.binaryStringToBlobOrBuffer(bin, type);
 };
 
-testUtils.btoa = function (arg) {
+exports.btoa = function (arg) {
   return PouchDB.utils.btoa(arg);
 };
 
-testUtils.atob = function (arg) {
+exports.atob = function (arg) {
   return PouchDB.utils.atob(arg);
 };
 
-testUtils.readBlob = function (blob, callback) {
+exports.readBlob = function (blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString('binary'));
   } else {
@@ -126,17 +128,17 @@ testUtils.readBlob = function (blob, callback) {
   }
 };
 
-testUtils.readBlobPromise = function (blob) {
+exports.readBlobPromise = function (blob) {
   return new PouchDB.utils.Promise(function (resolve) {
-    testUtils.readBlob(blob, resolve);
+    exports.readBlob(blob, resolve);
   });
 };
 
-testUtils.base64Blob = function (blob, callback) {
+exports.base64Blob = function (blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString('base64'));
   } else {
-    testUtils.readBlob(blob, function (binary) {
+    exports.readBlob(blob, function (binary) {
       callback(PouchDB.utils.btoa(binary));
     });
   }
@@ -144,15 +146,15 @@ testUtils.base64Blob = function (blob, callback) {
 
 // Prefix http adapter database names with their host and
 // node adapter ones with a db location
-testUtils.adapterUrl = function (adapter, name) {
+exports.adapterUrl = function (adapter, name) {
   if (adapter === 'http') {
-    return testUtils.couchHost() + '/' + name;
+    return exports.couchHost() + '/' + name;
   }
   return name;
 };
 
 // Delete specified databases
-testUtils.cleanup = function (dbs, done) {
+exports.cleanup = function (dbs, done) {
   dbs = uniq(dbs);
   var num = dbs.length;
   var finished = function() {
@@ -169,7 +171,7 @@ testUtils.cleanup = function (dbs, done) {
 // Put doc after prevRev (so that doc is a child of prevDoc
 // in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
-testUtils.putAfter = function (db, doc, prevRev, callback) {
+exports.putAfter = function (db, doc, prevRev, callback) {
   var newDoc = PouchDB.utils.extend({}, doc);
   if (!prevRev) {
     db.put(newDoc, { new_edits: false }, callback);
@@ -187,7 +189,7 @@ testUtils.putAfter = function (db, doc, prevRev, callback) {
 
 // docs will be inserted one after another
 // starting from root
-testUtils.putBranch = function (db, docs, callback) {
+exports.putBranch = function (db, docs, callback) {
   function insert(i) {
     var doc = docs[i];
     var prev = i > 0 ? docs[i - 1]._rev : null;
@@ -200,7 +202,7 @@ testUtils.putBranch = function (db, docs, callback) {
     }
     db.get(doc._id, { rev: doc._rev }, function (err, ok) {
       if (err) {
-        testUtils.putAfter(db, docs[i], prev, function (err, doc) {
+        exports.putAfter(db, docs[i], prev, function (err, doc) {
           next();
         });
       } else {
@@ -211,10 +213,10 @@ testUtils.putBranch = function (db, docs, callback) {
   insert(0);
 };
 
-testUtils.putTree = function (db, tree, callback) {
+exports.putTree = function (db, tree, callback) {
   function insert(i) {
     var branch = tree[i];
-    testUtils.putBranch(db, branch, function () {
+    exports.putBranch(db, branch, function () {
       if (i < tree.length - 1) {
         insert(i + 1);
       } else {
@@ -225,13 +227,13 @@ testUtils.putTree = function (db, tree, callback) {
   insert(0);
 };
 
-testUtils.isCouchDB = function (cb) {
-  PouchDB.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
+exports.isCouchDB = function (cb) {
+  PouchDB.ajax({url: exports.couchHost() + '/' }, function (err, res) {
     cb('couchdb' in res);
   });
 };
 
-testUtils.writeDocs = function (db, docs, callback, res) {
+exports.writeDocs = function (db, docs, callback, res) {
   if (!res) {
     res = [];
   }
@@ -241,12 +243,12 @@ testUtils.writeDocs = function (db, docs, callback, res) {
   var doc = docs.shift();
   db.put(doc, function (err, info) {
     res.push(info);
-    testUtils.writeDocs(db, docs, callback, res);
+    exports.writeDocs(db, docs, callback, res);
   });
 };
 
 // Borrowed from: http://stackoverflow.com/a/840849
-testUtils.eliminateDuplicates = function (arr) {
+exports.eliminateDuplicates = function (arr) {
   var i, element, len = arr.length, out = [], obj = {};
   for (i = 0; i < len; i++) {
     obj[arr[i]] = 0;
@@ -260,7 +262,7 @@ testUtils.eliminateDuplicates = function (arr) {
 };
 
 // Promise finally util similar to Q.finally
-testUtils.fin = function (promise, cb) {
+exports.fin = function (promise, cb) {
   return promise.then(function (res) {
     var promise2 = cb();
     if (typeof promise2.then === 'function') {
@@ -280,7 +282,7 @@ testUtils.fin = function (promise, cb) {
   });
 };
 
-testUtils.promisify = function (fun, context) {
+exports.promisify = function (fun, context) {
   return function() {
     var args = [];
     for (var i = 0; i < arguments.length; i++) {
@@ -298,11 +300,14 @@ testUtils.promisify = function (fun, context) {
   };
 };
 
-var testDir;
-if (typeof module !== 'undefined' && module.exports) {
-  global.PouchDB = require('../../lib');
-  global.binaryStringToBlobOrBuffer =
-    require('../../lib/deps/binary/binaryStringToBlobOrBuffer');
+exports.binaryStringToBlobOrBuffer =
+  require('../../lib/deps/binary/binaryStringToBlobOrBuffer');
+
+exports.PouchDB = PouchDB;
+
+if (typeof process !== 'undefined' && !process.browser) {
+
+  // we're in Node rather than the browser
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 
@@ -315,15 +320,41 @@ if (typeof module !== 'undefined' && module.exports) {
       defaults.prefix = process.env.LEVEL_PREFIX;
       console.log('Using client-side leveldown prefix: ' + defaults.prefix);
     }
-    global.PouchDB = global.PouchDB.defaults(defaults);
+    exports.PouchDB = PouchDB.defaults(defaults);
   } else if (process.env.AUTO_COMPACTION) {
-    global.PouchDB = global.PouchDB.defaults({auto_compaction: true});
+    exports.PouchDB = PouchDB.defaults({auto_compaction: true});
+  } else {
+    exports.PouchDB = PouchDB;
   }
   if (typeof process !== 'undefined') {
-    testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
+    var testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
     testDir = testDir.slice(-1) === '/' ? testDir : testDir + '/';
-    global.PouchDB.prefix = testDir + global.PouchDB.prefix;
+    exports.PouchDB.prefix = testDir + global.PouchDB.prefix;
     require('../../lib/adapters/leveldb').use_prefix = true;
   }
-  module.exports = testUtils;
+} else {
+  // we are in the browser
+  // use query parameter pluginFile if present,
+  // eg: test.html?pluginFile=memory.pouchdb.js
+  var preferredAdapters = window.location.search.match(/[?&]adapters=([^&]+)/);
+
+  var pluginAdapters = {
+    memory: require('../../lib/plugins/memory'),
+    fruitdown: require('../../lib/plugins/fruitdown'),
+    localstorage: require('../../lib/plugins/localstorage')
+  };
+
+  if (preferredAdapters) {
+    preferredAdapters = preferredAdapters[1].split(',');
+    preferredAdapters.forEach(function (adapter) {
+      if (adapter === 'memory') {
+        require('../../lib/plugins/memory');
+      } else if (adapter === 'fruitdown') {
+        require('../../lib/plugins/fruitdown');
+      } else if (adapter === 'localstorage') {
+        require('../../lib/plugins/localstorage');
+      }
+    });
+    PouchDB.preferredAdapters = preferredAdapters;
+  }
 }

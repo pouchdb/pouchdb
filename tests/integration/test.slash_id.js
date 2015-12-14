@@ -1,5 +1,7 @@
 'use strict';
 
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
 var adapters = ['local', 'http'];
 var repl_adapters = [
   ['local', 'http'],

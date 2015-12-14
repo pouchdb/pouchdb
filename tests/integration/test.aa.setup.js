@@ -1,4 +1,8 @@
 'use strict';
+
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
+
 describe('DB Setup', function () {
   it('we can find CouchDB with admin credentials', function (done) {
     PouchDB.ajax({ url: testUtils.couchHost() + '/_session' },

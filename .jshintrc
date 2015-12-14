@@ -31,7 +31,6 @@
     "before",
     "beforeEach",
     "afterEach",
-    "testUtils",
     "emit",
     "EventSource",
     "indexedDB",

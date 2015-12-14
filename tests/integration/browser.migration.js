@@ -3,6 +3,9 @@
    PouchDBVersion360 */
 'use strict';
 
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
+
 var scenarios = [
   'PouchDB v1.1.0',
   'PouchDB v2.0.0',

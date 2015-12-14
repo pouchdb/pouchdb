@@ -18,7 +18,6 @@ exec('mkdir -p ' + testsDir, function () {
   process.on('SIGINT', cleanup);
   process.on('exit', cleanup);
 });
-global.testUtils = require('./utils.js');
 var chai = require('chai');
 chai.use(require('chai-as-promised'));
 global.should = chai.should();

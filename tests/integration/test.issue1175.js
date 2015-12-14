@@ -1,4 +1,8 @@
 'use strict';
+
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
+
 function MockDatabase(statusCodeToReturn, dataToReturn) {
   this.once = this.removeListener = function () {};
   this.type = function () { return 'mock'; };

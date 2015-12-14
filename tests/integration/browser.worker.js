@@ -1,5 +1,7 @@
 'use strict';
 
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
 var sourceFile = window.location.search.match(/[?&]sourceFile=([^&]+)/);
 
 if (!sourceFile) {

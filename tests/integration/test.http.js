@@ -1,5 +1,8 @@
 'use strict';
 
+var testUtils = require('./utils');
+var PouchDB = testUtils.PouchDB;
+
 describe('test.http.js', function () {
 
   var dbs = {};
