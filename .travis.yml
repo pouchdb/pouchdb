@@ -9,7 +9,7 @@ services:
 git:
   depth: 30
 
-# sudo: false
+sudo: false
 
 # cache:
 #   directories:
