@@ -24,9 +24,6 @@ if [[ ! -z $SERVER ]]; then
     ./node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!
   elif [ "$SERVER" == "couchdb-master" ]; then
-    if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
-      ./bin/run-couch-master-on-travis.sh
-    fi
     export COUCH_HOST='http://127.0.0.1:15984'
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     node ./tests/misc/pouchdb-express-router.js &
