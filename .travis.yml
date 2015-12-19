@@ -4,12 +4,13 @@ node_js:
   - "0.12"
 
 services:
-  - couchdb
+  - docker
 
 git:
   depth: 30
 
-sudo: false
+sudo:
+  false
 
 cache:
   directories:
@@ -18,28 +19,19 @@ cache:
 
 addons:
   firefox: "41.0.1"
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - build-essential
-      - ca-certificates
-      - curl
-      - erlang-dev
-      - erlang-nox
-      - git
-      - libicu-dev
-      - libmozjs185-dev
-      - python
-      - g++
-      - g++-4.8
+
+before_install:
+  # Install CouchDB Stable
+  - docker run -d -p 5984:5984 klaemo/couchdb:1.6.1
+
+  # Install CouchDB Master
+  - docker run -d -p 15984:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
+
+
 
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-
-    # Lets know what CouchDB we are playing with
-  - "curl -X GET http://127.0.0.1:5984/"
 
     # Fail early so we dont run hours of saucelabs if we know there
     # is a lint failure
