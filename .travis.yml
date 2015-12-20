@@ -27,8 +27,6 @@ before_install:
   # Install CouchDB Master
   - docker run -d -p 15984:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
 
-
-
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
@@ -120,6 +118,9 @@ matrix:
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
   - env: COMMAND=report-coverage
+  - env: CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - env: AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - env: TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
 
   fast_finish: true
