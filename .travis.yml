@@ -21,6 +21,9 @@ addons:
   firefox: "41.0.1"
 
 before_install:
+
+  - export prebuild_compile=true
+
   # Install CouchDB Stable
   - docker run -d -p 5984:5984 klaemo/couchdb:1.6.1
 
