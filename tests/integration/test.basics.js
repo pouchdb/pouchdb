@@ -72,6 +72,22 @@ adapters.forEach(function (adapter) {
       return new PouchDB(dbs.name).destroy({});
     });
 
+    it('destroy a pouch, then throw 404s', function (done) {
+      var db = new PouchDB(dbs.name);
+
+      db.put({
+        _id: 'cleanTest'
+      }).then(function () {
+        return db.destroy();
+      }).then(function () {
+        console.log('cleanTest')
+        return db.get('cleanTest');
+      }).catch(function (object) {
+        object.status.should.equal(404);
+        done();
+      });
+    });
+
     it('destroy a pouch, with a promise', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         should.exist(db);
@@ -82,6 +98,7 @@ adapters.forEach(function (adapter) {
         }, done);
       });
     });
+
 
     it('Add a doc', function (done) {
       var db = new PouchDB(dbs.name);
