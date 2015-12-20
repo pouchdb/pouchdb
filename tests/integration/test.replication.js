@@ -505,7 +505,9 @@ adapters.forEach(function (adapters) {
     it('Test live pull checkpoint', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      remote.bulkDocs({ docs: docs }, {}, function (err, results) {
+      db.info().then(function() {
+        return remote.bulkDocs({ docs: docs });
+      }).then(function () {
         var changeCount = docs.length;
         var changes = db.changes({
           live: true
@@ -532,50 +534,63 @@ adapters.forEach(function (adapters) {
     });
 
     it('Test live push checkpoint', function (done) {
+
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      db.bulkDocs({ docs: docs }, {}, function (err, results) {
-        var changeCount = docs.length;
-        var finished = 0;
-        var isFinished = function () {
-          if (++finished !== 2) {
-            return;
-          }
-          db.replicate.to(dbs.remote).on('complete', function (details) {
-            if (testUtils.isSyncGateway()) {
-              if (adapters[0] === 'local' && adapters[1] === 'http') {
-                // TODO investigate why Sync Gateway sometimes reads a
-                // document. This seems to come up 1 more in the browser
-                // and 0 more in node, but I've seen 1 in node.
-                details.docs_read.should.be.within(0,1);
-              } else {
-                details.docs_read.should.equal(0);
-              }
-            } else {
-              details.docs_read.should.equal(0);
-            }
-            db.info(function (err, info) {
-              verifyInfo(info, {
-                update_seq: 3,
-                doc_count: 3
-              });
-              done();
-            });
+
+      function complete(details) {
+
+        if (testUtils.isSyncGateway()) {
+          // TODO investigate why Sync Gateway sometimes reads a
+          // document. This seems to come up 1 more in the browser
+          // and 0 more in node, but I've seen 1 in node.
+          details.docs_read.should.be.within(0, 1);
+        } else {
+          details.docs_read.should.equal(0);
+        }
+
+        db.info(function (err, info) {
+          verifyInfo(info, {
+            update_seq: 3,
+            doc_count: 3
           });
-        };
-        var changes = remote.changes({
-          live: true
-        }).on('change', function (change) {
+          done();
+        });
+      }
+
+      var finished = 0;
+      function isFinished () {
+        if (++finished !== 2) {
+          return;
+        }
+        db.replicate.to(dbs.remote)
+          .on('error', done)
+          .on('complete', complete);
+      }
+
+      remote.info().then(function() {
+        return db.bulkDocs({ docs: docs });
+      }).then(function () {
+
+        var changeCount = docs.length;
+        function onChange(change) {
           if (--changeCount) {
             return;
           }
           replication.cancel();
           changes.cancel();
-        }).on('complete', isFinished).on('error', done);
-        var replication = db.replicate.to(dbs.remote, {
-          live: true
-        }).on('complete', isFinished);
-      });
+        }
+
+        var changes = remote.changes({live: true})
+          .on('error', done)
+          .on('change', onChange)
+          .on('complete', isFinished);
+
+        var replication = db.replicate.to(dbs.remote, {live: true})
+          .on('error', done)
+          .on('complete', isFinished);
+
+      }).catch(done);
     });
 
     it('Test checkpoint 2', function (done) {
