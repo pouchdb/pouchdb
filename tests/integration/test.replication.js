@@ -3585,7 +3585,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it.skip('Test immediate replication canceling', function (done) {
+    it('Test immediate replication canceling wtf', function (done) {
       //See  http://pouchdb.com/guides/replication.html : Cancelling replication
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -3601,7 +3601,7 @@ adapters.forEach(function (adapters) {
       replicationHandler.cancel();
     });
 
-    it('#3171 Unauthorized validate_doc_update error message',
+    it('#3171 Unauthorized validate_doc_update error message wtf',
         function (done) {
       testUtils.isCouchDB(function (isCouchDB) {
         if (adapters[1] !== 'http' || !isCouchDB) {
