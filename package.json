@@ -139,7 +139,7 @@
     "crypto": false,
     "fs": false,
     "leveldown": false,
-    "request": "./lib/deps/ajax/request-browser.js"
+    "request": "./pouchdb/lib/deps/ajax/request-browser.js"
   },
   "browserify": {
     "transform": [
