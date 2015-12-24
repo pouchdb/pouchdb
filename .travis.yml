@@ -14,7 +14,6 @@ sudo:
 
 cache:
   directories:
-    - node_modules
     - /tmp/phantomjs
 
 addons:
@@ -121,9 +120,6 @@ matrix:
   - env: CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
   - env: AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
   - env: TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
-  - node_js: "stable"
-    services: docker
-    env: CXX=g++-4.8 CLIENT=node COMMAND=test
 
   fast_finish: true
 
