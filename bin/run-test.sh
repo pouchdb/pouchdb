@@ -24,7 +24,9 @@ if [[ ! -z $SERVER ]]; then
     ./node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!
   elif [ "$SERVER" == "couchdb-master" ]; then
-    export COUCH_HOST='http://127.0.0.1:15984'
+    if [ -z $COUCH_HOST ]; then
+      export COUCH_HOST='http://127.0.0.1:15984'
+    fi
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     node ./tests/misc/pouchdb-express-router.js &
     export SERVER_PID=$!
