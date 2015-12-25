@@ -5,7 +5,13 @@
 // use query parameter pluginFile if present,
 // eg: test.html?pluginFile=memory.pouchdb.js
 var preferredAdapters = window.location.search.match(/[?&]adapters=([^&]+)/);
-var scriptsToLoad = ['../../dist/pouchdb.js'];
+var pouchdbSrc = window.location.search.match(/[?&]src=([^&]+)/);
+if (pouchdbSrc) {
+  pouchdbSrc = decodeURIComponent(pouchdbSrc[1]);
+} else {
+  pouchdbSrc = '../../dist/pouchdb.js';
+}
+var scriptsToLoad = [pouchdbSrc];
 if (preferredAdapters) {
   preferredAdapters = preferredAdapters[1].split(',');
   preferredAdapters.forEach(function (adapter) {
