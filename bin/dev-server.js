@@ -34,6 +34,9 @@ if (process.env.ADAPTERS) {
 if (process.env.AUTO_COMPACTION) {
   queryParams.autoCompaction = true;
 }
+if (process.env.POUCHDB_SRC) {
+  queryParams.src = process.env.POUCHDB_SRC;
+}
 
 var indexfile = "./lib/index.js";
 var outfile = "./dist/pouchdb.js";

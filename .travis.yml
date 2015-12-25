@@ -86,6 +86,9 @@ env:
   - CLIENT=selenium:firefox:41.0.1 ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox:41.0.1 ADAPTERS=localstorage COMMAND=test
 
+  # Test Webpack bundle
+  - CLIENT=selenium:firefox:41.0.1 COMMAND=test-webpack
+
   # Test CouchDB master (aka bigcouch branch)
   - CLIENT=node SERVER=couchdb-master COMMAND=test
   - SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test

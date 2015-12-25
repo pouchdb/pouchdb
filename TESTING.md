@@ -57,6 +57,12 @@ or e.g.:
 
 or you can append it as `?es5shim=true` if you manually opened a browser window.
 
+#### Other test options
+
+* `SKIP_MIGRATION=1` should be used to skip the migration tests.
+* `POUCHDB_SRC=../../dist/pouchdb.js` can be used to treat another file as the PouchDB source file.
+* `npm run test-webpack` will build with Webpack and then test that in a browser.
+
 #### Run the map/reduce tests
 
 The map/reduce tests are done separately from the normal integration tests, because

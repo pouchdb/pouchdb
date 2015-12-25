@@ -73,6 +73,9 @@ if (process.env.SERVER) {
 if (process.env.SKIP_MIGRATION) {
   qs.SKIP_MIGRATION = process.env.SKIP_MIGRATION;
 }
+if (process.env.POUCHDB_SRC) {
+  qs.src = process.env.POUCHDB_SRC;
+}
 
 testUrl += '?';
 testUrl += querystring.stringify(qs);
