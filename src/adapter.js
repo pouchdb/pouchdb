@@ -5,7 +5,6 @@ import collections from 'pouchdb-collections';
 import inherits from 'inherits';
 import getArguments from 'argsarray';
 import adapterFun from './deps/adapterFun';
-import errors from './deps/errors';
 import { EventEmitter as EventEmitter } from 'events';
 import upsert from './deps/upsert';
 import Changes from './changes';
@@ -16,7 +15,19 @@ import traverseRevTree from './deps/merge/traverseRevTree';
 import collectLeaves from './deps/merge/collectLeaves';
 import rootToLeaf from './deps/merge/rootToLeaf';
 import collectConflicts from './deps/merge/collectConflicts';
-import { parseDoc as parseDoc } from './deps/docs/parseDoc';
+import { invalidIdError } from './deps/docs/parseDoc';
+import {
+  MISSING_BULK_DOCS,
+  MISSING_DOC,
+  REV_CONFLICT,
+  INVALID_ID,
+  UNKNOWN_ERROR,
+  QUERY_PARSE_ERROR,
+  BAD_REQUEST,
+  NOT_AN_OBJECT,
+  INVALID_REV,
+  createError,
+} from './deps/errors';
 
 /*
  * A generic pouch adapter
@@ -187,7 +198,7 @@ AbstractPouchDB.prototype.post =
     opts = {};
   }
   if (typeof doc !== 'object' || Array.isArray(doc)) {
-    return callback(errors.error(errors.NOT_AN_OBJECT));
+    return callback(createError(NOT_AN_OBJECT));
   }
   this.bulkDocs({docs: [doc]}, opts, yankError(callback));
 });
@@ -199,7 +210,7 @@ AbstractPouchDB.prototype.put =
   var id = '_id' in doc;
   if (typeof doc !== 'object' || Array.isArray(doc)) {
     callback = args.pop();
-    return callback(errors.error(errors.NOT_AN_OBJECT));
+    return callback(createError(NOT_AN_OBJECT));
   }
   while (true) {
     temp = args.shift();
@@ -219,7 +230,7 @@ AbstractPouchDB.prototype.put =
     }
   }
   opts = opts || {};
-  parseDoc.invalidIdError(doc._id);
+  invalidIdError(doc._id);
   if (isLocalId(doc._id) && typeof this._putLocal === 'function') {
     if (doc._deleted) {
       return this._removeLocal(doc, callback);
@@ -259,14 +270,14 @@ AbstractPouchDB.prototype.putAttachment =
 
   return api.get(docId).then(function (doc) {
     if (doc._rev !== rev) {
-      throw errors.error(errors.REV_CONFLICT);
+      throw createError(REV_CONFLICT);
     }
 
     return createAttachment(doc);
   }, function (err) {
      // create new doc
     /* istanbul ignore else */
-    if (err.reason === errors.MISSING_DOC.message) {
+    if (err.reason === MISSING_DOC.message) {
       return createAttachment({_id: docId});
     } else {
       throw err;
@@ -285,7 +296,7 @@ AbstractPouchDB.prototype.removeAttachment =
       return;
     }
     if (obj._rev !== rev) {
-      callback(errors.error(errors.REV_CONFLICT));
+      callback(createError(REV_CONFLICT));
       return;
     }
     /* istanbul ignore if */
@@ -503,7 +514,7 @@ AbstractPouchDB.prototype.get =
     opts = {};
   }
   if (typeof id !== 'string') {
-    return callback(errors.error(errors.INVALID_ID));
+    return callback(createError(INVALID_ID));
   }
   if (isLocalId(id) && typeof this._getLocal === 'function') {
     return this._getLocal(id, callback);
@@ -555,12 +566,12 @@ AbstractPouchDB.prototype.get =
           var l = leaves[i];
           // looks like it's the only thing couchdb checks
           if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
-            return callback(errors.error(errors.INVALID_REV));
+            return callback(createError(INVALID_REV));
           }
         }
         finishOpenRevs();
       } else {
-        return callback(errors.error(errors.UNKNOWN_ERROR,
+        return callback(createError(UNKNOWN_ERROR,
           'function_clause'));
       }
     }
@@ -671,7 +682,7 @@ AbstractPouchDB.prototype.getAttachment =
       opts.binary = true;
       self._getAttachment(res.doc._attachments[attachmentId], opts, callback);
     } else {
-      return callback(errors.error(errors.MISSING_DOC));
+      return callback(createError(MISSING_DOC));
     }
   });
 });
@@ -698,7 +709,7 @@ AbstractPouchDB.prototype.allDocs =
       return incompatibleOpt in opts;
     })[0];
     if (incompatibleOpt) {
-      callback(errors.error(errors.QUERY_PARSE_ERROR,
+      callback(createError(QUERY_PARSE_ERROR,
         'Query parameter `' + incompatibleOpt +
         '` is not compatible with multi-get'
       ));
@@ -765,12 +776,12 @@ AbstractPouchDB.prototype.bulkDocs =
   }
 
   if (!req || !req.docs || !Array.isArray(req.docs)) {
-    return callback(errors.error(errors.MISSING_BULK_DOCS));
+    return callback(createError(MISSING_BULK_DOCS));
   }
 
   for (var i = 0; i < req.docs.length; ++i) {
     if (typeof req.docs[i] !== 'object' || Array.isArray(req.docs[i])) {
-      return callback(errors.error(errors.NOT_AN_OBJECT));
+      return callback(createError(NOT_AN_OBJECT));
     }
   }
 
@@ -784,7 +795,7 @@ AbstractPouchDB.prototype.bulkDocs =
   });
 
   if (attachmentError) {
-    return callback(errors.error(errors.BAD_REQUEST, attachmentError));
+    return callback(createError(BAD_REQUEST, attachmentError));
   }
 
   if (!('new_edits' in opts)) {

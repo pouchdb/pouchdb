@@ -38,7 +38,7 @@ if (process.env.POUCHDB_SRC) {
   queryParams.src = process.env.POUCHDB_SRC;
 }
 
-var indexfile = "./lib/index.js";
+var indexfile = "./lib/index-browser.js";
 var outfile = "./dist/pouchdb.js";
 var perfRoot = './tests/performance/';
 var performanceBundle = './tests/performance-bundle.js';

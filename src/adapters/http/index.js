@@ -24,7 +24,7 @@ import clone from '../../deps/clone';
 import parseUri from '../../deps/parseUri';
 import getArguments from 'argsarray';
 import { atob as atob, btoa as btoa } from '../../deps/binary/base64';
-import errors from '../../deps/errors';
+import { createError, BAD_ARG } from '../../deps/errors';
 import debug from 'debug';
 var log = debug('pouchdb:http');
 import blufferToBase64 from '../../deps/binary/blobOrBufferToBase64';
@@ -557,7 +557,7 @@ function HttpPouch(opts, callback) {
       try {
         binary = atob(blob);
       } catch (err) {
-        return callback(errors.error(errors.BAD_ARG,
+        return callback(createError(BAD_ARG,
                         'Attachment is not a valid base64 string'));
       }
       blob = binary ? binStringToBluffer(binary, type) : '';

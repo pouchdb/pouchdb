@@ -31,7 +31,7 @@ function upsert(db, docId, diffFun) {
       fulfill(tryAndPut(db, newDoc, diffFun));
     });
   });
-};
+}
 
 function tryAndPut(db, doc, diffFun) {
   return db.put(doc).then(function (res) {

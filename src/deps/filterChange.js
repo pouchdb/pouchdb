@@ -1,11 +1,11 @@
-import errors from './errors';
+import { createError, BAD_REQUEST } from './errors';
 
 function tryFilter(filter, doc, req) {
   try {
     return !filter(doc, req);
   } catch (err) {
     var msg = 'Filter function threw: ' + err.toString();
-    return errors.error(errors.BAD_REQUEST, msg);
+    return createError(BAD_REQUEST, msg);
   }
 }
 

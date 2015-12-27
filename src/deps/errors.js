@@ -181,7 +181,7 @@ var allErrors = {
   IDB_ERROR: IDB_ERROR
 };
 
-var error = function (error, reason, name) {
+function createError(error, reason, name) {
   function CustomPouchError(reason) {
     // inherit error properties from our parent error manually
     // so as to allow proper JSON parsing.
@@ -201,7 +201,7 @@ var error = function (error, reason, name) {
   }
   CustomPouchError.prototype = PouchError.prototype;
   return new CustomPouchError(reason);
-};
+}
 
 // Find one of the errors defined above based on the value
 // of the specified property.
@@ -221,7 +221,7 @@ var getErrorTypeByProp = function (prop, value, reason) {
   return (key) ? errors[key] : null;
 };
 
-var generateErrorFromResponse = function (res) {
+function generateErrorFromResponse(res) {
   var error, errName, errType, errMsg, errReason;
   var errors = allErrors;
 
@@ -229,7 +229,7 @@ var generateErrorFromResponse = function (res) {
               res.name :
               res.error;
   errReason = res.reason;
-  errType = errors.getErrorTypeByProp('name', errName, errReason);
+  errType = getErrorTypeByProp('name', errName, errReason);
 
   if (res.missing ||
       errReason === 'missing' ||
@@ -249,11 +249,11 @@ var generateErrorFromResponse = function (res) {
 
   // fallback to error by status or unknown error.
   if (!errType) {
-    errType = errors.getErrorTypeByProp('status', res.status, errReason) ||
+    errType = getErrorTypeByProp('status', res.status, errReason) ||
                 errors.UNKNOWN_ERROR;
   }
 
-  error = errors.error(errType, errReason, errName);
+  error = createError(errType, errReason, errName);
 
   // Keep custom message.
   if (errMsg) {
@@ -272,34 +272,34 @@ var generateErrorFromResponse = function (res) {
   }
 
   return error;
-};
+}
 
-
-export default {
-  UNAUTHORIZED: UNAUTHORIZED,
-  MISSING_BULK_DOCS: MISSING_BULK_DOCS,
-  MISSING_DOC: MISSING_DOC,
-  REV_CONFLICT: REV_CONFLICT,
-  INVALID_ID: INVALID_ID,
-  MISSING_ID: MISSING_ID,
-  RESERVED_ID: RESERVED_ID,
-  NOT_OPEN: NOT_OPEN,
-  UNKNOWN_ERROR: UNKNOWN_ERROR,
-  BAD_ARG: BAD_ARG,
-  INVALID_REQUEST: INVALID_REQUEST,
-  QUERY_PARSE_ERROR: QUERY_PARSE_ERROR,
-  DOC_VALIDATION: DOC_VALIDATION,
-  BAD_REQUEST: BAD_REQUEST,
-  NOT_AN_OBJECT: NOT_AN_OBJECT,
-  DB_MISSING: DB_MISSING,
-  WSQ_ERROR: WSQ_ERROR,
-  LDB_ERROR: LDB_ERROR,
-  FORBIDDEN: FORBIDDEN,
-  INVALID_REV: INVALID_REV,
-  FILE_EXISTS: FILE_EXISTS,
-  MISSING_STUB: MISSING_STUB,
-  IDB_ERROR: IDB_ERROR,
-  getErrorTypeByProp: getErrorTypeByProp,
-  error: error,
-  generateErrorFromResponse: generateErrorFromResponse
+export {
+  UNAUTHORIZED,
+  MISSING_BULK_DOCS,
+  MISSING_DOC,
+  REV_CONFLICT,
+  INVALID_ID,
+  MISSING_ID,
+  RESERVED_ID,
+  NOT_OPEN,
+  UNKNOWN_ERROR,
+  BAD_ARG,
+  INVALID_REQUEST,
+  QUERY_PARSE_ERROR,
+  DOC_VALIDATION,
+  BAD_REQUEST,
+  NOT_AN_OBJECT,
+  DB_MISSING,
+  WSQ_ERROR,
+  LDB_ERROR,
+  FORBIDDEN,
+  INVALID_REV,
+  FILE_EXISTS,
+  MISSING_STUB,
+  IDB_ERROR,
+  getErrorTypeByProp,
+  createError,
+  generateErrorFromResponse,
+  allErrors as errors
 };

@@ -1,5 +1,5 @@
 import collections from 'pouchdb-collections';
-import errors from '../../deps/errors';
+import { createError, MISSING_STUB } from '../../deps/errors';
 import preprocessAttachments from '../../deps/docs/preprocessAttachments';
 import processDocs from '../../deps/docs/processDocs';
 import isLocalId from '../../deps/docs/isLocalId';
@@ -38,7 +38,7 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, Changes, callback) {
     if (doc._id && isLocalId(doc._id)) {
       continue;
     }
-    doc = docInfos[i] = parseDoc.parseDoc(doc, opts.new_edits);
+    doc = docInfos[i] = parseDoc(doc, opts.new_edits);
     if (doc.error && !docInfoError) {
       docInfoError = doc;
     }
@@ -143,7 +143,7 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, Changes, callback) {
     var req = attachStore.get(digest);
     req.onsuccess = function (e) {
       if (!e.target.result) {
-        var err = errors.error(errors.MISSING_STUB,
+        var err = createError(MISSING_STUB,
           'unknown stub attachment with digest ' +
           digest);
         err.status = 412;

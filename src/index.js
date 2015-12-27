@@ -1,7 +1,7 @@
 import PouchDB from './setup';
 import ajax from './deps/ajax/prequest';
 import utils from './utils';
-import errors from './deps/errors';
+import { errors } from './deps/errors';
 import replicate from './replicate/index';
 import sync from './sync';
 import httpAdapter from './adapters/http/index';

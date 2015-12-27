@@ -1,5 +1,5 @@
-import errors from '../../deps/errors';
 import collections from 'pouchdb-collections';
+import { createError, WSQ_ERROR } from '../../deps/errors';
 
 import {
   BY_SEQ_STORE,
@@ -153,7 +153,7 @@ function websqlError(callback) {
         .match(/function ([^\(]+)/);
     var errorName = (errorNameMatch && errorNameMatch[1]) || event.type;
     var errorReason = event.target || event.message;
-    callback(errors.error(errors.WSQ_ERROR, errorReason, errorName));
+    callback(createError(WSQ_ERROR, errorReason, errorName));
   };
 }
 

@@ -2,7 +2,6 @@ import levelup from 'levelup';
 import sublevel from 'level-sublevel/legacy';
 import { obj as through } from 'through2';
 
-import errors from '../../deps/errors';
 import clone from '../../deps/clone';
 import Changes from '../../changesHandler';
 import uuid from '../../deps/uuid';
@@ -30,6 +29,15 @@ import createEmptyBluffer from './createEmptyBlobOrBuffer';
 import Promise from '../../deps/promise';
 import binStringToBluffer from '../../deps/binary/binaryStringToBlobOrBuffer';
 import LevelTransaction from './transaction';
+
+import {
+  MISSING_DOC,
+  REV_CONFLICT,
+  NOT_OPEN,
+  BAD_ARG,
+  MISSING_STUB,
+  createError
+} from '../../deps/errors';
 
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
@@ -371,13 +379,13 @@ function LevelPouch(opts, callback) {
     stores.docStore.get(id, function (err, metadata) {
 
       if (err || !metadata) {
-        return callback(errors.error(errors.MISSING_DOC, 'missing'));
+        return callback(createError(MISSING_DOC, 'missing'));
       }
 
       var rev = getWinningRev(metadata);
       var deleted = getIsDeleted(metadata, rev);
       if (deleted && !opts.rev) {
-        return callback(errors.error(errors.MISSING_DOC, "deleted"));
+        return callback(createError(MISSING_DOC, "deleted"));
       }
 
       rev = opts.rev ? opts.rev : rev;
@@ -386,7 +394,7 @@ function LevelPouch(opts, callback) {
 
       stores.bySeqStore.get(formatSeq(seq), function (err, doc) {
         if (!doc) {
-          return callback(errors.error(errors.MISSING_DOC));
+          return callback(createError(MISSING_DOC));
         }
         /* istanbul ignore if */
         if ('_id' in doc && doc._id !== metadata.id) {
@@ -468,7 +476,7 @@ function LevelPouch(opts, callback) {
     function verifyAttachment(digest, callback) {
       txn.get(stores.attachmentStore, digest, function (levelErr) {
         if (levelErr) {
-          var err = errors.error(errors.MISSING_STUB,
+          var err = createError(MISSING_STUB,
                                 'unknown stub attachment with digest ' +
                                 digest);
           callback(err);
@@ -635,7 +643,7 @@ function LevelPouch(opts, callback) {
           try {
             data = atob(att.data);
           } catch (e) {
-            callback(errors.error(errors.BAD_ARG,
+            callback(createError(BAD_ARG,
                      'Attachment is not a valid base64 string'));
             return;
           }
@@ -1136,7 +1144,7 @@ function LevelPouch(opts, callback) {
   api._close = function (callback) {
     /* istanbul ignore if */
     if (db.isClosed()) {
-      return callback(errors.error(errors.NOT_OPEN));
+      return callback(createError(NOT_OPEN));
     }
     db.close(function (err) {
       /* istanbul ignore if */
@@ -1152,7 +1160,7 @@ function LevelPouch(opts, callback) {
   api._getRevisionTree = function (docId, callback) {
     stores.docStore.get(docId, function (err, metadata) {
       if (err) {
-        callback(errors.error(errors.MISSING_DOC));
+        callback(createError(MISSING_DOC));
       } else {
         callback(null, metadata.rev_tree);
       }
@@ -1316,7 +1324,7 @@ function LevelPouch(opts, callback) {
   api._getLocal = function (id, callback) {
     stores.localStore.get(id, function (err, doc) {
       if (err) {
-        callback(errors.error(errors.MISSING_DOC));
+        callback(createError(MISSING_DOC));
       } else {
         callback(null, doc);
       }
@@ -1349,10 +1357,10 @@ function LevelPouch(opts, callback) {
 
     txn.get(stores.localStore, id, function (err, resp) {
       if (err && oldRev) {
-        return callback(errors.error(errors.REV_CONFLICT));
+        return callback(createError(REV_CONFLICT));
       }
       if (resp && resp._rev !== oldRev) {
-        return callback(errors.error(errors.REV_CONFLICT));
+        return callback(createError(REV_CONFLICT));
       }
       doc._rev =
           oldRev ? '0-' + (parseInt(oldRev.split('-')[1], 10) + 1) : '0-1';
@@ -1407,11 +1415,11 @@ function LevelPouch(opts, callback) {
         if (err.name !== 'NotFoundError') {
           return callback(err);
         } else {
-          return callback(errors.error(errors.MISSING_DOC));
+          return callback(createError(MISSING_DOC));
         }
       }
       if (resp._rev !== doc._rev) {
-        return callback(errors.error(errors.REV_CONFLICT));
+        return callback(createError(REV_CONFLICT));
       }
       txn.batch([{
         prefix: stores.localStore,

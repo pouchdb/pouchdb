@@ -5,7 +5,6 @@ import pick from '../../deps/pick';
 import filterChange from '../../deps/filterChange';
 import isDeleted from '../../deps/docs/isDeleted';
 import isLocalId from '../../deps/docs/isLocalId';
-import errors from '../../deps/errors';
 import parseHexString from '../../deps/parseHex';
 import binStringToBlob from '../../deps/binary/binaryStringToBlobOrBuffer';
 import hasLocalStorage from '../../deps/env/hasLocalStorage';
@@ -16,8 +15,14 @@ import safeJsonStringify from '../../deps/safeJsonStringify';
 import Changes from '../../changesHandler';
 import isCordova from '../../deps/isCordova';
 import toPromise from '../../deps/toPromise';
-import { atob as atob } from '../../deps/binary/base64';
+import { btoa } from '../../deps/binary/base64';
 import websqlBulkDocs from './bulkDocs';
+
+import {
+  MISSING_DOC,
+  REV_CONFLICT,
+  createError
+} from '../../deps/errors';
 
 import {
   ADAPTER_VERSION,
@@ -37,7 +42,9 @@ import {
   compactRevs,
   websqlError,
   getSize,
-  openDB
+  openDB,
+  valid,
+  unescapeBlob
 } from './utils';
 
 function fetchAttachmentsIfNecessary(doc, opts, api, txn, cb) {
@@ -585,13 +592,13 @@ function WebSqlPouch(opts, callback) {
     }
     tx.executeSql(sql, sqlArgs, function (a, results) {
       if (!results.rows.length) {
-        err = errors.error(errors.MISSING_DOC, 'missing');
+        err = createError(MISSING_DOC, 'missing');
         return finish();
       }
       var item = results.rows.item(0);
       metadata = safeJsonParse(item.metadata);
       if (item.deleted && !opts.rev) {
-        err = errors.error(errors.MISSING_DOC, 'deleted');
+        err = createError(MISSING_DOC, 'deleted');
         return finish();
       }
       doc = unstringifyDoc(item.data, metadata.id, item.rev);
@@ -862,7 +869,7 @@ function WebSqlPouch(opts, callback) {
       // but that's not performant. after migration 6, we remove \u0000
       // and add it back in afterwards
       var item = result.rows.item(0);
-      var data = item.escaped ? websqlUtils.unescapeBlob(item.body) :
+      var data = item.escaped ? unescapeBlob(item.body) :
         parseHexString(item.body, encoding);
       if (opts.binary) {
         res = binStringToBlob(data, type);
@@ -878,7 +885,7 @@ function WebSqlPouch(opts, callback) {
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
       tx.executeSql(sql, [docId], function (tx, result) {
         if (!result.rows.length) {
-          callback(errors.error(errors.MISSING_DOC));
+          callback(createError(MISSING_DOC));
         } else {
           var data = safeJsonParse(result.rows.item(0).metadata);
           callback(null, data.rev_tree);
@@ -924,7 +931,7 @@ function WebSqlPouch(opts, callback) {
           var doc = unstringifyDoc(item.json, id, item.rev);
           callback(null, doc);
         } else {
-          callback(errors.error(errors.MISSING_DOC));
+          callback(createError(MISSING_DOC));
         }
       });
     });
@@ -965,10 +972,10 @@ function WebSqlPouch(opts, callback) {
             callback(null, ret);
           }
         } else {
-          callback(errors.error(errors.REV_CONFLICT));
+          callback(createError(REV_CONFLICT));
         }
       }, function () {
-        callback(errors.error(errors.REV_CONFLICT));
+        callback(createError(REV_CONFLICT));
         return false; // ack that we handled the error
       });
     }
@@ -996,7 +1003,7 @@ function WebSqlPouch(opts, callback) {
       var params = [doc._id, doc._rev];
       tx.executeSql(sql, params, function (tx, res) {
         if (!res.rowsAffected) {
-          return callback(errors.error(errors.MISSING_DOC));
+          return callback(createError(MISSING_DOC));
         }
         ret = {ok: true, id: doc._id, rev: '0-0'};
         if (opts.ctx) { // return immediately
@@ -1034,7 +1041,7 @@ function WebSqlPouch(opts, callback) {
   };
 }
 
-WebSqlPouch.valid = websqlUtils.valid;
+WebSqlPouch.valid = valid;
 
 WebSqlPouch.Changes = new Changes();
 

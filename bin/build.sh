@@ -12,7 +12,7 @@ VERSION=$(node -e "console.log(require('./package.json').version)")
 $RIMRAF lib
 $MKDIRP lib
 
-EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,inherits,inherits,js-extend,level-sublevel,level-sublevel/legacy,level-write-stream,levelup,lie,localstorage-down,memdown,path,pouchdb-collate,pouchdb-collections,request,spark-md5,through2,vuvuzela'
+EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,inherits,inherits,js-extend,level-sublevel,level-sublevel/legacy,level-write-stream,levelup,lie,localstorage-down,memdown,path,pouchdb-collate,pouchdb-collections,request,scope-eval,spark-md5,through2,vuvuzela'
 
 # build for Node
 
@@ -34,7 +34,7 @@ $ROLLUP --format=cjs --external $EXTERNAL \
   --output=lib/index-browser.js
 
 # add a version number to both files
-$REPLACE 5.1.1-prerelease $VERSION lib/*
+$REPLACE --silent __VERSION__ $VERSION lib/*
 
 # build for the browser (dist)
 

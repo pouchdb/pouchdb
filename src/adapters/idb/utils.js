@@ -1,10 +1,10 @@
 import { extend as extend } from 'js-extend';
 import Promise from '../../deps/promise';
-import errors from '../../deps/errors';
+import { createError, IDB_ERROR } from '../../deps/errors';
 import pick from '../../deps/pick';
 import safeJsonParse from '../../deps/safeJsonParse';
 import safeJsonStringify from '../../deps/safeJsonStringify';
-import { atob } from '../../deps/binary/base64';
+import { btoa } from '../../deps/binary/base64';
 import { ATTACH_AND_SEQ_STORE, ATTACH_STORE, BY_SEQ_STORE } from './constants';
 import readAsBinaryString from '../../deps/binary/readAsBinaryString';
 import b64StringToBlob from '../../deps/binary/base64StringToBlobOrBuffer';
@@ -44,7 +44,7 @@ function idbError(callback) {
     if (evt.target && evt.target.error) {
       message = evt.target.error.name || evt.target.error.message;
     }
-    callback(errors.error(errors.IDB_ERROR, message, evt.type));
+    callback(createError(IDB_ERROR, message, evt.type));
   };
 }
 

@@ -1,11 +1,10 @@
-import errors from '../errors';
+import { createError, MISSING_DOC } from '../errors';
 import updateDoc from './updateDoc';
 import isDeleted from './isDeleted';
 import isLocalId from './isLocalId';
 import calculateWinningRev from '../../deps/merge/winningRev';
 import merge from '../../deps/merge/index';
 import collections from 'pouchdb-collections';
-var Map = collections.Map;
 
 function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
                      writeDoc, opts, overallCallback) {
@@ -18,7 +17,7 @@ function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
     var winningRev = calculateWinningRev(docInfo.metadata);
     var deleted = isDeleted(docInfo.metadata, winningRev);
     if ('was_delete' in opts && deleted) {
-      results[resultsIdx] = errors.error(errors.MISSING_DOC, 'deleted');
+      results[resultsIdx] = createError(MISSING_DOC, 'deleted');
       return callback();
     }
 
@@ -29,7 +28,7 @@ function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
   }
 
   var newEdits = opts.new_edits;
-  var idsToDocs = new Map();
+  var idsToDocs = new collections.Map();
 
   var docsDone = 0;
   var docsToDo = docInfos.length;

@@ -1,5 +1,13 @@
-import errors from './../errors';
 import uuid from './../uuid';
+
+import {
+  INVALID_ID,
+  MISSING_ID,
+  RESERVED_ID,
+  DOC_VALIDATION,
+  INVALID_REV,
+  createError
+} from '../../deps/errors';
 
 function toObject(array) {
   return array.reduce(function (obj, item) {
@@ -48,11 +56,11 @@ var dataWords = toObject([
 function invalidIdError(id) {
   var err;
   if (!id) {
-    err = errors.error(errors.MISSING_ID);
+    err = createError(MISSING_ID);
   } else if (typeof id !== 'string') {
-    err = errors.error(errors.INVALID_ID);
+    err = createError(INVALID_ID);
   } else if (/^_/.test(id) && !(/^_(design|local)/).test(id)) {
-    err = errors.error(errors.RESERVED_ID);
+    err = createError(RESERVED_ID);
   }
   if (err) {
     throw err;
@@ -61,7 +69,7 @@ function invalidIdError(id) {
 
 function parseRevisionInfo(rev) {
   if (!/^\d+\-./.test(rev)) {
-    return errors.error(errors.INVALID_REV);
+    return createError(INVALID_REV);
   }
   var idx = rev.indexOf('-');
   var left = rev.substring(0, idx);
@@ -152,8 +160,8 @@ function parseDoc(doc, newEdits) {
     if (Object.prototype.hasOwnProperty.call(doc, key)) {
       var specialKey = key[0] === '_';
       if (specialKey && !reservedWords[key]) {
-        var error = errors.error(errors.DOC_VALIDATION, key);
-        error.message = errors.DOC_VALIDATION.message + ': ' + key;
+        var error = createError(DOC_VALIDATION, key);
+        error.message = DOC_VALIDATION.message + ': ' + key;
         throw error;
       } else if (specialKey && !dataWords[key]) {
         result.metadata[key.slice(1)] = doc[key];
@@ -166,6 +174,6 @@ function parseDoc(doc, newEdits) {
 }
 
 export {
-  invalidIdError as invalidIdError,
-  parseDoc as parseDoc
+  invalidIdError,
+  parseDoc
 };

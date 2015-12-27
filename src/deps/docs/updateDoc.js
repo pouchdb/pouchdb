@@ -1,4 +1,4 @@
-import errors from '../errors';
+import { createError, REV_CONFLICT } from '../errors';
 import isDeleted from './isDeleted';
 import { parseDoc as parseDoc } from './parseDoc';
 import calculateWinningRev from '../../deps/merge/winningRev';
@@ -35,7 +35,7 @@ function updateDoc(revLimit, prev, docInfo, results,
     (previouslyDeleted && !deleted && merged.conflicts === 'new_branch')));
 
   if (inConflict) {
-    var err = errors.error(errors.REV_CONFLICT);
+    var err = createError(REV_CONFLICT);
     results[i] = err;
     return cb();
   }

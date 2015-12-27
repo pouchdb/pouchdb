@@ -5,7 +5,6 @@ import filterChange from '../../deps/filterChange';
 import toPromise from '../../deps/toPromise';
 import isDeleted from '../../deps/docs/isDeleted';
 import isLocalId from '../../deps/docs/isLocalId';
-import errors from '../../deps/errors';
 import idbBulkDocs from './bulkDocs';
 import idbAllDocs from './allDocs';
 import checkBlobSupport from './blobSupport';
@@ -13,6 +12,13 @@ import hasLocalStorage from '../../deps/env/hasLocalStorage';
 import calculateWinningRev from '../../deps/merge/winningRev';
 import traverseRevTree from '../../deps/merge/traverseRevTree';
 import Changes from '../../changesHandler';
+import {
+  MISSING_DOC,
+  REV_CONFLICT,
+  NOT_OPEN,
+  IDB_ERROR,
+  createError
+} from '../../deps/errors';
 
 import {
   ADAPTER_VERSION,
@@ -321,11 +327,11 @@ function init(api, opts, callback) {
       // When we ask with opts.rev we expect the answer to be either
       // doc (possibly with _deleted=true) or missing error
       if (!metadata) {
-        err = errors.error(errors.MISSING_DOC, 'missing');
+        err = createError(MISSING_DOC, 'missing');
         return finish();
       }
       if (isDeleted(metadata) && !opts.rev) {
-        err = errors.error(errors.MISSING_DOC, "deleted");
+        err = createError(MISSING_DOC, "deleted");
         return finish();
       }
       var objectStore = txn.objectStore(BY_SEQ_STORE);
@@ -339,7 +345,7 @@ function init(api, opts, callback) {
           doc = decodeDoc(doc);
         }
         if (!doc) {
-          err = errors.error(errors.MISSING_DOC, 'missing');
+          err = createError(MISSING_DOC, 'missing');
           return finish();
         }
         finish();
@@ -588,7 +594,7 @@ function init(api, opts, callback) {
 
   api._close = function (callback) {
     if (idb === null) {
-      return callback(errors.error(errors.NOT_OPEN));
+      return callback(createError(NOT_OPEN));
     }
 
     // https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#close
@@ -609,7 +615,7 @@ function init(api, opts, callback) {
     req.onsuccess = function (event) {
       var doc = decodeMetadata(event.target.result);
       if (!doc) {
-        callback(errors.error(errors.MISSING_DOC));
+        callback(createError(MISSING_DOC));
       } else {
         callback(null, doc.rev_tree);
       }
@@ -668,7 +674,7 @@ function init(api, opts, callback) {
     req.onsuccess = function (e) {
       var doc = e.target.result;
       if (!doc) {
-        callback(errors.error(errors.MISSING_DOC));
+        callback(createError(MISSING_DOC));
       } else {
         delete doc['_doc_id_rev']; // for backwards compat
         callback(null, doc);
@@ -713,7 +719,7 @@ function init(api, opts, callback) {
       req.onsuccess = function (e) {
         var oldDoc = e.target.result;
         if (!oldDoc || oldDoc._rev !== oldRev) {
-          callback(errors.error(errors.REV_CONFLICT));
+          callback(createError(REV_CONFLICT));
         } else { // update
           var req = oStore.put(doc);
           req.onsuccess = function () {
@@ -728,7 +734,7 @@ function init(api, opts, callback) {
       req = oStore.add(doc);
       req.onerror = function (e) {
         // constraint error, already exists
-        callback(errors.error(errors.REV_CONFLICT));
+        callback(createError(REV_CONFLICT));
         e.preventDefault(); // avoid transaction abort
         e.stopPropagation(); // avoid transaction onerror
       };
@@ -768,7 +774,7 @@ function init(api, opts, callback) {
     req.onsuccess = function (e) {
       var oldDoc = e.target.result;
       if (!oldDoc || oldDoc._rev !== doc._rev) {
-        callback(errors.error(errors.MISSING_DOC));
+        callback(createError(MISSING_DOC));
       } else {
         oStore.delete(id);
         ret = {ok: true, id: id, rev: '0-0'};
@@ -959,7 +965,7 @@ function init(api, opts, callback) {
   req.onerror = function(e) {
     var msg = 'Failed to open indexedDB, are you in private browsing mode?';
     console.error(msg);
-    callback(errors.error(errors.IDB_ERROR, msg));
+    callback(createError(IDB_ERROR, msg));
   };
 }
 

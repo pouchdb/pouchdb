@@ -1,7 +1,7 @@
 import replicate from './replicate';
 import Replication from './replication';
 import clone from '../deps/clone';
-import errors from '../deps/errors';
+import { createError, BAD_REQUEST } from '../deps/errors';
 
 function toPouch(db, opts) {
   var PouchConstructor = opts.PouchConstructor;
@@ -23,7 +23,7 @@ function replicateWrapper(src, target, opts, callback) {
   }
 
   if (opts.doc_ids && !Array.isArray(opts.doc_ids)) {
-    throw errors.error(errors.BAD_REQUEST,
+    throw createError(BAD_REQUEST,
                        "`doc_ids` filter parameter is not a list.");
   }
 

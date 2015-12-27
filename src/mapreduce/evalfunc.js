@@ -1,9 +1,16 @@
+import scopedEval from 'scope-eval';
+
 function evalfunc(func, emit, sum, log, isArray, toJSON) {
-  // wrap so that Rollup + minification still works well
-  return (function () {
-    /*jshint evil:true,unused:false */
-    eval("(" + func.replace(/;\s*$/, "") + ");");
-  })();
+  return scopedEval(
+    "(" + func.replace(/;\s*$/, "") + ");",
+    {
+      emit: emit,
+      sum: sum,
+      log: log,
+      isArray: isArray,
+      toJSON: toJSON
+    }
+  );
 }
 
 export default evalfunc;

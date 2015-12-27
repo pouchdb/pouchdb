@@ -1,4 +1,4 @@
-import errors from '../../deps/errors';
+import { createError, IDB_ERROR } from '../../deps/errors';
 import collectConflicts from '../../deps/merge/collectConflicts';
 
 import {
@@ -53,7 +53,7 @@ function handleKeyRangeError(api, opts, err, callback) {
       rows: []
     });
   }
-  callback(errors.error(errors.IDB_ERROR, err.name, err.message));
+  callback(createError(IDB_ERROR, err.name, err.message));
 }
 
 function idbAllDocs(opts, api, idb, callback) {

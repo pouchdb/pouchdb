@@ -4,7 +4,6 @@ import isDeleted from './deps/docs/isDeleted';
 import inherits from 'inherits';
 import getArguments from 'argsarray';
 import once from './deps/once';
-import errors from './deps/errors';
 import { EventEmitter as EE } from 'events';
 import evalFilter from './evalFilter';
 import evalView from './evalView';
@@ -12,7 +11,14 @@ import parseDdocFunctionName from './deps/docs/parseDdocFunctionName';
 import normalizeDdocFunctionName from './deps/docs/normalizeDdocFunctionName';
 import collectLeaves from './deps/merge/collectLeaves';
 import collectConflicts from './deps/merge/collectConflicts';
-export default Changes;
+
+import {
+  MISSING_DOC,
+  BAD_REQUEST,
+  createError,
+  generateErrorFromResponse
+} from './deps/errors';
+
 inherits(Changes, EE);
 
 function Changes(db, opts, callback) {
@@ -193,7 +199,7 @@ Changes.prototype.filterChanges = function (opts) {
   var callback = opts.complete;
   if (opts.filter === '_view') {
     if (!opts.view || typeof opts.view !== 'string') {
-      var err = errors.error(errors.BAD_REQUEST,
+      var err = createError(BAD_REQUEST,
         '`view` filter parameter not found or invalid.');
       return callback(err);
     }
@@ -206,12 +212,12 @@ Changes.prototype.filterChanges = function (opts) {
       }
       /* istanbul ignore next */
       if (err) {
-        return callback(errors.generateErrorFromResponse(err));
+        return callback(generateErrorFromResponse(err));
       }
       var mapFun = ddoc && ddoc.views && ddoc.views[viewName[1]] &&
         ddoc.views[viewName[1]].map;
       if (!mapFun) {
-        return callback(errors.error(errors.MISSING_DOC,
+        return callback(createError(MISSING_DOC,
           (ddoc.views ? 'missing json key: ' + viewName[1] :
             'missing json key: views')));
       }
@@ -231,11 +237,11 @@ Changes.prototype.filterChanges = function (opts) {
       }
       /* istanbul ignore next */
       if (err) {
-        return callback(errors.generateErrorFromResponse(err));
+        return callback(generateErrorFromResponse(err));
       }
       var filterFun = ddoc && ddoc.filters && ddoc.filters[filterName[1]];
       if (!filterFun) {
-        return callback(errors.error(errors.MISSING_DOC,
+        return callback(createError(MISSING_DOC,
           ((ddoc && ddoc.filters) ? 'missing json key: ' + filterName[1]
             : 'missing json key: filters')));
       }
@@ -244,3 +250,5 @@ Changes.prototype.filterChanges = function (opts) {
     });
   }
 };
+
+export default Changes;

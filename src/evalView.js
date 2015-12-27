@@ -1,7 +1,7 @@
-export default evalView;
+import scopedEval from 'scope-eval';
+
 function evalView(input) {
-  /*jshint evil: true */
-  return eval([
+  return scopedEval([
     '(function () {',
     '  return function (doc) {',
     '    var emitted = false;',
@@ -17,3 +17,5 @@ function evalView(input) {
     '})()'
   ].join('\n'));
 }
+
+export default evalView;

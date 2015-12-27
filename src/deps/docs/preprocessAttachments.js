@@ -2,7 +2,7 @@ import { atob, btoa } from '../binary/base64';
 import arrayBuffToBinString from '../binary/arrayBufferToBinaryString';
 import readAsArrayBuffer from '../binary/readAsArrayBuffer';
 import binStringToBlobOrBuffer from '../binary/binaryStringToBlobOrBuffer';
-import errors from '../errors';
+import { createError, BAD_ARG } from '../errors';
 import md5 from '../md5';
 
 function preprocessAttachments(docInfos, blobType, callback) {
@@ -17,7 +17,7 @@ function preprocessAttachments(docInfos, blobType, callback) {
     try {
       return atob(data);
     } catch (e) {
-      var err = errors.error(errors.BAD_ARG,
+      var err = createError(BAD_ARG,
         'Attachment is not a valid base64 string');
       return {error: err};
     }

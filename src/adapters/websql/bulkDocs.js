@@ -1,5 +1,4 @@
 import collections from 'pouchdb-collections';
-import errors from '../../deps/errors';
 import preprocessAttachments from '../../deps/docs/preprocessAttachments';
 import isLocalId from '../../deps/docs/isLocalId';
 import processDocs from '../../deps/docs/processDocs';
@@ -7,6 +6,10 @@ import safeJsonParse from '../../deps/safeJsonParse';
 import safeJsonStringify from '../../deps/safeJsonStringify';
 import compactTree from '../../deps/merge/compactTree';
 import { parseDoc } from '../../deps/docs/parseDoc';
+import {
+  MISSING_STUB,
+  createError
+} from '../../deps/errors';
 
 import {
   DOC_STORE,
@@ -19,7 +22,8 @@ import {
   select,
   stringifyDoc,
   compactRevs,
-  websqlError
+  websqlError,
+  escapeBlob
 } from './utils';
 
 function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
@@ -31,7 +35,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
     if (doc._id && isLocalId(doc._id)) {
       return doc;
     }
-    var newDoc = parseDoc.parseDoc(doc, newEdits);
+    var newDoc = parseDoc(doc, newEdits);
     return newDoc;
   });
 
@@ -61,7 +65,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
       ' WHERE digest=?';
     tx.executeSql(sql, [digest], function (tx, result) {
       if (result.rows.item(0).cnt === 0) {
-        var err = errors.error(errors.MISSING_STUB,
+        var err = createError(MISSING_STUB,
           'unknown stub attachment with digest ' +
           digest);
         callback(err);
@@ -299,7 +303,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
       // from JS to C if we don't have to (TODO: confirm this)
       sql = 'INSERT INTO ' + ATTACH_STORE +
       ' (digest, body, escaped) VALUES (?,?,1)';
-      tx.executeSql(sql, [digest, websqlUtils.escapeBlob(data)], function () {
+      tx.executeSql(sql, [digest, escapeBlob(data)], function () {
         callback();
       }, function () {
         // ignore constaint errors, means it already exists

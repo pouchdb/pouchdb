@@ -33,6 +33,7 @@
     "pouchdb-collate": "1.2.0",
     "pouchdb-collections": "1.0.1",
     "request": "2.67.0",
+    "scope-eval": "0.0.3",
     "spark-md5": "2.0.0",
     "through2": "2.0.0",
     "vuvuzela": "1.0.1"
@@ -97,7 +98,7 @@
     "test-fuzzy": "TYPE=fuzzy npm run test",
     "test-browser": "mkdirp dist && npm run build-js && node ./bin/test-browser.js",
     "cordova": "npm run build && sh bin/run-cordova.sh",
-    "jshint": "jshint -c .jshintrc bin/ lib/ tests/",
+    "jshint": "jshint -c .jshintrc bin/ src/ tests/",
     "dev": "CLIENT=dev bash bin/run-test.sh",
     "launch-dev-server": "node ./bin/dev-server.js",
     "test": "bash bin/run-test.sh",

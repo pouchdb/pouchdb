@@ -1,6 +1,6 @@
 import request from './request';
 import { extend as extend } from 'js-extend';
-import errors from './../errors';
+import { generateErrorFromResponse } from './../errors';
 import clone from '../../deps/clone';
 import applyTypeToBuffer from './applyTypeToBuffer';
 import defaultBody from './defaultBody';
@@ -32,7 +32,7 @@ function ajax(options, callback) {
     if (Array.isArray(obj)) {
       obj = obj.map(function (v) {
         if (v.error || v.missing) {
-          return errors.generateErrorFromResponse(v);
+          return generateErrorFromResponse(v);
         } else {
           return v;
         }
@@ -56,9 +56,9 @@ function ajax(options, callback) {
     try {
       errParsed = JSON.parse(err.responseText);
       //would prefer not to have a try/catch clause
-      errObj = errors.generateErrorFromResponse(errParsed);
+      errObj = generateErrorFromResponse(errParsed);
     } catch (e) {
-      errObj = errors.generateErrorFromResponse(err);
+      errObj = generateErrorFromResponse(err);
     }
     /* istanbul ignore next */
     cb(errObj);
@@ -106,7 +106,7 @@ function ajax(options, callback) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       onSuccess(data, response, callback);
     } else {
-      error = errors.generateErrorFromResponse(data);
+      error = generateErrorFromResponse(data);
       error.status = response.statusCode;
       callback(error);
     }

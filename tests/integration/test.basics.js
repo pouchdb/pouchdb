@@ -717,7 +717,7 @@ adapters.forEach(function (adapter) {
 
     it('Error works', function () {
       var newError = PouchDB.Errors
-        .error(PouchDB.Errors.BAD_REQUEST, 'love needs no message');
+        .createError(PouchDB.Errors.BAD_REQUEST, 'love needs no message');
       newError.status.should.equal(PouchDB.Errors.BAD_REQUEST.status);
       newError.name.should.equal(PouchDB.Errors.BAD_REQUEST.name);
       newError.message.should.equal(PouchDB.Errors.BAD_REQUEST.message,

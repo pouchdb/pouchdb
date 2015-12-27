@@ -1,9 +1,7 @@
-export default evalFilter;
+import scopedEval from 'scope-eval';
+
 function evalFilter(input) {
-  /*jshint evil: true */
-  return eval([
-    '(function () { return ',
-    input,
-    ' })()'
-  ].join(''));
+  return scopedEval('return ' + input + ';');
 }
+
+export default evalFilter;
