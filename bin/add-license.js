@@ -54,6 +54,7 @@ Object.keys(comments).forEach(function (name) {
     var contents = fs.readFileSync(filename);
     contents = comment + '\n' + contents;
 
-    fs.writeFileSync(filename, contents);
+    fs.writeFileSync(filename + '.tmp', contents);
+    fs.renameSync(filename + '.tmp', filename);
   });
 });

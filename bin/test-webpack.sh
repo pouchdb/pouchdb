@@ -6,8 +6,9 @@
 # Webpack and Browserify to justify it.
 #
 
+npm run build
 ./node_modules/.bin/webpack \
   --module-bind json \
   --output-library PouchDB --output-library-target umd \
-  ./lib/index.js pouchdb-webpack.js
+  . pouchdb-webpack.js
 POUCHDB_SRC='../../pouchdb-webpack.js' npm test

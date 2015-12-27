@@ -11,3 +11,4 @@ phantomjsdriver.log
 bower_components
 ./docs/
 pouchdb-webpack.js
+lib_unit
