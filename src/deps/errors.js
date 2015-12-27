@@ -235,22 +235,22 @@ function generateErrorFromResponse(res) {
       errReason === 'missing' ||
       errReason === 'deleted' ||
       errName === 'not_found') {
-    errType = errors.MISSING_DOC;
+    errType = MISSING_DOC;
   } else if (errName === 'doc_validation') {
     // doc validation needs special treatment since
     // res.reason depends on the validation error.
     // see utils.js
-    errType = errors.DOC_VALIDATION;
+    errType = DOC_VALIDATION;
     errMsg = errReason;
   } else if (errName === 'bad_request' && errType.message !== errReason) {
     // if bad_request error already found based on reason don't override.
-    errType = errors.BAD_REQUEST;
+    errType = BAD_REQUEST;
   }
 
   // fallback to error by status or unknown error.
   if (!errType) {
     errType = getErrorTypeByProp('status', res.status, errReason) ||
-                errors.UNKNOWN_ERROR;
+                UNKNOWN_ERROR;
   }
 
   error = createError(errType, errReason, errName);
