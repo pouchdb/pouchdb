@@ -1,6 +1,8 @@
 'use strict';
 
 // in Node of course this is false
-module.exports = function isChromeApp() {
+function isChromeApp() {
   return false;
-};
+}
+
+export default isChromeApp;

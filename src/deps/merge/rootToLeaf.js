@@ -1,6 +1,6 @@
 'use strict';
 // build up a list of all the paths to the leafs in this revision tree
-module.exports = function rootToLeaf(revs) {
+function rootToLeaf(revs) {
   var paths = [];
   var toVisit = revs.slice();
   var node;
@@ -22,4 +22,6 @@ module.exports = function rootToLeaf(revs) {
     }
   }
   return paths.reverse();
-};
+}
+
+export default rootToLeaf;

@@ -8,8 +8,6 @@ import toPromise from '../../deps/toPromise';
 import isDeleted from '../../deps/docs/isDeleted';
 import isLocalId from '../../deps/docs/isLocalId';
 import errors from '../../deps/errors';
-import idbUtils from './utils';
-import idbConstants from './constants';
 import idbBulkDocs from './bulkDocs';
 import idbAllDocs from './allDocs';
 import checkBlobSupport from './blobSupport';
@@ -18,26 +16,30 @@ import calculateWinningRev from '../../deps/merge/winningRev';
 import traverseRevTree from '../../deps/merge/traverseRevTree';
 import Changes from '../../changesHandler';
 
-var ADAPTER_VERSION = idbConstants.ADAPTER_VERSION;
-var ATTACH_AND_SEQ_STORE = idbConstants.ATTACH_AND_SEQ_STORE;
-var ATTACH_STORE = idbConstants.ATTACH_STORE;
-var BY_SEQ_STORE = idbConstants.BY_SEQ_STORE;
-var DETECT_BLOB_SUPPORT_STORE = idbConstants.DETECT_BLOB_SUPPORT_STORE;
-var DOC_STORE = idbConstants.DOC_STORE;
-var LOCAL_STORE = idbConstants.LOCAL_STORE;
-var META_STORE = idbConstants.META_STORE;
+import {
+  ADAPTER_VERSION,
+  ATTACH_AND_SEQ_STORE,
+  ATTACH_STORE,
+  BY_SEQ_STORE,
+  DETECT_BLOB_SUPPORT_STORE,
+  DOC_STORE,
+  LOCAL_STORE,
+  META_STORE
+} from './constants';
 
-var applyNext = idbUtils.applyNext;
-var compactRevs = idbUtils.compactRevs;
-var decodeDoc = idbUtils.decodeDoc;
-var decodeMetadata = idbUtils.decodeMetadata;
-var encodeMetadata = idbUtils.encodeMetadata;
-var fetchAttachmentsIfNecessary = idbUtils.fetchAttachmentsIfNecessary;
-var idbError = idbUtils.idbError;
-var postProcessAttachments = idbUtils.postProcessAttachments;
-var readBlobData = idbUtils.readBlobData;
-var taskQueue = idbUtils.taskQueue;
-var openTransactionSafely = idbUtils.openTransactionSafely;
+import {
+  applyNext,
+  compactRevs,
+  decodeDoc,
+  decodeMetadata,
+  encodeMetadata,
+  fetchAttachmentsIfNecessary,
+  idbError,
+  postProcessAttachments,
+  readBlobData,
+  openTransactionSafely,
+  taskQueue
+} from './utils';
 
 var cachedDBs = {};
 var blobSupportPromise;

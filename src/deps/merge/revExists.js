@@ -1,7 +1,7 @@
 'use strict';
 
 // return true if a rev exists in the rev tree, false otherwise
-module.exports = function revExists(revs, rev) {
+function revExists(revs, rev) {
   var toVisit = revs.slice();
   var splitRev = rev.split('-');
   var targetPos = parseInt(splitRev[0], 10);
@@ -18,4 +18,6 @@ module.exports = function revExists(revs, rev) {
     }
   }
   return false;
-};
+}
+
+export default revExists;

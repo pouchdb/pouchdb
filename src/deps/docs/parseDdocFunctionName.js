@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function parseDesignDocFunctionName(s) {
+function parseDesignDocFunctionName(s) {
   if (!s) {
     return null;
   }
@@ -12,4 +12,6 @@ module.exports = function parseDesignDocFunctionName(s) {
     return [s, s];
   }
   return null;
-};
+}
+
+export default parseDesignDocFunctionName;

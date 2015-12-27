@@ -19,7 +19,7 @@ import compactTree from '../../deps/merge/compactTree';
 import collectConflicts from '../../deps/merge/collectConflicts';
 import isDeleted from '../../deps/docs/isDeleted';
 import isLocalId from '../../deps/docs/isLocalId';
-import parseDoc from '../../deps/docs/parseDoc';
+import { parseDoc as parseDoc } from '../../deps/docs/parseDoc';
 import processDocs from '../../deps/docs/processDocs';
 import md5 from '../../deps/md5';
 import migrate from '../../deps/migrate';
@@ -452,7 +452,7 @@ function LevelPouch(opts, callback) {
       if (doc._id && isLocalId(doc._id)) {
         return doc;
       }
-      var newDoc = parseDoc.parseDoc(doc, newEdits);
+      var newDoc = parseDoc(doc, newEdits);
 
       if (newDoc.metadata && !newDoc.metadata.rev_map) {
         newDoc.metadata.rev_map = {};

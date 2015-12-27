@@ -18,7 +18,7 @@ import traverseRevTree from './deps/merge/traverseRevTree';
 import collectLeaves from './deps/merge/collectLeaves';
 import rootToLeaf from './deps/merge/rootToLeaf';
 import collectConflicts from './deps/merge/collectConflicts';
-import parseDoc from './deps/docs/parseDoc';
+import { parseDoc as parseDoc } from './deps/docs/parseDoc';
 
 /*
  * A generic pouch adapter

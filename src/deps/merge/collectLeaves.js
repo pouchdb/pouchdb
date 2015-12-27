@@ -6,7 +6,7 @@ function sortByPos(a, b) {
   return a.pos - b.pos;
 }
 
-module.exports = function collectLeaves(revs) {
+function collectLeaves(revs) {
   var leaves = [];
   traverseRevTree(revs, function (isLeaf, pos, id, acc, opts) {
     if (isLeaf) {
@@ -18,4 +18,6 @@ module.exports = function collectLeaves(revs) {
     delete leaves[i].pos;
   }
   return leaves;
-};
+}
+
+export default collectLeaves;

@@ -2,6 +2,8 @@
 
 import typedBuffer from '../../deps/binary/typedBuffer';
 
-module.exports = function createEmptyBlobOrBuffer(type) {
+function createEmptyBlobOrBuffer(type) {
   return typedBuffer('', 'binary', type);
-};
+}
+
+export default createEmptyBlobOrBuffer;

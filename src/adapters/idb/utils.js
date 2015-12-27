@@ -6,9 +6,8 @@ import errors from '../../deps/errors';
 import pick from '../../deps/pick';
 import safeJsonParse from '../../deps/safeJsonParse';
 import safeJsonStringify from '../../deps/safeJsonStringify';
-import base64 from '../../deps/binary/base64';
-var btoa = base64.btoa;
-import constants from './constants';
+import { atob } from '../../deps/binary/base64';
+import { ATTACH_AND_SEQ_STORE, ATTACH_STORE, BY_SEQ_STORE } from './constants';
 import readAsBinaryString from '../../deps/binary/readAsBinaryString';
 import b64StringToBlob from '../../deps/binary/base64StringToBlobOrBuffer';
 import createBlob from '../../deps/binary/blob';
@@ -23,25 +22,25 @@ function tryCode(fun, that, args) {
   }
 }
 
-exports.taskQueue = {
+var taskQueue = {
   running: false,
   queue: []
 };
 
-exports.applyNext = function () {
-  if (exports.taskQueue.running || !exports.taskQueue.queue.length) {
+var applyNext = function () {
+  if (taskQueue.running || !taskQueue.queue.length) {
     return;
   }
-  exports.taskQueue.running = true;
-  var item = exports.taskQueue.queue.shift();
+  taskQueue.running = true;
+  var item = taskQueue.queue.shift();
   item.action(function (err, res) {
     tryCode(item.callback, this, [err, res]);
-    exports.taskQueue.running = false;
-    process.nextTick(exports.applyNext);
+    taskQueue.running = false;
+    process.nextTick(applyNext);
   });
 };
 
-exports.idbError = function (callback) {
+var idbError = function (callback) {
   return function (evt) {
     var message = 'unknown_error';
     if (evt.target && evt.target.error) {
@@ -58,7 +57,7 @@ exports.idbError = function (callback) {
 // we use this custom vuvuzela library that avoids recursion.
 // If we could do it all over again, we'd probably use a
 // format for the revision trees other than JSON.
-exports.encodeMetadata = function (metadata, winningRev, deleted) {
+var encodeMetadata = function (metadata, winningRev, deleted) {
   return {
     data: safeJsonStringify(metadata),
     winningRev: winningRev,
@@ -68,7 +67,7 @@ exports.encodeMetadata = function (metadata, winningRev, deleted) {
   };
 };
 
-exports.decodeMetadata = function (storedObject) {
+var decodeMetadata = function (storedObject) {
   if (!storedObject) {
     return null;
   }
@@ -81,7 +80,7 @@ exports.decodeMetadata = function (storedObject) {
 
 // read the doc back out from the database. we don't store the
 // _id or _rev because we already have _doc_id_rev.
-exports.decodeDoc = function (doc) {
+var decodeDoc = function (doc) {
   if (!doc) {
     return doc;
   }
@@ -95,7 +94,7 @@ exports.decodeDoc = function (doc) {
 // Read a blob from the database, encoding as necessary
 // and translating from base64 if the IDB doesn't support
 // native Blobs
-exports.readBlobData = function (body, type, asBlob, callback) {
+var readBlobData = function (body, type, asBlob, callback) {
   if (asBlob) {
     if (!body) {
       callback(createBlob([''], {type: type}));
@@ -117,7 +116,7 @@ exports.readBlobData = function (body, type, asBlob, callback) {
   }
 };
 
-exports.fetchAttachmentsIfNecessary = function (doc, opts, txn, cb) {
+var fetchAttachmentsIfNecessary = function (doc, opts, txn, cb) {
   var attachments = Object.keys(doc._attachments || {});
   if (!attachments.length) {
     return cb && cb();
@@ -133,7 +132,7 @@ exports.fetchAttachmentsIfNecessary = function (doc, opts, txn, cb) {
   function fetchAttachment(doc, att) {
     var attObj = doc._attachments[att];
     var digest = attObj.digest;
-    var req = txn.objectStore(constants.ATTACH_STORE).get(digest);
+    var req = txn.objectStore(ATTACH_STORE).get(digest);
     req.onsuccess = function (e) {
       attObj.body = e.target.result.body;
       checkDone();
@@ -154,7 +153,7 @@ exports.fetchAttachmentsIfNecessary = function (doc, opts, txn, cb) {
 // we don't know whether we stored a true Blob or
 // a base64-encoded string, and if it's a Blob it
 // needs to be read outside of the transaction context
-exports.postProcessAttachments = function (results, asBlob) {
+var postProcessAttachments = function (results, asBlob) {
   return Promise.all(results.map(function (row) {
     if (row.doc && row.doc._attachments) {
       var attNames = Object.keys(row.doc._attachments);
@@ -166,7 +165,7 @@ exports.postProcessAttachments = function (results, asBlob) {
         var body = attObj.body;
         var type = attObj.content_type;
         return new Promise(function (resolve) {
-          exports.readBlobData(body, type, asBlob, function (data) {
+          readBlobData(body, type, asBlob, function (data) {
             row.doc._attachments[att] = extend(
               pick(attObj, ['digest', 'content_type']),
               {data: data}
@@ -179,12 +178,12 @@ exports.postProcessAttachments = function (results, asBlob) {
   }));
 };
 
-exports.compactRevs = function (revs, docId, txn) {
+var compactRevs = function (revs, docId, txn) {
 
   var possiblyOrphanedDigests = [];
-  var seqStore = txn.objectStore(constants.BY_SEQ_STORE);
-  var attStore = txn.objectStore(constants.ATTACH_STORE);
-  var attAndSeqStore = txn.objectStore(constants.ATTACH_AND_SEQ_STORE);
+  var seqStore = txn.objectStore(BY_SEQ_STORE);
+  var attStore = txn.objectStore(ATTACH_STORE);
+  var attAndSeqStore = txn.objectStore(ATTACH_AND_SEQ_STORE);
   var count = revs.length;
 
   function checkDone() {
@@ -240,7 +239,7 @@ exports.compactRevs = function (revs, docId, txn) {
   });
 };
 
-exports.openTransactionSafely = function (idb, stores, mode) {
+var openTransactionSafely = function (idb, stores, mode) {
   try {
     return {
       txn: idb.transaction(stores, mode)
@@ -250,4 +249,16 @@ exports.openTransactionSafely = function (idb, stores, mode) {
       error: err
     };
   }
+};
+
+export {
+  openTransactionSafely,
+  compactRevs,
+  postProcessAttachments,
+  applyNext,
+  idbError,
+  encodeMetadata,
+  decodeMetadata,
+  decodeDoc,
+  taskQueue
 };

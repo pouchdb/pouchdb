@@ -209,10 +209,12 @@ function stem(tree, depth) {
   return result;
 }
 
-module.exports = function merge(tree, path, depth) {
+function merge(tree, path, depth) {
   var newTree = doMerge(tree, path);
   return {
     tree: stem(newTree.tree, depth),
     conflicts: newTree.conflicts
   };
-};
+}
+
+export default merge;

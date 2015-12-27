@@ -1,7 +1,9 @@
 'use strict';
 
-module.exports = function isChromeApp() {
+function isChromeApp() {
   return (typeof chrome !== "undefined" &&
     typeof chrome.storage !== "undefined" &&
     typeof chrome.storage.local !== "undefined");
-};
+}
+
+export default isChromeApp;
