@@ -301,8 +301,6 @@ testUtils.promisify = function (fun, context) {
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
   global.PouchDB = require('../../lib');
-  global.binaryStringToBlobOrBuffer =
-    global.PouchDB.binaryStringToBlobOrBuffer;
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 

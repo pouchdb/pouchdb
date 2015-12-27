@@ -209,21 +209,19 @@ function createError(error, reason, name) {
 // This is for differentiating between errors with the same name and status,
 // eg, bad_request.
 var getErrorTypeByProp = function (prop, value, reason) {
-  var errors = allErrors;
-  var keys = Object.keys(errors).filter(function (key) {
-    var error = errors[key];
+  var keys = Object.keys(allErrors).filter(function (key) {
+    var error = allErrors[key];
     return typeof error !== 'function' && error[prop] === value;
   });
   var key = reason && keys.filter(function (key) {
-        var error = errors[key];
+        var error = allErrors[key];
         return error.message === reason;
       })[0] || keys[0];
-  return (key) ? errors[key] : null;
+  return (key) ? allErrors[key] : null;
 };
 
 function generateErrorFromResponse(res) {
   var error, errName, errType, errMsg, errReason;
-  var errors = allErrors;
 
   errName = (res.error === true && typeof res.name === 'string') ?
               res.name :
