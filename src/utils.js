@@ -22,6 +22,9 @@ import Promise from './deps/promise';
 // TODO: only used by the integration tests
 import { atob as atob, btoa as btoa } from './deps/binary/base64';
 
+// TODO: required by tests
+import {createError } from './deps/errors';
+
 // TODO: only used by the integration tests
 import binToBluffer from './deps/binary/binaryStringToBlobOrBuffer';
 
@@ -40,5 +43,6 @@ export default {
   btoa: btoa,
   binaryStringToBlobOrBuffer: binToBluffer,
   clone: clone,
-  extend: extend
+  extend: extend,
+  createError: createError
 };
