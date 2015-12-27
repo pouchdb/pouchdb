@@ -1,5 +1,3 @@
-"use strict";
-
 import PouchDB from './setup';
 import ajax from './deps/ajax/prequest';
 import utils from './utils';
@@ -9,14 +7,13 @@ import sync from './sync';
 import httpAdapter from './adapters/http/index';
 import mapreduce from './mapreduce/index';
 import adapters from './adapters';
-var pkg = require('../package.json');
 
 PouchDB.ajax = ajax;
 PouchDB.utils = utils;
 PouchDB.Errors = errors;
 PouchDB.replicate = replicate.replicate;
 PouchDB.sync = sync;
-PouchDB.version = pkg.version;
+PouchDB.version = '__VERSION__';
 PouchDB.adapter('http', httpAdapter);
 PouchDB.adapter('https', httpAdapter);
 

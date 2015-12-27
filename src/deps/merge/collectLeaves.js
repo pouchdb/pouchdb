@@ -1,5 +1,3 @@
-'use strict';
-
 import traverseRevTree from './traverseRevTree';
 
 function sortByPos(a, b) {

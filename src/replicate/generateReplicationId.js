@@ -1,5 +1,3 @@
-'use strict';
-
 import Promise from './../deps/promise';
 import md5 from '../deps/md5';
 import { collate as collate } from 'pouchdb-collate';

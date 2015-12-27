@@ -1,5 +1,3 @@
-'use strict';
-
 import errors from './../errors';
 import uuid from './../uuid';
 

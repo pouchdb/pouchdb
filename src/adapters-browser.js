@@ -1,5 +1,3 @@
-'use strict';
-
 import idb from './adapters/idb/index';
 import websql from './adapters/websql/index';
 

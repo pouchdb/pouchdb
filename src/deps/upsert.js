@@ -1,5 +1,3 @@
-'use strict';
-
 import Promise from './promise';
 
 // this is essentially the "update sugar" function from daleharvey/pouchdb#1388

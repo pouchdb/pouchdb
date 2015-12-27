@@ -1,5 +1,3 @@
-"use strict";
-
 var CHANGES_BATCH_SIZE = 25;
 var MAX_SIMULTANEOUS_REVS = 50;
 
@@ -18,10 +16,8 @@ import pick from '../../deps/pick';
 import filterChange from '../../deps/filterChange';
 import coreAdapterFun from '../../deps/adapterFun';
 import explainError from '../../deps/ajax/explainError';
-var binStringToBluffer =
-  require('../../deps/binary/binaryStringToBlobOrBuffer');
-var b64StringToBluffer =
-  require('../../deps/binary/base64StringToBlobOrBuffer');
+import binStringToBluffer from '../../deps/binary/binaryStringToBlobOrBuffer';
+import b64StringToBluffer from '../../deps/binary/base64StringToBlobOrBuffer';
 import utils from '../../utils';
 import Promise from '../../deps/promise';
 import clone from '../../deps/clone';

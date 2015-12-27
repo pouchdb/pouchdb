@@ -1,12 +1,11 @@
-'use strict';
-
 import errors from '../../deps/errors';
 import collections from 'pouchdb-collections';
-import websqlConstants from './constants';
 
-var BY_SEQ_STORE = websqlConstants.BY_SEQ_STORE;
-var ATTACH_STORE = websqlConstants.ATTACH_STORE;
-var ATTACH_AND_SEQ_STORE = websqlConstants.ATTACH_AND_SEQ_STORE;
+import {
+  BY_SEQ_STORE,
+  ATTACH_STORE,
+  ATTACH_AND_SEQ_STORE
+} from './constants';
 
 // escapeBlob and unescapeBlob are workarounds for a websql bug:
 // https://code.google.com/p/chromium/issues/detail?id=422690
@@ -225,16 +224,16 @@ function valid() {
     typeof SQLitePlugin !== 'undefined';
 }
 
-module.exports = {
-  escapeBlob: escapeBlob,
-  unescapeBlob: unescapeBlob,
-  stringifyDoc: stringifyDoc,
-  unstringifyDoc: unstringifyDoc,
-  qMarks: qMarks,
-  select: select,
-  compactRevs: compactRevs,
-  websqlError: websqlError,
-  getSize: getSize,
-  openDB: openDB,
-  valid: valid
+export {
+  escapeBlob,
+  unescapeBlob,
+  stringifyDoc,
+  unstringifyDoc,
+  qMarks,
+  select,
+  compactRevs,
+  getSize,
+  openDB,
+  valid,
+  websqlError
 };

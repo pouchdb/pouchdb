@@ -1,5 +1,3 @@
-'use strict';
-
 import traverseRevTree from './traverseRevTree';
 // compact a tree by marking its non-leafs as missing,
 // and return a list of revs to delete

@@ -1,5 +1,3 @@
-'use strict';
-
 import errors from './errors';
 
 function tryFilter(filter, doc, req) {

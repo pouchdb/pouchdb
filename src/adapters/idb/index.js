@@ -1,5 +1,3 @@
-'use strict';
-
 import clone from '../../deps/clone';
 import uuid from '../../deps/uuid';
 import collections from 'pouchdb-collections';

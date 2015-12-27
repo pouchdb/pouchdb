@@ -1,5 +1,3 @@
-'use strict';
-
 import vuvuzela from 'vuvuzela';
 
 function safeJsonParse(str) {

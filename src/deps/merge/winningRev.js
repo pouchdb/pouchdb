@@ -1,5 +1,3 @@
-'use strict';
-
 // We fetch all leafs of the revision tree, and sort them based on tree length
 // and whether they were deleted, undeleted documents with the longest revision
 // tree (most edits) win

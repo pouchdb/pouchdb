@@ -1,7 +1,5 @@
 /* global fetch */
 /* global Headers */
-'use strict';
-
 import createBlob from './../binary/blob.js';
 import readAsArrayBuffer from './../binary/readAsArrayBuffer';
 import Promise from '../../deps/promise';
@@ -213,10 +211,12 @@ function testXhr() {
 
 var hasXhr = testXhr();
 
-module.exports = function(options, callback) {
+function ajax(options, callback) {
   if (hasXhr || options.xhr) {
     return xhRequest(options, callback);
   } else {
     return fetchRequest(options, callback);
   }
-};
+}
+
+export default ajax;

@@ -1,5 +1,3 @@
-'use strict';
-
 import crypto from 'crypto';
 
 function MD5(string) {

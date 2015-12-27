@@ -1,5 +1,3 @@
-'use strict';
-
 import isChromeApp from './isChromeApp';
 
 var hasLocal;

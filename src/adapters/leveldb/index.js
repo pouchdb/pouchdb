@@ -1,5 +1,3 @@
-'use strict';
-
 import levelup from 'levelup';
 import sublevel from 'level-sublevel/legacy';
 import { obj as through } from 'through2';
@@ -30,10 +28,7 @@ import readAsBluffer from './readAsBlobOrBuffer';
 import prepareAttachmentForStorage from './prepareAttachmentForStorage';
 import createEmptyBluffer from './createEmptyBlobOrBuffer';
 import Promise from '../../deps/promise';
-
-var binStringToBluffer =
-  require('../../deps/binary/binaryStringToBlobOrBuffer');
-
+import binStringToBluffer from '../../deps/binary/binaryStringToBlobOrBuffer';
 import LevelTransaction from './transaction';
 
 var DOC_STORE = 'document-store';

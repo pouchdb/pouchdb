@@ -1,5 +1,3 @@
-'use strict';
-
 function isCordova() {
   return (typeof cordova !== "undefined" ||
   typeof PhoneGap !== "undefined" ||

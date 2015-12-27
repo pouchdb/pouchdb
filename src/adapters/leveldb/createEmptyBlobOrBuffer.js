@@ -1,5 +1,3 @@
-'use strict';
-
 import typedBuffer from '../../deps/binary/typedBuffer';
 
 function createEmptyBlobOrBuffer(type) {

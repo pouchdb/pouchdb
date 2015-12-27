@@ -1,5 +1,3 @@
-'use strict';
-
 import Promise from './promise';
 import toPromise from './toPromise';
 import getArguments from 'argsarray';

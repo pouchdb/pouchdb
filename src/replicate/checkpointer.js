@@ -1,5 +1,3 @@
-'use strict';
-
 import Promise from './../deps/promise';
 import explainError from './../deps/ajax/explainError';
 import pouchCollate from 'pouchdb-collate';

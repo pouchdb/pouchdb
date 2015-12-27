@@ -1,5 +1,3 @@
-'use strict';
-
 import replicate from './replicate';
 import Replication from './replication';
 import clone from '../deps/clone';

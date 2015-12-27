@@ -1,5 +1,3 @@
-'use strict';
-
 import Promise from './promise';
 import getArguments from 'argsarray';
 import clone from './clone';

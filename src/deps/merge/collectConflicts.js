@@ -1,5 +1,3 @@
-'use strict';
-
 import winningRev from './winningRev';
 import collectLeaves from './collectLeaves';
 

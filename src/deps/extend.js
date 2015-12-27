@@ -1,5 +1,3 @@
-'use strict';
-
 import clone from './clone';
 
 function extendInner(obj, otherObj) {
@@ -13,10 +11,12 @@ function extendInner(obj, otherObj) {
   }
 }
 
-module.exports = function extend(obj, obj2, obj3) {
+function extend(obj, obj2, obj3) {
   extendInner(obj, obj2);
   if (obj3) {
     extendInner(obj, obj3);
   }
   return obj;
-};
+}
+
+export default extend;

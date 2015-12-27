@@ -1,5 +1,3 @@
-'use strict';
-
 import { extend as extend } from 'js-extend';
 import Promise from '../../deps/promise';
 import errors from '../../deps/errors';
@@ -27,7 +25,7 @@ var taskQueue = {
   queue: []
 };
 
-var applyNext = function () {
+function applyNext() {
   if (taskQueue.running || !taskQueue.queue.length) {
     return;
   }
@@ -38,9 +36,9 @@ var applyNext = function () {
     taskQueue.running = false;
     process.nextTick(applyNext);
   });
-};
+}
 
-var idbError = function (callback) {
+function idbError(callback) {
   return function (evt) {
     var message = 'unknown_error';
     if (evt.target && evt.target.error) {
@@ -48,7 +46,7 @@ var idbError = function (callback) {
     }
     callback(errors.error(errors.IDB_ERROR, message, evt.type));
   };
-};
+}
 
 // Unfortunately, the metadata has to be stringified
 // when it is put into the database, because otherwise
@@ -57,7 +55,7 @@ var idbError = function (callback) {
 // we use this custom vuvuzela library that avoids recursion.
 // If we could do it all over again, we'd probably use a
 // format for the revision trees other than JSON.
-var encodeMetadata = function (metadata, winningRev, deleted) {
+function encodeMetadata(metadata, winningRev, deleted) {
   return {
     data: safeJsonStringify(metadata),
     winningRev: winningRev,
@@ -65,9 +63,9 @@ var encodeMetadata = function (metadata, winningRev, deleted) {
     seq: metadata.seq, // highest seq for this doc
     id: metadata.id
   };
-};
+}
 
-var decodeMetadata = function (storedObject) {
+function decodeMetadata(storedObject) {
   if (!storedObject) {
     return null;
   }
@@ -76,11 +74,11 @@ var decodeMetadata = function (storedObject) {
   metadata.deleted = storedObject.deletedOrLocal === '1';
   metadata.seq = storedObject.seq;
   return metadata;
-};
+}
 
 // read the doc back out from the database. we don't store the
 // _id or _rev because we already have _doc_id_rev.
-var decodeDoc = function (doc) {
+function decodeDoc(doc) {
   if (!doc) {
     return doc;
   }
@@ -89,12 +87,12 @@ var decodeDoc = function (doc) {
   doc._rev = doc._doc_id_rev.substring(idx + 1);
   delete doc._doc_id_rev;
   return doc;
-};
+}
 
 // Read a blob from the database, encoding as necessary
 // and translating from base64 if the IDB doesn't support
 // native Blobs
-var readBlobData = function (body, type, asBlob, callback) {
+function readBlobData(body, type, asBlob, callback) {
   if (asBlob) {
     if (!body) {
       callback(createBlob([''], {type: type}));
@@ -114,9 +112,9 @@ var readBlobData = function (body, type, asBlob, callback) {
       callback(body);
     }
   }
-};
+}
 
-var fetchAttachmentsIfNecessary = function (doc, opts, txn, cb) {
+function fetchAttachmentsIfNecessary(doc, opts, txn, cb) {
   var attachments = Object.keys(doc._attachments || {});
   if (!attachments.length) {
     return cb && cb();
@@ -147,13 +145,13 @@ var fetchAttachmentsIfNecessary = function (doc, opts, txn, cb) {
       checkDone();
     }
   });
-};
+}
 
 // IDB-specific postprocessing necessary because
 // we don't know whether we stored a true Blob or
 // a base64-encoded string, and if it's a Blob it
 // needs to be read outside of the transaction context
-var postProcessAttachments = function (results, asBlob) {
+function postProcessAttachments(results, asBlob) {
   return Promise.all(results.map(function (row) {
     if (row.doc && row.doc._attachments) {
       var attNames = Object.keys(row.doc._attachments);
@@ -176,9 +174,9 @@ var postProcessAttachments = function (results, asBlob) {
       }));
     }
   }));
-};
+}
 
-var compactRevs = function (revs, docId, txn) {
+function compactRevs(revs, docId, txn) {
 
   var possiblyOrphanedDigests = [];
   var seqStore = txn.objectStore(BY_SEQ_STORE);
@@ -237,9 +235,9 @@ var compactRevs = function (revs, docId, txn) {
       };
     };
   });
-};
+}
 
-var openTransactionSafely = function (idb, stores, mode) {
+function openTransactionSafely(idb, stores, mode) {
   try {
     return {
       txn: idb.transaction(stores, mode)
@@ -249,9 +247,10 @@ var openTransactionSafely = function (idb, stores, mode) {
       error: err
     };
   }
-};
+}
 
 export {
+  fetchAttachmentsIfNecessary,
   openTransactionSafely,
   compactRevs,
   postProcessAttachments,
@@ -260,5 +259,6 @@ export {
   encodeMetadata,
   decodeMetadata,
   decodeDoc,
-  taskQueue
+  taskQueue,
+  readBlobData
 };

@@ -1,5 +1,3 @@
-'use strict';
-
 import isBinaryObject from './binary/isBinaryObject';
 import cloneBinaryObject from './binary/cloneBinaryObject';
 

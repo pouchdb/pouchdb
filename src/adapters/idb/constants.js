@@ -1,5 +1,3 @@
-'use strict';
-
 // IndexedDB requires a versioned database structure, so we use the
 // version here to manage migrations.
 var ADAPTER_VERSION = 5;

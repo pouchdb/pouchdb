@@ -1,6 +1,4 @@
 /*globals cordova */
-"use strict";
-
 import debug from 'debug';
 import inherits from 'inherits';
 import Adapter from './adapter';

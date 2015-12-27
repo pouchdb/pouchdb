@@ -1,5 +1,3 @@
-'use strict';
-
 export default evalView;
 function evalView(input) {
   /*jshint evil: true */

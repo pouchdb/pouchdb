@@ -1,5 +1,3 @@
-'use strict';
-
 import Promise from '../promise';
 import readAsBinaryString from './readAsBinaryString';
 import { btoa as btoa } from './base64';

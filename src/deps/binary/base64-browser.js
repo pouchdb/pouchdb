@@ -1,5 +1,3 @@
-'use strict';
-
 var thisAtob = function (str) {
   return atob(str);
 };
@@ -9,6 +7,6 @@ var thisBtoa = function (str) {
 };
 
 export {
-  atob as thisAtob,
-  btoa as thisBtoa
-}
+  thisAtob as atob,
+  thisBtoa as btoa
+};

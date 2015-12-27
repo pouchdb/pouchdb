@@ -1,28 +1,27 @@
-'use strict';
-
 import collections from 'pouchdb-collections';
 import errors from '../../deps/errors';
-var preprocessAttachments =
-  require('../../deps/docs/preprocessAttachments');
+import preprocessAttachments from '../../deps/docs/preprocessAttachments';
 import processDocs from '../../deps/docs/processDocs';
 import isLocalId from '../../deps/docs/isLocalId';
 import compactTree from '../../deps/merge/compactTree';
-import parseDoc from '../../deps/docs/parseDoc';
-import idbUtils from './utils';
-import idbConstants from './constants';
+import { parseDoc } from '../../deps/docs/parseDoc';
 
-var ATTACH_AND_SEQ_STORE = idbConstants.ATTACH_AND_SEQ_STORE;
-var ATTACH_STORE = idbConstants.ATTACH_STORE;
-var BY_SEQ_STORE = idbConstants.BY_SEQ_STORE;
-var DOC_STORE = idbConstants.DOC_STORE;
-var LOCAL_STORE = idbConstants.LOCAL_STORE;
-var META_STORE = idbConstants.META_STORE;
+import {
+  ATTACH_AND_SEQ_STORE,
+  ATTACH_STORE,
+  BY_SEQ_STORE,
+  DOC_STORE,
+  LOCAL_STORE,
+  META_STORE
+} from './constants';
 
-var compactRevs = idbUtils.compactRevs;
-var decodeMetadata = idbUtils.decodeMetadata;
-var encodeMetadata = idbUtils.encodeMetadata;
-var idbError = idbUtils.idbError;
-var openTransactionSafely = idbUtils.openTransactionSafely;
+import {
+  compactRevs,
+  decodeMetadata,
+  encodeMetadata,
+  idbError,
+  openTransactionSafely
+} from './utils';
 
 function idbBulkDocs(dbOpts, req, opts, api, idb, Changes, callback) {
   var docInfos = req.docs;

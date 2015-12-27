@@ -1,5 +1,3 @@
-'use strict';
-
 import LevelPouch from '../adapters/leveldb/index';
 import toPromise from '../deps/toPromise';
 import { extend as extend } from 'js-extend';

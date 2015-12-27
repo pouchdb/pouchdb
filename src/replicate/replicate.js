@@ -1,5 +1,3 @@
-'use strict';
-
 import clone from '../deps/clone';
 import Promise from '../deps/promise';
 import uuid from '../deps/uuid';

@@ -1,5 +1,3 @@
-'use strict';
-
 import errors from '../errors';
 import isDeleted from './isDeleted';
 import { parseDoc as parseDoc } from './parseDoc';

@@ -1,4 +1,3 @@
-'use strict';
 /* global PouchDB */
 
 function pluginBase(adapterConfig, downAdapter) {

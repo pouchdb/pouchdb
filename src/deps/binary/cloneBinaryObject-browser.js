@@ -1,5 +1,3 @@
-'use strict';
-
 function cloneArrayBuffer(buff) {
   if (typeof buff.slice === 'function') {
     return buff.slice(0);

@@ -1,9 +1,6 @@
-'use strict';
-
 import createBlob from '../../deps/binary/blob';
 import Promise from '../../deps/promise';
-import idbConstants from './constants';
-var DETECT_BLOB_SUPPORT_STORE = idbConstants.DETECT_BLOB_SUPPORT_STORE;
+import { DETECT_BLOB_SUPPORT_STORE } from './constants';
 
 //
 // Blobs are not supported in all versions of IndexedDB, notably

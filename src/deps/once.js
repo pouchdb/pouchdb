@@ -1,5 +1,3 @@
-'use strict';
-
 import getArguments from 'argsarray';
 
 function once(fun) {

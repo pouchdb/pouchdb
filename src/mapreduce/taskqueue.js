@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes
  * callbacks will eventually fire (once).

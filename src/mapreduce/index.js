@@ -1,5 +1,3 @@
-'use strict';
-
 import b64ToBluffer from '../deps/binary/base64StringToBlobOrBuffer';
 import pouchCollate from 'pouchdb-collate';
 import TaskQueue from './taskqueue';

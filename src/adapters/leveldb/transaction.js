@@ -1,5 +1,3 @@
-'use strict';
-
 // similar to an idb or websql transaction object
 // designed to be passed around. basically just caches
 // things in-memory and then does a big batch() operation

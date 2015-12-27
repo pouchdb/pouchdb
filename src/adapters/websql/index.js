@@ -1,5 +1,3 @@
-'use strict';
-
 import { extend as extend } from 'js-extend';
 import clone from '../../deps/clone';
 import uuid from '../../deps/uuid';
@@ -18,29 +16,29 @@ import safeJsonStringify from '../../deps/safeJsonStringify';
 import Changes from '../../changesHandler';
 import isCordova from '../../deps/isCordova';
 import toPromise from '../../deps/toPromise';
-import base64 from '../../deps/binary/base64';
-var btoa = base64.btoa;
-
-import websqlConstants from './constants';
-import websqlUtils from './utils';
+import { atob as atob } from '../../deps/binary/base64';
 import websqlBulkDocs from './bulkDocs';
 
-var ADAPTER_VERSION = websqlConstants.ADAPTER_VERSION;
-var DOC_STORE = websqlConstants.DOC_STORE;
-var BY_SEQ_STORE = websqlConstants.BY_SEQ_STORE;
-var ATTACH_STORE = websqlConstants.ATTACH_STORE;
-var LOCAL_STORE = websqlConstants.LOCAL_STORE;
-var META_STORE = websqlConstants.META_STORE;
-var ATTACH_AND_SEQ_STORE = websqlConstants.ATTACH_AND_SEQ_STORE;
+import {
+  ADAPTER_VERSION,
+  DOC_STORE,
+  BY_SEQ_STORE,
+  ATTACH_STORE,
+  LOCAL_STORE,
+  META_STORE,
+  ATTACH_AND_SEQ_STORE
+} from './constants';
 
-var qMarks = websqlUtils.qMarks;
-var stringifyDoc = websqlUtils.stringifyDoc;
-var unstringifyDoc = websqlUtils.unstringifyDoc;
-var select = websqlUtils.select;
-var compactRevs = websqlUtils.compactRevs;
-var websqlError = websqlUtils.websqlError;
-var getSize = websqlUtils.getSize;
-var openDB = websqlUtils.openDB;
+import {
+  qMarks,
+  stringifyDoc,
+  unstringifyDoc,
+  select,
+  compactRevs,
+  websqlError,
+  getSize,
+  openDB
+} from './utils';
 
 function fetchAttachmentsIfNecessary(doc, opts, api, txn, cb) {
   var attachments = Object.keys(doc._attachments || {});

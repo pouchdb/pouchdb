@@ -1,5 +1,3 @@
-'use strict';
-
 import toPromise from './toPromise';
 import crypto from 'crypto';
 

@@ -1,5 +1,3 @@
-'use strict';
-
 import errors from '../errors';
 import updateDoc from './updateDoc';
 import isDeleted from './isDeleted';

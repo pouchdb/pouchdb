@@ -1,5 +1,3 @@
-'use strict';
-
 // like underscore/lodash _.pick()
 function pick(obj, arr) {
   var res = {};

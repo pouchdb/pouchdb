@@ -1,5 +1,3 @@
-"use strict";
-
 // Abstracts constructing a Blob object, so it also works in older
 // browsers that don't support the native Blob constructor (e.g.
 // old QtWebKit versions, Android < 4.4).

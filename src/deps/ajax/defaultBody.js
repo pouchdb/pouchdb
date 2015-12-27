@@ -1,5 +1,3 @@
-'use strict';
-
 import buffer from '../binary/buffer';
 
 function defaultBody() {

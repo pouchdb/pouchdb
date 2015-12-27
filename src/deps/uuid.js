@@ -1,5 +1,3 @@
-"use strict";
-
 // BEGIN Math.uuid.js
 
 /*!

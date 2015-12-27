@@ -1,19 +1,19 @@
-'use strict';
-
 import errors from '../../deps/errors';
-import idbUtils from './utils';
-import idbConstants from './constants';
 import collectConflicts from '../../deps/merge/collectConflicts';
 
-var ATTACH_STORE = idbConstants.ATTACH_STORE;
-var BY_SEQ_STORE = idbConstants.BY_SEQ_STORE;
-var DOC_STORE = idbConstants.DOC_STORE;
+import {
+  ATTACH_STORE,
+  BY_SEQ_STORE,
+  DOC_STORE
+} from './constants';
 
-var decodeDoc = idbUtils.decodeDoc;
-var decodeMetadata = idbUtils.decodeMetadata;
-var fetchAttachmentsIfNecessary = idbUtils.fetchAttachmentsIfNecessary;
-var postProcessAttachments = idbUtils.postProcessAttachments;
-var openTransactionSafely = idbUtils.openTransactionSafely;
+import {
+  decodeDoc,
+  decodeMetadata,
+  fetchAttachmentsIfNecessary,
+  postProcessAttachments,
+  openTransactionSafely
+} from './utils';
 
 function createKeyRange(start, end, inclusiveEnd, key, descending) {
   try {

@@ -1,5 +1,3 @@
-'use strict';
-
 import createBlob from '../../deps/binary/blob';
 
 function readAsBlobOrBuffer(storedObject, type) {

@@ -1,5 +1,3 @@
-'use strict';
-
 //
 // Parsing hex strings. Yeah.
 //

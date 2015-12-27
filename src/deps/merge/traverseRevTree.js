@@ -1,5 +1,3 @@
-'use strict';
-
 // Pretty much all below can be combined into a higher order function to
 // traverse revisions
 // The return value from the callback will be passed as context to all

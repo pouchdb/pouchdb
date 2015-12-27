@@ -1,8 +1,6 @@
-'use strict';
-
 import buffer from './buffer';
 
-var atob = function (str) {
+function thisAtob(str) {
   var base64 = new buffer(str, 'base64');
   // Node.js will just skip the characters it can't decode instead of
   // throwing an exception
@@ -10,13 +8,13 @@ var atob = function (str) {
     throw new Error("attachment is not a valid base64 string");
   }
   return base64.toString('binary');
-};
+}
 
-var btoa = function (str) {
+function thisBtoa(str) {
   return new buffer(str, 'binary').toString('base64');
-};
+}
 
 export {
-  atob as atob,
-  btoa as btoa
+  thisAtob as atob,
+  thisBtoa as btoa
 };

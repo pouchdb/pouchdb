@@ -1,5 +1,3 @@
-'use strict';
-
 function parseDesignDocFunctionName(s) {
   if (!s) {
     return null;

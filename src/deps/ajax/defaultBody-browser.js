@@ -1,5 +1,3 @@
-'use strict';
-
 function defaultBody() {
   return '';
 }

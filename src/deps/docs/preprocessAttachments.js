@@ -1,6 +1,4 @@
-'use strict';
-
-import base64 from '../binary/base64';
+import { atob, btoa } from '../binary/base64';
 import arrayBuffToBinString from '../binary/arrayBufferToBinaryString';
 import readAsArrayBuffer from '../binary/readAsArrayBuffer';
 import binStringToBlobOrBuffer from '../binary/binaryStringToBlobOrBuffer';
@@ -17,7 +15,7 @@ function preprocessAttachments(docInfos, blobType, callback) {
 
   function parseBase64(data) {
     try {
-      return base64.atob(data);
+      return atob(data);
     } catch (e) {
       var err = errors.error(errors.BAD_ARG,
         'Attachment is not a valid base64 string');
@@ -41,7 +39,7 @@ function preprocessAttachments(docInfos, blobType, callback) {
       if (blobType === 'blob') {
         att.data = binStringToBlobOrBuffer(asBinary, att.content_type);
       } else if (blobType === 'base64') {
-        att.data = base64.btoa(asBinary);
+        att.data = btoa(asBinary);
       } else { // binary
         att.data = asBinary;
       }
@@ -54,7 +52,7 @@ function preprocessAttachments(docInfos, blobType, callback) {
         if (blobType === 'binary') {
           att.data = arrayBuffToBinString(buff);
         } else if (blobType === 'base64') {
-          att.data = base64.btoa(arrayBuffToBinString(buff));
+          att.data = btoa(arrayBuffToBinString(buff));
         }
         md5(buff).then(function (result) {
           att.digest = 'md5-' + result;

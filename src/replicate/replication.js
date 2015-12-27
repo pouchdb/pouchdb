@@ -1,5 +1,3 @@
-'use strict';
-
 import { EventEmitter as EE } from 'events';
 import Promise from '../deps/promise';
 import inherits from 'inherits';

@@ -1,5 +1,3 @@
-"use strict";
-
 import { extend as extend } from 'js-extend';
 import Promise from './deps/promise';
 import pick from './deps/pick';

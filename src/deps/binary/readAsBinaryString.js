@@ -1,9 +1,7 @@
-'use strict';
-
 import arrayBufferToBinaryString from './arrayBufferToBinaryString';
 
 // shim for browsers that don't support it
-module.exports = function (blob, callback) {
+function readAsBinaryString(blob, callback) {
   if (typeof FileReader === 'undefined') {
     // fix for Firefox in a web worker
     // https://bugzilla.mozilla.org/show_bug.cgi?id=901097
@@ -25,4 +23,6 @@ module.exports = function (blob, callback) {
   } else {
     reader.readAsArrayBuffer(blob);
   }
-};
+}
+
+export default readAsBinaryString;

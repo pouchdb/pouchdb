@@ -1,5 +1,3 @@
-'use strict';
-
 import ajax from './ajaxCore';
 
 function prequest(opts, callback) {

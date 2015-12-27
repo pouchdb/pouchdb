@@ -1,5 +1,3 @@
-'use strict';
-
 var STARTING_BACK_OFF = 0;
 
 function randomNumber(min, max) {

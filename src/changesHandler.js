@@ -1,5 +1,3 @@
-'use strict';
-
 import { EventEmitter as EventEmitter } from 'events';
 import inherits from 'inherits';
 import isChromeApp from './deps/env/isChromeApp';

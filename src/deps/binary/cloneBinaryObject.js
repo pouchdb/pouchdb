@@ -1,5 +1,3 @@
-'use strict';
-
 function cloneBinaryObject(object) {
   var copy = new Buffer(object.length);
   object.copy(copy);

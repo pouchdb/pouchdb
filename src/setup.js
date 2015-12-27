@@ -1,5 +1,3 @@
-"use strict";
-
 import { extend as extend } from 'js-extend';
 
 import PouchDB from "./constructor";

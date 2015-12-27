@@ -1,5 +1,3 @@
-'use strict';
-
 import typedBuffer from './typedBuffer';
 
 function b64ToBluffer(b64, type) {

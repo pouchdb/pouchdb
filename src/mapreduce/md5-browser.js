@@ -1,5 +1,3 @@
-'use strict';
-
 import Md5 from 'spark-md5';
 
 function md5(string) {

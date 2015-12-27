@@ -1,5 +1,3 @@
-'use strict';
-
 function quote(str) {
   return "'" + str + "'";
 }

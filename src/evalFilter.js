@@ -1,5 +1,3 @@
-'use strict';
-
 export default evalFilter;
 function evalFilter(input) {
   /*jshint evil: true */

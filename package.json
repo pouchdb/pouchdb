@@ -30,7 +30,6 @@
     "lie": "3.0.1",
     "localstorage-down": "0.6.3",
     "memdown": "1.1.0",
-    "package-json-versionify": "^1.0.0",
     "pouchdb-collate": "1.2.0",
     "pouchdb-collections": "1.0.1",
     "request": "2.67.0",
@@ -65,7 +64,6 @@
     "mkdirp": "0.5.1",
     "mocha": "2.3.4",
     "mockery": "1.4.0",
-    "ncp": "^2.0.0",
     "phantomjs": "1.9.19",
     "pouchdb-express-router": "0.0.8",
     "pouchdb-http-proxy": "0.10.4",
@@ -117,10 +115,5 @@
     "crypto": false,
     "fs": false,
     "leveldown": false
-  },
-  "browserify": {
-    "transform": [
-      "package-json-versionify"
-    ]
   }
 }

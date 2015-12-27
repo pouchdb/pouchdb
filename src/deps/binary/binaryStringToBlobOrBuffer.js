@@ -1,5 +1,3 @@
-'use strict';
-
 import typedBuffer from './typedBuffer';
 
 function binStringToBluffer(binString, type) {

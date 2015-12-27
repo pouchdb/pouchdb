@@ -1,5 +1,3 @@
-'use strict';
-
 import { atob as atob } from './base64';
 import binaryStringToBlobOrBuffer from './binaryStringToBlobOrBuffer';
 

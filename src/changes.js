@@ -1,4 +1,3 @@
-'use strict';
 import clone from './deps/clone';
 import Promise from './deps/promise';
 import isDeleted from './deps/docs/isDeleted';
@@ -10,8 +9,7 @@ import { EventEmitter as EE } from 'events';
 import evalFilter from './evalFilter';
 import evalView from './evalView';
 import parseDdocFunctionName from './deps/docs/parseDdocFunctionName';
-var normalizeDdocFunctionName =
-  require('./deps/docs/normalizeDdocFunctionName');
+import normalizeDdocFunctionName from './deps/docs/normalizeDdocFunctionName';
 import collectLeaves from './deps/merge/collectLeaves';
 import collectConflicts from './deps/merge/collectConflicts';
 export default Changes;

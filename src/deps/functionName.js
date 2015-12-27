@@ -1,5 +1,3 @@
-'use strict';
-
 // shim for Function.prototype.name,
 // for browsers that don't support it like IE
 

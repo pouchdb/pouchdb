@@ -1,5 +1,3 @@
-"use strict";
-
 import request from './request';
 import { extend as extend } from 'js-extend';
 import errors from './../errors';

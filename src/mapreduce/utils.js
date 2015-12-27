@@ -1,5 +1,3 @@
-'use strict';
-
 import argsarray from 'argsarray';
 
 var promisedCallback = function (promise, callback) {

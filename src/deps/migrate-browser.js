@@ -1,4 +1,3 @@
-'use strict';
 // in the browser, LevelAlt doesn't need the
 // pre-2.2.0 LevelDB-specific migrations
 var toSublevel = function (name, db, callback) {

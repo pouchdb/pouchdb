@@ -1,8 +1,9 @@
-'use strict';
-
 function evalfunc(func, emit, sum, log, isArray, toJSON) {
-  /*jshint evil:true,unused:false */
-  return eval("(" + func.replace(/;\s*$/, "") + ");");
+  // wrap so that Rollup + minification still works well
+  return (function () {
+    /*jshint evil:true,unused:false */
+    eval("(" + func.replace(/;\s*$/, "") + ");");
+  })();
 }
 
 export default evalfunc;

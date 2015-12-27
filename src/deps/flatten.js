@@ -1,5 +1,3 @@
-'use strict';
-
 function flatten(arrs) {
   var res = [];
   for (var i = 0, len = arrs.length; i < len; i++) {

@@ -1,5 +1,3 @@
-"use strict";
-
 import inherits from 'inherits';
 inherits(PouchError, Error);
 

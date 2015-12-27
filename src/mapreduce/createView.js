@@ -1,5 +1,3 @@
-'use strict';
-
 import upsert from '../deps/upsert';
 import Promise from '../deps/promise';
 import md5 from './md5';

@@ -1,5 +1,3 @@
-'use strict';
-
 // in Node of course this is false
 function isChromeApp() {
   return false;

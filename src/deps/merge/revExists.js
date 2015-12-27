@@ -1,5 +1,3 @@
-'use strict';
-
 // return true if a rev exists in the rev tree, false otherwise
 function revExists(revs, rev) {
   var toVisit = revs.slice();

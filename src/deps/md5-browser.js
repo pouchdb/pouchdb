@@ -1,13 +1,11 @@
-'use strict';
-
 import toPromise from './toPromise';
-import base64 from './binary/base64';
+import { btoa } from './binary/base64';
 import Md5 from 'spark-md5';
 var setImmediateShim = global.setImmediate || global.setTimeout;
 var MD5_CHUNK_SIZE = 32768;
 
 function rawToBase64(raw) {
-  return base64.btoa(raw);
+  return btoa(raw);
 }
 
 function appendBuffer(buffer, data, start, end) {
@@ -27,7 +25,7 @@ function appendString(buffer, data, start, end) {
   buffer.appendBinary(data);
 }
 
-module.exports = toPromise(function (data, callback) {
+var md5 = toPromise(function (data, callback) {
   var inputIsString = typeof data === 'string';
   var len = inputIsString ? data.length : data.byteLength;
   var chunkSize = Math.min(MD5_CHUNK_SIZE, len);
@@ -54,3 +52,5 @@ module.exports = toPromise(function (data, callback) {
   }
   loadNextChunk();
 });
+
+export default md5;

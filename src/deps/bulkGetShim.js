@@ -1,5 +1,3 @@
-'use strict';
-
 import pick from '../deps/pick';
 
 // shim for P/CouchDB adapters that don't directly implement _bulk_get

@@ -1,5 +1,3 @@
-'use strict';
-
 // for a better overview of what this is doing, read:
 // https://github.com/apache/couchdb/blob/master/src/couchdb/couch_key_tree.erl
 //

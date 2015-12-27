@@ -1,8 +1,8 @@
-'use strict';
-
 import parseDdocFunctionName from './parseDdocFunctionName';
 
-module.exports = function normalizeDesignDocFunctionName(s) {
+function normalizeDesignDocFunctionName(s) {
   var normalized = parseDdocFunctionName(s);
   return normalized ? normalized.join('/') : null;
-};
+}
+
+export default normalizeDesignDocFunctionName;

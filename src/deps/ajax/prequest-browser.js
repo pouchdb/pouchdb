@@ -1,8 +1,6 @@
-'use strict';
-
 import ajax from './ajaxCore';
 
-module.exports = function(opts, callback) {
+function prequest(opts, callback) {
 
   // cache-buster, specifically designed to work around IE's aggressive caching
   // see http://www.dashbay.com/2011/05/internet-explorer-caches-ajax/
@@ -24,4 +22,6 @@ module.exports = function(opts, callback) {
   }
 
   return ajax(opts, callback);
-};
+}
+
+export default prequest;

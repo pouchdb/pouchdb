@@ -1,27 +1,57 @@
 #!/usr/bin/env bash
 
-./node_modules/.bin/rimraf lib
-./node_modules/.bin/mkdirp lib
+RIMRAF=./node_modules/.bin/rimraf
+MKDIRP=./node_modules/.bin/mkdirp
+BROWSERIFY=./node_modules/.bin/browserify
+ROLLUP=./node_modules/.bin/rollup
+REPLACE=./node_modules/.bin/replace
+DEREQUIRE=./node_modules/.bin/derequire
 
+VERSION=$(node -e "console.log(require('./package.json').version)")
 
-EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,inherits,inherits,js-extend,level-sublevel,level-write-stream,levelup,lie,localstorage-down,memdown,path,pouchdb-collate,pouchdb-collections,request,spark-md5,through2,vuvuzela'
+$RIMRAF lib
+$MKDIRP lib
 
-./node_modules/.bin/rollup --format=cjs --external $EXTERNAL \
-  --output=lib/index.js \
-  src/index.js
+EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,inherits,inherits,js-extend,level-sublevel,level-sublevel/legacy,level-write-stream,levelup,lie,localstorage-down,memdown,path,pouchdb-collate,pouchdb-collections,request,spark-md5,through2,vuvuzela'
 
+# build for Node
 
-./node_modules/.bin/rimraf src_browser
-./node_modules/.bin/ncp src src_browser
+$ROLLUP --format=cjs --external $EXTERNAL \
+  src/index.js \
+  --output=lib/index.js
+
+# build for browserify/webpack
+
+$RIMRAF src_browser
+cp -r src src_browser
 
 for file in `find src_browser | grep '\-browser.js'`; do
-  mv $file `echo $file | sed 's/-browser//g'`;
+  cp $file `echo $file | sed 's/-browser//g'`;
 done
 
-./node_modules/.bin/rollup  --format=cjs --external $EXTERNAL \
-  --output=lib/index-browser.js \
-  src_browser/index.js
+$ROLLUP --format=cjs --external $EXTERNAL \
+  src_browser/index.js \
+  --output=lib/index-browser.js
 
-./node_modules/.bin/rimraf src_browser
+# add a version number to both files
+$REPLACE 5.1.1-prerelease $VERSION lib/*
 
-./node_modules/.bin/browserify . -s PouchDB -p bundle-collapser/plugin | node ./bin/es3ify.js | derequire > dist/pouchdb.js
+# build for the browser (dist)
+
+$BROWSERIFY . -s PouchDB -p bundle-collapser/plugin \
+  | node ./bin/es3ify.js \
+  | $DEREQUIRE \
+  > dist/pouchdb.js
+
+# build browser plugins
+
+$MKDIRP lib/plugins
+
+for plugin in fruitdown localstorage memory; do
+  $ROLLUP --format=cjs --external $EXTERNAL \
+    src_browser/plugins/${plugin}/index.js \
+    > lib/plugins/${plugin}.js
+done
+
+# cleanup
+$RIMRAF src_browser

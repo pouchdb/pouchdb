@@ -1,5 +1,3 @@
-'use strict';
-
 import createBlob from './blob';
 import binaryStringToArrayBuffer from './binaryStringToArrayBuffer';
 

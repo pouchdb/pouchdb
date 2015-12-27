@@ -1,5 +1,3 @@
-'use strict';
-
 function isBinaryObject(object) {
   return object instanceof Buffer;
 }

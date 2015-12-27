@@ -1,5 +1,3 @@
-'use strict';
-
 import winningRev from '../../deps/merge/winningRev';
 
 function getTrees(node) {

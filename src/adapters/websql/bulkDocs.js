@@ -1,28 +1,26 @@
-'use strict';
-
 import collections from 'pouchdb-collections';
 import errors from '../../deps/errors';
-var preprocessAttachments =
-  require('../../deps/docs/preprocessAttachments');
+import preprocessAttachments from '../../deps/docs/preprocessAttachments';
 import isLocalId from '../../deps/docs/isLocalId';
 import processDocs from '../../deps/docs/processDocs';
 import safeJsonParse from '../../deps/safeJsonParse';
 import safeJsonStringify from '../../deps/safeJsonStringify';
 import compactTree from '../../deps/merge/compactTree';
-import parseDoc from '../../deps/docs/parseDoc';
+import { parseDoc } from '../../deps/docs/parseDoc';
 
-import websqlUtils from './utils';
-import websqlConstants from './constants';
+import {
+  DOC_STORE,
+  BY_SEQ_STORE,
+  ATTACH_STORE,
+  ATTACH_AND_SEQ_STORE
+} from './constants';
 
-var DOC_STORE = websqlConstants.DOC_STORE;
-var BY_SEQ_STORE = websqlConstants.BY_SEQ_STORE;
-var ATTACH_STORE = websqlConstants.ATTACH_STORE;
-var ATTACH_AND_SEQ_STORE = websqlConstants.ATTACH_AND_SEQ_STORE;
-
-var select = websqlUtils.select;
-var stringifyDoc = websqlUtils.stringifyDoc;
-var compactRevs = websqlUtils.compactRevs;
-var unknownError = websqlUtils.websqlError;
+import {
+  select,
+  stringifyDoc,
+  compactRevs,
+  websqlError
+} from './utils';
 
 function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
   var newEdits = opts.new_edits;
@@ -324,7 +322,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
           fetchExistingDocs(websqlProcessDocs);
         }
       });
-    }, unknownError(callback), complete);
+    }, websqlError(callback), complete);
   });
 }
 

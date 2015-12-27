@@ -1,5 +1,3 @@
-'use strict';
-
 // originally parseUri 1.2.2, now patched by us
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
