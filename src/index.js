@@ -13,7 +13,7 @@ PouchDB.utils = utils;
 PouchDB.Errors = errors;
 PouchDB.replicate = replicate.replicate;
 PouchDB.sync = sync;
-PouchDB.version = '__VERSION__';
+PouchDB.version = '__VERSION__'; // will be automatically supplied by build.sh
 PouchDB.adapter('http', httpAdapter);
 PouchDB.adapter('https', httpAdapter);
 
