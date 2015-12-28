@@ -68,5 +68,27 @@ $RIMRAF lib_staging
 
 echo Built lib/plugins/*
 
+# build extras API
+
+$MKDIRP lib_staging/extras
+
+$ROLLUP --format=cjs --external $EXTERNAL \
+    src_browser/deps/promise.js \
+    > lib_staging/extras/promise.js
+
+$ROLLUP --format=cjs --external $EXTERNAL \
+    src_browser/replicate/checkpointer.js \
+    > lib_staging/extras/checkpointer.js
+
+$ROLLUP --format=cjs --external $EXTERNAL \
+    src_browser/deps/ajax/prequest.js \
+    > lib_staging/extras/ajax.js
+
+$MKDIRP lib/extras
+mv lib_staging/extras/* lib/extras/
+$RIMRAF lib_staging
+
+echo Built lib/extras/*
+
 # cleanup
 $RIMRAF src_browser
