@@ -9,8 +9,8 @@ DEREQUIRE=./node_modules/.bin/derequire
 
 VERSION=$(node -e "console.log(require('./package.json').version)")
 
-$RIMRAF lib
-$MKDIRP lib
+$RIMRAF lib_staging
+$MKDIRP lib_staging
 
 EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,inherits,inherits,js-extend,level-sublevel,level-sublevel/legacy,level-write-stream,levelup,lie,localstorage-down,memdown,path,pouchdb-collate,pouchdb-collections,request,scope-eval,spark-md5,through2,vuvuzela'
 
@@ -18,7 +18,7 @@ EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,i
 
 $ROLLUP --format=cjs --external $EXTERNAL \
   src/index.js \
-  --output=lib/index.js
+  --output=lib_staging/index.js
 
 # build for browserify/webpack
 
@@ -31,10 +31,17 @@ done
 
 $ROLLUP --format=cjs --external $EXTERNAL \
   src_browser/index.js \
-  --output=lib/index-browser.js
+  --output=lib_staging/index-browser.js
 
 # add a version number to both files
-$REPLACE --silent __VERSION__ $VERSION lib/*
+$REPLACE --silent __VERSION__ $VERSION lib_staging/*
+
+# rename to avoid concurrency issues in dev server
+$MKDIRP lib
+mv lib_staging/* lib/
+$RIMRAF lib_staging
+
+echo Built lib/*
 
 # build for the browser (dist)
 
@@ -43,15 +50,23 @@ $BROWSERIFY . -s PouchDB -p bundle-collapser/plugin \
   | $DEREQUIRE \
   > dist/pouchdb.js
 
+echo Built dist/pouchdb.js
+
 # build browser plugins
 
-$MKDIRP lib/plugins
+$MKDIRP lib_staging/plugins
 
 for plugin in fruitdown localstorage memory; do
   $ROLLUP --format=cjs --external $EXTERNAL \
     src_browser/plugins/${plugin}/index.js \
-    > lib/plugins/${plugin}.js
+    > lib_staging/plugins/${plugin}.js
 done
+
+$MKDIRP lib/plugins
+mv lib_staging/plugins/* lib/plugins/
+$RIMRAF lib_staging
+
+echo Built lib/plugins/*
 
 # cleanup
 $RIMRAF src_browser

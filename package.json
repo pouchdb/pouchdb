@@ -65,6 +65,7 @@
     "mkdirp": "0.5.1",
     "mocha": "2.3.4",
     "mockery": "1.4.0",
+    "node-watch": "^0.3.5",
     "phantomjs": "1.9.19",
     "pouchdb-express-router": "0.0.8",
     "pouchdb-http-proxy": "0.10.4",

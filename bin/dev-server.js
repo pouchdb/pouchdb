@@ -4,25 +4,14 @@
 
 var fs = require('fs');
 var Promise = require('lie');
-var through = require('through2');
-var _derequire = require('derequire');
 var watchify = require('watchify');
+var watch = require('node-watch');
 var browserify = require('browserify');
 var cors_proxy = require('corsproxy');
 var http_proxy = require('pouchdb-http-proxy');
 var http_server = require('http-server');
-var mkdirp = require('mkdirp');
+var spawn = require('child_process').spawn;
 
-function derequire() {
-  var out = new Buffer('');
-  return through(function (data, _, next) {
-    out = Buffer.concat([out, data]);
-    next();
-  }, function (next) {
-    this.push(_derequire(out.toString()));
-    next();
-  });
-}
 var queryParams = {};
 
 if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
@@ -38,58 +27,58 @@ if (process.env.POUCHDB_SRC) {
   queryParams.src = process.env.POUCHDB_SRC;
 }
 
-var indexfile = "./lib/index-browser.js";
-var outfile = "./dist/pouchdb.js";
 var perfRoot = './tests/performance/';
 var performanceBundle = './tests/performance-bundle.js';
 
-var w = watchify(browserify(indexfile, {
-  standalone: "PouchDB",
+var b = watchify(browserify({
+  entries: perfRoot,
   cache: {},
   packageCache: {},
   fullPaths: true,
   debug: true
-})).on('update', bundle);
-var b = watchify(browserify({
-    entries: perfRoot,
-    cache: {},
-    packageCache: {},
-    fullPaths: true,
-    debug: true
-  })).on('update', bundlePerfTests);
+})).on('update', rebuildPerfTests);
 
-function bundle(callback) {
-  mkdirp.sync('./dist');
-  w.bundle().pipe(derequire()).pipe(fs.createWriteStream(outfile))
-  .on('finish', function () {
-    console.log('Updated: ', outfile);
-    if (typeof callback === 'function') {
-      callback();
-    }
-  });
-}
-
-function bundlePerfTests(callback) {
-   
+function rebuildPerfTests(callback) {
   b.bundle().pipe(fs.createWriteStream(performanceBundle))
-  .on('finish', function () {
-    console.log('Updated: ', performanceBundle);
-    if (typeof callback === 'function') {
-      callback();
-    }
-  });
-
+    .on('finish', function () {
+      console.log('Updated: ', performanceBundle);
+      if (typeof callback === 'function') {
+        callback();
+      }
+    });
 }
+
+var rebuildPromise = Promise.resolve();
+
+function rebuild(callback) {
+  // only run one build at a time
+  rebuildPromise = rebuildPromise.then(function () {
+    var child = spawn('npm', ['run', 'build-main-js']);
+    child.stdout.on('data', function (buf) {
+      console.log(String(buf).replace(/\s*$/, ''));
+    });
+    child.stderr.on('data', function (buf) {
+      console.log(String(buf).replace(/\s*$/, ''));
+    });
+    child.on('close', function () {
+      if (typeof callback === 'function') {
+        callback();
+      }
+    });
+  });
+}
+
+watch('./src', rebuild);
 
 var filesWritten = false;
-Promise.all([
-  new Promise(function (resolve) {
-    bundle(resolve);
-  }),
-  new Promise(function (resolve) {
-    bundlePerfTests(resolve);
-  })
-]).then(function () {
+
+new Promise(function (resolve) {
+  rebuild(resolve);
+}).then(function () {
+  return new Promise(function (resolve) {
+    rebuildPerfTests(resolve);
+  });
+}).then(function () {
   filesWritten = true;
   checkReady();
 });
@@ -134,7 +123,6 @@ function checkReady() {
     readyCallback();
   }
 }
-
 
 if (require.main === module) {
   startServers();
