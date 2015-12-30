@@ -1,6 +1,6 @@
-import ajax from './ajaxCore';
+import ajaxCore from './ajaxCore';
 
-function prequest(opts, callback) {
+function ajax(opts, callback) {
 
   // cache-buster, specifically designed to work around IE's aggressive caching
   // see http://www.dashbay.com/2011/05/internet-explorer-caches-ajax/
@@ -21,7 +21,7 @@ function prequest(opts, callback) {
     opts.url += (hasArgs ? '&' : '?') + '_nonce=' + Date.now();
   }
 
-  return ajax(opts, callback);
+  return ajaxCore(opts, callback);
 }
 
-export default prequest;
+export default ajax;

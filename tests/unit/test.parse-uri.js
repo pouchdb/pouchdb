@@ -1,7 +1,7 @@
 'use strict';
 
 require('chai').should();
-var parseUri = require('../../lib/deps/parseUri');
+var parseUri = require('../../lib_unit/deps/parseUri').default;
 
 describe('test.parse-uri.js', function () {
 

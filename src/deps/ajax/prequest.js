@@ -1,8 +1,8 @@
-import ajax from './ajaxCore';
+import ajaxCore from './ajaxCore';
 
-function prequest(opts, callback) {
+function ajax(opts, callback) {
   // do nothing; all the action is in prerequest-browser.js
-  return ajax(opts, callback);
+  return ajaxCore(opts, callback);
 }
 
-export default prequest;
+export default ajax;

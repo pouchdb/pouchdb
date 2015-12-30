@@ -20,7 +20,7 @@ var callbackify = function (fun) {
     var cb = args.pop();
     var promise = fun.apply(this, args);
     if (typeof cb === 'function') {
-      exports.promisedCallback(promise, cb);
+      promisedCallback(promise, cb);
     }
     return promise;
   });

@@ -21,7 +21,7 @@ describe('test.ajax.js', function () {
     }
 
     mockery.registerMock('request', requestStub);
-    ajax = require('../../lib/deps/ajax/ajaxCore');
+    ajax = require('../../lib_unit/deps/ajax/ajaxCore').default;
   });
 
   it('should exist', function () {

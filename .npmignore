@@ -11,3 +11,4 @@ phantomjsdriver.log
 bower_components
 ./docs/
 lib
+lib_unit

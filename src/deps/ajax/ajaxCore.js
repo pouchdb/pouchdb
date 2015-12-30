@@ -5,7 +5,7 @@ import clone from '../../deps/clone';
 import applyTypeToBuffer from './applyTypeToBuffer';
 import defaultBody from './defaultBody';
 
-function ajax(options, callback) {
+function ajaxCore(options, callback) {
 
   options = clone(options);
 
@@ -113,4 +113,4 @@ function ajax(options, callback) {
   });
 }
 
-export default ajax;
+export default ajaxCore;

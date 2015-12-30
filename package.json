@@ -45,6 +45,8 @@
     "leveldown": "1.4.3"
   },
   "devDependencies": {
+    "babel-cli": "^6.3.17",
+    "babel-preset-es2015": "^6.3.13",
     "browserify": "12.0.1",
     "bundle-collapser": "1.2.1",
     "chai": "3.4.1",
@@ -93,7 +95,7 @@
     "build-plugins": "sh bin/build-all-plugins.sh",
     "build": "rimraf dist && mkdirp dist && npm run build-js && npm run license",
     "license": "node ./bin/add-license.js",
-    "test-unit": "mocha tests/unit",
+    "test-unit": "npm run build-main-js && babel --presets es2015 --out-dir lib_unit src && mocha tests/unit && rimraf lib_unit",
     "test-node": "sh bin/test-node.sh",
     "test-component": "mocha tests/component",
     "test-fuzzy": "TYPE=fuzzy npm run test",

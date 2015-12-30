@@ -3,9 +3,9 @@
 
 var should = require('chai').should();
 var normalizeDdocFunctionName =
-  require('../../lib/deps/docs/normalizeDdocFunctionName');
+  require('../../lib_unit/deps/docs/normalizeDdocFunctionName').default;
 var parseDdocFunctionName =
-  require('../../lib/deps/docs/parseDdocFunctionName');
+  require('../../lib_unit/deps/docs/parseDdocFunctionName').default;
 
 describe('test.utils.js', function () {
   describe('the design doc function name normalizer', function () {
