@@ -2,7 +2,6 @@ import LevelPouch from '../adapters/leveldb/index';
 import toPromise from '../deps/toPromise';
 import { extend as extend } from 'js-extend';
 
-export default altFactory;
 function altFactory(adapterConfig, downAdapter) {
 
   function LevelPouchAlt(opts, callback) {
@@ -31,5 +30,6 @@ function altFactory(adapterConfig, downAdapter) {
     return LevelPouch.destroy(name, _opts, callback);
   });
   return LevelPouchAlt;
-
 }
+
+export default altFactory;

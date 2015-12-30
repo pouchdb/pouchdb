@@ -12,7 +12,7 @@ VERSION=$(node -e "console.log(require('./package.json').version)")
 $RIMRAF lib_staging
 $MKDIRP lib_staging
 
-EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,inherits,inherits,js-extend,level-sublevel,level-sublevel/legacy,level-write-stream,levelup,lie,localstorage-down,memdown,path,pouchdb-collate,pouchdb-collections,request,scope-eval,spark-md5,through2,vuvuzela'
+EXTERNAL='argsarray,crypto,debug,double-ended-queue,es3ify,events,fruitdown,fs,inherits,inherits,js-extend,level-sublevel,level-sublevel/legacy,level-write-stream,levelup,lie,localstorage-down,memdown,path,pouchdb,pouchdb-collate,pouchdb-collections,request,scope-eval,spark-md5,through2,vuvuzela'
 
 # build for Node
 
@@ -83,6 +83,10 @@ $ROLLUP --format=cjs --external $EXTERNAL \
 $ROLLUP --format=cjs --external $EXTERNAL \
     src_browser/deps/ajax/prequest.js \
     > lib_staging/extras/ajax.js
+
+$ROLLUP --format=cjs --external $EXTERNAL \
+    src_browser/replicate/generateReplicationId.js \
+    > lib_staging/extras/generateReplicationId.js
 
 $MKDIRP lib/extras
 mv lib_staging/extras/* lib/extras/
