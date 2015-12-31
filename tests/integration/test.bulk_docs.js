@@ -996,6 +996,22 @@ adapters.forEach(function (adapter) {
       }).catch(done);
     });
 
+    it('4712 invalid rev for new doc generates conflict', function () {
+      // CouchDB 1.X has a bug which allows this insertion via bulk_docs
+      // (which PouchDB uses for all document insertions)
+      if (adapter === 'http' && !testUtils.isCouchMaster()) {
+        return;
+      }
 
+      var db = new PouchDB(dbs.name);
+      var newdoc = {
+        '_id': 'foobar',
+        '_rev': '1-123'
+      };
+
+      return db.bulkDocs({ docs: [newdoc] }).then (function (results) {
+        results[0].should.have.property('status', 409);
+      });
+    });
   });
 });
