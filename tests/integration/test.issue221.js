@@ -22,11 +22,12 @@ adapters.forEach(function (adapters) {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
-    var doc = {_id: '0', integer: 0};
 
     it('Testing issue #221', function (done) {
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
+      var doc = {_id: '0', integer: 0};
+
       // Write a doc in CouchDB.
       remote.put(doc, function (err, results) {
         // Update the doc.
@@ -57,6 +58,8 @@ adapters.forEach(function (adapters) {
       }
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
+      var doc = {_id: '0', integer: 0};
+
       // Write a doc in CouchDB.
       remote.put(doc, function (err, results) {
         doc._rev = results.rev;
