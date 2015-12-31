@@ -1,10 +1,14 @@
-import { createError, MISSING_DOC } from '../errors';
+import { createError, MISSING_DOC, REV_CONFLICT } from '../errors';
 import updateDoc from './updateDoc';
 import isDeleted from './isDeleted';
 import isLocalId from './isLocalId';
 import calculateWinningRev from '../../deps/merge/winningRev';
 import merge from '../../deps/merge/index';
 import collections from 'pouchdb-collections';
+
+function rootIsMissing(docInfo) {
+  return docInfo.metadata.rev_tree[0].ids[1].status === 'missing';
+}
 
 function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
                      writeDoc, opts, overallCallback) {
@@ -18,6 +22,15 @@ function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
     var deleted = isDeleted(docInfo.metadata, winningRev);
     if ('was_delete' in opts && deleted) {
       results[resultsIdx] = createError(MISSING_DOC, 'deleted');
+      return callback();
+    }
+
+    // 4712 - detect whether a new document was inserted with a _rev
+    var inConflict = newEdits && rootIsMissing(docInfo);
+
+    if (inConflict) {
+      var err = createError(REV_CONFLICT);
+      results[resultsIdx] = err;
       return callback();
     }
 
