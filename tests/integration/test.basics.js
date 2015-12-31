@@ -1064,6 +1064,26 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('4712 invalid rev for new doc generates conflict', function (done) {
+      // CouchDB 1.X has a bug which allows this insertion via bulk_docs
+      // (which PouchDB uses for all document insertions)
+      if (adapter === 'http' && !testUtils.isCouchMaster()) {
+        return done();
+      }
+
+      var db = new PouchDB(dbs.name);
+      var newdoc = {
+        '_id': 'foobar',
+        '_rev': '1-123'
+      };
+
+      db.put(newdoc, function (err, result) {
+        should.not.exist(result);
+        err.should.have.property('name', 'conflict');
+        done();
+      });
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
