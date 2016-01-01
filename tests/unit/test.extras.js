@@ -32,4 +32,10 @@ describe('test.extras.js', function () {
     genReplicationId.name.should.equal('generateReplicationId');
   });
 
+  it('plugin extras should exist', function () {
+    require.resolve('../../extras/memory').should.be.a('string');
+    require.resolve('../../extras/localstorage').should.be.a('string');
+    require.resolve('../../extras/fruitdown').should.be.a('string');
+  });
+
 });
