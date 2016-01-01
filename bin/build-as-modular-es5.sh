@@ -18,7 +18,7 @@ npm run build
   --plugins add-module-exports \
   --out-dir lib src
 
-# Add a version number to both files (equivalent to build.sh)
+# Add a version number to both files
 
 VERSION=$(node -e "console.log(require('./package.json').version)")
 ./node_modules/.bin/replace --silent __VERSION__ $VERSION lib/*
