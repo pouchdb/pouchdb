@@ -57,6 +57,11 @@ Changes.prototype.addListener = function (dbName, id, db, opts) {
       'doc_ids', 'view', 'since', 'query_params', 'binary'
     ]);
 
+    /* istanbul ignore next */
+    function onError() {
+      inprogress = false;
+    }
+
     db.changes(changesOpts).on('change', function (c) {
       if (c.seq > opts.since && !opts.cancelled) {
         opts.since = c.seq;
@@ -69,10 +74,7 @@ Changes.prototype.addListener = function (dbName, id, db, opts) {
         },0);
       }
       inprogress = false;
-    }).on('error', function () {
-      /* istanbul ignore next */
-      inprogress = false;
-    });
+    }).on('error', onError);
   }
   this._listeners[id] = eventFunction;
   this.on(dbName, eventFunction);

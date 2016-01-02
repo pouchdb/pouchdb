@@ -755,11 +755,6 @@ AbstractPouchDB.prototype.id = adapterFun('id', function (callback) {
   return this._id(callback);
 });
 
-AbstractPouchDB.prototype.type = function () {
-  /* istanbul ignore next */
-  return (typeof this._type === 'function') ? this._type() : this.adapter;
-};
-
 AbstractPouchDB.prototype.bulkDocs =
   adapterFun('bulkDocs', function (req, opts, callback) {
   if (typeof opts === 'function') {
@@ -886,14 +881,13 @@ AbstractPouchDB.prototype.destroy =
     var dependentDbs = localDoc.dependentDbs;
     var PouchDB = self.constructor;
     var deletedMap = Object.keys(dependentDbs).map(function (name) {
+      // use_prefix is only false in the browser
+      /* istanbul ignore next */
       var trueName = usePrefix ?
         name.replace(new RegExp('^' + PouchDB.prefix), '') : name;
       return new PouchDB(trueName, self.__opts).destroy();
     });
-    Promise.all(deletedMap).then(destroyDb, function (error) {
-      /* istanbul ignore next */
-      callback(error);
-    });
+    Promise.all(deletedMap).then(destroyDb, callback);
   });
 });
 

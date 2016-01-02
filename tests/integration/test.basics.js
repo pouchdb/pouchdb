@@ -1037,6 +1037,11 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('db.type() returns a type', function () {
+      var db = new PouchDB(dbs.name);
+      db.type().should.be.a('string');
+    });
+
     it('replace PouchDB.destroy() (express-pouchdb#203)', function (done) {
       var old = PouchDB.destroy;
       PouchDB.destroy = function (name, callback) {
