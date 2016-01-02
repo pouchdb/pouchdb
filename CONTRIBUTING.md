@@ -59,7 +59,9 @@ All dependancies installed? great, now building PouchDB itself is a breeze:
 
 You will now have various distributions of PouchDB in your `dist` folder, congratulations.
 
- * If you are on windows, you will need `node-gyp` to install levelup, visit https://github.com/TooTallNate/node-gyp#installation for installation instructions.
+Note that the source code is in `src/`, which is built by [Rollup](http://rollupjs.org/) as a
+Node module to `lib/`, which is then built by [Browserify](http://browserify.com/) as a browser-ready
+UMD module to `dist/`. All of this logic is in `bin/build.sh`.
 
 Testing PouchDB
 --------------------------------------

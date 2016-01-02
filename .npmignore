@@ -10,3 +10,5 @@ tests/cordova/www
 phantomjsdriver.log
 bower_components
 ./docs/
+pouchdb-webpack.js
+lib_unit

@@ -42,6 +42,11 @@ To create a remote database, you call `new PouchDB` and give it a path to a data
 var db = new PouchDB('http://localhost:5984/kittens');
 ```
 
+{% include alert/start.html variant="info" %}
+<strong>note:</strong> The remote database will not be created until you do an API call, e.g.: <code>db.info()</code>. The reason behind that is that the <code>PouchDB</code> constructor is completely
+synchronous, for ease of error handling (i.e. no asynchronous errors).
+{% include alert/end.html %}
+
 The structure of a CouchDB URL is very simple:
 
 ```

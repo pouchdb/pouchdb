@@ -83,6 +83,21 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('[4595] should reject xhr errors', function(done){
+      var invalidUrl = 'http:///';
+      new PouchDB(dbs.name).replicate.to(invalidUrl, {}).catch(function() {
+        done();
+      });
+
+    });
+    it('[4595] should emit error event on xhr error', function(done){
+      var invalidUrl = 'http:///';
+      new PouchDB(dbs.name).replicate.to(invalidUrl,{})
+      .on('error',function(err,changes){
+        done();
+      });
+    });
+
     it('Add a doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}, function (err, info) {
@@ -716,8 +731,8 @@ adapters.forEach(function (adapter) {
     });
 
     it('Error works', function () {
-      var newError = PouchDB.Errors
-        .error(PouchDB.Errors.BAD_REQUEST, 'love needs no message');
+      var newError = PouchDB.utils
+        .createError(PouchDB.Errors.BAD_REQUEST, 'love needs no message');
       newError.status.should.equal(PouchDB.Errors.BAD_REQUEST.status);
       newError.name.should.equal(PouchDB.Errors.BAD_REQUEST.name);
       newError.message.should.equal(PouchDB.Errors.BAD_REQUEST.message,

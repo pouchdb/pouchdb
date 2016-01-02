@@ -1044,17 +1044,12 @@ adapters.forEach(function (adapter) {
 
     it('Kill database while listening to live changes', function (done) {
       var db = new PouchDB(dbs.name);
-      var count = 0;
-      db.changes({
-        live: true
-      }).on('complete', function (result) {
-        done();
-      }).on('change', function (change) {
-        count++;
-        if (count === 1) {
-          db.destroy();
-        }
-      });
+
+      db.changes({live: true})
+        .on('error', function () { done(); })
+        .on('complete', function () { done(); })
+        .on('change', function () { db.destroy().catch(done); });
+
       db.post({ test: 'adoc' });
     });
 
