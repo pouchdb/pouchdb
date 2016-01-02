@@ -23,63 +23,61 @@ adapters.forEach(function (adapters) {
     });
 
 
-    it('Testing issue #221', function (done) {
+    it('Testing issue #221', function () {
+      var doc = {_id: '0', integer: 0};
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var doc = {_id: '0', integer: 0};
 
       // Write a doc in CouchDB.
-      remote.put(doc, function (err, results) {
+      return remote.put(doc).then(function (results) {
         // Update the doc.
         doc._rev = results.rev;
         doc.integer = 1;
-        remote.put(doc, function (err, results) {
-          // Compact the db.
-          remote.compact(function () {
-            remote.get(doc._id, { revs_info: true }, function (err, data) {
-              var correctRev = data._revs_info[0];
-              local.replicate.from(remote, function (err, results) {
-                // Check the Pouch doc.
-                local.get(doc._id, function (err, results) {
-                  results._rev.should.equal(correctRev.rev);
-                  results.integer.should.equal(1);
-                  done();
-                });
-              });
-            });
+        return remote.put(doc);
+      }).then(function () {
+        // Compact the db.
+        return remote.compact();
+      }).then(function () {
+       return remote.get(doc._id, { revs_info: true });
+      }).then(function (data) {
+        var correctRev = data._revs_info[0];
+        return local.replicate.from(remote).then(function () {
+          // Check the Pouch doc.
+          return local.get(doc._id, function (err, results) {
+            results._rev.should.equal(correctRev.rev);
+            results.integer.should.equal(1);
           });
         });
       });
     });
 
-    it('Testing issue #221 again', function (done) {
+    it('Testing issue #221 again', function () {
       if (testUtils.isCouchMaster()) {
-        return done();
+        return;
       }
+      var doc = {_id: '0', integer: 0};
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var doc = {_id: '0', integer: 0};
 
       // Write a doc in CouchDB.
-      remote.put(doc, function (err, results) {
+      return remote.put(doc).then(function (results) {
         doc._rev = results.rev;
         // Second doc so we get 2 revisions from replicate.
-        remote.put(doc, function (err, results) {
-          doc._rev = results.rev;
-          local.replicate.from(remote, function (err, results) {
-            doc.integer = 1;
-            // One more change
-            remote.put(doc, function (err, results) {
-              // Testing if second replications fails now
-              local.replicate.from(remote, function (err, results) {
-                local.get(doc._id, function (err, results) {
-                  results.integer.should.equal(1);
-                  done();
-                });
-              });
-            });
-          });
-        });
+        return remote.put(doc);
+      }).then(function (results) {
+        doc._rev = results.rev;
+        return local.replicate.from(remote);
+      }).then(function () {
+        doc.integer = 1;
+        // One more change
+        return remote.put(doc);
+      }).then(function () {
+        // Testing if second replications fails now
+        return local.replicate.from(remote);
+      }).then(function () {
+        return local.get(doc._id);
+      }).then(function (results) {
+        results.integer.should.equal(1);
       });
     });
 
