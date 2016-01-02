@@ -261,11 +261,13 @@ First `put()` a design document in the remote database:
 {
   _id: '_design/mydesign',
   views: {
-    myview: function (doc) {
-      if (doc.type === 'marsupial') {
-        emit(doc._id);
-      }
-    }.toString()
+    myview: {
+      map: function(doc) {
+        if (doc.type === 'marsupial') {
+          emit(doc._id);
+        }
+      }.toString()
+    }
   }
 }
 {% endhighlight %}
