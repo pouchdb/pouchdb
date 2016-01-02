@@ -22,7 +22,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
 * `ajax.headers`: The `ajax.headers` option allows you to customise headers that are sent to the remote HTTP Server.
 * `auth.username` + `auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `auth.username` + `auth.password` options.
-* `ajax.withCredentials`: Set to `false` to disable transferring cookies or HTTP Auth information (https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Requests_with_credentials). Defaults to `true`.
+* `ajax.withCredentials`: Set to `false` to disable transferring cookies or [HTTP Auth information](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Requests_with_credentials). Defaults to `true`.
 * `skip_setup`: Initially PouchDB checks if the database exists, and tries to create it, if it does not exist yet. Set this to `true` to skip this setup.
 
 **IndexedDB-only options:**
