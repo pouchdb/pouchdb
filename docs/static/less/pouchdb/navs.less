@@ -14,6 +14,14 @@
 /**
  * Sidebar navigation used in learn.html
  **/
+ @media (min-width: @screen-sm-min) {
+  .nav-sidebar-wrapper {
+   position: -webkit-sticky;
+   position: sticky;
+   top: 1em;
+  }
+}
+
 .nav-sidebar {
   > li.active > a,
   > li > a:hover {
