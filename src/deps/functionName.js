@@ -1,7 +1,10 @@
 // shim for Function.prototype.name,
 // for browsers that don't support it like IE
 
-var hasName = (function f() {}).name;
+/* istanbul ignore next */
+function f() {}
+
+var hasName = f.name;
 var res;
 
 // We dont run coverage in IE

@@ -39,10 +39,7 @@ function Changes(db, opts, callback) {
     self.on('complete', function (resp) {
       callback(null, resp);
     });
-    self.on('error', function (err) {
-      /* istanbul ignore next */
-      callback(err);
-    });
+    self.on('error', callback);
   }
   function onDestroy() {
     self.cancel();

@@ -14,8 +14,7 @@ npm run build
 # that doesn't oblige use to do require('foo').default for every module.
 
 ./node_modules/.bin/babel \
-  --presets es2015 \
-  --plugins add-module-exports \
+  --plugins add-module-exports,transform-es2015-modules-commonjs \
   --out-dir lib src
 
 # Add a version number to both files (equivalent to build.sh)
