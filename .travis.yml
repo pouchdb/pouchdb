@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "0.12"
+  - "stable"
 
 services:
   - docker
@@ -141,9 +141,9 @@ matrix:
     - node_js: "0.11"
       services: docker
       env: CLIENT=node COMMAND=test
-    - node_js: "stable"
+    - node_js: "0.12"
       services: docker
-      env: CXX=g++-4.8 CLIENT=node COMMAND=test
+      env: CLIENT=node COMMAND=test
 
 branches:
   only:
