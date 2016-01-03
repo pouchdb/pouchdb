@@ -1,12 +1,13 @@
 .anchor {
-  &.h1,
-  &.h2,
-  &.h3,
-  &.h4,
-  &.h5,
-  &.h6 {
+  .h1 &,
+  .h2 &,
+  .h3 &,
+  .h4 &,
+  .h5 &,
+  .h6 & {
     display: inline-block;
     text-decoration: none;
+    color: @text-color;
   }
 
   &::before {
@@ -14,4 +15,9 @@
     opacity: .25;
   }
   &:focus { outline: none; }
+}
+
+.anchor-id {
+  position: relative;
+  top: -@spacing-base;
 }
