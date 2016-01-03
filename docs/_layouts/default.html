@@ -65,13 +65,13 @@
 
     </header>
     {% if page.url != "/index.html" %}
-      <div class="page-head">
+      <div class="band band-inverse">
 
         <div class="container">
 
-          <h1 class="page-title">{{ page.title }}</h1>
+          <h1 class="margin-bottom-none">{{ page.title }}</h1>
           {% if page.edit != false %}
-            <span class="h1">
+            <span class="h1 margin-bottom-none">
               {% include edit_button.html %}
             </span>
           {% endif %}
@@ -88,7 +88,7 @@
       {{ content }}
     </div>
 
-    <div class="icons">
+    <div class="band">
 
       <div class="container">
 
@@ -96,42 +96,42 @@
 
           <div class='col-xs-4 col-md-offset-0 col-md-2'>
             <a href='https://twitter.com/pouchdb' target='_blank'>
-              <div class="icon icon-twitter"></div>
+              <div class="icon icon-twitter margin-bottom-none-md"></div>
               <span class="sr-only">PouchDB's Twitter</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://github.com/rvagg/node-levelup' target='_blank'>
-              <div class="icon icon-leveldb"></div>
+              <div class="icon icon-leveldb margin-bottom-none-md"></div>
               <span class="sr-only">Node Levelup</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://github.com/pouchdb/pouchdb' target='_blank'>
-              <div class="icon icon-github"></div>
+              <div class="icon icon-github margin-bottom-none-md"></div>
               <span class="sr-only">PouchDB's Github Repo</span>
             </a>
             </div>
 
           <div class='col-xs-4 col-md-offset-0 col-md-2'>
             <a href='https://travis-ci.org/pouchdb/pouchdb' target='_blank'>
-              <div class="icon icon-travis"></div>
+              <div class="icon icon-travis margin-bottom-none-md"></div>
               <span class="sr-only">PouchDB's Travis CI</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='http://couchdb.apache.org/' target='_blank'>
-              <div class="icon icon-couchdb"></div>
+              <div class="icon icon-couchdb margin-bottom-none-md"></div>
               <span class="sr-only">CouchDB</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://saucelabs.com' target='_blank'>
-              <div class="icon icon-saucelabs"></div>
+              <div class="icon icon-saucelabs margin-bottom-none-md"></div>
               <span class="sr-only">Saucelabs</span>
             </a>
           </div>
@@ -142,7 +142,7 @@
 
     </div>
 
-    <footer class="footer">
+    <footer class="band band-inverse">
 
       <div class="container">
 

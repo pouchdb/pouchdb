@@ -1,21 +1,18 @@
 @import "@{bootstrap}/utilities.less";
 
-.affix {
-  padding: 1em 0;
-  position: static;
+.margin-bottom-none {
+  margin-bottom: 0 !important;
 }
 
-@media (min-width: @affix-min-width) and (min-height: @affix-min-height) {
-
-  .affix { position: fixed; }
-
-  .affix,
-  .affix-top {
-    top: 0;
+@media (min-width: @screen-md-min) {
+  .margin-bottom-none-md {
+    .margin-bottom-none;
   }
+}
 
-  .affix-top,
-  .affix-bottom {
-    position: absolute;
-  }
+@media (max-width: @screen-sm-min) {
+ .btn-block-xs {
+   .btn-block;
+   margin-bottom: @spacing-base;
+ }
 }
