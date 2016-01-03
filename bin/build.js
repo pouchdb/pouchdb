@@ -196,7 +196,7 @@ function buildPluginsForBrowser() {
 }
 
 Promise.resolve().then(function () {
-  return Promise.all(['dist', 'src_browser'].map(function (file) {
+  return Promise.all(['dist', 'lib', 'src_browser'].map(function (file) {
     return rimraf(file);
   }));
 }).then(function () {
