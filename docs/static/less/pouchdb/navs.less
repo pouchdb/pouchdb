@@ -14,11 +14,11 @@
 /**
  * Sidebar navigation used in learn.html
  **/
- @media (min-width: @screen-sm-min) {
+@media (min-width: @nav-sidebar-wrapper-min-width) and (min-height: @nav-sidebar-wrapper-min-height) {
   .nav-sidebar-wrapper {
    position: -webkit-sticky;
    position: sticky;
-   top: 1em;
+   top: @spacing-base;
   }
 }
 
