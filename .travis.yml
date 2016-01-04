@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "stable"
+  - "5.2.0"
 
 services:
   - docker
@@ -29,12 +29,9 @@ before_install:
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-
     # Fail early so we dont run hours of saucelabs if we know there
     # is a lint failure
   - npm run jshint
-    # build before each test
-  - npm run build
 
 script: npm run $COMMAND
 

@@ -10,8 +10,6 @@ VERSION=$(node --eval "console.log(require('./package.json').version);")
 # Build
 git checkout -b build
 
-npm run build
-
 # Publish npm release with tests/scripts/goodies
 npm publish
 
