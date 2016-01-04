@@ -159,7 +159,13 @@ replicationHandler.on('complete', function (info) {
 replicationHandler.cancel(); // <-- this cancels it
 ```
 
+{% include anchor.html title="Deleting replicated databases" hash="delete-during-replication" %}
+-----
+
+One thing to note about replication is that it tracks the data within a database, not the database itself. If you [`destroy()`](/api.html#delete_database) a database that is being replicated to, the next time the replication starts it will transfer all of the data again, recreating the database to the state it was before it was `destroyed`. If you want the data within the database to be deleted you will need to delete via [`remove()`](/api.html#delete_document) or [`bulkDocs()`](/api.html#batch_create). The [pouchdb-erase](https://github.com/marten-de-vries/pouchdb-erase) plugin can help you remove the entire contents of a database.
+
 {% include anchor.html title="Fancy replication" hash="fancy-replication" %}
+-----
 
 Any PouchDB object can replicate to any other PouchDB object. So for instance, you can replicate two remote databases, or two local databases. You can also replicate from multiple databases into a single one, or from a single database into many others.
 
