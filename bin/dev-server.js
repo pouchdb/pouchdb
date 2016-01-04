@@ -2,11 +2,8 @@
 
 'use strict';
 
-var fs = require('fs');
 var Promise = require('lie');
-var watchify = require('watchify');
 var watch = require('node-watch');
-var browserify = require('browserify');
 var http_server = require('http-server');
 var spawn = require('child_process').spawn;
 
@@ -28,60 +25,34 @@ if (process.env.COUCH_HOST) {
   queryParams.couchHost = process.env.COUCH_HOST;
 }
 
-var perfRoot = './tests/performance/';
-var performanceBundle = './tests/performance-bundle.js';
-
-var b = watchify(browserify({
-  entries: perfRoot,
-  cache: {},
-  packageCache: {},
-  fullPaths: true,
-  debug: true
-})).on('update', rebuildPerfTests);
-
-function rebuildPerfTests(callback) {
-  b.bundle().pipe(fs.createWriteStream(performanceBundle))
-    .on('finish', function () {
-      console.log('Updated: ', performanceBundle);
-      if (typeof callback === 'function') {
-        callback();
-      }
-    });
-}
-
 var rebuildPromise = Promise.resolve();
 
-function rebuild(callback) {
+function rebuild() {
   // only run one build at a time
   rebuildPromise = rebuildPromise.then(function () {
-    var child = spawn('npm', ['run', 'build']);
-    child.stdout.on('data', function (buf) {
-      console.log(String(buf).replace(/\s*$/, ''));
-    });
-    child.stderr.on('data', function (buf) {
-      console.log(String(buf).replace(/\s*$/, ''));
-    });
-    child.on('close', function () {
-      if (typeof callback === 'function') {
-        callback();
-      }
+    return new Promise(function (resolve) {
+      var child = spawn('npm', ['run', 'build']);
+      child.stdout.on('data', function (buf) {
+        console.log(String(buf).replace(/\s*$/, ''));
+      });
+      child.stderr.on('data', function (buf) {
+        console.log(String(buf).replace(/\s*$/, ''));
+      });
+      child.on('close', resolve);
     });
   });
+  return rebuildPromise;
 }
 
 watch('./src', rebuild);
 
 var filesWritten = false;
 
-new Promise(function (resolve) {
-  if (require.main === module) {
-    return rebuild(resolve);
+Promise.resolve().then(function () {
+  if (require.main !== module) {
+    return; // don't bother rebuilding if we're in `npm run dev`
   }
-  resolve(); // don't bother rebuilding if we're in `npm run dev`
-}).then(function () {
-  return new Promise(function (resolve) {
-    rebuildPerfTests(resolve);
-  });
+  return rebuild();
 }).then(function () {
   filesWritten = true;
   checkReady();
