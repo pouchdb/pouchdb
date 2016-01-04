@@ -4,6 +4,7 @@
   "description": "PouchDB is a pocket-sized database.",
   "main": "./lib/index.js",
   "homepage": "http://pouchdb.com/",
+  "license": "Apache-2.0",
   "repository": "https://github.com/pouchdb/pouchdb",
   "tonicExampleFilename": "tonic-example.js",
   "keywords": [
