@@ -33,8 +33,6 @@ before_script:
     # Fail early so we dont run hours of saucelabs if we know there
     # is a lint failure
   - npm run jshint
-    # build before each test
-  - npm run build
 
 script: npm run $COMMAND
 
