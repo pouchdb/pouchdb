@@ -307,3 +307,7 @@ module: {
     ]
 }
 ```
+
+{% include anchor.html class="h3" title="Failed to load resource: the server responded with a status of 400 (Bad request) " hash="couchbase_dbname" %}
+
+If you are using Couchbase Lite to sync with PouchDB then you cannot use capital letters in your database name as Couchbase Lite has restrictions on valid database names.
