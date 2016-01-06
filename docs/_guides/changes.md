@@ -8,13 +8,12 @@ sidebar: guides_nav.html
 One of the brilliant things about CouchDB replication is that it makes it easy to learn about changes made to the database over time. CouchDB allows you to easily answer questions like:
 
 * What changes occurred to the database since a given time?
-* What changes occurred to this document? 
+* What changes occurred to this document?
 * What did this database look like a few days ago?
 
 For all of these and related questions, there's the `changes()` API.
 
-Basic changes usage
----------
+{% include anchor.html title="Basic changes usage" hash="basic-changes-usage" %}
 
 If you want to simply fetch all changes since the beginning of time, you can do:
 
@@ -23,7 +22,7 @@ db.changes({
   since: 0,
   include_docs: true
 }).then(function (changes) {
-  
+
 }).catch(function (err) {
   // handle errors
 });
@@ -39,8 +38,7 @@ This is by design &ndash; the changes feed only tells us about leaf revisions. H
 
 Also notice the the option `{include_docs: true}`. By default, the documents themselves are not included in the changes feed; only the `id`s, `rev`s, and whether or not they were `deleted`. With `{include_docs: true}`, however, each non-deleted change will have a `doc` property containing the new or modified document.
 
-Changes pagination
-------
+{% include anchor.html title="Changes pagination" hash="changes-pagination" %}
 
 If you expect this to be a very large number of changes, you can also use the `limit` option to do pagination:
 
@@ -68,8 +66,7 @@ fetchNextPage().catch(function (err) {
 
 You can see a **[live example](http://bl.ocks.org/nolanlawson/dcdeae555b31c2a6d332)** of this code.
 
-`seq` versus `_rev`
----------
+{% include anchor.html title="`seq` versus `_rev`" hash="seq-versus-rev" %}
 
 The changes feed lists each change with a corresponding `seq` integer. `seq` always starts with 0, and beyond that it increases monotonically. (In Cloudant, these are strings rather than integers.)
 
@@ -77,8 +74,7 @@ The changes feed lists each change with a corresponding `seq` integer. `seq` alw
 
 However, the `seq` between two databases is not guaranteed to be kept in sync. CouchDB and PouchDB have slightly different ways of increasing their `seq` values, so really `seq` is only meaningful within a single database.
 
-Live changes feed
--------
+{% include anchor.html title="Live changes feed" hash="live-changes-feed" %}
 
 Just like replication, you can also listen to a live changes feed. The way this works is very similar to the replication API:
 
@@ -96,8 +92,7 @@ In the above example, we've also taken advantage of the quasi-magical `'now'` op
 
 This can be very useful for scenarios where you want to update the UI whenever something in the database changes, such as for a real-time chat application.
 
-Understanding changes
----------
+{% include anchor.html title="Understanding changes" hash="Understanding changes" %}
 
 There are two types of changes:
 
@@ -138,13 +133,10 @@ Also notice that new documents always have revisions starting with the string `'
 
 {% include alert/end.html %}
 
-
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="Related API documentation" %}
 
 * [changes()](/api.html#changes)
 
-Next
------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we know how to hook our data spigot to the changes feed, let's look into using the very powerful `query()` API.

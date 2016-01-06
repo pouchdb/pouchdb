@@ -13,8 +13,7 @@ When you first start using CouchDB, you may become frustrated because it doesn't
 
 However, CouchDB was designed with sync in mind, and this is exactly what it excels at. Many of the rough edges of the API serve this larger purpose. For instance, managing your document revisions pays off in the future, when you eventually need to start dealing with conflicts.
 
-CouchDB sync
-------
+{% include anchor.html title="CouchDB sync" hash="couchdb-sync" %}
 
 CouchDB sync has a unique design. Rather than relying on a master/slave architecture, CouchDB
 supports a **multi-master** architecture. You can think of this as a system where any node can be written to or read from, and where you don't have to care which one is the "master" and which one is the "slave." In CouchDB's egalitarian world, every citizen is as worthy as another.
@@ -38,8 +37,7 @@ In cases of conflict, CouchDB will choose an arbitrary winner that every node ca
 
 In this way, CouchDB replication "just works."
 
-Setting up sync
------------
+{% include anchor.html title="Setting up sync" hash="setting-up-sync" %}
 
 As you already know, you can create either local PouchDBs:
 
@@ -92,8 +90,7 @@ localDB.sync(remoteDB).on('complete', function () {
 });
 ```
 
-Live replication
----------
+{% include anchor.html title="Live replication" hash="live–replication" %}
 
 Live replication (or "continuous" replication) is a separate mode where changes are propagated between the two databases as the changes occur. In other words, normal replication happens once, whereas live replication happens in real time.
 
@@ -130,8 +127,7 @@ localDB.sync(remoteDB, {
 
 This is ideal for scenarios where the user may be flitting in and out of connectivity, such as on mobile devices.
 
-Canceling replication
-----
+{% include anchor.html title="Canceling replication" hash="canceling—replication" %}
 
 Sometimes, you may want to manually cancel replication &ndash; for instance, because the user logged out. You can do so by calling `cancel()` and then waiting for the `'complete'` event:
 
@@ -163,8 +159,7 @@ replicationHandler.on('complete', function (info) {
 replicationHandler.cancel(); // <-- this cancels it
 ```
 
-Fancy replication
------
+{% include anchor.html title="Fancy replication" hash="fancy-replication" %}
 
 Any PouchDB object can replicate to any other PouchDB object. So for instance, you can replicate two remote databases, or two local databases. You can also replicate from multiple databases into a single one, or from a single database into many others.
 
@@ -183,13 +178,11 @@ When you replicate between two remote databases, the changes flow through PouchD
 {% include alert/end.html %}
 
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [replication()](/api.html#replication)
 * [sync()](/api.html#sync)
 
-Next
--------
+{% include anchor.html title="Next" hash="Next" %}
 
 Now that we have a grasp on replication, let's talk about an inconvenient fact of life: conflicts.

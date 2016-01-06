@@ -9,8 +9,7 @@ PouchDB provides a fully **asynchronous** API. This ensures that when you talk t
 
 However, working with asynchronous code can be very complex, especially if you're only accustomed to synchronous APIs. So it's worth going over some of the basics.
 
-I promise to call you back...
-------
+{% include anchor.html title="I promise to call you back..." hash="i-promise-to-call-you-back" %}
 
 To make things as flexible as possible for PouchDB users, the API is provided in both **callback** format and **promise** format.
 
@@ -38,8 +37,7 @@ db.get('mittens').then(function (doc) {
 
 Basically, if you include a callback as the last argument in a function, then PouchDB assumes you want the callback style. Otherwise it assumes you want the promise style.
 
-Let's talk about promises
--------
+{% include anchor.html title="Let's talk about promises" hash="let's-talk-about-promises" %}
 
 For this guide, we will use the **promise** format for a few reasons:
 
@@ -48,8 +46,7 @@ For this guide, we will use the **promise** format for a few reasons:
 
 If you already understand promises, you can [skip to the next section](updating-deleting.html).
 
-Understanding promises
----------
+{% include anchor.html title="Understanding promises" hash="understanding-promises" %}
 
 If you have the time, you are strongly encouraged to watch [this 50-minute video: "Redemption from Callback Hell"](http://youtu.be/hf1T_AONQJU). The rest of this chapter basically summarizes that video.
 
@@ -83,8 +80,7 @@ function returnSomething() {
 }
 ```
 
-Use `catch()` to catch errors
---------
+{% include anchor.html title="Use `catch()` to catch errors" hash="use-catch-to catch errors" %}
 
 The big advantage of working with Promises in asynchronous code is that you can always attach a `catch` function to the end of a big promise chain, and any errors that occur along the way will show up at the end.
 
@@ -152,8 +148,7 @@ You should see:
 
 This is really nice! No matter where the misspelling is, the error can be handled within a single function. That's much nicer than having to do `if (err){}` an endless number of times!
 
-An alternate way of catching errors
--------
+{% include anchor.html title="An alternate way of catching errors" hash="an-alternate-way-of-catching-errors" %}
 
 If you've been doing promises for awhile, you might have seen this instead:
 
@@ -163,7 +158,7 @@ db.get('charlie').then(function (charlie) {
 }, function (err) {
   // we got an error
 })
-``` 
+```
 
 This is equivalent to:
 
@@ -173,12 +168,11 @@ db.get('charlie').then(function (charlie) {
 }).catch(function (err) {
   // we got an error
 })
-``` 
+```
 
 The `catch()` method is just syntactic sugar. You can use either format.
 
-Promises 101
-------
+{% include anchor.html title="Promises 101" hash="promises-101" %}
 
 The `then()` method takes a function. What can you do within this function? Three things:
 
@@ -195,7 +189,7 @@ db.get('charlie').then(function (charlie) {
   // and it will be handled asynchronously!
 }).then(function (result) {
   // If the previous function returned something
-  // (or returned undefined), it will show up here 
+  // (or returned undefined), it will show up here
   // as "result".
 }).catch(function (err) {
   // If the previous function threw an error,
@@ -203,8 +197,7 @@ db.get('charlie').then(function (charlie) {
 });
 ```
 
-Promises in PouchDB
--------
+{% include anchor.html title="Promises in PouchDB" hash="promises-in-pouchdb" %}
 
 Promises are supported natively in [some browsers](http://caniuse.com/#feat=promises). But since they're not universally supported, PouchDB uses [lie](https://github.com/calvinmetcalf/lie) in browsers and Node.js when they are not supported.
 
@@ -221,7 +214,6 @@ You are free to integrate any Promise library you like with PouchDB, as long as 
 
 If you use one of these libraries, then you will have access to some advanced Promise features. Read that library's documentation for details.
 
-Next
-------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you have a grasp on promises, let's learn about updating and deleting documents.

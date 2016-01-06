@@ -10,8 +10,7 @@ As we saw in the past two chapters, working with PouchDB documents can be tricky
 
 Now that we understand promises, though, there are few techniques we can use to make our code more elegant and readable.
 
-Creating a default document
-------
+{% include anchor.html title="Creating a default document" hash="creating-a–default-document" %}
 
 Often in our code, we'll want to `get()` a document, and if it doesn't exist, we want to create some default.
 
@@ -57,8 +56,7 @@ This code is doing the following:
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/0a01d466b2d331cf7e25)** of this code.
 
-Why must we dance this dance?
---------
+{% include anchor.html title="Why must we dance this dance?" hash="why-must-we-dance-this-dance?" %}
 
 A common question from new PouchDB/CouchDB users is: why do we have to deal with `_rev` at all? Why can't I just `put()` the document without providing a `_rev`?
 
@@ -71,7 +69,7 @@ PouchDB and CouchDB's document revision structure is very similar to Git's. In f
 ```
 rev 3-a  rev 3-b
       \___/
-        |    
+        |
       rev 2
         |
       rev 1
@@ -79,28 +77,27 @@ rev 3-a  rev 3-b
 
 Conflicts will be discussed later in this guide. For now, you can think of revisions as being a single lineage:
 
-```  
+```
       rev 4
         |
       rev 3
-        |    
+        |
       rev 2
         |
       rev 1
 ```
 
-Deleting documents
--------
+{% include anchor.html title="Deleting documents" hash="deleting-documents" %}
 
 When you `remove()` a document, it's not really deleted; it just gets a `_deleted` attribute added to it.
 
 That is, the database saves a tombstone at the end of the revision tree.
 
-```  
+```
 {_id: 'foo', _rev: '4-z', _deleted: true}
             |
 {_id: 'foo', _rev: '3-y'}
-            |    
+            |
 {_id: 'foo', _rev: '2-x'}
             |
 {_id: 'foo', _rev: '1-w'}
@@ -137,14 +134,12 @@ Of course, you will want to add `catch()` to the end of all these, unless you li
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/b2049ad69308e92f15bc)** of this code.
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [get()](/api.html#fetch_document)
 * [put()](/api.html#create_document)
 * [remove()](/api.html#delete_document)
 
-Next
---------
+{% include anchor.html title="Next" hash="Next" %}
 
 Now that we understand how to update and delete documents, let's do it in bulk.

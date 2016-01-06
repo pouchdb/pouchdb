@@ -7,8 +7,7 @@ sidebar: guides_nav.html
 
 "Local" documents are a special class of documents in PouchDB and CouchDB, which are used for storing local metadata about a database. You might never need them in your own app, but sometimes they can come in handy for advanced use cases.
 
-Local docs in a nutshell
---------
+{% include anchor.html title="Local docs in a nutshell" hash="local-docs-in-a-nutshell" %}
 
 Local docs have the following characteristics:
 
@@ -30,8 +29,7 @@ db.put({
 });
 ```
 
-Advantages of local docs
----------
+{% include anchor.html title="Advantages of local docs" hash="advantages-of-local–docs" %}
 
 Local docs are useful for small bits of configuration or metadata, which you don't necessarily want to replicate, but which you want to keep in the database anyway. Many PouchDB plugins and core components use local docs. For instance, the replication algorithm uses them to store checkpoints, and map/reduce uses them to keep track of what's been `emit`ted.
 
@@ -39,8 +37,7 @@ Local docs also have some good performance characteristics compared to regular d
 
 Regardless, you need to provide the current `_rev` when you update local docs, just like with regular docs.
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [put()](/api.html#create_document)
 * [get()](/api.html#fetch_document)
