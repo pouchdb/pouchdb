@@ -54,6 +54,8 @@ function replicate(src, target, opts, returnValue, result) {
   }
 
   function writeDocs() {
+    changedDocs = [];
+
     if (currentBatch.docs.length === 0) {
       return;
     }
@@ -78,7 +80,6 @@ function replicate(src, target, opts, returnValue, result) {
         return error.name !== 'unauthorized' && error.name !== 'forbidden';
       });
 
-      changedDocs = [];
       docs.forEach(function(doc) {
         var error = errorsById[doc._id];
         if (error) {
