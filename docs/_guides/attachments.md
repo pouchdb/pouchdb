@@ -11,8 +11,7 @@ The big difference between storage engines like WebSQL/IndexedDB and the older l
 
 PouchDB attachments allow you to use that to full advantage to store images, MP3s, zip files, or whatever you want.
 
-How attachments are stored
-----------
+{% include anchor.html title="How attachments are stored" hash="how-attachments-are-stored" %}
 
 As their name implies, attachments are *attached* to documents. You can work with attachments either in base64-encoded format, or as a [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
 
@@ -99,8 +98,7 @@ Then you'll get back the full attachment, base64-encoded:
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/b6d6164035f1fa0d38a8)** of this code.
 
-Image attachments
---------
+{% include anchor.html title="Image attachments" hash="image-attachments" %}
 
 Plaintext is cool and all, but you know what would be *really* awesome? Storing images.
 
@@ -108,7 +106,7 @@ So let's do it! In this example, we'll put a document with a small icon attachme
 
 ```js
 db.put({
-  _id: 'meowth', 
+  _id: 'meowth',
   _attachments: {
     'meowth.png': {
       content_type: 'image/png',
@@ -136,8 +134,7 @@ How does this code work? First off, we are making use of the `URL.createObjectUR
 Second off, we are using the `getAttachment()` API, which returns a `Blob` rather than a base64-encoded string. To be clear: we can always convert between base64 and `Blob`s, but in this case, `getAttachment()` is just more convenient.
 
 
-Directly storing binary data
--------------
+{% include anchor.html title="Directly storing binary data" hash="directly-storing-binary-data" %}
 
 Up to now, we've been supplying our attachments as base64-encoded strings. But we can also create the Blobs ourselves and store those directly in PouchDB.
 
@@ -156,7 +153,7 @@ function convertImgToBlob(img, callback) {
    var canvas = document.createElement('canvas');
    var context = canvas.getContext('2d');
    context.drawImage(img, 0, 0);
-   
+
     // Warning: toBlob() isn't supported by every browser.
     // You may want to use blob-util.
    canvas.toBlob(callback, 'image/png');
@@ -185,8 +182,7 @@ addition to the attachment API. For instance, it has an
 
 {% include alert/end.html %}
 
-Allow the user to store an attachment
-------------
+{% include anchor.html title="Allow the user to store an attachment" hash="allow-the-user-to-store-an-attachment" %}
 
 You can also upload a file with the HTML5 `File` API and store it directly in the database, because the data you get from the `<input type="file">` element is already a `Blob`.
 (See: [Blob API](https://developer.mozilla.org/en-US/docs/Web/API/Blob) and [File API](https://developer.mozilla.org/en-US/docs/Web/API/File), which inherits properties from the `Blob` Interface.)
@@ -203,9 +199,9 @@ And then "uploading" that file directly into PouchDB:
 var input = document.querySelector('input');
 input.addEventListener('change', function () {
   var file = input.files[0]; // file is a Blob
-  
+
   db.put({
-    _id: 'mydoc', 
+    _id: 'mydoc',
     _attachments: {
       filename: {
         type: file.type,
@@ -222,10 +218,9 @@ You can see **[a live example](http://bl.ocks.org/ntwcklng/f57b03c15e91c25e2cb5)
 
 Select a file and you will see the stored file, `size`, and `type`, which are valid `Blob` properties. If you choose an image, it will also show the image!
 
-Base64 vs Blobs/Buffers
--------
+{% include anchor.html title="Base64 vs Blobs/Buffers" hash="base64-vs-blobs-buffers" %}
 
-Whether you supply attachments as base64-encoded strings or as Blobs/Buffers, PouchDB will try to store them in [the most efficient way](/faq.html#data_types). 
+Whether you supply attachments as base64-encoded strings or as Blobs/Buffers, PouchDB will try to store them in [the most efficient way](/faq.html#data_types).
 
 So when you insert your attachments, either format is acceptable. For instance, you can put Blobs/Buffers using `put()`:
 
@@ -276,8 +271,7 @@ When you fetch attachments, however, `getAttachment()` will always return Blobs/
 
 The other "read" APIs, such as `get()`, `allDocs()`, `changes()`, and `query()` have an `{attachments: true}` option that returns the attachments base64-encoded strings. If you add `{binary: true}`, though, they will return Blobs/Buffers.
 
-Blob types
-----
+{% include anchor.html title="Blob types" hash="blob-types" %}
 
 Blobs have their own `type`, but there is also a `content_type` that you specify when you store it in PouchDB:
 
@@ -300,14 +294,12 @@ The reason for this redundancy is 1) Buffers in Node do not have a `type`, and 2
 
 So for best results, you should ensure that your Blobs have the same type as the one reported to PouchDB. Otherwise you may see inconsistent behavior (e.g. in IndexedDB, where the Blob is stored as-is on compatible browsers).
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [putAttachment()](/api.html#save_attachment)
 * [getAttachment()](/api.html#get_attachment)
 * [removeAttachment()](/api.html#delete_attachment)
 
-Next
-----
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you can attach cat pictures to all your documents (and why wouldn't you?), let's talk about replication.
