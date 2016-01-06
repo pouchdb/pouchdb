@@ -710,11 +710,13 @@ function HttpPouch(opts, callback) {
     var batchSize = 'batch_size' in opts ? opts.batch_size : CHANGES_BATCH_SIZE;
 
     opts = clone(opts);
-    opts.timeout = opts.timeout || ajaxOpts.timeout || 30 * 1000;
+    opts.timeout = ('timeout' in opts) ? opts.timeout :
+      ('timeout' in ajaxOpts) ? ajaxOpts.timeout :
+      30 * 1000;
 
     // We give a 5 second buffer for CouchDB changes to respond with
-    // an ok timeout
-    var params = { timeout: opts.timeout - (5 * 1000) };
+    // an ok timeout (if a timeout it set)
+    var params = opts.timeout ? {timeout: opts.timeout - (5 * 1000)} : {};
     var limit = (typeof opts.limit !== 'undefined') ? opts.limit : false;
     var returnDocs;
     if ('return_docs' in opts) {
@@ -831,7 +833,6 @@ function HttpPouch(opts, callback) {
       var xhrOpts = {
         method: method,
         url: genDBUrl(host, '_changes' + paramsToStr(params)),
-        // _changes can take a long time to generate, especially when filtered
         timeout: opts.timeout,
         body: body
       };
