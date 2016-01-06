@@ -183,6 +183,6 @@ When you replicate between two remote databases, the changes flow through PouchD
 * [replication()](/api.html#replication)
 * [sync()](/api.html#sync)
 
-{% include anchor.html title="Next" hash="Next" %}
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we have a grasp on replication, let's talk about an inconvenient fact of life: conflicts.

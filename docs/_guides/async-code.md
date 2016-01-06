@@ -37,7 +37,7 @@ db.get('mittens').then(function (doc) {
 
 Basically, if you include a callback as the last argument in a function, then PouchDB assumes you want the callback style. Otherwise it assumes you want the promise style.
 
-{% include anchor.html title="Let's talk about promises" hash="let's-talk-about-promises" %}
+{% include anchor.html title="Let's talk about promises" hash="lets-talk-about-promises" %}
 
 For this guide, we will use the **promise** format for a few reasons:
 

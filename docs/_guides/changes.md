@@ -92,7 +92,7 @@ In the above example, we've also taken advantage of the quasi-magical `'now'` op
 
 This can be very useful for scenarios where you want to update the UI whenever something in the database changes, such as for a real-time chat application.
 
-{% include anchor.html title="Understanding changes" hash="Understanding changes" %}
+{% include anchor.html title="Understanding changes" hash="understanding-changes" %}
 
 There are two types of changes:
 
@@ -133,7 +133,7 @@ Also notice that new documents always have revisions starting with the string `'
 
 {% include alert/end.html %}
 
-{% include anchor.html title="Related API documentation" hash="Related API documentation" %}
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [changes()](/api.html#changes)
 

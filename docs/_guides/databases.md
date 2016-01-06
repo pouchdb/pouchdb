@@ -167,6 +167,6 @@ The goal of PouchDB is to allow you to seamlessly communicate with one or the ot
 * [new PouchDB() (constructor)](/api.html#create_database)
 * [Debug mode](/api.html#debug_mode)
 
-{% include anchor.html title="Next" hash="Next" %}
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you've created some databases, let's put some documents in 'em!

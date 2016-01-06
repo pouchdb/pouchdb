@@ -71,7 +71,7 @@ If you see a screen like the following, then you are ready to rock and roll with
 
 {% include img.html src="fauxton.png" alt="Fauxton interface" %}
 
-{% include anchor.html title="Set up CORS" hash="Set up CORS" %}
+{% include anchor.html title="Set up CORS" hash="set-up-cors" %}
 
 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) is a web technology that allows web sites to use resources from another domain. You will want to enable this in your CouchDB before continuing, because otherwise PouchDB will not work unless it's served from exactly the same domain as CouchDB.
 
