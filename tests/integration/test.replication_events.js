@@ -170,5 +170,71 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
+
+    // this test sets up a 2 way replication which initially transfers
+    // documents from a remote to a local database. Once the initial
+    // sync is complete, it inserts documents locally - the changes
+    // should propagate to the remote database and then back to the
+    // local database via the live replications. However, we do not
+    // expect any "change" events to fire for these documents since
+    // they already exist locally.
+    it('#4627 Test no duplicate changes in live replication', function () {
+      return new PouchDB.utils.Promise(function (resolve, reject) {
+        var db = new PouchDB(dbs.name);
+        var remote = new PouchDB(dbs.remote);
+        var docId = -1;
+        var docsToGenerate = 10;
+        var lastChange = -1;
+
+        function generateDocs(n) {
+          return Array.apply(null, new Array(n)).map(function (e, i) {
+            docId += 1;
+            return {
+              _id: docId.toString(),
+              foo: Math.random().toString()
+            };
+          });
+        }
+
+        remote.bulkDocs(generateDocs(docsToGenerate)).then(function () {
+          db.replicate.to(remote, {
+            live: true,
+            retry: true,
+            since: 0
+          });
+
+          var replicationHandler = remote.replicate.to(db, {
+            live: true,
+            retry: true,
+            since: 0
+          }).on("change", function (feed) {
+            // attempt to detect changes loop
+            var ids = feed.docs.map(function (d) {
+              return parseInt(d._id, 10);
+            }).sort();
+
+            var firstChange = ids[0];
+            if (firstChange <= lastChange)
+            {
+              reject(new Error("Duplicate change events detected"));
+            }
+
+            lastChange = ids[ids.length - 1];
+
+            if (lastChange === docsToGenerate - 1) {
+              // if loop doesn't occur within 2 seconds, assume success
+              setTimeout(function () {
+                replicationHandler.cancel();
+                resolve();
+              }, 2000);
+            }
+
+            // write doc to local db (should round trip in _changes)
+            // but not generate change event
+            db.bulkDocs(generateDocs(1));
+          });
+        });
+      });
+    });
   });
 });
