@@ -145,7 +145,7 @@ In practice, this just means that PouchDB's replication algorithm is slightly le
 {% endmarkdown %}
 {% include alert/end.html %}
 
-{% include anchor.html title="Accountants don't use erasers" hash="accountants-don't-use-erasers" %}
+{% include anchor.html title="Accountants don't use erasers" hash="accountants-dont-use-erasers" %}
 
 Another conflict resolution strategy is to design your database so that conflicts are impossible. In practice, this means that you never update or remove existing documents &ndash; you only create new documents.
 

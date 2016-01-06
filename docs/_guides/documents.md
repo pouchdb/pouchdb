@@ -5,7 +5,7 @@ title: Working with documents
 sidebar: guides_nav.html
 ---
 
-{% include anchor.html title="What's a document?" hash="whats-a–document?" %}
+{% include anchor.html title="What's a document?" hash="whats-a–document" %}
 
 PouchDB is a NoSQL database, meaning that you store unstructured *documents* rather than explicitly specifying a schema with rows, tables, and all that jazz.
 
@@ -186,6 +186,6 @@ As you can see, we have successfully updated Mittens' age to 4 (they grow up so 
 * [get()](/api.html#fetch_document)
 * [put()](/api.html#create_document)
 
-{% include anchor.html title="Next" hash="Next" %}
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you understand a bit about how to create and update documents, let's take a small detour to talk about asynchronous code.

@@ -56,7 +56,7 @@ This code is doing the following:
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/0a01d466b2d331cf7e25)** of this code.
 
-{% include anchor.html title="Why must we dance this dance?" hash="why-must-we-dance-this-dance?" %}
+{% include anchor.html title="Why must we dance this dance?" hash="why-must-we-dance-this-dance" %}
 
 A common question from new PouchDB/CouchDB users is: why do we have to deal with `_rev` at all? Why can't I just `put()` the document without providing a `_rev`?
 
@@ -140,6 +140,6 @@ You can see **[a live example](http://bl.ocks.org/nolanlawson/b2049ad69308e92f15
 * [put()](/api.html#create_document)
 * [remove()](/api.html#delete_document)
 
-{% include anchor.html title="Next" hash="Next" %}
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we understand how to update and delete documents, let's do it in bulk.

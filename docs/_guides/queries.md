@@ -214,7 +214,7 @@ pouch.query(myMapReduceFun, {
 
 If you're adventurous, though, you should check out the [CouchDB documentation](http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html) or the [PouchDB documentation](http://pouchdb.com/api.html#query_database) for details on reduce functions.
 
-{% include anchor.html title="More about map/reduce" hash="more-about-map-reduce" %}
+{% include anchor.html title="PouchDB Find" hash="pouchdb-find" %}
 
 The map/reduce API is complex. Part of this problem will be resolved when the more developer-friendly [Cloudant query language](http://docs.cloudant.com/api/cloudant-query.html) is released in CouchDB 2.0, and the equivalent [pouchdb-find plugin](https://github.com/nolanlawson/pouchdb-find) is finished.
 
@@ -235,6 +235,6 @@ In the meantime, there are a few tricks you can use to avoid unnecessarily compl
 * [query()](/api.html#query_database)
 * [viewCleanup()](/api.html#view_cleanup)
 
-{% include anchor.html title="Next" hash="Next" %}
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we've learned how to map reduce, map reuse, and map recycle, let's move on to `destroy()` and `compact()`.

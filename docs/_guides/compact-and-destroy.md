@@ -104,6 +104,6 @@ Also note that in Web SQL, the database will not really be destroyed &ndash; it 
 * [compact()](/api.html#compaction)
 * [destroy()](/api.html#delete_database)
 
-{% include anchor.html title="Next" hash="Next" %}
+{% include anchor.html title="Next" hash="next" %}
 
 To wrap up, let's look at a special class of documents in PouchDB &ndash; local docs.

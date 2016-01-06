@@ -57,7 +57,7 @@ db.put({
 });
 ```
 
-{% include anchor.html title="Why bulk up with `bulkDocs()`?" hash="why-bulk-up-with-bulkdocs?" %}
+{% include anchor.html title="Why bulk up with `bulkDocs()`?" hash="why-bulk-up-with-bulkdocs" %}
 
 Bulk operations tend to be faster than individual operations, because they can be combined into a single transaction (in a local IndexedDB/WebSQL) or a single HTTP request (in a remote CouchDB).
 
