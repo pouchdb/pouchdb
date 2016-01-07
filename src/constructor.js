@@ -1,9 +1,7 @@
-/*globals cordova */
 import debug from 'debug';
 import inherits from 'inherits';
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
-import isCordova from './deps/isCordova';
 import Promise from './deps/promise';
 import clone from './deps/clone';
 
@@ -166,11 +164,6 @@ function PouchDB(name, opts, callback) {
       callback(null, self);
     });
 
-    /* istanbul ignore next */
-    if (isCordova()) {
-      //to inform websql adapter that we can use api
-      cordova.fireWindowEvent(opts.name + "_pouch", {});
-    }
   });
   promise.then(function (resp) {
     oldCB(null, resp);
