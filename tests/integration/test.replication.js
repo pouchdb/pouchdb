@@ -1639,7 +1639,7 @@ adapters.forEach(function (adapters) {
       var changes = 0;
       var onChange = function (c) {
         changes++;
-        if (changes === 3) {
+        if (changes === (adapters[1] === 'http' ? 1 : 3)) {
           db.info(function (err, info) {
             verifyInfo(info, {
               update_seq: 3,
