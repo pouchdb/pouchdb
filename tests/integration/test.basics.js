@@ -3,6 +3,7 @@
 var adapters = ['http', 'local'];
 
 adapters.forEach(function (adapter) {
+
   describe('test.basics.js-' + adapter, function () {
 
     var dbs = {};
