@@ -518,15 +518,7 @@ function WebSqlPouch(opts, callback) {
     });
   }
 
-  if (isCordova()) {
-    //to wait until custom api is made in pouch.adapters before doing setup
-    window.addEventListener(api._name + '_pouch', function cordova_init() {
-      window.removeEventListener(api._name + '_pouch', cordova_init, false);
-      setup();
-    }, false);
-  } else {
-    setup();
-  }
+  setup();
 
   api.type = function () {
     return 'websql';

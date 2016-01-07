@@ -166,11 +166,6 @@ function PouchDB(name, opts, callback) {
       callback(null, self);
     });
 
-    /* istanbul ignore next */
-    if (isCordova()) {
-      //to inform websql adapter that we can use api
-      cordova.fireWindowEvent(opts.name + "_pouch", {});
-    }
   });
   promise.then(function (resp) {
     oldCB(null, resp);
