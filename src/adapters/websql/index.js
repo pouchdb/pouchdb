@@ -13,7 +13,6 @@ import traverseRevTree from '../../deps/merge/traverseRevTree';
 import safeJsonParse from '../../deps/safeJsonParse';
 import safeJsonStringify from '../../deps/safeJsonStringify';
 import Changes from '../../changesHandler';
-import isCordova from '../../deps/isCordova';
 import toPromise from '../../deps/toPromise';
 import { btoa } from '../../deps/binary/base64';
 import websqlBulkDocs from './bulkDocs';

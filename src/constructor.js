@@ -1,9 +1,7 @@
-/*globals cordova */
 import debug from 'debug';
 import inherits from 'inherits';
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
-import isCordova from './deps/isCordova';
 import Promise from './deps/promise';
 import clone from './deps/clone';
 
