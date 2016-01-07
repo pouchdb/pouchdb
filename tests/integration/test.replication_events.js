@@ -170,5 +170,89 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
+
+    // this test sets up a 2 way replication which initially transfers
+    // documents from a remote to a local database.
+    // At the same time, we insert documents locally - the changes
+    // should propagate to the remote database and then back to the
+    // local database via the live replications.
+    // Previously, this test resulted in 'change' events being
+    // generated for already-replicated documents. When PouchDB is working
+    // as expected, each remote document should be passed to a
+    // change event exactly once (though a change might contain multiple docs)
+    it('#4627 Test no duplicate changes in live replication', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docId = -1;
+      var docsToGenerate = 10;
+      var lastChange = -1;
+      var firstReplication;
+      var secondReplication;
+      var completeCalls = 0;
+
+      function generateDocs(n) {
+        return Array.apply(null, new Array(n)).map(function (e, i) {
+          docId += 1;
+          return {
+            _id: docId.toString(),
+            foo: Math.random().toString()
+          };
+        });
+      }
+
+      function complete() {
+        completeCalls++;
+        if (completeCalls === 2)
+        {
+          done();
+        }
+      }
+
+      remote.bulkDocs(generateDocs(docsToGenerate)).then(function () {
+        firstReplication = db.replicate.to(remote, {
+          live: true,
+          retry: true,
+          since: 0
+        })
+        .on('error', done)
+        .on('complete', complete);
+
+        secondReplication = remote.replicate.to(db, {
+          live: true,
+          retry: true,
+          since: 0
+        })
+        .on('error', done)
+        .on('complete', complete)
+        .on('change', function (feed) {
+          // attempt to detect changes loop
+          var ids = feed.docs.map(function (d) {
+            return parseInt(d._id, 10);
+          }).sort();
+
+          var firstChange = ids[0];
+          if (firstChange <= lastChange) {
+            done(new Error("Duplicate change events detected"));
+          }
+
+          lastChange = ids[ids.length - 1];
+
+          if (lastChange === docsToGenerate - 1) {
+            // if a change loop doesn't occur within 2 seconds, assume success
+            setTimeout(function () {
+              // success!
+              // cancelling the replications to clean up and trigger
+              // the 'complete' event, which in turn ends the test
+              firstReplication.cancel();
+              secondReplication.cancel();
+            }, 2000);
+          }
+
+          // write doc to local db - should round trip in _changes
+          // but not generate a change event
+          db.bulkDocs(generateDocs(1));
+        });
+      }).catch(done);
+    });
   });
 });
