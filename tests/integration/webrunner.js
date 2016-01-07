@@ -75,7 +75,32 @@ function startTests() {
 
   function onReady() {
     modifyGlobals();
+
     var runner = mocha.run();
+
+    // Capture logs for selenium output
+    var logs = [];
+
+    (function(){
+
+      var oldLog = console.log;
+      console.log = function() {
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift('log');
+        logs.push(args);
+        oldLog.apply(console, arguments);
+      };
+
+      var oldError = console.error;
+      console.error = function() {
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift('error');
+        logs.push(args);
+        oldError.apply(console, arguments);
+      };
+
+    })();
+
     window.results = {
       browser: navigator.userAgent,
       lastPassed: '',
@@ -90,6 +115,7 @@ function startTests() {
     });
 
     runner.on('fail', function (e) {
+      window.results.logs = logs;
       window.results.failed++;
       window.results.failures.push({
         title: e.title,
@@ -99,6 +125,7 @@ function startTests() {
     });
 
     runner.on('end', function () {
+      window.results.logs = logs;
       window.results.completed = true;
       window.results.passed++;
     });
