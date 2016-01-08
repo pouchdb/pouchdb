@@ -95,9 +95,7 @@ Checkpointer.prototype.updateSource = function (checkpoint, session) {
   return updateCheckpoint(this.src, this.id, checkpoint,
       session, this.returnValue)
     .catch(function (err) {
-      var isForbidden = typeof err.status === 'number' &&
-        Math.floor(err.status / 100) === 4;
-      if (isForbidden) {
+      if (isForbiddenError(err)) {
         self.readOnlySource = true;
         return true;
       }
@@ -123,6 +121,10 @@ var comparisons = {
 Checkpointer.prototype.getCheckpoint = function () {
   var self = this;
   return self.target.get(self.id).then(function (targetDoc) {
+    if (self.readOnlySource) {
+      return Promise.resolve(targetDoc.last_seq);
+    }
+
     return self.src.get(self.id).then(function (sourceDoc) {
       // Since we can't migrate an old version doc to a new one
       // (no session id), we just go with the lowest seq in this case
@@ -151,7 +153,7 @@ Checkpointer.prototype.getCheckpoint = function () {
         }).then(function () {
           return LOWEST_SEQ;
         }, function (err) {
-          if (err.status === 401) {
+          if (isForbiddenError(err)) {
             self.readOnlySource = true;
             return targetDoc.last_seq;
           }
@@ -233,6 +235,10 @@ function hasSessionId (sessionId, history) {
   }
 
   return hasSessionId(sessionId, rest);
+}
+
+function isForbiddenError (err) {
+  return typeof err.status === 'number' && Math.floor(err.status / 100) === 4;
 }
 
 
