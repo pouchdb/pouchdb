@@ -39,7 +39,6 @@ before_script:
   - npm run jshint
 
     # set up CORS
-  - "npm install add-cors-to-couchdb"
   - "./node_modules/.bin/add-cors-to-couchdb http://127.0.0.1:3000"
 
 script: npm run $COMMAND
