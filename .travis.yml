@@ -20,11 +20,15 @@ addons:
   firefox: "41.0.1"
 
 before_install:
+
   # Install CouchDB Stable
-  - docker run -d -p 5984:5984 klaemo/couchdb:1.6.1
+  - docker run -d -p 3000:5984 klaemo/couchdb:1.6.1
 
   # Install CouchDB Master
-  - docker run -d -p 15984:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
+  - docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
+
+  # Because Saucelabs doesnt proxy 5984 on OSX
+  - export COUCH_HOST=http://127.0.0.1:3000
 
 before_script:
   - "export DISPLAY=:99.0"
@@ -33,6 +37,10 @@ before_script:
     # Fail early so we dont run hours of saucelabs if we know there
     # is a lint failure
   - npm run jshint
+
+    # set up CORS
+  - "npm install add-cors-to-couchdb"
+  - "./node_modules/.bin/add-cors-to-couchdb http://127.0.0.1:3000"
 
 script: npm run $COMMAND
 
@@ -92,8 +100,8 @@ env:
   - CLIENT=selenium:firefox:41.0.1 COMMAND=test-webpack
 
   # Test CouchDB master (aka bigcouch branch)
-  - CLIENT=node SERVER=couchdb-master COMMAND=test
-  - SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
 
   # Test Couchbase Sync Gateway
   - GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
@@ -118,8 +126,8 @@ matrix:
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
 
   # Allowed failures
-  - env: CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
+  - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
+  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
