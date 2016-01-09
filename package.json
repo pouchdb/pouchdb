@@ -82,6 +82,7 @@
     "sauce-connect-launcher": "0.14.0",
     "seedrandom": "2.4.2",
     "selenium-standalone": "4.8.0",
+    "stream-to-promise": "1.1.0",
     "tape": "4.4.0",
     "throw-max-listeners-error": "1.0.1",
     "tin": "0.5.0",
