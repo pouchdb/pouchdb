@@ -61,6 +61,7 @@
     "es5-shim": "4.4.1",
     "express": "4.13.3",
     "express-pouchdb": "1.0.1",
+    "glob": "6.0.3",
     "http-server": "0.8.5",
     "istanbul": "0.4.1",
     "istanbul-coveralls": "1.0.3",
