@@ -8,7 +8,6 @@
 
 npm run build
 ./node_modules/.bin/webpack \
-  --module-bind json \
   --output-library PouchDB --output-library-target umd \
   . pouchdb-webpack.js
 POUCHDB_SRC='../../pouchdb-webpack.js' npm test
