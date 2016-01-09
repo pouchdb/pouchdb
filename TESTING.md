@@ -1,7 +1,7 @@
 Running PouchDB Tests
 --------------------------------------
 
-The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above) running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on http://127.0.0.1:5984, you can configure this by sending the `COUCH_HOST` env var.
+The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above) running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on http://127.0.0.1:5984 with [CORS enabled](https://github.com/pouchdb/add-cors-to-couchdb), you can configure this by sending the `COUCH_HOST` env var.
 
  * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
 
