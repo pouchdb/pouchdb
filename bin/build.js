@@ -129,7 +129,9 @@ function doRollup(entry, fileOut) {
 
 // build for Node (index.js)
 function buildForNode() {
-  return doRollup('src/index.js', 'lib/index.js');
+  return mkdirp('lib').then(function() {
+    return doRollup('src/index.js', 'lib/index.js');
+  });
 }
 
 // build for Browserify/Webpack (index-browser.js)
@@ -156,7 +158,9 @@ function buildForBrowserify() {
 
 // build for the browser (dist)
 function buildForBrowser() {
-  return doBrowserify('.', {standalone: 'PouchDB'}).then(function (code) {
+  return mkdirp('dist').then(function() {
+    return doBrowserify('.', {standalone: 'PouchDB'});
+  }).then(function (code) {
     code = comments.pouchdb + code;
     return Promise.all([
       writeFile('dist/pouchdb.js', code),
@@ -179,41 +183,47 @@ function cleanup() {
 }
 
 function buildPluginsForBrowserify() {
-  return Promise.all(plugins.map(function (plugin) {
-    return doRollup('src_browser/plugins/' + plugin + '/index.js',
-      'lib/extras/' + plugin + '.js');
-  }));
+  return mkdirp('lib/extras').then(function() {
+    return Promise.all(plugins.map(function (plugin) {
+      return doRollup('src_browser/plugins/' + plugin + '/index.js',
+                      'lib/extras/' + plugin + '.js');
+    }));
+  });
 }
 
 function buildExtras() {
-  return Promise.all(Object.keys(extras).map(function (entry) {
-    var target = extras[entry];
-    return doRollup('src_browser/' + entry, 'lib/extras/' + target);
-  }));
+  return mkdirp('lib/extras').then(function() {
+    return Promise.all(Object.keys(extras).map(function (entry) {
+      var target = extras[entry];
+      return doRollup('src_browser/' + entry, 'lib/extras/' + target);
+    }));
+  });
 }
 
 function buildPluginsForBrowser() {
-  return Promise.all(plugins.map(function (plugin) {
-    var source = 'lib/extras/' + plugin + '.js';
-    return doBrowserify(source, {}, 'pouchdb').then(function (code) {
-      code = comments[plugin] + code;
-      return Promise.all([
-        writeFile('dist/pouchdb.' + plugin + '.js', code),
-        doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
-      ]);
-    });
-  }));
+  return mkdirp('lib/extras').then(function() {
+    return Promise.all(plugins.map(function (plugin) {
+      var source = 'lib/extras/' + plugin + '.js';
+      return doBrowserify(source, {}, 'pouchdb').then(function (code) {
+        code = comments[plugin] + code;
+        return Promise.all([
+          writeFile('dist/pouchdb.' + plugin + '.js', code),
+          doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
+        ]);
+      });
+    }));
+  });
 }
 
-Promise.resolve().then(function () {
-  return Promise.all(['dist', 'lib', 'src_browser'].map(function (file) {
-    return rimraf(file);
-  }));
-}).then(function () {
-  return Promise.all(['dist', 'lib/plugins', 'lib/extras'].map(function (file) {
-    return mkdirp(file);
-  }));
-}).then(buildForNode)
+if (process.argv[2] === 'node') {
+  buildForNode();
+  return;
+}
+
+Promise.resolve()
+  .then(function () { return rimraf('lib'); })
+  .then(function () { return rimraf('dist'); })
+  .then(buildForNode)
   .then(buildForBrowserify)
   .then(buildForBrowser)
   .then(buildPluginsForBrowserify)
