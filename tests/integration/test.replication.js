@@ -1636,20 +1636,16 @@ adapters.forEach(function (adapters) {
     it('Replication notifications', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var changes = 0;
       var onChange = function (c) {
-        changes++;
-        if (changes === (adapters[1] === 'http' ? 1 : 3)) {
-          db.info(function (err, info) {
-            verifyInfo(info, {
-              update_seq: 3,
-              doc_count: 3
-            });
-            done();
+        db.info(function (err, info) {
+          verifyInfo(info, {
+            update_seq: 1,
+            doc_count: 1
           });
-        }
+          done();
+        });
       };
-      remote.bulkDocs({ docs: docs }, {}, function (err, results) {
+      remote.bulkDocs({ docs: [docs[0]] }, {}, function (err, results) {
         db.replicate.from(dbs.remote).on('change', onChange);
       });
     });

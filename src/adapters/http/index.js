@@ -875,12 +875,9 @@ function HttpPouch(opts, callback) {
             if (returnDocs) {
               results.results.push(c);
             }
+            opts.onChange(c);
           }
           return ret;
-        });
-
-        res.results.forEach(function (c, index) {
-          opts.onChange(c, index === (res.results.length - 1));
         });
       } else if (err) {
         // In case of an error, stop listening for changes and call
