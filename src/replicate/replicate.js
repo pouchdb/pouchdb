@@ -265,7 +265,7 @@ function replicate(src, target, opts, returnValue, result) {
   }
 
 
-  function onChange(change, flush) {
+  function onChange(change) {
     if (returnValue.cancelled) {
       return completeReplication();
     }
@@ -275,7 +275,9 @@ function replicate(src, target, opts, returnValue, result) {
     }
     pendingBatch.seq = change.seq;
     pendingBatch.changes.push(change);
-    processPendingBatch(flush !== undefined ? flush : batches.length === 0);
+    if (changesOpts.live) {
+      processPendingBatch(true);
+    }
   }
 
 

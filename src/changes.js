@@ -46,12 +46,12 @@ function Changes(db, opts, callback) {
   }
   db.once('destroyed', onDestroy);
 
-  opts.onChange = function (change, flush) {
+  opts.onChange = function (change) {
     /* istanbul ignore if */
     if (opts.isCancelled) {
       return;
     }
-    self.emit('change', change, flush);
+    self.emit('change', change);
     if (self.startSeq && self.startSeq <= change.seq) {
       self.startSeq = false;
     }
