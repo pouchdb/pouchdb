@@ -93,10 +93,11 @@
   },
   "scripts": {
     "build": "node ./bin/build.js",
+    "build-node": "node ./bin/build.js node",
     "build-as-modular-es5": "sh bin/build-as-modular-es5.sh",
     "test-unit": "mocha tests/unit/test.extras.js && npm run build-as-modular-es5 && mocha tests/unit",
-    "test-node": "sh bin/test-node.sh",
-    "test-component": "mocha tests/component",
+    "test-node": "npm run build-node && sh bin/test-node.sh",
+    "test-component": "npm run build-node && mocha tests/component",
     "test-fuzzy": "TYPE=fuzzy npm run test",
     "test-browser": "node ./bin/test-browser.js",
     "cordova": "npm run build && sh bin/run-cordova.sh",
