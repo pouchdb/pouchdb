@@ -63,7 +63,7 @@
     "express-pouchdb": "1.0.1",
     "findit": "2.0.0",
     "http-server": "0.8.5",
-    "istanbul": "0.4.1",
+    "istanbul": "0.4.2",
     "istanbul-coveralls": "1.0.3",
     "jshint": "2.8.0",
     "less": "2.5.3",
