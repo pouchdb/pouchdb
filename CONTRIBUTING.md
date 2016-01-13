@@ -149,7 +149,6 @@ Release Procedure
  * `npm run release`
  * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` after you upload it.
  * `./node_modules/.bin/tin -v $VERSION+1-prerelease`
- * Put the new prerelease version in `lib/version-browser.js` too
  * Update docs/_config.yml to the current version
  * Push updated versions to master
  * `npm run publish-site`
