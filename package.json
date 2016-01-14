@@ -65,7 +65,7 @@
     "http-server": "0.8.5",
     "istanbul": "0.4.2",
     "istanbul-coveralls": "1.0.3",
-    "jshint": "2.8.0",
+    "jshint": "2.9.1",
     "less": "2.5.3",
     "mkdirp": "0.5.1",
     "mocha": "2.3.4",
