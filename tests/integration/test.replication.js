@@ -1634,11 +1634,12 @@ adapters.forEach(function (adapters) {
     });
 
     it('Replication notifications', function (done) {
+      var changes = 0;
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var changes = 0;
       var onChange = function (c) {
-        changes++;
+        changes += c.docs.length;
+
         if (changes === 3) {
           db.info(function (err, info) {
             verifyInfo(info, {
