@@ -84,7 +84,7 @@ adapters.forEach(function (adapters) {
 
       var numChanges = 0;
       rep.on('change', function () {
-        if (++numChanges === 2) {
+        if (c.docs_written === 3) { 
           rep.cancel();
         }
       });

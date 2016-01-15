@@ -1634,18 +1634,23 @@ adapters.forEach(function (adapters) {
     });
 
     it('Replication notifications', function (done) {
+      var changes = 0;
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var onChange = function (c) {
-        db.info(function (err, info) {
-          verifyInfo(info, {
-            update_seq: 1,
-            doc_count: 1
+        changes += c.docs.length;
+
+        if (changes === 3) {
+          db.info(function (err, info) {
+            verifyInfo(info, {
+              update_seq: 3,
+              doc_count: 3
+            });
+            done();
           });
-          done();
-        });
+        }
       };
-      remote.bulkDocs({ docs: [docs[0]] }, {}, function (err, results) {
+      remote.bulkDocs({ docs: docs }, {}, function (err, results) {
         db.replicate.from(dbs.remote).on('change', onChange);
       });
     });
