@@ -274,9 +274,7 @@ function replicate(src, target, opts, returnValue, result) {
     }
     pendingBatch.seq = change.seq;
     pendingBatch.changes.push(change);
-    if (changesOpts.live) {
-      processPendingBatch(true);
-    }
+    processPendingBatch(changesOpts.live);
   }
 
 
