@@ -28,7 +28,7 @@ adapters.forEach(function (adapters) {
     });
 
     it('retry stuff', function (done) {
-      this.timeout(2000000);
+      ///this.timeout(2000000);
       var remote = new PouchDB(dbs.remote);
       var Promise = PouchDB.utils.Promise;
       var allDocs = remote.allDocs;
@@ -83,8 +83,9 @@ adapters.forEach(function (adapters) {
       rep.catch(done);
 
       var numChanges = 0;
-      rep.on('change', function () {
-        if (c.docs_written === 3) { 
+      rep.on('change', function (c) {
+        numChanges += c.docs_written;
+        if (numChanges === 3) {
           rep.cancel();
         }
       });
