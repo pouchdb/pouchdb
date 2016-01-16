@@ -28,7 +28,7 @@ adapters.forEach(function (adapters) {
     });
 
     it('retry stuff', function (done) {
-      this.timeout(2000000);
+      ///this.timeout(2000000);
       var remote = new PouchDB(dbs.remote);
       var Promise = PouchDB.utils.Promise;
       var allDocs = remote.allDocs;
