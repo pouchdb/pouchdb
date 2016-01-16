@@ -720,7 +720,65 @@ adapters.forEach(function (adapters) {
       .catch(done);
     });
 
-    it('4289 Seperate to / from filters', function () {
+    it('4791 Single filter', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var localDocs = [{_id: '0'}, {_id: '1'}];
+      var remoteDocs = [{_id: 'a'}, {_id: 'b'}];
+
+      return remote.bulkDocs(remoteDocs).then(function() {
+        return db.bulkDocs(localDocs);
+      }).then(function() {
+        return db.sync(remote, {
+          filter: function (doc) { return doc._id !== '0' && doc._id !== 'a'; }
+        });
+      }).then(function() {
+        return db.allDocs();
+      }).then(function(docs) {
+        docs.total_rows.should.equal(3);
+        return remote.allDocs();
+      }).then(function (docs) {
+        docs.total_rows.should.equal(3);
+      });
+    });
+
+    it('4791 Single filter, live/retry', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var localDocs = [{_id: '0'}, {_id: '1'}];
+      var remoteDocs = [{_id: 'a'}, {_id: 'b'}];
+
+      return remote.bulkDocs(remoteDocs).then(function() {
+        return db.bulkDocs(localDocs);
+      }).then(function() {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          var sync = db.sync(remote, {
+            filter: function (doc) {
+              return doc._id !== '0' && doc._id !== 'a';
+            },
+            live: true,
+            retry: true
+          }).on('error', reject).on('paused', function (err) {
+            if (!err) {
+              sync.cancel();
+            }
+          }).on('complete', resolve);
+        });
+      }).then(function() {
+        return db.allDocs();
+      }).then(function(docs) {
+        docs.total_rows.should.equal(3);
+        return remote.allDocs();
+      }).then(function (docs) {
+        docs.total_rows.should.equal(3);
+      });
+    });
+
+    it('4289 Separate to / from filters', function () {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
