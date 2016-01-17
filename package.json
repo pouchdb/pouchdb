@@ -120,5 +120,11 @@
     "crypto": false,
     "fs": false,
     "leveldown": false
-  }
+  },
+  "files": [
+    "lib",
+    "extras",
+    "dist",
+    "tonic-example.js"
+  ]
 }
