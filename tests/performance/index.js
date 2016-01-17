@@ -3,14 +3,19 @@
 
 var opts = {};
 
+var levelAdapter = typeof process !== 'undefined' && process.env &&
+    process.env.LEVEL_ADAPTER;
+
 function runTestSuites(PouchDB) {
   var reporter = require('./perf.reporter');
   reporter.log('Testing PouchDB version ' + PouchDB.version +
-    (opts.adapter ? (', using adapter: ' + opts.adapter) : '') +
+    ((opts.adapter || levelAdapter) ?
+      (', using adapter: ' + (opts.adapter || levelAdapter)) : '') +
     '\n\n');
 
   require('./perf.basics')(PouchDB, opts);
   require('./perf.views')(PouchDB, opts);
+  require('./perf.attachments')(PouchDB, opts);
 }
 var startNow = true;
 if (global.window && global.window.location && global.window.location.search) {
@@ -30,14 +35,13 @@ if (global.window && global.window.location && global.window.location.search) {
 
     var script = global.document.createElement('script');
     script.src = params.src;
-    global.document.getElementsByTagName('body')[0].appendChild(script);
-
-    var timeoutId = setInterval(function () {
-      if (global.window.PouchDB) {
-        clearInterval(timeoutId);
+    script.onreadystatechange = function () {
+      if ("loaded" === script.readyState || "complete" === script.readyState) {
         runTestSuites(global.window.PouchDB);
       }
-    }, 100);
+    };
+
+    global.document.getElementsByTagName('body')[0].appendChild(script);
     startNow = false;
   }
 }

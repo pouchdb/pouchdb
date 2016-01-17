@@ -7,8 +7,7 @@ sidebar: guides_nav.html
 
 PouchDB databases come in two flavors: local and remote.
 
-Local databases
---------
+{% include anchor.html title="Local databases" hash="local–databases" %}
 
 To create a local database, you simply call `new PouchDB` and give it a name:
 
@@ -18,28 +17,33 @@ var db = new PouchDB('kittens');
 
 You can see a **[live example](http://bl.ocks.org/nolanlawson/bddac54b92c2d8d39241)** of this code.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 <strong>Protip:</strong> whenever you see a live example in this guide, you can download it to follow along at home! For example, to run this example, just enter the following commands in your command prompt:
 <p/>
 <code>
 <br/>git clone https://gist.github.com/bddac54b92c2d8d39241.git kittens
 <br/>cd kittens
-<br/>python -m SimpleHTTPServer
+<br/>python -m SimpleHTTPServer # for Python 2
+<br/>python -m http.server      # for Python 3
 </code>
 <p/>
 Now the site is up and running at <a href='http://localhost:8000'>http://localhost:8000</a>. To find the correct <code>gist.github.com</code> URL, just click the "block" number at the top of the page.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
-Remote databases
---------
+{% include anchor.html title="Remote databases" hash="remote-databases" %}
 
 To create a remote database, you call `new PouchDB` and give it a path to a database in CouchDB.
 
 ```js
 var db = new PouchDB('http://localhost:5984/kittens');
 ```
+
+{% include alert/start.html variant="info" %}
+<strong>note:</strong> The remote database will not be created until you do an API call, e.g.: <code>db.info()</code>. The reason behind that is that the <code>PouchDB</code> constructor is completely
+synchronous, for ease of error handling (i.e. no asynchronous errors).
+{% include alert/end.html %}
 
 The structure of a CouchDB URL is very simple:
 
@@ -67,10 +71,9 @@ If instead you see:
 {"error":"not_found","reason":"no_db_file"}
 ```
 
-Then check to make sure that your remote PouchDB has started up correctly. Common errors (such as CORS) are [listed here](/errors.html).
+Then check to make sure that your remote CouchDB has started up correctly. Common errors (such as CORS) are [listed here](/errors.html).
 
-Get basic info about the database
----------
+{% include anchor.html title="Get basic info about the database" hash="get-basic-info-about-the–database" %}
 
 You can see basic information about the database by using the `info()` method.
 
@@ -97,20 +100,36 @@ The most important bits of information are:
 * `doc_count`: the number of undeleted documents in the database
 * `db_name`: the name of the database
 
-Debugging your local database
----------
+{% include anchor.html title="Debugging" hash="debugging" %}
 
-When you create a local PouchDB, you can use the developer tools to see what the database looks like under the hood.
+When you create a PouchDB database, there are many ways to debug and inspect it.
+
+### PouchDB Inspector
+
+PouchDB Inspector is an add-on for Chrome and Firefox that allows you to inspect your local databases.
+
+* [Download PouchDB Inspector for Chrome](https://chrome.google.com/webstore/detail/pouchdb-inspector/hbhhpaojmpfimakffndmpmpndcmonkfa)
+* [Download PouchDB Inspector for Firefox](https://addons.mozilla.org/en-US/firefox/addon/pouchdb-inspector/)
+
+{% include img.html src="pouchdb_inspector.png" alt="PouchDB Inspector in Chrome" %}
+
+It provides the full "Fauxton" interface, which is the same interface you will see in CouchDB and PouchDB Server.
+
+### IndexedDB/WebSQL inspectors
+
+You can also use the normal developer tools to see what your database looks like under the hood.
 
 In Chrome, just choose *Overflow icon* &#9776; &#8594; *Tools* &#8594; *Developer Tools*. Then click the *Resources* tab, then *IndexedDB*, and you should see the following:
 
 {% include img.html src="dev_tools.png" alt="Chrome Developer Tools" %}
 
-This is the raw IndexedDB representation of your PouchDB, so it may be a little fine-grained compared to what PouchDB shows. However, it's great for quick debugging.
+This is the raw IndexedDB representation of your PouchDB, so it is very fine-grained compared to what PouchDB Inspector shows. However, you may find it useful.
 
-In Safari, the `kittens` database will be under *WebSQL* instead of *IndexedDB*.
+In Safari, your database will be under *Develop* &#8594; *Show Web Inspector* &#8594; *Resources* &#8594; *Databases*.
 
-### Debug mode
+{% include img.html src="safari_inspector.png" alt="Web Inspector in Safari" %}
+
+### Debug logging
 
 You can also enable debug logging by doing:
 
@@ -125,8 +144,7 @@ PouchDB.debug.disable();
 ```
 
 
-Deleting your local database
-----------------
+{% include anchor.html title="Deleting your local database" hash="deleting-your-local-database" %}
 
 During development, it's often useful to destroy the local database, so you can see what your users will experience when they visit your site for the first time. A page refresh is not enough, because the data will still be there!
 
@@ -136,8 +154,7 @@ In Firefox, you can use the [Clear Recent History+ add-on](https://addons.mozill
 
 In Safari, you can simply click *Safari* &#8594; *Clear History and Website Data*.
 
-Differences between the local and remote databases
--------
+{% include anchor.html title="Differences between the local and remote databases" hash="differences-between-the-local-and-remote-databases" %}
 
 When you create a local PouchDB database, it uses whatever underlying datastore is available - IndexedDB in most browsers, WebSQL in older browsers, and LevelDB in Node.js.
 
@@ -145,13 +162,11 @@ When you create a remote PouchDB database, it communicates directly with the rem
 
 The goal of PouchDB is to allow you to seamlessly communicate with one or the other. You should not notice many differences between the two, except that of course the local one is much faster!
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [new PouchDB() (constructor)](/api.html#create_database)
 * [Debug mode](/api.html#debug_mode)
- 
-Next
--------
+
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you've created some databases, let's put some documents in 'em!

@@ -8,11 +8,37 @@ if (!sourceFile) {
   sourceFile = '../../dist/' + sourceFile[1];
 }
 
-if (typeof window.Worker === 'function') {
+// only running in Chrome and Firefox due to various bugs.
+// IE: https://connect.microsoft.com/IE/feedback/details/866495
+// Safari: doesn't have IndexedDB or WebSQL in a WW
+// NodeWebkit: not sure what the issue is
+
+var isNodeWebkit = typeof window !== 'undefined' &&
+  typeof process !== 'undefined';
+
+if (typeof window.Worker === 'function' &&
+    !isNodeWebkit &&
+    (window.chrome || /Firefox/.test(navigator.userAgent))) {
   runTests();
 }
 
 function runTests() {
+
+  function workerPromise(message) {
+    return new Promise(function (resolve, reject) {
+      var worker = new Worker('worker.js');
+      worker.addEventListener('error', function (e) {
+        worker.terminate();
+        reject(new Error(e.message + ": " + e.filename + ': ' + e.lineno));
+      });
+      worker.addEventListener('message', function (e) {
+        worker.terminate();
+        resolve(e.data);
+      });
+      worker.postMessage(['source', sourceFile]);
+      worker.postMessage(message);
+    });
+  }
 
   describe('browser.worker.js', function () {
 
@@ -28,60 +54,44 @@ function runTests() {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
-    it('create it', function (done) {
-      var worker = new Worker('worker.js');
-      worker.addEventListener('message', function (e) {
-        e.data.should.equal('pong');
-        worker.terminate();
-        done();
+    it('create it', function () {
+      return workerPromise('ping').then(function (data) {
+        data.should.equal('pong');
       });
-      worker.postMessage(sourceFile);
-      worker.postMessage('ping');
     });
 
-    it('check pouch version', function (done) {
-      var worker = new Worker('worker.js');
-      worker.addEventListener('message', function (e) {
-        PouchDB.version.should.equal(e.data);
-        worker.terminate();
-        done();
+    it('check pouch version', function () {
+      return workerPromise('version').then(function (data) {
+        PouchDB.version.should.equal(data);
       });
-      worker.postMessage(sourceFile);
-      worker.postMessage('version');
     });
 
-    it('create remote db', function (done) {
-      var worker = new Worker('worker.js');
-      worker.addEventListener('error', function (e) {
-        throw e;
+    it('create remote db', function () {
+      return workerPromise(['create', dbs.remote]).then(function (data) {
+        data.should.equal('lala');
       });
-      worker.addEventListener('message', function (e) {
-        e.data.should.equal('lala');
-        worker.terminate();
-        done();
-      });
-      worker.postMessage(sourceFile);
-      worker.postMessage(['create', dbs.remote]);
     });
 
-
-    // Mozilla bug: https://bugzilla.mozilla.org/show_bug.cgi?id=701634
-    // IE bug: https://connect.microsoft.com/IE/feedback/details/866495
-    if (!('mozIndexedDB' in window || 'msIndexedDB' in window)) {
-      it('create local db', function (done) {
-        var worker = new Worker('worker.js');
-        worker.addEventListener('error', function (e) {
-          throw e;
-        });
-        worker.addEventListener('message', function (e) {
-          e.data.should.equal('lala');
-          worker.terminate();
-          done();
-        });
-        worker.postMessage(sourceFile);
-        worker.postMessage(['create', dbs.name]);
+    it('create local db', function () {
+      return workerPromise(['create', dbs.name]).then(function (data) {
+        data.should.equal('lala');
       });
-    }
+    });
 
+    it('add doc with blob attachment', function () {
+      return workerPromise(['allDocs', dbs.name]).then(function (data) {
+        data.title.should.equal('lalaa');
+      });
+    });
+
+    it('put an attachment', function () {
+      var blob = new Blob(['foobar'], {type: 'text/plain'});
+      var message = ['putAttachment', dbs.name, 'doc', 'att.txt', blob,
+        'text/plain'];
+      return workerPromise(message).then(function (blob) {
+        blob.type.should.equal('text/plain');
+        blob.size.should.equal(6);
+      });
+    });
   });
 }

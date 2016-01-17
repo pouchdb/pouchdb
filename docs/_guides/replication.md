@@ -13,28 +13,31 @@ When you first start using CouchDB, you may become frustrated because it doesn't
 
 However, CouchDB was designed with sync in mind, and this is exactly what it excels at. Many of the rough edges of the API serve this larger purpose. For instance, managing your document revisions pays off in the future, when you eventually need to start dealing with conflicts.
 
-CouchDB sync
-------
+{% include anchor.html title="CouchDB sync" hash="couchdb-sync" %}
 
 CouchDB sync has a unique design. Rather than relying on a master/slave architecture, CouchDB
 supports a **multi-master** architecture. You can think of this as a system where any node can be written to or read from, and where you don't have to care which one is the "master" and which one is the "slave." In CouchDB's egalitarian world, every citizen is as worthy as another.
 
-{% include img.html src="offline_replication.gif" alt="Offline replication with CouchDB. Thanks to IBM for the image: http://www.ibm.com/developerworks/library/wa-couchdb/" %}
+<figure>
+  {% include img.html src="offline_replication.gif" alt="Offline replication with CouchDB." %}
+  <figcaption>
+    <p>(Thanks to IBM for the image: http://www.ibm.com/developerworks/library/wa-couchdb/)</p>
+  </figcaption>
+</figure>
 
 When you use PouchDB, CouchDB, and other members of the Couch family, you
-don't have to worry which database is the "single source of truth." They all are. According to the CAP theorem, CouchDB is an AP database, meaning that it's **P**artitioned, 
+don't have to worry which database is the "single source of truth." They all are. According to the CAP theorem, CouchDB is an AP database, meaning that it's **P**artitioned,
 every node is **A**vailable, and it's only eventually **C**onsistent.
 
-To illustrate, imagine a multi-node architecture with CouchDB servers spread across several continents. As long as you're willing to wait, the data will eventually flow 
-from Australia to Europe to North America to wherever. Users around the world running PouchDB in their browsers or [Couchbase Lite](https://github.com/couchbase/couchbase-lite-ios)/[Cloudant Sync](https://github.com/cloudant/CDTDatastore) in their smartphones experience the 
+To illustrate, imagine a multi-node architecture with CouchDB servers spread across several continents. As long as you're willing to wait, the data will eventually flow
+from Australia to Europe to North America to wherever. Users around the world running PouchDB in their browsers or [Couchbase Lite](https://github.com/couchbase/couchbase-lite-ios)/[Cloudant Sync](https://github.com/cloudant/CDTDatastore) in their smartphones experience the
 same privileges. The data won't show up instantaneously, but depending on the Internet connection speed, it's usually close enough to real-time.
 
 In cases of conflict, CouchDB will choose an arbitrary winner that every node can agree upon deterministically. However, conflicts are still stored in the **revision tree** (similar to a Git history tree), which means that app developers can either surface the conflicts to the user, or just ignore them.
 
 In this way, CouchDB replication "just works."
 
-Setting up sync
------------
+{% include anchor.html title="Setting up sync" hash="setting-up-sync" %}
 
 As you already know, you can create either local PouchDBs:
 
@@ -87,68 +90,105 @@ localDB.sync(remoteDB).on('complete', function () {
 });
 ```
 
-Live replication
----------
+{% include anchor.html title="Live replication" hash="live–replication" %}
 
 Live replication (or "continuous" replication) is a separate mode where changes are propagated between the two databases as the changes occur. In other words, normal replication happens once, whereas live replication happens in real time.
 
 To enable live replication, you simply specify `{live: true}`:
 
 ```js
-localDB.sync(remoteDB, {live: true});
-```
-
-However, there is one little gotcha with live replication: what if the user goes offline? In those cases, an error will be thrown, and you'll want to restart the replication process.
-
-Luckily. PouchDB provides a way to do this:
-
-```js
-localDB.sync(remoteDB, {live: true}).on('change', function (change) {
+localDB.sync(remoteDB, {
+  live: true
+}).on('change', function (change) {
   // yo, something changed!
 }).on('error', function (err) {
-  // yo, we got an error!
+  // yo, we got an error! (maybe the user went offline?)
 })));
 ```
 
-When that `'error'` function is invoked, it's usually because of a network error. That means you can easily set up an infinite retry mechanism:
+However, there is one gotcha with live replication: what if the user goes offline? In those cases, an error will be thrown and replication will stop.
+
+You can allow PouchDB to automatically handle this error, and retry until the connection is re-established, by using the `retry` option:
 
 ```js
-function retryReplication() {
-  localDB.sync(remoteDB, {live: true}).on('change', function (change) {
-    // yo, something changed!
-  }).on('error', function (err) {
-    setTimeout(retryReplication, 5000);
-  })));
-}
-```
-
-A slightly more sophisicated technique is to do an [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff). This will try to reconnect less and less frequently, until the user goes back online, at which point it resets.
-
-```js
-var timeout = 5000;
-var backoff = 2;
-function retryReplication() {
-  localDB.sync.to(remoteDB, {live: true}).on('change', function (change) {
-    // yo, something changed!
-    timeout = 5000; // reset
-  }).on('error', function (err) {
-    setTimeout(function () {
-      timeout *= backoff;
-      retryReplication();
-    }, timeout);
-  })));
-}
+localDB.sync(remoteDB, {
+  live: true,
+  retry: true
+}).on('change', function (change) {
+  // yo, something changed!
+}).on('paused', function (info) {
+  // replication was paused, usually because of a lost connection
+}).on('active', function (info) {
+  // replication was resumed
+}).on('error', function (err) {
+  // totally unhandled error (shouldn't happen)
+})));
 ```
 
 This is ideal for scenarios where the user may be flitting in and out of connectivity, such as on mobile devices.
 
-Related API documentation
---------
+{% include anchor.html title="Canceling replication" hash="canceling—replication" %}
+
+Sometimes, you may want to manually cancel replication &ndash; for instance, because the user logged out. You can do so by calling `cancel()` and then waiting for the `'complete'` event:
+
+```js
+var syncHandler = localDB.sync(remoteDB, {
+  live: true,
+  retry: true
+});
+
+syncHandler.on('complete', function (info) {
+  // replication was canceled!
+});
+
+syncHandler.cancel(); // <-- this cancels it
+```
+
+The `replicate` API also supports canceling:
+
+```js
+var replicationHandler = localDB.replicate.to(remoteDB, {
+  live: true,
+  retry: true
+});
+
+replicationHandler.on('complete', function (info) {
+  // replication was canceled!
+});
+
+replicationHandler.cancel(); // <-- this cancels it
+```
+
+{% include anchor.html title="Deleting replicated databases" hash="delete-during-replication" %}
+-----
+
+One thing to note about replication is that it tracks the data within a database, not the database itself. If you [`destroy()`](/api.html#delete_database) a database that is being replicated to, the next time the replication starts it will transfer all of the data again, recreating the database to the state it was before it was `destroyed`. If you want the data within the database to be deleted you will need to delete via [`remove()`](/api.html#delete_document) or [`bulkDocs()`](/api.html#batch_create). The [pouchdb-erase](https://github.com/marten-de-vries/pouchdb-erase) plugin can help you remove the entire contents of a database.
+
+{% include anchor.html title="Fancy replication" hash="fancy-replication" %}
+-----
+
+Any PouchDB object can replicate to any other PouchDB object. So for instance, you can replicate two remote databases, or two local databases. You can also replicate from multiple databases into a single one, or from a single database into many others.
+
+This can be very powerful, because it enables lots of fancy scenarios. For example:
+
+1. You have an [in-memory PouchDB](http://pouchdb.com/adapters.html#pouchdb_in_the_browser) that replicates with a local PouchDB, acting as a cache.
+2. You have many remote CouchDB databases that the user may access, and they are all replicated to the same local PouchDB.
+3. You have many local PouchDB databases, which are mirrored to a single remote CouchDB as a backup store.
+
+The only limits are your imagination and your disk space.
+
+{% include alert/start.html variant="warning" %}
+
+When you replicate between two remote databases, the changes flow through PouchDB. If this is not what you want, then you should <code>POST</code> directly to the CouchDB <code>_replicate</code> endpoint, as described in <a href='http://guide.couchdb.org/draft/replication.html'>the CouchDB replication guide</a>.
+
+{% include alert/end.html %}
+
+
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [replication()](/api.html#replication)
 * [sync()](/api.html#sync)
 
-Next
--------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we have a grasp on replication, let's talk about an inconvenient fact of life: conflicts.

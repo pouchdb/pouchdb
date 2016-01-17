@@ -50,95 +50,130 @@ adapters.forEach(function (adapter) {
             db.allDocs(opts, function (err, raw) {
               raw.rows.should.have.length(0, 'raw collation');
               var ids = ['0', '3', '1', '2'];
-              db.changes({
-                complete: function (err, changes) {
+              db.changes().on('complete', function (changes) {
+                // order of changes is not guaranteed in a
+                // clustered changes feed
+                changes.results.forEach(function (row, i) {
+                  ids.should.include(row.id, 'seq order');
+                });
+                db.changes({
+                  descending: true
+                }).on('complete', function (changes) {
+                  // again, order is not guaranteed so
+                  // unsure if this is a useful test
+                  ids = ['2', '1', '3', '0'];
                   changes.results.forEach(function (row, i) {
-                    row.id.should.equal(ids[i], 'seq order');
+                    ids.should.include(row.id, 'descending=true');
                   });
-                  db.changes({
-                    descending: true,
-                    complete: function (err, changes) {
-                      ids = ['2', '1', '3', '0'];
-                      changes.results.forEach(function (row, i) {
-                        row.id.should.equal(ids[i], 'descending=true');
-                      });
-                      done();
-                    }
-                  });
-                }
-              });
+                  done();
+                }).on('error', done);
+              }).on('error', done);
             });
           });
         });
       });
     });
 
-    it('Testing allDocs opts.keys', function (done) {
+    it('Testing allDocs opts.keys', function () {
       var db = new PouchDB(dbs.name);
       function keyFunc(doc) {
         return doc.key;
       }
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
-        function () {
-        var keys = ['3', '1'];
-        db.allDocs({ keys: keys }, function (err, result) {
-          result.rows.map(keyFunc).should.deep.equal(keys);
-          keys = ['2', '0', '1000'];
-          db.allDocs({ keys: keys }, function (err, result) {
-            result.rows.map(keyFunc).should.deep.equal(keys);
-            result.rows[2].error.should.equal('not_found');
-            db.allDocs({
-              keys: keys,
-              descending: true
-            }, function (err, result) {
-              result.rows.map(keyFunc).should.deep.equal(['1000', '0', '2']);
-              result.rows[0].error.should.equal('not_found');
-              db.allDocs({
-                keys: keys,
-                startkey: 'a'
-              }, function (err, result) {
-                should.exist(err);
-                db.allDocs({
-                  keys: keys,
-                  endkey: 'a'
-                }, function (err, result) {
-                  should.exist(err);
-                  db.allDocs({ keys: [] }, function (err, result) {
-                    result.rows.should.have.length(0);
-                    db.get('2', function (err, doc) {
-                      db.remove(doc, function (err, doc) {
-                        db.allDocs({
-                          keys: keys,
-                          include_docs: true
-                        }, function (err, result) {
-                          result.rows.map(keyFunc).should.deep.equal(keys);
-                          done();
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
+      var keys;
+      return db.bulkDocs(origDocs).then(function () {
+        keys = ['3', '1'];
+        return db.allDocs({keys: keys});
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(keys);
+        keys = ['2', '0', '1000'];
+        return db.allDocs({ keys: keys });
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(keys);
+        result.rows[2].error.should.equal('not_found');
+        return db.allDocs({
+          keys: keys,
+          descending: true
         });
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(['1000', '0', '2']);
+        result.rows[0].error.should.equal('not_found');
+        return db.allDocs({
+          keys: keys,
+          startkey: 'a'
+        });
+      }).then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
+        return db.allDocs({
+          keys: keys,
+          endkey: 'a'
+        });
+      }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+        should.exist(err);
+        return db.allDocs({keys: []});
+      }).then(function (result) {
+        result.rows.should.have.length(0);
+        return db.get('2');
+      }).then(function (doc) {
+        return db.remove(doc);
+      }).then(function () {
+        return db.allDocs({
+          keys: keys,
+          include_docs: true
+        });
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(keys);
+      });
+    });
+
+    it('Testing allDocs opts.keys with skip', function () {
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(origDocs).then(function () {
+        return db.allDocs({
+          keys: ['3', '1'],
+          skip: 1
+        });
+      }).then(function (res) {
+        res.total_rows.should.equal(4);
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('1');
+      });
+    });
+
+    it('Testing allDocs invalid opts.keys', function () {
+      var db = new PouchDB(dbs.name);
+      return db.allDocs({keys: 1234}).then(function() {
+        throw 'should not be here';
+      }).catch(function(err) {
+        should.exist(err);
       });
     });
 
     it('Testing deleting in changes', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
-        function () {
-        db.get('1', function (err, doc) {
-          db.remove(doc, function (err, deleted) {
-            should.exist(deleted.ok);
-            db.changes({
-              complete: function (err, changes) {
-                changes.results.should.have.length(4);
-                changes.results[3].id.should.equal('1');
-                should.exist(changes.results[3].deleted);
+
+      db.info(function (err, info) {
+        var update_seq = info.update_seq;
+        
+        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
+          function () {
+          db.get('1', function (err, doc) {
+            db.remove(doc, function (err, deleted) {
+              should.exist(deleted.ok);
+
+              db.changes({
+                since: update_seq
+              }).on('complete', function (changes) {
+                var deleted_ids = changes.results.map(function (c) {
+                  if (c.deleted) { return c.id; }
+                });
+                deleted_ids.should.include('1');
+
                 done();
-              }
+              }).on('error', done);
             });
           });
         });
@@ -147,17 +182,23 @@ adapters.forEach(function (adapter) {
 
     it('Testing updating in changes', function (done) {
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
-        function () {
-        db.get('3', function (err, doc) {
-          doc.updated = 'totally';
-          db.put(doc, function (err, doc) {
-            db.changes({
-              complete: function (err, changes) {
-                changes.results.should.have.length(4);
-                changes.results[3].id.should.equal('3');
+
+      db.info(function (err, info) {
+        var update_seq = info.update_seq;
+        
+        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), 
+          function () {
+          db.get('3', function (err, doc) {
+            doc.updated = 'totally';
+            db.put(doc, function (err, doc) {
+              db.changes({
+                since: update_seq
+              }).on('complete', function (changes) {
+                var ids = changes.results.map(function (c) { return c.id; });
+                ids.should.include('3');
+
                 done();
-              }
+              }).on('error', done);
             });
           });
         });
@@ -169,12 +210,15 @@ adapters.forEach(function (adapter) {
       testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
         function () {
         db.changes({
-          include_docs: true,
-          complete: function (err, changes) {
-            changes.results[0].doc.a.should.equal(1);
-            done();
-          }
-        });
+          include_docs: true
+        }).on('complete', function (changes) {
+          changes.results.forEach(function (row, i) {
+            if (row.id === '0') {
+              row.doc.a.should.equal(1);
+            }
+          });
+          done();
+        }).on('error', done);
       });
     });
 
@@ -200,37 +244,43 @@ adapters.forEach(function (adapter) {
               db.changes({
                 include_docs: true,
                 conflicts: true,
-                style: 'all_docs',
-                complete: function (err, changes) {
-                  var result = changes.results[3];
-                  result.id.should.equal('3', 'changes are ordered');
-                  result.changes.should.have
-                    .length(3, 'correct number of changes');
-                  result.doc._rev.should.equal(conflictDoc2._rev);
-                  result.doc._id.should.equal('3', 'correct doc id');
-                  winRev._rev.should.equal(result.doc._rev);
-                  result.doc._conflicts.should.be.instanceof(Array);
-                  result.doc._conflicts.should.have.length(2);
-                  conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
-                  db.allDocs({
-                    include_docs: true,
-                    conflicts: true
-                  }, function (err, res) {
-                    var row = res.rows[3];
-                    res.rows.should.have.length(4, 'correct number of changes');
-                    row.key.should.equal('3', 'correct key');
-                    row.id.should.equal('3', 'correct id');
-                    row.value.rev.should.equal(winRev._rev, 'correct rev');
-                    row.doc._rev.should.equal(winRev._rev, 'correct rev');
-                    row.doc._id.should.equal('3', 'correct order');
-                    row.doc._conflicts.should.be.instanceof(Array);
-                    row.doc._conflicts.should.have.length(2);
-                    conflictDoc1._rev.should
-                      .equal(res.rows[3].doc._conflicts[0]);
-                    done();
-                  });
-                }
-              });
+                style: 'all_docs'
+              }).on('complete', function (changes) {
+                changes.results.map(function (x) { return x.id; }).sort()
+                  .should.deep.equal(['0', '1', '2', '3'],
+                    'all ids are in _changes');
+
+                var result = changes.results.filter(function (row, i) {
+                  return row.id === '3';
+                })[0];
+
+                result.changes.should.have
+                  .length(3, 'correct number of changes');
+                result.doc._rev.should.equal(conflictDoc2._rev);
+                result.doc._id.should.equal('3', 'correct doc id');
+                winRev._rev.should.equal(result.doc._rev);
+                result.doc._conflicts.should.be.instanceof(Array);
+                result.doc._conflicts.should.have.length(2);
+                conflictDoc1._rev.should.equal(result.doc._conflicts[0]);
+
+                db.allDocs({
+                  include_docs: true,
+                  conflicts: true
+                }, function (err, res) {
+                  var row = res.rows[3];
+                  res.rows.should.have.length(4, 'correct number of changes');
+                  row.key.should.equal('3', 'correct key');
+                  row.id.should.equal('3', 'correct id');
+                  row.value.rev.should.equal(winRev._rev, 'correct rev');
+                  row.doc._rev.should.equal(winRev._rev, 'correct rev');
+                  row.doc._id.should.equal('3', 'correct order');
+                  row.doc._conflicts.should.be.instanceof(Array);
+                  row.doc._conflicts.should.have.length(2);
+                  conflictDoc1._rev.should
+                    .equal(res.rows[3].doc._conflicts[0]);
+                  done();
+                });
+              }).on('error', done);
             });
           });
         });
@@ -253,6 +303,16 @@ adapters.forEach(function (adapter) {
           result.rows.should.have.length(1, 'Exclude a result');
           done();
         });
+      });
+    });
+
+    it('3883 start_key end_key aliases', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [{_id: 'a', foo: 'a'}, {_id: 'z', foo: 'z'}];
+      return db.bulkDocs(docs).then(function() {
+        return db.allDocs({start_key: 'z', end_key: 'z'});
+      }).then(function (result) {
+        result.rows.should.have.length(1, 'Exclude a result');
       });
     });
 
@@ -430,8 +490,8 @@ adapters.forEach(function (adapter) {
 
     it('test escaped startkey/endkey', function (done) {
       var db = new PouchDB(dbs.name);
-      var id1 = '"crazy id!" a';
-      var id2 = '"crazy id!" z';
+      var id1 = '"weird id!" a';
+      var id2 = '"weird id!" z';
       var docs = {
         docs: [
           {
@@ -545,6 +605,57 @@ adapters.forEach(function (adapter) {
         done();
       }, function (err) {
         done(err);
+      });
+    });
+
+    it('#3082 test wrong num results returned', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [];
+      for (var i = 0; i < 1000; i++) {
+        docs.push({});
+      }
+
+      var lastkey;
+      var allkeys = [];
+
+      function paginate() {
+        var opts = {include_doc: true, limit: 100};
+        if (lastkey) {
+          opts.startkey = lastkey;
+          opts.skip = 1;
+        }
+        return db.allDocs(opts).then(function (res) {
+          if (!res.rows.length) {
+            return;
+          }
+          if (lastkey) {
+            res.rows[0].key.should.be.above(lastkey);
+          }
+          res.rows.should.have.length(100);
+          lastkey = res.rows.pop().key;
+          allkeys.push(lastkey);
+          return paginate();
+        });
+      }
+
+      return db.bulkDocs(docs).then(function () {
+        return paginate().then(function () {
+          // try running all queries at once to try to isolate race condition
+          return PouchDB.utils.Promise.all(allkeys.map(function (key) {
+            return db.allDocs({
+              limit: 100,
+              include_docs: true,
+              startkey: key,
+              skip: 1
+            }).then(function (res) {
+              if (!res.rows.length) {
+                return;
+              }
+              res.rows[0].key.should.be.above(key);
+              res.rows.should.have.length(100);
+            });
+          }));
+        });
       });
     });
 

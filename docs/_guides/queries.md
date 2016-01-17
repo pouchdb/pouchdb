@@ -7,16 +7,15 @@ sidebar: guides_nav.html
 
 Map/reduce queries, also known as *secondary indexes*, are one of the most powerful features in PouchDB. However, they can be quite tricky to use, so this guide is designed to dispell some of the mysteries around them.
 
- {% include alert_start.html variant="warning" %}
+{% include alert/start.html variant="warning" %}
 
-Many developers make the mistake of using the <code>query()</code> API when the more performant <code>allDocs()</code> API, would be a better fit.
+Many developers make the mistake of using the <code>query()</code> API when the more performant <code>allDocs()</code> API would be a better fit.
 <p/>&nbsp;<p/>
 Before you solve a problem with secondary indexes, you should ask yourself: can I solve this with the <em>primary index</em> (<code>_id</code>) instead?
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
-Mappin' and reducin'
--------
+{% include anchor.html title="Mappin' and reducin'" hash="mappin-and-reducin" %}
 
 The PouchDB `query()` API (which corresponds to the `_view` API in CouchDB) has two modes: temporary queries and persistent queries.
 
@@ -25,7 +24,7 @@ The PouchDB `query()` API (which corresponds to the `_view` API in CouchDB) has 
 **Temporary queries** are very slow, and we only recommend them for quick debugging during development. To use a temporary query, you simply pass in a `map` function:
 
 ```js
-db(function (doc) {
+db.query(function (doc, emit) {
   emit(doc.name);
 }, {key: 'foo'}).then(function (result) {
   // found docs with name === 'foo'
@@ -36,11 +35,11 @@ db(function (doc) {
 
 In the above example, the `result` object will contain all documents where the `name` attribute is equal to `'foo'`.
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 The <code>emit</code> pattern is part of the standard <a href='http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html'>CouchDB map/reduce API</a>.  What the function basically says is, "for each document, emit <code>doc.name</code> as a key."
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 ### Persistent queries
 
@@ -51,34 +50,63 @@ First, you create a **design document**, which describes the `map` function you 
 ```js
 // document that tells PouchDB/CouchDB
 // to build up an index on doc.name
-var myIndex = {
+var ddoc = {
   _id: '_design/my_index',
   views: {
-    'my_index': {
+    by_name: {
       map: function (doc) { emit(doc.name); }.toString()
     }
   }
 };
 // save it
-pouch.put(myIndex).then(function () {
+pouch.put(ddoc).then(function () {
   // success!
 }).catch(function (err) {
   // some error (maybe a 409, because it already exists?)
 });
 ```
 
+{% include alert/start.html variant="info" %}
+
+The <code>.toString()</code> at the end of the map function is necessary to prep the
+object for becoming valid JSON.
+
+{% include alert/end.html %}
+
 Then you actually query it, by using the name you gave the design document when you saved it:
 
 ```js
-db.query('my_index').then(function (res) {
+db.query('my_index/by_name').then(function (res) {
   // got the query results
 }).catch(function (err) {
   // some error
 });
 ```
 
-More about map/reduce
------
+Note that, the first time you query, it will be quite slow because the index isn't
+built until you query it. To get around this, you can do an empty query to kick
+off a new build:
+
+```js
+db.query('my_index/by_name', {
+  limit: 0 // don't return any results
+}).then(function (res) {
+  // index was built!
+}).catch(function (err) {
+  // some error
+});
+```
+
+After this, your queries will be much faster.
+
+{% include alert/start.html variant="info"%}
+
+CouchDB builds indexes in exactly the same way as PouchDB. So you may want to familiarize yourself with the <a href='/api.html#query_database'>"stale" option</a> in order to get the best possible performance for your app.
+
+{% include alert/end.html %}
+
+
+{% include anchor.html title="More about map/reduce" hash="more-about-map-reduce" %}
 
 That was a fairly whirlwind tour of the `query()` API, so let's get into more detail about how to write your map/reduce functions.
 
@@ -89,13 +117,13 @@ Quick refresher on how indexes work: in relational databases like MySQL and Post
 ```sql
 SELECT * FROM pokemon WHERE name = 'Pikachu';
 ```
-    
+
 But if you don't want your performance to be terrible, you first add an index:
 
 ```sql
 ALTER TABLE pokemon ADD INDEX myIndex ON (name);
 ```
-    
+
 The job of the index is to ensure the field is stored in a B-tree within the database, so your queries run in _O(log(n))_ time instead of _O(n)_ time.
 
 #### Indexes in NoSQL databases
@@ -112,7 +140,7 @@ It may sound daunting at first, but in the simplest (and most common) case, you 
 function myMapFunction(doc) {
   emit(doc.name);
 }
-```  
+```
 
 This is functionally equivalent to the SQL index given above.  What it essentially says is: "for each document in the database, emit its name as a key."
 
@@ -135,7 +163,7 @@ Then you can query it:
 ```js
 // find pokemon with name === 'Pika pi!'
 pouch.query(myMapFunction, {
-  key          : 'Pika pi!', 
+  key          : 'Pika pi!',
   include_docs : true
 }).then(function (result) {
   // handle result
@@ -145,9 +173,9 @@ pouch.query(myMapFunction, {
 
 // find the first 5 pokemon whose name starts with 'P'
 pouch.query(myMapFunction, {
-  startkey     : 'P', 
-  endkey       : 'P\uffff', 
-  limit        : 5, 
+  startkey     : 'P',
+  endkey       : 'P\uffff',
+  limit        : 5,
   include_docs : true
 }).then(function (result) {
   // handle result
@@ -156,11 +184,11 @@ pouch.query(myMapFunction, {
 });
 ```
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 
 The pagination options for <code>query()</code> &ndash; i.e., <code>startkey</code>/<code>endkey</code>/<code>key</code>/<code>keys</code>/<code>skip</code>/<code>limit</code>/<code>descending</code> &ndash; are exactly the same as with <code>allDocs()</code>. For a guide to pagination, read the <a href="/guides/bulk-operations.html">Bulk operations guide</a> or <a href='http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html'>Pagination strategies with PouchDB</a>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 #### Reduce functions
 
@@ -186,22 +214,27 @@ pouch.query(myMapReduceFun, {
 
 If you're adventurous, though, you should check out the [CouchDB documentation](http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html) or the [PouchDB documentation](http://pouchdb.com/api.html#query_database) for details on reduce functions.
 
-More about map/reduce
--------
+{% include anchor.html title="PouchDB Find" hash="pouchdb-find" %}
 
-The map/reduce API is complex. Part of this problem will be resolved when the more developer-friendly [Cloudant query language](http://docs.cloudant.com/api/cloudant-query.html) is merged into CouchDB 2.0 (and eventually, PouchDB). In the meantime, there are a few tricks you can use to avoid unnecessarily complicating your codebase:
+The map/reduce API is complex. Part of this problem will be resolved when the more developer-friendly [Cloudant query language](http://docs.cloudant.com/api/cloudant-query.html) is released in CouchDB 2.0, and the equivalent [pouchdb-find plugin](https://github.com/nolanlawson/pouchdb-find) is finished.
+
+{% include alert/start.html variant="warning" %}
+{% markdown %}
+pouchdb-find is in beta, but you may find it is already sufficient for simple queries. Eventually it will replace map/reduce as PouchDB's "flagship" query engine.
+{% endmarkdown %}
+{% include alert/end.html %}
+
+In the meantime, there are a few tricks you can use to avoid unnecessarily complicating your codebase:
 
 1. Avoid the `query()` API altogether if you can. You'd be amazed how much you can do with just `allDocs()`. (In fact, under the hood, the `query()` API is simply implemented on top of `allDocs()`!)
 2. If your data is highly relational, try the [relational-pouch](https://github.com/nolanlawson/relational-pouch) plugin.
 1. Read the [12 tips for better code with PouchDB](/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html).
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [query()](/api.html#query_database)
 * [viewCleanup()](/api.html#view_cleanup)
 
-Next
------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we've learned how to map reduce, map reuse, and map recycle, let's move on to `destroy()` and `compact()`.

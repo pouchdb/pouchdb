@@ -50,6 +50,158 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('sync throws errors in promise', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return db.sync(remote);
+      }).then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
+        err.should.be.instanceof(Error);
+      });
+    });
+
+    it('sync throws errors in promise catch()', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      var landedInCatch = false;
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return db.sync(remote).catch(function (err) {
+          landedInCatch = true;
+          should.exist(err);
+          err.should.be.instanceof(Error);
+        });
+      }).then(function () {
+        if (!landedInCatch) {
+          throw new Error('expected catch(), not then()');
+        }
+      });
+    });
+
+    it('sync throws errors in error listener', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve) {
+          db.sync(remote).on('error', resolve);
+        });
+      }).then(function (err) {
+        should.exist(err);
+        err.should.be.instanceof(Error);
+      });
+    });
+
+    it('sync throws errors in callback', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      // intentionally throw an error during replication
+      remote.allDocs = function (opts) {
+        return PouchDB.utils.Promise.reject(new Error('flunking you'));
+      };
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve) {
+          db.sync(remote, function (err) {
+            resolve(err);
+          }).catch(function () {
+            // avoid annoying chrome warning about uncaught (in promise)
+          });
+        });
+      }).then(function (err) {
+        should.exist(err);
+        err.should.be.instanceof(Error);
+      });
+    });
+
+    it('sync returns result in callback', function () {
+      var doc1 = {
+        _id: 'adoc',
+        foo: 'bar'
+      };
+      var doc2 = {
+        _id: 'anotherdoc',
+        foo: 'baz'
+      };
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          db.sync(remote, function (err, res) {
+            if (err) {
+              return reject(err);
+            }
+            resolve(res);
+          });
+        });
+      }).then(function (res) {
+        should.exist(res);
+      });
+    });
+
     it('PouchDB.sync callback', function (done) {
       var doc1 = {
           _id: 'adoc',
@@ -170,23 +322,28 @@ adapters.forEach(function (adapters) {
       }, done);
     });
 
-    // Skipped due to https://github.com/daleharvey/pouchdb/issues/1409
-    // This will only call once in the case of being cancelled before starting
-    // but will call twice when cancelled after starting
-    it('Test sync cancel', function (done) {
+    it.skip('Test sync cancel', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var replications = db.sync(remote, {
-        complete: function (err, result) {
-          done();
-        }
+      var replications = db.sync(remote).on('complete', function () {
+        done();
       });
       should.exist(replications);
       replications.cancel();
-      return;
     });
 
-    it('Test syncing two endpoints (issue 838)', function (done) {
+    it.skip('Test sync cancel called twice', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var replications = db.sync(remote).on('complete', function () {
+        setTimeout(done); // let cancel() get called twice before finishing
+      });
+      should.exist(replications);
+      replications.cancel();
+      replications.cancel();
+    });
+
+    it('Test syncing two endpoints (issue 838)', function () {
       var doc1 = {
           _id: 'adoc',
           foo: 'bar'
@@ -197,22 +354,55 @@ adapters.forEach(function (adapters) {
         };
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      // Replication isn't finished until onComplete has been called twice
-      function onComplete() {
-        db.allDocs(function (err, res1) {
-          should.not.exist(err);
-          remote.allDocs(function (err, res2) {
-            should.not.exist(err);
+      return db.put(doc1).then(function () {
+        return remote.put(doc2);
+      }).then(function () {
+        return new PouchDB.utils.Promise(function (resolve, reject) {
+          db.replicate.sync(remote).on('complete', resolve).on('error', reject);
+        });
+      }).then(function () {
+        // Replication isn't finished until onComplete has been called twice
+        return db.allDocs().then(function (res1) {
+          return remote.allDocs().then(function(res2) {
             res1.total_rows.should.equal(res2.total_rows);
-            done();
+          });
+        });
+      });
+    });
+
+    it.skip('3894 re-sync after immediate cancel', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.setMaxListeners(100);
+      remote.setMaxListeners(100);
+
+      var promise = PouchDB.utils.Promise.resolve();
+
+      function syncThenCancel() {
+        promise = promise.then(function () {
+          return new PouchDB.utils.Promise(function (resolve, reject) {
+            db = new PouchDB(dbs.name);
+            remote = new PouchDB(dbs.remote);
+            var sync = db.sync(remote)
+              .on('error', reject)
+              .on('complete', resolve);
+            sync.cancel();
+          }).then(function () {
+            return PouchDB.utils.Promise.all([
+              db.destroy(),
+              remote.destroy()
+            ]);
           });
         });
       }
-      db.put(doc1, function (err) {
-        remote.put(doc2, function (err) {
-          db.replicate.sync(remote).on('complete', onComplete);
-        });
-      });
+
+      for (var i = 0; i < 5; i++) {
+        syncThenCancel();
+      }
+
+      return promise;
     });
 
     it('Syncing should stop if one replication fails (issue 838)',
@@ -223,15 +413,9 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       var replications = db.sync(remote, {live: true});
 
-      db.on('change', function (ch) {
-        if (ch.seq !== 1) {
-          done(true);
-        }
-      });
-
-      replications.on('cancel', function () {
+      replications.on('complete', function () {
         remote.put(doc2, function () {
-          changes.should.equal(2);
+          changes.should.equal(1);
           done();
         });
       });
@@ -239,7 +423,7 @@ adapters.forEach(function (adapters) {
       var changes = 0;
       replications.on('change', function (ch) {
         changes++;
-        if (changes === 2) {
+        if (changes === 1) {
           replications.pull.cancel();
         }
       });
@@ -272,6 +456,59 @@ adapters.forEach(function (adapters) {
         }).on('complete', function () {
           correct.should.equal(true, 'things happened right');
           done();
+        });
+      });
+    });
+
+    it('Remove an event listener', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs([{}, {}, {}]).then(function () {
+        return remote.bulkDocs([{}, {}, {}]);
+      }).then(function () {
+
+        function changesCallback() {
+          changeCalled = true;
+        }
+
+        var sync = db.replicate.to(remote);
+        var changeCalled = false;
+        sync.on('change', changesCallback);
+        sync.removeListener('change', changesCallback);
+        sync.on('error', function () {});
+        sync.on('complete', function () {
+          setTimeout(function () {
+            Object.keys(sync._events).should.have.length(0);
+            changeCalled.should.equal(false);
+            done();
+          });
+        });
+      });
+    });
+
+    it('Remove an invalid event listener', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs([{}, {}, {}]).then(function () {
+        return remote.bulkDocs([{}, {}, {}]);
+      }).then(function () {
+        function otherCallback() {}
+        function realCallback() {
+          changeCalled = true;
+        }
+        var sync = db.replicate.to(remote);
+        var changeCalled = false;
+        sync.on('change', realCallback);
+        sync.removeListener('change', otherCallback);
+        sync.on('error', function () {});
+        sync.on('complete', function () {
+          setTimeout(function () {
+            Object.keys(sync._events).should.have.length(0);
+            changeCalled.should.equal(true);
+            done();
+          });
         });
       });
     });
@@ -355,5 +592,158 @@ adapters.forEach(function (adapters) {
         done();
       }, done);
     });
+
+    it('#3270 triggers "denied" events',
+        function (done) {
+      testUtils.isCouchDB(function (isCouchDB) {
+        if (/*adapters[1] !== 'http' || */!isCouchDB) {
+          return done();
+        }
+        if (adapters[0] !== 'local' || adapters[1] !== 'http') {
+          return done();
+        }
+
+        var deniedErrors = [];
+        var ddoc = {
+          "_id": "_design/validate",
+          "validate_doc_update": function (newDoc) {
+            if (newDoc.foo) {
+              throw { unauthorized: 'go away, no picture' };
+            }
+          }.toString()
+        };
+
+        var remote = new PouchDB(dbs.remote);
+        var db = new PouchDB(dbs.name);
+
+        return remote.put(ddoc).then(function () {
+          var docs = [
+            {_id: 'foo1', foo: 'string'},
+            {_id: 'nofoo'},
+            {_id: 'foo2', foo: 'object'}
+          ];
+          return db.bulkDocs({docs: docs});
+        }).then(function () {
+          var sync = db.sync(dbs.remote);
+          sync.on('denied', function(error) {
+            deniedErrors.push(error);
+          });
+          return sync;
+        }).then(function (res) {
+          deniedErrors.length.should.equal(2);
+          deniedErrors[0].doc.id.should.equal('foo1');
+          deniedErrors[0].doc.name.should.equal('unauthorized');
+          deniedErrors[1].doc.id.should.equal('foo2');
+          deniedErrors[1].doc.name.should.equal('unauthorized');
+          deniedErrors[0].direction.should.equal('push');
+        })
+        .then(done, done);
+      });
+    });
+
+    it('#3270 triggers "denied" events, reverse direction',
+      function (done) {
+        testUtils.isCouchDB(function (isCouchDB) {
+          if (/*adapters[1] !== 'http' || */!isCouchDB) {
+            return done();
+          }
+          if (adapters[0] !== 'local' || adapters[1] !== 'http') {
+            return done();
+          }
+
+          var deniedErrors = [];
+          var ddoc = {
+            "_id": "_design/validate",
+            "validate_doc_update": function (newDoc) {
+              if (newDoc.foo) {
+                throw { unauthorized: 'go away, no picture' };
+              }
+            }.toString()
+          };
+
+          var remote = new PouchDB(dbs.remote);
+          var db = new PouchDB(dbs.name);
+
+          return remote.put(ddoc).then(function () {
+            var docs = [
+              {_id: 'foo1', foo: 'string'},
+              {_id: 'nofoo'},
+              {_id: 'foo2', foo: 'object'}
+            ];
+            return db.bulkDocs({docs: docs});
+          }).then(function () {
+            var sync = remote.sync(db);
+            sync.on('denied', function(error) {
+              deniedErrors.push(error);
+            });
+            return sync;
+          }).then(function (res) {
+            deniedErrors.length.should.equal(2);
+            deniedErrors[0].doc.id.should.equal('foo1');
+            deniedErrors[0].doc.name.should.equal('unauthorized');
+            deniedErrors[1].doc.id.should.equal('foo2');
+            deniedErrors[1].doc.name.should.equal('unauthorized');
+            deniedErrors[0].direction.should.equal('pull');
+          })
+            .then(done, done);
+        });
+      });
+
+    it('#3270 triggers "change" events with .docs property', function(done) {
+      var syncedDocs = [];
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {_id: '1'},
+        {_id: '2'},
+        {_id: '3'}
+      ];
+
+      db.bulkDocs({ docs: docs }, {})
+      .then(function(results) {
+        var sync = db.sync(dbs.remote);
+        sync.on('change', function(change) {
+          syncedDocs = syncedDocs.concat(change.change.docs);
+        });
+        return sync;
+      })
+      .then(function() {
+        syncedDocs.sort(function (a, b) {
+          return a._id > b._id ? 1 : -1;
+        });
+
+        syncedDocs.length.should.equal(3);
+        syncedDocs[0]._id.should.equal('1');
+        syncedDocs[1]._id.should.equal('2');
+        syncedDocs[2]._id.should.equal('3');
+        done();
+      })
+      .catch(done);
+    });
+
+    it('4289 Seperate to / from filters', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var localDocs = [{_id: '0'}, {_id: '1'}];
+      var remoteDocs = [{_id: 'a'}, {_id: 'b'}];
+
+      return remote.bulkDocs(remoteDocs).then(function() {
+        return db.bulkDocs(localDocs);
+      }).then(function() {
+        return db.sync(remote, {
+          push: {filter: function(doc) { return doc._id === '0'; }},
+          pull: {filter: function(doc) { return doc._id === 'a'; }}
+        });
+      }).then(function() {
+        return db.allDocs();
+      }).then(function(docs) {
+        docs.total_rows.should.equal(3);
+        return remote.allDocs();
+      }).then(function (docs) {
+        docs.total_rows.should.equal(3);
+      });
+    });
+
   });
 });

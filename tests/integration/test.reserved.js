@@ -28,7 +28,17 @@ adapters.forEach(function (adapters) {
       return db.bulkDocs([
         {_id: 'constructor'},
         {_id: 'toString'},
-        {_id: 'valueOf'}
+        {_id: 'valueOf'},
+        {
+          _id: '_design/all',
+          views: {
+            all: {
+              map: function (doc) {
+                emit(doc._id);
+              }.toString()
+            }
+          }
+        }
       ]).then(function () {
         return db.allDocs({key: 'constructor'});
       }).then(function (res) {
@@ -38,15 +48,11 @@ adapters.forEach(function (adapters) {
         res.rows.should.have.length(1, 'allDocs with keys');
         return db.allDocs();
       }).then(function (res) {
-        res.rows.should.have.length(3, 'allDocs empty opts');
-        return db.query(function (doc) {
-          emit(doc._id);
-        }, {key: 'constructor'});
+        res.rows.should.have.length(4, 'allDocs empty opts');
+        return db.query('all/all', {key: 'constructor'});
       }).then(function (res) {
         res.rows.should.have.length(1, 'query with key');
-        return db.query(function (doc) {
-          emit(doc._id);
-        }, {keys: ['constructor']});
+        return db.query('all/all', {keys: ['constructor']});
       }).then(function (res) {
         res.rows.should.have.length(1, 'query with keys');
         return new PouchDB.utils.Promise(function (resolve, reject) {

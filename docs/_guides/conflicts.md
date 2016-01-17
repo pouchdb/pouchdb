@@ -9,14 +9,19 @@ Conflicts are an unavoidable reality when dealing with distributed systems. And 
 
 CouchDB and PouchDB differ from many other sync solutions, because they bring the issue of conflicts front-and-center. With PouchDB, conflict resolution is entirely under your control.
 
-Two types of conflicts
--------
+{% include alert/start.html variant="info" %}
 
-In CouchDB, conflicts can occur in two places: immediately, when you try to commit a new revision, or later, when two peers have committed changes to the same document.
+PouchDB exactly implements CouchDB's replication algorithm, so conflict resolution works the same in both. For the purposes of this article, "CouchDB" and "PouchDB" may be used interchangeably.
+
+{% include alert/end.html %}
+
+{% include anchor.html title="Two types of conflicts" hash="two-types-of-conflicts" %}
+
+In CouchDB, conflicts can occur in two places: immediately, when you try to commit a new revision, or later, when two peers have committed changes to the same document. Let's call these **immediate conflicts** and **eventual conflicts**.
 
 ### Immediate conflicts
 
-**Immediate conflicts** can occur with any API that can take a `rev` or a document with a `_rev` as input &ndash; `put()`, `post()`, `remove()`, `bulkDocs()`, and `putAttachment()`. They manifest as a `409` (conflict) error:
+**Immediate conflicts** can occur with any API that takes a `rev` or a document with `_rev` as input &ndash; `put()`, `post()`, `remove()`, `bulkDocs()`, and `putAttachment()`. They manifest as a `409` (conflict) error:
 
 ```js
 var myDoc = {
@@ -40,53 +45,35 @@ For instance, if you are doing live replication, a document may be modified by s
 
 #### Upsert
 
-In many cases, the most practical solution to the 409 problem is to simply re-try the `put()` until it works. If the user's intended change can be expressed as a **delta**, i.e. a change that doesn't depend on the current revision, then this is very easy to achieve. Borrowing a phrase from MongoDB, we can call this an **upsert**, and implement it like so:
+In many cases, the most practical solution to the 409 problem is to retry the `put()` until it succeeds. If the user's intended change can be expressed as a **delta** (i.e. a change that doesn't depend on the current revision), then this is very easy to achieve.
+
+Borrowing a phrase from MongoDB, let's call this an **upsert** ("update or insert"), and use the [pouchdb-upsert](https://github.com/pouchdb/pouchdb-upsert) plugin to implement it:
 
 ```js
-function upsert(db, docId, deltaFunc) {
-  return db.get(docId).catch(function (err) {
-    if (err.status !== 404) { // some error other than "not found"
-      throw err;
-    }
-    return {_id : docId}; // default doc
-  }).then(function (doc) {
-    return tryAndPut(db, deltaFunc(doc), deltaFunc);
-  });
-}
-
-function tryAndPut(db, doc, deltaFunc) {
-  return db.put(doc).catch(function (err) {
-    if (err.status !== 409) { // some error other than "conflict"
-      throw err;
-    }
-    return upsert(db, doc, deltaFunc);
-  });
-}
-```
-
-This `upsert()` function takes a `db`, a `docId`, and `deltaFunc`, where the `deltaFunc` is just a function that takes a document as input and outputs a new document.
-
-For instance, imagine your `upsert` just increments some counter:
-
-```js
-function delta(doc) {
+function myDeltaFunction(doc) {
   doc.counter = doc.counter || 0;
   doc.counter++;
   return doc;
 }
 
-upsert(db, 'my_id', delta).then(function () {
+db.upsert('my_id', myDeltaFunction).then(function () {
   // success!
 }).catch(function (err) {
   // error (not a 404 or 409)
 });
 ```
 
-This code is simple and easy to use.
+This `upsert()` function takes a `docId` and `deltaFunction`, where the `deltaFunction` is just a function that takes a document and outputs a new document. (If the document does not exist, then an empty document is provided.)
 
-### Non-immediate conflicts
+`pouchdb-upsert` also offers a `putIfNotExists()` function, which will create a document if it doesn't exist already. For more details, see [the plugin's documentation](https://github.com/pouchdb/pouchdb-upsert#readme).
 
-Imagine two PouchDB databases have both gone offline. The two users each make modifications to the same document, and then come back online at the same time. They both committed changes to the same document, and their local databases did not throw 409 errors. What happens then?
+### Eventual conflicts
+
+Now, let's move on to the second type: **eventual conflicts**.
+
+Imagine two PouchDB databases have both gone offline. The two separate users each make modifications to the same document, and then they come back online at a later time.
+
+Both users committed changes to the same version of the document, and their local databases did not throw 409 errors. What happens then?
 
 This is the classic "conflict" scenario, and CouchDB handles it very elegantly. By default, CouchDB will choose an arbitrary winner based on a deterministic algorithm, which means both users will see the same winner once they're back online. However, since the replication history is stored, you can always go back in time to resolve the conflict.
 
@@ -107,19 +94,29 @@ For instance, imagine the `doc` returned is the following:
 ```js
 {
   "_id": "docid",
-  "_rev": "2-f3d4c66dcd7596419c76b2498b3ba21f",
-  "_conflicts": ["2-c1592ce7b31cc26e91d2f2029c57e621"]
+  "_rev": "2-x",
+  "_conflicts": ["2-y"]
 }
 ```
 
-Here we have a conflict introduced from another database, and that database's revision has arbitrarily won. This document's current revision starts with 2-, and the conflicting version also starts with 2-, indicating that they're both at the same level of the revision tree. (Recall that revision hashes start with `1-`, `2-`, `3-`, etc.)
+Here we have two separate revisions (`2-x` and `2-y`) written by two separate databases, and one database's revision (`2-x`) has arbitrarily won.
+
+{% include alert/start.html variant="warning" %}
+{% markdown %}
+
+Normally, `_rev`s look more like `2-c1592ce7b31cc26e91d2f2029c57e621`, i.e. a digit followed by a very long hash. In these examples, `x` and `y` are used in place of the hash, for simplicity's sake.
+
+{% endmarkdown %}
+{% include alert/end.html %}
+
+Notice that the document's current revision starts with `2-`, and the conflicting version also starts with `2-`, indicating that they're both at the same level of the revision tree. (Revision hashes start with `1-`, `2-`, `3-`, etc., which indicates their distance from the first, "root" revision. The root always starts with `1-`.)
 
 Both databases will see the same conflict, assuming replication has completed. In fact, all databases in the network will see the exact same revision history &ndash; much like Git.
 
 To fetch the losing revision, you simply `get()` it using the `rev` option:
 
 ```js
-db.get('docid', {rev: '2-f3d4c66dcd7596419c76b2498b3ba21f'}).then(function (doc) {
+db.get('docid', {rev: '2-y'}).then(function (doc) {
   // do something with the doc
 }).catch(function (err) {
   // handle any errors
@@ -128,21 +125,27 @@ db.get('docid', {rev: '2-f3d4c66dcd7596419c76b2498b3ba21f'}).then(function (doc)
 
 At this point, you can present both versions to the user, or resolve the conflict automatically using your preferred conflict resolution strategy: last write wins, first write wins, [RCS](https://www.gnu.org/software/rcs/), etc.
 
-To mark a conflict as resolved, all you need to do is `remove()` the unwanted revisions. So for instance, to remove `'2-f3d4c66dcd7596419c76b2498b3ba21f'`, you would do:
+To mark a conflict as resolved, all you need to do is `remove()` the unwanted revisions. So for instance, to remove `'2-y'`, you would do:
 
 ```js
-db.remove('docid', '2-f3d4c66dcd7596419c76b2498b3ba21f').then(function (doc) {
+db.remove('docid', '2-y').then(function (doc) {
   // yay, we're done
 }).catch(function (err) {
   // handle any errors
 });
 ```
 
-If you want to resolve the conflict by creating a new revision, you simply `put()` a new document on top of the current winner.
+If you want to resolve the conflict by creating a new revision, you simply `put()` a new document on top of the current winner, and make sure that the losing revision is deleted.
 
+{% include alert/start.html variant="info" %}
+{% markdown %}
+PouchDB deviates from CouchDB's replication algorithm in one small way: revision hashes aren't deterministic. PouchDB is forced to do this, because CouchDB calculates its revision hashes in an Erlang-specific way.
 
-Accountants don't use erasers
--------
+In practice, this just means that PouchDB's replication algorithm is slightly less efficient than CouchDB's, for some very unlikely edge cases. For details, see [this comment](https://github.com/pouchdb/pouchdb/issues/2451#issuecomment-77386826).
+{% endmarkdown %}
+{% include alert/end.html %}
+
+{% include anchor.html title="Accountants don't use erasers" hash="accountants-dont-use-erasers" %}
 
 Another conflict resolution strategy is to design your database so that conflicts are impossible. In practice, this means that you never update or remove existing documents &ndash; you only create new documents.
 
@@ -160,7 +163,6 @@ The wisdom of this strategy can be expressed by the maxim: ["Accountants don't u
 
 There is also a PouchDB plugin that implements this strategy: [delta-pouch](https://github.com/redgeoff/delta-pouch).
 
-Next
--------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we've settled our conflicts, let's take a look at the changes feed.

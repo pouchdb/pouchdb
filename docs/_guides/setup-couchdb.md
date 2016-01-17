@@ -5,15 +5,14 @@ title: Setting up CouchDB
 sidebar: guides_nav.html
 ---
 
-CouchDB: PouchDB's big brother
---------
+{% include anchor.html title="CouchDB: PouchDB's older sibling" hash="couchdb-pouchdbs-older-sibling" %}
 
 One of the main benefits of learning PouchDB is that it's exactly the same as CouchDB. In fact, PouchDB is a shameless plagiarist: all of the API methods are the same, with only slight modifications to make it more JavaScript-y.
 
 For instance, in CouchDB you would fetch all documents using:
 
     /db/_all_docs?include_docs=true
-    
+
 In PouchDB this becomes:
 
 ```js
@@ -24,8 +23,7 @@ The APIs are the same, and the semantics are the same.
 
 In the following examples, we will set up CouchDB and talk to it using a tool you're already familiar with: your browser.
 
-Installing CouchDB
-----------
+{% include anchor.html title="Installing CouchDB" hash="installing-couchdb" %}
 
 If you are on a Debian flavor of Linux (Ubuntu, Mint, etc.), you can install CouchDB with:
 
@@ -52,8 +50,7 @@ $ pouchdb-server --port 5984
 
 PouchDB Server is currently experimental, and we do not recommend it for production environments.
 
-Verify your installation
----------
+{% include anchor.html title="Verify your installation" hash="verify-your–installation" %}
 
 Once CouchDB is installed, it should be running at `localhost:5984`. To verify, you can open up your terminal and type
 
@@ -74,8 +71,7 @@ If you see a screen like the following, then you are ready to rock and roll with
 
 {% include img.html src="fauxton.png" alt="Fauxton interface" %}
 
-Set up CORS
------
+{% include anchor.html title="Set up CORS" hash="set-up-cors" %}
 
 [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) is a web technology that allows web sites to use resources from another domain. You will want to enable this in your CouchDB before continuing, because otherwise PouchDB will not work unless it's served from exactly the same domain as CouchDB.
 
@@ -89,7 +85,6 @@ And run it:
 
 If you installed PouchDB Server, CORS is enabled by default, and this step is not necessary.
 
-Next
--------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you have CouchDB installed, let's install PouchDB.

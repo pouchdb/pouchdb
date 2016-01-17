@@ -17,7 +17,7 @@ PouchDB attempts to provide a consistent API that "just works" across every brow
 
 {% include anchor.html title="PouchDB in the browser" hash="pouchdb_in_the_browser"%}
 
-In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB is not available.  As of 2014, the browser support looks like this:
+In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB is not available.  As of 2015, the browser support looks like this:
 
 ### Desktop
 
@@ -86,7 +86,7 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 </tr>
 <tr>
     <td>IndexedDB</td>
-    <td></td> 
+    <td></td>
     <td></td>
     <td>&#10003; (4.4+)</td>
     <td>&#10003; (10+)</td>
@@ -97,7 +97,7 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 <tr>
 <tr>
     <td>WebSQL</td>
-    <td>&#10003;</td> 
+    <td>&#10003;</td>
     <td></td>
     <td>&#10003;</td>
     <td>&#10003;</td>
@@ -109,9 +109,9 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 </table>
 </div>
 
-{% include alert_start.html variant="info"%}
+{% include alert/start.html variant="info"%}
 Safari 7.1+ and iOS 8+ supposedly support IndexedDB, but their implementation has many bugs, so PouchDB currently ignores it.
-{% include alert_end.html%}
+{% include alert/end.html%}
 
 If you're ever curious which adapter is being used in a particular browser, you can use the following method:
 
@@ -123,50 +123,51 @@ console.log(pouch.adapter); // prints either 'idb' or 'websql'
 
 ### SQLite plugin for Cordova/PhoneGap
 
-On Cordova/PhoneGap, it is often more performant to use the native SQLite database rather than the WebSQL database.  This is also a good way to avoid [HTML5 storage quotas](http://www.html5rocks.com/en/tutorials/offline/quota-research).
+On Cordova/PhoneGap, the native SQLite database is often a popular choice, because it allows unlimited storage (compared to [IndexedDB/WebSQL storage limits](http://www.html5rocks.com/en/tutorials/offline/quota-research)). It also offers more flexibility in backing up and pre-loading databases, because the SQLite files are directly accessible to app developers.
 
-Luckily, there is a [SQLite Plugin][] that accomplishes exactly this.  If you include this plugin in your project, then PouchDB will automatically pick it up based on the `window.sqlitePlugin` object.
+Luckily, there is a [SQLite Plugin][] (also known as SQLite Storage) that accomplishes exactly this.  If you include this plugin in your project, then PouchDB will automatically pick it up based on the `window.sqlitePlugin` object.
 
 However, this only occurs if the adapter is `'websql'`, not `'idb'` (e.g. on Android 4.4+).  To force PouchDB to use the WebSQL adapter, you can do:
 
 ```js
-var websqlPouch = new PouchDB('myDB', {adapter: 'websql'});
+var db = new PouchDB('myDB', {adapter: 'websql'});
 ```
 
-The SQLite plugin is known to pass the PouchDB test suite on both iOS and Android. You may run into issues on Windows Phone 8.
+If you are unsure whether PouchDB is using the SQLite Plugin or not, just run:
 
-### Experimental adapter plugins
+```js
+db.info().then(console.log.bind(console));
+```
 
-PouchDB also offers separate browser plugins that use backends other than IndexedDB and WebSQL. These plugins pass our test suite at 100%, but are not yet part of the official release due to build issues with Browserify. They also add a hefty footprint due to external dependencies, so take them with a grain of salt.
+This will print some database information, including the attribute `sqlite_plugin`, which will be `true` if the SQLite Plugin is being used.
 
-{% include alert_start.html variant="warning"%}
-Currently these plugins do not work with Browserify itself; you have to include them as separate scripts in your HTML page.
-{% include alert_end.html%}
+{% include alert/start.html variant="warning"%}
+{% markdown %}
+
+The SQLite Plugin does not currently pass the PouchDB test suite. It also tends to be slower than direct IndexedDB/WebSQL.
+
+We recommend avoiding the SQLite Plugin, unless you are hitting the 50MB storage limit in iOS or you require native or preloaded access to the database files.
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
+### Browser adapter plugins
+
+PouchDB also offers separate browser plugins that use backends other than IndexedDB and WebSQL. These plugins fully pass the PouchDB test suite and are rigorously tested in our CI process.
 
 **Downloads:**
 
-* [pouchdb.localstorage.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js)
-* [pouchdb.memory.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js)
-* [pouchdb.idb-alt.js](https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb.idb-alt.js)
+* [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js) (Minified: [pouchdb.memory.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.min.js))
+* [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js) (Minified: [pouchdb.localstorage.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.min.js))
+* [pouchdb.fruitdown.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js) (Minified: [pouchdb.fruitdown.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.min.js))
 
-#### LocalStorage plugin
+{% include alert/start.html variant="warning"%}
+{% markdown %}
+These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt. You may want to [use the Browserify/Webpack versions](/api.html#extras) to deduplicate code and create a smaller bundle.
+{% endmarkdown %}
+{% include alert/end.html%}
 
-If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, you can use the `pouchdb.localstorage.js` plugin, which allows PouchDB to fall back to [LocalStorage][] on browsers that don't support either IndexedDB or WebSQL.  The [es5-shims][] will also be necessary.
-
-```html
-<script src="pouchdb.js"></script>
-<script src="pouchdb.localstorage.js"></script>
-<script>
-  // this pouch is backed by LocalStorage
-  var pouch = new PouchDB('mydb', {adapter: 'localstorage'});
-</script>
-```
-
-{% include alert_start.html variant="warning"%}
-The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
-{% include alert_end.html %}
-
-#### Memory plugin
+#### In-memory adapter
 
 If you want a quick database for your unit tests, you can use the `pouchdb.memory.js` plugin, which offers a pure in-memory PouchDB:
 
@@ -190,21 +191,35 @@ var pouch2 = new PouchDB('myDB', {adapter: 'memory'});
 var pouch3 = new PouchDB('myOtherDB', {adapter: 'memory'});
 ```
 
-#### Alternative IndexedDB adapter
+#### LocalStorage adapter
 
-We are currently experimenting with a [LevelDown][]-based IndexedDB adapter (using [level-js][]) which may eventually replace the current IndexedDB adapter.  If you would like to experiment with this, you may use the `pouchdb.idb-alt.js` plugin:
+If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, you can use the `pouchdb.localstorage.js` plugin, which allows PouchDB to fall back to [LocalStorage][] on browsers that don't support either IndexedDB or WebSQL.  The [es5-shims][] will also be necessary.
 
 ```html
 <script src="pouchdb.js"></script>
-<script src="pouchdb.idb-alt.js"></script>
+<script src="pouchdb.localstorage.js"></script>
 <script>
-  // this pouch is backed by IndexedDB but uses
-  // a different structure than the main one
-  var pouch = new PouchDB('mydb', {adapter: 'idb-alt'});
+  // this pouch is backed by LocalStorage
+  var pouch = new PouchDB('mydb', {adapter: 'localstorage'});
 </script>
 ```
 
-This adapter does not currently offer any advantages over the `'idb'` adapter, but PouchDB developers will be interested in testing it.
+{% include alert/start.html variant="warning"%}
+The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
+{% include alert/end.html %}
+
+#### FruitDOWN adapter
+
+If you need to support IndexedDB in Apple browsers (which PouchDB normally does not support due to instability), then you can use FruitDOWN, which works over all IndexedDB implementations at the expense of using a much smaller part of the IndexedDB API and therefore being slower and less efficient.
+
+```html
+<script src="pouchdb.js"></script>
+<script src="pouchdb.fruitdown.js"></script>
+<script>
+  // this pouch is backed by FruitDOWN
+  var pouch = new PouchDB('mydb', {adapter: 'fruitdown'});
+</script>
+```
 
 {% include anchor.html title="PouchDB in Node.js" hash="pouchdb_in_node_js"%}
 
@@ -250,31 +265,43 @@ var pouch = new PouchDB('riak://localhost:8087/somebucket', {db: require('riakdo
 
 #### More LevelDOWN adapters
 
-There are many other LevelDOWN-based plugins &ndash; far too many to list here. You can find a [mostly-complete list on Github](https://github.com/rvagg/node-levelup/wiki/Modules) that includes implementations on top of MySQL, Windows Azure Table Storage, and SQLite.
+There are many other LevelDOWN-based plugins &ndash; far too many to list here. You can find a [mostly-complete list on Github](https://github.com/rvagg/node-levelup/wiki/Modules#storage-back-ends) that includes implementations on top of MySQL, Windows Azure Table Storage, and SQLite.
 
 
-{% include alert_start.html variant="warning"%}
+{% include alert/start.html variant="warning"%}
 We do not currently test against any LevelDOWN adapters other than LevelDB and MemDOWN, so the other backends should be considered experimental.
-{% include alert_end.html%}
+{% include alert/end.html%}
 
 {% include anchor.html title="PouchDB over HTTP" hash="pouchdb_over_http"%}
 
-In both the browser and in Node.js, PouchDB can also function as a straightforward API on top of any [CouchDB](https://couchdb.apache.org/)-compliant database, such as [IrisCouch](http://www.iriscouch.com/), [Cloudant](https://cloudant.com/), and [Couchbase Sync Gateway](http://docs.couchbase.com/sync-gateway/):
+In both the browser and in Node.js, PouchDB can also function as a straightforward API on top of any [CouchDB](https://couchdb.apache.org/)-compliant database:
 
 ```js
 var pouch = new PouchDB('http://my-site.com:5984/my-db');
 var securePouch = new PouchDB('https://my-secure-site.com:5984/my-secure-db');
 ```
 
-However, we do not currently claim to support any database at 100% fidelity except for CouchDB, so your mileage may vary when syncing with the others.  We will add databases to our supported list as we increase our test coverage.
+You can also sync to and from these databases to your local PouchDB.
 
-If you are ever unsure what to do, consider replicating from PouchDB to a CouchDB, then from that CouchDB to one of the other servers.
+Currently PouchDB has full support for:
 
+* CouchDB 1.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* [IrisCouch](http://www.iriscouch.com/) (same as 1.x)
+* [Couchappy](https://www.couchappy.com/) (same as 1.x)
+* CouchDB 2.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* [Cloudant](https://cloudant.com/) (roughly the same as 2.x)
+* [PouchDB Server](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* [PouchDB Server --in-memory mode](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
 
+[Couchbase Sync Gateway](http://docs.couchbase.com/sync-gateway/) support is [in progress](https://github.com/pouchdb/pouchdb/pull/3521). It will work, but you may run into issues, especially with [attachments](https://github.com/pouchdb/pouchdb/issues/2832). [Drupal 8](http://wearepropeople.com/blog/a-content-staging-solution-for-drupal-8-and-more) has also announced support for PouchDB, and there is [rcouch](https://github.com/rcouch/rcouch) as well, but these are both untested by PouchDB.
+
+If you are ever unsure about a server, consider replicating from PouchDB to CouchDB, then from that CouchDB to the other server.
 
 #### PouchDB Server
 
-[PouchDB Server](https://github.com/pouchdb/pouchdb-server) is a standalone REST server that implements the CouchDB API, while using a LevelDB-based PouchDB under the hood.  PouchDB Server passes our unit test suite at 100%, but be aware that it is not as full-featured or battle-tested as CouchDB.
+[PouchDB Server](https://github.com/pouchdb/pouchdb-server) is a standalone REST server that implements the CouchDB API, while using a LevelDB-based PouchDB under the hood. It also supports an `--in-memory` mode and any [LevelDOWN][] adapter, which you may find handy.
+
+PouchDB Server passes the PouchDB test suite at 100%, but be aware that it is not as full-featured or battle-tested as CouchDB.
 
 #### PouchDB Express
 

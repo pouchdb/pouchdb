@@ -4,7 +4,7 @@ title: Plugins and External Projects
 sidebar: nav.html
 ---
 
-Below is a list of known plugins, tools and projects can be used with PouchDB. [Fork this page](https://github.com/pouchdb/pouchdb/blob/master/docs/external.md) to add your own!
+Below is a list of known plugins, tools and projects can be used with PouchDB.
 
 {% include anchor.html title="Plugins" hash="plugins" %}
 
@@ -16,6 +16,10 @@ Revives the `allDbs()` function, which lists all PouchDB databases.
 
 Plugin for CouchDB's authentication system.
 
+#### [Pouch Box](https://github.com/jo/pouch-box)
+
+Allows decentralized authentication and access control per document, using asymmetric encryption.
+
 #### [PouchDB Collate](https://github.com/pouchdb/collate)
 
 Collation utilities, so you can use complex keys as doc IDs.
@@ -26,7 +30,7 @@ Encrypt a PouchDB/CouchDB database.
 
 #### [Pouch Dat](https://github.com/calvinmetcalf/pouch-dat)
 
-Replicate from PouchDB to Dat. 
+Replicate from PouchDB to Dat.
 
 #### [Pouch Datalog](https://github.com/dahjelle/pouch-datalog)
 
@@ -40,13 +44,29 @@ Dump a PouchDB/CouchDB to a file, then load it wholesale. Designed for fast init
 
 Implements the handy "every document is a delta" pattern, so you don't have to deal with conflicts.
 
-#### [Filter Pouch](https://github.com/nolanlawson/filter-pouch)
+#### [PouchDB Erase](https://github.com/marten-de-vries/pouchdb-erase)
 
-Applies filter functions to documents before and after storage, e.g. for encryption, compression, or massaging data.
+A replicating `db.destroy()` alternative.
+
+#### [PouchDB Find](https://github.com/nolanlawson/pouchdb-find)
+
+MongoDB-like query language, based on CouchDB 2.0. ([Live demo](http://nolanlawson.github.io/pouchdb-find/))
+
+#### [PouchDB Full Sync](https://github.com/nolanlawson/pouchdb-full-sync)
+
+Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revision history.
 
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
 Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
+
+#### [PouchDB Hoodie API](https://github.com/hoodiehq/pouchdb-hoodie-api)
+
+Hoodie-like API for PouchDB. ([Documentation](http://hoodiehq.github.io/pouchdb-hoodie-api/))
+
+#### [PouchDB Hoodie Store](https://www.npmjs.com/package/pouchdb-hoodie-store)
+
+PouchDB with Hoodie's Store API.
 
 #### [PouchDB List](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
@@ -62,7 +82,15 @@ Allows you to use the `query()` API in environments that disallow `eval()`, like
 
 #### [Peer Pouch](https://github.com/natevw/PeerPouch)
 
-PouchDB over WebRTC.
+PouchDB over WebRTC. (Note: only works with PouchDB 1.1.)
+
+#### [PouchDB Resolve Conflicts](https://github.com/jo/pouch-resolve-conflicts)
+
+Plugin to assist in PouchDB conflict resolving.
+
+#### [PouchDB Migrate](https://github.com/eHealthAfrica/pouchdb-migrate)
+
+PouchDB plugin for running data migrations.
 
 #### [PouchDB Quick Search](https://github.com/nolanlawson/pouchdb-quick-search)
 
@@ -72,6 +100,10 @@ Full-text search engine on top of PouchDB.
 
 A relational database API on top of PouchDB/CouchDB.
 
+#### [PouchDB Replication Stream](https://github.com/nolanlawson/pouchdb-replication-stream)
+
+Replicate between CouchDB/PouchDB using streams.
+
 #### [PouchDB Rewrite](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 A PouchDB plugin that allows you to re-use your CouchDB rewrites on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-list-plug-in))
@@ -80,21 +112,46 @@ A PouchDB plugin that allows you to re-use your CouchDB rewrites on the client s
 
 A PouchDB plugin that allows you to re-use your CouchDB show functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-show-plug-in))
 
+#### [SocketPouch](https://github.com/nolanlawson/socket-pouch)
+
+PouchDB/CouchDB replication over WebSockets, using Engine.io (Socket.io).
+
 #### [PouchDB Spatial](https://github.com/pouchdb/geopouch)
 
 Multidimensional and spatial queries with PouchDB.
+
+#### [Superlogin](https://www.npmjs.com/package/superlogin)
+
+Powerful authentication for APIs and single page apps using the CouchDB ecosystem, which supports a variety of providers.
+
+#### [Store.PouchDB](https://github.com/chunksnbits/store.pouchdb)
+
+ORM-style storage plugin for PouchDB.
 
 #### [Pouch Stream](https://github.com/calvinmetcalf/PouchStream)
 
 A plugin to let PouchDB talk streams.
 
+#### [Transform Pouch](https://github.com/nolanlawson/transform-pouch)
+
+Transforms documents before and after storage, e.g. for encryption, compression, or massaging data.
+
+
 #### [PouchDB Update](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 A PouchDB plugin that allows you to re-use your CouchDB update functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-update-plug-in))
 
+#### [PouchDB Upsert](https://github.com/nolanlawson/pouchdb-upsert)
+
+Convenience functions for working with documents: `upsert()` and `putIfNotExists()`.
+
 #### [PouchDB Validation](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
 A PouchDB plugin that allows you to re-use your CouchDB `validate_doc_update` functions on the client side. ([Documentation](http://pythonhosted.org/Python-PouchDB/js-plugins.html#pouchdb-validation-plug-in))
+
+#### [WorkerPouch](http://github.com/nolanlawson/worker-pouch)
+
+PouchDB adapter for web workers, so that PouchDB blocks the DOM less.
 
 {% include anchor.html title="Server Side" hash="Server Side" %}
 
@@ -104,13 +161,17 @@ A standalone CouchDB-style REST interface server to PouchDB.
 
 #### [Express PouchDB](https://github.com/pouchdb/express-pouchdb)
 
-An express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
+An Express submodule with a CouchDB-style REST interface to PouchDB. Powers PouchDB Server.
+
+#### [Express PouchDB Replication Stream](https://github.com/conor-mac-aoidh/express-pouchdb-replication-stream)
+
+Server-side Express endpoint to deliver a stream from [PouchDB Replication Stream](https://github.com/nolanlawson/pouchdb-replication-stream).
 
 {% include anchor.html title="Framework adapters" hash="framework_adapters" %}
 
 ### Angular
 
-#### [angular-pouchdb](https://github.com/wspringer/angular-pouchdb)
+#### [angular-pouchdb](https://github.com/angular-pouchdb/angular-pouchdb)
 
 Wrapper for using PouchDB within Angular.js.
 
@@ -126,6 +187,12 @@ Angular service to persist remote connection settings and maintain continuous re
 
 AngularJS binding for PouchDB.
 
+### Ampersand
+
+#### [ampersand-collection-pouchdb-mixin](https://github.com/svnlto/ampersand-collection-pouchdb-mixin)
+
+A mixin for extending ampersand-collection with pouchdb persistance.
+
 ### Backbone
 
 #### [Backbone PouchDB](https://github.com/jo/backbone-pouch)
@@ -140,7 +207,27 @@ Ember Data adapter for PouchDB/CouchDB.
 
 #### [ember-pouchdb](https://github.com/taras/ember-pouchdb)
 
-Promisy PouchDB wrapper for Ember.js
+Promisy PouchDB wrapper for Ember.js.
+
+### Kendo UI
+
+#### [kendo-pouchdb](https://github.com/terikon/kendo-pouchdb)
+
+Kendo UI DataSource adapter.
+
+### React/Flux
+
+#### [pouch-redux](https://github.com/UXtemple/pouch-redux)
+
+Pouch and Redux integration. With Pouch in control this time around. 
+
+#### [redux-pouchdb](https://github.com/vicentedealencar/redux-pouchdb)
+
+Sync store state to PouchDB.
+
+#### [redux-pouch](https://github.com/UXtemple/redux-pouch)
+
+PouchDB-backed Redux.
 
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
@@ -155,7 +242,7 @@ Android adapter with a native Java interface to PouchDB.
 
 #### [blob-util](https://github.com/nolanlawson/blob-util)
 
-Not strictly PouchDB-related, but a useful set of shims and utility functions for working with Blobs in the browser.
+Shims and utils for working with binary Blobs in the browser.
 
 #### [Puton](http://puton.jit.su/)
 

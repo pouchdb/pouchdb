@@ -30,7 +30,7 @@ var db = new PouchDB('dbname');
 db.put({
   _id: 'dave@gmail.com',
   name: 'David',
-  age: 67
+  age: 69
 });
 
 db.changes().on('change', function() {
@@ -69,7 +69,7 @@ db.replicate.to('http://example.com/mydb');
         <div class="icon icon-light"></div>
 
         <h3>Lightweight</h3>
-        <p>PouchDB is just a script tag and 34KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
+        <p>PouchDB is just a script tag and 46KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
         in Node.</p>
 
       </div>

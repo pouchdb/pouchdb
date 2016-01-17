@@ -1,6 +1,6 @@
 'use strict';
 
-var adapters = ['local'];
+var adapters = ['local', 'http'];
 
 adapters.forEach(function (adapter) {
   describe('test.events.js-' + adapter, function () {
@@ -25,8 +25,8 @@ adapters.forEach(function (adapter) {
     });
 
     it('PouchDB emits destruction event', function (done) {
-      new PouchDB(dbs.name, function () {
-        PouchDB.destroy(dbs.name);
+      new PouchDB(dbs.name, function (err, db) {
+        db.destroy();
       }).once('destroyed', function () {
         new PouchDB(dbs.name, function () {
           done();
@@ -41,8 +41,58 @@ adapters.forEach(function (adapter) {
           done();
         });
       });
-      new PouchDB(dbs.name, function () {
-        PouchDB.destroy(dbs.name);
+      new PouchDB(dbs.name, function (err, db) {
+        db.destroy();
+      });
+    });
+
+    it('PouchDB emits destroyed when using {name: foo}', function () {
+      return new PouchDB({name: 'testdb'}).then(function (db) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          PouchDB.once('destroyed', function (name) {
+            name.should.equal('testdb');
+            resolve();
+          });
+          db.destroy();
+        });
+      });
+    });
+
+    it('db emits destroyed on all DBs', function () {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+
+      return new PouchDB.utils.Promise(function (resolve) {
+        var called = 0;
+        function checkDone() {
+          if (++called === 2) {
+            resolve();
+          }
+        }
+        db1.once('destroyed', checkDone);
+        db2.once('destroyed', checkDone);
+        db1.destroy();
+      });
+    });
+
+    it('3900 db emits destroyed event', function () {
+      return new PouchDB('testdb').then(function (db) {
+        return new PouchDB.utils.Promise(function (resolve) {
+          db.once('destroyed', function () {
+            resolve();
+          });
+          db.destroy();
+        });
+      });
+    });
+
+    it('3900 db emits destroyed event 2', function () {
+      var db = new PouchDB('testdb');
+      return new PouchDB.utils.Promise(function (resolve) {
+        db.once('destroyed', function () {
+          resolve();
+        });
+        db.destroy();
       });
     });
 
@@ -53,78 +103,10 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('emit changes event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var id = 'emiting';
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.on('change', function (change) {
-          change.seq.should.equal(1, 'changed');
-          change.id.should.equal('emiting');
-          done(err);
-        });
-        db.put(obj, id);
-      });
-    });
-
-    it('emit create event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var id = 'creating';
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.on('create', function (change) {
-          change.id.should.equal('creating');
-          change.seq.should.equal(1, 'created');
-          done(err);
-        });
-        db.put(obj, id);
-      });
-    });
-
-    it('emit update event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var id = 'updating';
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.on('update', function (change) {
-          change.id.should.equal('updating');
-          change.seq.should.equal(2, 'seq 2, updated');
-          done(err);
-        });
-
-        db.put(obj, id).then(function (doc) {
-          db.put({'something': 'else'}, id, doc.rev);
-        });
-
-      });
-    });
-
-    it('emit delete event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        var id = 'emiting';
-        var obj = {
-          something: 'here',
-          somethingElse: 'overHere'
-        };
-        db.on('delete', function (change) {
-          change.seq.should.equal(2, 'deleted');
-          change.id.should.equal('emiting');
-          done(err);
-        });
-
-        db.put(obj, id).then(function (doc) {
-          db.remove({
-            _id: id,
-            _rev: doc.rev
-          });
-        });
-      });
+    it('#4168 multiple constructor calls don\'t leak listeners', function () {
+      for (var i = 0; i < 50; i++) {
+        new PouchDB(dbs.name);
+      }
     });
 
   });

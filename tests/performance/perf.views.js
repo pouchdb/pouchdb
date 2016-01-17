@@ -2,9 +2,7 @@
 
 module.exports = function (PouchDB, opts) {
 
-  // need to use bluebird for promises everywhere, so we're comparing
-  // apples to apples
-  var Promise = require('bluebird');
+  var Promise = require('lie');
   var utils = require('./utils');
 
   function makeTestDocs() {

@@ -10,24 +10,34 @@
   "eqnull": true,
   "browser": true,
   "node": true,
-  "strict": true,
   "trailing": true,
-  "globalstrict": true,
-  "globals": {
-    "PouchDB": true,
-     "should": true
-  },
   "white": true,
   "indent": 2,
   "forin": true,
+  "futurehostile": true,
+  "esnext": true,
+  "globals": {
+    "PouchDB": true,
+    "should": true,
+    "Promise": true,
+    "atob": true,
+    "btoa": true
+  },
   "predef": [
     "describe",
     "it",
     "after",
+    "before",
     "beforeEach",
     "afterEach",
     "testUtils",
     "emit",
-    "EventSource"
+    "EventSource",
+    "indexedDB",
+    "IDBKeyRange",
+    "openDatabase",
+    "sqlitePlugin",
+    "chrome",
+    "FileReaderSync"
   ]
 }

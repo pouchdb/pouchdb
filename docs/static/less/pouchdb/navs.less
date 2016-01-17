@@ -14,6 +14,14 @@
 /**
  * Sidebar navigation used in learn.html
  **/
+ @media (min-width: @screen-sm-min) {
+  .nav-sidebar-wrapper {
+   position: -webkit-sticky;
+   position: sticky;
+   top: 1em;
+  }
+}
+
 .nav-sidebar {
   > li.active > a,
   > li > a:hover {
@@ -54,4 +62,36 @@
   .nav.nav-sidebar { margin-bottom: 25px; }
   .nav-head,
   .nav.nav-sidebar { text-align: center; }
+}
+
+
+.nav-code {
+  border-bottom: none;
+}
+.nav-code > li {
+  float: right;
+}
+.nav-code > li > a {
+  outline: 0;
+  padding: .5em .75em;
+  margin-right: 0;
+  margin-left: 1px;
+  font-size: .8em;
+  line-height: 1.3;
+}
+.nav-code > li.active > a,
+.nav-code > li.active > a:hover,
+.nav-code > li.active > a:focus {
+  border-color: #3f3f3f;
+  background: #3f3f3f;
+  color: #eee;
+  padding-bottom: 15px;
+  margin-bottom: -15px;
+}
+.nav-code > li > a:hover {
+  border-color: transparent;
+}
+.nav-code + .tab-content pre {
+  padding-top: 15px;
+  padding-bottom: 15px;
 }

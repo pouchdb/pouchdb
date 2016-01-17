@@ -5,7 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ page.title }}</title>
+    <link rel="alternate" title="{{ site.description }}" type="application/rss+xml" href="/feed.xml">
     <link rel="stylesheet" href="{{ site.baseurl }}/static/css/pouchdb.css" />
+    <meta name="theme-color" content="#6ccb99">
+    <meta name="msapplication-TileColor" content="#6ccb99">
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-42479701-1']);
@@ -23,7 +26,7 @@
 
   <body data-spy="scroll" data-target="#sidebar">
 
-    <header>
+    <header role="banner">
 
       <a href="https://github.com/pouchdb/pouchdb" target="_blank">
          <div class="ribbon">GitHub</div>
@@ -36,7 +39,7 @@
           <span class='logo-type'>PouchDB</span>
         </a>
 
-        <ul class='nav nav-header nav-pills'>
+        <ul class='nav nav-header nav-pills' role="navigation">
           <li>
             <a class='btn btn-link btn-lg' href="{{ site.baseurl }}/blog/">Blog</a>
           </li>
@@ -52,7 +55,7 @@
           <li>
             <a
                 class='btn btn-primary btn-lg'
-                href="https://github.com/daleharvey/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js"
+                href="https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js"
             >
                 Download <strong>v{{ site.version }}</strong>
             </a>
@@ -67,7 +70,12 @@
 
         <div class="container">
 
-          <h1>{{ page.title }}</h1>
+          <h1 class="page-title">{{ page.title }}</h1>
+          {% if page.edit != false %}
+            <span class="h1">
+              {% include edit_button.html %}
+            </span>
+          {% endif %}
           {% if page.sub_title %}
             <h4>{{ page.sub_title}}</h4>
           {% endif %}
@@ -77,8 +85,9 @@
       </div>
     {% endif %}
 
-
-    {{ content }}
+    <div role="main">
+      {{ content }}
+    </div>
 
     <div class="icons">
 
@@ -89,36 +98,42 @@
           <div class='col-xs-4 col-md-offset-0 col-md-2'>
             <a href='https://twitter.com/pouchdb' target='_blank'>
               <div class="icon icon-twitter"></div>
+              <span class="sr-only">PouchDB's Twitter</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://github.com/rvagg/node-levelup' target='_blank'>
               <div class="icon icon-leveldb"></div>
+              <span class="sr-only">Node Levelup</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://github.com/pouchdb/pouchdb' target='_blank'>
               <div class="icon icon-github"></div>
+              <span class="sr-only">PouchDB's Github Repo</span>
             </a>
             </div>
 
           <div class='col-xs-4 col-md-offset-0 col-md-2'>
             <a href='https://travis-ci.org/pouchdb/pouchdb' target='_blank'>
               <div class="icon icon-travis"></div>
+              <span class="sr-only">PouchDB's Travis CI</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='http://couchdb.apache.org/' target='_blank'>
               <div class="icon icon-couchdb"></div>
+              <span class="sr-only">CouchDB</span>
             </a>
           </div>
 
           <div class='col-xs-4 col-md-2'>
             <a href='https://saucelabs.com' target='_blank'>
               <div class="icon icon-saucelabs"></div>
+              <span class="sr-only">Saucelabs</span>
             </a>
           </div>
 
@@ -139,7 +154,7 @@
             <ul class='nav nav-silent'>
               <li><a href="{{ site.baseurl }}/getting-started.html">Getting Started</a></li>
               <li><a href="{{ site.baseurl }}/api.html">API Guide</a></li>
-              <li><a href="https://github.com/daleharvey/pouchdb/wiki">Wiki</a></li>
+              <li><a href="https://github.com/pouchdb/pouchdb/wiki">Wiki</a></li>
             </ul>
           </div>
 
@@ -156,10 +171,10 @@
           <div class='col-sm-3'>
             <h3 class="nav-head">Contribute</h3>
             <ul class='nav nav-silent'>
-              <li><a href="https://github.com/daleharvey/pouchdb/blob/master/CONTRIBUTING.md">Contributing</a></li>
-              <li><a href="https://github.com/daleharvey/pouchdb">Source</a></li>
-              <li><a href="https://github.com/daleharvey/pouchdb/issues">Issues</a></li>
-              <li><a href="https://github.com/daleharvey/pouchdb/blob/master/LICENSE">Apache License</a></li>
+              <li><a href="https://github.com/pouchdb/pouchdb/blob/master/CONTRIBUTING.md">Contributing</a></li>
+              <li><a href="https://github.com/pouchdb/pouchdb">Source</a></li>
+              <li><a href="https://github.com/pouchdb/pouchdb/issues">Issues</a></li>
+              <li><a href="https://github.com/pouchdb/pouchdb/blob/master/LICENSE">Apache License</a></li>
             </ul>
           </div>
 
@@ -170,5 +185,40 @@
     </footer>
     <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
     <script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ site.baseurl }}/static/js/code.min.js"></script>
+    <script type="text/javascript" src="{{ site.baseurl }}/static/js/stickyfill.min.js"></script>
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/pouchdb/latest/pouchdb.min.js"></script>
+    <script type="text/javascript">
+      var $navSidebarWrapper = $('.nav-sidebar-wrapper');
+      if ($navSidebarWrapper.length) {
+        $navSidebarWrapper.Stickyfill();
+      }
+      $('[data-toggle="tooltip"]').tooltip();
+      function onCached(e) {
+        if (applicationCache.status === 1) {
+          giveIntro();
+        }
+      }
+
+      function giveIntro() {
+        console.log('%c\n..............................................................................\n.?I...........~+: ............................................................\n.???.........++++.............................................................\n:????+......+++++.............................................................\n.??????+++++++++:.................................H...........D..B............\n...????++++++++...................................H...........D..B............\n...=????++++++.......PPPPP...OOOO...U....U...CCCC.HHHHH...DDDDD..BBBBB........\n...?????+++++++......P...:P.OO...O..U....U..C.....H...H..D....D..B....B.......\n..???????+++++++ ....P. ..P.O....O..U....U.CC.....H...H..D....D..B....B.......\n..?????????????......P...:P.OO...O..U....U..C.....H...H..D....D..B....B.......\n...I??????????~......PPPPP...OOOO...=UUUUU...CCCC.H...H...DDDDD..BBBBB........\n....?????????~.......P.... ...................................................\n.....???????+........P........................................................\n......??????..................................................................\n..............................................................................\n..............................................................................\n..............................................................................', 'color: #4ec084');
+        console.log('%c\nPouchDB itself is hosted at PouchDB.com!\nTo get started, try typing:\nvar db = new PouchDB(\'mydb\');', 'color: #4ec084');
+      }
+      function offerToReload() {
+        $('.js-update-notification')
+          .removeClass('btn-update-hidden')
+          .on('click', function(){
+            window.location.reload();
+          });
+      }
+      if (window.applicationCache) {
+        applicationCache.addEventListener('cached', onCached, false);
+        applicationCache.addEventListener('noupdate', giveIntro, false);
+        applicationCache.addEventListener('updateready', offerToReload, false);
+      }
+    </script>
+    <button type="button" class="js-update-notification btn btn-primary btn-update btn-update-hidden">
+      Content updated, reload now? ↻
+    </button>
   </body>
 </html>

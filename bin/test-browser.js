@@ -1,24 +1,22 @@
 #!/usr/bin/env node
 'use strict';
 
-var path = require('path');
-var spawn = require('child_process').spawn;
-
 var wd = require('wd');
 wd.configureHttp({timeout: 180000}); // 3 minutes
+
 var sauceConnectLauncher = require('sauce-connect-launcher');
+var selenium = require('selenium-standalone');
 var querystring = require("querystring");
 var request = require('request').defaults({json: true});
 
 var devserver = require('./dev-server.js');
 
-var SELENIUM_PATH = '../vendor/selenium-server-standalone-2.38.0.jar';
-var SELENIUM_HUB = 'http://localhost:4444/wd/hub/status';
-
 var testTimeout = 30 * 60 * 1000;
 
 var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
+
+var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '2.45.0';
 
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
@@ -34,8 +32,17 @@ var client = {
 };
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
-var testUrl = testRoot +
-  (process.env.PERF ? 'performance/index.html' : 'integration/index.html');
+var testUrl;
+if (process.env.PERF) {
+  testUrl = testRoot + 'performance/index.html';
+} else if (process.env.TYPE === 'fuzzy') {
+  testUrl = testRoot + 'fuzzy/index.html';
+} else if (process.env.TYPE === 'mapreduce') {
+  testUrl = testRoot + 'mapreduce/index.html';
+} else {
+  testUrl = testRoot + 'integration/index.html';
+}
+
 var qs = {};
 
 var sauceClient;
@@ -44,6 +51,9 @@ var tunnelId = process.env.TRAVIS_JOB_NUMBER || 'tunnel-' + Date.now();
 
 if (client.runner === 'saucelabs') {
   qs.saucelabs = true;
+}
+if (process.env.INVERT) {
+  qs.invert = process.env.INVERT;
 }
 if (process.env.GREP) {
   qs.grep = process.env.GREP;
@@ -59,6 +69,15 @@ if (process.env.AUTO_COMPACTION) {
 }
 if (process.env.SERVER) {
   qs.SERVER = process.env.SERVER;
+}
+if (process.env.SKIP_MIGRATION) {
+  qs.SKIP_MIGRATION = process.env.SKIP_MIGRATION;
+}
+if (process.env.POUCHDB_SRC) {
+  qs.src = process.env.POUCHDB_SRC;
+}
+if (process.env.COUCH_HOST) {
+  qs.couchHost = process.env.COUCH_HOST;
 }
 
 testUrl += '?';
@@ -120,31 +139,18 @@ function testComplete(result) {
 }
 
 function startSelenium(callback) {
-
   // Start selenium
-  spawn('java', ['-jar', path.resolve(__dirname, SELENIUM_PATH)], {});
-
-  var retries = 0;
-  var started = function () {
-
-    if (++retries > 60) {
-      console.error('Unable to connect to selenium');
+  var opts = {version: SELENIUM_VERSION};
+  selenium.install(opts, function(err) {
+    if (err) {
+      console.error('Failed to install selenium');
       process.exit(1);
-      return;
     }
-
-    request(SELENIUM_HUB, function (err, resp) {
-      if (resp && resp.statusCode === 200) {
-        sauceClient = wd.promiseChainRemote();
-        callback();
-      } else {
-        setTimeout(started, 1000);
-      }
+    selenium.start(opts, function(err, server) {
+      sauceClient = wd.promiseChainRemote();
+      callback();
     });
-  };
-
-  started();
-
+  });
 }
 
 function startSauceConnect(callback) {

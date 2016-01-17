@@ -23,7 +23,7 @@ There are a number of databases that implement a CouchDB-like protocol, and Pouc
 
 PouchDB is one of multiple projects that implement the CouchDB protocol, and these can all be used to sync the same set of data.
 
-For desktop applications, you may want to look into embedding CouchDB (or [rcouch](https://github.com/refuge/rcouch)). PouchDB also works great with web-based frameworks like [node-webkit](https://github.com/rogerwang/node-webkit), [Chrome apps](https://developer.chrome.com/apps/about_apps), [Atom Shell](https://github.com/atom/atom-shell) and [WinJS](http://try.buildwinjs.com/#listview).
+For desktop applications, you may want to look into embedding CouchDB (or [rcouch](https://github.com/refuge/rcouch)). PouchDB also works great with web-based frameworks like [node-webkit](https://github.com/rogerwang/node-webkit), [Chrome apps](https://developer.chrome.com/apps/about_apps), [Electron](https://github.com/atom/electron) and [WinJS](http://try.buildwinjs.com/#listview).
 
 For mobile applications, you can use PouchDB within [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/) (optionally using the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin)), or there are several native libraries:
 
@@ -39,17 +39,17 @@ For mobile applications, you can use PouchDB within [PhoneGap](http://phonegap.c
 
 {% include anchor.html class="h3" title="How much data can PouchDB store?" hash="data_limits" %}
 
-In **Firefox**, PouchDB uses IndexedDB. Though Firefox has no upper limit besides disk space, if your application wishes to store more than 50MB locally, Firefox will [ask the user](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) to confirm that this is okay.
+In **Firefox**, PouchDB uses IndexedDB. Though Firefox has no upper limit besides disk space, if your application wishes to store more than 50MB locally, Firefox will [ask the user](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) using a non-modal dialog to confirm that this is okay.
 
-**Chrome** also uses IndexedDB, it determines the amount of storage left available on the user&#8217;s hard drive and uses [that to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary).
+**Chrome** also uses IndexedDB, and it determines the amount of storage available on the user&#8217;s hard drive and uses that [to calculate a limit](https://developers.google.com/chrome/whitepapers/storage#temporary).
 
-**Opera 15+** shares a codebase Chromium / Blink, and behaves similarly.
+**Opera 15+** shares a codebase with Chromium/Blink, and behaves similarly.
 
-**Internet Exporer 10+** has a hard 250MB limit.
+**Internet Exporer 10+** has a hard 250MB limit, and will prompt the user with a non-modal dialog at 10MB.
 
-**Mobile Safari** on iOS has a hard 50MB limit, while **desktop Safari &le;7** will prompt the user if an application requests more than 5MB of data, up to a limit of 500MB. Some versions of Safari will only let you request additional storage once, but you can get around this using [the `size` option](http://pouchdb.com/api.html#create_database).
+**Mobile Safari** on iOS has a hard 50MB limit, whereas **desktop Safari** has no limit. Both will prompt the user with a modal dialog if an application requests more than 5MB of data, at increments of 5MB, 10MB, 50MB, 100MB, etc. Some versions of Safari have a bug where they only let you request additional storage once, so you'll need to request the desired space up-front. PouchDB allows you to do this using [the `size` option](http://pouchdb.com/api.html#create_database).
 
-**Android** works the same as Chrome as of 4.4+, while older version can store up to 200MB. 
+**Android** works the same as Chrome as of 4.4+ (IndexedDB), while older versions can store up to 200MB (WebSQL).
 
 In [PhoneGap](http://phonegap.com/)/[Cordova](http://cordova.apache.org/), you can have unlimited data on both iOS and Android by using the [SQLite Plugin](https://github.com/brodysoft/Cordova-SQLitePlugin).
 
@@ -94,10 +94,10 @@ Here are the strategies used by various browsers in PouchDB:
     <th>Adapter</th>
 	<th>IE (10+)</th>
 	<th>Firefox</th>
-	<th>Chrome < 38, <br/>Android <= 4.4</th>
-	<th>Chrome >= 38</th>
-	<th>Safari < 7.1 <br/>iOS < 8</th>	
-	<th>Safari >= 7.1, <br/>iOS >= 8</th>
+	<th>Chrome < 43,<br/>Android</th>
+	<th>Chrome >= 43</th>
+	<th>Safari < 7.1,<br/>iOS < 8</th>
+	<th>Safari >= 7.1,<br/>iOS >= 8</th>
 </tr>
 <tr>
     <td>IndexedDB</td>
@@ -120,9 +120,9 @@ Here are the strategies used by various browsers in PouchDB:
 </table>
 </div>
 
-Attachments are deduplicated based on their MD5 sum, so duplicate attachments won't take up extra space. 
+Attachments are deduplicated based on their MD5 sum, so duplicate attachments won't take up extra space.
 
-To truly remove an attachment from the data store, you will need to use [compaction](http://pouchdb.com/api.html#compaction) to remove document revisions that reference that attachment. 
+To truly remove an attachment from the data store, you will need to use [compaction](http://pouchdb.com/api.html#compaction) to remove document revisions that reference that attachment.
 
 {% include anchor.html class="h3" title="Is it safe to upgrade PouchDB?" hash="safe_to_upgrade" %}
 

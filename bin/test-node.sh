@@ -3,12 +3,28 @@
 : ${TIMEOUT:=50000}
 : ${REPORTER:="spec"}
 : ${BAIL:=1}
+: ${TYPE:="integration"}
 
 if [ $BAIL -eq 1 ]; then
     BAIL_OPT="--bail"
 else
     BAIL_OPT=""
 fi
+
+if [ $TYPE = "integration" ]; then
+    TESTS_PATH="tests/integration/test.*.js"
+fi
+if [ $TYPE = "fuzzy" ]; then
+    TESTS_PATH="tests/fuzzy/test.*.js"
+fi
+if [ $TYPE = "mapreduce" ]; then
+    TESTS_PATH="tests/mapreduce/test.*.js"
+fi
+if [ $COVERAGE ]; then
+    # run all tests when testing for coverage
+    TESTS_PATH="tests/{unit,integration,mapreduce,component}/test*.js"
+fi
+
 
 if [ $PERF ]; then
     node tests/performance/index.js
@@ -19,7 +35,7 @@ elif [ ! $COVERAGE ]; then
         --require=./tests/integration/node.setup.js \
         --reporter=$REPORTER \
         --grep=$GREP \
-        tests/integration/test.*.js
+        $TESTS_PATH
 else
     ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \
         $BAIL_OPT \
@@ -27,6 +43,6 @@ else
         --require=./tests/integration/node.setup.js \
         --reporter=$REPORTER \
         --grep=$GREP \
-        tests/integration/test.*.js
+        $TESTS_PATH
 fi
 

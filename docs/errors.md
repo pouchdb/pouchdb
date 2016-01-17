@@ -16,7 +16,7 @@ or this one:
 
 > Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://[couchDBIP]:[couchDBPort]/[dbname]/?_nonce=[request hash]. This can be fixed by moving the resource to the same domain or enabling CORS
 
-it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same domain.
+it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same origin &#8212; the protocol (ex: _http://_, _https://_), domain, and port number must match.
 
 You can enable CORS in CouchDB using `curl` or the Futon web interface, but we've saved you some time by making a Node script called [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb). Just run:
 
@@ -35,6 +35,12 @@ $ add-cors-to-couchdb http://me.iriscouch.com \
 You can check that CORS is now enabled by visiting [http://localhost:5984/_utils/config.html](http://localhost:5984/_utils/config.html) in your browser. You should see something like this:
 
 {% include img.html src="cors_in_couchdb.png" alt="CORS settings in CouchDB" %}
+
+{% include anchor.html class="h3" title="PouchDB throws a `No valid adapter found` error" hash="no_valid_adapter" %}
+
+Reading from/writing to a local database from an `iframe` with a different origin will cause PouchDB to throw a `No valid adapter found` error in Firefox. This is due to Firefox's IndexedDB implementation.
+
+IndexedDB has a same-origin restriction. Read/write operations from another origin will always fail, but only Firefox triggers a `No valid adapter found` error. Chrome / Opera will instead throw an [`UnknownError`](#unknown_error_chrome).
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
 
@@ -67,17 +73,38 @@ Are you in private browsing mode? IndexedDB is [disabled in private browsing mod
 
 There is a limit of one database per app in some versions of the Android WebView. Install the [SQLite plugin][sqlite], then PouchDB will use that if it is available.
 
+{% include anchor.html class="h3" title="Possible EventEmitter memory leak detected" hash="event_emitter_limit" %}
+
+If you see this warning:
+
+    (node) warning: possible EventEmitter memory leak detected. 11 listeners added.
+    Use emitter.setMaxListeners() to increase limit.
+
+This is because PouchDB uses Node-style [EventEmitters](https://nodejs.org/api/events.html) for its events. An EventEmitter is any object that has an `.on()` or `once()` method, such as `db.changes().on('change', ...`.
+
+By default, all EventEmitters have 10 listeners, and if you exceed that limit, e.g. by attaching many `changes()` listeners or running many simultaneous `replicate()` or `sync()` events, then you may exceed this limit.
+
+**This could indicate a memory leak in your code**. Check to make sure that you are calling `cancel()` on any `changes()`, `replicate()`, or `sync()` handlers, if you are constantly starting and stopping those events.
+
+If you're sure it's not a memory leak, though, you can increase the limit by doing:
+
+{% highlight javascript %}
+db.setMaxListeners(20);  // or 30 or 40 or however many you need
+{% endhighlight %}
+
+In the above example, `db` refers to a database object you created using `new PouchDB('dbname')`.
+
 {% include anchor.html class="h3" title="Database size limitation of ~5MB on iOS with Cordova/Phone Gap" hash="size_limitation_5mb" %}
 
-If you're storing large amounts of data, such as PNG attachments, the [SQLite plugin][sqlite] is again your friend. (See [issue #1260](https://github.com/daleharvey/pouchdb/issues/1260) for details.)
+If you're storing large amounts of data, such as PNG attachments, the [SQLite plugin][sqlite] is again your friend. (See [issue #1260](https://github.com/pouchdb/pouchdb/issues/1260) for details.)
 
 {% include anchor.html class="h3" title="CouchDB returns a 404 for GETs from a CouchApp" hash="404_get_couchapp" %}
 
-Certain URL rewrites are broken by PouchDB's cache-busting; try adding `{cache : false}` to the PouchDB constructor. (See [issue #1233](https://github.com/daleharvey/pouchdb/issues/1233) for details.)
+Certain URL rewrites are broken by PouchDB's cache-busting; try adding `{cache : false}` to the PouchDB constructor. (See [issue #1233](https://github.com/pouchdb/pouchdb/issues/1233) for details.)
 
 {% include anchor.html class="h3" title="Uncaught TypeError: object is not a function" hash="typeerror_object_is_not_a_function" %}
 
-Did you include the [es6-promise shim library](https://github.com/jakearchibald/es6-promise)?  Not every browser implements ES6 Promises correctly. (See [issue #1747](https://github.com/daleharvey/pouchdb/issues/1747) for details.)
+Did you include the [es6-promise shim library](https://github.com/jakearchibald/es6-promise)?  Not every browser implements ES6 Promises correctly. (See [issue #1747](https://github.com/pouchdb/pouchdb/issues/1747) for details.)
 
 {% include anchor.html class="h3" title="Uncaught TypeError: 'undefined' is not a function" hash="undefined_is_not_a_function" %}
 
@@ -100,6 +127,36 @@ In Chrome apps, you'll see the warning "window.localStorage is not available in 
 {% include anchor.html class="h3" title="Error: UnknownError (Firefox)" hash="unknown_error_ff" %}
 
 Are you using a webserver to host and run your code? This error can be caused by running your script/file locally using the `file:///` setting in Firefox, since Firefox does not [allow access to IndexedDB locally](https://bugzilla.mozilla.org/show_bug.cgi?id=643318). You can use the SimpleHTTPServer to deploy your script by running `python -m SimpleHTTPServer` from the directory containing the script, or use the Apache webserver and then access the script by using `http://localhost/{path_to_your_script}`.
+
+{% include anchor.html class="h3" title="Error: UnknownError (Chrome / Opera)" hash="unknown_error_chrome" %}
+
+This can occur when attempting to read from or write to IndexedDB from a different origin. IndexedDB has a same-origin restriction. Attempting to write to the database associated with _http://example.com_ from an `iframe` served from _http://api.example.com_, for example, will fail.
+
+In Firefox, PouchDB instead throws a [`No valid adapter found`](#no_valid_adapter) error.
+
+{% include anchor.html class="h3" title="DataCloneError: An object could not be cloned" hash="could_not_be_cloned" %}
+
+If you ever see:
+
+    Uncaught DataCloneError:
+      Failed to execute 'put' on 'IDBObjectStore':
+      An object could not be cloned.
+
+Or:
+
+    DataCloneError: The object could not be cloned.
+
+Then the problem is that the document you are trying to store is not a pure JSON object. For example, an object with its own class (`new Foo()`) or with special methods like getters and setters cannot be stored in PouchDB/CouchDB.
+
+If you are ever unsure, then run this on the document:
+
+```js
+JSON.parse(JSON.stringify(myDocument));
+```
+
+If the object you get out is the same as the object you put in, then you are storing the right kind of object.
+
+Note that this also means that you cannot store `Date`s in your document. You must convert them to strings or numbers first. `Date`s will be stored as-is in IndexedDB, but in the other adapters and in CouchDB, they will be automatically converted to ISO string format, e.g. `'2015-01-01T12:00:00.000Z'`. This can caused unwanted results. See [#2351](https://github.com/pouchdb/pouchdb/issues/2351) and [#2158](https://github.com/pouchdb/pouchdb/issues/2158) for details.
 
 {% include anchor.html class="h3" title="DOM Exception 18 in Android pre-Kitkat WebView" hash="android_pre_kitkat" %}
 
@@ -145,12 +202,112 @@ If you skip any one of these three steps, then you will get the `DOM Exception 1
 Alternatively, you can also load the `WebView` with a fake `http://` URL, but this may cause other errors when you try to fetch files based on a relative path:
 
 ```java
-webView.loadDataWithBaseURL("http://www.example.com", 
-    htmlContent, 
-    "text/html", 
-    "utf-8", 
+webView.loadDataWithBaseURL("http://www.example.com",
+    htmlContent,
+    "text/html",
+    "utf-8",
     null);
 ```
 
+{% include anchor.html class="h3" title="PouchDB on Windows" hash="windows_leveldown" %}
+
+It is known that building/compiling Node modules with native code on Windows can be frustrating, as there are lots of required dependencies to be installed, which may take many Gigabytes, as opossed to Unix platforms, where compiling is a breeze. Installing PouchDB on Node for Windows gave many headaches, specifically with the leveldown dep.
+
+Since v3.2.1 leveldown was changed to be an *optional dependency*: this way, npm will not refuse installing PouchDB even when having compiling errors. That way, you can use PouchDB normally, and will get an error only when trying to use leveldown as the backend. To avoid that, you can specify any compatible adapter, as pointed in the [Adapters](/adapters.html#pouchdb_in_node_js) section.
+
+For example, if you want a SQLite backend, you can install:
+
+{% highlight bash %}
+npm install sqlite3
+npm install sqldown
+{% endhighlight %}
+
+and then use PouchDB with:
+
+```js
+var db = new PouchDB('database', { db: require('sqldown') });
+
+```
+
+Also, you have the option to use [leveldown] (>= 1.2.2)(https://github.com/level/leveldown), which avoids native leveldown building when installing. Make sure the `win32-x64.tar.gz` is uploaded for your [leveldown] (https://github.com/Level/leveldown/releases) version. Then for use leveldown as backend, you can install:
+
+{% highlight bash %}
+npm install leveldown@1.2.2
+{% endhighlight %}
+
+and instance your PouchDB like this:
+
+```js
+var db = new PouchDB('database', { db: require('leveldown') });
+
+```
+
+{% include anchor.html class="h3" title="Replication with attachments is slow or fails" hash="replicating_attachments_slow" %}
+
+The symptoms for this issues are:
+
+1. Replicating a database that has many attachments from a CouchDB server is either slow or fails randomly.
+2. You get server error message of the nature `No buffer space available`.
+
+Chances are that your server runs inside a virtual machine. The host system, or hypervisor, imposes limits on how much data each virtual machine can use for networking. If you are on a cheap virtual server, it is possible, that the default settings for PouchDB pull-replication (10 parallel batches of 100 documents each) exhaust the narrow limit of your server. Even a single client can cause this.
+
+The solution is to move to a better server, but if that is not an immediate option, a workaround would be reducing the `options.batch_size` and `options.batches_limit` [replication options](http://pouchdb.com/api.html#replication).
+
+To find optimal values, start by setting them both to 1 (meaning that PouchDB should download one document after the other) and increase from there and stop when the symptoms begin again. Note that multiple concurrent clients can still cause an issue, if you get too many. If all your documents have one or more attachments (e.g. a photos database), setting both options to `1` is probably a good idea.
+
+{% include alert/start.html variant="info" %}
+
+Generally, reducing these options that replicating the database down will take more time. Please test various settings to see what works for you and your hardware.
+
+{% include alert/end.html %}
+
+{% include alert/start.html variant="info" %}
+
+This issue has been found on OpenVZ systems, but other Hypervisors might also be affected. See
+<a
+  href="http://blog.aplikacja.info/2010/01/105-no-buffer-space-available-on-openvz-vps/"
+  target="_blank"
+>http://blog.aplikacja.info/2010/01/105-no-buffer-space-available-on-openvz-vps/</a>
+on how to diagnose this issue.
+
+{% include alert/end.html %}
+
 [es5shim]: https://github.com/es-shims/es5-shim
 [sqlite]: https://github.com/brodysoft/Cordova-SQLitePlugin
+
+{% include anchor.html class="h3" title="Packaging PouchDB in an app with WebPack" hash="package_pouchdb_webpack" %}
+
+PouchDB may have various dependencies that may not play nicely with WebPack. Here are some issues you may run into and their resolutions:
+
+**You may need an appropriate loader to handle this file type.**
+
+If you run into the following error (or similar):
+
+```sh
+ERROR in ./~/pouchdb/~/levelup/package.json
+Module parse failed: /path/to/node_modules/pouchdb/node_modules/levelup/package.json Line 2: Unexpected token :
+You may need an appropriate loader to handle this file type.
+| {
+|   "name": "levelup",
+|   "description": "Fast & simple storage - a Node.js-style LevelDB wrapper",
+|   "version": "0.18.6",
+ @ ./~/pouchdb/~/levelup/lib/util.js 102:30-56
+
+```
+WebPack needs to be configured to recognize how to load json files. Simply, install `json-loader` and edit `webpack.config.js` as follows: 
+
+```js
+module: {
+    loaders: [
+        // https://github.com/pouchdb/pouchdb/issues/3319
+        {
+            test: /\.json$/,
+            loader: "json-loader"
+        }
+    ]
+}
+```
+
+{% include anchor.html class="h3" title="Failed to load resource: the server responded with a status of 400 (Bad request) " hash="couchbase_dbname" %}
+
+If you are using Couchbase Lite to sync with PouchDB then you cannot use capital letters in your database name as Couchbase Lite has restrictions on valid database names.

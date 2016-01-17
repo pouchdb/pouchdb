@@ -139,7 +139,8 @@ adapters.forEach(function (adapter) {
         foo: 'bar'
       }];
       db.bulkDocs({ docs: docs }, function (err, info) {
-        err.status.should.equal(400, 'correct error status returned');
+        err.status.should.equal(PouchDB.Errors.RESERVED_ID.status,
+                                'correct error status returned');
         should.not.exist(info, 'info is empty');
         done();
       });
@@ -153,9 +154,8 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        err.status.should.equal(400, 'correct error returned');
-        err.message.should.equal(PouchDB.Errors.RESERVED_ID.message,
-                                 'correct error message returned');
+        err.status.should.equal(PouchDB.Errors.RESERVED_ID.status,
+                                'correct error returned');
         should.not.exist(info, 'info is empty');
         done();
       });
@@ -164,8 +164,10 @@ adapters.forEach(function (adapter) {
     it('No docs', function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ 'doc': [{ 'foo': 'bar' }] }, function (err, result) {
-        err.status.should.equal(400);
-        err.message.should.equal('Missing JSON list of \'docs\'');
+        err.status.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.status,
+                                'correct error returned');
+        err.message.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.message,
+                                 'correct error message returned');
         done();
       });
     });
@@ -314,6 +316,90 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Deleting _local docs with bulkDocs' , function () {
+      var db = new PouchDB(dbs.name);
+
+      var rev1;
+      var rev2;
+      var rev3;
+      return db.put({_id: '_local/godzilla'}).then(function (info) {
+        rev1 = info.rev;
+        return db.put({_id: 'mothra'});
+      }).then(function (info) {
+        rev2 = info.rev;
+        return db.put({_id: 'rodan'});
+      }).then(function (info) {
+        rev3 = info.rev;
+        return db.bulkDocs([
+          {_id: 'mothra', _rev: rev2, _deleted: true},
+          {_id: '_local/godzilla', _rev: rev1, _deleted: true},
+          {_id: 'rodan', _rev: rev3, _deleted: true}
+        ]);
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (info) {
+        info.rows.should.have.length(0);
+        return db.get('_local/godzilla').then(function () {
+          throw new Error('expected 404');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    });
+
+    if (adapter === 'local') {
+      // these tests crash CouchDB with a 500, neat
+      // https://issues.apache.org/jira/browse/COUCHDB-2758
+
+      it('Deleting _local docs with bulkDocs, not found', function () {
+        var db = new PouchDB(dbs.name);
+
+        var rev2;
+        var rev3;
+        return db.put({_id: 'mothra'}).then(function (info) {
+          rev2 = info.rev;
+          return db.put({_id: 'rodan'});
+        }).then(function (info) {
+          rev3 = info.rev;
+          return db.bulkDocs([
+            {_id: 'mothra', _rev: rev2, _deleted: true},
+            {_id: '_local/godzilla', _rev: '1-fake', _deleted: true},
+            {_id: 'rodan', _rev: rev3, _deleted: true}
+          ]);
+        }).then(function (res) {
+          should.not.exist(res[0].error);
+          should.exist(res[1].error);
+          should.not.exist(res[2].error);
+        });
+      });
+
+      it('Deleting _local docs with bulkDocs, wrong rev', function () {
+        var db = new PouchDB(dbs.name);
+
+        var rev1;
+        var rev2;
+        var rev3;
+        return db.put({_id: '_local/godzilla'}).then(function (info) {
+          rev1 = info.rev;
+          return db.put({_id: 'mothra'});
+        }).then(function (info) {
+          rev2 = info.rev;
+          return db.put({_id: 'rodan'});
+        }).then(function (info) {
+          rev3 = info.rev;
+          return db.bulkDocs([
+            {_id: 'mothra', _rev: rev2, _deleted: true},
+            {_id: '_local/godzilla', _rev: '1-fake', _deleted: true},
+            {_id: 'rodan', _rev: rev3, _deleted: true}
+          ]);
+        }).then(function (res) {
+          should.not.exist(res[0].error);
+          should.exist(res[1].error);
+          should.not.exist(res[2].error);
+        });
+      });
+    }
+
     it('Bulk with new_edits=false', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = [{
@@ -349,8 +435,9 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       var docs = [{
-        '_id': 'foo',
+        '_id': 'foobar123',
         '_rev': '1-x',
+        'bar': 'huzzah',
         '_revisions': {
           'start': 1,
           'ids': ['x']
@@ -361,7 +448,7 @@ adapters.forEach(function (adapter) {
         should.not.exist(err);
         db.bulkDocs({docs: docs, new_edits: false}, function (err, result) {
           should.not.exist(err);
-          db.get('foo', function (err, res) {
+          db.get('foobar123', function (err, res) {
             res._rev.should.equal('1-x');
             done();
           });
@@ -403,7 +490,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       var docsA = [{
-        '_id': 'foo',
+        '_id': 'foo321',
         '_rev': '1-x',
         'bar' : 'baz',
         '_revisions': {
@@ -411,7 +498,8 @@ adapters.forEach(function (adapter) {
           'ids': ['x']
         }
       }, {
-        '_id' : 'fee',
+        '_id' : 'fee321',
+        'bar': 'quux',
         '_rev': '1-x',
         '_revisions': {
           'start': 1,
@@ -420,7 +508,7 @@ adapters.forEach(function (adapter) {
       }];
 
       var docsB = [{
-        '_id': 'foo',
+        '_id': 'foo321',
         '_rev': '1-x',
         'bar' : 'zam', // this update should be rejected
         '_revisions': {
@@ -428,8 +516,9 @@ adapters.forEach(function (adapter) {
           'ids': ['x']
         }
       }, {
-        '_id' : 'faa',
+        '_id' : 'faa321',
         '_rev': '1-x',
+        'bar': 'zul',
         '_revisions': {
           'start': 1,
           'ids': ['x']
@@ -438,39 +527,38 @@ adapters.forEach(function (adapter) {
 
       db.bulkDocs({docs: docsA, new_edits: false}, function (err, result) {
         should.not.exist(err);
-        db.changes({complete: function (err, result) {
+        db.changes().on('complete', function (result) {
           var ids = result.results.map(function (row) {
             return row.id;
           });
-          ids.should.include("foo");
-          ids.should.include("fee");
-          ids.should.not.include("faa");
-          result.last_seq.should.equal(2);
+          ids.should.include("foo321");
+          ids.should.include("fee321");
+          ids.should.not.include("faa321");
+
+          var update_seq = result.last_seq;
           db.bulkDocs({docs: docsB, new_edits: false}, function (err, result) {
             should.not.exist(err);
             db.changes({
-              since : 2,
-              complete: function (err, result) {
-                var ids = result.results.map(function (row) {
-                  return row.id;
+              since: update_seq
+            }).on('complete', function (result) {
+              var ids = result.results.map(function (row) {
+                return row.id;
+              });
+              ids.should.not.include("foo321");
+              ids.should.not.include("fee321");
+              ids.should.include("faa321");
+
+              db.get('foo321', function (err, res) {
+                res._rev.should.equal('1-x');
+                res.bar.should.equal("baz");
+                db.info(function (err, info) {
+                  info.doc_count.should.equal(3);
+                  done();
                 });
-                ids.should.not.include("foo");
-                ids.should.not.include("fee");
-                ids.should.include("faa");
-                result.last_seq.should.equal(3);
-                db.get('foo', function (err, res) {
-                  res._rev.should.equal('1-x');
-                  res.bar.should.equal("baz");
-                  db.info(function (err, info) {
-                    info.doc_count.should.equal(3);
-                    info.update_seq.should.equal(3);
-                    done();
-                  });
-                });
-              }
-            });
+              });
+            }).on('error', done);
           });
-        }});
+        }).on('error', done);
       });
     });
 
@@ -647,6 +735,13 @@ adapters.forEach(function (adapter) {
       }, { new_edits: false }, function (err, res) {
         db.get('foo', function (err, res) {
           should.exist(err, 'deleted');
+          err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+                                   'correct error status returned');
+          err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+                                   'correct error message returned');
+          // todo: does not work in pouchdb-server.
+          // err.reason.should.equal('deleted',
+          //                          'correct error reason returned');
           done();
         });
       });
@@ -742,8 +837,10 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: 'foo' }, function (err, res) {
         should.exist(err, 'error reported');
-        err.status.should.equal(400);
-        err.message.should.equal('Missing JSON list of \'docs\'');
+        err.status.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.status,
+                                'correct error status returned');
+        err.message.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.message,
+                                 'correct error message returned');
         done();
       });
     });
@@ -752,16 +849,169 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: ['foo'] }, function (err, res) {
         should.exist(err, 'error reported');
-        err.status.should.equal(400);
-        err.message.should.equal('Document must be a JSON object');
+        err.status.should.equal(PouchDB.Errors.NOT_AN_OBJECT.status,
+                                'correct error status returned');
+        err.message.should.equal(PouchDB.Errors.NOT_AN_OBJECT.message,
+                                 'correct error message returned');
       });
       db.bulkDocs({ docs: [[]] }, function (err, res) {
         should.exist(err, 'error reported');
-        err.status.should.equal(400);
-        err.message.should.equal('Document must be a JSON object');
+        err.status.should.equal(PouchDB.Errors.NOT_AN_OBJECT.status,
+                                'correct error status returned');
+        err.message.should.equal(PouchDB.Errors.NOT_AN_OBJECT.message,
+                                 'correct error message returned');
         done();
       });
     });
 
+    it('Bulk docs two different revisions to same document id', function(done) {
+      var db = new PouchDB(dbs.name);
+      var docid = "mydoc";
+
+      function uuid() {
+          return PouchDB.utils.uuid(32, 16).toLowerCase();
+      }
+
+      // create a few of rando, good revisions
+      var numRevs = 3;
+      var uuids = [];
+      for (var i = 0; i < numRevs - 1; i++) {
+          uuids.push(uuid());
+      }
+
+      // branch 1
+      var a_conflict = uuid();
+      var a_doc = {
+        _id: docid,
+        _rev: numRevs + '-' + a_conflict,
+        _revisions: {
+          start: numRevs,
+          ids: [ a_conflict ].concat(uuids)
+        }
+      };
+
+      // branch 2
+      var b_conflict = uuid();
+      var b_doc = {
+        _id: docid,
+        _rev: numRevs + '-' + b_conflict,
+        _revisions: {
+          start: numRevs,
+          ids: [ b_conflict ].concat(uuids)
+        }
+      };
+
+      // push the conflicted documents
+      return db.bulkDocs([ a_doc, b_doc ], { new_edits: false })
+
+      .then(function() {
+        return db.get(docid, { open_revs: "all" }).then(function(resp) {
+          resp.length.should.equal(2, 'correct number of open revisions');
+          resp[0].ok._id.should.equal(docid, 'rev 1, correct document id');
+          resp[1].ok._id.should.equal(docid, 'rev 2, correct document id');
+
+          // order of revisions is not specified
+          ((resp[0].ok._rev === a_doc._rev &&
+            resp[1].ok._rev === b_doc._rev) ||
+          (resp[0].ok._rev === b_doc._rev &&
+            resp[1].ok._rev === a_doc._rev)).should.equal(true);
+        });
+      })
+
+      .then(function() { done(); }, done);
+    });
+
+    it('4204 respect revs_limit', function () {
+      var db = new PouchDB(dbs.name);
+
+      // simulate 5000 normal commits with two conflicts at the very end
+      function uuid() {
+        return PouchDB.utils.uuid(32, 16).toLowerCase();
+      }
+
+      var isSafari = (typeof process === 'undefined' || process.browser) &&
+        /Safari/.test(window.navigator.userAgent) &&
+        !/Chrome/.test(window.navigator.userAgent);
+
+      var numRevs = isSafari ? 10 : 5000;
+      var expected = isSafari ? 10 : 1000;
+      var uuids = [];
+
+      for (var i = 0; i < numRevs - 1; i++) {
+        uuids.push(uuid());
+      }
+      var conflict1 = 'a' + uuid();
+
+      var doc1 = {
+        _id: 'doc',
+        _rev: numRevs + '-' + conflict1,
+        _revisions: {
+          start: numRevs,
+          ids: [conflict1].concat(uuids)
+        }
+      };
+
+      return db.bulkDocs([doc1], {new_edits: false}).then(function () {
+        return db.get('doc', {revs: true});
+      }).then(function (doc) {
+        doc._revisions.ids.length.should.equal(expected);
+      });
+    });
+
+    it('2839 implement revs_limit', function (done) {
+
+      // We only implement revs_limit locally
+      if (adapter === 'http') {
+        return done();
+      }
+
+      var LIMIT = 50;
+      var db = new PouchDB(dbs.name, {revs_limit: LIMIT});
+
+      // simulate 5000 normal commits with two conflicts at the very end
+      function uuid() {
+        return PouchDB.utils.uuid(32, 16).toLowerCase();
+      }
+
+      var numRevs = 5000;
+      var uuids = [];
+      for (var i = 0; i < numRevs - 1; i++) {
+        uuids.push(uuid());
+      }
+      var conflict1 = 'a' + uuid();
+      var doc1 = {
+        _id: 'doc',
+        _rev: numRevs + '-' + conflict1,
+        _revisions: {
+          start: numRevs,
+          ids: [conflict1].concat(uuids)
+        }
+      };
+
+      db.bulkDocs([doc1], {new_edits: false}).then(function () {
+        return db.get('doc', {revs: true});
+      }).then(function (doc) {
+        doc._revisions.ids.length.should.equal(LIMIT);
+        done();
+      }).catch(done);
+    });
+
+    it('4712 invalid rev for new doc generates conflict', function () {
+      // CouchDB 1.X has a bug which allows this insertion via bulk_docs
+      // (which PouchDB uses for all document insertions)
+      if (adapter === 'http' && !testUtils.isCouchMaster()) {
+        return;
+      }
+
+      var db = new PouchDB(dbs.name);
+      var newdoc = {
+        '_id': 'foobar',
+        '_rev': '1-123'
+      };
+
+      return db.bulkDocs({ docs: [newdoc] }).then (function (results) {
+        results[0].should.have.property('status', 409);
+      });
+    });
   });
 });

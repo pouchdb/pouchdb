@@ -4,13 +4,13 @@ title: Getting Started Guide
 sidebar: nav.html
 ---
 
-{% include alert_start.html variant="info" %}
+{% include alert/start.html variant="info" %}
 
 If you get stuck, download a <a href="https://github.com/nickcolley/getting-started-todo/archive/master.zip" target="_blank">working version</a>,
 or check out the <a href="https://github.com/nickcolley/getting-started-todo" target="_blank">full repo</a>
 and <a href="https://github.com/nickcolley/getting-started-todo/commits/master" target="_blank">commit history</a>.
 
-{% include alert_end.html %}
+{% include alert/end.html %}
 
 In this tutorial we will write a basic Todo web application based on [TodoMVC](http://todomvc.com/) that syncs to an online CouchDB server. It should take around 10 minutes.
 

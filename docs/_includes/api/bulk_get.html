@@ -1,0 +1,101 @@
+{% include anchor.html edit="true" title="Document bulk get" hash="bulk_get" %}
+
+{% highlight js %}
+db.bulkGet(options, [callback])
+{% endhighlight %}
+
+Given a set of document/revision IDs, returns the document bodies (and, optionally, attachment data) for each ID/revision pair specified.
+
+### Options
+
+* `options.docs`: An array of `id` and `rev` pairs representing the revisions to fetch.
+  - `id`: ID of the document to fetch.
+  - `rev`: Revision of the document to fetch. If this is not specified, all available revisions are fetched.
+  - `atts_since`: Optional and supported by the http adapter only. Includes attachments only since specified revisions. Doesn’t includes attachments for specified revisions.
+* `options.revs`: Each returned revision body will include its revision history as a `_revisions` property. Default is `false`.
+* `options.attachments`: Include attachment data in the response. Default is `false`, resulting in only stubs being returned.
+* `options.binary`: Return attachment data as Blobs/Buffers, instead of as base64-encoded strings. Default is `false`.
+
+
+
+#### Example Usage:
+
+{% include code/start.html id="bulkget1" type="callback" %}
+{% highlight js %}
+db.bulkGet({
+  docs: [
+    { id: "existing-doc", rev: "1-b2e54331db828310f3c772d6e042ac9c"},
+    { id: "foo", rev: "2-3a24009a9525bde9e4bfa8a99046b00d"},
+    { id: "bar", rev: "1-3a24009a9525bde9e4bfa8a99046b00d"}
+  ]
+}, function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+{% include code/start.html id="bulkget1" type="promise" %}
+{% highlight js %}
+db.bulkGet({
+    docs: [
+      { id: "doc-that-exists", rev: "1-967a00dff5e02add41819138abb3284d"},
+      { id: "doc-that-does-not-exist", rev: "1-3a24009a9525bde9e4bfa8a99046b00d"},
+      { id: "doc-that-exists", rev: "1-bad_rev"}
+    ]
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+{% highlight js %}
+{
+  "results": [
+  {
+    "docs": [
+    {
+      "ok": {
+        "_id": "doc-that-exists",
+        "_rev": "1-967a00dff5e02add41819138abb3284d",
+        "_revisions": {
+          "ids": [
+            "967a00dff5e02add41819138abb3284d"
+          ],
+          "start": 1
+        }
+      }
+    }],
+    "id": "doc-that-exists"
+  },
+  {
+    "docs": [
+    {
+      "error": {
+        "error": "not_found",
+        "id": "doc-that-does-not-exist",
+        "reason": "missing",
+        "rev": "undefined"
+      }
+    }],
+    "id": "doc-that-does-not-exist"
+  },
+  {
+    "docs": [
+    {
+      "error": {
+        "error": "not_found",
+        "id": "doc-that-exists",
+        "reason": "missing",
+        "rev": "1-badrev"
+      }
+    }
+    ],
+    "id": "doc-that-exists"
+  }]
+}
+{% endhighlight %}
+
+

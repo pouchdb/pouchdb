@@ -5,15 +5,13 @@ layout: default
 <article>
   <div class="container">
     <div class="row">
-        <div id="sidebar" class="col-sm-3">
-          <div data-spy="affix" data-offset-top="214" data-offset-bottom="450">
-            <ul class="nav nav-silent nav-sidebar">
-              {% include {{page.sidebar}} %}
-            </ul>
-          </div>
+        <div id="sidebar" class="col-sm-3 nav-sidebar-wrapper">
+          <ul class="nav nav-silent nav-sidebar" role="navigation">
+            {% include {{page.sidebar}} %}
+          </ul>
         </div>
 
-        <div class="col-sm-9">
+        <div class="col-sm-9" role="main">
           {{content}}
         <div>
 

@@ -17,6 +17,16 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isSyncGateway = function () {
+  return 'SERVER' in testUtils.params() &&
+    testUtils.params().SERVER === 'sync-gateway';
+};
+
+testUtils.isExpressRouter = function () {
+  return 'SERVER' in testUtils.params() &&
+    testUtils.params().SERVER === 'pouchdb-express-router';
+};
+
 testUtils.params = function () {
   if (typeof module !== 'undefined' && module.exports) {
     return process.env;
@@ -27,30 +37,79 @@ testUtils.params = function () {
       return acc;
     }
     var tmp = val.split('=');
-    acc[tmp[0]] = tmp[1] || true;
+    acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
     return acc;
   }, {});
 };
 
 testUtils.couchHost = function () {
-  if (typeof module !== 'undefined' && module.exports) {
-    return process.env.COUCH_HOST || 'http://localhost:5984';
-  } else if (window && window.COUCH_HOST) {
-    return window.COUCH_HOST;
-  } else if (window && window.cordova) {
+  if (typeof window !== 'undefined' && window.cordova) {
     // magic route to localhost on android emulator
-    return 'http://10.0.2.2:2020';
+    return 'http://10.0.2.2:5984';
   }
-  // In the browser we default to the CORS server, in future will change
-  return 'http://localhost:2020';
+
+  if (typeof window !== 'undefined' && window.COUCH_HOST) {
+    return window.COUCH_HOST;
+  }
+
+  if (typeof process !== 'undefined' && process.env.COUCH_HOST) {
+    return process.env.COUCH_HOST;
+  }
+
+  if ('couchHost' in testUtils.params()) {
+    return testUtils.params().couchHost;
+  }
+
+  return 'http://localhost:5984';
 };
+
+// Abstracts constructing a Blob object, so it also works in older
+// browsers that don't support the native Blob constructor (e.g.
+// old QtWebKit versions, Android < 4.4).
+// Copied over from createBlob.js in PouchDB because we don't
+// want to have to export this function in utils
+function createBlob(parts, properties) {
+  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
+  parts = parts || [];
+  properties = properties || {};
+  try {
+    return new Blob(parts, properties);
+  } catch (e) {
+    if (e.name !== "TypeError") {
+      throw e;
+    }
+    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
+                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
+                  WebKitBlobBuilder;
+    var builder = new Builder();
+    for (var i = 0; i < parts.length; i += 1) {
+      builder.append(parts[i]);
+    }
+    return builder.getBlob(properties.type);
+  }
+}
 
 testUtils.makeBlob = function (data, type) {
   if (typeof module !== 'undefined' && module.exports) {
     return new Buffer(data, 'binary');
   } else {
-    return PouchDB.utils.createBlob([data], { type: type });
+    return createBlob([data], {
+      type: (type || 'text/plain')
+    });
   }
+};
+
+testUtils.binaryStringToBlob = function (bin, type) {
+  return PouchDB.utils.binaryStringToBlobOrBuffer(bin, type);
+};
+
+testUtils.btoa = function (arg) {
+  return PouchDB.utils.btoa(arg);
+};
+
+testUtils.atob = function (arg) {
+  return PouchDB.utils.atob(arg);
 };
 
 testUtils.readBlob = function (blob, callback) {
@@ -74,6 +133,12 @@ testUtils.readBlob = function (blob, callback) {
   }
 };
 
+testUtils.readBlobPromise = function (blob) {
+  return new PouchDB.utils.Promise(function (resolve) {
+    testUtils.readBlob(blob, resolve);
+  });
+};
+
 testUtils.base64Blob = function (blob, callback) {
   if (typeof module !== 'undefined' && module.exports) {
     callback(blob.toString('base64'));
@@ -95,31 +160,16 @@ testUtils.adapterUrl = function (adapter, name) {
 
 // Delete specified databases
 testUtils.cleanup = function (dbs, done) {
-
   dbs = uniq(dbs);
-
-  var deleted = 0;
   var num = dbs.length;
-  var errors = [];
-
-  function dbDeleted(err, res) {
-    // 400 is for an unexpected return from CouchDB, filed
-    // https://issues.apache.org/jira/browse/COUCHDB-2205
-    if (err && (err.status !== 404 && err.status !== 400)) {
-      errors.push(err);
+  var finished = function() {
+    if (--num === 0) {
+      done();
     }
-    if (++deleted === num) {
-      if (errors.length > 0) {
-        // TODO: report all the errors
-        done(errors[0]);
-      } else {
-        done();
-      }
-    }
-  }
+  };
 
-  dbs.forEach(function (db) {
-    PouchDB.destroy(db, dbDeleted);
+  dbs.forEach(function(db) {
+    new PouchDB(db).destroy(finished, finished);
   });
 };
 
@@ -127,7 +177,7 @@ testUtils.cleanup = function (dbs, done) {
 // in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
 testUtils.putAfter = function (db, doc, prevRev, callback) {
-  var newDoc = PouchDB.extend({}, doc);
+  var newDoc = PouchDB.utils.extend({}, doc);
   if (!prevRev) {
     db.put(newDoc, { new_edits: false }, callback);
     return;
@@ -216,147 +266,45 @@ testUtils.eliminateDuplicates = function (arr) {
   return out;
 };
 
-// ---- CORS Specific Utils ---- //
-//enable CORS on server
-testUtils.enableCORS = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/httpd/enable_cors',
-    json: false,
-    method: 'PUT',
-    body: '"true"'
-  }, function (err, resBody, req) {
-    PouchDB.ajax({
-      url: host + '_config/cors/origins',
-      json: false,
-      method: 'PUT',
-      body: '"http://127.0.0.1:8000"'
-    }, function (err, resBody, req) {
-      callback(err, req);
-    });
-  });
-};
-//enable CORS Credentials on server
-testUtils.enableCORSCredentials = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/cors/credentials',
-    method: 'PUT',
-    body: '"true"',
-    json: false
-  }, function (err, resBody, req) {
-    callback(err, req);
-  });
-};
-//disable CORS
-testUtils.disableCORS = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/cors/origins',
-    json: false,
-    method: 'PUT',
-    body: '"*"'
-  }, function (err, resBody, req) {
-    PouchDB.ajax({
-      url: host + '_config/httpd/enable_cors',
-      json: false,
-      method: 'PUT',
-      body: '"false"'
-    }, function (err, resBody, req) {
-      callback(err, req);
-    });
-  });
-};
-//disable CORS Credentials
-testUtils.disableCORSCredentials = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_config/cors/credentials',
-    method: 'PUT',
-    body: '"false"',
-    json: false
-  }, function (err, resBody, req) {
-    callback(err, req);
-  });
-};
-//create admin user and member user
-testUtils.setupAdminAndMemberConfig = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    url: host + '_users/org.couchdb.user:TestUser',
-    method: 'PUT',
-    body: {
-      _id: 'org.couchdb.user:TestUser',
-      name: 'TestUser',
-      password: 'user',
-      roles: [],
-      type: 'user'
+// Promise finally util similar to Q.finally
+testUtils.fin = function (promise, cb) {
+  return promise.then(function (res) {
+    var promise2 = cb();
+    if (typeof promise2.then === 'function') {
+      return promise2.then(function () {
+        return res;
+      });
     }
-  }, function (err, resBody, req) {
-    PouchDB.ajax({
-      url: host + '_config/admins/TestAdmin',
-      json: false,
-      method: 'PUT',
-      body: '"admin"'
-    }, function (err, resBody, req) {
-      callback(err, req);
-    });
+    return res;
+  }, function (reason) {
+    var promise2 = cb();
+    if (typeof promise2.then === 'function') {
+      return promise2.then(function () {
+        throw reason;
+      });
+    }
+    throw reason;
   });
 };
-//delete admin and member user
-testUtils.tearDownAdminAndMemberConfig = function (dburl, callback) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  var headers = {};
-  var token = btoa('TestAdmin:admin');
-  headers.Authorization = 'Basic ' + token;
-  PouchDB.ajax({
-    url: host + '_config/admins/TestAdmin',
-    method: 'DELETE',
-    headers: headers,
-    json: false
-  }, function (err, resBody, req) {
-    PouchDB.ajax({
-      url: host + '_users/org.couchdb.user:TestUser',
-      method: 'GET',
-      body: '"admin"'
-    }, function (err, resBody, req) {
-      if (resBody) {
-        PouchDB.ajax({
-          url: host + '_users/org.couchdb.user:TestUser?rev=' + resBody._rev,
-          method: 'DELETE',
-          json: false
-        }, function (err, resBody, req) {
-          callback(err, req);
-        });
-      } else {
-        callback(err, req);
-      }
+
+testUtils.promisify = function (fun, context) {
+  return function() {
+    var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+      args[i] = arguments[i];
+    }
+    return new PouchDB.utils.Promise(function (resolve, reject) {
+      args.push(function (err, res) {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(res);
+      });
+      fun.apply(context, args);
     });
-  });
+  };
 };
-testUtils.deleteCookieAuth = function (dburl, callback_) {
-  var host = 'http://' + dburl.split('/')[2] + '/';
-  PouchDB.ajax({
-    method: 'DELETE',
-    url: host + '_session',
-    withCredentials: true,
-    json: false
-  }, callback_);
-};
-testUtils.cleanUpCors = function (dburl, callback_) {
-  if (testUtils.PERSIST_DATABASES) {
-    return;
-  }
-  if (typeof module !== 'undefined' && module.exports) {
-    testUtils.disableCORS(dburl, function () {
-      PouchDB.destroy(dburl, callback_);
-    });
-  } else {
-    testUtils.disableCORS(dburl.replace('5984', '2020'), function () {
-      PouchDB.destroy(dburl.replace('5984', '2020'), callback_);
-    });
-  }
-};
+
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
   global.PouchDB = require('../../lib');
@@ -380,10 +328,7 @@ if (typeof module !== 'undefined' && module.exports) {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
     testDir = testDir.slice(-1) === '/' ? testDir : testDir + '/';
     global.PouchDB.prefix = testDir + global.PouchDB.prefix;
-    require('../../lib/adapters/leveldb').use_prefix = true;
-    require('bluebird').onPossiblyUnhandledRejection(function (e, promise) {
-      throw e;
-    });
+    global.PouchDB.adapters.leveldb.use_prefix = true;
   }
   module.exports = testUtils;
 }

@@ -33,16 +33,14 @@ adapters.forEach(function (adapter) {
             should.exist(res.ok, 'Put second doc');
             db.put(doc2, function (err) {
               err.name.should.equal('conflict', 'Put got a conflicts');
-              db.changes({
-                complete: function (err, results) {
-                  results.results.should.have.length(1);
-                  doc2._rev = undefined;
-                  db.put(doc2, function (err) {
-                    err.name.should.equal('conflict', 'Another conflict');
-                    done();
-                  });
-                }
-              });
+              db.changes().on('complete', function (results) {
+                results.results.should.have.length(1);
+                doc2._rev = undefined;
+                db.put(doc2, function (err) {
+                  err.name.should.equal('conflict', 'Another conflict');
+                  done();
+                });
+              }).on('error', done);
             });
           });
         });
@@ -68,6 +66,12 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2882/#2883 last_seq for empty db', function () {
+      // CouchDB 2.0 sequence numbers are not
+      // incremental so skip this test
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var db = new PouchDB(dbs.name);
       return db.changes().then(function (changes) {
         changes.last_seq.should.equal(0);
@@ -78,8 +82,13 @@ adapters.forEach(function (adapter) {
       });
     });
 
-
     it('#2882/#2883 last_seq when putting parent before leaf', function () {
+      // CouchDB 2.0 sequence numbers are not
+      // incremental so skip this test
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var db = new PouchDB(dbs.name);
       var lastSeq;
       return db.bulkDocs({
@@ -112,7 +121,7 @@ adapters.forEach(function (adapter) {
     // winning revision. If they are the same, the _rev values are
     // compared in ASCII sort order, and the highest wins. So, in our
     // example, 2-de0ea16f8621cbac506d23a0fbbde08a beats
-    // 2-7c971bb974251ae8541b8fe045964219. 
+    // 2-7c971bb974251ae8541b8fe045964219.
 
     it('Conflict resolution 1', function () {
       var docs = [
@@ -162,7 +171,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-
     it('Conflict resolution 2', function () {
       var docs = [
         {
@@ -192,7 +200,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-
     it('Conflict resolution 3', function () {
       var docs = [
         {
@@ -221,7 +228,6 @@ adapters.forEach(function (adapter) {
         info.doc_count.should.equal(1, 'Correct number of docs');
       });
     });
-
 
     it('Conflict resolution 4-a', function () {
       var docs = [
