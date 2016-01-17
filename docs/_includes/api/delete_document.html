@@ -13,6 +13,8 @@ db.remove(docId, docRev, [options], [callback])
 
 Deletes the document. `doc` is required to be a document with at least an `_id` and a `_rev` property. Sending the full document will work as well.
 
+See [filtered replication](http://pouchdb.com/api.html#filtered-replication) for why you might want to use `put()` with `{_deleted: true}` instead.
+
 #### Example Usage:
 
 {% include code/start.html id="delete_doc" type="callback" %}
