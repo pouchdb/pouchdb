@@ -37,7 +37,7 @@
     "scope-eval": "0.0.3",
     "spark-md5": "2.0.0",
     "through2": "2.0.0",
-    "vuvuzela": "1.0.1"
+    "vuvuzela": "1.0.2"
   },
   "jspm": {
     "main": "dist/pouchdb.js"
