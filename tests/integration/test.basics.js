@@ -1045,6 +1045,7 @@ adapters.forEach(function (adapter) {
 
     it('#4788 db.type() is synchronous', function () {
       new PouchDB(dbs.name).type.should.be.a('function');
+      new PouchDB(dbs.name).type.should.be.a('function');
     });
 
     it('replace PouchDB.destroy() (express-pouchdb#203)', function (done) {
