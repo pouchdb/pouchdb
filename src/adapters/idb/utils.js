@@ -10,13 +10,14 @@ import readAsBinaryString from '../../deps/binary/readAsBinaryString';
 import b64StringToBlob from '../../deps/binary/base64StringToBlobOrBuffer';
 import createBlob from '../../deps/binary/blob';
 
-function tryCode(fun, that, args) {
+function tryCode(fun, that, args, PouchDB) {
   try {
     fun.apply(that, args);
-  } catch (err) { // shouldn't happen
-    if (typeof PouchDB !== 'undefined') {
-      PouchDB.emit('error', err);
-    }
+  } catch (err) {
+    // Shouldn't happen, but in some odd cases
+    // IndexedDB implementations might throw a sync
+    // error, in which case this will at least log it.
+    PouchDB.emit('error', err);
   }
 }
 
@@ -25,16 +26,18 @@ var taskQueue = {
   queue: []
 };
 
-function applyNext() {
+function applyNext(PouchDB) {
   if (taskQueue.running || !taskQueue.queue.length) {
     return;
   }
   taskQueue.running = true;
   var item = taskQueue.queue.shift();
   item.action(function (err, res) {
-    tryCode(item.callback, this, [err, res]);
+    tryCode(item.callback, this, [err, res], PouchDB);
     taskQueue.running = false;
-    process.nextTick(applyNext);
+    process.nextTick(function () {
+      applyNext(PouchDB);
+    });
   });
 }
 
