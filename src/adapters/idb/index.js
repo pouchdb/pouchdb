@@ -57,7 +57,7 @@ function IdbPouch(opts, callback) {
     },
     callback: callback
   });
-  applyNext();
+  applyNext(api.constructor);
 }
 
 function init(api, opts, callback) {
