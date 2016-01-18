@@ -1043,6 +1043,10 @@ adapters.forEach(function (adapter) {
       db.type().should.be.a('string');
     });
 
+    it('#4788 db.type() is synchronous', function () {
+      new PouchDB(dbs.name).type.should.be.a('function');
+    });
+
     it('replace PouchDB.destroy() (express-pouchdb#203)', function (done) {
       var old = PouchDB.destroy;
       PouchDB.destroy = function (name, callback) {
