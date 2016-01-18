@@ -755,6 +755,11 @@ AbstractPouchDB.prototype.id = adapterFun('id', function (callback) {
   return this._id(callback);
 });
 
+AbstractPouchDB.prototype.type = function () {
+  /* istanbul ignore next */
+  return (typeof this._type === 'function') ? this._type() : this.adapter;
+};
+
 AbstractPouchDB.prototype.bulkDocs =
   adapterFun('bulkDocs', function (req, opts, callback) {
   if (typeof opts === 'function') {
