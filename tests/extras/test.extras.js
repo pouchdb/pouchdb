@@ -33,9 +33,9 @@ describe('test.extras.js', function () {
   });
 
   it('plugin extras should exist', function () {
-    require.resolve('../../extras/memory').should.be.a('string');
-    require.resolve('../../extras/localstorage').should.be.a('string');
-    require.resolve('../../extras/fruitdown').should.be.a('string');
+    require('../../extras/memory').should.be.a('object');
+    require('../../extras/localstorage').should.be.a('object');
+    require('../../extras/fruitdown').should.be.a('object');
   });
 
 });
