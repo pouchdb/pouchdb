@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('../lib/plugins/localstorage');
+module.exports = require('../lib/extras/localstorage');

@@ -112,6 +112,7 @@ env:
   - CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
+  - COMMAND=test-extras
   - COMMAND=test-unit
   - COMMAND=test-component
   - COMMAND=test-fuzzy
