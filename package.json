@@ -123,6 +123,8 @@
     "leveldown": false
   },
   "files": [
+    "bin",
+    "src",
     "lib",
     "extras",
     "dist",
