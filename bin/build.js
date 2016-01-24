@@ -30,10 +30,11 @@ var external = Object.keys(pkg.dependencies).concat([
 
 var plugins = ['fruitdown', 'localstorage', 'memory'];
 var extras = {
-  'deps/promise.js': 'promise.js',
-  'replicate/checkpointer.js': 'checkpointer.js',
-  'deps/ajax/prequest.js': 'ajax.js',
-  'replicate/generateReplicationId.js': 'generateReplicationId.js'
+  'src/deps/promise.js': 'promise.js',
+  'src/replicate/checkpointer.js': 'checkpointer.js',
+  'src/replicate/generateReplicationId.js': 'generateReplicationId.js',
+  'src/deps/ajax/prequest.js': 'ajax.js',
+  'src_browser/deps/ajax/prequest.js': 'ajax-browser.js'
 };
 
 var currentYear = new Date().getFullYear();
@@ -195,7 +196,7 @@ function buildExtras() {
   return mkdirp('lib/extras').then(function() {
     return Promise.all(Object.keys(extras).map(function (entry) {
       var target = extras[entry];
-      return doRollup('src_browser/' + entry, 'lib/extras/' + target);
+      return doRollup(entry, 'lib/extras/' + target);
     }));
   });
 }

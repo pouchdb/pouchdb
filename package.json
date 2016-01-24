@@ -116,6 +116,7 @@
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
+    "./lib/extras/ajax.js": "./lib/extras/ajax-browser.js",
     "crypto": false,
     "fs": false,
     "leveldown": false
