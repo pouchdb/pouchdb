@@ -12,10 +12,6 @@ git:
 sudo:
   false
 
-cache:
-  directories:
-    - /tmp/phantomjs
-
 addons:
   firefox: "41.0.1"
 
@@ -63,19 +59,16 @@ env:
   # Test against pouchdb-express-router
   - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
 
-  # Test in firefox/phantomjs running on travis
+  # Test in firefox running on travis
   - CLIENT=selenium:firefox:41.0.1 COMMAND=test
-  - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
-  # Test auto-compaction in Node, Phantom, and Firefox
+  # Test auto-compaction in Node, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox:41.0.1 COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox:41.0.1 COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
@@ -133,9 +126,6 @@ matrix:
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
   - env: COMMAND=report-coverage
-  - env: CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
-  - env: AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
-  - env: TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
 
   fast_finish: true
