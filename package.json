@@ -43,7 +43,7 @@
     "main": "dist/pouchdb.js"
   },
   "optionalDependencies": {
-    "leveldown": "1.4.3"
+    "leveldown": "1.4.4"
   },
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.4",
