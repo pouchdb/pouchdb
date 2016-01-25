@@ -21,7 +21,7 @@
     "argsarray": "0.0.1",
     "debug": "2.2.0",
     "double-ended-queue": "2.0.0-0",
-    "es3ify": "0.1.4",
+    "es3ify": "0.2.0",
     "fruitdown": "1.0.1",
     "inherits": "2.0.1",
     "js-extend": "1.0.1",
