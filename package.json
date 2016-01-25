@@ -58,7 +58,7 @@
     "cordova": "5.4.1",
     "denodeify": "1.2.1",
     "derequire": "2.0.3",
-    "es5-shim": "4.4.1",
+    "es5-shim": "4.5.0",
     "express": "4.13.3",
     "express-pouchdb": "1.0.1",
     "findit": "2.0.0",
