@@ -1188,7 +1188,11 @@ function LevelPouch(opts, callback) {
       if (err) {
         return callback(err);
       }
-      var seqs = metadata.rev_map; // map from rev to seq
+      var seqs = revs.map(function(rev) {
+        var seq = metadata.rev_map[rev];
+        delete metadata.rev_map[rev];
+        return seq;
+      });
       traverseRevTree(metadata.rev_tree, function (isLeaf, pos,
                                                          revHash, ctx, opts) {
         var rev = pos + '-' + revHash;
@@ -1196,6 +1200,7 @@ function LevelPouch(opts, callback) {
           opts.status = 'missing';
         }
       });
+
       var batch = [];
       batch.push({
         key: metadata.id,
@@ -1294,8 +1299,7 @@ function LevelPouch(opts, callback) {
         });
       }
 
-      revs.forEach(function (rev) {
-        var seq = seqs[rev];
+      seqs.forEach(function (seq) {
         batch.push({
           key: formatSeq(seq),
           type: 'del',
