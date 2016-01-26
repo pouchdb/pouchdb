@@ -52,6 +52,10 @@ if [[ ! -z $SERVER ]]; then
   fi
 fi
 
+if [ "$CLIENT" == "selenium:phantomjs" ]; then
+  npm install phantomjs@2.1.2 # do this on-demand to avoid slow installs
+fi
+
 printf 'Waiting for host to start .'
 WAITING=0
 until $(curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST); do

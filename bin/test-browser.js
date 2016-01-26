@@ -61,9 +61,6 @@ if (process.env.GREP) {
 if (process.env.ADAPTERS) {
   qs.adapters = process.env.ADAPTERS;
 }
-if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
-  qs.es5shim = true;
-}
 if (process.env.AUTO_COMPACTION) {
   qs.autoCompaction = true;
 }

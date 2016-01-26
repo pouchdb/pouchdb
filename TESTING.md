@@ -57,15 +57,6 @@ or
 
     $ COUCH_HOST=http://user:pass@myname.host.com npm test
 
-#### Test with ES5 Shims + PhantomJS
-
-Some older browsers require [es5 shims](https://github.com/es-shims/es5-shim) to be installed and you will need to install phantomjs to test it:
-
-    $ npm install phantomjs es5-shim
-    $ ES5_SHIM=true CLIENT=selenium:phantomjs npm test
-
-or you can append it as `?es5shim=true` if you manually opened a browser window.
-
 #### Other test options
 
 * `SKIP_MIGRATION=1` should be used to skip the migration tests.

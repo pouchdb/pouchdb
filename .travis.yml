@@ -59,16 +59,19 @@ env:
   # Test against pouchdb-express-router
   - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
 
-  # Test in firefox running on travis
+  # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - CLIENT=selenium:phantomjs COMMAND=test
 
-  # Test auto-compaction in Node, and Firefox
+  # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
