@@ -96,6 +96,7 @@ function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
         // Ensure stemming applies to new writes as well
         var merged = merge([], currentDoc.metadata.rev_tree[0], revLimit);
         currentDoc.metadata.rev_tree = merged.tree;
+        currentDoc.stemmedRevs = merged.stemmedRevs || [];
         insertDoc(currentDoc, resultsIdx, docWritten);
       }
     }

@@ -42,6 +42,7 @@ function updateDoc(revLimit, prev, docInfo, results,
 
   var newRev = docInfo.metadata.rev;
   docInfo.metadata.rev_tree = merged.tree;
+  docInfo.stemmedRevs = merged.stemmedRevs || [];
   /* istanbul ignore else */
   if (prev.rev_map) {
     docInfo.metadata.rev_map = prev.rev_map; // used only by leveldb
