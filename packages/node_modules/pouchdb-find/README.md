@@ -28,6 +28,8 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$n
 
 **0.8.0**: Bug fixes for $and, $type, $exists
 
+**0.9.0**: Bug fixes for `$elemMatch`. Rewrite of in-memory operator
+
 Usage
 ------
 
