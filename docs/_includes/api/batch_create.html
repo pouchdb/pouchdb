@@ -92,6 +92,8 @@ will be provided individually like so:
 ]
 {% endhighlight %}
 
+The results are returned in the same order as the supplied "docs" array.
+
 Note that `bulkDocs()` is not transactional, and that you may get
 back a mixed array of errors/non-errors. In CouchDB/PouchDB, the smallest
 atomic unit is the document.
