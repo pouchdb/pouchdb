@@ -33,7 +33,7 @@
     "memdown": "1.1.2",
     "pouchdb-collate": "1.2.0",
     "pouchdb-collections": "1.0.1",
-    "request": "2.67.0",
+    "request": "2.69.0",
     "scope-eval": "0.0.3",
     "spark-md5": "2.0.0",
     "through2": "2.0.0",
