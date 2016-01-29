@@ -220,17 +220,14 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
       finish();
     }
 
-    function autoCompact() {
-      if (!isUpdate || !api.auto_compaction) {
-        return; // nothing to do
-      }
-      var id = docInfo.metadata.id;
-      var revsToDelete = compactTree(docInfo.metadata);
-      compactRevs(revsToDelete, id, tx);
-    }
-
     function dataWritten(tx, seq) {
-      autoCompact();
+      var id = docInfo.metadata.id;
+      if (!isUpdate || !api.auto_compaction) {
+        compactRevs(compactTree(docInfo.metadata), id, tx);
+      } else if (docInfo.stemmedRevs.length) {
+        compactRevs(docInfo.stemmedRevs, id, tx);
+      }
+
       docInfo.metadata.seq = seq;
       delete docInfo.metadata.rev;
 
@@ -242,7 +239,6 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
         : 'INSERT INTO ' + DOC_STORE +
       ' (id, winningseq, max_seq, json) VALUES (?,?,?,?);';
       var metadataStr = safeJsonStringify(docInfo.metadata);
-      var id = docInfo.metadata.id;
       var params = isUpdate ?
         [metadataStr, seq, winningRev, id] :
         [id, seq, seq, metadataStr];

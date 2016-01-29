@@ -1,5 +1,5 @@
 // for a better overview of what this is doing, read:
-// https://github.com/apache/couchdb/blob/master/src/couchdb/couch_key_tree.erl
+// https://github.com/apache/couchdb-couch/blob/master/src/couch_key_tree.erl
 //
 // But for a quick intro, CouchDB uses a revision tree to store a documents
 // history, A -> B -> C, when a document has conflicts, that is a branch in the
@@ -10,6 +10,7 @@
 // Tree = [Key, Opts, [Tree, ...]], in particular single node: [Key, []]
 
 import rootToLeaf from './rootToLeaf';
+import traverseRevTree from './traverseRevTree';
 
 function sortByPos(a, b) {
   return a.pos - b.pos;
@@ -185,6 +186,8 @@ function doMerge(tree, path, dontExpand) {
 function stem(tree, depth) {
   // First we break out the tree into a complete list of root to leaf paths
   var paths = rootToLeaf(tree);
+  var maybeStem = {};
+
   var result;
   for (var i = 0, len = paths.length; i < len; i++) {
     // Then for each path, we cut off the start of the path based on the
@@ -196,6 +199,12 @@ function stem(tree, depth) {
       pos: path.pos + numStemmed,
       ids: pathToTree(stemmed, numStemmed)
     };
+
+    for (var s = 0; s < numStemmed; s++) {
+        var rev = (path.pos + s) + '-' + stemmed[s].id;
+        maybeStem[rev] = true;
+    }
+
     // Then we remerge all those flat trees together, ensuring that we dont
     // connect trees that would go beyond the depth limit
     if (result) {
@@ -204,13 +213,24 @@ function stem(tree, depth) {
       result = [stemmedNode];
     }
   }
-  return result;
+
+  traverseRevTree(result, function (isLeaf, pos, revHash) {
+      // some revisions may have been removed in a branch but not in another
+      delete maybeStem[pos + '-' + revHash];
+  });
+
+  return {
+      tree: result,
+      revs: Object.keys(maybeStem),
+  };
 }
 
 function merge(tree, path, depth) {
   var newTree = doMerge(tree, path);
+  var stemmed = stem(newTree.tree, depth);
   return {
-    tree: stem(newTree.tree, depth),
+    tree: stemmed.tree,
+    stemmedRevs: stemmed.revs,
     conflicts: newTree.conflicts
   };
 }

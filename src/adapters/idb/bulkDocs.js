@@ -235,7 +235,10 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, Changes, callback) {
     function afterPutDoc(e) {
       if (isUpdate && api.auto_compaction) {
         autoCompact(docInfo);
+      } else if (docInfo.stemmedRevs.length) {
+        compactRevs(docInfo.stemmedRevs, docInfo.metadata.id, txn);
       }
+
       metadata.seq = e.target.result;
       // Current _rev is calculated from _rev_tree on read
       delete metadata.rev;

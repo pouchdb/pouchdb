@@ -445,6 +445,8 @@ function LevelPouch(opts, callback) {
     var newEdits = opts.new_edits;
     var results = new Array(req.docs.length);
     var fetchedDocs = new collections.Map();
+    var stemmedRevs = new collections.Map();
+
     var txn = new LevelTransaction();
     var docCountDelta = 0;
     var newUpdateSeq = db._updateSeq;
@@ -545,16 +547,13 @@ function LevelPouch(opts, callback) {
       });
     }
 
-    function autoCompact(callback) {
-
+    function compact(revsMap, callback) {
       var promise = Promise.resolve();
-
-      fetchedDocs.forEach(function (metadata, docId) {
+      revsMap.forEach(function (revs, docId) {
         // TODO: parallelize, for now need to be sequential to
         // pass orphaned attachment tests
         promise = promise.then(function () {
           return new Promise(function (resolve, reject) {
-            var revs = compactTree(metadata);
             api._doCompactionNoLock(docId, revs, {ctx: txn}, function (err) {
               /* istanbul ignore if */
               if (err) {
@@ -571,11 +570,20 @@ function LevelPouch(opts, callback) {
       }, callback);
     }
 
+    function autoCompact(callback) {
+      var revsMap = new collections.Map();
+      fetchedDocs.forEach(function (metadata, docId) {
+        revsMap.set(docId, compactTree(metadata));
+      });
+      compact(revsMap, callback);
+    }
+
     function finish() {
       if (api.auto_compaction) {
         return autoCompact(complete);
+      } else {
+          compact(stemmedRevs, complete);
       }
-      return complete();
     }
 
     function writeDoc(docInfo, winningRev, winningRevIsDeleted, newRevIsDeleted,
@@ -593,6 +601,10 @@ function LevelPouch(opts, callback) {
 
       if (newRevIsDeleted) {
         docInfo.data._deleted = true;
+      }
+
+      if (docInfo.stemmedRevs.length) {
+          stemmedRevs.set(docInfo.metadata.id, docInfo.stemmedRevs);
       }
 
       var attachments = docInfo.data._attachments ?
@@ -660,7 +672,7 @@ function LevelPouch(opts, callback) {
         if (seq) {
           // check that there aren't any existing revisions with the same
           // revision id, else we shouldn't do anything
-          return callback2();
+          return callback2(null, docInfo.revsStemmed);
         }
         seq = ++newUpdateSeq;
         docInfo.metadata.rev_map[docInfo.metadata.rev] =
@@ -684,7 +696,7 @@ function LevelPouch(opts, callback) {
           rev: winningRev
         };
         fetchedDocs.set(docInfo.metadata.id, docInfo.metadata);
-        callback2();
+        callback2(null, docInfo.revsStemmed);
       }
 
       if (!attachments.length) {
