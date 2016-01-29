@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "5.2.2-prerelease",
+  "version": "5.2.1",
   "description": "PouchDB is a pocket-sized database.",
   "main": "./lib/index.js",
   "homepage": "http://pouchdb.com/",
