@@ -65,7 +65,7 @@
     "istanbul": "0.4.2",
     "istanbul-coveralls": "1.0.3",
     "jshint": "2.8.0",
-    "less": "2.5.3",
+    "less": "2.6.0",
     "mkdirp": "0.5.1",
     "mocha": "2.4.5",
     "mockery": "1.4.0",
