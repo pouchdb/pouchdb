@@ -117,6 +117,8 @@
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
     "./lib/extras/ajax.js": "./lib/extras/ajax-browser.js",
+    "./lib/extras/checkpointer.js": "./lib/extras/checkpointer-browser.js",
+    "./lib/extras/generateReplicationId.js": "./lib/extras/generateReplicationId-browser.js",
     "crypto": false,
     "fs": false,
     "leveldown": false
