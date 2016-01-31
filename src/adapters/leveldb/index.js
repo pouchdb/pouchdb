@@ -1,5 +1,5 @@
 import levelup from 'levelup';
-import sublevel from 'level-sublevel/legacy';
+import sublevel from 'sublevel-pouchdb';
 import { obj as through } from 'through2';
 
 import clone from '../../deps/clone';
