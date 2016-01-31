@@ -25,7 +25,7 @@ var spawn = require('child_process').spawn;
 var pkg = require('../package.json');
 var version = pkg.version;
 var external = Object.keys(pkg.dependencies).concat([
- 'fs', 'crypto', 'events', 'path', 'pouchdb', 'level-sublevel/legacy'
+ 'fs', 'crypto', 'events', 'path', 'pouchdb'
 ]);
 
 var plugins = ['fruitdown', 'localstorage', 'memory'];
