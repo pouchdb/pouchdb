@@ -744,6 +744,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
+
     it('4791 Single filter, live/retry', function () {
 
       var db = new PouchDB(dbs.name);
@@ -756,17 +757,20 @@ adapters.forEach(function (adapters) {
         return db.bulkDocs(localDocs);
       }).then(function() {
         return new PouchDB.utils.Promise(function (resolve, reject) {
-          var sync = db.sync(remote, {
-            filter: function (doc) {
-              return doc._id !== '0' && doc._id !== 'a';
-            },
-            live: true,
-            retry: true
-          }).on('error', reject).on('paused', function (err) {
-            if (!err) {
+          var filter = function (doc) {
+            return doc._id !== '0' && doc._id !== 'a';
+          };
+          var changes = 0;
+          var onChange = function(c) {
+            changes += c.change.docs.length;
+            if (changes === 2) {
               sync.cancel();
             }
-          }).on('complete', resolve);
+          };
+          var sync = db.sync(remote, {filter: filter, live: true, retry: true})
+            .on('error', reject)
+            .on('change', onChange)
+            .on('complete', resolve);
         });
       }).then(function() {
         return db.allDocs();
