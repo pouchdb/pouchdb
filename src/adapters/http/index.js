@@ -316,27 +316,40 @@ function HttpPouch(opts, callback) {
 
     if (typeof supportsBulkGet !== 'boolean') {
       // check if this database supports _bulk_get
-      doBulkGet(function (err, res) {
-        /* istanbul ignore else */
-        if (err) {
-          var status = Math.floor(err.status / 100);
-          /* istanbul ignore else */
-          if (status === 4 || status === 5) { // 40x or 50x
-            supportsBulkGetMap[dbUrl] = false;
-            explainError(
-              err.status,
-              'PouchDB is just detecting if the remote ' +
-              'supports the _bulk_get API.'
-            );
-            doBulkGetShim();
-          } else {
-            callback(err);
-          }
-        } else {
-          supportsBulkGetMap[dbUrl] = true;
-          callback(null, res);
+      self.info().then(function (info) {
+
+        // hacky check to avoid _bulk_get check against Cloudant
+        // which causes a modal auth dialogue to be shown
+        // (whilst Cloudant doesn't support _bulk_get)
+        var isCloudant = info.instance_start_time === "0";
+        if (isCloudant) {
+          supportsBulkGetMap[dbUrl] = false;
+          doBulkGetShim();
+          return;
         }
-      });
+
+        doBulkGet(function (err, res) {
+          /* istanbul ignore else */
+          if (err) {
+            var status = Math.floor(err.status / 100);
+            /* istanbul ignore else */
+            if (status === 4 || status === 5) { // 40x or 50x
+              supportsBulkGetMap[dbUrl] = false;
+              explainError(
+                err.status,
+                'PouchDB is just detecting if the remote ' +
+                'supports the _bulk_get API.'
+              );
+              doBulkGetShim();
+            } else {
+              callback(err);
+            }
+          } else {
+            supportsBulkGetMap[dbUrl] = true;
+            callback(null, res);
+          }
+        });
+      }).catch(callback);
     } else if (supportsBulkGet) {
       /* istanbul ignore next */
       doBulkGet(callback);
