@@ -222,7 +222,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
 
     function dataWritten(tx, seq) {
       var id = docInfo.metadata.id;
-      if (!isUpdate || !api.auto_compaction) {
+      if (isUpdate && api.auto_compaction) {
         compactRevs(compactTree(docInfo.metadata), id, tx);
       } else if (docInfo.stemmedRevs.length) {
         compactRevs(docInfo.stemmedRevs, id, tx);

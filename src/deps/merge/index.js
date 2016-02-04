@@ -201,8 +201,8 @@ function stem(tree, depth) {
     };
 
     for (var s = 0; s < numStemmed; s++) {
-        var rev = (path.pos + s) + '-' + stemmed[s].id;
-        maybeStem[rev] = true;
+      var rev = (path.pos + s) + '-' + stemmed[s].id;
+      maybeStem[rev] = true;
     }
 
     // Then we remerge all those flat trees together, ensuring that we dont
@@ -215,13 +215,13 @@ function stem(tree, depth) {
   }
 
   traverseRevTree(result, function (isLeaf, pos, revHash) {
-      // some revisions may have been removed in a branch but not in another
-      delete maybeStem[pos + '-' + revHash];
+    // some revisions may have been removed in a branch but not in another
+    delete maybeStem[pos + '-' + revHash];
   });
 
   return {
-      tree: result,
-      revs: Object.keys(maybeStem),
+    tree: result,
+    revs: Object.keys(maybeStem),
   };
 }
 

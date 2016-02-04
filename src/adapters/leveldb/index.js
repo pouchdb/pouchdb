@@ -582,7 +582,7 @@ function LevelPouch(opts, callback) {
       if (api.auto_compaction) {
         return autoCompact(complete);
       } else {
-          compact(stemmedRevs, complete);
+        compact(stemmedRevs, complete);
       }
     }
 
@@ -604,7 +604,7 @@ function LevelPouch(opts, callback) {
       }
 
       if (docInfo.stemmedRevs.length) {
-          stemmedRevs.set(docInfo.metadata.id, docInfo.stemmedRevs);
+        stemmedRevs.set(docInfo.metadata.id, docInfo.stemmedRevs);
       }
 
       var attachments = docInfo.data._attachments ?
@@ -953,7 +953,7 @@ function LevelPouch(opts, callback) {
         }
       }, function (next) {
         Promise.resolve().then(function () {
-          if (opts.include_docs && opts.attachments){
+          if (opts.include_docs && opts.attachments) {
             return fetchAttachments(results, stores, opts);
           }
         }).then(function () {
@@ -1200,7 +1200,7 @@ function LevelPouch(opts, callback) {
       if (err) {
         return callback(err);
       }
-      var seqs = revs.map(function(rev) {
+      var seqs = revs.map(function (rev) {
         var seq = metadata.rev_map[rev];
         delete metadata.rev_map[rev];
         return seq;
