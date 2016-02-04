@@ -1005,6 +1005,11 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name, {revs_limit: 2});
 
+      // old revisions are always deleted with auto compaction
+      if (db.auto_compaction) {
+        return done();
+      }
+
       var revs = [];
       db.put({v: 1}, 'doc').then(function (v1) {
         revs.push(v1.rev);
@@ -1016,6 +1021,8 @@ adapters.forEach(function (adapter) {
         // the v2 revision is still in the db
         return db.get('doc', {rev: revs[1]});
       }).then(function (v2) {
+        v2.v.should.equal(2);
+
         return db.get('doc', {rev: revs[0]}).then(function (v1) {
           // the v1 revision is not in the db anymore
           done(new Error('v1 should be missing'));
