@@ -600,38 +600,45 @@ function reduceView(view, results, options) {
   }
 
   var groups = [];
-  var lvl = options.group_level;
+  var lvl = isNaN(options.group_level) ? Number.POSITIVE_INFINITY :
+    options.group_level;
   results.forEach(function (e) {
     var last = groups[groups.length - 1];
-    var key = shouldGroup ? e.key : null;
+    var groupKey = shouldGroup ? e.key : null;
 
     // only set group_level for array keys
-    if (shouldGroup && Array.isArray(key) && typeof lvl === 'number') {
-      key = key.length > lvl ? key.slice(0, lvl) : key;
+    if (shouldGroup && Array.isArray(groupKey)) {
+      groupKey = groupKey.slice(0, lvl);
     }
 
-    if (last && collate(last.key[0][0], key) === 0) {
-      last.key.push([key, e.id]);
-      last.value.push(e.value);
+    if (last && collate(last.groupKey, groupKey) === 0) {
+      last.keys.push([e.key, e.id]);
+      last.values.push(e.value);
       return;
     }
-    groups.push({key: [
-      [key, e.id]
-    ], value: [e.value]});
+    groups.push({
+      keys: [[e.key, e.id]],
+      values: [e.value],
+      groupKey: groupKey
+    });
   });
+  results = [];
   for (var i = 0, len = groups.length; i < len; i++) {
     var e = groups[i];
-    var reduceTry = tryCode(view.sourceDB, reduceFun, [e.key, e.value, false]);
+    var reduceTry = tryCode(view.sourceDB, reduceFun,
+      [e.keys, e.values, false]);
     if (reduceTry.error && reduceTry.error instanceof BuiltInError) {
       // CouchDB returns an error if a built-in errors out
       throw reduceTry.error;
     }
-    // CouchDB just sets the value to null if a non-built-in errors out
-    e.value = reduceTry.error ? null : reduceTry.output;
-    e.key = e.key[0][0];
+    results.push({
+      // CouchDB just sets the value to null if a non-built-in errors out
+      value: reduceTry.error ? null : reduceTry.output,
+      key: e.groupKey
+    });
   }
   // no total_rows/offset when reducing
-  return {rows: sliceResults(groups, options.limit, options.skip)};
+  return {rows: sliceResults(results, options.limit, options.skip)};
 }
 
 function queryView(view, opts) {
