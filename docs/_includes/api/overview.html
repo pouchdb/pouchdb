@@ -1,6 +1,7 @@
 {% include anchor.html edit="true" title="API overview" hash="overview" %}
 
-PouchDB has an asynchronous API, supporting both [callbacks](http://docs.nodejitsu.com/articles/getting-started/control-flow/what-are-callbacks) and [promises][promise].
+PouchDB has an asynchronous API, supporting [callbacks](http://docs.nodejitsu.com/articles/getting-started/control-flow/what-are-callbacks), [promises][promise], and
+[async functions](https://jakearchibald.com/2014/es7-async-functions/). For beginners, we recommend promises, although you are free to use whatever format you prefer. If you are unsure, check out our [guide to asynchronous code](/guides/async-code.html).
 
 Most of the API is exposed as:
 
@@ -10,6 +11,8 @@ db.doSomething(args..., [options], [callback])
 
 &hellip; where both the `options` and `callback` are optional.
 
+### Callbacks
+
 Callbacks use the standard Node.js idiom of:
 
 {% highlight js %}
@@ -17,6 +20,8 @@ function(error, result) { /* ... */ }
 {% endhighlight %}
 
 &hellip; where the `error` will be undefined if there's no error.
+
+### Promises
 
 If you don't specify a `callback`, then the API returns a [promise][]. In [supported browsers](http://caniuse.com/#feat=promises) or Node.js, native promises are used, falling back to the minimal library [lie][] as needed.
 
@@ -28,7 +33,34 @@ If you don't specify a `callback`, then the API returns a [promise][]. In [suppo
 {% endmarkdown %}
 {% include alert/end.html%}
 
-For more info, check out the [guide to asynchronous code](/guides/async-code.html).
+To use a custom promise implementation with PouchDB, you must redefine a global `Promise` object before loading PouchDB:
+
+{% highlight html %}
+<script>window.Promise = MyCustomPromiseLibrary;</script>
+<script src="path/to/pouchdb.js"></script>
+{% endhighlight %}
+
+### Async functions
+
+If you are using a transpiler like [Babel](http://babeljs.io/), you can enable [async functions](https://github.com/tc39/ecmascript-asyncawait), which are an experimental API tentatively slated for release in ES7 (ES2016). This allows you to use the `async`/`await` keywords when consuming promise-based APIs like PouchDB's.
+
+{% include alert/start.html variant="info"%}
+{% markdown %}
+
+**How to configure Babel?** To use async functions, you will need the [syntax-async-functions plugin](http://babeljs.io/docs/plugins/syntax-async-functions/), as well as the [transform-regenerator plugin](https://babeljs.io/docs/plugins/transform-regenerator/) or [Kneden](https://github.com/marten-de-vries/kneden) (which is experimental as of this writing). For a full working example, see [async-functions-with-regenerator](https://github.com/nolanlawson/async-functions-with-regenerator).
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
+Note that the samples for `async`/`await` in the API documentation assume that your code is inside an async function. So for instance:
+
+{% highlight js %}
+async function myFunction() {
+  // your code goes in here
+}
+{% endhighlight %}
+
+Any `await` not inside of an async function is a syntax error. For more information about `async`/`await`, read [our introductory blog post](http://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html).
 
 [promise]: https://www.promisejs.org/
 [lie]: https://github.com/calvinmetcalf/lie

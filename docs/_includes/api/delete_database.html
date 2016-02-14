@@ -24,7 +24,19 @@ db.destroy(function (err, response) {
 {% endhighlight %}
 {% include code/end.html %}
 
+{% include code/start.html id="destroy_db" type="async" %}
+
+{% highlight js %}
+try {
+  await db.destroy();
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="destroy_db" type="promise" %}
+
 {% highlight js %}
 db.destroy().then(function (response) {
   // success

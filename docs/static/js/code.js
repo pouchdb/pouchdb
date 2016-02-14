@@ -33,6 +33,9 @@ function codeWrap(){
   function wrap(){
     var codeTpl = '' +
       '<ul class="nav nav-tabs nav-code" data-code-tablist="{{codeId}}">' +
+        '<li>' +
+            '<a href="#async">Async functions</a>' +
+        '</li>' +
         '<li class="active">' +
             '<a href="#promise">Promises</a>' +
         '</li>' +

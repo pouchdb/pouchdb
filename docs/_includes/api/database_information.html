@@ -16,6 +16,17 @@ db.info(function(err, info) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="dbinfo" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.info();
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="dbinfo" type="promise" %}
 {% highlight js %}
 db.info().then(function (result) {
