@@ -42,6 +42,20 @@ db.allDocs({
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="all_docs" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.allDocs({
+    include_docs: true,
+    attachments: true
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="all_docs" type="promise" %}
 {% highlight js %}
 db.allDocs({
@@ -104,6 +118,22 @@ db.allDocs({
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="all_docs_2" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.allDocs({
+    include_docs: true,
+    attachments: true,
+    startkey: 'bar',
+    endkey: 'quux'
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="all_docs_2" type="promise" %}
 {% highlight js %}
 db.allDocs({
@@ -138,6 +168,22 @@ db.allDocs({
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="all_docs_3" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.allDocs({
+    include_docs: true,
+    attachments: true,
+    startkey: 'foo',
+    endkey: 'foo\uffff'
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="all_docs_3" type="promise" %}
 {% highlight js %}
 db.allDocs({

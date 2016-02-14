@@ -85,6 +85,17 @@ db.replicate.to(remote, function (err, result) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="replication1" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.replicate.to(remote);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="replication1" type="promise" %}
 {% highlight js %}
 db.replicate.to(remote).then(function (result) {

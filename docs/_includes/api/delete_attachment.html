@@ -17,6 +17,18 @@ db.removeAttachment('doc', 'att.txt', rev, function(err, res) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="delete_att" type="async" %}
+{% highlight js %}
+try {
+  var rev = '1-068E73F5B44FEC987B51354DFC772891';
+  var result = await db.removeAttachment('doc', 'att.txt', rev);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="delete_att" type="promise" %}
 {% highlight js %}
 var rev = '1-068E73F5B44FEC987B51354DFC772891';

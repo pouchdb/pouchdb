@@ -20,6 +20,17 @@ db.viewCleanup(function (err, result) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="viewcleanup" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.viewCleanup();
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="viewcleanup" type="promise" %}
 {% highlight js %}
 db.viewCleanup().then(function (result) {

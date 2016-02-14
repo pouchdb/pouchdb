@@ -23,6 +23,18 @@ db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) 
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="attach1" type="async" %}
+{% highlight js %}
+try {
+  var attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
+  var result = await db.putAttachment('doc', 'att.txt', attachment, 'text/plain');
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="attach1" type="promise" %}
 {% highlight js %}
 var attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
@@ -69,6 +81,20 @@ db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) 
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="attach3" type="async" %}
+{% highlight js %}
+try {
+  var attachment =
+    "TGVnZW5kYXJ5IGhlYXJ0cywgdGVhciB1cyBhbGwgYXBhcnQKTWFrZS" +
+    "BvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA==";
+  var result = await db.putAttachment('doc', 'att.txt', attachment, 'text/plain');
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="attach3" type="promise" %}
 {% highlight js %}
 var attachment = 
@@ -99,13 +125,35 @@ var doc = {
               "BvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA=="
     }
   }
-}
+};
 db.put(doc, function (err, result) {
   if (err) { return console.log(err); }
   // handle result
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="attach2" type="async" %}
+{% highlight js %}
+try {
+  var doc = {
+    "_id": "doc",
+    "title": "Legendary Hearts",
+    "_attachments": {
+      "att.txt": {
+        "content_type": "text/plain",
+        "data": "TGVnZW5kYXJ5IGhlYXJ0cywgdGVhciB1cyBhbGwgYXBhcnQKTWFrZS" +
+          "BvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA=="
+      }
+    }
+  };
+  var result = await db.put(doc);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="attach2" type="promise" %}
 {% highlight js %}
 var doc = {
@@ -118,7 +166,7 @@ var doc = {
               "BvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA=="
     }
   }
-}
+};
 db.put(doc).then(function (result) {
   // handle result
 }).catch(function (err) {
@@ -144,13 +192,34 @@ var doc = {
       }
     }
   }
-}
+};
 db.put(doc, function (err, result) {
   if (err) { return console.log(err); }
   // handle result
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="attach4" type="async" %}
+{% highlight js %}
+try {
+  var doc = {
+    "_id": "doc",
+    "title": "Legendary Hearts",
+    "_attachments": {
+      "att.txt": {
+        "content_type": "text/plain",
+        "data": new Blob(['Is there life on Mars?'], {type: 'text/plain'})
+      }
+    }
+  };
+  var result = await db.put(doc);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="attach4" type="promise" %}
 {% highlight js %}
 var doc = {
@@ -162,7 +231,7 @@ var doc = {
       "data": new Blob(['Is there life on Mars?'], {type: 'text/plain'})
     }
   }
-}
+};
 db.put(doc).then(function (result) {
   // handle result
 }).catch(function (err) {
@@ -202,13 +271,48 @@ var doc = {
       }
     }
   }
-}
+};
 db.put(doc, function (err, result) {
   if (err) { return console.log(err); }
   // handle result
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="attach5" type="async" %}
+{% highlight js %}
+try {
+  var doc = {
+    "_id": "doc",
+    "title": "Legendary Hearts",
+    "_attachments": {
+      "att.txt": {
+        "content_type": "text/plain",
+        "data": new Blob(
+          ["And she's hooked to the silver screen"],
+          {type: 'text/plain'})
+      },
+      "att2.txt": {
+        "content_type": "text/plain",
+        "data": new Blob(
+          ["But the film is a saddening bore"],
+          {type: 'text/plain'})
+      },
+      "att3.txt": {
+        "content_type": "text/plain",
+        "data": new Blob(
+          ["For she's lived it ten times or more"],
+          {type: 'text/plain'})
+      }
+    }
+  };
+  var result = await db.put(doc);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="attach5" type="promise" %}
 {% highlight js %}
 var doc = {
@@ -234,7 +338,7 @@ var doc = {
         {type: 'text/plain'})
     }
   }
-}
+};
 db.put(doc).then(function (result) {
   // handle result
 }).catch(function (err) {

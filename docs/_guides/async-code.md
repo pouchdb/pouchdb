@@ -46,6 +46,15 @@ For this guide, we will use the **promise** format for a few reasons:
 
 If you already understand promises, you can [skip to the next section](updating-deleting.html).
 
+{% include alert/start.html variant="info"%}
+{% markdown %}
+
+**What about async/await?**  Async functions are an experimental ES7 syntax that enhances promise-based APIs by adding
+the `async` and `await` keywords. For more information about `async`/`await`, read [our introductory blog post](http://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html).
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
 {% include anchor.html title="Understanding promises" hash="understanding-promises" %}
 
 If you have the time, you are strongly encouraged to watch [this 50-minute video: "Redemption from Callback Hell"](http://youtu.be/hf1T_AONQJU). The rest of this chapter basically summarizes that video.

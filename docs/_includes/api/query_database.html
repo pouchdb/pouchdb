@@ -88,6 +88,44 @@ db.put(ddoc, function (err) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="query1" type="async" %}
+{% highlight js %}
+// create a design doc
+var ddoc = {
+  _id: '_design/index',
+  views: {
+    index: {
+      map: function mapFun(doc) {
+        if (doc.title) {
+          emit(doc.title);
+        }
+      }.toString()
+    }
+  }
+}
+
+// save the design doc
+try {
+  try {
+    await db.put(ddoc);
+  } catch (err) {
+    if (err.status !== 409) {
+      throw err;
+    }
+    // ignore if doc already exists
+  }
+  // find docs where title === 'Lisa Says'
+  var result = await db.query('index', {
+    key: 'Lisa Says',
+    include_docs: true
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="query1" type="promise" %}
 {% highlight js %}
 // create a design doc
@@ -162,6 +200,21 @@ db.query(map, function (err, response) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="query2" type="async" %}
+{% highlight js %}
+function map(doc) {
+  // sort by last name, first name, and age
+  emit([doc.lastName, doc.firstName, doc.age]);
+}
+try {
+  var result = await db.query(map);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="query2" type="promise" %}
 {% highlight js %}
 function map(doc) {
@@ -223,6 +276,23 @@ db.query(map, {include_docs : true}, function (err, response) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="query3" type="async" %}
+{% highlight js %}
+function map(doc) {
+  // join artist data to albums
+  if (doc.type === 'album') {
+    emit(doc.name, {_id : doc.artistId, albumYear : doc.year});
+  }
+}
+try {
+  var result = await db.query(map, {include_docs : true});
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="query3" type="promise" %}
 {% highlight js %}
 function map(doc) {
@@ -323,6 +393,35 @@ db.query(function(doc, emit) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="query4" type="async" %}
+{% highlight js %}
+// BAD! will throw error
+var myId = 'foo';
+try {
+  var result = await db.query(function(doc) {
+    if (doc._id === myId) {
+      emit(doc);
+    }
+  });
+} catch (err) {
+  // you'll get an error here
+}
+
+// will be fine
+var myId = 'foo';
+try {
+  var result = await db.query(function(doc, emit) {
+    if (doc._id === myId) {
+      emit(doc);
+    }
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="query4" type="promise" %}
 {% highlight js %}
 // BAD! will throw error

@@ -23,6 +23,20 @@ db.bulkDocs([
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="bulk_docs_1" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.bulkDocs([
+    {title : 'Lisa Says', _id: 'doc1'},
+    {title : 'Space Oddity', _id: 'doc2'}
+  ]);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="bulk_docs_1" type="promise" %}
 {% highlight js %}
 db.bulkDocs([
@@ -49,6 +63,20 @@ db.bulkDocs([
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="bulk_docs_2" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.bulkDocs([
+    {title : 'Lisa Says'},
+    {title : 'Space Oddity'}
+  ]);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="bulk_docs_2" type="promise" %}
 {% highlight js %}
 db.bulkDocs([
@@ -123,6 +151,30 @@ db.bulkDocs([
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="bulk_docs3" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.bulkDocs([
+    {
+      title  : 'Lisa Says',
+      artist : 'Velvet Underground',
+      _id    : "doc1",
+      _rev   : "1-84abc2a942007bee7cf55007cba56198"
+    },
+    {
+      title  : 'Space Oddity',
+      artist : 'David Bowie',
+      _id    : "doc2",
+      _rev   : "1-7b80fc50b6af7a905f368670429a757e"
+    }
+  ]);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="bulk_docs3" type="promise" %}
 {% highlight js %}
 db.bulkDocs([
@@ -169,6 +221,30 @@ db.bulkDocs([
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="bulk_docs_4" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.bulkDocs([
+    {
+      title    : 'Lisa Says',
+      _deleted : true,
+      _id      : "doc1",
+      _rev     : "1-84abc2a942007bee7cf55007cba56198"
+    },
+    {
+      title    : 'Space Oddity',
+      _deleted : true,
+      _id      : "doc2",
+      _rev     : "1-7b80fc50b6af7a905f368670429a757e"
+    }
+  ]);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="bulk_docs_4" type="promise" %}
 {% highlight js %}
 db.bulkDocs([

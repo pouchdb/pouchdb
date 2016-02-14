@@ -155,6 +155,20 @@ db.changes({
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="changes1" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.changes({
+    limit: 10,
+    since: 0
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="changes1" type="promise" %}
 {% highlight js %}
 db.changes({
