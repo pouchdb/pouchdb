@@ -22,6 +22,17 @@ db.compact(function (err, result) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="compact" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.compact();
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="compact" type="promise" %}
 {% highlight js %}
 db.compact().then(function (result) {

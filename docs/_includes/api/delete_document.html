@@ -28,6 +28,18 @@ db.get('mydoc', function(err, doc) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="delete_doc" type="async" %}
+{% highlight js %}
+try {
+  var doc = await db.get('mydoc');
+  var response = await db.remove(doc);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="delete_doc" type="promise" %}
 {% highlight js %}
 db.get('mydoc').then(function(doc) {
@@ -63,6 +75,18 @@ db.get('mydoc', function(err, doc) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="delete_doc3" type="async" %}
+{% highlight js %}
+try {
+  var doc = await db.get('mydoc');
+  var response = await db.remove(doc._id, doc._rev);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="delete_doc3" type="promise" %}
 {% highlight js %}
 db.get('mydoc').then(function(doc) {
@@ -89,6 +113,19 @@ db.get('mydoc', function(err, doc) {
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="delete_doc2" type="async" %}
+{% highlight js %}
+try {
+  var doc = await db.get('mydoc');
+  doc._deleted = true;
+  var result = await db.put(doc);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="delete_doc2" type="promise" %}
 {% highlight js %}
 db.get('mydoc').then(function(doc) {

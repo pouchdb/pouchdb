@@ -34,6 +34,23 @@ db.bulkGet({
 });
 {% endhighlight %}
 {% include code/end.html %}
+
+{% include code/start.html id="bulkget1" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.bulkGet({
+      docs: [
+        { id: "doc-that-exists", rev: "1-967a00dff5e02add41819138abb3284d"},
+        { id: "doc-that-does-not-exist", rev: "1-3a24009a9525bde9e4bfa8a99046b00d"},
+        { id: "doc-that-exists", rev: "1-bad_rev"}
+      ]
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
 {% include code/start.html id="bulkget1" type="promise" %}
 {% highlight js %}
 db.bulkGet({
