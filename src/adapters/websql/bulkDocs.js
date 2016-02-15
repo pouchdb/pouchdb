@@ -26,7 +26,7 @@ import {
   escapeBlob
 } from './utils';
 
-function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
+function websqlBulkDocs(dbOpts, req, opts, api, db, websqlChanges, callback) {
   var newEdits = opts.new_edits;
   var userDocs = req.docs;
 
@@ -55,7 +55,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, Changes, callback) {
     if (preconditionErrored) {
       return callback(preconditionErrored);
     }
-    Changes.notify(api._name);
+    websqlChanges.notify(api._name);
     api._docCount = -1; // invalidate
     callback(null, results);
   }

@@ -47,6 +47,7 @@ import {
 
 var cachedDBs = {};
 var blobSupportPromise;
+var idbChanges = new Changes();
 
 function IdbPouch(opts, callback) {
   var api = this;
@@ -296,7 +297,7 @@ function init(api, opts, callback) {
   });
 
   api._bulkDocs = function idb_bulkDocs(req, reqOpts, callback) {
-    idbBulkDocs(opts, req, reqOpts, api, idb, IdbPouch.Changes, callback);
+    idbBulkDocs(opts, req, reqOpts, api, idb, idbChanges, callback);
   };
 
   // First we look up the metadata in the ids database, then we fetch the
@@ -418,11 +419,11 @@ function init(api, opts, callback) {
 
     if (opts.continuous) {
       var id = dbName + ':' + uuid();
-      IdbPouch.Changes.addListener(dbName, id, api, opts);
-      IdbPouch.Changes.notify(dbName);
+      idbChanges.addListener(dbName, id, api, opts);
+      idbChanges.notify(dbName);
       return {
         cancel: function () {
-          IdbPouch.Changes.removeListener(dbName, id);
+          idbChanges.removeListener(dbName, id);
         }
       };
     }
@@ -786,7 +787,7 @@ function init(api, opts, callback) {
   };
 
   api._destroy = function (opts, callback) {
-    IdbPouch.Changes.removeAllListeners(dbName);
+    idbChanges.removeAllListeners(dbName);
 
     //Close open request for "dbName" database to fix ie delay.
     if (IdbPouch.openReqList[dbName] && IdbPouch.openReqList[dbName].result) {
@@ -983,8 +984,6 @@ IdbPouch.valid = function () {
   return !isSafari && typeof indexedDB !== 'undefined' &&
     typeof IDBKeyRange !== 'undefined';
 };
-
-IdbPouch.Changes = new Changes();
 
 function tryStorageOption(dbName, storage) {
   try { // option only available in Firefox 26+
