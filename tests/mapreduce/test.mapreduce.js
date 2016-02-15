@@ -1035,7 +1035,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           map: function (doc) {
             emit(doc.foo);
           },
-          reduce: function(keys, values, rereduce) {
+          reduce: function(keys) {
             return keys.map(function(keyId) {
               var key = keyId[0];
               // var id = keyId[1];
@@ -1690,7 +1690,7 @@ function tests(suiteName, dbName, dbType, viewType) {
     it('Testing multiple emissions (complex keys)', function () {
       return new PouchDB(dbName).then(function (db) {
         return createView(db, {
-          map: function (doc) {
+          map: function () {
             emit(['a'], 1);
             emit(['b'], 3);
             emit(['a'], 2);

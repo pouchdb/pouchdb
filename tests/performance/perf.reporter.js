@@ -37,7 +37,7 @@ exports.end = function (testCase) {
   log('done in ' + obj.duration + 'ms\n');
 };
 
-exports.complete = function (suiteName) {
+exports.complete = function () {
   global.results.completed = true;
   if (isNode) {
     global.results.client = {node: process.version};

@@ -32,7 +32,7 @@ before_script:
 
     # Fail early so we dont run hours of saucelabs if we know there
     # is a lint failure
-  - npm run jshint
+  - npm run eslint
 
     # set up CORS
   - "./node_modules/.bin/add-cors-to-couchdb http://127.0.0.1:3000"

@@ -180,7 +180,7 @@ var localAndMetaStores = function (db, stores, callback) {
             });
             next();
           });
-        }, function (next) {
+        }, function () {
           db.batch(batches, callback);
         }));
       });

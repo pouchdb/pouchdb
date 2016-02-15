@@ -4,7 +4,6 @@ var should = require('chai').should();
 var mockery = require('mockery');
 
 describe('test.ajax.js', function () {
-  var opts;
   var cb;
   var ajax;
 
@@ -16,7 +15,6 @@ describe('test.ajax.js', function () {
     });
 
     function requestStub(callOpts, callCB) {
-      opts = callOpts;
       cb = callCB;
     }
 

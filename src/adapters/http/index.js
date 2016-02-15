@@ -172,7 +172,7 @@ function HttpPouch(opts, callback) {
 
   function adapterFun(name, fun) {
     return coreAdapterFun(name, getArguments(function (args) {
-      setup().then(function (res) {
+      setup().then(function () {
         return fun.apply(this, args);
       }).catch(function(e) {
         var callback = args.pop();

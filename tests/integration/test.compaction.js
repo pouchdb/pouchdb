@@ -61,9 +61,9 @@ adapters.forEach(function (adapter) {
     it('Compaction document with no revisions to remove', function (done) {
       var db = new PouchDB(dbs.name);
       var doc = {_id: 'foo', value: 'bar'};
-      db.put(doc, function (err, res) {
+      db.put(doc, function () {
         db.compact(function () {
-          db.get('foo', function (err, doc) {
+          db.get('foo', function (err) {
             done(err);
           });
         });
@@ -97,12 +97,12 @@ adapters.forEach(function (adapter) {
         db.post(doc, function (err, res) {
           var rev2 = res.rev;
           db.compact(function () {
-            db.get('foo', { rev: rev1 }, function (err, doc) {
+            db.get('foo', { rev: rev1 }, function (err) {
               err.status.should.equal(404);
               err.name.should.equal(
                 'not_found', 'compacted document is missing'
               );
-              db.get('foo', { rev: rev2 }, function (err, doc) {
+              db.get('foo', { rev: rev2 }, function (err) {
                 done(err);
               });
             });
@@ -222,9 +222,9 @@ adapters.forEach(function (adapter) {
         db.remove({
           _id: 'foo',
           _rev: firstRev
-        }, function (err, res) {
+        }, function () {
           db.compact(function () {
-            db.get('foo', { rev: firstRev }, function (err, res) {
+            db.get('foo', { rev: firstRev }, function (err) {
               should.exist(err, 'got error');
               err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
                                       'correct error status returned');
@@ -245,9 +245,9 @@ adapters.forEach(function (adapter) {
         db.remove({
           _id: id,
           _rev: firstRev
-        }, function (err, res) {
+        }, function () {
           db.compact(function () {
-            db.get(id, { rev: firstRev }, function (err, res) {
+            db.get(id, { rev: firstRev }, function (err) {
               should.exist(err, 'got error');
               err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
                                       'correct error status returned');
@@ -646,7 +646,7 @@ adapters.forEach(function (adapter) {
         }
       };
 
-      return db.put(doc1).then(function (res) {
+      return db.put(doc1).then(function () {
         return db.get('doc1');
       }).then(function (doc1) {
         var doc2 = {
@@ -1158,7 +1158,7 @@ adapters.forEach(function (adapter) {
       // now that we've established md5sum collisions,
       // we can use that to detect true attachment replacement
       var db = new PouchDB(dbs.name, {auto_compaction: false});
-      var doc = { _id: 'doc1',};
+      var doc = { _id: 'doc1'};
       return db.put(doc).then(function (info) {
         doc._rev = info.rev;
         doc._deleted = true;
@@ -1422,17 +1422,17 @@ adapters.forEach(function (adapter) {
           doc.val = '3';
           db.post(doc, function (err, res) {
             var rev3 = res.rev;
-            db.get('doc', { rev: rev1 }, function (err, doc) {
+            db.get('doc', { rev: rev1 }, function (err) {
               err.status.should.equal(404, 'rev-1 should be missing');
               err.name.should.equal(
                 'not_found', 'rev-1 should be missing'
               );
-              db.get('doc', { rev: rev2 }, function (err, doc) {
+              db.get('doc', { rev: rev2 }, function (err) {
                 err.status.should.equal(404, 'rev-2 should be missing');
                 err.name.should.equal(
                   'not_found', 'rev-2 should be missing'
                 );
-                db.get('doc', { rev: rev3 }, function (err, doc) {
+                db.get('doc', { rev: rev3 }, function (err) {
                   done(err);
                 });
               });

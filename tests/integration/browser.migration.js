@@ -127,7 +127,7 @@ describe('migration', function () {
         });
         oldPouch.bulkDocs({docs: origDocs}, function (err, res) {
           var removedDoc = {_deleted: true, _rev: res[0].rev, _id: res[0].id};
-          oldPouch.remove(removedDoc, function (err, res) {
+          oldPouch.remove(removedDoc, function () {
             oldPouch.close(function (err) {
               should.not.exist(err, 'got error: ' + JSON.stringify(err));
               var newPouch = new dbs.second.pouch(dbs.second.local);
@@ -166,7 +166,7 @@ describe('migration', function () {
           if (err) {
             done();
           }
-          oldPouch.bulkDocs({docs: docs}, {}, function (err, res) {
+          oldPouch.bulkDocs({docs: docs}, {}, function (err) {
             should.not.exist(err, 'got error in bulkDocs: ' +
               JSON.stringify(err));
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
@@ -234,7 +234,7 @@ describe('migration', function () {
           if (err) {
             done();
           }
-          oldPouch.bulkDocs({docs: docs}, {}, function (err, res) {
+          oldPouch.bulkDocs({docs: docs}, {}, function (err) {
             should.not.exist(err, 'got error in bulkDocs: ' +
               JSON.stringify(err));
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
@@ -311,7 +311,7 @@ describe('migration', function () {
             { key: 3, id: '2', value: null },
             { key: 4, id: '3', value: null }
           ];
-          oldPouch.bulkDocs({docs: docs}, function (err, res) {
+          oldPouch.bulkDocs({docs: docs}, function (err) {
             should.not.exist(err, 'bulkDocs');
             oldPouch.query('myview', function (err, res) {
               should.not.exist(err, 'query');
@@ -360,7 +360,7 @@ describe('migration', function () {
             { key: 3, id: '2', value: 9 },
             { key: 4, id: '3', value: 16 }
           ];
-          oldPouch.bulkDocs({docs: docs}, function (err, res) {
+          oldPouch.bulkDocs({docs: docs}, function (err) {
             should.not.exist(err, 'bulkDocs');
             oldPouch.query('myview', function (err, res) {
               should.not.exist(err, 'query');
@@ -474,7 +474,7 @@ describe('migration', function () {
                   done();
                 }
               });
-          oldPouch.bulkDocs({docs: origDocs}, function (err, res) {
+          oldPouch.bulkDocs({docs: origDocs}, function (err) {
             should.not.exist(err, 'got error: ' + JSON.stringify(err));
             oldPouch.close(function (err) {
               should.not.exist(err, 'got error: ' + JSON.stringify(err));

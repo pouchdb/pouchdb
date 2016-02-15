@@ -1,0 +1,35 @@
+{
+
+  "extends": "eslint:recommended",
+
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+
+  "globals": {
+    "chrome": true,
+    "Promise": true,
+    "Uint8Array": true,
+    "ArrayBuffer": true,
+    "FileReaderSync": true,
+    "sqlitePlugin": true,
+
+    "emit": true,
+    "PouchDB": true,
+    "should": true,
+    "testUtils": true,
+    "importScripts": true
+  },
+
+  "rules": {
+    "no-empty": 0,
+    "no-console": 0
+  }
+}

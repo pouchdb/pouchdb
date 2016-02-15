@@ -34,9 +34,9 @@ adapters.forEach(function (adapter) {
         should.not.exist(err, 'saved doc');
         info.id.should.equal('doc/with/slashes', 'id is the same as inserted');
         db.putAttachment(docId, attachmentId, info.rev, blob, 'text/plain',
-                         function (err, res) {
+                         function () {
           db.getAttachment(docId, attachmentId, function (err, res) {
-            testUtils.readBlob(res, function (data) {
+            testUtils.readBlob(res, function () {
               db.get(docId, function (err, res) {
                 res._id.should.equal(docId);
                 res._attachments.should.include.keys(attachmentId);
@@ -131,7 +131,7 @@ repl_adapters.forEach(function (adapters) {
       ];
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      remote.bulkDocs({ docs: docs1 }, function (err, info) {
+      remote.bulkDocs({ docs: docs1 }, function () {
         db.replicate.from(remote, function () {
           db.get('bin_doc/with/slash', { attachments: true },
             function (err, doc) {

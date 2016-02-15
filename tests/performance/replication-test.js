@@ -83,7 +83,7 @@ module.exports = function (PouchDB, Promise) {
 
   PullRequestTestObject.prototype.tearDown = function () {
     var self = this;
-    return function (ignoreDB, ignoreContext) {
+    return function () {
       return self.remoteDB.destroy().then(function () {
         return Promise.all(
           self.localPouches.map(function (localPouch) {
