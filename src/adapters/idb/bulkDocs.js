@@ -11,8 +11,7 @@ import {
   ATTACH_STORE,
   BY_SEQ_STORE,
   DOC_STORE,
-  LOCAL_STORE,
-  META_STORE
+  LOCAL_STORE
 } from './constants';
 
 import {
@@ -64,7 +63,7 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, Changes, callback) {
 
     var stores = [
       DOC_STORE, BY_SEQ_STORE,
-      ATTACH_STORE, META_STORE,
+      ATTACH_STORE,
       LOCAL_STORE, ATTACH_AND_SEQ_STORE
     ];
     var txnResult = openTransactionSafely(idb, stores, 'readwrite');
