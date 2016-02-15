@@ -23,7 +23,7 @@ describe('test.http.js', function () {
       new PouchDB(dbs.name).then(function (db) {
         db.destroy(function () {
           instantDB = new PouchDB(dbs.name, { skipSetup: true });
-          instantDB.post({ test: 'abc' }, function (err, info) {
+          instantDB.post({ test: 'abc' }, function (err) {
             should.exist(err);
             err.name.should.equal('not_found', 'Skipped setup of database');
             done();
@@ -42,7 +42,7 @@ describe('test.http.js', function () {
       new PouchDB(dbs.name).then(function (db) {
         db.destroy(function () {
           instantDB = new PouchDB(dbs.name, { skip_setup: true });
-          instantDB.post({ test: 'abc' }, function (err, info) {
+          instantDB.post({ test: 'abc' }, function (err) {
             should.exist(err);
             err.name.should.equal('not_found', 'Skipped setup of database');
             done();
@@ -62,7 +62,7 @@ describe('test.http.js', function () {
       });
     }
     var db = new PouchDB(dbs.name);
-    db.bulkDocs({ docs: docs }, function (err, result) {
+    db.bulkDocs({ docs: docs }, function () {
       db.info(function (err, info) {
         var update_seq = info.update_seq;
 
@@ -76,8 +76,8 @@ describe('test.http.js', function () {
         };
         db.changes({
           since: update_seq
-        }).on('change', function (change) {
-        }).on('complete', function (result) {
+        }).on('change', function () {
+        }).on('complete', function () {
           callCount.should.equal(1, 'One _changes call to complete changes');
           PouchDB.utils.ajax = ajax;
           done();
@@ -91,7 +91,7 @@ describe('test.http.js', function () {
       _id: '_design/foo/bar'
     };
     var db = new PouchDB(dbs.name);
-    db.bulkDocs({ docs: [ddoc] }, function (err, result) {
+    db.bulkDocs({ docs: [ddoc] }, function () {
       db.get(ddoc._id, function (err, doc) {
         should.not.exist(err);
         doc._id.should.equal(ddoc._id, 'Correct doc returned');
@@ -141,7 +141,7 @@ describe('test.http.js', function () {
 
     var changes = db.changes();
 
-    changes.on('complete', function(change) {
+    changes.on('complete', function() {
       should.exist(ajaxOpts);
       ajaxOpts.timeout.should.equal(timeout);
       PouchDB.utils.ajax = ajax;

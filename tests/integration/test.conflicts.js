@@ -164,7 +164,7 @@ adapters.forEach(function (adapter) {
             }
           }]
         });
-      }).then(function (res) {
+      }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-2', 'Correct revision wins');

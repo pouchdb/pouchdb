@@ -50,7 +50,7 @@ module.exports = function (PouchDB, opts) {
           return db.query(function (doc) {
             emit(doc.key);
           }, task);
-        })).then(function (res) {
+        })).then(function () {
           done();
         }, done);
       }
@@ -93,7 +93,7 @@ module.exports = function (PouchDB, opts) {
         ];
         Promise.all(tasks.map(function (task) {
             return db.query('myview/myview', task);
-          })).then(function (res) {
+          })).then(function () {
             done();
           }, done);
       }
@@ -136,7 +136,7 @@ module.exports = function (PouchDB, opts) {
         ];
         Promise.all(tasks.map(function (task) {
             return db.query('myview/myview', task);
-          })).then(function (res) {
+          })).then(function () {
             done();
           }, done);
       }

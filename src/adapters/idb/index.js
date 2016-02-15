@@ -963,7 +963,7 @@ function init(api, opts, callback) {
     };
   };
 
-  req.onerror = function(e) {
+  req.onerror = function() {
     var msg = 'Failed to open indexedDB, are you in private browsing mode?';
     console.error(msg);
     callback(createError(IDB_ERROR, msg));

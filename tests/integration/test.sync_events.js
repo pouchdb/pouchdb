@@ -43,7 +43,7 @@ adapters.forEach(function (adapters) {
           done();
         });
 
-        repl.on('active', function(evt) {
+        repl.on('active', function() {
           counter++;
           if (counter === 1) {
             // We are good, initial replication
@@ -52,7 +52,7 @@ adapters.forEach(function (adapters) {
           }
         });
 
-        repl.on('paused', function(evt) {
+        repl.on('paused', function() {
           counter++;
           if (counter === 1) {
             // Maybe a bug, if we have data should probably

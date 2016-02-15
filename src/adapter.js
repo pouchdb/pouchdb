@@ -26,7 +26,7 @@ import {
   BAD_REQUEST,
   NOT_AN_OBJECT,
   INVALID_REV,
-  createError,
+  createError
 } from './deps/errors';
 
 /*
@@ -212,6 +212,8 @@ AbstractPouchDB.prototype.put =
     callback = args.pop();
     return callback(createError(NOT_AN_OBJECT));
   }
+
+  /* eslint no-constant-condition: 0 */
   while (true) {
     temp = args.shift();
     temptype = typeof temp;
@@ -243,10 +245,9 @@ AbstractPouchDB.prototype.put =
 
 AbstractPouchDB.prototype.putAttachment =
   adapterFun('putAttachment', function (docId, attachmentId, rev,
-                                              blob, type, callback) {
+                                              blob, type) {
   var api = this;
   if (typeof type === 'function') {
-    callback = type;
     type = blob;
     blob = rev;
     rev = null;

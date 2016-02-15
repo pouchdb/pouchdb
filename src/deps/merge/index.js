@@ -221,7 +221,7 @@ function stem(tree, depth) {
 
   return {
     tree: result,
-    revs: Object.keys(maybeStem),
+    revs: Object.keys(maybeStem)
   };
 }
 

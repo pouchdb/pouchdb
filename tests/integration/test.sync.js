@@ -37,8 +37,8 @@ adapters.forEach(function (adapters) {
         };
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      db.put(doc1, function (err) {
-        remote.put(doc2, function (err) {
+      db.put(doc1, function () {
+        remote.put(doc2, function () {
           PouchDB.sync(db, remote).on('complete', function (result) {
             result.pull.ok.should.equal(true);
             result.pull.docs_read.should.equal(1);
@@ -63,7 +63,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function (opts) {
+      remote.allDocs = function () {
         return PouchDB.utils.Promise.reject(new Error('flunking you'));
       };
 
@@ -92,7 +92,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function (opts) {
+      remote.allDocs = function () {
         return PouchDB.utils.Promise.reject(new Error('flunking you'));
       };
 
@@ -125,7 +125,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function (opts) {
+      remote.allDocs = function () {
         return PouchDB.utils.Promise.reject(new Error('flunking you'));
       };
 
@@ -154,7 +154,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function (opts) {
+      remote.allDocs = function () {
         return PouchDB.utils.Promise.reject(new Error('flunking you'));
       };
 
@@ -213,8 +213,8 @@ adapters.forEach(function (adapters) {
         };
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      db.put(doc1, function (err) {
-        remote.put(doc2, function (err) {
+      db.put(doc1, function () {
+        remote.put(doc2, function () {
           PouchDB.sync(db, remote, function (err, result) {
             result.pull.ok.should.equal(true);
             result.pull.docs_read.should.equal(1);
@@ -261,8 +261,8 @@ adapters.forEach(function (adapters) {
         };
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      db.put(doc1, function (err) {
-        remote.put(doc2, function (err) {
+      db.put(doc1, function () {
+        remote.put(doc2, function () {
           db.sync(remote).on('complete', function (result) {
             result.pull.ok.should.equal(true);
             result.pull.docs_read.should.equal(1);
@@ -285,8 +285,8 @@ adapters.forEach(function (adapters) {
         };
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      db.put(doc1, function (err) {
-        remote.put(doc2, function (err) {
+      db.put(doc1, function () {
+        remote.put(doc2, function () {
           db.sync(remote, function (err, result) {
             result.pull.ok.should.equal(true);
             result.pull.docs_read.should.equal(1);
@@ -421,7 +421,7 @@ adapters.forEach(function (adapters) {
       });
 
       var changes = 0;
-      replications.on('change', function (ch) {
+      replications.on('change', function () {
         changes++;
         if (changes === 1) {
           replications.pull.cancel();
@@ -629,7 +629,7 @@ adapters.forEach(function (adapters) {
             deniedErrors.push(error);
           });
           return sync;
-        }).then(function (res) {
+        }).then(function () {
           deniedErrors.length.should.equal(2);
           deniedErrors[0].doc.id.should.equal('foo1');
           deniedErrors[0].doc.name.should.equal('unauthorized');
@@ -677,7 +677,7 @@ adapters.forEach(function (adapters) {
               deniedErrors.push(error);
             });
             return sync;
-          }).then(function (res) {
+          }).then(function () {
             deniedErrors.length.should.equal(2);
             deniedErrors[0].doc.id.should.equal('foo1');
             deniedErrors[0].doc.name.should.equal('unauthorized');
@@ -698,8 +698,7 @@ adapters.forEach(function (adapters) {
         {_id: '3'}
       ];
 
-      db.bulkDocs({ docs: docs }, {})
-      .then(function(results) {
+      db.bulkDocs({ docs: docs }, {}).then(function() {
         var sync = db.sync(dbs.remote);
         sync.on('change', function(change) {
           syncedDocs = syncedDocs.concat(change.change.docs);

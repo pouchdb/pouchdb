@@ -30,9 +30,9 @@ adapters.forEach(function (adapter) {
 
     it('Test writing design doc', function (done) {
       var db = new PouchDB(dbs.name);
-      db.post(doc, function (err, info) {
+      db.post(doc, function (err) {
         should.not.exist(err, 'Wrote design doc');
-        db.get('_design/foo', function (err, info) {
+        db.get('_design/foo', function (err) {
           done(err);
         });
       });
@@ -55,11 +55,11 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       var count = 0;
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         var changes = db.changes({
           live: true,
           filter: 'foo/even'
-        }).on('change', function (change) {
+        }).on('change', function () {
           count += 1;
           if (count === 4) {
             changes.cancel();
@@ -81,7 +81,7 @@ adapters.forEach(function (adapter) {
         {_id: 'nuno', score: 3}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.query('foo/scores', { reduce: false }, function (err, result) {
           result.rows.should.have.length(4, 'Correct # of results');
           db.query('foo/scores', function (err, result) {
@@ -99,7 +99,7 @@ adapters.forEach(function (adapter) {
           doc,
           {_id: 'dale', score: 3}
         ]
-      }, function (err, info) {
+      }, function () {
         var cnt = 0;
         db.query('foo/scores', { reduce: false }, function (err, result) {
           result.rows.should.have.length(1, 'Correct # of results');

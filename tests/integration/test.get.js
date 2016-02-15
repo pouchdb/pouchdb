@@ -51,7 +51,7 @@ adapters.forEach(function (adapter) {
         _id: '_design/someid',
         test: 'somestuff'
       }, function (err, info) {
-        db.get(info.id, function (err, doc) {
+        db.get(info.id, function () {
           db.get(info.id + 'asdf', function (err) {
             err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
                                     'correct error status returned');
@@ -74,8 +74,8 @@ adapters.forEach(function (adapter) {
         db.remove({
           _id: info.id,
           _rev: info.rev
-        }, function (err, res) {
-          db.get(info.id, function (err, res) {
+        }, function () {
+          db.get(info.id, function (err) {
             err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
                                       'correct error status returned');
             err.name.should.equal(PouchDB.Errors.MISSING_DOC.name,
@@ -99,8 +99,8 @@ adapters.forEach(function (adapter) {
           test: 'somestuff',
           _id: info.id,
           _rev: info.rev
-        }, function (doc) {
-          db.get(info.id, { rev: rev }, function (err, doc) {
+        }, function () {
+          db.get(info.id, { rev: rev }, function (err) {
             should.not.exist(err);
             done();
           });
@@ -157,9 +157,9 @@ adapters.forEach(function (adapter) {
                 }
               }
             ];
-            db.put(conflicts[0], { new_edits: false }, function (err, doc) {
-              db.put(conflicts[1], { new_edits: false }, function (err, doc) {
-                db.put(conflicts[2], { new_edits: false }, function (err, doc) {
+            db.put(conflicts[0], { new_edits: false }, function () {
+              db.put(conflicts[1], { new_edits: false }, function () {
+                db.put(conflicts[2], { new_edits: false }, function () {
                   db.get('3', { rev: '2-aaa' }, function (err, doc) {
                     doc._rev.should.equal('2-aaa');
                     doc.value.should.equal('x');
@@ -268,7 +268,7 @@ adapters.forEach(function (adapter) {
             _id: info.id,
             _rev: info.rev,
             a: 'change'
-          }, function (err, info2) {
+          }, function () {
             db.get(info.id, { revs_info: true }, function (err, doc) {
               doc._revs_info.length.should.equal(3, 'updated a doc with put');
               done();
@@ -346,7 +346,7 @@ adapters.forEach(function (adapter) {
         ]
       ];
       testUtils.putTree(db, simpleTree, function () {
-        db.compact(function (err, ok) {
+        db.compact(function () {
           db.get('foo', { revs_info: true }, function (err, doc) {
             var revs = doc._revs_info;
             revs.length.should.equal(3, 'correct number of revs');
@@ -496,11 +496,11 @@ adapters.forEach(function (adapter) {
           _id: info.id,
           _rev: info.rev,
           version: 'second'
-        }, function (err, info2) {
+        }, function (err) {
           should.not.exist(err);
           db.get(info.id, { rev: info.rev }, function (err, oldRev) {
             oldRev.version.should.equal('first', 'Fetched old revision');
-            db.get(info.id, { rev: '1-nonexistentRev' }, function (err, doc) {
+            db.get(info.id, { rev: '1-nonexistentRev' }, function (err) {
               should.exist(err, 'Non existent row error correctly reported');
               done();
             });
@@ -558,9 +558,9 @@ adapters.forEach(function (adapter) {
               }
             }
           ];
-          db.put(conflicts[0], { new_edits: false }, function (err, doc) {
-            db.put(conflicts[1], { new_edits: false }, function (err, doc) {
-              db.put(conflicts[2], { new_edits: false }, function (err, doc) {
+          db.put(conflicts[0], { new_edits: false }, function () {
+            db.put(conflicts[1], { new_edits: false }, function () {
+              db.put(conflicts[2], { new_edits: false }, function () {
                 db.get('3', { open_revs: 'all' }, function (err, res) {
                   var i;
                   res = res.map(function (row) {
@@ -631,9 +631,9 @@ adapters.forEach(function (adapter) {
               }
             }
           ];
-          db.put(conflicts[0], { new_edits: false }, function (err, doc) {
-            db.put(conflicts[1], { new_edits: false }, function (err, doc) {
-              db.put(conflicts[2], { new_edits: false }, function (err, doc) {
+          db.put(conflicts[0], { new_edits: false }, function () {
+            db.put(conflicts[1], { new_edits: false }, function () {
+              db.put(conflicts[2], { new_edits: false }, function () {
                 db.get('3', {
                   open_revs: [
                     '2-aaa',
@@ -692,7 +692,7 @@ adapters.forEach(function (adapter) {
       db.get('nonexistent', { open_revs: ['2-whatever'] }, function (err, res) {
         res.length.should.equal(1, 'just one result');
         res[0].missing.should.equal('2-whatever', 'just one result');
-        db.get('nonexistent', { open_revs: 'all' }, function (err, res) {
+        db.get('nonexistent', { open_revs: 'all' }, function (err) {
           // CouchDB 1.X doesn't handle this situation correctly
           // CouchDB 2.0 fixes it (see COUCHDB-2517)
           testUtils.isCouchDB(function (isCouchDB) {
@@ -709,13 +709,13 @@ adapters.forEach(function (adapter) {
 
     it('Testing get with open_revs with wrong params', function (done) {
       var db = new PouchDB(dbs.name);
-      db.put({ _id: 'foo' }, function (err, res) {
+      db.put({ _id: 'foo' }, function () {
         db.get('foo', {
           open_revs: {
             'whatever': 'which is',
             'not an array': 'or all string'
           }
-        }, function (err, res) {
+        }, function (err) {
           var acceptable_errors = ['unknown_error', 'bad_request'];
           acceptable_errors.indexOf(err.name)
             .should.not.equal(-1, 'correct error');
@@ -726,7 +726,7 @@ adapters.forEach(function (adapter) {
               '2-correct',
               'keys'
             ]
-          }, function (err, res) {
+          }, function (err) {
             err.name.should.equal('bad_request', 'correct error');
             done();
           });

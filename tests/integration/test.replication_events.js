@@ -37,14 +37,14 @@ adapters.forEach(function (adapters) {
 
       repl.on('complete', function() { done(); });
 
-      repl.on('active', function(evt) {
+      repl.on('active', function() {
         counter++;
         if (!(counter === 2 || counter === 4)) {
           done('active fired incorrectly');
         }
       });
 
-      repl.on('paused', function(evt) {
+      repl.on('paused', function() {
         counter++;
         // We should receive a paused event when replication
         // starts because there is nothing to replicate
@@ -73,14 +73,14 @@ adapters.forEach(function (adapters) {
 
         repl.on('complete', function() { done(); });
 
-        repl.on('active', function(evt) {
+        repl.on('active', function() {
           counter++;
           if (!(counter === 1 || counter === 3 || counter === 5)) {
             done('active fired incorrectly:' + counter);
           }
         });
 
-        repl.on('paused', function(evt) {
+        repl.on('paused', function() {
           counter++;
           // We should receive a paused event when replication
           // starts because there is nothing to replicate
@@ -131,7 +131,7 @@ adapters.forEach(function (adapters) {
           done();
         });
 
-        repl.on('active', function(evt) {
+        repl.on('active', function() {
           counter++;
           if (counter === 2) {
             // All good, wait for pause
@@ -191,7 +191,7 @@ adapters.forEach(function (adapters) {
       var completeCalls = 0;
 
       function generateDocs(n) {
-        return Array.apply(null, new Array(n)).map(function (e, i) {
+        return Array.apply(null, new Array(n)).map(function () {
           docId += 1;
           return {
             _id: docId.toString(),

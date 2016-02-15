@@ -117,7 +117,7 @@ testUtils.readBlob = function (blob, callback) {
     callback(blob.toString('binary'));
   } else {
     var reader = new FileReader();
-    reader.onloadend = function (e) {
+    reader.onloadend = function () {
       
       var binary = "";
       var bytes = new Uint8Array(this.result || '');
@@ -205,9 +205,9 @@ testUtils.putBranch = function (db, docs, callback) {
         callback();
       }
     }
-    db.get(doc._id, { rev: doc._rev }, function (err, ok) {
+    db.get(doc._id, { rev: doc._rev }, function (err) {
       if (err) {
-        testUtils.putAfter(db, docs[i], prev, function (err, doc) {
+        testUtils.putAfter(db, docs[i], prev, function () {
           next();
         });
       } else {

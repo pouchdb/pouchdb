@@ -9,7 +9,7 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
       return PouchDB.utils.Promise.resolve(123);
     }
   };
-  this.get = function (id, callback) {
+  this.get = function () {
     return new PouchDB.utils.Promise(function (fulfill, reject) {
       setTimeout(function () {
         if (statusCodeToReturn !== 200) {
@@ -37,11 +37,9 @@ function getCallback(expectError, done) {
   // Fails the test otherwise
   var maximumTimeToWait = 500;
   var hasBeenCalled = false;
-  var result;
   var err;
-  function callback(error, resp) {
+  function callback(error) {
     hasBeenCalled = true;
-    result = resp;
     err = error;
   }
   function timeOutCallback() {

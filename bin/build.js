@@ -221,7 +221,7 @@ function buildPluginsForBrowser() {
 
 if (process.argv[2] === 'node') {
   buildForNode();
-  return;
+  process.exit(0);
 }
 
 Promise.resolve()

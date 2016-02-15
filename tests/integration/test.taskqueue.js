@@ -19,7 +19,7 @@ adapters.forEach(function (adapter) {
 
     it('Add a doc', function (done) {
       var db = new PouchDB(dbs.name);
-      db.post({ test: 'somestuff' }, function (err, info) {
+      db.post({ test: 'somestuff' }, function (err) {
         done(err);
       });
     });
@@ -32,8 +32,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       var queryFun = {
-        map: function (doc) {
-        }
+        map: function () {}
       };
       db.query(queryFun, { reduce: false }, function (_, res) {
         res.rows.should.have.length(0);
@@ -57,7 +56,7 @@ adapters.forEach(function (adapter) {
 
     it('Get', function (done) {
       var db = new PouchDB(dbs.name);
-      db.get('0', function (err, res) {
+      db.get('0', function (err) {
         should.exist(err);
         done();
       });
