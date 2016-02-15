@@ -166,7 +166,7 @@ adapters.forEach(function (adapter) {
             data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
           }
         }
-      }).then(function (response) {
+      }).then(function () {
         db.bulkGet({
           docs: [
             {id: 'foo'}

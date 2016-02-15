@@ -14,7 +14,7 @@ if (!process.env.LEVEL_ADAPTER &&
     it('Put a file in the db, then destroy it', function (done) {
       new PouchDB('veryimportantfiles', function (err, db) {
         fs.writeFile('./tmp/_pouch_veryimportantfiles/something',
-                     new Buffer('lalala'), function (err) {
+                     new Buffer('lalala'), function () {
           db.destroy(function (err) {
             if (err) {
               return done(err);

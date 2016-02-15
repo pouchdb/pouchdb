@@ -100,7 +100,7 @@ function tests(suiteName, dbName, dbType) {
       }).then(function () {
         var views = ['name', 'title'];
         return PouchDB.utils.Promise.all(views.map(function (view) {
-          return db.query(view).then(function (res) {
+          return db.query(view).then(function () {
             throw new Error('expected an error');
           }, function (err) {
             should.exist(err);

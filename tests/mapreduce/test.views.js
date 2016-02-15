@@ -2,7 +2,7 @@
 'use strict';
 
 var adapters = [
-  ['local', 'http'],
+  ['local', 'http']
 ];
 
 adapters.forEach(function (adapters) {
@@ -38,14 +38,14 @@ adapters.forEach(function (adapters) {
           }
         };
         db.get('volatile', function (_, doc) {
-          db.remove(doc, function (_, resp) {
+          db.remove(doc, function () {
             db.query(queryFun, {
               include_docs: true,
               reduce: false
             }, function (_, res) {
               res.rows.should.have.length(1, 'Dont include deleted documents');
               res.total_rows.should.equal(1, 'Include total_rows property.');
-              res.rows.forEach(function (x, i) {
+              res.rows.forEach(function (x) {
                 should.exist(x.id);
                 should.exist(x.key);
                 should.exist(x.value._rev);
@@ -73,13 +73,13 @@ adapters.forEach(function (adapters) {
           emit(doc.foo, doc);
         };
         db.get('volatile', function (_, doc) {
-          db.remove(doc, function (_, resp) {
+          db.remove(doc, function () {
             db.query(queryFun, {
               include_docs: true,
               reduce: false
             }, function (_, res) {
               res.rows.should.have.length(1, 'Dont include deleted documents');
-              res.rows.forEach(function (x, i) {
+              res.rows.forEach(function (x) {
                 should.exist(x.id);
                 should.exist(x.key);
                 should.exist(x.value._rev);
@@ -303,13 +303,13 @@ adapters.forEach(function (adapters) {
 
     it('No reduce function', function (done) {
       var db = new PouchDB(dbs.name);
-      db.post({ foo: 'bar' }, function (err, res) {
+      db.post({ foo: 'bar' }, function () {
         var queryFun = {
-          map: function (doc) {
+          map: function () {
             emit('key', 'val');
           }
         };
-        db.query(queryFun, function (err, res) {
+        db.query(queryFun, function () {
           done();
         });
       });
@@ -401,11 +401,11 @@ adapters.forEach(function (adapters) {
 
     it('No reduce function, passing just a  function', function (done) {
       var db = new PouchDB(dbs.name);
-      db.post({ foo: 'bar' }, function (err, res) {
-        var queryFun = function (doc) {
+      db.post({ foo: 'bar' }, function () {
+        var queryFun = function () {
           emit('key', 'val');
         };
-        db.query(queryFun, function (err, res) {
+        db.query(queryFun, function () {
           done();
         });
       });
@@ -425,9 +425,9 @@ adapters.forEach(function (adapters) {
       };
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      db.post(doc1, function (err, res) {
-        remote.post(doc2, function (err, res) {
-          db.replicate.from(remote, function (err, res) {
+      db.post(doc1, function () {
+        remote.post(doc2, function () {
+          db.replicate.from(remote, function () {
             db.get(doc1._id, { conflicts: true }, function (err, res) {
               should.exist(res._conflicts);
               db.query(queryFun, function (err, res) {
@@ -466,7 +466,7 @@ adapters.forEach(function (adapters) {
         var revId1 = res[0].rev;
         remote.post(doc2, function (err, res) {
           var revId2 = res.rev;
-          db.replicate.from(remote, function (err, res) {
+          db.replicate.from(remote, function () {
             db.get(docs1[0]._id, { conflicts: true }, function (err, res) {
               var winner = res._rev;
               var looser = winner === revId1 ? revId2 : revId1;
@@ -515,8 +515,8 @@ adapters.forEach(function (adapters) {
             { map: 'function (doc) { if (doc.score) ' +
                    '{ emit(null, doc.score); } }' } }
       };
-      db.post(doc, function (err, info) {
-        db.query('barbar/dontExist', { key: 'bar' }, function (err, res) {
+      db.post(doc, function () {
+        db.query('barbar/dontExist', { key: 'bar' }, function (err) {
           if (!err.name) {
             err.name = err.error;
             err.message = err.reason;
@@ -549,7 +549,7 @@ adapters.forEach(function (adapters) {
           map: function (doc) {
             emit(doc.foo);
           },
-          reduce: function (key, values, rereduce) {
+          reduce: function () {
             return 0;
           }
         }, function (err, data) {
@@ -632,7 +632,7 @@ adapters.forEach(function (adapters) {
           num: ''
         }
       ];
-      db.bulkDocs({ docs: docs }, function (err) {
+      db.bulkDocs({ docs: docs }, function () {
         var mapFunction = function (doc) {
           emit(doc.num, null);
         };
@@ -682,7 +682,7 @@ adapters.forEach(function (adapters) {
                   }
                 }.toString(),
                 reduce: '_sum'
-              },
+              }
             }
           };
           return db.bulkDocs([doc, {score: 3}, {score: 5}]).then(function () {
@@ -690,7 +690,7 @@ adapters.forEach(function (adapters) {
           }).then(function (a) {
             a.rows[0].value.should.equal(8);
             return db.destroy();
-          }).then(function (a) {
+          }).then(function () {
             fs.readdirSync('./tmp').should.have.length(0);
           });
         });

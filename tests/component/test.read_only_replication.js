@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 var replicationDoc;
 
-function reject(req, res, next) {
+function reject(req, res) {
   replicationDoc = req.body.docs[0];
   res.status(403).send({error: true, message: 'Unauthorized'});
 }

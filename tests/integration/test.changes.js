@@ -35,7 +35,7 @@ adapters.forEach(function (adapter) {
 
     it('All changes', function (done) {
       var db = new PouchDB(dbs.name);
-      db.post({ test: 'somestuff' }, function (err, info) {
+      db.post({ test: 'somestuff' }, function () {
         var promise = db.changes({
           }).on('change', function (change) {
             change.should.not.have.property('doc');
@@ -59,12 +59,12 @@ adapters.forEach(function (adapter) {
         {_id: '7', integer: 7},
         {_id: '8', integer: 9},
         {_id: '9', integer: 9},
-        {_id: '10', integer: 10},
+        {_id: '10', integer: 10}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function (err, info) {
+      db.bulkDocs({ docs: docs }, function () {
         var changeCount = 0;
-        var promise = db.changes().on('change', function handler(change) {
+        var promise = db.changes().on('change', function handler() {
           changeCount++;
           if (changeCount === 5) {
             promise.cancel();
@@ -105,7 +105,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.info(function (err, info) {
           var update_seq = info.update_seq;
 
@@ -114,7 +114,7 @@ adapters.forEach(function (adapter) {
             {_id: '13', integer: 13}
           ];
 
-          db.bulkDocs({ docs: docs2 }, function (err, info) {
+          db.bulkDocs({ docs: docs2 }, function () {
             var promise = db.changes({
               since: update_seq
             }).on('complete', function (results) {
@@ -135,7 +135,7 @@ adapters.forEach(function (adapter) {
         {_id: '2', integer: 2}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.info(function (err, info) {
           var update_seq = info.update_seq;
 
@@ -144,7 +144,7 @@ adapters.forEach(function (adapter) {
             {_id: '4', integer: 4}
           ];
 
-          db.bulkDocs({ docs: docs2 }, function (err, info) {
+          db.bulkDocs({ docs: docs2 }, function () {
             db.changes({
               since: update_seq,
               limit: 1
@@ -164,7 +164,7 @@ adapters.forEach(function (adapter) {
         {_id: '2', integer: 2}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.info(function (err, info) {
           var update_seq = info.update_seq;
 
@@ -173,7 +173,7 @@ adapters.forEach(function (adapter) {
             {_id: '4', integer: 4}
           ];
 
-          db.bulkDocs({ docs: docs2 }, function (err, info) {
+          db.bulkDocs({ docs: docs2 }, function () {
             db.changes({
               since: update_seq,
               limit: 0
@@ -195,7 +195,7 @@ adapters.forEach(function (adapter) {
       ];
       var docs2 = [
         {_id: '2', integer: 11},
-        {_id: '3', integer: 12},
+        {_id: '3', integer: 12}
       ];
       var db = new PouchDB(dbs.name);
       // we use writeDocs since bulkDocs looks to have undefined
@@ -250,7 +250,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
+      testUtils.writeDocs(db, docs, function () {
         db.changes({
           filter: 'foo/odd',
           limit: 2,
@@ -283,7 +283,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
+      testUtils.writeDocs(db, docs, function () {
         db.changes({
           filter: 'foo/even',
           limit: 2,
@@ -319,11 +319,11 @@ adapters.forEach(function (adapter) {
         }
       ];
 
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.info(function (err, info) {
           var update_seq = info.update_seq;
 
-          testUtils.writeDocs(db, docs2, function (err, info) {
+          testUtils.writeDocs(db, docs2, function () {
             var promise = db.changes({
               filter: 'foo/even',
               limit: 2,
@@ -357,7 +357,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function (err, info) {
+      db.bulkDocs({ docs: docs }, function () {
         var promise = db.changes({
           filter: 'even',
           include_docs: true
@@ -377,10 +377,10 @@ adapters.forEach(function (adapter) {
     it('Changes with filter from nonexistent ddoc', function (done) {
       var docs = [
         {_id: '0', integer: 0},
-        {_id: '1', integer: 1},
+        {_id: '1', integer: 1}
       ];
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
+      testUtils.writeDocs(db, docs, function () {
         db.changes({
           filter: 'foobar/odd'
         }).on('error', function (err) {
@@ -407,7 +407,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
+      testUtils.writeDocs(db, docs, function () {
         db.changes({
           filter: '_view',
           view: 'foo/odd'
@@ -433,7 +433,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
+      testUtils.writeDocs(db, docs, function () {
         db.changes({
           filter: '_view',
           view: 'foo/even'
@@ -460,9 +460,9 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs(docs).then(function() {
-        db.changes({filter: 'a/b/c'}).on('error', function (err) {
+        db.changes({filter: 'a/b/c'}).on('error', function () {
           done('should not be called');
-        }).on('complete', function(res) {
+        }).on('complete', function() {
           done();
         });
       });
@@ -473,14 +473,14 @@ adapters.forEach(function (adapter) {
       db.put({
         _id: "_design/test",
         filters: {
-          test: function (doc, req) {
+          test: function () {
             throw new Error(); // syntaxerrors can't be caught either.
           }.toString()
         }
       }).then(function() {
         db.changes({filter: 'test/test'}).then(function() {
           done('should have thrown');
-        }).catch(function (err) {
+        }).catch(function () {
           done();
         });
       });
@@ -498,7 +498,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function (err, info) {
+      testUtils.writeDocs(db, docs, function () {
         db.changes({
           filter: '_view'
         }).on('error', function (err) {
@@ -522,7 +522,7 @@ adapters.forEach(function (adapter) {
         {_id: '2', integer: 2}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.info(function (err, info) {
           var update_seq = info.update_seq;
 
@@ -541,7 +541,7 @@ adapters.forEach(function (adapter) {
             }
           ];
 
-          db.bulkDocs({ docs: docs2 }, function (err, info) {
+          db.bulkDocs({ docs: docs2 }, function () {
 
             db.changes({
               filter: '_view',
@@ -589,7 +589,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.changes().on('complete', function (results) {
         results.last_seq.should.equal(0);
-        db.bulkDocs({ docs: docs }, function (err, info) {
+        db.bulkDocs({ docs: docs }, function () {
           db.changes().on('complete', function (results) {
             results.last_seq.should.equal(5);
             db.changes({
@@ -726,7 +726,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.changes().on('complete', function (results) {
         results.last_seq.should.equal(0);
-        db.bulkDocs({ docs: docs }, function (err, info) {
+        db.bulkDocs({ docs: docs }, function () {
           db.changes().on('complete', function (results) {
             results.last_seq.should.equal(5);
             db.changes({
@@ -817,10 +817,10 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function (err, info) {
+      db.bulkDocs({ docs: docs }, function () {
         db.changes({
           limit: 0
         }).on('complete', function (results) {
@@ -839,9 +839,9 @@ adapters.forEach(function (adapter) {
         return done();
       }
       var db = new PouchDB(dbs.name);
-      db.post({_id: '0', test: 'ing'}, function (err, res) {
-        db.post({_id: '1', test: 'ing'}, function (err, res) {
-          db.post({_id: '2', test: 'ing'}, function (err, res) {
+      db.post({_id: '0', test: 'ing'}, function () {
+        db.post({_id: '1', test: 'ing'}, function () {
+          db.post({_id: '2', test: 'ing'}, function () {
             db.changes({
               descending: true,
               since: 1
@@ -860,7 +860,7 @@ adapters.forEach(function (adapter) {
 
     it('Changes doc', function (done) {
       var db = new PouchDB(dbs.name);
-      db.post({ test: 'somestuff' }, function (err, info) {
+      db.post({ test: 'somestuff' }, function () {
         db.changes({
           include_docs: true
         }).on('change', function (change) {
@@ -885,15 +885,15 @@ adapters.forEach(function (adapter) {
         });
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err, info) {
+      db.bulkDocs({ docs: docs }, function (err) {
         if (err) {
           return done(err);
         }
         db.changes({
           descending: true
-        }).on('change', function (change) {
+        }).on('change', function () {
           changes++;
-        }).on('complete', function (results) {
+        }).on('complete', function () {
           changes.should.equal(num, 'correct number of changes');
           done();
         }).on('error', function (err) {
@@ -935,7 +935,7 @@ adapters.forEach(function (adapter) {
       }).on('complete', function () {
         changes1Complete = true;
         checkCount();
-      }).on('change', function (change) {
+      }).on('change', function () {
         count += 1;
         changes1.cancel();
         changes1 = null;
@@ -945,7 +945,7 @@ adapters.forEach(function (adapter) {
       }).on('complete', function () {
         changes2Complete = true;
         checkCount();
-      }).on('change', function (change) {
+      }).on('change', function () {
         count += 1;
         changes2.cancel();
         changes2 = null;
@@ -996,11 +996,11 @@ adapters.forEach(function (adapter) {
         // This setTimeout ensures that once we cancel a change we dont recieve
         // subsequent callbacks, so it is needed
         interval = setInterval(waitForDocPosted, 100);
-      }).on('change', function (change) {
+      }).on('change', function () {
         count += 1;
         if (count === 1) {
           changes.cancel();
-          db.post({ test: 'another doc' }, function (err, res) {
+          db.post({ test: 'another doc' }, function (err) {
             if (err) {
               return done(err);
             }
@@ -1595,7 +1595,7 @@ adapters.forEach(function (adapter) {
             _id: 'foo',
             _rev: '3-c',
             _revisions: {start: 3, ids: ['c', 'b', 'a']}
-          },
+          }
         ], [
           {
             _id: 'bar',
@@ -1608,7 +1608,7 @@ adapters.forEach(function (adapter) {
       var chain = PouchDB.utils.Promise.resolve();
       var seqs = [0];
 
-      tree.forEach(function (docs, i) {
+      tree.forEach(function (docs) {
         chain = chain.then(function () {
           return db.bulkDocs(docs, {new_edits: false}).then(function () {
             return db.changes();
@@ -1706,14 +1706,14 @@ adapters.forEach(function (adapter) {
             _rev: '2-c',
             _deleted: true,
             _revisions: {start: 2, ids: ['c', 'a']}
-          },
+          }
         ]
       ];
 
       var chain = PouchDB.utils.Promise.resolve();
       var seqs = [0];
 
-      tree.forEach(function (docs, i) {
+      tree.forEach(function (docs) {
         chain = chain.then(function () {
           return db.bulkDocs(docs, {new_edits: false}).then(function () {
             return db.changes().then(function (result) {
@@ -1799,17 +1799,17 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var docs2 = [
         {_id: '4', integer: 4},
         {_id: '5', integer: 5},
         {_id: '6', integer: 6},
-        {_id: '7', integer: 7},
+        {_id: '7', integer: 7}
       ];
       var db = new PouchDB(dbs.name);
       var count = 0;
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         var changes = db.changes({
           filter: function (doc) {
             return doc.integer % 2 === 0;
@@ -1818,7 +1818,7 @@ adapters.forEach(function (adapter) {
         }).on('complete', function (result) {
           result.status.should.equal('cancelled');
           done();
-        }).on('change', function (change) {
+        }).on('change', function () {
           count += 1;
           if (count === 4) {
             changes.cancel();
@@ -1833,18 +1833,18 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var docs2 = [
         {_id: '4', integer: 4},
         {_id: '5', integer: 5},
         {_id: '6', integer: 6},
-        {_id: '7', integer: 7},
+        {_id: '7', integer: 7}
       ];
       var params = { 'abc': true };
       var db = new PouchDB(dbs.name);
       var count = 0;
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         var changes = db.changes({
           filter: function (doc, req) {
             if (req.query.abc) {
@@ -1856,7 +1856,7 @@ adapters.forEach(function (adapter) {
         }).on('complete', function (result) {
           result.status.should.equal('cancelled');
           done();
-        }).on('change', function (change) {
+        }).on('change', function () {
           count += 1;
           if (count === 4) {
             changes.cancel();
@@ -1871,10 +1871,10 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.changes().on('complete', function (allChanges) {
           db.changes({
             filter: function (doc) {
@@ -1896,10 +1896,10 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.changes({
           descending: true
         }).on('complete', function (allChanges) {
@@ -2075,18 +2075,18 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var docs2 = [
         {_id: '2', integer: 11},
-        {_id: '3', integer: 12},
+        {_id: '3', integer: 12}
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs1 }, function (err, info) {
         docs2[0]._rev = info[2].rev;
         docs2[1]._rev = info[3].rev;
-        db.put(docs2[0], function (err, info) {
-          db.put(docs2[1], function (err, info) {
+        db.put(docs2[0], function () {
+          db.put(docs2[1], function () {
             db.changes({
               include_docs: true
             }).on('complete', function (changes) {
@@ -2107,21 +2107,21 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var docs2 = [
         {_id: '2', integer: 11},
-        {_id: '3', integer: 12},
+        {_id: '3', integer: 12}
       ];
       new PouchDB(dbs.name).then(function (localdb) {
         var remotedb = new PouchDB(dbs.remote);
         return localdb.bulkDocs({ docs: docs1 }).then(function (info) {
           docs2[0]._rev = info[2].rev;
           docs2[1]._rev = info[3].rev;
-          return localdb.put(docs2[0]).then(function (info) {
+          return localdb.put(docs2[0]).then(function () {
             return localdb.put(docs2[1]).then(function (info) {
               var rev2 = info.rev;
-              return PouchDB.replicate(localdb, remotedb).then(function (done) {
+              return PouchDB.replicate(localdb, remotedb).then(function () {
                 // update remote once, local twice, then replicate from
                 // remote to local so the remote losing conflict is later in
                 // the tree
@@ -2145,7 +2145,7 @@ adapters.forEach(function (adapter) {
                     return remotedb.put(rev4Doc).then(function (resp) {
                       var remoterev = resp.rev;
                       return PouchDB.replicate(remotedb, localdb).then(
-                        function (done) {
+                        function () {
                         return localdb.changes({
                           include_docs: true,
                           style: 'all_docs',
@@ -2192,7 +2192,7 @@ adapters.forEach(function (adapter) {
         db.remove({
           _id: '3',
           _rev: rev
-        }, function (err, info) {
+        }, function () {
           db.changes({
             include_docs: true
           }).on('complete', function (changes) {
@@ -2219,7 +2219,7 @@ adapters.forEach(function (adapter) {
         });
       }
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function (err, info) {
+      db.bulkDocs({ docs: docs }, function () {
         db.changes().on('complete', function (res) {
           res.results.length.should.equal(num);
           done();
@@ -2229,7 +2229,7 @@ adapters.forEach(function (adapter) {
 
     it('Calling db.changes({since: \'now\'})', function (done) {
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
+      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function () {
         db.info(function (err, info) {
           var api = db.changes({
             since: 'now'
@@ -2250,7 +2250,7 @@ adapters.forEach(function (adapter) {
     //Duplicate to make sure both api options work.
     it('Calling db.changes({since: \'latest\'})', function (done) {
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
+      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function () {
         db.info(function (err, info) {
           var api = db.changes({
             since: 'latest'
@@ -2278,7 +2278,7 @@ adapters.forEach(function (adapter) {
           done();
         }
       }
-      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function (err, data) {
+      db.bulkDocs({ docs: [{ foo: 'bar' }] }, function () {
         var changes = db.changes({
           live: true
         }).on('complete', function (result) {
@@ -2328,7 +2328,7 @@ adapters.forEach(function (adapter) {
             changes.cancel();
           }, 1000);
         }
-      }).on('complete', function (err) {
+      }).on('complete', function () {
         called.should.equal(1);
         done();
       });
@@ -2340,17 +2340,17 @@ adapters.forEach(function (adapter) {
       var docs = [];
       var num = 10;
       for (var i = 0; i < num; i++) {
-        docs.push({ _id: 'doc_' + i, });
+        docs.push({ _id: 'doc_' + i});
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err, info) {
+      db.bulkDocs({ docs: docs }, function (err) {
         if (err) {
           return done(err);
         }
         db.changes({
           descending: true,
           return_docs: false
-        }).on('change', function (change) {
+        }).on('change', function () {
           changes++;
         }).on('complete', function (results) {
           results.results.should.have.length(0, '0 results returned');
@@ -2368,17 +2368,17 @@ adapters.forEach(function (adapter) {
       var docs = [];
       var num = 10;
       for (var i = 0; i < num; i++) {
-        docs.push({ _id: 'doc_' + i, });
+        docs.push({ _id: 'doc_' + i});
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err, info) {
+      db.bulkDocs({ docs: docs }, function (err) {
         if (err) {
           return done(err);
         }
         db.changes({
           descending: true,
           returnDocs: false
-        }).on('change', function (change) {
+        }).on('change', function () {
           changes++;
         }).on('complete', function (results) {
           results.results.should.have.length(0, '0 results returned');
@@ -2400,10 +2400,10 @@ adapters.forEach(function (adapter) {
       ];
       var called = 0;
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         db.changes({
           limit: 1
-        }).on('change', function (ch) {
+        }).on('change', function () {
           (called++).should.equal(0);
         }).on('complete', function () {
           setTimeout(function () {
@@ -2497,23 +2497,23 @@ adapters.forEach(function (adapter) {
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {_id: '2', integer: 2},
-        {_id: '3', integer: 3},
+        {_id: '3', integer: 3}
       ];
       var docs2 = [
         {_id: '4', integer: 4},
         {_id: '5', integer: 5},
         {_id: '6', integer: 6},
-        {_id: '7', integer: 7},
+        {_id: '7', integer: 7}
       ];
       var db = new PouchDB(dbs.name);
       var count = 0;
-      db.bulkDocs({ docs: docs1 }, function (err, info) {
+      db.bulkDocs({ docs: docs1 }, function () {
         var changes = db.changes({
           live: true
         }).on('complete', function (result) {
           result.status.should.equal('cancelled');
           done();
-        }).on('change', function (change) {
+        }).on('change', function () {
           count += 1;
           if (count === 8) {
             changes.cancel();

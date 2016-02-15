@@ -74,7 +74,7 @@ var requireLeveldown = function () {
   try {
     return require('leveldown');
   } catch (err) {
-    /*jshint -W022 */
+    /* eslint no-ex-assign: 0*/
     err = err || 'leveldown import error';
     if (err.code === 'MODULE_NOT_FOUND') {
       // handle leveldown not installed case
@@ -228,7 +228,7 @@ function LevelPouch(opts, callback) {
           db._docCount = !err ? value : 0;
           stores.metaStore.get(UUID_KEY, function (err, value) {
             instanceId = !err ? value : uuid();
-            stores.metaStore.put(UUID_KEY, instanceId, function (err, value) {
+            stores.metaStore.put(UUID_KEY, instanceId, function () {
               process.nextTick(function () {
                 callback(null, api);
               });
@@ -455,7 +455,7 @@ function LevelPouch(opts, callback) {
 
     // parse the docs and give each a sequence number
     var userDocs = req.docs;
-    var docInfos = userDocs.map(function (doc, i) {
+    var docInfos = userDocs.map(function (doc) {
       if (doc._id && isLocalId(doc._id)) {
         return doc;
       }
@@ -741,7 +741,7 @@ function LevelPouch(opts, callback) {
           newAtt.refs[ref] = true;
         }
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(function (resolve) {
           txn.batch([{
             type: 'put',
             prefix: stores.attachmentStore,

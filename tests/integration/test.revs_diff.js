@@ -85,11 +85,11 @@ adapters.forEach(function (adapter) {
     it('Conflicting revisions that are available', function (done) {
       var doc = {_id: '939', _rev: '1-a'};
       function createConflicts(db, callback) {
-        db.put(doc, { new_edits: false }, function (err, res) {
+        db.put(doc, { new_edits: false }, function () {
           testUtils.putAfter(db, {
             _id: '939',
             _rev: '2-a'
-          }, '1-a', function (err, res) {
+          }, '1-a', function () {
             testUtils.putAfter(db, {
               _id: '939',
               _rev: '2-b'
@@ -111,7 +111,7 @@ adapters.forEach(function (adapter) {
         db.put({
           _id: '935',
           _rev: '1-a'
-        }, { new_edits: false }, function (err, info) {
+        }, { new_edits: false }, function () {
           testUtils.putAfter(db, {
             _id: '935',
             _rev: '2-a',
