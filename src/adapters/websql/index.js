@@ -46,6 +46,8 @@ import {
   unescapeBlob
 } from './utils';
 
+var websqlChanges = new Changes();
+
 function fetchAttachmentsIfNecessary(doc, opts, api, txn, cb) {
   var attachments = Object.keys(doc._attachments || {});
   if (!attachments.length) {
@@ -546,7 +548,7 @@ function WebSqlPouch(opts, callback) {
   };
 
   api._bulkDocs = function (req, reqOpts, callback) {
-    websqlBulkDocs(opts, req, reqOpts, api, db, WebSqlPouch.Changes, callback);
+    websqlBulkDocs(opts, req, reqOpts, api, db, websqlChanges, callback);
   };
 
   api._get = function (id, opts, callback) {
@@ -724,11 +726,11 @@ function WebSqlPouch(opts, callback) {
 
     if (opts.continuous) {
       var id = api._name + ':' + uuid();
-      WebSqlPouch.Changes.addListener(api._name, id, api, opts);
-      WebSqlPouch.Changes.notify(api._name);
+      websqlChanges.addListener(api._name, id, api, opts);
+      websqlChanges.notify(api._name);
       return {
         cancel: function () {
-          WebSqlPouch.Changes.removeListener(api._name, id);
+          websqlChanges.removeListener(api._name, id);
         }
       };
     }
@@ -1015,7 +1017,7 @@ function WebSqlPouch(opts, callback) {
   };
 
   api._destroy = function (opts, callback) {
-    WebSqlPouch.Changes.removeAllListeners(api._name);
+    websqlChanges.removeAllListeners(api._name);
     db.transaction(function (tx) {
       var stores = [DOC_STORE, BY_SEQ_STORE, ATTACH_STORE, META_STORE,
         LOCAL_STORE, ATTACH_AND_SEQ_STORE];
@@ -1033,7 +1035,5 @@ function WebSqlPouch(opts, callback) {
 }
 
 WebSqlPouch.valid = valid;
-
-WebSqlPouch.Changes = new Changes();
 
 export default WebSqlPouch;

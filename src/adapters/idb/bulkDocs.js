@@ -23,7 +23,7 @@ import {
   openTransactionSafely
 } from './utils';
 
-function idbBulkDocs(dbOpts, req, opts, api, idb, Changes, callback) {
+function idbBulkDocs(dbOpts, req, opts, api, idb, idbChanges, callback) {
   var docInfos = req.docs;
   var txn;
   var docStore;
@@ -133,7 +133,7 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, Changes, callback) {
       return;
     }
 
-    Changes.notify(api._meta.name);
+    idbChanges.notify(api._meta.name);
     api._meta.docCount += docCountDelta;
     callback(null, results);
   }

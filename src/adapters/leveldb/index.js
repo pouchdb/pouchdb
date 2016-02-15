@@ -65,6 +65,8 @@ var safeJsonEncoding = {
   type: 'cheap-json'
 };
 
+var levelChanges = new Changes();
+
 // require leveldown. provide verbose output on error as it is the default
 // nodejs adapter, which we do not provide for the user
 /* istanbul ignore next */
@@ -819,7 +821,7 @@ function LevelPouch(opts, callback) {
         }
         db._docCount += docCountDelta;
         db._updateSeq = newUpdateSeq;
-        LevelPouch.Changes.notify(name);
+        levelChanges.notify(name);
         process.nextTick(function () {
           callback(null, results);
         });
@@ -979,11 +981,11 @@ function LevelPouch(opts, callback) {
 
     if (opts.continuous) {
       var id = name + ':' + uuid();
-      LevelPouch.Changes.addListener(name, id, api, opts);
-      LevelPouch.Changes.notify(name);
+      levelChanges.addListener(name, id, api, opts);
+      levelChanges.notify(name);
       return {
         cancel: function () {
-          LevelPouch.Changes.removeListener(name, id);
+          levelChanges.removeListener(name, id);
         }
       };
     }
@@ -1470,7 +1472,7 @@ function LevelPouch(opts, callback) {
 
     /* istanbul ignore else */
     if (dbStore.has(name)) {
-      LevelPouch.Changes.removeAllListeners(name);
+      levelChanges.removeAllListeners(name);
 
       dbStore.get(name).close(function () {
         dbStore.delete(name);
@@ -1496,7 +1498,5 @@ LevelPouch.valid = function () {
 };
 
 LevelPouch.use_prefix = false;
-
-LevelPouch.Changes = new Changes();
 
 export default LevelPouch;
