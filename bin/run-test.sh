@@ -24,10 +24,9 @@ if [[ ! -z $SERVER ]]; then
     ./node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!
   elif [ "$SERVER" == "couchdb-master" ]; then
-    if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
-      ./bin/run-couch-master-on-travis.sh
+    if [ -z $COUCH_HOST ]; then
+      export COUCH_HOST='http://127.0.0.1:15984'
     fi
-    export COUCH_HOST='http://127.0.0.1:15984'
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     node ./tests/misc/pouchdb-express-router.js &
     export SERVER_PID=$!
@@ -51,6 +50,10 @@ if [[ ! -z $SERVER ]]; then
     echo -e "Unknown SERVER $SERVER. Did you mean pouchdb-server?\n"
     exit 1
   fi
+fi
+
+if [ "$CLIENT" == "selenium:phantomjs" ]; then
+  npm install phantomjs@2.1.2 # do this on-demand to avoid slow installs
 fi
 
 printf 'Waiting for host to start .'

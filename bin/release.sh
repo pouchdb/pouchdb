@@ -10,14 +10,13 @@ VERSION=$(node --eval "console.log(require('./package.json').version);")
 # Build
 git checkout -b build
 
-npm run build
-
 # Publish npm release with tests/scripts/goodies
+# `npm run build` is run as a prepublish step
 npm publish
 
 # Create git tag, which is also the Bower/Github release
 git add dist -f
-git add bower.json component.json package.json lib/version-browser.js
+git add bower.json component.json package.json
 git rm -r bin docs scripts tests
 
 git commit -m "build $VERSION"

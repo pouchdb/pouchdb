@@ -15,8 +15,7 @@ PouchDB exactly implements CouchDB's replication algorithm, so conflict resoluti
 
 {% include alert/end.html %}
 
-Two types of conflicts
--------
+{% include anchor.html title="Two types of conflicts" hash="two-types-of-conflicts" %}
 
 In CouchDB, conflicts can occur in two places: immediately, when you try to commit a new revision, or later, when two peers have committed changes to the same document. Let's call these **immediate conflicts** and **eventual conflicts**.
 
@@ -66,7 +65,7 @@ db.upsert('my_id', myDeltaFunction).then(function () {
 
 This `upsert()` function takes a `docId` and `deltaFunction`, where the `deltaFunction` is just a function that takes a document and outputs a new document. (If the document does not exist, then an empty document is provided.)
 
-`pouchdb-upsert` also offers a `putIfNotExists()` function, which will create a document if it doesn't exist already. For more details, see [the plugin's documentation](https://github.com/pouchdb/pouchdb-upsert#readme). 
+`pouchdb-upsert` also offers a `putIfNotExists()` function, which will create a document if it doesn't exist already. For more details, see [the plugin's documentation](https://github.com/pouchdb/pouchdb-upsert#readme).
 
 ### Eventual conflicts
 
@@ -107,7 +106,7 @@ Here we have two separate revisions (`2-x` and `2-y`) written by two separate da
 
 Normally, `_rev`s look more like `2-c1592ce7b31cc26e91d2f2029c57e621`, i.e. a digit followed by a very long hash. In these examples, `x` and `y` are used in place of the hash, for simplicity's sake.
 
-{% endmarkdown %} 
+{% endmarkdown %}
 {% include alert/end.html %}
 
 Notice that the document's current revision starts with `2-`, and the conflicting version also starts with `2-`, indicating that they're both at the same level of the revision tree. (Revision hashes start with `1-`, `2-`, `3-`, etc., which indicates their distance from the first, "root" revision. The root always starts with `1-`.)
@@ -146,8 +145,7 @@ In practice, this just means that PouchDB's replication algorithm is slightly le
 {% endmarkdown %}
 {% include alert/end.html %}
 
-Accountants don't use erasers
--------
+{% include anchor.html title="Accountants don't use erasers" hash="accountants-dont-use-erasers" %}
 
 Another conflict resolution strategy is to design your database so that conflicts are impossible. In practice, this means that you never update or remove existing documents &ndash; you only create new documents.
 
@@ -165,7 +163,6 @@ The wisdom of this strategy can be expressed by the maxim: ["Accountants don't u
 
 There is also a PouchDB plugin that implements this strategy: [delta-pouch](https://github.com/redgeoff/delta-pouch).
 
-Next
--------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that we've settled our conflicts, let's take a look at the changes feed.

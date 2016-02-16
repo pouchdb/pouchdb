@@ -22,17 +22,21 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
 * `ajax.headers`: The `ajax.headers` option allows you to customise headers that are sent to the remote HTTP Server.
 * `auth.username` + `auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `auth.username` + `auth.password` options.
-* `ajax.withCredentials`: Set to `false` to disable transferring cookies or HTTP Auth information (https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Requests_with_credentials). Defaults to `true`.
+* `ajax.withCredentials`: Set to `false` to disable transferring cookies or [HTTP Auth information](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Requests_with_credentials). Defaults to `true`.
 * `skip_setup`: Initially PouchDB checks if the database exists, and tries to create it, if it does not exist yet. Set this to `true` to skip this setup.
+
+**IndexedDB-only options:**
+
+* `storage`: Specifies whether you want to use `persistent` or `temporary` storage. This non-standard feature has been supported in Firefox since version 26. Find out more about the available storage types, and how Firefox handles client-side data storage, at [Browser storage limits and eviction criteria](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Browser_storage_limits_and_eviction_criteria).
 
 **WebSQL-only options:**
 
-* `size`: amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors on iOS/Safari](/errors.html#not_enough_space).
+* `size`: Amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors on iOS/Safari](/errors.html#not_enough_space).
 
 **SQLite Plugin-only options:**
 
-* `location`: where to store data on iOS, which may affect iTunes/iCloud backup, and thus whether or not your app gets rejected by Apple. See [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#opening-a-database) and [iOS data storage guidelines](https://developer.apple.com/icloud/documentation/data-storage/index.html).
-* `createFromLocation`: use a pre-populated database, so you can package it with your app and users don't have to wait for it to load. See the [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#pre-populated-database).
+* `location`: Where to store data on iOS, which may affect iTunes/iCloud backup, and thus whether or not your app gets rejected by Apple. See [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#opening-a-database) and [iOS data storage guidelines](https://developer.apple.com/icloud/documentation/data-storage/index.html).
+* `createFromLocation`: Use a pre-populated database, so you can package it with your app and users don't have to wait for it to load. See the [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#pre-populated-database).
 * `androidDatabaseImplementation`: `1` to use the new `sqlite4java` implementation, `2` to use the older version based on the native Android APIs. Defaults to `1`. See the [SQLite Plugin documentation](https://github.com/litehelpers/Cordova-sqlite-storage#android-sqlite-implementation).
 
 **Notes:**

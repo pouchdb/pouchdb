@@ -37,23 +37,30 @@ testUtils.params = function () {
       return acc;
     }
     var tmp = val.split('=');
-    acc[tmp[0]] = tmp[1] || true;
+    acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
     return acc;
   }, {});
 };
 
 testUtils.couchHost = function () {
-  if (typeof module !== 'undefined' && module.exports) {
-    return process.env.COUCH_HOST || 'http://localhost:5984';
-  } else if (window && window.COUCH_HOST) {
-    return window.COUCH_HOST;
-  } else if (window && window.cordova) {
-    // magic route to localhost on android emulator,
-    // cors not needed because cordova
+  if (typeof window !== 'undefined' && window.cordova) {
+    // magic route to localhost on android emulator
     return 'http://10.0.2.2:5984';
   }
-  // In the browser we default to the CORS server, in future will change
-  return 'http://localhost:2020';
+
+  if (typeof window !== 'undefined' && window.COUCH_HOST) {
+    return window.COUCH_HOST;
+  }
+
+  if (typeof process !== 'undefined' && process.env.COUCH_HOST) {
+    return process.env.COUCH_HOST;
+  }
+
+  if ('couchHost' in testUtils.params()) {
+    return testUtils.params().couchHost;
+  }
+
+  return 'http://localhost:5984';
 };
 
 // Abstracts constructing a Blob object, so it also works in older
@@ -301,8 +308,6 @@ testUtils.promisify = function (fun, context) {
 var testDir;
 if (typeof module !== 'undefined' && module.exports) {
   global.PouchDB = require('../../lib');
-  global.binaryStringToBlobOrBuffer =
-    require('../../lib/deps/binary/binaryStringToBlobOrBuffer');
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 
@@ -323,7 +328,7 @@ if (typeof module !== 'undefined' && module.exports) {
     testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
     testDir = testDir.slice(-1) === '/' ? testDir : testDir + '/';
     global.PouchDB.prefix = testDir + global.PouchDB.prefix;
-    require('../../lib/adapters/leveldb').use_prefix = true;
+    global.PouchDB.adapters.leveldb.use_prefix = true;
   }
   module.exports = testUtils;
 }

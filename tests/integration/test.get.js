@@ -716,7 +716,7 @@ adapters.forEach(function (adapter) {
             'not an array': 'or all string'
           }
         }, function (err, res) {
-          var acceptable_errors = ['unknown_error','function_clause'];
+          var acceptable_errors = ['unknown_error', 'bad_request'];
           acceptable_errors.indexOf(err.name)
             .should.not.equal(-1, 'correct error');
           // unfortunately!

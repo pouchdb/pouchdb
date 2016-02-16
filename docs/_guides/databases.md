@@ -7,8 +7,7 @@ sidebar: guides_nav.html
 
 PouchDB databases come in two flavors: local and remote.
 
-Local databases
---------
+{% include anchor.html title="Local databases" hash="local–databases" %}
 
 To create a local database, you simply call `new PouchDB` and give it a name:
 
@@ -33,14 +32,18 @@ Now the site is up and running at <a href='http://localhost:8000'>http://localho
 
 {% include alert/end.html %}
 
-Remote databases
---------
+{% include anchor.html title="Remote databases" hash="remote-databases" %}
 
 To create a remote database, you call `new PouchDB` and give it a path to a database in CouchDB.
 
 ```js
 var db = new PouchDB('http://localhost:5984/kittens');
 ```
+
+{% include alert/start.html variant="info" %}
+<strong>note:</strong> The remote database will not be created until you do an API call, e.g.: <code>db.info()</code>. The reason behind that is that the <code>PouchDB</code> constructor is completely
+synchronous, for ease of error handling (i.e. no asynchronous errors).
+{% include alert/end.html %}
 
 The structure of a CouchDB URL is very simple:
 
@@ -70,8 +73,7 @@ If instead you see:
 
 Then check to make sure that your remote CouchDB has started up correctly. Common errors (such as CORS) are [listed here](/errors.html).
 
-Get basic info about the database
----------
+{% include anchor.html title="Get basic info about the database" hash="get-basic-info-about-the–database" %}
 
 You can see basic information about the database by using the `info()` method.
 
@@ -98,8 +100,7 @@ The most important bits of information are:
 * `doc_count`: the number of undeleted documents in the database
 * `db_name`: the name of the database
 
-Debugging
----------
+{% include anchor.html title="Debugging" hash="debugging" %}
 
 When you create a PouchDB database, there are many ways to debug and inspect it.
 
@@ -143,8 +144,7 @@ PouchDB.debug.disable();
 ```
 
 
-Deleting your local database
-----------------
+{% include anchor.html title="Deleting your local database" hash="deleting-your-local-database" %}
 
 During development, it's often useful to destroy the local database, so you can see what your users will experience when they visit your site for the first time. A page refresh is not enough, because the data will still be there!
 
@@ -154,8 +154,7 @@ In Firefox, you can use the [Clear Recent History+ add-on](https://addons.mozill
 
 In Safari, you can simply click *Safari* &#8594; *Clear History and Website Data*.
 
-Differences between the local and remote databases
--------
+{% include anchor.html title="Differences between the local and remote databases" hash="differences-between-the-local-and-remote-databases" %}
 
 When you create a local PouchDB database, it uses whatever underlying datastore is available - IndexedDB in most browsers, WebSQL in older browsers, and LevelDB in Node.js.
 
@@ -163,13 +162,11 @@ When you create a remote PouchDB database, it communicates directly with the rem
 
 The goal of PouchDB is to allow you to seamlessly communicate with one or the other. You should not notice many differences between the two, except that of course the local one is much faster!
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [new PouchDB() (constructor)](/api.html#create_database)
 * [Debug mode](/api.html#debug_mode)
- 
-Next
--------
+
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you've created some databases, let's put some documents in 'em!

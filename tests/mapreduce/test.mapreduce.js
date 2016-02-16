@@ -1029,6 +1029,54 @@ function tests(suiteName, dbName, dbType, viewType) {
       });
     });
 
+    it("Test view querying with custom reduce function", function () {
+      return new PouchDB(dbName).then(function (db) {
+        return createView(db, {
+          map: function (doc) {
+            emit(doc.foo);
+          },
+          reduce: function(keys, values, rereduce) {
+            return keys.map(function(keyId) {
+              var key = keyId[0];
+              // var id = keyId[1];
+              return key.join('');
+            });
+          }
+        }).then(function (queryFun) {
+          return db.bulkDocs({
+            docs: [
+              { foo: ['foo', 'bar'] },
+              { foo: ['foo', 'bar'] },
+              { foo: ['foo', 'bar', 'baz'] },
+              { foo: ['baz'] },
+              { foo: ['baz', 'bar'] }
+            ]
+          }).then(function () {
+            return db.query(queryFun, { reduce: true });
+          }).then(function (res) {
+            res.rows.should.have.length(1, 'Correctly reduced returned rows');
+            should.not.exist(res.rows[0].key, 'Correct, non-existing key');
+            res.rows[0].value.should.have.length(5);
+            res.rows[0].value.should.include('foobarbaz');
+            res.rows[0].value.should.include('foobar'); // twice
+            res.rows[0].value.should.include('bazbar');
+            res.rows[0].value.should.include('baz');
+            return db.query(queryFun, { group_level: 1, reduce: true });
+          }).then(function (res) {
+            res.rows.should.have.length(2, 'Correctly group reduced rows');
+            res.rows[0].key.should.deep.equal(['baz']);
+            res.rows[0].value.should.have.length(2);
+            res.rows[0].value.should.include('bazbar');
+            res.rows[0].value.should.include('baz');
+            res.rows[1].key.should.deep.equal(['foo']);
+            res.rows[1].value.should.have.length(3);
+            res.rows[1].value.should.include('foobarbaz');
+            res.rows[1].value.should.include('foobar'); // twice
+          });
+        });
+      });
+    });
+
     it("Test view querying with group_level option and reduce", function () {
       return new PouchDB(dbName).then(function (db) {
         return createView(db, {
@@ -1054,6 +1102,11 @@ function tests(suiteName, dbName, dbType, viewType) {
             res.rows[1].key.should.deep.equal(['foo']);
             res.rows[1].value.should.equal(3);
             return db.query(queryFun, { group_level: 999, reduce: true});
+          }).then(function (res) {
+            res.rows.should.have.length(4, 'Correctly group returned rows');
+            res.rows[2].key.should.deep.equal(['foo', 'bar']);
+            res.rows[2].value.should.equal(2);
+            return db.query(queryFun, { group_level: '999', reduce: true});
           }).then(function (res) {
             res.rows.should.have.length(4, 'Correctly group returned rows');
             res.rows[2].key.should.deep.equal(['foo', 'bar']);
@@ -1112,6 +1165,44 @@ function tests(suiteName, dbName, dbType, viewType) {
             res.rows.should.have.length(1, 'Correctly limits returned rows');
             res.rows[0].key.should.equal('bar');
             res.rows[0].value.should.equal(2);
+          }).then(function () {
+            return db.query(queryFun, { limit: '1', group: true, reduce: true});
+          }).then(function (res) {
+            res.rows.should.have.length(1, 'Correctly limits returned rows');
+            res.rows[0].key.should.equal('bar');
+            res.rows[0].value.should.equal(2);
+          });
+        });
+      });
+    });
+
+    it("Test view querying with invalid limit option and reduce", function () {
+      return new PouchDB(dbName).then(function (db) {
+        return createView(db, {
+          map: function (doc) {
+            emit(doc.foo);
+          },
+          reduce: '_count'
+        }).then(function (queryFun) {
+          return db.bulkDocs({
+            docs: [
+              { foo: 'bar' },
+              { foo: 'bar' },
+              { foo: 'baz' }
+            ]
+          }).then(function () {
+            return db.query(queryFun, { limit: -1, group: true, reduce: true});
+          }).then(function (res) {
+            res.should.not.exist('expected error on invalid group_level');
+          }).catch(function (err) {
+            err.status.should.equal(400);
+            err.message.should.be.a('string');
+            return db.query(queryFun, { limit: '1a', group: true, reduce: true});
+          }).then(function (res) {
+            res.should.not.exist('expected error on invalid group_level');
+          }).catch(function (err) {
+            err.status.should.equal(400);
+            err.message.should.be.a('string');
           });
         });
       });
@@ -1172,6 +1263,39 @@ function tests(suiteName, dbName, dbType, viewType) {
     });
 
     it("Test view querying with a skip option and reduce", function () {
+      var qf;
+      return new PouchDB(dbName).then(function (db) {
+        return createView(db, {
+          map: function (doc) {
+            emit(doc.foo);
+          },
+          reduce: '_count'
+        }).then(function (queryFun) {
+          qf = queryFun;
+          return db.bulkDocs({
+            docs: [
+              { foo: 'bar' },
+              { foo: 'bar' },
+              { foo: 'baz' }
+            ]
+          }).then(function () {
+            return db.query(queryFun, {skip: 1, group: true, reduce: true});
+          });
+        }).then(function (res) {
+          res.rows.should.have.length(1, 'Correctly limits returned rows');
+          res.rows[0].key.should.equal('baz');
+          res.rows[0].value.should.equal(1);
+        }).then(function () {
+          return db.query(qf, {skip: '1', group: true, reduce: true});
+        }).then(function (res) {
+          res.rows.should.have.length(1, 'Correctly limits returned rows');
+          res.rows[0].key.should.equal('baz');
+          res.rows[0].value.should.equal(1);
+        });
+      });
+    });
+
+    it("Test view querying with invalid skip option and reduce", function () {
       return new PouchDB(dbName).then(function (db) {
         return createView(db, {
           map: function (doc) {
@@ -1186,12 +1310,19 @@ function tests(suiteName, dbName, dbType, viewType) {
               { foo: 'baz' }
             ]
           }).then(function () {
-            return db.query(queryFun, {skip: 1, group: true, reduce: true});
+            return db.query(queryFun, { skip: -1, group: true, reduce: true});
+          }).then(function (res) {
+            res.should.not.exist('expected error on invalid group_level');
+          }).catch(function (err) {
+            err.status.should.equal(400);
+            err.message.should.be.a('string');
+            return db.query(queryFun, { skip: '1a', group: true, reduce: true});
+          }).then(function (res) {
+            res.should.not.exist('expected error on invalid group_level');
+          }).catch(function (err) {
+            err.status.should.equal(400);
+            err.message.should.be.a('string');
           });
-        }).then(function (res) {
-          res.rows.should.have.length(1, 'Correctly limits returned rows');
-          res.rows[0].key.should.equal('baz');
-          res.rows[0].value.should.equal(1);
         });
       });
     });
@@ -3013,7 +3144,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           }
         }).then(function (view) {
           return db.bulkDocs({docs: [
-            {  
+            {
               foo: {
                 bar: "foobar"
               }

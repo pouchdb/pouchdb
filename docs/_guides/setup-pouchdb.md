@@ -8,17 +8,15 @@ sidebar: guides_nav.html
 
 Installing PouchDB is easy. There are a few different ways to do it:
 
-Direct download
-------
-    
+{% include anchor.html title="Direct download" hash="direct-download" %}
+
 Download the latest **pouchdb-{{site.version}}.min.js** from the big green button above. Then in your `index.html`:
 
 ```html
 <script src="pouchdb-{{site.version}}.min.js"></script>
 ```
 
-Bower
--------
+{% include anchor.html title="Bower" hash="bower" %}
 
 Run this on the command line:
 
@@ -32,8 +30,7 @@ Then in your `index.html`:
 <script src="bower_components/pouchdb/dist/pouchdb.min.js"></script>
 ```
 
-npm
-------
+{% include anchor.html title="npm" hash="npm" %}
 
 Run this on the command line:
 
@@ -47,8 +44,7 @@ Then in your `index.html`:
 <script src="node_modules/pouchdb/dist/pouchdb.min.js"></script>
 ```
 
-jsdelivr CDN
-------
+{% include anchor.html title="jsdelivr CDN" hash="jsdelivr-cdn" %}
 
 Add this to your `index.html`:
 
@@ -56,8 +52,7 @@ Add this to your `index.html`:
 <script src="//cdn.jsdelivr.net/pouchdb/{{site.version}}/pouchdb.min.js"></script>
 ```
 
-Node.js
--------
+{% include anchor.html title="Node.js" hash="nodejs" %}
 
 Run this on the command line:
 
@@ -71,7 +66,6 @@ Then in your JavaScript:
 var PouchDB = require('pouchdb');
 ```
 
-Next
--------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you have PouchDB installed, let's start working with databases.

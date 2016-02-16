@@ -92,6 +92,8 @@ will be provided individually like so:
 ]
 {% endhighlight %}
 
+The results are returned in the same order as the supplied "docs" array.
+
 Note that `bulkDocs()` is not transactional, and that you may get
 back a mixed array of errors/non-errors. In CouchDB/PouchDB, the smallest
 atomic unit is the document.
@@ -190,4 +192,4 @@ db.bulkDocs([
 {% endhighlight %}
 {% include code/end.html %}
 
-**Note:** You can also specify a `new_edits` property on the options object that when set to `false` allows you to post and overwrite [existing documents](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). Normally only the replication algorithm needs to do this.
+**Note:** You can also specify a `new_edits` property on the options object that when set to `false` allows you to post [existing documents from other databases](http://wiki.apache.org/couchdb/HTTP_Bulk_Document_API#Posting_Existing_Revisions). This will not allow you to edit existing local documents and normally only the replication algorithm needs to do this.

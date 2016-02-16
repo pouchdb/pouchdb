@@ -1,49 +1,41 @@
 language: node_js
 
 node_js:
-  - "0.12"
+  - "stable"
 
 services:
-  - couchdb
+  - docker
 
 git:
   depth: 30
 
-# sudo: false
-
-# cache:
-#   directories:
-#     - node_modules
-#     - /tmp/phantomjs
+sudo:
+  false
 
 addons:
   firefox: "41.0.1"
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - build-essential
-      - ca-certificates
-      - curl
-      - erlang-dev
-      - erlang-nox
-      - git
-      - libicu-dev
-      - libmozjs185-dev
-      - python
-      - g++
-      - g++-4.8
+
+before_install:
+
+  # Install CouchDB Stable
+  - docker run -d -p 3000:5984 klaemo/couchdb:1.6.1
+
+  # Install CouchDB Master
+  - docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
+
+  # Because Saucelabs doesnt proxy 5984 on OSX
+  - export COUCH_HOST=http://127.0.0.1:3000
 
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 
-    # Lets know what CouchDB we are playing with
-  - "curl -X GET http://127.0.0.1:5984/"
-
-    # Fail early so we dont run ours of saucelabs if we know there
+    # Fail early so we dont run hours of saucelabs if we know there
     # is a lint failure
   - npm run jshint
+
+    # set up CORS
+  - "./node_modules/.bin/add-cors-to-couchdb http://127.0.0.1:3000"
 
 script: npm run $COMMAND
 
@@ -52,6 +44,8 @@ env:
   - secure: "WYQbfTXYwPfqz7t3ycqpXIDQdZ7C9kQJAP+08OF0cuR8eqhm7HxCiu9LjSNqoLAdlDmc55ygeS16Kn3Oht3zZ/i2Y7Gm75HcQfzUIb1sDv1xVm3aQmqZDJfAQ/r7fN8upBCLii/W8IUkJr1k717MpbdsTerIjyfPOb27hw0kJTM="
   - secure: "Ut9pRqzbVJHxg8vt1Cx0bTv4HAroBkvOLjtHF+11f/OzfNnAORIEPnJFHqGbOTozCPOizmzgwvCGqq9gYL8SakrfiI0wBfaL+lk0ub/FPuJ1+hwrLDU0Ju4O5reL0OSu0JB+OTmXfILuRQQkD9/7uwUEbLDFId4phSq3cz1UsK0="
   - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
+  - secure: "b8GsgkwaNEOHmJni/rPsc1f3S1/+SxbN6hnXMV7bkSIOiRZAvcf68s3I0Sdln/OPuBmyzeLm5hZ7R8nsA/jYsYD5JUgEzcmF8glcxAeuhMgh9z5jBAfqFo5oUM6B7sE9I7t3/RZkSSkBGqOXIk/43voX1ZGIZBL17VKVPfNcoZ8="
+  - secure: "SSRTzT8OTeTpkGCLga74EGRfGmmRtsmAXbiXm1Xkg6tgQQmahxQJcrxr5QwHkdGdWkEIEudTd53AvZ/5KPmokmX/HiWsamdIj3WkrLdYvbEF4+mfqNa4oBBfrWXtPgPOG0vP1u5jPCK76S8qd7Ih8YrmAPUvecb04TnpVcLy+JM="
 
   matrix:
   - CLIENT=node COMMAND=test
@@ -67,17 +61,17 @@ env:
 
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox:41.0.1 COMMAND=test
-  - CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - CLIENT=selenium:phantomjs COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox:41.0.1 COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox:41.0.1 COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:phantomjs ES5_SHIM=true COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
@@ -97,17 +91,24 @@ env:
   - CLIENT=selenium:firefox:41.0.1 ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox:41.0.1 ADAPTERS=localstorage COMMAND=test
 
+  # Test Webpack bundle
+  - CLIENT=selenium:firefox:41.0.1 COMMAND=test-webpack
+
   # Test CouchDB master (aka bigcouch branch)
-  - CLIENT=node SERVER=couchdb-master COMMAND=test
-  - SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
 
   # Test Couchbase Sync Gateway
   - GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
+
+  # Test Cloudant
+  - CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
 
   # Performance tests
   - CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
+  - COMMAND=test-extras
   - COMMAND=test-unit
   - COMMAND=test-component
   - COMMAND=test-fuzzy
@@ -121,24 +122,27 @@ matrix:
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
 
   # Allowed failures
-  - env: CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
+  - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
+  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
   - env: COMMAND=report-coverage
-
+  - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
 
   fast_finish: true
 
   include:
     - node_js: "0.10"
+      services: docker
       env: CLIENT=node COMMAND=test
     - node_js: "0.11"
+      services: docker
       env: CLIENT=node COMMAND=test
-    - node_js: "stable"
-      env: CXX=g++-4.8 CLIENT=node COMMAND=test
+    - node_js: "0.12"
+      services: docker
+      env: CLIENT=node COMMAND=test
 
 branches:
   only:

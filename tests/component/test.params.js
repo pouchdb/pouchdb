@@ -46,4 +46,11 @@ describe('test.params.js', function () {
     });
   });
 
+  it('Test disable timeout', function () {
+    var url = 'http://127.0.0.1:' + PORT;
+    return new PouchDB(url).changes({timeout: false}).then(function() {
+      should.not.exist(params.timeout);
+    });
+  });
+
 });

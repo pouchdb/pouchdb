@@ -74,55 +74,72 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Testing allDocs opts.keys', function (done) {
+    it('Testing allDocs opts.keys', function () {
       var db = new PouchDB(dbs.name);
       function keyFunc(doc) {
         return doc.key;
       }
-      testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
-        function () {
-        var keys = ['3', '1'];
-        db.allDocs({ keys: keys }, function (err, result) {
-          result.rows.map(keyFunc).should.deep.equal(keys);
-          keys = ['2', '0', '1000'];
-          db.allDocs({ keys: keys }, function (err, result) {
-            result.rows.map(keyFunc).should.deep.equal(keys);
-            result.rows[2].error.should.equal('not_found');
-            db.allDocs({
-              keys: keys,
-              descending: true
-            }, function (err, result) {
-              result.rows.map(keyFunc).should.deep.equal(['1000', '0', '2']);
-              result.rows[0].error.should.equal('not_found');
-              db.allDocs({
-                keys: keys,
-                startkey: 'a'
-              }, function (err, result) {
-                should.exist(err);
-                db.allDocs({
-                  keys: keys,
-                  endkey: 'a'
-                }, function (err, result) {
-                  should.exist(err);
-                  db.allDocs({ keys: [] }, function (err, result) {
-                    result.rows.should.have.length(0);
-                    db.get('2', function (err, doc) {
-                      db.remove(doc, function (err, doc) {
-                        db.allDocs({
-                          keys: keys,
-                          include_docs: true
-                        }, function (err, result) {
-                          result.rows.map(keyFunc).should.deep.equal(keys);
-                          done();
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
+      var keys;
+      return db.bulkDocs(origDocs).then(function () {
+        keys = ['3', '1'];
+        return db.allDocs({keys: keys});
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(keys);
+        keys = ['2', '0', '1000'];
+        return db.allDocs({ keys: keys });
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(keys);
+        result.rows[2].error.should.equal('not_found');
+        return db.allDocs({
+          keys: keys,
+          descending: true
         });
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(['1000', '0', '2']);
+        result.rows[0].error.should.equal('not_found');
+        return db.allDocs({
+          keys: keys,
+          startkey: 'a'
+        });
+      }).then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
+        return db.allDocs({
+          keys: keys,
+          endkey: 'a'
+        });
+      }).then(function () {
+          throw new Error('expected an error');
+        }, function (err) {
+        should.exist(err);
+        return db.allDocs({keys: []});
+      }).then(function (result) {
+        result.rows.should.have.length(0);
+        return db.get('2');
+      }).then(function (doc) {
+        return db.remove(doc);
+      }).then(function () {
+        return db.allDocs({
+          keys: keys,
+          include_docs: true
+        });
+      }).then(function (result) {
+        result.rows.map(keyFunc).should.deep.equal(keys);
+      });
+    });
+
+    it('Testing allDocs opts.keys with skip', function () {
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(origDocs).then(function () {
+        return db.allDocs({
+          keys: ['3', '1'],
+          skip: 1
+        });
+      }).then(function (res) {
+        res.total_rows.should.equal(4);
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('1');
       });
     });
 

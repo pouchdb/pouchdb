@@ -9,8 +9,7 @@ You can `get()`, `put()`, and `remove()` single documents to your heart's conten
 
 PouchDB provides two methods for bulk operations - `bulkDocs()` for bulk writes, and `allDocs()` for bulk reads.
 
-Use `bulkDocs()` to write many docs
-----
+{% include anchor.html title="Use `bulkDocs()` to write many docs" hash="use-bulkdocs-to-write-many-docs" %}
 
 The `bulkDocs()` API is very simple.  It just takes a list of documents that you want to `put()` into the database:
 
@@ -58,8 +57,7 @@ db.put({
 });
 ```
 
-Why bulk up with `bulkDocs()`?
-----
+{% include anchor.html title="Why bulk up with `bulkDocs()`?" hash="why-bulk-up-with-bulkdocs" %}
 
 Bulk operations tend to be faster than individual operations, because they can be combined into a single transaction (in a local IndexedDB/WebSQL) or a single HTTP request (in a remote CouchDB).
 
@@ -73,8 +71,7 @@ Neither <code>bulkDocs()</code> nor <code>allDocs()</code> constitutes a transac
 By design, CouchDB and PouchDB do not support transactions. A document is the smallest unit of operations.
 {% include alert/end.html %}
 
-Use `allDocs()` to read many docs
---------
+{% include anchor.html title="Use `allDocs()` to read many docs" hash="use-alldocs-to-read-many-docs" %}
 
 Likewise, `allDocs()` is a method that allows you to read many documents at once.
 
@@ -117,8 +114,7 @@ db.put({
 
 You can see **[a live example](http://bl.ocks.org/nolanlawson/8f58dbc360348a4c95f6)** to confirm that the kittens are sorted by the order they were put into the database.
 
-Please use `allDocs()`. Seriously.
--------
+{% include anchor.html title="Please use `allDocs()`. Seriously." hash="please-use-alldocs" %}
 
 `allDocs()` is the unsung star of the PouchDB world. It not only returns documents in order &ndash; it also allows you to reverse the order, filter by `_id`, slice and dice using "greater than" and "less than" operations on the `_id`, and much more.
 
@@ -126,13 +122,11 @@ Far too many developers overlook this valuable API, because they misunderstand i
 
 For details on how to effectively use `allDocs()`, you are strongly recommended to read ["Pagination strategies with PouchDB"](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html). For 99% of your applications, you should be able to use `allDocs()` for all the pagination/sorting/searching functionality that you need.
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [bulkDocs()](/api.html#batch_create)
 * [allDocs()](/api.html#batch_fetch)
 
-Next
-------
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you've fallen helplessly in love with `bulkDocs()` and `allDocs()`, let's turn our wandering gaze to attachments.

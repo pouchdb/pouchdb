@@ -61,9 +61,6 @@ if (process.env.GREP) {
 if (process.env.ADAPTERS) {
   qs.adapters = process.env.ADAPTERS;
 }
-if (process.env.ES5_SHIM || process.env.ES5_SHIMS) {
-  qs.es5shim = true;
-}
 if (process.env.AUTO_COMPACTION) {
   qs.autoCompaction = true;
 }
@@ -72,6 +69,12 @@ if (process.env.SERVER) {
 }
 if (process.env.SKIP_MIGRATION) {
   qs.SKIP_MIGRATION = process.env.SKIP_MIGRATION;
+}
+if (process.env.POUCHDB_SRC) {
+  qs.src = process.env.POUCHDB_SRC;
+}
+if (process.env.COUCH_HOST) {
+  qs.couchHost = process.env.COUCH_HOST;
 }
 
 testUrl += '?';

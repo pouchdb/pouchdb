@@ -21,7 +21,7 @@ All options default to `false` unless otherwise specified.
 * `options.descending`: Reverse the order of the output documents.
 * `options.since`: Start the results from the change immediately after the given sequence number. You can also pass `'now'` if you want only new changes (when `live` is `true`).
 * `options.limit`: Limit the number of results to this number.
-* `options.timeout`: Request timeout (in milliseconds).
+* `options.timeout`: Request timeout (in milliseconds), use `false` to disable.
 * `options.heartbeat`: For http adapter only, time in milliseconds for server to give a heartbeat to keep long connections open. Defaults to 10000 (10 seconds), use `false` to disable the default.
 
 **Filtering Options:**
@@ -203,7 +203,7 @@ db.changes({
 When `live` is `false`, the returned object is also an event emitter as well as a promise,
 and will fire the `'complete'` event when the results are ready.
 
-Note that this `'complete'` event only fires when you aren't doing live changes. With live changes, use the `'paused'` event instead.
+Note that this `'complete'` event only fires when you aren't doing live changes.
 
 #### Filtered changes
 

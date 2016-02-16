@@ -11,8 +11,7 @@ However, if you allow your database to grow without bounds, it can end up taking
 
 To mitigate this problem, PouchDB offers two recourses: compaction and destruction.
 
-Compacting a database
-------
+{% include anchor.html title="Compacting a database" hash="compacting-a-database" %}
 
 When you compact a database, you tell PouchDB to optimize its current storage usage. CouchDB will do the same thing:
 
@@ -48,8 +47,7 @@ Compaction is a great feature, but it may not be what you desire if you want to 
 
 However, if that's not a concern, then compaction is a harmless operation. In fact, since leaf revisions are retained, this means that you can still do [conflict resolution](/guides/conflicts.html) after compaction!
 
-Auto-compaction
-------
+{% include anchor.html title="Auto-compaction" hash="auto-compaction" %}
 
 If you really want to go all-in on compaction, then you can even put your database in `auto_compaction` mode. This means that it will automatically perform a `compact()` operation after every write.
 
@@ -71,8 +69,7 @@ You can see a **[live example](http://bl.ocks.org/nolanlawson/b88f46d7cbaef8d93c
 
 This feature is only available in local databases, not remote ones. On remote databases, the `auto_compaction` option will do nothing.
 
-Destroying a database
-----
+{% include anchor.html title="Destroying a database" hash="destroying-a–database" %}
 
 We all love our databases, but sometimes good things must come to an end, and you need to snub out a database completely.
 
@@ -102,13 +99,11 @@ Note that destroying a database does not mean that replicated databases will als
 
 Also note that in Web SQL, the database will not really be destroyed &ndash; it will just have its tables dropped. This is because Web SQL does not support true database deletion.
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [compact()](/api.html#compaction)
 * [destroy()](/api.html#delete_database)
 
-Next
-----
+{% include anchor.html title="Next" hash="next" %}
 
 To wrap up, let's look at a special class of documents in PouchDB &ndash; local docs.

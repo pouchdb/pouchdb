@@ -5,8 +5,7 @@ title: Working with documents
 sidebar: guides_nav.html
 ---
 
-What's a document?
--------
+{% include anchor.html title="What's a document?" hash="whats-a–document" %}
 
 PouchDB is a NoSQL database, meaning that you store unstructured *documents* rather than explicitly specifying a schema with rows, tables, and all that jazz.
 
@@ -60,8 +59,7 @@ If you come from a SQL background, this handy conversion chart may help:
 
 We'll discuss these concepts later on.
 
-Storing a document
--------------
+{% include anchor.html title="Storing a document" hash="storing-a–document" %}
 
 To store a document, you simply `put` it:
 
@@ -111,8 +109,7 @@ You can see a **[live example](http://bl.ocks.org/nolanlawson/c02bba75247012afb1
 
 The document looks exactly the same as when we put it, except... aha! What is this? There is a new field, `_rev`, that contains what looks like garbage. PouchDB gots some 'splainin' to do.
 
-Understanding revisions (`_rev`)
-------
+{% include anchor.html title="Understanding revisions (`_rev`)" hash="understanding-revisions-rev" %}
 
 The new field, `_rev` is the *revision marker*. It is a randomly-generated ID that changes whenever a document is created or updated.
 
@@ -138,10 +135,9 @@ If you fail to include the correct `_rev`, you will get the following sad error:
 
 `HTTP 409` is a standard HTTP error message that indicates a conflict.
 
-Updating documents correctly
------------
+{% include anchor.html title="Updating documents correctly" hash="updating-documents–correctly" %}
 
-So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put them back. We don't need to manually assign the `_rev` value here (like we did above), as it is already in the `doc` we're fetching. 
+So to update Mittens' age, we will first need to fetch Mittens from the database, to ensure that we have the correct `_rev` before we put them back. We don't need to manually assign the `_rev` value here (like we did above), as it is already in the `doc` we're fetching.
 
 ```js
 // fetch mittens
@@ -185,13 +181,11 @@ Now you should see the following:
 
 As you can see, we have successfully updated Mittens' age to 4 (they grow up so fast!), and their revision marker has also changed to `"2-3e3fd988b331193beeeea2d4221b57e7"`. If we wanted to increment their age to 5, we would need to supply this new revision marker.
 
-Related API documentation
---------
+{% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
 * [get()](/api.html#fetch_document)
 * [put()](/api.html#create_document)
 
-Next
-----
+{% include anchor.html title="Next" hash="next" %}
 
 Now that you understand a bit about how to create and update documents, let's take a small detour to talk about asynchronous code.
