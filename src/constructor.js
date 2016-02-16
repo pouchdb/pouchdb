@@ -29,8 +29,6 @@ function prepareForDestruction(self, opts) {
 
   function onDestroyed() {
     ctor.emit('destroyed', name);
-    //so we don't have to sift through all dbnames
-    ctor.emit(name, 'destroyed');
   }
 
   function onConstructorDestroyed() {

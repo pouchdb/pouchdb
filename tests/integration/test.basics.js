@@ -697,6 +697,13 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Create a db with a reserved name', function () {
+      var db = new PouchDB('__proto__');
+      return db.info().then(function () {
+        return db.destroy();
+      });
+    });
+
     it('Error when document is not an object', function (done) {
       var db = new PouchDB(dbs.name);
       var doc1 = [{ _id: 'foo' }, { _id: 'bar' }];

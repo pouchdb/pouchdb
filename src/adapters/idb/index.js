@@ -1,6 +1,6 @@
 import clone from '../../deps/clone';
 import uuid from '../../deps/uuid';
-import collections from 'pouchdb-collections';
+import { Map, Set } from 'pouchdb-collections';
 import filterChange from '../../deps/filterChange';
 import toPromise from '../../deps/toPromise';
 import isDeleted from '../../deps/docs/isDeleted';
@@ -45,9 +45,10 @@ import {
   taskQueue
 } from './utils';
 
-var cachedDBs = {};
+var cachedDBs = new Map();
 var blobSupportPromise;
 var idbChanges = new Changes();
+var openReqList = new Map();
 
 function IdbPouch(opts, callback) {
   var api = this;
@@ -379,7 +380,7 @@ function init(api, opts, callback) {
 
   api._info = function idb_info(callback) {
 
-    if (idb === null || !cachedDBs[dbName]) {
+    if (idb === null || !cachedDBs.has(dbName)) {
       var error = new Error('db isn\'t open');
       error.id = 'idbNull';
       return callback(error);
@@ -428,7 +429,7 @@ function init(api, opts, callback) {
       };
     }
 
-    var docIds = opts.doc_ids && new collections.Set(opts.doc_ids);
+    var docIds = opts.doc_ids && new Set(opts.doc_ids);
 
     opts.since = opts.since || 0;
     var lastSeq = opts.since;
@@ -450,7 +451,7 @@ function init(api, opts, callback) {
     var results = [];
     var numResults = 0;
     var filter = filterChange(opts);
-    var docIdsToMetadata = new collections.Map();
+    var docIdsToMetadata = new Map();
 
     var txn;
     var bySeqStore;
@@ -601,7 +602,7 @@ function init(api, opts, callback) {
     // https://developer.mozilla.org/en-US/docs/IndexedDB/IDBDatabase#close
     // "Returns immediately and closes the connection in a separate thread..."
     idb.close();
-    delete cachedDBs[dbName];
+    cachedDBs.delete(dbName);
     idb = null;
     callback();
   };
@@ -790,17 +791,16 @@ function init(api, opts, callback) {
     idbChanges.removeAllListeners(dbName);
 
     //Close open request for "dbName" database to fix ie delay.
-    if (IdbPouch.openReqList[dbName] && IdbPouch.openReqList[dbName].result) {
-      IdbPouch.openReqList[dbName].result.close();
-      delete cachedDBs[dbName];
+    var openReq = openReqList.get(dbName);
+    if (openReq && openReq.result) {
+      openReq.result.close();
+      cachedDBs.delete(dbName);
     }
     var req = indexedDB.deleteDatabase(dbName);
 
     req.onsuccess = function () {
       //Remove open request from the list.
-      if (IdbPouch.openReqList[dbName]) {
-        IdbPouch.openReqList[dbName] = null;
-      }
+      openReqList.delete(dbName);
       if (hasLocalStorage() && (dbName in localStorage)) {
         delete localStorage[dbName];
       }
@@ -810,7 +810,7 @@ function init(api, opts, callback) {
     req.onerror = idbError(callback);
   };
 
-  var cached = cachedDBs[dbName];
+  var cached = cachedDBs.get(dbName);
 
   if (cached) {
     idb = cached.idb;
@@ -828,10 +828,7 @@ function init(api, opts, callback) {
     req = indexedDB.open(dbName, ADAPTER_VERSION);
   }
 
-  if (!('openReqList' in IdbPouch)) {
-    IdbPouch.openReqList = {};
-  }
-  IdbPouch.openReqList[dbName] = req;
+  openReqList.set(dbName, req);
 
   req.onupgradeneeded = function (e) {
     var db = e.target.result;
@@ -877,13 +874,13 @@ function init(api, opts, callback) {
 
     idb.onversionchange = function () {
       idb.close();
-      delete cachedDBs[dbName];
+      cachedDBs.delete(dbName);
     };
 
     idb.onabort = function (e) {
       console.error('Database has a global failure', e.target.error);
       idb.close();
-      delete cachedDBs[dbName];
+      cachedDBs.delete(dbName);
     };
 
     var txn = idb.transaction([
@@ -912,10 +909,10 @@ function init(api, opts, callback) {
             docCount: docCount
           };
 
-          cachedDBs[dbName] = {
+          cachedDBs.set(dbName, {
             idb: idb,
             global: api._meta
-          };
+          });
           callback(null, api);
         }
       };

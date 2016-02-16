@@ -5,7 +5,7 @@ import { obj as through } from 'through2';
 import clone from '../../deps/clone';
 import Changes from '../../changesHandler';
 import uuid from '../../deps/uuid';
-import collections from 'pouchdb-collections';
+import { Map, Set } from 'pouchdb-collections';
 import filterChange from '../../deps/filterChange';
 import getArguments from 'argsarray';
 import safeJsonParse from '../../deps/safeJsonParse';
@@ -48,7 +48,7 @@ var META_STORE = 'meta-store';
 
 // leveldb barks if we try to open a db multiple times
 // so we cache opened connections here for initstore()
-var dbStores = new collections.Map();
+var dbStores = new Map();
 
 // store the value of update_seq in the by-sequence store the key name will
 // never conflict, since the keys in the by-sequence store are integers
@@ -187,7 +187,7 @@ function LevelPouch(opts, callback) {
   if (dbStores.has(leveldownName)) {
     dbStore = dbStores.get(leveldownName);
   } else {
-    dbStore = new collections.Map();
+    dbStore = new Map();
     dbStores.set(leveldownName, dbStore);
   }
   if (dbStore.has(name)) {
@@ -446,8 +446,8 @@ function LevelPouch(opts, callback) {
   api._bulkDocs = writeLock(function (req, opts, callback) {
     var newEdits = opts.new_edits;
     var results = new Array(req.docs.length);
-    var fetchedDocs = new collections.Map();
-    var stemmedRevs = new collections.Map();
+    var fetchedDocs = new Map();
+    var stemmedRevs = new Map();
 
     var txn = new LevelTransaction();
     var docCountDelta = 0;
@@ -573,7 +573,7 @@ function LevelPouch(opts, callback) {
     }
 
     function autoCompact(callback) {
-      var revsMap = new collections.Map();
+      var revsMap = new Map();
       fetchedDocs.forEach(function (metadata, docId) {
         revsMap.set(docId, compactTree(metadata));
       });
@@ -1005,9 +1005,9 @@ function LevelPouch(opts, callback) {
       streamOpts.start = formatSeq(opts.since || 0);
     }
 
-    var docIds = opts.doc_ids && new collections.Set(opts.doc_ids);
+    var docIds = opts.doc_ids && new Set(opts.doc_ids);
     var filter = filterChange(opts);
-    var docIdsToMetadata = new collections.Map();
+    var docIdsToMetadata = new Map();
 
     var returnDocs;
     if ('return_docs' in opts) {
@@ -1269,7 +1269,7 @@ function LevelPouch(opts, callback) {
             finish(overallErr);
           }
         }
-        var refsToDelete = new collections.Map();
+        var refsToDelete = new Map();
         revs.forEach(function (rev) {
           refsToDelete.set(docId + '@' + rev, true);
         });

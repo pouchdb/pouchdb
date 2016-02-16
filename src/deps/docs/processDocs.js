@@ -4,7 +4,7 @@ import isDeleted from './isDeleted';
 import isLocalId from './isLocalId';
 import calculateWinningRev from '../../deps/merge/winningRev';
 import merge from '../../deps/merge/index';
-import collections from 'pouchdb-collections';
+import { Map } from 'pouchdb-collections';
 
 function rootIsMissing(docInfo) {
   return docInfo.metadata.rev_tree[0].ids[1].status === 'missing';
@@ -41,7 +41,7 @@ function processDocs(revLimit, docInfos, api, fetchedDocs, tx, results,
   }
 
   var newEdits = opts.new_edits;
-  var idsToDocs = new collections.Map();
+  var idsToDocs = new Map();
 
   var docsDone = 0;
   var docsToDo = docInfos.length;
