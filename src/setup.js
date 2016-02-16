@@ -2,7 +2,7 @@ import { extend as extend } from 'js-extend';
 
 import PouchDB from "./constructor";
 import inherits from 'inherits';
-import collections from 'pouchdb-collections';
+import { Map } from 'pouchdb-collections';
 import { EventEmitter as EE } from 'events';
 import hasLocalStorage from './deps/env/hasLocalStorage';
 
@@ -22,7 +22,7 @@ function setUpEventEmitter(Pouch) {
 
   // these are created in constructor.js, and allow us to notify each DB with
   // the same name that it was destroyed, via the constructor object
-  var destructListeners = Pouch._destructionListeners = new collections.Map();
+  var destructListeners = Pouch._destructionListeners = new Map();
   Pouch.on('destroyed', function onConstructorDestroyed(name) {
     if (!destructListeners.has(name)) {
       return;

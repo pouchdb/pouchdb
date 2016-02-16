@@ -3,14 +3,14 @@
 // things in-memory and then does a big batch() operation
 // when you're done
 
-import collections from 'pouchdb-collections';
+import { Map, Set } from 'pouchdb-collections';
 
 function getCacheFor(transaction, store) {
   var prefix = store.prefix()[0];
   var cache = transaction._cache;
   var subCache = cache.get(prefix);
   if (!subCache) {
-    subCache = new collections.Map();
+    subCache = new Map();
     cache.set(prefix, subCache);
   }
   return subCache;
@@ -18,7 +18,7 @@ function getCacheFor(transaction, store) {
 
 function LevelTransaction() {
   this._batch = [];
-  this._cache = new collections.Map();
+  this._cache = new Map();
 }
 
 LevelTransaction.prototype.get = function (store, key, callback) {
@@ -64,7 +64,7 @@ LevelTransaction.prototype.batch = function (batch) {
 
 LevelTransaction.prototype.execute = function (db, callback) {
 
-  var keys = new collections.Set();
+  var keys = new Set();
   var uniqBatches = [];
 
   // remove duplicates; last one wins
