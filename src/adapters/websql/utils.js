@@ -1,4 +1,4 @@
-import collections from 'pouchdb-collections';
+import { Map, Set } from 'pouchdb-collections';
 import { createError, WSQ_ERROR } from '../../deps/errors';
 
 import {
@@ -108,7 +108,7 @@ function compactRevs(revs, docId, tx) {
           digestsToCheck.map(function () { return '?'; }).join(',') +
           ')';
         tx.executeSql(sql, digestsToCheck, function (tx, res) {
-          var nonOrphanedDigests = new collections.Set();
+          var nonOrphanedDigests = new Set();
           for (var i = 0; i < res.rows.length; i++) {
             nonOrphanedDigests.add(res.rows.item(i).digest);
           }
@@ -202,13 +202,14 @@ function openDBSafely(openDBFunction, opts) {
   }
 }
 
-var cachedDatabases = {};
+var cachedDatabases = new Map();
 
 function openDB(opts) {
-  var cachedResult = cachedDatabases[opts.name];
+  var cachedResult = cachedDatabases.get(opts.name);
   if (!cachedResult) {
     var openDBFun = createOpenDBFunction();
-    cachedResult = cachedDatabases[opts.name] = openDBSafely(openDBFun, opts);
+    cachedResult = openDBSafely(openDBFun, opts);
+    cachedDatabases.set(opts.name, cachedResult);
     if (cachedResult.db) {
       cachedResult.db._sqlitePlugin = typeof sqlitePlugin !== 'undefined';
     }

@@ -1,7 +1,7 @@
 import { extend as extend } from 'js-extend';
 import Promise from './deps/promise';
 import pick from './deps/pick';
-import collections from 'pouchdb-collections';
+import { Map } from 'pouchdb-collections';
 import inherits from 'inherits';
 import getArguments from 'argsarray';
 import adapterFun from './deps/adapterFun';
@@ -359,7 +359,7 @@ AbstractPouchDB.prototype.revsDiff =
   }
 
   var count = 0;
-  var missing = new collections.Map();
+  var missing = new Map();
 
   function addToMissing(id, revId) {
     if (!missing.has(id)) {

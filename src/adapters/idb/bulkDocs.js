@@ -1,4 +1,4 @@
-import collections from 'pouchdb-collections';
+import { Map } from 'pouchdb-collections';
 import { createError, MISSING_STUB } from '../../deps/errors';
 import preprocessAttachments from '../../deps/docs/preprocessAttachments';
 import processDocs from '../../deps/docs/processDocs';
@@ -48,7 +48,7 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, idbChanges, callback) {
   }
 
   var results = new Array(docInfos.length);
-  var fetchedDocs = new collections.Map();
+  var fetchedDocs = new Map();
   var preconditionErrored = false;
   var blobType = api._meta.blobSupport ? 'blob' : 'base64';
 

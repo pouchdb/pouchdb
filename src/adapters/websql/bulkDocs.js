@@ -1,4 +1,4 @@
-import collections from 'pouchdb-collections';
+import { Map } from 'pouchdb-collections';
 import preprocessAttachments from '../../deps/docs/preprocessAttachments';
 import isLocalId from '../../deps/docs/isLocalId';
 import processDocs from '../../deps/docs/processDocs';
@@ -48,7 +48,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, websqlChanges, callback) {
 
   var tx;
   var results = new Array(docInfos.length);
-  var fetchedDocs = new collections.Map();
+  var fetchedDocs = new Map();
 
   var preconditionErrored;
   function complete() {
