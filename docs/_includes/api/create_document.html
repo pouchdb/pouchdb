@@ -122,7 +122,7 @@ db.get('mydoc', function(err, doc) {
 {% highlight js %}
 try {
   var doc = await db.get('mydoc');
-  var response = await db.put{
+  var response = await db.put({
     title: "Sound and Vision"
   }, 'mydoc', doc._rev);
 } catch (err) {
