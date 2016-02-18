@@ -202,7 +202,7 @@ Changes.prototype.filterChanges = function (opts) {
     }
     // fetch a view from a design doc, make it behave like a filter
     var viewName = parseDdocFunctionName(opts.view);
-    this.db.get('_design/' + viewName[0], function (err, ddoc) {
+    this.db.getView(viewName[0], viewName[1], function (err, view) {
       /* istanbul ignore if */
       if (self.isCancelled) {
         return callback(null, {status: 'cancelled'});
@@ -211,14 +211,10 @@ Changes.prototype.filterChanges = function (opts) {
       if (err) {
         return callback(generateErrorFromResponse(err));
       }
-      var mapFun = ddoc && ddoc.views && ddoc.views[viewName[1]] &&
-        ddoc.views[viewName[1]].map;
-      if (!mapFun) {
-        return callback(createError(MISSING_DOC,
-          (ddoc.views ? 'missing json key: ' + viewName[1] :
-            'missing json key: views')));
+      if (!view.map) {
+        return callback(createError(MISSING_DOC));
       }
-      opts.filter = evalView(mapFun);
+      opts.filter = evalView(view.map);
       self.doChanges(opts);
     });
   } else {
@@ -227,7 +223,7 @@ Changes.prototype.filterChanges = function (opts) {
     if (!filterName) {
       return self.doChanges(opts);
     }
-    this.db.get('_design/' + filterName[0], function (err, ddoc) {
+    this.db.getFilter(filterName[0], filterName[1], function (err, filterFun) {
       /* istanbul ignore if */
       if (self.isCancelled) {
         return callback(null, {status: 'cancelled'});
@@ -235,12 +231,6 @@ Changes.prototype.filterChanges = function (opts) {
       /* istanbul ignore next */
       if (err) {
         return callback(generateErrorFromResponse(err));
-      }
-      var filterFun = ddoc && ddoc.filters && ddoc.filters[filterName[1]];
-      if (!filterFun) {
-        return callback(createError(MISSING_DOC,
-          ((ddoc && ddoc.filters) ? 'missing json key: ' + filterName[1]
-            : 'missing json key: filters')));
       }
       opts.filter = evalFilter(filterFun);
       self.doChanges(opts);

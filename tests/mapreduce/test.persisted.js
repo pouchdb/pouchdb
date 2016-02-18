@@ -406,13 +406,13 @@ function tests(suiteName, dbName, dbType) {
       }
       return new PouchDB(dbName).then(function (db) {
         return db.bulkDocs({docs : docs}).then(function (responses) {
-          var tasks = [];
+          var promise = Promise.resolve();
           for (var i = 0; i < docs.length; i++) {
             /* jshint loopfunc:true */
             docs[i]._rev = responses[i].rev;
-            tasks.push(db.query('view' + i + '/view'));
+            promise = promise.then(db.query('view' + i + '/view'));
           }
-          return Promise.all(tasks);
+          return promise;
         }).then(function () {
           docs.forEach(function (doc) {
             doc._deleted = true;

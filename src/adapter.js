@@ -185,6 +185,67 @@ function attachmentNameError(name) {
   return false;
 }
 
+function cacheUpdateRequired(api, cache, designDocName, callback) {
+  cache.seq = cache.seq || 0;
+  var changesOpts = {
+    doc_ids: [ '_design/' + designDocName ],
+    limit: 1,
+    since: cache.seq
+  };
+  api.changes(changesOpts).then(function(res) {
+    var latestSeq = res.results && res.results.length && res.results[0].seq;
+    if (latestSeq && latestSeq > cache.seq) {
+      // invalidate the cache
+      cache.seq = latestSeq;
+      delete cache.promise;
+    }
+    callback();
+  }).catch(callback);
+}
+
+function getDesignDocCache(api, designDocName, callback) {
+  api._ddocCache = api._ddocCache || {};
+  api._ddocCache[designDocName] = api._ddocCache[designDocName] || {};
+  var cache = api._ddocCache[designDocName];
+  cacheUpdateRequired(api, cache, designDocName, function(err) {
+    if (err) {
+      return callback(err);
+    }
+    if (!cache.promise) {
+      cache.promise = new Promise(function (resolve, reject) {
+        api._get('_design/' + designDocName, {}, function (err, res) {
+          if (err) {
+            return reject(err);
+          }
+          var cache = {};
+          ['views', 'filters'].forEach(function(propertyName) {
+            cache[propertyName] = res.doc[propertyName];
+          });
+          resolve(cache);
+        });
+      });
+    }
+    cache.promise.then(function(cache) {
+      callback(null, cache);
+    }).catch(callback);
+  });
+}
+
+function getDesignDocProperty(api, designDocName, propertyName,
+                              propertyElement, callback) {
+  getDesignDocCache(api, designDocName, function(err, designDoc) {
+    if (err) {
+      return callback(err);
+    }
+    var element = designDoc[propertyName] &&
+                  designDoc[propertyName][propertyElement];
+    if (!element) {
+      return callback(createError(MISSING_DOC));
+    }
+    callback(null, element);
+  });
+}
+
 inherits(AbstractPouchDB, EventEmitter);
 
 function AbstractPouchDB() {
@@ -664,6 +725,16 @@ AbstractPouchDB.prototype.get =
       callback(null, doc);
     }
   });
+});
+
+AbstractPouchDB.prototype.getView =
+  adapterFun('getView', function (designDocName, viewName, callback) {
+  getDesignDocProperty(this, designDocName, 'views', viewName, callback);
+});
+
+AbstractPouchDB.prototype.getFilter =
+  adapterFun('getFilter', function (designDocName, filterName, callback) {
+  getDesignDocProperty(this, designDocName, 'filters', filterName, callback);
 });
 
 AbstractPouchDB.prototype.getAttachment =
