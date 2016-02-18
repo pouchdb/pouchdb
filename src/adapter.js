@@ -192,17 +192,15 @@ function cacheUpdateRequired(api, cache, designDocName, callback) {
     limit: 1,
     since: cache.seq
   };
-  api.changes(changesOpts)
-    .then(function(res) {
-      var latestSeq = res.results && res.results.length && res.results[0].seq;
-      if (latestSeq && latestSeq > cache.seq) {
-        // invalidate the cache
-        cache.seq = latestSeq;
-        delete cache.promise;
-      }
-      callback();
-    })
-    .catch(callback);
+  api.changes(changesOpts).then(function(res) {
+    var latestSeq = res.results && res.results.length && res.results[0].seq;
+    if (latestSeq && latestSeq > cache.seq) {
+      // invalidate the cache
+      cache.seq = latestSeq;
+      delete cache.promise;
+    }
+    callback();
+  }).catch(callback);
 }
 
 function getDesignDocCache(api, designDocName, callback) {
@@ -227,11 +225,9 @@ function getDesignDocCache(api, designDocName, callback) {
         });
       });
     }
-    cache.promise
-      .then(function(cache) {
-        callback(null, cache);
-      })
-      .catch(callback);
+    cache.promise.then(function(cache) {
+      callback(null, cache);
+    }).catch(callback);
   });
 }
 
