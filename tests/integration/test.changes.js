@@ -384,10 +384,7 @@ adapters.forEach(function (adapter) {
         db.changes({
           filter: 'foobar/odd'
         }).on('error', function (err) {
-          err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
-                                  'correct error status returned');
-          err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
-                               'correct error message returned');
+          should.exist(err);
           done();
         });
       });
