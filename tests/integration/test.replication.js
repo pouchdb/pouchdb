@@ -3732,9 +3732,7 @@ adapters.forEach(function (adapters) {
           return replication;
         }).then(function () {
           deniedErrors.length.should.equal(2);
-          deniedErrors[0].id.should.equal('foo1');
           deniedErrors[0].name.should.equal('unauthorized');
-          deniedErrors[1].id.should.equal('foo2');
           deniedErrors[1].name.should.equal('unauthorized');
           done();
         }).catch(done);
