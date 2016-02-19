@@ -631,9 +631,7 @@ adapters.forEach(function (adapters) {
           return sync;
         }).then(function () {
           deniedErrors.length.should.equal(2);
-          deniedErrors[0].doc.id.should.equal('foo1');
           deniedErrors[0].doc.name.should.equal('unauthorized');
-          deniedErrors[1].doc.id.should.equal('foo2');
           deniedErrors[1].doc.name.should.equal('unauthorized');
           deniedErrors[0].direction.should.equal('push');
         })
@@ -679,9 +677,7 @@ adapters.forEach(function (adapters) {
             return sync;
           }).then(function () {
             deniedErrors.length.should.equal(2);
-            deniedErrors[0].doc.id.should.equal('foo1');
             deniedErrors[0].doc.name.should.equal('unauthorized');
-            deniedErrors[1].doc.id.should.equal('foo2');
             deniedErrors[1].doc.name.should.equal('unauthorized');
             deniedErrors[0].direction.should.equal('pull');
           })
