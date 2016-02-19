@@ -28,7 +28,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('retry stuff', function (done) {
-      this.timeout(2000000);
       var remote = new PouchDB(dbs.remote);
       var Promise = PouchDB.utils.Promise;
       var allDocs = remote.allDocs;
@@ -75,8 +74,8 @@ adapters.forEach(function (adapters) {
       });
 
       rep.on('complete', function () {
-        active.should.be.within(3, 4);
-        paused.should.be.at.least(3);
+        active.should.be.at.least(2);
+        paused.should.be.at.least(2);
         done();
       });
 
