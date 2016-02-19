@@ -91,15 +91,15 @@
   },
   "scripts": {
     "build": "node ./bin/build.js",
-    "build-node": "sh bin/build-node.sh",
-    "build-as-modular-es5": "sh bin/build-as-modular-es5.sh",
+    "build-node": "bash bin/build-node.sh",
+    "build-as-modular-es5": "bash bin/build-as-modular-es5.sh",
     "test-unit": "npm run build-as-modular-es5 && mocha tests/unit",
-    "test-node": "npm run build-node && sh bin/test-node.sh",
+    "test-node": "npm run build-node && bash bin/test-node.sh",
     "test-component": "npm run build-node && mocha tests/component",
     "test-extras": "mocha tests/extras",
     "test-fuzzy": "TYPE=fuzzy npm run test",
     "test-browser": "node ./bin/test-browser.js",
-    "cordova": "npm run build && sh bin/run-cordova.sh",
+    "cordova": "npm run build && bash bin/run-cordova.sh",
     "eslint": "eslint bin/ src/ tests/",
     "dev": "CLIENT=dev bash bin/run-test.sh",
     "launch-dev-server": "node ./bin/dev-server.js",
@@ -112,7 +112,7 @@
     "report-coverage": "npm run build-as-modular-es5 && COVERAGE=1 npm test && istanbul-coveralls --no-rm",
     "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js",
     "verify-bundle-size": "sh bin/verify-bundle-size.sh",
-    "test-webpack": "sh bin/test-webpack.sh"
+    "test-webpack": "bash bin/test-webpack.sh"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
