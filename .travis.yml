@@ -24,7 +24,7 @@ before_install:
   - docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
 
   # Because Saucelabs doesnt proxy 5984 on OSX
-  - export COUCH_HOST=http://127.0.0.1:3000
+  - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
   - "export DISPLAY=:99.0"
