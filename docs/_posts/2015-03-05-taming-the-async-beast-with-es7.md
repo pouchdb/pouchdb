@@ -312,18 +312,6 @@ console.log(results);
 
 Presumably this could look even nicer if we used [array comprehesions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Array_comprehensions). However, the spec isn't final yet, so it's currently [not supported](https://github.com/facebook/regenerator/issues/182) by Regenerator.
 
-**Edit:** It was pointed out to me that you can actually do:
-
-{% highlight js %}
-let docs = [{}, {}, {}];
-let promises = docs.map((doc) => db.post(doc));
-
-let results = await* promises;
-console.log(results);
-{% endhighlight %}
-
-This `await*` trick does the same thing as `await Promise.all()`, and it's much more concise. Plus, it's supported by Regenerator!
-
 ### Caveats
 
 ES7 is still very bleeding-edge. Async functions aren't supported in either Node.js or io.js, and you have to set some experimental flags to even get Babel to consider it. Officially, [the async/await spec](https://github.com/lukehoban/ecmascript-asyncawait#status-of-this-proposal) is still in the "proposal" stage.
