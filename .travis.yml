@@ -51,6 +51,9 @@ env:
   - CLIENT=node COMMAND=test
   - CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
 
+  # Test WebSQL in Node (using node-websql)
+  - CLIENT=node ADAPTER=websql COMMAND=test
+
   # Test against pouchdb-server
   - CLIENT=node SERVER=pouchdb-server COMMAND=test
   - CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test

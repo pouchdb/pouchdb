@@ -70,6 +70,21 @@ It is slower and more inefficient than PouchDB's default IndexedDB adapter, but 
 
 You can also download this plugin [as a standalone script](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js).
 
+#### node-websql adapter
+
+{% highlight js %}
+var PouchDB = require('pouchdb');
+require('pouchdb/extras/websql');
+
+var db = new PouchDB('mydatabase.db', {adapter: 'websql'});
+{% endhighlight %}
+
+PouchDB adapter using WebSQL in Node, via [node-websql](https://github.com/nolanlawson/node-websql).
+This allows you to use the efficient WebSQL-based PouchDB directly over SQLite.
+
+Unlike the LocalStorage/memory/FruitDOWN adapters, this adapter is designed only
+to run in Node.js. In the browser, PouchDB already comes with WebSQL support.
+
 ### APIs for plugin authors
 
 These APIs are designed for PouchDB plugin authors, who may want to re-use some PouchDB code to avoid duplication.
