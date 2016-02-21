@@ -34,6 +34,7 @@ var extras = {
   'src/replicate/checkpointer.js': 'checkpointer.js',
   'src/replicate/generateReplicationId.js': 'generateReplicationId.js',
   'src/deps/ajax/prequest.js': 'ajax.js',
+  'src/plugins/websql/index.js': 'websql.js',
   'src_browser/deps/ajax/prequest.js': 'ajax-browser.js',
   'src_browser/replicate/checkpointer.js': 'checkpointer-browser.js',
   'src_browser/replicate/generateReplicationId.js':

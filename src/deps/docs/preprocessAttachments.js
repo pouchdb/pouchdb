@@ -2,6 +2,7 @@ import { atob, btoa } from '../binary/base64';
 import arrayBuffToBinString from '../binary/arrayBufferToBinaryString';
 import readAsArrayBuffer from '../binary/readAsArrayBuffer';
 import binStringToBlobOrBuffer from '../binary/binaryStringToBlobOrBuffer';
+import arrayBuffToB64 from '../binary/arrayBufferToBase64';
 import { createError, BAD_ARG } from '../errors';
 import md5 from '../md5';
 
@@ -52,7 +53,7 @@ function preprocessAttachments(docInfos, blobType, callback) {
         if (blobType === 'binary') {
           att.data = arrayBuffToBinString(buff);
         } else if (blobType === 'base64') {
-          att.data = btoa(arrayBuffToBinString(buff));
+          att.data = arrayBuffToB64(buff);
         }
         md5(buff).then(function (result) {
           att.digest = 'md5-' + result;

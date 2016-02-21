@@ -1,6 +1,6 @@
 // In Node, this is just a Buffer rather than an ArrayBuffer
-function arrayBufferToBinaryString(buffer) {
+function arrayBufferToBase64(buffer) {
   return buffer.toString('binary');
 }
 
-export default arrayBufferToBinaryString;
+export default arrayBufferToBase64;
