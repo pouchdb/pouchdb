@@ -305,7 +305,6 @@ testUtils.promisify = function (fun, context) {
   };
 };
 
-var testDir;
 if (typeof module !== 'undefined' && module.exports) {
   global.PouchDB = require('../../lib');
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
@@ -325,10 +324,17 @@ if (typeof module !== 'undefined' && module.exports) {
     global.PouchDB = global.PouchDB.defaults({auto_compaction: true});
   }
   if (typeof process !== 'undefined') {
-    testDir = process.env.TESTS_DIR ? process.env.TESTS_DIR : './tmp';
-    testDir = testDir.slice(-1) === '/' ? testDir : testDir + '/';
-    global.PouchDB.prefix = testDir + global.PouchDB.prefix;
-    global.PouchDB.adapters.leveldb.use_prefix = true;
+    if (process.env.ADAPTER === 'websql') {
+      // test WebSQL in Node
+      require('../../extras/websql');
+      global.PouchDB.preferredAdapters = ['websql'];
+      global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
+      require('mkdirp').sync('./tmp');
+    } else {
+      // test regular LevelDB in Node
+      global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
+      global.PouchDB.adapters.leveldb.use_prefix = true;
+    }
   }
   module.exports = testUtils;
 }

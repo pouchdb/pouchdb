@@ -1,17 +1,10 @@
-// simplified API. universal browser support is assumed
-function readAsArrayBuffer(blob, callback) {
-  if (typeof FileReader === 'undefined') {
-    // fix for Firefox in a web worker:
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=901097
-    return callback(new FileReaderSync().readAsArrayBuffer(blob));
-  }
-
-  var reader = new FileReader();
-  reader.onloadend = function (e) {
-    var result = e.target.result || new ArrayBuffer(0);
-    callback(result);
-  };
-  reader.readAsArrayBuffer(blob);
+// In Node.js, just convert the Buffer to a Buffer rather than
+// convert a Blob to an ArrayBuffer. This function is just a convenience
+// function so we can easily switch Node vs browser environments.
+function readAsArrayBuffer(buffer, callback) {
+  process.nextTick(function () {
+    callback(buffer);
+  });
 }
 
 export default readAsArrayBuffer;

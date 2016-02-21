@@ -158,6 +158,10 @@ Some Level adapters also require a standard database name prefix (e.g. `riak://`
 
     LEVEL_PREFIX=riak://localhost:8087/
 
+To run the node-websql test in Node, run the tests with:
+
+    ADAPTER=websql
+
 ### Performance tests
 
 To run the performance test suite in node.js:
