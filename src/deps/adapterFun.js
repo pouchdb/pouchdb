@@ -31,6 +31,9 @@ function adapterFun(name, callback) {
     if (this._closed) {
       return Promise.reject(new Error('database is closed'));
     }
+    if (this._destroyed) {
+      return Promise.reject(new Error('database is destroyed'));
+    }
     var self = this;
     logApiCall(self, name, args);
     if (!this.taskqueue.isReady) {

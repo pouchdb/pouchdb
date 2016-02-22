@@ -73,6 +73,22 @@ adapters.forEach(function (adapter) {
       return new PouchDB(dbs.name).destroy({});
     });
 
+    it('4339 throw useful error if method called on stale instance', function () {
+      var db = new PouchDB(dbs.name);
+
+      return db.put({
+        _id: 'cleanTest'
+      }).then(function () {
+        return db.destroy();
+      }).then(function () {
+        return db.get('cleanTest');
+      }).then(function () {
+        throw new Error('.get should return an error');
+      }, function (err) {
+        should.equal(err instanceof Error, true, 'should be an error');
+      });
+    });
+
     it('destroy a pouch, with a promise', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         should.exist(db);

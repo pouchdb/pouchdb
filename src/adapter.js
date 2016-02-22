@@ -936,6 +936,7 @@ AbstractPouchDB.prototype.destroy =
       if (err) {
         return callback(err);
       }
+      self._destroyed = true;
       self.emit('destroyed');
       callback(null, resp || { 'ok': true });
     });
