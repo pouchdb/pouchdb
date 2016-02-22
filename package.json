@@ -34,7 +34,7 @@
     "pouchdb-collections": "1.0.1",
     "request": "2.69.0",
     "scope-eval": "0.0.3",
-    "spark-md5": "2.0.0",
+    "spark-md5": "2.0.2",
     "sublevel-pouchdb": "1.0.0",
     "through2": "2.0.1",
     "vuvuzela": "1.0.2"
