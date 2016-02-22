@@ -3,7 +3,7 @@ var thisAtob = function (str) {
 };
 
 var thisBtoa = function (str) {
-  return btoa(str);
+  return btoa(unescape(encodeURIComponent(str)));
 };
 
 export {
