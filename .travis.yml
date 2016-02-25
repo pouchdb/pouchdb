@@ -87,6 +87,7 @@ env:
   - CLIENT=saucelabs:chrome COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" ADAPTERS=memory COMMAND=test
   - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown GREP=suite2 INVERT=true COMMAND=test
   - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown GREP=suite2 COMMAND=test
@@ -94,10 +95,8 @@ env:
   # split up the android+iphone tests as it goes over time
   - GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
   - GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
-
   - GREP=suite2 CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
   - GREP=suite2 INVERT=true CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
-
   - CLIENT=selenium:firefox:41.0.1 ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox:41.0.1 ADAPTERS=localstorage COMMAND=test
 
@@ -140,6 +139,7 @@ matrix:
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
   - env: COMMAND=report-coverage
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
+  - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
 
   fast_finish: true
 
