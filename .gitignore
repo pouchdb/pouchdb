@@ -16,3 +16,4 @@ dist/*
 pouchdb-webpack.js
 lib
 lib_unit
+src_browser/
