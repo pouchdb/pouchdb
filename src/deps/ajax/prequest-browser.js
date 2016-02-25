@@ -10,9 +10,10 @@ function ajax(opts, callback) {
 
   var isSafari = ua.indexOf('safari') !== -1 && ua.indexOf('chrome') === -1;
   var isIE = ua.indexOf('msie') !== -1;
+  var isEdge = ua.indexOf('edge') !== -1;
 
   var shouldCacheBust = (isSafari && opts.method === 'POST') ||
-    (isIE && opts.method === 'GET');
+    ((isIE || isEdge) && opts.method === 'GET');
 
   var cache = 'cache' in opts ? opts.cache : true;
 
