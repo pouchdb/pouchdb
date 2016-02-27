@@ -3,6 +3,9 @@ var thisAtob = function (str) {
 };
 
 var thisBtoa = function (str) {
+  if (/[\u0080-\uFFFF]/.test(str)) {
+    str = unescape(encodeURIComponent(str));
+  }
   return btoa(str);
 };
 
