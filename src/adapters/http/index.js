@@ -147,7 +147,8 @@ function HttpPouch(opts, callback) {
 
   if (opts.auth || host.auth) {
     var nAuth = opts.auth || host.auth;
-    var token = btoa(nAuth.username + ':' + nAuth.password);
+    var str = nAuth.username + ':' + nAuth.password;
+    var token = btoa(unescape(encodeURIComponent(str)));
     ajaxOpts.headers = ajaxOpts.headers || {};
     ajaxOpts.headers.Authorization = 'Basic ' + token;
   }
