@@ -38,4 +38,13 @@ describe('test.auth.js', function () {
     });
   });
 
+  it('Test auth with unicode', function () {
+    var opts = {auth: {username: 'Иванов И.И.', password: 'Секрет'}};
+    var url = 'http://127.0.0.1:' + PORT;
+    return new PouchDB(url, opts).info().then(function() {
+      should.equal(headers.authorization,
+                   'Basic 0JjQstCw0L3QvtCyINCYLtCYLjrQodC10LrRgNC10YI=');
+    });
+  });
+
 });
