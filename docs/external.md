@@ -244,6 +244,10 @@ Android adapter with a native Java interface to PouchDB.
 
 Shims and utils for working with binary Blobs in the browser.
 
+#### [Pouchy] (https://www.npmjs.com/package/pouchy)
+
+PouchDB sugar API. ([Github](https://github.com/cdaringe/pouchy))
+
 #### [Puton](http://puton.jit.su/)
 
 A bookmarklet for inspecting PouchDB databases within the browser. ([Github](http://github.com/ymichael/puton))
