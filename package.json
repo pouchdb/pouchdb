@@ -61,7 +61,7 @@
     "derequire": "2.0.3",
     "eslint": "2.2.0",
     "express": "4.13.4",
-    "express-pouchdb": "1.0.2",
+    "express-pouchdb": "1.0.3",
     "findit": "2.0.0",
     "http-server": "0.9.0",
     "istanbul": "0.4.2",
