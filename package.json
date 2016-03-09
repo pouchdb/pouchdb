@@ -22,7 +22,7 @@
     "debug": "2.2.0",
     "double-ended-queue": "2.0.0-0",
     "es3ify": "0.2.1",
-    "fruitdown": "1.0.1",
+    "fruitdown": "1.0.2",
     "inherits": "2.0.1",
     "js-extend": "1.0.1",
     "level-write-stream": "1.0.0",
