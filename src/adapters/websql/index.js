@@ -1034,6 +1034,9 @@ function WebSqlPouch(opts, callback) {
   };
 }
 
+// in the browser, use a prefix. in Node, don't bother having one
+WebSqlPouch.use_prefix = !!(typeof process === 'undefined' || process.browser);
+
 WebSqlPouch.valid = valid;
 
 export default WebSqlPouch;
