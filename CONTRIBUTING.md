@@ -51,7 +51,7 @@ PouchDB needs the following to be able to build and test your build, if you have
 Building PouchDB
 --------------------------------------
 
-All dependancies installed? great, now building PouchDB itself is a breeze:
+All dependencies installed? great, now building PouchDB itself is a breeze:
 
     $ cd pouchdb
     $ npm install
