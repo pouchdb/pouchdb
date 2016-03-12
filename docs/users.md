@@ -72,3 +72,7 @@ Story-writer is a free Markdown editor, with a [web version](http://markdown.xia
 ## Thali project
 
 [Thali](http://thaliproject.org/) is a Microsoft-sponsored open-source platform for creating apps that exploit the power of personal devices and put people in control of their data. It uses Cordova, PouchDB, OpenSSL, and Tor.
+
+## YLD
+
+[YLD](http://www.yld.io) is a Node.js software engineering, consulting and training company. We partner with enterprises to strengthen their software engineering culture and create the agility necessary to compete in today’s market, and are responsible for some of the largest Node.js solutions in production today. PouchDB allows us to create responsive, resilient and sync-enabled web applications.
