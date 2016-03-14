@@ -37,14 +37,14 @@
     "spark-md5": "2.0.2",
     "sublevel-pouchdb": "1.0.0",
     "through2": "2.0.1",
-    "vuvuzela": "1.0.2",
-    "websql": "0.1.0"
+    "vuvuzela": "1.0.2"
   },
   "jspm": {
     "main": "dist/pouchdb.js"
   },
   "optionalDependencies": {
-    "leveldown": "1.4.4"
+    "leveldown": "1.4.4",
+    "websql": "0.1.0"
   },
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.4",
