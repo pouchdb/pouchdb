@@ -1,8 +1,0 @@
-{% assign guides = (site.guides | sort: 'index') %}
-{% for guide in guides %}
-    {% assign title = guide.title %}
-    {% if guide.nav %}
-        {% assign title = guide.nav %}
-    {% endif %}
-    {% include nav_item.html path=guide.url text=title %}
-{% endfor %}
