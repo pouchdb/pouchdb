@@ -641,7 +641,11 @@ AbstractPouchDB.prototype.get =
         return callback(null, doc);
       }
       Object.keys(attachments).forEach(function (key) {
-        this._getAttachment(attachments[key], {
+        this._getAttachment(doc._id, key, attachments[key], {
+          // Previously the revision handling was done in adapter.js
+          // getAttachment, however since idb-next doesnt we need to
+          // pass the rev through
+          rev: doc._rev,
           binary: opts.binary,
           ctx: ctx
         }, function (err, data) {
@@ -676,6 +680,9 @@ AbstractPouchDB.prototype.getAttachment =
     callback = opts;
     opts = {};
   }
+  // TODO: I dont like this, it forces an extra read for every
+  // attachment read and enforces a confusing api between
+  // adapter.js and the adapter implementation
   this._get(docId, opts, function (err, res) {
     if (err) {
       return callback(err);
@@ -683,7 +690,8 @@ AbstractPouchDB.prototype.getAttachment =
     if (res.doc._attachments && res.doc._attachments[attachmentId]) {
       opts.ctx = res.ctx;
       opts.binary = true;
-      self._getAttachment(res.doc._attachments[attachmentId], opts, callback);
+      self._getAttachment(docId, attachmentId,
+                          res.doc._attachments[attachmentId], opts, callback);
     } else {
       return callback(createError(MISSING_DOC));
     }

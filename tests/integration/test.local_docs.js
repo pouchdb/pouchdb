@@ -80,7 +80,9 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('local docs - put after remove, check return vals', function () {
+    // Currently we generate normal revisions for local docs
+    // this may change
+    it.skip('local docs - put after remove, check return vals', function () {
       // as long as it starts with 0-, couch
       // treats it as a new local doc
       var db = new PouchDB(dbs.name);
