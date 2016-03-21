@@ -47,7 +47,7 @@
     "leveldown": "1.4.4"
   },
   "devDependencies": {
-    "add-cors-to-couchdb": "0.0.4",
+    "add-cors-to-couchdb": "0.0.5",
     "babel-cli": "6.6.5",
     "babel-plugin-add-module-exports": "0.1.2",
     "babel-plugin-transform-es2015-modules-commonjs": "6.7.0",
