@@ -73,7 +73,7 @@
     "ncp": "2.0.0",
     "node-watch": "0.3.5",
     "pouchdb-express-router": "0.0.8",
-    "pouchdb-server": "1.0.1",
+    "pouchdb-server": "1.1.1",
     "replace": "0.3.0",
     "rimraf": "2.5.2",
     "rollup": "0.25.4",
