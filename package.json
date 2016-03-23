@@ -76,7 +76,7 @@
     "pouchdb-server": "1.0.1",
     "replace": "0.3.0",
     "rimraf": "2.5.2",
-    "rollup": "0.25.4",
+    "rollup": "0.25.6",
     "sauce-connect-launcher": "0.14.0",
     "seedrandom": "2.4.2",
     "selenium-standalone": "5.0.0",
