@@ -39,7 +39,7 @@ var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
   retry: true
 }).on('change', function (info) {
   // handle change
-}).on('paused', function (err) {
+}).on('paused', function () {
   // replication paused (e.g. replication up to date, user went offline)
 }).on('active', function () {
   // replicate resumed (e.g. new changes replicating, user went back online)
