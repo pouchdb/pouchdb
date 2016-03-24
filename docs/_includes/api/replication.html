@@ -44,7 +44,7 @@ var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
 }).on('active', function () {
   // replicate resumed (e.g. new changes replicating, user went back online)
 }).on('denied', function (err) {
-  // a document failed to replicate, e.g. due to permissions
+  // a document failed to replicate (e.g. due to permissions)
 }).on('complete', function (info) {
   // handle complete
 }).on('error', function (err) {
