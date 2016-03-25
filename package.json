@@ -59,7 +59,7 @@
     "cordova": "5.4.1",
     "denodeify": "1.2.1",
     "derequire": "2.0.3",
-    "eslint": "2.4.0",
+    "eslint": "2.5.1",
     "express": "4.13.4",
     "express-pouchdb": "1.0.3",
     "findit": "2.0.0",
