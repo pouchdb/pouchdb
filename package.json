@@ -44,7 +44,7 @@
   },
   "optionalDependencies": {
     "leveldown": "1.4.4",
-    "websql": "0.1.0"
+    "websql": "0.2.1"
   },
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.4",
