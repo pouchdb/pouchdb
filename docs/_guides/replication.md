@@ -103,7 +103,7 @@ localDB.sync(remoteDB, {
   // yo, something changed!
 }).on('error', function (err) {
   // yo, we got an error! (maybe the user went offline?)
-})));
+});
 ```
 
 However, there is one gotcha with live replication: what if the user goes offline? In those cases, an error will be thrown and replication will stop.
@@ -122,7 +122,7 @@ localDB.sync(remoteDB, {
   // replication was resumed
 }).on('error', function (err) {
   // totally unhandled error (shouldn't happen)
-})));
+});
 ```
 
 This is ideal for scenarios where the user may be flitting in and out of connectivity, such as on mobile devices.
