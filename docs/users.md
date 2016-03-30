@@ -33,7 +33,7 @@ A list of known products and services that are using PouchDB.
 
 ## Hoodie
 
-{% include img.html width=250 src="hoodie_logo.png" alt="Hoodie" href="http://hood.ie/" %}
+{% include img.html width=150 src="HoodieLogo.png" alt="Hoodie" href="http://hood.ie/" %}
 
 [Hoodie](http://hood.ie/) provides a complete backend solution for your frontend code. It helps you develop your web application fast and easy. Hoodie-based apps are [offline-first](http://offlinefirst.org/) so they are usable anytime. Just plug Hoodie’s API into your frontend code, and your app is ready.
 
