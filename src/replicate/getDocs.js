@@ -19,9 +19,7 @@ function createBulkGetOpts(diffs) {
 
   return {
     docs: requests,
-    revs: true,
-    attachments: true,
-    binary: true
+    revs: true
   };
 }
 
@@ -31,7 +29,7 @@ function createBulkGetOpts(diffs) {
 // changes to "cancelled", then the returned promise will be rejected.
 // Else it will be resolved with a list of fetched documents.
 //
-function getDocs(src, diffs, state) {
+function getDocs(src, target, diffs, state) {
   diffs = clone(diffs); // we do not need to modify this
 
   var resultDocs = [];
@@ -49,13 +47,21 @@ function getDocs(src, diffs, state) {
       if (state.cancelled) {
         throw new Error('cancelled');
       }
-      bulkGetResponse.results.forEach(function (bulkGetInfo) {
+      return Promise.all(bulkGetResponse.results.map(function (bulkGetInfo) {
+        return Promise.all(bulkGetInfo.docs.map(function (doc) {
+          if (!doc.ok) {
+            return doc;
+          }
+          // TODO: fetch attachments locally, fall back to remote
+        }));
+      }));
+      /* bulkGetResponse.results.forEach(function (bulkGetInfo) {
         bulkGetInfo.docs.forEach(function (doc) {
           if (doc.ok) {
             resultDocs.push(doc.ok);
           }
         });
-      });
+      });*/
     });
   }
 
