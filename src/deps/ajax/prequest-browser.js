@@ -1,6 +1,6 @@
 import ajaxCore from './ajaxCore';
 
-function ajax(opts, callback) {
+function ajax (opts, callback) {
 
   // cache-buster, specifically designed to work around IE's aggressive caching
   // see http://www.dashbay.com/2011/05/internet-explorer-caches-ajax/
@@ -12,8 +12,10 @@ function ajax(opts, callback) {
   var isIE = ua.indexOf('msie') !== -1;
   var isEdge = ua.indexOf('edge') !== -1;
 
-  var shouldCacheBust = (isSafari && opts.method === 'POST') ||
-    ((isIE || isEdge) && opts.method === 'GET');
+  // it appears the new version of safari also caches GETs,
+  // see https://github.com/pouchdb/pouchdb/issues/5010
+  var shouldCacheBust = (isSafari ||
+    ((isIE || isEdge) && opts.method === 'GET'));
 
   var cache = 'cache' in opts ? opts.cache : true;
 
