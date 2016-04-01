@@ -33,7 +33,7 @@ db.query(function (doc, emit) {
 });
 ```
 
-In the above example, the `result` object will contain all documents where the `name` attribute is equal to `'foo'`.
+In the above example, the `result` object will contain stubs of documents where the `name` attribute is equal to `'foo'`. To include the document in each row of results, use the `include_docs` option.
 
 {% include alert/start.html variant="info" %}
 
