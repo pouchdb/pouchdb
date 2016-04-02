@@ -19,7 +19,9 @@ function ajax (opts, callback) {
 
   var cache = 'cache' in opts ? opts.cache : true;
 
-  if (shouldCacheBust || !cache) {
+  var isBlobUrl = /^blob:/.test(opts.url); // don't append nonces for blob URLs
+
+  if (!isBlobUrl && (shouldCacheBust || !cache)) {
     var hasArgs = opts.url.indexOf('?') !== -1;
     opts.url += (hasArgs ? '&' : '?') + '_nonce=' + Date.now();
   }
