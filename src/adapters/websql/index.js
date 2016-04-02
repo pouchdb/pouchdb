@@ -120,6 +120,10 @@ function WebSqlPouch(opts, callback) {
 
   api._docCount = -1; // cache sqlite count(*) for performance
   api._name = opts.name;
+
+  opts['version'] = POUCH_VERSION;
+  opts['size'] = size;
+  console.log(opts);
   var openDBResult = openDB(opts);
   if (openDBResult.error) {
     return websqlError(callback)(openDBResult.error);
