@@ -221,23 +221,27 @@ function buildPluginsForBrowser() {
 }
 
 if (process.argv[2] === 'node') {
-  buildForNode();
-  process.exit(0);
-}
-
-Promise.resolve()
-  .then(function () { return rimraf('lib'); })
-  .then(function () { return rimraf('dist'); })
-  .then(buildForNode)
-  .then(buildForBrowserify)
-  .then(buildForBrowser)
-  .then(buildPluginsForBrowserify)
-  .then(buildPluginsForBrowser)
-  .then(buildExtras)
-  .then(buildPerformanceBundle)
-  .then(cleanup)
-  .catch(function (err) {
+  rimraf('lib').then(buildForNode).then(function () {
+    process.exit(0);
+  }).catch(function (err) {
     console.log(err.stack);
     process.exit(1);
-  }
-);
+  });
+} else {
+  Promise.resolve()
+    .then(function () { return rimraf('lib'); })
+    .then(function () { return rimraf('dist'); })
+    .then(buildForNode)
+    .then(buildForBrowserify)
+    .then(buildForBrowser)
+    .then(buildPluginsForBrowserify)
+    .then(buildPluginsForBrowser)
+    .then(buildExtras)
+    .then(buildPerformanceBundle)
+    .then(cleanup)
+    .catch(function (err) {
+      console.log(err.stack);
+      process.exit(1);
+    }
+  );
+}
