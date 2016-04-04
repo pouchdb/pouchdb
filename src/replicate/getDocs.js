@@ -53,7 +53,11 @@ function getDocs(src, diffs, state) {
         bulkGetInfo.docs.forEach(function (doc) {
           if (doc.ok) {
             resultDocs.push(doc.ok);
+          } else if(typeof doc.error !== 'undefined') {
+            throw new Error('Bad doc in batch: ' + JSON.stringify(doc));
           }
+          // else: when AUTO_COMPACTION is set, docs can be returned which look
+          // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
         });
       });
     });
