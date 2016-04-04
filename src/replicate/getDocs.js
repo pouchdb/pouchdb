@@ -34,7 +34,8 @@ function createBulkGetOpts(diffs) {
 function getDocs(src, diffs, state) {
   diffs = clone(diffs); // we do not need to modify this
 
-  var resultDocs = [];
+  var resultDocs = [],
+      ok = true;
 
   function getAllDocs() {
 
@@ -53,7 +54,11 @@ function getDocs(src, diffs, state) {
         bulkGetInfo.docs.forEach(function (doc) {
           if (doc.ok) {
             resultDocs.push(doc.ok);
+          } else if (doc.error !== undefined) {
+            ok = false;
           }
+          // else: when AUTO_COMPACTION is set, docs can be returned which look
+          // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
         });
       });
     });
@@ -99,14 +104,14 @@ function getDocs(src, diffs, state) {
     }
   }
 
-  function returnDocs() {
-    return resultDocs;
+  function returnResult() {
+    return { ok:ok, docs:resultDocs };
   }
 
   return Promise.resolve()
     .then(getRevisionOneDocs)
     .then(getAllDocs)
-    .then(returnDocs);
+    .then(returnResult);
 }
 
 export default getDocs;
