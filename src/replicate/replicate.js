@@ -101,7 +101,26 @@ function replicate(src, target, opts, returnValue, result) {
     });
   }
 
+  function findLatestSeq() {
+    var lastId = currentBatch.docs[currentBatch.docs.length - 1]._id;
+    for (var i = 0; i < currentBatch.changes.length; i++) {
+      var change = currentBatch.changes[i];
+      if (change.id === lastId) {
+        return change.seq;
+      }
+    }
+  }
+
   function finishBatch() {
+    if (Object.keys(currentBatch.diffs).length) {
+      if (!currentBatch.docs.length) {
+        // changes expected by none written - don't update checkpoint
+        return;
+      } else {
+        // check for partial success
+        currentBatch.seq = findLatestSeq();
+      }
+    }
     result.last_seq = last_seq = currentBatch.seq;
     var outResult = clone(result);
     if (changedDocs.length) {

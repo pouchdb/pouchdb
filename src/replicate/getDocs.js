@@ -49,11 +49,18 @@ function getDocs(src, diffs, state) {
       if (state.cancelled) {
         throw new Error('cancelled');
       }
+      var allSuccessful = true;
       bulkGetResponse.results.forEach(function (bulkGetInfo) {
         bulkGetInfo.docs.forEach(function (doc) {
-          if (doc.ok) {
+          if (allSuccessful && doc.ok) {
             resultDocs.push(doc.ok);
+          } else if (doc.error) {
+            // This doc failed so ignore the rest of the docs
+            allSuccessful = false;
           }
+          // else: When AUTO_COMPACTION is set, docs can be returned which look
+          // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
+          // These can be safely skipped over.
         });
       });
     });
