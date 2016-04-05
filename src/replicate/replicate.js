@@ -151,7 +151,7 @@ function replicate(src, target, opts, returnValue, result) {
   }
 
   function getBatchDocs() {
-    return getDocs(src, currentBatch.diffs, returnValue).then(function (got) {
+    return getDocs(src, target, currentBatch.diffs, returnValue).then(function (got) {
       currentBatch.error = !got.ok;
       got.docs.forEach(function (doc) {
         delete currentBatch.diffs[doc._id];
