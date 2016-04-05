@@ -2119,7 +2119,7 @@ adapters.forEach(function (adapters) {
               second_replicate();
               return;
             }
-            db.get(doc.id, function (err, exists) {
+            db.get(doc.id, function (err) {
               if (doc.expected) {
                 should.not.exist(err);
               } else {
@@ -2162,7 +2162,7 @@ adapters.forEach(function (adapters) {
               });
               return;
             }
-            db.get(doc.id, function (err, result) {
+            db.get(doc.id, function (err) {
               if (doc.expected) {
                 should.not.exist(err);
               } else {
