@@ -1,8 +1,47 @@
 import clone from '../deps/clone';
+import flatten from '../deps/flatten';
 import Promise from '../deps/promise';
 
 function isGenOne(rev) {
   return /^1-/.test(rev);
+}
+
+function fileHasChanged(localDoc, remoteDoc, filename) {
+  return !localDoc._attachments ||
+         !localDoc._attachments[filename] ||
+         localDoc._attachments[filename].digest !== remoteDoc._attachments[filename].digest;
+}
+
+function getDocAttachments(db, doc) {
+  var filenames = Object.keys(doc._attachments);
+  return Promise.all(filenames.map(function (filename) {
+    return db.getAttachment(doc._id, filename);
+  }));
+}
+
+function getDocAttachmentsFromTargetOrSource(target, src, doc) {
+  var doCheckForLocalAttachments = src.type() === 'http' && target.type() !== 'http';
+  var filenames = Object.keys(doc._attachments);
+
+  if (!doCheckForLocalAttachments) {
+    return getDocAttachments(src, doc);
+  }
+
+  return target.get(doc._id).then(function (localDoc) {
+    return Promise.all(filenames.map(function (filename) {
+      if (fileHasChanged(localDoc, doc, filename)) {
+        return src.getAttachment(doc._id, filename);
+      }
+
+      return target.getAttachment(localDoc._id, filename);
+    }));
+  }).catch(function (error) {
+    if (error.status !== 404) {
+      throw error;
+    }
+
+    return getDocAttachments(src, doc);
+  });
 }
 
 function createBulkGetOpts(diffs) {
@@ -19,9 +58,7 @@ function createBulkGetOpts(diffs) {
 
   return {
     docs: requests,
-    revs: true,
-    attachments: true,
-    binary: true
+    revs: true
   };
 }
 
@@ -31,7 +68,7 @@ function createBulkGetOpts(diffs) {
 // changes to "cancelled", then the returned promise will be rejected.
 // Else it will be resolved with a list of fetched documents.
 //
-function getDocs(src, diffs, state) {
+function getDocs(src, target, diffs, state) {
   diffs = clone(diffs); // we do not need to modify this
 
   var resultDocs = [],
@@ -50,16 +87,34 @@ function getDocs(src, diffs, state) {
       if (state.cancelled) {
         throw new Error('cancelled');
       }
-      bulkGetResponse.results.forEach(function (bulkGetInfo) {
-        bulkGetInfo.docs.forEach(function (doc) {
-          if (doc.ok) {
-            resultDocs.push(doc.ok);
-          } else if (doc.error !== undefined) {
-            ok = false;
+      return Promise.all(bulkGetResponse.results.map(function (bulkGetInfo) {
+        return Promise.all(bulkGetInfo.docs.map(function (doc) {
+          var remoteDoc = doc.ok;
+          if (!remoteDoc || !remoteDoc._attachments) {
+            if (remoteDoc.error !== undefined) {
+              // when AUTO_COMPACTION is set, docs can be returned which look
+              // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
+              ok = false
+            }
+            return remoteDoc;
           }
-          // else: when AUTO_COMPACTION is set, docs can be returned which look
-          // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
-        });
+
+          return getDocAttachmentsFromTargetOrSource(target, src, remoteDoc).then(function (attachments) {
+            var filenames = Object.keys(remoteDoc._attachments);
+            attachments.forEach(function (attachment, i) {
+              var att = remoteDoc._attachments[filenames[i]];
+              delete att.stub;
+              delete att.length;
+              att.data = attachment;
+            });
+
+            return remoteDoc;
+          });
+        }));
+      }))
+
+      .then(function (results) {
+        resultDocs = resultDocs.concat(flatten(results).filter(Boolean));
       });
     });
   }
