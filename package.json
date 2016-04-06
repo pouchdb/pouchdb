@@ -64,7 +64,7 @@
     "express-pouchdb": "1.0.3",
     "findit": "2.0.0",
     "http-server": "0.9.0",
-    "istanbul": "0.4.2",
+    "istanbul": "0.4.3",
     "istanbul-coveralls": "1.0.3",
     "less": "2.6.1",
     "mkdirp": "0.5.1",
