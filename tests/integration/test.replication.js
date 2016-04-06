@@ -2079,7 +2079,7 @@ adapters.forEach(function (adapters) {
         remote.put(docs[i])
           .then(function(result) {
             results.push(result);
-            save_doc(++i);
+            save_doc(i + 1);
           })
           .catch(function(err) {
             console.error('Error saving doc', err);
@@ -2107,7 +2107,7 @@ adapters.forEach(function (adapters) {
           }
           // Mock remote.get to fail getting doc_3 (fourth doc)
           getResults[3].docs[0] = { error: new Error('timeout') };
-          return Promise.resolve({ results: getResults });
+          return PouchDB.utils.Promise.resolve({ results: getResults });
         };
         // Replicate and confirm failure, docs_written and target docs
         db.replicate.from(remote, function (err, result) {
