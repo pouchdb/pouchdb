@@ -30,6 +30,7 @@
 
   "rules": {
     "no-empty": 0,
-    "no-console": 0
+    "no-console": 0,
+    "semi": ["error", "always"]
   }
 }
