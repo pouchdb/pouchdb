@@ -18,7 +18,7 @@ All options default to `false` unless otherwise specified.
 * `options.inclusive_end`: Include documents having an ID equal to the given `options.endkey`. Default: `true`.
 * `options.limit`: Maximum number of documents to return.
 * `options.skip`: Number of docs to skip before returning (warning: poor performance on IndexedDB/LevelDB!).
-* `options.descending`: Reverse the order of the output documents.
+* `options.descending`: Reverse the order of the output documents. Note that the order of `startkey` and `endkey` is reversed when `descending`:`true`.
 * `options.key`: Only return documents with IDs matching this string key.
 * `options.keys`: Array of string keys to fetch in a single shot.
     - Neither `startkey` nor `endkey` can be specified with this option.
