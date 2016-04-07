@@ -165,15 +165,23 @@ function getSize(opts) {
     // e.g. 5000001 asks for 5 MB, 10000001 asks for 10 MB,
     return opts.size * 1000000;
   }
-  // In iOS, doesn't matter as long as it's <= 5000000.
+  // In UIWebView, this needs to be 5000000 instead of 1,
+  // because otherwise if you exceed it then the browser
+  // will throw an 18 Security Error (see #5039 for details).
+  // Else in iOS Safari, it doesn't matter as long as it's <= 5000000.
   // Except that if you request too much, our tests fail
   // because of the native "do you accept?" popup.
   // In Android <=4.3, this value is actually used as an
   // honest-to-god ceiling for data, so we need to
   // set it to a decently high number.
-  var isAndroid = typeof navigator !== 'undefined' &&
-    /Android/.test(navigator.userAgent);
-  return isAndroid ? 5000000 : 1; // in PhantomJS, if you use 0 it will crash
+  if (typeof navigator !== 'undefined' &&
+      (/Android/.test(navigator.userAgent) ||
+      /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent))) {
+    // the above regex matches UIWebView but not regular Safari
+    return 5000000;
+  } else {
+    return 1; // in PhantomJS, if you use 0 it will crash
+  }
 }
 
 function openDBSafely(openDBFunction, opts) {
