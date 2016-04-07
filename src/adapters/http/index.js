@@ -305,6 +305,7 @@ function HttpPouch(opts, callback) {
 
       for (var i = 0; i < numBatches; i++) {
         var subOpts = pick(opts, ['revs', 'attachments']);
+        subOpts.ajax = ajaxOpts;
         subOpts.docs = opts.docs.slice(i * batchSize,
           Math.min(opts.docs.length, (i + 1) * batchSize));
         bulkGetShim(self, subOpts, onResult(i));
