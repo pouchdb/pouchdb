@@ -881,6 +881,7 @@ function init(api, opts, callback) {
       console.error('Database has a global failure', e.target.error);
       idb.close();
       cachedDBs.delete(dbName);
+      throw new Error("Database has a global failure " +  e.target.error.message);
     };
 
     var txn = idb.transaction([
