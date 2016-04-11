@@ -101,16 +101,33 @@ function replicate(src, target, opts, returnValue, result) {
     });
   }
 
+  function findLatestSeq() {
+    var lastId = currentBatch.docs[currentBatch.docs.length - 1]._id;
+    for (var i = 0; i < currentBatch.changes.length; i++) {
+      var change = currentBatch.changes[i];
+      if (change.id === lastId) {
+        return change.seq;
+      }
+    }
+  }
+
   function finishBatch() {
-    result.last_seq = last_seq = currentBatch.seq;
+    if (!Object.keys(currentBatch.diffs).length) {
+      // all expected diffs have been written - seq is correct
+      result.last_seq = last_seq = currentBatch.seq;
+    } else if (currentBatch.docs.length) {
+      // some doc gets succeeded and some failed - partially update seq
+      result.last_seq = last_seq = findLatestSeq();
+    }
+    // else no doc gets succeeded - don't update last_seq
+
     var outResult = clone(result);
     if (changedDocs.length) {
       outResult.docs = changedDocs;
       returnValue.emit('change', outResult);
     }
     writingCheckpoint = true;
-    return checkpointer.writeCheckpoint(currentBatch.seq,
-        session).then(function () {
+    return checkpointer.writeCheckpoint(last_seq, session).then(function () {
       writingCheckpoint = false;
       if (returnValue.cancelled) {
         completeReplication();

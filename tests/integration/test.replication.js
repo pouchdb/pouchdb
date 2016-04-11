@@ -2048,7 +2048,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it.skip('(#1240) - get error', function (done) {
+    it('#1240 do not skip failed docs on replication', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // 10 test documents
@@ -2057,163 +2057,135 @@ adapters.forEach(function (adapters) {
       for (var i = 0; i < num; i++) {
         docs.push({
           _id: 'doc_' + i,
-          foo: 'bar_' + i
+          foo: 'bar_' + i,
+          // needed to cause the code to fetch using get
+          _attachments: {
+            text: {
+              content_type: 'text\/plain',
+              data: "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
+            }
+          }
         });
       }
+
       // Initialize remote with test documents
-      remote.bulkDocs({ docs: docs }, {}, function () {
-        var get = remote.get;
-        function first_replicate() {
-          // Mock remote.get to fail writing doc_3 (fourth doc)
-          remote.get = function () {
-            // Simulate failure to get the document with id 'doc_4'
-            // This should block the replication at seq 4
-            if (arguments[0] === 'doc_4') {
-              arguments[2].apply(null, [{}]);
-            } else {
-              get.apply(this, arguments);
-            }
-          };
-          // Replicate and confirm failure, docs_written and target docs
-          db.replicate.from(remote, function (err, result) {
-            should.exist(err);
-            should.exist(result);
-            result.docs_written.should.equal(4);
-            function check_docs(id) {
-              if (!id) {
-                second_replicate();
-                return;
-              }
-              db.get(id, function (err, exists) {
-                if (exists) {
-                  should.not.exist(err);
-                } else {
-                  should.exist(err);
-                }
-                check_docs(docs.shift());
-              });
-            }
-            var docs = [
-              [
-                'doc_0',
-                true
-              ],
-              [
-                'doc_1',
-                true
-              ],
-              [
-                'doc_2',
-                true
-              ],
-              [
-                'doc_3',
-                false
-              ],
-              [
-                'doc_4',
-                false
-              ],
-              [
-                'doc_5',
-                false
-              ],
-              [
-                'doc_6',
-                false
-              ],
-              [
-                'doc_7',
-                false
-              ],
-              [
-                'doc_8',
-                false
-              ],
-              [
-                'doc_9',
-                false
-              ]
-            ];
-            check_docs(docs.shift());
-          });
+      // can't use bulkDocs because order is important
+      var results = [];
+      function save_doc(i) {
+        if (i >= docs.length) {
+          first_replicate();
+          return;
         }
-        function second_replicate() {
-          // Restore remote.get to original
-          remote.get = get;
-          // Replicate and confirm success, docs_written and target docs
-          db.replicate.from(remote, function (err, result) {
-            should.not.exist(err);
-            should.exist(result);
-            result.docs_written.should.equal(6);
-            function check_docs(id, exists) {
-              if (!id) {
-                db.info(function (err, info) {
-                  verifyInfo(info, {
-                    update_seq: 6,
-                    doc_count: 6
-                  });
-                  done();
+        remote.put(docs[i])
+          .then(function(result) {
+            results.push(result);
+            save_doc(i + 1);
+          })
+          .catch(function(err) {
+            console.error('Error saving doc', err);
+          });
+      }
+      save_doc(0);
+
+      var bulkGet = remote.bulkGet;
+      function first_replicate() {
+        remote.bulkGet = function () {
+          var getResults = [];
+          for (var i = 0; i < docs.length; i++) {
+            var doc = docs[i];
+            getResults.push({
+              id: doc._id,
+              docs: [ {
+                ok: {
+                  _id: doc._id,
+                  foo: doc.foo,
+                  _attachments: doc._attachments,
+                  _rev: results[i].rev
+                }
+              } ]
+            });
+          }
+          // Mock remote.get to fail getting doc_3 (fourth doc)
+          getResults[3].docs[0] = { error: new Error('timeout') };
+          return PouchDB.utils.Promise.resolve({ results: getResults });
+        };
+        // Replicate and confirm failure, docs_written and target docs
+        db.replicate.from(remote, function (err, result) {
+          should.not.exist(err);
+          should.exist(result);
+          result.docs_written.should.equal(3);
+          function check_docs(doc) {
+            if (!doc) {
+              second_replicate();
+              return;
+            }
+            db.get(doc.id, function (err) {
+              if (doc.expected) {
+                should.not.exist(err);
+              } else {
+                should.exist(err);
+              }
+              check_docs(docs.shift());
+            });
+          }
+          var docs = [
+            { id: 'doc_0', expected: true },
+            { id: 'doc_1', expected: true },
+            { id: 'doc_2', expected: true },
+            { id: 'doc_3', expected: false },
+            { id: 'doc_4', expected: false },
+            { id: 'doc_5', expected: false },
+            { id: 'doc_6', expected: false },
+            { id: 'doc_7', expected: false },
+            { id: 'doc_8', expected: false },
+            { id: 'doc_9', expected: false }
+          ];
+          check_docs(docs.shift());
+        });
+      }
+      function second_replicate() {
+        // Restore remote.bulkGet to original
+        remote.bulkGet = bulkGet;
+        // Replicate and confirm success, docs_written and target docs
+        db.replicate.from(remote, function (err, result) {
+          should.not.exist(err);
+          should.exist(result);
+          result.docs_written.should.equal(7);
+          function check_docs(doc) {
+            if (!doc) {
+              db.info(function (err, info) {
+                verifyInfo(info, {
+                  update_seq: 10,
+                  doc_count: 10
                 });
-                return;
-              }
-              db.get(id, function (err) {
-                if (exists) {
-                  should.not.exist(err);
-                } else {
-                  should.exist(err);
-                }
-                check_docs(docs.shift());
+                done();
               });
+              return;
             }
-            var docs = [
-              [
-                'doc_0',
-                true
-              ],
-              [
-                'doc_1',
-                true
-              ],
-              [
-                'doc_2',
-                true
-              ],
-              [
-                'doc_3',
-                true
-              ],
-              [
-                'doc_4',
-                true
-              ],
-              [
-                'doc_5',
-                true
-              ],
-              [
-                'doc_6',
-                true
-              ],
-              [
-                'doc_7',
-                true
-              ],
-              [
-                'doc_8',
-                true
-              ],
-              [
-                'doc_9',
-                true
-              ]
-            ];
-            check_docs(docs.shift());
-          });
-        }
-        // Done the test
-        first_replicate();
-      });
+            db.get(doc.id, function (err) {
+              if (doc.expected) {
+                should.not.exist(err);
+              } else {
+                should.exist(err);
+              }
+              check_docs(docs.shift());
+            });
+          }
+          var docs = [
+            { id: 'doc_0', expected: true },
+            { id: 'doc_1', expected: true },
+            { id: 'doc_2', expected: true },
+            { id: 'doc_3', expected: true },
+            { id: 'doc_4', expected: true },
+            { id: 'doc_5', expected: true },
+            { id: 'doc_6', expected: true },
+            { id: 'doc_7', expected: true },
+            { id: 'doc_8', expected: true },
+            { id: 'doc_9', expected: true }
+          ];
+          check_docs(docs.shift());
+        });
+      }
     });
 
     it.skip('Get error 2', function (done) {
