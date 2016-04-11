@@ -243,7 +243,7 @@ function compactRevs(revs, docId, txn) {
 function openTransactionSafely(idb, stores, mode) {
   try {
     var txn = idb.transaction(stores, mode);
-    txn.onerror = function(e) {
+    txn.onerror = function() {
       throw new Error("Database has a global failure");
     };
     return {
