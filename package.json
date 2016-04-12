@@ -69,7 +69,7 @@
     "less": "2.6.1",
     "mkdirp": "0.5.1",
     "mocha": "2.4.5",
-    "mockery": "1.4.1",
+    "mockery": "1.5.1",
     "ncp": "2.0.0",
     "node-watch": "0.3.5",
     "pouchdb-express-router": "0.0.8",
