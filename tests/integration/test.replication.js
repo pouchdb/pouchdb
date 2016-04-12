@@ -387,7 +387,7 @@ adapters.forEach(function (adapters) {
               });
             }).on('error', done);
           });
-        });
+        }).on('error', done);
       });
     });
 
