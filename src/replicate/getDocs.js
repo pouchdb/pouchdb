@@ -15,7 +15,7 @@ function fileHasChanged(localDoc, remoteDoc, filename) {
 function getDocAttachments(db, doc) {
   var filenames = Object.keys(doc._attachments);
   return Promise.all(filenames.map(function (filename) {
-    return db.getAttachment(doc._id, filename);
+    return db.getAttachment(doc._id, filename, {rev: doc._rev});
   }));
 }
 
