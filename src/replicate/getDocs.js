@@ -90,12 +90,14 @@ function getDocs(src, target, diffs, state) {
       return Promise.all(bulkGetResponse.results.map(function (bulkGetInfo) {
         return Promise.all(bulkGetInfo.docs.map(function (doc) {
           var remoteDoc = doc.ok;
+
+          if (doc.error) {
+            // when AUTO_COMPACTION is set, docs can be returned which look
+            // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
+            ok = false;
+          }
+
           if (!remoteDoc || !remoteDoc._attachments) {
-            if (remoteDoc.error !== undefined) {
-              // when AUTO_COMPACTION is set, docs can be returned which look
-              // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
-              ok = false
-            }
             return remoteDoc;
           }
 
