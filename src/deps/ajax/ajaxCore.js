@@ -51,6 +51,9 @@ function ajaxCore(options, callback) {
       err2.status = err.status;
       return cb(err2);
     }
+    if (err.message && err.message === 'ETIMEDOUT') {
+      return cb(err);
+    }
     // We always get code && status in node
     /* istanbul ignore next */
     try {
