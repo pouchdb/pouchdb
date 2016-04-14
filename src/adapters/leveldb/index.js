@@ -769,6 +769,7 @@ function LevelPouch(opts, callback) {
       att.length = data.length;
       var id = docInfo.metadata.id;
       var rev = docInfo.metadata.rev;
+      att.revpos = parseInt(rev, 10);
 
       saveAttachmentRefs(id, rev, digest, function (err, isNewAttachment) {
         /* istanbul ignore if */
