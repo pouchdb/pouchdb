@@ -1124,7 +1124,7 @@ function LevelPouch(opts, callback) {
       // metadata not cached, have to go fetch it
       stores.docStore.get(doc._id, function (err, metadata) {
         /* istanbul ignore if */
-        if (opts.cancelled || opts.done || db.isClosed() ||
+        if (err || opts.cancelled || opts.done || db.isClosed() ||
           isLocalId(metadata.id)) {
           return next();
         }
