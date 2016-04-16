@@ -77,7 +77,7 @@ function bulkGet(db, opts, callback) {
     }
 
     // globally-supplied options
-    ['revs', 'attachments', 'binary'].forEach(function (param) {
+    ['revs', 'attachments', 'binary', 'ajax'].forEach(function (param) {
       if (param in opts) {
         docOpts[param] = opts[param];
       }
