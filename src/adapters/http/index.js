@@ -175,7 +175,7 @@ function HttpPouch(opts, callback) {
     return coreAdapterFun(name, getArguments(function (args) {
       setup().then(function () {
         return fun.apply(this, args);
-      }).catch(function(e) {
+      }).catch(function (e) {
         var callback = args.pop();
         callback(e);
       });
@@ -198,7 +198,7 @@ function HttpPouch(opts, callback) {
     }
 
     var checkExists = {method: 'GET', url: dbUrl};
-    setupPromise = ajaxPromise({}, checkExists).catch(function(err) {
+    setupPromise = ajaxPromise({}, checkExists).catch(function (err) {
       if (err && err.status && err.status === 404) {
         // Doesnt exist, create it
         explainError(404, 'PouchDB is just detecting if the remote exists.');
@@ -206,7 +206,7 @@ function HttpPouch(opts, callback) {
       } else {
         return Promise.reject(err);
       }
-    }).catch(function(err) {
+    }).catch(function (err) {
       // If we try to create a database that already exists
       if (err && err.status && err.status === 412) {
         return true;
@@ -214,14 +214,14 @@ function HttpPouch(opts, callback) {
       return Promise.reject(err);
     });
 
-    setupPromise.catch(function() {
+    setupPromise.catch(function () {
       setupPromise = null;
     });
 
     return setupPromise;
   }
 
-  setTimeout(function() {
+  setTimeout(function () {
     callback(null, api);
   });
 
@@ -351,7 +351,7 @@ function HttpPouch(opts, callback) {
   //    couchdb: A welcome string
   //    version: The version of CouchDB it is running
   api._info = function (callback) {
-    setup().then(function() {
+    setup().then(function () {
       ajax({}, {
         method: 'GET',
         url: genDBUrl(host, '')
@@ -846,7 +846,7 @@ function HttpPouch(opts, callback) {
       }
 
       // Get the changes
-      setup().then(function() {
+      setup().then(function () {
         xhr = ajax(opts, xhrOpts, callback);
       }).catch(callback);
     };

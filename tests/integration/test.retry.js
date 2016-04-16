@@ -131,7 +131,7 @@ adapters.forEach(function (adapters) {
         ++numChanges;
       });
 
-      rep.on('complete', function() {
+      rep.on('complete', function () {
         try {
           active.should.be.within(1, 2);
           paused.should.equal(2);
@@ -171,7 +171,7 @@ adapters.forEach(function (adapters) {
 
       var numDocsToWrite = 10;
 
-      return remote.post({}).then(function() {
+      return remote.post({}).then(function () {
         var originalNumListeners;
         var posted = 0;
 
@@ -243,7 +243,7 @@ adapters.forEach(function (adapters) {
 
       var numDocsToWrite = 10;
 
-      return remote.post({}).then(function() {
+      return remote.post({}).then(function () {
         var originalNumListeners;
         var posted = 0;
 
@@ -326,7 +326,7 @@ adapters.forEach(function (adapters) {
 
         var numDocsToWrite = 10;
 
-        return remote.post({}).then(function() {
+        return remote.post({}).then(function () {
           var originalNumListeners;
           var posted = 0;
 
@@ -399,7 +399,7 @@ adapters.forEach(function (adapters) {
 
       var numDocsToWrite = 10;
 
-      return remote.post({}).then(function() {
+      return remote.post({}).then(function () {
         var originalNumListeners;
         var posted = 0;
 
@@ -475,7 +475,7 @@ adapters.forEach(function (adapters) {
       var paused = 0;
       var numDocsToWrite = 50;
 
-      return remote.post({}).then(function() {
+      return remote.post({}).then(function () {
         var originalNumListeners;
         var posted = 0;
 
@@ -557,12 +557,12 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      remote.post({a: 'doc'}).then(function() {
+      remote.post({a: 'doc'}).then(function () {
         startFailing = true;
         var rep = db.replicate.from(remote, {live: true, retry: true})
-          .on('change', function() { rep.cancel(); });
+          .on('change', function () { rep.cancel(); });
 
-        rep.on('complete', function() {
+        rep.on('complete', function () {
           PouchDB.utils.ajax = ajax;
           done();
         });

@@ -28,13 +28,13 @@ var actionCount = 100;
 var actions = {
 
   // Create a random document
-  'create': function(a) {
+  'create': function (a) {
     return a.post({'a': 'newdoc'});
   },
 
   // Pick from an existing document and updated it
-  'update': function(a) {
-    return randomDoc(a).then(function(doc) {
+  'update': function (a) {
+    return randomDoc(a).then(function (doc) {
       if (doc) {
         doc.updated = Date.now();
         return a.put(doc);
@@ -43,8 +43,8 @@ var actions = {
   },
 
   // Remove a random document
-  'remove': function(a) {
-    return randomDoc(a).then(function(doc) {
+  'remove': function (a) {
+    return randomDoc(a).then(function (doc) {
       if (doc) {
         return a.remove(doc);
       }
@@ -53,19 +53,19 @@ var actions = {
 
   // Generate a conflict by writing a document with the same id to
   // both databases
-  'conflict': function(a, b) {
+  'conflict': function (a, b) {
     var doc = {
       _id: 'random-' + Date.now(),
       foo: 'bar'
     };
-    return a.put(doc).then(function() {
+    return a.put(doc).then(function () {
       doc.baz = 'fubar';
       return b.put(doc);
     });
   },
 
   // Perform a one off replication
-  'replicate': function(a, b) {
+  'replicate': function (a, b) {
     return a.replicate.to(b);
   }
 };
@@ -73,7 +73,7 @@ var actions = {
 // Utilities
 
 function randomDoc(db) {
-  return db.allDocs({include_docs: true}).then(function(res) {
+  return db.allDocs({include_docs: true}).then(function (res) {
     var row = arrayRandom(res.rows);
     if (row) {
       return row.doc;
@@ -113,7 +113,7 @@ describe('chaos-monkey', function () {
     Promise = PouchDB.utils.Promise;
     var aname = testUtils.adapterUrl('local', 'testdb');
     var bname = testUtils.adapterUrl('http', 'test_repl_remote');
-    testUtils.cleanup([aname, bname], function() {
+    testUtils.cleanup([aname, bname], function () {
       a = new PouchDB(aname);
       b = new PouchDB(bname);
       done();
@@ -121,7 +121,7 @@ describe('chaos-monkey', function () {
   });
 
   after(function () {
-    return a.destroy().then(function() {
+    return a.destroy().then(function () {
       return b.destroy();
     });
   });
@@ -137,7 +137,7 @@ describe('chaos-monkey', function () {
       var dbs = Math.round(Math.random()) ? [a, b] : [b, a];
       var called = actions[action].apply(null, dbs);
       // This is probably making a big stack, should fix
-      called.then(function() {
+      called.then(function () {
         doit(resolve);
       });
     });
@@ -152,12 +152,12 @@ describe('chaos-monkey', function () {
     return Promise.all([
       a.allDocs({include_docs: true}),
       b.allDocs({include_docs: true})
-    ]).then(function(res) {
+    ]).then(function (res) {
       res[0].should.deep.equal(res[1]);
     });
   }
 
-  it('Do a fuzzy replication run', function() {
+  it('Do a fuzzy replication run', function () {
     // This gives us 100ms for each action, should hopefully be enough
     this.timeout(actionCount * 1000);
     return dbActions()

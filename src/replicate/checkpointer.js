@@ -104,7 +104,7 @@ Checkpointer.prototype.updateSource = function (checkpoint, session) {
 };
 
 var comparisons = {
-  "undefined": function(targetDoc, sourceDoc) {
+  "undefined": function (targetDoc, sourceDoc) {
     // This is the previous comparison function
     if (collate(targetDoc.last_seq, sourceDoc.last_seq) === 0) {
       return sourceDoc.last_seq;
@@ -112,7 +112,7 @@ var comparisons = {
     /* istanbul ignore next */
     return 0;
   },
-  "1": function(targetDoc, sourceDoc) {
+  "1": function (targetDoc, sourceDoc) {
     // This is the comparison function ported from CouchDB
     return compareReplicationLogs(sourceDoc, targetDoc).last_seq;
   }
@@ -174,7 +174,7 @@ Checkpointer.prototype.getCheckpoint = function () {
 // they come from here:
 // https://github.com/apache/couchdb-couch-replicator/blob/master/src/couch_replicator.erl#L863-L906
 
-function compareReplicationLogs (srcDoc, tgtDoc) {
+function compareReplicationLogs(srcDoc, tgtDoc) {
   if (srcDoc.session_id === tgtDoc.session_id) {
     return {
       last_seq: srcDoc.last_seq,
@@ -187,7 +187,7 @@ function compareReplicationLogs (srcDoc, tgtDoc) {
   return compareReplicationHistory(sourceHistory, targetHistory);
 }
 
-function compareReplicationHistory (sourceHistory, targetHistory) {
+function compareReplicationHistory(sourceHistory, targetHistory) {
   // the erlang loop via function arguments is not so easy to repeat in JS
   // therefore, doing this as recursion
   var S = sourceHistory[0];
@@ -222,7 +222,7 @@ function compareReplicationHistory (sourceHistory, targetHistory) {
   return compareReplicationHistory(sourceRest, targetRest);
 }
 
-function hasSessionId (sessionId, history) {
+function hasSessionId(sessionId, history) {
   var props = history[0];
   var rest = history.slice(1);
 
@@ -237,7 +237,7 @@ function hasSessionId (sessionId, history) {
   return hasSessionId(sessionId, rest);
 }
 
-function isForbiddenError (err) {
+function isForbiddenError(err) {
   return typeof err.status === 'number' && Math.floor(err.status / 100) === 4;
 }
 

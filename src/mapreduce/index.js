@@ -188,7 +188,7 @@ function addHttpParam(paramName, opts, params, asJson) {
   }
 }
 
-function coerceInteger (integerCandidate) {
+function coerceInteger(integerCandidate) {
   if (typeof integerCandidate !== 'undefined') {
     var asNumber = Number(integerCandidate);
     // prevents e.g. '1foo' or '1.1' being coerced to 1
@@ -207,7 +207,7 @@ function coerceOptions(opts) {
   return opts;
 }
 
-function checkPositiveInteger (number) {
+function checkPositiveInteger(number) {
   if (number) {
     if (typeof number !== 'number') {
       return  new QueryParseError('Invalid value for integer: "' +

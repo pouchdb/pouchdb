@@ -34,16 +34,16 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function() {
+      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function () {
 
         var repl = db.sync(remote, {retry: true, live: true});
         var counter = 0;
 
-        repl.on('complete', function() {
+        repl.on('complete', function () {
           done();
         });
 
-        repl.on('active', function() {
+        repl.on('active', function () {
           counter++;
           if (counter === 1) {
             // We are good, initial replication
@@ -52,7 +52,7 @@ adapters.forEach(function (adapters) {
           }
         });
 
-        repl.on('paused', function() {
+        repl.on('paused', function () {
           counter++;
           if (counter === 1) {
             // Maybe a bug, if we have data should probably

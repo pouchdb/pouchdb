@@ -64,7 +64,7 @@ adapters.forEach(function (adapters) {
       }
       // CSG will send a change event when just the ACL changed
       if (testUtils.isSyncGateway()) {
-        changes = changes.filter(function(change){
+        changes = changes.filter(function (change){
           return change.id !== "_user/";
         });
       }
@@ -307,7 +307,7 @@ adapters.forEach(function (adapters) {
         return db.allDocs({keys: ['foo']});
       }).then(function (res) {
         if (testUtils.isSyncGateway() && !res.rows[0].value) {
-          return remote.get('foo', {open_revs:'all'}).then(function(doc){
+          return remote.get('foo', {open_revs:'all'}).then(function (doc){
             return db.put({_id: 'foo', _rev: doc[0].ok._rev});
           });
         } else {
@@ -557,7 +557,7 @@ adapters.forEach(function (adapters) {
       }
 
       var finished = 0;
-      function isFinished () {
+      function isFinished() {
         if (++finished !== 2) {
           return;
         }
@@ -1759,7 +1759,7 @@ adapters.forEach(function (adapters) {
         return origId.apply(remote, arguments);
       };
 
-      return remote.post({}).then(function() {
+      return remote.post({}).then(function () {
         return new Promise(function (resolve, reject) {
           var rep = db.replicate.from(remote, {
             live: true
@@ -2441,9 +2441,9 @@ adapters.forEach(function (adapters) {
             return Promise.resolve({ results: getResults });
           };
           // Replicate and confirm failure, docs_written and target docs
-          db.replicate.from(remote).then(function() {
+          db.replicate.from(remote).then(function () {
             done(new Error('First replication should fail'));
-          }).catch(function(err) {
+          }).catch(function (err) {
             // We expect that first replication should fail
             should.exist(err);
 
@@ -2609,9 +2609,9 @@ adapters.forEach(function (adapters) {
       var doc = { _id: '3', count: 0 };
       var put;
 
-      return source.put({ _id: '4', count: 1 }, {}).then(function() {
+      return source.put({ _id: '4', count: 1 }, {}).then(function () {
         return source.put(doc, {});
-      }).then(function(_put) {
+      }).then(function (_put) {
         put = _put;
         // Do one replication, this replication
         // will fail writing one checkpoint
@@ -2627,14 +2627,14 @@ adapters.forEach(function (adapters) {
           target.get(checkpoint),
           source.get(checkpoint)
         ]);
-      }).then(function(res) {
+      }).then(function (res) {
         res[0].session_id.should.equal(res[1].session_id);
         res[0].last_seq.should.not.equal(res[1].last_seq);
 
         doc._rev = put.rev;
         doc.count++;
         return source.put(doc, {});
-      }).then(function() {
+      }).then(function () {
         // Trigger the mismatch on the 2nd replication
         mismatch = true;
         return source.replicate.to(dbs.name);
@@ -2800,7 +2800,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('#3999-4 should "upgrade" an old checkpoint', function() {
+    it('#3999-4 should "upgrade" an old checkpoint', function () {
 
       var secondRound = false;
       var writeStrange = false;
@@ -2858,7 +2858,7 @@ adapters.forEach(function (adapters) {
        return source.put({ _id: '4', count: 1 }, {}).then(function () {
          writeStrange = true;
          return source.replicate.to(target);
-       }).then(function() {
+       }).then(function () {
          writeStrange = false;
          // Verify that we have old checkpoints:
          should.exist(checkpoint);
@@ -3405,7 +3405,7 @@ adapters.forEach(function (adapters) {
                 change.changes.should.have.length(1);
                 change.seq.should.equal(info.update_seq);
                 changes.cancel();
-              }).on('complete', function() {
+              }).on('complete', function () {
                 remote.info(function (err, info) {
                   var rchanges = remote.changes({
                     descending: true,
@@ -3856,7 +3856,7 @@ adapters.forEach(function (adapters) {
           return db.bulkDocs({docs: docs});
         }).then(function () {
           var replication = db.replicate.to(dbs.remote);
-          replication.on('denied', function(error) {
+          replication.on('denied', function (error) {
             deniedErrors.push(error);
           });
           return replication;
@@ -4053,17 +4053,17 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('#3270 triggers "change" events with .docs property', function(done) {
+    it('#3270 triggers "change" events with .docs property', function (done) {
       var replicatedDocs = [];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, {}).then(function() {
+      db.bulkDocs({ docs: docs }, {}).then(function () {
         var replication = db.replicate.to(dbs.remote);
-        replication.on('change', function(change) {
+        replication.on('change', function (change) {
           replicatedDocs = replicatedDocs.concat(change.docs);
         });
         return replication;
       })
-      .then(function() {
+      .then(function () {
         replicatedDocs.sort(function (a, b) {
           return a._id > b._id ? 1 : -1;
         });
@@ -4101,7 +4101,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it("#3578 replication with a ddoc filter w/ _deleted=true", function() {
+    it("#3578 replication with a ddoc filter w/ _deleted=true", function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -4118,13 +4118,13 @@ adapters.forEach(function (adapters) {
         {_id: 'c'}
       ]).then(function () {
         return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
-      }).then(function() {
+      }).then(function () {
         return db.allDocs();
       }).then(function (res) {
         res.rows.should.have.length(2);
       }).then(function () {
         return remote.get('a');
-      }).then(function(doc) {
+      }).then(function (doc) {
         doc._deleted = true;
         return remote.put(doc);
       }).then(function () {
@@ -4136,7 +4136,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it("#3578 replication with a ddoc filter w/ remove()", function() {
+    it("#3578 replication with a ddoc filter w/ remove()", function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -4153,13 +4153,13 @@ adapters.forEach(function (adapters) {
         {_id: 'c'}
       ]).then(function () {
         return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
-      }).then(function() {
+      }).then(function () {
         return db.allDocs();
       }).then(function (res) {
         res.rows.should.have.length(2);
-      }).then(function(){
+      }).then(function (){
         return remote.get('a');
-      }).then(function(doc) {
+      }).then(function (doc) {
         return remote.remove(doc);
       }).then(function () {
         return remote.replicate.to(db, {filter: 'myddoc/myfilter'});
@@ -4170,16 +4170,16 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it("#2454 info() call breaks taskqueue", function(done) {
+    it("#2454 info() call breaks taskqueue", function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      remote.bulkDocs(docs).then(function() {
+      remote.bulkDocs(docs).then(function () {
 
         var repl = db.replicate.from(remote, {live: true});
         repl.on('complete', done.bind(null, null));
 
-        remote.info().then(function() {
+        remote.info().then(function () {
           repl.cancel();
         }).catch(done);
       }).catch(done);
@@ -4247,7 +4247,7 @@ adapters.forEach(function (adapters) {
         // to fire (since there is nothing to wait deteministically for)
         // Without the setTimeout this will pass, just less likely to catch
         // the failing case
-        setTimeout(function() {
+        setTimeout(function () {
           push.cancel();
           pull.cancel();
         }, 100);
@@ -4284,16 +4284,16 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      db.bulkDocs([{foo: 'bar'}]).then(function() {
+      db.bulkDocs([{foo: 'bar'}]).then(function () {
 
         var repl = db.replicate.to(remote, {live: true, retry: true});
 
-        repl.on('paused', function(err) {
+        repl.on('paused', function (err) {
           if (err) {
             repl.cancel();
           }
         });
-        repl.on('complete', function() {
+        repl.on('complete', function () {
           PouchDB.utils.ajax = ajax;
           done();
         });
@@ -4318,9 +4318,9 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      return remote.bulkDocs([{foo: 'bar'}]).then(function() {
+      return remote.bulkDocs([{foo: 'bar'}]).then(function () {
         return db.replicate.from(remote, {heartbeat: 10});
-      }).then(function() {
+      }).then(function () {
         seenHeartBeat.should.equal(true);
         PouchDB.utils.ajax = ajax;
         done();
@@ -4346,9 +4346,9 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      return remote.bulkDocs([{foo: 'bar'}]).then(function() {
+      return remote.bulkDocs([{foo: 'bar'}]).then(function () {
         return db.replicate.from(remote, {timeout: 20000});
-      }).then(function() {
+      }).then(function () {
         seenTimeout.should.equal(true);
         PouchDB.utils.ajax = ajax;
         done();

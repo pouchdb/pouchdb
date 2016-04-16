@@ -93,9 +93,9 @@ adapters.forEach(function (adapter) {
           data: testUtils.btoa('text1')
         }
       }};
-      return db.put(doc).then(function() {
+      return db.put(doc).then(function () {
         done('Should not succeed');
-      }).catch(function(err) {
+      }).catch(function (err) {
         err.name.should.equal('bad_request');
         done();
       });
@@ -228,7 +228,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var docs = [binAttDoc, binAttDoc2, pngAttDoc];
       return db.bulkDocs(docs).then(function () {
-        return PouchDB.utils.Promise.all(docs.map(function(doc) {
+        return PouchDB.utils.Promise.all(docs.map(function (doc) {
           var attName = Object.keys(doc._attachments)[0];
           var expected = doc._attachments[attName];
           return db.get(doc._id, {
@@ -253,7 +253,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var docs = [binAttDoc, binAttDoc2, pngAttDoc, {_id: 'foo'}];
       return db.bulkDocs(docs).then(function () {
-        return PouchDB.utils.Promise.all(docs.map(function(doc) {
+        return PouchDB.utils.Promise.all(docs.map(function (doc) {
           var atts = doc._attachments;
           var attName = atts && Object.keys(atts)[0];
           var expected = atts && atts[attName];
@@ -3451,7 +3451,7 @@ repl_adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      return remote.bulkDocs({ docs: docs1 }).then(function() {
+      return remote.bulkDocs({ docs: docs1 }).then(function () {
         return db.replicate.from(remote);
       }).then(function () {
         return db.get('bin_doc', {attachments: true, binary: true});
@@ -3851,7 +3851,7 @@ repl_adapters.forEach(function (adapters) {
 
       db.put(doc).then(function () {
         return db.get('x');
-      }).then(function(doc){
+      }).then(function (doc){
         var digests = Object.keys(doc._attachments).map(function (a) {
           return doc._attachments[a].digest;
         });

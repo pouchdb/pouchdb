@@ -134,7 +134,7 @@ function doRollup(entry, fileOut) {
 
 // build for Node (index.js)
 function buildForNode() {
-  return mkdirp('lib').then(function() {
+  return mkdirp('lib').then(function () {
     return doRollup('src/index.js', 'lib/index.js');
   });
 }
@@ -163,7 +163,7 @@ function buildForBrowserify() {
 
 // build for the browser (dist)
 function buildForBrowser() {
-  return mkdirp('dist').then(function() {
+  return mkdirp('dist').then(function () {
     return doBrowserify('.', {standalone: 'PouchDB'});
   }).then(function (code) {
     code = comments.pouchdb + code;
@@ -188,7 +188,7 @@ function cleanup() {
 }
 
 function buildPluginsForBrowserify() {
-  return mkdirp('lib/extras').then(function() {
+  return mkdirp('lib/extras').then(function () {
     return Promise.all(plugins.map(function (plugin) {
       return doRollup('src_browser/plugins/' + plugin + '/index.js',
                       'lib/extras/' + plugin + '.js');
@@ -197,7 +197,7 @@ function buildPluginsForBrowserify() {
 }
 
 function buildExtras() {
-  return mkdirp('lib/extras').then(function() {
+  return mkdirp('lib/extras').then(function () {
     return Promise.all(Object.keys(extras).map(function (entry) {
       var target = extras[entry];
       return doRollup(entry, 'lib/extras/' + target);
@@ -206,7 +206,7 @@ function buildExtras() {
 }
 
 function buildPluginsForBrowser() {
-  return mkdirp('lib/extras').then(function() {
+  return mkdirp('lib/extras').then(function () {
     return Promise.all(plugins.map(function (plugin) {
       var source = 'lib/extras/' + plugin + '.js';
       return doBrowserify(source, {}, 'pouchdb').then(function (code) {

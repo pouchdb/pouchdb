@@ -69,7 +69,7 @@ Changes.prototype.addListener = function (dbName, id, db, opts) {
       }
     }).on('complete', function () {
       if (inprogress === 'waiting') {
-        setTimeout(function(){
+        setTimeout(function (){
           eventFunction();
         },0);
       }

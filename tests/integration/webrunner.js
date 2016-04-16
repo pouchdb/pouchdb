@@ -33,7 +33,7 @@ function asyncLoadScript(url, callback) {
   script.src = url;
 
   // Handle the case where an optional callback was passed in.
-  if ("function" === typeof(callback)) {
+  if ("function" === typeof (callback)) {
     script.onload = function () {
       callback();
 
@@ -81,10 +81,10 @@ function startTests() {
     // Capture logs for selenium output
     var logs = [];
 
-    (function(){
+    (function (){
 
       var oldLog = console.log;
-      console.log = function() {
+      console.log = function () {
         var args = Array.prototype.slice.call(arguments);
         args.unshift('log');
         logs.push(args);
@@ -92,7 +92,7 @@ function startTests() {
       };
 
       var oldError = console.error;
-      console.error = function() {
+      console.error = function () {
         var args = Array.prototype.slice.call(arguments);
         args.unshift('error');
         logs.push(args);

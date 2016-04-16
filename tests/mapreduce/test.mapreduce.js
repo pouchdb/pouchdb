@@ -1035,8 +1035,8 @@ function tests(suiteName, dbName, dbType, viewType) {
           map: function (doc) {
             emit(doc.foo);
           },
-          reduce: function(keys) {
-            return keys.map(function(keyId) {
+          reduce: function (keys) {
+            return keys.map(function (keyId) {
               var key = keyId[0];
               // var id = keyId[1];
               return key.join('');

@@ -354,7 +354,7 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, idbChanges, callback) {
 
 
     var getKeyReq = attachStore.count(digest);
-    getKeyReq.onsuccess = function(e) {
+    getKeyReq.onsuccess = function (e) {
       var count = e.target.result;
       if (count) {
         return callback(); // already exists

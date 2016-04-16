@@ -108,19 +108,19 @@ describe('test.http.js', function () {
     uri.host.should.equal('foo.com');
   });
 
-  it('Properly escape url params #4008', function() {
+  it('Properly escape url params #4008', function () {
     var ajax = PouchDB.utils.ajax;
-    PouchDB.utils.ajax = function(opts) {
+    PouchDB.utils.ajax = function (opts) {
       opts.url.should.not.contain('[');
       ajax.apply(this, arguments);
     };
     var db = new PouchDB(dbs.name);
-    return db.changes({doc_ids: ['1']}).then(function() {
+    return db.changes({doc_ids: ['1']}).then(function () {
       PouchDB.utils.ajax = ajax;
     });
   });
 
-  it('Allows the "ajax timeout" to extend "changes timeout"', function(done) {
+  it('Allows the "ajax timeout" to extend "changes timeout"', function (done) {
     var timeout = 120000;
     var db = new PouchDB(dbs.name, {
       skipSetup: true,
@@ -131,7 +131,7 @@ describe('test.http.js', function () {
 
     var ajax = PouchDB.utils.ajax;
     var ajaxOpts;
-    PouchDB.utils.ajax = function(opts) {
+    PouchDB.utils.ajax = function (opts) {
       if (/changes/.test(opts.url)) {
         ajaxOpts = opts;
         changes.cancel();
@@ -141,7 +141,7 @@ describe('test.http.js', function () {
 
     var changes = db.changes();
 
-    changes.on('complete', function() {
+    changes.on('complete', function () {
       should.exist(ajaxOpts);
       ajaxOpts.timeout.should.equal(timeout);
       PouchDB.utils.ajax = ajax;
@@ -187,20 +187,20 @@ describe('test.http.js', function () {
     });
   });
 
-  it('4358 db.info rejects when server is down', function() {
+  it('4358 db.info rejects when server is down', function () {
     var db = new PouchDB('http://example.com/foo');
     return db.info().then(function () {
       throw new Error('expected an error');
-    }).catch(function(err) {
+    }).catch(function (err) {
       should.exist(err);
     });
   });
 
-  it('4358 db.destroy rejects when server is down', function() {
+  it('4358 db.destroy rejects when server is down', function () {
     var db = new PouchDB('http://example.com/foo');
     return db.destroy().then(function () {
       throw new Error('expected an error');
-    }).catch(function(err) {
+    }).catch(function (err) {
       should.exist(err);
     });
   });

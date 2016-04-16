@@ -100,14 +100,14 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('[4595] should reject xhr errors', function(done){
+    it('[4595] should reject xhr errors', function (done){
       var invalidUrl = 'http:///';
-      new PouchDB(dbs.name).replicate.to(invalidUrl, {}).catch(function() {
+      new PouchDB(dbs.name).replicate.to(invalidUrl, {}).catch(function () {
         done();
       });
 
     });
-    it('[4595] should emit error event on xhr error', function(done){
+    it('[4595] should emit error event on xhr error', function (done){
       var invalidUrl = 'http:///';
       new PouchDB(dbs.name).replicate.to(invalidUrl,{})
         .on('error', function () { done(); });
@@ -123,9 +123,9 @@ adapters.forEach(function (adapter) {
 
     it('Get invalid id', function () {
       var db = new PouchDB(dbs.name);
-      return db.get(1234).then(function() {
+      return db.get(1234).then(function () {
         throw 'show not be here';
-      }).catch(function(err) {
+      }).catch(function (err) {
         should.exist(err);
       });
     });
@@ -1039,7 +1039,7 @@ adapters.forEach(function (adapter) {
     it('2 invalid puts', function (done) {
       var db = new PouchDB(dbs.name);
       var called = 0;
-      var cb = function() {
+      var cb = function () {
         if (++called === 2) {
           done();
         }

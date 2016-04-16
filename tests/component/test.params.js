@@ -27,28 +27,28 @@ describe('test.params.js', function () {
 
   it('Test default heartbeat', function () {
     var url = 'http://127.0.0.1:' + PORT;
-    return new PouchDB(url).changes().then(function() {
+    return new PouchDB(url).changes().then(function () {
       should.exist(params.heartbeat);
     });
   });
 
   it('Test custom heartbeat', function () {
     var url = 'http://127.0.0.1:' + PORT;
-    return new PouchDB(url).changes({heartbeat: 10}).then(function() {
+    return new PouchDB(url).changes({heartbeat: 10}).then(function () {
       should.equal(params.heartbeat, '10');
     });
   });
 
   it('Test disable heartbeat', function () {
     var url = 'http://127.0.0.1:' + PORT;
-    return new PouchDB(url).changes({heartbeat: false}).then(function() {
+    return new PouchDB(url).changes({heartbeat: false}).then(function () {
       should.not.exist(params.heartbeat);
     });
   });
 
   it('Test disable timeout', function () {
     var url = 'http://127.0.0.1:' + PORT;
-    return new PouchDB(url).changes({timeout: false}).then(function() {
+    return new PouchDB(url).changes({timeout: false}).then(function () {
       should.not.exist(params.timeout);
     });
   });

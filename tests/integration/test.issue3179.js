@@ -146,7 +146,7 @@ adapters.forEach(function (adapters) {
             live: true,
             include_docs: true,
             conflicts: true
-          }).on('change', function(change) {
+          }).on('change', function (change) {
             if (!('_conflicts' in change.doc)) {
               changes.cancel();
             }
@@ -219,7 +219,7 @@ adapters.forEach(function (adapters) {
             live: true,
             include_docs: true,
             conflicts: true
-          }).on('change', function(change) {
+          }).on('change', function (change) {
             if (!('_conflicts' in change.doc)) {
               changes.cancel();
             }
@@ -302,7 +302,7 @@ adapters.forEach(function (adapters) {
         return local.get('1', {conflicts: true}).then(function (doc) {
           return local.remove(doc._id, doc._conflicts[0]);
         });
-      }).then(function() {
+      }).then(function () {
         return waitForConflictsResolved();
       }).then(function () {
         return local.get('1', {conflicts: true, revs: true});
