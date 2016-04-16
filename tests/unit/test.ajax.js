@@ -22,6 +22,10 @@ describe('test.ajax.js', function () {
     ajax = require('../../lib/deps/ajax/ajaxCore');
   });
 
+  after(function() {
+    mockery.disable();
+  });
+
   it('should exist', function () {
     should.exist(ajax);
     ajax.should.be.a('function');

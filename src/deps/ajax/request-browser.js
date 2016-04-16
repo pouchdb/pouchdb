@@ -107,8 +107,14 @@ function fetchRequest(options, callback) {
 function xhRequest(options, callback) {
 
   var xhr, timer;
+  var timedout = false;
 
   var abortReq = function () {
+    xhr.abort();
+  };
+
+  var timeoutReq = function () {
+    timedout = true;
     xhr.abort();
   };
 
@@ -156,10 +162,11 @@ function xhRequest(options, callback) {
   }
 
   if (options.timeout > 0) {
-    timer = setTimeout(abortReq, options.timeout);
+    timer = setTimeout(timeoutReq, options.timeout);
     xhr.onprogress = function () {
       clearTimeout(timer);
-      timer = setTimeout(abortReq, options.timeout);
+      if(xhr.readyState !== 4)
+        timer = setTimeout(timeoutReq, options.timeout);
     };
     if (typeof xhr.upload !== 'undefined') { // does not exist in ie9
       xhr.upload.onprogress = xhr.onprogress;
@@ -187,9 +194,14 @@ function xhRequest(options, callback) {
       callback(null, response, data);
     } else {
       var err = {};
-      try {
-        err = JSON.parse(xhr.response);
-      } catch(e) {}
+      if(timedout) {
+        err = new Error('ETIMEDOUT');
+        response.statusCode = 400;      // for consistency with node request
+      } else {
+        try {
+          err = JSON.parse(xhr.response);
+        } catch(e) {}
+      }
       callback(err, response);
     }
   };
