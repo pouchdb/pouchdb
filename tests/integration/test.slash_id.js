@@ -103,7 +103,7 @@ repl_adapters.forEach(function (adapters) {
 
     beforeEach(function (done) {
       dbs.name = testUtils.adapterUrl(adapters[0], 'test_slash_ids');
-      dbs.remote = testUtils.adapterUrl(adapters[1], 'test_slash_ids_remmote');
+      dbs.remote = testUtils.adapterUrl(adapters[1], 'test_slash_ids_remote');
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
