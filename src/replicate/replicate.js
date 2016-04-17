@@ -80,7 +80,7 @@ function replicate(src, target, opts, returnValue, result) {
         return error.name !== 'unauthorized' && error.name !== 'forbidden';
       });
 
-      docs.forEach(function(doc) {
+      docs.forEach(function (doc) {
         var error = errorsById[doc._id];
         if (error) {
           returnValue.emit('denied', clone(error));

@@ -7,7 +7,7 @@ import Promise from '../../deps/promise';
 function wrappedFetch() {
   var wrappedPromise = {};
 
-  var promise = new Promise(function(resolve, reject) {
+  var promise = new Promise(function (resolve, reject) {
     wrappedPromise.resolve = resolve;
     wrappedPromise.reject = reject;
   });
@@ -22,9 +22,9 @@ function wrappedFetch() {
 
   Promise.resolve().then(function () {
     return fetch.apply(null, args);
-  }).then(function(response) {
+  }).then(function (response) {
     wrappedPromise.resolve(response);
-  }).catch(function(error) {
+  }).catch(function (error) {
     wrappedPromise.reject(error);
   });
 
@@ -62,7 +62,7 @@ function fetchRequest(options, callback) {
     fetchOptions.body = null;
   }
 
-  Object.keys(options.headers).forEach(function(key) {
+  Object.keys(options.headers).forEach(function (key) {
     if (options.headers.hasOwnProperty(key)) {
       headers.set(key, options.headers[key]);
     }
@@ -71,13 +71,13 @@ function fetchRequest(options, callback) {
   wrappedPromise = wrappedFetch(options.url, fetchOptions);
 
   if (options.timeout > 0) {
-    timer = setTimeout(function() {
+    timer = setTimeout(function () {
       wrappedPromise.reject(new Error('Load timeout for resource: ' +
         options.url));
     }, options.timeout);
   }
 
-  wrappedPromise.promise.then(function(fetchResponse) {
+  wrappedPromise.promise.then(function (fetchResponse) {
     response = {
       statusCode: fetchResponse.status
     };
@@ -91,13 +91,13 @@ function fetchRequest(options, callback) {
     }
 
     return fetchResponse.json();
-  }).then(function(result) {
+  }).then(function (result) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       callback(null, response, result);
     } else {
       callback(result, response);
     }
-  }).catch(function(error) {
+  }).catch(function (error) {
     callback(error, response);
   });
 
@@ -165,8 +165,9 @@ function xhRequest(options, callback) {
     timer = setTimeout(timeoutReq, options.timeout);
     xhr.onprogress = function () {
       clearTimeout(timer);
-      if(xhr.readyState !== 4)
+      if(xhr.readyState !== 4) {
         timer = setTimeout(timeoutReq, options.timeout);
+      }
     };
     if (typeof xhr.upload !== 'undefined') { // does not exist in ie9
       xhr.upload.onprogress = xhr.onprogress;

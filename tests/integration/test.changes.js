@@ -456,10 +456,10 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs(docs).then(function() {
+      db.bulkDocs(docs).then(function () {
         db.changes({filter: 'a/b/c'}).on('error', function () {
           done('should not be called');
-        }).on('complete', function() {
+        }).on('complete', function () {
           done();
         });
       });
@@ -474,8 +474,8 @@ adapters.forEach(function (adapter) {
             throw new Error(); // syntaxerrors can't be caught either.
           }.toString()
         }
-      }).then(function() {
-        db.changes({filter: 'test/test'}).then(function() {
+      }).then(function () {
+        db.changes({filter: 'test/test'}).then(function () {
           done('should have thrown');
         }).catch(function () {
           done();

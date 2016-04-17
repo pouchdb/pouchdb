@@ -35,16 +35,16 @@ adapters.forEach(function (adapters) {
       var repl = db.replicate.to(dbs.remote, {retry: true, live: true});
       var counter = 0;
 
-      repl.on('complete', function() { done(); });
+      repl.on('complete', function () { done(); });
 
-      repl.on('active', function() {
+      repl.on('active', function () {
         counter++;
         if (!(counter === 2 || counter === 4)) {
           done('active fired incorrectly');
         }
       });
 
-      repl.on('paused', function() {
+      repl.on('paused', function () {
         counter++;
         // We should receive a paused event when replication
         // starts because there is nothing to replicate
@@ -65,22 +65,22 @@ adapters.forEach(function (adapters) {
 
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function() {
+      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function () {
 
         var repl = db.replicate.to(dbs.remote, {retry: true, live: true});
 
         var counter = 0;
 
-        repl.on('complete', function() { done(); });
+        repl.on('complete', function () { done(); });
 
-        repl.on('active', function() {
+        repl.on('active', function () {
           counter++;
           if (!(counter === 1 || counter === 3 || counter === 5)) {
             done('active fired incorrectly:' + counter);
           }
         });
 
-        repl.on('paused', function() {
+        repl.on('paused', function () {
           counter++;
           // We should receive a paused event when replication
           // starts because there is nothing to replicate
@@ -116,7 +116,7 @@ adapters.forEach(function (adapters) {
         }
       };
 
-      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function() {
+      db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function () {
 
         var repl = db.replicate.to(dbs.remote, {
           retry: true,
@@ -126,12 +126,12 @@ adapters.forEach(function (adapters) {
 
         var counter = 0;
 
-        repl.on('complete', function() {
+        repl.on('complete', function () {
           PouchDB.utils.ajax = ajax;
           done();
         });
 
-        repl.on('active', function() {
+        repl.on('active', function () {
           counter++;
           if (counter === 2) {
             // All good, wait for pause
@@ -146,7 +146,7 @@ adapters.forEach(function (adapters) {
           }
         });
 
-        repl.on('paused', function(err) {
+        repl.on('paused', function (err) {
           counter++;
           // Replication starts with a paused(err) because ajax is
           // failing

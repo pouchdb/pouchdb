@@ -1,6 +1,6 @@
 import ajaxCore from './ajaxCore';
 
-function ajax (opts, callback) {
+function ajax(opts, callback) {
 
   // cache-buster, specifically designed to work around IE's aggressive caching
   // see http://www.dashbay.com/2011/05/internet-explorer-caches-ajax/

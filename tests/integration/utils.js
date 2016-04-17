@@ -162,13 +162,13 @@ testUtils.adapterUrl = function (adapter, name) {
 testUtils.cleanup = function (dbs, done) {
   dbs = uniq(dbs);
   var num = dbs.length;
-  var finished = function() {
+  var finished = function () {
     if (--num === 0) {
       done();
     }
   };
 
-  dbs.forEach(function(db) {
+  dbs.forEach(function (db) {
     new PouchDB(db).destroy(finished, finished);
   });
 };
@@ -288,7 +288,7 @@ testUtils.fin = function (promise, cb) {
 };
 
 testUtils.promisify = function (fun, context) {
-  return function() {
+  return function () {
     var args = [];
     for (var i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];

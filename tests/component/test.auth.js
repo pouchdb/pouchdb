@@ -26,14 +26,14 @@ describe('test.auth.js', function () {
   it('Test auth headers are sent correctly', function () {
     var opts = {auth: {username: 'foo', password: 'bar'}};
     var url = 'http://127.0.0.1:' + PORT;
-    return new PouchDB(url, opts).info().then(function() {
+    return new PouchDB(url, opts).info().then(function () {
       should.equal(headers.authorization, 'Basic Zm9vOmJhcg==');
     });
   });
 
   it('Test auth headers via url are sent correctly', function () {
     var url = 'http://foo:bar@127.0.0.1:' + PORT;
-    return new PouchDB(url).info().then(function() {
+    return new PouchDB(url).info().then(function () {
       should.equal(headers.authorization, 'Basic Zm9vOmJhcg==');
     });
   });
@@ -41,7 +41,7 @@ describe('test.auth.js', function () {
   it('Test auth with unicode', function () {
     var opts = {auth: {username: 'Иванов И.И.', password: 'Секрет'}};
     var url = 'http://127.0.0.1:' + PORT;
-    return new PouchDB(url, opts).info().then(function() {
+    return new PouchDB(url, opts).info().then(function () {
       should.equal(headers.authorization,
                    'Basic 0JjQstCw0L3QvtCyINCYLtCYLjrQodC10LrRgNC10YI=');
     });

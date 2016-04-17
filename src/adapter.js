@@ -192,7 +192,7 @@ function cacheUpdateRequired(api, cache, designDocName, callback) {
     limit: 1,
     since: cache.seq
   };
-  api.changes(changesOpts).then(function(res) {
+  api.changes(changesOpts).then(function (res) {
     var latestSeq = res.results && res.results.length && res.results[0].seq;
     if (latestSeq && latestSeq > cache.seq) {
       // invalidate the cache
@@ -207,7 +207,7 @@ function getDesignDocCache(api, designDocName, callback) {
   api._ddocCache = api._ddocCache || {};
   api._ddocCache[designDocName] = api._ddocCache[designDocName] || {};
   var cache = api._ddocCache[designDocName];
-  cacheUpdateRequired(api, cache, designDocName, function(err) {
+  cacheUpdateRequired(api, cache, designDocName, function (err) {
     if (err) {
       return callback(err);
     }
@@ -218,14 +218,14 @@ function getDesignDocCache(api, designDocName, callback) {
             return reject(err);
           }
           var cache = {};
-          ['views', 'filters'].forEach(function(propertyName) {
+          ['views', 'filters'].forEach(function (propertyName) {
             cache[propertyName] = res.doc[propertyName];
           });
           resolve(cache);
         });
       });
     }
-    cache.promise.then(function(cache) {
+    cache.promise.then(function (cache) {
       callback(null, cache);
     }).catch(callback);
   });
@@ -233,7 +233,7 @@ function getDesignDocCache(api, designDocName, callback) {
 
 function getDesignDocProperty(api, designDocName, propertyName,
                               propertyElement, callback) {
-  getDesignDocCache(api, designDocName, function(err, designDoc) {
+  getDesignDocCache(api, designDocName, function (err, designDoc) {
     if (err) {
       return callback(err);
     }
@@ -629,7 +629,7 @@ AbstractPouchDB.prototype.get =
         for (var i = 0; i < leaves.length; i++) {
           var l = leaves[i];
           // looks like it's the only thing couchdb checks
-          if (!(typeof(l) === "string" && /^\d+-/.test(l))) {
+          if (!(typeof (l) === "string" && /^\d+-/.test(l))) {
             return callback(createError(INVALID_REV));
           }
         }
@@ -860,7 +860,7 @@ AbstractPouchDB.prototype.bulkDocs =
   }
 
   var attachmentError;
-  req.docs.forEach(function(doc) {
+  req.docs.forEach(function (doc) {
     if (doc._attachments) {
       Object.keys(doc._attachments).forEach(function (name) {
         attachmentError = attachmentError || attachmentNameError(name);
