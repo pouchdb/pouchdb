@@ -107,10 +107,17 @@ adapterPairs.forEach(function (adapters) {
         });
       }
 
-      // remove image1.jpg from doc
+      // remove image1.jpg from doc with an extra revision
+      // to guarantee conflict winning revision from dbA
       function removeImg1() {
-        return dbA.removeAttachment(doc._id, 'image1.png', doc._rev)
+        return dbA.get(doc._id)
+          .then(function (doc) {
+            return dbA.put(doc);
+          })
           .then(addRev)
+          .then(function () {
+            return dbA.removeAttachment(doc._id, 'image1.png', doc._rev);
+          })
           .catch(handleError);
       }
 
