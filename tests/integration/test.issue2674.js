@@ -54,17 +54,6 @@ adapterPairs.forEach(function (adapters) {
 // replicated at all (the local db on C was still empty)
       var doc = {_id: 'a', a: 1};
 
-      // util
-      function binaryStringToArrayBuffer(bin) {
-        var length = bin.length;
-        var buf = new ArrayBuffer(length);
-        var arr = new Uint8Array(buf);
-        for (var i = 0; i < length; i++) {
-          arr[i] = bin.charCodeAt(i);
-        }
-        return buf;
-      }
-
       var img1 = 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAMFBMVEX+9+' +
         'j+9OD+7tL95rr93qT80YD7x2L6vkn6syz5qRT4ogT4nwD4ngD4nQD4nQD4' +
         'nQDT2nT/AAAAcElEQVQY002OUQLEQARDw1D14f7X3TCdbfPnhQTqI5UqvG' +
@@ -109,7 +98,6 @@ adapterPairs.forEach(function (adapters) {
 
       // sync() with remote CouchDB
       function syncWithRemote(source) {
-        return source.sync(remoteDb);
         return new Promise(function (resolve, reject) {
           source.sync(remoteDb).on('complete', function () {
             resolve();
@@ -170,7 +158,7 @@ adapterPairs.forEach(function (adapters) {
         .then(syncWithRemote.bind(this, dbC)) // sync from remote CouchDB
         // see replication error
         .then(function () {
-          return dbC.allDocs({include_docs: true, attachments: true})
+          return dbC.allDocs({include_docs: true, attachments: true});
         }).then(function (res) {
           res.rows.forEach(function (row) {
             delete row.value;
