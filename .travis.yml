@@ -141,9 +141,6 @@ matrix:
   fast_finish: true
 
   include:
-    - node_js: "0.10"
-      services: docker
-      env: CLIENT=node COMMAND=test
     - node_js: "0.11"
       services: docker
       env: CLIENT=node COMMAND=test
