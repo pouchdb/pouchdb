@@ -9,6 +9,7 @@ var watchGlob = require('watch-glob');
 var replace = require('replace');
 var exec = require('child-process-promise').exec;
 var mkdirp = require('mkdirp');
+var cssmin = require('cssmin');
 
 var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
 var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
@@ -27,7 +28,8 @@ function buildCSS() {
   mkdirp.sync(__dirname + '/../docs/static/css');
   var cmd = __dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS;
   return exec(cmd).then(function (child) {
-    fs.writeFileSync(POUCHDB_CSS, child.stdout);
+    var minifiedCss = cssmin(child.stdout);
+    fs.writeFileSync(POUCHDB_CSS, minifiedCss);
     console.log('Updated: ', POUCHDB_CSS);
   });
 }
