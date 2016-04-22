@@ -57,6 +57,7 @@
     "chai-as-promised": "5.3.0",
     "child-process-promise": "2.0.1",
     "cordova": "6.1.1",
+    "cssmin": "0.4.3",
     "denodeify": "1.2.1",
     "derequire": "2.0.3",
     "eslint": "2.8.0",
