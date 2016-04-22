@@ -10,47 +10,6 @@ PouchDB also runs in **Node.js** and can be used as a direct interface to **Couc
 
 PouchDB is a free open-source project, written in JavaScript and driven by our [wonderful  community](https://github.com/pouchdb/pouchdb/graphs/contributors). If you want to get involved, then check out the [contributing guide](https://github.com/pouchdb/pouchdb/blob/master/CONTRIBUTING.md).
 
-{% include anchor.html class="h3" title="Installing" hash="installing" %}
-
-To start using PouchDB in your website, simply [download][latest-min] it and include it in your page:
-
-{% highlight html %}
-<script src="pouchdb-{{ site.version }}.min.js"></script>
-{% endhighlight %}
-
-Or install it with Bower:
-
-{% highlight bash %}$ bower install --save pouchdb{% endhighlight %}
-
-Or install it as a Node.js module:
-
-{% highlight bash %}$ npm install --save pouchdb{% endhighlight %}
-
-{% include anchor.html class="h3" title="Using PouchDB" hash="using_pouchdb" %}
-
-In the browser, getting started is as simple as:
-
-{% highlight javascript %}
-var db = new PouchDB('my_database');
-{% endhighlight %}
-
-In Node.js, you'll need to `require()` it first:
-
-{% highlight javascript %}
-var PouchDB = require('pouchdb');
-var db = new PouchDB('my_database');
-{% endhighlight %}
-
-Or, to use PouchDB as a direct client to CouchDB, simply pass in a URL:
-
-{% highlight javascript %}
-var db = new PouchDB('http://localhost:5984/my_database');
-{% endhighlight %}
-
-All of these `db`s share the same API, regardless of where they're storing data!
-
-To learn more about how to use PouchDB, check out our [Getting Started Tutorial](getting-started.html), [Guides](/guides/) and the [API Documentation](api.html).
-
 {% include anchor.html class="h3" title="Browser Support" hash="browser_support" %}
 
 PouchDB supports all modern browsers, using [IndexedDB][] under the hood and falling back to [WebSQL][] where IndexedDB isn't supported. It is [fully tested](https://travis-ci.org/pouchdb/pouchdb/) and supported in:
@@ -74,21 +33,6 @@ In Node.js, PouchDB uses [LevelDB][] under the hood, and also supports [many oth
 
 PouchDB can also run as its own CouchDB-compatible web server, using [PouchDB Server](https://github.com/pouchdb/pouchdb-server).
 
-{% include anchor.html class="h3" title="Downloads" hash="downloads" %}
-
-Latest and greatest:
-
-* [pouchdb-{{ site.version }}.min.js][latest-min] (compressed for production)
-* [pouchdb-{{ site.version }}.js][latest] (uncompressed for debugging)
-
-PouchDB is also hosted on [jsdelivr](http://www.jsdelivr.com/#!pouchdb) and [cdnjs](https://cdnjs.com/libraries/pouchdb).
-
-For past releases and changelog, check out the [Github releases page](https://github.com/pouchdb/pouchdb/releases).
-
-For plugins, see the [plugins page](/external.html).
-
 [IndexedDB]: http://caniuse.com/#feat=indexeddb
 [WebSQL]: http://caniuse.com/#feat=sql-storage
 [LevelDB]: http://leveldb.org/
-[latest]: https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.js
-[latest-min]: https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js
