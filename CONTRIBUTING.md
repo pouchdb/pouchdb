@@ -97,9 +97,10 @@ Workflows can vary, but here is a very simple workflow for contributing a bug fi
 Building PouchDB Documentation
 --------------------------------------
 
-The source for the website http://pouchdb.com is stored inside the `docs` directory of the PouchDB repository, you can make changes and submit pull requests as with any other patch. To build and view the website locally you will need to install [jekyll](http://jekyllrb.com/) and a few other gems:
+The source for the website http://pouchdb.com is stored inside the `docs` directory of the PouchDB repository, you can make changes and submit pull requests as with any other patch. To build and view the website locally you will need to install [jekyll](http://jekyllrb.com/) and a few other gems.  Jekyll is installed using [bundler](http://bundler.io/) so you need to install that first.
 
-    $ gem install jekyll redcarpet pygments.rb
+    $ gem install bundler
+    $ npm run install-jekyll
 
 If you haven't already done so, you'll also need to run `npm install` to pull in packages for the dev server:
 

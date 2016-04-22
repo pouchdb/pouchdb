@@ -16,10 +16,8 @@ var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
 process.chdir('docs');
 
 function checkJekyll() {
-  return exec('gem list jekyll -i').then(function (result) {
-    if (!/true/.test(result.stdout)) {
-      throw new Error('You need to do: gem install jekyll');
-    }
+  return exec('bundle check').catch(function (err) {
+    throw new Error('Jekyll is not installed.  You need to do: npm run install-jekyll');
   });
 }
 
@@ -37,7 +35,7 @@ function buildJekyll(path) {
   if (path && /^_site/.test(path.relative)) {
     return;
   }
-  return exec('jekyll build').then(function () {
+  return exec('bundle exec jekyll build').then(function () {
     console.log('=> Rebuilt jekyll');
     return highlightEs6();
   }).then(function () {

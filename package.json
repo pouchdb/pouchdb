@@ -108,6 +108,7 @@
     "posttest": "npm run eslint",
     "prepublish": "npm run build",
     "release": "sh bin/release.sh",
+    "install-jekyll": "sh bin/install-jekyll.sh",
     "publish-site": "sh bin/publish-site.sh",
     "build-site": "node ./bin/build-site.js",
     "report-coverage": "npm run build-as-modular-es5 && COVERAGE=1 npm test && istanbul-coveralls --no-rm",
