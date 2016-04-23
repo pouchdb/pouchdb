@@ -246,6 +246,26 @@ function checkQueryParseError(options, fun) {
   });
 }
 
+function checkInjectedFunctions(injectedFun, viewFun) {
+  Object.keys(injectedFun).forEach(function (name) {
+    if (['map', 'reduce'].indexOf(name) === -1) {
+      return;
+    }
+    if (!viewFun[name]) {
+      throw new QueryParseError('Injected ' + name + ' function does not exist in the view.');
+    }
+    var normalizedInjectedFun =
+      injectedFun[name].toString()
+        .replace(/\s+/g, '')
+        .replace(/,emit\)\{/, '){');
+    var normalizedViewFun = viewFun[name].replace(/\s+/g, '');
+    if (normalizedInjectedFun !== normalizedViewFun) {
+      throw new QueryParseError('Injected ' + name + ' function does not match the stored one in the view.' +
+        ' Injected: ' + normalizedInjectedFun + ' Expected: ' + normalizedViewFun);
+    }
+  });
+}
+
 function httpQuery(db, fun, opts) {
   // List of parameters to add to the PUT request
   var params = [];
@@ -866,7 +886,15 @@ function queryPromised(db, fun, opts) {
     return customQuery(db, fun, opts);
   }
 
-  if (typeof fun !== 'string') {
+  var fullViewName;
+  if (typeof fun === 'string') {
+    fullViewName = fun;
+    fun = {};
+  } else if(typeof fun !== 'string' && fun.viewName) {
+    fullViewName = fun.viewName;
+  }
+
+  if (!fullViewName) {
     // temp_view
     checkQueryParseError(opts, fun);
 
@@ -890,18 +918,19 @@ function queryPromised(db, fun, opts) {
     return tempViewQueue.finish();
   } else {
     // persistent view
-    var fullViewName = fun;
     var parts = parseViewName(fullViewName);
     var designDocName = parts[0];
     var viewName = parts[1];
+    var injectedFun = fun;
     return db.getView(designDocName, viewName).then(function (fun) {
       checkQueryParseError(opts, fun);
+      checkInjectedFunctions(injectedFun, fun);
 
       var createViewOpts = {
         db : db,
         viewName : fullViewName,
-        map : fun.map,
-        reduce : fun.reduce
+        map : injectedFun.map || fun.map,
+        reduce : injectedFun.reduce || fun.reduce
       };
       return createView(createViewOpts).then(function (view) {
         if (opts.stale === 'ok' || opts.stale === 'update_after') {
