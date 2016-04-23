@@ -17,7 +17,7 @@ var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
 process.chdir('docs');
 
 function checkJekyll() {
-  return exec('bundle check').catch(function (err) {
+  return exec('bundle check').catch(function () {
     throw new Error('Jekyll is not installed.  You need to do: npm run install-jekyll');
   });
 }
