@@ -23,10 +23,6 @@ GEM
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
     mercenary (0.3.6)
-    posix-spawn (0.3.11)
-    pygments.rb (0.6.3)
-      posix-spawn (~> 0.3.6)
-      yajl-ruby (~> 1.2.0)
     rb-fsevent (0.9.7)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
@@ -34,7 +30,6 @@ GEM
     rouge (1.10.1)
     safe_yaml (1.0.4)
     sass (3.4.22)
-    yajl-ruby (1.2.1)
 
 PLATFORMS
   ruby
@@ -42,8 +37,8 @@ PLATFORMS
 DEPENDENCIES
   jekyll
   jekyll-paginate
-  pygments.rb
   redcarpet
+  rouge
 
 BUNDLED WITH
-   1.10.6
+   1.11.2
