@@ -15,7 +15,7 @@ PouchDB offers two ways to do this:
 1. As a prebuilt SQLite file (appropriate for hybrid apps)
 2. As a "dump" file (appropriate for web apps)
 
-In this tutorial, I'll explain how to do both methods.
+In this tutorial, I'll explain how to achieve both methods.
 
 Prebuilt SQLite files
 ---
@@ -146,8 +146,8 @@ Next, we'll need to write some code to copy the `turtles.db` file at runtime fro
 to a read-write directory. This is the only cost we pay at startup when using this approach, but it allows us to 
 modify the database after it's been loaded.
 
-Add this code to `www/js/index.js`, ensuring
-that it runs after the `deviceready` event:
+So let's write a helper function to do this. We'll also want to be sure it only runs once,
+and not every time the app starts up:
 
 ```js
 // copy a database file from www/ in the app directory to the data directory
@@ -166,16 +166,22 @@ function copyDatabaseFile(dbName) {
     var targetDir = files[1];
     return new Promise(function (resolve, reject) {
       targetDir.getFile(dbName, {}, resolve, reject);
-    }).catch(function () {
+    }).catch(function () { // target file doesn't exist yet, write it!
       return new Promise(function (resolve, reject) {
         sourceFile.copyTo(targetDir, dbName, resolve, reject);
       });
     });
   });
 }
+```
 
+This uses the standard Cordova [File APIs](https://github.com/apache/cordova-plugin-file) – such as `getFile()` and `copyTo()` – while adding Promises to make it a bit more readable. (Note that you will need a Promise shim if you are targeting older devices.)
+
+Next, let's write the code to copy the database file and then print the contents of our preloaded PouchDB. Add this code to `www/js/index.js`, ensuring that it runs after the `deviceready` event:
+
+```js
 copyDatabaseFile('_pouch_turtles.db').then(function () {
-  // database ready!
+  // using the websql adapter ensures we use the SQLite Plugin
   var db = new PouchDB('turtles.db', {adapter: 'websql'});
   return db.allDocs({include_docs: true});
 }).then(function (results) {
