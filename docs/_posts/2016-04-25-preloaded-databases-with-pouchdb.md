@@ -7,7 +7,7 @@ author: Nolan Lawson
 ---
 
 A common scenario when writing an app is that you have some data in a database,
-but you want it to be immediately available when the app starts up. Your users
+and you want it to be immediately available when the app starts up. Your users
 might be able to modify the data once it's loaded, but you want them to quickly start from a predetermined state.
 
 PouchDB offers two ways to do this:
@@ -15,7 +15,7 @@ PouchDB offers two ways to do this:
 1. As a prebuilt SQLite file (appropriate for hybrid apps)
 2. As a "dump" file (appropriate for web apps)
 
-In this tutorial, I'll explain how to achieve both methods.
+In this tutorial, I'll give a step-by-step breakdown for both techniques.
 
 Prebuilt SQLite files
 ---
@@ -30,7 +30,7 @@ PhoneGap, and Ionic.
 {% include alert/end.html %}
 
 The advantage of bundling a SQLite file with your app is that the database is instantly
-available. There's no need to load any data or write anything to disk; the SQLite
+available. There's no need to process any data to convert it to a usable format; the SQLite
 file is already ready for PouchDB to use.
 
 ### Creating the SQLite file
