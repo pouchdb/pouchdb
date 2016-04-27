@@ -1,32 +1,25 @@
 language: node_js
+
 node_js:
-  - "5.4.1"
+  - "stable"
+
+services:
+  - docker
+
+sudo:
+  false
 
 addons:
   firefox: "41.0.1"
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - build-essential
-      - ca-certificates
-      - curl
-      - git
-      - libicu-dev
-      - libmozjs185-dev
-      - python
-      - g++
-      - g++-4.8
 
 before_install:
-  #haproxy is not on the apt approved list. So manually install
-  - sudo apt-get -y install haproxy
+  # Install CouchDB Master
+  - docker run -d -p 5984:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
 
 script: npm run $COMMAND
 
 before_script:
     # Install and run CouchDB master for http tests
-  - 'npm run install-couch'
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - "sleep 5"
