@@ -156,6 +156,9 @@ matrix:
     - node_js: "0.12"
       services: docker
       env: CLIENT=node COMMAND=test
+    - node_js: "stable"
+      services: docker
+      env: CLIENT=node COMMAND=test
 
 branches:
   only:
