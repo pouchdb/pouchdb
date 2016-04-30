@@ -43,7 +43,7 @@
     "main": "dist/pouchdb.js"
   },
   "optionalDependencies": {
-    "leveldown": "1.4.5",
+    "leveldown": "1.4.6",
     "websql": "0.4.4"
   },
   "devDependencies": {
