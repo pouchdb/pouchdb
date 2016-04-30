@@ -40,7 +40,7 @@ To start, we'll need some data. Let's say I have a CouchDB or a PouchDB Server t
 
 {% include img.html src="turtles_db.png" alt="A database with some Teenage Mutant Ninja Turtles" %}
 
-We have four documents in this databases, which I've named `turtles`.
+We have four documents in this database, which I've named `turtles`.
 
 Next, we need to convert this data into a SQLite file. If we started PouchDB Server like so:
 
@@ -83,7 +83,9 @@ var outputDB = new PouchDB('turtles.db', {adapter: 'websql'});
 inputDB.replicate.to(outputDB);
 ```
 
-If you haven't already, you'll need to install PouchDB in the directory where we'll run the script:
+Let's call this script `dump.js`.
+
+Now, if you haven't already, you'll need to install PouchDB in the directory where we'll run the script:
 
 ```bash
 $ npm install pouchdb
