@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "stable"
+  - "5"
 
 services:
   - docker
@@ -15,20 +15,15 @@ addons:
 before_install:
   # Install CouchDB Master
   - docker run -d -p 5984:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
+  - npm install add-cors-to-couchdb
+  - "while [ '200' != $(curl -s -o /dev/null -w \"%{http_code}\" 127.0.0.1:5984) ]; do echo waiting for couch to load... ; sleep 1; done"
+  - ./node_modules/.bin/add-cors-to-couchdb
 
 script: npm run $COMMAND
 
 before_script:
-    # Install and run CouchDB master for http tests
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  - "sleep 5"
-
-    # Workaround for Selenium #3280 issue
-  - "sudo sed -i 's/^127\\.0\\.0\\.1.*$/127.0.0.1 localhost/' /etc/hosts"
-
-after_failure:
-  - "curl -X GET http://127.0.0.1:5984/_log?bytes=1000000"
 
 env:
   matrix:
