@@ -108,6 +108,10 @@ function genUrl(opts, path) {
   // Otherwise, the path delimiter is the empty string
   var pathDel = !opts.path ? '' : '/';
 
+  if (!opts.path && path === '/') {
+      path = '';
+  }
+
   // If the host already has a path, then we need to have a path delimiter
   // Otherwise, the path delimiter is the empty string
   return opts.protocol + '://' + opts.host +
