@@ -674,7 +674,7 @@ function LevelPouch(opts, callback) {
         if (seq) {
           // check that there aren't any existing revisions with the same
           // revision id, else we shouldn't do anything
-          return callback2(null, docInfo.revsStemmed);
+          return callback2();
         }
         seq = ++newUpdateSeq;
         docInfo.metadata.rev_map[docInfo.metadata.rev] =
@@ -698,7 +698,7 @@ function LevelPouch(opts, callback) {
           rev: winningRev
         };
         fetchedDocs.set(docInfo.metadata.id, docInfo.metadata);
-        callback2(null, docInfo.revsStemmed);
+        callback2();
       }
 
       if (!attachments.length) {
