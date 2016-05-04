@@ -55,7 +55,7 @@ adapters.forEach(function (adapters) {
         return db.query('all/all', {keys: ['constructor']});
       }).then(function (res) {
         res.rows.should.have.length(1, 'query with keys');
-        return new PouchDB.utils.Promise(function (resolve, reject) {
+        return new testUtils.Promise(function (resolve, reject) {
           db.replicate.to(remote).on('complete', resolve).on('error', reject);
         });
       });

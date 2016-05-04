@@ -152,12 +152,12 @@ With great power comes great responsibility yada yada yada:
 Release Procedure
 -----------------
 
- * Copy the last release post from ./docs/_posts/date-pouchdb-version.md, ammend date and version and fill in release notes
+ * Copy the last release post from ./docs/_posts/date-pouchdb-version.md, amend date and version and fill in release notes
  * Push release post
- * `./node_modules/.bin/tin -v $VERSION`
+ * `./node_modules/.bin/tin --path packages/pouchdb -v $VERSION`
+ * Update the version in `packages/pouchdb-core/src/index.js` as well
  * `npm run release`
  * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` after you upload it.
- * `./node_modules/.bin/tin -v $VERSION+1-prerelease`
  * Update docs/_config.yml to the current version
  * Push updated versions to master
  * `npm run publish-site`

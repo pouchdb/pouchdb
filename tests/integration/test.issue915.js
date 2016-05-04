@@ -5,7 +5,7 @@ if (!process.env.LEVEL_ADAPTER &&
     !process.env.ADAPTER) {
   // these tests don't make sense for anything other than default leveldown
   var fs = require('fs');
-  describe('Remove DB', function () {
+  describe('test.issue915.js', function () {
     afterEach(function (done) {
       fs.unlink('./tmp/_pouch_veryimportantfiles/something', function () {
         fs.rmdir('./tmp/_pouch_veryimportantfiles/', function () {
