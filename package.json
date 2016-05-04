@@ -5,18 +5,6 @@
   "main": "./lib/index.js",
   "homepage": "http://pouchdb.com/",
   "license": "Apache-2.0",
-  "repository": "https://github.com/pouchdb/pouchdb",
-  "tonicExampleFilename": "tonic-example.js",
-  "keywords": [
-    "db",
-    "couchdb",
-    "pouchdb"
-  ],
-  "tags": [
-    "db",
-    "couchdb",
-    "pouchdb"
-  ],
   "dependencies": {
     "argsarray": "0.0.1",
     "debug": "2.2.0",

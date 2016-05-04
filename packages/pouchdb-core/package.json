@@ -1,0 +1,13 @@
+{
+  "name": "pouchdb-core",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb"
+}
