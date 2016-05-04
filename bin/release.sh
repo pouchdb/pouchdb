@@ -1,23 +1,24 @@
 #!/bin/bash
 
 #make sure deps are up to date
-rm -r node_modules
+rm -fr node_modules packages/*/node_modules
 npm install
 
 # get current version
-VERSION=$(node --eval "console.log(require('./package.json').version);")
+VERSION=$(node --eval "console.log(require('./packages/pouchdb/package.json').version);")
 
 # Build
 git checkout -b build
 
-# Publish npm release with tests/scripts/goodies
-# `npm run build` is run as a prepublish step
-npm publish
+# Publish all modules with Lerna
+# TODO: figure out how lerna publish works
+./node_modules/.bin/lerna publish
 
 # Create git tag, which is also the Bower/Github release
-git add dist -f
-git add bower.json component.json package.json
-git rm -r bin docs scripts tests
+cp -r packages/pouchdb/dist dist
+cp packages/pouchdb/{bower,component}.json
+git add -f dist bower.json component.json
+git rm -r packages bin docs scripts tests
 
 git commit -m "build $VERSION"
 

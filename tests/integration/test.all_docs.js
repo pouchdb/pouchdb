@@ -641,7 +641,7 @@ adapters.forEach(function (adapter) {
       return db.bulkDocs(docs).then(function () {
         return paginate().then(function () {
           // try running all queries at once to try to isolate race condition
-          return PouchDB.utils.Promise.all(allkeys.map(function (key) {
+          return testUtils.Promise.all(allkeys.map(function (key) {
             return db.allDocs({
               limit: 100,
               include_docs: true,

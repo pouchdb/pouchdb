@@ -1,0 +1,20 @@
+{
+  "name": "pouchdb-generate-replication-id",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "pouchdb-collate": "1.2.0",
+    "pouchdb-md5": "5.4.0-prerelease",
+    "pouchdb-promise": "5.4.0-prerelease"
+  }
+}

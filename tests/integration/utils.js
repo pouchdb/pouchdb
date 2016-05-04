@@ -28,7 +28,7 @@ testUtils.isExpressRouter = function () {
 };
 
 testUtils.params = function () {
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof process !== 'undefined' && !process.browser) {
     return process.env;
   }
   var paramStr = document.location.search.slice(1);
@@ -63,57 +63,8 @@ testUtils.couchHost = function () {
   return 'http://localhost:5984';
 };
 
-// Abstracts constructing a Blob object, so it also works in older
-// browsers that don't support the native Blob constructor (e.g.
-// old QtWebKit versions, Android < 4.4).
-// Copied over from createBlob.js in PouchDB because we don't
-// want to have to export this function in utils
-function createBlob(parts, properties) {
-  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
-  parts = parts || [];
-  properties = properties || {};
-  try {
-    return new Blob(parts, properties);
-  } catch (e) {
-    if (e.name !== "TypeError") {
-      throw e;
-    }
-    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
-                  WebKitBlobBuilder;
-    var builder = new Builder();
-    for (var i = 0; i < parts.length; i += 1) {
-      builder.append(parts[i]);
-    }
-    return builder.getBlob(properties.type);
-  }
-}
-
-testUtils.makeBlob = function (data, type) {
-  if (typeof module !== 'undefined' && module.exports) {
-    return new Buffer(data, 'binary');
-  } else {
-    return createBlob([data], {
-      type: (type || 'text/plain')
-    });
-  }
-};
-
-testUtils.binaryStringToBlob = function (bin, type) {
-  return PouchDB.utils.binaryStringToBlobOrBuffer(bin, type);
-};
-
-testUtils.btoa = function (arg) {
-  return PouchDB.utils.btoa(arg);
-};
-
-testUtils.atob = function (arg) {
-  return PouchDB.utils.atob(arg);
-};
-
 testUtils.readBlob = function (blob, callback) {
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof process !== 'undefined' && !process.browser) {
     callback(blob.toString('binary'));
   } else {
     var reader = new FileReader();
@@ -134,17 +85,17 @@ testUtils.readBlob = function (blob, callback) {
 };
 
 testUtils.readBlobPromise = function (blob) {
-  return new PouchDB.utils.Promise(function (resolve) {
+  return new testUtils.Promise(function (resolve) {
     testUtils.readBlob(blob, resolve);
   });
 };
 
 testUtils.base64Blob = function (blob, callback) {
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof process !== 'undefined' && !process.browser) {
     callback(blob.toString('base64'));
   } else {
     testUtils.readBlob(blob, function (binary) {
-      callback(PouchDB.utils.btoa(binary));
+      callback(testUtils.btoa(binary));
     });
   }
 };
@@ -177,7 +128,7 @@ testUtils.cleanup = function (dbs, done) {
 // in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
 testUtils.putAfter = function (db, doc, prevRev, callback) {
-  var newDoc = PouchDB.utils.extend({}, doc);
+  var newDoc = testUtils.extend({}, doc);
   if (!prevRev) {
     db.put(newDoc, { new_edits: false }, callback);
     return;
@@ -233,7 +184,7 @@ testUtils.putTree = function (db, tree, callback) {
 };
 
 testUtils.isCouchDB = function (cb) {
-  PouchDB.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
+  testUtils.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
     cb('couchdb' in res);
   });
 };
@@ -293,7 +244,7 @@ testUtils.promisify = function (fun, context) {
     for (var i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
     }
-    return new PouchDB.utils.Promise(function (resolve, reject) {
+    return new testUtils.Promise(function (resolve, reject) {
       args.push(function (err, res) {
         if (err) {
           return reject(err);
@@ -305,9 +256,40 @@ testUtils.promisify = function (fun, context) {
   };
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-  global.PouchDB = require('../../lib');
+// We need to use pouchdb-for-coverage here to ensure that e.g pouchdb-utils
+// and pouchdb-ajax don't get pulled in, because then our coverage tests
+// would complain that we're not using the "whole" thing.
+var PouchForCoverage = require('../../packages/pouchdb-for-coverage');
+var pouchUtils = PouchForCoverage.utils;
+testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
+testUtils.btoa = pouchUtils.btoa;
+testUtils.atob = pouchUtils.atob;
+testUtils.Promise = pouchUtils.Promise;
+testUtils.ajax = PouchForCoverage.ajax;
+testUtils.uuid = pouchUtils.uuid;
+testUtils.parseUri = pouchUtils.parseUri;
+testUtils.errors = PouchForCoverage.Errors;
+testUtils.extend = require('js-extend').extend;
+
+testUtils.makeBlob = function (data, type) {
+  if (typeof process !== 'undefined' && !process.browser) {
+    return new Buffer(data, 'binary');
+  } else {
+    return pouchUtils.blob([data], {
+      type: (type || 'text/plain')
+    });
+  }
+};
+
+if (typeof process !== 'undefined' && !process.browser) {
+  if (process.env.COVERAGE) {
+    global.PouchDB = require('../../packages/pouchdb-for-coverage');
+  } else {
+    global.PouchDB = require('../../packages/pouchdb');
+  }
+
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
+    // test a special *down adapter and/or prefix
     var defaults = {};
 
     if (process.env.LEVEL_ADAPTER) {
@@ -321,20 +303,23 @@ if (typeof module !== 'undefined' && module.exports) {
     }
     global.PouchDB = global.PouchDB.defaults(defaults);
   } else if (process.env.AUTO_COMPACTION) {
-    global.PouchDB = global.PouchDB.defaults({auto_compaction: true});
+    // test autocompaction
+    global.PouchDB = global.PouchDB.defaults({
+      auto_compaction: true,
+      prefix: './tmp/_pouch_'
+    });
+  } else if (process.env.ADAPTER === 'websql') {
+    // test WebSQL in Node
+    require('../../packages/pouchdb/extras/websql');
+    global.PouchDB = global.PouchDB.defaults({prefix: './tmp/_pouch_'});
+    global.PouchDB.preferredAdapters = ['websql'];
+  } else {
+    // test regular leveldown in node
+    global.PouchDB = global.PouchDB.defaults({prefix: './tmp/_pouch_'});
   }
-  if (typeof process !== 'undefined') {
-    if (process.env.ADAPTER === 'websql') {
-      // test WebSQL in Node
-      require('../../extras/websql');
-      global.PouchDB.preferredAdapters = ['websql'];
-      global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
-      require('mkdirp').sync('./tmp');
-    } else {
-      // test regular LevelDB in Node
-      global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
-      global.PouchDB.adapters.leveldb.use_prefix = true;
-    }
-  }
+
+  require('mkdirp').sync('./tmp');
   module.exports = testUtils;
+} else {
+  window.testUtils = testUtils;
 }
