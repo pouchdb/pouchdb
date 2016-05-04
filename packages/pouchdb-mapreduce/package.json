@@ -1,0 +1,29 @@
+{
+  "name": "pouchdb-mapreduce",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "inherits": "2.0.1",
+    "pouchdb-collate": "1.2.0",
+    "pouchdb-errors": "5.4.0-prerelease",
+    "pouchdb-mapreduce-utils": "5.4.0-prerelease",
+    "pouchdb-promise": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease",
+    "scope-eval": "0.0.3",
+    "spark-md5": "2.0.2"
+  },
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/md5.js": "./src/md5-browser.js"
+  }
+}
