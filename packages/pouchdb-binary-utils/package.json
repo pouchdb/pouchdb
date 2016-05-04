@@ -1,0 +1,26 @@
+{
+  "name": "pouchdb-binary-utils",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {},
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/arrayBufferToBase64.js": "./src/arrayBufferToBase64-browser.js",
+    "./src/arrayBufferToBinaryString.js": "./src/arrayBufferToBinaryString-browser.js",
+    "./src/base64.js": "./src/base64-browser.js",
+    "./src/base64StringToBlobOrBuffer.js": "./src/base64StringToBlobOrBuffer-browser.js",
+    "./src/binaryStringToBlobOrBuffer.js": "./src/binaryStringToBlobOrBuffer-browser.js",
+    "./src/blobOrBufferToBase64.js": "./src/blobOrBufferToBase64-browser.js",
+    "./src/readAsArrayBuffer.js": "./src/readAsArrayBuffer-browser.js"
+  }
+}
