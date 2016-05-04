@@ -1,7 +1,7 @@
 'use strict';
 
 require('chai').should();
-var parseUri = require('../../lib/deps/parseUri');
+var parseUri = require('../../packages/pouchdb').utils.parseUri;
 
 describe('test.parse-uri.js', function () {
 

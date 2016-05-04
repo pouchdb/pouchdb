@@ -1,0 +1,24 @@
+{
+  "name": "pouchdb-adapter-node-websql",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "node ../../bin/build-module.js",
+    "prepublish": "npm run build"
+  },
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "js-extend": "1.0.1",
+    "websql": "0.4.4",
+    "pouchdb-adapter-websql": "5.4.0-prerelease"
+  }
+}

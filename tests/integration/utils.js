@@ -306,7 +306,7 @@ testUtils.promisify = function (fun, context) {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  global.PouchDB = require('../../lib');
+  global.PouchDB = require('../../packages/pouchdb');
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 

@@ -51,9 +51,10 @@ if (global.window && global.window.location && global.window.location.search) {
   }
 }
 if (startNow) {
-  var PouchDB = process.browser ? window.PouchDB : require('../../lib/index.js');
+  var PouchDB = process.browser ? window.PouchDB :
+    require('../../packages/pouchdb');
   if (!process.browser) {
-    require('../../extras/websql');
+    require('../../packages/pouchdb/extras/websql');
   }
   runTestSuites(PouchDB);
 }

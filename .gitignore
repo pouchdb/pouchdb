@@ -4,6 +4,7 @@ node_modules
 docs/_site
 docs/static/css
 npm-debug.log
+npm-debug.log.*
 *~
 coverage
 bower_components
@@ -17,3 +18,4 @@ pouchdb-webpack.js
 lib
 lib_unit
 src_browser/
+lerna-debug.log

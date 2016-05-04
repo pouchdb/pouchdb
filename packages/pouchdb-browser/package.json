@@ -1,0 +1,26 @@
+{
+  "name": "pouchdb-browser",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "jsnext:main": "./src/index.js",
+  "scripts": {
+    "build": "node ../../bin/build-module.js",
+    "prepublish": "npm run build"
+  },
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "files": [
+    "src",
+    "lib"
+  ],
+  "dependencies": {
+    "pouchdb-adapter-http": "5.4.0-prerelease",
+    "pouchdb-adapter-indexeddb": "5.4.0-prerelease",
+    "pouchdb-adapter-websql": "5.4.0-prerelease",
+    "pouchdb-core": "5.4.0-prerelease",
+    "pouchdb-mapreduce": "5.4.0-prerelease",
+    "pouchdb-replication": "5.4.0-prerelease"
+  }
+}
