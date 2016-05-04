@@ -2,8 +2,8 @@
 'use strict';
 
 var should = require('chai').should();
-var once = require('../../lib/deps/once');
-var toPromise = require('../../lib/deps/toPromise');
+var once = require('../../packages/pouchdb').utils.once;
+var toPromise = require('../../packages/pouchdb').utils.toPromise;
 
 describe('test.once.js', function () {
 

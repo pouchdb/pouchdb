@@ -306,7 +306,7 @@ testUtils.promisify = function (fun, context) {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  global.PouchDB = require('../../lib');
+  global.PouchDB = require('../../packages/pouchdb');
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 
@@ -326,7 +326,7 @@ if (typeof module !== 'undefined' && module.exports) {
   if (typeof process !== 'undefined') {
     if (process.env.ADAPTER === 'websql') {
       // test WebSQL in Node
-      require('../../extras/websql');
+      require('../../packages/pouchdb/extras/websql');
       global.PouchDB.preferredAdapters = ['websql'];
       global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
       require('mkdirp').sync('./tmp');
