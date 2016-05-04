@@ -3,6 +3,7 @@
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",
+  "jsnext:main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,5 +20,12 @@
   "author": "Dale Harvey <dale@arandomurl.com>",
   "license": "Apache-2.0",
   "tonicExampleFilename": "tonic-example.js",
-  "repository": "https://github.com/pouchdb/pouchdb"
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jspm": {
+    "main": "dist/pouchdb.js"
+  },
+  "files": [
+    "lib",
+    "src"
+  ]
 }

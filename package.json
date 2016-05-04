@@ -1,8 +1,6 @@
 {
-  "name": "pouchdb",
+  "name": "pouchdb-monorepo",
   "version": "5.3.3-prerelease",
-  "description": "PouchDB is a pocket-sized database.",
-  "main": "./lib/index.js",
   "homepage": "http://pouchdb.com/",
   "license": "Apache-2.0",
   "dependencies": {
@@ -26,9 +24,6 @@
     "sublevel-pouchdb": "1.0.0",
     "through2": "2.0.1",
     "vuvuzela": "1.0.3"
-  },
-  "jspm": {
-    "main": "dist/pouchdb.js"
   },
   "optionalDependencies": {
     "leveldown": "1.4.6",
@@ -120,5 +115,6 @@
     "extras",
     "dist",
     "tonic-example.js"
-  ]
+  ],
+  "private": true
 }

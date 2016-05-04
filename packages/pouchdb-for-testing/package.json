@@ -10,5 +10,10 @@
   "author": "Dale Harvey <dale@arandomurl.com>",
   "license": "Apache-2.0",
   "private": true,
-  "repository": "https://github.com/pouchdb/pouchdb"
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ]
 }
