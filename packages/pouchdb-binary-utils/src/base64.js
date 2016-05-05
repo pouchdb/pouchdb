@@ -1,7 +1,5 @@
-import buffer from './buffer';
-
 function thisAtob(str) {
-  var base64 = new buffer(str, 'base64');
+  var base64 = new Buffer(str, 'base64');
   // Node.js will just skip the characters it can't decode instead of
   // throwing an exception
   if (base64.toString('base64') !== str) {
@@ -11,7 +9,7 @@ function thisAtob(str) {
 }
 
 function thisBtoa(str) {
-  return new buffer(str, 'binary').toString('base64');
+  return new Buffer(str, 'binary').toString('base64');
 }
 
 export {

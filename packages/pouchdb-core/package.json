@@ -14,5 +14,22 @@
   "files": [
     "lib",
     "src"
-  ]
+  ],
+  "dependencies" : {
+    "debug": "2.2.0",
+    "double-ended-queue": "2.0.0-0",
+    "es3ify": "0.2.2",
+    "fruitdown": "1.0.2",
+    "inherits": "2.0.1",
+    "js-extend": "1.0.1",
+    "level-write-stream": "1.0.0",
+    "levelup": "1.3.1",
+    "localstorage-down": "0.6.6",
+    "memdown": "1.1.2",
+    "pouchdb-collate": "1.2.0",
+    "pouchdb-collections": "1.0.1",
+    "scope-eval": "0.0.3",
+    "sublevel-pouchdb": "1.0.0",
+    "through2": "2.0.1"
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-promise",
+  "name": "pouchdb-errors",
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",

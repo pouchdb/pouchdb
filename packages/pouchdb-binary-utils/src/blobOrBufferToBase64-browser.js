@@ -1,4 +1,4 @@
-import Promise from '../promise';
+import Promise from 'pouchdb-promise';
 import readAsBinaryString from './readAsBinaryString';
 import { btoa as btoa } from './base64';
 

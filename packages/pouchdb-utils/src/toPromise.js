@@ -1,4 +1,4 @@
-import Promise from './promise';
+import Promise from 'pouchdb-promise';
 import getArguments from 'argsarray';
 import clone from './clone';
 import once from './once';

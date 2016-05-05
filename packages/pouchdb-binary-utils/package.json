@@ -1,0 +1,38 @@
+{
+  "name": "pouchdb-binary-utils",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "pouchdb-build"
+  },
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "argsarray": "0.0.1",
+    "lie": "3.0.4",
+    "spark-md5": "2.0.2",
+    "vuvuzela": "1.0.3"
+  },
+  "devDependencies": {
+    "pouchdb-build": "5.4.0-prerelease"
+  },
+  "browser": {
+    "./src/arrayBufferToBase64.js": "./src/arrayBufferToBase64-browser.js",
+    "./src/arrayBufferToBinaryString.js": "./src/arrayBufferToBinaryString-browser.js",
+    "./src/base64.js": "./src/base64-browser.js",
+    "./src/base64StringToBlobOrBuffer.js": "./src/base64StringToBlobOrBuffer-browser.js",
+    "./src/binaryStringToBlobOrBuffer.js": "./src/binaryStringToBlobOrBuffer-browser.js",
+    "./src/blobOrBufferToBase64.js": "./src/blobOrBufferToBase64-browser.js",
+    "./src/cloneBinaryObject.js": "./src/cloneBinaryObject-browser.js",
+    "./src/isBinaryObject.js": "./src/isBinaryObject-browser.js",
+    "./src/readAsArrayBuffer.js": "./src/readAsArrayBuffer-browser.js"
+  }
+}

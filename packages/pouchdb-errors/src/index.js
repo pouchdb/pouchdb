@@ -221,9 +221,9 @@ var getErrorTypeByProp = function (prop, value, reason) {
     return typeof error !== 'function' && error[prop] === value;
   });
   var key = reason && keys.filter(function (key) {
-        var error = allErrors[key];
-        return error.message === reason;
-      })[0] || keys[0];
+      var error = allErrors[key];
+      return error.message === reason;
+    })[0] || keys[0];
   return (key) ? allErrors[key] : null;
 };
 
@@ -231,15 +231,15 @@ function generateErrorFromResponse(res) {
   var error, errName, errType, errMsg, errReason;
 
   errName = (res.error === true && typeof res.name === 'string') ?
-              res.name :
-              res.error;
+    res.name :
+    res.error;
   errReason = res.reason;
   errType = getErrorTypeByProp('name', errName, errReason);
 
   if (res.missing ||
-      errReason === 'missing' ||
-      errReason === 'deleted' ||
-      errName === 'not_found') {
+    errReason === 'missing' ||
+    errReason === 'deleted' ||
+    errName === 'not_found') {
     errType = MISSING_DOC;
   } else if (errName === 'doc_validation') {
     // doc validation needs special treatment since
@@ -255,7 +255,7 @@ function generateErrorFromResponse(res) {
   // fallback to error by status or unknown error.
   if (!errType) {
     errType = getErrorTypeByProp('status', res.status, errReason) ||
-                UNKNOWN_ERROR;
+      UNKNOWN_ERROR;
   }
 
   error = createError(errType, errReason, errName);

@@ -14,5 +14,17 @@
   "files": [
     "lib",
     "src"
-  ]
+  ],
+  "browser": {
+    "./src/applyTypeToBuffer": "./src/applyTypeToBuffer-browser",
+    "./src/createBlobOrBufferFromParts": "./src/createBlobOrBufferFromParts-browser",
+    "./src/createMultipartPart": "./src/createMultipartPart-browser",
+    "./src/defaultBody": "./src/defaultBody-browser",
+    "./src/explainError": "./src/explainError-browser",
+    "./src/index.js": "./src/index-browser.js",
+    "./src/request.js": "./src/request-browser.js"
+  },
+  "dependencies": {
+    "request": "2.72.0"
+  }
 }
