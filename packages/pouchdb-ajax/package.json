@@ -4,7 +4,7 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
-    "build": "pouchdb-build",
+    "build": "node ../../bin/build-module.js",
     "prepublish": "npm run build"
   },
   "keywords": [],
@@ -26,9 +26,10 @@
     "./src/request.js": "./src/request-browser.js"
   },
   "dependencies": {
+    "js-extend": "1.0.1",
+    "pouchdb-errors": "5.4.0-prerelease",
+    "pouchdb-promise": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease",
     "request": "2.72.0"
-  },
-  "devDependencies": {
-    "pouchdb-build": "5.4.0-prerelease"
-  },
+  }
 }

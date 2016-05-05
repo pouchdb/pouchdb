@@ -4,7 +4,8 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node ../../bin/build-module.js",
+    "prepublish": "npm run build"
   },
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

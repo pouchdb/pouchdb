@@ -1,4 +1,4 @@
-import binaryStringToArrayBuffer from '../binary/binaryStringToArrayBuffer';
+import { binaryStringToArrayBuffer } from 'pouchdb-utils';
 
 // create a "part" suitable for multipart. in the browser
 // this is an ArrayBuffer; in Node it's a binary string

@@ -4,7 +4,7 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
-    "build": "pouchdb-build",
+    "build": "node ../../bin/build-module.js",
     "prepublish": "npm run build"
   },
   "keywords": [],
@@ -25,9 +25,6 @@
     "pouchdb-promise": "5.4.0-prerelease",
     "spark-md5": "2.0.2",
     "vuvuzela": "1.0.3"
-  },
-  "devDependencies": {
-    "pouchdb-build": "5.4.0-prerelease"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",

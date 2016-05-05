@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict';
+
 var rollup = require('rollup').rollup;
 var nodeResolve = require('rollup-plugin-node-resolve');
 
@@ -15,10 +17,15 @@ deps = deps.concat([
   'crypto', 'fs', 'events', 'inherits', 'path'
 ]);
 
-return rimraf('lib').then(function () {
+// browser & node vs one single version
+var versions = pkg.browser ? [false, true] : [false];
+
+Promise.resolve().then(function () {
+  return rimraf('lib');
+}).then(function () {
   return mkdirp('lib');
 }).then(function () {
-  return Promise.all([false, true].map(function (isBrowser) {
+  return Promise.all(versions.map(function (isBrowser) {
     return rollup({
       entry: './src/index.js',
       external: deps,
@@ -34,11 +41,9 @@ return rimraf('lib').then(function () {
         format: 'cjs',
         dest: isBrowser ? 'lib/index-browser.js' : 'lib/index.js'
       });
-    })
+    }).then(function () {
+      console.log('wrote ' + path.basename(process.cwd()) +
+        '/lib/index' + (isBrowser ? '-browser' : '') + '.js');
+    });
   }));
-}).then(function () {
-  var basename = path.basename(process.cwd());
-  console.log('wrote ' +
-    basename + '/lib/index.js and ' +
-    basename + '/lib/index-browser.js');
 }).catch(console.log.bind(console));

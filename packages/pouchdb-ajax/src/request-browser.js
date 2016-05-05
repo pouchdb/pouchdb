@@ -1,8 +1,7 @@
 /* global fetch */
 /* global Headers */
-import createBlob from './../binary/blob.js';
-import readAsArrayBuffer from './../binary/readAsArrayBuffer';
-import Promise from '../../deps/promise';
+import {createBlob, readAsArrayBuffer } from 'pouchdb-utils';
+import Promise from 'pouchdb-promise';
 
 function wrappedFetch() {
   var wrappedPromise = {};

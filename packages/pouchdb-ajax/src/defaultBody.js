@@ -1,7 +1,5 @@
-import buffer from '../binary/buffer';
-
 function defaultBody() {
-  return new buffer('', 'binary');
+  return new Buffer('', 'binary');
 }
 
 export default defaultBody;

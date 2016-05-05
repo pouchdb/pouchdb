@@ -1,4 +1,4 @@
-import createBlob from '../binary/blob';
+import {blob as createBlob } from 'pouchdb-utils';
 
 function createBlobOrBufferFromParts(parts, type) {
   return createBlob(parts, {type: type});
