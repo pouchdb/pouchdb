@@ -1,4 +1,4 @@
-import createBlob from '../../deps/binary/blob';
+import { blob as createBlob } from 'pouchdb-utils';
 
 function createEmptyBlobOrBuffer(type) {
   return createBlob([''], {type: type});

@@ -1,33 +1,36 @@
 import levelup from 'levelup';
 import sublevel from 'sublevel-pouchdb';
 import { obj as through } from 'through2';
-
-import clone from '../../deps/clone';
-import Changes from '../../changesHandler';
-import uuid from '../../deps/uuid';
-import { Map, Set } from 'pouchdb-collections';
-import filterChange from '../../deps/filterChange';
 import getArguments from 'argsarray';
-import safeJsonParse from '../../deps/safeJsonParse';
-import safeJsonStringify from '../../deps/safeJsonStringify';
-import calculateWinningRev from '../../deps/merge/winningRev';
-import traverseRevTree from '../../deps/merge/traverseRevTree';
-import compactTree from '../../deps/merge/compactTree';
-import collectConflicts from '../../deps/merge/collectConflicts';
-import isDeleted from '../../deps/docs/isDeleted';
-import isLocalId from '../../deps/docs/isLocalId';
-import { parseDoc as parseDoc } from '../../deps/docs/parseDoc';
-import processDocs from '../../deps/docs/processDocs';
-import md5 from '../../deps/md5';
-import migrate from '../../deps/migrate';
+import { Map, Set } from 'pouchdb-collections';
+import migrate from './migrate';
 import Deque from "double-ended-queue";
-import { atob as atob } from '../../deps/binary/base64';
-import functionName from '../../deps/functionName';
+import Promise from 'pouchdb-promise';
+import {
+  clone,
+  Changes,
+  uuid,
+  filterChange,
+  safeJsonParse,
+  safeJsonStringify,
+  winningRev as calculateWinningRev,
+  traverseRevTree,
+  compactTree,
+  collectConflicts,
+  isDeleted,
+  isLocalId,
+  parseDoc,
+  processDocs,
+  md5,
+  atob,
+  functionName,
+  binaryStringToBlobOrBuffer as binStringToBluffer
+} from 'pouchdb-utils';
+
 import readAsBluffer from './readAsBlobOrBuffer';
 import prepareAttachmentForStorage from './prepareAttachmentForStorage';
 import createEmptyBluffer from './createEmptyBlobOrBuffer';
-import Promise from '../../deps/promise';
-import binStringToBluffer from '../../deps/binary/binaryStringToBlobOrBuffer';
+
 import LevelTransaction from './transaction';
 
 import {
@@ -37,7 +40,7 @@ import {
   BAD_ARG,
   MISSING_STUB,
   createError
-} from '../../deps/errors';
+} from 'pouchdb-errors';
 
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
