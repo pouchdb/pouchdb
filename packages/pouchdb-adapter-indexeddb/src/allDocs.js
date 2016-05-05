@@ -1,5 +1,5 @@
-import { createError, IDB_ERROR } from '../../deps/errors';
-import collectConflicts from '../../deps/merge/collectConflicts';
+import { createError, IDB_ERROR } from 'pouchdb-errors';
+import { collectConflicts } from 'pouchdb-utils';
 
 import {
   ATTACH_STORE,

@@ -1,5 +1,5 @@
-import createBlob from '../../deps/binary/blob';
-import Promise from '../../deps/promise';
+import { createBlob } from 'pouchdb-utils';
+import Promise from 'pouchdb-promise';
 import { DETECT_BLOB_SUPPORT_STORE } from './constants';
 
 //

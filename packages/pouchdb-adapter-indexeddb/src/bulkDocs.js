@@ -1,10 +1,12 @@
 import { Map } from 'pouchdb-collections';
-import { createError, MISSING_STUB } from '../../deps/errors';
-import preprocessAttachments from '../../deps/docs/preprocessAttachments';
-import processDocs from '../../deps/docs/processDocs';
-import isLocalId from '../../deps/docs/isLocalId';
-import compactTree from '../../deps/merge/compactTree';
-import { parseDoc } from '../../deps/docs/parseDoc';
+import { createError, MISSING_STUB } from 'pouchdb-errors';
+import {
+  preprocessAttachments,
+  processDocs,
+  isLocalId,
+  compactTree,
+  parseDoc
+} from 'pouchdb-utils';
 
 import {
   ATTACH_AND_SEQ_STORE,

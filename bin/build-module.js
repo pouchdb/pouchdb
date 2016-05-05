@@ -14,7 +14,7 @@ var Promise = require('lie');
 var pkg = require(path.resolve(process.cwd(), 'package.json'));
 var deps = Object.keys(pkg.dependencies || {});
 deps = deps.concat([
-  'crypto', 'fs', 'events', 'inherits', 'path'
+  'crypto', 'fs', 'events', 'path'
 ]);
 
 // browser & node vs one single version

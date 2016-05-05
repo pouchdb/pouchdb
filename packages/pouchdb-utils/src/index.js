@@ -46,6 +46,7 @@ import blobOrBufferToBase64 from './binary/blobOrBufferToBase64';
 import readAsArrayBuffer from './binary/readAsArrayBuffer';
 import readAsBinaryString from './binary/readAsBinaryString';
 import typedBuffer from './binary/typedBuffer';
+import Changes from './Changes';
 
 export {
   adapterFun,
@@ -97,5 +98,6 @@ export {
   blobOrBufferToBase64,
   readAsArrayBuffer,
   readAsBinaryString,
-  typedBuffer
+  typedBuffer,
+  Changes
 };

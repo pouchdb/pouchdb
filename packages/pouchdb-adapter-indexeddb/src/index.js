@@ -1,24 +1,26 @@
-import clone from '../../deps/clone';
-import uuid from '../../deps/uuid';
+import {
+  clone,
+  uuid,
+  filterChange,
+  toPromise,
+  isDeleted,
+  isLocalId,
+  hasLocalStorage,
+  calculateWinningRev,
+  traverseRevTree,
+  Changes
+} from 'pouchdb-utils';
 import { Map, Set } from 'pouchdb-collections';
-import filterChange from '../../deps/filterChange';
-import toPromise from '../../deps/toPromise';
-import isDeleted from '../../deps/docs/isDeleted';
-import isLocalId from '../../deps/docs/isLocalId';
 import idbBulkDocs from './bulkDocs';
 import idbAllDocs from './allDocs';
 import checkBlobSupport from './blobSupport';
-import hasLocalStorage from '../../deps/env/hasLocalStorage';
-import calculateWinningRev from '../../deps/merge/winningRev';
-import traverseRevTree from '../../deps/merge/traverseRevTree';
-import Changes from '../../changesHandler';
 import {
   MISSING_DOC,
   REV_CONFLICT,
   NOT_OPEN,
   IDB_ERROR,
   createError
-} from '../../deps/errors';
+} from 'pouchdb-errors';
 
 import {
   ADAPTER_VERSION,

@@ -1,8 +1,8 @@
 import { EventEmitter as EventEmitter } from 'events';
 import inherits from 'inherits';
-import isChromeApp from './deps/env/isChromeApp';
-import hasLocalStorage from './deps/env/hasLocalStorage';
-import pick from './deps/pick';
+import isChromeApp from './env/isChromeApp';
+import hasLocalStorage from './env/hasLocalStorage';
+import pick from './pick';
 
 inherits(Changes, EventEmitter);
 

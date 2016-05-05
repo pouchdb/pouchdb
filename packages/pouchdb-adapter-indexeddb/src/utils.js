@@ -1,14 +1,16 @@
 import { extend as extend } from 'js-extend';
-import Promise from '../../deps/promise';
-import { createError, IDB_ERROR } from '../../deps/errors';
-import pick from '../../deps/pick';
-import safeJsonParse from '../../deps/safeJsonParse';
-import safeJsonStringify from '../../deps/safeJsonStringify';
-import { btoa } from '../../deps/binary/base64';
+import Promise from 'pouchdb-promise';
+import { createError, IDB_ERROR } from 'pouchdb-errors';
+import {
+  pick,
+  safeJsonParse,
+  safeJsonStringify,
+  btoa,
+  readAsBinaryString,
+  base64StringToBlobOrBuffer as b64StringToBlob,
+  blob as createBlob
+} from 'pouchdb-utils';
 import { ATTACH_AND_SEQ_STORE, ATTACH_STORE, BY_SEQ_STORE } from './constants';
-import readAsBinaryString from '../../deps/binary/readAsBinaryString';
-import b64StringToBlob from '../../deps/binary/base64StringToBlobOrBuffer';
-import createBlob from '../../deps/binary/blob';
 
 function tryCode(fun, that, args, PouchDB) {
   try {

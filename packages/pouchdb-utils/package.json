@@ -19,6 +19,7 @@
   "dependencies": {
     "argsarray": "0.0.1",
     "debug": "2.2.0",
+    "inherits": "2.0.1",
     "lie": "3.0.4",
     "pouchdb-collections": "1.0.1",
     "pouchdb-errors": "5.4.0-prerelease",
