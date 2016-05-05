@@ -7,7 +7,7 @@ import {
   DOC_VALIDATION,
   INVALID_REV,
   createError
-} from '../../deps/errors';
+} from 'pouchdb-errors';
 
 function toObject(array) {
   return array.reduce(function (obj, item) {

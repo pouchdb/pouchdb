@@ -1,5 +1,5 @@
-import isBinaryObject from './binary/isBinaryObject';
-import cloneBinaryObject from './binary/cloneBinaryObject';
+import isBinaryObject from './isBinaryObject';
+import cloneBinaryObject from './cloneBinaryObject';
 
 function clone(object) {
   var newObject;

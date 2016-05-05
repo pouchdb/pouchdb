@@ -1,7 +1,7 @@
 import request from './request';
 import { extend as extend } from 'js-extend';
-import { generateErrorFromResponse } from './../errors';
-import clone from '../../deps/clone';
+import { generateErrorFromResponse } from 'pouchdb-errors';
+import { clone } from 'pouchdb-utils';
 import applyTypeToBuffer from './applyTypeToBuffer';
 import defaultBody from './defaultBody';
 

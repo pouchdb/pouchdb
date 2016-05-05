@@ -1,20 +1,7 @@
 import adapterFun from './adapterFun.js';
-import arrayBufferToBase64 from './binary/arrayBufferToBase64.js';
-import arrayBufferToBinaryString from './binary/arrayBufferToBinaryString.js';
-import {atob, btoa} from './binary/base64.js';
-import base64StringToBlobOrBuffer from './binary/base64StringToBlobOrBuffer.js';
-import binaryStringToArrayBuffer from './binary/binaryStringToArrayBuffer.js';
-import binaryStringToBlobOrBuffer from './binary/binaryStringToBlobOrBuffer.js';
-import blob from './binary/blob.js';
-import blobOrBufferToBase64 from './binary/blobOrBufferToBase64.js';
-import buffer from './binary/buffer.js';
-import cloneBinaryObject from './binary/cloneBinaryObject.js';
-import isBinaryObject from './binary/isBinaryObject.js';
-import readAsArrayBuffer from './binary/readAsArrayBuffer.js';
-import readAsBinaryString from './binary/readAsBinaryString.js';
-import typedBuffer from './binary/typedBuffer.js';
 import bulkGetShim from './bulkGetShim.js';
 import clone from './clone.js';
+import explainError from './explainError';
 import isDeleted from './docs/isDeleted.js';
 import isLocalId from './docs/isLocalId.js';
 import normalizeDdocFunctionName from './docs/normalizeDdocFunctionName.js';
@@ -39,37 +26,32 @@ import revExists from './merge/revExists.js';
 import rootToLeaf from './merge/rootToLeaf.js';
 import traverseRevTree from './merge/traverseRevTree.js';
 import winningRev from './merge/winningRev.js';
-import migrate from './migrate.js';
 import once from './once.js';
 import parseHex from './parseHex.js';
 import parseUri from './parseUri.js';
 import pick from './pick.js';
-import promise from './promise.js';
 import safeJsonParse from './safeJsonParse.js';
 import safeJsonStringify from './safeJsonStringify.js';
 import toPromise from './toPromise.js';
 import upsert from './upsert.js';
 import uuid from './uuid.js';
+import arrayBufferToBase64 from './binary/arrayBufferToBase64';
+import arrayBufferToBinaryString from './binary/arrayBufferToBinaryString';
+import {atob, btoa} from './binary/base64';
+import base64StringToBlobOrBuffer from './binary/base64StringToBlobOrBuffer';
+import binaryStringToArrayBuffer from './binary/binaryStringToArrayBuffer';
+import binaryStringToBlobOrBuffer from './binary/binaryStringToBlobOrBuffer';
+import blob from './binary/blob';
+import blobOrBufferToBase64 from './binary/blobOrBufferToBase64';
+import readAsArrayBuffer from './binary/readAsArrayBuffer';
+import readAsBinaryString from './binary/readAsBinaryString';
+import typedBuffer from './binary/typedBuffer';
 
 export {
   adapterFun,
-  arrayBufferToBase64,
-  arrayBufferToBinaryString,
-  atob,
-  btoa,
-  base64StringToBlobOrBuffer,
-  binaryStringToArrayBuffer,
-  binaryStringToBlobOrBuffer,
-  blob,
-  blobOrBufferToBase64,
-  buffer,
-  cloneBinaryObject,
-  isBinaryObject,
-  readAsArrayBuffer,
-  readAsBinaryString,
-  typedBuffer,
   bulkGetShim,
   clone,
+  explainError,
   isDeleted,
   isLocalId,
   normalizeDdocFunctionName,
@@ -95,15 +77,25 @@ export {
   rootToLeaf,
   traverseRevTree,
   winningRev,
-  migrate,
   once,
   parseHex,
   parseUri,
   pick,
-  promise,
   safeJsonParse,
   safeJsonStringify,
   toPromise,
   upsert,
-  uuid
+  uuid,
+  arrayBufferToBase64,
+  arrayBufferToBinaryString,
+  atob,
+  btoa,
+  base64StringToBlobOrBuffer,
+  binaryStringToArrayBuffer,
+  binaryStringToBlobOrBuffer,
+  blob,
+  blobOrBufferToBase64,
+  readAsArrayBuffer,
+  readAsBinaryString,
+  typedBuffer
 };

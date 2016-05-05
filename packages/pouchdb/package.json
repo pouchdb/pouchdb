@@ -5,7 +5,8 @@
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pouchdb-build > lib/index.js",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "db",
@@ -27,5 +28,11 @@
   "files": [
     "lib",
     "src"
-  ]
+  ],
+  "dependencies": {
+    "pouchdb-core": "5.4.0"
+  },
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js"
+  }
 }

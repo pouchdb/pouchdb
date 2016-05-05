@@ -1,4 +1,4 @@
-import winningRev from '../../deps/merge/winningRev';
+import winningRev from '../merge/winningRev';
 
 function getTrees(node) {
   return node.ids;

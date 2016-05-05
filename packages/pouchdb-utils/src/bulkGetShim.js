@@ -1,4 +1,4 @@
-import pick from '../deps/pick';
+import pick from './pick';
 
 // shim for P/CouchDB adapters that don't directly implement _bulk_get
 function bulkGet(db, opts, callback) {

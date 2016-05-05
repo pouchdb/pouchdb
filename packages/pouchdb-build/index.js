@@ -3,19 +3,42 @@
 var rollup = require('rollup').rollup;
 var nodeResolve = require('rollup-plugin-node-resolve');
 
-var isBrowser = process.argv.indexOf('browser') !== -1;
+var path = require('path');
+var denodeify = require('denodeify');
+var mkdirp = denodeify(require('mkdirp'));
+var rimraf = denodeify(require('rimraf'));
+var Promise = require('lie');
 
-rollup({
-  entry: isBrowser ? './src/index-browser.js' : './src/index.js',
-  plugins: [
-    nodeResolve({
-      jsnext: true,  // Default: false
-      browser: isBrowser
+var pkg = require(path.resolve(process.cwd(), 'package.json'));
+var deps = Object.keys(pkg.dependencies || {});
+deps = deps.concat([
+  'crypto', 'fs', 'events', 'inherits', 'path'
+]);
+
+return rimraf('lib').then(function () {
+  return mkdirp('lib');
+}).then(function () {
+  return Promise.all([false, true].map(function (isBrowser) {
+    return rollup({
+      entry: './src/index.js',
+      external: deps,
+      plugins: [
+        nodeResolve({
+          skip: deps,
+          jsnext: true,
+          browser: isBrowser
+        })
+      ]
+    }).then(function (bundle) {
+      return bundle.write({
+        format: 'cjs',
+        dest: isBrowser ? 'lib/index-browser.js' : 'lib/index.js'
+      });
     })
-  ]
-}).then(function (bundle) {
-  var code = bundle.generate({
-    format: 'cjs'
-  }).code;
-  console.log(code);
+  }));
+}).then(function () {
+  var basename = path.basename(process.cwd());
+  console.log('wrote ' +
+    basename + '/lib/index.js and ' +
+    basename + '/lib/index-browser.js');
 }).catch(console.log.bind(console));

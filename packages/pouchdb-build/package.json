@@ -12,6 +12,10 @@
   "repository": "https://github.com/pouchdb/pouchdb",
   "private": true,
   "dependencies": {
+    "denodeify": "^1.2.1",
+    "lie": "^3.0.4",
+    "mkdirp": "^0.5.1",
+    "rimraf": "^2.5.2",
     "rollup": "^0.26.2",
     "rollup-plugin-node-resolve": "^1.5.0"
   }

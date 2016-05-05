@@ -3,7 +3,7 @@ import arrayBuffToBinString from '../binary/arrayBufferToBinaryString';
 import readAsArrayBuffer from '../binary/readAsArrayBuffer';
 import binStringToBlobOrBuffer from '../binary/binaryStringToBlobOrBuffer';
 import arrayBuffToB64 from '../binary/arrayBufferToBase64';
-import { createError, BAD_ARG } from '../errors';
+import { createError, BAD_ARG } from 'pouchdb-errors';
 import md5 from '../md5';
 
 function preprocessAttachments(docInfos, blobType, callback) {

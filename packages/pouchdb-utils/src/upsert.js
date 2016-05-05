@@ -1,4 +1,4 @@
-import Promise from './promise';
+import Promise from 'pouchdb-promise';
 
 // this is essentially the "update sugar" function from daleharvey/pouchdb#1388
 // the diffFun tells us what delta to apply to the doc.  it either returns

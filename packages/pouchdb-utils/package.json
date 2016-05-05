@@ -4,7 +4,8 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
-    "build": "pouchdb-build"
+    "build": "pouchdb-build",
+    "prepublish": "npm run build"
   },
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",
@@ -17,11 +18,31 @@
   ],
   "dependencies": {
     "argsarray": "0.0.1",
+    "debug": "2.2.0",
+    "lie": "3.0.4",
+    "pouchdb-collections": "1.0.1",
+    "pouchdb-errors": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
     "spark-md5": "2.0.2",
     "vuvuzela": "1.0.3"
   },
   "devDependencies": {
     "pouchdb-build": "5.4.0-prerelease"
+  },
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/binary/arrayBufferToBase64.js": "./src/binary/arrayBufferToBase64-browser.js",
+    "./src/binary/arrayBufferToBinaryString.js": "./src/binary/arrayBufferToBinaryString-browser.js",
+    "./src/binary/base64.js": "./src/binary/base64-browser.js",
+    "./src/binary/base64StringToBlobOrBuffer.js": "./src/binary/base64StringToBlobOrBuffer-browser.js",
+    "./src/binary/binaryStringToBlobOrBuffer.js": "./src/binary/binaryStringToBlobOrBuffer-browser.js",
+    "./src/binary/blobOrBufferToBase64.js": "./src/binary/blobOrBufferToBase64-browser.js",
+    "./src/binary/readAsArrayBuffer.js": "./src/binary/readAsArrayBuffer-browser.js",
+    "./src/cloneBinaryObject.js": "./src/cloneBinaryObject-browser.js",
+    "./src/env/hasLocalStorage.js": "./src/env/hasLocalStorage-browser.js",
+    "./src/env/isChromeApp.js": "./src/env/isChromeApp-browser.js",
+    "./src/explainError.js": "./src/explainError-browser.js",
+    "./src/isBinaryObject.js": "./src/isBinaryObject-browser.js",
+    "./src/md5.js": "./src/md5-browser.js"
   }
 }
