@@ -29,16 +29,18 @@ var external = Object.keys(pkg.dependencies).concat([
 ]);
 
 var plugins = ['fruitdown', 'localstorage', 'memory'];
-var extras = {
-  'src/deps/promise.js': 'promise.js',
-  'src/replicate/checkpointer.js': 'checkpointer.js',
-  'src/replicate/generateReplicationId.js': 'generateReplicationId.js',
-  'src/deps/ajax/prequest.js': 'ajax.js',
-  'src/plugins/websql/index.js': 'websql.js',
+var browserExtras = {
   'src_browser/deps/ajax/prequest.js': 'ajax-browser.js',
   'src_browser/replicate/checkpointer.js': 'checkpointer-browser.js',
   'src_browser/replicate/generateReplicationId.js':
     'generateReplicationId-browser.js'
+};
+var nodeExtras = {
+  'src/deps/promise.js': 'promise.js',
+  'src/replicate/checkpointer.js': 'checkpointer.js',
+  'src/replicate/generateReplicationId.js': 'generateReplicationId.js',
+  'src/deps/ajax/prequest.js': 'ajax.js',
+  'src/plugins/websql/index.js': 'websql.js'
 };
 
 var currentYear = new Date().getFullYear();
@@ -196,10 +198,19 @@ function buildPluginsForBrowserify() {
   });
 }
 
-function buildExtras() {
+function buildNodeExtras() {
   return mkdirp('lib/extras').then(function () {
-    return Promise.all(Object.keys(extras).map(function (entry) {
-      var target = extras[entry];
+    return Promise.all(Object.keys(nodeExtras).map(function (entry) {
+      var target = nodeExtras[entry];
+      return doRollup(entry, 'lib/extras/' + target);
+    }));
+  });
+}
+
+function buildBrowserExtras() {
+  return mkdirp('lib/extras').then(function () {
+    return Promise.all(Object.keys(browserExtras).map(function (entry) {
+      var target = browserExtras[entry];
       return doRollup(entry, 'lib/extras/' + target);
     }));
   });
@@ -221,7 +232,9 @@ function buildPluginsForBrowser() {
 }
 
 if (process.argv[2] === 'node') {
-  rimraf('lib').then(buildForNode).then(function () {
+  rimraf('lib').then(buildForNode)
+    .then(buildNodeExtras)
+    .then(function () {
     process.exit(0);
   }).catch(function (err) {
     console.log(err.stack);
@@ -236,7 +249,8 @@ if (process.argv[2] === 'node') {
     .then(buildForBrowser)
     .then(buildPluginsForBrowserify)
     .then(buildPluginsForBrowser)
-    .then(buildExtras)
+    .then(buildNodeExtras)
+    .then(buildBrowserExtras)
     .then(buildPerformanceBundle)
     .then(cleanup)
     .catch(function (err) {

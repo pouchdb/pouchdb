@@ -172,9 +172,17 @@ Or the automated browser runner:
 
     PERF=1 CLIENT=selenium:firefox npm test
 
-You can also use `GREP` to run certain tests, or `LEVEL_ADAPTER` to use a certain *down adapter:
+You can also use `GREP` to run certain tests:
 
-    PERF=1 GREP=basic-inserts LEVEL_ADAPTER=memdown npm test
+    PERF=1 GREP=basic-inserts npm test
+
+You can also use `LEVEL_ADAPTER` to use a certain "DOWN" adapter:
+
+    PERF=1 LEVEL_ADAPTER=memdown npm test
+
+You can also test against node-websql:
+
+    PERF=1 ADAPTER=websql npm test
 
 ### Performance tests in the browser
 

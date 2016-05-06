@@ -3,8 +3,13 @@
 
 var opts = {};
 
-var levelAdapter = typeof process !== 'undefined' && process.env &&
-    process.env.LEVEL_ADAPTER;
+var levelAdapter;
+if (typeof process !== 'undefined' && process.env) {
+  levelAdapter = process.env.LEVEL_ADAPTER;
+  if (process.env.ADAPTER) {
+    opts.adapter = process.env.ADAPTER;
+  }
+}
 
 function runTestSuites(PouchDB) {
   var reporter = require('./perf.reporter');
@@ -46,6 +51,9 @@ if (global.window && global.window.location && global.window.location.search) {
   }
 }
 if (startNow) {
-  var PouchDB = process.browser ? window.PouchDB : require('../..');
+  var PouchDB = process.browser ? window.PouchDB : require('../../lib/index.js');
+  if (!process.browser) {
+    require('../../extras/websql');
+  }
   runTestSuites(PouchDB);
 }
