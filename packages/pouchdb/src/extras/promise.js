@@ -1,2 +1,1 @@
-import promise from 'pouchdb-promise';
-export default promise;
+export * from 'pouchdb-promise';

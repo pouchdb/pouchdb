@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "denodeify": "1.2.1",
-    "lerna": "nolanlawson/lerna#add-jsnext-main-built",
+    "lerna": "nolanlawson/lerna#add-jsnext-main-built-3",
     "lie": "3.0.4",
     "mkdirp": "0.5.1",
     "rimraf": "2.5.2",

@@ -1,4 +1,5 @@
-import { clone, filterChange, uuid, getDocs } from 'pouchdb-utils';
+import { clone, filterChange, uuid } from 'pouchdb-utils';
+import getDocs from './getDocs';
 import Promise from 'pouchdb-promise';
 import Checkpointer from 'pouchdb-checkpointer';
 import backOff from './backoff';

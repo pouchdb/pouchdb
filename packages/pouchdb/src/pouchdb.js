@@ -1,2 +1,1 @@
-import PouchDB from 'pouchdb-node';
-export default PouchDB;
+export * from 'pouchdb-node';

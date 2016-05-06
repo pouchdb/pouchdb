@@ -31,7 +31,7 @@ var external = [
   'inherits', 'js-extend', 'level-write-stream', 'levelup', 'lie',
   'localstorage-down', 'memdown', 'pouchdb-collate', 'pouchdb-collections',
   'request', 'scope-eval', 'spark-md5', 'sublevel-pouchdb', 'through2',
-  'vuvuzela',
+  'vuvuzela', 'leveldown', 'websql',
   // core node deps
   'fs', 'crypto', 'events', 'path',
   // pouchdb itself ( for the levelalt adapters )
@@ -176,15 +176,6 @@ function buildForBrowser() {
   });
 }
 
-function buildPerformanceBundle() {
-  return doBrowserify('tests/performance', {
-    debug: true,
-    fullPaths: true
-  }).then(function (code) {
-    return writeFile('tests/performance-bundle.js', code);
-  });
-}
-
 function cleanup() {
   return rimraf('src_browser');
 }
@@ -192,7 +183,7 @@ function cleanup() {
 function buildPluginsForBrowserify() {
   return mkdirp('lib/extras').then(function () {
     return Promise.all(plugins.map(function (plugin) {
-      return doRollup('src/extras/' + plugin + '/index.js',
+      return doRollup('src/extras/' + plugin + '.js',
                       'lib/extras/' + plugin + '.js', true);
     }));
   });
@@ -251,7 +242,6 @@ if (process.argv[2] === 'node') {
     .then(buildPluginsForBrowser)
     .then(buildNodeExtras)
     .then(buildBrowserExtras)
-    .then(buildPerformanceBundle)
     .then(cleanup)
     .catch(function (err) {
       console.error(err.stack);

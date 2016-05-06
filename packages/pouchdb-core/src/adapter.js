@@ -3,9 +3,9 @@ import Promise from 'pouchdb-promise';
 import { Map } from 'pouchdb-collections';
 import getArguments from 'argsarray';
 import { EventEmitter } from 'events';
+import inherits from 'inherits';
 import {
   pick,
-  inherits,
   adapterFun,
   upsert,
   Changes,

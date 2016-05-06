@@ -27,7 +27,7 @@ import rootToLeaf from './merge/rootToLeaf.js';
 import traverseRevTree from './merge/traverseRevTree.js';
 import winningRev from './merge/winningRev.js';
 import once from './once.js';
-import parseHex from './parseHex.js';
+import parseHexString from './parseHex.js';
 import parseUri from './parseUri.js';
 import pick from './pick.js';
 import safeJsonParse from './safeJsonParse.js';
@@ -79,7 +79,7 @@ export {
   traverseRevTree,
   winningRev,
   once,
-  parseHex,
+  parseHexString,
   parseUri,
   pick,
   safeJsonParse,

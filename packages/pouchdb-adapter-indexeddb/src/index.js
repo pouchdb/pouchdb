@@ -6,7 +6,7 @@ import {
   isDeleted,
   isLocalId,
   hasLocalStorage,
-  calculateWinningRev,
+  winningRev as calculateWinningRev,
   traverseRevTree,
   Changes
 } from 'pouchdb-utils';
