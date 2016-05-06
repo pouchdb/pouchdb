@@ -28,6 +28,6 @@
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
-    "src/md5.js": "src/md5-browser.js"
+    "./src/md5.js": "./src/md5-browser.js"
   }
 }

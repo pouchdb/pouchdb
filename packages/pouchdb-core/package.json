@@ -30,7 +30,6 @@
     "pouchdb-utils": "5.4.0-prerelease"
   },
   "browser": {
-    "./lib/index.js": "./lib/index-browser.js",
-    "src/mapreduce/md5.js": "src/mapreduce/md5-browser.js"
+    "./lib/index.js": "./lib/index-browser.js"
   }
 }
