@@ -49,7 +49,7 @@
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.4",
     "babel-cli": "6.7.7",
-    "babel-plugin-add-module-exports": "0.1.4",
+    "babel-plugin-add-module-exports": "0.2.0",
     "babel-plugin-transform-es2015-modules-commonjs": "6.8.0",
     "body-parser": "1.15.0",
     "browserify": "12.0.2",
