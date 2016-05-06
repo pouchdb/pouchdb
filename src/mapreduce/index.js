@@ -843,9 +843,6 @@ function localViewCleanup(db) {
 
 var viewCleanup = callbackify(function () {
   var db = this;
-  if (db._ddocCache) {
-    delete db._ddocCache;
-  }
   if (db.type() === 'http') {
     return httpViewCleanup(db);
   }
@@ -894,7 +891,13 @@ function queryPromised(db, fun, opts) {
     var parts = parseViewName(fullViewName);
     var designDocName = parts[0];
     var viewName = parts[1];
-    return db.getView(designDocName, viewName).then(function (fun) {
+    return db.get('_design/' + designDocName).then(function (doc) {
+      var fun = doc.views && doc.views[viewName];
+
+      if (!fun || typeof fun.map !== 'string') {
+        throw new NotFoundError('ddoc ' + designDocName +
+        ' has no view named ' + viewName);
+      }
       checkQueryParseError(opts, fun);
 
       var createViewOpts = {
@@ -951,6 +954,18 @@ function QueryParseError(message) {
 }
 
 inherits(QueryParseError, Error);
+
+function NotFoundError(message) {
+  this.status = 404;
+  this.name = 'not_found';
+  this.message = message;
+  this.error = true;
+  try {
+    Error.captureStackTrace(this, NotFoundError);
+  } catch (e) {}
+}
+
+inherits(NotFoundError, Error);
 
 function BuiltInError(message) {
   this.status = 500;
