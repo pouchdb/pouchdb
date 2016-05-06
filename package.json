@@ -4,17 +4,16 @@
   "homepage": "http://pouchdb.com/",
   "license": "Apache-2.0",
   "dependencies": {
-    "denodeify": "^1.2.1",
-    "lie": "^3.0.4",
-    "mkdirp": "^0.5.1",
-    "rimraf": "^2.5.2",
-    "rollup": "^0.26.2",
-    "rollup-plugin-node-resolve": "^1.5.0"
+    "denodeify": "1.2.1",
+    "lerna": "2.0.0-beta.7",
+    "lie": "3.0.4",
+    "mkdirp": "0.5.1",
+    "rimraf": "2.5.2",
+    "rollup": "0.26.2",
+    "rollup-plugin-node-resolve": "1.5.0"
   },
   "scripts": {
-    "build": "node ./bin/build.js",
-    "build-node": "bash bin/build-node.sh",
-    "build-as-modular-es5": "bash bin/build-as-modular-es5.sh",
+    "build": "lerna bootstrap && lerna run build",
     "test-unit": "npm run build-as-modular-es5 && mocha tests/unit",
     "test-node": "npm run build-node && bash bin/test-node.sh",
     "test-component": "npm run build && mocha tests/component",
@@ -37,20 +36,5 @@
     "verify-bundle-size": "sh bin/verify-bundle-size.sh",
     "test-webpack": "bash bin/test-webpack.sh"
   },
-  "browser": {
-    "./lib/index.js": "./lib/index-browser.js",
-    "./lib/extras/ajax.js": "./lib/extras/ajax-browser.js",
-    "./lib/extras/checkpointer.js": "./lib/extras/checkpointer-browser.js",
-    "./lib/extras/generateReplicationId.js": "./lib/extras/generateReplicationId-browser.js",
-    "crypto": false,
-    "fs": false,
-    "leveldown": false
-  },
-  "files": [
-    "lib",
-    "extras",
-    "dist",
-    "tonic-example.js"
-  ],
   "private": true
 }

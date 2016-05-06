@@ -1,12 +1,32 @@
-import b64ToBluffer from '../deps/binary/base64StringToBlobOrBuffer';
-import pouchCollate from 'pouchdb-collate';
+import {
+  base64StringToBlobOrBuffer as b64ToBluffer,
+  flatten
+} from 'pouchdb-utils';
+
+import {
+  collate,
+  toIndexableString,
+  normalizeKey,
+  parseIndexableString
+} from 'pouchdb-collate'
+
 import TaskQueue from './taskqueue';
-var collate = pouchCollate.collate;
-var toIndexableString = pouchCollate.toIndexableString;
-var normalizeKey = pouchCollate.normalizeKey;
-var parseIndexableString = pouchCollate.parseIndexableString;
 import createView from './createView';
 import evalFunc from './evalfunc';
+import {
+  callbackify,
+  sequentialize,
+  uniq,
+  fin,
+  promisedCallback
+} from './utils';
+import Promise from 'pouchdb-promise';
+import inherits from 'inherits';
+
+var persistentQueues = {};
+var tempViewQueue = new TaskQueue();
+var CHANGES_BATCH_SIZE = 50;
+
 var log;
 /* istanbul ignore else */
 if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
@@ -14,18 +34,6 @@ if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
 } else {
   log = function () {};
 }
-import utils from './utils';
-var callbackify = utils.callbackify;
-var sequentialize = utils.sequentialize;
-var uniq = utils.uniq;
-var fin = utils.fin;
-var promisedCallback = utils.promisedCallback;
-import Promise from '../deps/promise';
-import flatten from '../deps/flatten';
-import inherits from 'inherits';
-var persistentQueues = {};
-var tempViewQueue = new TaskQueue();
-var CHANGES_BATCH_SIZE = 50;
 
 function parseViewName(name) {
   // can be either 'ddocname/viewname' or just 'viewname'

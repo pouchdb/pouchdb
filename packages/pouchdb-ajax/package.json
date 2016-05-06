@@ -17,6 +17,7 @@
     "src"
   ],
   "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
     "./src/applyTypeToBuffer": "./src/applyTypeToBuffer-browser",
     "./src/createBlobOrBufferFromParts": "./src/createBlobOrBufferFromParts-browser",
     "./src/createMultipartPart": "./src/createMultipartPart-browser",

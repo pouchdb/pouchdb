@@ -1,7 +1,6 @@
-import Promise from './../deps/promise';
-import explainError from './../deps/ajax/explainError';
-import pouchCollate from 'pouchdb-collate';
-var collate = pouchCollate.collate;
+import Promise from 'pouchdb-promise';
+import { explainError } from 'pouchdb-utils';
+import { collate } from 'pouchdb-collate';
 
 var CHECKPOINT_VERSION = 1;
 var REPLICATOR = "pouchdb";

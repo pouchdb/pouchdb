@@ -4,7 +4,7 @@ import PouchDB from "./constructor";
 import inherits from 'inherits';
 import { Map } from 'pouchdb-collections';
 import { EventEmitter as EE } from 'events';
-import hasLocalStorage from './deps/env/hasLocalStorage';
+import { hasLocalStorage } from 'pouchdb-utils';
 
 PouchDB.adapters = {};
 PouchDB.preferredAdapters = [];

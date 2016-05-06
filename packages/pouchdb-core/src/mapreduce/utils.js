@@ -67,10 +67,10 @@ var uniq = function (arr) {
   return output;
 };
 
-export default {
-  uniq: uniq,
-  sequentialize: sequentialize,
-  fin: fin,
-  callbackify: callbackify,
-  promisedCallback: promisedCallback
+export {
+  uniq,
+  sequentialize,
+  fin,
+  callbackify,
+  promisedCallback
 };

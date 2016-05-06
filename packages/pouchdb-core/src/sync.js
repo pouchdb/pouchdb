@@ -1,10 +1,10 @@
 import { extend as extend } from 'js-extend';
-import Promise from './deps/promise';
+import Promise from 'pouchdb-promise';
 import replication from './replicate/index';
 import inherits from 'inherits';
 var replicate = replication.replicate;
 import { EventEmitter as EE } from 'events';
-import clone from './deps/clone';
+import { clone } from 'pouchdb-utils';
 
 inherits(Sync, EE);
 export default sync;

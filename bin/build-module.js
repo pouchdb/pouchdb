@@ -42,11 +42,17 @@ Promise.resolve().then(function () {
         format: 'cjs',
         dest: dest
       }).then(function () {
-        console.log('wrote ' + path.basename(process.cwd()) + '/' + dest +
-          ' in ' +
-          (isBrowser ? 'browser' : versions.length > 1 ? 'node' : 'vanilla') +
+        console.log('  \u2713' + ' wrote ' +
+          path.basename(process.cwd() +
+          '/' + dest) + ' in ' +
+          (isBrowser ? 'browser' :
+            versions.length > 1 ? 'node' : 'vanilla') +
           ' mode');
       });
     });
   }));
-}).catch(console.log.bind(console));
+}).catch(function (err) {
+  console.error('Error: build-module.js');
+  console.error(err.stack);
+  process.exit(1);
+});

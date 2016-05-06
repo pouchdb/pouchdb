@@ -1,11 +1,8 @@
-import clone from '../deps/clone';
-import Promise from '../deps/promise';
-import uuid from '../deps/uuid';
-import filterChange from '../deps/filterChange';
+import { clone, filterChange, uuid, getDocs } from 'pouchdb-utils';
+import Promise from 'pouchdb-promise';
 import Checkpointer from './checkpointer';
 import backOff from './backoff';
 import generateReplicationId from './generateReplicationId';
-import getDocs from './getDocs';
 
 function replicate(src, target, opts, returnValue, result) {
   var batches = [];               // list of batches to be processed

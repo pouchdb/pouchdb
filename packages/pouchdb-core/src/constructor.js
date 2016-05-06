@@ -2,8 +2,8 @@ import debug from 'debug';
 import inherits from 'inherits';
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
-import Promise from './deps/promise';
-import clone from './deps/clone';
+import Promise from 'pouchdb-promise';
+import { clone } from 'pouchdb-utils';
 
 function defaultCallback(err) {
   /* istanbul ignore next */

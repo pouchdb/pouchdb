@@ -1,21 +1,23 @@
 import { extend as extend } from 'js-extend';
-import Promise from './deps/promise';
-import pick from './deps/pick';
+import Promise from 'pouchdb-promise';
 import { Map } from 'pouchdb-collections';
-import inherits from 'inherits';
 import getArguments from 'argsarray';
-import adapterFun from './deps/adapterFun';
-import { EventEmitter as EventEmitter } from 'events';
-import upsert from './deps/upsert';
-import Changes from './changes';
-import bulkGetShim from './deps/bulkGetShim';
-import isDeleted from './deps/docs/isDeleted';
-import isLocalId from './deps/docs/isLocalId';
-import traverseRevTree from './deps/merge/traverseRevTree';
-import collectLeaves from './deps/merge/collectLeaves';
-import rootToLeaf from './deps/merge/rootToLeaf';
-import collectConflicts from './deps/merge/collectConflicts';
-import { invalidIdError } from './deps/docs/parseDoc';
+import { EventEmitter } from 'events';
+import {
+  pick,
+  inherits,
+  adapterFun,
+  upsert,
+  Changes,
+  bulkGetShim,
+  isDeleted,
+  isLocalId,
+  traverseRevTree,
+  collectLeaves,
+  rootToLeaf,
+  collectConflicts,
+  invalidIdError
+} from 'pouchdb-utils';
 import {
   MISSING_BULK_DOCS,
   MISSING_DOC,
@@ -27,7 +29,7 @@ import {
   NOT_AN_OBJECT,
   INVALID_REV,
   createError
-} from './deps/errors';
+} from 'pouchdb-errors';
 
 /*
  * A generic pouch adapter

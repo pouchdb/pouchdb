@@ -3,7 +3,7 @@
  * callbacks will eventually fire (once).
  */
 
-import Promise from '../deps/promise';
+import Promise from 'pouchdb-promise';
 
 function TaskQueue() {
   this.promise = new Promise(function (fulfill) {fulfill(); });

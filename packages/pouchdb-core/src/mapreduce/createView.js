@@ -1,5 +1,5 @@
-import upsert from '../deps/upsert';
-import Promise from '../deps/promise';
+import { upsert } from 'pouchdb-utils';
+import Promise from 'pouchdb-promise';
 import md5 from './md5';
 
 function createView(opts) {

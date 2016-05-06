@@ -7,32 +7,28 @@
 
 // TODO: only used by the integration tests, which have
 // some tests that explicitly override PouchDB.utils.ajax
-import ajax from './deps/ajax/prequest';
+import ajax from 'pouchdb-ajax';
 
 // TODO: only used by the integration tests
-import parseUri from './deps/parseUri';
-
-// TODO: only used by the integration tests
-import uuid from './deps/uuid';
+import {
+  parseUri,
+  uuid,
+  atob,
+  btoa,
+  binaryStringToBlobOrBuffer,
+  clone
+} from 'pouchdb-utils';
 
 // TODO: used by the integration tests and elsewhere, possibly
 // even in the PouchDB guide and example code
-import Promise from './deps/promise';
-
-// TODO: only used by the integration tests
-import { atob as atob, btoa as btoa } from './deps/binary/base64';
+import Promise from 'pouchdb-promise';
 
 // TODO: required by tests
-import {createError } from './deps/errors';
-
-// TODO: only used by the integration tests
-import binToBluffer from './deps/binary/binaryStringToBlobOrBuffer';
+import { createError } from 'pouchdb-errors';
 
 // TODO: pretty sure these are in widespread use by Hoodie and others,
 // also in the integration tests
-import clone from './deps/clone';
-import jsExtend from 'js-extend';
-var extend = jsExtend.extend;
+import { extend } from 'js-extend';
 
 export default {
   ajax: ajax,
@@ -41,7 +37,7 @@ export default {
   Promise: Promise,
   atob: atob,
   btoa: btoa,
-  binaryStringToBlobOrBuffer: binToBluffer,
+  binaryStringToBlobOrBuffer: binaryStringToBlobOrBuffer,
   clone: clone,
   extend: extend,
   createError: createError

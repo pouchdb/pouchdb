@@ -1,6 +1,5 @@
-import clone from '../deps/clone';
-import flatten from '../deps/flatten';
-import Promise from '../deps/promise';
+import { clone, flatten } from 'pouchdb-utils';
+import Promise from 'pouchdb-promise';
 
 function isGenOne(rev) {
   return /^1-/.test(rev);

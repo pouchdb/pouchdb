@@ -1,23 +1,25 @@
-import clone from './deps/clone';
-import Promise from './deps/promise';
-import isDeleted from './deps/docs/isDeleted';
-import inherits from 'inherits';
+import Promise from 'pouchdb-promise';
 import getArguments from 'argsarray';
-import once from './deps/once';
+import {
+  clone,
+  isDeleted,
+  once,
+  parseDdocFunctionName,
+  normalizeDdocFunctionName,
+  collectLeaves,
+  collectConflicts
+} from 'pouchdb-utils';
+import inherits from 'inherits';
 import { EventEmitter as EE } from 'events';
 import evalFilter from './evalFilter';
 import evalView from './evalView';
-import parseDdocFunctionName from './deps/docs/parseDdocFunctionName';
-import normalizeDdocFunctionName from './deps/docs/normalizeDdocFunctionName';
-import collectLeaves from './deps/merge/collectLeaves';
-import collectConflicts from './deps/merge/collectConflicts';
 
 import {
   MISSING_DOC,
   BAD_REQUEST,
   createError,
   generateErrorFromResponse
-} from './deps/errors';
+} from 'pouchdb-errors';
 
 inherits(Changes, EE);
 

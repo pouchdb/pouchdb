@@ -1,6 +1,6 @@
-import Promise from './../deps/promise';
-import md5 from '../deps/md5';
-import { collate as collate } from 'pouchdb-collate';
+import Promise from 'pouchdb-promise';
+import { md5 } from 'pouchdb-utils';
+import { collate } from 'pouchdb-collate';
 
 function sortObjectPropertiesByKey(queryParams) {
   return Object.keys(queryParams).sort(collate).reduce(function (result, key) {

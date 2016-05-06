@@ -1,7 +1,7 @@
 import replicate from './replicate';
 import Replication from './replication';
-import clone from '../deps/clone';
-import { createError, BAD_REQUEST } from '../deps/errors';
+import { clone } from 'pouchdb-utils';
+import { createError, BAD_REQUEST } from 'pouchdb-errors';
 
 function toPouch(db, opts) {
   var PouchConstructor = opts.PouchConstructor;

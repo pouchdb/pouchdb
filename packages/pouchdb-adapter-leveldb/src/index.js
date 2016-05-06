@@ -1,5 +1,5 @@
-import CoreLevelPouch from '../adapters/leveldb/index';
-import toPromise from '../deps/toPromise';
+import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
+import { toPromise } from 'pouchdb-utils';
 import { extend as extend } from 'js-extend';
 import requireLeveldown from './requireLeveldown';
 

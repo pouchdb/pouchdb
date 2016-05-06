@@ -1,5 +1,5 @@
 import { EventEmitter as EE } from 'events';
-import Promise from '../deps/promise';
+import Promise from 'pouchdb-promise';
 import inherits from 'inherits';
 
 // We create a basic promise so the caller can cancel the replication possibly

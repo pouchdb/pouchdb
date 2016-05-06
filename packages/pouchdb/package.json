@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "build": "pouchdb-build > lib/index.js",
+    "build": "node ../../bin/build-module.js",
     "prepublish": "npm run build"
   },
   "keywords": [
@@ -30,7 +30,7 @@
     "src"
   ],
   "dependencies": {
-    "pouchdb-core": "5.4.0"
+    "pouchdb-core": "5.4.0-prerelease"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js"
