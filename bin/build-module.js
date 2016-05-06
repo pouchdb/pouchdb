@@ -18,8 +18,11 @@ var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
 
 var pkg = require(path.resolve(process.cwd(), 'package.json'));
-var deps = Object.keys(pkg.dependencies || {});
-deps = deps.concat([
+
+// All external modules are assumed to be CommonJS, and therefore should
+// be skipped by Rollup. We may revisit this later.
+var depsToSkip = Object.keys(pkg.dependencies || {});
+depsToSkip = depsToSkip.concat([
   'crypto', 'fs', 'events', 'path'
 ]);
 
@@ -34,10 +37,10 @@ Promise.resolve().then(function () {
   return Promise.all(versions.map(function (isBrowser) {
     return rollup({
       entry: './src/index.js',
-      external: deps,
+      external: depsToSkip,
       plugins: [
         nodeResolve({
-          skip: deps,
+          skip: depsToSkip,
           jsnext: true,
           browser: isBrowser
         })
