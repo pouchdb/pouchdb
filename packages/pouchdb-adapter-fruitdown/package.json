@@ -1,0 +1,25 @@
+{
+  "name": "pouchdb-adapter-fruitdown",
+  "version": "5.4.0-prerelease",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "node ../../bin/build-module.js",
+    "prepublish": "npm run build"
+  },
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "js-extend": "0.0.1",
+    "fruitdown": "1.0.2",
+    "pouchdb-adapter-leveldb-core": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease"
+  }
+}
