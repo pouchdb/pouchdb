@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-core",
+  "name": "pouchdb-checkpointer",
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",
@@ -16,21 +16,9 @@
     "lib",
     "src"
   ],
-  "dependencies" : {
-    "argsarray": "0.0.1",
-    "debug": "2.2.0",
-    "double-ended-queue": "2.0.0-0",
-    "inherits": "2.0.1",
-    "js-extend": "1.0.1",
-    "pouchdb-adapter-http": "5.4.0-prerelease",
-    "pouchdb-ajax": "5.4.0-prerelease",
-    "pouchdb-collections": "1.0.1",
-    "pouchdb-errors": "5.4.0-prerelease",
+  "dependencies": {
+    "pouchdb-collate": "1.2.0",
     "pouchdb-promise": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease"
-  },
-  "browser": {
-    "./lib/index.js": "./lib/index-browser.js",
-    "src/mapreduce/md5.js": "src/mapreduce/md5-browser.js"
   }
 }

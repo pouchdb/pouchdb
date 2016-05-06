@@ -18,6 +18,8 @@
   ],
   "dependencies": {
     "argsarray": "0.0.1",
+    "inherits": "2.0.1",
+    "pouchdb-collate": "1.2.0",
     "pouchdb-errors": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease",

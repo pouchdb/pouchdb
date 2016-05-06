@@ -83,7 +83,7 @@ Checkpointer.prototype.writeCheckpoint = function (checkpoint, session) {
 
 Checkpointer.prototype.updateTarget = function (checkpoint, session) {
   return updateCheckpoint(this.target, this.id, checkpoint,
-      session, this.returnValue);
+    session, this.returnValue);
 };
 
 Checkpointer.prototype.updateSource = function (checkpoint, session) {
@@ -92,7 +92,7 @@ Checkpointer.prototype.updateSource = function (checkpoint, session) {
     return Promise.resolve(true);
   }
   return updateCheckpoint(this.src, this.id, checkpoint,
-      session, this.returnValue)
+    session, this.returnValue)
     .catch(function (err) {
       if (isForbiddenError(err)) {
         self.readOnlySource = true;

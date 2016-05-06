@@ -40,7 +40,7 @@ function replicateWrapper(src, target, opts, callback) {
   return replicateRet;
 }
 
-export default {
-  replicate: replicateWrapper,
-  toPouch: toPouch
+export {
+  replicateWrapper as replicate,
+  toPouch
 };

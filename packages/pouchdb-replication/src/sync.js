@@ -1,8 +1,10 @@
 import { extend as extend } from 'js-extend';
 import Promise from 'pouchdb-promise';
-import replication from './replicate/index';
+import {
+  replicate,
+  toPouch
+} from './replicateWrapper';
 import inherits from 'inherits';
-var replicate = replication.replicate;
 import { EventEmitter as EE } from 'events';
 import { clone } from 'pouchdb-utils';
 
@@ -19,8 +21,8 @@ function sync(src, target, opts, callback) {
   opts = clone(opts);
   /*jshint validthis:true */
   opts.PouchConstructor = opts.PouchConstructor || this;
-  src = replication.toPouch(src, opts);
-  target = replication.toPouch(target, opts);
+  src = toPouch(src, opts);
+  target = toPouch(target, opts);
   return new Sync(src, target, opts, callback);
 }
 
