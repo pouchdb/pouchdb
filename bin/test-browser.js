@@ -7,7 +7,6 @@ wd.configureHttp({timeout: 180000}); // 3 minutes
 var sauceConnectLauncher = require('sauce-connect-launcher');
 var selenium = require('selenium-standalone');
 var querystring = require("querystring");
-var request = require('request').defaults({json: true});
 
 var devserver = require('./dev-server.js');
 
@@ -94,42 +93,16 @@ function testError(e) {
   process.exit(3);
 }
 
-function postResult(result) {
-  if (process.env.PERF && process.env.DASHBOARD_HOST) {
-    result.branch = process.env.TRAVIS_BRANCH || process.env.BRANCH || false;
-    result.commit = process.env.TRAVIS_COMMIT || process.env.COMMIT || false;
-    result.pull_request = process.env.TRAVIS_PULL_REQUEST;
-    var commits = 'https://api.github.com/repos/pouchdb/pouchdb/git/commits/';
-    request({
-      method: 'GET',
-      uri: commits + result.commit,
-      headers: {'User-Agent': 'request'}
-    }, function (error, response, body) {
-      result._id = result.date = body.committer.date;
-      request({
-        method: 'POST',
-        uri: process.env.DASHBOARD_HOST + '/performance_results',
-        json: result
-      }, function (error) {
-        console.log(result);
-        process.exit(!!error);
-      });
-    });
-    return;
-  }
-  process.exit(!process.env.PERF && result.failed ? 1 : 0);
-}
-
 function testComplete(result) {
   console.log(result);
 
   sauceClient.quit().then(function () {
     if (sauceConnectProcess) {
       sauceConnectProcess.close(function () {
-        postResult(result);
+        process.exit(!process.env.PERF && result.failed ? 1 : 0);
       });
     } else {
-      postResult(result);
+      process.exit(!process.env.PERF && result.failed ? 1 : 0);
     }
   });
 }
