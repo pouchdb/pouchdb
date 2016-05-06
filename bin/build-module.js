@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// Build script shared amongst all the Lerna sub-modules
+
 'use strict';
 
 var rollup = require('rollup').rollup;

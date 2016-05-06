@@ -27,7 +27,9 @@
   },
   "files": [
     "lib",
-    "src"
+    "tonic-example.js",
+    "dist",
+    "extras"
   ],
   "dependencies": {
     "pouchdb-core": "5.4.0-prerelease"
