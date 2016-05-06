@@ -20,6 +20,9 @@
     "inherits": "2.0.1",
     "js-extend": "1.0.1",
     "pouchdb-collate": "1.2.0",
+    "pouchdb-checkpointer": "5.4.0-prerelease",
+    "pouchdb-errors": "5.4.0-prerelease",
+    "pouchdb-generate-replication-id": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease"
   }
