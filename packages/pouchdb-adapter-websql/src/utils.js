@@ -1,6 +1,5 @@
-import { Map, Set } from 'pouchdb-collections';
-import { createError, WSQ_ERROR } from '../../deps/errors';
-import createOpenDBFunction from './createOpenDBFunction';
+import { Set } from 'pouchdb-collections';
+import { createError, WSQ_ERROR } from 'pouchdb-errors';
 import valid from './valid';
 
 import {
@@ -176,33 +175,6 @@ function getSize(opts) {
   return isAndroid ? 5000000 : 1; // in PhantomJS, if you use 0 it will crash
 }
 
-function openDBSafely(openDBFunction, opts) {
-  try {
-    return {
-      db: openDBFunction(opts)
-    };
-  } catch (err) {
-    return {
-      error: err
-    };
-  }
-}
-
-var cachedDatabases = new Map();
-
-function openDB(opts) {
-  var cachedResult = cachedDatabases.get(opts.name);
-  if (!cachedResult) {
-    var openDBFun = createOpenDBFunction();
-    cachedResult = openDBSafely(openDBFun, opts);
-    cachedDatabases.set(opts.name, cachedResult);
-    if (cachedResult.db) {
-      cachedResult.db._sqlitePlugin = typeof sqlitePlugin !== 'undefined';
-    }
-  }
-  return cachedResult;
-}
-
 export {
   escapeBlob,
   unescapeBlob,
@@ -212,7 +184,6 @@ export {
   select,
   compactRevs,
   getSize,
-  openDB,
   valid,
   websqlError
 };

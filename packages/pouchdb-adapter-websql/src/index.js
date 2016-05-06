@@ -1,27 +1,30 @@
-import { extend as extend } from 'js-extend';
-import clone from '../../deps/clone';
-import uuid from '../../deps/uuid';
-import pick from '../../deps/pick';
-import filterChange from '../../deps/filterChange';
-import isDeleted from '../../deps/docs/isDeleted';
-import isLocalId from '../../deps/docs/isLocalId';
-import parseHexString from '../../deps/parseHex';
-import binStringToBlob from '../../deps/binary/binaryStringToBlobOrBuffer';
-import hasLocalStorage from '../../deps/env/hasLocalStorage';
-import collectConflicts from '../../deps/merge/collectConflicts';
-import traverseRevTree from '../../deps/merge/traverseRevTree';
-import safeJsonParse from '../../deps/safeJsonParse';
-import safeJsonStringify from '../../deps/safeJsonStringify';
-import Changes from '../../changesHandler';
-import toPromise from '../../deps/toPromise';
-import { btoa } from '../../deps/binary/base64';
+import { extend } from 'js-extend';
+import {
+  clone,
+  uuid,
+  pick,
+  filterChange,
+  isDeleted,
+  isLocalId,
+  parseHexString,
+  binaryStringToBlobOrBuffer as binStringToBlob,
+  hasLocalStorage,
+  collectConflicts,
+  traverseRevTree,
+  safeJsonParse,
+  safeJsonStringify,
+  Changes,
+  toPromise,
+  btoa
+} from 'pouchdb-utils';
+
 import websqlBulkDocs from './bulkDocs';
 
 import {
   MISSING_DOC,
   REV_CONFLICT,
   createError
-} from '../../deps/errors';
+} from 'pouchdb-errors';
 
 import {
   ADAPTER_VERSION,
@@ -41,10 +44,10 @@ import {
   compactRevs,
   websqlError,
   getSize,
-  openDB,
-  valid,
   unescapeBlob
 } from './utils';
+
+import openDB from './openDatabase';
 
 var websqlChanges = new Changes();
 

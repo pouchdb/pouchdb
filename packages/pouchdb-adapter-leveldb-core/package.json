@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-adapter-http",
+  "name": "pouchdb-adapter-leveldb-core",
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",
@@ -18,11 +18,20 @@
   ],
   "dependencies": {
     "argsarray": "0.0.1",
-    "debug": "2.2.0",
-    "pouchdb-ajax": "5.4.0-prerelease",
+    "double-ended-queue": "2.0.0-0",
+    "level-write-stream": "1.0.0",
+    "levelup": "1.3.1",
+    "pouchdb-collections": "1.0.1",
     "pouchdb-errors": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease",
-    "js-extend": "1.0.1"
+    "sublevel-pouchdb": "1.0.0",
+    "through2": "2.0.1"
+  },
+  "browser": {
+    "./src/createEmptyBlobOrBuffer.js": "./src/createEmptyBlobOrBuffer-browser.js",
+    "./src/migrate.js": "./src/migrate-browser.js",
+    "./src/prepareAttachmentForStorage.js": "./src/prepareAttachmentForStorage-browser.js",
+    "./src/readAsBlobOrBuffer.js": "./src/readAsBlobOrBuffer-browser.js"
   }
 }

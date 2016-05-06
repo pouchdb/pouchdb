@@ -1,15 +1,18 @@
 import { Map } from 'pouchdb-collections';
-import preprocessAttachments from '../../deps/docs/preprocessAttachments';
-import isLocalId from '../../deps/docs/isLocalId';
-import processDocs from '../../deps/docs/processDocs';
-import safeJsonParse from '../../deps/safeJsonParse';
-import safeJsonStringify from '../../deps/safeJsonStringify';
-import compactTree from '../../deps/merge/compactTree';
-import { parseDoc } from '../../deps/docs/parseDoc';
+import {
+  preprocessAttachments,
+  isLocalId,
+  processDocs,
+  safeJsonParse,
+  safeJsonStringify,
+  compactTree,
+  parseDoc
+} from 'pouchdb-utils';
+
 import {
   MISSING_STUB,
   createError
-} from '../../deps/errors';
+} from 'pouchdb-errors';
 
 import {
   DOC_STORE,

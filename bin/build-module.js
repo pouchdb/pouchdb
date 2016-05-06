@@ -37,13 +37,16 @@ Promise.resolve().then(function () {
         })
       ]
     }).then(function (bundle) {
+      var dest = isBrowser ? 'lib/index-browser.js' : 'lib/index.js';
       return bundle.write({
         format: 'cjs',
-        dest: isBrowser ? 'lib/index-browser.js' : 'lib/index.js'
+        dest: dest
+      }).then(function () {
+        console.log('wrote ' + path.basename(process.cwd()) + '/' + dest +
+          ' in ' +
+          (isBrowser ? 'browser' : versions.length > 1 ? 'node' : 'vanilla') +
+          ' mode');
       });
-    }).then(function () {
-      console.log('wrote ' + path.basename(process.cwd()) +
-        '/lib/index' + (isBrowser ? '-browser' : '') + '.js');
     });
   }));
 }).catch(console.log.bind(console));

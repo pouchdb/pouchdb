@@ -11,25 +11,27 @@ var supportsBulkGetMap = {};
 var MAX_URL_LENGTH = 1800;
 
 import { extend as extend } from 'js-extend';
-
-import pick from '../../deps/pick';
-import filterChange from '../../deps/filterChange';
-import coreAdapterFun from '../../deps/adapterFun';
-import explainError from '../../deps/ajax/explainError';
-import binStringToBluffer from '../../deps/binary/binaryStringToBlobOrBuffer';
-import b64StringToBluffer from '../../deps/binary/base64StringToBlobOrBuffer';
-import utils from '../../utils';
-import Promise from '../../deps/promise';
-import clone from '../../deps/clone';
-import parseUri from '../../deps/parseUri';
+import Promise from 'pouchdb-promise';
+import ajaxCore from 'pouchdb-ajax';
 import getArguments from 'argsarray';
-import { atob as atob, btoa as btoa } from '../../deps/binary/base64';
-import { createError, BAD_ARG } from '../../deps/errors';
+import {
+  pick,
+  filterChange,
+  adapterFun as coreAdapterFun,
+  explainError,
+  binaryStringToBlobOrBuffer as binStringToBluffer,
+  base64StringToBlobOrBuffer as b64StringToBluffer,
+  clone,
+  parseUri,
+  atob,
+  btoa,
+  blobOrBufferToBase64 as blufferToBase64,
+  bulkGetShim
+} from 'pouchdb-utils';
+
+import { createError, BAD_ARG } from 'pouchdb-errors';
 import debug from 'debug';
 var log = debug('pouchdb:http');
-import blufferToBase64 from '../../deps/binary/blobOrBufferToBase64';
-import bulkGetShim from '../../deps/bulkGetShim';
-import flatten from '../../deps/flatten';
 
 function readAttachmentsAsBlobOrBuffer(row) {
   var atts = row.doc && row.doc._attachments;
@@ -153,11 +155,15 @@ function HttpPouch(opts, callback) {
     ajaxOpts.headers.Authorization = 'Basic ' + token;
   }
 
+  // Not strictly necessary, but we do this because numerous tests
+  // rely on swapping ajax in and out.
+  api._ajax = ajaxCore;
+
   function ajax(userOpts, options, callback) {
     var reqAjax = userOpts.ajax || {};
     var reqOpts = extend(clone(ajaxOpts), reqAjax, options);
     log(reqOpts.method + ' ' + reqOpts.url);
-    return utils.ajax(reqOpts, callback);
+    return api._ajax(reqOpts, callback);
   }
 
   function ajaxPromise(userOpts, opts) {

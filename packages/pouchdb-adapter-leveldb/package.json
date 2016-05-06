@@ -17,22 +17,9 @@
     "src"
   ],
   "dependencies": {
-    "argsarray": "0.0.1",
-    "double-ended-queue": "2.0.0-0",
-    "level-write-stream": "1.0.0",
-    "levelup": "1.3.1",
+    "js-extend": "0.0.1",
     "leveldown": "1.4.6",
-    "pouchdb-collections": "1.0.1",
-    "pouchdb-errors": "5.4.0-prerelease",
-    "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease",
-    "sublevel-pouchdb": "1.0.0",
-    "through2": "2.0.1"
-  },
-  "browser": {
-    "./src/createEmptyBlobOrBuffer.js": "./src/createEmptyBlobOrBuffer-browser.js",
-    "./src/migrate.js": "./src/migrate-browser.js",
-    "./src/prepareAttachmentForStorage.js": "./src/prepareAttachmentForStorage-browser.js",
-    "./src/readAsBlobOrBuffer.js": "./src/readAsBlobOrBuffer-browser.js"
+    "pouchdb-adapter-leveldb-core": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease"
   }
 }
