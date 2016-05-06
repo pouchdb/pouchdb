@@ -237,7 +237,7 @@ if (process.argv[2] === 'node') {
     .then(function () {
     process.exit(0);
   }).catch(function (err) {
-    console.log(err.stack);
+    console.error(err.stack);
     process.exit(1);
   });
 } else {
@@ -254,7 +254,7 @@ if (process.argv[2] === 'node') {
     .then(buildPerformanceBundle)
     .then(cleanup)
     .catch(function (err) {
-      console.log(err.stack);
+      console.error(err.stack);
       process.exit(1);
     }
   );

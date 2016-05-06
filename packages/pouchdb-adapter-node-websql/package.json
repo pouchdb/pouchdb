@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-adapter-websql",
+  "name": "pouchdb-adapter-node-websql",
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",
