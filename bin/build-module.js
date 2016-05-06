@@ -8,10 +8,14 @@ var rollup = require('rollup').rollup;
 var nodeResolve = require('rollup-plugin-node-resolve');
 
 var path = require('path');
+var lie = require('lie');
+if (typeof Promise === 'undefined') {
+  global.Promise = lie; // required for denodeify in node 0.10
+}
+var Promise = lie;
 var denodeify = require('denodeify');
 var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
-var Promise = require('lie');
 
 var pkg = require(path.resolve(process.cwd(), 'package.json'));
 var deps = Object.keys(pkg.dependencies || {});
