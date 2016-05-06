@@ -11,34 +11,45 @@ var browserify = require('browserify');
 var collapse = require('bundle-collapser/plugin');
 var es3ify = require('es3ify');
 var rollup = require('rollup');
+var nodeResolve = require('rollup-plugin-node-resolve');
 var derequire = require('derequire');
 var fs = require('fs');
 var writeFileAsync = denodeify(fs.writeFile);
 var renameAsync = denodeify(fs.rename);
-var ncp = denodeify(require('ncp').ncp);
 var rimraf = denodeify(require('rimraf'));
 var mkdirp = denodeify(require('mkdirp'));
 var streamToPromise = require('stream-to-promise');
-var findit = require('findit');
 var spawn = require('child_process').spawn;
 
 var pkg = require('../package.json');
 var version = pkg.version;
-var external = Object.keys(pkg.dependencies).concat([
- 'fs', 'crypto', 'events', 'path', 'pouchdb'
-]);
+
+// these modules should be treated as external by Rollup
+var external = [
+  // main deps
+  'argsarray', 'debug', 'double-ended-queue', 'es3ify', 'fruitdown',
+  'inherits', 'js-extend', 'level-write-stream', 'levelup', 'lie',
+  'localstorage-down', 'memdown', 'pouchdb-collate', 'pouchdb-collections',
+  'request', 'scope-eval', 'spark-md5', 'sublevel-pouchdb', 'through2',
+  'vuvuzela',
+  // core node deps
+  'fs', 'crypto', 'events', 'path',
+  // pouchdb itself ( for the levelalt adapters )
+  'pouchdb'
+];
 
 var plugins = ['fruitdown', 'localstorage', 'memory'];
-var extras = {
-  'src/deps/promise.js': 'promise.js',
-  'src/replicate/checkpointer.js': 'checkpointer.js',
-  'src/replicate/generateReplicationId.js': 'generateReplicationId.js',
-  'src/deps/ajax/prequest.js': 'ajax.js',
-  'src/plugins/websql/index.js': 'websql.js',
-  'src_browser/deps/ajax/prequest.js': 'ajax-browser.js',
-  'src_browser/replicate/checkpointer.js': 'checkpointer-browser.js',
-  'src_browser/replicate/generateReplicationId.js':
-    'generateReplicationId-browser.js'
+var browserExtras = {
+  'src/extras/ajax.js': 'ajax-browser.js',
+  'src/extras/checkpointer.js': 'checkpointer-browser.js',
+  'src/extras/generateReplicationId.js': 'generateReplicationId-browser.js'
+};
+var nodeExtras = {
+  'src/extras/promise.js': 'promise.js',
+  'src/extras/checkpointer.js': 'checkpointer.js',
+  'src/extras/generateReplicationId.js': 'generateReplicationId.js',
+  'src/extras/ajax.js': 'ajax.js',
+  'src/extras/websql.js': 'websql.js'
 };
 
 var currentYear = new Date().getFullYear();
@@ -122,10 +133,18 @@ function doBrowserify(path, opts, exclude) {
   });
 }
 
-function doRollup(entry, fileOut) {
+function doRollup(entry, fileOut, browser) {
   return rollup.rollup({
     entry: entry,
-    external: external
+    external: external,
+    plugins: [
+      nodeResolve({
+        skip: external,
+        jsnext: true,
+        browser: browser,
+        main: false  // don't use "main"s that are CJS
+      })
+    ]
   }).then(function (bundle) {
     var code = bundle.generate({format: 'cjs'}).code;
     return writeFile(fileOut, addVersion(code));
@@ -141,24 +160,7 @@ function buildForNode() {
 
 // build for Browserify/Webpack (index-browser.js)
 function buildForBrowserify() {
-  return ncp('src', 'src_browser').then(function () {
-    return new Promise(function (resolve, reject) {
-      var files = [];
-      findit('src_browser').on('file', function (file) {
-        if (/-browser.js$/.test(file)) {
-          files.push(file);
-        }
-      }).on('end', function () {
-        resolve(files);
-      }).on('error', reject);
-    });
-  }).then(function (files) {
-    return Promise.all(files.map(function (file) {
-      return renameAsync(file, file.replace('-browser', ''));
-    }));
-  }).then(function () {
-    return doRollup('src_browser/index.js', 'lib/index-browser.js');
-  });
+  return doRollup('src/index.js', 'lib/index-browser.js', true);
 }
 
 // build for the browser (dist)
@@ -190,17 +192,26 @@ function cleanup() {
 function buildPluginsForBrowserify() {
   return mkdirp('lib/extras').then(function () {
     return Promise.all(plugins.map(function (plugin) {
-      return doRollup('src_browser/plugins/' + plugin + '/index.js',
-                      'lib/extras/' + plugin + '.js');
+      return doRollup('src/extras/' + plugin + '/index.js',
+                      'lib/extras/' + plugin + '.js', true);
     }));
   });
 }
 
-function buildExtras() {
+function buildNodeExtras() {
   return mkdirp('lib/extras').then(function () {
-    return Promise.all(Object.keys(extras).map(function (entry) {
-      var target = extras[entry];
+    return Promise.all(Object.keys(nodeExtras).map(function (entry) {
+      var target = nodeExtras[entry];
       return doRollup(entry, 'lib/extras/' + target);
+    }));
+  });
+}
+
+function buildBrowserExtras() {
+  return mkdirp('lib/extras').then(function () {
+    return Promise.all(Object.keys(browserExtras).map(function (entry) {
+      var target = browserExtras[entry];
+      return doRollup(entry, 'lib/extras/' + target, true);
     }));
   });
 }
@@ -221,7 +232,9 @@ function buildPluginsForBrowser() {
 }
 
 if (process.argv[2] === 'node') {
-  rimraf('lib').then(buildForNode).then(function () {
+  rimraf('lib').then(buildForNode)
+    .then(buildNodeExtras)
+    .then(function () {
     process.exit(0);
   }).catch(function (err) {
     console.log(err.stack);
@@ -236,7 +249,8 @@ if (process.argv[2] === 'node') {
     .then(buildForBrowser)
     .then(buildPluginsForBrowserify)
     .then(buildPluginsForBrowser)
-    .then(buildExtras)
+    .then(buildNodeExtras)
+    .then(buildBrowserExtras)
     .then(buildPerformanceBundle)
     .then(cleanup)
     .catch(function (err) {

@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "build": "node ../../bin/build-module.js",
+    "build": "node ./bin/build.js",
     "prepublish": "npm run build"
   },
   "keywords": [
@@ -32,11 +32,34 @@
     "extras"
   ],
   "dependencies": {
+    "pouchdb-adapter-fruitdown": "5.4.0-prerelease",
+    "pouchdb-adapter-localstorage": "5.4.0-prerelease",
+    "pouchdb-adapter-memory": "5.4.0-prerelease",
+    "pouchdb-ajax": "5.4.0-prerelease",
     "pouchdb-browser": "5.4.0-prerelease",
+    "pouchdb-checkpointer": "5.4.0-prerelease",
+    "pouchdb-generate-replication-id": "5.4.0-prerelease",
+    "pouchdb-promise": "5.4.0-prerelease"
+  },
+  "optionalDependencies": {
+    "pouchdb-adapter-node-websql": "5.4.0-prerelease",
     "pouchdb-node": "5.4.0-prerelease"
+  },
+  "devDependencies": {
+    "browserify": "12.0.2",
+    "bundle-collapser": "1.2.1",
+    "denodeify": "1.2.1",
+    "derequire": "2.0.3",
+    "es3ify": "0.2.2",
+    "lie": "3.0.4",
+    "mkdirp": "0.5.1",
+    "rimraf": "2.5.2",
+    "rollup": "0.26.2",
+    "rollup-plugin-node-resolve": "1.5.0",
+    "stream-to-promise": "1.1.0"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
-    "./src/index.js": "./src/index-browser.js"
+    "./src/pouchdb.js": "./src/pouchdb-browser.js"
   }
 }
