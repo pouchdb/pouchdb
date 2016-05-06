@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-core",
+  "name": "pouchdb-mapreduce",
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",
@@ -16,22 +16,16 @@
     "lib",
     "src"
   ],
-  "dependencies" : {
+  "dependencies": {
     "argsarray": "0.0.1",
-    "debug": "2.2.0",
-    "double-ended-queue": "2.0.0-0",
-    "inherits": "2.0.1",
-    "js-extend": "1.0.1",
-    "pouchdb-adapter-http": "5.4.0-prerelease",
-    "pouchdb-ajax": "5.4.0-prerelease",
-    "pouchdb-collate": "1.2.0",
-    "pouchdb-collections": "1.0.1",
     "pouchdb-errors": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease"
+    "pouchdb-utils": "5.4.0-prerelease",
+    "scope-eval": "0.0.3",
+    "spark-md5": "2.0.2"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
-    "src/mapreduce/md5.js": "src/mapreduce/md5-browser.js"
+    "src/md5.js": "src/md5-browser.js"
   }
 }

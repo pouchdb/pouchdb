@@ -32,9 +32,11 @@
     "extras"
   ],
   "dependencies": {
-    "pouchdb-core": "5.4.0-prerelease"
+    "pouchdb-browser": "5.4.0-prerelease",
+    "pouchdb-node": "5.4.0-prerelease"
   },
   "browser": {
-    "./lib/index.js": "./lib/index-browser.js"
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/index.js": "./src/index-browser.js"
   }
 }

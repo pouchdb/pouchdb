@@ -1,2 +1,2 @@
-import PouchDB from 'pouchdb-core';
+import PouchDB from './pouchdb';
 export default PouchDB;
