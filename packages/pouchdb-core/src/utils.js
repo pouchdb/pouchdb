@@ -43,6 +43,7 @@ import { extend } from 'js-extend';
 
 // TODO: bunch of stuff only required by the coverage tests
 import generateReplicationId from 'pouchdb-generate-replication-id';
+import checkpointer from 'pouchdb-checkpointer';
 
 export default {
   ajax: ajax,
@@ -63,5 +64,6 @@ export default {
   winningRev: winningRev,
   mapReduceUtils: mapReduceUtils,
   upsert: upsert,
-  toPromise: toPromise
+  toPromise: toPromise,
+  checkpointer: checkpointer
 };

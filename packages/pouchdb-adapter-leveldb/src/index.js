@@ -13,7 +13,8 @@ function LevelDownPouch(opts, callback) {
   }
 
   var _opts = extend({
-    db: leveldown
+    db: leveldown,
+    migrate: true
   }, opts);
 
   CoreLevelPouch.call(this, _opts, callback);

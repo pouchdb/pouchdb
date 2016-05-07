@@ -1,7 +1,7 @@
 'use strict';
 
-var PouchDB = require('../../lib');
-var Checkpointer = require('../../lib/extras/checkpointer');
+var PouchDB = require('../../packages/pouchdb');
+var Checkpointer = PouchDB.utils.checkpointer;
 
 var express = require('express');
 var bodyParser = require('body-parser');

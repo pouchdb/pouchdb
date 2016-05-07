@@ -8,7 +8,7 @@ import {
   toIndexableString,
   normalizeKey,
   parseIndexableString
-} from 'pouchdb-collate'
+} from 'pouchdb-collate';
 
 import TaskQueue from './taskqueue';
 import createView from './createView';

@@ -173,7 +173,7 @@ function LevelPouch(opts, callback) {
       db = dbStore.get(name);
       db._docCount  = -1;
       db._queue = new Deque();
-      if (opts.db || opts.noMigrate) {
+      if (opts.noMigrate || (opts.db && !opts.migrate)) {
         afterDBCreated();
       } else {
         migrate.toSublevel(name, db, afterDBCreated);
