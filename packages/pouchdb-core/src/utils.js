@@ -5,19 +5,30 @@
 // but for practical reasons (legacy code, test code, etc.) this is still here.
 //
 
-// TODO: only used by the integration tests, which have
-// some tests that explicitly override PouchDB.utils.ajax
+// TODO: only used by the unit tests
 import ajax from 'pouchdb-ajax';
 
-// TODO: only used by the integration tests
+// TODO: only used by the integration and unit tests
 import {
   parseUri,
   uuid,
   atob,
   btoa,
   binaryStringToBlobOrBuffer,
-  clone
+  clone,
+  parseDdocFunctionName,
+  normalizeDdocFunctionName,
+  once,
+  merge,
+  winningRev,
+  upsert,
+  toPromise
 } from 'pouchdb-utils';
+
+// TODO: only used by the unit tests
+import {
+  utils as mapReduceUtils
+} from 'pouchdb-mapreduce';
 
 // TODO: used by the integration tests and elsewhere, possibly
 // even in the PouchDB guide and example code
@@ -30,6 +41,9 @@ import { createError } from 'pouchdb-errors';
 // also in the integration tests
 import { extend } from 'js-extend';
 
+// TODO: bunch of stuff only required by the coverage tests
+import generateReplicationId from 'pouchdb-generate-replication-id';
+
 export default {
   ajax: ajax,
   parseUri: parseUri,
@@ -40,5 +54,14 @@ export default {
   binaryStringToBlobOrBuffer: binaryStringToBlobOrBuffer,
   clone: clone,
   extend: extend,
-  createError: createError
+  createError: createError,
+  generateReplicationId: generateReplicationId,
+  parseDdocFunctionName: parseDdocFunctionName,
+  normalizeDdocFunctionName: normalizeDdocFunctionName,
+  once: once,
+  merge: merge,
+  winningRev: winningRev,
+  mapReduceUtils: mapReduceUtils,
+  upsert: upsert,
+  toPromise: toPromise
 };

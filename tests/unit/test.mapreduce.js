@@ -1,9 +1,9 @@
 'use strict';
 
 var should = require('chai').should();
-var upsert = require('../../lib/deps/upsert');
-var utils = require('../../lib/mapreduce/utils');
-var Promise = require('../../lib/deps/promise');
+var upsert = require('../../packages/pouchdb').utils.upsert;
+var utils = require('../../packages/pouchdb').utils.mapReduceUtils;
+var Promise = require('../../packages/pouchdb').utils.Promise;
 
 describe('test.mapreduce.js-upsert', function () {
   it('should throw an error with no doc id', function () {

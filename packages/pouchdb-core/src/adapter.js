@@ -4,11 +4,11 @@ import { Map } from 'pouchdb-collections';
 import getArguments from 'argsarray';
 import { EventEmitter } from 'events';
 import inherits from 'inherits';
+import Changes from './changes';
 import {
   pick,
   adapterFun,
   upsert,
-  Changes,
   bulkGetShim,
   isDeleted,
   isLocalId,

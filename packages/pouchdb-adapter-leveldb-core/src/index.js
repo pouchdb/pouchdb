@@ -8,7 +8,7 @@ import Deque from "double-ended-queue";
 import Promise from 'pouchdb-promise';
 import {
   clone,
-  Changes,
+  changesHandler as Changes,
   uuid,
   filterChange,
   safeJsonParse,

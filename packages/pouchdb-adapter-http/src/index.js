@@ -26,7 +26,8 @@ import {
   atob,
   btoa,
   blobOrBufferToBase64 as blufferToBase64,
-  bulkGetShim
+  bulkGetShim,
+  flatten
 } from 'pouchdb-utils';
 
 import { createError, BAD_ARG } from 'pouchdb-errors';

@@ -67,8 +67,8 @@ describe('test.http.js', function () {
         var update_seq = info.update_seq;
 
         var callCount = 0;
-        var ajax = PouchDB.utils.ajax;
-        PouchDB.utils.ajax = function (opts) {
+        var ajax = db._ajax;
+        db._ajax = function (opts) {
           if (/_changes/.test(opts.url)) {
             callCount++;
           }
@@ -79,7 +79,7 @@ describe('test.http.js', function () {
         }).on('change', function () {
         }).on('complete', function () {
           callCount.should.equal(1, 'One _changes call to complete changes');
-          PouchDB.utils.ajax = ajax;
+          db._ajax = ajax;
           done();
         }).on('error', done);
       });
@@ -109,14 +109,14 @@ describe('test.http.js', function () {
   });
 
   it('Properly escape url params #4008', function () {
-    var ajax = PouchDB.utils.ajax;
-    PouchDB.utils.ajax = function (opts) {
+    var db = new PouchDB(dbs.name);
+    var ajax = db._ajax;
+    db._ajax = function (opts) {
       opts.url.should.not.contain('[');
       ajax.apply(this, arguments);
     };
-    var db = new PouchDB(dbs.name);
     return db.changes({doc_ids: ['1']}).then(function () {
-      PouchDB.utils.ajax = ajax;
+      db._ajax = ajax;
     });
   });
 
@@ -129,9 +129,9 @@ describe('test.http.js', function () {
       }
     });
 
-    var ajax = PouchDB.utils.ajax;
+    var ajax = db._ajax;
     var ajaxOpts;
-    PouchDB.utils.ajax = function (opts) {
+    db._ajax = function (opts) {
       if (/changes/.test(opts.url)) {
         ajaxOpts = opts;
         changes.cancel();
@@ -144,7 +144,7 @@ describe('test.http.js', function () {
     changes.on('complete', function () {
       should.exist(ajaxOpts);
       ajaxOpts.timeout.should.equal(timeout);
-      PouchDB.utils.ajax = ajax;
+      db._ajax = ajax;
       done();
     });
 

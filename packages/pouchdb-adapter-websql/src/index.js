@@ -13,7 +13,7 @@ import {
   traverseRevTree,
   safeJsonParse,
   safeJsonStringify,
-  Changes,
+  changesHandler as Changes,
   toPromise,
   btoa
 } from 'pouchdb-utils';

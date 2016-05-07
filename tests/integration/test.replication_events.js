@@ -106,9 +106,9 @@ adapters.forEach(function (adapters) {
 
       var db = new PouchDB(dbs.name);
       var rejectAjax = true;
-      var ajax = PouchDB.utils.ajax;
+      var ajax = db._ajax;
 
-      PouchDB.utils.ajax = function (opts, cb) {
+      db._ajax = function (opts, cb) {
         if (rejectAjax) {
           cb(new Error('flunking you'));
         } else {
@@ -127,7 +127,7 @@ adapters.forEach(function (adapters) {
         var counter = 0;
 
         repl.on('complete', function () {
-          PouchDB.utils.ajax = ajax;
+          db._ajax = ajax;
           done();
         });
 

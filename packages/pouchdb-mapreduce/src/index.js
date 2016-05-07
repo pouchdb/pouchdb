@@ -972,7 +972,18 @@ function BuiltInError(message) {
 
 inherits(BuiltInError, Error);
 
+// TODO: these only need to be exported for the unit tests
+var utils = {
+  uniq: uniq,
+  sequentialize: sequentialize,
+  fin: fin,
+  callbackify: callbackify,
+  promisedCallback: promisedCallback
+};
+
+export { utils };
+
 export default {
-  query: query,
-  viewCleanup: viewCleanup
+  query,
+  viewCleanup
 };

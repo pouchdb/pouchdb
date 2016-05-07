@@ -25,9 +25,12 @@
     "pouchdb-adapter-http": "5.4.0-prerelease",
     "pouchdb-ajax": "5.4.0-prerelease",
     "pouchdb-collections": "1.0.1",
+    "pouchdb-generate-replication-id": "5.4.0-prerelease",
+    "pouchdb-mapreduce": "5.4.0-prerelease",
     "pouchdb-errors": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease"
+    "pouchdb-utils": "5.4.0-prerelease",
+    "scope-eval": "0.0.3"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js"

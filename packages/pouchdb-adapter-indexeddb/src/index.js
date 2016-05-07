@@ -8,7 +8,7 @@ import {
   hasLocalStorage,
   winningRev as calculateWinningRev,
   traverseRevTree,
-  Changes
+  changesHandler as Changes
 } from 'pouchdb-utils';
 import { Map, Set } from 'pouchdb-collections';
 import idbBulkDocs from './bulkDocs';
