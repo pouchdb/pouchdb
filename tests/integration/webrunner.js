@@ -134,33 +134,4 @@ function startTests() {
   loadNext();
 }
 
-if (window.cordova) {
-  var hasGrep = window.GREP &&
-      window.location.search.indexOf('grep=') === -1;
-  var hasAutoCompaction = window.AUTO_COMPACTION &&
-    window.location.search.indexOf('autoCompaction') === -1;
-  var hasAdapters = window.ADAPTERS &&
-    window.location.search.indexOf('adapters=') === -1;
-
-  if (hasGrep || hasAutoCompaction || hasAdapters) {
-    var params = [];
-    if (hasGrep) {
-      params.push('grep=' + encodeURIComponent(window.GREP));
-    }
-    if (hasAutoCompaction) {
-      params.push('autoCompaction=' +
-        encodeURIComponent(window.AUTO_COMPACTION));
-    }
-    if (hasAdapters) {
-      params.push('adapters=' + encodeURIComponent(window.ADAPTERS));
-    }
-    window.location.search += (window.location.search ? '&' : '?') +
-      params.join('&');
-  } else {
-    document.addEventListener("deviceready", startTests, false);
-  }
-} else {
-  startTests();
-}
-
-
+startTests();
