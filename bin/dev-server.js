@@ -3,7 +3,7 @@
 'use strict';
 
 var Promise = require('lie');
-var watch = require('node-watch');
+var watch = require('watch-glob');
 var http_server = require('http-server');
 var spawn = require('child_process').spawn;
 
@@ -28,7 +28,7 @@ function rebuild() {
   // only run one build at a time
   rebuildPromise = rebuildPromise.then(function () {
     return new Promise(function (resolve) {
-      var child = spawn('npm', ['run', 'build']);
+      var child = spawn('npm', ['run', 'rebuild-pouchdb']);
       child.stdout.on('data', function (buf) {
         console.log(String(buf).replace(/\s*$/, ''));
       });
@@ -41,7 +41,7 @@ function rebuild() {
   return rebuildPromise;
 }
 
-watch('./src', rebuild);
+watch('packages/**/src/*.js', rebuild);
 
 var filesWritten = false;
 
