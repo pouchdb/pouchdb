@@ -68,7 +68,7 @@
     "http-server": "0.9.0",
     "istanbul": "0.4.3",
     "istanbul-coveralls": "1.0.3",
-    "less": "2.6.1",
+    "less": "2.7.0",
     "mkdirp": "0.5.1",
     "mocha": "2.4.5",
     "mockery": "1.7.0",
