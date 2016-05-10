@@ -1548,6 +1548,35 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Empty replication updates checkpoint (#5145)',
+       function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docs1 = [ {_id: '0', integer: 0} ];
+      remote.bulkDocs({ docs: docs1 }, function () {
+        var filter = function () {
+          return false;
+        };
+        db.replicate.from(remote, {
+          filter: filter
+        }, function (err, result) {
+          result.ok.should.equal(true);
+          result.docs_written.should.equal(0);
+          result.docs_read.should.equal(0);
+          result.last_seq.should.equal(1);
+          db.replicate.from(remote, {
+            filter: filter
+          }, function (err, result) {
+            result.ok.should.equal(true);
+            result.docs_written.should.equal(0);
+            result.docs_read.should.equal(0);
+            result.last_seq.should.equal(1);
+            done();
+          });
+        });
+      });
+    });
+
     it('Replication with deleted doc', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);

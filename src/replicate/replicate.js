@@ -121,11 +121,7 @@ function replicate(src, target, opts, returnValue, result) {
       }
       currentBatch = undefined;
       getChanges();
-    }).catch(function (err) {
-      writingCheckpoint = false;
-      abortReplication('writeCheckpoint completed with error', err);
-      throw err;
-    });
+    }).catch(onCheckpointError);
   }
 
   function getDiffs() {
@@ -294,15 +290,33 @@ function replicate(src, target, opts, returnValue, result) {
     if (changes.results.length > 0) {
       changesOpts.since = changes.last_seq;
       getChanges();
+      processPendingBatch(true);
     } else {
-      if (continuous) {
-        changesOpts.live = true;
-        getChanges();
+
+      var complete = function() {
+        if (continuous) {
+          changesOpts.live = true;
+          getChanges();
+        } else {
+          changesCompleted = true;
+        }
+        processPendingBatch(true);
+      };
+
+      // update the checkpoint so we start from the right seq next time
+      if (!currentBatch && changes.last_seq > last_seq) {
+        writingCheckpoint = true;
+        checkpointer.writeCheckpoint(changes.last_seq,
+            session).then(function () {
+          writingCheckpoint = false;
+          result.last_seq = last_seq = changes.last_seq;
+          complete();
+        })
+        .catch(onCheckpointError);
       } else {
-        changesCompleted = true;
+        complete();
       }
     }
-    processPendingBatch(true);
   }
 
 
