@@ -293,7 +293,7 @@ function replicate(src, target, opts, returnValue, result) {
       processPendingBatch(true);
     } else {
 
-      var complete = function() {
+      var complete = function () {
         if (continuous) {
           changesOpts.live = true;
           getChanges();
