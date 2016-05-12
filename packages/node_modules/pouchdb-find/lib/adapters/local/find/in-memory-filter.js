@@ -220,7 +220,6 @@ var matchers = {
     }
 
     if (docFieldValue.length === 0) {
-      console.log('FIELD WOOO!');
       return false;
     }
 
