@@ -1548,6 +1548,55 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Empty replication updates checkpoint (#5145)', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var changes = remote.changes;
+      remote.changes = function (params) {
+        changesSince.push(params.since);
+        return changes.apply(this, arguments);
+      };
+      var changesSince = [];
+      var replicationOpts = {
+        filter: function () {
+          return false;
+        }
+      };
+      return remote.bulkDocs({ docs: docs }).then(function () {
+        return db.replicate.from(remote, replicationOpts);
+      }).then(function (result) {
+        result.ok.should.equal(true);
+        result.docs_written.should.equal(0);
+        result.docs_read.should.equal(0);
+        changesSince.length.should.equal(2);
+        // the returned last_seq should match the 'since'
+        // requested from remote
+        result.last_seq.should.equal(changesSince[1]);
+        // the 'since' parameter should be different on the
+        // next request
+        changesSince[0].should.not.equal(changesSince[1]);
+        // kick off a second replication
+        return db.replicate.from(remote, replicationOpts);
+      }).then(function (result) {
+        result.ok.should.equal(true);
+        result.docs_written.should.equal(0);
+        result.docs_read.should.equal(0);
+        changesSince.length.should.equal(3);
+        // the returned last_seq should match the 'since'
+        // requested from remote
+        result.last_seq.should.equal(changesSince[2]);
+        // nothing has changed on the remote so 'since'
+        // should be the same
+        changesSince[1].should.equal(changesSince[2]);
+      }).then(function () {
+        // Restore remote.changes to original
+        remote.changes = changes;
+      }).catch(function (err) {
+        remote.changes = changes;
+        throw err;
+      });
+    });
+
     it('Replication with deleted doc', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
