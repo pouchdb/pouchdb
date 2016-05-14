@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-adapter-websql",
+  "name": "pouchdb-adapter-websql-core",
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",
@@ -17,6 +17,10 @@
     "src"
   ],
   "dependencies": {
-    "pouchdb-adapter-websql-core": "5.4.0-prerelease"
+    "js-extend": "1.0.1",
+    "pouchdb-collections": "1.0.1",
+    "pouchdb-errors": "5.4.0-prerelease",
+    "pouchdb-promise": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease"
   }
 }
