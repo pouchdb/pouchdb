@@ -1,0 +1,22 @@
+{
+  "name": "pouchdb-for-coverage",
+  "version": "5.4.0-prerelease",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "node ../../bin/build-module.js",
+    "prepublish": "npm run build"
+  },
+  "dependencies": {
+    "pouchdb-adapter-fruitdown": "5.4.0-prerelease",
+    "pouchdb-adapter-localstorage": "5.4.0-prerelease",
+    "pouchdb-adapter-memory": "5.4.0-prerelease",
+    "pouchdb-adapter-node-websql": "5.4.0-prerelease",
+    "pouchdb-ajax": "5.4.0-prerelease",
+    "pouchdb-browser": "5.4.0-prerelease",
+    "pouchdb-checkpointer": "5.4.0-prerelease",
+    "pouchdb-generate-replication-id": "5.4.0-prerelease",
+    "pouchdb-node": "5.4.0-prerelease",
+    "pouchdb-promise": "5.4.0-prerelease"
+  },
+  "private": true
+}

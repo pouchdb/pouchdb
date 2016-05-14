@@ -100,14 +100,6 @@ describe('test.http.js', function () {
     });
   });
 
-  it('#2853 test uri parsing usernames/passwords', function () {
-    var uri = PouchDB.utils.parseUri(
-      'http://u%24ern%40me:p%26%24%24w%40rd@foo.com');
-    uri.password.should.equal('p&$$w@rd');
-    uri.user.should.equal('u$ern@me');
-    uri.host.should.equal('foo.com');
-  });
-
   it('Properly escape url params #4008', function () {
     var db = new PouchDB(dbs.name);
     var ajax = db._ajax;

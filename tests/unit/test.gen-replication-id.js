@@ -1,7 +1,7 @@
 'use strict';
 
 var memdown = require('memdown');
-var PouchDB = require('../../packages/pouchdb');
+var PouchDB = require('../../packages/pouchdb-for-coverage');
 var sourceDb = new PouchDB({name: 'local_db', db: memdown});
 var targetDb = new PouchDB({name: 'target_db', db: memdown});
 var genReplicationId =

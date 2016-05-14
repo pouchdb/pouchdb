@@ -395,7 +395,7 @@ adapters.forEach(function (adapter) {
         });
       }
 
-      return PouchDB.utils.Promise.all(tasks.map(function (task) {
+      return testUtils.Promise.all(tasks.map(function (task) {
         return getDocWithDefault(db, task, {foo: 'bar'});
       }));
     });
@@ -433,7 +433,7 @@ adapters.forEach(function (adapter) {
         });
       }
 
-      return PouchDB.utils.Promise.all(tasks.map(function (task) {
+      return testUtils.Promise.all(tasks.map(function (task) {
         return getDocWithDefault(db, task, {foo: 'bar'});
       }));
     });

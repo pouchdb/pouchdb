@@ -4,8 +4,9 @@
 // https://github.com/davisp/couchdb/blob/local_doc_revs/test/
 // etap/060-kt-merging.t
 
-var merge = require('../../packages/pouchdb').utils.merge;
-var winningRev = require('../../packages/pouchdb').utils.winningRev;
+var PouchDB = require('../../packages/pouchdb-for-coverage');
+var merge = PouchDB.utils.merge;
+var winningRev = PouchDB.utils.winningRev;
 
 describe('test.merge.js', function () {
 

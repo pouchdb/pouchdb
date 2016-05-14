@@ -1,7 +1,8 @@
 'use strict';
 
 require('chai').should();
-var parseUri = require('../../packages/pouchdb').utils.parseUri;
+var PouchDB = require('../../packages/pouchdb-for-coverage');
+var parseUri = PouchDB.utils.parseUri;
 
 describe('test.parse-uri.js', function () {
 
@@ -30,6 +31,14 @@ describe('test.parse-uri.js', function () {
       source: 'http://user:pass@foo.com/baz/bar/index.html?hey=yo',
       queryKey: { hey: 'yo' } }
     );
+  });
+
+  it('#2853 test uri parsing usernames/passwords', function () {
+    var uri = parseUri(
+      'http://u%24ern%40me:p%26%24%24w%40rd@foo.com');
+    uri.password.should.equal('p&$$w@rd');
+    uri.user.should.equal('u$ern@me');
+    uri.host.should.equal('foo.com');
   });
 
 });

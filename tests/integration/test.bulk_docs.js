@@ -867,7 +867,7 @@ adapters.forEach(function (adapter) {
       var docid = "mydoc";
 
       function uuid() {
-          return PouchDB.utils.uuid(32, 16).toLowerCase();
+          return testUtils.uuid(32, 16).toLowerCase();
       }
 
       // create a few of rando, good revisions
@@ -924,7 +924,7 @@ adapters.forEach(function (adapter) {
 
       // simulate 5000 normal commits with two conflicts at the very end
       function uuid() {
-        return PouchDB.utils.uuid(32, 16).toLowerCase();
+        return testUtils.uuid(32, 16).toLowerCase();
       }
 
       var isSafari = (typeof process === 'undefined' || process.browser) &&
@@ -968,7 +968,7 @@ adapters.forEach(function (adapter) {
 
       // simulate 5000 normal commits with two conflicts at the very end
       function uuid() {
-        return PouchDB.utils.uuid(32, 16).toLowerCase();
+        return testUtils.uuid(32, 16).toLowerCase();
       }
 
       var numRevs = 5000;

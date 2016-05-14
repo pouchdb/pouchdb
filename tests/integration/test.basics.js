@@ -752,16 +752,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Error works', function () {
-      var newError = PouchDB.utils
-        .createError(PouchDB.Errors.BAD_REQUEST, 'love needs no message');
-      newError.status.should.equal(PouchDB.Errors.BAD_REQUEST.status);
-      newError.name.should.equal(PouchDB.Errors.BAD_REQUEST.name);
-      newError.message.should.equal(PouchDB.Errors.BAD_REQUEST.message,
-                                    'correct error message returned');
-      newError.reason.should.equal('love needs no message');
-    });
-
     it('Fail to fetch a doc after db was deleted', function (done) {
       new PouchDB(dbs.name, function (err, db) {
         var db2 = new PouchDB(dbs.name);
