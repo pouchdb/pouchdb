@@ -19,7 +19,7 @@ import {
   uniq,
   fin,
   promisedCallback
-} from './utils';
+} from 'pouchdb-mapreduce-utils';
 import Promise from 'pouchdb-promise';
 import inherits from 'inherits';
 
@@ -987,18 +987,7 @@ function BuiltInError(message) {
 
 inherits(BuiltInError, Error);
 
-// TODO: these only need to be exported for the unit tests
-var utils = {
-  uniq: uniq,
-  sequentialize: sequentialize,
-  fin: fin,
-  callbackify: callbackify,
-  promisedCallback: promisedCallback
-};
-
-export { utils };
-
 export default {
-  query,
-  viewCleanup
+  query: query,
+  viewCleanup: viewCleanup
 };

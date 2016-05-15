@@ -18,7 +18,6 @@ import {
   btoa
 } from 'pouchdb-utils';
 
-import valid from './valid';
 import websqlBulkDocs from './bulkDocs';
 
 import {

@@ -17,8 +17,9 @@
     "http-server": "0.9.0",
     "istanbul": "0.4.3",
     "istanbul-coveralls": "1.0.3",
+    "js-extend": "1.0.1",
     "less": "2.6.1",
-    "lerna": "nolanlawson/lerna#add-jsnext-main-built-3",
+    "lerna": "nolanlawson/lerna#pouchdb-monorepo",
     "lie": "3.0.4",
     "mkdirp": "0.5.1",
     "mocha": "2.4.5",
@@ -44,7 +45,7 @@
     "webpack": "1.13.0"
   },
   "scripts": {
-    "build": "lerna bootstrap && lerna run build && npm run build-perf",
+    "build": "lerna bootstrap && lerna run build && npm run build-test",
     "rebuild-pouchdb": "cd packages/pouchdb && npm run build",
     "test-unit": "mocha tests/unit",
     "test-node": "bash bin/test-node.sh",
@@ -64,6 +65,8 @@
     "publish-site": "sh bin/publish-site.sh",
     "build-site": "node ./bin/build-site.js",
     "report-coverage": "COVERAGE=1 npm test && istanbul-coveralls --no-rm",
+    "build-test": "npm run build-test-utils && npm run build-perf",
+    "build-test-utils": "browserify tests/integration/utils.js > tests/integration/utils-bundle.js",
     "build-perf": "browserify tests/performance/*.js > tests/performance-bundle.js",
     "verify-bundle-size": "sh bin/verify-bundle-size.sh",
     "test-webpack": "bash bin/test-webpack.sh"

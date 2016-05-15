@@ -1,6 +1,5 @@
 import { Set } from 'pouchdb-collections';
 import { createError, WSQ_ERROR } from 'pouchdb-errors';
-import valid from './valid';
 
 import {
   BY_SEQ_STORE,
@@ -184,6 +183,5 @@ export {
   select,
   compactRevs,
   getSize,
-  valid,
   websqlError
 };

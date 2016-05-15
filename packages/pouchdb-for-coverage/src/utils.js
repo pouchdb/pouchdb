@@ -5,10 +5,8 @@
 // but for practical reasons (legacy code, test code, etc.) this is still here.
 //
 
-// TODO: only used by the unit tests
 import ajax from 'pouchdb-ajax';
 
-// TODO: only used by the integration and unit tests
 import {
   parseUri,
   uuid,
@@ -25,23 +23,20 @@ import {
   toPromise
 } from 'pouchdb-utils';
 
-// TODO: only used by the unit tests
 import {
-  utils as mapReduceUtils
-} from 'pouchdb-mapreduce';
+  uniq,
+  sequentialize,
+  fin,
+  callbackify,
+  promisedCallback
+} from 'pouchdb-mapreduce-utils';
 
-// TODO: used by the integration tests and elsewhere, possibly
-// even in the PouchDB guide and example code
 import Promise from 'pouchdb-promise';
 
-// TODO: required by tests
 import { createError } from 'pouchdb-errors';
 
-// TODO: pretty sure these are in widespread use by Hoodie and others,
-// also in the integration tests
 import { extend } from 'js-extend';
 
-// TODO: bunch of stuff only required by the coverage tests
 import generateReplicationId from 'pouchdb-generate-replication-id';
 import checkpointer from 'pouchdb-checkpointer';
 
@@ -62,8 +57,14 @@ export default {
   once: once,
   merge: merge,
   winningRev: winningRev,
-  mapReduceUtils: mapReduceUtils,
   upsert: upsert,
   toPromise: toPromise,
-  checkpointer: checkpointer
+  checkpointer: checkpointer,
+  mapReduceUtils: {
+    uniq: uniq,
+    sequentialize: sequentialize,
+    fin: fin,
+    callbackify: callbackify,
+    promisedCallback: promisedCallback
+  }
 };
