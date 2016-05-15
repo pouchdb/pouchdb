@@ -43,8 +43,7 @@ or append `?grep=test.replication.js` if you opened the tests in a browser manua
 
 #### Test Coverage
 
-    $ npm run build-as-modular-es5
-    $ COVERAGE=1 npm test
+    $ npm run test-coverage
 
 Again, this uses `npm run build-as-modular-es5` in order to fully test the codebase
 as a non-bundle. See `build-as-modular-es5.sh` for details.
