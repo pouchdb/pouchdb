@@ -995,4 +995,6 @@ function tryStorageOption(dbName, storage) {
   }
 }
 
-export default IdbPouch;
+export default function (PouchDB) {
+  PouchDB.adapter('idb', IdbPouch, true);
+};

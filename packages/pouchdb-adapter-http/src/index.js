@@ -971,4 +971,7 @@ HttpPouch.valid = function () {
   return true;
 };
 
-export default HttpPouch;
+export default function (PouchDB) {
+  PouchDB.adapter('http', HttpPouch, false);
+  PouchDB.adapter('https', HttpPouch, false);
+}

@@ -28,7 +28,7 @@ testUtils.isExpressRouter = function () {
 };
 
 testUtils.params = function () {
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof process !== 'undefined' && !process.browser) {
     return process.env;
   }
   var paramStr = document.location.search.slice(1);
@@ -63,125 +63,8 @@ testUtils.couchHost = function () {
   return 'http://localhost:5984';
 };
 
-// Abstracts constructing a Blob object, so it also works in older
-// browsers that don't support the native Blob constructor (e.g.
-// old QtWebKit versions, Android < 4.4).
-// Copied over from createBlob.js in PouchDB because we don't
-// want to have to export this function in utils
-function createBlob(parts, properties) {
-  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
-  parts = parts || [];
-  properties = properties || {};
-  try {
-    return new Blob(parts, properties);
-  } catch (e) {
-    if (e.name !== "TypeError") {
-      throw e;
-    }
-    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
-                  WebKitBlobBuilder;
-    var builder = new Builder();
-    for (var i = 0; i < parts.length; i += 1) {
-      builder.append(parts[i]);
-    }
-    return builder.getBlob(properties.type);
-  }
-}
-
-testUtils.makeBlob = function (data, type) {
-  if (typeof module !== 'undefined' && module.exports) {
-    return new Buffer(data, 'binary');
-  } else {
-    return createBlob([data], {
-      type: (type || 'text/plain')
-    });
-  }
-};
-
-function typedBuffer(binString, buffType, type) {
-  // buffType is either 'binary' or 'base64'
-  var buff = new Buffer(binString, buffType);
-  buff.type = type; // non-standard, but used for consistency with the browser
-  return buff;
-}
-
-// Abstracts constructing a Blob object, so it also works in older
-// browsers that don't support the native Blob constructor (e.g.
-// old QtWebKit versions, Android < 4.4).
-function createBlob(parts, properties) {
-  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
-  parts = parts || [];
-  properties = properties || {};
-  try {
-    return new Blob(parts, properties);
-  } catch (e) {
-    if (e.name !== "TypeError") {
-      throw e;
-    }
-    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-      typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-        typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
-          WebKitBlobBuilder;
-    var builder = new Builder();
-    for (var i = 0; i < parts.length; i += 1) {
-      builder.append(parts[i]);
-    }
-    return builder.getBlob(properties.type);
-  }
-}
-
-// From http://stackoverflow.com/questions/14967647/ (continues on next line)
-// encode-decode-image-with-base64-breaks-image (2013-04-21)
-function binaryStringToArrayBuffer(bin) {
-  var length = bin.length;
-  var buf = new ArrayBuffer(length);
-  var arr = new Uint8Array(buf);
-  for (var i = 0; i < length; i++) {
-    arr[i] = bin.charCodeAt(i);
-  }
-  return buf;
-}
-
-function binStringToBlufferBrowser(binString, type) {
-  return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
-}
-
-function binStringToBlufferNode(binString, type) {
-  return typedBuffer(binString, 'binary', type);
-}
-
-testUtils.binaryStringToBlob = function (bin, type) {
-  if (typeof process === 'undefined' || process.browser) {
-    return binStringToBlufferBrowser(bin, type);
-  }
-  return binStringToBlufferNode(bin, type);
-};
-
-testUtils.btoa = function (arg) {
-  if (typeof process === 'undefined' || process.browser) {
-    return btoa(arg);
-  }
-  return new Buffer(str, 'binary').toString('base64');
-};
-
-testUtils.atob = function (arg) {
-  if (typeof process === 'undefined' || process.browser) {
-    return atob(arg);
-  }
-
-  var base64 = new Buffer(str, 'base64');
-  // Node.js will just skip the characters it can't decode instead of
-  // throwing an exception
-  if (base64.toString('base64') !== str) {
-    throw new Error("attachment is not a valid base64 string");
-  }
-  return base64.toString('binary');
-};
-
 testUtils.readBlob = function (blob, callback) {
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof process !== 'undefined' && !process.browser) {
     callback(blob.toString('binary'));
   } else {
     var reader = new FileReader();
@@ -208,7 +91,7 @@ testUtils.readBlobPromise = function (blob) {
 };
 
 testUtils.base64Blob = function (blob, callback) {
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof process !== 'undefined' && !process.browser) {
     callback(blob.toString('base64'));
   } else {
     testUtils.readBlob(blob, function (binary) {
@@ -301,7 +184,7 @@ testUtils.putTree = function (db, tree, callback) {
 };
 
 testUtils.isCouchDB = function (cb) {
-  PouchDB.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
+  testUtils.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
     cb('couchdb' in res);
   });
 };
@@ -373,14 +256,25 @@ testUtils.promisify = function (fun, context) {
   };
 };
 
+var pouchUtils = require('../../packages/pouchdb-utils');
+testUtils.makeBlob = pouchUtils.blob;
+testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
+testUtils.btoa = pouchUtils.btoa;
+testUtils.atob = pouchUtils.atob;
 testUtils.Promise = require('../../packages/pouchdb-promise');
 testUtils.extend = require('js-extend').extend;
 testUtils.ajax = require('../../packages/pouchdb-ajax');
 testUtils.uuid = require('../../packages/pouchdb-utils').uuid;
 testUtils.parseUri = require('../../packages/pouchdb-utils').parseUri;
+testUtils.errors = require('../../packages/pouchdb-errors').errors;
 
-if (typeof module !== 'undefined' && module.exports) {
-  global.PouchDB = require('../../packages/pouchdb');
+if (typeof process !== 'undefined' && !process.browser) {
+  if (process.env.COVERAGE) {
+    global.PouchDB = require('../../packages/pouchdb-for-coverage');
+  } else {
+    global.PouchDB = require('../../packages/pouchdb');
+  }
+
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
     var defaults = {};
 
@@ -396,19 +290,18 @@ if (typeof module !== 'undefined' && module.exports) {
     global.PouchDB = global.PouchDB.defaults(defaults);
   } else if (process.env.AUTO_COMPACTION) {
     global.PouchDB = global.PouchDB.defaults({auto_compaction: true});
-  }
-  if (typeof process !== 'undefined') {
-    if (process.env.ADAPTER === 'websql') {
-      // test WebSQL in Node
-      require('../../packages/pouchdb/extras/websql');
-      global.PouchDB.preferredAdapters = ['websql'];
-      global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
-      require('mkdirp').sync('./tmp');
-    } else {
-      // test regular LevelDB in Node
-      global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
-      global.PouchDB.adapters.leveldb.use_prefix = true;
-    }
+  } else if (process.env.ADAPTER === 'websql') {
+    // test WebSQL in Node
+    require('../../packages/pouchdb/extras/websql');
+    global.PouchDB.preferredAdapters = ['websql'];
+    global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
+    require('mkdirp').sync('./tmp');
+  } else {
+    // test regular LevelDB in Node
+    global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
+    require('../../packages/pouchdb-adapter-leveldb').use_prefix = true;
   }
   module.exports = testUtils;
+} else {
+  window.testUtils = testUtils;
 }

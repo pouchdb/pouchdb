@@ -148,10 +148,6 @@ function LevelPouch(opts, callback) {
 
   var leveldown = opts.db;
 
-  if (typeof leveldown.destroy !== 'function') {
-    /* istanbul ignore next */
-    leveldown.destroy = function (name, cb) { cb(); };
-  }
   var dbStore;
   var leveldownName = functionName(leveldown);
   if (dbStores.has(leveldownName)) {

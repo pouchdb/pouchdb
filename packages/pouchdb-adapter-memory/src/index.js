@@ -27,6 +27,6 @@ MemDownPouch.destroy = toPromise(function (name, opts, callback) {
     db: memdown
   }, opts);
 
-  return CoreLevelPouch.destroy(name, _opts, callback);
+  return memdown.destroy(name, _opts, callback);
 });
 export default MemDownPouch;

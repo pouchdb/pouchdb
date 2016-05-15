@@ -5,9 +5,9 @@ import HttpPouch from 'pouchdb-adapter-http';
 import mapreduce from 'pouchdb-mapreduce';
 import replication from 'pouchdb-replication';
 
-PouchDB.plugin(LevelPouch);
-PouchDB.plugin(HttpPouch);
-PouchDB.plugin(mapreduce);
-PouchDB.plugin(replication);
+PouchDB.plugin(LevelPouch)
+  .plugin(HttpPouch)
+  .plugin(mapreduce)
+  .plugin(replication);
 
 export default PouchDB;

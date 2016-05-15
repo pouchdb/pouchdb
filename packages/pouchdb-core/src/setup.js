@@ -98,10 +98,13 @@ PouchDB.adapter = function (id, obj, addToPreferredAdapters) {
 };
 
 PouchDB.plugin = function (obj) {
-  Object.keys(obj).forEach(function (id) {
-    PouchDB.prototype[id] = obj[id];
-  });
-
+  if (typeof obj === 'function') { // function style for plugins
+    obj(PouchDB);
+  } else {
+    Object.keys(obj).forEach(function (id) { // object style for plugins
+      PouchDB.prototype[id] = obj[id];
+    });
+  }
   return PouchDB;
 };
 

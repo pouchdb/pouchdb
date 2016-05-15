@@ -30,14 +30,14 @@ adapters.forEach(function (adapter) {
         db.get(info.id, function (err, doc) {
           doc.should.have.property('test');
           db.get(info.id + 'asdf', function (err) {
-            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+            err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                     'correct error status returned');
-            err.name.should.equal(PouchDB.Errors.MISSING_DOC.name,
+            err.name.should.equal(testUtils.errors.MISSING_DOC.name,
                                   'correct error name returned');
-            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+            err.message.should.equal(testUtils.errors.MISSING_DOC.message,
                                     'correct error message returned');
             // todo: does not work in pouchdb-server.
-            // err.reason.should.equal(PouchDB.Errors.MISSING_DOC.reason,
+            // err.reason.should.equal(testUtils.errors.MISSING_DOC.reason,
             //                           'correct error reason returned');
             done();
           });
@@ -53,14 +53,14 @@ adapters.forEach(function (adapter) {
       }, function (err, info) {
         db.get(info.id, function () {
           db.get(info.id + 'asdf', function (err) {
-            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+            err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                     'correct error status returned');
-            err.name.should.equal(PouchDB.Errors.MISSING_DOC.name,
+            err.name.should.equal(testUtils.errors.MISSING_DOC.name,
                                   'correct error name returned');
-            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+            err.message.should.equal(testUtils.errors.MISSING_DOC.message,
                                     'correct error message returned');
             // todo: does not work in pouchdb-server.
-            // err.reason.should.equal(PouchDB.Errors.MISSING_DOC.reason,
+            // err.reason.should.equal(testUtils.errors.MISSING_DOC.reason,
             //                           'correct error reason returned');
             done();
           });
@@ -76,14 +76,14 @@ adapters.forEach(function (adapter) {
           _rev: info.rev
         }, function () {
           db.get(info.id, function (err) {
-            err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+            err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                       'correct error status returned');
-            err.name.should.equal(PouchDB.Errors.MISSING_DOC.name,
+            err.name.should.equal(testUtils.errors.MISSING_DOC.name,
                                       'correct error name returned');
-            err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+            err.message.should.equal(testUtils.errors.MISSING_DOC.message,
                                       'correct error message returned');
             // todo: does not work in pouchdb-server.
-            // err.reason.should.equal(PouchDB.Errors.MISSING_DOC.reason,
+            // err.reason.should.equal(testUtils.errors.MISSING_DOC.reason,
             //                          'correct error reason returned');
             done();
           });

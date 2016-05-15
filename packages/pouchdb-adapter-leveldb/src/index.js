@@ -35,6 +35,6 @@ LevelDownPouch.destroy = toPromise(function (name, opts, callback) {
     db: leveldown
   }, opts);
 
-  return CoreLevelPouch.destroy(name, _opts, callback);
+  return leveldown.destroy(name, _opts, callback);
 });
 export default LevelDownPouch;

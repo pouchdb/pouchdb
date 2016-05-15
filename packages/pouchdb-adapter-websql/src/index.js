@@ -29,6 +29,9 @@ WebSQLPouch.valid = function () {
   return typeof openDatabase !== 'undefined' ||
     typeof SQLitePlugin !== 'undefined';
 };
+
 WebSQLPouch.use_prefix = true;
 
-export default WebSQLPouch;
+export default function (PouchDB) {
+  PouchDB.adapter('websql', WebSQLPouch, true);
+};

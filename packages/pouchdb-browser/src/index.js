@@ -6,10 +6,10 @@ import HttpPouch from 'pouchdb-adapter-http';
 import mapreduce from 'pouchdb-mapreduce';
 import replication from 'pouchdb-replication';
 
-PouchDB.plugin(IDBPouch);
-PouchDB.plugin(WebSqlPouch);
-PouchDB.plugin(HttpPouch);
-PouchDB.plugin(mapreduce);
-PouchDB.plugin(replication);
+PouchDB.plugin(IDBPouch)
+  .plugin(WebSqlPouch)
+  .plugin(HttpPouch)
+  .plugin(mapreduce)
+  .plugin(replication);
 
 export default PouchDB;
