@@ -2,6 +2,9 @@
 
 'use strict';
 
+// build just the "pouchdb" package. This build script is different
+// from the others due to legacy support (dist/, extras/, etc.).
+
 var lie = require('lie');
 if (typeof Promise === 'undefined') {
   global.Promise = lie; // required for denodeify in node 0.10
@@ -24,8 +27,6 @@ var spawn = require('child_process').spawn;
 
 var pkg = require('../packages/pouchdb/package.json');
 var version = pkg.version;
-
-var buildNode = process.env.BUILD_NODE;
 
 // these modules should be treated as external by Rollup
 var external = [
@@ -258,7 +259,7 @@ function doBuildAll() {
 }
 
 function doBuild() {
-  if (buildNode) {
+  if (process.env.BUILD_NODE) {
     doBuildNode();
   } else {
     doBuildAll();
