@@ -29,4 +29,6 @@ LocalStoragePouch.destroy = toPromise(function (name, opts, callback) {
 
   return localstoragedown.destroy(name, _opts, callback);
 });
-export default LocalStoragePouch;
+export default function (PouchDB) {
+  PouchDB.adapter('localstorage', LocalStoragePouch, true);
+}

@@ -1,13 +1,12 @@
 /* global PouchDB */
 
-import FruitdownPouch from 'pouchdb-adapter-fruitdown';
-var name = 'fruitdown';
+import FruitdownPouchPlugin from 'pouchdb-adapter-fruitdown';
 
 var PDB = (typeof PouchDB !== 'undefined') ? PouchDB : require('pouchdb');
 if (!PDB) {
-  console.error(name + ' adapter plugin error: ' +
+  console.error('fruitdown adapter plugin error: ' +
     'Cannot find global "PouchDB" object! ' +
     'Did you remember to include pouchdb.js?');
 } else {
-  PDB.adapter(name, FruitdownPouch, true);
+  FruitdownPouchPlugin(PDB);
 }

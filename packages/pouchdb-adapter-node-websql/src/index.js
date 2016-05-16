@@ -16,4 +16,6 @@ NodeWebSqlPouch.valid = function () {
 };
 NodeWebSqlPouch.use_prefix = false; // no prefix necessary in Node
 
-export default NodeWebSqlPouch;
+export default function (PouchDB) {
+  PouchDB.adapter('websql', NodeWebSqlPouch, true);
+}

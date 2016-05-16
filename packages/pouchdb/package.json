@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
-    "build": "node ./bin/build.js",
+    "build": "node ../../bin/build-pouchdb.js",
     "prepublish": "npm run build"
   },
   "keywords": [

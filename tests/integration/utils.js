@@ -257,7 +257,6 @@ testUtils.promisify = function (fun, context) {
 };
 
 var pouchUtils = require('../../packages/pouchdb-utils');
-testUtils.makeBlob = pouchUtils.blob;
 testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
 testUtils.btoa = pouchUtils.btoa;
 testUtils.atob = pouchUtils.atob;
@@ -268,6 +267,16 @@ testUtils.uuid = require('../../packages/pouchdb-utils').uuid;
 testUtils.parseUri = require('../../packages/pouchdb-utils').parseUri;
 testUtils.errors = require('../../packages/pouchdb-errors').errors;
 
+testUtils.makeBlob = function (data, type) {
+  if (process !== 'undefined' && !process.browser) {
+    return new Buffer(data, 'binary');
+  } else {
+    return pouchUtils.blob([data], {
+      type: (type || 'text/plain')
+    });
+  }
+};
+
 if (typeof process !== 'undefined' && !process.browser) {
   if (process.env.COVERAGE) {
     global.PouchDB = require('../../packages/pouchdb-for-coverage');
@@ -276,6 +285,7 @@ if (typeof process !== 'undefined' && !process.browser) {
   }
 
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
+    // test a special *down adapter and/or prefix
     var defaults = {};
 
     if (process.env.LEVEL_ADAPTER) {
@@ -289,18 +299,22 @@ if (typeof process !== 'undefined' && !process.browser) {
     }
     global.PouchDB = global.PouchDB.defaults(defaults);
   } else if (process.env.AUTO_COMPACTION) {
-    global.PouchDB = global.PouchDB.defaults({auto_compaction: true});
+    // test autocompaction
+    global.PouchDB = global.PouchDB.defaults({
+      auto_compaction: true,
+      prefix: './tmp/_pouch_'
+    });
   } else if (process.env.ADAPTER === 'websql') {
     // test WebSQL in Node
     require('../../packages/pouchdb/extras/websql');
+    global.PouchDB = global.PouchDB.defaults({prefix: './tmp/_pouch_'});
     global.PouchDB.preferredAdapters = ['websql'];
-    global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
-    require('mkdirp').sync('./tmp');
   } else {
-    // test regular LevelDB in Node
-    global.PouchDB.prefix = './tmp/' + global.PouchDB.prefix;
-    require('../../packages/pouchdb-adapter-leveldb').use_prefix = true;
+    // test regular leveldown in node
+    global.PouchDB = global.PouchDB.defaults({prefix: './tmp/_pouch_'});
   }
+
+  require('mkdirp').sync('./tmp');
   module.exports = testUtils;
 } else {
   window.testUtils = testUtils;

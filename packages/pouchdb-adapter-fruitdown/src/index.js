@@ -29,4 +29,6 @@ FruitDownPouch.destroy = toPromise(function (name, opts, callback) {
 
   return fruitdown.destroy(name, _opts, callback);
 });
-export default FruitDownPouch;
+export default function (PouchDB) {
+  PouchDB.adapter('fruitdown', FruitDownPouch, true);
+}

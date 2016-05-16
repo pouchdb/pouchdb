@@ -6,6 +6,7 @@ var lie = require('lie');
 if (typeof Promise === 'undefined') {
   global.Promise = lie; // required for denodeify in node 0.10
 }
+var path = require('path');
 var denodeify = require('denodeify');
 var browserify = require('browserify');
 var collapse = require('bundle-collapser/plugin');
@@ -21,8 +22,10 @@ var mkdirp = denodeify(require('mkdirp'));
 var streamToPromise = require('stream-to-promise');
 var spawn = require('child_process').spawn;
 
-var pkg = require('../package.json');
+var pkg = require('../packages/pouchdb/package.json');
 var version = pkg.version;
+
+var buildNode = process.env.BUILD_NODE;
 
 // these modules should be treated as external by Rollup
 var external = [
@@ -96,7 +99,8 @@ function writeFile(filename, contents) {
   return writeFileAsync(tmp, contents, 'utf-8').then(function () {
     return renameAsync(tmp, filename);
   }).then(function () {
-    console.log('Wrote ' + filename);
+    console.log('  \u2713' + ' wrote ' +
+      filename.match(/packages\/pouchdb\/.*/)[0]);
   });
 }
 
@@ -115,12 +119,12 @@ function doUglify(code, prepend, fileOut) {
   child.stdin.end();
   return streamToPromise(child.stdout).then(function (min) {
     min = prepend + min;
-    return writeFile(fileOut, min);
+    return writeFile(path.resolve('packages/pouchdb', fileOut), min);
   });
 }
 
-function doBrowserify(path, opts, exclude) {
-  var b = browserify(path, opts);
+function doBrowserify(filepath, opts, exclude) {
+  var b = browserify(path.resolve('packages/pouchdb', filepath), opts);
   b.transform(es3ify).plugin(collapse);
 
   if (exclude) {
@@ -135,7 +139,7 @@ function doBrowserify(path, opts, exclude) {
 
 function doRollup(entry, fileOut, browser) {
   return rollup.rollup({
-    entry: entry,
+    entry: path.resolve('packages/pouchdb', entry),
     external: external,
     plugins: [
       nodeResolve({
@@ -147,7 +151,8 @@ function doRollup(entry, fileOut, browser) {
     ]
   }).then(function (bundle) {
     var code = bundle.generate({format: 'cjs'}).code;
-    return writeFile(fileOut, addVersion(code));
+    return writeFile(path.resolve('packages/pouchdb', fileOut),
+      addVersion(code));
   });
 }
 
@@ -170,7 +175,7 @@ function buildForBrowser() {
   }).then(function (code) {
     code = comments.pouchdb + code;
     return Promise.all([
-      writeFile('dist/pouchdb.js', code),
+      writeFile(path.resolve('packages/pouchdb/dist/pouchdb.js'), code),
       doUglify(code, comments.pouchdb, 'dist/pouchdb.min.js')
     ]);
   });
@@ -214,7 +219,7 @@ function buildPluginsForBrowser() {
       return doBrowserify(source, {}, 'pouchdb').then(function (code) {
         code = comments[plugin] + code;
         return Promise.all([
-          writeFile('dist/pouchdb.' + plugin + '.js', code),
+          writeFile('packages/pouchdb/dist/pouchdb.' + plugin + '.js', code),
           doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
         ]);
       });
@@ -222,16 +227,18 @@ function buildPluginsForBrowser() {
   });
 }
 
-if (process.argv[2] === 'node') {
+function doBuildNode() {
   rimraf('lib').then(buildForNode)
     .then(buildNodeExtras)
     .then(function () {
-    process.exit(0);
-  }).catch(function (err) {
+      process.exit(0);
+    }).catch(function (err) {
     console.error(err.stack);
     process.exit(1);
   });
-} else {
+}
+
+function doBuildAll() {
   Promise.resolve()
     .then(function () { return rimraf('lib'); })
     .then(function () { return rimraf('dist'); })
@@ -244,8 +251,23 @@ if (process.argv[2] === 'node') {
     .then(buildBrowserExtras)
     .then(cleanup)
     .catch(function (err) {
-      console.error(err.stack);
-      process.exit(1);
-    }
-  );
+        console.error(err.stack);
+        process.exit(1);
+      }
+    );
 }
+
+function doBuild() {
+  if (buildNode) {
+    doBuildNode();
+  } else {
+    doBuildAll();
+  }
+}
+
+if (require.main === module) {
+  doBuild();
+} else {
+  module.exports = doBuild;
+}
+
