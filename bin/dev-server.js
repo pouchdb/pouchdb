@@ -28,7 +28,7 @@ function rebuild() {
   // only run one build at a time
   rebuildPromise = rebuildPromise.then(function () {
     return new Promise(function (resolve) {
-      var child = spawn('npm', ['run', 'build-pouchdb']);
+      var child = spawn('npm', ['run', 'rebuild-dev']);
       child.stdout.on('data', function (buf) {
         console.log(String(buf).replace(/\s*$/, ''));
       });
@@ -41,7 +41,7 @@ function rebuild() {
   return rebuildPromise;
 }
 
-watch('packages/**/src/*.js', rebuild);
+watch(['packages/**/src/*.js', 'tests/integration/utils.js'], rebuild);
 
 var filesWritten = false;
 

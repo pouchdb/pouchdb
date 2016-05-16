@@ -272,7 +272,7 @@ testUtils.errors = PouchForCoverage.Errors;
 testUtils.extend = require('js-extend').extend;
 
 testUtils.makeBlob = function (data, type) {
-  if (process !== 'undefined' && !process.browser) {
+  if (typeof process !== 'undefined' && !process.browser) {
     return new Buffer(data, 'binary');
   } else {
     return pouchUtils.blob([data], {

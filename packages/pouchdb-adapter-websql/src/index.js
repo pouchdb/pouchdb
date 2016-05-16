@@ -1,17 +1,17 @@
 import WebSqlPouchCore from 'pouchdb-adapter-websql-core';
 import { extend as extend } from 'js-extend';
 
-function websql(opts) {
+function websql(optsOrName, version, description, size) {
   if (typeof sqlitePlugin !== 'undefined') {
     // The SQLite Plugin started deviating pretty heavily from the
     // standard openDatabase() function, as they started adding more features.
     // It's better to just use their "new" format and pass in a big ol'
     // options object.
-    return sqlitePlugin.openDatabase(opts);
+    return sqlitePlugin.openDatabase(optsOrName);
   }
 
   // Traditional WebSQL API
-  return openDatabase(opts.name, opts.version, opts.description, opts.size);
+  return openDatabase(optsOrName, version, description, size);
 }
 
 function WebSQLPouch(opts, callback) {

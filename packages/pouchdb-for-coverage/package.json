@@ -19,5 +19,8 @@
     "pouchdb-node": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease"
+  },
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js"
   }
 }
