@@ -1,6 +1,6 @@
 /* global PouchDB */
 
-import MemoryPouch from 'pouchdb-adapter-memory';
+import MemoryPouchPlugin from 'pouchdb-adapter-memory';
 
 var PDB = (typeof PouchDB !== 'undefined') ? PouchDB : require('pouchdb');
 if (!PDB) {
@@ -8,5 +8,5 @@ if (!PDB) {
     'Cannot find global "PouchDB" object! ' +
     'Did you remember to include pouchdb.js?');
 } else {
-  PDB.adapter(name, MemoryPouch, true);
+  MemoryPouchPlugin(PDB);
 }

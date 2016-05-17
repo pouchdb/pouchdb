@@ -9,7 +9,7 @@
     "build-node": "BUILD_NODE=1 npm run build-modules",
     "build-modules": "node bin/build-modules.js",
     "build-pouchdb": "node bin/build-pouchdb.js",
-    "rebuild-dev": "npm run build-pouchdb && npm run build-test",
+    "rebuild-dev": "npm run build-test && BUILD_DEV=1 npm run build-pouchdb",
     "test-unit": "mocha tests/unit",
     "test-node": "npm run build-node && bash bin/test-node.sh",
     "test-component": "mocha tests/component",

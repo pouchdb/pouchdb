@@ -41,7 +41,7 @@ function rebuild() {
   return rebuildPromise;
 }
 
-watch(['packages/**/src/*.js', 'tests/integration/utils.js'], rebuild);
+watch(['packages/**/src/**/*.js', 'tests/integration/utils.js'], rebuild);
 
 var filesWritten = false;
 

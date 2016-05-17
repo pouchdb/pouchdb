@@ -1,4 +1,4 @@
-import { blob as createBlob } from 'pouchdb-utils';
+import { blob as createBlob } from 'pouchdb-binary-utils';
 
 function readAsBlobOrBuffer(storedObject, type) {
   // In the browser, we've stored a binary string. This now comes back as a

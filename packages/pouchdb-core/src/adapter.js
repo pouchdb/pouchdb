@@ -1,4 +1,4 @@
-import { extend as extend } from 'js-extend';
+import { extend } from 'js-extend';
 import Promise from 'pouchdb-promise';
 import { Map } from 'pouchdb-collections';
 import getArguments from 'argsarray';

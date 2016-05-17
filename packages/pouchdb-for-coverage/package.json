@@ -11,6 +11,7 @@
     "pouchdb-adapter-memory": "5.4.0-prerelease",
     "pouchdb-adapter-node-websql": "5.4.0-prerelease",
     "pouchdb-ajax": "5.4.0-prerelease",
+    "pouchdb-binary-utils": "5.4.0-prerelease",
     "pouchdb-browser": "5.4.0-prerelease",
     "pouchdb-checkpointer": "5.4.0-prerelease",
     "pouchdb-errors": "5.4.0-prerelease",

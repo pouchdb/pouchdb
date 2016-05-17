@@ -1,10 +1,13 @@
-import { atob, btoa } from '../binary/base64';
-import arrayBuffToBinString from '../binary/arrayBufferToBinaryString';
-import readAsArrayBuffer from '../binary/readAsArrayBuffer';
-import binStringToBlobOrBuffer from '../binary/binaryStringToBlobOrBuffer';
-import arrayBuffToB64 from '../binary/arrayBufferToBase64';
+import {
+  atob,
+  btoa,
+  arrayBufferToBinaryString as arrayBuffToBinString,
+  readAsArrayBuffer,
+  binaryStringToBlobOrBuffer as binStringToBlobOrBuffer,
+  arrayBufferToBase64 as arrayBuffToB64
+} from 'pouchdb-binary-utils';
 import { createError, BAD_ARG } from 'pouchdb-errors';
-import md5 from '../md5';
+import { binaryMd5 } from 'pouchdb-md5';
 
 function preprocessAttachments(docInfos, blobType, callback) {
 
@@ -44,7 +47,7 @@ function preprocessAttachments(docInfos, blobType, callback) {
       } else { // binary
         att.data = asBinary;
       }
-      md5(asBinary).then(function (result) {
+      binaryMd5(asBinary, function (result) {
         att.digest = 'md5-' + result;
         callback();
       });
@@ -55,7 +58,7 @@ function preprocessAttachments(docInfos, blobType, callback) {
         } else if (blobType === 'base64') {
           att.data = arrayBuffToB64(buff);
         }
-        md5(buff).then(function (result) {
+        binaryMd5(buff, function (result) {
           att.digest = 'md5-' + result;
           att.length = buff.byteLength;
           callback();

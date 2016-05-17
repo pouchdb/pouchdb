@@ -1,6 +1,6 @@
 import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
 import { toPromise } from 'pouchdb-utils';
-import { extend as extend } from 'js-extend';
+import { extend } from 'js-extend';
 
 import localstoragedown from 'localstorage-down';
 

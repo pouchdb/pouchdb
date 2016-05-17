@@ -1,4 +1,4 @@
-import { readAsBinaryString } from 'pouchdb-utils';
+import { readAsBinaryString } from 'pouchdb-binary-utils';
 
 // In the browser, we store a binary string
 function prepareAttachmentForStorage(attData, cb) {

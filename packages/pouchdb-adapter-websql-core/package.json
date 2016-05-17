@@ -14,8 +14,10 @@
   ],
   "dependencies": {
     "js-extend": "1.0.1",
+    "pouchdb-binary-utils": "5.4.0-prerelease",
     "pouchdb-collections": "1.0.1",
     "pouchdb-errors": "5.4.0-prerelease",
+    "pouchdb-json": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease"
   }

@@ -1,5 +1,4 @@
-import toPromise from './toPromise';
-import { btoa } from './binary/base64';
+import { btoa } from 'pouchdb-binary-utils';
 import Md5 from 'spark-md5';
 var setImmediateShim = global.setImmediate || global.setTimeout;
 var MD5_CHUNK_SIZE = 32768;
@@ -25,7 +24,7 @@ function appendString(buffer, data, start, end) {
   buffer.appendBinary(data);
 }
 
-var md5 = toPromise(function (data, callback) {
+function binaryMd5(data, callback) {
   var inputIsString = typeof data === 'string';
   var len = inputIsString ? data.length : data.byteLength;
   var chunkSize = Math.min(MD5_CHUNK_SIZE, len);
@@ -46,11 +45,11 @@ var md5 = toPromise(function (data, callback) {
       append(buffer, data, start, end);
       var raw = buffer.end(true);
       var base64 = rawToBase64(raw);
-      callback(null, base64);
+      callback(base64);
       buffer.destroy();
     }
   }
   loadNextChunk();
-});
+}
 
-export default md5;
+export default binaryMd5;

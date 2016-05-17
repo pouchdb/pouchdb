@@ -10,9 +10,6 @@ import ajax from 'pouchdb-ajax';
 import {
   parseUri,
   uuid,
-  atob,
-  btoa,
-  binaryStringToBlobOrBuffer,
   clone,
   parseDdocFunctionName,
   normalizeDdocFunctionName,
@@ -21,9 +18,15 @@ import {
   winningRev,
   upsert,
   toPromise,
-  defaultBackOff,
-  blob
+  defaultBackOff
 } from 'pouchdb-utils';
+
+import {
+  atob,
+  btoa,
+  binaryStringToBlobOrBuffer,
+  blob
+} from 'pouchdb-binary-utils';
 
 import {
   uniq,

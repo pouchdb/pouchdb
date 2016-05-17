@@ -10,7 +10,7 @@ var supportsBulkGetMap = {};
 // TODO: we could measure the full URL to enforce exactly 2000 chars
 var MAX_URL_LENGTH = 1800;
 
-import { extend as extend } from 'js-extend';
+import { extend } from 'js-extend';
 import Promise from 'pouchdb-promise';
 import ajaxCore from 'pouchdb-ajax';
 import getArguments from 'argsarray';
@@ -19,17 +19,18 @@ import {
   filterChange,
   adapterFun as coreAdapterFun,
   explainError,
-  binaryStringToBlobOrBuffer as binStringToBluffer,
-  base64StringToBlobOrBuffer as b64StringToBluffer,
   clone,
   parseUri,
-  atob,
-  btoa,
-  blobOrBufferToBase64 as blufferToBase64,
   bulkGetShim,
   flatten
 } from 'pouchdb-utils';
-
+import {
+  atob,
+  btoa,
+  binaryStringToBlobOrBuffer as binStringToBluffer,
+  base64StringToBlobOrBuffer as b64StringToBluffer,
+  blobOrBufferToBase64 as blufferToBase64
+} from 'pouchdb-binary-utils';
 import { createError, BAD_ARG } from 'pouchdb-errors';
 import debug from 'debug';
 var log = debug('pouchdb:http');
@@ -63,7 +64,9 @@ function preprocessAttachments(doc) {
   return Promise.all(Object.keys(doc._attachments).map(function (key) {
     var attachment = doc._attachments[key];
     if (attachment.data && typeof attachment.data !== 'string') {
-      return blufferToBase64(attachment.data).then(function (b64) {
+      return new Promise(function (resolve) {
+        blufferToBase64(attachment.data, resolve);
+      }).then(function (b64) {
         attachment.data = b64;
       });
     }
@@ -440,7 +443,9 @@ function HttpPouch(opts, callback) {
           if (opts.binary) {
             return blob;
           }
-          return blufferToBase64(blob);
+          return new Promise(function (resolve) {
+            blufferToBase64(blob, resolve);
+          });
         }).then(function (data) {
           delete att.stub;
           delete att.length;

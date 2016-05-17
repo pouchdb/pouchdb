@@ -3,12 +3,13 @@ import {
   preprocessAttachments,
   isLocalId,
   processDocs,
-  safeJsonParse,
-  safeJsonStringify,
   compactTree,
   parseDoc
 } from 'pouchdb-utils';
-
+import {
+  safeJsonParse,
+  safeJsonStringify
+} from 'pouchdb-json';
 import {
   MISSING_STUB,
   createError

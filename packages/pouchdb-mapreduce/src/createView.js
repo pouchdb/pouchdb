@@ -1,6 +1,6 @@
 import { upsert } from 'pouchdb-utils';
 import Promise from 'pouchdb-promise';
-import md5 from './md5';
+import { stringMd5 } from 'pouchdb-md5';
 
 function createView(opts) {
   var sourceDB = opts.db;
@@ -23,7 +23,7 @@ function createView(opts) {
   return sourceDB.info().then(function (info) {
 
     var depDbName = info.db_name + '-mrview-' +
-      (temporary ? 'temp' : md5(viewSignature));
+      (temporary ? 'temp' : stringMd5(viewSignature));
 
     // save the view name in the source db so it can be cleaned up if necessary
     // (e.g. when the _design doc is deleted, remove all associated view data)

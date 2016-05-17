@@ -7,16 +7,20 @@ import {
   isDeleted,
   isLocalId,
   parseHexString,
-  binaryStringToBlobOrBuffer as binStringToBlob,
   hasLocalStorage,
   collectConflicts,
   traverseRevTree,
-  safeJsonParse,
-  safeJsonStringify,
   changesHandler as Changes,
-  toPromise,
-  btoa
+  toPromise
 } from 'pouchdb-utils';
+import {
+  safeJsonParse,
+  safeJsonStringify
+} from 'pouchdb-json';
+import {
+  binaryStringToBlobOrBuffer as binStringToBlob,
+  btoa
+} from 'pouchdb-binary-utils';
 
 import websqlBulkDocs from './bulkDocs';
 

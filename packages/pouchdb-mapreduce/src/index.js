@@ -1,7 +1,10 @@
 import {
-  base64StringToBlobOrBuffer as b64ToBluffer,
   flatten
 } from 'pouchdb-utils';
+
+import {
+  base64StringToBlobOrBuffer as b64ToBluffer
+} from 'pouchdb-binary-utils';
 
 import {
   collate,

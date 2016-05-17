@@ -11,8 +11,6 @@ import {
   changesHandler as Changes,
   uuid,
   filterChange,
-  safeJsonParse,
-  safeJsonStringify,
   winningRev as calculateWinningRev,
   traverseRevTree,
   compactTree,
@@ -21,11 +19,21 @@ import {
   isLocalId,
   parseDoc,
   processDocs,
-  md5,
-  atob,
-  functionName,
-  binaryStringToBlobOrBuffer as binStringToBluffer
+  functionName
 } from 'pouchdb-utils';
+import {
+  safeJsonParse,
+  safeJsonStringify
+} from 'pouchdb-json';
+
+import {
+  binaryMd5
+} from 'pouchdb-md5';
+
+import {
+  atob,
+  binaryStringToBlobOrBuffer as binStringToBluffer
+} from 'pouchdb-binary-utils';
 
 import readAsBluffer from './readAsBlobOrBuffer';
 import prepareAttachmentForStorage from './prepareAttachmentForStorage';
@@ -600,9 +608,7 @@ function LevelPouch(opts, callback) {
 
       function doMD5(doc, key, attachmentSaved) {
         return function (data) {
-          md5(data).then(
-            onMD5Load(doc, key, data, attachmentSaved)
-          );
+          binaryMd5(data, onMD5Load(doc, key, data, attachmentSaved));
         };
       }
 

@@ -17,7 +17,6 @@ import filterChange from './filterChange.js';
 import flatten from './flatten.js';
 import functionName from './functionName.js';
 import isCordova from './isCordova.js';
-import md5 from './md5.js';
 import collectConflicts from './merge/collectConflicts.js';
 import collectLeaves from './merge/collectLeaves.js';
 import compactTree from './merge/compactTree.js';
@@ -30,36 +29,14 @@ import once from './once.js';
 import parseHexString from './parseHex.js';
 import parseUri from './parseUri.js';
 import pick from './pick.js';
-import safeJsonParse from './safeJsonParse.js';
-import safeJsonStringify from './safeJsonStringify.js';
 import toPromise from './toPromise.js';
 import upsert from './upsert.js';
 import uuid from './uuid.js';
-import arrayBufferToBase64 from './binary/arrayBufferToBase64';
-import arrayBufferToBinaryString from './binary/arrayBufferToBinaryString';
-import {atob, btoa} from './binary/base64';
-import base64StringToBlobOrBuffer from './binary/base64StringToBlobOrBuffer';
-import binaryStringToArrayBuffer from './binary/binaryStringToArrayBuffer';
-import binaryStringToBlobOrBuffer from './binary/binaryStringToBlobOrBuffer';
-import blob from './binary/blob';
-import blobOrBufferToBase64 from './binary/blobOrBufferToBase64';
-import readAsArrayBuffer from './binary/readAsArrayBuffer';
-import readAsBinaryString from './binary/readAsBinaryString';
-import typedBuffer from './binary/typedBuffer';
 import changesHandler from './changesHandler';
 import defaultBackOff from './defaultBackOff';
 
 export {
   adapterFun,
-  arrayBufferToBase64,
-  arrayBufferToBinaryString,
-  atob,
-  base64StringToBlobOrBuffer,
-  binaryStringToArrayBuffer,
-  binaryStringToBlobOrBuffer,
-  blob,
-  blobOrBufferToBase64,
-  btoa,
   bulkGetShim,
   changesHandler,
   clone,
@@ -78,7 +55,6 @@ export {
   isCordova,
   isDeleted,
   isLocalId,
-  md5,
   merge,
   normalizeDdocFunctionName,
   once,
@@ -89,15 +65,10 @@ export {
   pick,
   preprocessAttachments,
   processDocs,
-  readAsArrayBuffer,
-  readAsBinaryString,
   revExists,
   rootToLeaf,
-  safeJsonParse,
-  safeJsonStringify,
   toPromise,
   traverseRevTree,
-  typedBuffer,
   updateDoc,
   upsert,
   uuid,

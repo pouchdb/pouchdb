@@ -106,6 +106,9 @@ function addVersion(code) {
 
 // do uglify in a separate process for better perf
 function doUglify(code, prepend, fileOut) {
+  if (process.env.BUILD_DEV) { // skip uglify in "npm run dev" mode
+    return Promise.resolve();
+  }
   var binPath = require.resolve('uglify-js/bin/uglifyjs');
   var args = [binPath, '-c', '-m', 'warnings=false', '-'];
 
@@ -121,14 +124,18 @@ function doUglify(code, prepend, fileOut) {
 
 function doBrowserify(filepath, opts, exclude) {
   var b = browserify(addPath(filepath), opts);
-  b.transform(es3ify).plugin(collapse);
+  if (!process.env.BUILD_DEV) {
+    b.transform(es3ify).plugin(collapse);
+  }
 
   if (exclude) {
     b.external(exclude);
   }
 
   return streamToPromise(b.bundle()).then(function (code) {
-    code = derequire(code);
+    if (!process.env.BUILD_DEV) {
+      code = derequire(code);
+    }
     return code;
   });
 }
@@ -166,7 +173,7 @@ function buildForBrowserify() {
 function buildForBrowser() {
   return doBrowserify('.', {standalone: 'PouchDB'}).then(function (code) {
     code = comments.pouchdb + code;
-    return Promise.all([
+    return all([
       writeFile(addPath('dist/pouchdb.js'), code),
       doUglify(code, comments.pouchdb, 'dist/pouchdb.min.js')
     ]);
@@ -174,32 +181,32 @@ function buildForBrowser() {
 }
 
 function buildPluginsForBrowserify() {
-  return Promise.all(plugins.map(function (plugin) {
+  return all(plugins.map(function (plugin) {
     return doRollup('src/extras/' + plugin + '.js',
                     'lib/extras/' + plugin + '.js', true);
   }));
 }
 
 function buildNodeExtras() {
-  return Promise.all(Object.keys(nodeExtras).map(function (entry) {
+  return all(Object.keys(nodeExtras).map(function (entry) {
     var target = nodeExtras[entry];
     return doRollup(entry, 'lib/extras/' + target);
   }));
 }
 
 function buildBrowserExtras() {
-  return Promise.all(Object.keys(browserExtras).map(function (entry) {
+  return all(Object.keys(browserExtras).map(function (entry) {
     var target = browserExtras[entry];
     return doRollup(entry, 'lib/extras/' + target, true);
   }));
 }
 
 function buildPluginsForBrowser() {
-  return Promise.all(plugins.map(function (plugin) {
+  return all(plugins.map(function (plugin) {
     var source = 'lib/extras/' + plugin + '.js';
     return doBrowserify(source, {}, 'pouchdb').then(function (code) {
       code = comments[plugin] + code;
-      return Promise.all([
+      return all([
         writeFile('packages/pouchdb/dist/pouchdb.' + plugin + '.js', code),
         doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
       ]);
@@ -217,39 +224,46 @@ var rimrafMkdirp = argsarray(function (args) {
   });
 });
 
+var doAll = argsarray(function (args) {
+  return function () {
+    return all(args.map(function (promiseFactory) {
+      return promiseFactory();
+    }));
+  };
+});
+
 function doBuildNode() {
   return rimrafMkdirp('lib', 'lib/extras')
     .then(buildForNode)
     .then(buildNodeExtras);
 }
 
+function doBuildDev() {
+  return doAll(buildForNode, buildForBrowserify)()
+    .then(doAll(buildForBrowser, buildPluginsForBrowserify))
+    .then(buildPluginsForBrowser);
+}
+
 function doBuildAll() {
   return rimrafMkdirp('lib', 'dist', 'lib/extras')
-    .then(function () {
-      return all([buildForNode(), buildForBrowserify()]);
-    })
-    .then(function () {
-      return all([buildForBrowser(), buildPluginsForBrowserify()]);
-    })
-    .then(function () {
-      return all([
-        buildPluginsForBrowser(),
-        buildNodeExtras(),
-        buildBrowserExtras()
-      ]);
-    });
+    .then(doAll(buildForNode, buildForBrowserify))
+    .then(doAll(buildForBrowser, buildPluginsForBrowserify))
+    .then(doAll(buildPluginsForBrowser, buildNodeExtras, buildBrowserExtras));
 }
 
 function doBuild() {
-  if (process.env.BUILD_NODE) {
+  if (process.env.BUILD_NODE) { // rebuild before "npm test"
     return doBuildNode();
-  } else {
+  } else if (process.env.BUILD_DEV) { // rebuild during "npm run dev"
+    return doBuildDev();
+  } else { // normal, full build
     return doBuildAll();
   }
 }
 
 if (require.main === module) {
   doBuild().then(function () {
+    console.log('build-pouchdb complete');
     process.exit(0);
   }).catch(function (err) {
     console.error('build-pouchdb error');

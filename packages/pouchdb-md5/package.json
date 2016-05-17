@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-adapter-http",
+  "name": "pouchdb-md5",
   "version": "5.4.0-prerelease",
   "description": "",
   "main": "./lib/index.js",
@@ -13,14 +13,16 @@
     "src"
   ],
   "dependencies": {
-    "argsarray": "0.0.1",
-    "debug": "2.2.0",
-    "pouchdb-ajax": "5.4.0-prerelease",
-    "pouchdb-binary-utils": "5.4.0-prerelease",
+    "pouchdb-collections": "1.0.1",
     "pouchdb-errors": "5.4.0-prerelease",
-    "pouchdb-md5": "5.4.0-prerelease",
+    "pouchdb-binary-utils": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease",
-    "js-extend": "1.0.1"
+    "spark-md5": "2.0.2"
+  },
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/binaryMd5.js": "./src/binaryMd5-browser.js",
+    "./src/stringMd5.js": "./src/stringMd5-browser.js"
   }
 }

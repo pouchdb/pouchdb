@@ -1,4 +1,4 @@
-import { extend as extend } from 'js-extend';
+import { extend } from 'js-extend';
 
 import PouchDB from "./constructor";
 import inherits from 'inherits';

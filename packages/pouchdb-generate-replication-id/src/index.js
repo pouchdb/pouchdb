@@ -1,5 +1,5 @@
 import Promise from 'pouchdb-promise';
-import { md5 } from 'pouchdb-utils';
+import { binaryMd5 } from 'pouchdb-md5';
 import { collate } from 'pouchdb-collate';
 
 function sortObjectPropertiesByKey(queryParams) {
@@ -28,7 +28,9 @@ function generateReplicationId(src, target, opts) {
   return Promise.all([src.id(), target.id()]).then(function (res) {
     var queryData = res[0] + res[1] + filterFun + filterViewName +
       queryParams + docIds;
-    return md5(queryData);
+    return new Promise(function (resolve) {
+      binaryMd5(queryData, resolve);
+    });
   }).then(function (md5sum) {
     // can't use straight-up md5 alphabet, because
     // the char '/' is interpreted as being for attachments,
