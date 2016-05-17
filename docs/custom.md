@@ -8,11 +8,11 @@ PouchDB supports custom builds, meaning you can pick and choose the features of
 PouchDB that you want to use, potentially resulting in smaller bundle sizes
 and faster build times.
 
-PouchDB exposes its custom builds via separate packages available on `npm`. All of
-these packages follow the format `pouchdb-*` and can be installed using `npm install`.
+PouchDB exposes its custom builds via separate packages available on npm. All of
+these packages follow the format `pouchdb-<name>` and can be installed using `npm install`.
 
-Some packages come included by default in the main `pouchdb` package, whereas 
-others are supported at a first-party level, but must be installed separately in order to be used.
+Some packages are included by default in the main `pouchdb` package, whereas 
+others (including third-party packages) must be installed separately.
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
@@ -32,22 +32,26 @@ like [Browserify][], [Webpack][], [SystemJS][], [Rollup][], or [JSPM][]. Tools l
 {% endmarkdown %}
 {% include alert/end.html%}
 
-PouchDB packages come in three basic flavors: *presets*, *plugins*, and
+PouchDB packages come in three flavors: *presets*, *plugins*, and
 *utilities*.
 
-Presets constitute a collection of plugins, and they expose a `PouchDB` object that is ready to be used. Plugins are features that can be added using the `PouchDB.plugin()`
-API. Utilities are grab-bags of features, and are only recommended for advanced use cases.
+**Presets** are a collection of plugins, which expose a `PouchDB` object that is ready to be used.
+
+**Plugins** are features that can be added to a `PouchDB` instance using the `PouchDB.plugin()`
+API.
+
+**Utilities** are grab-bags of helper functions, and are only recommended for advanced use cases.
 
 #### Quick links
 
-* [**Presets**](#presets)
-* [**Plugins**](#plugins)
-* [**Utilities**](#utilities)
+* [Presets](#presets)
+* [Plugins](#plugins)
+* [Utilities](#utilities)
 
 {% include anchor.html class="h2" title="Presets" hash="presets" %}
 
 Presets export a `PouchDB` object and contain a built-in set of PouchDB
-plugins.
+plugins. You are free to create your own presets, but PouchDB provides a few first-party presets to address common use cases.
 
 ### pouchdb-browser
 
@@ -154,13 +158,11 @@ PouchDB.plugin(/* attach plugins to make me more interesting! */);
 
 {% include anchor.html class="h2" title="Plugins" hash="plugins" %}
 
-There are two major types of plugins: _adapter plugins_ and _regular plugins_.
+Plugins contain functionality that can be added to a `PouchDB` instance using `PouchDB.plugin()`. There are many [third-party plugins](/external.html), but the ones described below are first-party plugins, which are given the same level of support as PouchDB itself. Some first-party plugins are included in the default `pouchdb` build, whereas others aren't.
 
-Adapter plugins (such as IndexedDB, WebSQL, LevelDB, and HTTP) constitute a
-special class of PouchDB plugins, since they determine the storage format that
+There is also a special type of plugin called an _adapter plugin_.  Adapter plugins (such as IndexedDB, WebSQL, LevelDB, and HTTP) determine the storage format that
 PouchDB uses. For the non-HTTP adapters, the plugin order matters, i.e. if you
-want IndexedDB to be preferred to WebSQL, then you should load it first. (Notice that
-`pouchdb-browser` does exactly this.)
+want IndexedDB to be preferred to WebSQL, then you should load it first. (Notice that `pouchdb-browser` does exactly this.)
 
 ### pouchdb-adapter-idb
 
@@ -176,6 +178,7 @@ npm install pouchdb-adapter-idb
 ```js
 PouchDB.plugin(require('pouchdb-adapter-idb'));
 var db = new PouchDB('mydb', {adapter: 'idb'});
+console.log(db.adapter); // 'idb'
 ```
 
 ### pouchdb-adapter-websql
@@ -192,6 +195,7 @@ npm install pouchdb-adapter-websql
 ```js
 PouchDB.plugin(require('pouchdb-adapter-websql'));
 var db = new PouchDB('mydb', {adapter: 'websql'});
+console.log(db.adapter); // 'websql'
 ```
 
 ### pouchdb-adapter-leveldb
@@ -208,6 +212,7 @@ npm install pouchdb-adapter-leveldb
 ```js
 PouchDB.plugin(require('pouchdb-adapter-leveldb'));
 var db = new PouchDB('mydb', {adapter: 'leveldb'});
+console.log(db.adapter); // 'leveldb'
 ```
 
 ### pouchdb-adapter-http
@@ -228,6 +233,7 @@ npm install pouchdb-adapter-http
 ```js
 PouchDB.plugin(require('pouchdb-adapter-http'));
 var db = new PouchDB('http://127.0.0.1:5984/mydb');
+console.log(db.adapter); // 'http'
 ```
 
 ### pouchdb-adapter-memory
@@ -244,6 +250,7 @@ npm install pouchdb-adapter-memory
 ```js
 PouchDB.plugin(require('pouchdb-adapter-memory'));
 var db = new PouchDB('mydb', {adapter: 'memory'});
+console.log(db.adapter); // 'memory'
 ```
 
 ### pouchdb-adapter-localstorage
@@ -260,6 +267,7 @@ npm install pouchdb-adapter-localstorage
 ```js
 PouchDB.plugin(require('pouchdb-adapter-localstorage'));
 var db = new PouchDB('mydb', {adapter: 'localstorage'});
+console.log(db.adapter); // 'localstorage'
 ```
 
 ### pouchdb-adapter-fruitdown
@@ -276,6 +284,7 @@ npm install pouchdb-adapter-fruitdown
 ```js
 PouchDB.plugin(require('pouchdb-adapter-fruitdown'));
 var db = new PouchDB('mydb', {adapter: 'fruitdown'});
+console.log(db.adapter); // 'fruitdown'
 ```
 
 ### pouchdb-adapter-node-websql
@@ -292,6 +301,7 @@ npm install pouchdb-adapter-node-websql
 ```js
 PouchDB.plugin(require('pouchdb-adapter-node-websql'));
 var db = new PouchDB('mydb', {adapter: 'websql'});
+console.log(db.adapter); // 'websql'
 ```
 
 ### pouchdb-mapreduce
@@ -329,20 +339,20 @@ db.replicate(/* see replicate/sync API docs for full info */);
 {% include anchor.html class="h2" title="Utilities" hash="utilities" %}
 
 These utilities are intended only for advanced users of PouchDB, such as
-third-party plugin authors. Formerly many of them were exposed via the `extras/` API, which
+third-party plugin authors. Formerly, many of them were exposed via the `extras/` API, which
 is now deprecated.
 
-Most of these are internal, and the APIs are not throoughly documented. You will
+Most of these are internal, and the APIs are not thoroughly documented. You will
 most likely need to read the source code to understand how they work.
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
 
-**Warning: you are entering a semver-free zone.**
+**Warning:** you are entering a semver-free zone.
 
 In contrast to the presets and plugins listed above, **none of the following packages
 follow semver**. Their versions are pinned to PouchDB's, and may change at any time
-without warning. You are strongly recommended to use exact versions when installing these packages.
+without warning. You are strongly recommended to **use exact versions** when installing these packages.
 
 {% endmarkdown %}
 {% include alert/end.html%}
