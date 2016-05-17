@@ -13,7 +13,7 @@
     "src"
   ],
   "dependencies": {
-    "js-extend": "0.0.1",
+    "js-extend": "1.0.1",
     "memdown": "1.1.2",
     "pouchdb-adapter-leveldb-core": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease"

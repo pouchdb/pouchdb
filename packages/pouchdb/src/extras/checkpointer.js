@@ -1,1 +1,2 @@
-export * from 'pouchdb-checkpointer';
+import checkpointer from 'pouchdb-checkpointer';
+export default checkpointer;

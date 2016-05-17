@@ -1,1 +1,2 @@
-export * from 'pouchdb-generate-replication-id';
+import generateReplicationId from 'pouchdb-generate-replication-id';
+export default generateReplicationId;

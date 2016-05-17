@@ -1,1 +1,2 @@
-export * from 'pouchdb-ajax';
+import ajax from 'pouchdb-ajax';
+export default ajax;
