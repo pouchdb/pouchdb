@@ -11,7 +11,8 @@ VERSION=$(node --eval "console.log(require('./packages/pouchdb/package.json').ve
 git checkout -b build
 
 # Publish all modules with Lerna
-./node_modules/.bin/lerna --skip-git
+# TODO: figure out how lerna publish works
+./node_modules/.bin/lerna publish
 
 # Create git tag, which is also the Bower/Github release
 cp -r packages/pouchdb/dist dist
