@@ -1,6 +1,6 @@
 import PouchDB from './setup';
+import version from './version';
 
-// TODO: needs to be manually kept in sync with package.json
-PouchDB.version = '5.4.0-prerelease';
+PouchDB.version = version;
 
 export default PouchDB;

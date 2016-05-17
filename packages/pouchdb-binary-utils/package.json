@@ -12,8 +12,7 @@
     "lib",
     "src"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
     "./src/arrayBufferToBase64.js": "./src/arrayBufferToBase64-browser.js",
