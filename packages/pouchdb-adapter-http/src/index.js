@@ -10,7 +10,7 @@ var supportsBulkGetMap = {};
 // TODO: we could measure the full URL to enforce exactly 2000 chars
 var MAX_URL_LENGTH = 1800;
 
-import { extend as extend } from 'js-extend';
+import jsExtend from 'js-extend'; var extend = jsExtend.extend;
 import Promise from 'pouchdb-promise';
 import ajaxCore from 'pouchdb-ajax';
 import getArguments from 'argsarray';

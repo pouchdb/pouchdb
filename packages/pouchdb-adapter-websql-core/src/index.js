@@ -1,4 +1,4 @@
-import { extend } from 'js-extend';
+import jsExtend from 'js-extend'; var extend = jsExtend.extend;
 import {
   clone,
   uuid,

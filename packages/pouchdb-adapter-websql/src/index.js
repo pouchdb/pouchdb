@@ -1,5 +1,5 @@
 import WebSqlPouchCore from 'pouchdb-adapter-websql-core';
-import { extend as extend } from 'js-extend';
+import jsExtend from 'js-extend'; var extend = jsExtend.extend;
 
 function websql(optsOrName, version, description, size) {
   if (typeof sqlitePlugin !== 'undefined') {

@@ -1,6 +1,6 @@
 import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
 import { toPromise } from 'pouchdb-utils';
-import { extend as extend } from 'js-extend';
+import jsExtend from 'js-extend'; var extend = jsExtend.extend;
 
 import memdown from 'memdown';
 

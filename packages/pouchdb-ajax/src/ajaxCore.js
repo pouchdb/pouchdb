@@ -1,5 +1,5 @@
 import request from './request';
-import { extend as extend } from 'js-extend';
+import jsExtend from 'js-extend'; var extend = jsExtend.extend;
 import { generateErrorFromResponse } from 'pouchdb-errors';
 import { clone } from 'pouchdb-utils';
 import applyTypeToBuffer from './applyTypeToBuffer';

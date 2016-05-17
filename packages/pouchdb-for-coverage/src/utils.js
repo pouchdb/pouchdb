@@ -37,7 +37,7 @@ import Promise from 'pouchdb-promise';
 
 import { createError } from 'pouchdb-errors';
 
-import { extend } from 'js-extend';
+import jsExtend from 'js-extend'; var extend = jsExtend.extend;
 
 import generateReplicationId from 'pouchdb-generate-replication-id';
 import checkpointer from 'pouchdb-checkpointer';

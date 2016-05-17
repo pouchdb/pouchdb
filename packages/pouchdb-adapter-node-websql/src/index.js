@@ -1,5 +1,5 @@
 import WebSqlPouch from 'pouchdb-adapter-websql';
-import { extend } from 'js-extend';
+import jsExtend from 'js-extend'; var extend = jsExtend.extend;
 import websql from 'websql';
 
 function NodeWebSqlPouch(opts, callback) {

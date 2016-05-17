@@ -8,6 +8,7 @@
 
 var rollup = require('rollup').rollup;
 var nodeResolve = require('rollup-plugin-node-resolve');
+var commonjs = require('rollup-plugin-commonjs');
 
 var path = require('path');
 var lie = require('lie');
@@ -25,10 +26,9 @@ function buildModule(filepath) {
 
   // All external modules are assumed to be CommonJS, and therefore should
   // be skipped by Rollup. We may revisit this later.
-  var depsToSkip = Object.keys(pkg.dependencies || {});
-  depsToSkip = depsToSkip.concat([
-    'crypto', 'fs', 'events', 'path'
-  ]);
+  var depsToSkip = [
+    'crypto', 'fs', 'events', 'path', 'pouchdb'
+  ];
 
   if (pkg.name === 'pouchdb-for-coverage') {
     // special case - for the coverage reports, the whole thing is
@@ -62,6 +62,11 @@ function buildModule(filepath) {
             skip: depsToSkip,
             jsnext: true,
             browser: isBrowser || forceBrowser
+          }),
+          commonjs({
+            exclude: [
+              'packages/**/src/**'
+            ]
           })
         ]
       }).then(function (bundle) {
@@ -80,5 +85,8 @@ function buildModule(filepath) {
     }));
   });
 }
-
-module.exports = buildModule;
+if (require.main === module) {
+  buildModule(process.argv[process.argv.length - 1]).catch(console.error);
+} else {
+  module.exports = buildModule;
+}
