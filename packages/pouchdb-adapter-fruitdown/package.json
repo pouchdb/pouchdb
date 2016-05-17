@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-adapter-fruitdown",
-  "version": "5.4.0-prerelease",
+  "version": "5.5.0-prerelease",
   "description": "PouchDB adapter using fruitdown as the data store.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -15,6 +15,6 @@
   "dependencies": {
     "js-extend": "1.0.1",
     "fruitdown": "1.0.2",
-    "pouchdb-adapter-leveldb-core": "5.4.0-prerelease"
+    "pouchdb-adapter-leveldb-core": "5.5.0-prerelease"
   }
 }

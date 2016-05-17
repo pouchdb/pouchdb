@@ -1,6 +1,6 @@
 {
   "name": "pouchdb",
-  "version": "5.4.0-prerelease",
+  "version": "5.5.0-prerelease",
   "description": "PouchDB is a pocket-sized database",
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
@@ -40,17 +40,17 @@
     "websql": "0.4.4"
   },
   "devDependencies": {
-    "pouchdb-adapter-fruitdown": "5.4.0-prerelease",
-    "pouchdb-adapter-localstorage": "5.4.0-prerelease",
-    "pouchdb-adapter-memory": "5.4.0-prerelease",
-    "pouchdb-adapter-node-websql": "5.4.0-prerelease",
-    "pouchdb-ajax": "5.4.0-prerelease",
-    "pouchdb-browser": "5.4.0-prerelease",
-    "pouchdb-checkpointer": "5.4.0-prerelease",
-    "pouchdb-generate-replication-id": "5.4.0-prerelease",
-    "pouchdb-node": "5.4.0-prerelease",
-    "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease"
+    "pouchdb-adapter-fruitdown": "5.5.0-prerelease",
+    "pouchdb-adapter-localstorage": "5.5.0-prerelease",
+    "pouchdb-adapter-memory": "5.5.0-prerelease",
+    "pouchdb-adapter-node-websql": "5.5.0-prerelease",
+    "pouchdb-ajax": "5.5.0-prerelease",
+    "pouchdb-browser": "5.5.0-prerelease",
+    "pouchdb-checkpointer": "5.5.0-prerelease",
+    "pouchdb-generate-replication-id": "5.5.0-prerelease",
+    "pouchdb-node": "5.5.0-prerelease",
+    "pouchdb-promise": "5.5.0-prerelease",
+    "pouchdb-utils": "5.5.0-prerelease"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",

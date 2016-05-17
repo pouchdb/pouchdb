@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-checkpointer",
-  "version": "5.4.0-prerelease",
+  "version": "5.5.0-prerelease",
   "description": "PouchDB tool to write a checkpoint, e.g. during replication.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "pouchdb-collate": "1.2.0",
-    "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease"
+    "pouchdb-promise": "5.5.0-prerelease",
+    "pouchdb-utils": "5.5.0-prerelease"
   }
 }

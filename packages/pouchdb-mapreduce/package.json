@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-mapreduce",
-  "version": "5.4.0-prerelease",
+  "version": "5.5.0-prerelease",
   "description": "PouchDB's map/reduce query API as a plugin.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -14,13 +14,13 @@
   ],
   "dependencies": {
     "inherits": "2.0.1",
-    "pouchdb-binary-utils": "5.4.0-prerelease",
+    "pouchdb-binary-utils": "5.5.0-prerelease",
     "pouchdb-collate": "1.2.0",
-    "pouchdb-errors": "5.4.0-prerelease",
-    "pouchdb-mapreduce-utils": "5.4.0-prerelease",
-    "pouchdb-md5": "5.4.0-prerelease",
-    "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease",
+    "pouchdb-errors": "5.5.0-prerelease",
+    "pouchdb-mapreduce-utils": "5.5.0-prerelease",
+    "pouchdb-md5": "5.5.0-prerelease",
+    "pouchdb-promise": "5.5.0-prerelease",
+    "pouchdb-utils": "5.5.0-prerelease",
     "scope-eval": "0.0.3",
     "spark-md5": "2.0.2"
   },

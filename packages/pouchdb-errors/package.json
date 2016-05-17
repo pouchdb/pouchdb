@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-errors",
-  "version": "5.4.0-prerelease",
+  "version": "5.5.0-prerelease",
   "description": "Errors exposed by PouchDB.",
   "main": "./lib/index.js",
   "keywords": [],

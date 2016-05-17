@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-md5",
-  "version": "5.4.0-prerelease",
+  "version": "5.5.0-prerelease",
   "description": "PouchDB utilities for calculating MD5 checksums.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -14,10 +14,10 @@
   ],
   "dependencies": {
     "pouchdb-collections": "1.0.1",
-    "pouchdb-errors": "5.4.0-prerelease",
-    "pouchdb-binary-utils": "5.4.0-prerelease",
-    "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease",
+    "pouchdb-errors": "5.5.0-prerelease",
+    "pouchdb-binary-utils": "5.5.0-prerelease",
+    "pouchdb-promise": "5.5.0-prerelease",
+    "pouchdb-utils": "5.5.0-prerelease",
     "spark-md5": "2.0.2"
   },
   "browser": {

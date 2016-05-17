@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-merge",
-  "version": "5.4.0-prerelease",
+  "version": "5.5.0-prerelease",
   "description": "PouchDB's document merge algorithm.",
   "main": "./lib/index.js",
   "keywords": [],
