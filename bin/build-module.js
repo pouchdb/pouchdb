@@ -41,8 +41,12 @@ function buildModule(filepath) {
     }));
   }
 
-  // browser & node vs one single version
+  // browser & node vs one single vanilla version
   var versions = pkg.browser ? [false, true] : [false];
+
+  // special case for "pouchdb-browser" - there is only one index.js,
+  // and it's built in "browser mode"
+  var forceBrowser = pkg.name === 'pouchdb-browser';
 
   return Promise.resolve().then(function () {
     return rimraf(path.resolve(filepath, 'lib'));
@@ -57,7 +61,7 @@ function buildModule(filepath) {
           nodeResolve({
             skip: depsToSkip,
             jsnext: true,
-            browser: isBrowser
+            browser: isBrowser || forceBrowser
           })
         ]
       }).then(function (bundle) {
