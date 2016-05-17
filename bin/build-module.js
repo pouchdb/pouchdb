@@ -3,6 +3,9 @@
 // Build a single module using a generic Rollup-based build script.
 // Reads in a src/index.js, writes to a lib/index.js. Might write
 // index-browser.js if it detects that it needs to support a "browser" version.
+//
+// You can use this on the CLI by doing:
+// build-module.js path/to/module
 
 'use strict';
 
@@ -80,5 +83,12 @@ function buildModule(filepath) {
     }));
   });
 }
-
-module.exports = buildModule;
+if (require.main === module) {
+  buildModule(process.argv[process.argv.length - 1]).catch(function (err) {
+    console.error('build-module.js error');
+    console.error(err.stack);
+    process.exit(1);
+  });
+} else {
+  module.exports = buildModule;
+}
