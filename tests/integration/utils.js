@@ -310,7 +310,7 @@ if (typeof process !== 'undefined' && !process.browser) {
     });
   } else if (process.env.ADAPTER === 'websql') {
     // test WebSQL in Node
-    // (the two strings are just to fool Browserify because node-websql fails
+    // (the two strings are just to fool Browserify because sqlite3 fails
     // in Node 0.11-0.12)
     require('../../packages/' + 'pouchdb/extras/websql');
     global.PouchDB = global.PouchDB.defaults({prefix: './tmp/_pouch_'});
