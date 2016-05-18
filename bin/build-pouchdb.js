@@ -233,7 +233,7 @@ var doAll = argsarray(function (args) {
 });
 
 function doBuildNode() {
-  return rimrafMkdirp('lib', 'lib/extras')
+  return mkdirp('lib/extras')
     .then(buildForNode)
     .then(buildNodeExtras);
 }

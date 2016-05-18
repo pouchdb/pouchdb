@@ -21,7 +21,6 @@
     "inherits": "2.0.1",
     "js-extend": "0.0.1",
     "level-write-stream": "1.0.0",
-    "leveldown": "1.4.6",
     "levelup": "1.3.1",
     "lie": "3.0.4",
     "localstorage-down": "0.6.6",
@@ -33,8 +32,7 @@
     "spark-md5": "2.0.2",
     "sublevel-pouchdb": "1.0.0",
     "through2": "2.0.1",
-    "vuvuzela": "1.0.3",
-    "websql": "0.4.4"
+    "vuvuzela": "1.0.3"
   },
   "devDependencies": {
     "pouchdb-adapter-fruitdown": "5.4.0-prerelease",
@@ -47,6 +45,10 @@
     "pouchdb-generate-replication-id": "5.4.0-prerelease",
     "pouchdb-node": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease"
+  },
+  "optionalDependencies": {
+    "leveldown": "1.4.6",
+    "websql": "0.4.4"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",

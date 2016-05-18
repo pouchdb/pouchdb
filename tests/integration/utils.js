@@ -284,7 +284,7 @@ testUtils.makeBlob = function (data, type) {
 if (typeof process !== 'undefined' && !process.browser) {
   if (process.env.COVERAGE) {
     global.PouchDB = require('../../packages/pouchdb-for-coverage');
-  } else {
+  } else { // no need to check for coverage
     global.PouchDB = require('../../packages/pouchdb');
   }
 
