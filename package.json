@@ -26,7 +26,7 @@
     "inherits": "2.0.1",
     "js-extend": "1.0.1",
     "level-write-stream": "1.0.0",
-    "levelup": "1.3.1",
+    "levelup": "1.3.2",
     "lie": "3.0.4",
     "localstorage-down": "0.6.6",
     "memdown": "1.1.2",
