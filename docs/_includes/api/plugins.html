@@ -1,4 +1,14 @@
-{% include anchor.html edit="true" title="Plugins" hash="plugins" %} 
+{% include anchor.html edit="true" title="Plugins" hash="plugins" %}
+
+{% include alert/start.html variant="info"%}
+{% markdown %}
+
+**This section covers _authoring_ plugins.** For a list of third-party plugins,
+see [Plugins](/external.html), or for a list of first-party plugins that you can
+use to customize the PouchDB build, see [Custom Builds](/custom.html).
+
+{% endmarkdown %}
+{% include alert/end.html%}
 
 Writing a plugin is easy! The API is:
 
@@ -21,6 +31,23 @@ PouchDB.plugin({
 });
 new PouchDB('foobar').sayHello(); // prints "Hello!"
 {% endhighlight %}
+
+Alternatively, instead of passing in an object to `.plugin()`, you can pass in
+a function that takes the `PouchDB` object and performs whatever operations
+you want on it. You can use this to load multiple plugins, add adapters,
+or attach event listeners to the `PouchDB` object.
+
+#### Example Usage:
+{% highlight js %}
+PouchDB.plugin(function (PouchDB) {
+  PouchDB.hello = 'world';
+});
+console.log(PouchDB.hello); // prints "world"
+{% endhighlight %}
+
+(Most likely, if you are writing a PouchDB plugin, you will export either the
+object-style or the function-style plugin, so that your users can then
+attach it to their PouchDB object.)
 
 #### Load Plugins from require()
 
