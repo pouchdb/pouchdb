@@ -137,6 +137,7 @@ matrix:
   - env: COMMAND=report-coverage
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
   - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
+  - env: CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
   - node_js: "stable"
     services: docker
     env: CLIENT=node COMMAND=test
