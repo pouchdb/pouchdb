@@ -8,6 +8,7 @@ tar -xzf pouchdb-*.tgz
 rm -rf packages/pouchdb
 mv package packages/pouchdb
 if [ ! -z $NODE_VERSION ]; then
+  source ~/.nvm/nvm.sh
   nvm install $NODE_VERSION
   nvm use $NODE_VERSION
 fi
