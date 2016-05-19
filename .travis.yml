@@ -44,6 +44,10 @@ before_script:
   - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/methods -d '"GET, PUT, POST, HEAD, DELETE"'
   - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/headers -d '"accept, authorization, content-type, origin, referer, x-csrf-token"'
 
+    # for some reason this extra install is required for leveldown, but
+    # only on npm@2
+  - "cd packages/pouchdb && npm install && cd ../.."
+
 script: npm run $COMMAND
 
 env:
