@@ -7,7 +7,7 @@ function makeUuids(count, length, radix) {
   var i = -1;
   var out = [];
   while (++i < count) {
-    out.push(PouchDB.utils.uuid(length, radix));
+    out.push(testUtils.uuid(length, radix));
   }
   return out;
 }
@@ -17,7 +17,7 @@ describe('test.uuid.js', function () {
   it('UUID RFC4122 test', function () {
     rfcRegexp.test(makeUuids()[0]).should
       .equal(true, 'Single UUID complies with RFC4122.');
-    rfcRegexp.test(PouchDB.utils.uuid()).should
+    rfcRegexp.test(testUtils.uuid()).should
       .equal(true,
              'Single UUID through Pouch.utils.uuid complies with RFC4122.');
   });
@@ -42,7 +42,7 @@ describe('test.uuid.js', function () {
     var count = 10;
     var uuids = makeUuids(count, length);
     // Test single UUID wrapper
-    uuids.push(PouchDB.utils.uuid(length));
+    uuids.push(testUtils.uuid(length));
     uuids.map(function (uuid) {
       uuid.should.have.length(length, 'UUID length is correct.');
     });
@@ -54,7 +54,7 @@ describe('test.uuid.js', function () {
     var radix = 5;
     var uuids = makeUuids(count, length, radix);
     // Test single UUID wrapper
-    uuids.push(PouchDB.utils.uuid(length, radix));
+    uuids.push(testUtils.uuid(length, radix));
     uuids.map(function (uuid) {
       var nums = uuid.split('').map(function (character) {
           return parseInt(character, radix);
