@@ -8,6 +8,7 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/pouchdb/pouchdb",
   "files": [
+    "src",
     "lib",
     "tonic-example.js",
     "dist",
@@ -34,6 +35,10 @@
     "through2": "2.0.1",
     "vuvuzela": "1.0.3"
   },
+  "optionalDependencies": {
+    "leveldown": "1.4.6",
+    "websql": "0.4.4"
+  },
   "devDependencies": {
     "pouchdb-adapter-fruitdown": "5.4.0-prerelease",
     "pouchdb-adapter-localstorage": "5.4.0-prerelease",
@@ -46,15 +51,8 @@
     "pouchdb-node": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease"
   },
-  "optionalDependencies": {
-    "leveldown": "1.4.6",
-    "websql": "0.4.4"
-  },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
-    "./lib/extras/ajax.js": "./lib/extras/ajax-browser.js",
-    "./lib/extras/checkpointer.js": "./lib/extras/checkpointer-browser.js",
-    "./lib/extras/generateReplicationId.js": "./lib/extras/generateReplicationId-browser.js",
     "./src/pouchdb.js": "./src/pouchdb-browser.js"
   },
   "jspm": {
