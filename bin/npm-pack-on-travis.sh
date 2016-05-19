@@ -15,5 +15,5 @@ fi
 node --version
 npm --version
 cd packages/pouchdb
-npm install
+npm install --production
 cd ../..
