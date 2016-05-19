@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-md5",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB utilities for calculating MD5 checksums.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

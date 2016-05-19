@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-mapreduce-utils",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB utilities used by pouchdb-mapreduce.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

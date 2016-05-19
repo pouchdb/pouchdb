@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-checkpointer",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB tool to write a checkpoint, e.g. during replication.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

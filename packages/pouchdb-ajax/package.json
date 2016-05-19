@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-ajax",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB's ajax() method.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

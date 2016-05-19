@@ -369,7 +369,7 @@ npm install --save-exact pouchdb-binary-utils
 
 ### pouchdb-checkpointer
 
-Tool to write a checkpointer, e.g. during replication.
+Tool to write a checkpoint, e.g. during replication.
 
 #### Example usage
 
@@ -414,7 +414,7 @@ Utilities used by `pouchdb-mapreduce`.
 #### Example usage
 
 ```bash
-npm install --save-exact pouchdb-mapreduce
+npm install --save-exact pouchdb-mapreduce-utils
 ```
 
 ### pouchdb-md5

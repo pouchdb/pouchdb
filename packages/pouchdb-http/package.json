@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-http",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB as an HTTP-only package.",
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "author": "Dale Harvey <dale@arandomurl.com>",

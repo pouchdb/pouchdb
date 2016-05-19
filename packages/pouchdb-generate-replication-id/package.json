@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-generate-replication-id",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB function to generate a replication ID to mark progress during replications.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

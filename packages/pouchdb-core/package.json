@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-core",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "The core of PouchDB as a standalone package.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

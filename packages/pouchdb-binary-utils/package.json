@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-binary-utils",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB utilities for operating on binary strings and Buffers/Blobs.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",

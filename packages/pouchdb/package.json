@@ -1,7 +1,7 @@
 {
   "name": "pouchdb",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB is a pocket-sized database",
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "author": "Dale Harvey <dale@arandomurl.com>",

@@ -1,7 +1,7 @@
 {
   "name": "pouchdb-adapter-memory",
   "version": "5.4.0-prerelease",
-  "description": "",
+  "description": "PouchDB adapter using in-memory as its data store.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",
