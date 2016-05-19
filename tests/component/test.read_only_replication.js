@@ -1,7 +1,7 @@
 'use strict';
 
-var PouchDB = require('../../lib');
-var Checkpointer = require('../../lib/extras/checkpointer');
+var PouchDB = require('../../packages/pouchdb-for-coverage');
+var Checkpointer = PouchDB.utils.checkpointer;
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -41,8 +41,9 @@ describe('test.read_only_replication.js', function () {
     // These are the same, but one goes over HTTP so that we have the
     // above access control
     var remote = new PouchDB('remote');
-    var remoteHTTP = new PouchDB('http://127.0.0.1:' + server.address().port +
-                                 '/remote');
+    var remoteName = 'http://127.0.0.1:' + server.address().port +
+      '/remote';
+    var remoteHTTP = new PouchDB(remoteName);
 
     var expectedLastSeq;
     var checkpointer;

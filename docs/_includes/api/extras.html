@@ -1,5 +1,14 @@
 {% include anchor.html edit="true" title="Extras" hash="extras" %}
 
+{% include alert/start.html variant="warning"%}
+{% markdown %}
+
+**Deprecation note:** the `extras/` API is deprecated and will be removed in
+a future version of PouchDB. You are encourage to use [custom builds](custom.html) instead.
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
 PouchDB offers some "extra" APIs that are designed for PouchDB plugin authors, or for those who want to use non-standard adapters like in-memory and LocalStorage.
 
 These can be especially useful when you are using [Browserify](http://browserify.org/)/[Webpack](https://github.com/webpack/webpack), because they can reduce your overall code size by deduplicating packages. If you're not using Browserify/Webpack, you can also download them [as standalone scripts](/adapters.html#pouchdb_in_the_browser).
