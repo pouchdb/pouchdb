@@ -16,7 +16,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    it('adapter-specific info', function () {
+    it.skip('adapter-specific info', function () {
       var db = new PouchDB(dbs.name);
       return db.info().then(function (info) {
         switch (db.adapter) {
