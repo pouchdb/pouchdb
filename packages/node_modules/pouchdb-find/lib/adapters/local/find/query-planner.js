@@ -156,9 +156,7 @@ function checkIndexMatches(index, sortOrder, fields, selector) {
     return false;
   }
 
-  var logicallySound = checkFieldsLogicallySound(indexFields, selector);
-
-  return logicallySound;
+  return checkFieldsLogicallySound(indexFields, selector);
 }
 
 //
@@ -170,15 +168,13 @@ function checkIndexMatches(index, sortOrder, fields, selector) {
 //
 function findMatchingIndexes(selector, userFields, sortOrder, indexes) {
 
-  var res = [];
-  for (var i = 0, iLen = indexes.length; i < iLen; i++) {
-    var index = indexes[i];
+  return indexes.reduce(function (res, index) {
     var indexMatches = checkIndexMatches(index, sortOrder, userFields, selector);
     if (indexMatches) {
       res.push(index);
     }
-  }
-  return res;
+    return res;
+  }, []);
 }
 
 // find the best index, i.e. the one that matches the most fields
@@ -188,7 +184,11 @@ function findBestMatchingIndex(selector, userFields, sortOrder, indexes) {
   var matchingIndexes = findMatchingIndexes(selector, userFields, sortOrder, indexes);
 
   if (matchingIndexes.length === 0) {
-    return null;
+    //return `all_docs` as a default index;
+    //I'm assuming that _all_docs is always first
+    var defaultIndex = indexes[0];
+    defaultIndex.defaultUsed = true;
+    return defaultIndex;
   }
   if (matchingIndexes.length === 1) {
     return matchingIndexes[0];
@@ -388,7 +388,19 @@ function getMultiFieldQueryOpts(selector, index) {
   };
 }
 
+function getDefaultQueryPlan () {
+  return {
+    queryOpts: {startkey: null},
+    //getInMemoryFields will do the work here later
+    inMemoryFields: []
+  };
+}
+
 function getCoreQueryPlan(selector, index) {
+  if (index.defaultUsed) {
+    return getDefaultQueryPlan(selector, index);
+  }
+
   if (index.def.fields.length === 1) {
     // one field in index, so the value was indexed as a singleton
     return getSingleFieldCoreQueryPlan(selector, index);
@@ -427,13 +439,6 @@ function planQuery(request, indexes) {
   var userFields = userFieldsRes.fields;
   var sortOrder = userFieldsRes.sortOrder;
   var index = findBestMatchingIndex(selector, userFields, sortOrder, indexes);
-
-  if (!index) {
-    throw createNoIndexFoundError(userFields, sortOrder, selector);
-  }
-
-  var firstIndexField = index.def.fields[0];
-  var firstMatcher = selector[getKey(firstIndexField)];
 
   var coreQueryPlan = getCoreQueryPlan(selector, index);
   var queryOpts = coreQueryPlan.queryOpts;

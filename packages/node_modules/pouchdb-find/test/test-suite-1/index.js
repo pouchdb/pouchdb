@@ -43,5 +43,6 @@ module.exports = function (dbName, dbType, Pouch) {
     require('./test.not')(dbType, context);
     require('./test.issue66')(dbType, context);
     require('./test.and')(dbType, context);
+    require('./test.default-index')(dbType, context);
   });
 };

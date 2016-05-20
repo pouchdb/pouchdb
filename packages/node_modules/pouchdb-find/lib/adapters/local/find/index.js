@@ -12,6 +12,7 @@ var massageSelector = localUtils.massageSelector;
 var massageSort = localUtils.massageSort;
 var getValue = localUtils.getValue;
 var validateFindRequest = localUtils.validateFindRequest;
+var validateSort = localUtils.validateSort;
 var reverseOptions = localUtils.reverseOptions;
 var filterInclusiveStart = localUtils.filterInclusiveStart;
 var Promise = utils.Promise;
@@ -66,6 +67,8 @@ function find(db, requestDef) {
 
     var indexToUse = queryPlan.index;
 
+    validateSort(requestDef, indexToUse);
+
     var opts = utils.extend(true, {
       include_docs: true,
       reduce: false
@@ -118,7 +121,7 @@ function find(db, requestDef) {
         res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
       }
 
-      return {
+      var resp = {
         docs: res.rows.map(function (row) {
           var doc = row.doc;
           if (requestDef.fields) {
@@ -127,6 +130,12 @@ function find(db, requestDef) {
           return doc;
         })
       };
+
+      if (indexToUse.defaultUsed) {
+        resp.warning = 'no matching index found, create an index to optimize query time';
+      }
+
+      return resp;
     });
   });
 }
