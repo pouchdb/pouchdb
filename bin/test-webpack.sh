@@ -9,5 +9,5 @@
 npm run build
 ./node_modules/.bin/webpack \
   --output-library PouchDB --output-library-target umd \
-  . pouchdb-webpack.js
+  ./packages/pouchdb pouchdb-webpack.js
 POUCHDB_SRC='../../pouchdb-webpack.js' npm test

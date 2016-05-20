@@ -110,7 +110,7 @@ describe('chaos-monkey', function () {
   var a, b;
 
   beforeEach(function (done) {
-    Promise = PouchDB.utils.Promise;
+    Promise = testUtils.Promise;
     var aname = testUtils.adapterUrl('local', 'testdb');
     var bname = testUtils.adapterUrl('http', 'test_repl_remote');
     testUtils.cleanup([aname, bname], function () {

@@ -141,7 +141,7 @@ adapters.forEach(function (adapters) {
       }
 
       function waitForConflictsResolved() {
-        return new PouchDB.utils.Promise(function (resolve) {
+        return new testUtils.Promise(function (resolve) {
           var changes = remote.changes({
             live: true,
             include_docs: true,
@@ -156,7 +156,7 @@ adapters.forEach(function (adapters) {
       }
 
       function cleanup() {
-        return new PouchDB.utils.Promise(function (resolve, reject) {
+        return new testUtils.Promise(function (resolve, reject) {
           sync.on('complete', resolve);
           sync.on('error', reject);
           sync.cancel();
@@ -214,7 +214,7 @@ adapters.forEach(function (adapters) {
       var repl2 = local.replicate.from(remote, { live: true });
 
       function waitForConflictsResolved() {
-        return new PouchDB.utils.Promise(function (resolve) {
+        return new testUtils.Promise(function (resolve) {
           var changes = remote.changes({
             live: true,
             include_docs: true,
@@ -259,7 +259,7 @@ adapters.forEach(function (adapters) {
       }
 
       function cleanup() {
-        return new PouchDB.utils.Promise(function (resolve, reject) {
+        return new testUtils.Promise(function (resolve, reject) {
           var numDone = 0;
 
           function checkDone() {
