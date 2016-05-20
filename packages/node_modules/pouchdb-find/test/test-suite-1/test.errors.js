@@ -89,10 +89,8 @@ module.exports = function (dbType, context) {
           "fields": ["_id", "foo"],
           "sort": [{"_id": "asc"}]
         });
-      }).then(function () {
-        throw new Error('shouldnt be here');
-      }, function (err) {
-        should.exist(err);
+      }).then(function (res) {
+        res.warning.should.match(/no matching index found/);
       });
     });
 
@@ -109,58 +107,6 @@ module.exports = function (dbType, context) {
         return db.find({
           "fields": ["_id", "foo"],
           "sort": [{"foo": "asc"}]
-        });
-      }).then(function () {
-        throw new Error('shouldnt be here');
-      }, function (err) {
-        should.exist(err);
-      });
-    });
-
-    it('error - no usable index', function () {
-      var db = context.db;
-      var index = {
-        "index": {
-          "fields": ["foo"]
-        },
-        "name": "foo-index",
-        "type": "json"
-      };
-      return db.createIndex(index).then(function () {
-        return db.find({
-          "selector": {"foo": "$exists"},
-          "fields": ["_id", "foo"],
-          "sort": [{"bar": "asc"}]
-        });
-      }).then(function () {
-        throw new Error('shouldnt be here');
-      }, function (err) {
-        should.exist(err);
-      });
-    });
-
-    it('#7 invalid ne query', function () {
-      var db = context.db;
-      var index = {
-        "index": {
-          "fields": ["foo"]
-        },
-        "name": "foo-index",
-        "type": "json"
-      };
-
-      return db.createIndex(index).then(function () {
-        return db.bulkDocs([
-          { _id: '1', foo: 'eyo'},
-          { _id: '2', foo: 'ebb'},
-          { _id: '3', foo: 'eba'},
-          { _id: '4', foo: 'abo'}
-        ]);
-      }).then(function () {
-        return db.find({
-          selector: {foo: {$ne: "eba"}},
-          fields: ["_id", "foo"],
-          sort: [{foo: "asc"}]
         });
       }).then(function () {
         throw new Error('shouldnt be here');
@@ -197,81 +143,6 @@ module.exports = function (dbType, context) {
       });
     });
 
-    it('invalid existing ddoc', function () {
-      var db = context.db;
-
-      return db.put({
-        _id: '_design/myddoc',
-        views: {
-          'foo-index': {
-            map: "function (){emit(1)}"
-          }
-        }
-      }).then(function () {
-        return db.find({
-          selector: {foo: {$ne: "eba"}},
-          fields: ["_id", "foo"],
-          sort: [{foo: "asc"}]
-        }).then(function () {
-          throw new Error('expected an error');
-        }, function (err) {
-          should.exist(err);
-        });
-      });
-    });
-
-    it('$and error, empty selector', function () {
-      var db = context.db;
-
-      return db.createIndex({
-        index: {
-          fields: ['foo']
-        }
-      }).then(function () {
-        return db.bulkDocs([
-          {_id: '1', foo: 1},
-          {_id: '2', foo: 2},
-          {_id: '3', foo: 3},
-          {_id: '4', foo: 4}
-        ]);
-      }).then(function () {
-        return db.find({
-          selector: {$and: [{}, {}]}
-        }).then(function () {
-          throw new Error('expected an error');
-        }, function (err) {
-          should.exist(err);
-        });
-      });
-    });
-
-    it('$elemMatch errors with no other selector', function () {
-      var db = context.db;
-
-      return db.createIndex({
-        index: {
-          fields: ['foo']
-        }
-      }).then(function () {
-        return db.bulkDocs([
-          {_id: '1', foo: [1]},
-          {_id: '2', foo: [2]},
-          {_id: '3', foo: [3]},
-          {_id: '4', foo: [4]}
-        ]);
-      }).then(function () {
-        return db.find({
-          selector: {
-            foo: {$elemMatch: {gte: 3}}
-          }
-        }).then(function () {
-          throw new Error('expected an error');
-        }, function (err) {
-          should.exist(err);
-        });
-      });
-    });
-
     it('non-logical errors with no other selector', function () {
       var db = context.db;
 
@@ -298,35 +169,5 @@ module.exports = function (dbType, context) {
         });
       });
     });
-
-
-    it('_id errors with non-logical selector', function () {
-      var db = context.db;
-
-      return db.createIndex({
-        index: {
-          fields: ['foo']
-        }
-      }).then(function () {
-        return db.bulkDocs([
-          {_id: '1', foo: 1},
-          {_id: '2', foo: 2},
-          {_id: '3', foo: 3},
-          {_id: '4', foo: 4}
-        ]);
-      }).then(function () {
-        return db.find({
-          selector: {
-            _id: {$regex: /1/}
-          }
-        }).then(function () {
-          throw new Error('expected an error');
-        }, function (err) {
-          console.log('err', err);
-          should.exist(err);
-        });
-      });
-    });
-
   });
 };

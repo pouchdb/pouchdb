@@ -172,6 +172,7 @@ exports.oneArrayIsStrictSubArrayOfOther = function (left, right) {
 // same as above, but treat the left array as an unordered set
 // e.g. ['b', 'a'], ['a', 'b', 'c'] is true, but ['c'], ['a', 'b', 'c'] is false
 exports.oneSetIsSubArrayOfOther = function (left, right) {
+  if (left.length === 0) {return false;}
   left = left.slice();
   for (var i = 0, len = right.length; i < len; i++) {
     var field = right[i];

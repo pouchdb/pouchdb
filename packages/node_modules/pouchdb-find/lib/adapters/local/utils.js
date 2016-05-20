@@ -282,10 +282,24 @@ function validateIndex(index) {
   }
 }
 
-function validateFindRequest(requestDef) {
-  if (typeof requestDef.selector !== 'object') {
-    throw new Error('you must provide a selector when you find()');
+function validateSort (requestDef, index) {
+  if (index.defaultUsed && requestDef.sort) {
+    var noneIdSorts = requestDef.sort.filter(function (sortItem) {
+      return Object.keys(sortItem)[0] !== '_id';
+    }).map(function (sortItem) {
+      return Object.keys(sortItem)[0];
+    });
+
+    if (noneIdSorts.length > 0) {
+      throw new Error('Cannot sort on field(s) "' + noneIdSorts.join(',') +
+      '" when using the default index');
+    }
   }
+
+  if (index.defaultUsed) {
+    return;
+  }
+
   // TODO: could be >1 field
   var selectorFields = Object.keys(requestDef.selector);
   var sortFields = requestDef.sort ?
@@ -295,7 +309,14 @@ function validateFindRequest(requestDef) {
     throw new Error('conflicting sort and selector fields');
   }
 
-  var selectors = requestDef.selector['$and'] || [requestDef.selector];
+}
+
+function validateFindRequest(requestDef) {
+  if (typeof requestDef.selector !== 'object') {
+    throw new Error('you must provide a selector when you find()');
+  }
+
+  /*var selectors = requestDef.selector['$and'] || [requestDef.selector];
   for (var i = 0; i < selectors.length; i++) {
     var selector = selectors[i];
     var keys = Object.keys(selector);
@@ -306,8 +327,8 @@ function validateFindRequest(requestDef) {
     /*if (Object.keys(selection).length !== 1) {
       throw new Error('invalid selector: ' + JSON.stringify(selection) +
         ' - it must have exactly one key/value');
-    }*/
-  }
+    }
+  }*/
 }
 
 function parseField(fieldName) {
@@ -339,7 +360,7 @@ function getUserFields(selector, sort) {
   var selectorFields = Object.keys(selector);
   var sortFields = sort? sort.map(getKey) : [];
   var userFields;
-  if (selectorFields.length > sortFields.length) {
+  if (selectorFields.length >= sortFields.length) {
     userFields = selectorFields;
   } else {
     userFields = sortFields;
@@ -377,6 +398,7 @@ module.exports = {
   massageSelector: massageSelector,
   validateIndex: validateIndex,
   validateFindRequest: validateFindRequest,
+  validateSort: validateSort,
   reverseOptions: reverseOptions,
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
