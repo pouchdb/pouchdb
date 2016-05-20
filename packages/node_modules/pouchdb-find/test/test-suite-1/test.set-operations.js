@@ -2,7 +2,6 @@
 
 var testUtils = require('../test-utils');
 var sortById = testUtils.sortById;
-var should = testUtils.should;
 
 module.exports = function (dbType, context) {
 
@@ -118,10 +117,13 @@ module.exports = function (dbType, context) {
             ]
           },
           fields: ['_id']
-        }).then(function () {
-          throw new Error('should not be here');
-        }, function (err) {
-          should.exist(err);
+        }).then(function (resp) {
+          resp.should.deep.equal({
+            warning: 'no matching index found, create an index to optimize query time',
+            docs: [
+              {_id: 'yoshi'}
+            ]
+          });
         });
       });
     });
