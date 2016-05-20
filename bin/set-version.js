@@ -44,4 +44,10 @@ var versionFileContents = '// managed automatically by set-version.js\n' +
 
 fs.writeFileSync(versionFile, versionFileContents, 'utf-8');
 
+var lernaFile = path.resolve(__dirname, '../lerna.json');
+var lernaJson = JSON.parse(fs.readFileSync(lernaFile, 'utf-8'));
+lernaJson.version = version;
+fs.writeFileSync(lernaFile,
+  JSON.stringify(lernaJson, null, '  ') + '\n', 'utf-8');
+
 console.log('done');
