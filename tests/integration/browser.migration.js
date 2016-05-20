@@ -779,7 +779,7 @@ describe('migration', function () {
               _id: 'doc' + i,
               _attachments: {
                 'att.txt' : {
-                  data: PouchDB.utils.btoa(Math.random().toString()),
+                  data: testUtils.btoa(Math.random().toString()),
                   content_type: 'text/plain'
                 }
               }
@@ -945,7 +945,7 @@ describe('migration', function () {
 
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
-          var chain = PouchDB.utils.Promise.resolve();
+          var chain = testUtils.Promise.resolve();
           tree.forEach(function (docs) {
             chain = chain.then(function () {
               return oldPouch.bulkDocs(docs, {new_edits: false});

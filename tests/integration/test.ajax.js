@@ -9,7 +9,7 @@ adapters.forEach(function (adapter) {
 
     it('#5061 ajax returns ETIMEDOUT error on timeout', function (done) {
       this.timeout(240000);
-      PouchDB.ajax({
+      testUtils.ajax({
         method: 'GET',
         url: 'http://192.0.2.1/',
         timeout: 10

@@ -105,10 +105,11 @@ adapters.forEach(function (adapters) {
       }
 
       var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
       var rejectAjax = true;
-      var ajax = PouchDB.utils.ajax;
+      var ajax = remote._ajax;
 
-      PouchDB.utils.ajax = function (opts, cb) {
+      remote._ajax = function (opts, cb) {
         if (rejectAjax) {
           cb(new Error('flunking you'));
         } else {
@@ -118,7 +119,7 @@ adapters.forEach(function (adapters) {
 
       db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function () {
 
-        var repl = db.replicate.to(dbs.remote, {
+        var repl = db.replicate.to(remote, {
           retry: true,
           live: true,
           back_off_function: function () { return 0; }
@@ -127,7 +128,7 @@ adapters.forEach(function (adapters) {
         var counter = 0;
 
         repl.on('complete', function () {
-          PouchDB.utils.ajax = ajax;
+          remote._ajax = ajax;
           done();
         });
 

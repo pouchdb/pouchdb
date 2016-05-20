@@ -1,0 +1,33 @@
+{
+  "name": "pouchdb-utils",
+  "version": "5.4.0-prerelease",
+  "description": "Unassorted utilities used by PouchDB.",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "argsarray": "0.0.1",
+    "debug": "2.2.0",
+    "inherits": "2.0.1",
+    "pouchdb-collections": "1.0.1",
+    "pouchdb-binary-utils": "5.4.0-prerelease",
+    "pouchdb-errors": "5.4.0-prerelease",
+    "pouchdb-md5": "5.4.0-prerelease",
+    "pouchdb-promise": "5.4.0-prerelease"
+  },
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/cloneBinaryObject.js": "./src/cloneBinaryObject-browser.js",
+    "./src/env/hasLocalStorage.js": "./src/env/hasLocalStorage-browser.js",
+    "./src/env/isChromeApp.js": "./src/env/isChromeApp-browser.js",
+    "./src/explainError.js": "./src/explainError-browser.js",
+    "./src/isBinaryObject.js": "./src/isBinaryObject-browser.js"
+  }
+}

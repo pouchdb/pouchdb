@@ -1,7 +1,7 @@
 'use strict';
 
 var http = require('http');
-var PouchDB = require('../../lib');
+var PouchDB = require('../../packages/pouchdb-for-coverage');
 var should = require("chai").should();
 
 describe('test.headers.js', function () {

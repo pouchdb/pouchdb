@@ -139,7 +139,7 @@ adapters.forEach(function (adapter) {
         foo: 'bar'
       }];
       db.bulkDocs({ docs: docs }, function (err, info) {
-        err.status.should.equal(PouchDB.Errors.RESERVED_ID.status,
+        err.status.should.equal(testUtils.errors.RESERVED_ID.status,
                                 'correct error status returned');
         should.not.exist(info, 'info is empty');
         done();
@@ -154,7 +154,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function (err, info) {
-        err.status.should.equal(PouchDB.Errors.RESERVED_ID.status,
+        err.status.should.equal(testUtils.errors.RESERVED_ID.status,
                                 'correct error returned');
         should.not.exist(info, 'info is empty');
         done();
@@ -164,9 +164,9 @@ adapters.forEach(function (adapter) {
     it('No docs', function (done) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ 'doc': [{ 'foo': 'bar' }] }, function (err) {
-        err.status.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.status,
+        err.status.should.equal(testUtils.errors.MISSING_BULK_DOCS.status,
                                 'correct error returned');
-        err.message.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.message,
+        err.message.should.equal(testUtils.errors.MISSING_BULK_DOCS.message,
                                  'correct error message returned');
         done();
       });
@@ -733,9 +733,9 @@ adapters.forEach(function (adapter) {
       }, { new_edits: false }, function () {
         db.get('foo', function (err) {
           should.exist(err, 'deleted');
-          err.status.should.equal(PouchDB.Errors.MISSING_DOC.status,
+          err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                    'correct error status returned');
-          err.message.should.equal(PouchDB.Errors.MISSING_DOC.message,
+          err.message.should.equal(testUtils.errors.MISSING_DOC.message,
                                    'correct error message returned');
           // todo: does not work in pouchdb-server.
           // err.reason.should.equal('deleted',
@@ -835,9 +835,9 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: 'foo' }, function (err) {
         should.exist(err, 'error reported');
-        err.status.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.status,
+        err.status.should.equal(testUtils.errors.MISSING_BULK_DOCS.status,
                                 'correct error status returned');
-        err.message.should.equal(PouchDB.Errors.MISSING_BULK_DOCS.message,
+        err.message.should.equal(testUtils.errors.MISSING_BULK_DOCS.message,
                                  'correct error message returned');
         done();
       });
@@ -847,16 +847,16 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: ['foo'] }, function (err) {
         should.exist(err, 'error reported');
-        err.status.should.equal(PouchDB.Errors.NOT_AN_OBJECT.status,
+        err.status.should.equal(testUtils.errors.NOT_AN_OBJECT.status,
                                 'correct error status returned');
-        err.message.should.equal(PouchDB.Errors.NOT_AN_OBJECT.message,
+        err.message.should.equal(testUtils.errors.NOT_AN_OBJECT.message,
                                  'correct error message returned');
       });
       db.bulkDocs({ docs: [[]] }, function (err) {
         should.exist(err, 'error reported');
-        err.status.should.equal(PouchDB.Errors.NOT_AN_OBJECT.status,
+        err.status.should.equal(testUtils.errors.NOT_AN_OBJECT.status,
                                 'correct error status returned');
-        err.message.should.equal(PouchDB.Errors.NOT_AN_OBJECT.message,
+        err.message.should.equal(testUtils.errors.NOT_AN_OBJECT.message,
                                  'correct error message returned');
         done();
       });
@@ -867,7 +867,7 @@ adapters.forEach(function (adapter) {
       var docid = "mydoc";
 
       function uuid() {
-          return PouchDB.utils.uuid(32, 16).toLowerCase();
+          return testUtils.uuid(32, 16).toLowerCase();
       }
 
       // create a few of rando, good revisions
@@ -924,7 +924,7 @@ adapters.forEach(function (adapter) {
 
       // simulate 5000 normal commits with two conflicts at the very end
       function uuid() {
-        return PouchDB.utils.uuid(32, 16).toLowerCase();
+        return testUtils.uuid(32, 16).toLowerCase();
       }
 
       var isSafari = (typeof process === 'undefined' || process.browser) &&
@@ -968,7 +968,7 @@ adapters.forEach(function (adapter) {
 
       // simulate 5000 normal commits with two conflicts at the very end
       function uuid() {
-        return PouchDB.utils.uuid(32, 16).toLowerCase();
+        return testUtils.uuid(32, 16).toLowerCase();
       }
 
       var numRevs = 5000;
