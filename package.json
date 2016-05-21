@@ -36,7 +36,7 @@
     "test-webpack": "bash bin/test-webpack.sh"
   },
   "dependencies": {
-    "add-cors-to-couchdb": "0.0.4",
+    "add-cors-to-couchdb": "0.0.6",
     "argsarray": "0.0.1",
     "body-parser": "1.15.1",
     "browserify": "12.0.2",
