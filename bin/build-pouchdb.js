@@ -5,6 +5,8 @@
 // build just the "pouchdb" package. This build script is different
 // from the others due to legacy support (dist/, extras/, etc.).
 
+var DEV_MODE = process.env.CLIENT === 'dev';
+
 var lie = require('lie');
 if (typeof Promise === 'undefined') {
   global.Promise = lie; // required for denodeify in node 0.10
@@ -12,8 +14,7 @@ if (typeof Promise === 'undefined') {
 var path = require('path');
 var denodeify = require('denodeify');
 var browserify = require('browserify');
-var collapse = require('bundle-collapser/plugin');
-var es3ify = require('es3ify');
+var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
 var derequire = require('derequire');
@@ -106,7 +107,7 @@ function addVersion(code) {
 
 // do uglify in a separate process for better perf
 function doUglify(code, prepend, fileOut) {
-  if (process.env.BUILD_DEV) { // skip uglify in "npm run dev" mode
+  if (DEV_MODE) { // skip uglify in "npm run dev" mode
     return Promise.resolve();
   }
   var binPath = require.resolve('uglify-js/bin/uglifyjs');
@@ -122,18 +123,34 @@ function doUglify(code, prepend, fileOut) {
   });
 }
 
+var browserifyCache = {};
+
 function doBrowserify(filepath, opts, exclude) {
-  var b = browserify(addPath(filepath), opts);
-  if (!process.env.BUILD_DEV) {
-    b.transform(es3ify).plugin(collapse);
+
+  var bundler = browserifyCache[filepath];
+
+  if (!bundler) {
+    if (DEV_MODE) {
+      opts.debug = true;
+      bundler = browserifyIncremental(addPath(filepath), opts)
+        .on('time', function (time) {
+          console.log('    took ' + time + ' ms to browserify ' +
+            path.dirname(filepath) + '/' + path.basename(filepath));
+        });
+    } else {
+      bundler = browserify(addPath(filepath), opts)
+        .transform('es3ify')
+        .plugin('bundle-collapser/plugin');
+    }
+
+    if (exclude) {
+      bundler.external(exclude);
+    }
+    browserifyCache[filepath] = bundler;
   }
 
-  if (exclude) {
-    b.external(exclude);
-  }
-
-  return streamToPromise(b.bundle()).then(function (code) {
-    if (!process.env.BUILD_DEV) {
+  return streamToPromise(bundler.bundle()).then(function (code) {
+    if (!DEV_MODE) {
       code = derequire(code);
     }
     return code;
@@ -141,6 +158,7 @@ function doBrowserify(filepath, opts, exclude) {
 }
 
 function doRollup(entry, fileOut, browser) {
+  var start = process.hrtime();
   return rollup.rollup({
     entry: addPath(entry),
     external: external,
@@ -154,6 +172,11 @@ function doRollup(entry, fileOut, browser) {
     ]
   }).then(function (bundle) {
     var code = bundle.generate({format: 'cjs'}).code;
+    if (DEV_MODE) {
+      var ms = Math.round(process.hrtime(start)[1] / 1000000);
+      console.log('    took ' + ms + ' ms to rollup ' +
+        path.dirname(entry) + '/' + path.basename(entry));
+    }
     return writeFile(addPath(fileOut),
       addVersion(code));
   });
@@ -171,7 +194,9 @@ function buildForBrowserify() {
 
 // build for the browser (dist)
 function buildForBrowser() {
-  return doBrowserify('.', {standalone: 'PouchDB'}).then(function (code) {
+  return doBrowserify('lib/index-browser.js', {
+    standalone: 'PouchDB'
+  }).then(function (code) {
     code = comments.pouchdb + code;
     return all([
       writeFile(addPath('dist/pouchdb.js'), code),
@@ -254,7 +279,7 @@ function doBuildAll() {
 function doBuild() {
   if (process.env.BUILD_NODE) { // rebuild before "npm test"
     return doBuildNode();
-  } else if (process.env.BUILD_DEV) { // rebuild during "npm run dev"
+  } else if (DEV_MODE) { // rebuild during "npm run dev"
     return doBuildDev();
   } else { // normal, full build
     return doBuildAll();

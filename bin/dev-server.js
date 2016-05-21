@@ -5,7 +5,10 @@
 var Promise = require('lie');
 var watch = require('watch-glob');
 var http_server = require('http-server');
-var spawn = require('child_process').spawn;
+var debounce = require('lodash.debounce');
+var buildPouchDB = require('./build-pouchdb');
+var browserify = require('browserify');
+var fs = require('fs');
 
 var queryParams = {};
 
@@ -24,32 +27,58 @@ if (process.env.COUCH_HOST) {
 
 var rebuildPromise = Promise.resolve();
 
-function rebuild() {
-  // only run one build at a time
-  rebuildPromise = rebuildPromise.then(function () {
-    return new Promise(function (resolve) {
-      var child = spawn('npm', ['run', 'rebuild-dev']);
-      child.stdout.on('data', function (buf) {
-        console.log(String(buf).replace(/\s*$/, ''));
-      });
-      child.stderr.on('data', function (buf) {
-        console.log(String(buf).replace(/\s*$/, ''));
-      });
-      child.on('close', resolve);
-    });
+function rebuildPouch() {
+  rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
+    console.log('Rebuilt packages/pouchdb');
   });
-  return rebuildPromise;
 }
 
-watch(['packages/**/src/**/*.js', 'tests/integration/utils.js'], rebuild);
+function browserifyPromise(src, dest) {
+  return new Promise(function (resolve, reject) {
+    browserify(src, {debug: true}).bundle().pipe(fs.createWriteStream(dest))
+      .on('finish', resolve)
+      .on('error', reject);
+  });
+}
+
+function rebuildTestUtils() {
+  rebuildPromise = rebuildPromise.then(function () {
+    return browserifyPromise('tests/integration/utils.js',
+      'tests/integration/utils-bundle.js');
+  }).then(function () {
+    console.log('Rebuilt tests/integration/utils-bundle.js');
+  });
+}
+
+function rebuildPerf() {
+  rebuildPromise = rebuildPromise.then(function () {
+    return browserifyPromise('tests/performance/index.js',
+      'tests/performance-bundle.js');
+  }).then(function () {
+    console.log('Rebuilt tests/performance-bundle.js');
+  });
+}
+
+function watchAll() {
+  watch(['packages/**/src/**/*.js'],
+    debounce(rebuildPouch, 700, {leading: true}));
+  watch(['tests/integration/utils.js'],
+    debounce(rebuildTestUtils, 700, {leading: true}));
+  watch(['tests/performance/**/*.js'],
+    debounce(rebuildPerf, 700, {leading: true}));
+}
 
 var filesWritten = false;
 
 Promise.resolve().then(function () {
-  if (require.main !== module) {
-    return; // don't bother rebuilding if we're in `npm run dev`
+  if (process.env.TRAVIS) {
+    return; // don't bother rebuilding in Travis; we already built
   }
-  return rebuild();
+  return Promise.all([
+    rebuildPouch(),
+    rebuildTestUtils(),
+    rebuildPerf()
+  ]);
 }).then(function () {
   filesWritten = true;
   checkReady();
@@ -92,6 +121,7 @@ function checkReady() {
 
 if (require.main === module) {
   startServers();
+  watchAll();
 } else {
   module.exports.start = startServers;
 }
