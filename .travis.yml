@@ -44,10 +44,6 @@ before_script:
   - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/methods -d '"GET, PUT, POST, HEAD, DELETE"'
   - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/headers -d '"accept, authorization, content-type, origin, referer, x-csrf-token"'
 
-    # for some reason this extra install is required for leveldown, but
-    # only on npm@2
-  - "cd packages/pouchdb && npm install && cd ../.."
-
 script: npm run $COMMAND
 
 env:
@@ -61,6 +57,12 @@ env:
   matrix:
   - CLIENT=node COMMAND=test
   - CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
+
+  # Test in various versions of Node
+  - CLIENT=node NODE_VERSION=0.10 COMMAND=test
+  - CLIENT=node NODE_VERSION=0.11 COMMAND=test
+  - CLIENT=node NODE_VERSION=0.12 COMMAND=test
+  - CLIENT=node NODE_VERSION=stable COMMAND=test
 
   # Test WebSQL in Node (using node-websql)
   - CLIENT=node ADAPTER=websql COMMAND=test
@@ -142,28 +144,8 @@ matrix:
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
   - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
-  - node_js: "stable"
-    services: docker
-    env: CLIENT=node COMMAND=test
-  - node_js: "0.10"
-    services: docker
-    env: CLIENT=node COMMAND=test
 
   fast_finish: true
-
-  include:
-    - node_js: "0.10"
-      services: docker
-      env: CLIENT=node COMMAND=test
-    - node_js: "0.11"
-      services: docker
-      env: CLIENT=node COMMAND=test
-    - node_js: "0.12"
-      services: docker
-      env: CLIENT=node COMMAND=test
-    - node_js: "stable"
-      services: docker
-      env: CLIENT=node COMMAND=test
 
 branches:
   only:
