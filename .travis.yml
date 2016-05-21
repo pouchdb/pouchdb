@@ -16,33 +16,15 @@ addons:
   firefox: "41.0.1"
 
 before_install:
-
-  # Install CouchDB Stable
-  - docker run -d -p 3000:5984 klaemo/couchdb:1.6.1
-
-  # Install CouchDB Master
-  - docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
-
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-
     # Fail early so we dont run hours of saucelabs if we know there
     # is a lint failure
   - npm run eslint
-
-    # set up CORS
-  - "./node_modules/.bin/add-cors-to-couchdb http://127.0.0.1:3000"
-
-    # Configure CORS against master
-  - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/httpd/enable_cors -d '"true"'
-  - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/origins -d '"*"'
-  - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/credentials -d '"true"'
-  - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/methods -d '"GET, PUT, POST, HEAD, DELETE"'
-  - curl -X PUT http://127.0.0.1:3001/_node/node1@127.0.0.1/_config/cors/headers -d '"accept, authorization, content-type, origin, referer, x-csrf-token"'
 
 script: npm run $COMMAND
 
