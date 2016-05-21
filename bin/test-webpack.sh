@@ -7,6 +7,7 @@
 #
 
 npm run build
+npm install webpack@1.13.1 # do this on-demand to avoid slow installs
 ./node_modules/.bin/webpack \
   --output-library PouchDB --output-library-target umd \
   ./packages/pouchdb pouchdb-webpack.js
