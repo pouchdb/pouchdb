@@ -177,13 +177,11 @@ function compareReplicationLogs(srcDoc, tgtDoc) {
   if (srcDoc.session_id === tgtDoc.session_id) {
     return {
       last_seq: srcDoc.last_seq,
-      history: srcDoc.history || []
+      history: srcDoc.history
     };
   }
 
-  var sourceHistory = srcDoc.history || [];
-  var targetHistory = tgtDoc.history || [];
-  return compareReplicationHistory(sourceHistory, targetHistory);
+  return compareReplicationHistory(srcDoc.history, tgtDoc.history);
 }
 
 function compareReplicationHistory(sourceHistory, targetHistory) {

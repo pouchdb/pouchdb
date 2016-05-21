@@ -17,7 +17,7 @@ function formatResultForOpenRevsGet(result) {
 
 // shim for P/CouchDB adapters that don't directly implement _bulk_get
 function bulkGet(db, opts, callback) {
-  var requests = Array.isArray(opts) ? opts : opts.docs;
+  var requests = opts.docs;
 
   // consolidate into one request per doc if possible
   var requestsById = {};
@@ -125,6 +125,7 @@ function bulkGet(db, opts, callback) {
   }
 
   nextBatch();
+
 }
 
 export default bulkGet;

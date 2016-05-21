@@ -150,6 +150,8 @@ function LevelPouch(opts, callback) {
   var revLimit = opts.revs_limit;
   var db;
   var name = opts.name;
+  // TODO: this is undocumented and unused probably
+  /* istanbul ignore else */
   if (typeof opts.createIfMissing === 'undefined') {
     opts.createIfMissing = true;
   }
@@ -177,6 +179,7 @@ function LevelPouch(opts, callback) {
       db = dbStore.get(name);
       db._docCount  = -1;
       db._queue = new Deque();
+      /* istanbul ignore if */
       if (opts.noMigrate || (opts.db && !opts.migrate)) {
         afterDBCreated();
       } else {
@@ -1456,20 +1459,8 @@ function LevelPouch(opts, callback) {
     }
   };
   function callDestroy(name, cb) {
-    /* istanbul ignore else */
-    if (typeof leveldown.destroy === 'function') {
-      leveldown.destroy(name, cb);
-    } else {
-      process.nextTick(cb);
-    }
+    leveldown.destroy(name, cb);
   }
 }
-
-LevelPouch.valid = function () {
-  // this gets overriden by the *down-based browser adapters
-  return true;
-};
-
-LevelPouch.use_prefix = false;
 
 export default LevelPouch;

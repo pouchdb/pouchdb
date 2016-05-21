@@ -1,5 +1,4 @@
 import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
-import { toPromise } from 'pouchdb-utils';
 import { extend } from 'js-extend';
 
 import memdown from 'memdown';
@@ -18,17 +17,6 @@ MemDownPouch.valid = function () {
 };
 MemDownPouch.use_prefix = false;
 
-MemDownPouch.destroy = toPromise(function (name, opts, callback) {
-  if (typeof opts === 'function') {
-    callback = opts;
-    opts = {};
-  }
-  var _opts = extend({
-    db: memdown
-  }, opts);
-
-  return memdown.destroy(name, _opts, callback);
-});
 export default function (PouchDB) {
   PouchDB.adapter('memory', MemDownPouch, true);
 }
