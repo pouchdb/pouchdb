@@ -332,11 +332,11 @@ adapters.forEach(function (adapters) {
       replications.cancel();
     });
 
-    it.skip('Test sync cancel called twice', function (done) {
+    it('Test sync cancel called twice', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var replications = db.sync(remote).on('complete', function () {
-        setTimeout(done); // let cancel() get called twice before finishing
+        done();
       });
       should.exist(replications);
       replications.cancel();

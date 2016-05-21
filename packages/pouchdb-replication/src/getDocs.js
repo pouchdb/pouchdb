@@ -35,6 +35,7 @@ function getDocAttachmentsFromTargetOrSource(target, src, doc) {
       return target.getAttachment(localDoc._id, filename);
     }));
   }).catch(function (error) {
+    /* istanbul ignore if */
     if (error.status !== 404) {
       throw error;
     }
