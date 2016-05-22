@@ -52,6 +52,10 @@ if [[ ! -z $SERVER ]]; then
   fi
 fi
 
+if [ ! -z $TRAVIS ]; then
+  source ./bin/run-couchdb-on-travis.sh
+fi
+
 if [ "$CLIENT" == "selenium:phantomjs" ]; then
   npm install phantomjs@2.1.2 # do this on-demand to avoid slow installs
 fi
