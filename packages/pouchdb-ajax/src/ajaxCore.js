@@ -51,6 +51,7 @@ function ajaxCore(options, callback) {
       err2.status = err.status;
       return cb(err2);
     }
+    /* istanbul ignore if */
     if (err.message && err.message === 'ETIMEDOUT') {
       return cb(err);
     }

@@ -1,5 +1,4 @@
 import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
-import { toPromise } from 'pouchdb-utils';
 import { extend } from 'js-extend';
 import requireLeveldown from './requireLeveldown';
 
@@ -26,17 +25,6 @@ LevelDownPouch.valid = function () {
 };
 LevelDownPouch.use_prefix = false;
 
-LevelDownPouch.destroy = toPromise(function (name, opts, callback) {
-  if (typeof opts === 'function') {
-    callback = opts;
-    opts = {};
-  }
-  var _opts = extend({
-    db: leveldown
-  }, opts);
-
-  return leveldown.destroy(name, _opts, callback);
-});
 export default function (PouchDB) {
   PouchDB.adapter('leveldb', LevelDownPouch, true);
 }

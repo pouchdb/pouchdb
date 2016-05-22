@@ -1,5 +1,4 @@
 import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
-import { toPromise } from 'pouchdb-utils';
 import { extend } from 'js-extend';
 
 import localstoragedown from 'localstorage-down';
@@ -18,17 +17,6 @@ LocalStoragePouch.valid = function () {
 };
 LocalStoragePouch.use_prefix = true;
 
-LocalStoragePouch.destroy = toPromise(function (name, opts, callback) {
-  if (typeof opts === 'function') {
-    callback = opts;
-    opts = {};
-  }
-  var _opts = extend({
-    db: localstoragedown
-  }, opts);
-
-  return localstoragedown.destroy(name, _opts, callback);
-});
 export default function (PouchDB) {
   PouchDB.adapter('localstorage', LocalStoragePouch, true);
 }

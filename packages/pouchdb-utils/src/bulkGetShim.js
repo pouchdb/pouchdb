@@ -2,7 +2,7 @@ import pick from './pick';
 
 // shim for P/CouchDB adapters that don't directly implement _bulk_get
 function bulkGet(db, opts, callback) {
-  var requests = Array.isArray(opts) ? opts : opts.docs;
+  var requests = opts.docs;
 
   // consolidate into one request per doc if possible
   var requestsById = {};
@@ -83,7 +83,14 @@ function bulkGet(db, opts, callback) {
       }
     });
     db.get(docId, docOpts, function (err, res) {
-      gotResult(i, docId, err ? [{error: err}] : formatResult(res));
+      var result;
+      /* istanbul ignore if */
+      if (err) {
+        result = [{error: err}];
+      } else {
+        result = formatResult(res);
+      }
+      gotResult(i, docId, result);
     });
   });
 }
