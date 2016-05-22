@@ -208,6 +208,7 @@ AbstractPouchDB.prototype.post =
 AbstractPouchDB.prototype.put =
   adapterFun('put', getArguments(function (args) {
   var temp, temptype, opts, callback;
+  var warned = false;
   var doc = args.shift();
   var id = '_id' in doc;
   if (typeof doc !== 'object' || Array.isArray(doc)) {
@@ -215,14 +216,26 @@ AbstractPouchDB.prototype.put =
     return callback(createError(NOT_AN_OBJECT));
   }
 
+  function warn() {
+    if (warned) {
+      return;
+    }
+    console.warn('db.put(doc, id, rev) has been deprecated and will be ' +
+                 'removed in a future release, please use ' +
+                 'db.put({_id: id, _rev: rev}) instead');
+    warned = true;
+  }
+
   /* eslint no-constant-condition: 0 */
   while (true) {
     temp = args.shift();
     temptype = typeof temp;
     if (temptype === "string" && !id) {
+      warn();
       doc._id = temp;
       id = true;
     } else if (temptype === "string" && id && !('_rev' in doc)) {
+      warn();
       doc._rev = temp;
     } else if (temptype === "object") {
       opts = temp;

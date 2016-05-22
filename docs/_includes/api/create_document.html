@@ -101,6 +101,11 @@ db.get('mydoc').then(function(doc) {
 {% endhighlight %}
 {% include code/end.html %}
 
+{% include alert/start.html variant="warning"%}
+The following method of updating documents is deprecated and will be
+removed in future versions of PouchDB.
+{% include alert/end.html %}
+
 Instead of including the `_id` and `_rev` in the document, you can
 also pass them in as options:
 
