@@ -138,12 +138,63 @@ exports.mergeObjects = function (arr) {
   return res;
 };
 
-// like underscore/lodash _.pick()
+// this would just be "return doc[field]", but fields
+// can be "deep" due to dot notation
+exports.getFieldFromDoc = function (doc, parsedField) {
+  var value = doc;
+  for (var i = 0, len = parsedField.length; i < len; i++) {
+    var key = parsedField[i];
+    value = value[key];
+    if (!value) {
+      break;
+    }
+  }
+  return value;
+};
+
+exports.setFieldInDoc = function (doc, parsedField, value) {
+  for(var i = 0, len = parsedField.length; i < len-1; i++) {
+    var elem = parsedField[i];
+    if( !doc[elem] ) {
+      doc[elem] = {};
+    }
+    doc = doc[elem];
+  }
+  doc[parsedField[len-1]] = value;
+};
+
+// Converts a string in dot notation to an array of its components, with backslash escaping
+exports.parseField = function (fieldName) {
+  // fields may be deep (e.g. "foo.bar.baz"), so parse
+  var fields = [];
+  var current = '';
+  for (var i = 0, len = fieldName.length; i < len; i++) {
+    var ch = fieldName[i];
+    if (ch === '.') {
+      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
+        current = current.substring(0, current.length - 1) + '.';
+      } else { // not escaped, so delimiter
+        fields.push(current);
+        current = '';
+      }
+    } else { // normal character
+      current += ch;
+    }
+  }
+  fields.push(current);
+  return fields;
+};
+
+// Selects a list of fields defined in dot notation from one doc
+// and copies them to a new doc. Like underscore _.pick but supports nesting.
 exports.pick = function (obj, arr) {
   var res = {};
   for (var i = 0, len = arr.length; i < len; i++) {
-    var prop = arr[i];
-    res[prop] = obj[prop];
+    var parsedField = exports.parseField(arr[i]);
+    var value = exports.getFieldFromDoc(obj, parsedField);
+    if(typeof value !== 'undefined') {
+      exports.setFieldInDoc(res, parsedField, value);
+    }
   }
   return res;
 };

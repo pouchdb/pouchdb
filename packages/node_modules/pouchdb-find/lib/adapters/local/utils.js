@@ -331,27 +331,6 @@ function validateFindRequest(requestDef) {
   }*/
 }
 
-function parseField(fieldName) {
-  // fields may be deep (e.g. "foo.bar.baz"), so parse
-  var fields = [];
-  var current = '';
-  for (var i = 0, len = fieldName.length; i < len; i++) {
-    var ch = fieldName[i];
-    if (ch === '.') {
-      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
-        current = current.substring(0, current.length - 1) + '.';
-      } else { // not escaped, so delimiter
-        fields.push(current);
-        current = '';
-      }
-    } else { // normal character
-      current += ch;
-    }
-  }
-  fields.push(current);
-  return fields;
-}
-
 // determine the maximum number of fields
 // we're going to need to query, e.g. if the user
 // has selection ['a'] and sorting ['a', 'b'], then we
@@ -402,7 +381,7 @@ module.exports = {
   reverseOptions: reverseOptions,
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
-  parseField: parseField,
+  parseField: utils.parseField,
   getUserFields: getUserFields,
   isCombinationalField: isCombinationalField
 };
