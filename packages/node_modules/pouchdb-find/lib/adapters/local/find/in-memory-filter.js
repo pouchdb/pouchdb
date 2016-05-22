@@ -14,20 +14,7 @@ var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var parseField = localUtils.parseField;
 var utils = require('../../../utils');
-
-// this would just be "return doc[field]", but fields
-// can be "deep" due to dot notation
-function getFieldFromDoc(doc, parsedField) {
-  var value = doc;
-  for (var i = 0, len = parsedField.length; i < len; i++) {
-    var key = parsedField[i];
-    value = value[key];
-    if (!value) {
-      break;
-    }
-  }
-  return value;
-}
+var getFieldFromDoc = utils.getFieldFromDoc;
 
 // create a comparator based on the sort object
 function createFieldSorter(sort) {

@@ -30,6 +30,7 @@ module.exports = function (dbName, dbType, Pouch) {
     require('./test.ltgt')(dbType, context);
     require('./test.eq')(dbType, context);
     require('./test.deep-fields')(dbType, context);
+    require('./test.pick-fields')(dbType, context);
     require('./test.exists')(dbType, context);
     require('./test.type')(dbType, context);
     require('./test.ne')(dbType, context);
