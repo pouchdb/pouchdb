@@ -570,5 +570,57 @@ adapters.forEach(function (adapters) {
 
     });
 
+    it('#5157 replicate many docs with live+retry', function () {
+      var Promise = testUtils.Promise;
+      var numDocs = 512; // uneven number
+      var docs = [];
+      for (var i = 0; i < numDocs; i++) {
+        // mix of generation-1 and generation-2 docs
+        if (i % 2 === 0) {
+          docs.push({
+            _id: testUtils.uuid(),
+            _rev: '1-x',
+            _revisions: { start: 1, ids: ['x'] }
+          });
+        } else {
+          docs.push({
+            _id: testUtils.uuid(),
+            _rev: '2-x',
+            _revisions: { start: 2, ids: ['x', 'y'] }
+          });
+        }
+      }
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      return db.bulkDocs({
+        docs: docs,
+        new_edits: false
+      }).then(function () {
+        function replicatePromise(fromDB, toDB) {
+          return new Promise(function (resolve, reject) {
+            var replication = fromDB.replicate.to(toDB, {
+              live: true,
+              retry: true,
+              batches_limit: 10,
+              batch_size: 20
+            }).on('paused', function (err) {
+              if (!err) {
+                replication.cancel();
+              }
+            }).on('complete', resolve)
+              .on('error', reject);
+          });
+        }
+        return Promise.all([
+          replicatePromise(db, remote),
+          replicatePromise(remote, db)
+        ]);
+      }).then(function () {
+        return remote.info();
+      }).then(function (info) {
+        info.doc_count.should.equal(numDocs);
+      });
+    });
+
   });
 });
