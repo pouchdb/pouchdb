@@ -161,33 +161,6 @@ var INVALID_URL = new PouchError({
   reason: 'Provided URL is invalid'
 });
 
-var allErrors = {
-  UNAUTHORIZED: UNAUTHORIZED,
-  MISSING_BULK_DOCS: MISSING_BULK_DOCS,
-  MISSING_DOC: MISSING_DOC,
-  REV_CONFLICT: REV_CONFLICT,
-  INVALID_ID: INVALID_ID,
-  MISSING_ID: MISSING_ID,
-  RESERVED_ID: RESERVED_ID,
-  NOT_OPEN: NOT_OPEN,
-  UNKNOWN_ERROR: UNKNOWN_ERROR,
-  BAD_ARG: BAD_ARG,
-  INVALID_REQUEST: INVALID_REQUEST,
-  QUERY_PARSE_ERROR: QUERY_PARSE_ERROR,
-  DOC_VALIDATION: DOC_VALIDATION,
-  BAD_REQUEST: BAD_REQUEST,
-  NOT_AN_OBJECT: NOT_AN_OBJECT,
-  DB_MISSING: DB_MISSING,
-  WSQ_ERROR: WSQ_ERROR,
-  LDB_ERROR: LDB_ERROR,
-  FORBIDDEN: FORBIDDEN,
-  INVALID_REV: INVALID_REV,
-  FILE_EXISTS: FILE_EXISTS,
-  MISSING_STUB: MISSING_STUB,
-  IDB_ERROR: IDB_ERROR,
-  INVALID_URL: INVALID_URL
-};
-
 function createError(error, reason, name) {
   function CustomPouchError(reason) {
     // inherit error properties from our parent error manually
@@ -306,6 +279,5 @@ export {
   INVALID_URL,
   getErrorTypeByProp,
   createError,
-  generateErrorFromResponse,
-  allErrors as errors
+  generateErrorFromResponse
 };
