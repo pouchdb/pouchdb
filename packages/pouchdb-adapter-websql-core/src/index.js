@@ -1,17 +1,21 @@
 import { extend } from 'js-extend';
 import {
   clone,
-  uuid,
   pick,
   filterChange,
-  isDeleted,
-  isLocalId,
   hasLocalStorage,
-  collectConflicts,
-  traverseRevTree,
   changesHandler as Changes,
-  toPromise
+  toPromise,
+  uuid
 } from 'pouchdb-utils';
+import {
+  isDeleted,
+  isLocalId
+} from 'pouchdb-adapter-utils';
+import {
+  collectConflicts,
+  traverseRevTree
+} from 'pouchdb-merge';
 import {
   safeJsonParse,
   safeJsonStringify

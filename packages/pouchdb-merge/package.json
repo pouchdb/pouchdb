@@ -1,0 +1,16 @@
+{
+  "name": "pouchdb-merge",
+  "version": "5.4.0-prerelease",
+  "description": "PouchDB's document merge algorithm.",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {}
+}

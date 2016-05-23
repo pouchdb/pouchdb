@@ -3,9 +3,11 @@ import {
   preprocessAttachments,
   isLocalId,
   processDocs,
-  compactTree,
   parseDoc
-} from 'pouchdb-utils';
+} from 'pouchdb-adapter-utils';
+import {
+  compactTree
+} from 'pouchdb-merge';
 import {
   safeJsonParse,
   safeJsonStringify
