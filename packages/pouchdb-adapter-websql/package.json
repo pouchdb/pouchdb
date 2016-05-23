@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "js-extend": "1.0.1",
-    "pouchdb-adapter-websql-core": "5.4.0-prerelease"
+    "pouchdb-adapter-websql-core": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease"
   }
 }

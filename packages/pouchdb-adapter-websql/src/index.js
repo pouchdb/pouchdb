@@ -1,5 +1,6 @@
 import WebSqlPouchCore from 'pouchdb-adapter-websql-core';
 import { extend } from 'js-extend';
+import valid from './valid';
 
 function websql(optsOrName, version, description, size) {
   if (typeof sqlitePlugin !== 'undefined') {
@@ -22,13 +23,7 @@ function WebSQLPouch(opts, callback) {
   WebSqlPouchCore.call(this, _opts, callback);
 }
 
-WebSQLPouch.valid = function () {
-  // SQLitePlugin leaks this global object, which we can use
-  // to detect if it's installed or not. The benefit is that it's
-  // declared immediately, before the 'deviceready' event has fired.
-  return typeof openDatabase !== 'undefined' ||
-    typeof SQLitePlugin !== 'undefined';
-};
+WebSQLPouch.valid = valid;
 
 WebSQLPouch.use_prefix = true;
 
