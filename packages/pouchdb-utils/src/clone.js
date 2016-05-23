@@ -1,5 +1,6 @@
 import isBinaryObject from './isBinaryObject';
 import cloneBinaryObject from './cloneBinaryObject';
+import isPlainObject from './isPlainObject';
 
 function clone(object) {
   var newObject;
@@ -26,6 +27,10 @@ function clone(object) {
 
   if (isBinaryObject(object)) {
     return cloneBinaryObject(object);
+  }
+
+  if (!isPlainObject(object)) {
+    return object; // don't clone objects like Workers
   }
 
   newObject = {};
