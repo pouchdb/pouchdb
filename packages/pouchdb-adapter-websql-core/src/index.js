@@ -71,7 +71,7 @@ function fetchAttachmentsIfNecessary(doc, opts, api, txn, cb) {
   function fetchAttachment(doc, att) {
     var attObj = doc._attachments[att];
     var attOpts = {binary: opts.binary, ctx: txn};
-    api._getAttachment(attObj, attOpts, function (_, data) {
+    api._getAttachment(doc._id, att, attObj, attOpts, function (_, data) {
       doc._attachments[att] = extend(
         pick(attObj, ['digest', 'content_type']),
         { data: data }
@@ -850,7 +850,7 @@ function WebSqlPouch(opts, callback) {
     callback();
   };
 
-  api._getAttachment = function (attachment, opts, callback) {
+  api._getAttachment = function (docId, attachId, attachment, opts, callback) {
     var res;
     var tx = opts.ctx;
     var digest = attachment.digest;
