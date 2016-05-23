@@ -1,4 +1,4 @@
-import uuid from './../uuid';
+import uuid from './uuid';
 
 import {
   INVALID_ID,

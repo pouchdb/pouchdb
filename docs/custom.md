@@ -377,6 +377,16 @@ Tool to write a checkpoint, e.g. during replication.
 npm install --save-exact pouchdb-checkpointer
 ```
 
+### pouchdb-document-utils
+
+Utilities for working with PouchDB/CouchDB documents.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-document-utils
+```
+
 ### pouchdb-errors
 
 Errors exposed by PouchDB.
@@ -425,6 +435,16 @@ Utilities for calculating MD5 checksums.
 
 ```bash
 npm install --save-exact pouchdb-md5
+```
+
+### pouchdb-merge
+
+PouchDB's CouchDB-style document merge algorithm.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-merge
 ```
 
 ### pouchdb-promise

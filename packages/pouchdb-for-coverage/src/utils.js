@@ -14,12 +14,15 @@ import {
   parseDdocFunctionName,
   normalizeDdocFunctionName,
   once,
-  merge,
-  winningRev,
   upsert,
   toPromise,
   defaultBackOff
 } from 'pouchdb-utils';
+
+import {
+  merge,
+  winningRev
+} from 'pouchdb-merge';
 
 import {
   atob,

@@ -9,18 +9,22 @@ import Promise from 'pouchdb-promise';
 import {
   clone,
   changesHandler as Changes,
-  uuid,
   filterChange,
-  winningRev as calculateWinningRev,
-  traverseRevTree,
-  compactTree,
-  collectConflicts,
+  functionName
+} from 'pouchdb-utils';
+import {
+  uuid,
   isDeleted,
   isLocalId,
   parseDoc,
-  processDocs,
-  functionName
-} from 'pouchdb-utils';
+  processDocs
+} from 'pouchdb-document-utils';
+import {
+  winningRev as calculateWinningRev,
+  traverseRevTree,
+  compactTree,
+  collectConflicts
+} from 'pouchdb-merge';
 import {
   safeJsonParse,
   safeJsonStringify

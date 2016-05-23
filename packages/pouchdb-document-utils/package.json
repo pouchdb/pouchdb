@@ -1,7 +1,7 @@
 {
-  "name": "pouchdb-core",
+  "name": "pouchdb-document-utils",
   "version": "5.4.0-prerelease",
-  "description": "The core of PouchDB as a standalone package.",
+  "description": "Utilities for working with PouchDB/CouchDB documents.",
   "main": "./lib/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",
@@ -13,19 +13,10 @@
     "src"
   ],
   "dependencies": {
-    "argsarray": "0.0.1",
-    "debug": "2.2.0",
-    "double-ended-queue": "2.0.0-0",
-    "inherits": "2.0.1",
-    "js-extend": "1.0.1",
+    "pouchdb-binary-utils": "5.4.0-prerelease",
     "pouchdb-collections": "1.0.1",
     "pouchdb-errors": "5.4.0-prerelease",
     "pouchdb-merge": "5.4.0-prerelease",
-    "pouchdb-promise": "5.4.0-prerelease",
-    "pouchdb-utils": "5.4.0-prerelease",
-    "scope-eval": "0.0.3"
-  },
-  "browser": {
-    "./lib/index.js": "./lib/index-browser.js"
+    "pouchdb-md5": "5.4.0-prerelease"
   }
 }

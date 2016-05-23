@@ -5,10 +5,12 @@ import {
   isDeleted,
   once,
   parseDdocFunctionName,
-  normalizeDdocFunctionName,
+  normalizeDdocFunctionName
+} from 'pouchdb-utils';
+import {
   collectLeaves,
   collectConflicts
-} from 'pouchdb-utils';
+} from 'pouchdb-merge';
 import inherits from 'inherits';
 import { EventEmitter as EE } from 'events';
 import evalFilter from './evalFilter';

@@ -10,14 +10,18 @@ import {
   adapterFun,
   upsert,
   bulkGetShim,
+  invalidIdError
+} from 'pouchdb-utils';
+import {
   isDeleted,
-  isLocalId,
+  isLocalId
+} from 'pouchdb-document-utils';
+import {
   traverseRevTree,
   collectLeaves,
   rootToLeaf,
-  collectConflicts,
-  invalidIdError
-} from 'pouchdb-utils';
+  collectConflicts
+} from 'pouchdb-merge';
 import {
   MISSING_BULK_DOCS,
   MISSING_DOC,

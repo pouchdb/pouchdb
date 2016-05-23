@@ -1,9 +1,11 @@
 import { createError, REV_CONFLICT } from 'pouchdb-errors';
 import isDeleted from './isDeleted';
 import { parseDoc as parseDoc } from './parseDoc';
-import calculateWinningRev from '../merge/winningRev';
-import merge from '../merge/index';
-import revExists from '../merge/revExists';
+import {
+  merge,
+  winningRev as calculateWinningRev,
+  revExists
+} from 'pouchdb-merge';
 
 function updateDoc(revLimit, prev, docInfo, results,
                    i, cb, writeDoc, newEdits) {

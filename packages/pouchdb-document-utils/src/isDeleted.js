@@ -1,4 +1,4 @@
-import winningRev from '../merge/winningRev';
+import { winningRev } from 'pouchdb-merge';
 
 function getTrees(node) {
   return node.ids;

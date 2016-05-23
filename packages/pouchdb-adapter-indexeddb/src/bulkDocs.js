@@ -4,9 +4,12 @@ import {
   preprocessAttachments,
   processDocs,
   isLocalId,
-  compactTree,
   parseDoc
-} from 'pouchdb-utils';
+} from 'pouchdb-document-utils';
+
+import {
+  compactTree
+} from 'pouchdb-merge';
 
 import {
   ATTACH_AND_SEQ_STORE,

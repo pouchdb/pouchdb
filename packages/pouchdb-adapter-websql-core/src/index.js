@@ -1,18 +1,22 @@
 import { extend } from 'js-extend';
 import {
   clone,
-  uuid,
   pick,
   filterChange,
-  isDeleted,
-  isLocalId,
-  parseHexString,
   hasLocalStorage,
-  collectConflicts,
-  traverseRevTree,
   changesHandler as Changes,
   toPromise
 } from 'pouchdb-utils';
+import {
+  isDeleted,
+  isLocalId,
+  uuid
+} from 'pouchdb-document-utils';
+import parseHexString from './parseHex';
+import {
+  collectConflicts,
+  traverseRevTree
+} from 'pouchdb-merge';
 import {
   safeJsonParse,
   safeJsonStringify
