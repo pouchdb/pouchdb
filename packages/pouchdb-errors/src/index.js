@@ -161,32 +161,32 @@ var INVALID_URL = new PouchError({
   reason: 'Provided URL is invalid'
 });
 
-var allErrors = {
-  UNAUTHORIZED: UNAUTHORIZED,
-  MISSING_BULK_DOCS: MISSING_BULK_DOCS,
-  MISSING_DOC: MISSING_DOC,
-  REV_CONFLICT: REV_CONFLICT,
-  INVALID_ID: INVALID_ID,
-  MISSING_ID: MISSING_ID,
-  RESERVED_ID: RESERVED_ID,
-  NOT_OPEN: NOT_OPEN,
-  UNKNOWN_ERROR: UNKNOWN_ERROR,
-  BAD_ARG: BAD_ARG,
-  INVALID_REQUEST: INVALID_REQUEST,
-  QUERY_PARSE_ERROR: QUERY_PARSE_ERROR,
-  DOC_VALIDATION: DOC_VALIDATION,
-  BAD_REQUEST: BAD_REQUEST,
-  NOT_AN_OBJECT: NOT_AN_OBJECT,
-  DB_MISSING: DB_MISSING,
-  WSQ_ERROR: WSQ_ERROR,
-  LDB_ERROR: LDB_ERROR,
-  FORBIDDEN: FORBIDDEN,
-  INVALID_REV: INVALID_REV,
-  FILE_EXISTS: FILE_EXISTS,
-  MISSING_STUB: MISSING_STUB,
-  IDB_ERROR: IDB_ERROR,
-  INVALID_URL: INVALID_URL
-};
+var allErrors = [
+  UNAUTHORIZED,
+  MISSING_BULK_DOCS,
+  MISSING_DOC,
+  REV_CONFLICT,
+  INVALID_ID,
+  MISSING_ID,
+  RESERVED_ID,
+  NOT_OPEN,
+  UNKNOWN_ERROR,
+  BAD_ARG,
+  INVALID_REQUEST,
+  QUERY_PARSE_ERROR,
+  DOC_VALIDATION,
+  BAD_REQUEST,
+  NOT_AN_OBJECT,
+  DB_MISSING,
+  WSQ_ERROR,
+  LDB_ERROR,
+  FORBIDDEN,
+  INVALID_REV,
+  FILE_EXISTS,
+  MISSING_STUB,
+  IDB_ERROR,
+  INVALID_URL
+];
 
 function createError(error, reason, name) {
   function CustomPouchError(reason) {
@@ -216,15 +216,12 @@ function createError(error, reason, name) {
 // This is for differentiating between errors with the same name and status,
 // eg, bad_request.
 var getErrorTypeByProp = function (prop, value, reason) {
-  var keys = Object.keys(allErrors).filter(function (key) {
-    var error = allErrors[key];
-    return typeof error !== 'function' && error[prop] === value;
+  var errorsByProp = allErrors.filter(function (error) {
+    return error[prop] === value;
   });
-  var key = reason && keys.filter(function (key) {
-      var error = allErrors[key];
-      return error.message === reason;
-    })[0] || keys[0];
-  return (key) ? allErrors[key] : null;
+  return (reason && errorsByProp.filter(function (error) {
+    return error.message === reason;
+  })[0]) || errorsByProp[0];
 };
 
 function generateErrorFromResponse(res) {
@@ -306,6 +303,5 @@ export {
   INVALID_URL,
   getErrorTypeByProp,
   createError,
-  generateErrorFromResponse,
-  allErrors as errors
+  generateErrorFromResponse
 };

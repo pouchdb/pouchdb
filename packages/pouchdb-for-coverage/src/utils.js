@@ -38,7 +38,11 @@ import {
 
 import Promise from 'pouchdb-promise';
 
-import { createError } from 'pouchdb-errors';
+import {
+  createError,
+  getErrorTypeByProp,
+  generateErrorFromResponse
+} from 'pouchdb-errors';
 
 import { extend } from 'js-extend';
 
@@ -57,6 +61,8 @@ export default {
   clone: clone,
   extend: extend,
   createError: createError,
+  getErrorTypeByProp: getErrorTypeByProp,
+  generateErrorFromResponse: generateErrorFromResponse,
   generateReplicationId: generateReplicationId,
   parseDdocFunctionName: parseDdocFunctionName,
   normalizeDdocFunctionName: normalizeDdocFunctionName,
