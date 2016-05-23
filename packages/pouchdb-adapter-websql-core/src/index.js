@@ -6,7 +6,6 @@ import {
   filterChange,
   isDeleted,
   isLocalId,
-  parseHexString,
   hasLocalStorage,
   collectConflicts,
   traverseRevTree,
@@ -22,6 +21,7 @@ import {
   btoa
 } from 'pouchdb-binary-utils';
 
+import parseHexString from './parseHex';
 import websqlBulkDocs from './bulkDocs';
 
 import {

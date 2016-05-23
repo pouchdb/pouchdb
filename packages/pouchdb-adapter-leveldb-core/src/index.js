@@ -4,7 +4,7 @@ import { obj as through } from 'through2';
 import getArguments from 'argsarray';
 import { Map, Set } from 'pouchdb-collections';
 import migrate from './migrate';
-import Deque from "double-ended-queue";
+import Deque from 'double-ended-queue';
 import Promise from 'pouchdb-promise';
 import {
   clone,

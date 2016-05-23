@@ -3,7 +3,7 @@ import path from 'path';
 import { isLocalId, winningRev } from 'pouchdb-utils';
 import levelup from 'levelup';
 import { obj as through } from 'through2';
-import LevelWriteStream from "level-write-stream";
+import LevelWriteStream from 'level-write-stream';
 
 var stores = [
   'document-store',
