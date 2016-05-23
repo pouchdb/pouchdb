@@ -22,6 +22,7 @@
     "./src/blob.js": "./src/blob-browser.js",
     "./src/binaryStringToBlobOrBuffer.js": "./src/binaryStringToBlobOrBuffer-browser.js",
     "./src/blobOrBufferToBase64.js": "./src/blobOrBufferToBase64-browser.js",
-    "./src/readAsArrayBuffer.js": "./src/readAsArrayBuffer-browser.js"
+    "./src/readAsArrayBuffer.js": "./src/readAsArrayBuffer-browser.js",
+    "./src/typedBuffer.js": "./src/typedBuffer-browser.js"
   }
 }
