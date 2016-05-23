@@ -398,7 +398,7 @@ function LevelPouch(opts, callback) {
 
   // not technically part of the spec, but if putAttachment has its own
   // method...
-  api._getAttachment = function (attachment, opts, callback) {
+  api._getAttachment = function (docId, attachId, attachment, opts, callback) {
     var digest = attachment.digest;
     var type = attachment.content_type;
 

@@ -357,7 +357,7 @@ function init(api, opts, callback) {
     };
   };
 
-  api._getAttachment = function (attachment, opts, callback) {
+  api._getAttachment = function (docId, attachId, attachment, opts, callback) {
     var txn;
     if (opts.ctx) {
       txn = opts.ctx;
