@@ -161,6 +161,33 @@ var INVALID_URL = new PouchError({
   reason: 'Provided URL is invalid'
 });
 
+var allErrors = [
+  UNAUTHORIZED,
+  MISSING_BULK_DOCS,
+  MISSING_DOC,
+  REV_CONFLICT,
+  INVALID_ID,
+  MISSING_ID,
+  RESERVED_ID,
+  NOT_OPEN,
+  UNKNOWN_ERROR,
+  BAD_ARG,
+  INVALID_REQUEST,
+  QUERY_PARSE_ERROR,
+  DOC_VALIDATION,
+  BAD_REQUEST,
+  NOT_AN_OBJECT,
+  DB_MISSING,
+  WSQ_ERROR,
+  LDB_ERROR,
+  FORBIDDEN,
+  INVALID_REV,
+  FILE_EXISTS,
+  MISSING_STUB,
+  IDB_ERROR,
+  INVALID_URL
+];
+
 function createError(error, reason, name) {
   function CustomPouchError(reason) {
     // inherit error properties from our parent error manually
@@ -189,15 +216,12 @@ function createError(error, reason, name) {
 // This is for differentiating between errors with the same name and status,
 // eg, bad_request.
 var getErrorTypeByProp = function (prop, value, reason) {
-  var keys = Object.keys(allErrors).filter(function (key) {
-    var error = allErrors[key];
-    return typeof error !== 'function' && error[prop] === value;
+  var errors = allErrors.filter(function (error) {
+    return error[prop] === value;
   });
-  var key = reason && keys.filter(function (key) {
-      var error = allErrors[key];
-      return error.message === reason;
-    })[0] || keys[0];
-  return (key) ? allErrors[key] : null;
+  return reason && errors.filter(function (error) {
+    return error.message === reason;
+  })[0] || errors[0];
 };
 
 function generateErrorFromResponse(res) {
