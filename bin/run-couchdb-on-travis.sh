@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ $SERVER == 'couchdb-master' ]; then
+if [ "$SERVER" = "couchdb-master" ]; then
   # Install CouchDB Master
   docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev --with-haproxy \
     --with-admin-party-please -n 1
