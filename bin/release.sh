@@ -11,8 +11,13 @@ VERSION=$(node --eval "console.log(require('./packages/pouchdb/package.json').ve
 git checkout -b build
 
 # Publish all modules with Lerna
-for pkg in $(echo packages/* | tr ' ' '\n' | grep -v pouchdb-for-coverage); do
-  cd $pkg
+for pkg in $(ls packages); do
+  if [ "$pkg" = "pouchdb-for-coverage" ]; then
+    continue
+  elif [ ! -d "packages/$pkg" ]; then
+    continue
+  fi
+  cd packages/$pkg
   echo "Publishing $pkg..."
   npm publish
   cd ../..
