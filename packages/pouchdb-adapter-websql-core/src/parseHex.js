@@ -10,7 +10,7 @@
 //
 
 function decodeUtf8(str) {
-  return decodeURIComponent(window.escape(str));
+  return decodeURIComponent(escape(str));
 }
 
 function hexToInt(charCode) {

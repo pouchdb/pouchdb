@@ -1,5 +1,5 @@
-import safeJsonParse from './safeJsonParse.js';
-import safeJsonStringify from './safeJsonStringify.js';
+import safeJsonParse from './safeJsonParse';
+import safeJsonStringify from './safeJsonStringify';
 
 export {
   safeJsonParse,

@@ -1,6 +1,6 @@
 import { extend } from 'js-extend';
 
-import PouchDB from "./constructor";
+import PouchDB from './constructor';
 import inherits from 'inherits';
 import { Map } from 'pouchdb-collections';
 import { EventEmitter as EE } from 'events';

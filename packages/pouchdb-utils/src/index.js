@@ -1,37 +1,36 @@
-import adapterFun from './adapterFun.js';
-import bulkGetShim from './bulkGetShim.js';
-import clone from './clone.js';
+import adapterFun from './adapterFun';
+import bulkGetShim from './bulkGetShim';
+import clone from './clone';
 import explainError from './explainError';
-import isDeleted from './docs/isDeleted.js';
-import isLocalId from './docs/isLocalId.js';
-import normalizeDdocFunctionName from './docs/normalizeDdocFunctionName.js';
-import parseDdocFunctionName from './docs/parseDdocFunctionName.js';
-import { parseDoc, invalidIdError} from './docs/parseDoc.js';
-import preprocessAttachments from './docs/preprocessAttachments.js';
-import processDocs from './docs/processDocs.js';
-import updateDoc from './docs/updateDoc.js';
-import hasLocalStorage from './env/hasLocalStorage.js';
-import isChromeApp from './env/isChromeApp.js';
-import extend from './extend.js';
-import filterChange from './filterChange.js';
-import flatten from './flatten.js';
-import functionName from './functionName.js';
-import isCordova from './isCordova.js';
-import collectConflicts from './merge/collectConflicts.js';
-import collectLeaves from './merge/collectLeaves.js';
-import compactTree from './merge/compactTree.js';
-import merge from './merge/index.js';
-import revExists from './merge/revExists.js';
-import rootToLeaf from './merge/rootToLeaf.js';
-import traverseRevTree from './merge/traverseRevTree.js';
-import winningRev from './merge/winningRev.js';
-import once from './once.js';
-import parseHexString from './parseHex.js';
-import parseUri from './parseUri.js';
-import pick from './pick.js';
-import toPromise from './toPromise.js';
-import upsert from './upsert.js';
-import uuid from './uuid.js';
+import isDeleted from './docs/isDeleted';
+import isLocalId from './docs/isLocalId';
+import normalizeDdocFunctionName from './docs/normalizeDdocFunctionName';
+import parseDdocFunctionName from './docs/parseDdocFunctionName';
+import { parseDoc, invalidIdError} from './docs/parseDoc';
+import preprocessAttachments from './docs/preprocessAttachments';
+import processDocs from './docs/processDocs';
+import updateDoc from './docs/updateDoc';
+import hasLocalStorage from './env/hasLocalStorage';
+import isChromeApp from './env/isChromeApp';
+import extend from './extend';
+import filterChange from './filterChange';
+import flatten from './flatten';
+import functionName from './functionName';
+import isCordova from './isCordova';
+import collectConflicts from './merge/collectConflicts';
+import collectLeaves from './merge/collectLeaves';
+import compactTree from './merge/compactTree';
+import merge from './merge/index';
+import revExists from './merge/revExists';
+import rootToLeaf from './merge/rootToLeaf';
+import traverseRevTree from './merge/traverseRevTree';
+import winningRev from './merge/winningRev';
+import once from './once';
+import parseUri from './parseUri';
+import pick from './pick';
+import toPromise from './toPromise';
+import upsert from './upsert';
+import uuid from './uuid';
 import changesHandler from './changesHandler';
 import defaultBackOff from './defaultBackOff';
 
@@ -60,7 +59,6 @@ export {
   once,
   parseDdocFunctionName,
   parseDoc,
-  parseHexString,
   parseUri,
   pick,
   preprocessAttachments,
