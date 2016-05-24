@@ -25,8 +25,9 @@ function isValidWebSQL() {
   //   Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4
   //   (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4
 
-  // typeof indexedDB is null on some UIWebViews and undefined in others
-  if (typeof indexedDB !== 'object' ||
+  // indexedDB is null on some UIWebViews and undefined in others
+  // see: https://bugs.webkit.org/show_bug.cgi?id=137034
+  if (typeof indexedDB === 'undefined' || indexedDB === null ||
       !/iP(hone|od|ad)/.test(navigator.userAgent)) {
     // definitely not WKWebView, avoid creating an unnecessary database
     return true;
