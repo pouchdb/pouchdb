@@ -60,7 +60,7 @@
     "lodash.debounce": "4.0.6",
     "memdown": "1.1.2",
     "mkdirp": "0.5.1",
-    "mocha": "2.5.1",
+    "mocha": "2.5.2",
     "mockery": "1.7.0",
     "ncp": "2.0.0",
     "pouchdb-express-router": "0.0.8",
