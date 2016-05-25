@@ -1,9 +1,6 @@
-import uuid from './../uuid';
+import { uuid, invalidIdError } from 'pouchdb-utils';
 
 import {
-  INVALID_ID,
-  MISSING_ID,
-  RESERVED_ID,
   DOC_VALIDATION,
   INVALID_REV,
   createError
@@ -47,25 +44,6 @@ var dataWords = toObject([
   '_replication_state_reason',
   '_replication_stats'
 ]);
-
-// Determine id an ID is valid
-//   - invalid IDs begin with an underescore that does not begin '_design' or
-//     '_local'
-//   - any other string value is a valid id
-// Returns the specific error object for each case
-function invalidIdError(id) {
-  var err;
-  if (!id) {
-    err = createError(MISSING_ID);
-  } else if (typeof id !== 'string') {
-    err = createError(INVALID_ID);
-  } else if (/^_/.test(id) && !(/^_(design|local)/).test(id)) {
-    err = createError(RESERVED_ID);
-  }
-  if (err) {
-    throw err;
-  }
-}
 
 function parseRevisionInfo(rev) {
   if (!/^\d+\-./.test(rev)) {
@@ -173,7 +151,4 @@ function parseDoc(doc, newEdits) {
   return result;
 }
 
-export {
-  invalidIdError,
-  parseDoc
-};
+export default parseDoc;

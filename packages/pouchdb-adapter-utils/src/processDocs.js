@@ -1,9 +1,11 @@
 import { createError, MISSING_DOC, REV_CONFLICT } from 'pouchdb-errors';
 import updateDoc from './updateDoc';
-import isDeleted from './isDeleted';
-import isLocalId from './isLocalId';
-import calculateWinningRev from '../merge/winningRev';
-import merge from '../merge/index';
+import {
+  isDeleted,
+  isLocalId,
+  merge,
+  winningRev as calculateWinningRev
+} from 'pouchdb-merge';
 import { Map } from 'pouchdb-collections';
 
 function rootIsMissing(docInfo) {

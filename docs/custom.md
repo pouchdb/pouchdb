@@ -347,6 +347,16 @@ without warning. You are strongly recommended to use exact versions when install
 {% endmarkdown %}
 {% include alert/end.html%}
 
+### pouchdb-adapter-utils
+
+Utilities for PouchDB adapters.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-adapter-utils
+```
+
 ### pouchdb-ajax
 
 PouchDB's `ajax()` function.
@@ -425,6 +435,16 @@ Utilities for calculating MD5 checksums.
 
 ```bash
 npm install --save-exact pouchdb-md5
+```
+
+### pouchdb-merge
+
+PouchDB's CouchDB-style document merge algorithm.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-merge
 ```
 
 ### pouchdb-promise

@@ -1,15 +1,18 @@
 import {
   clone,
-  uuid,
   filterChange,
   toPromise,
+  hasLocalStorage,
+  changesHandler as Changes,
+  uuid
+} from 'pouchdb-utils';
+import {
   isDeleted,
   isLocalId,
-  hasLocalStorage,
-  winningRev as calculateWinningRev,
   traverseRevTree,
-  changesHandler as Changes
-} from 'pouchdb-utils';
+  winningRev as calculateWinningRev
+} from 'pouchdb-merge';
+
 import { Map, Set } from 'pouchdb-collections';
 import idbBulkDocs from './bulkDocs';
 import idbAllDocs from './allDocs';

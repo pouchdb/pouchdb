@@ -2,13 +2,15 @@ import Promise from 'pouchdb-promise';
 import getArguments from 'argsarray';
 import {
   clone,
-  isDeleted,
   once,
   parseDdocFunctionName,
-  normalizeDdocFunctionName,
+  normalizeDdocFunctionName
+} from 'pouchdb-utils';
+import {
+  isDeleted,
   collectLeaves,
   collectConflicts
-} from 'pouchdb-utils';
+} from 'pouchdb-merge';
 import inherits from 'inherits';
 import { EventEmitter as EE } from 'events';
 import evalFilter from './evalFilter';
