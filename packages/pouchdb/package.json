@@ -40,6 +40,10 @@
     "websql": "0.4.4"
   },
   "devDependencies": {
+    "pouchdb-adapter-http": "5.4.0-prerelease",
+    "pouchdb-adapter-indexeddb": "5.4.0-prerelease",
+    "pouchdb-core": "5.4.0-prerelease",
+    "pouchdb-replication": "5.4.0-prerelease",
     "pouchdb-adapter-fruitdown": "5.4.0-prerelease",
     "pouchdb-adapter-localstorage": "5.4.0-prerelease",
     "pouchdb-adapter-memory": "5.4.0-prerelease",
