@@ -40,10 +40,6 @@
     "websql": "0.4.4"
   },
   "devDependencies": {
-    "pouchdb-adapter-http": "5.4.0-prerelease",
-    "pouchdb-adapter-indexeddb": "5.4.0-prerelease",
-    "pouchdb-core": "5.4.0-prerelease",
-    "pouchdb-replication": "5.4.0-prerelease",
     "pouchdb-adapter-fruitdown": "5.4.0-prerelease",
     "pouchdb-adapter-localstorage": "5.4.0-prerelease",
     "pouchdb-adapter-memory": "5.4.0-prerelease",
@@ -52,6 +48,7 @@
     "pouchdb-browser": "5.4.0-prerelease",
     "pouchdb-checkpointer": "5.4.0-prerelease",
     "pouchdb-generate-replication-id": "5.4.0-prerelease",
+    "pouchdb-next": "5.4.0-prerelease",
     "pouchdb-node": "5.4.0-prerelease",
     "pouchdb-promise": "5.4.0-prerelease"
   },
