@@ -73,7 +73,7 @@ var db = new PouchDB('mydb');
 
 ```js
 var PouchDB = require('pouchdb-core')
-  .plugin(require('pouchdb-adapter-indexeddb'))
+  .plugin(require('pouchdb-adapter-idb'))
   .plugin(require('pouchdb-adapter-websql'))
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-mapreduce'))
@@ -162,7 +162,7 @@ PouchDB uses. For the non-HTTP adapters, the plugin order matters, i.e. if you
 want IndexedDB to be preferred to WebSQL, then you should load it first. (Notice that
 `pouchdb-browser` does exactly this.)
 
-### pouchdb-adapter-indexeddb
+### pouchdb-adapter-idb
 
 The primary adapter used by PouchDB in the browser, using IndexedDB. The adapter
 name is `'idb'`.
@@ -170,11 +170,11 @@ name is `'idb'`.
 #### Example usage
 
 ```bash
-npm install pouchdb-adapter-indexeddb
+npm install pouchdb-adapter-idb
 ```
 
 ```js
-PouchDB.plugin(require('pouchdb-adapter-indexeddb'));
+PouchDB.plugin(require('pouchdb-adapter-idb'));
 var db = new PouchDB('mydb', {adapter: 'idb'});
 ```
 
