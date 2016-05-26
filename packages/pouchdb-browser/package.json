@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "pouchdb-adapter-http": "5.4.0-prerelease",
-    "pouchdb-adapter-indexeddb": "5.4.0-prerelease",
+    "pouchdb-adapter-idb": "5.4.0-prerelease",
     "pouchdb-adapter-websql": "5.4.0-prerelease",
     "pouchdb-core": "5.4.0-prerelease",
     "pouchdb-mapreduce": "5.4.0-prerelease",

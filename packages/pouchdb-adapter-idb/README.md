@@ -1,4 +1,4 @@
-pouchdb-adapter-indexeddb
+pouchdb-adapter-idb
 ======
 
 PouchDB adapter using IndexedDB as its data store. Designed to run in the browser. Its adapter name
@@ -7,11 +7,11 @@ is `'idb'`.
 ### Usage
 
 ```bash
-npm install pouchdb-adapter-indexeddb
+npm install pouchdb-adapter-idb
 ```
 
 ```js
-PouchDB.plugin(require('pouchdb-adapter-indexeddb'));
+PouchDB.plugin(require('pouchdb-adapter-idb'));
 var db = new PouchDB('mydb', {adapter: 'idb'});
 ```
 
