@@ -1,5 +1,5 @@
 {
-  "name": "pouchdb-adapter-indexeddb",
+  "name": "pouchdb-adapter-idb",
   "version": "5.4.0-prerelease",
   "description": "PouchDB adapter using IndexedDB as its data store.",
   "main": "./lib/index.js",
