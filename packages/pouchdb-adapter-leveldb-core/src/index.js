@@ -562,7 +562,7 @@ function LevelPouch(opts, callback) {
     }
 
     function finish() {
-      if (api.auto_compaction) {
+      if (api.auto_compaction && isUpdate) {
         return autoCompact(complete);
       } else {
         compact(stemmedRevs, complete);
