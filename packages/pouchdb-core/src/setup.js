@@ -66,9 +66,11 @@ PouchDB.parseAdapter = function (name, opts) {
       if (adapterName in PouchDB.adapters) {
         /* istanbul ignore if */
         if (skipIdb && adapterName === 'idb') {
-          // log it, because this can be confusing during development
-          console.log('PouchDB is downgrading "' + name + '" to WebSQL to' +
-            ' avoid data loss, because it was already opened with WebSQL.');
+          if(typeof console !== undefined && 'log' in console) {
+            // log it, because this can be confusing during development
+            console.log('PouchDB is downgrading "' + name + '" to WebSQL to' +
+              ' avoid data loss, because it was already opened with WebSQL.');
+          }
           continue; // keep using websql to avoid user data loss
         }
         break;

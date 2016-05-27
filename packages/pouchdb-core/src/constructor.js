@@ -8,7 +8,9 @@ import { clone } from 'pouchdb-utils';
 function defaultCallback(err) {
   /* istanbul ignore next */
   if (err && global.debug) {
-    console.error(err);
+    if(typeof console !== undefined && 'error' in console) {
+      console.error(err);
+    }
   }
 }
 
@@ -85,7 +87,7 @@ function PouchDB(name, opts, callback) {
       delete resp.then;
       fulfill(resp);
     };
-  
+
     opts = clone(opts);
     var originalName = opts.name || name;
     var backend, error;
@@ -99,7 +101,7 @@ function PouchDB(name, opts, callback) {
         }
 
         backend = PouchDB.parseAdapter(originalName, opts);
-        
+
         opts.originalName = originalName;
         opts.name = backend.name;
         if (opts.prefix && backend.adapter !== 'http' &&

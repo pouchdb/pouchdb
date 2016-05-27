@@ -883,7 +883,9 @@ function init(api, opts, callback) {
     };
 
     idb.onabort = function (e) {
-      console.error('Database has a global failure', e.target.error);
+      if(typeof console !== undefined && 'error' in console) {
+        console.error('Database has a global failure', e.target.error);
+      }
       idb.close();
       cachedDBs.delete(dbName);
     };
@@ -967,7 +969,9 @@ function init(api, opts, callback) {
 
   req.onerror = function () {
     var msg = 'Failed to open indexedDB, are you in private browsing mode?';
-    console.error(msg);
+    if(typeof console !== undefined && 'error' in console) {
+      console.error(msg);  
+    }
     callback(createError(IDB_ERROR, msg));
   };
 }

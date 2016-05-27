@@ -147,7 +147,9 @@ function compactRevs(revs, docId, tx) {
 
 function websqlError(callback) {
   return function (event) {
-    console.error('WebSQL threw an error', event);
+    if(typeof console !== undefined && 'error' in console) {
+      console.error('WebSQL threw an error', event);
+    }
     // event may actually be a SQLError object, so report is as such
     var errorNameMatch = event && event.constructor.toString()
         .match(/function ([^\(]+)/);
