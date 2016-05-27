@@ -287,6 +287,7 @@ function HttpPouch(opts, callback) {
         params.revs = true;
       }
       if (opts.attachments) {
+        /* istanbul ignore next */
         params.attachments = true;
       }
       ajax({}, {
