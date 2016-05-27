@@ -217,7 +217,9 @@ function HttpPouch(opts, callback) {
         return Promise.reject(err);
       }
     }).catch(function (err) {
-      // If we try to create a database that already exists
+      // If we try to create a database that already exists, skipped in
+      // istanbul since its catching a race condition.
+      /* istanbul ignore if */
       if (err && err.status && err.status === 412) {
         return true;
       }
@@ -287,6 +289,7 @@ function HttpPouch(opts, callback) {
         params.revs = true;
       }
       if (opts.attachments) {
+        /* istanbul ignore next */
         params.attachments = true;
       }
       ajax({}, {
