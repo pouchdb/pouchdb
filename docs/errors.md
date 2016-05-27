@@ -16,7 +16,7 @@ or this one:
 
 > Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://[couchDBIP]:[couchDBPort]/[dbname]/?_nonce=[request hash]. This can be fixed by moving the resource to the same domain or enabling CORS
 
-it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/IrisCouch/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same origin &#8212; the protocol (ex: _http://_, _https://_), domain, and port number must match.
+it's because you need to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) on CouchDB/Cloudant/whatever you're using. Otherwise, your scripts can only access the server database if they're served from the same origin &#8212; the protocol (ex: _http://_, _https://_), domain, and port number must match.
 
 You can enable CORS in CouchDB using `curl` or the Futon web interface, but we've saved you some time by making a Node script called [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb). Just run:
 
@@ -28,7 +28,7 @@ $ add-cors-to-couchdb
 Or if your database is not at `127.0.0.1:5984`:
 
 {% highlight bash %}
-$ add-cors-to-couchdb http://me.iriscouch.com \
+$ add-cors-to-couchdb http://me.example.com \
     -u myusername -p mypassword
 {% endhighlight %}
 

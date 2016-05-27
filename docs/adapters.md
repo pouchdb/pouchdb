@@ -314,7 +314,6 @@ You can also sync to and from these databases to your local PouchDB.
 Currently PouchDB has full support for:
 
 * CouchDB 1.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
-* [IrisCouch](http://www.iriscouch.com/) (same as 1.x)
 * [Couchappy](https://www.couchappy.com/) (same as 1.x)
 * CouchDB 2.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
 * [Cloudant](https://cloudant.com/) (roughly the same as 2.x)
