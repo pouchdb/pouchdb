@@ -48,9 +48,11 @@ function prepareForDestruction(self, opts) {
 inherits(PouchDB, Adapter);
 function PouchDB(name, opts, callback) {
 
+  /* istanbul ignore if */
   if (!(this instanceof PouchDB)) {
     return new PouchDB(name, opts, callback);
   }
+
   var self = this;
   if (typeof opts === 'function' || typeof opts === 'undefined') {
     callback = opts;
