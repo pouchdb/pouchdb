@@ -22,10 +22,8 @@ await db.put({
   title: "Sound and Vision",
 })
 
-if(typeof console !== undefined && 'log' in console) {
-  // later you can fetch your doc
-  console.log(await db.get('mydoc'))
-}
+// later you can fetch your doc
+console.log(await db.get('mydoc'))
 
 // or add many more docs
 response = await db.bulkDocs([
@@ -34,9 +32,7 @@ response = await db.bulkDocs([
     {title: 'Without an _id', type: null}
 ])
 
-if(typeof console !== undefined && 'log' in console) {
-  console.log('bulkDocs response: ' + JSON.stringify(response, null, 2))
-}
+console.log('bulkDocs response: ' + JSON.stringify(response, null, 2))
 
 // and query them
 await db.put({
