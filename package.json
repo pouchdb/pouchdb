@@ -14,7 +14,7 @@
     "test-extras": "mocha tests/extras",
     "test-fuzzy": "TYPE=fuzzy npm run test",
     "test-browser": "npm run build-test && node ./bin/test-browser.js",
-    "test-coverage": "COVERAGE=1 npm test",
+    "test-coverage": "COVERAGE=1 npm test && cat /home/travis/build/pouchdb/pouchdb/coverage/lcov-report/lib/index.js.html",
     "eslint": "eslint bin/ packages/**/src tests/",
     "dev": "CLIENT=dev bash bin/run-test.sh",
     "launch-dev-server": "node ./bin/dev-server.js",
