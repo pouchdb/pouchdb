@@ -4,7 +4,7 @@ import PouchDB from './constructor';
 import inherits from 'inherits';
 import { Map } from 'pouchdb-collections';
 import { EventEmitter as EE } from 'events';
-import { console, hasLocalStorage } from 'pouchdb-utils';
+import { guardedConsole, hasLocalStorage } from 'pouchdb-utils';
 
 PouchDB.adapters = {};
 PouchDB.preferredAdapters = [];
@@ -67,7 +67,7 @@ PouchDB.parseAdapter = function (name, opts) {
         /* istanbul ignore if */
         if (skipIdb && adapterName === 'idb') {
           // log it, because this can be confusing during development
-          console('log', 'PouchDB is downgrading "' + name + '" to WebSQL to' +
+          guardedConsole('log', 'PouchDB is downgrading "' + name + '" to WebSQL to' +
             ' avoid data loss, because it was already opened with WebSQL.');
           continue; // keep using websql to avoid user data loss
         }

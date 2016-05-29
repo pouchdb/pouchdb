@@ -2,7 +2,7 @@ import adapterFun from './adapterFun';
 import bulkGetShim from './bulkGetShim';
 import changesHandler from './changesHandler';
 import clone from './clone';
-import console from './console';
+import guardedConsole from './guardedConsole';
 import defaultBackOff from './defaultBackOff';
 import explainError from './explainError';
 import extend from './extend';
@@ -27,13 +27,13 @@ export {
   bulkGetShim,
   changesHandler,
   clone,
-  console,
   defaultBackOff,
   explainError,
   extend,
   filterChange,
   flatten,
   functionName,
+  guardedConsole,
   hasLocalStorage,
   invalidIdError,
   isChromeApp,
