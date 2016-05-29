@@ -3757,7 +3757,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it.skip('Test immediate replication canceling', function (done) {
+    it('Test immediate replication canceling', function (done) {
       //See  http://pouchdb.com/guides/replication.html : Cancelling replication
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
