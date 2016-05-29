@@ -31,7 +31,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 **WebSQL-only options:**
 
-* `size`: Amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors on iOS/Safari](/errors.html#not_enough_space).
+* `size`: Amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors on iOS/Safari](/errors.html#not_enough_space). Persistent views use a seperate database per view which will also request storage space so keep in mind the upper storage limits when using persistent views on iOS.
 
 **SQLite Plugin-only options:**
 
