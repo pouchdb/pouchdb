@@ -2,6 +2,7 @@ import adapterFun from './adapterFun';
 import bulkGetShim from './bulkGetShim';
 import changesHandler from './changesHandler';
 import clone from './clone';
+import console from './console';
 import defaultBackOff from './defaultBackOff';
 import explainError from './explainError';
 import extend from './extend';
@@ -26,6 +27,7 @@ export {
   bulkGetShim,
   changesHandler,
   clone,
+  console,
   defaultBackOff,
   explainError,
   extend,
