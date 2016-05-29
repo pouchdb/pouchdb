@@ -1,3 +1,14 @@
-// May seem redundant, but this is to allow switching with
-// request-browser.js.
-export default require('request');
+'use strict';
+
+var request = require('request');
+
+export default function (opts, callback) {
+  var req = request(opts, callback);
+  return {
+    abort: function () {
+      process.nextTick(function () {
+        req.abort();
+      });
+    }
+  };
+}
