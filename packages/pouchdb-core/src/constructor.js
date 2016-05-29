@@ -3,14 +3,12 @@ import inherits from 'inherits';
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
 import Promise from 'pouchdb-promise';
-import { clone } from 'pouchdb-utils';
+import { clone, console } from 'pouchdb-utils';
 
 function defaultCallback(err) {
   /* istanbul ignore next */
   if (err && global.debug) {
-    if(typeof console !== undefined && 'error' in console) {
-      console.error(err);
-    }
+    console('error', err);
   }
 }
 

@@ -1,5 +1,6 @@
 import {
   clone,
+  console,
   filterChange,
   toPromise,
   hasLocalStorage,
@@ -883,9 +884,7 @@ function init(api, opts, callback) {
     };
 
     idb.onabort = function (e) {
-      if(typeof console !== undefined && 'error' in console) {
-        console.error('Database has a global failure', e.target.error);
-      }
+      console('error', 'Database has a global failure', e.target.error);
       idb.close();
       cachedDBs.delete(dbName);
     };
@@ -969,9 +968,7 @@ function init(api, opts, callback) {
 
   req.onerror = function () {
     var msg = 'Failed to open indexedDB, are you in private browsing mode?';
-    if(typeof console !== undefined && 'error' in console) {
-      console.error(msg);  
-    }
+    console('error', msg);
     callback(createError(IDB_ERROR, msg));
   };
 }

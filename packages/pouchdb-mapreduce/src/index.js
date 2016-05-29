@@ -1,4 +1,5 @@
 import {
+  console,
   flatten
 } from 'pouchdb-utils';
 
@@ -54,14 +55,12 @@ function emitError(db, e) {
   try {
     db.emit('error', e);
   } catch (err) {
-    if(typeof console !== undefined && 'error' in console) {
-      console.error(
-        'The user\'s map/reduce function threw an uncaught error.\n' +
-        'You can debug this error by doing:\n' +
-        'myDatabase.on(\'error\', function (err) { debugger; });\n' +
-        'Please double-check your map/reduce function.');
-      console.error(e);
-    }
+    console('error',
+      'The user\'s map/reduce function threw an uncaught error.\n' +
+      'You can debug this error by doing:\n' +
+      'myDatabase.on(\'error\', function (err) { debugger; });\n' +
+      'Please double-check your map/reduce function.');
+    console('error', e);
   }
 }
 
