@@ -967,8 +967,6 @@ function HttpPouch(opts, callback) {
       if (err && err.status && err.status !== 404) {
         return callback(err);
       }
-      api.emit('destroyed');
-      api.constructor.emit('destroyed', opts.name);
       callback(null, resp);
     });
   };
