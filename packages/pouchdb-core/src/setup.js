@@ -129,8 +129,6 @@ PouchDB.defaults = function (defaultOpts) {
 
   inherits(PouchAlt, PouchDB);
 
-  setUpEventEmitter(PouchAlt);
-
   PouchAlt.preferredAdapters = PouchDB.preferredAdapters.slice();
   Object.keys(PouchDB).forEach(function (key) {
     if (!(key in PouchAlt)) {

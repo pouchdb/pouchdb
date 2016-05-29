@@ -39,6 +39,13 @@ if (!process.env.LEVEL_ADAPTER &&
       });
     });
 
+    it('Defaults leaks eventEmitters', function () {
+      PouchDB.defaults({db: require('memdown') });
+      PouchDB.defaults({db: require('memdown') });
+      PouchDB.defaults({db: require('memdown') });
+      PouchDB.defaults({db: require('memdown') });
+    });
+
     it('should allow us to set a prefix by default', function () {
       var prefix = './tmp/path/to/db/2/';
       var dir = path.join(prefix, '/tmp/');
@@ -117,6 +124,7 @@ if (!process.env.LEVEL_ADAPTER &&
         });
       });
     });
+
 
     it('should inform us when using memdown', function () {
       var opts = { name: 'mydb', db: require('memdown') };
