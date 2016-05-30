@@ -31,13 +31,7 @@ var persistentQueues = {};
 var tempViewQueue = new TaskQueue();
 var CHANGES_BATCH_SIZE = 50;
 
-var log;
-/* istanbul ignore else */
-if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
-  log = Function.prototype.bind.call(console.log, console);
-} else {
-  log = function () {};
-}
+var log = guardedConsole.bind(null, 'log');
 
 function parseViewName(name) {
   // can be either 'ddocname/viewname' or just 'viewname'
