@@ -58,7 +58,7 @@
     "less": "2.7.1",
     "lie": "3.0.4",
     "lodash.debounce": "4.0.6",
-    "memdown": "1.1.2",
+    "memdown": "1.2.0",
     "mkdirp": "0.5.1",
     "mocha": "2.5.3",
     "mockery": "1.7.0",
