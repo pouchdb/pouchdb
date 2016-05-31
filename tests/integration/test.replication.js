@@ -4404,12 +4404,31 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#2426 doc_ids dont prevent replication', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var writes = [];
+      for (var i = 0; i < 20; i++) {
+        writes.push(remote.put({_id: i + ''}));
+      }
+
+      return testUtils.Promise.all(writes).then(function () {
+        return db.sync(remote, {batch_size: 10, doc_ids: ['11', '12', '13']});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (allDocs) {
+        allDocs.total_rows.should.equal(3);
+      });
+    });
+
   });
 });
 
 // This test only needs to run for one configuration, and it slows stuff
 // down
-downAdapters.map(function () {
+downAdapters.map(function (){
 
   describe('suite2 test.replication.js-down-test', function () {
 
