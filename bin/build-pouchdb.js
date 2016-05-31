@@ -34,7 +34,7 @@ var version = pkg.version;
 // these modules should be treated as external by Rollup
 var external = require('./external-deps');
 
-var plugins = ['fruitdown', 'localstorage', 'memory'];
+var plugins = ['fruitdown', 'localstorage', 'memory', 'next'];
 var browserExtras = {
   'src/extras/ajax.js': 'ajax-browser.js',
   'src/extras/checkpointer.js': 'checkpointer-browser.js',
@@ -84,7 +84,9 @@ var comments = {
   '\n// PouchDB may be freely distributed under the Apache license, ' +
   'version 2.0.' +
   '\n// For all details and documentation:' +
-  '\n// http://pouchdb.com\n'
+  '\n// http://pouchdb.com\n',
+
+  'next': '// PouchDB-next\n'
 };
 
 function addPath(otherPath) {
