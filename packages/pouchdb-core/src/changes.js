@@ -166,6 +166,10 @@ Changes.prototype.doChanges = function (opts) {
     });
   }
 
+  if (opts.view && !opts.filter) {
+    opts.filter = '_view';
+  }
+
   if (opts.filter && typeof opts.filter === 'string') {
     if (opts.filter === '_view') {
       opts.view = normalizeDdocFunctionName(opts.view);
