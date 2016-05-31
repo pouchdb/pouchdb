@@ -1,7 +1,7 @@
 /* global PouchDB */
 
 import MemoryPouchPlugin from 'pouchdb-adapter-memory';
-import guardedConsole from 'pouchdb-utils';
+import { guardedConsole } from 'pouchdb-utils';
 
 var PDB = (typeof PouchDB !== 'undefined') ? PouchDB : require('pouchdb');
 if (!PDB) {

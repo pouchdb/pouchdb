@@ -1,7 +1,7 @@
 /* global PouchDB */
 
 import LocalStoragePouchPlugin from 'pouchdb-adapter-localstorage';
-import guardedConsole from 'pouchdb-utils';
+import { guardedConsole } from 'pouchdb-utils';
 
 var PDB = (typeof PouchDB !== 'undefined') ? PouchDB : require('pouchdb');
 if (!PDB) {

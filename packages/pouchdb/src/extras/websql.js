@@ -1,5 +1,5 @@
 import WebSqlPouchPlugin from 'pouchdb-adapter-node-websql';
-import guardedConsole from 'pouchdb-utils';
+import { guardedConsole } from 'pouchdb-utils';
 
 var PDB = (typeof PouchDB !== 'undefined') ? PouchDB : require('pouchdb');
 if (!PDB) {
