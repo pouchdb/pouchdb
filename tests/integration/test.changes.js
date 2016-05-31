@@ -563,6 +563,29 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#3609 view option implies filter: _view', function () {
+      var docs = [
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {_id: '_design/foo', integer: 3,
+         views: {
+           even: {
+             map: 'function (doc) { if (doc.integer % 2 === 1) ' +
+               '{ emit(doc._id, null) }; }'
+           }
+         }
+        }
+      ];
+
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({view: 'foo/even'});
+      }).then(function (changes) {
+        changes.results.length.should.equal(2);
+      });
+    });
+
     it('Changes last_seq', function (done) {
       // this test doesn't really make sense for clustered
       // CouchDB because changes is unordered and last_seq might
