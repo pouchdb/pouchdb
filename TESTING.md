@@ -12,7 +12,6 @@ Given that you have [installed a CouchDB server](#installing-a-couchdb-server).
 Set up your test environment with:
 
     $ npm install
-    $ npm install leveldown
 
 Run all tests with:
 
