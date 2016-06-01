@@ -59,6 +59,7 @@ function replicate(src, target, opts, returnValue, result) {
     }
     var docs = currentBatch.docs;
     return target.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
+      /* istanbul ignore if */
       if (returnValue.cancelled) {
         completeReplication();
         throw new Error('cancelled');
@@ -113,6 +114,7 @@ function replicate(src, target, opts, returnValue, result) {
     return checkpointer.writeCheckpoint(currentBatch.seq,
         session).then(function () {
       writingCheckpoint = false;
+      /* istanbul ignore if */
       if (returnValue.cancelled) {
         completeReplication();
         throw new Error('cancelled');
@@ -135,6 +137,7 @@ function replicate(src, target, opts, returnValue, result) {
       });
     });
     return target.revsDiff(diff).then(function (diffs) {
+      /* istanbul ignore if */
       if (returnValue.cancelled) {
         completeReplication();
         throw new Error('cancelled');
@@ -233,6 +236,7 @@ function replicate(src, target, opts, returnValue, result) {
     if (replicationCompleted) {
       return;
     }
+    /* istanbul ignore if */
     if (returnValue.cancelled) {
       result.status = 'cancelled';
       if (writingCheckpoint) {
@@ -264,6 +268,7 @@ function replicate(src, target, opts, returnValue, result) {
 
 
   function onChange(change) {
+    /* istanbul ignore if */
     if (returnValue.cancelled) {
       return completeReplication();
     }
@@ -279,6 +284,7 @@ function replicate(src, target, opts, returnValue, result) {
 
   function onChangesComplete(changes) {
     changesPending = false;
+    /* istanbul ignore if */
     if (returnValue.cancelled) {
       return completeReplication();
     }
@@ -366,6 +372,7 @@ function replicate(src, target, opts, returnValue, result) {
 
   function startChanges() {
     initCheckpointer().then(function () {
+      /* istanbul ignore if */
       if (returnValue.cancelled) {
         completeReplication();
         return;
