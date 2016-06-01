@@ -465,7 +465,16 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('3356 throw inside a filter', function (done) {
+    it.only('3356 throw inside a filter', function (done) {
+      var testFor5238 = function (err) {
+        done('There was an unhandledRejection ' + err);
+      };
+      testUtils.addGlobalEventListener(
+        testUtils.getUnHandledRejectionEventName(), testFor5238);
+      after(function () {
+        testUtils.removeGlobalEventListener(
+          testUtils.getUnHandledRejectionEventName(), testFor5238);
+      });
       var db = new PouchDB(dbs.name);
       db.put({
         _id: "_design/test",

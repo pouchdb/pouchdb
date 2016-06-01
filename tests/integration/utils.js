@@ -281,6 +281,37 @@ testUtils.makeBlob = function (data, type) {
   }
 };
 
+testUtils.getUnHandledRejectionEventName = function () {
+  return typeof window !== 'undefined' ? 'unhandledrejection' :
+    'unhandledRejection';
+}
+
+testUtils.addGlobalEventListener = function (eventName, listener) {
+  // The window test has to go first because the process test will pass
+  // in the browser's test environment
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    return window.addEventListener(eventName, listener);
+  }
+
+  if (typeof process !== 'undefined') {
+    return process.on(eventName, listener);
+  }
+
+  return null;
+};
+
+testUtils.removeGlobalEventListener = function (eventName, listener) {
+  if (typeof process !== 'undefined') {
+    return process.removeListener(eventName, listener);
+  }
+
+  if (typeof window !== 'undefined' && window.removeEventListener) {
+    return window.removeEventListener(eventName, listener);
+  }
+
+  return null;
+};
+
 if (typeof process !== 'undefined' && !process.browser) {
   if (process.env.COVERAGE) {
     global.PouchDB = require('../../packages/pouchdb-for-coverage');
