@@ -466,6 +466,10 @@ adapters.forEach(function (adapter) {
     });
 
     it('3356 throw inside a filter', function (done) {
+      var testFor5238 = function (err) {
+        done('There was an unhandledRejection ' + err);
+      };
+      testUtils.addUnhandledRejectionListener(testFor5238);
       var db = new PouchDB(dbs.name);
       db.put({
         _id: "_design/test",
@@ -474,12 +478,16 @@ adapters.forEach(function (adapter) {
             throw new Error(); // syntaxerrors can't be caught either.
           }.toString()
         }
+      }).should.eventually.be.fulfilled.then(function () {
+        return db.changes({filter: 'test/test'}).should.eventually.be.rejected;
       }).then(function () {
-        db.changes({filter: 'test/test'}).then(function () {
-          done('should have thrown');
-        }).catch(function () {
-          done();
-        });
+        done();
+      }).catch(function (err) {
+        done('We had an error - ' + err);
+      }).then(function () {
+        setTimeout(function () {
+          testUtils.removeUnhandledRejectionListener(testFor5238);
+        }, 1);
       });
     });
 
@@ -560,6 +568,29 @@ adapters.forEach(function (adapter) {
             }).on('error', done);
           });
         });
+      });
+    });
+
+    it('#3609 view option implies filter: _view', function () {
+      var docs = [
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {_id: '_design/foo', integer: 3,
+         views: {
+           even: {
+             map: 'function (doc) { if (doc.integer % 2 === 1) ' +
+               '{ emit(doc._id, null) }; }'
+           }
+         }
+        }
+      ];
+
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(docs).then(function () {
+        return db.changes({view: 'foo/even'});
+      }).then(function (changes) {
+        changes.results.length.should.equal(2);
       });
     });
 

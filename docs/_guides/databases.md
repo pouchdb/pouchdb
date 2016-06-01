@@ -106,10 +106,9 @@ When you create a PouchDB database, there are many ways to debug and inspect it.
 
 ### PouchDB Inspector
 
-PouchDB Inspector is an add-on for Chrome and Firefox that allows you to inspect your local databases.
+PouchDB Inspector is an add-on for Chrome that allows you to inspect your local databases.
 
 * [Download PouchDB Inspector for Chrome](https://chrome.google.com/webstore/detail/pouchdb-inspector/hbhhpaojmpfimakffndmpmpndcmonkfa)
-* [Download PouchDB Inspector for Firefox](https://addons.mozilla.org/en-US/firefox/addon/pouchdb-inspector/)
 
 {% include img.html src="pouchdb_inspector.png" alt="PouchDB Inspector in Chrome" %}
 

@@ -87,30 +87,26 @@ function PouchDB(name, opts, callback) {
     };
 
     opts = clone(opts);
-    var originalName = opts.name || name;
     var backend, error;
     (function () {
       try {
 
-        if (typeof originalName !== 'string') {
+        if (typeof name !== 'string') {
           error = new Error('Missing/invalid DB name');
           error.code = 400;
           throw error;
         }
 
-        backend = PouchDB.parseAdapter(originalName, opts);
+        var prefixedName = (opts.prefix || '') + name;
+        backend = PouchDB.parseAdapter(prefixedName, opts);
 
-        opts.originalName = originalName;
+        opts.originalName = name;
         opts.name = backend.name;
-        if (opts.prefix && backend.adapter !== 'http' &&
-            backend.adapter !== 'https') {
-          opts.name = opts.prefix + opts.name;
-        }
         opts.adapter = opts.adapter || backend.adapter;
         self._adapter = opts.adapter;
         debug('pouchdb:adapter')('Picked adapter: ' + opts.adapter);
 
-        self._db_name = originalName;
+        self._db_name = name;
         if (!PouchDB.adapters[opts.adapter]) {
           error = new Error('Adapter is missing');
           error.code = 404;

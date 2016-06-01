@@ -13,6 +13,7 @@ import hasLocalStorage from './env/hasLocalStorage';
 import invalidIdError from './invalidIdError';
 import isChromeApp from './env/isChromeApp';
 import isCordova from './isCordova';
+import listenerCount from './listenerCount';
 import normalizeDdocFunctionName from './normalizeDdocFunctionName';
 import once from './once';
 import parseDdocFunctionName from './parseDdocFunctionName';
@@ -38,6 +39,7 @@ export {
   invalidIdError,
   isChromeApp,
   isCordova,
+  listenerCount,
   normalizeDdocFunctionName,
   once,
   parseDdocFunctionName,

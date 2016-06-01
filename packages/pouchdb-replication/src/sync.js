@@ -65,18 +65,21 @@ function Sync(src, target, opts, callback) {
   }
   function pushPaused() {
     self.pushPaused = true;
+    /* istanbul ignore if */
     if (self.pullPaused) {
       self.emit('paused');
     }
   }
   function pullPaused() {
     self.pullPaused = true;
+    /* istanbul ignore if */
     if (self.pushPaused) {
       self.emit('paused');
     }
   }
   function pushActive() {
     self.pushPaused = false;
+    /* istanbul ignore if */
     if (self.pullPaused) {
       self.emit('active', {
         direction: 'push'

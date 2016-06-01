@@ -2,6 +2,7 @@ import Promise from 'pouchdb-promise';
 import getArguments from 'argsarray';
 import {
   clone,
+  listenerCount,
   once,
   parseDdocFunctionName,
   normalizeDdocFunctionName
@@ -32,7 +33,9 @@ function Changes(db, opts, callback) {
   opts = opts ? clone(opts) : {};
   var complete = opts.complete = once(function (err, resp) {
     if (err) {
-      self.emit('error', err);
+      if (listenerCount(self, 'error') > 0) {
+        self.emit('error', err);
+      }
     } else {
       self.emit('complete', resp);
     }
@@ -164,6 +167,10 @@ Changes.prototype.doChanges = function (opts) {
       }
       throw err;
     });
+  }
+
+  if (opts.view && !opts.filter) {
+    opts.filter = '_view';
   }
 
   if (opts.filter && typeof opts.filter === 'string') {

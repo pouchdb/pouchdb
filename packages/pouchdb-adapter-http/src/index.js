@@ -783,11 +783,11 @@ function HttpPouch(opts, callback) {
 
     if (opts.filter && typeof opts.filter === 'string') {
       params.filter = opts.filter;
-      if (opts.filter === '_view' &&
-          opts.view &&
-          typeof opts.view === 'string') {
-        params.view = opts.view;
-      }
+    }
+
+    if (opts.view && typeof opts.view === 'string') {
+      params.filter = '_view';
+      params.view = opts.view;
     }
 
     // If opts.query_params exists, pass it through to the changes request.
@@ -967,8 +967,6 @@ function HttpPouch(opts, callback) {
       if (err && err.status && err.status !== 404) {
         return callback(err);
       }
-      api.emit('destroyed');
-      api.constructor.emit('destroyed', opts.name);
       callback(null, resp);
     });
   };

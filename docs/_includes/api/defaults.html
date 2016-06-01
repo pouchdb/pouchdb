@@ -25,6 +25,13 @@ var MyPrefixedPouch = PouchDB.defaults({
 });
 // db will be named '/path/to/my/db/dbname', useful for LevelDB
 var myPrefixedPouch = new MyPrefixedPouch('dbname');
+
+var HTTPPouch = PouchDB.defaults({
+  prefix: 'http://example.org'
+});
+
+// db will be located at 'http://example.org/testdb'
+var myHttpPouch = new HTTPPouch('dbname');
 {% endhighlight %}
 
 Note the special constructor option `prefix`, which appends a prefix to the database name

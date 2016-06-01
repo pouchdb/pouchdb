@@ -160,11 +160,11 @@ function todoBlurred(todo, event) {
 
 {% include anchor.html class="h3" title="Installing CouchDB" hash="installing_couchdb" %}
 
-Now we'll implement the syncing. You need to have a CouchDB instance, which you can either install yourself [CouchDB(1.3+) locally](http://couchdb.apache.org/) or use with an online provider like [IrisCouch](http://iriscouch.com).
+Now we'll implement the syncing. You need to have a compatible server instance. You can install either [PouchDB-Server](https://github.com/pouchdb/pouchdb-server), [CouchDB](http://couchdb.apache.org/) or use an hosted Couch service such as [Cloudant](https://cloudant.com/)
 
 {% include anchor.html class="h3" title="Enabling CORS" hash="enabling_cors" %}
 
-To replicate directly with CouchDB, you need to make sure CORS is enabled. Only set the username and password if you have set them previously. By default, CouchDB will be installed in "Admin Party," where username and password are not needed. You will need to replace `myname.iriscouch.com` with your own host (`127.0.0.1:5984` if installed locally):
+To replicate directly with CouchDB, you need to make sure CORS is enabled. Only set the username and password if you have set them previously. By default, CouchDB will be installed in "Admin Party," where username and password are not needed. You will need to replace `myname.example.com` with your own host (`127.0.0.1:5984` if installed locally):
 
 You can enable CORS in CouchDB using `curl` or the Futon web interface, but we've saved you some time by making a Node script called [add-cors-to-couchdb](https://github.com/pouchdb/add-cors-to-couchdb). Just run:
 
@@ -176,7 +176,7 @@ $ add-cors-to-couchdb
 Or if your database is not at `127.0.0.1:5984`:
 
 {% highlight bash %}
-$ add-cors-to-couchdb http://me.iriscouch.com -u myusername -p mypassword
+$ add-cors-to-couchdb http://me.example.com -u myusername -p mypassword
 {% endhighlight %}
 
 You can check that CORS is now enabled by visiting [http://localhost:5984/_utils/config.html](http://localhost:5984/_utils/config.html) in your browser. You should see something like this:
@@ -185,13 +185,13 @@ You can check that CORS is now enabled by visiting [http://localhost:5984/_utils
 
 {% include anchor.html class="h3" title="Implement basic two way sync" hash="basic_two_way_sync" %}
 
-Now we will have the todo list sync. Back in `app.js` we need to specify the address of the remote database. Remember to replace `user`, `pass` and `myname.iriscouch.com` with the credentials of your own CouchDB instance:
+Now we will have the todo list sync. Back in `app.js` we need to specify the address of the remote database. Remember to replace `user`, `pass` and `myname.example.com` with the credentials of your own CouchDB instance:
 
 {% highlight js %}
 // EDITING STARTS HERE (you dont need to edit anything above this line)
 
 var db = new PouchDB('todos');
-var remoteCouch = 'http://user:pass@mname.iriscouch.com/todos';
+var remoteCouch = 'http://user:pass@mname.example.com/todos';
 {% endhighlight %}
 
 Then we can implement the sync function like so:
