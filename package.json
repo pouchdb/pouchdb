@@ -81,7 +81,7 @@
     "watch-glob": "0.1.3",
     "wd": "0.4.0"
   },
-  "devDependencies": {
+  "optionalDependencies": {
     "leveldown": "1.4.6"
   }
 }
