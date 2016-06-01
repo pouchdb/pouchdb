@@ -284,7 +284,7 @@ testUtils.makeBlob = function (data, type) {
 testUtils.getUnHandledRejectionEventName = function () {
   return typeof window !== 'undefined' ? 'unhandledrejection' :
     'unhandledRejection';
-}
+};
 
 testUtils.addGlobalEventListener = function (eventName, listener) {
   // The window test has to go first because the process test will pass
@@ -300,6 +300,11 @@ testUtils.addGlobalEventListener = function (eventName, listener) {
   return null;
 };
 
+testUtils.addUnhandledRejectionListener = function (listener) {
+  return testUtils.addGlobalEventListener(
+    testUtils.getUnHandledRejectionEventName(), listener);
+};
+
 testUtils.removeGlobalEventListener = function (eventName, listener) {
   if (typeof process !== 'undefined') {
     return process.removeListener(eventName, listener);
@@ -310,6 +315,11 @@ testUtils.removeGlobalEventListener = function (eventName, listener) {
   }
 
   return null;
+};
+
+testUtils.removeUnhandledRejectionListener = function (listener) {
+  return testUtils.removeGlobalEventListener(
+    testUtils.getUnHandledRejectionEventName(), listener);
 };
 
 if (typeof process !== 'undefined' && !process.browser) {
