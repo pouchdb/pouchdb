@@ -466,10 +466,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('3356 throw inside a filter', function (done) {
-      var testFor5238 = function (err) {
-        done('There was an unhandledRejection ' + err);
-      };
-      testUtils.addUnhandledRejectionListener(testFor5238);
       var db = new PouchDB(dbs.name);
       db.put({
         _id: "_design/test",
@@ -484,10 +480,6 @@ adapters.forEach(function (adapter) {
         done();
       }).catch(function (err) {
         done('We had an error - ' + err);
-      }).then(function () {
-        setTimeout(function () {
-          testUtils.removeUnhandledRejectionListener(testFor5238);
-        }, 1);
       });
     });
 
