@@ -16,7 +16,6 @@ There are a number of databases that implement a CouchDB-like protocol, and Pouc
  * [CouchDB](http://couchdb.apache.org/) &ndash; CouchDB is our primary reference database and is used for automated testing.
  * [Cloudant](https://cloudant.com/) &ndash; A cluster-aware fork of CouchDB.
  * [Couchbase Sync Gateway](http://www.couchbase.com/communities/couchbase-sync-gateway) &ndash; A sync gateway for Couchbase.
- * [IrisCouch](http://iriscouch.com/) &ndash; CouchDB in the cloud.
  * [PouchDB Server](https://github.com/pouchdb/pouchdb-server) &ndash; An HTTP API written on top of PouchDB. Additionally, it supports alternate backends like in-memory, Redis, Riak and MySQL via [the LevelUP ecosystem](https://github.com/rvagg/node-levelup/wiki/Modules#storage). Note that your application must use the PouchDB API rather than directly modifying the database, however.
 
 {% include anchor.html class="h3" title="The web is nice, but I want to build a native app?" hash="native_support" %}
