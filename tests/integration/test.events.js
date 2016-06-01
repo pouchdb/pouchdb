@@ -109,5 +109,21 @@ adapters.forEach(function (adapter) {
       }
     });
 
+    it('4922 Destroyed is not called twice', function (done) {
+      var count = 0;
+      function destroyed() {
+        count++;
+        if (count === 1) {
+          setTimeout(function () {
+            count.should.equal(1);
+            PouchDB.removeListener('destroyed', destroyed);
+            done();
+          }, 50);
+        }
+      }
+      PouchDB.on('destroyed', destroyed);
+      new PouchDB(dbs.name).destroy();
+    });
+
   });
 });
