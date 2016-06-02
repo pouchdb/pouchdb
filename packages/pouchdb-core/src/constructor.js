@@ -63,9 +63,18 @@ function PouchDB(name, opts, callback) {
     opts = name;
     name = undefined;
   }
+
   if (typeof callback === 'undefined') {
     callback = defaultCallback;
+  } else {
+    var oldCallback = callback;
+    callback = function () {
+      guardedConsole('warn', 'Using a callback for new PouchDB()' +
+                     'is deprecated.');
+      return oldCallback.apply(null, arguments);
+    };
   }
+
   name = name || opts.name;
   opts = clone(opts);
   // if name was specified via opts, ignore for the sake of dependentDbs
