@@ -6,6 +6,7 @@ import { EventEmitter } from 'events';
 import inherits from 'inherits';
 import Changes from './changes';
 import {
+  guardedConsole,
   pick,
   adapterFun,
   upsert,
@@ -222,7 +223,7 @@ AbstractPouchDB.prototype.put =
     if (warned) {
       return;
     }
-    console.warn('db.put(doc, id, rev) has been deprecated and will be ' +
+    guardedConsole('warn', 'db.put(doc, id, rev) has been deprecated and will be ' +
                  'removed in a future release, please use ' +
                  'db.put({_id: id, _rev: rev}) instead');
     warned = true;

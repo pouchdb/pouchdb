@@ -1,5 +1,6 @@
 import {
-  flatten
+  flatten,
+  guardedConsole
 } from 'pouchdb-utils';
 
 import {
@@ -30,13 +31,7 @@ var persistentQueues = {};
 var tempViewQueue = new TaskQueue();
 var CHANGES_BATCH_SIZE = 50;
 
-var log;
-/* istanbul ignore else */
-if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
-  log = Function.prototype.bind.call(console.log, console);
-} else {
-  log = function () {};
-}
+var log = guardedConsole.bind(null, 'log');
 
 function parseViewName(name) {
   // can be either 'ddocname/viewname' or just 'viewname'
@@ -54,12 +49,12 @@ function emitError(db, e) {
   try {
     db.emit('error', e);
   } catch (err) {
-    console.error(
+    guardedConsole('error',
       'The user\'s map/reduce function threw an uncaught error.\n' +
       'You can debug this error by doing:\n' +
       'myDatabase.on(\'error\', function (err) { debugger; });\n' +
       'Please double-check your map/reduce function.');
-    console.error(e);
+    guardedConsole('error', e);
   }
 }
 

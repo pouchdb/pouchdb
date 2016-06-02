@@ -3,12 +3,12 @@ import inherits from 'inherits';
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
 import Promise from 'pouchdb-promise';
-import { clone } from 'pouchdb-utils';
+import { clone, guardedConsole } from 'pouchdb-utils';
 
 function defaultCallback(err) {
   /* istanbul ignore next */
   if (err && global.debug) {
-    console.error(err);
+    guardedConsole('error', err);
   }
 }
 
@@ -85,7 +85,7 @@ function PouchDB(name, opts, callback) {
       delete resp.then;
       fulfill(resp);
     };
-  
+
     opts = clone(opts);
     var backend, error;
     (function () {
@@ -99,7 +99,7 @@ function PouchDB(name, opts, callback) {
 
         var prefixedName = (opts.prefix || '') + name;
         backend = PouchDB.parseAdapter(prefixedName, opts);
-        
+
         opts.originalName = name;
         opts.name = backend.name;
         opts.adapter = opts.adapter || backend.adapter;

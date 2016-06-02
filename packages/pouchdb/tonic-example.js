@@ -31,6 +31,7 @@ response = await db.bulkDocs([
     {_id: 'another', title: 'Kowabunga', type: "fake band"},
     {title: 'Without an _id', type: null}
 ])
+
 console.log('bulkDocs response: ' + JSON.stringify(response, null, 2))
 
 // and query them

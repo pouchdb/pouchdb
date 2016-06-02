@@ -49,7 +49,8 @@
     "pouchdb-checkpointer": "5.4.0-prerelease",
     "pouchdb-generate-replication-id": "5.4.0-prerelease",
     "pouchdb-node": "5.4.0-prerelease",
-    "pouchdb-promise": "5.4.0-prerelease"
+    "pouchdb-promise": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
