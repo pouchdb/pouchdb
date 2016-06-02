@@ -229,10 +229,13 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, websqlChanges, callback) {
 
     function dataWritten(tx, seq) {
       var id = docInfo.metadata.id;
+
+      var revsToCompact = docInfo.stemmedRevs || [];
       if (isUpdate && api.auto_compaction) {
-        compactRevs(compactTree(docInfo.metadata), id, tx);
-      } else if (docInfo.stemmedRevs.length) {
-        compactRevs(docInfo.stemmedRevs, id, tx);
+        revsToCompact = compactTree(docInfo.metadata).concat(revsToCompact);
+      }
+      if (revsToCompact.length) {
+        compactRevs(revsToCompact, id, tx);
       }
 
       docInfo.metadata.seq = seq;
