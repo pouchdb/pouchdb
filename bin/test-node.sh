@@ -47,5 +47,7 @@ else
         --reporter=$REPORTER \
         --grep=$GREP \
         $TESTS_PATH
+
+    ./node_modules/.bin/istanbul check-coverage --line 100
 fi
 
