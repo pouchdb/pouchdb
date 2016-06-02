@@ -24,9 +24,6 @@ function setUpEventEmitter(Pouch) {
   // the same name that it was destroyed, via the constructor object
   var destructListeners = Pouch._destructionListeners = new Map();
   Pouch.on('destroyed', function onConstructorDestroyed(name) {
-    if (!destructListeners.has(name)) {
-      return;
-    }
     destructListeners.get(name).forEach(function (callback) {
       callback();
     });

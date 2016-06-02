@@ -123,7 +123,6 @@ matrix:
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
-  - env: COMMAND=report-coverage
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
   - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
