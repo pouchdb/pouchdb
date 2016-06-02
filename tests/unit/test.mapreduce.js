@@ -51,7 +51,7 @@ describe('test.mapreduce.js-utils', function () {
       done();
     });
   });
-  it('fin should work without returning a function and it resolves',
+  it.skip('fin should work without returning a function and it resolves',
     function () {
     return utils.fin(Promise.resolve(), function () {
       return {};

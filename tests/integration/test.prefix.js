@@ -11,7 +11,6 @@ describe('test.prefix.js', function () {
     var db = new CustomPouch('testdb');
 
     return db.info().then(function (info) {
-      console.log(info);
       info.adapter.should.equal('http');
     }).then(function () {
       return db.destroy();
