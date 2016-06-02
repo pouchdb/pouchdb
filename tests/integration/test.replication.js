@@ -2449,7 +2449,9 @@ adapters.forEach(function (adapters) {
 
             err.result.ok.should.equal(false);
             err.result.docs_written.should.equal(9);
-            err.result.last_seq.should.equal(0);
+            if (!testUtils.isCouchMaster()) {
+              err.result.last_seq.should.equal(0);
+            }
 
             var docs = [
               [ 'doc_0', true ],
@@ -2496,7 +2498,9 @@ adapters.forEach(function (adapters) {
           db.replicate.from(remote).then(function (result) {
             should.exist(result);
             result.docs_written.should.equal(1);
-            result.last_seq.should.equal(10);
+            if (!testUtils.isCouchMaster()) {
+              result.last_seq.should.equal(10);
+            }
 
             var docs = [ 'doc_0', 'doc_1', 'doc_2', 'doc_3', 'doc_4', 'doc_5', 'doc_6', 'doc_7', 'doc_8', 'doc_9' ];
 
