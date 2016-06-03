@@ -299,16 +299,6 @@ function validateSort (requestDef, index) {
   if (index.defaultUsed) {
     return;
   }
-
-  // TODO: could be >1 field
-  var selectorFields = Object.keys(requestDef.selector);
-  var sortFields = requestDef.sort ?
-    massageSort(requestDef.sort).map(getKey) : [];
-
-  if (!utils.oneSetIsSubArrayOfOther(selectorFields, sortFields)) {
-    throw new Error('conflicting sort and selector fields');
-  }
-
 }
 
 function validateFindRequest(requestDef) {
