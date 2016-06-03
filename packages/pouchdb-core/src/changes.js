@@ -5,7 +5,8 @@ import {
   listenerCount,
   once,
   parseDdocFunctionName,
-  normalizeDdocFunctionName
+  normalizeDdocFunctionName,
+  guardedConsole
 } from 'pouchdb-utils';
 import {
   isDeleted,
@@ -25,6 +26,15 @@ import {
 } from 'pouchdb-errors';
 
 inherits(Changes, EE);
+
+function tryCatchInChangeListener(self, change) {
+  // isolate try/catches to avoid V8 deoptimizations
+  try {
+    self.emit('change', change);
+  } catch (e) {
+    guardedConsole('error', 'Error in .on("change", function):', e);
+  }
+}
 
 function Changes(db, opts, callback) {
   EE.call(this);
@@ -58,7 +68,7 @@ function Changes(db, opts, callback) {
     if (opts.isCancelled) {
       return;
     }
-    self.emit('change', change);
+    tryCatchInChangeListener(self, change);
     if (self.startSeq && self.startSeq <= change.seq) {
       self.startSeq = false;
     }
