@@ -409,24 +409,6 @@ function getCoreQueryPlan(selector, index) {
   return getMultiFieldQueryOpts(selector, index);
 }
 
-function createNoIndexFoundError(userFields, sortFields, selector) {
-
-  if (getKey(getValue(selector)) === '$ne') {
-    // blame it on the $ne
-    return new Error('couldn\'t find a usable index. try using ' +
-      '$and with $lt/$gt instead of $ne');
-  }
-
-  var fieldsToSuggest = (sortFields && sortFields.length >= userFields.length) ?
-    sortFields : userFields;
-
-  return new Error(
-    'couldn\'t find a usable index. try creating an index on: ' +
-    fieldsToSuggest.join(', ') +
-    '. Make sure that only $eq, $gt, $gte, $lt, and $lte are used for the indexed fields.'
-  );
-}
-
 function planQuery(request, indexes) {
 
   log('planning query', request);
