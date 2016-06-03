@@ -153,12 +153,9 @@ exports.getFieldFromDoc = function (doc, parsedField) {
 };
 
 exports.setFieldInDoc = function (doc, parsedField, value) {
-  for(var i = 0, len = parsedField.length; i < len-1; i++) {
+  for (var i = 0, len = parsedField.length; i < len-1; i++) {
     var elem = parsedField[i];
-    if( !doc[elem] ) {
-      doc[elem] = {};
-    }
-    doc = doc[elem];
+    doc = doc[elem] = {};
   }
   doc[parsedField[len-1]] = value;
 };
@@ -223,7 +220,6 @@ exports.oneArrayIsStrictSubArrayOfOther = function (left, right) {
 // same as above, but treat the left array as an unordered set
 // e.g. ['b', 'a'], ['a', 'b', 'c'] is true, but ['c'], ['a', 'b', 'c'] is false
 exports.oneSetIsSubArrayOfOther = function (left, right) {
-  if (left.length === 0) {return false;}
   left = left.slice();
   for (var i = 0, len = right.length; i < len; i++) {
     var field = right[i];

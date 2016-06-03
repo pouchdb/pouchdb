@@ -2,6 +2,7 @@
 
 var testUtils = require('../test-utils');
 var sortById = testUtils.sortById;
+var should = testUtils.should;
 
 module.exports = function (dbType, context) {
 
@@ -177,6 +178,22 @@ module.exports = function (dbType, context) {
           {"_id":"mario","debut":1981},
           {"_id":"dk","debut":1981}
         ]);
+      });
+    });
+
+    it('throws an error for an invalid selector/sort', function () {
+      var db = context.db;
+      return db.createIndex({
+        index: {fields: ['series', 'debut']}
+      }).then(function () {
+        return db.find({
+          selector: {series: 'Mario', debut: 1981},
+          sort: ['name']
+        });
+      }).then(function () {
+        throw new Error('expected an error');
+      }, function (err) {
+        should.exist(err);
       });
     });
 
