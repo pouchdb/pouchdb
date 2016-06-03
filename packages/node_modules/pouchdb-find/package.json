@@ -38,13 +38,14 @@
   },
   "dependencies": {
     "argsarray": "0.0.1",
+    "debug": "^2.1.0",
     "inherits": "~2.0.1",
+    "is-array": "^1.0.1",
     "lie": "^2.6.0",
     "pouchdb-collate": "^1.2.0",
     "pouchdb-extend": "^0.1.2",
     "pouchdb-upsert": "^1.1.0",
-    "spark-md5": "0.0.5",
-    "debug": "^2.1.0"
+    "spark-md5": "0.0.5"
   },
   "devDependencies": {
     "bluebird": "^1.0.7",

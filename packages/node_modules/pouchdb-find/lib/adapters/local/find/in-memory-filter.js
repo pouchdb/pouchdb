@@ -7,6 +7,7 @@
 // "bar".
 //
 
+var isArray = require('is-array');
 var collate = require('pouchdb-collate').collate;
 var localUtils = require('../utils');
 var isCombinationalField = localUtils.isCombinationalField;
@@ -121,11 +122,7 @@ function fieldExists(docFieldValue) {
   return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
 }
 
-function fieldIsArray (docFieldValue) {
-  return fieldExists(docFieldValue) && docFieldValue instanceof Array;
-}
-
-function fieldNotUndefined (docFieldValue) {
+function fieldIsNotUndefined(docFieldValue) {
   return typeof docFieldValue !== 'undefined';
 }
 
@@ -202,7 +199,7 @@ function typeMatch(docFieldValue, userValue) {
 var matchers = {
 
   '$elemMatch': function (doc, userValue, parsedField, docFieldValue) {
-    if (!fieldIsArray(docFieldValue)) {
+    if (!isArray(docFieldValue)) {
       return false;
     }
 
@@ -222,32 +219,32 @@ var matchers = {
   },
 
   '$eq': function (doc, userValue, parsedField, docFieldValue) {
-    return fieldExists(docFieldValue) && collate(docFieldValue, userValue) === 0;
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) === 0;
   },
 
   '$gte': function (doc, userValue, parsedField, docFieldValue) {
-    return fieldExists(docFieldValue) && collate(docFieldValue, userValue) >= 0;
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) >= 0;
   },
 
   '$gt': function (doc, userValue, parsedField, docFieldValue) {
-    return fieldExists(docFieldValue) && collate(docFieldValue, userValue) > 0;
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) > 0;
   },
 
   '$lte': function (doc, userValue, parsedField, docFieldValue) {
-    return fieldExists(docFieldValue) && collate(docFieldValue, userValue) <= 0;
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) <= 0;
   },
 
   '$lt': function (doc, userValue, parsedField, docFieldValue) {
-    return fieldExists(docFieldValue) && collate(docFieldValue, userValue) < 0;
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) < 0;
   },
 
   '$exists': function (doc, userValue, parsedField, docFieldValue) {
     //a field that is null is still considered to exist
     if (userValue) {
-      return fieldNotUndefined(docFieldValue);
+      return fieldIsNotUndefined(docFieldValue);
     }
 
-    return !fieldNotUndefined(docFieldValue);
+    return !fieldIsNotUndefined(docFieldValue);
   },
 
   '$mod': function (doc, userValue, parsedField, docFieldValue) {
@@ -272,7 +269,7 @@ var matchers = {
   },
 
   '$all': function (doc, userValue, parsedField, docFieldValue) {
-    return fieldIsArray(docFieldValue) && arrayContainsAllValues(docFieldValue, userValue);
+    return isArray(docFieldValue) && arrayContainsAllValues(docFieldValue, userValue);
   },
 
   '$regex': function (doc, userValue, parsedField, docFieldValue) {

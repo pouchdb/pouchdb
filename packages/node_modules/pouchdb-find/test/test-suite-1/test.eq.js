@@ -293,5 +293,232 @@ module.exports = function (dbType, context) {
         });
       });
     });
+
+    it('#170 does queries with a null value', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: "1" },
+          {_id: '3', field1: "1", field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: null},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '1'},
+            {_id: '2'}
+          ]
+        });
+      });
+    });
+
+    it('#170 does queries with a null value (explicit $eq)', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: "1" },
+          {_id: '3', field1: "1", field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: {$eq: null}},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '1'},
+            {_id: '2'}
+          ]
+        });
+      });
+    });
+
+    it('#170 does queries with multiple null values', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: "1" },
+          {_id: '3', field1: "1", field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: null, field2: null},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '1'}
+          ]
+        });
+      });
+    });
+
+    it('#170 does queries with multiple null values - $lte', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: "1" },
+          {_id: '3', field1: "1", field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: null, field2: {$lte: null}},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '1'}
+          ]
+        });
+      });
+    });
+
+    // TODO: investigate later - this fails in both Couch and Pouch, but I
+    // believe it shouldn't.
+    it.skip('#170 does queries with multiple null values - $gte', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: "1" },
+          {_id: '3', field1: "1", field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: null, field2: {$gte: null}},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '1'}
+          ]
+        });
+      });
+    });
+
+    it('#170 does queries with multiple null values - $ne', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: "1" },
+          {_id: '3', field1: "1", field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: null, field2: {$ne: null}},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '2'}
+          ]
+        });
+      });
+    });
+
+    it('#170 does queries with multiple null values - $mod', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: 1 },
+          {_id: '3', field1: 1, field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: null, field2: {$mod: [1, 0]}},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+            {_id: '2'}
+          ]
+        });
+      });
+    });
+
+    it('#170 does queries with multiple null values - $mod', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["field1"]
+        }
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: '1', field1: null, field2: null },
+          {_id: '2', field1: null, field2: null },
+          {_id: '3', field1: null, field2: null },
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {field1: null, field2: {$mod: [1, 0]}},
+          fields: ["_id"]
+        });
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          docs: [
+          ]
+        });
+      });
+    });
   });
 };
