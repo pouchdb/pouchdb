@@ -1569,12 +1569,11 @@ adapters.forEach(function (adapters) {
         result.docs_written.should.equal(0);
         result.docs_read.should.equal(0);
         changesSince.length.should.equal(2);
-        // the returned last_seq should match the 'since'
-        // requested from remote
-        result.last_seq.should.equal(changesSince[1]);
+
         // the 'since' parameter should be different on the
         // next request
         changesSince[0].should.not.equal(changesSince[1]);
+
         // kick off a second replication
         return db.replicate.from(remote, replicationOpts);
       }).then(function (result) {
@@ -1582,9 +1581,7 @@ adapters.forEach(function (adapters) {
         result.docs_written.should.equal(0);
         result.docs_read.should.equal(0);
         changesSince.length.should.equal(3);
-        // the returned last_seq should match the 'since'
-        // requested from remote
-        result.last_seq.should.equal(changesSince[2]);
+
         // nothing has changed on the remote so 'since'
         // should be the same
         changesSince[1].should.equal(changesSince[2]);
