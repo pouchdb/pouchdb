@@ -2542,6 +2542,35 @@ adapters.forEach(function (adapter) {
         db.bulkDocs({ docs: docs2 });
       });
     });
+
+
+    it('#3539 - Exception in changes is fine', function (done) {
+
+      var db = new PouchDB(dbs.name);
+      var count = 0;
+
+      var changes = db.changes({live: true});
+
+      changes.on('change', function () {
+        ++count;
+        if (count === 1) {
+          throw 'an error';
+        } else if (count === 3) {
+          changes.cancel();
+        }
+      });
+
+      changes.on('complete', function () {
+        done();
+      });
+
+      db.post({ test: 'some stuff' }).then(function () {
+        return db.post({ test: 'more stuff' });
+      }).then(function () {
+        db.post({ test: 'and more stuff' });
+      });
+    });
+
   });
 });
 
