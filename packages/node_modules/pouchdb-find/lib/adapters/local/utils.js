@@ -187,7 +187,7 @@ function massageSelector(input) {
     var field = fields[i];
     var matcher = result[field];
 
-    if (typeof matcher !== 'object') {
+    if (typeof matcher !== 'object' || matcher === null) {
       matcher = {$eq: matcher};
     } else if ('$ne' in matcher && !wasAnded) {
       // I put these in an array, since there may be more than one
