@@ -308,7 +308,7 @@ function replicate(src, target, opts, returnValue, result) {
       };
 
       // update the checkpoint so we start from the right seq next time
-      if (!currentBatch && changes.last_seq > last_seq) {
+      if (!currentBatch && changes.results.length === 0) {
         writingCheckpoint = true;
         checkpointer.writeCheckpoint(changes.last_seq,
             session).then(function () {
