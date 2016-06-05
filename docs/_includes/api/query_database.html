@@ -73,7 +73,7 @@ var ddoc = {
 
 // save the design doc
 db.put(ddoc, function (err) {
-  if (err && err.status !== 409) {
+  if (err && err.name !== 'conflict') {
     return console.log(err);
   }
   // ignore if doc already exists
@@ -110,7 +110,7 @@ try {
   try {
     await db.put(ddoc);
   } catch (err) {
-    if (err.status !== 409) {
+    if (err.name !== 'conflict') {
       throw err;
     }
     // ignore if doc already exists
@@ -144,7 +144,7 @@ var ddoc = {
 
 // save the design doc
 db.put(ddoc).catch(function (err) {
-  if (err.status !== 409) {
+  if (err.name !== 'conflict') {
     throw err;
   }
   // ignore if doc already exists
