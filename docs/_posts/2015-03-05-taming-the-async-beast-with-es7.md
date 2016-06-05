@@ -106,7 +106,7 @@ With promises, you'd have to write something like this:
 
 {% highlight js %}
 db.get('docid').catch(function (err) {
-  if (err.status === 404) { // not found
+  if (err.name === 'not_found') {
     return {}; // new doc
   }
   throw err; // some error other than 404
@@ -122,7 +122,7 @@ let doc;
 try {
   doc = await db.get('docid');
 } catch (err) {
-  if (err.status === 404) { // not found
+  if (err.name === 'not_found') {
     doc = {};
   } else {
     throw err; // some error other than 404

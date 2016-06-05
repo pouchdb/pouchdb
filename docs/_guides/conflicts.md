@@ -31,7 +31,7 @@ var myDoc = {
 db.put(myDoc).then(function () {
   // success
 }).catch(function (err) {
-  if (err.status === 409) {
+  if (err.name === 'conflict') {
     // conflict!
   } else {
     // some other error

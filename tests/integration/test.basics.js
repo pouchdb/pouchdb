@@ -765,6 +765,7 @@ adapters.forEach(function (adapter) {
                 should.not.exist(err);
                 db2 = new PouchDB(dbs.name);
                 db2.get(doc._id, function (err) {
+                  err.name.should.equal('not_found');
                   err.status.should.equal(404);
                   done();
                 });
@@ -1117,6 +1118,7 @@ adapters.forEach(function (adapter) {
       return db.put(newdoc).then(function () {
         throw new Error('expected an error');
       }, function (err) {
+        err.should.have.property('name', 'conflict');
         err.should.have.property('status', 409);
       });
     });

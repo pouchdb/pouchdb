@@ -31,7 +31,7 @@ Thankfully, promises make this rather easy:
 
 ```js
 db.get('config').catch(function (err) {
-  if (err.status === 404) { // not found!
+  if (err.name === 'not_found') {
     return {
       _id: 'config',
       background: 'blue',

@@ -273,7 +273,7 @@ Assuming the dump file is hosted on our web site, we can then load it using `db.
   // check a local document to see if we've already preloaded
   db.get('_local/preloaded').then(function (doc) {
   }).catch(function (err) {
-    if (err.status !== 404) {
+    if (err.name !== 'not_found') {
       throw err;
     }
     // we got a 404, so the local docuent doesn't exist. so let's preload!
