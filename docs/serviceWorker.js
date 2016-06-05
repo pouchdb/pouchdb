@@ -11,11 +11,6 @@ var criticalAssets = [
   '/offline.html'
   '/static/css/pouchdb.css',
   '/static/favicon.ico',
-  '/static/js/code.min.js',
-
-  'http://code.jquery.com/jquery.min.js',
-  'http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js',
-  'http://cdn.jsdelivr.net/pouchdb/latest/pouchdb.min.js',
 ];
 
 var pages = [
@@ -37,11 +32,17 @@ var blogPosts = [
 
 // Only cache the first blog page
 var nonCriticalAssets =
-  pages
-    .filter(function(file) {
-      return file.indexOf('/blog/page') === -1;
-    })
-    .concat(blogPosts.slice(0, 5)); // Let's only cache the first five by default
+  [
+    '/static/js/code.min.js',
+    'http://code.jquery.com/jquery.min.js',
+    'http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js',
+    'http://cdn.jsdelivr.net/pouchdb/latest/pouchdb.min.js',
+  ]
+  .concat(pages)
+  .filter(function(file) {
+    return file.indexOf('/blog/page') === -1;
+  })
+  .concat(blogPosts.slice(0, 5)); // Let's only cache the first five by default
 
 self.addEventListener('install', function(event) {
   event.waitUntil(
