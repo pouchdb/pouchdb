@@ -24,10 +24,10 @@ for pkg in $(ls packages); do
 done
 
 # Create git tag, which is also the Bower/Github release
-cp -r packages/pouchdb/dist dist
-cp packages/pouchdb/{bower,component}.json .
-git add -f dist bower.json component.json
-git rm -r packages bin docs scripts tests
+rm -fr lib src dist bower.json component.json package.json
+cp -r packages/pouchdb/{src,lib,dist,bower.json,component.json,package.json} .
+git add -f lib src dist bower.json component.json package.json lerna.json
+git rm -fr packages bin docs scripts tests
 
 git commit -m "build $VERSION"
 
