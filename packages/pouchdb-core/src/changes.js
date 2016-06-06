@@ -5,7 +5,8 @@ import {
   listenerCount,
   once,
   parseDdocFunctionName,
-  normalizeDdocFunctionName
+  normalizeDdocFunctionName,
+  guardedConsole
 } from 'pouchdb-utils';
 import {
   isDeleted,
@@ -58,7 +59,11 @@ function Changes(db, opts, callback) {
     if (opts.isCancelled) {
       return;
     }
-    self.emit('change', change);
+    try {
+      self.emit('change', change);
+    } catch (e) {
+      guardedConsole('error', 'Error in .on("change", function):', e);
+    }
     if (self.startSeq && self.startSeq <= change.seq) {
       self.startSeq = false;
     }
