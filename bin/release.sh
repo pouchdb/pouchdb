@@ -25,7 +25,7 @@ done
 
 # Create git tag, which is also the Bower/Github release
 cp -r packages/pouchdb/dist dist
-cp packages/pouchdb/{bower,component}.json
+cp packages/pouchdb/{bower,component}.json .
 git add -f dist bower.json component.json
 git rm -r packages bin docs scripts tests
 
