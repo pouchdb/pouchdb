@@ -9,6 +9,10 @@ The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above) 
 
 Given that you have [installed a CouchDB server](#installing-a-couchdb-server).
 
+Set up your test environment with:
+
+    $ npm install
+
 Run all tests with:
 
     $ npm test

@@ -80,5 +80,8 @@
     "uglify-js": "2.6.2",
     "watch-glob": "0.1.3",
     "wd": "0.4.0"
+  },
+  "optionalDependencies": {
+    "leveldown": "1.4.6"
   }
 }
