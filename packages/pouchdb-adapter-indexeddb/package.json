@@ -19,5 +19,6 @@
     "pouchdb-adapter-utils": "5.4.0-prerelease",
     "pouchdb-binary-utils": "5.4.0-prerelease",
     "pouchdb-utils": "5.4.0-prerelease"
-  }
+  },
+  "private": true
 }

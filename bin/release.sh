@@ -12,9 +12,9 @@ git checkout -b build
 
 # Publish all modules with Lerna
 for pkg in $(ls packages); do
-  if [ "$pkg" = "pouchdb-for-coverage" ]; then
+  if [ ! -d "packages/$pkg" ]; then
     continue
-  elif [ ! -d "packages/$pkg" ]; then
+  elif [ "true" = $(node --eval "console.log(require('./packages/$pkg/package.json').private);") ]; then
     continue
   fi
   cd packages/$pkg
