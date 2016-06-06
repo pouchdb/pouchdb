@@ -21,9 +21,6 @@ var jsonFiles = packages.map(function (pkg) {
 
 jsonFiles.forEach(function (jsonFile) {
   var json = JSON.parse(fs.readFileSync(jsonFile), 'utf-8');
-  if (json.private) {
-    return; // skip private packages, no need to update
-  }
   json.version = version;
   // update version of all inner dependencies
   var depsList = [json.dependencies || {}, json.devDependencies || {}];
