@@ -8,7 +8,7 @@ adapters.forEach(function (adapter) {
   var viewTypes = ['persisted', 'temp'];
   viewTypes.forEach(function (viewType) {
     var suiteName = 'test.mapreduce.js-' + adapter + '-' + viewType;
-    var dbName = testUtils.adapterUrl(adapter, 'testdb');
+    var dbName = testUtils.adapterUrl(adapter, 'testdb' + (new Date()).getTime());
 
     tests(suiteName, dbName, adapter, viewType);
   });

@@ -112,7 +112,7 @@ describe('chaos-monkey', function () {
   beforeEach(function (done) {
     Promise = testUtils.Promise;
     var aname = testUtils.adapterUrl('local', 'testdb');
-    var bname = testUtils.adapterUrl('http', 'test_repl_remote');
+    var bname = testUtils.adapterUrl('http', 'test_repl_remote' + (new Date()).getTime());
     testUtils.cleanup([aname, bname], function () {
       a = new PouchDB(aname);
       b = new PouchDB(bname);
