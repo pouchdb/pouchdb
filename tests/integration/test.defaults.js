@@ -1,6 +1,8 @@
 'use strict';
 if (!process.env.LEVEL_ADAPTER &&
-    !process.env.LEVEL_PREFIX && !process.env.AUTO_COMPACTION) {
+    !process.env.LEVEL_PREFIX &&
+    !process.env.AUTO_COMPACTION &&
+    !process.env.ADAPTER) {
   // these tests don't make sense for anything other than default leveldown
   var path = require('path');
   var mkdirp = require('mkdirp');

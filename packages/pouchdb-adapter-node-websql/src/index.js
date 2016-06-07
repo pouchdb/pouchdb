@@ -1,4 +1,4 @@
-import WebSqlPouch from 'pouchdb-adapter-websql';
+import WebSqlPouchCore from 'pouchdb-adapter-websql-core';
 import { extend } from 'js-extend';
 import websql from 'websql';
 
@@ -7,7 +7,7 @@ function NodeWebSqlPouch(opts, callback) {
     websql: websql // pass node-websql in as our "openDatabase" function
   }, opts);
 
-  WebSqlPouch.call(this, _opts, callback);
+  WebSqlPouchCore.call(this, _opts, callback);
 }
 
 // overrides for normal WebSQL behavior in the browser
