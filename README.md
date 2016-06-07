@@ -1,8 +1,6 @@
 [PouchDB](http://pouchdb.com/) – The Database that Syncs!
 =========
 
-testing PR
-
 [![Build Status](https://travis-ci.org/pouchdb/pouchdb.svg)](https://travis-ci.org/pouchdb/pouchdb) [![Coverage Status](https://coveralls.io/repos/pouchdb/pouchdb/badge.svg?branch=master&service=github)](https://coveralls.io/github/pouchdb/pouchdb?branch=master)
 
 PouchDB is an open-source JavaScript database inspired by [Apache CouchDB](http://couchdb.apache.org/) that is designed to run well within the browser.
