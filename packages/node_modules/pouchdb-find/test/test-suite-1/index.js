@@ -8,7 +8,13 @@ module.exports = function (dbName, dbType, Pouch) {
 
     beforeEach(function () {
       this.timeout(60000);
-      context.db = new Pouch(dbName);
+
+      var  dbNameWithTimestamp = dbName;
+      if (dbType === 'http') {
+        dbNameWithTimestamp = dbName + (new Date()).getTime();
+      }
+
+      context.db = new Pouch(dbNameWithTimestamp);
       return context.db;
     });
     afterEach(function () {
