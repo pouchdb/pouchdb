@@ -1,6 +1,6 @@
 'use strict';
 /* istanbul ignore if */
-exports.Promise = require('pouchdb/extras/promise');
+exports.Promise = require('pouchdb-promise');
 
 exports.inherits = require('inherits');
 exports.extend = require('pouchdb-extend');
