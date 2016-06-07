@@ -101,7 +101,7 @@ module.exports = function (opts) {
 (function (process){
 'use strict';
 
-var pouchCollate = _dereq_(38);
+var pouchCollate = _dereq_(39);
 var TaskQueue = _dereq_(3);
 var collate = pouchCollate.collate;
 var toIndexableString = pouchCollate.toIndexableString;
@@ -797,7 +797,7 @@ function createIndexer(def) {
 module.exports = createIndexer;
 
 }).call(this,_dereq_(45))
-},{"1":1,"3":3,"38":38,"45":45,"5":5}],3:[function(_dereq_,module,exports){
+},{"1":1,"3":3,"39":39,"45":45,"5":5}],3:[function(_dereq_,module,exports){
 'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes callbacks will eventually fire (once).
@@ -825,19 +825,19 @@ module.exports = TaskQueue;
 },{"5":5}],4:[function(_dereq_,module,exports){
 'use strict';
 
-var upsert = _dereq_(41).upsert;
+var upsert = _dereq_(44).upsert;
 
 module.exports = function (db, doc, diffFun) {
   return upsert.apply(db, [doc, diffFun]);
 };
-},{"41":41}],5:[function(_dereq_,module,exports){
+},{"44":44}],5:[function(_dereq_,module,exports){
 (function (process){
 'use strict';
 /* istanbul ignore if */
 exports.Promise = _dereq_(42);
 
 exports.inherits = _dereq_(23);
-exports.extend = _dereq_(40);
+exports.extend = _dereq_(41);
 var argsarray = _dereq_(18);
 
 /* istanbul ignore next */
@@ -938,7 +938,7 @@ exports.MD5 = function (string) {
   }
 };
 }).call(this,_dereq_(45))
-},{"18":18,"19":19,"23":23,"40":40,"42":42,"45":45,"46":46}],6:[function(_dereq_,module,exports){
+},{"18":18,"19":19,"23":23,"41":41,"42":42,"45":45,"46":46}],6:[function(_dereq_,module,exports){
 'use strict';
 
 var massageCreateIndexRequest = _dereq_(16);
@@ -1134,7 +1134,7 @@ module.exports = abstractMapper;
 var utils = _dereq_(17);
 var log = utils.log;
 
-var pouchUpsert = _dereq_(41);
+var pouchUpsert = _dereq_(44);
 var abstractMapper = _dereq_(7);
 var localUtils = _dereq_(15);
 var validateIndex = localUtils.validateIndex;
@@ -1212,7 +1212,7 @@ function createIndex(db, requestDef) {
 
 module.exports = createIndex;
 
-},{"15":15,"16":16,"17":17,"41":41,"7":7}],9:[function(_dereq_,module,exports){
+},{"15":15,"16":16,"17":17,"44":44,"7":7}],9:[function(_dereq_,module,exports){
 'use strict';
 
 var abstractMapper = _dereq_(7);
@@ -1259,290 +1259,15 @@ module.exports = deleteIndex;
 // "bar".
 //
 
-var collate = _dereq_(38).collate;
+var isArray = _dereq_(24);
+var collate = _dereq_(39).collate;
 var localUtils = _dereq_(15);
 var isCombinationalField = localUtils.isCombinationalField;
 var getKey = localUtils.getKey;
 var getValue = localUtils.getValue;
 var parseField = localUtils.parseField;
 var utils = _dereq_(17);
-
-// this would just be "return doc[field]", but fields
-// can be "deep" due to dot notation
-function getFieldFromDoc(doc, parsedField) {
-  var value = doc;
-  for (var i = 0, len = parsedField.length; i < len; i++) {
-    var key = parsedField[i];
-    value = value[key];
-    if (!value) {
-      break;
-    }
-  }
-  return value;
-}
-
-function createCriterion(userOperator, userValue, parsedField) {
-
-  // compare the value of the field in the doc
-  // to the user-supplied value, using the couchdb collation scheme
-  function getDocFieldCollate(doc) {
-    return collate(getFieldFromDoc(doc, parsedField), userValue);
-  }
-
-  function fieldExists(doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-    return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
-  }
-
-  function fieldNotUndefined (doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-    return typeof docFieldValue !== 'undefined';
-  }
-
-  function fieldIsArray (doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-    return fieldExists(doc) && docFieldValue instanceof Array;
-  }
-
-  function arrayContainsValue (doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-    return userValue.some(function (val) {
-      if (docFieldValue instanceof Array) {
-        return docFieldValue.indexOf(val) > -1;
-      }
-
-      return docFieldValue === val;
-    });
-  }
-
-  function arrayContainsAllValues (doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-    return userValue.every(function (val) {
-      return docFieldValue.indexOf(val) > -1;
-    });
-  }
-
-  function arraySize (doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-    return docFieldValue.length === userValue;
-  }
-
-  function modField (doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-    var divisor = userValue[0];
-    var mod = userValue[1];
-    if (divisor === 0) {
-      throw new Error('Bad divisor, cannot divide by zero');
-    }
-
-    if (parseInt(divisor, 10) !== divisor ) {
-      throw new Error('Divisor is not an integer');
-    }
-
-    if (parseInt(mod, 10) !== mod ) {
-      throw new Error('Modulus is not an integer');
-    }
-
-    if (parseInt(docFieldValue, 10) !== docFieldValue) {
-      return false;
-    }
-
-    return docFieldValue % divisor === mod;
-  }
-
-  function regexMatch(doc) {
-    var re = new RegExp(userValue);
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-
-    return re.test(docFieldValue);
-  }
-
-  function typeMatch(doc) {
-    var docFieldValue = getFieldFromDoc(doc, parsedField);
-
-    switch (userValue) {
-      case 'null':
-        return docFieldValue === null;
-      case 'boolean':
-        return typeof(docFieldValue) === 'boolean';
-      case 'number':
-        return typeof(docFieldValue) === 'number';
-      case 'string':
-        return typeof(docFieldValue) === 'string';
-      case 'array':
-        return docFieldValue instanceof Array;
-      case 'object':
-        return ({}).toString.call(docFieldValue) === '[object Object]';
-    }
-
-    return false;
-  }
-
-  switch (userOperator) {
-    case '$eq':
-      return function (doc) {
-        return fieldExists(doc) && getDocFieldCollate(doc) === 0;
-      };
-    case '$lte':
-      return function (doc) {
-        return fieldExists(doc) && getDocFieldCollate(doc) <= 0;
-      };
-    case '$gte':
-      return function (doc) {
-        return fieldExists(doc) && getDocFieldCollate(doc) >= 0;
-      };
-    case '$lt':
-      return function (doc) {
-        return fieldExists(doc) && getDocFieldCollate(doc) < 0;
-      };
-    case '$gt':
-      return function (doc) {
-        return fieldExists(doc) && getDocFieldCollate(doc) > 0;
-      };
-    case '$exists':
-      return function (doc) {
-        //a field that is null is still considered to exist
-        if (userValue) {
-          return fieldNotUndefined(doc);
-        }
-
-        return !fieldNotUndefined(doc);
-      };
-    case '$ne':
-      return function (doc) {
-        // might have to check multiple values, so I store this in an array
-        var docFieldValue = getFieldFromDoc(doc, parsedField);
-        return userValue.every(function (neValue) {
-          return collate(docFieldValue, neValue) !== 0;
-        });
-      };
-    case '$in':
-      return function (doc) {
-        return fieldExists(doc) && arrayContainsValue(doc);
-      };
-    case '$nin':
-      return function (doc) {
-        return fieldExists(doc) && !arrayContainsValue(doc);
-      };
-    case '$size':
-      return function (doc) {
-        return fieldIsArray(doc) && arraySize(doc);
-      };
-    case '$all':
-      return function (doc) {
-        return fieldIsArray(doc) && arrayContainsAllValues(doc);
-      };
-    case '$mod':
-      return function (doc) {
-        return fieldExists(doc) && modField(doc);
-      };
-    case '$regex':
-      return function (doc) {
-        return fieldExists(doc) && regexMatch(doc);
-      };
-    case '$elemMatch':
-      return function (doc) {
-        var docFieldValue = getFieldFromDoc(doc, parsedField);
-        if (!fieldIsArray(doc)) { return false;}
-        // Not the prettiest code I've ever written so I think I need to explain what I'm doing
-        // I get the array field that we want to do the $elemMatch on and then call createCriterion
-        // with a fake document just to check if this operator passes or not. If any of them do
-        // then this document is a match
-        return docFieldValue.some(function (value) {
-          return Object.keys(userValue).every(function (matcher) {
-            return createCriterion(matcher, userValue[matcher], 'a')({'a': value});
-          });
-        });
-      };
-    case '$type':
-      return function (doc) {
-        return typeMatch(doc);
-      };
-  }
-
-  throw new Error('unknown operator "' + parsedField[0] +
-    '" - should be one of $eq, $lte, $lt, $gt, $gte, $exists, $ne, $in, ' +
-    '$nin, $size, $mod or $all');
-
-}
-
-function createCombinationalCriterion (operator, selectors) {
-  var criterions = [];
-
-  //The $not selector isn't an array, so convert it to an array
-  selectors = (selectors instanceof Array) ? selectors : [selectors];
-
-  selectors.forEach(function (selector) {
-    Object.keys(selector).forEach(function (field) {
-      var matcher = selector[field];
-      var parsedField = parseField(field);
-
-      Object.keys(matcher).forEach(function (userOperator) {
-        var userValue = matcher[userOperator];
-        var out = createCriterion(userOperator, userValue, parsedField);
-        criterions.push(out);
-      });
-    });
-  });
-
-  if (operator === '$or') {
-    return function (doc) {
-      return criterions.some(function (criterion) {
-        return criterion(doc);
-      });
-    };
-  }
-
-  if (operator === '$not') {
-    return function (doc) {
-      return !criterions[0](doc);
-    };
-  }
-
-  // '$nor'
-  return function (doc) {
-    return !criterions.find(function (criterion) {
-      return criterion(doc);
-    });
-  };
-}
-
-function createFilterRowFunction(requestDef, inMemoryFields) {
-
-  var criteria = [];
-  inMemoryFields.forEach(function (field) {
-    var matcher = requestDef.selector[field];
-    var parsedField = parseField(field);
-
-    if (!matcher) {
-      // no filtering necessary; this field is just needed for sorting
-      return;
-    }
-
-    if (isCombinationalField(field)) {
-      var criterion = createCombinationalCriterion(field, matcher);
-      criteria.push(criterion);
-      return;
-    }
-
-    Object.keys(matcher).forEach(function (userOperator) {
-      var userValue = matcher[userOperator];
-
-      var criterion = createCriterion(userOperator, userValue, parsedField);
-      criteria.push(criterion);
-    });
-  });
-
-  return function filterRowFunction(row) {
-    for (var i = 0, len = criteria.length; i < len; i++) {
-      var criterion = criteria[i];
-      if (!criterion(row.doc)) {
-        return false;
-      }
-    }
-    return true;
-  };
-}
+var getFieldFromDoc = utils.getFieldFromDoc;
 
 // create a comparator based on the sort object
 function createFieldSorter(sort) {
@@ -1568,11 +1293,10 @@ function createFieldSorter(sort) {
   };
 }
 
-// filter any fields not covered by the index
-function filterInMemoryFields(rows, requestDef, inMemoryFields) {
-
-  var filter = createFilterRowFunction(requestDef, inMemoryFields);
-  rows =  rows.filter(filter);
+function filterInMemoryFields (rows, requestDef, inMemoryFields) {
+  rows = rows.filter(function (row) {
+    return rowFilter(row.doc, requestDef.selector, inMemoryFields);
+  });
 
   if (requestDef.sort) {
     // in-memory sort
@@ -1593,15 +1317,231 @@ function filterInMemoryFields(rows, requestDef, inMemoryFields) {
   return rows;
 }
 
+function rowFilter (doc, selector, inMemoryFields) {
+  return inMemoryFields.every(function (field) {
+    var matcher = selector[field];
+    var parsedField = parseField(field);
+    var docFieldValue = getFieldFromDoc(doc, parsedField);
+    if (isCombinationalField(field)) {
+      return matchCominationalSelector(field, matcher, doc);
+    }
+
+    return matchSelector(matcher, doc, parsedField, docFieldValue);
+  });
+}
+
+function matchSelector (matcher, doc, parsedField, docFieldValue) {
+  if (!matcher) {
+    // no filtering necessary; this field is just needed for sorting
+    return true;
+  }
+
+  return Object.keys(matcher).every(function (userOperator) {
+    var userValue = matcher[userOperator];
+    return match(userOperator, doc, userValue, parsedField, docFieldValue);
+  });
+}
+
+function matchCominationalSelector (field, matcher, doc) {
+
+  if (field === '$or') {
+    return matcher.some(function (orMatchers) {
+      return rowFilter(doc, orMatchers, Object.keys(orMatchers));
+    });
+  }
+
+  if (field === '$not') {
+    return !rowFilter(doc, matcher, Object.keys(matcher));
+  }
+
+  //`$nor`
+  return !matcher.find(function (orMatchers) {
+    return rowFilter(doc, orMatchers, Object.keys(orMatchers));
+  });
+
+}
+
+function match(userOperator, doc, userValue, parsedField, docFieldValue) {
+  if (!matchers[userOperator]) {
+    throw new Error('unknown operator "' + userOperator +
+      '" - should be one of $eq, $lte, $lt, $gt, $gte, $exists, $ne, $in, ' +
+      '$nin, $size, $mod, $regex, $elemMatch, $type or $all');
+  }
+  return matchers[userOperator](doc, userValue, parsedField, docFieldValue);
+}
+
+function fieldExists(docFieldValue) {
+  return typeof docFieldValue !== 'undefined' && docFieldValue !== null;
+}
+
+function fieldIsNotUndefined(docFieldValue) {
+  return typeof docFieldValue !== 'undefined';
+}
+
+function modField (docFieldValue, userValue) {
+  var divisor = userValue[0];
+  var mod = userValue[1];
+  if (divisor === 0) {
+    throw new Error('Bad divisor, cannot divide by zero');
+  }
+
+  if (parseInt(divisor, 10) !== divisor ) {
+    throw new Error('Divisor is not an integer');
+  }
+
+  if (parseInt(mod, 10) !== mod ) {
+    throw new Error('Modulus is not an integer');
+  }
+
+  if (parseInt(docFieldValue, 10) !== docFieldValue) {
+    return false;
+  }
+
+  return docFieldValue % divisor === mod;
+}
+
+function arrayContainsValue (docFieldValue, userValue) {
+  return userValue.some(function (val) {
+    if (docFieldValue instanceof Array) {
+      return docFieldValue.indexOf(val) > -1;
+    }
+
+    return docFieldValue === val;
+  });
+}
+
+function arrayContainsAllValues (docFieldValue, userValue) {
+  return userValue.every(function (val) {
+    return docFieldValue.indexOf(val) > -1;
+  });
+}
+
+function arraySize (docFieldValue, userValue) {
+  return docFieldValue.length === userValue;
+}
+
+function regexMatch(docFieldValue, userValue) {
+  var re = new RegExp(userValue);
+
+  return re.test(docFieldValue);
+}
+
+function typeMatch(docFieldValue, userValue) {
+
+  switch (userValue) {
+    case 'null':
+      return docFieldValue === null;
+    case 'boolean':
+      return typeof(docFieldValue) === 'boolean';
+    case 'number':
+      return typeof(docFieldValue) === 'number';
+    case 'string':
+      return typeof(docFieldValue) === 'string';
+    case 'array':
+      return docFieldValue instanceof Array;
+    case 'object':
+      return ({}).toString.call(docFieldValue) === '[object Object]';
+  }
+
+  throw new Error(userValue + ' not supported as a type.' +
+                  'Please use one of object, string, array, number, boolean or null.');
+
+}
+
+var matchers = {
+
+  '$elemMatch': function (doc, userValue, parsedField, docFieldValue) {
+    if (!isArray(docFieldValue)) {
+      return false;
+    }
+
+    if (docFieldValue.length === 0) {
+      return false;
+    }
+
+    if (typeof docFieldValue[0] === 'object') {
+      return docFieldValue.some(function (val) {
+        return rowFilter(val, userValue, Object.keys(userValue));
+      });
+    }
+
+    return docFieldValue.some(function (val) {
+      return matchSelector(userValue, doc, parsedField, val);
+    });
+  },
+
+  '$eq': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) === 0;
+  },
+
+  '$gte': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) >= 0;
+  },
+
+  '$gt': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) > 0;
+  },
+
+  '$lte': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) <= 0;
+  },
+
+  '$lt': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) < 0;
+  },
+
+  '$exists': function (doc, userValue, parsedField, docFieldValue) {
+    //a field that is null is still considered to exist
+    if (userValue) {
+      return fieldIsNotUndefined(docFieldValue);
+    }
+
+    return !fieldIsNotUndefined(docFieldValue);
+  },
+
+  '$mod': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldExists(docFieldValue) && modField(docFieldValue, userValue);
+  },
+
+  '$ne': function (doc, userValue, parsedField, docFieldValue) {
+    return userValue.every(function (neValue) {
+      return collate(docFieldValue, neValue) !== 0;
+    });
+  },
+  '$in': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldExists(docFieldValue) && arrayContainsValue(docFieldValue, userValue);
+  },
+
+  '$nin': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldExists(docFieldValue) && !arrayContainsValue(docFieldValue, userValue);
+  },
+
+  '$size': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldExists(docFieldValue) && arraySize(docFieldValue, userValue);
+  },
+
+  '$all': function (doc, userValue, parsedField, docFieldValue) {
+    return isArray(docFieldValue) && arrayContainsAllValues(docFieldValue, userValue);
+  },
+
+  '$regex': function (doc, userValue, parsedField, docFieldValue) {
+    return fieldExists(docFieldValue) && regexMatch(docFieldValue, userValue);
+  },
+
+  '$type': function (doc, userValue, parsedField, docFieldValue) {
+    return typeMatch(docFieldValue, userValue);
+  }
+};
+
 module.exports = filterInMemoryFields;
 
-},{"15":15,"17":17,"38":38}],11:[function(_dereq_,module,exports){
+},{"15":15,"17":17,"24":24,"39":39}],11:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
 var clone = utils.clone;
 var getIndexes = _dereq_(13);
-var collate = _dereq_(38).collate;
+var collate = _dereq_(39).collate;
 var abstractMapper = _dereq_(7);
 var planQuery = _dereq_(12);
 var localUtils = _dereq_(15);
@@ -1610,6 +1550,7 @@ var massageSelector = localUtils.massageSelector;
 var massageSort = localUtils.massageSort;
 var getValue = localUtils.getValue;
 var validateFindRequest = localUtils.validateFindRequest;
+var validateSort = localUtils.validateSort;
 var reverseOptions = localUtils.reverseOptions;
 var filterInclusiveStart = localUtils.filterInclusiveStart;
 var Promise = utils.Promise;
@@ -1664,6 +1605,8 @@ function find(db, requestDef) {
 
     var indexToUse = queryPlan.index;
 
+    validateSort(requestDef, indexToUse);
+
     var opts = utils.extend(true, {
       include_docs: true,
       reduce: false
@@ -1716,7 +1659,7 @@ function find(db, requestDef) {
         res.rows = filterInMemoryFields(res.rows, requestDef, queryPlan.inMemoryFields);
       }
 
-      return {
+      var resp = {
         docs: res.rows.map(function (row) {
           var doc = row.doc;
           if (requestDef.fields) {
@@ -1725,13 +1668,19 @@ function find(db, requestDef) {
           return doc;
         })
       };
+
+      if (indexToUse.defaultUsed) {
+        resp.warning = 'no matching index found, create an index to optimize query time';
+      }
+
+      return resp;
     });
   });
 }
 
 module.exports = find;
 
-},{"10":10,"12":12,"13":13,"15":15,"17":17,"38":38,"7":7}],12:[function(_dereq_,module,exports){
+},{"10":10,"12":12,"13":13,"15":15,"17":17,"39":39,"7":7}],12:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
@@ -1890,9 +1839,7 @@ function checkIndexMatches(index, sortOrder, fields, selector) {
     return false;
   }
 
-  var logicallySound = checkFieldsLogicallySound(indexFields, selector);
-
-  return logicallySound;
+  return checkFieldsLogicallySound(indexFields, selector);
 }
 
 //
@@ -1904,15 +1851,13 @@ function checkIndexMatches(index, sortOrder, fields, selector) {
 //
 function findMatchingIndexes(selector, userFields, sortOrder, indexes) {
 
-  var res = [];
-  for (var i = 0, iLen = indexes.length; i < iLen; i++) {
-    var index = indexes[i];
+  return indexes.reduce(function (res, index) {
     var indexMatches = checkIndexMatches(index, sortOrder, userFields, selector);
     if (indexMatches) {
       res.push(index);
     }
-  }
-  return res;
+    return res;
+  }, []);
 }
 
 // find the best index, i.e. the one that matches the most fields
@@ -1922,7 +1867,11 @@ function findBestMatchingIndex(selector, userFields, sortOrder, indexes) {
   var matchingIndexes = findMatchingIndexes(selector, userFields, sortOrder, indexes);
 
   if (matchingIndexes.length === 0) {
-    return null;
+    //return `all_docs` as a default index;
+    //I'm assuming that _all_docs is always first
+    var defaultIndex = indexes[0];
+    defaultIndex.defaultUsed = true;
+    return defaultIndex;
   }
   if (matchingIndexes.length === 1) {
     return matchingIndexes[0];
@@ -2122,31 +2071,25 @@ function getMultiFieldQueryOpts(selector, index) {
   };
 }
 
+function getDefaultQueryPlan () {
+  return {
+    queryOpts: {startkey: null},
+    //getInMemoryFields will do the work here later
+    inMemoryFields: []
+  };
+}
+
 function getCoreQueryPlan(selector, index) {
+  if (index.defaultUsed) {
+    return getDefaultQueryPlan(selector, index);
+  }
+
   if (index.def.fields.length === 1) {
     // one field in index, so the value was indexed as a singleton
     return getSingleFieldCoreQueryPlan(selector, index);
   }
   // else index has multiple fields, so the value was indexed as an array
   return getMultiFieldQueryOpts(selector, index);
-}
-
-function createNoIndexFoundError(userFields, sortFields, selector) {
-
-  if (getKey(getValue(selector)) === '$ne') {
-    // blame it on the $ne
-    return new Error('couldn\'t find a usable index. try using ' +
-      '$and with $lt/$gt instead of $ne');
-  }
-
-  var fieldsToSuggest = (sortFields && sortFields.length >= userFields.length) ?
-    sortFields : userFields;
-
-  return new Error(
-    'couldn\'t find a usable index. try creating an index on: ' +
-    fieldsToSuggest.join(', ') +
-    '. Make sure that only $eq, $gt, $gte, $lt, and $lte are used for the indexed fields.'
-  );
 }
 
 function planQuery(request, indexes) {
@@ -2161,13 +2104,6 @@ function planQuery(request, indexes) {
   var userFields = userFieldsRes.fields;
   var sortOrder = userFieldsRes.sortOrder;
   var index = findBestMatchingIndex(selector, userFields, sortOrder, indexes);
-
-  if (!index) {
-    throw createNoIndexFoundError(userFields, sortOrder, selector);
-  }
-
-  var firstIndexField = index.def.fields[0];
-  var firstMatcher = selector[getKey(firstIndexField)];
 
   var coreQueryPlan = getCoreQueryPlan(selector, index);
   var queryOpts = coreQueryPlan.queryOpts;
@@ -2254,7 +2190,7 @@ exports.deleteIndex = callbackify(_dereq_(9));
 'use strict';
 
 var utils = _dereq_(17);
-var collate = _dereq_(38);
+var collate = _dereq_(39);
 
 function getKey(obj) {
   return Object.keys(obj)[0];
@@ -2440,7 +2376,7 @@ function massageSelector(input) {
     var field = fields[i];
     var matcher = result[field];
 
-    if (typeof matcher !== 'object') {
+    if (typeof matcher !== 'object' || matcher === null) {
       matcher = {$eq: matcher};
     } else if ('$ne' in matcher && !wasAnded) {
       // I put these in an array, since there may be more than one
@@ -2535,20 +2471,31 @@ function validateIndex(index) {
   }
 }
 
+function validateSort (requestDef, index) {
+  if (index.defaultUsed && requestDef.sort) {
+    var noneIdSorts = requestDef.sort.filter(function (sortItem) {
+      return Object.keys(sortItem)[0] !== '_id';
+    }).map(function (sortItem) {
+      return Object.keys(sortItem)[0];
+    });
+
+    if (noneIdSorts.length > 0) {
+      throw new Error('Cannot sort on field(s) "' + noneIdSorts.join(',') +
+      '" when using the default index');
+    }
+  }
+
+  if (index.defaultUsed) {
+    return;
+  }
+}
+
 function validateFindRequest(requestDef) {
   if (typeof requestDef.selector !== 'object') {
     throw new Error('you must provide a selector when you find()');
   }
-  // TODO: could be >1 field
-  var selectorFields = Object.keys(requestDef.selector);
-  var sortFields = requestDef.sort ?
-    massageSort(requestDef.sort).map(getKey) : [];
 
-  if (!utils.oneSetIsSubArrayOfOther(selectorFields, sortFields)) {
-    throw new Error('conflicting sort and selector fields');
-  }
-
-  var selectors = requestDef.selector['$and'] || [requestDef.selector];
+  /*var selectors = requestDef.selector['$and'] || [requestDef.selector];
   for (var i = 0; i < selectors.length; i++) {
     var selector = selectors[i];
     var keys = Object.keys(selector);
@@ -2559,29 +2506,8 @@ function validateFindRequest(requestDef) {
     /*if (Object.keys(selection).length !== 1) {
       throw new Error('invalid selector: ' + JSON.stringify(selection) +
         ' - it must have exactly one key/value');
-    }*/
-  }
-}
-
-function parseField(fieldName) {
-  // fields may be deep (e.g. "foo.bar.baz"), so parse
-  var fields = [];
-  var current = '';
-  for (var i = 0, len = fieldName.length; i < len; i++) {
-    var ch = fieldName[i];
-    if (ch === '.') {
-      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
-        current = current.substring(0, current.length - 1) + '.';
-      } else { // not escaped, so delimiter
-        fields.push(current);
-        current = '';
-      }
-    } else { // normal character
-      current += ch;
     }
-  }
-  fields.push(current);
-  return fields;
+  }*/
 }
 
 // determine the maximum number of fields
@@ -2592,7 +2518,7 @@ function getUserFields(selector, sort) {
   var selectorFields = Object.keys(selector);
   var sortFields = sort? sort.map(getKey) : [];
   var userFields;
-  if (selectorFields.length > sortFields.length) {
+  if (selectorFields.length >= sortFields.length) {
     userFields = selectorFields;
   } else {
     userFields = sortFields;
@@ -2630,15 +2556,16 @@ module.exports = {
   massageSelector: massageSelector,
   validateIndex: validateIndex,
   validateFindRequest: validateFindRequest,
+  validateSort: validateSort,
   reverseOptions: reverseOptions,
   filterInclusiveStart: filterInclusiveStart,
   massageIndexDef: massageIndexDef,
-  parseField: parseField,
+  parseField: utils.parseField,
   getUserFields: getUserFields,
   isCombinationalField: isCombinationalField
 };
 
-},{"17":17,"38":38}],16:[function(_dereq_,module,exports){
+},{"17":17,"39":39}],16:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
@@ -2757,7 +2684,7 @@ exports.clone = function (obj) {
   return exports.extend(true, {}, obj);
 };
 
-exports.extend = _dereq_(40);
+exports.extend = _dereq_(41);
 
 exports.callbackify = function (fun) {
   return exports.getArguments(function (args) {
@@ -2814,12 +2741,60 @@ exports.mergeObjects = function (arr) {
   return res;
 };
 
-// like underscore/lodash _.pick()
+// this would just be "return doc[field]", but fields
+// can be "deep" due to dot notation
+exports.getFieldFromDoc = function (doc, parsedField) {
+  var value = doc;
+  for (var i = 0, len = parsedField.length; i < len; i++) {
+    var key = parsedField[i];
+    value = value[key];
+    if (!value) {
+      break;
+    }
+  }
+  return value;
+};
+
+exports.setFieldInDoc = function (doc, parsedField, value) {
+  for (var i = 0, len = parsedField.length; i < len-1; i++) {
+    var elem = parsedField[i];
+    doc = doc[elem] = {};
+  }
+  doc[parsedField[len-1]] = value;
+};
+
+// Converts a string in dot notation to an array of its components, with backslash escaping
+exports.parseField = function (fieldName) {
+  // fields may be deep (e.g. "foo.bar.baz"), so parse
+  var fields = [];
+  var current = '';
+  for (var i = 0, len = fieldName.length; i < len; i++) {
+    var ch = fieldName[i];
+    if (ch === '.') {
+      if (i > 0 && fieldName[i - 1] === '\\') { // escaped delimiter
+        current = current.substring(0, current.length - 1) + '.';
+      } else { // not escaped, so delimiter
+        fields.push(current);
+        current = '';
+      }
+    } else { // normal character
+      current += ch;
+    }
+  }
+  fields.push(current);
+  return fields;
+};
+
+// Selects a list of fields defined in dot notation from one doc
+// and copies them to a new doc. Like underscore _.pick but supports nesting.
 exports.pick = function (obj, arr) {
   var res = {};
   for (var i = 0, len = arr.length; i < len; i++) {
-    var prop = arr[i];
-    res[prop] = obj[prop];
+    var parsedField = exports.parseField(arr[i]);
+    var value = exports.getFieldFromDoc(obj, parsedField);
+    if(typeof value !== 'undefined') {
+      exports.setFieldInDoc(res, parsedField, value);
+    }
   }
   return res;
 };
@@ -2915,7 +2890,7 @@ exports.uniq = function(arr) {
 exports.log = _dereq_(20)('pouchdb:find');
 
 }).call(this,_dereq_(45))
-},{"19":19,"20":20,"23":23,"40":40,"42":42,"45":45,"46":46}],18:[function(_dereq_,module,exports){
+},{"19":19,"20":20,"23":23,"41":41,"42":42,"45":45,"46":46}],18:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -3121,7 +3096,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = _dereq_(37);
+exports.humanize = _dereq_(38);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -3306,7 +3281,7 @@ function coerce(val) {
   return val;
 }
 
-},{"37":37}],22:[function(_dereq_,module,exports){
+},{"38":38}],22:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 var Mutation = global.MutationObserver || global.WebKitMutationObserver;
@@ -3405,18 +3380,53 @@ if (typeof Object.create === 'function') {
 }
 
 },{}],24:[function(_dereq_,module,exports){
+
+/**
+ * isArray
+ */
+
+var isArray = Array.isArray;
+
+/**
+ * toString
+ */
+
+var str = Object.prototype.toString;
+
+/**
+ * Whether or not the given `val`
+ * is an array.
+ *
+ * example:
+ *
+ *        isArray([]);
+ *        // > true
+ *        isArray(arguments);
+ *        // > false
+ *        isArray('');
+ *        // > false
+ *
+ * @param {mixed} val
+ * @return {bool}
+ */
+
+module.exports = isArray || function (val) {
+  return !! val && '[object Array]' == str.call(val);
+};
+
+},{}],25:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = INTERNAL;
 
 function INTERNAL() {}
-},{}],25:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
-var Promise = _dereq_(28);
-var reject = _dereq_(31);
-var resolve = _dereq_(32);
-var INTERNAL = _dereq_(24);
-var handlers = _dereq_(26);
+var Promise = _dereq_(29);
+var reject = _dereq_(32);
+var resolve = _dereq_(33);
+var INTERNAL = _dereq_(25);
+var handlers = _dereq_(27);
 module.exports = all;
 function all(iterable) {
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
@@ -3454,11 +3464,11 @@ function all(iterable) {
     }
   }
 }
-},{"24":24,"26":26,"28":28,"31":31,"32":32}],26:[function(_dereq_,module,exports){
+},{"25":25,"27":27,"29":29,"32":32,"33":33}],27:[function(_dereq_,module,exports){
 'use strict';
-var tryCatch = _dereq_(35);
-var resolveThenable = _dereq_(33);
-var states = _dereq_(34);
+var tryCatch = _dereq_(36);
+var resolveThenable = _dereq_(34);
+var states = _dereq_(35);
 
 exports.resolve = function (self, value) {
   var result = tryCatch(getThen, value);
@@ -3501,22 +3511,22 @@ function getThen(obj) {
   }
 }
 
-},{"33":33,"34":34,"35":35}],27:[function(_dereq_,module,exports){
-module.exports = exports = _dereq_(28);
+},{"34":34,"35":35,"36":36}],28:[function(_dereq_,module,exports){
+module.exports = exports = _dereq_(29);
 
-exports.resolve = _dereq_(32);
-exports.reject = _dereq_(31);
-exports.all = _dereq_(25);
-exports.race = _dereq_(30);
+exports.resolve = _dereq_(33);
+exports.reject = _dereq_(32);
+exports.all = _dereq_(26);
+exports.race = _dereq_(31);
 
-},{"25":25,"28":28,"30":30,"31":31,"32":32}],28:[function(_dereq_,module,exports){
+},{"26":26,"29":29,"31":31,"32":32,"33":33}],29:[function(_dereq_,module,exports){
 'use strict';
 
-var unwrap = _dereq_(36);
-var INTERNAL = _dereq_(24);
-var resolveThenable = _dereq_(33);
-var states = _dereq_(34);
-var QueueItem = _dereq_(29);
+var unwrap = _dereq_(37);
+var INTERNAL = _dereq_(25);
+var resolveThenable = _dereq_(34);
+var states = _dereq_(35);
+var QueueItem = _dereq_(30);
 
 module.exports = Promise;
 function Promise(resolver) {
@@ -3553,10 +3563,10 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
   return promise;
 };
 
-},{"24":24,"29":29,"33":33,"34":34,"36":36}],29:[function(_dereq_,module,exports){
+},{"25":25,"30":30,"34":34,"35":35,"37":37}],30:[function(_dereq_,module,exports){
 'use strict';
-var handlers = _dereq_(26);
-var unwrap = _dereq_(36);
+var handlers = _dereq_(27);
+var unwrap = _dereq_(37);
 
 module.exports = QueueItem;
 function QueueItem(promise, onFulfilled, onRejected) {
@@ -3583,13 +3593,13 @@ QueueItem.prototype.otherCallRejected = function (value) {
   unwrap(this.promise, this.onRejected, value);
 };
 
-},{"26":26,"36":36}],30:[function(_dereq_,module,exports){
+},{"27":27,"37":37}],31:[function(_dereq_,module,exports){
 'use strict';
-var Promise = _dereq_(28);
-var reject = _dereq_(31);
-var resolve = _dereq_(32);
-var INTERNAL = _dereq_(24);
-var handlers = _dereq_(26);
+var Promise = _dereq_(29);
+var reject = _dereq_(32);
+var resolve = _dereq_(33);
+var INTERNAL = _dereq_(25);
+var handlers = _dereq_(27);
 module.exports = race;
 function race(iterable) {
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
@@ -3624,24 +3634,24 @@ function race(iterable) {
   }
 }
 
-},{"24":24,"26":26,"28":28,"31":31,"32":32}],31:[function(_dereq_,module,exports){
+},{"25":25,"27":27,"29":29,"32":32,"33":33}],32:[function(_dereq_,module,exports){
 'use strict';
 
-var Promise = _dereq_(28);
-var INTERNAL = _dereq_(24);
-var handlers = _dereq_(26);
+var Promise = _dereq_(29);
+var INTERNAL = _dereq_(25);
+var handlers = _dereq_(27);
 module.exports = reject;
 
 function reject(reason) {
 	var promise = new Promise(INTERNAL);
 	return handlers.reject(promise, reason);
 }
-},{"24":24,"26":26,"28":28}],32:[function(_dereq_,module,exports){
+},{"25":25,"27":27,"29":29}],33:[function(_dereq_,module,exports){
 'use strict';
 
-var Promise = _dereq_(28);
-var INTERNAL = _dereq_(24);
-var handlers = _dereq_(26);
+var Promise = _dereq_(29);
+var INTERNAL = _dereq_(25);
+var handlers = _dereq_(27);
 module.exports = resolve;
 
 var FALSE = handlers.resolve(new Promise(INTERNAL), false);
@@ -3671,10 +3681,10 @@ function resolve(value) {
       return EMPTYSTRING;
   }
 }
-},{"24":24,"26":26,"28":28}],33:[function(_dereq_,module,exports){
+},{"25":25,"27":27,"29":29}],34:[function(_dereq_,module,exports){
 'use strict';
-var handlers = _dereq_(26);
-var tryCatch = _dereq_(35);
+var handlers = _dereq_(27);
+var tryCatch = _dereq_(36);
 function safelyResolveThenable(self, thenable) {
   // Either fulfill, reject or reject with error
   var called = false;
@@ -3704,14 +3714,14 @@ function safelyResolveThenable(self, thenable) {
   }
 }
 exports.safely = safelyResolveThenable;
-},{"26":26,"35":35}],34:[function(_dereq_,module,exports){
+},{"27":27,"36":36}],35:[function(_dereq_,module,exports){
 // Lazy man's symbols for states
 
 exports.REJECTED = ['REJECTED'];
 exports.FULFILLED = ['FULFILLED'];
 exports.PENDING = ['PENDING'];
 
-},{}],35:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = tryCatch;
@@ -3727,11 +3737,11 @@ function tryCatch(func, value) {
   }
   return out;
 }
-},{}],36:[function(_dereq_,module,exports){
+},{}],37:[function(_dereq_,module,exports){
 'use strict';
 
 var immediate = _dereq_(22);
-var handlers = _dereq_(26);
+var handlers = _dereq_(27);
 module.exports = unwrap;
 
 function unwrap(promise, func, value) {
@@ -3749,7 +3759,7 @@ function unwrap(promise, func, value) {
     }
   });
 }
-},{"22":22,"26":26}],37:[function(_dereq_,module,exports){
+},{"22":22,"27":27}],38:[function(_dereq_,module,exports){
 /**
  * Helpers.
  */
@@ -3876,14 +3886,14 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],38:[function(_dereq_,module,exports){
+},{}],39:[function(_dereq_,module,exports){
 'use strict';
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto
 var SEP = ''; // set to '_' for easier debugging 
 
-var utils = _dereq_(39);
+var utils = _dereq_(40);
 
 exports.collate = function (a, b) {
 
@@ -4231,7 +4241,7 @@ function numToIndexableString(num) {
   return result;
 }
 
-},{"39":39}],39:[function(_dereq_,module,exports){
+},{"40":40}],40:[function(_dereq_,module,exports){
 'use strict';
 
 function pad(str, padWith, upToLength) {
@@ -4302,7 +4312,7 @@ exports.intToDecimalForm = function (int) {
 
   return result;
 };
-},{}],40:[function(_dereq_,module,exports){
+},{}],41:[function(_dereq_,module,exports){
 "use strict";
 
 // Extends method
@@ -4483,124 +4493,18 @@ module.exports = extend;
 
 
 
-},{}],41:[function(_dereq_,module,exports){
-(function (global){
+},{}],42:[function(_dereq_,module,exports){
 'use strict';
 
-var PouchPromise;
-/* istanbul ignore next */
-if (typeof window !== 'undefined' && window.PouchDB) {
-  PouchPromise = window.PouchDB.utils.Promise;
-} else {
-  PouchPromise = typeof global.Promise === 'function' ? global.Promise : _dereq_(27);
-}
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-// this is essentially the "update sugar" function from daleharvey/pouchdb#1388
-// the diffFun tells us what delta to apply to the doc.  it either returns
-// the doc, or false if it doesn't need to do an update after all
-function upsertInner(db, docId, diffFun) {
-  return new PouchPromise(function (fulfill, reject) {
-    if (typeof docId !== 'string') {
-      return reject(new Error('doc id is required'));
-    }
-
-    db.get(docId, function (err, doc) {
-      if (err) {
-        /* istanbul ignore next */
-        if (err.status !== 404) {
-          return reject(err);
-        }
-        doc = {};
-      }
-
-      // the user might change the _rev, so save it for posterity
-      var docRev = doc._rev;
-      var newDoc = diffFun(doc);
-
-      if (!newDoc) {
-        // if the diffFun returns falsy, we short-circuit as
-        // an optimization
-        return fulfill({updated: false, rev: docRev});
-      }
-
-      // users aren't allowed to modify these values,
-      // so reset them here
-      newDoc._id = docId;
-      newDoc._rev = docRev;
-      fulfill(tryAndPut(db, newDoc, diffFun));
-    });
-  });
-}
-
-function tryAndPut(db, doc, diffFun) {
-  return db.put(doc).then(function (res) {
-    return {
-      updated: true,
-      rev: res.rev
-    };
-  }, function (err) {
-    /* istanbul ignore next */
-    if (err.status !== 409) {
-      throw err;
-    }
-    return upsertInner(db, doc._id, diffFun);
-  });
-}
-
-exports.upsert = function upsert(docId, diffFun, cb) {
-  var db = this;
-  var promise = upsertInner(db, docId, diffFun);
-  if (typeof cb !== 'function') {
-    return promise;
-  }
-  promise.then(function (resp) {
-    cb(null, resp);
-  }, cb);
-};
-
-exports.putIfNotExists = function putIfNotExists(docId, doc, cb) {
-  var db = this;
-
-  if (typeof docId !== 'string') {
-    cb = doc;
-    doc = docId;
-    docId = doc._id;
-  }
-
-  var diffFun = function (existingDoc) {
-    if (existingDoc._rev) {
-      return false; // do nothing
-    }
-    return doc;
-  };
-
-  var promise = upsertInner(db, docId, diffFun);
-  if (typeof cb !== 'function') {
-    return promise;
-  }
-  promise.then(function (resp) {
-    cb(null, resp);
-  }, cb);
-};
-
+var lie = _interopDefault(_dereq_(43));
 
 /* istanbul ignore next */
-if (typeof window !== 'undefined' && window.PouchDB) {
-  window.PouchDB.plugin(exports);
-}
+var PouchPromise = typeof Promise === 'function' ? Promise : lie;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"27":27}],42:[function(_dereq_,module,exports){
-'use strict';
-
-// allow external plugins to require('pouchdb/extras/promise')
-module.exports = _dereq_(43);
+module.exports = PouchPromise;
 },{"43":43}],43:[function(_dereq_,module,exports){
-'use strict';
-/* istanbul ignore next */
-module.exports = typeof Promise === 'function' ? Promise : _dereq_(44);
-
-},{"44":44}],44:[function(_dereq_,module,exports){
 'use strict';
 var immediate = _dereq_(22);
 
@@ -4613,7 +4517,7 @@ var REJECTED = ['REJECTED'];
 var FULFILLED = ['FULFILLED'];
 var PENDING = ['PENDING'];
 
-module.exports = exports = Promise;
+module.exports = Promise;
 
 function Promise(resolver) {
   if (typeof resolver !== 'function') {
@@ -4767,7 +4671,7 @@ function tryCatch(func, value) {
   return out;
 }
 
-exports.resolve = resolve;
+Promise.resolve = resolve;
 function resolve(value) {
   if (value instanceof this) {
     return value;
@@ -4775,13 +4679,13 @@ function resolve(value) {
   return handlers.resolve(new this(INTERNAL), value);
 }
 
-exports.reject = reject;
+Promise.reject = reject;
 function reject(reason) {
   var promise = new this(INTERNAL);
   return handlers.reject(promise, reason);
 }
 
-exports.all = all;
+Promise.all = all;
 function all(iterable) {
   var self = this;
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
@@ -4820,7 +4724,7 @@ function all(iterable) {
   }
 }
 
-exports.race = race;
+Promise.race = race;
 function race(iterable) {
   var self = this;
   if (Object.prototype.toString.call(iterable) !== '[object Array]') {
@@ -4855,38 +4759,182 @@ function race(iterable) {
   }
 }
 
-},{"22":22}],45:[function(_dereq_,module,exports){
+},{"22":22}],44:[function(_dereq_,module,exports){
+(function (global){
+'use strict';
+
+var PouchPromise;
+/* istanbul ignore next */
+if (typeof window !== 'undefined' && window.PouchDB) {
+  PouchPromise = window.PouchDB.utils.Promise;
+} else {
+  PouchPromise = typeof global.Promise === 'function' ? global.Promise : _dereq_(28);
+}
+
+// this is essentially the "update sugar" function from daleharvey/pouchdb#1388
+// the diffFun tells us what delta to apply to the doc.  it either returns
+// the doc, or false if it doesn't need to do an update after all
+function upsertInner(db, docId, diffFun) {
+  return new PouchPromise(function (fulfill, reject) {
+    if (typeof docId !== 'string') {
+      return reject(new Error('doc id is required'));
+    }
+
+    db.get(docId, function (err, doc) {
+      if (err) {
+        /* istanbul ignore next */
+        if (err.status !== 404) {
+          return reject(err);
+        }
+        doc = {};
+      }
+
+      // the user might change the _rev, so save it for posterity
+      var docRev = doc._rev;
+      var newDoc = diffFun(doc);
+
+      if (!newDoc) {
+        // if the diffFun returns falsy, we short-circuit as
+        // an optimization
+        return fulfill({updated: false, rev: docRev});
+      }
+
+      // users aren't allowed to modify these values,
+      // so reset them here
+      newDoc._id = docId;
+      newDoc._rev = docRev;
+      fulfill(tryAndPut(db, newDoc, diffFun));
+    });
+  });
+}
+
+function tryAndPut(db, doc, diffFun) {
+  return db.put(doc).then(function (res) {
+    return {
+      updated: true,
+      rev: res.rev
+    };
+  }, function (err) {
+    /* istanbul ignore next */
+    if (err.status !== 409) {
+      throw err;
+    }
+    return upsertInner(db, doc._id, diffFun);
+  });
+}
+
+exports.upsert = function upsert(docId, diffFun, cb) {
+  var db = this;
+  var promise = upsertInner(db, docId, diffFun);
+  if (typeof cb !== 'function') {
+    return promise;
+  }
+  promise.then(function (resp) {
+    cb(null, resp);
+  }, cb);
+};
+
+exports.putIfNotExists = function putIfNotExists(docId, doc, cb) {
+  var db = this;
+
+  if (typeof docId !== 'string') {
+    cb = doc;
+    doc = docId;
+    docId = doc._id;
+  }
+
+  var diffFun = function (existingDoc) {
+    if (existingDoc._rev) {
+      return false; // do nothing
+    }
+    return doc;
+  };
+
+  var promise = upsertInner(db, docId, diffFun);
+  if (typeof cb !== 'function') {
+    return promise;
+  }
+  promise.then(function (resp) {
+    cb(null, resp);
+  }, cb);
+};
+
+
+/* istanbul ignore next */
+if (typeof window !== 'undefined' && window.PouchDB) {
+  window.PouchDB.plugin(exports);
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"28":28}],45:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
 var queue = [];
 var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
 
 function drainQueue() {
     if (draining) {
         return;
     }
+    var timeout = setTimeout(cleanUpNextTick);
     draining = true;
-    var currentQueue;
+
     var len = queue.length;
     while(len) {
         currentQueue = queue;
         queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
         }
+        queueIndex = -1;
         len = queue.length;
     }
+    currentQueue = null;
     draining = false;
+    clearTimeout(timeout);
 }
+
 process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
         setTimeout(drainQueue, 0);
     }
 };
 
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
 process.title = 'browser';
 process.browser = true;
 process.env = {};
@@ -4908,7 +4956,6 @@ process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
 
-// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
