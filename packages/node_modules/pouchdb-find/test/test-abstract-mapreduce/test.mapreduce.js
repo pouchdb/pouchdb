@@ -3,14 +3,13 @@
 
 var testUtils = require('../test-utils');
 var should = testUtils.should;
+var Promise = require('pouchdb-promise');
 
 module.exports = function tests(dbName, dbType, viewType, PouchDB) {
 
   var suiteName = 'test.mapreduce.js-' + viewType;
 
   describe(suiteName, function () {
-
-    var Promise;
 
     var createView;
     if (viewType === 'persisted') {
@@ -47,7 +46,6 @@ module.exports = function tests(dbName, dbType, viewType, PouchDB) {
     }
 
     beforeEach(function () {
-      Promise = PouchDB.utils.Promise;
       return new PouchDB(dbName).destroy();
     });
     afterEach(function () {

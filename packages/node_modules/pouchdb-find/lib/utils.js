@@ -1,6 +1,6 @@
 'use strict';
 
-var Promise = require('pouchdb/extras/promise');
+var Promise = require('pouchdb-promise');
 
 /* istanbul ignore next */
 exports.once = function (fun) {
