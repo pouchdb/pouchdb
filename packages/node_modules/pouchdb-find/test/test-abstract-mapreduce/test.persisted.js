@@ -2,14 +2,13 @@
 
 var testUtils = require('../test-utils');
 var should = testUtils.should;
+var Promise = require('pouchdb-promise');
 
 module.exports = function tests(dbName, dbType, viewType, PouchDB) {
 
   var suiteName = 'test.persisted.js';
 
   describe(suiteName, function () {
-
-    var Promise;
 
     function setTimeoutPromise(time) {
       return new Promise(function (resolve) {
@@ -41,7 +40,6 @@ module.exports = function tests(dbName, dbType, viewType, PouchDB) {
     }
 
     beforeEach(function () {
-      Promise = PouchDB.utils.Promise;
       return new PouchDB(dbName).destroy();
     });
     afterEach(function () {
@@ -94,7 +92,7 @@ module.exports = function tests(dbName, dbType, viewType, PouchDB) {
         return db.viewCleanup();
       }).then(function () {
         var views = ['name', 'title'];
-        return PouchDB.utils.Promise.all(views.map(function (view) {
+        return Promise.all(views.map(function (view) {
           return db.query(view).then(function () {
             throw new Error('expected an error');
           }, function (err) {

@@ -8,8 +8,36 @@ if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
 } else {
   log = function () {};
 }
-var utils = require('./utils');
-var Promise = utils.Promise;
+var Promise = require('pouchdb-promise');
+var inherits = require('inherits');
+var argsarray = require('argsarray');
+var extend = require('pouchdb-extend');
+
+var promisedCallback = function (promise, callback) {
+  if (callback) {
+    promise.then(function (res) {
+      process.nextTick(function () {
+        callback(null, res);
+      });
+    }, function (reason) {
+      process.nextTick(function () {
+        callback(reason);
+      });
+    });
+  }
+  return promise;
+};
+
+var callbackify = function (fun) {
+  return argsarray(function (args) {
+    var cb = args.pop();
+    var promise = fun.apply(this, args);
+    if (typeof cb === 'function') {
+      promisedCallback(promise, cb);
+    }
+    return promise;
+  });
+};
 
 function NotFoundError(message) {
   this.status = 404;
@@ -21,7 +49,7 @@ function NotFoundError(message) {
   } catch (e) {}
 }
 
-utils.inherits(NotFoundError, Error);
+inherits(NotFoundError, Error);
 
 function BuiltInError(message) {
   this.status = 500;
@@ -33,7 +61,7 @@ function BuiltInError(message) {
   } catch (e) {}
 }
 
-utils.inherits(BuiltInError, Error);
+inherits(BuiltInError, Error);
 
 function parseViewName(name) {
   // can be either 'ddocname/viewname' or just 'viewname'
@@ -209,7 +237,7 @@ function httpQuery(db, fun, opts, callback) {
     callback = opts;
     opts = {};
   }
-  opts = utils.extend(true, {}, opts);
+  opts = extend(true, {}, opts);
 
   if (typeof fun === 'function') {
     fun = {map : fun};
@@ -218,7 +246,7 @@ function httpQuery(db, fun, opts, callback) {
   var promise = Promise.resolve().then(function () {
     return httpQueryPromised(db, fun, opts);
   });
-  utils.promisedCallback(promise, callback);
+  promisedCallback(promise, callback);
   return promise;
 }
 
@@ -267,7 +295,7 @@ exports.query = function (fun, opts, callback) {
   return abstract.query.apply(db, [fun, opts, callback]);
 };
 
-exports.viewCleanup = utils.callbackify(function () {
+exports.viewCleanup = callbackify(function () {
   var db = this;
   if (db.type() === 'http') {
     return httpViewCleanup(db);
