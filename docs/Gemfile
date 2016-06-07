@@ -7,3 +7,5 @@ group :jekyll_plugins do
   gem 'redcarpet'
   gem 'pygments.rb'
 end
+
+gem 'json'
