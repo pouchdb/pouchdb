@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-find",
-  "version": "0.7.0",
+  "version": "0.10.0",
   "description": "Easy-to-use query language for PouchDB",
   "homepage": "https://github.com/nolanlawson/pouchdb-find",
   "authors": [
