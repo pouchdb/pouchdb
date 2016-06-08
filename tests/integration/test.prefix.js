@@ -36,7 +36,9 @@ describe('test.prefix.js', function () {
 // This is also tested in test.defaults.js, however I wanted to cover
 // the different use cases of prefix in here
 if (typeof process !== 'undefined' &&
-    !process.env.LEVEL_ADAPTER && !process.env.LEVEL_PREFIX ) {
+    !process.env.LEVEL_ADAPTER &&
+    !process.env.LEVEL_PREFIX &&
+    !process.env.ADAPTER) {
 
   var mkdirp = require('mkdirp');
   var rimraf = require('rimraf');
