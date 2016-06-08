@@ -101,55 +101,6 @@ db.get('mydoc').then(function(doc) {
 {% endhighlight %}
 {% include code/end.html %}
 
-{% include alert/start.html variant="warning"%}
-The following method of updating documents is deprecated and will be
-removed in future versions of PouchDB.
-{% include alert/end.html %}
-
-Instead of including the `_id` and `_rev` in the document, you can
-also pass them in as options:
-
-{% include code/start.html id="updateDoc2" type="callback" %}
-{% highlight js %}
-db.get('mydoc', function(err, doc) {
-  if (err) { return console.log(err); }
-  db.put({
-    title: "Sound and Vision"
-  }, 'mydoc', doc._rev, function(err, response) {
-    if (err) { return console.log(err); }
-    // handle response
-  });
-});
-{% endhighlight %}
-{% include code/end.html %}
-
-{% include code/start.html id="updateDoc2" type="async" %}
-{% highlight js %}
-try {
-  var doc = await db.get('mydoc');
-  var response = await db.put({
-    title: "Sound and Vision"
-  }, 'mydoc', doc._rev);
-} catch (err) {
-  console.log(err);
-}
-{% endhighlight %}
-{% include code/end.html %}
-
-{% include code/start.html id="updateDoc2" type="promise" %}
-{% highlight js %}
-db.get('mydoc').then(function(doc) {
-  return db.put({
-    title: "Sound and Vision"
-  }, 'mydoc', doc._rev,);
-}).then(function(response) {
-  // handle response
-}).catch(function (err) {
-  console.log(err);
-});
-{% endhighlight %}
-{% include code/end.html %}
-
 #### Example Response:
 {% highlight js %}
 {

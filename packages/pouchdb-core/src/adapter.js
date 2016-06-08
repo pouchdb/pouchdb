@@ -1,12 +1,10 @@
 import { extend } from 'js-extend';
 import Promise from 'pouchdb-promise';
 import { Map } from 'pouchdb-collections';
-import getArguments from 'argsarray';
 import { EventEmitter } from 'events';
 import inherits from 'inherits';
 import Changes from './changes';
 import {
-  guardedConsole,
   pick,
   adapterFun,
   upsert,
@@ -208,58 +206,24 @@ AbstractPouchDB.prototype.post =
   this.bulkDocs({docs: [doc]}, opts, yankError(callback));
 });
 
-AbstractPouchDB.prototype.put =
-  adapterFun('put', getArguments(function (args) {
-  var temp, temptype, opts, callback;
-  var warned = false;
-  var doc = args.shift();
-  var id = '_id' in doc;
+AbstractPouchDB.prototype.put = adapterFun('put', function (doc, opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
   if (typeof doc !== 'object' || Array.isArray(doc)) {
-    callback = args.pop();
-    return callback(createError(NOT_AN_OBJECT));
+    return cb(createError(NOT_AN_OBJECT));
   }
-
-  function warn() {
-    if (warned) {
-      return;
-    }
-    guardedConsole('warn', 'db.put(doc, id, rev) has been deprecated and will be ' +
-                 'removed in a future release, please use ' +
-                 'db.put({_id: id, _rev: rev}) instead');
-    warned = true;
-  }
-
-  /* eslint no-constant-condition: 0 */
-  while (true) {
-    temp = args.shift();
-    temptype = typeof temp;
-    if (temptype === "string" && !id) {
-      warn();
-      doc._id = temp;
-      id = true;
-    } else if (temptype === "string" && id && !('_rev' in doc)) {
-      warn();
-      doc._rev = temp;
-    } else if (temptype === "object") {
-      opts = temp;
-    } else if (temptype === "function") {
-      callback = temp;
-    }
-    if (!args.length) {
-      break;
-    }
-  }
-  opts = opts || {};
   invalidIdError(doc._id);
   if (isLocalId(doc._id) && typeof this._putLocal === 'function') {
     if (doc._deleted) {
-      return this._removeLocal(doc, callback);
+      return this._removeLocal(doc, cb);
     } else {
-      return this._putLocal(doc, callback);
+      return this._putLocal(doc, cb);
     }
   }
-  this.bulkDocs({docs: [doc]}, opts, yankError(callback));
-}));
+  this.bulkDocs({docs: [doc]}, opts, yankError(cb));
+});
 
 AbstractPouchDB.prototype.putAttachment =
   adapterFun('putAttachment', function (docId, attachmentId, rev,
