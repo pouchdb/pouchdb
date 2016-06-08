@@ -563,6 +563,7 @@ function LevelPouch(opts, callback) {
 
     function finish() {
       compact(stemmedRevs, function (error) {
+        /* istanbul ignore if */
         if (error) {
           complete(error);
         }
