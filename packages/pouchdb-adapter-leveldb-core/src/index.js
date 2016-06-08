@@ -927,7 +927,9 @@ function LevelPouch(opts, callback) {
         if (opts.include_docs) {
           var seq = metadata.rev_map[winningRev];
           stores.bySeqStore.get(formatSeq(seq), function (err, data) {
-            allDocsInner(data);
+            if (!err) {
+              allDocsInner(data);
+            }
           });
         }
         else {
