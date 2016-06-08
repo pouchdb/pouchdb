@@ -134,7 +134,11 @@ function WebSqlPouch(opts, callback) {
 
   // extend the options here, because sqlite plugin has a ton of options
   // and they are constantly changing, so it's more prudent to allow anything
-  var websqlOpts = extend({}, opts, {size: size, version: POUCH_VERSION});
+  var websqlOpts = extend({}, opts, {
+    version: POUCH_VERSION,
+    description: opts.name,
+    size: size
+  });
   var openDBResult = openDB(websqlOpts);
   if (openDBResult.error) {
     return websqlError(callback)(openDBResult.error);
