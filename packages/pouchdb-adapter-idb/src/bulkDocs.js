@@ -220,12 +220,6 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, idbChanges, callback) {
       isUpdate, resultsIdx, callback);
   }
 
-  function autoCompact(docInfo) {
-
-    var revsToDelete = compactTree(docInfo.metadata);
-    compactRevs(revsToDelete, docInfo.metadata.id, txn);
-  }
-
   function finishDoc(docInfo, winningRev, winningRevIsDeleted,
                      isUpdate, resultsIdx, callback) {
 
@@ -237,10 +231,14 @@ function idbBulkDocs(dbOpts, req, opts, api, idb, idbChanges, callback) {
     delete doc._rev;
 
     function afterPutDoc(e) {
+      var revsToDelete = docInfo.stemmedRevs || [];
+
       if (isUpdate && api.auto_compaction) {
-        autoCompact(docInfo);
-      } else if (docInfo.stemmedRevs.length) {
-        compactRevs(docInfo.stemmedRevs, docInfo.metadata.id, txn);
+        revsToDelete = revsToDelete.concat(compactTree(docInfo.metadata));
+      }
+
+      if (revsToDelete && revsToDelete.length) {
+        compactRevs(revsToDelete, docInfo.metadata.id, txn);
       }
 
       metadata.seq = e.target.result;
