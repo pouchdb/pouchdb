@@ -41,6 +41,7 @@ describe('test.mapreduce.js-upsert', function () {
 });
 
 describe('test.mapreduce.js-utils', function () {
+
   it('callbackify should work with a callback', function (done) {
     function fromPromise() {
       return Promise.resolve(true);
@@ -51,16 +52,19 @@ describe('test.mapreduce.js-utils', function () {
       done();
     });
   });
-  it.skip('fin should work without returning a function and it resolves',
+
+  it('fin should work without returning a function and it resolves',
     function () {
     return utils.fin(Promise.resolve(), function () {
-      return {};
+      return Promise.resolve();
     }).should.be.fullfilled;
   });
+
   it('fin should work without returning a function and it rejects',
     function () {
     return utils.fin(Promise.reject(), function () {
-      return {};
+      return Promise.resolve();
     }).should.be.rejected;
   });
+
 });
