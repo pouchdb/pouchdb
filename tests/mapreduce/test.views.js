@@ -671,28 +671,27 @@ adapters.forEach(function (adapters) {
     if (typeof window === 'undefined' && !process.browser) {
       var fs = require('fs');
       it("destroy using prototype", function () {
-        return new PouchDB(dbs.name + 1).then(function (db) {
-          var doc = {
-            _id: '_design/barbar',
-            views: {
-              scores: {
-                map: function (doc) {
-                  if (doc.score) {
-                    emit(null, doc.score);
-                  }
-                }.toString(),
-                reduce: '_sum'
-              }
+        var db = new PouchDB(dbs.name + 1);
+        var doc = {
+          _id: '_design/barbar',
+          views: {
+            scores: {
+              map: function (doc) {
+                if (doc.score) {
+                  emit(null, doc.score);
+                }
+              }.toString(),
+              reduce: '_sum'
             }
-          };
-          return db.bulkDocs([doc, {score: 3}, {score: 5}]).then(function () {
-            return db.query('barbar/scores');
-          }).then(function (a) {
-            a.rows[0].value.should.equal(8);
-            return db.destroy();
-          }).then(function () {
-            fs.readdirSync('./tmp').should.have.length(0);
-          });
+          }
+        };
+        return db.bulkDocs([doc, {score: 3}, {score: 5}]).then(function () {
+          return db.query('barbar/scores');
+        }).then(function (a) {
+          a.rows[0].value.should.equal(8);
+          return db.destroy();
+        }).then(function () {
+          fs.readdirSync('./tmp').should.have.length(0);
         });
       });
     }

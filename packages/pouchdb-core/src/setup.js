@@ -106,22 +106,21 @@ PouchDB.plugin = function (obj) {
 };
 
 PouchDB.defaults = function (defaultOpts) {
-  function PouchAlt(name, opts, callback) {
+  function PouchAlt(name, opts) {
     if (!(this instanceof PouchAlt)) {
-      return new PouchAlt(name, opts, callback);
+      return new PouchAlt(name, opts);
     }
 
-    if (typeof opts === 'function' || typeof opts === 'undefined') {
-      callback = opts;
-      opts = {};
-    }
+    opts = opts || {};
+
     if (name && typeof name === 'object') {
       opts = name;
-      name = undefined;
+      name = opts.name;
+      delete opts.name;
     }
 
     opts = extend({}, defaultOpts, opts);
-    PouchDB.call(this, name, opts, callback);
+    PouchDB.call(this, name, opts);
   }
 
   inherits(PouchAlt, PouchDB);

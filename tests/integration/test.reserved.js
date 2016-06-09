@@ -62,10 +62,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('can create db with reserved name', function () {
-      return new PouchDB('constructor').then(function (db) {
-        return db.info().then(function () {
-          return db.destroy();
-        });
+      var db = new PouchDB('constructor');
+      return db.info().then(function () {
+        return db.destroy();
       });
     });
   });

@@ -556,55 +556,50 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('test inclusive_end=false', function (done) {
-      new PouchDB(dbs.name).then(function (db) {
-        var docs = [
-          { _id: '1' },
-          { _id: '2' },
-          { _id: '3' },
-          { _id: '4' }
-        ];
-        return db.bulkDocs({docs: docs}).then(function () {
-          return db.allDocs({inclusive_end: false, endkey: '2'});
-        }).then(function (res) {
-          res.rows.should.have.length(1);
-          return db.allDocs({inclusive_end: false, endkey: '1'});
-        }).then(function (res) {
-          res.rows.should.have.length(0);
-          return db.allDocs({inclusive_end: false, endkey: '1',
-            startkey: '0'});
-        }).then(function (res) {
-          res.rows.should.have.length(0);
-          return db.allDocs({inclusive_end: false, endkey: '5'});
-        }).then(function (res) {
-          res.rows.should.have.length(4);
-          return db.allDocs({inclusive_end: false, endkey: '4'});
-        }).then(function (res) {
-          res.rows.should.have.length(3);
-          return db.allDocs({inclusive_end: false, endkey: '4',
-            startkey: '3'});
-        }).then(function (res) {
-          res.rows.should.have.length(1);
-          return db.allDocs({inclusive_end: false, endkey: '1',
-            descending: true});
-        }).then(function (res) {
-          res.rows.should.have.length(3);
-          return db.allDocs({inclusive_end: true, endkey: '4'});
-        }).then(function (res) {
-          res.rows.should.have.length(4);
-          return db.allDocs({
-            descending: true,
-            startkey: '3',
-            endkey: '2',
-            inclusive_end: false
-          });
+    it('test inclusive_end=false', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        { _id: '1' },
+        { _id: '2' },
+        { _id: '3' },
+        { _id: '4' }
+      ];
+      return db.bulkDocs({docs: docs}).then(function () {
+        return db.allDocs({inclusive_end: false, endkey: '2'});
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+        return db.allDocs({inclusive_end: false, endkey: '1'});
+      }).then(function (res) {
+        res.rows.should.have.length(0);
+        return db.allDocs({inclusive_end: false, endkey: '1',
+                           startkey: '0'});
+      }).then(function (res) {
+        res.rows.should.have.length(0);
+        return db.allDocs({inclusive_end: false, endkey: '5'});
+      }).then(function (res) {
+        res.rows.should.have.length(4);
+        return db.allDocs({inclusive_end: false, endkey: '4'});
+      }).then(function (res) {
+        res.rows.should.have.length(3);
+        return db.allDocs({inclusive_end: false, endkey: '4',
+                           startkey: '3'});
+      }).then(function (res) {
+        res.rows.should.have.length(1);
+        return db.allDocs({inclusive_end: false, endkey: '1',
+                           descending: true});
+      }).then(function (res) {
+        res.rows.should.have.length(3);
+        return db.allDocs({inclusive_end: true, endkey: '4'});
+      }).then(function (res) {
+        res.rows.should.have.length(4);
+        return db.allDocs({
+          descending: true,
+          startkey: '3',
+          endkey: '2',
+          inclusive_end: false
         });
       }).then(function (res) {
         res.rows.should.have.length(1);
-      }).then(function () {
-        done();
-      }, function (err) {
-        done(err);
       });
     });
 
@@ -660,22 +655,20 @@ adapters.forEach(function (adapter) {
     });
 
     it('test empty db', function (done) {
-      return new PouchDB(dbs.name).then(function (db) {
-        return db.allDocs().then(function (res) {
-          res.rows.should.have.length(0);
-          res.total_rows.should.equal(0);
-          done();
-        });
+      var db = new PouchDB(dbs.name);
+      return db.allDocs().then(function (res) {
+        res.rows.should.have.length(0);
+        res.total_rows.should.equal(0);
+        done();
       });
     });
 
     it('test after db close', function (done) {
-      return new PouchDB(dbs.name).then(function (db) {
-        return db.close().then(function () {
-          return db.allDocs().catch(function (err) {
-            err.message.should.equal('database is closed');
-            done();
-          });
+      var db = new PouchDB(dbs.name);
+      return db.close().then(function () {
+        return db.allDocs().catch(function (err) {
+          err.message.should.equal('database is closed');
+          done();
         });
       });
     });

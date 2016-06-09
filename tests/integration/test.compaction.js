@@ -176,12 +176,11 @@ adapters.forEach(function (adapter) {
     ];
 
     it('Compact more complicated tree', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        testUtils.putTree(db, exampleTree, function () {
-          db.compact(function () {
-            checkTree(db, exampleTree, function () {
-              done();
-            });
+      var db = new PouchDB(dbs.name);
+      testUtils.putTree(db, exampleTree, function () {
+        db.compact(function () {
+          checkTree(db, exampleTree, function () {
+            done();
           });
         });
       });
