@@ -63,7 +63,7 @@
     "mocha": "2.5.3",
     "mockery": "1.7.0",
     "ncp": "2.0.0",
-    "pouchdb-express-router": "0.0.8",
+    "pouchdb-express-router": "0.0.9",
     "pouchdb-server": "1.1.1",
     "replace": "0.3.0",
     "request": "2.72.0",
