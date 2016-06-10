@@ -72,7 +72,7 @@
     "rollup-plugin-node-resolve": "1.5.0",
     "sauce-connect-launcher": "0.14.0",
     "seedrandom": "2.4.2",
-    "selenium-standalone": "5.1.0",
+    "selenium-standalone": "5.1.1",
     "stream-to-promise": "1.1.1",
     "tape": "4.5.1",
     "throw-max-listeners-error": "1.0.1",
