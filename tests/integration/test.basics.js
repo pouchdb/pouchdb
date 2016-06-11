@@ -494,9 +494,7 @@ adapters.forEach(function (adapter) {
           another: 'test'
         }, function (err) {
           should.exist(err);
-          err.status.should.equal(testUtils.errors.INVALID_REV.status);
-          err.message.should.equal(testUtils.errors.INVALID_REV.message,
-                                   'correct error message returned');
+          err.name.should.equal('bad_request');
           done();
         });
       });
@@ -512,6 +510,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: bad_docs }, function (err) {
+        err.name.should.equal('doc_validation');
         err.status.should.equal(testUtils.errors.DOC_VALIDATION.status);
         err.message.should.equal(testUtils.errors.DOC_VALIDATION.message +
                                  ': _zing',
@@ -580,7 +579,7 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err) {
         should.exist(err);
-        err.error.should.equal(testUtils.errors.INVALID_ID.error);
+        err.name.should.equal('bad_request');
         done();
       });
     });

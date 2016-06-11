@@ -3740,12 +3740,8 @@ adapters.forEach(function (adapters) {
           res.doc_write_failures.should.equal(2);
           res.errors.should.have.length(2);
           res.errors.forEach(function (e) {
-            e.status.should.equal(testUtils.errors.FORBIDDEN.status,
-                                  'correct error status returned');
             e.name.should.equal(testUtils.errors.FORBIDDEN.name,
                                 'correct error name returned');
-            e.message.should.equal(testUtils.errors.FORBIDDEN.message,
-                                   'correct error message returned');
           });
 
           return remote.allDocs({limit: 0});
@@ -3807,12 +3803,8 @@ adapters.forEach(function (adapters) {
           res.doc_write_failures.should.equal(2);
           res.errors.should.have.length(2);
           res.errors.forEach(function (e) {
-            e.status.should.equal(testUtils.errors.UNAUTHORIZED.status,
-                                  'correct error status returned');
             e.name.should.equal(testUtils.errors.UNAUTHORIZED.name,
                                 'correct error name returned');
-            e.message.should.equal(testUtils.errors.UNAUTHORIZED.message,
-                                   'correct error message returned');
           });
 
           return remote.allDocs({limit: 0});

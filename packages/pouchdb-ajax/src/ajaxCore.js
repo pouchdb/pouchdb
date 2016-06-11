@@ -22,6 +22,7 @@ function ajaxCore(options, callback) {
 
   function onSuccess(obj, resp, cb) {
     if (!options.binary && options.json && typeof obj === 'string') {
+      /* istanbul ignore next */
       try {
         obj = JSON.parse(obj);
       } catch (e) {
@@ -44,31 +45,6 @@ function ajaxCore(options, callback) {
     cb(null, obj, resp);
   }
 
-  function onError(err, cb) {
-    var errParsed, errObj;
-    if (err.code && err.status) {
-      var err2 = new Error(err.message || err.code);
-      err2.status = err.status;
-      return cb(err2);
-    }
-    /* istanbul ignore if */
-    if (err.message && err.message === 'ETIMEDOUT') {
-      return cb(err);
-    }
-    // We always get code && status in node
-    /* istanbul ignore next */
-    try {
-      errParsed = JSON.parse(err.responseText);
-      //would prefer not to have a try/catch clause
-      errObj = generateErrorFromResponse(errParsed);
-    } catch (e) {
-      errObj = generateErrorFromResponse(err);
-    }
-    /* istanbul ignore next */
-    cb(errObj);
-  }
-
-
   if (options.json) {
     if (!options.binary) {
       options.headers.Accept = 'application/json';
@@ -87,9 +63,9 @@ function ajaxCore(options, callback) {
   }
 
   return request(options, function (err, response, body) {
+
     if (err) {
-      err.status = response ? response.statusCode : 400;
-      return onError(err, callback);
+      return callback(generateErrorFromResponse(err));
     }
 
     var error;

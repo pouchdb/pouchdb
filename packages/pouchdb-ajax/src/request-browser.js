@@ -126,8 +126,7 @@ function xhRequest(options, callback) {
   try {
     xhr.open(options.method, options.url);
   } catch (exception) {
-   /* error code hardcoded to throw INVALID_URL */
-    callback(exception, {statusCode: 413});
+    return callback(new Error(exception.name || 'Url is invalid'));
   }
 
   xhr.withCredentials = ('withCredentials' in options) ?
@@ -194,15 +193,16 @@ function xhRequest(options, callback) {
       callback(null, response, data);
     } else {
       var err = {};
-      if(timedout) {
+      if (timedout) {
         err = new Error('ETIMEDOUT');
-        response.statusCode = 400;      // for consistency with node request
+        err.code = 'ETIMEDOUT';
       } else {
         try {
           err = JSON.parse(xhr.response);
         } catch(e) {}
       }
-      callback(err, response);
+      err.status = xhr.status;
+      callback(err);
     }
   };
 
