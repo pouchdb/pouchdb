@@ -2,13 +2,20 @@ import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
 import { extend } from 'js-extend';
 import requireLeveldown from './requireLeveldown';
 
-var leveldown = requireLeveldown();
-
 function LevelDownPouch(opts, callback) {
 
-  /* istanbul ignore if */
-  if (leveldown instanceof Error) {
-    return callback(leveldown);
+  // Users can pass in their own leveldown alternative here, in which case
+  // it overrides the default one. (This is in addition to the custom builds.)
+  var leveldown = opts.db;
+
+  /* istanbul ignore else */
+  if (!leveldown) {
+    leveldown = requireLeveldown();
+
+    /* istanbul ignore if */
+    if (leveldown instanceof Error) {
+      return callback(leveldown);
+    }
   }
 
   var _opts = extend({
