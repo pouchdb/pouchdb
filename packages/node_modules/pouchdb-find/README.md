@@ -30,6 +30,8 @@ Implemented: `$lt`, `$gt`, `$lte`, `$gte`, `$eq`, `$exists`, `$type`, `$in`, `$n
 
 **0.9.0**: Bug fixes for `$elemMatch`. Rewrite of in-memory operator
 
+**0.10.0**: Update for latest Mango spec (warnings instead of errors), update for PouchDB 5.4.0.
+
 Usage
 ------
 
