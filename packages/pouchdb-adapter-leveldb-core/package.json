@@ -26,7 +26,7 @@
     "pouchdb-md5": "5.5.0-prerelease",
     "pouchdb-promise": "5.5.0-prerelease",
     "pouchdb-utils": "5.5.0-prerelease",
-    "sublevel-pouchdb": "1.0.0",
+    "sublevel-pouchdb": "1.0.1",
     "through2": "2.0.1"
   },
   "browser": {
