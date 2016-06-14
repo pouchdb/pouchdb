@@ -101,7 +101,7 @@ module.exports = function (opts) {
 (function (process){
 'use strict';
 
-var pouchCollate = _dereq_(39);
+var pouchCollate = _dereq_(26);
 var TaskQueue = _dereq_(3);
 var collate = pouchCollate.collate;
 var toIndexableString = pouchCollate.toIndexableString;
@@ -796,8 +796,8 @@ function createIndexer(def) {
 
 module.exports = createIndexer;
 
-}).call(this,_dereq_(45))
-},{"1":1,"3":3,"39":39,"45":45,"5":5}],3:[function(_dereq_,module,exports){
+}).call(this,_dereq_(34))
+},{"1":1,"26":26,"3":3,"34":34,"5":5}],3:[function(_dereq_,module,exports){
 'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes callbacks will eventually fire (once).
@@ -825,19 +825,19 @@ module.exports = TaskQueue;
 },{"5":5}],4:[function(_dereq_,module,exports){
 'use strict';
 
-var upsert = _dereq_(44).upsert;
+var upsert = _dereq_(31).upsert;
 
 module.exports = function (db, doc, diffFun) {
   return upsert.apply(db, [doc, diffFun]);
 };
-},{"44":44}],5:[function(_dereq_,module,exports){
+},{"31":31}],5:[function(_dereq_,module,exports){
 (function (process){
 'use strict';
 /* istanbul ignore if */
-exports.Promise = _dereq_(42);
+exports.Promise = _dereq_(29);
 
 exports.inherits = _dereq_(23);
-exports.extend = _dereq_(41);
+exports.extend = _dereq_(28);
 var argsarray = _dereq_(18);
 
 /* istanbul ignore next */
@@ -927,7 +927,7 @@ exports.uniq = function (arr) {
 };
 
 var crypto = _dereq_(19);
-var Md5 = _dereq_(46);
+var Md5 = _dereq_(35);
 
 exports.MD5 = function (string) {
   /* istanbul ignore else */
@@ -937,8 +937,8 @@ exports.MD5 = function (string) {
     return Md5.hash(string);
   }
 };
-}).call(this,_dereq_(45))
-},{"18":18,"19":19,"23":23,"41":41,"42":42,"45":45,"46":46}],6:[function(_dereq_,module,exports){
+}).call(this,_dereq_(34))
+},{"18":18,"19":19,"23":23,"28":28,"29":29,"34":34,"35":35}],6:[function(_dereq_,module,exports){
 'use strict';
 
 var massageCreateIndexRequest = _dereq_(16);
@@ -1134,7 +1134,7 @@ module.exports = abstractMapper;
 var utils = _dereq_(17);
 var log = utils.log;
 
-var pouchUpsert = _dereq_(44);
+var pouchUpsert = _dereq_(31);
 var abstractMapper = _dereq_(7);
 var localUtils = _dereq_(15);
 var validateIndex = localUtils.validateIndex;
@@ -1212,7 +1212,7 @@ function createIndex(db, requestDef) {
 
 module.exports = createIndex;
 
-},{"15":15,"16":16,"17":17,"44":44,"7":7}],9:[function(_dereq_,module,exports){
+},{"15":15,"16":16,"17":17,"31":31,"7":7}],9:[function(_dereq_,module,exports){
 'use strict';
 
 var abstractMapper = _dereq_(7);
@@ -1260,7 +1260,7 @@ module.exports = deleteIndex;
 //
 
 var isArray = _dereq_(24);
-var collate = _dereq_(39).collate;
+var collate = _dereq_(26).collate;
 var localUtils = _dereq_(15);
 var isCombinationalField = localUtils.isCombinationalField;
 var getKey = localUtils.getKey;
@@ -1535,13 +1535,13 @@ var matchers = {
 
 module.exports = filterInMemoryFields;
 
-},{"15":15,"17":17,"24":24,"39":39}],11:[function(_dereq_,module,exports){
+},{"15":15,"17":17,"24":24,"26":26}],11:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
 var clone = utils.clone;
 var getIndexes = _dereq_(13);
-var collate = _dereq_(39).collate;
+var collate = _dereq_(26).collate;
 var abstractMapper = _dereq_(7);
 var planQuery = _dereq_(12);
 var localUtils = _dereq_(15);
@@ -1680,7 +1680,7 @@ function find(db, requestDef) {
 
 module.exports = find;
 
-},{"10":10,"12":12,"13":13,"15":15,"17":17,"39":39,"7":7}],12:[function(_dereq_,module,exports){
+},{"10":10,"12":12,"13":13,"15":15,"17":17,"26":26,"7":7}],12:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
@@ -2190,7 +2190,7 @@ exports.deleteIndex = callbackify(_dereq_(9));
 'use strict';
 
 var utils = _dereq_(17);
-var collate = _dereq_(39);
+var collate = _dereq_(26);
 
 function getKey(obj) {
   return Object.keys(obj)[0];
@@ -2565,7 +2565,7 @@ module.exports = {
   isCombinationalField: isCombinationalField
 };
 
-},{"17":17,"39":39}],16:[function(_dereq_,module,exports){
+},{"17":17,"26":26}],16:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
@@ -2603,7 +2603,7 @@ module.exports = function (requestDef) {
 (function (process){
 'use strict';
 
-var Promise = _dereq_(42);
+var Promise = _dereq_(29);
 
 /* istanbul ignore next */
 exports.once = function (fun) {
@@ -2684,7 +2684,7 @@ exports.clone = function (obj) {
   return exports.extend(true, {}, obj);
 };
 
-exports.extend = _dereq_(41);
+exports.extend = _dereq_(28);
 
 exports.callbackify = function (fun) {
   return exports.getArguments(function (args) {
@@ -2709,7 +2709,7 @@ exports.promisedCallback = function (promise, callback) {
 };
 
 var crypto = _dereq_(19);
-var Md5 = _dereq_(46);
+var Md5 = _dereq_(35);
 
 exports.MD5 = function (string) {
   /* istanbul ignore else */
@@ -2889,8 +2889,8 @@ exports.uniq = function(arr) {
 
 exports.log = _dereq_(20)('pouchdb:find');
 
-}).call(this,_dereq_(45))
-},{"19":19,"20":20,"23":23,"41":41,"42":42,"45":45,"46":46}],18:[function(_dereq_,module,exports){
+}).call(this,_dereq_(34))
+},{"19":19,"20":20,"23":23,"28":28,"29":29,"34":34,"35":35}],18:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -3096,7 +3096,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = _dereq_(38);
+exports.humanize = _dereq_(25);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -3281,7 +3281,7 @@ function coerce(val) {
   return val;
 }
 
-},{"38":38}],22:[function(_dereq_,module,exports){
+},{"25":25}],22:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 var Mutation = global.MutationObserver || global.WebKitMutationObserver;
@@ -3415,351 +3415,6 @@ module.exports = isArray || function (val) {
 };
 
 },{}],25:[function(_dereq_,module,exports){
-'use strict';
-
-module.exports = INTERNAL;
-
-function INTERNAL() {}
-},{}],26:[function(_dereq_,module,exports){
-'use strict';
-var Promise = _dereq_(29);
-var reject = _dereq_(32);
-var resolve = _dereq_(33);
-var INTERNAL = _dereq_(25);
-var handlers = _dereq_(27);
-module.exports = all;
-function all(iterable) {
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return resolve([]);
-  }
-
-  var values = new Array(len);
-  var resolved = 0;
-  var i = -1;
-  var promise = new Promise(INTERNAL);
-  
-  while (++i < len) {
-    allResolver(iterable[i], i);
-  }
-  return promise;
-  function allResolver(value, i) {
-    resolve(value).then(resolveFromAll, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-    function resolveFromAll(outValue) {
-      values[i] = outValue;
-      if (++resolved === len & !called) {
-        called = true;
-        handlers.resolve(promise, values);
-      }
-    }
-  }
-}
-},{"25":25,"27":27,"29":29,"32":32,"33":33}],27:[function(_dereq_,module,exports){
-'use strict';
-var tryCatch = _dereq_(36);
-var resolveThenable = _dereq_(34);
-var states = _dereq_(35);
-
-exports.resolve = function (self, value) {
-  var result = tryCatch(getThen, value);
-  if (result.status === 'error') {
-    return exports.reject(self, result.value);
-  }
-  var thenable = result.value;
-
-  if (thenable) {
-    resolveThenable.safely(self, thenable);
-  } else {
-    self.state = states.FULFILLED;
-    self.outcome = value;
-    var i = -1;
-    var len = self.queue.length;
-    while (++i < len) {
-      self.queue[i].callFulfilled(value);
-    }
-  }
-  return self;
-};
-exports.reject = function (self, error) {
-  self.state = states.REJECTED;
-  self.outcome = error;
-  var i = -1;
-  var len = self.queue.length;
-  while (++i < len) {
-    self.queue[i].callRejected(error);
-  }
-  return self;
-};
-
-function getThen(obj) {
-  // Make sure we only access the accessor once as required by the spec
-  var then = obj && obj.then;
-  if (obj && typeof obj === 'object' && typeof then === 'function') {
-    return function appyThen() {
-      then.apply(obj, arguments);
-    };
-  }
-}
-
-},{"34":34,"35":35,"36":36}],28:[function(_dereq_,module,exports){
-module.exports = exports = _dereq_(29);
-
-exports.resolve = _dereq_(33);
-exports.reject = _dereq_(32);
-exports.all = _dereq_(26);
-exports.race = _dereq_(31);
-
-},{"26":26,"29":29,"31":31,"32":32,"33":33}],29:[function(_dereq_,module,exports){
-'use strict';
-
-var unwrap = _dereq_(37);
-var INTERNAL = _dereq_(25);
-var resolveThenable = _dereq_(34);
-var states = _dereq_(35);
-var QueueItem = _dereq_(30);
-
-module.exports = Promise;
-function Promise(resolver) {
-  if (!(this instanceof Promise)) {
-    return new Promise(resolver);
-  }
-  if (typeof resolver !== 'function') {
-    throw new TypeError('resolver must be a function');
-  }
-  this.state = states.PENDING;
-  this.queue = [];
-  this.outcome = void 0;
-  if (resolver !== INTERNAL) {
-    resolveThenable.safely(this, resolver);
-  }
-}
-
-Promise.prototype['catch'] = function (onRejected) {
-  return this.then(null, onRejected);
-};
-Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (typeof onFulfilled !== 'function' && this.state === states.FULFILLED ||
-    typeof onRejected !== 'function' && this.state === states.REJECTED) {
-    return this;
-  }
-  var promise = new Promise(INTERNAL);
-  if (this.state !== states.PENDING) {
-    var resolver = this.state === states.FULFILLED ? onFulfilled : onRejected;
-    unwrap(promise, resolver, this.outcome);
-  } else {
-    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
-  }
-
-  return promise;
-};
-
-},{"25":25,"30":30,"34":34,"35":35,"37":37}],30:[function(_dereq_,module,exports){
-'use strict';
-var handlers = _dereq_(27);
-var unwrap = _dereq_(37);
-
-module.exports = QueueItem;
-function QueueItem(promise, onFulfilled, onRejected) {
-  this.promise = promise;
-  if (typeof onFulfilled === 'function') {
-    this.onFulfilled = onFulfilled;
-    this.callFulfilled = this.otherCallFulfilled;
-  }
-  if (typeof onRejected === 'function') {
-    this.onRejected = onRejected;
-    this.callRejected = this.otherCallRejected;
-  }
-}
-QueueItem.prototype.callFulfilled = function (value) {
-  handlers.resolve(this.promise, value);
-};
-QueueItem.prototype.otherCallFulfilled = function (value) {
-  unwrap(this.promise, this.onFulfilled, value);
-};
-QueueItem.prototype.callRejected = function (value) {
-  handlers.reject(this.promise, value);
-};
-QueueItem.prototype.otherCallRejected = function (value) {
-  unwrap(this.promise, this.onRejected, value);
-};
-
-},{"27":27,"37":37}],31:[function(_dereq_,module,exports){
-'use strict';
-var Promise = _dereq_(29);
-var reject = _dereq_(32);
-var resolve = _dereq_(33);
-var INTERNAL = _dereq_(25);
-var handlers = _dereq_(27);
-module.exports = race;
-function race(iterable) {
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return resolve([]);
-  }
-
-  var i = -1;
-  var promise = new Promise(INTERNAL);
-
-  while (++i < len) {
-    resolver(iterable[i]);
-  }
-  return promise;
-  function resolver(value) {
-    resolve(value).then(function (response) {
-      if (!called) {
-        called = true;
-        handlers.resolve(promise, response);
-      }
-    }, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-  }
-}
-
-},{"25":25,"27":27,"29":29,"32":32,"33":33}],32:[function(_dereq_,module,exports){
-'use strict';
-
-var Promise = _dereq_(29);
-var INTERNAL = _dereq_(25);
-var handlers = _dereq_(27);
-module.exports = reject;
-
-function reject(reason) {
-	var promise = new Promise(INTERNAL);
-	return handlers.reject(promise, reason);
-}
-},{"25":25,"27":27,"29":29}],33:[function(_dereq_,module,exports){
-'use strict';
-
-var Promise = _dereq_(29);
-var INTERNAL = _dereq_(25);
-var handlers = _dereq_(27);
-module.exports = resolve;
-
-var FALSE = handlers.resolve(new Promise(INTERNAL), false);
-var NULL = handlers.resolve(new Promise(INTERNAL), null);
-var UNDEFINED = handlers.resolve(new Promise(INTERNAL), void 0);
-var ZERO = handlers.resolve(new Promise(INTERNAL), 0);
-var EMPTYSTRING = handlers.resolve(new Promise(INTERNAL), '');
-
-function resolve(value) {
-  if (value) {
-    if (value instanceof Promise) {
-      return value;
-    }
-    return handlers.resolve(new Promise(INTERNAL), value);
-  }
-  var valueType = typeof value;
-  switch (valueType) {
-    case 'boolean':
-      return FALSE;
-    case 'undefined':
-      return UNDEFINED;
-    case 'object':
-      return NULL;
-    case 'number':
-      return ZERO;
-    case 'string':
-      return EMPTYSTRING;
-  }
-}
-},{"25":25,"27":27,"29":29}],34:[function(_dereq_,module,exports){
-'use strict';
-var handlers = _dereq_(27);
-var tryCatch = _dereq_(36);
-function safelyResolveThenable(self, thenable) {
-  // Either fulfill, reject or reject with error
-  var called = false;
-  function onError(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.reject(self, value);
-  }
-
-  function onSuccess(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.resolve(self, value);
-  }
-
-  function tryToUnwrap() {
-    thenable(onSuccess, onError);
-  }
-  
-  var result = tryCatch(tryToUnwrap);
-  if (result.status === 'error') {
-    onError(result.value);
-  }
-}
-exports.safely = safelyResolveThenable;
-},{"27":27,"36":36}],35:[function(_dereq_,module,exports){
-// Lazy man's symbols for states
-
-exports.REJECTED = ['REJECTED'];
-exports.FULFILLED = ['FULFILLED'];
-exports.PENDING = ['PENDING'];
-
-},{}],36:[function(_dereq_,module,exports){
-'use strict';
-
-module.exports = tryCatch;
-
-function tryCatch(func, value) {
-  var out = {};
-  try {
-    out.value = func(value);
-    out.status = 'success';
-  } catch (e) {
-    out.status = 'error';
-    out.value = e;
-  }
-  return out;
-}
-},{}],37:[function(_dereq_,module,exports){
-'use strict';
-
-var immediate = _dereq_(22);
-var handlers = _dereq_(27);
-module.exports = unwrap;
-
-function unwrap(promise, func, value) {
-  immediate(function () {
-    var returnValue;
-    try {
-      returnValue = func(value);
-    } catch (e) {
-      return handlers.reject(promise, e);
-    }
-    if (returnValue === promise) {
-      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
-    } else {
-      handlers.resolve(promise, returnValue);
-    }
-  });
-}
-},{"22":22,"27":27}],38:[function(_dereq_,module,exports){
 /**
  * Helpers.
  */
@@ -3886,14 +3541,14 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],39:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto
 var SEP = ''; // set to '_' for easier debugging 
 
-var utils = _dereq_(40);
+var utils = _dereq_(27);
 
 exports.collate = function (a, b) {
 
@@ -4241,7 +3896,7 @@ function numToIndexableString(num) {
   return result;
 }
 
-},{"40":40}],40:[function(_dereq_,module,exports){
+},{"27":27}],27:[function(_dereq_,module,exports){
 'use strict';
 
 function pad(str, padWith, upToLength) {
@@ -4312,7 +3967,7 @@ exports.intToDecimalForm = function (int) {
 
   return result;
 };
-},{}],41:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 "use strict";
 
 // Extends method
@@ -4493,18 +4148,18 @@ module.exports = extend;
 
 
 
-},{}],42:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var lie = _interopDefault(_dereq_(43));
+var lie = _interopDefault(_dereq_(30));
 
 /* istanbul ignore next */
 var PouchPromise = typeof Promise === 'function' ? Promise : lie;
 
 module.exports = PouchPromise;
-},{"43":43}],43:[function(_dereq_,module,exports){
+},{"30":30}],30:[function(_dereq_,module,exports){
 'use strict';
 var immediate = _dereq_(22);
 
@@ -4759,52 +4414,41 @@ function race(iterable) {
   }
 }
 
-},{"22":22}],44:[function(_dereq_,module,exports){
-(function (global){
+},{"22":22}],31:[function(_dereq_,module,exports){
 'use strict';
 
-var PouchPromise;
-/* istanbul ignore next */
-if (typeof window !== 'undefined' && window.PouchDB) {
-  PouchPromise = window.PouchDB.utils.Promise;
-} else {
-  PouchPromise = typeof global.Promise === 'function' ? global.Promise : _dereq_(28);
-}
+var PouchPromise = _dereq_(33);
 
 // this is essentially the "update sugar" function from daleharvey/pouchdb#1388
 // the diffFun tells us what delta to apply to the doc.  it either returns
 // the doc, or false if it doesn't need to do an update after all
 function upsertInner(db, docId, diffFun) {
-  return new PouchPromise(function (fulfill, reject) {
-    if (typeof docId !== 'string') {
-      return reject(new Error('doc id is required'));
+  if (typeof docId !== 'string') {
+    return PouchPromise.reject(new Error('doc id is required'));
+  }
+
+  return db.get(docId)["catch"](function (err) {
+    /* istanbul ignore next */
+    if (err.status !== 404) {
+      throw err;
+    }
+    return {};
+  }).then(function (doc) {
+    // the user might change the _rev, so save it for posterity
+    var docRev = doc._rev;
+    var newDoc = diffFun(doc);
+
+    if (!newDoc) {
+      // if the diffFun returns falsy, we short-circuit as
+      // an optimization
+      return { updated: false, rev: docRev };
     }
 
-    db.get(docId, function (err, doc) {
-      if (err) {
-        /* istanbul ignore next */
-        if (err.status !== 404) {
-          return reject(err);
-        }
-        doc = {};
-      }
-
-      // the user might change the _rev, so save it for posterity
-      var docRev = doc._rev;
-      var newDoc = diffFun(doc);
-
-      if (!newDoc) {
-        // if the diffFun returns falsy, we short-circuit as
-        // an optimization
-        return fulfill({updated: false, rev: docRev});
-      }
-
-      // users aren't allowed to modify these values,
-      // so reset them here
-      newDoc._id = docId;
-      newDoc._rev = docRev;
-      fulfill(tryAndPut(db, newDoc, diffFun));
-    });
+    // users aren't allowed to modify these values,
+    // so reset them here
+    newDoc._id = docId;
+    newDoc._rev = docRev;
+    return tryAndPut(db, newDoc, diffFun);
   });
 }
 
@@ -4865,16 +4509,14 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"28":28}],45:[function(_dereq_,module,exports){
+},{"33":33}],32:[function(_dereq_,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"22":22,"30":30}],33:[function(_dereq_,module,exports){
+arguments[4][29][0].apply(exports,arguments)
+},{"29":29,"32":32}],34:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it don't break things.
-var cachedSetTimeout = setTimeout;
-var cachedClearTimeout = clearTimeout;
-
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -4899,7 +4541,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = cachedSetTimeout(cleanUpNextTick);
+    var timeout = setTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -4916,7 +4558,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    cachedClearTimeout(timeout);
+    clearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -4928,7 +4570,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        cachedSetTimeout(drainQueue, 0);
+        setTimeout(drainQueue, 0);
     }
 };
 
@@ -4967,7 +4609,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],46:[function(_dereq_,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 /*jshint bitwise:false*/
 /*global unescape*/
 
@@ -5568,7 +5210,7 @@ process.umask = function() { return 0; };
     return SparkMD5;
 }));
 
-},{}],47:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
@@ -5626,5 +5268,5 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-},{"14":14,"17":17,"6":6}]},{},[47])(47)
+},{"14":14,"17":17,"6":6}]},{},[36])(36)
 });
