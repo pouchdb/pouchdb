@@ -3,7 +3,7 @@ layout: default
 title: PouchDB, the JavaScript Database that Syncs!
 ---
 
-<div class="intro">
+<div class="band band-inverse">
 
   <div class="container">
 
@@ -18,7 +18,7 @@ title: PouchDB, the JavaScript Database that Syncs!
         <p>PouchDB was created to help web developers build applications that work as well offline as they do online.<br>
         <p>It enables applications to store data locally while offline, then synchronize it with CouchDB and compatible servers when the application is back online, keeping the user's data in sync no matter where they next login.</p>
 
-        <a href="{{ site.baseurl }}/learn.html" class="btn btn-primary btn-lg">Learn more</a>
+        <a href="{{ site.baseurl }}/learn.html" class="btn btn-primary btn-lg btn-block-xs">Learn more</a>
 
       </div>
 
@@ -48,47 +48,47 @@ db.replicate.to('http://example.com/mydb');
 
 </div>
 
-<div class="infoblocks">
+<div class="band">
 
   <div class="container">
 
     <div class='row'>
 
 
-      <div class='block col-sm-6 col-md-3'>
+      <div class='text-center col-sm-6 col-md-3'>
 
         <div class="icon icon-node"></div>
 
         <h3>Cross Browser</h3>
-        <p>Works in Firefox, Chrome, Opera, Safari, IE and Node.js</p>
+        <p class="margin-bottom-none-md">Works in Firefox, Chrome, Opera, Safari, IE and Node.js</p>
 
       </div>
 
-      <div class='block col-sm-6 col-md-3'>
+      <div class='text-center col-sm-6 col-md-3'>
 
         <div class="icon icon-light"></div>
 
         <h3>Lightweight</h3>
-        <p>PouchDB is just a script tag and 46KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
+        <p class="margin-bottom-none-md">PouchDB is just a script tag and 46KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
         in Node.</p>
 
       </div>
 
-      <div class='block col-sm-6 col-md-3'>
+      <div class='text-center col-sm-6 col-md-3'>
 
         <div class="icon icon-learn"></div>
 
         <h3>Easy to Learn</h3>
-        <p>Requires some programming knowledge, however PouchDB is a piece of cake to learn.</p>
+        <p class="margin-bottom-none-md">Requires some programming knowledge, however PouchDB is a piece of cake to learn.</p>
 
       </div>
 
-      <div class='block col-sm-6 col-md-3'>
+      <div class='text-center col-sm-6 col-md-3'>
 
         <div class="icon icon-open"></div>
 
         <h3>Open Source</h3>
-        <p>Everything is developed out in the open on Github, contributors always welcome!</p>
+        <p class="margin-bottom-none-md">Everything is developed out in the open on Github, contributors always welcome!</p>
 
       </div>
 
@@ -97,7 +97,7 @@ db.replicate.to('http://example.com/mydb');
 
 </div>
 
-<div class="blog">
+<div class="band band-inverse">
 
   <div class="container">
 
@@ -110,7 +110,7 @@ db.replicate.to('http://example.com/mydb');
 <div class="col-md-6">
 
 
-  <p><a class='h4' href='{{ site.baseurl }}{{ post.url }}'>{{ post.title }}</a></p>
+  <p class="margin-bottom-none"><a class='h4' href='{{ site.baseurl }}{{ post.url }}'>{{ post.title }}</a></p>
 
 {% include post_details.html %}
 
@@ -120,7 +120,7 @@ db.replicate.to('http://example.com/mydb');
 
    </div>
 
-   <a class="btn btn-primary btn-lg" href="/blog/index.html">View more</a>
+<a class="btn btn-primary btn-lg" href="/blog/index.html">View more</a>
 
   </div>
 

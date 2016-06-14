@@ -3,11 +3,12 @@
 {% else %}
   {% assign class = 'h2' %}
 {% endif %}
-<div id='{{ include.hash }}'></div>
-<a class='{{ class }} anchor' href='#{{ include.hash }}' name='{{ include.hash }}'>
+<div class='{{ class }}'>
+<div class='anchor-id' id='{{ include.hash }}'></div>
+<a class='anchor' href='#{{ include.hash }}' name='{{ include.hash }}'>
 {{ include.title }}
-</a>{% if include.edit %}
-<span class="h2">
+</a>
+{% if include.edit %}
 <a
 data-toggle="tooltip"
 data-placement="top"
@@ -16,5 +17,5 @@ class="icon-edit"
 href="{{ site.github.repository_url }}/edit/master/docs/_includes/api/{{ include.hash }}.html"
 target="_blank"
 ></a>
-</span>
 {% endif %}
+</div>
