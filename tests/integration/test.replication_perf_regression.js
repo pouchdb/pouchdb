@@ -1,6 +1,6 @@
 'use strict';
 
-var PouchDB = require('pouchdb');
+var PouchDB = require('../../packages/pouchdb-for-coverage');
 var express = require('express');
 var bodyParser = require('body-parser');
 
@@ -101,7 +101,7 @@ describe('test.replication_perf_regression.js', function () {
     }).then(function (info) {
       info.doc_count.should.equal(numDocs); // should have replicated to local db
       localGETCount.should.above(0);        // should have hit /remote/_local endpoint at least once
-      localGETCount.should.below(numDocs);  // _local_GET_count should be significantly below numDocs (~9x)
+      localGETCount.should.below(numDocs);  // localGETCount should be significantly below numDocs (~9x)
     });
   });
 });
