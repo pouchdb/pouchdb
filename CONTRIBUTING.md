@@ -48,6 +48,12 @@ PouchDB needs the following to be able to build and test your build, if you have
   * [Node.js](http://nodejs.org/)
   * [CouchDB](http://couchdb.apache.org/)
 
+CouchDB must be running and available at `http://localhost:5984`. If you can open that URL in a browser and see `"couchdb": "Welcome"`, then it's working.
+
+You'll also need to ensure that CORS is enabled on the CouchDB. You can easily do this by running `npm install -g add-cors-to-couchdb` and then `add-cors-to-couchdb`.
+
+**On Windows?** PouchDB's build and tests work on Windows, but you will have to follow [Microsoft's guidelines for Windows](https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#environment-setup-and-configuration) to ensure you can install and compile native add-ons. Also, we recommend [Git Bash for Windows](https://git-scm.com/download/win) because our build relies on many Bash- and Unix-isms. Another option is [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux).
+
 Building PouchDB
 --------------------------------------
 

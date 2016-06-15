@@ -8,8 +8,10 @@ if (!process.env.LEVEL_ADAPTER &&
 
   describe('test.failures.js', function () {
 
+    var invalidPath = 'C:\\/path/to/thing/that/doesnt/exist\\with\\backslashes\\too';
+
     it('fails gracefully in first API call', function () {
-      var db = new PouchDB('/path/to/thing/that/doesnt/exist');
+      var db = new PouchDB(invalidPath);
       return db.info().then(function () {
         throw new Error('expected an error here');
       }, function (err) {
@@ -18,7 +20,7 @@ if (!process.env.LEVEL_ADAPTER &&
     });
 
     it('fails gracefully in first changes() call', function () {
-      var db = new PouchDB('/path/to/thing/that/doesnt/exist');
+      var db = new PouchDB(invalidPath);
       return db.changes().then(function () {
         throw new Error('expected an error here');
       }, function (err) {
@@ -27,7 +29,7 @@ if (!process.env.LEVEL_ADAPTER &&
     });
 
     it('fails for all API calls', function () {
-      var db = new PouchDB('/path/to/thing/that/doesnt/exist');
+      var db = new PouchDB(invalidPath);
 
       function expectError(promise) {
         return promise.then(function () {

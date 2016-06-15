@@ -97,7 +97,7 @@ function writeFile(filename, contents) {
     return renameAsync(tmp, filename);
   }).then(function () {
     console.log('  \u2713' + ' wrote ' +
-      filename.match(/packages\/pouchdb\/.*/)[0]);
+      filename.match(/packages[\/\\]pouchdb[\/\\].*/)[0]);
   });
 }
 
