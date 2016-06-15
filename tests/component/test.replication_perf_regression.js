@@ -104,7 +104,7 @@ describe('test.replication_perf_regression.js', function () {
       localGETCount.should.below(numDocs);  // localGETCount should be significantly below numDocs (~9x)
       return db.destroy();
     }).then(function () {
-      remote.destroy();
+      return remote.destroy();
     });
   });
 });
