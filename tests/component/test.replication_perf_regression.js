@@ -102,6 +102,9 @@ describe('test.replication_perf_regression.js', function () {
       info.doc_count.should.equal(numDocs); // should have replicated to local db
       localGETCount.should.above(0);        // should have hit /remote/_local endpoint at least once
       localGETCount.should.below(numDocs);  // localGETCount should be significantly below numDocs (~9x)
+      return db.destroy();
+    }).then(function () {
+      remote.destroy();
     });
   });
 });
