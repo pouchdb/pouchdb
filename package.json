@@ -64,7 +64,7 @@
     "mockery": "1.7.0",
     "ncp": "2.0.0",
     "pouchdb-express-router": "0.0.9",
-    "pouchdb-server": "1.1.1",
+    "pouchdb-server": "1.2.0",
     "replace": "0.3.0",
     "request": "2.72.0",
     "rimraf": "2.5.2",
