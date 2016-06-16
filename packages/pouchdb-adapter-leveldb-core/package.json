@@ -30,6 +30,7 @@
     "through2": "2.0.1"
   },
   "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
     "./src/createEmptyBlobOrBuffer.js": "./src/createEmptyBlobOrBuffer-browser.js",
     "./src/migrate.js": "./src/migrate-browser.js",
     "./src/prepareAttachmentForStorage.js": "./src/prepareAttachmentForStorage-browser.js",
