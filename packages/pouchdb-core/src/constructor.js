@@ -3,7 +3,7 @@ import inherits from 'inherits';
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
 import Promise from 'pouchdb-promise';
-import { clone, guardedConsole } from 'pouchdb-utils';
+import { guardedConsole } from 'pouchdb-utils';
 
 function defaultCallback(err) {
   /* istanbul ignore next */
@@ -76,7 +76,6 @@ function PouchDB(name, opts, callback) {
   }
 
   name = name || opts.name;
-  opts = clone(opts);
   // if name was specified via opts, ignore for the sake of dependentDbs
   delete opts.name;
   this.__opts = opts;
@@ -95,7 +94,6 @@ function PouchDB(name, opts, callback) {
       fulfill(resp);
     };
 
-    opts = clone(opts);
     var backend, error;
     (function () {
       try {
