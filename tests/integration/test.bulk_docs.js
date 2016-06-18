@@ -1009,12 +1009,12 @@ adapters.forEach(function (adapter) {
       }
 
       var revs = [];
-      db.put({v: 1}, 'doc').then(function (v1) {
+      db.put({_id: 'doc', v: 1}).then(function (v1) {
         revs.push(v1.rev);
-        return db.put({v: 2}, 'doc', revs[0]);
+        return db.put({_id: 'doc', _rev: revs[0], v: 2});
       }).then(function (v2) {
         revs.push(v2.rev);
-        return db.put({v: 3}, 'doc', revs[1]);
+        return db.put({_id: 'doc', _rev: revs[1], v: 3});
       }).then(function () {
         // the v2 revision is still in the db
         return db.get('doc', {rev: revs[1]});

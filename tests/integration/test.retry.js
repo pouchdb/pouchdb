@@ -57,8 +57,8 @@ adapters.forEach(function (adapters) {
         // and waiting on changes (no error)
         if (paused === 1) {
           should.not.exist(e);
-          return remote.put({}, 'foo').then(function () {
-            return remote.put({}, 'bar');
+          return remote.put({_id: 'foo'}).then(function () {
+            return remote.put({_id: 'bar'});
           });
         }
         // Second paused event is due to failed writes, should
@@ -89,7 +89,7 @@ adapters.forEach(function (adapters) {
         }
       });
 
-      remote.put({}, 'hazaa');
+      remote.put({_id: 'hazaa'});
     });
 
     it('#3687 active event only fired once...', function (done) {
@@ -115,7 +115,7 @@ adapters.forEach(function (adapters) {
           rep.cancel();
         }
         if (paused === 1) {
-          return remote.put({}, 'foo');
+          return remote.put({_id: 'foo'});
         } else {
           rep.cancel();
         }
@@ -144,7 +144,7 @@ adapters.forEach(function (adapters) {
 
       rep.catch(done);
 
-      remote.put({}, 'hazaa');
+      remote.put({_id: 'hazaa'});
     });
 
     it('source doesn\'t leak "destroyed" event', function () {

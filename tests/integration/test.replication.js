@@ -3486,8 +3486,8 @@ adapters.forEach(function (adapters) {
         } else {
           called = true;
           rep.cancel();
-          remote.put({}, 'foo').then(function () {
-            return remote.put({}, 'bar');
+          remote.put({_id: 'foo'}).then(function () {
+            return remote.put({_id: 'bar'});
           }).then(function () {
             setTimeout(function () {
               done();
@@ -3495,7 +3495,7 @@ adapters.forEach(function (adapters) {
           });
         }
       });
-      remote.put({}, 'hazaa');
+      remote.put({_id: 'hazaa'});
     });
 
     it('#2970 should replicate remote database w/ deleted conflicted revs',
