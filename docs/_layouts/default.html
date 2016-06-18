@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" manifest="/manifest.appcache">
-
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -207,7 +206,23 @@
             window.location.reload();
           });
       }
-      if (window.applicationCache) {
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.register('{{ site.baseurl }}/serviceWorker.js')
+          .then(function (registration) {
+            registration.addEventListener('updatefound', function () {
+              var newWorker = registration.installing;
+              registration.installing.addEventListener('statechange', function () {
+                if (newWorker.state == 'installed' && navigator.serviceWorker.controller) {
+                  offerToReload();
+                }
+              });
+            });
+            giveIntro();
+          })
+          .catch(function(error) {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+      } else if (window.applicationCache) {
         applicationCache.addEventListener('cached', onCached, false);
         applicationCache.addEventListener('noupdate', giveIntro, false);
         applicationCache.addEventListener('updateready', offerToReload, false);
