@@ -147,7 +147,7 @@ function fetchAttachments(results, stores, opts) {
 }
 
 function LevelPouch(opts, callback) {
-  opts = clone(opts);
+
   var api = this;
   var instanceId;
   var stores = {};

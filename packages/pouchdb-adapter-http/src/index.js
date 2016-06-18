@@ -144,8 +144,6 @@ function HttpPouch(opts, callback) {
 
   var host = getHostFun(opts.name, opts);
   var dbUrl = genDBUrl(host, '');
-
-  opts = clone(opts);
   var ajaxOpts = opts.ajax || {};
 
   api.getUrl = function () { return dbUrl; };
@@ -165,7 +163,7 @@ function HttpPouch(opts, callback) {
 
   function ajax(userOpts, options, callback) {
     var reqAjax = userOpts.ajax || {};
-    var reqOpts = extend(clone(ajaxOpts), reqAjax, options);
+    var reqOpts = extend(reqAjax, ajaxOpts, options);
     log(reqOpts.method + ' ' + reqOpts.url);
     return api._ajax(reqOpts, callback);
   }
