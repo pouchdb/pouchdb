@@ -30,7 +30,7 @@
     <p>
       <strong>By:</strong> {{ post_author }}<br>
       <strong>Published:</strong> {{ post.date | date_to_long_string }}<br>
-      {% if page.url == "/blog/index.html" or page.url contains "/blog/page" or page.url == "/index.html" %}
+      {% if page.url == "/blog/" or page.url contains "/blog/page" or page.url == "/" %}
         {{ post.excerpt | strip_html | truncatewords: 30, '' }}
         <a href='{{ site.baseurl }}{{ post.url }}'>[...]</a>
       {% endif %}
