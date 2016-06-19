@@ -724,8 +724,7 @@ AbstractPouchDB.prototype.changes = function (opts, callback) {
   return new Changes(this, opts, callback);
 };
 
-AbstractPouchDB.prototype.close =
-  adapterFun('close', function (callback) {
+AbstractPouchDB.prototype.close = adapterFun('close', function (callback) {
   this._closed = true;
   return this._close(callback);
 });

@@ -1,0 +1,33 @@
+{% include anchor.html edit="true" title="Close a database" hash="close_database"%}
+
+{% highlight js %}
+db.close([callback])
+{% endhighlight %}
+
+Close the database, this closes any open connection to the underlying storage and frees memory (event listeners) the database may be using.
+
+#### Example Usage
+
+{% include code/start.html id="close_db" type="callback" %}
+{% highlight js %}
+db.close(function () {
+  // success
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="close_db" type="async" %}
+
+{% highlight js %}
+await db.close();
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="close_db" type="promise" %}
+
+{% highlight js %}
+db.close().then(function () {
+  // success
+});
+{% endhighlight %}
+{% include code/end.html %}
