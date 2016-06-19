@@ -131,6 +131,42 @@ function tests(suiteName, dbName, dbType) {
       });
     });
 
+    it('#3415 - Test destroying while querying', function (done) {
+      var db = new PouchDB(dbName);
+      db.put({
+        _id: '_design/name',
+        views: {
+          name: {
+            map: function (doc) {
+              emit(doc.name);
+            }.toString()
+          }
+        }
+      }).then(function () {
+        var docs = Array.apply(null, {length: 50}).map(function (_, i) {
+          return {_id: 'doc_' + i, name: 'foobar_' + Date.now()};
+        });
+
+        return db.bulkDocs(docs);
+      }).then(function () {
+
+        var query = db.query('name');
+
+        // We setTimeout to give the query a chance to start running
+        setTimeout(function () {
+          db.destroy().then(function () {
+            query.then(function (res) {
+              done('Query should return error', res);
+            });
+            query.catch(function (err) {
+              should.exist(err);
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('Returns ok for viewCleanup on empty db', function () {
       return new PouchDB(dbName).then(function (db) {
         return db.viewCleanup().then(function (res) {

@@ -1325,6 +1325,9 @@ function LevelPouch(opts, callback) {
   };
 
   api._getLocal = function (id, callback) {
+    if (stores.localStore.isClosed()) {
+      return callback(new Error('database is closed'));
+    }
     stores.localStore.get(id, function (err, doc) {
       if (err) {
         callback(createError(MISSING_DOC));
