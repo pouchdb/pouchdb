@@ -14,6 +14,7 @@ import { extend } from 'js-extend';
 import Promise from 'pouchdb-promise';
 import ajaxCore from 'pouchdb-ajax';
 import getArguments from 'argsarray';
+
 import {
   pick,
   filterChange,
@@ -24,6 +25,7 @@ import {
   bulkGetShim,
   flatten
 } from 'pouchdb-utils';
+
 import {
   atob,
   btoa,
@@ -31,8 +33,11 @@ import {
   base64StringToBlobOrBuffer as b64StringToBluffer,
   blobOrBufferToBase64 as blufferToBase64
 } from 'pouchdb-binary-utils';
+
+import PromisePool from 'es6-promise-pool';
 import { createError, BAD_ARG } from 'pouchdb-errors';
 import debug from 'debug';
+
 var log = debug('pouchdb:http');
 
 function readAttachmentsAsBlobOrBuffer(row) {
@@ -434,7 +439,13 @@ function HttpPouch(opts, callback) {
       // Sync Gateway would normally send it back as multipart/mixed,
       // which we cannot parse. Also, this is more efficient than
       // receiving attachments as base64-encoded strings.
-      return Promise.all(filenames.map(function (filename) {
+      function fetch() {
+
+        if (!filenames.length) {
+          return null;
+        }
+
+        var filename = filenames.pop();
         var att = atts[filename];
         var path = encodeDocId(doc._id) + '/' + encodeAttachmentId(filename) +
           '?rev=' + doc._rev;
@@ -454,7 +465,11 @@ function HttpPouch(opts, callback) {
           delete att.length;
           att.data = data;
         });
-      }));
+      }
+
+      // This limits the number of parallel xhr requests to 5 any time
+      // to avoid issues with maximum browser request limits
+      return new PromisePool(fetch, 5, {promise: Promise}).start();
     }
 
     function fetchAllAttachments(docOrDocs) {
