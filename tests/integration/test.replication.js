@@ -3201,6 +3201,28 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#3962 - Test many attachments', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var doc = {_id: 'foo', _attachments: {}};
+      var num = 50;
+
+      Array.apply(null, {length: num}).forEach(function (_, i) {
+        doc._attachments['file_' + i] = {
+          content_type: 'text\/plain',
+          data: testUtils.makeBlob('Some text: ' + i)
+        };
+      });
+
+      return remote.put(doc).then(function () {
+        return db.replicate.from(dbs.remote);
+      }).then(function () {
+        return db.get('foo');
+      }).then(function (res) {
+        Object.keys(res._attachments).length.should.equal(num);
+      });
+    });
+
     it('doc count after multiple replications', function (done) {
 
       var runs = 2;

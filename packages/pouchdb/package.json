@@ -18,6 +18,7 @@
     "argsarray": "0.0.1",
     "debug": "2.2.0",
     "double-ended-queue": "2.0.0-0",
+    "es6-promise-pool": "2.4.2",
     "fruitdown": "1.0.2",
     "inherits": "2.0.1",
     "js-extend": "0.0.1",
