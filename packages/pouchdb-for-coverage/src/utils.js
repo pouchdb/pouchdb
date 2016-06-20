@@ -43,7 +43,6 @@ import Promise from 'pouchdb-promise';
 
 import {
   createError,
-  getErrorTypeByProp,
   generateErrorFromResponse
 } from 'pouchdb-errors';
 
@@ -64,7 +63,6 @@ export default {
   clone: clone,
   extend: extend,
   createError: createError,
-  getErrorTypeByProp: getErrorTypeByProp,
   generateErrorFromResponse: generateErrorFromResponse,
   generateReplicationId: generateReplicationId,
   parseDdocFunctionName: parseDdocFunctionName,
