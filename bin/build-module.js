@@ -44,6 +44,11 @@ function buildModule(filepath) {
     }));
   }
 
+  if (pkg.browser && pkg.browser['./lib/index.js'] !== './lib/index-browser.js') {
+    return Promise.reject(new Error(pkg.name +
+      ' is missing a "lib/index.js" entry in the browser field'));
+  }
+
   // browser & node vs one single vanilla version
   var versions = pkg.browser ? [false, true] : [false];
 
