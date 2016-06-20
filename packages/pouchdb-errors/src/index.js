@@ -44,7 +44,7 @@ var REV_CONFLICT = new PouchError({
 
 var INVALID_ID = new PouchError({
   status: 400,
-  error: 'invalid_id',
+  error: 'bad_request',
   reason: '_id field must contain a string'
 });
 
@@ -161,34 +161,7 @@ var INVALID_URL = new PouchError({
   reason: 'Provided URL is invalid'
 });
 
-var allErrors = [
-  UNAUTHORIZED,
-  MISSING_BULK_DOCS,
-  MISSING_DOC,
-  REV_CONFLICT,
-  INVALID_ID,
-  MISSING_ID,
-  RESERVED_ID,
-  NOT_OPEN,
-  UNKNOWN_ERROR,
-  BAD_ARG,
-  INVALID_REQUEST,
-  QUERY_PARSE_ERROR,
-  DOC_VALIDATION,
-  BAD_REQUEST,
-  NOT_AN_OBJECT,
-  DB_MISSING,
-  WSQ_ERROR,
-  LDB_ERROR,
-  FORBIDDEN,
-  INVALID_REV,
-  FILE_EXISTS,
-  MISSING_STUB,
-  IDB_ERROR,
-  INVALID_URL
-];
-
-function createError(error, reason, name) {
+function createError(error, reason) {
   function CustomPouchError(reason) {
     // inherit error properties from our parent error manually
     // so as to allow proper JSON parsing.
@@ -199,9 +172,6 @@ function createError(error, reason, name) {
       }
     }
     /* jshint ignore:end */
-    if (name !== undefined) {
-      this.name = name;
-    }
     if (reason !== undefined) {
       this.reason = reason;
     }
@@ -210,70 +180,32 @@ function createError(error, reason, name) {
   return new CustomPouchError(reason);
 }
 
-// Find one of the errors defined above based on the value
-// of the specified property.
-// If reason is provided prefer the error matching that reason.
-// This is for differentiating between errors with the same name and status,
-// eg, bad_request.
-var getErrorTypeByProp = function (prop, value, reason) {
-  var errorsByProp = allErrors.filter(function (error) {
-    return error[prop] === value;
-  });
-  return (reason && errorsByProp.filter(function (error) {
-    return error.message === reason;
-  })[0]) || errorsByProp[0];
-};
+function generateErrorFromResponse(err) {
 
-function generateErrorFromResponse(res) {
-  var error, errName, errType, errMsg, errReason;
-
-  errName = (res.error === true && typeof res.name === 'string') ?
-    res.name :
-    res.error;
-  errReason = res.reason;
-  errType = getErrorTypeByProp('name', errName, errReason);
-
-  if (res.missing ||
-    errReason === 'missing' ||
-    errReason === 'deleted' ||
-    errName === 'not_found') {
-    errType = MISSING_DOC;
-  } else if (errName === 'doc_validation') {
-    // doc validation needs special treatment since
-    // res.reason depends on the validation error.
-    // see utils.js
-    errType = DOC_VALIDATION;
-    errMsg = errReason;
-  } else if (errName === 'bad_request' && errType.message !== errReason) {
-    // if bad_request error already found based on reason don't override.
-    errType = BAD_REQUEST;
+  if (typeof err !== 'object') {
+    var data = err;
+    err = UNKNOWN_ERROR;
+    err.data = data;
   }
 
-  // fallback to error by status or unknown error.
-  if (!errType) {
-    errType = getErrorTypeByProp('status', res.status, errReason) ||
-      UNKNOWN_ERROR;
+  if ('error' in err && err.error === 'conflict') {
+    err.name = 'conflict';
+    err.status = 409;
   }
 
-  error = createError(errType, errReason, errName);
-
-  // Keep custom message.
-  if (errMsg) {
-    error.message = errMsg;
+  if (!('name' in err)) {
+    err.name = err.error || 'unknown';
   }
 
-  // Keep helpful response data in our error messages.
-  if (res.id) {
-    error.id = res.id;
-  }
-  if (res.status) {
-    error.status = res.status;
-  }
-  if (res.missing) {
-    error.missing = res.missing;
+  if (!('status' in err)) {
+    err.status = 500;
   }
 
-  return error;
+  if (!('message' in err)) {
+    err.message = err.message || err.reason;
+  }
+
+  return err;
 }
 
 export {
@@ -301,7 +233,6 @@ export {
   MISSING_STUB,
   IDB_ERROR,
   INVALID_URL,
-  getErrorTypeByProp,
   createError,
   generateErrorFromResponse
 };

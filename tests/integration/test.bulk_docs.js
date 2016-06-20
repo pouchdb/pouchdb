@@ -733,13 +733,9 @@ adapters.forEach(function (adapter) {
       }, { new_edits: false }, function () {
         db.get('foo', function (err) {
           should.exist(err, 'deleted');
+          err.name.should.equal('not_found');
           err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                    'correct error status returned');
-          err.message.should.equal(testUtils.errors.MISSING_DOC.message,
-                                   'correct error message returned');
-          // todo: does not work in pouchdb-server.
-          // err.reason.should.equal('deleted',
-          //                          'correct error reason returned');
           done();
         });
       });

@@ -256,12 +256,9 @@ adapters.forEach(function (adapter) {
           limit: 2,
           include_docs: true
         }).on('error', function (err) {
+          err.name.should.equal('not_found');
           err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                   'correct error status returned');
-          err.message.should.equal(testUtils.errors.MISSING_DOC.message,
-                               'correct error message returned');
-          // todo: does not work in pouchdb-server.
-          // err.reason.should.equal('missing json key: odd');
           done();
         });
       });
@@ -291,10 +288,7 @@ adapters.forEach(function (adapter) {
         }).on('error', function (err) {
           err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                   'correct error status returned');
-          err.message.should.equal(testUtils.errors.MISSING_DOC.message,
-                               'correct error message returned');
-          // todo: does not work in pouchdb-server.
-          // err.reason.should.equal('missing json key: filters');
+          err.name.should.equal('not_found');
           done();
         });
       });
@@ -411,10 +405,7 @@ adapters.forEach(function (adapter) {
         }).on('error', function (err) {
           err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                   'correct error status returned');
-          err.message.should.equal(testUtils.errors.MISSING_DOC.message,
-                               'correct error message returned');
-          // todo: does not work in pouchdb-server.
-          // err.reason.should.equal('missing json key: odd');
+          err.name.should.equal('not_found');
           done();
         });
       });
@@ -437,11 +428,7 @@ adapters.forEach(function (adapter) {
         }).on('error', function (err) {
           err.status.should.equal(testUtils.errors.MISSING_DOC.status,
                                   'correct error status returned');
-          err.message.should.equal(testUtils.errors.MISSING_DOC.message,
-                               'correct error message returned');
-          // todo: does not work in pouchdb-server.
-          // err.reason.should.equal('missing json key: views',
-          //                         'correct error reason returned');
+          err.name.should.equal('not_found');
           done();
         });
       });
@@ -501,12 +488,7 @@ adapters.forEach(function (adapter) {
         }).on('error', function (err) {
           err.status.should.equal(testUtils.errors.BAD_REQUEST.status,
                                   'correct error status returned');
-          err.message.should.equal(testUtils.errors.BAD_REQUEST.message,
-                               'correct error message returned');
-          // todo: does not work in pouchdb-server.
-          // err.reason.should
-          //   .equal('`view` filter parameter is not provided.',
-          //          'correct error reason returned');
+          err.name.should.equal('bad_request');
           done();
         });
       });
