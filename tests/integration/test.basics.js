@@ -579,7 +579,7 @@ adapters.forEach(function (adapter) {
         test: 'somestuff'
       }, function (err) {
         should.exist(err);
-        err.name.should.equal('bad_request');
+        err.name.should.be.oneOf(['bad_request', 'illegal_docid']) ;
         done();
       });
     });
