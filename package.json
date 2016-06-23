@@ -69,7 +69,7 @@
     "replace": "0.3.0",
     "request": "2.72.0",
     "rimraf": "2.5.2",
-    "rollup": "0.32.2",
+    "rollup": "0.32.4",
     "rollup-plugin-node-resolve": "1.5.0",
     "sauce-connect-launcher": "0.14.0",
     "seedrandom": "2.4.2",
