@@ -39,6 +39,7 @@ function adapterFun(name, callback) {
     if (!this.taskqueue.isReady) {
       return new Promise(function (fulfill, reject) {
         self.taskqueue.addTask(function (failed) {
+          /* istanbul ignore if */
           if (failed) {
             reject(failed);
           } else {

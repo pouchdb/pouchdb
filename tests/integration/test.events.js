@@ -25,36 +25,27 @@ adapters.forEach(function (adapter) {
     });
 
     it('PouchDB emits destruction event', function (done) {
-      new PouchDB(dbs.name, function (err, db) {
-        db.destroy();
-      }).once('destroyed', function () {
-        new PouchDB(dbs.name, function () {
-          done();
-        });
-      });
+      var db = new PouchDB(dbs.name);
+      db.once('destroyed', done);
+      db.destroy();
     });
 
     it('PouchDB emits destruction event on PouchDB object', function (done) {
       PouchDB.once('destroyed', function (name) {
         name.should.equal(dbs.name, 'should have the same name');
-        new PouchDB(dbs.name, function () {
-          done();
-        });
+        done();
       });
-      new PouchDB(dbs.name, function (err, db) {
-        db.destroy();
-      });
+      new PouchDB(dbs.name).destroy();
     });
 
     it('PouchDB emits destroyed when using {name: foo}', function () {
-      return new PouchDB({name: 'testdb'}).then(function (db) {
-        return new testUtils.Promise(function (resolve) {
-          PouchDB.once('destroyed', function (name) {
-            name.should.equal('testdb');
-            resolve();
-          });
-          db.destroy();
+      var db = new PouchDB({name: 'testdb'});
+      return new testUtils.Promise(function (resolve) {
+        PouchDB.once('destroyed', function (name) {
+          name.should.equal('testdb');
+          resolve();
         });
+        db.destroy();
       });
     });
 
@@ -76,13 +67,12 @@ adapters.forEach(function (adapter) {
     });
 
     it('3900 db emits destroyed event', function () {
-      return new PouchDB('testdb').then(function (db) {
-        return new testUtils.Promise(function (resolve) {
-          db.once('destroyed', function () {
-            resolve();
-          });
-          db.destroy();
+      var db = new PouchDB('testdb');
+      return new testUtils.Promise(function (resolve) {
+        db.once('destroyed', function () {
+          resolve();
         });
+        db.destroy();
       });
     });
 

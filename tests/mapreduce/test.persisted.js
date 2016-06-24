@@ -132,119 +132,114 @@ function tests(suiteName, dbName, dbType) {
     });
 
     it('Returns ok for viewCleanup on empty db', function () {
-      return new PouchDB(dbName).then(function (db) {
-        return db.viewCleanup().then(function (res) {
-          res.ok.should.equal(true);
-        });
+      var db = new PouchDB(dbName);
+      return db.viewCleanup().then(function (res) {
+        res.ok.should.equal(true);
       });
     });
 
     it('Returns ok for viewCleanup on empty db, callback style', function () {
-      return new PouchDB(dbName).then(function (db) {
-        return new Promise(function (resolve, reject) {
-          db.viewCleanup(function (err, res) {
-            if (err) {
-              return reject(err);
-            }
-            resolve(res);
-          });
-        }).then(function (res) {
-            res.ok.should.equal(true);
-          });
+      var db = new PouchDB(dbName);
+      return new Promise(function (resolve, reject) {
+        db.viewCleanup(function (err, res) {
+          if (err) {
+            return reject(err);
+          }
+          resolve(res);
+        });
+      }).then(function (res) {
+        res.ok.should.equal(true);
       });
     });
 
     it('Returns ok for viewCleanup after modifying view', function () {
-      return new PouchDB(dbName).then(function (db) {
-        var ddoc = {
-          _id: '_design/myview',
-          views: {
-            myview: {
-              map: function (doc) {
-                emit(doc.firstName);
-              }.toString()
-            }
+      var db = new PouchDB(dbName);
+      var ddoc = {
+        _id: '_design/myview',
+        views: {
+          myview: {
+            map: function (doc) {
+              emit(doc.firstName);
+            }.toString()
           }
-        };
-        var doc = {
-          _id: 'foo',
-          firstName: 'Foobar',
-          lastName: 'Bazman'
-        };
-        return db.bulkDocs({docs: [ddoc, doc]}).then(function (info) {
-          ddoc._rev = info[0].rev;
-          return db.query('myview');
-        }).then(function (res) {
-          res.rows.should.deep.equal([
-            {id: 'foo', key: 'Foobar', value: null}
-          ]);
-          ddoc.views.myview.map = function (doc) {
-            emit(doc.lastName);
-          }.toString();
-          return db.put(ddoc);
-        }).then(function () {
-          return db.query('myview');
-        }).then(function (res) {
-          res.rows.should.deep.equal([
-            {id: 'foo', key: 'Bazman', value: null}
-          ]);
-          return db.viewCleanup();
-        });
+        }
+      };
+      var doc = {
+        _id: 'foo',
+        firstName: 'Foobar',
+        lastName: 'Bazman'
+      };
+      return db.bulkDocs({docs: [ddoc, doc]}).then(function (info) {
+        ddoc._rev = info[0].rev;
+        return db.query('myview');
+      }).then(function (res) {
+        res.rows.should.deep.equal([
+          {id: 'foo', key: 'Foobar', value: null}
+        ]);
+        ddoc.views.myview.map = function (doc) {
+          emit(doc.lastName);
+        }.toString();
+        return db.put(ddoc);
+      }).then(function () {
+        return db.query('myview');
+      }).then(function (res) {
+        res.rows.should.deep.equal([
+          {id: 'foo', key: 'Bazman', value: null}
+        ]);
+        return db.viewCleanup();
       });
     });
 
     it('Return ok for viewCleanup after modding view, old format', function () {
-      return new PouchDB(dbName).then(function (db) {
-        var ddoc = {
-          _id: '_design/myddoc',
-          views: {
-            myview: {
-              map: function (doc) {
-                emit(doc.firstName);
-              }.toString()
-            }
+      var db = new PouchDB(dbName);
+      var ddoc = {
+        _id: '_design/myddoc',
+        views: {
+          myview: {
+            map: function (doc) {
+              emit(doc.firstName);
+            }.toString()
           }
-        };
-        var doc = {
-          _id: 'foo',
-          firstName: 'Foobar',
-          lastName: 'Bazman'
-        };
-        return db.bulkDocs({docs: [ddoc, doc]}).then(function (info) {
-          ddoc._rev = info[0].rev;
-          return db.query('myddoc/myview');
-        }).then(function (res) {
-          res.rows.should.deep.equal([
-            {id: 'foo', key: 'Foobar', value: null}
-          ]);
-          ddoc.views.myview.map = function (doc) {
-            emit(doc.lastName);
-          }.toString();
-          return db.put(ddoc);
-        }).then(function () {
-          return db.query('myddoc/myview');
-        }).then(function (res) {
-          res.rows.should.deep.equal([
-            {id: 'foo', key: 'Bazman', value: null}
-          ]);
-          return db.viewCleanup();
-        });
+        }
+      };
+      var doc = {
+        _id: 'foo',
+        firstName: 'Foobar',
+        lastName: 'Bazman'
+      };
+      return db.bulkDocs({docs: [ddoc, doc]}).then(function (info) {
+        ddoc._rev = info[0].rev;
+        return db.query('myddoc/myview');
+      }).then(function (res) {
+        res.rows.should.deep.equal([
+          {id: 'foo', key: 'Foobar', value: null}
+        ]);
+        ddoc.views.myview.map = function (doc) {
+          emit(doc.lastName);
+        }.toString();
+        return db.put(ddoc);
+      }).then(function () {
+        return db.query('myddoc/myview');
+      }).then(function (res) {
+        res.rows.should.deep.equal([
+          {id: 'foo', key: 'Bazman', value: null}
+        ]);
+        return db.viewCleanup();
       });
     });
 
     it("Query non existing view returns error", function () {
-      return new PouchDB(dbName).then(function (db) {
-        var doc = {
-          _id: '_design/barbar',
-          views: {
-            scores: {
-              map: 'function(doc) { if (doc.score) { emit(null, doc.score); } }'
-            }
+      var db = new PouchDB(dbName);
+      var doc = {
+        _id: '_design/barbar',
+        views: {
+          scores: {
+            map: 'function(doc) { if (doc.score) { emit(null, doc.score); } }'
           }
-        };
-        return db.post(doc).then(function () {
-          return db.query('barbar/dontExist', {key: 'bar'});
-        });
+        }
+      };
+      return db.post(doc).then(function () {
+        return db.query('barbar/dontExist', {key: 'bar'});
       }).should.be.rejected;
     });
 
@@ -293,74 +288,72 @@ function tests(suiteName, dbName, dbType) {
     });
 
     it('should error with a callback', function (done) {
-      new PouchDB(dbName, function (err, db) {
-        db.query('fake/thing', function (err) {
-          should.exist(err);
-          done();
-        });
+      var db = new PouchDB(dbName);
+      db.query('fake/thing', function (err) {
+        should.exist(err);
+        done();
       });
     });
 
     it('should query correctly when stale', function () {
-      return new PouchDB(dbName).then(function (db) {
-        return createView(db, {
-          map : function (doc) {
-            emit(doc.name);
+      var db = new PouchDB(dbName);
+      return createView(db, {
+        map : function (doc) {
+          emit(doc.name);
+        }
+      }).then(function (queryFun) {
+        return db.bulkDocs({docs : [
+          {name : 'bar', _id : '1'},
+          {name : 'foo', _id : '2'}
+        ]}).then(function () {
+          return db.query(queryFun, {stale : 'ok'});
+        }).then(function (res) {
+          res.total_rows.should.be.within(0, 2);
+          res.offset.should.equal(0);
+          res.rows.length.should.be.within(0, 2);
+          return db.query(queryFun, {stale : 'update_after'});
+        }).then(function (res) {
+          res.total_rows.should.be.within(0, 2);
+          res.rows.length.should.be.within(0, 2);
+          return setTimeoutPromise(5);
+        }).then(function () {
+          return db.query(queryFun, {stale : 'ok'});
+        }).then(function (res) {
+          res.total_rows.should.equal(2);
+          res.rows.length.should.equal(2);
+          return db.get('2');
+        }).then(function (doc2) {
+          return db.remove(doc2);
+        }).then(function () {
+          return db.query(queryFun, {stale : 'ok', include_docs : true});
+        }).then(function (res) {
+          res.total_rows.should.be.within(1, 2);
+          res.rows.length.should.be.within(1, 2);
+          if (res.rows.length === 2) {
+            res.rows[1].key.should.equal('foo');
+            should.not.exist(res.rows[1].doc,
+                             'should not throw if doc removed');
           }
-        }).then(function (queryFun) {
-          return db.bulkDocs({docs : [
-            {name : 'bar', _id : '1'},
-            {name : 'foo', _id : '2'}
-          ]}).then(function () {
-            return db.query(queryFun, {stale : 'ok'});
-          }).then(function (res) {
-            res.total_rows.should.be.within(0, 2);
-            res.offset.should.equal(0);
-            res.rows.length.should.be.within(0, 2);
-            return db.query(queryFun, {stale : 'update_after'});
-          }).then(function (res) {
-            res.total_rows.should.be.within(0, 2);
-            res.rows.length.should.be.within(0, 2);
-            return setTimeoutPromise(5);
-          }).then(function () {
-            return db.query(queryFun, {stale : 'ok'});
-          }).then(function (res) {
-            res.total_rows.should.equal(2);
-            res.rows.length.should.equal(2);
-            return db.get('2');
-          }).then(function (doc2) {
-            return db.remove(doc2);
-          }).then(function () {
-            return db.query(queryFun, {stale : 'ok', include_docs : true});
-          }).then(function (res) {
-            res.total_rows.should.be.within(1, 2);
-            res.rows.length.should.be.within(1, 2);
-            if (res.rows.length === 2) {
-              res.rows[1].key.should.equal('foo');
-              should.not.exist(res.rows[1].doc,
-                'should not throw if doc removed');
-            }
-            return db.query(queryFun);
-          }).then(function (res) {
-            res.total_rows.should.equal(1, 'equals1-1');
-            res.rows.length.should.equal(1, 'equals1-2');
-            return db.get('1');
-          }).then(function (doc1) {
-            doc1.name = 'baz';
-            return db.post(doc1);
-          }).then(function () {
-            return db.query(queryFun, {stale : 'update_after'});
-          }).then(function (res) {
-            res.rows.length.should.equal(1);
-            ['baz', 'bar'].indexOf(res.rows[0].key).should.be.above(-1,
-              'key might be stale, thats ok');
-            return setTimeoutPromise(1000);
-          }).then(function () {
-            return db.query(queryFun, {stale : 'ok'});
-          }).then(function (res) {
-            res.rows.length.should.equal(1);
-            res.rows[0].key.should.equal('baz');
-          });
+          return db.query(queryFun);
+        }).then(function (res) {
+          res.total_rows.should.equal(1, 'equals1-1');
+          res.rows.length.should.equal(1, 'equals1-2');
+          return db.get('1');
+        }).then(function (doc1) {
+          doc1.name = 'baz';
+          return db.post(doc1);
+        }).then(function () {
+          return db.query(queryFun, {stale : 'update_after'});
+        }).then(function (res) {
+          res.rows.length.should.equal(1);
+          ['baz', 'bar'].indexOf(res.rows[0].key).should.be
+            .above(-1, 'key might be stale, thats ok');
+          return setTimeoutPromise(1000);
+        }).then(function () {
+          return db.query(queryFun, {stale : 'ok'});
+        }).then(function (res) {
+          res.rows.length.should.equal(1);
+          res.rows[0].key.should.equal('baz');
         });
       });
     });
@@ -404,49 +397,47 @@ function tests(suiteName, dbName, dbType) {
           }
         );
       }
-      return new PouchDB(dbName).then(function (db) {
-        return db.bulkDocs({docs : docs}).then(function (responses) {
-          var tasks = [];
-          for (var i = 0; i < docs.length; i++) {
-            /* jshint loopfunc:true */
-            docs[i]._rev = responses[i].rev;
-            tasks.push(db.query('view' + i + '/view'));
-          }
-          return Promise.all(tasks);
-        }).then(function () {
-          docs.forEach(function (doc) {
-            doc._deleted = true;
-          });
-          return db.bulkDocs({docs : docs});
-        }).then(function () {
-          return db.viewCleanup();
+      var db = new PouchDB(dbName);
+      return db.bulkDocs({docs : docs}).then(function (responses) {
+        var tasks = [];
+        for (var i = 0; i < docs.length; i++) {
+          /* jshint loopfunc:true */
+          docs[i]._rev = responses[i].rev;
+          tasks.push(db.query('view' + i + '/view'));
+        }
+        return Promise.all(tasks);
+      }).then(function () {
+        docs.forEach(function (doc) {
+          doc._deleted = true;
         });
+        return db.bulkDocs({docs : docs});
+      }).then(function () {
+        return db.viewCleanup();
       });
     });
 
     it('should handle user errors in design doc names', function () {
-      return new PouchDB(dbName).then(function (db) {
-        return db.put({
-          _id : '_design/theViewDoc'
-        }).then(function () {
-          return db.query('foo/bar');
+      var db = new PouchDB(dbName);
+      return db.put({
+        _id : '_design/theViewDoc'
+      }).then(function () {
+        return db.query('foo/bar');
+      }).then(function (res) {
+        should.not.exist(res);
+      }).catch(function (err) {
+        err.status.should.equal(404);
+        return db.put(
+          {_id : '_design/void', views : {1 : null}}
+        ).then(function () {
+          return db.query('void/1');
         }).then(function (res) {
           should.not.exist(res);
         }).catch(function (err) {
-          err.status.should.equal(404);
-          return db.put(
-            {_id : '_design/void', views : {1 : null}}
-          ).then(function () {
-              return db.query('void/1');
-            }).then(function (res) {
-              should.not.exist(res);
-            }).catch(function (err) {
-              err.status.should.be.a('number');
-              // this might throw due to erroneous ddoc, but that's ok
-              return db.viewCleanup().catch(function (err) {
-                err.status.should.equal(500);
-              });
-            });
+          err.status.should.be.a('number');
+          // this might throw due to erroneous ddoc, but that's ok
+          return db.viewCleanup().catch(function (err) {
+            err.status.should.equal(500);
+          });
         });
       });
     });
@@ -455,70 +446,69 @@ function tests(suiteName, dbName, dbType) {
       function getKey(row) {
         return row.key;
       }
-      return new PouchDB(dbName).then(function (db) {
+      var db = new PouchDB(dbName);
+      return db.put({
+        _id : '_design/foo',
+        views : {
+          byId : { map : function (doc) { emit(doc._id); }.toString()},
+          byField : { map : function (doc) { emit(doc.field); }.toString()}
+        }
+      }).then(function () {
+        return db.put({_id : 'myDoc', field : 'myField'});
+      }).then(function () {
+        return db.query('foo/byId');
+      }).then(function (res) {
+        res.rows.map(getKey).should.deep.equal(['myDoc']);
         return db.put({
-          _id : '_design/foo',
+          _id : '_design/bar',
           views : {
-            byId : { map : function (doc) { emit(doc._id); }.toString()},
-            byField : { map : function (doc) { emit(doc.field); }.toString()}
+            byId : {map : function (doc) { emit(doc._id); }.toString()}
           }
-        }).then(function () {
-          return db.put({_id : 'myDoc', field : 'myField'});
-        }).then(function () {
-          return db.query('foo/byId');
-        }).then(function (res) {
-          res.rows.map(getKey).should.deep.equal(['myDoc']);
-          return db.put({
-            _id : '_design/bar',
-            views : {
-              byId : {map : function (doc) { emit(doc._id); }.toString()}
-            }
-          });
-        }).then(function () {
-          return db.query('bar/byId');
-        }).then(function (res) {
-          res.rows.map(getKey).should.deep.equal(['myDoc']);
-        }).then(function () {
-          return db.viewCleanup();
-        }).then(function () {
-          return db.query('foo/byId');
-        }).then(function (res) {
-          res.rows.map(getKey).should.deep.equal(['myDoc']);
-          return db.query('foo/byField');
-        }).then(function (res) {
-          res.rows.map(getKey).should.deep.equal(['myField']);
-          return db.query('bar/byId');
-        }).then(function (res) {
-          res.rows.map(getKey).should.deep.equal(['myDoc']);
-          return db.get('_design/bar');
-        }).then(function (barDoc) {
-          return db.remove(barDoc);
-        }).then(function () {
-          return db.get('_design/foo');
-        }).then(function (fooDoc) {
-          delete fooDoc.views.byField;
-          return db.put(fooDoc);
-        }).then(function () {
-          return db.query('foo/byId');
-        }).then(function (res) {
-          res.rows.map(getKey).should.deep.equal(['myDoc']);
-          return db.viewCleanup();
-        }).then(function () {
-          return db.query('foo/byId');
-        }).then(function (res) {
-          res.rows.map(getKey).should.deep.equal(['myDoc']);
-          return db.query('foo/byField').then(function (res) {
+        });
+      }).then(function () {
+        return db.query('bar/byId');
+      }).then(function (res) {
+        res.rows.map(getKey).should.deep.equal(['myDoc']);
+      }).then(function () {
+        return db.viewCleanup();
+      }).then(function () {
+        return db.query('foo/byId');
+      }).then(function (res) {
+        res.rows.map(getKey).should.deep.equal(['myDoc']);
+        return db.query('foo/byField');
+      }).then(function (res) {
+        res.rows.map(getKey).should.deep.equal(['myField']);
+        return db.query('bar/byId');
+      }).then(function (res) {
+        res.rows.map(getKey).should.deep.equal(['myDoc']);
+        return db.get('_design/bar');
+      }).then(function (barDoc) {
+        return db.remove(barDoc);
+      }).then(function () {
+        return db.get('_design/foo');
+      }).then(function (fooDoc) {
+        delete fooDoc.views.byField;
+        return db.put(fooDoc);
+      }).then(function () {
+        return db.query('foo/byId');
+      }).then(function (res) {
+        res.rows.map(getKey).should.deep.equal(['myDoc']);
+        return db.viewCleanup();
+      }).then(function () {
+        return db.query('foo/byId');
+      }).then(function (res) {
+        res.rows.map(getKey).should.deep.equal(['myDoc']);
+        return db.query('foo/byField').then(function (res) {
+          should.not.exist(res);
+        }).catch(function (err) {
+          err.status.should.equal(404);
+          return db.query('bar/byId').then(function (res) {
             should.not.exist(res);
           }).catch(function (err) {
             err.status.should.equal(404);
-            return db.query('bar/byId').then(function (res) {
-              should.not.exist(res);
-            }).catch(function (err) {
-              err.status.should.equal(404);
-              return db.get('_design/foo').then(function (fooDoc) {
-                return db.remove(fooDoc).then(function () {
-                  return db.viewCleanup();
-                });
+            return db.get('_design/foo').then(function (fooDoc) {
+              return db.remove(fooDoc).then(function () {
+                return db.viewCleanup();
               });
             });
           });
@@ -528,44 +518,43 @@ function tests(suiteName, dbName, dbType) {
 
     it('should allow view names without slashes', function () {
       var ddocRev;
-      return new PouchDB(dbName).then(function (db) {
-        return db.put({
-          _id : '_design/foo',
-          views : {
-            foo : { map : function (doc) { emit(doc._id); }.toString()}
-          }
-        }).then(function (info) {
-          ddocRev = info.rev;
-          return db.bulkDocs({docs : [{_id : 'baz'}, {_id : 'bar'}]});
-        }).then(function () {
-          return db.query('foo');
-        }).then(function (res) {
-          res.rows[0].key.should.equal('bar');
-          res.rows[1].key.should.equal('baz');
-          return db.remove({_id : '_design/foo', _rev : ddocRev});
-        });
+      var db = new PouchDB(dbName);
+      return db.put({
+        _id : '_design/foo',
+        views : {
+          foo : { map : function (doc) { emit(doc._id); }.toString()}
+        }
+      }).then(function (info) {
+        ddocRev = info.rev;
+        return db.bulkDocs({docs : [{_id : 'baz'}, {_id : 'bar'}]});
+      }).then(function () {
+        return db.query('foo');
+      }).then(function (res) {
+        res.rows[0].key.should.equal('bar');
+        res.rows[1].key.should.equal('baz');
+        return db.remove({_id : '_design/foo', _rev : ddocRev});
       });
     });
+
     it('test 304s in Safari (issue 69)', function () {
-      return new PouchDB(dbName).then(function (db) {
-        return createView(db, {
-          map : function (doc) {
-            emit(doc.name);
-          }
-        }).then(function (queryFun) {
-          return db.bulkDocs({docs : [
-            {name : 'foo'}
-          ]}).then(function () {
-            return db.query(queryFun, {keys : ['foo']});
-          }).then(function (res) {
-            res.rows.should.have.length(1);
-            return db.query(queryFun, {keys : ['foo']});
-          }).then(function (res) {
-            res.rows.should.have.length(1);
-            return db.query(queryFun, {keys : ['foo']});
-          }).then(function (res) {
-            res.rows.should.have.length(1);
-          });
+      var db = new PouchDB(dbName);
+      return createView(db, {
+        map : function (doc) {
+          emit(doc.name);
+        }
+      }).then(function (queryFun) {
+        return db.bulkDocs({docs : [
+          {name : 'foo'}
+        ]}).then(function () {
+          return db.query(queryFun, {keys : ['foo']});
+        }).then(function (res) {
+          res.rows.should.have.length(1);
+          return db.query(queryFun, {keys : ['foo']});
+        }).then(function (res) {
+          res.rows.should.have.length(1);
+          return db.query(queryFun, {keys : ['foo']});
+        }).then(function (res) {
+          res.rows.should.have.length(1);
         });
       });
     });

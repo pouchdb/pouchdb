@@ -2115,45 +2115,45 @@ adapters.forEach(function (adapter) {
         {_id: '2', integer: 11},
         {_id: '3', integer: 12}
       ];
-      new PouchDB(dbs.name).then(function (localdb) {
-        var remotedb = new PouchDB(dbs.remote);
-        return localdb.bulkDocs({ docs: docs1 }).then(function (info) {
-          docs2[0]._rev = info[2].rev;
-          docs2[1]._rev = info[3].rev;
-          return localdb.put(docs2[0]).then(function () {
-            return localdb.put(docs2[1]).then(function (info) {
-              var rev2 = info.rev;
-              return PouchDB.replicate(localdb, remotedb).then(function () {
-                // update remote once, local twice, then replicate from
-                // remote to local so the remote losing conflict is later in
-                // the tree
-                return localdb.put({
+      var localdb = new PouchDB(dbs.name);
+      var remotedb = new PouchDB(dbs.remote);
+      return localdb.bulkDocs({ docs: docs1 }).then(function (info) {
+        docs2[0]._rev = info[2].rev;
+        docs2[1]._rev = info[3].rev;
+        return localdb.put(docs2[0]).then(function () {
+          return localdb.put(docs2[1]).then(function (info) {
+            var rev2 = info.rev;
+            return PouchDB.replicate(localdb, remotedb).then(function () {
+              // update remote once, local twice, then replicate from
+              // remote to local so the remote losing conflict is later in
+              // the tree
+              return localdb.put({
+                _id: '3',
+                _rev: rev2,
+                integer: 20
+              }).then(function (resp) {
+                var rev3Doc = {
                   _id: '3',
-                  _rev: rev2,
-                  integer: 20
-                }).then(function (resp) {
-                  var rev3Doc = {
+                  _rev: resp.rev,
+                  integer: 30
+                };
+                return localdb.put(rev3Doc).then(function (resp) {
+                  var rev4local = resp.rev;
+                  var rev4Doc = {
                     _id: '3',
-                    _rev: resp.rev,
-                    integer: 30
+                    _rev: rev2,
+                    integer: 100
                   };
-                  return localdb.put(rev3Doc).then(function (resp) {
-                    var rev4local = resp.rev;
-                    var rev4Doc = {
-                      _id: '3',
-                      _rev: rev2,
-                      integer: 100
-                    };
-                    return remotedb.put(rev4Doc).then(function (resp) {
-                      var remoterev = resp.rev;
-                      return PouchDB.replicate(remotedb, localdb).then(
-                        function () {
+                  return remotedb.put(rev4Doc).then(function (resp) {
+                    var remoterev = resp.rev;
+                    return PouchDB.replicate(remotedb, localdb).then(
+                      function () {
                         return localdb.changes({
                           include_docs: true,
                           style: 'all_docs',
                           conflicts: true
                         }).on('error', testDone)
-                        .then(function (changes) {
+                          .then(function (changes) {
                             changes.results.length.should.equal(4);
                             var ch = findById(changes.results, '3');
                             ch.changes.length.should.equal(2);
@@ -2169,7 +2169,6 @@ adapters.forEach(function (adapter) {
                             ch.doc._conflicts[0].should.equal(remoterev);
                           });
                       });
-                    });
                   });
                 });
               });

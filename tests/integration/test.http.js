@@ -20,14 +20,13 @@ describe('test.http.js', function () {
       if (!isCouchDB) {
         return done();
       }
-      new PouchDB(dbs.name).then(function (db) {
-        db.destroy(function () {
-          instantDB = new PouchDB(dbs.name, { skipSetup: true });
-          instantDB.post({ test: 'abc' }, function (err) {
-            should.exist(err);
-            err.name.should.equal('not_found', 'Skipped setup of database');
-            done();
-          });
+      var db = new PouchDB(dbs.name);
+      db.destroy(function () {
+        instantDB = new PouchDB(dbs.name, { skipSetup: true });
+        instantDB.post({ test: 'abc' }, function (err) {
+          should.exist(err);
+          err.name.should.equal('not_found', 'Skipped setup of database');
+          done();
         });
       });
     });
@@ -39,14 +38,13 @@ describe('test.http.js', function () {
       if (!isCouchDB) {
         return done();
       }
-      new PouchDB(dbs.name).then(function (db) {
-        db.destroy(function () {
-          instantDB = new PouchDB(dbs.name, { skip_setup: true });
-          instantDB.post({ test: 'abc' }, function (err) {
-            should.exist(err);
-            err.name.should.equal('not_found', 'Skipped setup of database');
-            done();
-          });
+      var db = new PouchDB(dbs.name);
+      db.destroy(function () {
+        instantDB = new PouchDB(dbs.name, { skip_setup: true });
+        instantDB.post({ test: 'abc' }, function (err) {
+          should.exist(err);
+          err.name.should.equal('not_found', 'Skipped setup of database');
+          done();
         });
       });
     });
