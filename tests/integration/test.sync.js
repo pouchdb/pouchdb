@@ -358,7 +358,7 @@ adapters.forEach(function (adapters) {
         return remote.put(doc2);
       }).then(function () {
         return new testUtils.Promise(function (resolve, reject) {
-          db.replicate.sync(remote).on('complete', resolve).on('error', reject);
+          db.sync(remote).on('complete', resolve).on('error', reject);
         });
       }).then(function () {
         // Replication isn't finished until onComplete has been called twice
