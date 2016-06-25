@@ -26,5 +26,8 @@
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js"
+  },
+  "peerDependencies": {
+    "pouchdb-core": "5.5.0-prerelease"
   }
 }

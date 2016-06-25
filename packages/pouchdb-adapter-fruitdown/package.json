@@ -16,5 +16,8 @@
     "js-extend": "1.0.1",
     "fruitdown": "1.0.2",
     "pouchdb-adapter-leveldb-core": "5.5.0-prerelease"
+  },
+  "peerDependencies": {
+    "pouchdb-core": "5.5.0-prerelease"
   }
 }

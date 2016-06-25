@@ -21,5 +21,8 @@
     "pouchdb-generate-replication-id": "5.5.0-prerelease",
     "pouchdb-promise": "5.5.0-prerelease",
     "pouchdb-utils": "5.5.0-prerelease"
+  },
+  "peerDependencies": {
+    "pouchdb-core": "5.5.0-prerelease"
   }
 }
