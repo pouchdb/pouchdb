@@ -23,8 +23,15 @@ jsonFiles.forEach(function (jsonFile) {
   var json = JSON.parse(fs.readFileSync(jsonFile), 'utf-8');
   json.version = version;
   // update version of all inner dependencies
-  var depsList = [json.dependencies || {}, json.devDependencies || {}];
+  var depsList = [
+    json.dependencies,
+    json.devDependencies,
+    json.peerDependencies
+  ];
   depsList.forEach(function (deps) {
+    if (!deps) {
+      return;
+    }
     Object.keys(deps).forEach(function (key) {
       if (packages.indexOf(key) !== -1) {
         deps[key] = version;

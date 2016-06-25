@@ -20,5 +20,8 @@
     "pouchdb-binary-utils": "5.5.0-prerelease",
     "pouchdb-utils": "5.5.0-prerelease"
   },
+  "peerDependencies": {
+    "pouchdb-core": "5.5.0-prerelease"
+  },
   "private": true
 }
