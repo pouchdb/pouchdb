@@ -84,23 +84,6 @@ function PouchDB(name, opts) {
 
   self.adapter = opts.adapter;
 
-  // needs access to PouchDB;
-  self.replicate = {};
-
-  self.replicate.from = function (url, opts, callback) {
-    return self.constructor.replicate(url, self, opts, callback);
-  };
-
-  self.replicate.to = function (url, opts, callback) {
-    return self.constructor.replicate(self, url, opts, callback);
-  };
-
-  self.sync = function (dbName, opts, callback) {
-    return self.constructor.sync(self, dbName, opts, callback);
-  };
-
-  self.replicate.sync = self.sync;
-
   PouchDB.adapters[opts.adapter].call(self, opts, function (err) {
     /* istanbul ignore if */
     if (err) {
