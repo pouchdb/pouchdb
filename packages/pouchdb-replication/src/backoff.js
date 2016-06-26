@@ -15,9 +15,14 @@ function backOff(opts, returnValue, error, callback) {
   if (returnValue.state === 'active' || returnValue.state === 'pending') {
     returnValue.emit('paused', error);
     returnValue.state = 'stopped';
-    returnValue.once('active', function () {
+    function backoffTimeSet() {
       opts.current_back_off = STARTING_BACK_OFF;
-    });
+    }
+    function removeBackOffTimeSet() {
+      returnValue.removeListener('active', backoffTimeSet);
+    }
+    returnValue.once('paused', removeBackOffTimeSet);
+    returnValue.once('active', backoffTimeSet);
   }
 
   opts.current_back_off = opts.current_back_off || STARTING_BACK_OFF;
