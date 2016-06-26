@@ -27,6 +27,10 @@ var iconDigests = [
 
 var iconLengths = [1047, 789, 967, 527, 1108];
 
+var isSafari = (typeof process === 'undefined' || process.browser) &&
+  /Safari/.test(window.navigator.userAgent) &&
+  !/Chrome/.test(window.navigator.userAgent);
+
 adapters.forEach(function (adapter) {
   describe('suite2 test.attachments.js-' + adapter, function () {
 
@@ -3104,9 +3108,6 @@ adapters.forEach(function (adapter) {
     });
 
 
-    var isSafari = (typeof process === 'undefined' || process.browser) &&
-      /Safari/.test(window.navigator.userAgent) &&
-      !/Chrome/.test(window.navigator.userAgent);
     if (!isSafari) {
       // skip in safari/ios because of size limit popup
       it('putAttachment and getAttachment with big png data', function (done) {
@@ -3876,5 +3877,35 @@ repl_adapters.forEach(function (adapters) {
       }
     });
 
+    var isNode = typeof process !== 'undefined' && !process.browser;
+    if (!isSafari && !isNode && typeof fetch !== 'undefined') {
+      // skip in safari/ios because of size limit popup
+      // skip in Node because this bug only occured in the browser
+      // skip in non-fetch browsers b/c the code is too complicated otherwise
+      it('#4632 doesn\'t leak memory for huge jpegs', function () {
+        var db = new PouchDB(dbs.name);
+        var remote = new PouchDB(dbs.remote);
+
+        return fetch('deps/cat.jpg').then(function (resp) {
+          return resp.blob();
+        }).then(function (blob) {
+          var docs = [];
+          for (var i = 0; i < 30; i++) {
+            docs.push({
+              _id: i.toString(),
+              _attachments: {
+                'cat.jpg': {
+                  content_type: 'image/jpeg',
+                  data: blob
+                }
+              }
+            });
+          }
+          return remote.bulkDocs(docs);
+        }).then(function () {
+          return remote.replicate.to(db);
+        });
+      });
+    }
   });
 });
