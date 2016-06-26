@@ -15,14 +15,12 @@
   "dependencies": {},
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",
-    "./src/arrayBufferToBase64.js": "./src/arrayBufferToBase64-browser.js",
-    "./src/arrayBufferToBinaryString.js": "./src/arrayBufferToBinaryString-browser.js",
     "./src/base64.js": "./src/base64-browser.js",
     "./src/base64StringToBlobOrBuffer.js": "./src/base64StringToBlobOrBuffer-browser.js",
     "./src/blob.js": "./src/blob-browser.js",
     "./src/binaryStringToBlobOrBuffer.js": "./src/binaryStringToBlobOrBuffer-browser.js",
     "./src/blobOrBufferToBase64.js": "./src/blobOrBufferToBase64-browser.js",
-    "./src/readAsArrayBuffer.js": "./src/readAsArrayBuffer-browser.js",
+    "./src/blobOrBufferToBinaryString.js": "./src/blobOrBufferToBinaryString-browser.js",
     "./src/typedBuffer.js": "./src/typedBuffer-browser.js"
   }
 }

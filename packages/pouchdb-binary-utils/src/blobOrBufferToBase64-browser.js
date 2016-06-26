@@ -1,9 +1,9 @@
-import readAsBinaryString from './readAsBinaryString';
 import { btoa } from './base64';
+import blobOrBufferToBinaryString from './blobOrBufferToBinaryString';
 
 function blobToBase64(blobOrBuffer, callback) {
-  readAsBinaryString(blobOrBuffer, function (bin) {
-    callback(btoa(bin));
+  blobOrBufferToBinaryString(blobOrBuffer, function (base64) {
+    callback(btoa(base64));
   });
 }
 
