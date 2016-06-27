@@ -476,3 +476,14 @@ A potpourri of miscellaneous utilities used by PouchDB and its sub-packages.
 ```bash
 npm install --save-exact pouchdb-utils
 ```
+
+### sublevel-pouchdb
+
+Fork of [level-sublevel](https://github.com/dominictarr/level-sublevel) 
+with ony the subset of the API that PouchDB uses.
+
+#### Example usage
+
+```bash
+npm install --save-exact sublevel-pouchdb
+```

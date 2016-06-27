@@ -38,7 +38,7 @@ function buildModule(filepath) {
     // bundled into one index.js. so we don't want to externalize
     // the pouchdb repos
     depsToSkip = depsToSkip.filter(function (dep) {
-      return !/^pouchdb/.test(dep);
+      return !/pouchdb/.test(dep);
     }).concat(externalDeps.filter(function (dep) {
       return dep !== 'pouchdb'; // don't exclude pouchdb itself
     }));
