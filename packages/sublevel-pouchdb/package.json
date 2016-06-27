@@ -1,0 +1,29 @@
+{
+  "name": "sublevel-pouchdb",
+  "version": "5.5.0-prerelease",
+  "description": "Fork of level-sublevel with ony the subset of the API that PouchDB uses",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "errno": "0.1.4",
+    "inherits": "2.0.1",
+    "level-codec": "6.1.0",
+    "ltgt": "2.1.2",
+    "pull-stream": "2.21.0",
+    "readable-stream": "1.0.33"
+  },
+  "contributors": [
+    {
+      "name": "Dominic Tarr",
+      "email": "dominic.tarr@gmail.com"
+    }
+  ]
+}
