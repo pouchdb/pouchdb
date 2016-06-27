@@ -363,8 +363,11 @@ adapters.forEach(function (adapters) {
                 if (typeof originalNumListeners !== 'number') {
                   originalNumListeners = numListeners;
                 } else {
-                  numListeners.should.equal(originalNumListeners,
-                    'numListeners should never increase');
+                  if(event === "paused") {
+                    Math.abs(numListeners -  originalNumListeners).should.be.at.most(1);
+                  } else {
+                    Math.abs(numListeners -  originalNumListeners).should.be.eql(0);
+                  }
                 }
               } catch (err) {
                 cleanup(err);
@@ -524,8 +527,7 @@ adapters.forEach(function (adapters) {
               if (typeof originalNumListeners !== 'number') {
                 originalNumListeners = numListeners;
               } else {
-                numListeners.should.equal(originalNumListeners,
-                  'numListeners should never increase');
+                Math.abs(numListeners -  originalNumListeners).should.be.at.most(1);
               }
             } catch (err) {
               cleanup(err);
