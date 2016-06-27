@@ -1,5 +1,5 @@
 import events from 'events';
-import { NotFoundError } from './errors';
+import NotFoundError from './NotFoundError';
 
 var EventEmitter = events.EventEmitter;
 var version = "6.5.4";
@@ -13,12 +13,6 @@ var sublevel = function (nut, prefix, createStream, options) {
 
   emitter.methods = {};
   prefix = prefix || [];
-
-  function errback(err) {
-    if (err) {
-      emitter.emit('error', err);
-    }
-  }
 
   function mergeOpts(opts) {
     var o = {};
@@ -45,21 +39,17 @@ var sublevel = function (nut, prefix, createStream, options) {
       cb = opts;
       opts = {};
     }
-    if (!cb) {
-      cb = errback;
-    }
 
     nut.apply([{
       key: key, value: value,
       prefix: prefix.slice(), type: 'put'
     }], mergeOpts(opts), function (err) {
-      if (!err) {
-        emitter.emit('put', key, value);
-        cb(null);
-      }
+      /* istanbul ignore next */
       if (err) {
         return cb(err);
       }
+      emitter.emit('put', key, value);
+      cb(null);
     });
   };
 
@@ -67,36 +57,10 @@ var sublevel = function (nut, prefix, createStream, options) {
     return prefix.slice();
   };
 
-  emitter.del = function (key, opts, cb) {
-    if ('function' === typeof opts) {
-      cb = opts;
-      opts = {};
-    }
-    if (!cb) {
-      cb = errback;
-    }
-
-    nut.apply([{
-      key: key,
-      prefix: prefix.slice(), type: 'del'
-    }], mergeOpts(opts), function (err) {
-      if (!err) {
-        emitter.emit('del', key);
-        cb(null);
-      }
-      if (err) {
-        return cb(err);
-      }
-    });
-  };
-
   emitter.batch = function (ops, opts, cb) {
     if ('function' === typeof opts) {
       cb = opts;
       opts = {};
-    }
-    if (!cb) {
-      cb = errback;
     }
 
     ops = ops.map(function (op) {
@@ -111,17 +75,17 @@ var sublevel = function (nut, prefix, createStream, options) {
     });
 
     nut.apply(ops, mergeOpts(opts), function (err) {
-      if (!err) {
-        emitter.emit('batch', ops);
-        cb(null);
-      }
+      /* istanbul ignore next */
       if (err) {
         return cb(err);
       }
+      emitter.emit('batch', ops);
+      cb(null);
     });
   };
 
   emitter.get = function (key, opts, cb) {
+    /* istanbul ignore else */
     if ('function' === typeof opts) {
       cb = opts;
       opts = {};
@@ -135,10 +99,6 @@ var sublevel = function (nut, prefix, createStream, options) {
     });
   };
 
-  emitter.clone = function (opts) {
-    return sublevel(nut, prefix, createStream, mergeOpts(opts));
-  };
-
   emitter.sublevel = function (name, opts) {
     return emitter.sublevels[name] =
       emitter.sublevels[name] || sublevel(nut, prefix.concat(name), createStream, mergeOpts(opts));
@@ -148,43 +108,16 @@ var sublevel = function (nut, prefix, createStream, options) {
     opts = mergeOpts(opts);
     opts.prefix = prefix;
     var stream;
-    var it = nut.iterator(opts, function (err, it) {
-      stream.setIterator(it);
-    });
+    var it = nut.iterator(opts);
 
     stream = createStream(opts, nut.createDecoder(opts));
-    if (it) {
-      stream.setIterator(it);
-    }
+    stream.setIterator(it);
 
     return stream;
   };
 
-  emitter.valueStream =
-    emitter.createValueStream = function (opts) {
-      opts = opts || {};
-      opts.values = true;
-      opts.keys = false;
-      return emitter.createReadStream(opts);
-    };
-
-  emitter.keyStream =
-    emitter.createKeyStream = function (opts) {
-      opts = opts || {};
-      opts.values = false;
-      opts.keys = true;
-      return emitter.createReadStream(opts);
-    };
-
   emitter.close = function (cb) {
-    //TODO: deregister all hooks
-    cb = cb || function () {
-      };
-    if (!prefix.length) {
-      nut.close(cb);
-    } else {
-      process.nextTick(cb);
-    }
+    nut.close(cb);
   };
 
   emitter.isOpen = nut.isOpen;

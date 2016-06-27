@@ -7,7 +7,6 @@
 // for pure Streams2 across Node versions
 import ReadableStreamCore from 'readable-stream';
 import inherits from 'inherits';
-import { EncodingError } from './errors';
 
 var Readable = ReadableStreamCore.Readable;
 
@@ -29,9 +28,11 @@ inherits(ReadStream, Readable);
 
 ReadStream.prototype.setIterator = function (it) {
   this._iterator = it;
+  /* istanbul ignore if */
   if (this._destroyed) {
     return it.end(function () {});
   }
+  /* istanbul ignore if */
   if (this._waiting) {
     this._waiting = false;
     return this._read();
@@ -41,9 +42,11 @@ ReadStream.prototype.setIterator = function (it) {
 
 ReadStream.prototype._read = function read() {
   var self = this;
+  /* istanbul ignore if */
   if (self._destroyed) {
     return;
   }
+  /* istanbul ignore if */
   if (!self._iterator) {
     return this._waiting = true;
   }
@@ -57,11 +60,7 @@ ReadStream.prototype._read = function read() {
     }
 
 
-    try {
-      value = self._makeData(key, value);
-    } catch (e) {
-      return self._cleanup(new EncodingError(e));
-    }
+    value = self._makeData(key, value);
     if (!self._destroyed) {
       self.push(value);
     }
@@ -76,10 +75,12 @@ ReadStream.prototype._cleanup = function (err) {
   this._destroyed = true;
 
   var self = this;
+  /* istanbul ignore if */
   if (err) {
     self.emit('error', err);
   }
 
+  /* istanbul ignore else */
   if (self._iterator) {
     self._iterator.end(function () {
       self._iterator = null;
@@ -92,10 +93,6 @@ ReadStream.prototype._cleanup = function (err) {
 
 ReadStream.prototype.destroy = function () {
   this._cleanup();
-};
-
-ReadStream.prototype.toString = function () {
-  return 'LevelUP.ReadStream';
 };
 
 export default ReadStream;

@@ -5,9 +5,6 @@ function isFunction(f) {
 }
 
 function getPrefix(db) {
-  if (db == null) {
-    return db;
-  }
   if (isFunction(db.prefix)) {
     return db.prefix();
   }
@@ -23,8 +20,6 @@ function clone(_obj) {
 }
 
 function nut(db, precodec, codec) {
-  var waiting = [], ready = false;
-
   function encodePrefix(prefix, key, opts1, opts2) {
     return precodec.encode([ prefix, codec.encodeKey(key, opts1, opts2 ) ]);
   }
@@ -39,22 +34,7 @@ function nut(db, precodec, codec) {
     return op;
   }
 
-  function start() {
-    ready = true;
-    while (waiting.length) {
-      waiting.shift()();
-    }
-  }
-
-  if(isFunction(db.isOpen)) {
-    if (db.isOpen()) {
-      ready = true;
-    } else {
-      db.open(start);
-    }
-  } else {
-    db.open(start);
-  }
+  db.open(function () { /* no-op */});
 
   return {
     apply: function (ops, opts, cb) {
@@ -66,45 +46,27 @@ function nut(db, precodec, codec) {
 
       opts = opts || {};
 
-      if ('object' !== typeof opts) {
-        throw new Error('opts must be object, was:'+ opts);
-      }
-
-      if ('function' === typeof opts) {
-        cb = opts;
-        opts = {};
-      }
-
-      if (ops.length) {
-        (db.db || db).batch(
-          ops.map(function (op) {
-            return {
-              key: encodePrefix(op.prefix, op.key, opts, op),
-              value: op.type !== 'del'
-                ? codec.encodeValue(
-                op.value,
-                opts,
-                op
-              )
-                : undefined,
-              type: op.type || (op.value === undefined ? 'del' : 'put')
-            };
-          }),
-          opts,
-          function (err) {
-            if (err) {
-              return cb(err);
-            }
-            cb();
+      db.db.batch(ops.map(function (op) {
+          return {
+            key: encodePrefix(op.prefix, op.key, opts, op),
+            value: op.type !== 'del' ?
+              codec.encodeValue(op.value, opts, op) : void 0,
+            type: op.type
+          };
+        }),
+        opts,
+        function (err) {
+          /* istanbul ignore next */
+          if (err) {
+            return cb(err);
           }
-        );
-      } else {
-        cb();
-      }
+          cb();
+        }
+      );
     },
     get: function (key, prefix, opts, cb) {
       opts.asBuffer = codec.valueAsBuffer(opts);
-      return (db.db || db).get(
+      return db.db.get(
         encodePrefix(prefix, key, opts),
         opts,
         function (err, value) {
@@ -124,24 +86,13 @@ function nut(db, precodec, codec) {
         };
       };
     },
-    isOpen: function isOpen() {
-      if (db.db && isFunction(db.db.isOpen)) {
-        return db.db.isOpen();
-      }
-
-      return db.isOpen();
-    },
     isClosed: function isClosed() {
-      if (db.db && isFunction(db.db.isClosed)) {
-        return db.db.isClosed();
-      }
-
       return db.isClosed();
     },
     close: function close(cb) {
       return db.close(cb);
     },
-    iterator: function (_opts, cb) {
+    iterator: function (_opts) {
       var opts = clone(_opts || {});
       var prefix = _opts.prefix || [];
 
@@ -164,6 +115,7 @@ function nut(db, precodec, codec) {
 
       //this is vital, otherwise limit: undefined will
       //create an empty stream.
+      /* istanbul ignore next */
       if ('number' !== typeof opts.limit) {
         opts.limit = -1;
       }
@@ -182,14 +134,7 @@ function nut(db, precodec, codec) {
         };
       }
 
-      if(ready) {
-        return wrapIterator((db.db || db).iterator(opts));
-      } else {
-        waiting.push(function () {
-          cb(null, wrapIterator((db.db || db).iterator(opts)));
-        });
-      }
-
+      return wrapIterator(db.db.iterator(opts));
     }
   };
 }
