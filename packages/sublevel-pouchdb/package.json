@@ -13,7 +13,6 @@
     "src"
   ],
   "dependencies": {
-    "errno": "0.1.4",
     "inherits": "2.0.1",
     "level-codec": "6.1.0",
     "ltgt": "2.1.2",

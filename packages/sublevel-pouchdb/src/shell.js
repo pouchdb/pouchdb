@@ -128,9 +128,8 @@ var sublevel = function (nut, prefix, createStream, options) {
     }
     nut.get(key, prefix, mergeOpts(opts), function (err, value) {
       if (err) {
-        cb(new NotFoundError('Key not found in database', err));
-      }
-      else {
+        cb(new NotFoundError(err));
+      } else {
         cb(null, value);
       }
     });

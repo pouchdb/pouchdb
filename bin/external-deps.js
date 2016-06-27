@@ -14,7 +14,7 @@ module.exports = [
   // core node deps
   'fs', 'crypto', 'events', 'path',
   // sublevel-pouchdb
-  'errno', 'level-codec', 'ltgt', 'pull-stream', 'readable-stream',
+  'level-codec', 'ltgt', 'pull-stream', 'readable-stream',
   // pouchdb itself ( for the levelalt adapters )
   'pouchdb'
 ];
