@@ -424,6 +424,48 @@ function tests(suiteName, dbName, dbType) {
       });
     });
 
+    if (dbType === 'local') {
+      it('issue 4967 map() called twice', function () {
+        var db = new PouchDB(dbName);
+        var globalObj = (typeof process !== 'undefined' && !process.browser) ?
+          global : window;
+        globalObj.__mapreduce_called = {};
+        var docs = Array.apply(null, Array(5)).map(function (_, i) {
+          return {
+            _id: 'doc_' + i,
+            data: Math.random().toString(36).substr(2)
+          };
+        }).concat({
+          _id: '_design/test',
+          views: {
+            test: {
+              map: (function (doc) {
+                /* global __mapreduce_called */
+                __mapreduce_called[doc._id] = __mapreduce_called[doc._id] || 0;
+                __mapreduce_called[doc._id]++;
+                emit(doc.data, 1);
+              }).toString()
+            }
+          }
+        });
+        return db.bulkDocs(docs).then(function () {
+          return Promise.all([
+            db.query('test', {}),
+            db.query('test', {})
+          ]);
+        }).then(function () {
+          globalObj.__mapreduce_called.should.deep.equal({
+            doc_0 : 1,
+            doc_1 : 1,
+            doc_2 : 1,
+            doc_3 : 1,
+            doc_4 : 1
+          });
+          delete globalObj.__mapreduce_called;
+        });
+      });
+    }
+
     it('should handle user errors in design doc names', function () {
       return new PouchDB(dbName).then(function (db) {
         return db.put({

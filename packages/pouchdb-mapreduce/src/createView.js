@@ -1,5 +1,4 @@
 import { upsert } from 'pouchdb-utils';
-import Promise from 'pouchdb-promise';
 import { stringMd5 } from 'pouchdb-md5';
 
 function createView(opts) {
@@ -13,14 +12,16 @@ function createView(opts) {
   var viewSignature = mapFun.toString() + (reduceFun && reduceFun.toString()) +
     'undefined';
 
-  if (!temporary && sourceDB._cachedViews) {
-    var cachedView = sourceDB._cachedViews[viewSignature];
-    if (cachedView) {
-      return Promise.resolve(cachedView);
+  var cachedViews;
+  if (!temporary) {
+    // cache this to ensure we don't try to update the same view twice
+    cachedViews = sourceDB._cachedViews = sourceDB._cachedViews || {};
+    if (cachedViews[viewSignature]) {
+      return cachedViews[viewSignature];
     }
   }
 
-  return sourceDB.info().then(function (info) {
+  var promiseForView = sourceDB.info().then(function (info) {
 
     var depDbName = info.db_name + '-mrview-' +
       (temporary ? 'temp' : stringMd5(viewSignature));
@@ -60,11 +61,9 @@ function createView(opts) {
           }
         }).then(function (lastSeqDoc) {
           view.seq = lastSeqDoc ? lastSeqDoc.seq : 0;
-          if (!temporary) {
-            sourceDB._cachedViews = sourceDB._cachedViews || {};
-            sourceDB._cachedViews[viewSignature] = view;
+          if (cachedViews) {
             view.db.once('destroyed', function () {
-              delete sourceDB._cachedViews[viewSignature];
+              delete cachedViews[viewSignature];
             });
           }
           return view;
@@ -72,6 +71,11 @@ function createView(opts) {
       });
     });
   });
+
+  if (cachedViews) {
+    cachedViews[viewSignature] = promiseForView;
+  }
+  return promiseForView;
 }
 
 export default createView;
