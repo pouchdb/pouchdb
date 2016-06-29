@@ -5,7 +5,7 @@ var adapters = [
 ];
 
 adapters.forEach(function (adapters) {
-  var suiteName = 'test.backoff.js-' + adapters[0] + '-' + adapters[1];
+  var suiteName = 'test.replicationBackoff.js-' + adapters[0] + '-' + adapters[1];
   describe(suiteName, function () {
 
     var dbs = {};
@@ -21,26 +21,31 @@ adapters.forEach(function (adapters) {
     });
 
     it('Issue 5402 should not keep adding event listeners when backoff is firing', function (done) {
+      this.timeout(1500);
       var remote = new PouchDB(dbs.remote);
       var db = new PouchDB(dbs.name);
       var backOffCount = 0;
+      var numberOfActiveListeners = 0;
       var replication = db.sync(remote, {
         live: true,
         retry: true,
         heartbeat: 1,
         timeout: 1,
         back_off_function: function () {
-          var numberOfActiveListeners = replication.pull.listeners("active").length;
+          numberOfActiveListeners = replication.pull.listeners("active").length;
           ++backOffCount;
           if (backOffCount > 15 || numberOfActiveListeners > 3) {
             replication.cancel();
-            if (numberOfActiveListeners > 3) {
-              done(new Error("Number of 'active' listeners shouldn't grow larger than one.  Currently at " + numberOfActiveListeners));
-            } else {
-              done();
-            }
           }
           return 1;
+        }
+      });
+
+      replication.on("complete", function (){
+        if (numberOfActiveListeners > 3) {
+          done(new Error("Number of 'active' listeners shouldn't grow larger than one.  Currently at " + numberOfActiveListeners));
+        } else {
+          done();
         }
       });
     });
