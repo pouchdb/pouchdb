@@ -20,15 +20,21 @@ adapters.forEach(function (adapters) {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
-    it('backoff event listeners', function (done) {
+    it('Issue 5402 should not keep adding event listeners when backoff is firing', function (done) {
+      this.timeout(600);
       var remote = new PouchDB(dbs.remote);
       var db = new PouchDB(dbs.name);
+      var backOffCount = 0;
       var replication = db.sync(remote, {
         live: true,
         retry: true,
         heartbeat: 1,
         timeout: 1,
         back_off_function: function () {
+          if (++backOffCount > 15) {
+            replication.pull.listeners("active").length.should.be.below(3);
+            replication.cancel();
+          }
           return 1;
         }
       });
@@ -37,12 +43,6 @@ adapters.forEach(function (adapters) {
         done();
       });
 
-
-      setTimeout(function () {
-        var numberOfActiveListeners = replication.pull.listeners("active").length;
-        numberOfActiveListeners.should.be.below(3);
-        replication.cancel();
-      }, 600);
     });
   });
 });
