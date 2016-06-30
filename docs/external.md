@@ -167,6 +167,18 @@ An Express submodule with a CouchDB-style REST interface to PouchDB. Powers Pouc
 
 Server-side Express endpoint to deliver a stream from [PouchDB Replication Stream](https://github.com/nolanlawson/pouchdb-replication-stream).
 
+#### [Pouch Websocket Sync](https://github.com/pgte/pouch-websocket-sync)
+
+Sync several PouchDBs through websockets. Supports reconnection, negotiation and authentication.
+
+#### [Pouch Remote Stream](https://github.com/pgte/pouch-remote-stream#readme)
+
+Consume a remote PouchDB stream. Goes well with [pouch-stream-server](https://github.com/pgte/pouch-stream-server#readme) on the server side.
+
+#### [Pouch Stream Server](https://github.com/pgte/pouch-stream-server#readme)
+
+PouchDB stream server. Serves generic PouchDB object streams. Goes well with [pouch-remote-stream](https://github.com/pgte/pouch-remote-stream#readme) on the client.
+
 {% include anchor.html title="Framework adapters" hash="framework_adapters" %}
 
 ### Angular
@@ -228,6 +240,10 @@ Sync store state to PouchDB.
 #### [redux-pouch](https://github.com/UXtemple/redux-pouch)
 
 PouchDB-backed Redux.
+
+#### [pouch-redux-middleware](https://github.com/pgte/pouch-redux-middleware#readme)
+
+Redux middleware to sync a PouchDB database with the Redux state.
 
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
