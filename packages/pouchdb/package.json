@@ -30,7 +30,6 @@
     "ltgt": "2.1.2",
     "memdown": "1.1.2",
     "pouchdb-collate": "1.2.0",
-    "pouchdb-collections": "1.0.1",
     "pull-stream": "2.21.0",
     "readable-stream": "1.0.33",
     "request": "2.72.0",

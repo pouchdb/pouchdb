@@ -397,6 +397,16 @@ Tool to write a checkpoint, e.g. during replication.
 npm install --save-exact pouchdb-checkpointer
 ```
 
+### pouchdb-collections
+
+ES6 shims for Map and Set as used in PouchDB.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-collections
+```
+
 ### pouchdb-errors
 
 Errors exposed by PouchDB.
