@@ -43,7 +43,6 @@
     "request": "2.72.0",
     "scope-eval": "0.0.3",
     "spark-md5": "2.0.2",
-    "sublevel-pouchdb": "1.0.1",
     "through2": "2.0.1",
     "vuvuzela": "1.0.3",
     "websql": "0.4.4"
