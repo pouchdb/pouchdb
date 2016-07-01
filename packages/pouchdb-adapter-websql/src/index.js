@@ -1,6 +1,7 @@
 import WebSqlPouchCore from 'pouchdb-adapter-websql-core';
 import { extend } from 'js-extend';
-import valid from './valid';
+import { guardedConsole } from 'pouchdb-utils';
+import { valid, validWithoutCheckingCordova } from './validation';
 
 function createOpenDBFunction(opts) {
   return function (name, version, description, size) {
@@ -29,6 +30,15 @@ function WebSQLPouch(opts, callback) {
   var _opts = extend({
     websql: websql
   }, opts);
+
+  if (typeof cordova !== 'undefined' && !validWithoutCheckingCordova()) {
+    guardedConsole('error',
+      'PouchDB error: you must install a SQLite plugin ' +
+      'in order for PouchDB to work on this platform. Options:' +
+      '\n - https://github.com/nolanlawson/cordova-plugin-sqlite-2' +
+      '\n - https://github.com/litehelpers/Cordova-sqlite-storage' +
+      '\n - https://github.com/Microsoft/cordova-plugin-websql');
+  }
 
   WebSqlPouchCore.call(this, _opts, callback);
 }
