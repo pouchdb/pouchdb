@@ -24,7 +24,6 @@ function replicate(src, target, opts, returnValue, result) {
   var doc_ids = opts.doc_ids;
   var repId;
   var checkpointer;
-  var allErrors = [];
   var changedDocs = [];
   // Like couchdb, every replication gets a unique session id
   var session = uuid();
@@ -64,36 +63,34 @@ function replicate(src, target, opts, returnValue, result) {
         completeReplication();
         throw new Error('cancelled');
       }
-      var errors = [];
-      var errorsById = {};
+
+      // `res` doesn't include full documents (which live in `docs`), so we create a map of 
+      // (id -> error), and check for errors while iterating over `docs`
+      var errorsById = Object.create(null);
       res.forEach(function (res) {
         if (res.error) {
-          result.doc_write_failures++;
-          errors.push(res);
           errorsById[res.id] = res;
         }
       });
-      allErrors = allErrors.concat(errors);
-      result.docs_written += currentBatch.docs.length - errors.length;
-      var non403s = errors.filter(function (error) {
-        return error.name !== 'unauthorized' && error.name !== 'forbidden';
-      });
+
+      var errorsNo = Object.keys(errorsById).length;
+      result.doc_write_failures += errorsNo;
+      result.docs_written += docs.length - errorsNo;
 
       docs.forEach(function (doc) {
         var error = errorsById[doc._id];
         if (error) {
-          returnValue.emit('denied', clone(error));
+          result.errors.push(error);
+          if (error.name === 'unauthorized' || error.name === 'forbidden') {
+            returnValue.emit('denied', clone(error));
+          } else {
+            throw error;
+          }
         } else {
           changedDocs.push(doc);
         }
       });
 
-      if (non403s.length > 0) {
-        var error = new Error('bulkDocs error');
-        error.other_errors = errors;
-        abortReplication('target.bulkDocs failed to write docs', error);
-        throw new Error('bulkWrite partial failure');
-      }
     }, function (err) {
       result.doc_write_failures += docs.length;
       throw err;
@@ -121,7 +118,10 @@ function replicate(src, target, opts, returnValue, result) {
       }
       currentBatch = undefined;
       getChanges();
-    }).catch(onCheckpointError);
+    }).catch(function (err) {
+      onCheckpointError(err);
+      throw err;
+    });
   }
 
   function getDiffs() {
@@ -220,19 +220,17 @@ function replicate(src, target, opts, returnValue, result) {
     }
     result.ok = false;
     result.status = 'aborting';
-    result.errors.push(err);
-    allErrors = allErrors.concat(err);
     batches = [];
     pendingBatch = {
       seq: 0,
       changes: [],
       docs: []
     };
-    completeReplication();
+    completeReplication(err);
   }
 
 
-  function completeReplication() {
+  function completeReplication(fatalError) {
     if (replicationCompleted) {
       return;
     }
@@ -247,20 +245,19 @@ function replicate(src, target, opts, returnValue, result) {
     result.end_time = new Date();
     result.last_seq = last_seq;
     replicationCompleted = true;
-    var non403s = allErrors.filter(function (error) {
-      return error.name !== 'unauthorized' && error.name !== 'forbidden';
-    });
-    if (non403s.length > 0) {
-      var error = allErrors.pop();
-      if (allErrors.length > 0) {
-        error.other_errors = allErrors;
+
+    if (fatalError) {
+      fatalError.result = result;
+
+      if (fatalError.name === 'unauthorized' || fatalError.name === 'forbidden') {
+        returnValue.emit('error', fatalError);
+        returnValue.removeAllListeners();
+      } else {
+        backOff(opts, returnValue, fatalError, function () {
+          replicate(src, target, opts, returnValue);
+        });
       }
-      error.result = result;
-      backOff(opts, returnValue, error, function () {
-        replicate(src, target, opts, returnValue);
-      });
     } else {
-      result.errors = allErrors;
       returnValue.emit('complete', result);
       returnValue.removeAllListeners();
     }
@@ -418,7 +415,6 @@ function replicate(src, target, opts, returnValue, result) {
   function onCheckpointError(err) {
     writingCheckpoint = false;
     abortReplication('writeCheckpoint completed with error', err);
-    throw err;
   }
 
   /* istanbul ignore if */
