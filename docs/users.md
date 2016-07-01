@@ -31,6 +31,12 @@ A list of known products and services that are using PouchDB.
 
 [eHealth Africa](http://ehealthafrica.org/) is an American-Nigerian NGO specialising in the development and deployment of tech for health. To tackle the Ebola outbreak, they built [mobile apps and dashboards](https://github.com/eHealthAfrica) to help track the spread of infection in the field. The combination of CouchDB and PouchDB enabled these apps to work consistently despite the extreme network unreliability of sub-saharan Africa.
 
+## GRADEpro GDT
+
+{% include img.html width=150 src="gradepro.png" alt="GRADEpro GDT" href="http://gradepro.org/" %}
+
+[GRADEpro GDT](http://gradepro.org/) is an easy to use, all‐in‐one web solution to summarize and present information for healthcare decision making. PouchDB is instrumental for both the collaboration features of GRADEpro (so many users can work on the same data simultaneously) and implementation of the offline mode. The tool is used in more than 135 countries, some of which have poor Internet connectivity, as well as by scientists, who are frequent travelers and need to use the application e.g. on a plane.
+
 ## Hoodie
 
 {% include img.html width=150 src="HoodieLogo.png" alt="Hoodie" href="http://hood.ie/" %}
