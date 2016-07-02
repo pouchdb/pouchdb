@@ -8,7 +8,7 @@ module.exports = [
   // main deps
   'argsarray', 'debug', 'double-ended-queue', 'es3ify', 'es6-promise-pool',
   'fruitdown', 'inherits', 'js-extend', 'level-write-stream', 'levelup', 'lie',
-  'localstorage-down', 'memdown', 'pouchdb-collate', 'pouchdb-collections',
+  'localstorage-down', 'memdown', 'pouchdb-collate',
   'request', 'scope-eval', 'spark-md5', 'through2',
   'vuvuzela', 'leveldown', 'websql',
   // core node deps

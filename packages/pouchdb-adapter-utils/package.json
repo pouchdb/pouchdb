@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "pouchdb-binary-utils": "5.5.0-prerelease",
-    "pouchdb-collections": "1.0.1",
+    "pouchdb-collections": "5.5.0-prerelease",
     "pouchdb-errors": "5.5.0-prerelease",
     "pouchdb-merge": "5.5.0-prerelease",
     "pouchdb-md5": "5.5.0-prerelease",

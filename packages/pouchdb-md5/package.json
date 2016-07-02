@@ -13,7 +13,7 @@
     "src"
   ],
   "dependencies": {
-    "pouchdb-collections": "1.0.1",
+    "pouchdb-collections": "5.5.0-prerelease",
     "pouchdb-errors": "5.5.0-prerelease",
     "pouchdb-binary-utils": "5.5.0-prerelease",
     "pouchdb-promise": "5.5.0-prerelease",
