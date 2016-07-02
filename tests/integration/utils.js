@@ -354,10 +354,10 @@ if (typeof process !== 'undefined' && !process.browser) {
     // (the two strings are just to fool Browserify because sqlite3 fails
     // in Node 0.11-0.12)
     require('../../packages/' + 'pouchdb/extras/websql');
+    global.PouchDB.preferredAdapters = ['websql', 'leveldb'];
     global.PouchDB = global.PouchDB.defaults({
       prefix: './tmp/_pouch_'
     });
-    delete global.PouchDB.adapters.leveldb;
   } else {
     // test regular leveldown in node
     global.PouchDB = global.PouchDB.defaults({prefix: './tmp/_pouch_'});

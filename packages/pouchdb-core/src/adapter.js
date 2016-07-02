@@ -747,8 +747,8 @@ AbstractPouchDB.prototype.id = adapterFun('id', function (callback) {
   return this._id(callback);
 });
 
+/* istanbul ignore next */
 AbstractPouchDB.prototype.type = function () {
-  /* istanbul ignore next */
   return (typeof this._type === 'function') ? this._type() : this.adapter;
 };
 
