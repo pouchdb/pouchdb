@@ -38,31 +38,23 @@ function nut(db, precodec, codec) {
 
   return {
     apply: function (ops, opts, cb) {
-      for(var i = 0; i < ops.length; i++) {
+      opts = opts || {};
+
+      var batch = [];
+      var i = -1;
+      var len = ops.length;
+
+      while (++i < len) {
         var op = ops[i];
         addEncodings(op, op.prefix);
         op.prefix = getPrefix(op.prefix);
+        batch.push({
+          key: encodePrefix(op.prefix, op.key, opts, op),
+          value: op.type !== 'del' && codec.encodeValue(op.value, opts, op),
+          type: op.type
+        });
       }
-
-      opts = opts || {};
-
-      db.db.batch(ops.map(function (op) {
-          return {
-            key: encodePrefix(op.prefix, op.key, opts, op),
-            value: op.type !== 'del' ?
-              codec.encodeValue(op.value, opts, op) : void 0,
-            type: op.type
-          };
-        }),
-        opts,
-        function (err) {
-          /* istanbul ignore next */
-          if (err) {
-            return cb(err);
-          }
-          cb();
-        }
-      );
+      db.db.batch(batch, opts, cb);
     },
     get: function (key, prefix, opts, cb) {
       opts.asBuffer = codec.valueAsBuffer(opts);
