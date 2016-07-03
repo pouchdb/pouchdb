@@ -96,8 +96,10 @@ function Changes(db, opts, callback) {
 
 
   if (!db.taskqueue.isReady) {
-    db.taskqueue.addTask(function () {
-      if (self.isCancelled) {
+    db.taskqueue.addTask(function (failed) {
+      if (failed) {
+        opts.complete(failed);
+      } else if (self.isCancelled) {
         self.emit('cancel');
       } else {
         self.doChanges(opts);
@@ -203,6 +205,7 @@ Changes.prototype.doChanges = function (opts) {
   opts.limit = opts.limit === 0 ? 1 : opts.limit;
   opts.complete = callback;
   var newPromise = this.db._changes(opts);
+  /* istanbul ignore else */
   if (newPromise && typeof newPromise.cancel === 'function') {
     var cancel = self.cancel;
     self.cancel = getArguments(function (args) {

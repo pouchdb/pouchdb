@@ -3,6 +3,7 @@ import inherits from 'inherits';
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
 import { clone } from 'pouchdb-utils';
+import parseAdapter from './parseAdapter';
 
 // OK, so here's the deal. Consider this code:
 //     var db1 = new PouchDB('foo');
@@ -39,7 +40,7 @@ function prepareForDestruction(self) {
 
 inherits(PouchDB, Adapter);
 function PouchDB(name, opts) {
-
+  // In Node our test suite only tests this for PouchAlt unfortunately
   /* istanbul ignore if */
   if (!(this instanceof PouchDB)) {
     return new PouchDB(name, opts);
@@ -54,18 +55,17 @@ function PouchDB(name, opts) {
     delete opts.name;
   }
 
-  opts = clone(opts);
-  this.__opts = opts;
+  this.__opts = opts = clone(opts);
 
   self.auto_compaction = opts.auto_compaction;
   self.prefix = PouchDB.prefix;
 
   if (typeof name !== 'string') {
-    throw(new Error('Missing/invalid DB name'));
+    throw new Error('Missing/invalid DB name');
   }
 
   var prefixedName = (opts.prefix || '') + name;
-  var backend = PouchDB.parseAdapter(prefixedName, opts);
+  var backend = parseAdapter(prefixedName, opts);
 
   opts.name = backend.name;
   opts.adapter = opts.adapter || backend.adapter;
@@ -76,7 +76,7 @@ function PouchDB(name, opts) {
 
   if (!PouchDB.adapters[opts.adapter] ||
       !PouchDB.adapters[opts.adapter].valid()) {
-    throw(new Error('Invalid Adapter: ' + opts.adapter));
+    throw new Error('Invalid Adapter: ' + opts.adapter);
   }
 
   Adapter.call(self);
@@ -85,10 +85,8 @@ function PouchDB(name, opts) {
   self.adapter = opts.adapter;
 
   PouchDB.adapters[opts.adapter].call(self, opts, function (err) {
-    /* istanbul ignore if */
     if (err) {
-      self.taskqueue.fail(err);
-      return;
+      return self.taskqueue.fail(err);
     }
     prepareForDestruction(self);
 
