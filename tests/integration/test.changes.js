@@ -2559,7 +2559,7 @@ describe('changes-standalone', function () {
 
   it('Changes reports errors', function (done) {
     this.timeout(2000);
-    var db = new PouchDB('http://infiniterequest.com', { skipSetup: true });
+    var db = new PouchDB('http://infiniterequest.com', { skip_setup: true });
     db.changes({
       timeout: 1000
     }).on('error', function (err) {

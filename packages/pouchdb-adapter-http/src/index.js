@@ -200,8 +200,7 @@ function HttpPouch(opts, callback) {
   var setupPromise;
 
   function setup() {
-    // TODO: Remove `skipSetup` in favor of `skip_setup` in a future release
-    if (opts.skipSetup || opts.skip_setup) {
+    if (opts.skip_setup) {
       return Promise.resolve();
     }
 
@@ -212,19 +211,8 @@ function HttpPouch(opts, callback) {
       return setupPromise;
     }
 
-    var checkExists = {method: 'GET', url: dbUrl};
-    setupPromise = ajaxPromise({}, checkExists).catch(function (err) {
-      if (err && err.status && err.status === 404) {
-        // Doesnt exist, create it
-        explainError(404, 'PouchDB is just detecting if the remote exists.');
-        return ajaxPromise({}, {method: 'PUT', url: dbUrl});
-      } else {
-        return Promise.reject(err);
-      }
-    }).catch(function (err) {
-      // If we try to create a database that already exists, skipped in
-      // istanbul since its catching a race condition.
-      /* istanbul ignore if */
+    var createOpts = {method: 'PUT', url: dbUrl};
+    setupPromise = ajaxPromise({}, createOpts).catch(function (err) {
       if (err && err.status && err.status === 412) {
         return true;
       }
