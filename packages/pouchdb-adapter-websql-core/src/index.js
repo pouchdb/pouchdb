@@ -17,10 +17,6 @@ import {
   traverseRevTree
 } from 'pouchdb-merge';
 import {
-  safeJsonParse,
-  safeJsonStringify
-} from 'pouchdb-json';
-import {
   binaryStringToBlobOrBuffer as binStringToBlob,
   btoa
 } from 'pouchdb-binary-utils';
@@ -52,7 +48,9 @@ import {
   compactRevs,
   websqlError,
   getSize,
-  unescapeBlob
+  unescapeBlob,
+  decodeMetadata,
+  encodeMetadata
 } from './utils';
 
 import openDB from './openDatabase';
@@ -599,7 +597,7 @@ function WebSqlPouch(opts, callback) {
         return finish();
       }
       var item = results.rows.item(0);
-      metadata = safeJsonParse(item.metadata);
+      metadata = decodeMetadata(item.metadata);
       if (item.deleted && !opts.rev) {
         err = createError(MISSING_DOC, 'deleted');
         return finish();
@@ -693,7 +691,7 @@ function WebSqlPouch(opts, callback) {
         tx.executeSql(sql, sqlArgs, function (tx, result) {
           for (var i = 0, l = result.rows.length; i < l; i++) {
             var item = result.rows.item(i);
-            var metadata = safeJsonParse(item.metadata);
+            var metadata = decodeMetadata(item.metadata);
             var id = metadata.id;
             var data = unstringifyDoc(item.data, id, item.rev);
             var winningRev = data._rev;
@@ -808,7 +806,7 @@ function WebSqlPouch(opts, callback) {
           }
           for (var i = 0, l = result.rows.length; i < l; i++) {
             var item = result.rows.item(i);
-            var metadata = safeJsonParse(item.metadata);
+            var metadata = decodeMetadata(item.metadata);
             lastSeq = item.maxSeq;
 
             var doc = unstringifyDoc(item.winningDoc, metadata.id,
@@ -890,7 +888,7 @@ function WebSqlPouch(opts, callback) {
         if (!result.rows.length) {
           callback(createError(MISSING_DOC));
         } else {
-          var data = safeJsonParse(result.rows.item(0).metadata);
+          var data = decodeMetadata(result.rows.item(0).metadata);
           callback(null, data.rev_tree);
         }
       });
@@ -906,7 +904,7 @@ function WebSqlPouch(opts, callback) {
       // update doc store
       var sql = 'SELECT json AS metadata FROM ' + DOC_STORE + ' WHERE id = ?';
       tx.executeSql(sql, [docId], function (tx, result) {
-        var metadata = safeJsonParse(result.rows.item(0).metadata);
+        var metadata = decodeMetadata(result.rows.item(0).metadata);
         traverseRevTree(metadata.rev_tree, function (isLeaf, pos,
                                                            revHash, ctx, opts) {
           var rev = pos + '-' + revHash;
@@ -916,7 +914,7 @@ function WebSqlPouch(opts, callback) {
         });
 
         var sql = 'UPDATE ' + DOC_STORE + ' SET json = ? WHERE id = ?';
-        tx.executeSql(sql, [safeJsonStringify(metadata), docId]);
+        tx.executeSql(sql, [encodeMetadata(metadata), docId]);
       });
 
       compactRevs(revs, docId, tx);

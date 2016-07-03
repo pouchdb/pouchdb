@@ -17,7 +17,9 @@ import {
   isDeleted,
   isLocalId,
   parseDoc,
-  processDocs
+  processDocs,
+  inflateMetadata,
+  deflateMetadata
 } from 'pouchdb-adapter-utils';
 import {
   winningRev as calculateWinningRev,
@@ -53,11 +55,6 @@ import {
   MISSING_STUB,
   createError
 } from 'pouchdb-errors';
-
-import {
-  inflateMetadata,
-  deflateMetadata
-} from './metadataCompression';
 
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';

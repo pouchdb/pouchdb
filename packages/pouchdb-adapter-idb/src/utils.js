@@ -14,6 +14,10 @@ import {
   base64StringToBlobOrBuffer as b64StringToBlob,
   blob as createBlob
 } from 'pouchdb-binary-utils';
+import {
+  inflateMetadata,
+  deflateMetadata
+} from 'pouchdb-adapter-utils';
 import { ATTACH_AND_SEQ_STORE, ATTACH_STORE, BY_SEQ_STORE } from './constants';
 
 function tryCode(fun, that, args, PouchDB) {
@@ -66,7 +70,7 @@ function idbError(callback) {
 // format for the revision trees other than JSON.
 function encodeMetadata(metadata, winningRev, deleted) {
   return {
-    data: safeJsonStringify(metadata),
+    data: safeJsonStringify(deflateMetadata(metadata)),
     winningRev: winningRev,
     deletedOrLocal: deleted ? '1' : '0',
     seq: metadata.seq, // highest seq for this doc
@@ -78,7 +82,7 @@ function decodeMetadata(storedObject) {
   if (!storedObject) {
     return null;
   }
-  var metadata = safeJsonParse(storedObject.data);
+  var metadata = inflateMetadata(safeJsonParse(storedObject.data));
   metadata.winningRev = storedObject.winningRev;
   metadata.deleted = storedObject.deletedOrLocal === '1';
   metadata.seq = storedObject.seq;
