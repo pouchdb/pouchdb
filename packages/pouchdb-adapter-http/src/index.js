@@ -3,13 +3,6 @@ var MAX_SIMULTANEOUS_REVS = 50;
 
 var supportsBulkGetMap = {};
 
-// according to http://stackoverflow.com/a/417184/680742,
-// the de facto URL length limit is 2000 characters.
-// but since most of our measurements don't take the full
-// URL into account, we fudge it a bit.
-// TODO: we could measure the full URL to enforce exactly 2000 chars
-var MAX_URL_LENGTH = 1800;
-
 import { extend } from 'js-extend';
 import Promise from 'pouchdb-promise';
 import ajaxCore from 'pouchdb-ajax';
@@ -701,20 +694,8 @@ function HttpPouch(opts, callback) {
     var paramStr = paramsToStr(params);
 
     if (typeof opts.keys !== 'undefined') {
-
-      var keysAsString =
-        'keys=' + encodeURIComponent(JSON.stringify(opts.keys));
-      if (keysAsString.length + paramStr.length + 1 <= MAX_URL_LENGTH) {
-        // If the keys are short enough, do a GET. we do this to work around
-        // Safari not understanding 304s on POSTs (see issue #1239)
-        paramStr += '&' + keysAsString;
-      } else {
-        // If keys are too long, issue a POST request to circumvent GET
-        // query string limits
-        // see http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
-        method = 'POST';
-        body = {keys: opts.keys};
-      }
+      method = 'POST';
+      body = {keys: opts.keys};
     }
 
     // Get the document listing
@@ -823,17 +804,8 @@ function HttpPouch(opts, callback) {
       // set this automagically for the user; it's annoying that couchdb
       // requires both a "filter" and a "doc_ids" param.
       params.filter = '_doc_ids';
-
-      var docIdsJson = JSON.stringify(opts.doc_ids);
-
-      if (docIdsJson.length < MAX_URL_LENGTH) {
-        params.doc_ids = docIdsJson;
-      } else {
-        // anything greater than ~2000 is unsafe for gets, so
-        // use POST instead
-        method = 'POST';
-        body = {doc_ids: opts.doc_ids };
-      }
+      method = 'POST';
+      body = {doc_ids: opts.doc_ids };
     }
 
     var xhr;
