@@ -68,7 +68,7 @@
     "pouchdb-server": "1.2.0",
     "replace": "0.3.0",
     "request": "2.72.0",
-    "rimraf": "2.5.2",
+    "rimraf": "2.5.3",
     "rollup": "0.32.2",
     "rollup-plugin-node-resolve": "1.7.1",
     "sauce-connect-launcher": "0.14.0",
