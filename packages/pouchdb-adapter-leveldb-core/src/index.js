@@ -54,6 +54,11 @@ import {
   createError
 } from 'pouchdb-errors';
 
+import {
+  inflateMetadata,
+  deflateMetadata
+} from './metadataCompression';
+
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
 var ATTACHMENT_STORE = 'attach-store';
@@ -365,6 +370,8 @@ function LevelPouch(opts, callback) {
         return callback(createError(MISSING_DOC, 'missing'));
       }
 
+      metadata = inflateMetadata(metadata);
+
       var rev = getWinningRev(metadata);
       var deleted = getIsDeleted(metadata, rev);
       if (deleted && !opts.rev) {
@@ -516,14 +523,15 @@ function LevelPouch(opts, callback) {
           // skip local docs
           return checkDone();
         }
-        txn.get(stores.docStore, doc._id, function (err, info) {
+        txn.get(stores.docStore, doc._id, function (err, metadata) {
           if (err) {
             /* istanbul ignore if */
             if (err.name !== 'NotFoundError') {
               overallErr = err;
             }
           } else {
-            fetchedDocs.set(doc._id, info);
+            metadata = inflateMetadata(metadata);
+            fetchedDocs.set(doc._id, metadata);
           }
           checkDone();
         });
@@ -664,6 +672,7 @@ function LevelPouch(opts, callback) {
         docInfo.metadata.rev_map[docInfo.metadata.rev] =
           docInfo.metadata.seq = seq;
         var seqKey = formatSeq(seq);
+        var metadataToStore = deflateMetadata(docInfo.metadata);
         var batch = [{
           key: seqKey,
           value: docInfo.data,
@@ -671,7 +680,7 @@ function LevelPouch(opts, callback) {
           type: 'put'
         }, {
           key: docInfo.metadata.id,
-          value: docInfo.metadata,
+          value: metadataToStore,
           prefix: stores.docStore,
           type: 'put'
         }];
@@ -876,7 +885,7 @@ function LevelPouch(opts, callback) {
       var docstream = stores.docStore.readStream(readstreamOpts);
 
       var throughStream = through(function (entry, _, next) {
-        var metadata = entry.value;
+        var metadata = inflateMetadata(entry.value);
         // winningRev and deleted are performance-killers, but
         // in newer versions of PouchDB, they are cached on the metadata
         var winningRev = getWinningRev(metadata);
@@ -1112,6 +1121,7 @@ function LevelPouch(opts, callback) {
           isLocalId(metadata.id)) {
           return next();
         }
+        metadata = inflateMetadata(metadata);
         docIdsToMetadata.set(doc._id, metadata);
         onGetMetadata(metadata);
       });
@@ -1161,6 +1171,7 @@ function LevelPouch(opts, callback) {
       if (err) {
         callback(createError(MISSING_DOC));
       } else {
+        metadata = inflateMetadata(metadata);
         callback(null, metadata.rev_tree);
       }
     });
