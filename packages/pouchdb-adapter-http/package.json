@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-adapter-http",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "PouchDB adapter using HTTP (e.g. a remote CouchDB) as its data store.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -17,11 +17,11 @@
     "debug": "2.2.0",
     "es6-promise-pool": "2.4.2",
     "js-extend": "1.0.1",
-    "pouchdb-ajax": "5.5.0-prerelease",
-    "pouchdb-binary-utils": "5.5.0-prerelease",
-    "pouchdb-errors": "5.5.0-prerelease",
-    "pouchdb-md5": "5.5.0-prerelease",
-    "pouchdb-promise": "5.5.0-prerelease",
-    "pouchdb-utils": "5.5.0-prerelease"
+    "pouchdb-ajax": "5.4.5",
+    "pouchdb-binary-utils": "5.4.5",
+    "pouchdb-errors": "5.4.5",
+    "pouchdb-md5": "5.4.5",
+    "pouchdb-promise": "5.4.5",
+    "pouchdb-utils": "5.4.5"
   }
 }

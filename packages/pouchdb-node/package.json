@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-node",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "PouchDB, the Node-only edition.",
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
@@ -12,10 +12,10 @@
     "lib"
   ],
   "dependencies": {
-    "pouchdb-adapter-http": "5.5.0-prerelease",
-    "pouchdb-adapter-leveldb": "5.5.0-prerelease",
-    "pouchdb-core": "5.5.0-prerelease",
-    "pouchdb-mapreduce": "5.5.0-prerelease",
-    "pouchdb-replication": "5.5.0-prerelease"
+    "pouchdb-adapter-http": "5.4.5",
+    "pouchdb-adapter-leveldb": "5.4.5",
+    "pouchdb-core": "5.4.5",
+    "pouchdb-mapreduce": "5.4.5",
+    "pouchdb-replication": "5.4.5"
   }
 }

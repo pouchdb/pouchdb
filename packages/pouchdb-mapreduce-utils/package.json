@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-mapreduce-utils",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "PouchDB utilities used by pouchdb-mapreduce.",
   "main": "./lib/index.js",
   "keywords": [],

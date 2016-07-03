@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-ajax",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "PouchDB's ajax() method.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -24,10 +24,10 @@
   },
   "dependencies": {
     "js-extend": "1.0.1",
-    "pouchdb-binary-utils": "5.5.0-prerelease",
-    "pouchdb-errors": "5.5.0-prerelease",
-    "pouchdb-promise": "5.5.0-prerelease",
-    "pouchdb-utils": "5.5.0-prerelease",
+    "pouchdb-binary-utils": "5.4.5",
+    "pouchdb-errors": "5.4.5",
+    "pouchdb-promise": "5.4.5",
+    "pouchdb-utils": "5.4.5",
     "request": "2.72.0"
   }
 }

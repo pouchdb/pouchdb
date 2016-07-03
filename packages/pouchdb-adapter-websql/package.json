@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-adapter-websql",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "PouchDB adapter using WebSQL as its data store.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "js-extend": "1.0.1",
-    "pouchdb-adapter-websql-core": "5.5.0-prerelease",
-    "pouchdb-utils": "5.5.0-prerelease"
+    "pouchdb-adapter-websql-core": "5.4.5",
+    "pouchdb-utils": "5.4.5"
   }
 }

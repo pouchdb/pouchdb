@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-utils",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "Unassorted utilities used by PouchDB.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -17,10 +17,10 @@
     "debug": "2.2.0",
     "inherits": "2.0.1",
     "pouchdb-collections": "1.0.1",
-    "pouchdb-binary-utils": "5.5.0-prerelease",
-    "pouchdb-errors": "5.5.0-prerelease",
-    "pouchdb-md5": "5.5.0-prerelease",
-    "pouchdb-promise": "5.5.0-prerelease"
+    "pouchdb-binary-utils": "5.4.5",
+    "pouchdb-errors": "5.4.5",
+    "pouchdb-md5": "5.4.5",
+    "pouchdb-promise": "5.4.5"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js",

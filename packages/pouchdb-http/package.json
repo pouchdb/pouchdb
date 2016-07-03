@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-http",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "PouchDB as an HTTP-only package.",
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
@@ -12,8 +12,8 @@
     "lib"
   ],
   "dependencies": {
-    "pouchdb-adapter-http": "5.5.0-prerelease",
-    "pouchdb-core": "5.5.0-prerelease"
+    "pouchdb-adapter-http": "5.4.5",
+    "pouchdb-core": "5.4.5"
   },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js"

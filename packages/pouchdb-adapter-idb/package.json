@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-adapter-idb",
-  "version": "5.5.0-prerelease",
+  "version": "5.4.5",
   "description": "PouchDB adapter using IndexedDB as its data store.",
   "main": "./lib/index.js",
   "keywords": [],
@@ -14,13 +14,13 @@
   ],
   "dependencies": {
     "js-extend": "1.0.1",
-    "pouchdb-binary-utils": "5.5.0-prerelease",
+    "pouchdb-binary-utils": "5.4.5",
     "pouchdb-collections": "1.0.1",
-    "pouchdb-adapter-utils": "5.5.0-prerelease",
-    "pouchdb-errors": "5.5.0-prerelease",
-    "pouchdb-json": "5.5.0-prerelease",
-    "pouchdb-merge": "5.5.0-prerelease",
-    "pouchdb-promise": "5.5.0-prerelease",
-    "pouchdb-utils": "5.5.0-prerelease"
+    "pouchdb-adapter-utils": "5.4.5",
+    "pouchdb-errors": "5.4.5",
+    "pouchdb-json": "5.4.5",
+    "pouchdb-merge": "5.4.5",
+    "pouchdb-promise": "5.4.5",
+    "pouchdb-utils": "5.4.5"
   }
 }
