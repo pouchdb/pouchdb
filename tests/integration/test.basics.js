@@ -24,6 +24,11 @@ adapters.forEach(function (adapter) {
       db.should.be.an.instanceof(PouchDB);
     });
 
+    it('Name is accessible via instance', function () {
+      var db = new PouchDB(dbs.name);
+      db.name.should.equal(dbs.name);
+    });
+
     it('4314 Create a pouch with + in name', function () {
       var db = new PouchDB(dbs.name + '+suffix');
       return db.info().then(function () {

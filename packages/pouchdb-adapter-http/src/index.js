@@ -137,24 +137,11 @@ function HttpPouch(opts, callback) {
   // The functions that will be publicly available for HttpPouch
   var api = this;
 
-  // Parse the URI given by opts.name into an easy-to-use object
-  var getHostFun = getHost;
-
-  // TODO: this seems to only be used by yarong for the Thali project.
-  // Verify whether or not it's still needed.
-  /* istanbul ignore if */
-  if (opts.getHost) {
-    getHostFun = opts.getHost;
-  }
-
-  var host = getHostFun(opts.name, opts);
+  var host = getHost(opts.name, opts);
   var dbUrl = genDBUrl(host, '');
 
   opts = clone(opts);
   var ajaxOpts = opts.ajax || {};
-
-  api.getUrl = function () { return dbUrl; };
-  api.getHeaders = function () { return ajaxOpts.headers || {}; };
 
   if (opts.auth || host.auth) {
     var nAuth = opts.auth || host.auth;

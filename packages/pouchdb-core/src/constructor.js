@@ -16,12 +16,11 @@ import parseAdapter from './parseAdapter';
 // by the constructor, which then broadcasts it to any other dbs
 // that may have been created with the same name.
 function prepareForDestruction(self) {
-  var name = self._db_name;
-  var ctor = self.constructor;
-  var destructionListeners = ctor._destructionListeners;
+
+  var destructionListeners = self.constructor._destructionListeners;
 
   function onDestroyed() {
-    ctor.emit('destroyed', name);
+    self.constructor.emit('destroyed', self.name);
   }
 
   function onConstructorDestroyed() {
@@ -32,10 +31,10 @@ function prepareForDestruction(self) {
   self.once('destroyed', onDestroyed);
 
   // in setup.js, the constructor is primed to listen for destroy events
-  if (!destructionListeners.has(name)) {
-    destructionListeners.set(name, []);
+  if (!destructionListeners.has(self.name)) {
+    destructionListeners.set(self.name, []);
   }
-  destructionListeners.get(name).push(onConstructorDestroyed);
+  destructionListeners.get(self.name).push(onConstructorDestroyed);
 }
 
 inherits(PouchDB, Adapter);
@@ -70,7 +69,7 @@ function PouchDB(name, opts) {
   opts.name = backend.name;
   opts.adapter = opts.adapter || backend.adapter;
 
-  self._db_name = name;
+  self.name = name;
   self._adapter = opts.adapter;
   debug('pouchdb:adapter')('Picked adapter: ' + opts.adapter);
 
@@ -91,7 +90,7 @@ function PouchDB(name, opts) {
     prepareForDestruction(self);
 
     self.emit('created', self);
-    PouchDB.emit('created', self._db_name);
+    PouchDB.emit('created', self.name);
     self.taskqueue.ready(self);
   });
 

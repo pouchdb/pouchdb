@@ -736,7 +736,7 @@ AbstractPouchDB.prototype.info = adapterFun('info', function (callback) {
       return callback(err);
     }
     // assume we know better than the adapter, unless it informs us
-    info.db_name = info.db_name || self._db_name;
+    info.db_name = info.db_name || self.name;
     info.auto_compaction = !!(self.auto_compaction && self.type() !== 'http');
     info.adapter = self.type();
     callback(null, info);
