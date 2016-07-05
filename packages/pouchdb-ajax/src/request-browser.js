@@ -133,11 +133,16 @@ function xhRequest(options, callback) {
     }
   };
 
-  var cleanUp= function () {
+  var cleanUp = function () {
     doClearTimeout();
     ret.abort = function () {};
+    xhr.onprogress = undefined;
+    if (xhr.upload) {
+      xhr.upload.onprogress = undefined;
+    }
+    xhr.onreadystatechange = undefined;
     xhr = undefined;
-  }
+  };
 
   if (options.xhr) {
     xhr = new options.xhr();
