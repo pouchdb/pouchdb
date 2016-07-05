@@ -117,6 +117,28 @@ function xhRequest(options, callback) {
     xhr.abort();
   };
 
+  var ret = {abort: abortReq};
+
+  var doSetTimeout = function () {
+    if (timer !== undefined) {
+      doClearTimeout();
+    }
+    timer = setTimeout(timeoutReq, options.timeout);
+  };
+
+  var doClearTimeout = function () {
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      timer = undefined;
+    }
+  };
+
+  var cleanUp= function () {
+    doClearTimeout();
+    ret.abort = function () {};
+    xhr = undefined;
+  }
+
   if (options.xhr) {
     xhr = new options.xhr();
   } else {
@@ -126,6 +148,7 @@ function xhRequest(options, callback) {
   try {
     xhr.open(options.method, options.url);
   } catch (exception) {
+    cleanUp();
     return callback(new Error(exception.name || 'Url is invalid'));
   }
 
@@ -160,11 +183,11 @@ function xhRequest(options, callback) {
   }
 
   if (options.timeout > 0) {
-    timer = setTimeout(timeoutReq, options.timeout);
+    doSetTimeout();
     xhr.onprogress = function () {
-      clearTimeout(timer);
+      doClearTimeout();
       if(xhr.readyState !== 4) {
-        timer = setTimeout(timeoutReq, options.timeout);
+        doSetTimeout();
       }
     };
     if (typeof xhr.upload !== 'undefined') { // does not exist in ie9
@@ -204,6 +227,7 @@ function xhRequest(options, callback) {
       err.status = xhr.status;
       callback(err);
     }
+    cleanUp();
   };
 
   if (options.body && (options.body instanceof Blob)) {
@@ -214,7 +238,7 @@ function xhRequest(options, callback) {
     xhr.send(options.body);
   }
 
-  return {abort: abortReq};
+  return ret;
 }
 
 function testXhr() {
