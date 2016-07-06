@@ -110,38 +110,28 @@ function xhRequest(options, callback) {
 
   var abortReq = function () {
     xhr.abort();
+    cleanUp();
   };
 
   var timeoutReq = function () {
     timedout = true;
     xhr.abort();
+    cleanUp();
   };
 
   var ret = {abort: abortReq};
 
-  var doSetTimeout = function () {
-    if (timer !== undefined) {
-      doClearTimeout();
-    }
-    timer = setTimeout(timeoutReq, options.timeout);
-  };
-
-  var doClearTimeout = function () {
-    if (timer !== undefined) {
-      clearTimeout(timer);
-      timer = undefined;
-    }
-  };
-
   var cleanUp = function () {
-    doClearTimeout();
+    clearTimeout(timer);
     ret.abort = function () {};
-    xhr.onprogress = undefined;
-    if (xhr.upload) {
-      xhr.upload.onprogress = undefined;
+    if (xhr) {
+      xhr.onprogress = undefined;
+      if (xhr.upload) {
+        xhr.upload.onprogress = undefined;
+      }
+      xhr.onreadystatechange = undefined;
+      xhr = undefined;
     }
-    xhr.onreadystatechange = undefined;
-    xhr = undefined;
   };
 
   if (options.xhr) {
@@ -153,7 +143,6 @@ function xhRequest(options, callback) {
   try {
     xhr.open(options.method, options.url);
   } catch (exception) {
-    cleanUp();
     return callback(new Error(exception.name || 'Url is invalid'));
   }
 
@@ -188,11 +177,11 @@ function xhRequest(options, callback) {
   }
 
   if (options.timeout > 0) {
-    doSetTimeout();
+    timer = setTimeout(timeoutReq, options.timeout);
     xhr.onprogress = function () {
-      doClearTimeout();
+      clearTimeout(timer);
       if(xhr.readyState !== 4) {
-        doSetTimeout();
+        timer = setTimeout(timeoutReq, options.timeout);
       }
     };
     if (typeof xhr.upload !== 'undefined') { // does not exist in ie9
