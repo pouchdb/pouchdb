@@ -1593,6 +1593,37 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Does not update checkpoint unncessarily (#5379)', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var bulkDocs = remote.bulkDocs;
+      var bulkDocsCalled = false;
+      remote.bulkDocs = function () {
+        bulkDocsCalled = true;
+        return bulkDocs.apply(this, arguments);
+      };
+      return remote.bulkDocs({ docs: docs }).then(function () {
+        return db.replicate.from(remote);
+      }).then(function (result) {
+        result.ok.should.equal(true);
+        bulkDocsCalled = false;
+
+        // kick off a second replication where there are no changes
+        // checkpoints are written using bulkDocs so
+        // we don't expect any calls
+        return db.replicate.from(remote);
+      }).then(function (result) {
+        result.ok.should.equal(true);
+        bulkDocsCalled.should.equal(false);
+      }).then(function () {
+        // Restore remote.bulkDocs to original
+        remote.bulkDocs = bulkDocs;
+      }).catch(function (err) {
+        remote.bulkDocs = bulkDocs;
+        throw err;
+      });
+    });
+
     it('Replication with deleted doc', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
