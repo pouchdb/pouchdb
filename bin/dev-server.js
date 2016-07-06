@@ -25,6 +25,10 @@ if (process.env.COUCH_HOST) {
   queryParams.couchHost = process.env.COUCH_HOST;
 }
 
+if (process.env.NEXT) {
+  queryParams.src = '../../packages/pouchdb/dist/pouchdb-next.js';
+}
+
 var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
