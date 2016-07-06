@@ -54,7 +54,7 @@ var ddoc = {
   _id: '_design/my_index',
   views: {
     by_name: {
-      map: function (doc) { emit(doc.name); }.toString()
+      map: function (doc, emit) { emit(doc.name); }.toString()
     }
   }
 };
@@ -137,7 +137,7 @@ In CouchDB, queries are called _map/reduce functions_.  This is because, like mo
 It may sound daunting at first, but in the simplest (and most common) case, you only need the _map_ function.  A basic map function might look like this:
 
 ```js
-function myMapFunction(doc) {
+function myMapFunction(doc, emit) {
   emit(doc.name);
 }
 ```
@@ -147,7 +147,7 @@ This is functionally equivalent to the SQL index given above.  What it essential
 And since it's just JavaScript, you're allowed to get as fancy as you want here:
 
 ```js
-function myMapFunction(doc) {
+function myMapFunction(doc, emit) {
   if (doc.type === 'pokemon') {
     if (doc.name === 'Pikachu') {
       emit('Pika pi!');
@@ -197,7 +197,7 @@ As for _reduce_ functions, there are a few handy built-ins that do aggregate ope
 ```js
 // emit the first letter of each pokemon's name
 var myMapReduceFun = {
-  map: function (doc) {
+  map: function (doc, emit) {
     emit(doc.name.charAt(0));
   },
   reduce: '_count'
