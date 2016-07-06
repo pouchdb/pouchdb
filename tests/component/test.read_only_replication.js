@@ -12,9 +12,13 @@ app.use(bodyParser.json());
 
 var replicationDoc;
 
-function reject(req, res) {
-  replicationDoc = req.body.docs[0];
-  res.status(403).send({error: true, message: 'Unauthorized'});
+function reject(req, res, next) {
+  if (req.body.docs) {
+    replicationDoc = req.body.docs[0];
+    res.status(403).send({error: true, message: 'Unauthorized'});
+  } else {
+    next();
+  }
 }
 
 app.post('*', reject);
@@ -54,7 +58,6 @@ describe('test.read_only_replication.js', function () {
       expectedLastSeq = replicationResult.last_seq;
       checkpointer = new Checkpointer(remoteHTTP, db, replicationDoc._id,
                                       replicationResult);
-
       return checkpointer.getCheckpoint().then(function (actualLastSeq) {
         actualLastSeq.should.equal(expectedLastSeq);
       });
