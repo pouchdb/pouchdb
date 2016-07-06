@@ -35,6 +35,12 @@ function updateCheckpoint(db, id, checkpoint, session, returnValue) {
     if (returnValue.cancelled) {
       return;
     }
+
+    // if the checkpoint has not changed, do not update
+    if (doc.last_seq === checkpoint) {
+      return;
+    }
+
     // Filter out current entry for this replication
     doc.history = (doc.history || []).filter(function (item) {
       return item.session_id !== session;
