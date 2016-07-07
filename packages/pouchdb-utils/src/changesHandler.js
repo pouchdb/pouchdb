@@ -87,6 +87,7 @@ Changes.prototype.removeListener = function (dbName, id) {
   }
   EventEmitter.prototype.removeListener.call(this, dbName,
     this._listeners[id]);
+  delete this._listeners[id];
 };
 
 
