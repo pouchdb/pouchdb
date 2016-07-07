@@ -73,6 +73,13 @@ object for becoming valid JSON.
 
 {% include alert/end.html %}
 
+{% include alert/start.html variant="info" %}
+
+The <code>emit</code> function will be available in scope when the map function is
+run, so don't pass it in as a parameter.
+
+{% include alert/end.html %}
+
 Then you actually query it, by using the name you gave the design document when you saved it:
 
 ```js
