@@ -110,11 +110,28 @@ function xhRequest(options, callback) {
 
   var abortReq = function () {
     xhr.abort();
+    cleanUp();
   };
 
   var timeoutReq = function () {
     timedout = true;
     xhr.abort();
+    cleanUp();
+  };
+
+  var ret = {abort: abortReq};
+
+  var cleanUp = function () {
+    clearTimeout(timer);
+    ret.abort = function () {};
+    if (xhr) {
+      xhr.onprogress = undefined;
+      if (xhr.upload) {
+        xhr.upload.onprogress = undefined;
+      }
+      xhr.onreadystatechange = undefined;
+      xhr = undefined;
+    }
   };
 
   if (options.xhr) {
@@ -204,6 +221,7 @@ function xhRequest(options, callback) {
       err.status = xhr.status;
       callback(err);
     }
+    cleanUp();
   };
 
   if (options.body && (options.body instanceof Blob)) {
@@ -214,7 +232,7 @@ function xhRequest(options, callback) {
     xhr.send(options.body);
   }
 
-  return {abort: abortReq};
+  return ret;
 }
 
 function testXhr() {
