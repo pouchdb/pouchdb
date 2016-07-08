@@ -418,7 +418,6 @@ function replicate(src, target, opts, returnValue, result) {
   function onCheckpointError(err) {
     writingCheckpoint = false;
     abortReplication('writeCheckpoint completed with error', err);
-    throw err;
   }
 
   /* istanbul ignore if */

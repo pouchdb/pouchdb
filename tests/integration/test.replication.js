@@ -4449,6 +4449,24 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#5452 Cleanly fail with no unhandled promises on a bad connection', function (done) {
+
+      if (!/http/.test(dbs.remote)) {
+        return done();
+      }
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB('http://localhost:9382/does_not_exist', {skip_setup: true});
+
+      return remote.replicate.to(db, {
+          live: true,
+          since: 0,
+          timeout: 20000
+      }).catch(function () {
+          done();
+      });
+    });
+
     it('#2426 doc_ids dont prevent replication', function () {
 
       var db = new PouchDB(dbs.name);
