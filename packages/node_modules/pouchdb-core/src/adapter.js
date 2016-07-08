@@ -222,7 +222,11 @@ AbstractPouchDB.prototype.put = adapterFun('put', function (doc, opts, cb) {
       return this._putLocal(doc, cb);
     }
   }
-  this.bulkDocs({docs: [doc]}, opts, yankError(cb));
+  if (typeof this._put === 'function' && !!opts.new_edits) {
+    this._put(doc, opts, cb);
+  } else {
+    this.bulkDocs({docs: [doc]}, opts, yankError(cb));
+  }
 });
 
 AbstractPouchDB.prototype.putAttachment =
