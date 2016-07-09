@@ -69,9 +69,6 @@ function Changes(db, opts, callback) {
       return;
     }
     tryCatchInChangeListener(self, change);
-    if (self.startSeq && self.startSeq <= change.seq) {
-      self.startSeq = false;
-    }
   };
 
   var promise = new Promise(function (fulfill, reject) {
@@ -168,18 +165,6 @@ Changes.prototype.doChanges = function (opts) {
     return;
   }
 
-  if (opts.continuous && opts.since !== 'now') {
-    this.db.info().then(function (info) {
-      self.startSeq = info.update_seq;
-    /* istanbul ignore next */
-    }, function (err) {
-      if (err.id === 'idbNull') {
-        // db closed before this returned thats ok
-        return;
-      }
-      throw err;
-    });
-  }
 
   if (opts.view && !opts.filter) {
     opts.filter = '_view';
