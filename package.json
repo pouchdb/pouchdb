@@ -67,7 +67,7 @@
     "pouchdb-express-router": "0.0.9",
     "pouchdb-server": "1.2.0",
     "replace": "0.3.0",
-    "request": "2.72.0",
+    "request": "2.73.0",
     "rimraf": "2.5.3",
     "rollup": "0.33.1",
     "rollup-plugin-node-resolve": "1.7.1",
