@@ -36,9 +36,22 @@ function processAttachment(name, src, doc, isBinary) {
   });
 }
 
+function openTransactionSafely(idb, stores, mode) {
+  try {
+    return {
+      txn: idb.transaction(stores, mode)
+    };
+  } catch (err) {
+    return {
+      error: err
+    };
+  }
+}
+
 export {
   DOC_STORE,
   META_STORE,
   idbError,
-  processAttachment
+  processAttachment,
+  openTransactionSafely
 };

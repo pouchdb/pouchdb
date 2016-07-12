@@ -31,6 +31,11 @@ adapters.forEach(function (adapter) {
       }
 
       var db = new PouchDB(dbs.name);
+      // Test invalid if adapter doesnt support mapreduce
+      if (!db.query) {
+        return done();
+      }
+
       var queryFun = {
         map: function () {}
       };
