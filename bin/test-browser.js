@@ -76,6 +76,9 @@ if (process.env.POUCHDB_SRC) {
 if (process.env.COUCH_HOST) {
   qs.couchHost = process.env.COUCH_HOST;
 }
+if (process.env.NEXT) {
+  qs.NEXT = '1';
+}
 
 testUrl += '?';
 testUrl += querystring.stringify(qs);

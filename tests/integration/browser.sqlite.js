@@ -37,11 +37,22 @@ describe('browser.sqlite.js', function () {
     if (typeof openDatabase !== 'function') {
       return; // skip in non-websql browsers
     }
-    var db = new PouchDB(dbs.name + '_sqlite', {
-      adapter: 'websql',
-      location: 'yolo',
-      weirdCustomOption: 'foobar'
-    });
+
+    var db;
+    try {
+      db = new PouchDB(dbs.name + '_sqlite', {
+        adapter: 'websql',
+        location: 'yolo',
+        weirdCustomOption: 'foobar'
+      });
+    } catch (err) {
+      if (/Invalid Adapter/.test(err.message)) {
+        return testUtils.Promise.resolve();
+      } else {
+        throw err;
+      }
+    }
+
     return db.info().then(function (info) {
       called.should.equal(true);
       info.doc_count.should.equal(0);

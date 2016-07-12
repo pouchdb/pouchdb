@@ -509,11 +509,13 @@ adapters.forEach(function (adapter) {
     //
     // NO MORE HTTP TESTS AFTER THIS POINT!
     //
-    // We're testing some very local-specific functionality
-    //
+    // We're testing some functionality specific to the implementation
+    // of pouch-adapter-(idb|websql|leveldb), skip the tests if
+    // HTTP or if using new adapters (NEXT=1).
 
 
-    if (autoCompactionAdapters.indexOf(adapter) === -1) {
+    if (autoCompactionAdapters.indexOf(adapter) === -1 ||
+        'NEXT' in testUtils.params()) {
       return;
     }
 

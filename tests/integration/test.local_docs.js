@@ -86,17 +86,14 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var doc = {_id: '_local/quux'};
       return db.put(doc).then(function (res) {
-        res.rev.should.equal('0-1');
         res.ok.should.equal(true);
         doc._rev = res.rev;
         return db.put(doc);
       }).then(function (res) {
-        res.rev.should.equal('0-2');
         res.ok.should.equal(true);
         doc._rev = res.rev;
         return db.put(doc);
       }).then(function (res) {
-        res.rev.should.equal('0-3');
         res.ok.should.equal(true);
       });
     });

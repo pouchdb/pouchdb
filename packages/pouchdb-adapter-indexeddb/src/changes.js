@@ -1,6 +1,6 @@
 'use strict';
 
-import { DOC_STORE, processAttachment } from './util';
+import { DOC_STORE, processAttachment, openTransactionSafely } from './util';
 
 import { uuid, filterChange } from 'pouchdb-utils';
 
@@ -25,8 +25,12 @@ export default function (idb, idbChanges, api, dbOpts, opts) {
   var returnDocs = 'return_docs' in opts ? opts.return_docs :
     'returnDocs' in opts ? opts.returnDocs : true;
 
-  var txn = idb.transaction([DOC_STORE], 'readonly');
-  var store = txn.objectStore(DOC_STORE).index('seq');
+  var openTxn = openTransactionSafely(idb, [DOC_STORE], 'readonly');
+  if (openTxn.error) {
+    return opts.complete(openTxn.error);
+  }
+
+  var store = openTxn.txn.objectStore(DOC_STORE).index('seq');
 
   var filter = filterChange(opts);
   var received = 0;
@@ -106,6 +110,6 @@ export default function (idb, idbChanges, api, dbOpts, opts) {
     req = store.openCursor(IDBKeyRange.lowerBound(opts.since, true));
   }
 
-  txn.oncomplete = onTxnComplete;
+  openTxn.txn.oncomplete = onTxnComplete;
   req.onsuccess = onReqSuccess;
 }
