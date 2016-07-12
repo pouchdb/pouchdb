@@ -73,6 +73,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Basic views', function (done) {
+
       var docs1 = [
         doc,
         {_id: 'dale', score: 3},
@@ -81,6 +82,11 @@ adapters.forEach(function (adapter) {
         {_id: 'nuno', score: 3}
       ];
       var db = new PouchDB(dbs.name);
+      // Test invalid if adapter doesnt support mapreduce
+      if (!db.query) {
+        return done();
+      }
+
       db.bulkDocs({ docs: docs1 }, function () {
         db.query('foo/scores', { reduce: false }, function (err, result) {
           result.rows.should.have.length(4, 'Correct # of results');
@@ -94,6 +100,11 @@ adapters.forEach(function (adapter) {
 
     it('Concurrent queries', function (done) {
       var db = new PouchDB(dbs.name);
+      // Test invalid if adapter doesnt support mapreduce
+      if (!db.query) {
+        return done();
+      }
+
       db.bulkDocs({
         docs: [
           doc,

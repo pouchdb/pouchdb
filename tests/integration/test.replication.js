@@ -1174,6 +1174,12 @@ adapters.forEach(function (adapters) {
     it('Test _conflicts key', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
+
+      // Test invalid if adapter doesnt support mapreduce
+      if (!remote.query) {
+        return done();
+      }
+
       var doc1 = {_id: 'adoc', foo: 'bar'};
       var doc2 = {_id: 'adoc', bar: 'baz'};
       var ddoc = {
@@ -1909,7 +1915,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Replicates deleted docs w/ compaction', function () {
+    it('wtf Replicates deleted docs w/ compaction', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -3254,7 +3260,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('doc count after multiple replications', function (done) {
-
       var runs = 2;
       // helper. remove each document in db and bulk load docs into same
       function rebuildDocuments(db, docs, callback) {
@@ -3334,6 +3339,11 @@ adapters.forEach(function (adapters) {
           }
         ];
         var dbr = new PouchDB(remote);
+        // Test invalid if adapter doesnt support mapreduce
+        if (!dbr.query) {
+          return done();
+        }
+
         rebuildDocuments(dbr, docs, function () {
           var db = new PouchDB(name);
           db.replicate.from(remote, function () {

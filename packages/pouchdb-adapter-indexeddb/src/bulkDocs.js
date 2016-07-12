@@ -9,7 +9,6 @@ import {
 } from 'pouchdb-errors';
 
 import {
-  readAsArrayBuffer,
   binaryStringToBlobOrBuffer as binStringToBlobOrBuffer
 } from 'pouchdb-binary-utils';
 
@@ -274,29 +273,25 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
     if (attachment.stub) {
       return Promise.resolve(attachment);
     }
+
+    var binData;
     if (typeof attachment.data === 'string') {
-      var asBinary = parseBase64(attachment.data);
-      if (asBinary.error) {
-        return Promise.reject(asBinary.error);
+      binData = parseBase64(attachment.data);
+      if (binData.error) {
+        return Promise.reject(binData.error);
       }
-      attachment.data =
-        binStringToBlobOrBuffer(asBinary, attachment.content_type);
-      attachment.length = asBinary.length;
-      return md5(asBinary).then(function (result) {
-        attachment.digest = 'md5-' + result;
-        return attachment;
-      });
+      attachment.data = binStringToBlobOrBuffer(binData, attachment.content_type);
     } else {
-      return new Promise(function (resolve) {
-        readAsArrayBuffer(attachment.data, function (buff) {
-          md5(buff).then(function (result) {
-            attachment.digest = 'md5-' + result;
-            attachment.length = buff.byteLength;
-            resolve(attachment);
-          });
-        });
-      });
+      binData = attachment.data;
     }
+
+    return new Promise(function (resolve) {
+      md5(binData, function (result) {
+        attachment.digest = 'md5-' + result;
+        attachment.length = binData.size || binData.length || 0;
+        resolve(attachment);
+      });
+    });
   }
 
   function preProcessAttachments() {

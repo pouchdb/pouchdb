@@ -49,12 +49,20 @@ adapters.forEach(function (adapters) {
         return db.allDocs();
       }).then(function (res) {
         res.rows.should.have.length(4, 'allDocs empty opts');
+        if (!db.query) {
+          return testUtils.Promise.resolve();
+        }
         return db.query('all/all', {key: 'constructor'});
       }).then(function (res) {
+        if (!db.query) {
+          return testUtils.Promise.resolve();
+        }
         res.rows.should.have.length(1, 'query with key');
         return db.query('all/all', {keys: ['constructor']});
       }).then(function (res) {
-        res.rows.should.have.length(1, 'query with keys');
+        if (db.query) {
+          res.rows.should.have.length(1, 'query with keys');
+        }
         return new testUtils.Promise(function (resolve, reject) {
           db.replicate.to(remote).on('complete', resolve).on('error', reject);
         });
