@@ -71,7 +71,7 @@
     "rimraf": "2.5.3",
     "rollup": "0.34.1",
     "rollup-plugin-node-resolve": "1.7.1",
-    "sauce-connect-launcher": "0.14.0",
+    "sauce-connect-launcher": "0.15.1",
     "seedrandom": "2.4.2",
     "selenium-standalone": "5.5.0",
     "stream-to-promise": "1.1.1",
