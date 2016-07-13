@@ -2,7 +2,10 @@
 'use strict';
 
 var queryString = require('query-string');
-var Pouch = require('pouchdb');
+var Pouch = require('pouchdb-core')
+  .plugin(require('pouchdb-adapter-memory'))
+  .plugin(require('pouchdb-adapter-http'))
+  .plugin(require('pouchdb-replication'));
 var thePlugin = require('../');
 Pouch.plugin(thePlugin);
 
