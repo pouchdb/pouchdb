@@ -5,7 +5,8 @@ var utils = require('./utils');
 var httpIndexes = require('./adapters/http');
 var localIndexes = require('./adapters/local');
 
-exports.createIndex = utils.toPromise(function (requestDef, callback) {
+var plugin = {};
+plugin.createIndex = utils.toPromise(function (requestDef, callback) {
 
   if (typeof requestDef !== 'object') {
     return callback(new Error('you must provide an index to create'));
@@ -16,7 +17,7 @@ exports.createIndex = utils.toPromise(function (requestDef, callback) {
   adapter.createIndex(this, requestDef, callback);
 });
 
-exports.find = utils.toPromise(function (requestDef, callback) {
+plugin.find = utils.toPromise(function (requestDef, callback) {
 
   if (typeof callback === 'undefined') {
     callback = requestDef;
@@ -32,14 +33,14 @@ exports.find = utils.toPromise(function (requestDef, callback) {
   adapter.find(this, requestDef, callback);
 });
 
-exports.getIndexes = utils.toPromise(function (callback) {
+plugin.getIndexes = utils.toPromise(function (callback) {
 
   var adapter = this.type() === 'http' ? httpIndexes : localIndexes;
 
   adapter.getIndexes(this, callback);
 });
 
-exports.deleteIndex = utils.toPromise(function (indexDef, callback) {
+plugin.deleteIndex = utils.toPromise(function (indexDef, callback) {
 
   if (typeof indexDef !== 'object') {
     return callback(new Error('you must provide an index to delete'));
@@ -50,7 +51,9 @@ exports.deleteIndex = utils.toPromise(function (indexDef, callback) {
   adapter.deleteIndex(this, indexDef, callback);
 });
 
+module.exports = plugin;
+
 /* istanbul ignore next */
 if (typeof window !== 'undefined' && window.PouchDB) {
-  window.PouchDB.plugin(exports);
+  window.PouchDB.plugin(plugin);
 }
