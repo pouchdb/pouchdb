@@ -1,5 +1,8 @@
 'use strict';
 
+var testUtils = require('../test-utils');
+var should = testUtils.should;
+
 module.exports = function (dbType, context) {
   describe(dbType + ': $mod', function () {
 
@@ -75,14 +78,15 @@ module.exports = function (dbType, context) {
             rank: {$mod: [0, 0]}
           },
           sort: ['name']
-        })
-        .catch(function (err) {
-          if (dbType === 'http') {
-            err.message.should.match(/Database encountered an unknown error/);
-            return;
-          }
+        }).then(function () {
+          throw new Error('expected an error here');
+        }, function (err) {
+            if (dbType === 'http') {
+              should.exist(err);
+              return;
+            }
 
-          err.message.should.match(/Bad divisor/);
+            err.message.should.match(/Bad divisor/);
         });
       });
     });
@@ -101,10 +105,11 @@ module.exports = function (dbType, context) {
             rank: {$mod: ['a', 0]}
           },
           sort: ['name']
-        })
-        .catch(function (err) {
+        }).then(function () {
+          throw new Error('expected an error here');
+        }, function (err) {
           if (dbType === 'http') {
-            err.reason.should.match(/Bad argument for operator/);
+            should.exist(err);
             return;
           }
 
@@ -127,10 +132,11 @@ module.exports = function (dbType, context) {
             rank: {$mod: [1, 'a']}
           },
           sort: ['name']
-        })
-        .catch(function (err) {
+        }).then(function () {
+          throw new Error('expected an error here');
+        }, function (err) {
           if (dbType === 'http') {
-            err.reason.should.match(/Bad argument for operator/);
+            should.exist(err);
             return;
           }
 
