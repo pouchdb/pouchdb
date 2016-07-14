@@ -1915,7 +1915,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('wtf Replicates deleted docs w/ compaction', function () {
+    it('Replicates deleted docs w/ compaction', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 

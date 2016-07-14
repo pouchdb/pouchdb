@@ -2,17 +2,16 @@
 
 import { createError, MISSING_DOC } from 'pouchdb-errors';
 
-import { DOC_STORE } from './util';
+import { DOC_STORE, openTransactionSafely } from './util';
 
 export default function (db, id, opts, callback) {
 
-  // We may be given a transaction object to reuse, if not create one
-  var txn = opts.ctx;
-  if (!txn) {
-    txn = db.transaction([DOC_STORE], 'readonly');
+  var openTxn = openTransactionSafely(db, [DOC_STORE], 'readonly');
+  if (openTxn.error) {
+    return callback(openTxn.error);
   }
 
-  txn.objectStore(DOC_STORE).get(id).onsuccess = function (e) {
+  openTxn.txn.objectStore(DOC_STORE).get(id).onsuccess = function (e) {
 
     var doc = e.target.result;
     var rev = opts.rev || (doc && doc.rev);
@@ -30,7 +29,7 @@ export default function (db, id, opts, callback) {
     callback(null, {
       doc: result,
       metadata: doc,
-      ctx: txn
+      ctx: openTxn
     });
 
   };
