@@ -9,7 +9,6 @@ var IDB_VERSION = 1;
 function createSchema(db) {
 
   var docStore = db.createObjectStore(DOC_STORE, {keyPath : 'id'});
-  docStore.createIndex('deletedOrLocal', 'deletedOrLocal', {unique: false});
   docStore.createIndex('seq', 'seq', {unique: true});
 
   db.createObjectStore(META_STORE, {keyPath: 'id'});
@@ -44,25 +43,20 @@ export default function (openDatabases, api, opts) {
       };
 
       var metadata = {id: META_STORE};
-      var txn = idb.transaction([META_STORE, DOC_STORE], 'readwrite');
+      var txn = idb.transaction([META_STORE], 'readwrite');
 
       txn.oncomplete = function () {
         resolve({idb: idb, metadata: metadata});
       };
 
-      function getDocCount() {
-        txn.objectStore(DOC_STORE)
-          .index('deletedOrLocal')
-          .count(IDBKeyRange.only(0))
-          .onsuccess = function (e) {
-            metadata.doc_count = e.target.result;
-          };
-      }
-
       var metaStore = txn.objectStore(META_STORE);
       metaStore.get(META_STORE).onsuccess = function (e) {
 
         metadata = e.target.result || metadata;
+
+        if (!('doc_count' in metadata)) {
+          metadata.doc_count = 0;
+        }
 
         if (!('seq' in metadata)) {
           metadata.seq = 0;
@@ -70,9 +64,7 @@ export default function (openDatabases, api, opts) {
 
         if (!('db_uuid' in metadata)) {
           metadata.db_uuid = uuid();
-          metaStore.put(metadata).onsuccess = getDocCount;
-        } else {
-          getDocCount();
+          metaStore.put(metadata);
         }
       };
     };

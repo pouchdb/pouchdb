@@ -16,7 +16,7 @@ import { parseDoc } from 'pouchdb-adapter-utils';
 import { binaryMd5 as md5 } from 'pouchdb-md5';
 import { winningRev as calculateWinningRev, merge } from 'pouchdb-merge';
 
-import { DOC_STORE, idbError } from './util';
+import { DOC_STORE, META_STORE, idbError } from './util';
 
 export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) {
 
@@ -26,6 +26,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
   var error;
   var results = [];
   var docs = [];
+  var lastWriteIndex;
 
   var revsLimit = dbOpts.revs_limit || 1000;
 
@@ -107,6 +108,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
         results[i] = newDoc;
       } else {
         oldDocs[newDoc.id] = newDoc;
+        lastWriteIndex = i;
         write(txn, newDoc, i);
       }
     });
@@ -203,8 +205,6 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
     delete doc.isNewDoc;
     delete doc.wasDeleted;
 
-    doc.deletedOrLocal = doc.deleted || isLocal ? 1 : 0;
-
     // If there have been revisions stemmed when merging trees,
     // delete their data
     if (doc.stemmedRevs) {
@@ -257,6 +257,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
           rev: '0-0'
         };
       };
+      updateSeq(i);
       return;
     }
 
@@ -266,7 +267,14 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
         id: doc.id,
         rev: doc.rev
       };
+      updateSeq(i);
     };
+  }
+
+  function updateSeq(i) {
+    if (i === lastWriteIndex) {
+      txn.objectStore(META_STORE).put(metadata);
+    }
   }
 
   function preProcessAttachment(attachment) {
@@ -350,7 +358,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
 
   preProcessAttachments().then(function () {
 
-    txn = db.transaction([DOC_STORE], 'readwrite');
+    txn = db.transaction([DOC_STORE, META_STORE], 'readwrite');
 
     txn.onabort = function () {
       callback(error);
