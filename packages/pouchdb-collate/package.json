@@ -1,0 +1,15 @@
+{
+  "name": "pouchdb-collate",
+  "version": "5.5.0-prerelease",
+  "description": "",
+  "main": "lib/index.js",
+  "keywords": [
+    "pouchdb",
+    "pouch",
+    "couch",
+    "couchdb"
+  ],
+  "license": "Apache-2.0",
+  "jsnext:main": "./src/index.js",
+  "files": ["lib", "src"]
+}

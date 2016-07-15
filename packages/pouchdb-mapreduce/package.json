@@ -15,7 +15,7 @@
   "dependencies": {
     "inherits": "2.0.1",
     "pouchdb-binary-utils": "5.5.0-prerelease",
-    "pouchdb-collate": "1.2.0",
+    "pouchdb-collate": "5.5.0-prerelease",
     "pouchdb-errors": "5.5.0-prerelease",
     "pouchdb-mapreduce-utils": "5.5.0-prerelease",
     "pouchdb-md5": "5.5.0-prerelease",

@@ -13,7 +13,7 @@
     "src"
   ],
   "dependencies": {
-    "pouchdb-collate": "1.2.0",
+    "pouchdb-collate": "5.5.0-prerelease",
     "pouchdb-md5": "5.5.0-prerelease",
     "pouchdb-promise": "5.5.0-prerelease"
   }
