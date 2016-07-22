@@ -213,7 +213,7 @@ function xhRequest(options, callback) {
       if (timedout) {
         err = new Error('ETIMEDOUT');
         err.code = 'ETIMEDOUT';
-      } else {
+      } else if (typeof xhr.response === 'string') {
         try {
           err = JSON.parse(xhr.response);
         } catch(e) {}
