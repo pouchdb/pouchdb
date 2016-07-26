@@ -576,15 +576,16 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('update_seq persists', function (done) {
+    it('update_seq persists', function () {
       var db = new PouchDB(dbs.name);
-      db.post({ test: 'somestuff' }, function () {
-        var db2 = new PouchDB(dbs.name);
-        db2.info(function (err, info) {
-          info.update_seq.should.not.equal(0);
-          info.doc_count.should.equal(1);
-          done();
-        });
+      return db.post({ test: 'somestuff' }).then(function () {
+        return db.close();
+      }).then(function () {
+        db = new PouchDB(dbs.name);
+        return db.info();
+      }).then(function (info) {
+        info.update_seq.should.not.equal(0);
+        info.doc_count.should.equal(1);
       });
     });
 

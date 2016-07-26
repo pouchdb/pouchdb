@@ -490,19 +490,19 @@ AbstractPouchDB.prototype._compact = function (opts, callback) {
     .on('complete', onComplete)
     .on('error', callback);
 };
+
 /* Begin api wrappers. Specific functionality to storage belongs in the
    _[method] */
-AbstractPouchDB.prototype.get =
-  adapterFun('get', function (id, opts, callback) {
+AbstractPouchDB.prototype.get = adapterFun('get', function (id, opts, cb) {
   if (typeof opts === 'function') {
-    callback = opts;
+    cb = opts;
     opts = {};
   }
   if (typeof id !== 'string') {
-    return callback(createError(INVALID_ID));
+    return cb(createError(INVALID_ID));
   }
   if (isLocalId(id) && typeof this._getLocal === 'function') {
-    return this._getLocal(id, callback);
+    return this._getLocal(id, cb);
   }
   var leaves = [], self = this;
 
@@ -511,7 +511,7 @@ AbstractPouchDB.prototype.get =
     var count = leaves.length;
     /* istanbul ignore if */
     if (!count) {
-      return callback(null, result);
+      return cb(null, result);
     }
     // order with open_revs is unspecified
     leaves.forEach(function (leaf) {
@@ -527,7 +527,7 @@ AbstractPouchDB.prototype.get =
         }
         count--;
         if (!count) {
-          callback(null, result);
+          cb(null, result);
         }
       });
     });
@@ -537,7 +537,7 @@ AbstractPouchDB.prototype.get =
     if (opts.open_revs === "all") {
       this._getRevisionTree(id, function (err, rev_tree) {
         if (err) {
-          return callback(err);
+          return cb(err);
         }
         leaves = collectLeaves(rev_tree).map(function (leaf) {
           return leaf.rev;
@@ -551,13 +551,12 @@ AbstractPouchDB.prototype.get =
           var l = leaves[i];
           // looks like it's the only thing couchdb checks
           if (!(typeof (l) === "string" && /^\d+-/.test(l))) {
-            return callback(createError(INVALID_REV));
+            return cb(createError(INVALID_REV));
           }
         }
         finishOpenRevs();
       } else {
-        return callback(createError(UNKNOWN_ERROR,
-          'function_clause'));
+        return cb(createError(UNKNOWN_ERROR, 'function_clause'));
       }
     }
     return; // open_revs does not like other options
@@ -565,7 +564,7 @@ AbstractPouchDB.prototype.get =
 
   return this._get(id, opts, function (err, result) {
     if (err) {
-      return callback(err);
+      return cb(err);
     }
 
     var doc = result.doc;
@@ -620,7 +619,7 @@ AbstractPouchDB.prototype.get =
       var attachments = doc._attachments;
       var count = Object.keys(attachments).length;
       if (count === 0) {
-        return callback(null, doc);
+        return cb(null, doc);
       }
       Object.keys(attachments).forEach(function (key) {
         this._getAttachment(doc._id, key, attachments[key], {
@@ -636,7 +635,7 @@ AbstractPouchDB.prototype.get =
           delete att.stub;
           delete att.length;
           if (!--count) {
-            callback(null, doc);
+            cb(null, doc);
           }
         });
       }, self);
@@ -649,7 +648,7 @@ AbstractPouchDB.prototype.get =
           }
         }
       }
-      callback(null, doc);
+      cb(null, doc);
     }
   });
 });
@@ -658,8 +657,7 @@ AbstractPouchDB.prototype.get =
 // attachment read and enforces a confusing api between
 // adapter.js and the adapter implementation
 AbstractPouchDB.prototype.getAttachment =
-  adapterFun('getAttachment', function (docId, attachmentId, opts,
-                                              callback) {
+  adapterFun('getAttachment', function (docId, attachmentId, opts, callback) {
   var self = this;
   if (opts instanceof Function) {
     callback = opts;

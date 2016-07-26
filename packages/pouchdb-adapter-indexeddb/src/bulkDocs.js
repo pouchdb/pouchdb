@@ -9,7 +9,6 @@ import {
 } from 'pouchdb-errors';
 
 import {
-  readAsArrayBuffer,
   binaryStringToBlobOrBuffer as binStringToBlobOrBuffer
 } from 'pouchdb-binary-utils';
 
@@ -17,7 +16,7 @@ import { parseDoc } from 'pouchdb-adapter-utils';
 import { binaryMd5 as md5 } from 'pouchdb-md5';
 import { winningRev as calculateWinningRev, merge } from 'pouchdb-merge';
 
-import { DOC_STORE, idbError } from './util';
+import { DOC_STORE, META_STORE, idbError } from './util';
 
 export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) {
 
@@ -27,6 +26,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
   var error;
   var results = [];
   var docs = [];
+  var lastWriteIndex;
 
   var revsLimit = dbOpts.revs_limit || 1000;
 
@@ -108,6 +108,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
         results[i] = newDoc;
       } else {
         oldDocs[newDoc.id] = newDoc;
+        lastWriteIndex = i;
         write(txn, newDoc, i);
       }
     });
@@ -204,8 +205,6 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
     delete doc.isNewDoc;
     delete doc.wasDeleted;
 
-    doc.deletedOrLocal = doc.deleted || isLocal ? 1 : 0;
-
     // If there have been revisions stemmed when merging trees,
     // delete their data
     if (doc.stemmedRevs) {
@@ -258,6 +257,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
           rev: '0-0'
         };
       };
+      updateSeq(i);
       return;
     }
 
@@ -267,36 +267,39 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
         id: doc.id,
         rev: doc.rev
       };
+      updateSeq(i);
     };
+  }
+
+  function updateSeq(i) {
+    if (i === lastWriteIndex) {
+      txn.objectStore(META_STORE).put(metadata);
+    }
   }
 
   function preProcessAttachment(attachment) {
     if (attachment.stub) {
       return Promise.resolve(attachment);
     }
+
+    var binData;
     if (typeof attachment.data === 'string') {
-      var asBinary = parseBase64(attachment.data);
-      if (asBinary.error) {
-        return Promise.reject(asBinary.error);
+      binData = parseBase64(attachment.data);
+      if (binData.error) {
+        return Promise.reject(binData.error);
       }
-      attachment.data =
-        binStringToBlobOrBuffer(asBinary, attachment.content_type);
-      attachment.length = asBinary.length;
-      return md5(asBinary).then(function (result) {
-        attachment.digest = 'md5-' + result;
-        return attachment;
-      });
+      attachment.data = binStringToBlobOrBuffer(binData, attachment.content_type);
     } else {
-      return new Promise(function (resolve) {
-        readAsArrayBuffer(attachment.data, function (buff) {
-          md5(buff).then(function (result) {
-            attachment.digest = 'md5-' + result;
-            attachment.length = buff.byteLength;
-            resolve(attachment);
-          });
-        });
-      });
+      binData = attachment.data;
     }
+
+    return new Promise(function (resolve) {
+      md5(binData, function (result) {
+        attachment.digest = 'md5-' + result;
+        attachment.length = binData.size || binData.length || 0;
+        resolve(attachment);
+      });
+    });
   }
 
   function preProcessAttachments() {
@@ -355,7 +358,7 @@ export default function (db, req, opts, metadata, dbOpts, idbChanges, callback) 
 
   preProcessAttachments().then(function () {
 
-    txn = db.transaction([DOC_STORE], 'readwrite');
+    txn = db.transaction([DOC_STORE, META_STORE], 'readwrite');
 
     txn.onabort = function () {
       callback(error);

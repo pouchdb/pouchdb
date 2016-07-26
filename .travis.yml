@@ -103,6 +103,9 @@ env:
   - CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
+  # Test Webpack bundle
+  - CLIENT=selenium:firefox:41.0.1 NEXT=1 COMMAND=test
+
   - COMMAND=test-extras
   - COMMAND=test-unit
   - COMMAND=test-component
@@ -126,6 +129,7 @@ matrix:
   - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
   - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
   - env: CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
+  - env: CLIENT=selenium:firefox:41.0.1 NEXT=1 COMMAND=test
 
   fast_finish: true
 
