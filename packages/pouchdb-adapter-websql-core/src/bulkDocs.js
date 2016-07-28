@@ -9,10 +9,6 @@ import {
   compactTree
 } from 'pouchdb-merge';
 import {
-  safeJsonParse,
-  safeJsonStringify
-} from 'pouchdb-json';
-import {
   MISSING_STUB,
   createError
 } from 'pouchdb-errors';
@@ -29,7 +25,9 @@ import {
   stringifyDoc,
   compactRevs,
   websqlError,
-  escapeBlob
+  escapeBlob,
+  encodeMetadata,
+  decodeMetadata
 } from './utils';
 
 function websqlBulkDocs(dbOpts, req, opts, api, db, websqlChanges, callback) {
@@ -248,7 +246,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, websqlChanges, callback) {
       ' WHERE doc_id=' + DOC_STORE + '.id AND rev=?) WHERE id=?'
         : 'INSERT INTO ' + DOC_STORE +
       ' (id, winningseq, max_seq, json) VALUES (?,?,?,?);';
-      var metadataStr = safeJsonStringify(docInfo.metadata);
+      var metadataStr = encodeMetadata(docInfo.metadata);
       var params = isUpdate ?
         [metadataStr, seq, winningRev, id] :
         [id, seq, seq, metadataStr];
@@ -290,7 +288,7 @@ function websqlBulkDocs(dbOpts, req, opts, api, db, websqlChanges, callback) {
       tx.executeSql('SELECT json FROM ' + DOC_STORE +
       ' WHERE id = ?', [id], function (tx, result) {
         if (result.rows.length) {
-          var metadata = safeJsonParse(result.rows.item(0).json);
+          var metadata = decodeMetadata(result.rows.item(0).json);
           fetchedDocs.set(id, metadata);
         }
         checkDone();

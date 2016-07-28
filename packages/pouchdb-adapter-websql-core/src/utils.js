@@ -1,6 +1,8 @@
 import { Set } from 'pouchdb-collections';
 import { createError, WSQ_ERROR } from 'pouchdb-errors';
 import { guardedConsole } from 'pouchdb-utils';
+import { inflateMetadata, deflateMetadata } from 'pouchdb-adapter-utils';
+import { safeJsonParse, safeJsonStringify } from 'pouchdb-json';
 
 import {
   BY_SEQ_STORE,
@@ -175,7 +177,17 @@ function getSize(opts) {
   return isAndroid ? 5000000 : 1; // in PhantomJS, if you use 0 it will crash
 }
 
+function decodeMetadata(metadata) {
+  return inflateMetadata(safeJsonParse(metadata));
+}
+
+function encodeMetadata(metadata) {
+  return safeJsonStringify(deflateMetadata(metadata));
+}
+
 export {
+  decodeMetadata,
+  encodeMetadata,
   escapeBlob,
   unescapeBlob,
   stringifyDoc,
