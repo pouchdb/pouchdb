@@ -1,4 +1,4 @@
-PouchDB Collate
+PouchDB Collate ![semver non-compliant](https://img.shields.io/badge/semver-non--compliant-red.svg)
 ===
 
 Collation functions for PouchDB map/reduce. Used by PouchDB map/reduce to maintain consistent [CouchDB collation ordering](https://wiki.apache.org/couchdb/View_collation).
@@ -8,25 +8,26 @@ The PouchDB Collate API is not exposed by PouchDB itself, but if you'd like to u
 Usage
 -----
 
-In Node:
-
-```
-$ npm install pouchdb-collate
+```bash
+npm install pouchdb-collate
 ```
 
-```
+```js
 var pouchCollate = require('pouchdb-collate');
 ```
 
-In the browser you can install with Bower:
+Warning: semver-free zone!
+----
 
-```
-$ bower install pouchdb-collate
-```
+This package is conceptually an internal API used by PouchDB or its plugins. It does not follow semantic versioning (semver), and rather its version is pegged to PouchDB's. Use exact versions when installing, e.g. with `--save-exact`.
 
-Or just download from the [releases page](https://github.com/pouchdb/collate/releases).
 
-Then it will be available as `window.pouchCollate`.
+Source
+----
+
+PouchDB and its sub-packages are distributed as a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md).
+
+For a full list of packages, see [the GitHub source](https://github.com/pouchdb/pouchdb/tree/master/packages).
 
 API
 ----
