@@ -56,7 +56,7 @@
     "js-extend": "1.0.1",
     "lerna": "nolanlawson/lerna#pouchdb-monorepo",
     "less": "2.7.1",
-    "lie": "3.0.4",
+    "lie": "3.1.0",
     "lodash.debounce": "4.0.7",
     "memdown": "1.2.0",
     "mkdirp": "0.5.1",
