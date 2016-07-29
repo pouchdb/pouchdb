@@ -397,6 +397,16 @@ Tool to write a checkpoint, e.g. during replication.
 npm install --save-exact pouchdb-checkpointer
 ```
 
+### pouchdb-collate
+
+Collation functions for PouchDB map/reduce.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-collate
+```
+
 ### pouchdb-collections
 
 ES6 shims for Map and Set as used in PouchDB.
