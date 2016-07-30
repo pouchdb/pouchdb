@@ -4,7 +4,6 @@ var utils = require('../../../utils');
 var log = utils.log;
 var localUtils = require('../utils');
 var getKey = localUtils.getKey;
-var getValue = localUtils.getValue;
 var getUserFields = localUtils.getUserFields;
 
 // couchdb lowest collation value
