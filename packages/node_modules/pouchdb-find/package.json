@@ -23,16 +23,16 @@
     "url": "https://github.com/nolanlawson/pouchdb-find/issues"
   },
   "scripts": {
-    "test-node": "./bin/test-node.sh",
-    "test-browser": "./bin/test-browser.js",
-    "jshint": "jshint -c .jshintrc lib/*.js bin/*.js test/test.js test/test-utils.js test/*/*.js",
-    "test": "npm run jshint && ./bin/run-test.sh",
+    "test-node": "bash ./bin/test-node.sh",
+    "test-browser": "node ./bin/test-browser.js",
+    "jshint": "jshint -c .jshintrc lib bin test",
+    "test": "npm run jshint && bash ./bin/run-test.sh",
     "build": "mkdirp dist && npm run browserify && npm run min",
     "browserify": "browserify . -s pouchdbFind -p bundle-collapser/plugin | ./bin/es3ify.js | derequire > dist/pouchdb.find.js",
     "min": "uglifyjs dist/pouchdb.find.js -mc > dist/pouchdb.find.min.js",
     "dev": "browserify test/test.js > test/test-bundle.js && npm run dev-server",
-    "dev-server": "./bin/dev-server.js",
-    "coverage": "COVERAGE=1 npm test && istanbul check-coverage --lines 100 --function 100 --statements 100 --branches 100",
+    "dev-server": "node ./bin/dev-server.js",
+    "coverage": "bash bin/test-coverage.sh && istanbul check-coverage --lines 100 --function 100 --statements 100 --branches 100",
     "report-coverage": "npm run coverage && istanbul-coveralls --no-rm",
     "install-couch": "sh ./bin/run-couch-master-on-travis.sh && sh ./bin/enable-couchdb-cors.sh"
   },
