@@ -21,7 +21,6 @@ adapters.forEach(function (adapter) {
       return db.info().then(function (info) {
         switch (db.adapter) {
           case 'websql':
-            info.sqlite_plugin.should.be.a('boolean');
             info.websql_encoding.should.be.a('string');
             info.adapter.should.equal('websql');
             break;

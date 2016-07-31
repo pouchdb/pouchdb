@@ -33,23 +33,14 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 * `size`: Amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors on iOS/Safari](/errors.html#not_enough_space). Persistent views use a seperate database per view which will also request storage space so keep in mind the upper storage limits when using persistent views on iOS.
 
-**SQLite Plugin-only options:**
-
-Any options given to the PouchDB constructor will be passed verbatim to the SQLite Plugin.  Older versions of PouchDB supported only the following, which may be of use:
-
-* `location`: Where to store data on iOS, which may affect iTunes/iCloud backup, and thus whether or not your app gets rejected by Apple. See [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#opening-a-database) and [iOS data storage guidelines](https://developer.apple.com/icloud/documentation/data-storage/index.html).
-* `createFromLocation`: Use a pre-populated database, so you can package it with your app and users don't have to wait for it to load. See the [SQLite Plugin documentation](https://github.com/brodysoft/Cordova-SQLitePlugin/#pre-populated-database).
-* `androidDatabaseImplementation`: `1` to use the new `sqlite4java` implementation, `2` to use the older version based on the native Android APIs. Defaults to `1`. See the [SQLite Plugin documentation](https://github.com/litehelpers/Cordova-sqlite-storage#android-sqlite-implementation).
-
 **Notes:**
 
 1. In IndexedDB and WebSQL, PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
 2. When acting as a client on Node, any other options given will be passed to [request][].
-3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][]. The storage layer of leveldb can be replaced by passing a level backend factory (such as [MemDOWN][]) as `options.db`. The rest of the [supported levelup options are documented here][levelup_options].
+3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][].
 
 [request]: https://github.com/mikeal/request
 [levelup]: https://github.com/rvagg/node-levelup
-[MemDOWN]: https://github.com/rvagg/memdown
 [levelup_options]: https://github.com/rvagg/node-levelup/#options
 
 #### Example Usage:
@@ -59,18 +50,16 @@ var db = new PouchDB('dbname');
 var db = new PouchDB('http://localhost:5984/dbname');
 {% endhighlight %}
 
-Create a WebSQL-only Pouch (e.g. when using the [SQLite Plugin][] for Cordova/PhoneGap):
-
-[sqlite plugin]: https://github.com/brodysoft/Cordova-SQLitePlugin
+Create a PouchDB that explicitly uses WebSQL:
 
 {% highlight js %}
 var db = new PouchDB('dbname', {adapter : 'websql'});
 {% endhighlight %}
 
-Create an in-memory Pouch (in Node):
+Create an in-memory Pouch (must install `pouchdb-adapter-memory` first):
 
 {% highlight js %}
-var db = new PouchDB('dbname', {db : require('memdown')});
+var db = new PouchDB('dbname', {adapter: 'memory'});
 {% endhighlight %}
 
 Create a remote PouchDB with special Ajax options:
