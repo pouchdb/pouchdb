@@ -47,7 +47,7 @@
     "denodeify": "1.2.1",
     "derequire": "2.0.3",
     "es3ify": "0.2.2",
-    "eslint": "3.2.0",
+    "eslint": "3.2.2",
     "express": "4.14.0",
     "express-pouchdb": "1.0.6",
     "http-server": "0.9.0",
