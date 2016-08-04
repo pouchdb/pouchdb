@@ -1,5 +1,5 @@
 function isBinaryObject(object) {
-  return object instanceof ArrayBuffer ||
+  return (typeof ArrayBuffer !== 'undefined' && object instanceof ArrayBuffer) ||
     (typeof Blob !== 'undefined' && object instanceof Blob);
 }
 
