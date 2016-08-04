@@ -26,9 +26,6 @@ function openDB(opts) {
   if (!cachedResult) {
     cachedResult = openDBSafely(opts);
     cachedDatabases.set(opts.name, cachedResult);
-    if (cachedResult.db) {
-      cachedResult.db._sqlitePlugin = typeof sqlitePlugin !== 'undefined';
-    }
   }
   return cachedResult;
 }

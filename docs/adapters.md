@@ -120,47 +120,34 @@ var pouch = new PouchDB('myDB');
 console.log(pouch.adapter); // prints either 'idb' or 'websql'
 ```
 
-
 ### SQLite plugin for Cordova/PhoneGap
 
-On Cordova/PhoneGap, the native SQLite database is often a popular choice, because it allows unlimited storage (compared to [IndexedDB/WebSQL storage limits](http://www.html5rocks.com/en/tutorials/offline/quota-research)). It also offers more flexibility in backing up and pre-loading databases, because the SQLite files are directly accessible to app developers.
+On Cordova/PhoneGap/Ionic, the native SQLite database is often a popular choice, because it allows unlimited storage (compared to [IndexedDB/WebSQL storage limits](http://www.html5rocks.com/en/tutorials/offline/quota-research)). It also offers more flexibility in backing up and pre-loading databases, because the SQLite files are directly accessible to app developers.
 
-Luckily, there is a [SQLite Plugin][] (also known as SQLite Storage) that accomplishes exactly this.  If you include this plugin in your project, then PouchDB will automatically pick it up based on the `window.sqlitePlugin` object.
+There are various Cordova plugins that can provide access to native SQLite, such as 
+[Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage),    
+[cordova-plugin-sqlite-2](https://github.com/nolanlawson/cordova-plugin-sqlite-2), or 
+[cordova-plugin-websql](https://github.com/Microsoft/cordova-plugin-websql).
 
-However, this only occurs if the adapter is `'websql'`, not `'idb'` (e.g. on Android 4.4+).  To force PouchDB to use the WebSQL adapter, you can do:
-
-```js
-var db = new PouchDB('myDB', {adapter: 'websql'});
-```
-
-Note that a recent change to Cordova SQLite Plugin requires the `location` or `iosDatabaseLocation` parameters in the openDatabase and deleteDatabase calls (the second is preferred - see [SQLite Plugin][] for details). In PouchDB, all given options are passed through to the SQLite plugin, so you can pass this param like so:
-
-```js
-var db = new PouchDB('myDB', {adapter: 'websql', iosDatabaseLocation: 'default'});
-```
-
-
-If you are unsure whether PouchDB is using the SQLite Plugin or not, just run:
+To use them, you must install them separately into your Cordova application, and then add a special third-party PouchDB adapter
+called [pouchdb-adapter-cordova-sqlite](https://github.com/nolanlawson/pouchdb-adapter-cordova-sqlite). Once you do
+that, you can use it via:
 
 ```js
-db.info().then(console.log.bind(console));
+var db = new PouchDB('myDB.db', {adapter: 'cordova-sqlite'});
 ```
 
-This will print some database information, including the attribute `sqlite_plugin`, which will be `true` if the SQLite Plugin is being used.
+{% include alert/start.html variant="info"%}
+In PouchDB pre-6.0.0, Cordova SQLite support was available out-of-the-box, but it has been moved to a separate plugin
+to reduce confusion and to make it explicit whether you are using WebSQL or Cordova SQLite.
+{% include alert/end.html%}
 
-{% include alert/start.html variant="warning"%}
-{% markdown %}
-
-The SQLite Plugin does not currently pass the PouchDB test suite. It also tends to be slower than direct IndexedDB/WebSQL.
-
-We recommend avoiding the SQLite Plugin, unless you are hitting the 50MB storage limit in iOS or you require native or preloaded access to the database files.
+We recommend avoiding Cordova SQLite unless you are hitting the 50MB storage limit in iOS, you 
+require native or preloaded access to the database files, or there's some other reason to go native.
+The built-in IndexedDB and WebSQL adapters are nearly always more performant and stable.
 
 {% endmarkdown %}
 {% include alert/end.html%}
-
-### Cordova SQLite Plugin 2
-
-There is now a rewrite of the SQLite Plugin available, appropriately named [SQLite Plugin 2][], which should be a drop-in replacement for the SQLite Plugin.  We recommend preferring the [SQLite Plugin 2][] over the original, because it passes the PouchDB test suite on both iOS and Android.  Note that the rewrite does not require the `location` or `iosDatabaseLocation` parameter, as the SQLite Plugin does.
 
 ### Browser adapter plugins
 

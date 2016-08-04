@@ -548,8 +548,6 @@ function WebSqlPouch(opts, callback) {
           callback(null, {
             doc_count: docCount,
             update_seq: updateSeq,
-            // for debugging
-            sqlite_plugin: db._sqlitePlugin,
             websql_encoding: encoding
           });
         });

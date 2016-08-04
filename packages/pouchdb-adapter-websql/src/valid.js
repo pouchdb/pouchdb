@@ -49,32 +49,11 @@ function isValidWebSQL() {
   return openedTestDB;
 }
 
-function validWithoutCheckingCordova() {
-  if (typeof openDatabase === 'undefined') {
+function valid() {
+  if (typeof openDatabase !== 'function') {
     return false;
-  }
-  if (typeof sqlitePlugin !== 'undefined') {
-    // Both sqlite-storage and SQLite Plugin 2 create this global object,
-    // which we can check for to determine validity. It should be defined
-    // after the 'deviceready' event.
-    return true;
   }
   return isValidWebSQL();
 }
 
-function valid() {
-  // The Cordova SQLite Plugin and SQLite Plugin 2 can be used in cordova apps,
-  // and we can't know whether or not the plugin was loaded until after the
-  // 'deviceready' event. Since it's impractical for us to wait for that event
-  // before returning true/false for valid(), we just return true here
-  // and notify the user that they may need a plugin.
-  if (typeof cordova !== 'undefined') {
-    return true;
-  }
-  return validWithoutCheckingCordova();
-}
-
-export {
-  valid,
-  validWithoutCheckingCordova
-};
+export default valid;
