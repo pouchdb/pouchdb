@@ -359,6 +359,12 @@ if (typeof process !== 'undefined' && !process.browser) {
     global.PouchDB = global.PouchDB.defaults({
       prefix: path.resolve('./tmp/_pouch_')
     });
+  } else if (process.env.CLIENT_ADAPTER) {
+    global.PouchDB.preferredAdapters = [];
+    global.PouchDB.plugin(require(process.env.CLIENT_ADAPTER));
+    global.PouchDB = global.PouchDB.defaults({
+      prefix: path.resolve('./tmp/_pouch_')
+    });
   } else {
     // test regular leveldown in node
     global.PouchDB = global.PouchDB.defaults({
