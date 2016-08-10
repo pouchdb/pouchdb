@@ -63,6 +63,11 @@ function PouchDB(name, opts) {
     throw new Error('Missing/invalid DB name');
   }
 
+  if (typeof window !== 'undefined' && window.location && window.location.href && window.location.href.match(/^file:/)) {
+    console.warn("Warning: PouchDB will not work correctly on file:// URLs, because the underlying" +
+      "storage (IndexedDB or WebSQL) will not. Please serve PouchDB-using pages from a web server.");
+  }
+  
   var prefixedName = (opts.prefix || '') + name;
   var backend = parseAdapter(prefixedName, opts);
 
