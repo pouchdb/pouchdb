@@ -16,9 +16,9 @@ var stat = denodeify(fs.stat);
 var buildModule = require('./build-module');
 var buildPouchDB = require('./build-pouchdb');
 
-readDir('./packages').then(function (packages) {
+readDir('packages/node_modules').then(function (packages) {
   return Promise.all(packages.map(function (pkg) {
-    return stat(path.resolve('packages', pkg)).then(function (stat) {
+    return stat(path.resolve('packages/node_modules', pkg)).then(function (stat) {
       if (!stat.isDirectory()) { // skip e.g. 'npm-debug.log'
         return;
       }
@@ -26,7 +26,7 @@ readDir('./packages').then(function (packages) {
       if (pkg === 'pouchdb') {
         return buildPouchDB();
       } else {
-        return buildModule(path.resolve('./packages', pkg));
+        return buildModule(path.resolve('./packages/node_modules', pkg));
       }
     });
   }));

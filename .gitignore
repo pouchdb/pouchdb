@@ -1,6 +1,6 @@
 tmp
 .DS_Store
-node_modules
+/node_modules
 docs/_site
 docs/static/css
 npm-debug.log
