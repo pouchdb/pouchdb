@@ -41,12 +41,6 @@ env:
   - CLIENT=node COMMAND=test
   - CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
 
-  # Test in various versions of Node
-  - CLIENT=node NODE_VERSION=0.10 COMMAND=test
-  - CLIENT=node NODE_VERSION=0.11 COMMAND=test
-  - CLIENT=node NODE_VERSION=0.12 COMMAND=test
-  - CLIENT=node NODE_VERSION=stable COMMAND=test
-
   # Test WebSQL in Node (using node-websql)
   - CLIENT=node ADAPTER=websql COMMAND=test
 
@@ -114,12 +108,16 @@ env:
   - COMMAND=verify-bundle-size
 
 matrix:
-
+  fast_finish: true
+  include:
+    - node_js: "4"
+      services: docker
+      env: CLIENT=node COMMAND=test
+    - node_js: "stable"
+      services: docker
+      env: CLIENT=node COMMAND=test
   allow_failures:
-  # Expected failures
   - env: GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
-
-  # Allowed failures
   - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
   - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:48.0 SERVER=couchdb-master COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
@@ -130,8 +128,9 @@ matrix:
   - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
   - env: CLIENT=selenium:firefox:48.0 PERF=1 COMMAND=test
   - env: CLIENT=selenium:firefox:48.0 NEXT=1 COMMAND=test
-
-  fast_finish: true
+  - node_js: "stable"
+    services: docker
+    env: CLIENT=node COMMAND=test
 
 branches:
   only:

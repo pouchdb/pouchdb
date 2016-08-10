@@ -18,7 +18,7 @@ describe('DB Setup', function () {
 
   if (typeof process !== 'undefined' && !process.browser) {
     it('PouchDB version matches package.json', function () {
-      var pkg = require('../../packages/pouchdb/package.json');
+      var pkg = require('../../packages/node_modules/pouchdb/package.json');
       PouchDB.version.should.equal(pkg.version);
     });
   }

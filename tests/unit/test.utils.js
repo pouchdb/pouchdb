@@ -2,7 +2,7 @@
 'use strict';
 
 var should = require('chai').should();
-var PouchDB = require('../../packages/pouchdb-for-coverage');
+var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 var normalizeDdocFunctionName = PouchDB.utils.normalizeDdocFunctionName;
 var parseDdocFunctionName = PouchDB.utils.parseDdocFunctionName;
 var createError = PouchDB.utils.createError;

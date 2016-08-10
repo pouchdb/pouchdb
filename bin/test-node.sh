@@ -25,10 +25,6 @@ if [ $COVERAGE ]; then
     TESTS_PATH="tests/{unit,integration,mapreduce,component}/test*.js"
 fi
 
-if [ ! -z $TRAVIS ]; then
-    source bin/npm-pack-on-travis.sh
-fi
-
 if [ $PERF ]; then
     node tests/performance/index.js
 elif [ ! $COVERAGE ]; then
@@ -40,7 +36,9 @@ elif [ ! $COVERAGE ]; then
         --grep=$GREP \
         $TESTS_PATH
 else
-    ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- \
+    ./node_modules/.bin/istanbul cover \
+       --no-default-excludes -x 'tests/**' -x 'node_modules/**' \
+       ./node_modules/mocha/bin/_mocha -- \
         $BAIL_OPT \
         --timeout $TIMEOUT \
         --require=./tests/integration/node.setup.js \
