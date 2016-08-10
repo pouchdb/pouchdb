@@ -3,10 +3,10 @@
 # this allows us to compile in one version of node and then test in another,
 # while also ensuring that we're testing *exactly* the thing our npm users
 # will use.
-npm pack packages/pouchdb
+npm pack packages/node_modules/pouchdb
 tar -xzf pouchdb-*.tgz
-rm -rf packages/pouchdb
-mv package packages/pouchdb
+rm -rf packages/node_modules/pouchdb
+mv package packages/node_modules/pouchdb
 if [ ! -z $NODE_VERSION ]; then
   source ~/.nvm/nvm.sh
   nvm install $NODE_VERSION
@@ -14,8 +14,8 @@ if [ ! -z $NODE_VERSION ]; then
 fi
 node --version
 npm --version
-cd packages/pouchdb
+cd packages/node_modules/pouchdb
 npm install --production
-cd ../..
+cd -
 rm -fr node_modules
-npm install --production
+npm install

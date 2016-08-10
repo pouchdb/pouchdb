@@ -1,7 +1,7 @@
 'use strict';
 
 var nock = require('nock');
-var PouchDB = require('../../packages/pouchdb-for-coverage');
+var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 
 require('chai').should();
 

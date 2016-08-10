@@ -52,11 +52,11 @@ if (global.window && global.window.location && global.window.location.search) {
 }
 if (startNow) {
   var PouchDB = process.browser ? window.PouchDB :
-    require('../../packages/pouchdb');
+    require('../../packages/node_modules/pouchdb');
   if (!process.browser) {
     // the two strings are to fool Browserify, because this test
     // fails in Node 0.11-0.12 due to sqlite3 being incompatible
-    require('../../packages/' + 'pouchdb/extras/websql');
+    require('../../packages/node_modules/' + 'pouchdb/extras/websql');
   }
   runTestSuites(PouchDB);
 }

@@ -3,9 +3,9 @@
 var sourceFile = window.location.search.match(/[?&]sourceFile=([^&]+)/);
 
 if (!sourceFile) {
-  sourceFile = '../../packages/pouchdb/dist/pouchdb.js';
+  sourceFile = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
 } else {
-  sourceFile = '../../packages/pouchdb/dist/' + sourceFile[1];
+  sourceFile = '../../packages/node_modules/pouchdb/dist/' + sourceFile[1];
 }
 
 // only running in Chrome and Firefox due to various bugs.
