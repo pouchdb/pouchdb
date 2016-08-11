@@ -33,7 +33,32 @@
     "verify-bundle-size": "sh bin/verify-bundle-size.sh",
     "test-webpack": "bash bin/test-webpack.sh"
   },
-  "dependencies": {
+    "dependencies": {
+    "argsarray": "0.0.1",
+    "debug": "2.2.0",
+    "double-ended-queue": "2.0.0-0",
+    "es6-promise-pool": "2.4.2",
+    "fruitdown": "1.0.2",
+    "inherits": "2.0.1",
+    "js-extend": "1.0.1",
+    "level-codec": "6.1.0",
+    "level-write-stream": "1.0.0",
+    "levelup": "1.3.2",
+    "lie": "3.1.0",
+    "localstorage-down": "0.6.6",
+    "ltgt": "2.1.2",
+    "memdown": "1.1.2",
+    "pull-stream": "2.21.0",
+    "readable-stream": "1.0.33",
+    "request": "2.72.0",
+    "scope-eval": "0.0.3",
+    "spark-md5": "2.0.2",
+    "through2": "2.0.1",
+    "vuvuzela": "1.0.3",
+    "leveldown": "1.4.6",
+    "websql": "0.4.4"
+  },
+  "devDependencies": {
     "argsarray": "0.0.1",
     "body-parser": "1.15.2",
     "browserify": "13.1.0",

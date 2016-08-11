@@ -1,7 +1,7 @@
 'use strict';
 
 var http = require('http');
-var PouchDB = require('../../packages/pouchdb-for-coverage');
+var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 var should = require("chai").should();
 
 describe('test.auth.js', function () {

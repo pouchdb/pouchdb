@@ -1,6 +1,6 @@
 var should = require('chai').should();
 
-var Pouch = require('../../packages/pouchdb-for-coverage');
+var Pouch = require('../../packages/node_modules/pouchdb-for-coverage');
 var defaultBackOff = Pouch.utils.defaultBackOff;
 
 describe('test.backoff.js', function () {

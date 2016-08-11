@@ -3,7 +3,7 @@
 var should = require('chai').should();
 var mockery = require('mockery');
 
-var PouchDB = require('../../packages/pouchdb-for-coverage');
+var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 
 // TODO: I cannot figure out why these are failing. It seems to have
 // something to do with the mocks. These tests do not seem very high-value
