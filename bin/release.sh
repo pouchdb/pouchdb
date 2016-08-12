@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ ! -z $DRY_RUN ]; then
+  echo "Doing a dry run release..."
+else
+  echo "Doing a real release! Use DRY_RUN=1 for a dry run instead."
+fi
+
 #make sure deps are up to date
 rm -fr node_modules packages/*/node_modules
 npm install
@@ -19,7 +25,9 @@ for pkg in $(ls packages); do
   fi
   cd packages/$pkg
   echo "Publishing $pkg..."
-  npm publish
+  if [ -z $DRY_RUN ]; then
+    npm publish
+  fi
   cd ../..
 done
 
@@ -31,10 +39,12 @@ git rm -fr packages bin docs scripts tests
 
 git commit -m "build $VERSION"
 
-# Tag and push
-git tag $VERSION
-git push --tags git@github.com:pouchdb/pouchdb.git $VERSION
+if [ -z $DRY_RUN ]; then
+  # Tag and push
+  git tag $VERSION
+  git push --tags git@github.com:pouchdb/pouchdb.git $VERSION
 
-# Cleanup
-git checkout master
-git branch -D build
+  # Cleanup
+  git checkout master
+  git branch -D build
+fi
