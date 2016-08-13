@@ -57,7 +57,7 @@
     "lerna": "nolanlawson/lerna#pouchdb-monorepo",
     "less": "2.7.1",
     "lie": "3.1.0",
-    "lodash.debounce": "4.0.7",
+    "lodash.debounce": "4.0.8",
     "memdown": "1.2.0",
     "mkdirp": "0.5.1",
     "mocha": "2.5.3",
