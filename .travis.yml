@@ -41,12 +41,6 @@ env:
   - CLIENT=node COMMAND=test
   - CLIENT=node LEVEL_PREFIX=foo_ COMMAND=test
 
-  # Test in various versions of Node
-  - CLIENT=node NODE_VERSION=0.10 COMMAND=test
-  - CLIENT=node NODE_VERSION=0.11 COMMAND=test
-  - CLIENT=node NODE_VERSION=0.12 COMMAND=test
-  - CLIENT=node NODE_VERSION=stable COMMAND=test
-
   # Test WebSQL in Node (using node-websql)
   - CLIENT=node ADAPTER=websql COMMAND=test
 
@@ -130,8 +124,17 @@ matrix:
   - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
   - env: CLIENT=selenium:firefox:48.0 PERF=1 COMMAND=test
   - env: CLIENT=selenium:firefox:48.0 NEXT=1 COMMAND=test
-
+  - node_js: "stable"
+    services: docker
+    env: CLIENT=node COMMAND=test
   fast_finish: true
+  include:
+    - node_js: "4"
+      services: docker
+      env: CLIENT=node COMMAND=test
+    - node_js: "stable"
+      services: docker
+      env: CLIENT=node COMMAND=test
 
 branches:
   only:

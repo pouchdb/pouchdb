@@ -25,10 +25,6 @@ if [ $COVERAGE ]; then
     TESTS_PATH="tests/{unit,integration,mapreduce,component}/test*.js"
 fi
 
-if [ ! -z $TRAVIS ]; then
-    source bin/npm-pack-on-travis.sh
-fi
-
 if [ $PERF ]; then
     node tests/performance/index.js
 elif [ ! $COVERAGE ]; then
