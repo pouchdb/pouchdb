@@ -13,7 +13,7 @@ sudo:
   false
 
 addons:
-  firefox: "41.0.1"
+  firefox: "latest"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
@@ -52,24 +52,24 @@ env:
 
   # Test against pouchdb-server
   - CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
+  - CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
   - SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
 
   # Test against pouchdb-express-router
   - CLIENT=node SERVER=pouchdb-express-router COMMAND=test
 
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:phantomjs COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Testing in saucelabs
@@ -83,28 +83,28 @@ env:
   # split up the android+iphone tests as it goes over time
   - SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
   - CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
-  - CLIENT=selenium:firefox:41.0.1 ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox:41.0.1 ADAPTERS=localstorage COMMAND=test
+  - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
+  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:41.0.1 COMMAND=test-webpack
+  - CLIENT=selenium:firefox COMMAND=test-webpack
 
   # Test CouchDB master (aka bigcouch branch)
   - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
 
   # Test Couchbase Sync Gateway
   - GREP=test.replication.js CLIENT=node SERVER=sync-gateway BAIL=0 COMMAND=test
 
   # Test Cloudant
-  - CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
+  - CLIENT=selenium:firefox SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
 
   # Performance tests
-  - CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
+  - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:41.0.1 NEXT=1 COMMAND=test
+  - CLIENT=selenium:firefox NEXT=1 COMMAND=test
 
   - COMMAND=test-extras
   - COMMAND=test-unit
@@ -121,15 +121,15 @@ matrix:
 
   # Allowed failures
   - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COMMAND=test
+  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-express-router COMMAND=test
   - env: CLIENT=node SERVER=pouchdb-server COMMAND=test
-  - env: CLIENT=selenium:firefox:41.0.1 SERVER=pouchdb-server COMMAND=test
+  - env: CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
   - env: SERVER_ADAPTER=memdown LEVEL_ADAPTER=memdown SERVER=pouchdb-server COMMAND=test
-  - env: CLIENT=selenium:firefox:41.0.1 SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
+  - env: CLIENT=selenium:firefox SERVER=couchdb-master COUCH_HOST=https://$CLOUDANT_USERNAME:$CLOUDANT_PASSWORD@pouch.cloudant.com COMMAND=test
   - env: CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
-  - env: CLIENT=selenium:firefox:41.0.1 PERF=1 COMMAND=test
-  - env: CLIENT=selenium:firefox:41.0.1 NEXT=1 COMMAND=test
+  - env: CLIENT=selenium:firefox PERF=1 COMMAND=test
+  - env: CLIENT=selenium:firefox NEXT=1 COMMAND=test
 
   fast_finish: true
 
