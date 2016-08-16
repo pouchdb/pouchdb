@@ -16,7 +16,7 @@ var testTimeout = 30 * 60 * 1000;
 var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
 
-var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '2.46.0';
+//var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '2.46.0';
 
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
