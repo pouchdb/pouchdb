@@ -13,7 +13,7 @@ sudo:
   false
 
 addons:
-  firefox: "44.0"
+  firefox: "48.0"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
@@ -39,7 +39,7 @@ env:
 
   matrix:
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox:44.0 COMMAND=test
+  - CLIENT=selenium:firefox:48.0 COMMAND=test
 
 branches:
   only:
