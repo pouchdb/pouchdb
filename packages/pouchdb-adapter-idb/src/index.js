@@ -974,17 +974,9 @@ function init(api, opts, callback) {
 }
 
 IdbPouch.valid = function () {
-  // Issue #2533, we finally gave up on doing bug
-  // detection instead of browser sniffing. Safari brought us
-  // to our knees.
-  var isSafari = typeof openDatabase !== 'undefined' &&
-    /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) &&
-    !/Chrome/.test(navigator.userAgent) &&
-    !/BlackBerry/.test(navigator.platform);
-
   // some outdated implementations of IDB that appear on Samsung
   // and HTC Android devices <4.4 are missing IDBKeyRange
-  return !isSafari && typeof indexedDB !== 'undefined' &&
+  return typeof indexedDB !== 'undefined' &&
     typeof IDBKeyRange !== 'undefined';
 };
 
