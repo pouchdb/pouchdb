@@ -13,7 +13,7 @@ sudo:
   false
 
 addons:
-  firefox: "latest"
+  firefox: "latest-esr"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
