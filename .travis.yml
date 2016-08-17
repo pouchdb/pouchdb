@@ -9,11 +9,8 @@ services:
 git:
   depth: 30
 
-sudo:
-  false
-
 addons:
-  firefox: "latest"
+  firefox: "41.0.1"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
@@ -39,7 +36,7 @@ env:
 
   matrix:
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox COMMAND=test
+  - CLIENT=selenium:firefox:41.0.1 COMMAND=test
 
 branches:
   only:
