@@ -75,7 +75,7 @@ changes.cancel(); // whenever you want to cancel
 
 * __`change`__ (`info`) - This event fires when a change has been found. `info` will contain details about the change, such as whether it was deleted and what the new `_rev` is. `info.doc` will contain the doc if you set `include_docs` to `true`. See below for an example response.
 * __`complete`__ (`info`) - This event fires when all changes have been read. In live changes, only cancelling the changes should trigger this event. `info.results` will contain the list of changes. See below for an example.
-* __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure.
+* __`error`__ (`err`) - This event is fired when the changes feed is stopped due to an unrecoverable failure.
 
 #### Example response
 
