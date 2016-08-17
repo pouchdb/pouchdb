@@ -12,9 +12,6 @@ git:
 sudo:
   false
 
-addons:
-  firefox: "46.0.1"
-
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
@@ -39,7 +36,7 @@ env:
 
   matrix:
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox:46.0.1 COMMAND=test
+  - CLIENT=selenium:firefox COMMAND=test
 
 branches:
   only:
