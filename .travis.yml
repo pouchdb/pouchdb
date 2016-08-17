@@ -6,6 +6,8 @@ node_js:
 services:
   - docker
 
+sudo: false
+
 git:
   depth: 30
 
