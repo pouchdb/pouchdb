@@ -1106,5 +1106,21 @@ adapters.forEach(function (adapter) {
         });
       });
     }
+
+    if (typeof process !== 'undefined' && !process.browser) {
+      it('#5471 PouchDB.plugin() should throw error if passed wrong type or empty object', function () {
+        var db = new PouchDB(dbs.name);
+        PouchDB.plugin('pouchdb-adapter-memory');
+        var doc = {
+          _id: "x",
+          type: "testdoc",
+        };
+        db.put(doc).then(function () {
+          throw new Error('expected an error here!');
+        }, function (err) {
+          should.exist(err);
+        });
+      });
+    }
   });
 });

@@ -45,6 +45,8 @@ PouchDB.adapter = function (id, obj, addToPreferredAdapters) {
 PouchDB.plugin = function (obj) {
   if (typeof obj === 'function') { // function style for plugins
     obj(PouchDB);
+  } else if (Object.keys(obj).length == 0){
+    throw new Error('Invalid plugin: object passed in is empty or not an object');
   } else {
     Object.keys(obj).forEach(function (id) { // object style for plugins
       PouchDB.prototype[id] = obj[id];
