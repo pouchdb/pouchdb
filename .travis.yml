@@ -12,6 +12,9 @@ git:
 sudo:
   false
 
+addons:
+  firefox: "latest"
+
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
