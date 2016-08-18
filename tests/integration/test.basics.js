@@ -1109,11 +1109,17 @@ adapters.forEach(function (adapter) {
 
     if (typeof process !== 'undefined' && !process.browser) {
       it('#5471 PouchDB.plugin() should throw error if passed wrong type or empty object', function () {
-        PouchDB.plugin('pouchdb-adapter-memory').then(function () {
-          throw new Error('expected an error here!');
-        }, function (err) {
+        try {
+          PouchDB.plugin('pouchdb-adapter-memory');
+        }
+        catch (err) {
           should.exist(err);
-        });
+        }
+        // PouchDB.plugin('pouchdb-adapter-memory').then(function () {
+        //   throw new Error('expected an error here!');
+        // }, function (err) {
+        //   should.exist(err);
+        // });
       });
     }
   });
