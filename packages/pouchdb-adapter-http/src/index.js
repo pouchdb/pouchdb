@@ -71,9 +71,26 @@ function preprocessAttachments(doc) {
   }));
 }
 
+function hasUrlPrefix(opts) {
+  if (!opts.prefix) {
+    return false;
+  }
+
+  var protocol = parseUri(opts.prefix).protocol;
+
+  return protocol === 'http' || protocol === 'https';
+}
+
 // Get all the information you possibly can about the URI given by name and
 // return it as a suitable object.
-function getHost(name) {
+function getHost(name, opts) {
+
+  // encode db name if opts.prefix is a url (#5574)
+  if (hasUrlPrefix(opts)) {
+    var dbName = opts.name.substr(opts.prefix.length);
+    name = opts.prefix + encodeURIComponent(dbName);
+  }
+
   // Prase the URI into all its little bits
   var uri = parseUri(name);
 
@@ -127,6 +144,7 @@ function paramsToStr(params) {
 
 // Implements the PouchDB API for dealing with CouchDB instances over HTTP
 function HttpPouch(opts, callback) {
+
   // The functions that will be publicly available for HttpPouch
   var api = this;
 
