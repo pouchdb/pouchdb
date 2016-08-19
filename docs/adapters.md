@@ -146,7 +146,6 @@ We recommend avoiding Cordova SQLite unless you are hitting the 50MB storage lim
 require native or preloaded access to the database files, or there's some other reason to go native.
 The built-in IndexedDB and WebSQL adapters are nearly always more performant and stable.
 
-{% endmarkdown %}
 {% include alert/end.html%}
 
 ### Browser adapter plugins
