@@ -1106,5 +1106,13 @@ adapters.forEach(function (adapter) {
         });
       });
     }
+
+    if (typeof process !== 'undefined' && !process.browser) {
+      it('#5471 PouchDB.plugin() should throw error if passed wrong type or empty object', function () {
+        (function () {
+          PouchDB.plugin('pouchdb-adapter-memory');
+        }).should.throw(Error, 'Invalid plugin: object passed in is empty or not an object');
+      });
+    }
   });
 });
