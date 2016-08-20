@@ -185,4 +185,14 @@ describe('test.http.js', function () {
     });
   });
 
+
+  it('5574 Create a pouch with / in name and prefix url', function () {
+    var db = new PouchDB('test/suffix', {
+      prefix: testUtils.adapterUrl('http', '')
+    });
+    return db.info().then(function () {
+      return db.destroy();
+    });
+  });
+
 });
