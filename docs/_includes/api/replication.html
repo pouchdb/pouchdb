@@ -1,4 +1,4 @@
-{% include anchor.html edit="true" title="Replicate a database" hash="replication" %} 
+{% include anchor.html edit="true" title="Replicate a database" hash="replication" %}
 
 {% highlight js %}
 PouchDB.replicate(source, target, [options])
@@ -53,6 +53,8 @@ var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
 
 rep.cancel(); // whenever you want to cancel
 {% endhighlight %}
+
+`live` replication emitters & `live` change listeners (as shown above) only emit `complete` events on `.cancel()`. The `complete` event won't fire until all http requests have settled & associated teardown has finished.
 
 There are also shorthands for replication given existing PouchDB objects. These behave the same as `PouchDB.replicate()`:
 
