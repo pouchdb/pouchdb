@@ -1,7 +1,7 @@
 'use strict';
 
 require('chai').should();
-var PouchDB = require('../../packages/pouchdb-for-coverage');
+var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 var parseUri = PouchDB.utils.parseUri;
 
 describe('test.parse-uri.js', function () {

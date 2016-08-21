@@ -1,6 +1,6 @@
 'use strict';
 
-var PouchDB = require('../../packages/pouchdb-for-coverage');
+var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 var express = require('express');
 var bodyParser = require('body-parser');
 

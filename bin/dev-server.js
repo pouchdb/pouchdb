@@ -26,14 +26,14 @@ if (process.env.COUCH_HOST) {
 }
 
 if (process.env.NEXT) {
-  queryParams.src = '../../packages/pouchdb/dist/pouchdb-next.js';
+  queryParams.src = '../../packages/node_modules/pouchdb/dist/pouchdb-next.js';
 }
 
 var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
   rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
-    console.log('Rebuilt packages/pouchdb');
+    console.log('Rebuilt packages/node_modules/pouchdb');
   });
 }
 
@@ -64,7 +64,7 @@ function rebuildPerf() {
 }
 
 function watchAll() {
-  watch(['packages/**/src/**/*.js'],
+  watch(['packages/node_modules/**/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
   watch(['tests/integration/utils.js'],
     debounce(rebuildTestUtils, 700, {leading: true}));

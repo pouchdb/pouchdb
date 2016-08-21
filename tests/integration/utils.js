@@ -260,7 +260,7 @@ testUtils.promisify = function (fun, context) {
 // We need to use pouchdb-for-coverage here to ensure that e.g pouchdb-utils
 // and pouchdb-ajax don't get pulled in, because then our coverage tests
 // would complain that we're not using the "whole" thing.
-var PouchForCoverage = require('../../packages/pouchdb-for-coverage');
+var PouchForCoverage = require('../../packages/node_modules/pouchdb-for-coverage');
 var pouchUtils = PouchForCoverage.utils;
 testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
 testUtils.btoa = pouchUtils.btoa;
@@ -325,9 +325,9 @@ testUtils.removeUnhandledRejectionListener = function (listener) {
 
 if (typeof process !== 'undefined' && !process.browser) {
   if (process.env.COVERAGE) {
-    global.PouchDB = require('../../packages/pouchdb-for-coverage');
+    global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
   } else { // no need to check for coverage
-    global.PouchDB = require('../../packages/pouchdb');
+    global.PouchDB = require('../../packages/node_modules/pouchdb');
   }
 
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
@@ -354,7 +354,7 @@ if (typeof process !== 'undefined' && !process.browser) {
     // test WebSQL in Node
     // (the two strings are just to fool Browserify because sqlite3 fails
     // in Node 0.11-0.12)
-    require('../../packages/' + 'pouchdb/extras/websql');
+    require('../../packages/node_modules/' + 'pouchdb/extras/websql');
     global.PouchDB.preferredAdapters = ['websql', 'leveldb'];
     global.PouchDB = global.PouchDB.defaults({
       prefix: path.resolve('./tmp/_pouch_')

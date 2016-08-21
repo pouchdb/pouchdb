@@ -9,7 +9,7 @@ var pouchdbSrc = window.location.search.match(/[?&]src=([^&]+)/);
 if (pouchdbSrc) {
   pouchdbSrc = decodeURIComponent(pouchdbSrc[1]);
 } else {
-  pouchdbSrc = '../../packages/pouchdb/dist/pouchdb.js';
+  pouchdbSrc = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
 }
 var scriptsToLoad = [pouchdbSrc];
 if (preferredAdapters) {
@@ -18,7 +18,7 @@ if (preferredAdapters) {
     if (adapter !== 'websql' && adapter !== 'idb') {
       // load from plugin
       scriptsToLoad.push(
-        '../../packages/pouchdb/dist/pouchdb.' + adapter + '.js');
+        '../../packages/node_modules/pouchdb/dist/pouchdb.' + adapter + '.js');
     }
   });
 }

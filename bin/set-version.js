@@ -10,13 +10,13 @@ var version = process.argv[process.argv.length - 1];
 var fs = require('fs');
 var path = require('path');
 
-var packages = fs.readdirSync('packages');
+var packages = fs.readdirSync('packages/node_modules');
 
 var jsonFiles = packages.map(function (pkg) {
-  return path.resolve(__dirname, '../packages', pkg, 'package.json');
+  return path.resolve(__dirname, '../packages/node_modules', pkg, 'package.json');
 }).concat([
-  path.resolve(__dirname, '../packages/pouchdb/component.json'),
-  path.resolve(__dirname, '../packages/pouchdb/bower.json')
+  path.resolve(__dirname, '../packages/node_modules/pouchdb/component.json'),
+  path.resolve(__dirname, '../packages/node_modules/pouchdb/bower.json')
 ]);
 
 jsonFiles.forEach(function (jsonFile) {
@@ -42,16 +42,10 @@ jsonFiles.forEach(function (jsonFile) {
 });
 
 var versionFile = path.resolve(__dirname,
-  '../packages/pouchdb-core/src/version.js');
+  '../packages/node_modules/pouchdb-core/src/version.js');
 var versionFileContents = '// managed automatically by set-version.js\n' +
   'export default "' + version + '";\n';
 
 fs.writeFileSync(versionFile, versionFileContents, 'utf-8');
-
-var lernaFile = path.resolve(__dirname, '../lerna.json');
-var lernaJson = JSON.parse(fs.readFileSync(lernaFile, 'utf-8'));
-lernaJson.version = version;
-fs.writeFileSync(lernaFile,
-  JSON.stringify(lernaJson, null, '  ') + '\n', 'utf-8');
 
 console.log('done');
