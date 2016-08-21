@@ -16,7 +16,8 @@ var jsonFiles = packages.map(function (pkg) {
   return path.resolve(__dirname, '../packages/node_modules', pkg, 'package.json');
 }).concat([
   path.resolve(__dirname, '../packages/node_modules/pouchdb/component.json'),
-  path.resolve(__dirname, '../packages/node_modules/pouchdb/bower.json')
+  path.resolve(__dirname, '../packages/node_modules/pouchdb/bower.json'),
+  path.resolve(__dirname, './package.json')
 ]);
 
 jsonFiles.forEach(function (jsonFile) {
