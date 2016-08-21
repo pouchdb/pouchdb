@@ -16,6 +16,9 @@ VERSION=$(node --eval "console.log(require('./packages/node_modules/pouchdb/pack
 # Build
 git checkout -b build
 
+# Update dependency versions inside each package.json (replace the "*")
+node bin/update-dep-versions.js
+
 # Publish all modules with Lerna
 for pkg in $(ls packages/node_modules); do
   if [ ! -d "packages/node_modules/$pkg" ]; then
