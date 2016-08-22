@@ -3,7 +3,7 @@
 'use strict';
 
 // build just the "pouchdb" package. This build script is different
-// from the others due to legacy support (dist/, extras/, etc.).
+// from the others due to legacy support (dist/, etc.).
 
 var DEV_MODE = process.env.CLIENT === 'dev';
 
@@ -34,51 +34,10 @@ var version = pkg.version;
 // these modules should be treated as external by Rollup
 var external = require('./external-deps');
 
-var plugins = ['fruitdown', 'localstorage', 'memory'];
-var browserExtras = {
-  'src/extras/ajax.js': 'ajax-browser.js',
-  'src/extras/checkpointer.js': 'checkpointer-browser.js',
-  'src/extras/generateReplicationId.js': 'generateReplicationId-browser.js'
-};
-var nodeExtras = {
-  'src/extras/promise.js': 'promise.js',
-  'src/extras/checkpointer.js': 'checkpointer.js',
-  'src/extras/generateReplicationId.js': 'generateReplicationId.js',
-  'src/extras/ajax.js': 'ajax.js',
-  'src/extras/websql.js': 'websql.js'
-};
-
 var currentYear = new Date().getFullYear();
 
 var comments = {
   'pouchdb': '// PouchDB ' + version +
-  '\n// ' +
-  '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
-  '\n// PouchDB may be freely distributed under the Apache license, ' +
-  'version 2.0.' +
-  '\n// For all details and documentation:' +
-  '\n// http://pouchdb.com\n',
-
-  'memory': '// PouchDB in-memory plugin ' + version +
-  '\n// Based on MemDOWN: https://github.com/rvagg/memdown' +
-  '\n// ' +
-  '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
-  '\n// PouchDB may be freely distributed under the Apache license, ' +
-  'version 2.0.' +
-  '\n// For all details and documentation:' +
-  '\n// http://pouchdb.com\n',
-
-  'localstorage': '// PouchDB localStorage plugin ' + version +
-  '\n// Based on localstorage-down: https://github.com/No9/localstorage-down' +
-  '\n// ' +
-  '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
-  '\n// PouchDB may be freely distributed under the Apache license, ' +
-  'version 2.0.' +
-  '\n// For all details and documentation:' +
-  '\n// http://pouchdb.com\n',
-
-  'fruitdown': '// PouchDB fruitdown plugin ' + version +
-  '\n// Based on FruitDOWN: https://github.com/nolanlawson/fruitdown' +
   '\n// ' +
   '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
   '\n// PouchDB may be freely distributed under the Apache license, ' +
@@ -205,40 +164,6 @@ function buildForBrowser() {
   });
 }
 
-function buildPluginsForBrowserify() {
-  return all(plugins.map(function (plugin) {
-    return doRollup('src/extras/' + plugin + '.js',
-                    'lib/extras/' + plugin + '.js', true);
-  }));
-}
-
-function buildNodeExtras() {
-  return all(Object.keys(nodeExtras).map(function (entry) {
-    var target = nodeExtras[entry];
-    return doRollup(entry, 'lib/extras/' + target);
-  }));
-}
-
-function buildBrowserExtras() {
-  return all(Object.keys(browserExtras).map(function (entry) {
-    var target = browserExtras[entry];
-    return doRollup(entry, 'lib/extras/' + target, true);
-  }));
-}
-
-function buildPluginsForBrowser() {
-  return all(plugins.map(function (plugin) {
-    var source = 'lib/extras/' + plugin + '.js';
-    return doBrowserify(source, {}, 'pouchdb').then(function (code) {
-      code = comments[plugin] + code;
-      return all([
-        writeFile('packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js', code),
-        doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
-      ]);
-    });
-  }));
-}
-
 function buildPouchDBNext() {
   return doBrowserify('src/next.js', {standalone: 'PouchDB'}).then(function (code) {
     return writeFile('packages/node_modules/pouchdb/dist/pouchdb-next.js', code);
@@ -264,22 +189,19 @@ var doAll = argsarray(function (args) {
 });
 
 function doBuildNode() {
-  return mkdirp('lib/extras')
-    .then(buildForNode)
-    .then(buildNodeExtras);
+  return mkdirp('lib')
+    .then(buildForNode);
 }
 
 function doBuildDev() {
   return doAll(buildForNode, buildForBrowserify)()
-    .then(doAll(buildForBrowser, buildPluginsForBrowserify, buildPouchDBNext))
-    .then(buildPluginsForBrowser);
+    .then(doAll(buildForBrowser, buildPouchDBNext));
 }
 
 function doBuildAll() {
-  return rimrafMkdirp('lib', 'dist', 'lib/extras')
+  return rimrafMkdirp('lib', 'dist')
     .then(doAll(buildForNode, buildForBrowserify))
-    .then(doAll(buildForBrowser, buildPluginsForBrowserify, buildPouchDBNext))
-    .then(doAll(buildPluginsForBrowser, buildNodeExtras, buildBrowserExtras));
+    .then(doAll(buildForBrowser, buildPouchDBNext));
 }
 
 function doBuild() {

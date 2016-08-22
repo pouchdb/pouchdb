@@ -354,7 +354,8 @@ if (typeof process !== 'undefined' && !process.browser) {
     // test WebSQL in Node
     // (the two strings are just to fool Browserify because sqlite3 fails
     // in Node 0.11-0.12)
-    require('../../packages/node_modules/' + 'pouchdb/extras/websql');
+    global.PouchDB.plugin(require('../../packages/node_modules/' +
+      'pouchdb-adapter-node-websql'))
     global.PouchDB.preferredAdapters = ['websql', 'leveldb'];
     global.PouchDB = global.PouchDB.defaults({
       prefix: path.resolve('./tmp/_pouch_')
