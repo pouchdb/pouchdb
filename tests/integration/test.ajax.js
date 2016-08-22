@@ -16,7 +16,7 @@ adapters.forEach(function (adapter) {
       }, function (err, res) {
         // here's the test, we should get an 'err' response
         should.exist(err);
-        err.code.should.match(/(ETIMEDOUT|ENETUNREACH|EAGAIN)/);
+        err.code.should.match(/(ETIMEDOUT|ENETUNREACH|EAGAIN|ECONNREFUSED)/);
         should.not.exist(res);
         done();
       });
