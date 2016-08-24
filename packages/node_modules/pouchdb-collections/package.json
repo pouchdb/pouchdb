@@ -1,0 +1,26 @@
+{
+  "name": "pouchdb-collections",
+  "version": "5.5.0-prerelease",
+  "description": "Map and Set shims for PouchDB",
+  "main": "./lib/index.js",
+  "keywords": [
+    "map",
+    "set",
+    "collections"
+  ],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {},
+  "contributors": [
+    {
+      "name": "Calvin Metcalf",
+      "email": "cmetcalf@appgeo.com"
+    }
+  ]
+}

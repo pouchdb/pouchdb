@@ -1,0 +1,15 @@
+{% if include.path %}
+  {% assign pagePath = include.path %}
+{% elsif page.relative_path %}
+  {% assign pagePath = page.relative_path %}
+{% else %}
+  {% assign pagePath = page.path  %}
+{% endif %}
+<a
+  data-toggle="tooltip"
+  data-placement="top"
+  title="Edit this on Github"
+  class="icon-edit"
+  href="{{ site.github.repository_url }}/edit/master/docs/{{ pagePath }}"
+  target="_blank"
+></a>

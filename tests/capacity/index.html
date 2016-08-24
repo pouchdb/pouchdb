@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <title>Pouch DB Capacity Tests</title>
+    <script src="../../dist/pouchdb.js"></script>
+  </head>
+  <body>
+
+    <div><h1>Check your console logs to see what's going on.</h1></div>
+
+    <script>
+      var db,
+          test = { iteration: 0, delay:100, docSize:500000 };
+
+      var delayedIteration = function(delay) {
+        if(!delay) delay = test.delay;
+        setTimeout(iterate, delay);
+      };
+
+      var iterate = function() {
+        console.log('iterating: ' + ++test.iteration);
+        addRandomDoc(test.docSize, delayedIteration);
+      };
+
+      var uuid = function() {
+        console.log('generating uuid...');
+        // from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+          return v.toString(16);
+        });
+        console.log('uuid generated.');
+        return uuid;
+      };
+
+      var randomString = function(length) {
+        var s = '', add;
+        while(length > 0) {
+          add = Math.random().toString(36).substring(2, 2+Math.min(10, length));
+          length -= add.length;
+          s += add;
+        }
+        console.log('string generated.');
+        return s;
+      };
+
+      var addRandomDoc = function(len, successCallback) {
+        console.log('adding a random doc of len: ' + len + '...');
+        var doc = { content:randomString(len), _id:uuid() };
+        console.log('putting ...');
+        db.put(doc, function(err, res) {
+          if (err) {
+            console.error(err);
+            if (err.reason === 'QuotaExceededError') {
+              console.log('Received expected write failure, passing tests');
+              document.body.innerHTML = ':) Tests passed';
+            }
+            return;
+          }
+          console.log('Document add was successful.');
+          if(successCallback) successCallback();
+        });
+      };
+
+      console.log('dropping database...');
+      db = new PouchDB('test');
+      db.destroy(function(err, res) {
+        if(err) return console.log('[drop]' + err);
+        console.log('database dropped.  Starting puts...');
+        db = new PouchDB('test');
+        delayedIteration(0);
+     });
+    </script>
+  </body>
+</html>

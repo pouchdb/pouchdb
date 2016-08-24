@@ -1,0 +1,5 @@
+tests/integration/deps/*.js
+tests/integration/cordova/**/*.js
+tests/performance-bundle.js
+tests/fuzzy/seedrandom.min.js
+tests/integration/utils-bundle.js

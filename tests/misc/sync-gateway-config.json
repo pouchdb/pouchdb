@@ -1,0 +1,4 @@
+{
+  "log" : ["HTTP+"],
+  "configServer" : "http://localhost:8001/"
+}

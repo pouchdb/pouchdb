@@ -1,0 +1,11 @@
+{% if include.variant == "success" %}
+<div class="alert alert-success">
+{% elsif include.variant == "warning" %}
+<div class="alert alert-warning">
+{% elsif include.variant == "danger" %}
+<div class="alert alert-danger">
+{% else %}
+<div class="alert alert-info">
+{% endif %}
+
+<div class="alert-text">

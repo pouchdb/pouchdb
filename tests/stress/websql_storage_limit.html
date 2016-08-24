@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<body>
+<h1>WebSQL storage limit stress test</h1>
+
+<form action='#' id="myform" onsubmit="runTest();return false;">
+    <h3>Choose size in MB:</h3>
+    <input type="radio" id="5" name="size" value="5"/>
+    <label for="5">5</label>
+    <input type="radio" id="10" name="size" value="10" checked="checked"/>
+    <label for="5">10</label>
+    <input type="radio" id="50" name="size" value="50"/>
+    <label for="5">50</label>
+    <input type="radio" id="100" name="size" value="100"/>
+    <label for="5">100</label>
+    <input type="radio" id="500" name="size" value="500"/>
+    <label for="5">500</label>
+    <input type="radio" id="1000" name="size" value="1000"/>
+    <label for="5">1000</label>
+    <p/>
+    <button>Run test</button>
+</form>
+<p/>
+<pre id="log"> </pre>
+<script src="../../dist/pouchdb.js"></script>
+<script>
+
+    function getRadioValue() {
+        var inputs = document.getElementsByName("size");
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].checked) {
+                return inputs[i].value;
+            }
+        }
+    }
+
+    function log(text) {
+        document.getElementById('log').appendChild(document.createTextNode(text + '\n'));
+    }
+
+    log('this is a load test designed to reproduce the 10MB size limit bug on Safari/iOS 7');
+    log("if all's well, you should see a success message, else an error");
+    log("you can use Safari's 'reset Safari' option to try again\n");
+
+    function runTest() {
+
+        log('starting...');
+
+        var BATCH_SIZE = 1000;
+        var ITERATIONS = 1000;
+        var pouch = new PouchDB('websql_stress', {adapter: 'websql', size: getRadioValue()});
+        var promise = PouchDB.utils.Promise.resolve();
+
+        function addDocs(i) {
+            promise = promise.then(function () {
+                var docs = [];
+                for (var j = 0; j < BATCH_SIZE; j++) {
+                    docs.push({});
+                }
+                return pouch.bulkDocs({docs: docs}).then(function () {
+                    var numDone = (i + 1) * BATCH_SIZE;
+                    var total = BATCH_SIZE * ITERATIONS;
+                    var percent = (Math.round((numDone / total) * 10000) / 100).toFixed(2);
+                    log('Added ' + numDone + '/' + total + ' (' + percent + '%) docs so far...');
+                });
+            });
+        }
+
+        for (var i = 0; i < ITERATIONS; i++) {
+            addDocs(i);
+        }
+        promise.then(function () {
+            log('Success!');
+        }, function (err) {
+            log('Failure!');
+            log(err);
+        });
+
+        return false;
+    }
+</script>
+</body>
+</html>
