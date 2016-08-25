@@ -16,6 +16,9 @@ function reject(req, res, next) {
   if (req.body.docs) {
     replicationDoc = req.body.docs[0];
     res.status(403).send({error: true, message: 'Unauthorized'});
+  } else if (req.body._id) {
+    replicationDoc = req.body;
+    res.status(403).send({error: true, message: 'Unauthorized'});
   } else {
     next();
   }
