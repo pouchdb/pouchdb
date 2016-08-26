@@ -1,14 +1,14 @@
 <!--
      Hello! 👋
      Thank you for opening an issue on PouchDB.
-     There is also a 3-Minute read, on how to format you issue: https://guides.github.com/features/mastering-markdown/
+     There is also a 3-Minute read, on how to format your issue: https://guides.github.com/features/mastering-markdown/
      This template is optional, but it may help us fix your issue faster.
 -->
 ### Issue
 Write description here
 
 ### Reproduce
-- Write steps here (link to a repository or JSBin are even more helpful)
+- Write steps here (links to a repository or JSBin are even more helpful)
 
 ### Info
 - Environment (Node.js/browser/hybrid app/etc.)
