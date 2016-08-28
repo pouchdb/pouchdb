@@ -28,7 +28,6 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
     }
 
     test('benchmarking', function (t) {
-
       var db;
       var setupObj;
 
@@ -41,6 +40,10 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         }
         db = new PouchDB(localDbName, opts);
         testCase.setup(db, function (err, res) {
+          if (err) {
+            t.error(err);
+            reporter.log(testCase.name + ' errored: ' + err.message + '\n');
+          }
           setupObj = res;
           if (i === 0) {
             reporter.startSuite(suiteName);

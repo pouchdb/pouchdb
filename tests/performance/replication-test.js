@@ -57,7 +57,9 @@ module.exports = function (PouchDB, Promise) {
           });
       };
 
-      return addGeneration(gens, docs).then(callback);
+      return addGeneration(gens, docs).then(function (/* result */) {
+        callback();
+      }).catch(callback);
     };
   };
 
