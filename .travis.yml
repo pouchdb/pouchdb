@@ -100,7 +100,6 @@ env:
   # Test Webpack bundle
   - CLIENT=selenium:firefox:48.0 NEXT=1 COMMAND=test
 
-  - COMMAND=test-extras
   - COMMAND=test-unit
   - COMMAND=test-component
   - COMMAND=test-fuzzy
