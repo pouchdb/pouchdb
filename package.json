@@ -48,7 +48,7 @@
     "localstorage-down": "0.6.6",
     "ltgt": "2.1.2",
     "memdown": "1.1.2",
-    "pull-stream": "2.21.0",
+    "pull-stream": "3.4.4",
     "readable-stream": "1.0.33",
     "request": "2.72.0",
     "scope-eval": "0.0.3",
