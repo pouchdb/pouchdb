@@ -21,7 +21,8 @@ module.exports = function (PouchDB, opts) {
       test: function (db, itr, doc, done) {
         db.post(doc, done);
       }
-    }, {
+    },
+    {
       name: 'bulk-inserts',
       assertions: 1,
       iterations: 100,
@@ -35,7 +36,8 @@ module.exports = function (PouchDB, opts) {
       test: function (db, itr, docs, done) {
         db.bulkDocs(docs, done);
       }
-    }, {
+    },
+    {
       name: 'basic-updates',
       assertions: 1,
       iterations: 100,
@@ -55,7 +57,8 @@ module.exports = function (PouchDB, opts) {
           db.bulkDocs(docs, done);
         });
       }
-    }, {
+    },
+    {
       name: 'basic-gets',
       assertions: 1,
       iterations: 10000,
@@ -70,7 +73,8 @@ module.exports = function (PouchDB, opts) {
       test: function (db, itr, docs, done) {
         db.get(commonUtils.createDocId(itr), done);
       }
-    }, {
+    },
+    {
       name: 'all-docs-skip-limit',
       assertions: 1,
       iterations: 50,
@@ -93,7 +97,8 @@ module.exports = function (PouchDB, opts) {
           done();
         }, done);
       }
-    }, {
+    },
+    {
       name: 'all-docs-startkey-endkey',
       assertions: 1,
       iterations: 50,
@@ -122,7 +127,8 @@ module.exports = function (PouchDB, opts) {
           done();
         }, done);
       }
-    }, {
+    },
+    {
       name: 'all-docs-include-docs',
       assertions: 1,
       iterations: 100,

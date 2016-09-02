@@ -11,7 +11,6 @@
     "test-unit": "mocha tests/unit",
     "test-node": "npm run build-node && bash bin/test-node.sh",
     "test-component": "mocha tests/component",
-    "test-extras": "mocha tests/extras",
     "test-fuzzy": "TYPE=fuzzy npm run test",
     "test-browser": "npm run build-test && node ./bin/test-browser.js",
     "test-coverage": "bash bin/test-coverage.sh",

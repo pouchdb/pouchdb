@@ -160,7 +160,7 @@ PouchDB also offers separate browser plugins that use backends other than Indexe
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
-These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt. You may want to [use the Browserify/Webpack versions](/api.html#extras) to deduplicate code and create a smaller bundle.
+These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt.
 {% endmarkdown %}
 {% include alert/end.html%}
 
@@ -272,7 +272,7 @@ In addition to the LevelDOWN-based adapters, you can also use PouchDB over
 
 ```js
 var PouchDB = require('pouchdb');
-require('pouchdb/extras/websql');
+PouchDB.plugin(require('pouchdb-adapter-node-websql'));
 
 var db = new PouchDB('mydatabase.db', {adapter: 'websql'});
 ```
