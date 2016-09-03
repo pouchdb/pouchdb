@@ -113,32 +113,6 @@ var PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-replication'));
 ```
 
-### pouchdb-http
-
-The `pouchdb-http` preset only contains the HTTP adapter, i.e. the adapter that
-allows PouchDB to talk to CouchDB using the format `new PouchDB('http://127.0.0.1:5984/mydb')`. Note that
-this preset does not come with map/reduce, so you cannot use the `query()` API.
-
-Use this preset if you only want to use PouchDB as an interface to CouchDB (or a Couch-compatible server).
-
-#### Example Usage
-
-```bash
-npm install pouchdb-http
-```
-
-```js
-var PouchDB = require('pouchdb-http');
-var db = new PouchDB('http://127.0.0.1:5984/mydb');
-```
-
-#### Source code (simplified)
-
-```js
-var PouchDB = require('pouchdb-core')
-  .plugin(require('pouchdb-adapter-http'));
-```
-
 ### pouchdb-core
 
 The `pouchdb-core` package is a special preset in that it exposes the minimum
