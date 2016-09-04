@@ -15,8 +15,7 @@ var path = require('path');
 var denodeify = require('denodeify');
 var browserify = require('browserify');
 var browserifyIncremental = require('browserify-incremental');
-var rollup = require('rollup');
-var nodeResolve = require('rollup-plugin-node-resolve');
+var rollupPrepublish = require('rollup-prepublish');
 var derequire = require('derequire');
 var fs = require('fs');
 var writeFileAsync = denodeify(fs.writeFile);
@@ -30,9 +29,6 @@ var argsarray = require('argsarray');
 
 var pkg = require('../packages/node_modules/pouchdb/package.json');
 var version = pkg.version;
-
-// these modules should be treated as external by Rollup
-var external = require('./external-deps');
 
 var plugins = ['fruitdown', 'localstorage', 'memory'];
 
@@ -147,19 +143,11 @@ function doBrowserify(filepath, opts, exclude) {
 
 function doRollup(entry, fileOut, browser) {
   var start = process.hrtime();
-  return rollup.rollup({
+  return rollupPrepublish({
     entry: addPath(entry),
-    external: external,
-    plugins: [
-      nodeResolve({
-        skip: external,
-        jsnext: true,
-        browser: browser,
-        main: false  // don't use "main"s that are CJS
-      })
-    ]
-  }).then(function (bundle) {
-    var code = bundle.generate({format: 'cjs'}).code;
+    browser: browser,
+    quiet: true
+  }).then(function (code) {
     if (DEV_MODE) {
       var ms = Math.round(process.hrtime(start)[1] / 1000000);
       console.log('    took ' + ms + ' ms to rollup ' +

@@ -9,8 +9,7 @@
 
 'use strict';
 
-var rollup = require('rollup').rollup;
-var nodeResolve = require('rollup-plugin-node-resolve');
+var rollupPrepublish = require('rollup-prepublish');
 
 var path = require('path');
 var lie = require('lie');
@@ -21,28 +20,9 @@ var Promise = lie;
 var denodeify = require('denodeify');
 var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
-var externalDeps = require('./external-deps');
 
 function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
-
-  // All external modules are assumed to be CommonJS, and therefore should
-  // be skipped by Rollup. We may revisit this later.
-  var depsToSkip = Object.keys(pkg.dependencies || {});
-  depsToSkip = depsToSkip.concat([
-    'crypto', 'fs', 'events', 'path'
-  ]);
-
-  if (pkg.name === 'pouchdb-for-coverage') {
-    // special case - for the coverage reports, the whole thing is
-    // bundled into one index.js. so we don't want to externalize
-    // the pouchdb repos
-    depsToSkip = depsToSkip.filter(function (dep) {
-      return !/pouchdb/.test(dep);
-    }).concat(externalDeps.filter(function (dep) {
-      return dep !== 'pouchdb'; // don't exclude pouchdb itself
-    }));
-  }
 
   if (pkg.browser && pkg.browser['./lib/index.js'] !== './lib/index-browser.js') {
     return Promise.reject(new Error(pkg.name +
@@ -62,28 +42,18 @@ function buildModule(filepath) {
     return mkdirp(path.resolve(filepath, 'lib'));
   }).then(function () {
     return Promise.all(versions.map(function (isBrowser) {
-      return rollup({
+      var dest = isBrowser ? 'lib/index-browser.js' : 'lib/index.js';
+      return rollupPrepublish({
         entry: path.resolve(filepath, './src/index.js'),
-        external: depsToSkip,
-        plugins: [
-          nodeResolve({
-            skip: depsToSkip,
-            jsnext: true,
-            browser: isBrowser || forceBrowser
-          })
-        ]
-      }).then(function (bundle) {
-        var dest = isBrowser ? 'lib/index-browser.js' : 'lib/index.js';
-        return bundle.write({
-          format: 'cjs',
-          dest: path.resolve(filepath, dest)
-        }).then(function () {
-          console.log('  \u2713' + ' wrote ' +
-            path.basename(filepath) + '/' + dest + ' in ' +
-              (isBrowser ? 'browser' :
-              versions.length > 1 ? 'node' : 'vanilla') +
-            ' mode');
-        });
+        dest: path.resolve(filepath, dest),
+        browser: isBrowser || forceBrowser,
+        quiet: true
+      }).then(function () {
+        console.log('  \u2713' + ' wrote ' +
+          path.basename(filepath) + '/' + dest + ' in ' +
+            (isBrowser ? 'browser' :
+            versions.length > 1 ? 'node' : 'vanilla') +
+          ' mode');
       });
     }));
   });
