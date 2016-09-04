@@ -35,18 +35,6 @@ var version = pkg.version;
 var external = require('./external-deps');
 
 var plugins = ['fruitdown', 'localstorage', 'memory'];
-var browserExtras = {
-  'src/extras/ajax.js': 'ajax-browser.js',
-  'src/extras/checkpointer.js': 'checkpointer-browser.js',
-  'src/extras/generateReplicationId.js': 'generateReplicationId-browser.js'
-};
-var nodeExtras = {
-  'src/extras/promise.js': 'promise.js',
-  'src/extras/checkpointer.js': 'checkpointer.js',
-  'src/extras/generateReplicationId.js': 'generateReplicationId.js',
-  'src/extras/ajax.js': 'ajax.js',
-  'src/extras/websql.js': 'websql.js'
-};
 
 var currentYear = new Date().getFullYear();
 
@@ -207,28 +195,14 @@ function buildForBrowser() {
 
 function buildPluginsForBrowserify() {
   return all(plugins.map(function (plugin) {
-    return doRollup('src/extras/' + plugin + '.js',
-                    'lib/extras/' + plugin + '.js', true);
-  }));
-}
-
-function buildNodeExtras() {
-  return all(Object.keys(nodeExtras).map(function (entry) {
-    var target = nodeExtras[entry];
-    return doRollup(entry, 'lib/extras/' + target);
-  }));
-}
-
-function buildBrowserExtras() {
-  return all(Object.keys(browserExtras).map(function (entry) {
-    var target = browserExtras[entry];
-    return doRollup(entry, 'lib/extras/' + target, true);
+    return doRollup('src/plugins/' + plugin + '.js',
+                    'lib/plugins/' + plugin + '.js', true);
   }));
 }
 
 function buildPluginsForBrowser() {
   return all(plugins.map(function (plugin) {
-    var source = 'lib/extras/' + plugin + '.js';
+    var source = 'lib/plugins/' + plugin + '.js';
     return doBrowserify(source, {}, 'pouchdb').then(function (code) {
       code = comments[plugin] + code;
       return all([
@@ -264,9 +238,8 @@ var doAll = argsarray(function (args) {
 });
 
 function doBuildNode() {
-  return mkdirp('lib/extras')
-    .then(buildForNode)
-    .then(buildNodeExtras);
+  return mkdirp('lib/plugins')
+    .then(buildForNode);
 }
 
 function doBuildDev() {
@@ -276,10 +249,10 @@ function doBuildDev() {
 }
 
 function doBuildAll() {
-  return rimrafMkdirp('lib', 'dist', 'lib/extras')
+  return rimrafMkdirp('lib', 'dist', 'lib/plugins')
     .then(doAll(buildForNode, buildForBrowserify))
     .then(doAll(buildForBrowser, buildPluginsForBrowserify, buildPouchDBNext))
-    .then(doAll(buildPluginsForBrowser, buildNodeExtras, buildBrowserExtras));
+    .then(doAll(buildPluginsForBrowser));
 }
 
 function doBuild() {
