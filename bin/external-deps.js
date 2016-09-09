@@ -10,7 +10,7 @@ module.exports = [
   'fruitdown', 'inherits', 'js-extend', 'level-write-stream', 'levelup', 'lie',
   'localstorage-down', 'memdown',
   'request', 'scope-eval', 'spark-md5', 'through2',
-  'vuvuzela', 'leveldown', 'websql',
+  'vuvuzela', 'leveldown', 'websql', 'vm',
   // core node deps
   'fs', 'crypto', 'events', 'path',
   // sublevel-pouchdb
