@@ -104,7 +104,7 @@ env:
   - COMMAND=test-component
   - COMMAND=test-fuzzy
   - COMMAND=report-coverage
-  - COMMAND=verify-bundle-size
+  - COMMAND=verify-build
 
 matrix:
   fast_finish: true

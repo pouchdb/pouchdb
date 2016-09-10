@@ -159,6 +159,12 @@ There's a WebSQL storage quota test available in:
 
 Run `npm run dev`, then open it in Safari or iOS.
 
+### Build tests
+
+To verify that the build was done correctly, there are some tests here:
+
+    npm run verify-build
+
 Adapter plugins and adapter order
 --------------------------------------
 
