@@ -22,7 +22,8 @@ var Promise = lie;
 var denodeify = require('denodeify');
 var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
-var externalDeps = require('./external-deps');
+var builtInModules = require('builtin-modules');
+var fs = require('fs');
 
 function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
@@ -30,10 +31,9 @@ function buildModule(filepath) {
 
   // All external modules are assumed to be CommonJS, and therefore should
   // be skipped by Rollup. We may revisit this later.
-  var depsToSkip = Object.keys(topPkg.dependencies || {});
-  depsToSkip = depsToSkip.concat([
-    'crypto', 'fs', 'events', 'path'
-  ]);
+  var depsToSkip = Object.keys(topPkg.dependencies || {})
+    .concat(builtInModules)
+    .concat(fs.readdirSync(path.resolve(filepath, '..')));
 
   if (pkg.name === 'pouchdb-for-coverage') {
     // special case - for the coverage reports, the whole thing is
@@ -41,9 +41,7 @@ function buildModule(filepath) {
     // the pouchdb repos
     depsToSkip = depsToSkip.filter(function (dep) {
       return !/pouchdb/.test(dep);
-    }).concat(externalDeps.filter(function (dep) {
-      return dep !== 'pouchdb'; // don't exclude pouchdb itself
-    }));
+    });
   }
 
   if (pkg.browser && pkg.browser['./lib/index.js'] !== './lib/index-browser.js') {
