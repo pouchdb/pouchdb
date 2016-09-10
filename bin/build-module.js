@@ -25,10 +25,11 @@ var externalDeps = require('./external-deps');
 
 function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
+  var topPkg = require(path.resolve(filepath, '../../../package.json'));
 
   // All external modules are assumed to be CommonJS, and therefore should
   // be skipped by Rollup. We may revisit this later.
-  var depsToSkip = Object.keys(pkg.dependencies || {});
+  var depsToSkip = Object.keys(topPkg.dependencies || {});
   depsToSkip = depsToSkip.concat([
     'crypto', 'fs', 'events', 'path'
   ]);
