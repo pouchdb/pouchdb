@@ -17,6 +17,7 @@ var browserify = require('browserify');
 var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
+var replace = require('rollup-plugin-replace');
 var derequire = require('derequire');
 var fs = require('fs');
 var writeFileAsync = denodeify(fs.writeFile);
@@ -156,6 +157,10 @@ function doRollup(entry, browser, formatsToFiles) {
         jsnext: true,
         browser: browser,
         main: false  // don't use "main"s that are CJS
+      }),
+      replace({
+        // we have switches for coverage; don't ship this to consumers
+        'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE)
       })
     ]
   }).then(function (bundle) {

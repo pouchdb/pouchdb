@@ -103,7 +103,9 @@ env:
   - COMMAND=test-unit
   - COMMAND=test-component
   - COMMAND=test-fuzzy
-  - COMMAND=report-coverage
+  # need extra env variable COVERAGE here because of some subtlety in Travis containers not
+  # passing the process.env.COVERAGE to the node process
+  - COMMAND=report-coverage COVERAGE=1
   - COMMAND=verify-bundle-size
 
 matrix:
