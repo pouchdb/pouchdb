@@ -145,7 +145,7 @@ function doBrowserify(filepath, opts, exclude) {
   });
 }
 
-function doRollup(entry, fileOut, browser) {
+function doRollup(entry, browser, formatsToFiles) {
   var start = process.hrtime();
   return rollup.rollup({
     entry: addPath(entry),
@@ -159,25 +159,33 @@ function doRollup(entry, fileOut, browser) {
       })
     ]
   }).then(function (bundle) {
-    var code = bundle.generate({format: 'cjs'}).code;
-    if (DEV_MODE) {
-      var ms = Math.round(process.hrtime(start)[1] / 1000000);
-      console.log('    took ' + ms + ' ms to rollup ' +
-        path.dirname(entry) + '/' + path.basename(entry));
-    }
-    return writeFile(addPath(fileOut),
-      addVersion(code));
+    return Promise.all(Object.keys(formatsToFiles).map(function (format) {
+      var fileOut = formatsToFiles[format];
+      var code = bundle.generate({format: format}).code;
+      if (DEV_MODE) {
+        var ms = Math.round(process.hrtime(start)[1] / 1000000);
+        console.log('    took ' + ms + ' ms to rollup ' +
+          path.dirname(entry) + '/' + path.basename(entry));
+      }
+      return writeFile(addPath(fileOut), addVersion(code));
+    }));
   });
 }
 
 // build for Node (index.js)
 function buildForNode() {
-  return doRollup('src/index.js', 'lib/index.js');
+  return doRollup('src/index.js', false, {
+    cjs: 'lib/index.js',
+    es: 'lib/index.es.js'
+  });
 }
 
 // build for Browserify/Webpack (index-browser.js)
 function buildForBrowserify() {
-  return doRollup('src/index.js', 'lib/index-browser.js', true);
+  return doRollup('src/index.js', true, {
+    cjs: 'lib/index-browser.js',
+    es: 'lib/index-browser.es.js'
+  });
 }
 
 // build for the browser (dist)
@@ -195,8 +203,9 @@ function buildForBrowser() {
 
 function buildPluginsForBrowserify() {
   return all(plugins.map(function (plugin) {
-    return doRollup('src/plugins/' + plugin + '.js',
-                    'lib/plugins/' + plugin + '.js', true);
+    return doRollup('src/plugins/' + plugin + '.js', true, {
+      cjs: 'lib/plugins/' + plugin + '.js'
+    });
   }));
 }
 
