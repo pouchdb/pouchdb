@@ -31,8 +31,9 @@ var argsarray = require('argsarray');
 var pkg = require('../packages/node_modules/pouchdb/package.json');
 var version = pkg.version;
 
-// these modules should be treated as external by Rollup
-var external = require('./external-deps');
+var builtInModules = require('builtin-modules');
+var external = Object.keys(require('../package.json').dependencies)
+  .concat(builtInModules);
 
 var plugins = ['fruitdown', 'localstorage', 'memory'];
 
