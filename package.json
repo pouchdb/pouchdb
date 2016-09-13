@@ -96,6 +96,7 @@
     "rimraf": "2.5.4",
     "rollup": "0.34.13",
     "rollup-plugin-node-resolve": "2.0.0",
+    "rollup-plugin-replace": "1.1.1",
     "sauce-connect-launcher": "0.16.0",
     "seedrandom": "2.4.2",
     "selenium-standalone": "5.6.3",

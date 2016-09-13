@@ -11,6 +11,7 @@
 
 var rollup = require('rollup').rollup;
 var nodeResolve = require('rollup-plugin-node-resolve');
+var replace = require('rollup-plugin-replace');
 
 var path = require('path');
 var lie = require('lie');
@@ -71,6 +72,10 @@ function buildModule(filepath) {
             skip: depsToSkip,
             jsnext: true,
             browser: isBrowser || forceBrowser
+          }),
+          replace({
+            // we have switches for coverage; don't ship this to consumers
+            'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE)
           })
         ]
       }).then(function (bundle) {
