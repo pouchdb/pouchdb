@@ -33,7 +33,12 @@ modules.forEach(function (mod) {
   // for the dependencies, find all require() calls
   var srcFiles = glob.sync(path.join(pkgDir, 'lib/**/*.js'));
   var uniqDeps = uniq(flatten(srcFiles.map(function (srcFile) {
-    return findRequires(fs.readFileSync(srcFile, 'utf8'));
+    var code = fs.readFileSync(srcFile, 'utf8');
+    try {
+      return findRequires(code);
+    } catch (e) {
+      return []; // happens if this is an es6 module, parsing fails
+    }
   }))).filter(function (dep) {
     // some modules require() themselves, e.g. for plugins
     return dep !== pkg.name &&
