@@ -30,9 +30,15 @@ getReqs('pouchdb/lib/index-browser.js').should.not.contain('pouchdb');
 getReqs('pouchdb/lib/index-browser.js').should.not.contain('leveldown');
 getReqs('pouchdb/lib/index-browser.js').should.not.contain('pouchdb-core');
 
-// sub-dependencies are not so aggressively bundled (for now, anyway)
-getReqs('pouchdb-node/lib/index.js').should.contain('pouchdb-core');
-getReqs('pouchdb-browser/lib/index.js').should.contain('pouchdb-core');
+// pouchdb-node and pouchdb-browser are also aggressively bundled
+getReqs('pouchdb-node/lib/index.js').should.not.contain('pouchdb-core');
+getReqs('pouchdb-node/lib/index.js').should.not.contain('pouchdb-promise');
+getReqs('pouchdb-node/lib/index.js').should.contain('leveldown');
+getReqs('pouchdb-browser/lib/index.js').should.not.contain('pouchdb-core');
+getReqs('pouchdb-browser/lib/index.js').should.not.contain('pouchdb-promise');
+getReqs('pouchdb-browser/lib/index.js').should.contain('lie');
+
+// other sub-dependencies are not so aggressively bundled (for now, anyway)
 getReqs('pouchdb-mapreduce/lib/index.js').should.contain('pouchdb-promise');
 getReqs('pouchdb-mapreduce/lib/index-browser.js')
   .should.contain('pouchdb-promise');
