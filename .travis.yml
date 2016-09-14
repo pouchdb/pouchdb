@@ -106,7 +106,7 @@ env:
   # need extra env variable COVERAGE here because of some subtlety in Travis containers not
   # passing the process.env.COVERAGE to the node process
   - COMMAND=report-coverage COVERAGE=1
-  - COMMAND=verify-bundle-size
+  - COMMAND=verify-build
 
 matrix:
   fast_finish: true
