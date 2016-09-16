@@ -4,43 +4,57 @@ title: Download
 sidebar: nav.html
 ---
 
-{% include anchor.html class="h3" title="File Download" hash="file" %}
-
-The PouchDB file should come before any files that use it.
-
-For use in an HTML file:
+{% include anchor.html class="h3" title="Quick Start" hash="file" %}
 
 {% highlight html %}
-<script src="https://cdn.jsdelivr.net/pouchdb/{{ site.version }}/pouchdb.min.js"></script>
+<script src="//cdn.jsdelivr.net/pouchdb/{{ site.version }}/pouchdb.min.js">
+</script>
 <script>
   var db = new PouchDB('my_database');
 </script>
 {% endhighlight %}
 
-PouchDB is supplied as a compressed and uncompressed download:
+PouchDB can also be directly downloaded:
 
-* [Download pouchdb-{{ site.version }}.min.js][latest-min] (compressed for production)
-* [Download pouchdb-{{ site.version }}.js][latest] (uncompressed for debugging)
-
-PouchDB is also hosted on Content Delivery Networks:
-
-* [PouchDB on jsdelivr](http://www.jsdelivr.com/#!pouchdb)
-* [PouchDB on cdnjs](https://cdnjs.com/libraries/pouchdb)
+* [pouchdb-{{ site.version }}.min.js][latest-min] (compressed for production)
+* [pouchdb-{{ site.version }}.js][latest] (uncompressed for debugging)
 
 {% include anchor.html class="h3" title="npm" hash="npm" %}
 
-PouchDB can also be installed through [npm](http://npmjs.com) for Node.js. This can be used on the server and/or browser.
-
-**A bundler such as [Browserify](http://browserify.org/), [Webpack](https://webpack.github.io/), or [Rollup](http://rollupjs.org/) is needed for browser usage.**
+PouchDB can be installed through [npm](http://npmjs.com):
 
 {% highlight bash %}npm install --save pouchdb{% endhighlight %}
 
-After installing, you can require and use:
+After installing, call `require()` to use it:
 
 {% highlight javascript %}
 var PouchDB = require('pouchdb');
 var db = new PouchDB('my_database');
 {% endhighlight %}
+
+PouchDB can be used either in Node or in the browser. A bundler such as [Browserify](http://browserify.org/), [Webpack](https://webpack.github.io/), or [Rollup](http://rollupjs.org/) is needed for browser usage.
+
+#### Browser only
+
+If you're only using PouchDB in the browser, you can use `pouchdb-browser` for
+faster install times:
+
+{% highlight bash %}npm install --save pouchdb-browser{% endhighlight %}
+
+{% highlight javascript %}
+var PouchDB = require('pouchdb-browser');
+var db = new PouchDB('my_database');
+{% endhighlight %}
+
+See [custom builds](http://pouchdb.com/custom.html) for more options.
+
+{% include anchor.html class="h3" title="CDNs" hash="cdn" %}
+
+PouchDB is hosted at these CDNs:
+
+* [cdnjs](https://cdnjs.com/libraries/pouchdb)
+* [jsdelivr](http://www.jsdelivr.com/#!pouchdb)
+* [unpkg](https://unpkg.com/pouchdb@6.0.4/dist/)
 
 {% include anchor.html class="h3" title="Bower" hash="bower" %}
 
@@ -54,7 +68,11 @@ For past releases and changelog, check out the [Github releases page](https://gi
 
 {% include anchor.html class="h3" title="Plugins" hash="plugins" %}
 
-For plugins, see the [plugins page](/external.html).
+For third-party plugins, see the [plugins page](/external.html).
+
+{% include anchor.html class="h3" title="Custom builds" hash="custom" %}
+
+For custom builds and first-party plugins, see the [custom builds](http://pouchdb.com/custom.html) page.
 
 [latest]: https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.js
 [latest-min]: https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js
