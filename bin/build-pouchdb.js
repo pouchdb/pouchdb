@@ -225,7 +225,9 @@ function buildPluginsForBrowser() {
         doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
       ]);
     });
-  }));
+  })).then(function () {
+    return rimraf(addPath('lib/plugins')); // no need for this after building dist/
+  });
 }
 
 function buildPouchDBNext() {
@@ -253,7 +255,7 @@ var doAll = argsarray(function (args) {
 });
 
 function doBuildNode() {
-  return mkdirp('lib/plugins')
+  return mkdirp(addPath('lib/plugins'))
     .then(buildForNode);
 }
 
