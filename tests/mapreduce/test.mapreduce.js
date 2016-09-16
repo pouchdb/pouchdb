@@ -1037,24 +1037,32 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function () {
           return db.query(queryFun, { reduce: true });
         }).then(function (res) {
-          res.rows.should.have.length(1, 'Correctly reduced returned rows');
-          should.not.exist(res.rows[0].key, 'Correct, non-existing key');
-          res.rows[0].value.should.have.length(5);
-          res.rows[0].value.should.include('foobarbaz');
-          res.rows[0].value.should.include('foobar'); // twice
-          res.rows[0].value.should.include('bazbar');
-          res.rows[0].value.should.include('baz');
+          // We're using `chai.assert` here because the usual `chai.should()`
+          // object extension magic won't work when executing functions in a
+          // sandbox using node's `vm` module.
+          // c.f. https://stackoverflow.com/a/16273649/680742
+          assert.lengthOf(res.rows, 1, 'Correctly reduced returned rows');
+          assert.isNull(res.rows[0].key, 'Correct, non-existing key');
+          assert.lengthOf(res.rows[0].value, 5);
+          assert.include(res.rows[0].value, 'foobarbaz');
+          assert.include(res.rows[0].value, 'foobar'); // twice
+          assert.include(res.rows[0].value, 'bazbar');
+          assert.include(res.rows[0].value, 'baz');
           return db.query(queryFun, { group_level: 1, reduce: true });
         }).then(function (res) {
-          res.rows.should.have.length(2, 'Correctly group reduced rows');
-          res.rows[0].key.should.deep.equal(['baz']);
-          res.rows[0].value.should.have.length(2);
-          res.rows[0].value.should.include('bazbar');
-          res.rows[0].value.should.include('baz');
-          res.rows[1].key.should.deep.equal(['foo']);
-          res.rows[1].value.should.have.length(3);
-          res.rows[1].value.should.include('foobarbaz');
-          res.rows[1].value.should.include('foobar'); // twice
+          // We're using `chai.assert` here because the usual `chai.should()`
+          // object extension magic won't work when executing functions in a
+          // sandbox using node's `vm` module.
+          // c.f. https://stackoverflow.com/a/16273649/680742
+          assert.lengthOf(res.rows, 2, 'Correctly group reduced rows');
+          assert.deepEqual(res.rows[0].key, ['baz']);
+          assert.lengthOf(res.rows[0].value, 2);
+          assert.include(res.rows[0].value, 'bazbar');
+          assert.include(res.rows[0].value, 'baz');
+          assert.deepEqual(res.rows[1].key, ['foo']);
+          assert.lengthOf(res.rows[1].value, 3);
+          assert.include(res.rows[1].value, 'foobarbaz');
+          assert.include(res.rows[1].value, 'foobar'); // twice
         });
       });
     });
