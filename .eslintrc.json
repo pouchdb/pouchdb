@@ -24,6 +24,7 @@
     "emit": true,
     "PouchDB": true,
     "should": true,
+    "assert": true,
     "testUtils": true,
     "importScripts": true
   },
