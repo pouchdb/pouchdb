@@ -4,7 +4,11 @@ title: Adapters
 sidebar: nav.html
 ---
 
-PouchDB is not a self-contained database; it is a CouchDB-style abstraction layer over other databases. By default, PouchDB ships with [IndexedDB][] and [WebSQL][] adapters in the browser, and a [LevelDB][] adapter in Node.js.
+PouchDB is not a self-contained database; it is a CouchDB-style abstraction layer over other databases. By default, PouchDB ships with [IndexedDB][] and [WebSQL][] adapters in the browser, and a [LevelDB][] adapter in Node.js. This can be visualized as so:
+
+<object data="static/svg/pouchdb_adapters.svg" type="image/svg+xml">
+    <img src="static/img/pouchdb_adapters.png" alt="adapters">
+</object>
 
 PouchDB attempts to provide a consistent API that "just works" across every browser and JavaScript environment, and in most cases, you can just use the defaults. However, if you're trying to reach the widest possible audience, or if you want the best performance, then you will sometimes want to tinker with the adapter settings.
 
