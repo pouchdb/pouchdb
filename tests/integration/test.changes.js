@@ -2117,7 +2117,7 @@ adapters.forEach(function (adapter) {
       ];
       var localdb = new PouchDB(dbs.name);
       var remotedb = new PouchDB(dbs.remote);
-      return localdb.bulkDocs({ docs: docs1 }).then(function (info) {
+      localdb.bulkDocs({ docs: docs1 }).then(function (info) {
         docs2[0]._rev = info[2].rev;
         docs2[1]._rev = info[3].rev;
         return localdb.put(docs2[0]).then(function () {

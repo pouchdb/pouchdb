@@ -512,9 +512,9 @@ adapters.forEach(function (adapter) {
       return chain;
     });
 
-    it('local conflicts', function (done) {
+    it('local conflicts', function () {
       if (testUtils.isCouchMaster()) {
-        return done();
+        return true;
       }
       var db = new PouchDB(dbs.name);
       return db.put({foo: 'bar'}, '_local/baz').then(function (result) {
@@ -523,10 +523,9 @@ adapters.forEach(function (adapter) {
         return db.put({foo: 'bar'}, '_local/baz');
       }, function (e) {
         should.not.exist(e, 'shouldn\'t error yet');
-        done(e);
+        throw e;
       }).then(undefined, function (e) {
         should.exist(e, 'error when you have a conflict');
-        done();
       });
     });
 
