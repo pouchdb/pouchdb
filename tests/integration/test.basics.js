@@ -854,7 +854,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('putting is override-able', function (done) {
+    it('putting is override-able', function () {
       var db = new PouchDB(dbs.name);
       var called = 0;
       var plugin = {
@@ -878,9 +878,7 @@ adapters.forEach(function (adapter) {
         return db.get('anid');
       }).then(function (doc) {
         doc.foo.should.equal('bar', 'correct doc');
-      }).then(function () {
-        done();
-      }, done);
+      });
     });
 
     it('issue 2779, deleted docs, old revs COUCHDB-292', function (done) {
