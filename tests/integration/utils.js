@@ -104,6 +104,13 @@ testUtils.base64Blob = function (blob, callback) {
 // Prefix http adapter database names with their host and
 // node adapter ones with a db location
 testUtils.adapterUrl = function (adapter, name) {
+
+  // CouchDB master has problems with cycling databases rapidly
+  // so give tests seperate names
+  if (testUtils.isCouchMaster()) {
+    name += '_' + Date.now();
+  }
+
   if (adapter === 'http') {
     return testUtils.couchHost() + '/' + name;
   }
