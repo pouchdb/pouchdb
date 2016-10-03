@@ -49,6 +49,7 @@
     "localstorage-down": "0.6.6",
     "ltgt": "2.1.2",
     "memdown": "1.2.2",
+    "object.assign": "^4.0.4",
     "readable-stream": "1.0.33",
     "request": "2.74.0",
     "scope-eval": "0.0.3",
