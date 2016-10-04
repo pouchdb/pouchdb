@@ -270,7 +270,7 @@ testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
 testUtils.parseUri = pouchUtils.parseUri;
 testUtils.errors = PouchForCoverage.Errors;
-testUtils.extend = require('js-extend').extend;
+testUtils.extend = pouchUtils.jsExtend;
 
 testUtils.makeBlob = function (data, type) {
   if (typeof process !== 'undefined' && !process.browser) {
