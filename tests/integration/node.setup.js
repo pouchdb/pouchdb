@@ -4,7 +4,7 @@
 require('throw-max-listeners-error');
 
 var seedrandom = require('seedrandom');
-var seed = process.env.SEED || Date.now();
+var seed = (process.env.SEED || Date.now()) + "";
 console.log('Seeded with: ' + seed);
 seedrandom(seed, { global: true });
 
