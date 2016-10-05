@@ -85,7 +85,7 @@ adapters.forEach(function (adapter) {
       }
     };
 
-    it('3357 Attachment names cant start with _', function (done) {
+    it('3357 Attachment names cant start with _', function () {
       var db = new PouchDB(dbs.name);
       var doc = {_id: 'baz', _attachments: {
         '_text1.txt': {
@@ -94,10 +94,9 @@ adapters.forEach(function (adapter) {
         }
       }};
       return db.put(doc).then(function () {
-        done('Should not succeed');
+        throw 'Should not succeed';
       }).catch(function (err) {
         err.name.should.equal('bad_request');
-        done();
       });
     });
 
