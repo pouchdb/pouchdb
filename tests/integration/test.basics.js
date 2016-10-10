@@ -782,6 +782,10 @@ adapters.forEach(function (adapter) {
     });
 
     it('db.info should give correct name', function (done) {
+      // CouchDB Master uses random names
+      if (testUtils.isCouchMaster()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       db.info().then(function (info) {
         info.db_name.should.equal('testdb');

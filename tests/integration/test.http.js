@@ -187,6 +187,10 @@ describe('test.http.js', function () {
 
 
   it('5574 Create a pouch with / in name and prefix url', function () {
+    // CouchDB Master disallows these characters
+    if (testUtils.isCouchMaster()) {
+      return true;
+    }
     var db = new PouchDB('test/suffix', {
       prefix: testUtils.adapterUrl('http', '')
     });
