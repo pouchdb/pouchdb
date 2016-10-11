@@ -878,7 +878,7 @@ adapters.forEach(function (adapters) {
       .then(function () { return remove(local, doc1._id); })
       .then(function () { return local.sync (remote); })
       .then(function () {
-        return Promise.all([
+        return testUtils.Promise.all([
           local.allDocs({include_docs: true}),
           remote.allDocs({include_docs: true})
         ]);
