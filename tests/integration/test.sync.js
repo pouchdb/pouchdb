@@ -833,5 +833,58 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('5782 sync rev-1 conflicts', function () {
+      var local = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      function update(a, id) {
+        return a.get(id).then(function (doc) {
+          doc.updated = Date.now();
+          return a.put(doc);
+        });
+      }
+
+      function remove(a, id) {
+        return a.get(id).then(function (doc) {
+          return a.remove(doc);
+        });
+      }
+
+      function conflict(docTemplate) {
+        return local.put(docTemplate).then(function () {
+          docTemplate.baz = 'fubar';
+          return remote.put(docTemplate);
+        });
+      }
+
+      var doc1 = {
+        _id: 'random-' + Date.now(),
+        foo: 'bar'
+      };
+
+      var doc2 = {
+        _id: 'random2-' + Date.now(),
+        foo: 'bar'
+      };
+
+      return conflict(doc2)
+      .then(function () { return local.replicate.to(remote); })
+      .then(function () { return update(local, doc2._id); })
+      .then(function () { return remove(local, doc2._id); })
+      .then(function () { return local.replicate.to(remote); })
+      .then(function () { return conflict(doc1); })
+      .then(function () { return update(remote, doc2._id); })
+      .then(function () { return local.replicate.to(remote); })
+      .then(function () { return remove(local, doc1._id); })
+      .then(function () { return local.sync (remote); })
+      .then(function () {
+        return testUtils.Promise.all([
+          local.allDocs({include_docs: true}),
+          remote.allDocs({include_docs: true})
+        ]);
+      }).then(function (res) {
+        res[0].should.deep.equal(res[1]);
+      });
+    });
   });
 });
