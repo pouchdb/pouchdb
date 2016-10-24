@@ -349,7 +349,7 @@ describe('test.memleak.js', function () {
 
     var host = 'http://127.0.0.1:' + server.address().port + '/';
 
-    var measure = new MeasureHeap(next,default_opts,'core');
+    var measure = new MeasureHeap(next,default_opts,'http');
 
     function Test(done) {
       if (done) {
@@ -382,7 +382,7 @@ describe('test.memleak.js', function () {
   it('Test basic memory leak in PouchDB leveldown adapter', function (next) {
     this.timeout(40*1000);
 
-    var measure = new MeasureHeap(next,default_opts,'core');
+    var measure = new MeasureHeap(next,default_opts,'level');
 
     function Test(done) {
       if (done) {
