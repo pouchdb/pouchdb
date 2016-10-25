@@ -59,6 +59,40 @@ function DummyPouchPlugin (PouchDB) {
   PouchDB.adapter('dummy', DummyPouchAdapter, false)
 }
 
+/* A dummy adapter that extends the core AbstractPouchDB class. */
+
+function SomewhatDummyPouchPlugin (PouchDB) {
+
+  function SomewhatDummyPouchAdapter (opts,callback) {
+    var api = this;
+
+    api._close = function SomewhatDummyPouchAdapterClose(callback) {
+      if(callback) {
+        callback(null,null)
+      } else {
+        return Promise.resolve()
+      }
+    };
+    api._info = function SomewhatDummyPouchAdapterInfo(callback) {
+      if(callback) {
+        callback(null,{dummy:true})
+      } else {
+        return Promise.resolve({dummy:true})
+      }
+    };
+
+    if(callback) {
+      callback(null,api)
+    } else {
+      return Promise.resolve(api)
+    }
+  }
+
+  SomewhatDummyPouchAdapter.valid = function SomwehatDummyPouchAdapterValid() { return true }
+
+  PouchDB.adapter('somewhatdummy', SomewhatDummyPouchAdapter, false)
+}
+
 /* A fake PouchDB, used to make sure the leak detection code works. */
 
 var FakePouchDB;
@@ -288,13 +322,12 @@ describe('test.memleak.js', function () {
       throw new Error('Please try with `mocha --expose-gc tests/component/test.memleak.js`');
     }
     PouchDB.plugin(DummyPouchPlugin);
+    PouchDB.plugin(SomewhatDummyPouchPlugin);
 
     return sleep(4*1000);
   });
 
-
-
-  it('Test limited memory leak in PouchDB core', function (next) {
+  it('Test limited memory leak in PouchDB core (using dummy)', function (next) {
 
     this.timeout(40*1000);
 
@@ -307,6 +340,35 @@ describe('test.memleak.js', function () {
       return measure.update()
       .then( function(done) {
         var db = new PouchDB('dummy://');
+        return db.info()
+        .then(function () {
+          return db.close();
+        })
+        .then(function () {
+          return done;
+        })
+      })
+      .then( Test, Catcher );
+    };
+
+    measure.init()
+    .then( Test, Catcher );
+
+  });
+
+  it('Test limited memory leak in PouchDB core', function (next) {
+
+    this.timeout(40*1000);
+
+    var measure = new MeasureHeap(next,default_opts,'core2');
+
+    function Test(done) {
+      if (done) {
+        return;
+      }
+      return measure.update()
+      .then( function(done) {
+        var db = new PouchDB('somewhatdummy://');
         return db.info()
         .then(function () {
           return db.close();
