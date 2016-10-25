@@ -248,7 +248,7 @@ var Catcher = function(err) {
   console.log(err.stack || err.toString());
 };
 
-describe('test.memleak.js', function () {
+describe('test.memleak.js: self-test', function () {
 
   before(function () {
     this.timeout(2*1000);
@@ -314,7 +314,7 @@ describe('test.memleak.js', function () {
 });
 
 var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
-describe('test.memleak.js', function () {
+describe('test.memleak.js -- PouchDB core', function () {
 
   before(function () {
     this.timeout(5*1000);
@@ -386,7 +386,7 @@ describe('test.memleak.js', function () {
   });
 });
 
-describe('test.memleak.js', function () {
+describe('test.memleak.js -- misc adapters', function () {
 
   var server = null;
 
