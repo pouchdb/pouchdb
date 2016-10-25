@@ -444,7 +444,7 @@ describe('test.memleak.js -- misc adapters', function () {
 
 describe('test.memleak.js', function () {
 
-  it('Test basic memory leak in PouchDB leveldown adapter', function (next) {
+  it.skip('Test basic memory leak in PouchDB leveldown adapter', function (next) {
     this.timeout(40*1000);
 
     var measure = new MeasureHeap(next,default_opts,'level');
