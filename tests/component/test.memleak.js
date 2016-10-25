@@ -390,7 +390,7 @@ describe('test.memleak.js -- misc adapters', function () {
 
   var server = null;
 
-  before(function () {
+  before(function (done) {
     // A fake CouchDB for test purposes.
     var express = require('express');
     var app = express();
@@ -401,20 +401,31 @@ describe('test.memleak.js -- misc adapters', function () {
       res.json({ok:true});
     });
 
-    server = app.listen(0);
-    console.log('Port: '+server.address().port);
+    server = app.listen(0,'127.0.0.1',done);
   });
 
-  after(function () {
-    return server.close();
+  after(function (done) {
+    this.timeout(4*1000);
+    sleep(3*1000).then( function() {
+      server.close(done);
+    });
   });
 
   it('Test basic memory leak in PouchDB http adapter', function (next) {
-    this.timeout(40*1000);
+    this.timeout(180*1000);
 
+    /* I set lower limits because the server times out with the original values
+     * (it might run out of descriptors or whatever).
+     */
+    var opts = {
+      dump_snapshots: true,
+      max_growth: 33000,
+      max_percent: 1,
+      runs: 3000
+    }
     var host = 'http://127.0.0.1:' + server.address().port + '/';
 
-    var measure = new MeasureHeap(next,default_opts,'http');
+    var measure = new MeasureHeap(next,opts,'http');
 
     function Test(done) {
       if (done) {
@@ -428,11 +439,11 @@ describe('test.memleak.js -- misc adapters', function () {
           return db.close();
         })
         .then(function () {
+          return sleep(30)
+        })
+        .then(function () {
           return done;
         })
-      })
-      .then(function () {
-        return sleep(30)
       })
       .then( Test, Catcher );
     };
