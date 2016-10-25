@@ -395,10 +395,10 @@ describe('test.memleak.js -- misc adapters', function () {
     var express = require('express');
     var app = express();
     app.get('/',function(req,res){
-      res.send('{"ok":true}\n');
+      res.json({ok:true});
     });
     app.get('/goodluck',function(req,res){
-      res.send('{"ok":true}\n');
+      res.json({ok:true});
     });
 
     server = app.listen(0);
