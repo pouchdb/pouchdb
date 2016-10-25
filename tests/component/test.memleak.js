@@ -32,6 +32,7 @@ function DummyPouchPlugin (PouchDB) {
     var api = this;
 
     api.close = function DummyPouchAdapterClose(callback) {
+      this.emit('closed');
       if(callback) {
         callback(null,null)
       } else {
@@ -58,6 +59,40 @@ function DummyPouchPlugin (PouchDB) {
   PouchDB.adapter('dummy', DummyPouchAdapter, false)
 }
 
+/* A dummy adapter that extends the core AbstractPouchDB class. */
+
+function SomewhatDummyPouchPlugin (PouchDB) {
+
+  function SomewhatDummyPouchAdapter (opts,callback) {
+    var api = this;
+
+    api._close = function SomewhatDummyPouchAdapterClose(callback) {
+      if(callback) {
+        callback(null,null)
+      } else {
+        return Promise.resolve()
+      }
+    };
+    api._info = function SomewhatDummyPouchAdapterInfo(callback) {
+      if(callback) {
+        callback(null,{dummy:true})
+      } else {
+        return Promise.resolve({dummy:true})
+      }
+    };
+
+    if(callback) {
+      callback(null,api)
+    } else {
+      return Promise.resolve(api)
+    }
+  }
+
+  SomewhatDummyPouchAdapter.valid = function SomwehatDummyPouchAdapterValid() { return true }
+
+  PouchDB.adapter('somewhatdummy', SomewhatDummyPouchAdapter, false)
+}
+
 /* A fake PouchDB, used to make sure the leak detection code works. */
 
 var FakePouchDB;
@@ -67,6 +102,8 @@ FakePouchDB = (function() {
 
   function FakePouchDBAPI() {
   }
+
+  FakePouchDBAPI.prototype.emit = function() {}
 
   function FakePouchDB(location) {
     var type = location.split(':')[0];
@@ -211,7 +248,7 @@ var Catcher = function(err) {
   console.log(err.stack || err.toString());
 };
 
-describe('test.memleak.js', function () {
+describe('test.memleak.js: self-test', function () {
 
   before(function () {
     this.timeout(2*1000);
@@ -277,7 +314,7 @@ describe('test.memleak.js', function () {
 });
 
 var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
-describe('test.memleak.js', function () {
+describe('test.memleak.js -- PouchDB core', function () {
 
   before(function () {
     this.timeout(5*1000);
@@ -285,13 +322,12 @@ describe('test.memleak.js', function () {
       throw new Error('Please try with `mocha --expose-gc tests/component/test.memleak.js`');
     }
     PouchDB.plugin(DummyPouchPlugin);
+    PouchDB.plugin(SomewhatDummyPouchPlugin);
 
     return sleep(4*1000);
   });
 
-
-
-  it('Test limited memory leak in PouchDB core', function (next) {
+  it('Test limited memory leak in PouchDB core (using dummy)', function (next) {
 
     this.timeout(40*1000);
 
@@ -319,9 +355,38 @@ describe('test.memleak.js', function () {
     .then( Test, Catcher );
 
   });
+
+  it('Test limited memory leak in PouchDB core', function (next) {
+
+    this.timeout(40*1000);
+
+    var measure = new MeasureHeap(next,default_opts,'core2');
+
+    function Test(done) {
+      if (done) {
+        return;
+      }
+      return measure.update()
+      .then( function(done) {
+        var db = new PouchDB('somewhatdummy://');
+        return db.info()
+        .then(function () {
+          return db.close();
+        })
+        .then(function () {
+          return done;
+        })
+      })
+      .then( Test, Catcher );
+    };
+
+    measure.init()
+    .then( Test, Catcher );
+
+  });
 });
 
-describe('test.memleak.js', function () {
+describe('test.memleak.js -- misc adapters', function () {
 
   var server = null;
 
@@ -349,7 +414,7 @@ describe('test.memleak.js', function () {
 
     var host = 'http://127.0.0.1:' + server.address().port + '/';
 
-    var measure = new MeasureHeap(next,default_opts,'core');
+    var measure = new MeasureHeap(next,default_opts,'http');
 
     function Test(done) {
       if (done) {
@@ -382,7 +447,7 @@ describe('test.memleak.js', function () {
   it('Test basic memory leak in PouchDB leveldown adapter', function (next) {
     this.timeout(40*1000);
 
-    var measure = new MeasureHeap(next,default_opts,'core');
+    var measure = new MeasureHeap(next,default_opts,'level');
 
     function Test(done) {
       if (done) {
