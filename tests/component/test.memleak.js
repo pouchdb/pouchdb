@@ -32,6 +32,7 @@ function DummyPouchPlugin (PouchDB) {
     var api = this;
 
     api.close = function DummyPouchAdapterClose(callback) {
+      this.emit('closed');
       if(callback) {
         callback(null,null)
       } else {
@@ -67,6 +68,8 @@ FakePouchDB = (function() {
 
   function FakePouchDBAPI() {
   }
+
+  FakePouchDBAPI.prototype.emit = function() {}
 
   function FakePouchDB(location) {
     var type = location.split(':')[0];
