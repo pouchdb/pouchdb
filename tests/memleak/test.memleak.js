@@ -17,12 +17,19 @@ var default_opts = {
    * Therefor we defined the following as the maximum size and maximum
    * percentage growth we will accept as "normal".
    */
-  max_growth: 110000, // Up to 110ko lost in heap
+  max_growth: 50000, // Up to 50ko lost in heap
   max_percent: 1, // Up to 1% lost in heap
 
   /* How many times should the test run? */
   runs: 10000
-}
+};
+
+var strict_opts = {
+  dump_snapshots: default_opts.dump_snapshots,
+  max_growth: 0,
+  max_percent: 0,
+  runs: 10000
+};
 
 /* A dummy adapter for test purposes. */
 
@@ -230,6 +237,7 @@ var MeasureHeap = (function() {
       var heap_growth = measured_heap - self.stable_heap;
       var percent = Math.ceil(100*heap_growth/self.stable_heap);
       if (heap_growth <= self.max_growth && percent <= self.max_percent) {
+        console.log('Difference is '+ heap_growth+' (vs '+self.max_growth+')'+' (+'+percent+'%)'+' (vs '+self.max_percent+'%) ('+Math.ceil(heap_growth/self.runs)+' per iteration).');
         self.done();
       } else {
         self.done(new Error('Difference is '+ heap_growth+' (vs '+self.max_growth+')'+' (+'+percent+'%)'+' (vs '+self.max_percent+'%) ('+Math.ceil(heap_growth/self.runs)+' per iteration).'));
@@ -263,13 +271,7 @@ describe('test.memleak.js: self-test', function () {
 
     this.timeout(25*1000);
 
-    var opts = {
-      dump_snapshots: true,
-      max_growth: 0,
-      max_percent: 0,
-      runs: 10000
-    }
-    var measure = new MeasureHeap(next,opts,'empty');
+    var measure = new MeasureHeap(next,strict_opts,'empty');
 
     function Test(done) {
       if (done) {
@@ -283,11 +285,11 @@ describe('test.memleak.js: self-test', function () {
     .then( Test );
   });
 
-  it('Test limited memory leak in reference code', function (next) {
+  it('Test absence of memory leak in reference code', function (next) {
 
     this.timeout(40*1000);
 
-    var measure = new MeasureHeap(next,default_opts,'reference');
+    var measure = new MeasureHeap(next,strict_opts,'reference');
 
     function Test(done) {
       if (done) {
@@ -384,31 +386,72 @@ describe('test.memleak.js -- PouchDB core', function () {
     .then( Test, Catcher );
 
   });
+
+  it('Test limited memory leak in PouchDB core (many names)', function (next) {
+
+    this.timeout(40*1000);
+
+    var measure = new MeasureHeap(next,default_opts,'core2');
+
+    function Test(done) {
+      if (done) {
+        return;
+      }
+      return measure.update()
+      .then( function(done) {
+        var db = new PouchDB('somewhatdummy://'+Math.random());
+        return db.info()
+        .then(function () {
+          return db.close();
+        })
+        .then(function () {
+          return done;
+        })
+      })
+      .then( Test, Catcher );
+    };
+
+    measure.init()
+    .then( Test, Catcher );
+
+  });
 });
 
 describe('test.memleak.js -- misc adapters', function () {
 
-  var server = null;
-
-  before(function (done) {
-    // A fake CouchDB for test purposes.
-    var express = require('express');
-    var app = express();
-    app.get('/',function(req,res){
-      res.json({ok:true});
-    });
-    app.get('/goodluck',function(req,res){
-      res.json({ok:true});
-    });
-
-    server = app.listen(0,'127.0.0.1',done);
+  // A fake CouchDB for test purposes.
+  var express = require('express');
+  var app = express();
+  app.get('/',function(req,res){
+    res.json({ok:true});
+  });
+  app.get('/goodluck',function(req,res){
+    res.json({ok:true});
   });
 
-  after(function (done) {
-    this.timeout(4*1000);
-    sleep(3*1000).then( function() {
-      server.close(done);
-    });
+  var run_with_server = (function (code) {
+    var server = null;
+    return new Promise( function(accept,reject) {
+      server = app.listen(0,'127.0.0.1',function(err) {
+        if(err) {
+          reject(err);
+        } else {
+          accept('http://127.0.0.1:'+server.address().port+'/');
+        }
+      });
+    })
+    .then(code)
+    .then(function(){
+      return new Promise(function(accept,reject) {
+        server.close(function(err) {
+          if(err) {
+            reject(err);
+          } else {
+            accept();
+          }
+        });
+      });
+    })
   });
 
   it('Test basic memory leak in PouchDB http adapter', function (next) {
@@ -423,7 +466,6 @@ describe('test.memleak.js -- misc adapters', function () {
       max_percent: 1,
       runs: 3000
     }
-    var host = 'http://127.0.0.1:' + server.address().port + '/';
 
     var measure = new MeasureHeap(next,opts,'http');
 
@@ -433,18 +475,26 @@ describe('test.memleak.js -- misc adapters', function () {
       }
       return measure.update()
       .then( function(done) {
-        var db = new PouchDB(host+'goodluck');
-        return db.info()
-        .then(function () {
-          return db.close();
-        })
-        .then(function () {
-          return sleep(30)
+        return run_with_server(function(host){
+          var opts = {
+            ajax: {
+              pool: false
+            }
+          };
+          var db = new PouchDB(host+'goodluck',opts);
+          return db.info()
+          .then(function () {
+            return db.close();
+          })
+          .then(function () {
+            return sleep(30)
+          })
         })
         .then(function () {
           return done;
         })
       })
+      .catch( function (err) { Catcher(err); return true })
       .then( Test, Catcher );
     };
 
