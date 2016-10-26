@@ -386,6 +386,35 @@ describe('test.memleak.js -- PouchDB core', function () {
     .then( Test, Catcher );
 
   });
+
+  it('Test limited memory leak in PouchDB core (many names)', function (next) {
+
+    this.timeout(40*1000);
+
+    var measure = new MeasureHeap(next,default_opts,'core2');
+
+    function Test(done) {
+      if (done) {
+        return;
+      }
+      return measure.update()
+      .then( function(done) {
+        var db = new PouchDB('somewhatdummy://'+Math.random());
+        return db.info()
+        .then(function () {
+          return db.close();
+        })
+        .then(function () {
+          return done;
+        })
+      })
+      .then( Test, Catcher );
+    };
+
+    measure.init()
+    .then( Test, Catcher );
+
+  });
 });
 
 describe('test.memleak.js -- misc adapters', function () {
