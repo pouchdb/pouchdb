@@ -237,6 +237,7 @@ var MeasureHeap = (function() {
       var heap_growth = measured_heap - self.stable_heap;
       var percent = Math.ceil(100*heap_growth/self.stable_heap);
       if (heap_growth <= self.max_growth && percent <= self.max_percent) {
+        console.log('Difference is '+ heap_growth+' (vs '+self.max_growth+')'+' (+'+percent+'%)'+' (vs '+self.max_percent+'%) ('+Math.ceil(heap_growth/self.runs)+' per iteration).');
         self.done();
       } else {
         self.done(new Error('Difference is '+ heap_growth+' (vs '+self.max_growth+')'+' (+'+percent+'%)'+' (vs '+self.max_percent+'%) ('+Math.ceil(heap_growth/self.runs)+' per iteration).'));
