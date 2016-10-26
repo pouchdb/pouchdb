@@ -17,12 +17,19 @@ var default_opts = {
    * Therefor we defined the following as the maximum size and maximum
    * percentage growth we will accept as "normal".
    */
-  max_growth: 110000, // Up to 110ko lost in heap
+  max_growth: 50000, // Up to 50ko lost in heap
   max_percent: 1, // Up to 1% lost in heap
 
   /* How many times should the test run? */
   runs: 10000
-}
+};
+
+var strict_opts = {
+  dump_snapshots: default_opts.dump_snapshots,
+  max_growth: 0,
+  max_percent: 0,
+  runs: 10000
+};
 
 /* A dummy adapter for test purposes. */
 
@@ -263,13 +270,7 @@ describe('test.memleak.js: self-test', function () {
 
     this.timeout(25*1000);
 
-    var opts = {
-      dump_snapshots: true,
-      max_growth: 0,
-      max_percent: 0,
-      runs: 10000
-    }
-    var measure = new MeasureHeap(next,opts,'empty');
+    var measure = new MeasureHeap(next,strict_opts,'empty');
 
     function Test(done) {
       if (done) {
@@ -283,11 +284,11 @@ describe('test.memleak.js: self-test', function () {
     .then( Test );
   });
 
-  it('Test limited memory leak in reference code', function (next) {
+  it('Test absence of memory leak in reference code', function (next) {
 
     this.timeout(40*1000);
 
-    var measure = new MeasureHeap(next,default_opts,'reference');
+    var measure = new MeasureHeap(next,strict_opts,'reference');
 
     function Test(done) {
       if (done) {
