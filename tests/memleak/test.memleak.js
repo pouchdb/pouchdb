@@ -419,27 +419,39 @@ describe('test.memleak.js -- PouchDB core', function () {
 
 describe('test.memleak.js -- misc adapters', function () {
 
-  var server = null;
-
-  before(function (done) {
-    // A fake CouchDB for test purposes.
-    var express = require('express');
-    var app = express();
-    app.get('/',function(req,res){
-      res.json({ok:true});
-    });
-    app.get('/goodluck',function(req,res){
-      res.json({ok:true});
-    });
-
-    server = app.listen(0,'127.0.0.1',done);
+  // A fake CouchDB for test purposes.
+  var express = require('express');
+  var app = express();
+  app.get('/',function(req,res){
+    res.json({ok:true});
+  });
+  app.get('/goodluck',function(req,res){
+    res.json({ok:true});
   });
 
-  after(function (done) {
-    this.timeout(4*1000);
-    sleep(3*1000).then( function() {
-      server.close(done);
-    });
+  var run_with_server = (function (code) {
+    var server = null;
+    return new Promise( function(accept,reject) {
+      server = app.listen(0,'127.0.0.1',function(err) {
+        if(err) {
+          reject(err);
+        } else {
+          accept('http://127.0.0.1:'+server.address().port+'/');
+        }
+      });
+    })
+    .then(code)
+    .then(function(){
+      return new Promise(function(accept,reject) {
+        server.close(function(err) {
+          if(err) {
+            reject(err);
+          } else {
+            accept();
+          }
+        });
+      });
+    })
   });
 
   it('Test basic memory leak in PouchDB http adapter', function (next) {
@@ -454,7 +466,6 @@ describe('test.memleak.js -- misc adapters', function () {
       max_percent: 1,
       runs: 3000
     }
-    var host = 'http://127.0.0.1:' + server.address().port + '/';
 
     var measure = new MeasureHeap(next,opts,'http');
 
@@ -464,18 +475,26 @@ describe('test.memleak.js -- misc adapters', function () {
       }
       return measure.update()
       .then( function(done) {
-        var db = new PouchDB(host+'goodluck');
-        return db.info()
-        .then(function () {
-          return db.close();
-        })
-        .then(function () {
-          return sleep(30)
+        return run_with_server(function(host){
+          var opts = {
+            ajax: {
+              pool: false
+            }
+          };
+          var db = new PouchDB(host+'goodluck',opts);
+          return db.info()
+          .then(function () {
+            return db.close();
+          })
+          .then(function () {
+            return sleep(30)
+          })
         })
         .then(function () {
           return done;
         })
       })
+      .catch( function (err) { Catcher(err); return true })
       .then( Test, Catcher );
     };
 
