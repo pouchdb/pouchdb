@@ -455,14 +455,14 @@ describe('test.memleak.js -- misc adapters', function () {
             return db.close();
           })
           .then(function () {
-            return sleep(120)
+            return sleep(20)
           })
         .then(function () {
           return done;
         });
       })
-      .catch( function (err) { Catcher(err); return true })
-      .then( Test, Catcher );
+      .catch( function (err) { Catcher(err); return false })
+      .then( Test, function (err) { Catcher(err); return false });
     }
 
     measure.init()
