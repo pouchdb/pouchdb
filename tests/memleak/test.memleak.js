@@ -7,7 +7,7 @@ var default_opts = {
    * heap so that you can analyze what is going wrong.
    * In the later case, simply set the following variable to `true`.
    */
-  dump_snapshots: true,
+  dump_snapshots: false,
 
   /* How much growth is too much growth?
    * In practice I can't get Node.js to not leak even with the simple
