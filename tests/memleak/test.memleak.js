@@ -33,69 +33,69 @@ var strict_opts = {
 
 /* A dummy adapter for test purposes. */
 
-function DummyPouchPlugin (PouchDB) {
+function DummyPouchPlugin(PouchDB) {
 
-  function DummyPouchAdapter (opts,callback) {
+  function DummyPouchAdapter(opts,callback) {
     var api = this;
 
     api.close = function DummyPouchAdapterClose(callback) {
       this.emit('closed');
       if(callback) {
-        callback(null,null)
+        callback(null,null);
       } else {
-        return Promise.resolve()
+        return Promise.resolve();
       }
     };
     api.info = function DummyPouchAdapterInfo(callback) {
       if(callback) {
-        callback(null,{dummy:true})
+        callback(null,{dummy:true});
       } else {
-        return Promise.resolve({dummy:true})
+        return Promise.resolve({dummy:true});
       }
     };
 
     if(callback) {
-      callback(null,api)
+      callback(null,api);
     } else {
-      return Promise.resolve(api)
+      return Promise.resolve(api);
     }
   }
 
-  DummyPouchAdapter.valid = function DummyPouchAdapterValid() { return true }
+  DummyPouchAdapter.valid = function DummyPouchAdapterValid() { return true };
 
-  PouchDB.adapter('dummy', DummyPouchAdapter, false)
+  PouchDB.adapter('dummy', DummyPouchAdapter, false);
 }
 
 /* A dummy adapter that extends the core AbstractPouchDB class. */
 
-function SomewhatDummyPouchPlugin (PouchDB) {
+function SomewhatDummyPouchPlugin(PouchDB) {
 
-  function SomewhatDummyPouchAdapter (opts,callback) {
+  function SomewhatDummyPouchAdapter(opts,callback) {
     var api = this;
 
     api._close = function SomewhatDummyPouchAdapterClose(callback) {
       if(callback) {
-        callback(null,null)
+        callback(null,null);
       } else {
-        return Promise.resolve()
+        return Promise.resolve();
       }
     };
     api._info = function SomewhatDummyPouchAdapterInfo(callback) {
       if(callback) {
-        callback(null,{dummy:true})
+        callback(null,{dummy:true});
       } else {
-        return Promise.resolve({dummy:true})
+        return Promise.resolve({dummy:true});
       }
     };
 
     if(callback) {
-      callback(null,api)
+      callback(null,api);
     } else {
-      return Promise.resolve(api)
+      return Promise.resolve(api);
     }
   }
 
-  SomewhatDummyPouchAdapter.valid = function SomwehatDummyPouchAdapterValid() { return true }
+  SomewhatDummyPouchAdapter.valid = function SomwehatDummyPouchAdapterValid() { return true };
 
   PouchDB.adapter('somewhatdummy', SomewhatDummyPouchAdapter, false)
 }
@@ -104,13 +104,13 @@ function SomewhatDummyPouchPlugin (PouchDB) {
 
 var FakePouchDB;
 
-FakePouchDB = (function() {
+FakePouchDB = (function () {
   var adapters = {};
 
   function FakePouchDBAPI() {
   }
 
-  FakePouchDBAPI.prototype.emit = function() {}
+  FakePouchDBAPI.prototype.emit = function () {};
 
   function FakePouchDB(location) {
     var type = location.split(':')[0];
@@ -122,34 +122,34 @@ FakePouchDB = (function() {
     if(adapter.valid()) {
       adapters[type] = adapter;
     }
-  }
+  };
 
   FakePouchDB.plugin = function (plugin) {
     plugin(this);
-  }
+  };
 
   FakePouchDB.prototype.api = function () {
     var self = this;
-    return new Promise( function(resolve,reject) {
+    return new Promise( function (resolve,reject) {
       var empty_api = new FakePouchDBAPI();
-      self.adapter.call(empty_api, self.opts, function(err,api) {
+      self.adapter.call(empty_api, self.opts, function (err,api) {
         if(err) {
-          console.log("Error: "+(err.stack || err))
+          console.log("Error: "+(err.stack || err));
           reject(err);
         } else {
           resolve(api);
         }
-      })
+      });
     });
-  }
+  };
 
   FakePouchDB.prototype.info = function () {
-    return this.api().then(function(api) {return api.info()});
-  }
+    return this.api().then(function (api) {return api.info();});
+  };
 
   FakePouchDB.prototype.close = function () {
-    return this.api().then(function(api) {return api.close()});
-  }
+    return this.api().then(function (api) {return api.close()});
+  };
 
   return FakePouchDB;
 })();
@@ -157,14 +157,14 @@ FakePouchDB = (function() {
 /* Basic sleep functionality for Promises */
 
 function sleep(timeout) {
-  return new Promise ( function (resolve,reject) {
+  return new Promise ( function (resolve) {
     setTimeout(resolve,timeout);
   });
-};
+}
 
 /* A class to measure and test heap variations over time. */
 
-var MeasureHeap = (function() {
+var MeasureHeap = (function () {
 
   function MeasureHeap(done,opts,dump) {
     this.stable_heap = null;
@@ -180,20 +180,20 @@ var MeasureHeap = (function() {
       this.dump = function (name) {
         return new Promise( function (resolve,reject) {
           console.log('Snapshotting to '+dump+name);
-          heapdump.writeSnapshot( dump+name, function(err,filename) {
+          heapdump.writeSnapshot( dump+name, function (err,filename) {
             if(err) {
-              console.log("Error in snapshot: "+(err.stack || err))
+              console.log("Error in snapshot: "+(err.stack || err));
               reject(err);
             } else {
               resolve(filename);
             }
-          })
+          });
         });
-      }
+      };
     } else {
       this.dump = function (name) {
         return Promise.resolve(dump+name);
-      }
+      };
     }
   }
 
@@ -211,7 +211,7 @@ var MeasureHeap = (function() {
       self.stable_heap = memory.heapUsed;
       return false;
     });
-  }
+  };
 
   MeasureHeap.prototype.update = function () {
     var self = this;
@@ -244,16 +244,16 @@ var MeasureHeap = (function() {
       }
     });
 
-    return sleep(0).then( function() {
+    return sleep(0).then( function () {
       return true;
     });
-  }
+  };
 
   return MeasureHeap;
 })();
 
-var Catcher = function(err) {
-  console.log(err.stack || err.toString());
+var Catcher = function (err) {
+  console.log('Catcher: '+err.stack || err.toString());
 };
 
 describe('test.memleak.js: self-test', function () {
@@ -279,7 +279,7 @@ describe('test.memleak.js: self-test', function () {
       }
       return measure.update()
       .then( Test );
-    };
+    }
 
     measure.init()
     .then( Test );
@@ -296,7 +296,7 @@ describe('test.memleak.js: self-test', function () {
         return;
       }
       return measure.update()
-      .then( function(done) {
+      .then( function (done) {
         var db = new FakePouchDB('dummy://');
         return db.info()
         .then(function () {
@@ -304,10 +304,10 @@ describe('test.memleak.js: self-test', function () {
         })
         .then(function () {
           return done;
-        })
+        });
       })
       .then( Test, Catcher );
-    };
+    }
 
     measure.init()
     .then( Test, Catcher );
@@ -340,7 +340,7 @@ describe('test.memleak.js -- PouchDB core', function () {
         return;
       }
       return measure.update()
-      .then( function(done) {
+      .then( function (done) {
         var db = new PouchDB('dummy://');
         return db.info()
         .then(function () {
@@ -348,10 +348,10 @@ describe('test.memleak.js -- PouchDB core', function () {
         })
         .then(function () {
           return done;
-        })
+        });
       })
       .then( Test, Catcher );
-    };
+    }
 
     measure.init()
     .then( Test, Catcher );
@@ -369,7 +369,7 @@ describe('test.memleak.js -- PouchDB core', function () {
         return;
       }
       return measure.update()
-      .then( function(done) {
+      .then( function (done) {
         var db = new PouchDB('somewhatdummy://');
         return db.info()
         .then(function () {
@@ -377,10 +377,10 @@ describe('test.memleak.js -- PouchDB core', function () {
         })
         .then(function () {
           return done;
-        })
+        });
       })
       .then( Test, Catcher );
-    };
+    }
 
     measure.init()
     .then( Test, Catcher );
@@ -398,7 +398,7 @@ describe('test.memleak.js -- PouchDB core', function () {
         return;
       }
       return measure.update()
-      .then( function(done) {
+      .then( function (done) {
         var db = new PouchDB('somewhatdummy://'+Math.random());
         return db.info()
         .then(function () {
@@ -406,10 +406,10 @@ describe('test.memleak.js -- PouchDB core', function () {
         })
         .then(function () {
           return done;
-        })
+        });
       })
       .then( Test, Catcher );
-    };
+    }
 
     measure.init()
     .then( Test, Catcher );
@@ -424,14 +424,14 @@ describe('test.memleak.js -- misc adapters', function () {
   }
 
   it('Test basic memory leak in PouchDB http adapter', function (next) {
-    this.timeout(300*1000);
+    this.timeout(360*1000);
 
     var opts = {
       dump_snapshots: true,
       max_growth: 33000,
       max_percent: 1,
       runs: 2000
-    }
+    };
 
     var measure = new MeasureHeap(next,opts,'http');
     var host = process.env.COUCH_HOST;
@@ -441,7 +441,7 @@ describe('test.memleak.js -- misc adapters', function () {
         return;
       }
       return measure.update()
-      .then( function(done) {
+      .then( function (done) {
           var opts = {
             ajax: {
               pool: false
@@ -459,11 +459,11 @@ describe('test.memleak.js -- misc adapters', function () {
           })
         .then(function () {
           return done;
-        })
+        });
       })
       .catch( function (err) { Catcher(err); return true })
       .then( Test, Catcher );
-    };
+    }
 
     measure.init()
     .then( Test, Catcher );
@@ -482,7 +482,7 @@ describe('test.memleak.js', function () {
         return;
       }
       return measure.update()
-      .then( function(done) {
+      .then( function (done) {
         var db = new PouchDB('goodluck');
         return db.info()
         .then(function () {
@@ -490,13 +490,13 @@ describe('test.memleak.js', function () {
         })
         .then(function () {
           return done;
-        })
+        });
       })
       .then(function () {
         return sleep(20)
       })
       .then( Test, Catcher );
-    };
+    }
 
     measure.init()
     .then( Test, Catcher );
