@@ -444,6 +444,7 @@ describe('test.memleak.js -- misc adapters', function () {
     .then(function(){
       return new Promise(function(accept,reject) {
         server.close(function(err) {
+          server = null;
           if(err) {
             reject(err);
           } else {
