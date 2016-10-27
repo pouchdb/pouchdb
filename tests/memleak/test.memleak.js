@@ -419,56 +419,22 @@ describe('test.memleak.js -- PouchDB core', function () {
 
 describe('test.memleak.js -- misc adapters', function () {
 
-  // A fake CouchDB for test purposes.
-  var express = require('express');
-  var app = express();
-  app.get('/',function(req,res){
-    res.json({ok:true});
-  });
-  app.get('/goodluck',function(req,res){
-    res.json({ok:true});
-  });
+  if (!process.env.COUCH_HOST) {
+    return;
+  }
 
-  var run_with_server = (function (code) {
-    var server = null;
-    return new Promise( function(accept,reject) {
-      server = app.listen(0,'127.0.0.1',function(err) {
-        if(err) {
-          reject(err);
-        } else {
-          accept('http://127.0.0.1:'+server.address().port+'/');
-        }
-      });
-    })
-    .then(code)
-    .then(function(){
-      return new Promise(function(accept,reject) {
-        server.close(function(err) {
-          server = null;
-          if(err) {
-            reject(err);
-          } else {
-            accept();
-          }
-        });
-      });
-    })
-  });
+  it('Test basic memory leak in PouchDB http adapter', function (next) {
+    this.timeout(300*1000);
 
-  it.skip('Test basic memory leak in PouchDB http adapter', function (next) {
-    this.timeout(180*1000);
-
-    /* I set lower limits because the server times out with the original values
-     * (it might run out of descriptors or whatever).
-     */
     var opts = {
       dump_snapshots: true,
       max_growth: 33000,
       max_percent: 1,
-      runs: 3000
+      runs: 2000
     }
 
     var measure = new MeasureHeap(next,opts,'http');
+    var host = process.env.COUCH_HOST;
 
     function Test(done) {
       if (done) {
@@ -476,21 +442,21 @@ describe('test.memleak.js -- misc adapters', function () {
       }
       return measure.update()
       .then( function(done) {
-        return run_with_server(function(host){
           var opts = {
             ajax: {
               pool: false
             }
           };
-          var db = new PouchDB(host+'goodluck',opts);
+          var db_name = host+'/goodluck'+Math.random().toString().substr(4,5);
+          var db = new PouchDB(db_name,opts);
+          db_name = null;
           return db.info()
           .then(function () {
             return db.close();
           })
           .then(function () {
-            return sleep(30)
+            return sleep(120)
           })
-        })
         .then(function () {
           return done;
         })
