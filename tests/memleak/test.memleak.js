@@ -14,7 +14,7 @@ var default_opts = {
    * classes defined below (maybe they are just plain buggy, but most
    * of what heapdump reveals leads to nextTickQueue, so I suspect
    * this is inherent to the way the tests are ran).
-   * Therefor we defined the following as the maximum size and maximum
+   * Therefor we define the following as the maximum size and maximum
    * percentage growth we will accept as "normal".
    */
   max_growth: 50000, // Up to 50ko lost in heap
@@ -236,11 +236,12 @@ var MeasureHeap = (function () {
       var measured_heap = memory.heapUsed;
       var heap_growth = measured_heap - self.stable_heap;
       var percent = Math.ceil(100*heap_growth/self.stable_heap);
+      var msg = 'Difference is '+ heap_growth+' (vs '+self.max_growth+')'+' (+'+percent+'%)'+' (vs '+self.max_percent+'%) ('+Math.ceil(heap_growth/self.runs)+' per iteration).';
+      console.log(msg);
       if (heap_growth <= self.max_growth && percent <= self.max_percent) {
-        console.log('Difference is '+ heap_growth+' (vs '+self.max_growth+')'+' (+'+percent+'%)'+' (vs '+self.max_percent+'%) ('+Math.ceil(heap_growth/self.runs)+' per iteration).');
         self.done();
       } else {
-        self.done(new Error('Difference is '+ heap_growth+' (vs '+self.max_growth+')'+' (+'+percent+'%)'+' (vs '+self.max_percent+'%) ('+Math.ceil(heap_growth/self.runs)+' per iteration).'));
+        self.done(new Error(msg));
       }
     });
 
@@ -391,7 +392,7 @@ describe('test.memleak.js -- misc adapters', function () {
     this.timeout(360*1000);
 
     var opts = {
-      dump_snapshots: true,
+      dump_snapshots: default_opts.dump_snapshots,
       max_growth: 33000,
       max_percent: 1,
       runs: 2000
