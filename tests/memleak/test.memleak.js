@@ -256,6 +256,27 @@ var Catcher = function (err) {
   console.log('Catcher: '+err.stack || err.toString());
 };
 
+var Runner = function (measure,Run) {
+    function Init() { return measure.init() }
+    function Update() { return measure.update() }
+
+    function Test(done) {
+      if (done) {
+        return true;
+      }
+      return Run()
+      .then( Update )
+      .then( Test, function (err) { Catcher(err); Test(done) });
+    }
+
+    return Run()
+    .then(Run)
+    .then(Run)
+    .then(Run)
+    .then( Init )
+    .then( Test, Catcher );
+}
+
 describe('test.memleak.js: self-test', function () {
 
   before(function () {
@@ -273,16 +294,11 @@ describe('test.memleak.js: self-test', function () {
 
     var measure = new MeasureHeap(next,strict_opts,'empty');
 
-    function Test(done) {
-      if (done) {
-        return;
-      }
-      return measure.update()
-      .then( Test );
+    function Run() {
+      return Promise.resolve();
     }
 
-    measure.init()
-    .then( Test );
+    Runner(measure,Run);
   });
 
   it('Test absence of memory leak in reference code', function (next) {
@@ -291,27 +307,14 @@ describe('test.memleak.js: self-test', function () {
 
     var measure = new MeasureHeap(next,strict_opts,'reference');
 
-    function Test(done) {
-      if (done) {
-        return;
-      }
-      return measure.update()
-      .then( function (done) {
-        var db = new FakePouchDB('dummy://');
-        return db.info()
-        .then(function () {
-          return db.close();
-        })
-        .then(function () {
-          return done;
-        });
-      })
-      .then( Test, Catcher );
+    function Run() {
+      var db = new FakePouchDB('dummy://');
+      function Finally() { return db.close() }
+      return db.info()
+      .then( Finally, Finally );
     }
 
-    measure.init()
-    .then( Test, Catcher );
-
+    Runner(measure,Run);
   });
 });
 
@@ -335,27 +338,14 @@ describe('test.memleak.js -- PouchDB core', function () {
 
     var measure = new MeasureHeap(next,default_opts,'core');
 
-    function Test(done) {
-      if (done) {
-        return;
-      }
-      return measure.update()
-      .then( function (done) {
-        var db = new PouchDB('dummy://');
-        return db.info()
-        .then(function () {
-          return db.close();
-        })
-        .then(function () {
-          return done;
-        });
-      })
-      .then( Test, Catcher );
+    function Run() {
+      var db = new PouchDB('dummy://');
+      function Finally() { return db.close() }
+      return db.info()
+      .then( Finally, Finally );
     }
 
-    measure.init()
-    .then( Test, Catcher );
-
+    Runner(measure,Run);
   });
 
   it('Test limited memory leak in PouchDB core', function (next) {
@@ -364,27 +354,14 @@ describe('test.memleak.js -- PouchDB core', function () {
 
     var measure = new MeasureHeap(next,default_opts,'core2');
 
-    function Test(done) {
-      if (done) {
-        return;
-      }
-      return measure.update()
-      .then( function (done) {
-        var db = new PouchDB('somewhatdummy://');
-        return db.info()
-        .then(function () {
-          return db.close();
-        })
-        .then(function () {
-          return done;
-        });
-      })
-      .then( Test, Catcher );
+    function Run() {
+      var db = new PouchDB('somewhatdummy://');
+      function Finally() { return db.close() }
+      return db.info()
+      .then( Finally, Finally );
     }
 
-    measure.init()
-    .then( Test, Catcher );
-
+    Runner(measure,Run);
   });
 
   it('Test limited memory leak in PouchDB core (many names)', function (next) {
@@ -393,27 +370,14 @@ describe('test.memleak.js -- PouchDB core', function () {
 
     var measure = new MeasureHeap(next,default_opts,'core2');
 
-    function Test(done) {
-      if (done) {
-        return;
-      }
-      return measure.update()
-      .then( function (done) {
-        var db = new PouchDB('somewhatdummy://'+Math.random());
-        return db.info()
-        .then(function () {
-          return db.close();
-        })
-        .then(function () {
-          return done;
-        });
-      })
-      .then( Test, Catcher );
+    function Run() {
+      var db = new PouchDB('somewhatdummy://'+Math.random());
+      function Finally() { return db.close() }
+      return db.info()
+      .then( Finally, Finally );
     }
 
-    measure.init()
-    .then( Test, Catcher );
-
+    Runner(measure,Run);
   });
 });
 
@@ -436,37 +400,24 @@ describe('test.memleak.js -- misc adapters', function () {
     var measure = new MeasureHeap(next,opts,'http');
     var host = process.env.COUCH_HOST;
 
-    function Test(done) {
-      if (done) {
-        return;
-      }
-      return measure.update()
-      .then( function (done) {
-          var opts = {
-            ajax: {
-              pool: false
-            }
-          };
-          var db_name = host+'/goodluck'+Math.random().toString().substr(4,5);
-          var db = new PouchDB(db_name,opts);
-          db_name = null;
-          return db.info()
-          .then(function () {
-            return db.close();
-          })
-          .then(function () {
-            return sleep(20)
-          })
-        .then(function () {
-          return done;
-        });
-      })
-      .catch( function (err) { Catcher(err); return false })
-      .then( Test, function (err) { Catcher(err); return false });
-    }
+    function Run() {
+      var opts = {
+        ajax: {
+          pool: false
+        }
+      };
+      var db_name = host+'/goodluck'+Math.random().toString().substr(4,5);
+      var db = new PouchDB(db_name,opts);
+      function Finally() { return db.close() }
+      db_name = null;
+      return db.info()
+      .then( Finally, Finally )
+      .then(function () {
+        return sleep(20)
+      });
+    };
 
-    measure.init()
-    .then( Test, Catcher );
+    Runner(measure,Run);
   });
 });
 
@@ -477,28 +428,16 @@ describe('test.memleak.js', function () {
 
     var measure = new MeasureHeap(next,default_opts,'level');
 
-    function Test(done) {
-      if (done) {
-        return;
-      }
-      return measure.update()
-      .then( function (done) {
-        var db = new PouchDB('goodluck');
-        return db.info()
-        .then(function () {
-          return db.close();
-        })
-        .then(function () {
-          return done;
-        });
-      })
+    function Run() {
+      var db = new PouchDB('goodluck');
+      function Finally() { return db.close() }
+      return db.info()
+      .then( Finally, Finally )
       .then(function () {
         return sleep(20)
       })
-      .then( Test, Catcher );
     }
 
-    measure.init()
-    .then( Test, Catcher );
+    Runner(measure,Run);
   });
 });
