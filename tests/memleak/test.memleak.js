@@ -61,7 +61,7 @@ function DummyPouchPlugin(PouchDB) {
     }
   }
 
-  DummyPouchAdapter.valid = function DummyPouchAdapterValid() { return true };
+  DummyPouchAdapter.valid = function DummyPouchAdapterValid() { return true; };
 
   PouchDB.adapter('dummy', DummyPouchAdapter, false);
 }
@@ -95,9 +95,9 @@ function SomewhatDummyPouchPlugin(PouchDB) {
     }
   }
 
-  SomewhatDummyPouchAdapter.valid = function SomwehatDummyPouchAdapterValid() { return true };
+  SomewhatDummyPouchAdapter.valid = function SomwehatDummyPouchAdapterValid() { return true; };
 
-  PouchDB.adapter('somewhatdummy', SomewhatDummyPouchAdapter, false)
+  PouchDB.adapter('somewhatdummy', SomewhatDummyPouchAdapter, false);
 }
 
 /* A fake PouchDB, used to make sure the leak detection code works. */
@@ -148,7 +148,7 @@ FakePouchDB = (function () {
   };
 
   FakePouchDB.prototype.close = function () {
-    return this.api().then(function (api) {return api.close()});
+    return this.api().then(function (api) {return api.close();});
   };
 
   return FakePouchDB;
@@ -257,9 +257,9 @@ var Catcher = function (err) {
   console.log('Catcher: '+err.stack || err.toString());
 };
 
-var Runner = function (measure,Run) {
-    function Init() { return measure.init() }
-    function Update() { return measure.update() }
+function Runner(measure,Run) {
+    function Init() { return measure.init(); }
+    function Update() { return measure.update(); }
 
     function Test(done) {
       if (done) {
@@ -267,7 +267,7 @@ var Runner = function (measure,Run) {
       }
       return Run()
       .then( Update )
-      .then( Test, function (err) { Catcher(err); Test(done) });
+      .then( Test, function (err) { Catcher(err); Test(done); });
     }
 
     return Run()
@@ -310,7 +310,7 @@ describe('test.memleak.js: self-test', function () {
 
     function Run() {
       var db = new FakePouchDB('dummy://');
-      function Finally() { return db.close() }
+      function Finally() { return db.close(); }
       return db.info()
       .then( Finally, Finally );
     }
@@ -341,7 +341,7 @@ describe('test.memleak.js -- PouchDB core', function () {
 
     function Run() {
       var db = new PouchDB('dummy://');
-      function Finally() { return db.close() }
+      function Finally() { return db.close(); }
       return db.info()
       .then( Finally, Finally );
     }
@@ -357,7 +357,7 @@ describe('test.memleak.js -- PouchDB core', function () {
 
     function Run() {
       var db = new PouchDB('somewhatdummy://');
-      function Finally() { return db.close() }
+      function Finally() { return db.close(); }
       return db.info()
       .then( Finally, Finally );
     }
@@ -373,7 +373,7 @@ describe('test.memleak.js -- PouchDB core', function () {
 
     function Run() {
       var db = new PouchDB('somewhatdummy://'+Math.random());
-      function Finally() { return db.close() }
+      function Finally() { return db.close(); }
       return db.info()
       .then( Finally, Finally );
     }
@@ -409,12 +409,12 @@ describe('test.memleak.js -- misc adapters', function () {
       };
       var db_name = host+'/goodluck'+Math.random().toString().substr(4,5);
       var db = new PouchDB(db_name,opts);
-      function Finally() { return db.close() }
+      function Finally() { return db.close(); }
       db_name = null;
       return db.info()
       .then( Finally, Finally )
       .then(function () {
-        return sleep(20)
+        return sleep(20);
       });
     };
 
@@ -431,12 +431,12 @@ describe('test.memleak.js', function () {
 
     function Run() {
       var db = new PouchDB('goodluck');
-      function Finally() { return db.close() }
+      function Finally() { return db.close(); }
       return db.info()
       .then( Finally, Finally )
       .then(function () {
-        return sleep(20)
-      })
+        return sleep(20);
+      });
     }
 
     Runner(measure,Run);
