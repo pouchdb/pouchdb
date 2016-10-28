@@ -154,6 +154,11 @@ FakePouchDB = (function () {
   return FakePouchDB;
 })();
 
+
+/* Real PouchDB, for tests */
+
+var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
+
 /* Basic sleep functionality for Promises */
 
 function sleep(timeout) {
@@ -278,6 +283,8 @@ function Runner(measure,Run) {
     .then( Test, Catcher );
 }
 
+/* Test suite */
+
 describe('test.memleak.js: self-test', function () {
 
   before(function () {
@@ -319,7 +326,6 @@ describe('test.memleak.js: self-test', function () {
   });
 });
 
-var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 describe('test.memleak.js -- PouchDB core', function () {
 
   before(function () {
@@ -382,7 +388,7 @@ describe('test.memleak.js -- PouchDB core', function () {
   });
 });
 
-describe('test.memleak.js -- misc adapters', function () {
+describe('test.memleak.js -- http adapter', function () {
 
   if (!process.env.COUCH_HOST) {
     return;
@@ -414,6 +420,7 @@ describe('test.memleak.js -- misc adapters', function () {
       return db.info()
       .then( Finally, Finally )
       .then(function () {
+        db = null;
         return sleep(20);
       });
     };
@@ -422,12 +429,19 @@ describe('test.memleak.js -- misc adapters', function () {
   });
 });
 
-describe('test.memleak.js', function () {
+describe('test.memleak.js -- leveldown adapter', function () {
 
-  it.skip('Test basic memory leak in PouchDB leveldown adapter', function (next) {
-    this.timeout(40*1000);
+  it('Test basic memory leak in PouchDB leveldown adapter', function (next) {
+    this.timeout(360*1000);
 
-    var measure = new MeasureHeap(next,default_opts,'level');
+    var opts = {
+      dump_snapshots: default_opts.dump_snapshots,
+      max_growth: 33000,
+      max_percent: 1,
+      runs: 2000
+    };
+
+    var measure = new MeasureHeap(next,opts,'level');
 
     function Run() {
       var db = new PouchDB('goodluck');
