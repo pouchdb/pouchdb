@@ -40,21 +40,21 @@ function DummyPouchPlugin(PouchDB) {
 
     api.close = function DummyPouchAdapterClose(callback) {
       this.emit('closed');
-      if(callback) {
+      if (callback) {
         callback(null,null);
       } else {
         return Promise.resolve();
       }
     };
     api.info = function DummyPouchAdapterInfo(callback) {
-      if(callback) {
+      if (callback) {
         callback(null,{dummy:true});
       } else {
         return Promise.resolve({dummy:true});
       }
     };
 
-    if(callback) {
+    if (callback) {
       callback(null,api);
     } else {
       return Promise.resolve(api);
@@ -74,21 +74,21 @@ function SomewhatDummyPouchPlugin(PouchDB) {
     var api = this;
 
     api._close = function SomewhatDummyPouchAdapterClose(callback) {
-      if(callback) {
+      if (callback) {
         callback(null,null);
       } else {
         return Promise.resolve();
       }
     };
     api._info = function SomewhatDummyPouchAdapterInfo(callback) {
-      if(callback) {
+      if (callback) {
         callback(null,{dummy:true});
       } else {
         return Promise.resolve({dummy:true});
       }
     };
 
-    if(callback) {
+    if (callback) {
       callback(null,api);
     } else {
       return Promise.resolve(api);
@@ -119,7 +119,7 @@ FakePouchDB = (function () {
   }
 
   FakePouchDB.adapter = function (type,adapter) {
-    if(adapter.valid()) {
+    if (adapter.valid()) {
       adapters[type] = adapter;
     }
   };
@@ -133,7 +133,7 @@ FakePouchDB = (function () {
     return new Promise( function (resolve,reject) {
       var empty_api = new FakePouchDBAPI();
       self.adapter.call(empty_api, self.opts, function (err,api) {
-        if(err) {
+        if (err) {
           console.log("Error: "+(err.stack || err));
           reject(err);
         } else {
@@ -162,7 +162,7 @@ var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 /* Basic sleep functionality for Promises */
 
 function sleep(timeout) {
-  return new Promise ( function (resolve) {
+  return new Promise( function (resolve) {
     setTimeout(resolve,timeout);
   });
 }
@@ -186,7 +186,7 @@ var MeasureHeap = (function () {
         return new Promise( function (resolve,reject) {
           console.log('Snapshotting to '+dump+name);
           heapdump.writeSnapshot( dump+name, function (err,filename) {
-            if(err) {
+            if (err) {
               console.log("Error in snapshot: "+(err.stack || err));
               reject(err);
             } else {
