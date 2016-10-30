@@ -423,7 +423,7 @@ describe('test.memleak.js -- http adapter', function () {
         db = null;
         return sleep(20);
       });
-    };
+    }
 
     Runner(measure,Run);
   });
