@@ -322,7 +322,7 @@ adapters.forEach(function (adapters) {
       }, done);
     });
 
-    it.skip('Test sync cancel', function (done) {
+    it('Test sync cancel', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var replications = db.sync(remote).on('complete', function () {
@@ -332,7 +332,7 @@ adapters.forEach(function (adapters) {
       replications.cancel();
     });
 
-    it.skip('Test sync cancel called twice', function (done) {
+    it('Test sync cancel called twice', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var replications = db.sync(remote).on('complete', function () {
@@ -370,7 +370,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it.skip('3894 re-sync after immediate cancel', function () {
+    it('3894 re-sync after immediate cancel', function () {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
