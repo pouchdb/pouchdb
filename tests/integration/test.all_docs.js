@@ -690,5 +690,19 @@ adapters.forEach(function (adapter) {
         });
       });
     }
+
+    it('5793 _conflicts should not exist if no conflicts', function () {
+      var db = new PouchDB(dbs.name);
+      return db.put({
+        _id: '0', a: 1
+      }).then(function () {
+        return db.allDocs({
+          include_docs: true,
+          conflicts: true
+        });
+      }).then(function (result) {
+        should.not.exist(result.rows[0].doc._conflicts);
+      });
+    });
   });
 });

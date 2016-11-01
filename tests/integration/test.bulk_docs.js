@@ -1039,5 +1039,22 @@ adapters.forEach(function (adapter) {
         results[0].should.have.property('status', 409);
       });
     });
+
+    it('5793 bulk docs accepts _conflicts when new_edits=false', function () {
+      var db = new PouchDB(dbs.name);
+      var newdoc = {
+        '_id': 'foobar',
+        '_rev': '1-123',
+        '_conflicts': []
+      };
+
+      return db.bulkDocs({ docs: [newdoc] },
+        { new_edits: false }
+      ).then(function () {
+        return db.allDocs();
+      }).then(function (result) {
+        result.rows.length.should.equal(1);
+      });
+    });
   });
 });
