@@ -460,6 +460,24 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Change event should be called exactly once per listener (issue 5479)', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      db.post({}).then(function () {
+        var counter = 0;
+        var sync = db.sync(remote);
+        var increaseCounter = function () {
+          counter++;
+        };
+        sync.on('change', increaseCounter)
+            .on('change', increaseCounter)
+            .on('complete', function () {
+              counter.should.equal(2);
+              done();
+            });
+      });
+    });
+
     it('Remove an event listener', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
