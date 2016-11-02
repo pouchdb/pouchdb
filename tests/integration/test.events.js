@@ -104,16 +104,11 @@ adapters.forEach(function (adapter) {
       var db2 = new PouchDB('testdb');
 
       return new testUtils.Promise(function (resolve) {
-        var called = 0;
-        function checkDone() {
-          if (++called === 2) {
-            resolve();
-          }
-        }
-        db1.once('closed', checkDone);
-        db2.once('destroyed', checkDone);
+        db2.once('destroyed', resolve);
+        db1.once('closed', function () {
+          db2.destroy();
+        });
         db1.close();
-        db2.destroy();
       });
     });
 
