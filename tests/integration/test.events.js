@@ -113,6 +113,7 @@ adapters.forEach(function (adapter) {
         db1.once('closed', checkDone);
         db2.once('destroyed', checkDone);
         db1.close();
+        db2.destroy();
       });
     });
 
