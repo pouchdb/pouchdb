@@ -99,6 +99,23 @@ adapters.forEach(function (adapter) {
       }
     });
 
+    it('should emit destroyed even when closed', function () {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+
+      return new testUtils.Promise(function (resolve) {
+        var called = 0;
+        function checkDone() {
+          if (++called === 2) {
+            resolve();
+          }
+        }
+        db1.once('closed', checkDone);
+        db2.once('destroyed', checkDone);
+        db1.close();
+      });
+    });
+
     it('4922 Destroyed is not called twice', function (done) {
       var count = 0;
       function destroyed() {
