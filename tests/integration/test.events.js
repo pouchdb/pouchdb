@@ -99,7 +99,7 @@ adapters.forEach(function (adapter) {
       }
     });
 
-    it('should emit destroyed even when closed', function () {
+    it('should emit destroyed even when closed (sync)', function () {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
@@ -108,6 +108,42 @@ adapters.forEach(function (adapter) {
         db1.once('closed', function () {
           db2.destroy();
         });
+        db1.close();
+      });
+    });
+
+    it('should emit destroyed even when closed (async)', function () {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+
+      return new testUtils.Promise(function (resolve) {
+        var called = 0;
+        function checkDone() {
+          if (++called === 2) {
+            resolve();
+          }
+        }
+        db1.once('closed', checkDone);
+        db2.once('destroyed', checkDone);
+        db1.close();
+        db2.destroy();
+      });
+    });
+
+    it('should emit destroyed even when closed (async #2)', function () {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+
+      return new testUtils.Promise(function (resolve) {
+        var called = 0;
+        function checkDone() {
+          if (++called === 2) {
+            resolve();
+          }
+        }
+        db1.once('closed', checkDone);
+        db2.once('destroyed', checkDone);
+        db2.destroy();
         db1.close();
       });
     });
