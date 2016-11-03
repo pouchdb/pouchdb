@@ -2414,35 +2414,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.skip('should respects limit with live replication', function (done) {
-      var docs1 = [
-        {_id: '_local/foo'},
-        {_id: 'a', integer: 0},
-        {_id: 'b', integer: 1},
-        {_id: 'c', integer: 2},
-        {_id: 'd', integer: 3}
-      ];
-      var called = 0;
-      var doneCalled = 0;
-      function calldone() {
-        doneCalled++;
-        if (doneCalled === 2) {
-          done();
-        }
-      }
-      var db = new PouchDB(dbs.name);
-      db.changes({
-        limit: 1,
-        live: true
-      }).on('change', function (ch) {
-        ch.id.should.equal('a');
-        (called++).should.equal(0);
-      }).on('complete', function () {
-        calldone();
-      });
-      db.bulkDocs({ docs: docs1 }).then(calldone);
-    });
-
     it('doesn\'t throw if opts.complete is undefined', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({_id: 'foo'}).then(function () {
