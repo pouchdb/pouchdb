@@ -164,5 +164,92 @@ adapters.forEach(function (adapter) {
       new PouchDB(dbs.name).destroy();
     });
 
+    it('test unref for coverage', function (done) {
+      var db1 = new PouchDB('testdb');
+      PouchDB.once('unref', function(db) {
+        db.name.should.equal('testdb');
+        done();
+      });
+      db1.close();
+    });
+
+    it('test double unref for coverage', function (done) {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+      var called = 0;
+      PouchDB.on('unref', function(db) {
+        db.name.should.equal('testdb');
+        called++;
+        if(called === 2) {
+          done();
+        }
+      });
+      db2.close().then( function() {
+        db1.close();
+      });
+    });
+
+    it('test destroyed for coverage', function (done) {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+      var called = 0;
+      PouchDB.once('unref', function(db) {
+        db.name.should.equal('testdb');
+        called++;
+      });
+      PouchDB.once('destroyed', function(name) {
+        name.should.equal('testdb');
+        called++;
+        if (called === 2) {
+          done();
+        }
+      });
+      db1.close().then( function() {
+        db2.destroy();
+      })
+    });
+
+    it('test destroy-then-close for coverage', function (done) {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+      var called = 0;
+      PouchDB.once('destroyed', function(name) {
+        name.should.equal('testdb');
+        called++;
+      });
+      PouchDB.once('unref', function(db) {
+        db.name.should.equal('testdb');
+        called++;
+        if (called === 2) {
+          done();
+        }
+      });
+      db1.destroy().then( function() {
+        db2.close();
+      })
+    });
+
+    it('test destroy-then-close for coverage', function (done) {
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+      var db3 = new PouchDB('testdb');
+      var called = 0;
+      PouchDB.once('destroyed', function(name) {
+        name.should.equal('testdb');
+        called++;
+      });
+      PouchDB.once('unref', function(db) {
+        db.name.should.equal('testdb');
+        called++;
+        if (called === 3) {
+          done();
+        }
+      });
+      db1.destroy().then( function() {
+        db2.close();
+        db3.close();
+      })
+    });
+
   });
 });
