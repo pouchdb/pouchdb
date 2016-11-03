@@ -6,7 +6,7 @@ sidebar: nav.html
 
 Below is a list of known plugins, tools and projects can be used with PouchDB.
 
-{% include anchor.html title="Plugins" hash="plugins" %}
+## {% include anchor.html title="Plugins" hash="plugins" %}
 
 #### [PouchDB allDbs()](https://github.com/nolanlawson/pouchdb-all-dbs)
 
