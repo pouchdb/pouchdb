@@ -130,7 +130,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('should emit destroyed even when closed (async #2)', function () {
+    it('should emit closed even when destroyed (async #2)', function () {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
