@@ -34,7 +34,7 @@ var rebuildPromise = Promise.resolve();
 function rebuildPouch() {
   rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
     console.log('Rebuilt packages/node_modules/pouchdb');
-  });
+  }).catch(console.error);
 }
 
 function browserifyPromise(src, dest) {
@@ -51,7 +51,7 @@ function rebuildTestUtils() {
       'tests/integration/utils-bundle.js');
   }).then(function () {
     console.log('Rebuilt tests/integration/utils-bundle.js');
-  });
+  }).catch(console.error);
 }
 
 function rebuildPerf() {
@@ -60,7 +60,7 @@ function rebuildPerf() {
       'tests/performance-bundle.js');
   }).then(function () {
     console.log('Rebuilt tests/performance-bundle.js');
-  });
+  }).catch(console.error);
 }
 
 function watchAll() {
