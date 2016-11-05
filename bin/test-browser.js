@@ -143,7 +143,7 @@ function startSelenium(callback) {
 
   if (process.env.FIREFOX_PATH) {
     console.log('SETTING CUSTOM PATH TO: ' + FIREFOX_PATH);
-    opts.seleniumArgs: ['-Dwebdriver.firefox.bin=' + process.env.FIREFOX_PATH]
+    opts.seleniumArgs = ['-Dwebdriver.firefox.bin=' + process.env.FIREFOX_PATH];
   }
 
   selenium.install(opts, function (err) {
