@@ -22,6 +22,9 @@ before_install:
 before_script:
   - export FIREFOX_PATH=`which firefox`
   - firefox -v
+  - tar -xjf /tmp/firefox-latest.tar.bz2 --directory /tmp
+  - export PATH="/tmp/firefox:$PATH"
+  - echo $PATH
   - "export GREP=tests.basics.js"
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
