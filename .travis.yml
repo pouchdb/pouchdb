@@ -13,6 +13,7 @@ sudo:
   false
 
 addons:
+  firefox: "latest"
   firefox: "latest-nightly"
 
 before_install:
@@ -20,6 +21,7 @@ before_install:
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
+  - "export GREP=tests.basics.js"
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
     # Fail early so we dont run hours of saucelabs if we know there
