@@ -142,7 +142,7 @@ function startSelenium(callback) {
   var opts = {version: SELENIUM_VERSION};
 
   if (process.env.FIREFOX_PATH) {
-    console.log('SETTING CUSTOM PATH TO: ' + FIREFOX_PATH);
+    console.log('SETTING CUSTOM PATH TO: ' + process.env.FIREFOX_PATH);
     opts.seleniumArgs = ['-Dwebdriver.firefox.bin=' + process.env.FIREFOX_PATH];
   }
 
