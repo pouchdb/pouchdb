@@ -20,7 +20,7 @@ before_install:
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  - which firefox
+  - export FIREFOX_PATH=`which firefox`
   - firefox -v
   - "export GREP=tests.basics.js"
   - "export DISPLAY=:99.0"
