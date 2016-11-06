@@ -147,11 +147,11 @@ adapters.forEach(function (adapter) {
           return db1.close();
         })
         .catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
         db2.destroy()
         .catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
       });
     });
@@ -172,14 +172,14 @@ adapters.forEach(function (adapter) {
         db2.once('destroyed', checkDone);
         db2.destroy()
         .catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
         db1.info()
         .then( function () {
           return db1.close();
         })
         .catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
       });
     });
@@ -213,7 +213,7 @@ adapters.forEach(function (adapter) {
         }).then( function () {
           return db1.close();
         }).catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
       });
     });
@@ -238,7 +238,7 @@ adapters.forEach(function (adapter) {
         }).then( function () {
           return db2.destroy();
         }).catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
       });
     });
@@ -247,7 +247,6 @@ adapters.forEach(function (adapter) {
       this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
-      var called = 0;
       return new testUtils.Promise(function (resolve) {
         // FIXME This should be 2 if close-then-destroy worked.
         var need = 1;
@@ -264,7 +263,7 @@ adapters.forEach(function (adapter) {
         }).then( function () {
           return db2.close();
         }).catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
       });
     });
@@ -274,7 +273,6 @@ adapters.forEach(function (adapter) {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
       var db3 = new PouchDB('testdb');
-      var called = 0;
       return new testUtils.Promise(function (resolve) {
         // FIXME This should be 3 if close-then-destroy worked.
         var need = 1;
@@ -295,7 +293,7 @@ adapters.forEach(function (adapter) {
         }).then( function () {
           return db3.close();
         }).catch( function (err) {
-          console.log(err.stack || err.toString())
+          console.log(err.stack || err.toString());
         });
       });
     });
