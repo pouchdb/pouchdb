@@ -99,6 +99,22 @@ adapters.forEach(function (adapter) {
       }
     });
 
+    it('4922 Destroyed is not called twice', function (done) {
+      var count = 0;
+      function destroyed() {
+        count++;
+        if (count === 1) {
+          setTimeout(function () {
+            count.should.equal(1);
+            PouchDB.removeListener('destroyed', destroyed);
+            done();
+          }, 50);
+        }
+      }
+      PouchDB.on('destroyed', destroyed);
+      new PouchDB(dbs.name).destroy();
+    });
+
     it('should emit destroyed even when closed (sync)', function () {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
@@ -146,22 +162,6 @@ adapters.forEach(function (adapter) {
         db2.destroy();
         db1.close();
       });
-    });
-
-    it('4922 Destroyed is not called twice', function (done) {
-      var count = 0;
-      function destroyed() {
-        count++;
-        if (count === 1) {
-          setTimeout(function () {
-            count.should.equal(1);
-            PouchDB.removeListener('destroyed', destroyed);
-            done();
-          }, 50);
-        }
-      }
-      PouchDB.on('destroyed', destroyed);
-      new PouchDB(dbs.name).destroy();
     });
 
     it('test unref for coverage', function (done) {
