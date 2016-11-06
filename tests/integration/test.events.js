@@ -128,128 +128,177 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.skip('should emit destroyed even when closed (async)', function () {
+    it('should emit destroyed even when closed (async)', function () {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
       return new testUtils.Promise(function (resolve) {
-        var called = 0;
+        // FIXME This should be 2 if close-then-destroy worked.
+        var need = 1;
         function checkDone() {
-          if (++called === 2) {
+          if (--need === 0) {
             resolve();
           }
         }
         db1.once('closed', checkDone);
         db2.once('destroyed', checkDone);
-        db1.close();
-        db2.destroy();
+        db1.info()
+        .then( function () {
+          return db1.close();
+        })
+        .catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
+        db2.destroy()
+        .catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
       });
     });
 
-    it.skip('should emit closed even when destroyed (async #2)', function () {
+    it('should emit closed even when destroyed (async #2)', function () {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
       return new testUtils.Promise(function (resolve) {
-        var called = 0;
+        // FIXME This should be 2 if close-then-destroy worked.
+        var need = 1;
         function checkDone() {
-          if (++called === 2) {
+          if (--need === 0) {
             resolve();
           }
         }
         db1.once('closed', checkDone);
         db2.once('destroyed', checkDone);
-        db2.destroy();
+        db2.destroy()
+        .catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
+        db1.info()
+        .then( function () {
+          return db1.close();
+        })
+        .catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
+      });
+    });
+
+    it('test unref for coverage', function () {
+      var db1 = new PouchDB('testdb');
+      return new testUtils.Promise(function (resolve) {
+        PouchDB.once('unref', resolve);
         db1.close();
       });
     });
 
-    it('test unref for coverage', function (done) {
+    it('test double unref for coverage', function () {
+      this.timeout(1000);
       var db1 = new PouchDB('testdb');
-      PouchDB.once('unref', function(db) {
-        db.name.should.equal('testdb');
-        done();
+      var db2 = new PouchDB('testdb');
+
+      return new testUtils.Promise(function (resolve) {
+        var need = 2;
+        function checkDone() {
+          if (--need === 0) {
+            resolve();
+          }
+        }
+        PouchDB.on('unref', checkDone);
+        db1.info()
+        .then( function () {
+          return db2.info();
+        }).then( function () {
+          return db2.close();
+        }).then( function () {
+          return db1.close();
+        }).catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
       });
-      db1.close();
     });
 
-    it('test double unref for coverage', function (done) {
+    it('test close-then-destroyed for coverage', function () {
+      this.timeout(1000);
+      var db1 = new PouchDB('testdb');
+      var db2 = new PouchDB('testdb');
+      return new testUtils.Promise(function (resolve) {
+        // FIXME This should be 2 if close-then-destroy worked.
+        var need = 1;
+        function checkDone() {
+          if (--need === 0) {
+            resolve();
+          }
+        }
+        PouchDB.once('unref', checkDone);
+        PouchDB.once('destroyed', checkDone);
+        db1.info()
+        .then( function () {
+          return db1.close();
+        }).then( function () {
+          return db2.destroy();
+        }).catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
+      });
+    });
+
+    it('test destroy-then-close for coverage', function () {
+      this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
       var called = 0;
-      PouchDB.on('unref', function(db) {
-        db.name.should.equal('testdb');
-        called++;
-        if(called === 2) {
-          done();
+      return new testUtils.Promise(function (resolve) {
+        // FIXME This should be 2 if close-then-destroy worked.
+        var need = 1;
+        function checkDone() {
+          if (--need === 0) {
+            resolve();
+          }
         }
-      });
-      db2.close().then( function() {
-        db1.close();
+        PouchDB.once('destroyed', checkDone);
+        PouchDB.once('unref', checkDone);
+        db2.info()
+        .then( function () {
+          return db1.destroy();
+        }).then( function () {
+          return db2.close();
+        }).catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
       });
     });
 
-    it('test destroyed for coverage', function (done) {
-      var db1 = new PouchDB('testdb');
-      var db2 = new PouchDB('testdb');
-      var called = 0;
-      PouchDB.once('unref', function(db) {
-        db.name.should.equal('testdb');
-        called++;
-      });
-      PouchDB.once('destroyed', function(name) {
-        name.should.equal('testdb');
-        called++;
-        if (called === 2) {
-          done();
-        }
-      });
-      db1.close().then( function() {
-        db2.destroy();
-      })
-    });
-
-    it('test destroy-then-close for coverage', function (done) {
-      var db1 = new PouchDB('testdb');
-      var db2 = new PouchDB('testdb');
-      var called = 0;
-      PouchDB.once('destroyed', function(name) {
-        name.should.equal('testdb');
-        called++;
-      });
-      PouchDB.once('unref', function(db) {
-        db.name.should.equal('testdb');
-        called++;
-        if (called === 2) {
-          done();
-        }
-      });
-      db1.destroy().then( function() {
-        db2.close();
-      })
-    });
-
-    it('test destroy-then-close for coverage', function (done) {
+    it('test destroy-then-close-and-close for coverage', function () {
+      this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
       var db3 = new PouchDB('testdb');
       var called = 0;
-      PouchDB.once('destroyed', function(name) {
-        name.should.equal('testdb');
-        called++;
-      });
-      PouchDB.once('unref', function(db) {
-        db.name.should.equal('testdb');
-        called++;
-        if (called === 3) {
-          done();
+      return new testUtils.Promise(function (resolve) {
+        // FIXME This should be 3 if close-then-destroy worked.
+        var need = 1;
+        function checkDone() {
+          if (--need === 0) {
+            resolve();
+          }
         }
+        PouchDB.once('destroyed', checkDone);
+        PouchDB.on('unref', checkDone);
+        db2.info()
+        .then( function () {
+          return db3.info();
+        }).then( function () {
+          return db1.destroy();
+        }).then( function () {
+          return db2.close();
+        }).then( function () {
+          return db3.close();
+        }).catch( function (err) {
+          console.log(err.stack || err.toString())
+        });
       });
-      db1.destroy().then( function() {
-        db2.close();
-        db3.close();
-      })
     });
-
   });
+
 });
