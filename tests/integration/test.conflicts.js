@@ -529,5 +529,36 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('5832 - update losing leaf returns correct rev', function () {
+      // given
+      var docs = [
+        {
+          _id: 'fubar',
+          _rev: '1-a1',
+          _revisions: { start: 1, ids: [ 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-a2',
+          _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
+        }, {
+          _id: 'fubar',
+          _rev: '2-b2',
+          _revisions: { start: 2, ids: [ 'b2', 'a1' ] }
+        }
+      ];
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs({
+        docs: docs, new_edits: false
+      }).then(function () {
+        return db.get('fubar', { conflicts: true });
+      })
+      .then(function (doc) {
+        return db.remove(doc);
+      })
+      .then(function (result) {
+        result.rev[0].should.equal('3');
+      });
+    });
+
   });
 });
