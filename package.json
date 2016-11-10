@@ -47,7 +47,7 @@
     "localstorage-down": "0.6.6",
     "ltgt": "2.1.2",
     "memdown": "1.2.2",
-    "readable-stream": "1.0.33",
+    "readable-stream": "2.2.0",
     "request": "2.78.0",
     "scope-eval": "0.0.3",
     "spark-md5": "2.0.2",
