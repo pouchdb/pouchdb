@@ -1,6 +1,6 @@
 'use strict';
 
-describe('constructor errors', function () {
+describe('test.constructor.js', function () {
 
   it('should error on an undefined name', function (done) {
     try {
@@ -32,6 +32,17 @@ describe('constructor errors', function () {
     } catch (err) {
       should.equal(err instanceof Error, true, 'should be an error');
       done();
+    }
+  });
+
+  it('should not modify original options', function (done) {
+    try {
+      const opts = { name: 'test' };
+      new PouchDB(opts);
+      new PouchDB(opts);
+      done();
+    } catch (e) {
+      done('Should not have thrown.');
     }
   });
 
