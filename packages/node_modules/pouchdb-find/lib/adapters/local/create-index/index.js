@@ -40,6 +40,10 @@ function createIndex(db, requestDef) {
 
     viewExists = !!doc.views[viewName];
 
+    if (viewExists) {
+      return false;
+    }
+
     doc.views[viewName] = {
       map: {
         fields: utils.mergeObjects(requestDef.index.fields)

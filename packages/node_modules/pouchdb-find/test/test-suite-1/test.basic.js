@@ -29,6 +29,32 @@ module.exports = function (dbType, context) {
       });
     });
 
+    it('should not update an existing index', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function (response) {
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('created');
+        return db.createIndex(index);
+      }).then(function (response) {
+        response.id.should.match(/^_design\//);
+        response.name.should.equal('foo-index');
+        response.result.should.equal('exists');
+        return response.id;
+      }).then(function (ddocId) {
+        return db.get(ddocId);
+      }).then(function (doc) {
+        doc._rev.slice(0, 1).should.equal('1');
+      });
+    });
+
     it('throws an error for an invalid index creation', function () {
       var db = context.db;
       return db.createIndex('yo yo yo').then(function () {
