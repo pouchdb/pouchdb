@@ -140,6 +140,12 @@ function testComplete(result) {
 function startSelenium(callback) {
   // Start selenium
   var opts = {version: SELENIUM_VERSION};
+
+  // if (process.env.FIREFOX_PATH) {
+  //   console.log('SETTING CUSTOM PATH TO: ' + process.env.FIREFOX_PATH);
+  //   opts.seleniumArgs = ['-Dwebdriver.firefox.bin=' + process.env.FIREFOX_PATH];
+  // }
+
   selenium.install(opts, function (err) {
     if (err) {
       console.error('Failed to install selenium');
