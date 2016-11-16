@@ -101,7 +101,7 @@ module.exports = function (opts) {
 (function (process){
 'use strict';
 
-var pouchCollate = _dereq_(27);
+var pouchCollate = _dereq_(26);
 var TaskQueue = _dereq_(3);
 var collate = pouchCollate.collate;
 var toIndexableString = pouchCollate.toIndexableString;
@@ -796,8 +796,8 @@ function createIndexer(def) {
 
 module.exports = createIndexer;
 
-}).call(this,_dereq_(33))
-},{"1":1,"27":27,"3":3,"33":33,"5":5}],3:[function(_dereq_,module,exports){
+}).call(this,_dereq_(34))
+},{"1":1,"26":26,"3":3,"34":34,"5":5}],3:[function(_dereq_,module,exports){
 'use strict';
 /*
  * Simple task queue to sequentialize actions. Assumes callbacks will eventually fire (once).
@@ -834,10 +834,10 @@ module.exports = function (db, doc, diffFun) {
 (function (process){
 'use strict';
 /* istanbul ignore if */
-exports.Promise = _dereq_(30);
+exports.Promise = _dereq_(29);
 
 exports.inherits = _dereq_(23);
-exports.extend = _dereq_(29);
+exports.extend = _dereq_(28);
 var argsarray = _dereq_(18);
 
 /* istanbul ignore next */
@@ -927,7 +927,7 @@ exports.uniq = function (arr) {
 };
 
 var crypto = _dereq_(19);
-var Md5 = _dereq_(34);
+var Md5 = _dereq_(35);
 
 exports.MD5 = function (string) {
   /* istanbul ignore else */
@@ -937,8 +937,8 @@ exports.MD5 = function (string) {
     return Md5.hash(string);
   }
 };
-}).call(this,_dereq_(33))
-},{"18":18,"19":19,"23":23,"29":29,"30":30,"33":33,"34":34}],6:[function(_dereq_,module,exports){
+}).call(this,_dereq_(34))
+},{"18":18,"19":19,"23":23,"28":28,"29":29,"34":34,"35":35}],6:[function(_dereq_,module,exports){
 'use strict';
 
 var massageCreateIndexRequest = _dereq_(16);
@@ -1171,6 +1171,10 @@ function createIndex(db, requestDef) {
 
     viewExists = !!doc.views[viewName];
 
+    if (viewExists) {
+      return false;
+    }
+
     doc.views[viewName] = {
       map: {
         fields: utils.mergeObjects(requestDef.index.fields)
@@ -1260,7 +1264,7 @@ module.exports = deleteIndex;
 //
 
 var isArray = _dereq_(24);
-var collate = _dereq_(27).collate;
+var collate = _dereq_(26).collate;
 var localUtils = _dereq_(15);
 var isCombinationalField = localUtils.isCombinationalField;
 var getKey = localUtils.getKey;
@@ -1535,13 +1539,13 @@ var matchers = {
 
 module.exports = filterInMemoryFields;
 
-},{"15":15,"17":17,"24":24,"27":27}],11:[function(_dereq_,module,exports){
+},{"15":15,"17":17,"24":24,"26":26}],11:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
 var clone = utils.clone;
 var getIndexes = _dereq_(13);
-var collate = _dereq_(27).collate;
+var collate = _dereq_(26).collate;
 var abstractMapper = _dereq_(7);
 var planQuery = _dereq_(12);
 var localUtils = _dereq_(15);
@@ -1680,14 +1684,13 @@ function find(db, requestDef) {
 
 module.exports = find;
 
-},{"10":10,"12":12,"13":13,"15":15,"17":17,"27":27,"7":7}],12:[function(_dereq_,module,exports){
+},{"10":10,"12":12,"13":13,"15":15,"17":17,"26":26,"7":7}],12:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
 var log = utils.log;
 var localUtils = _dereq_(15);
 var getKey = localUtils.getKey;
-var getValue = localUtils.getValue;
 var getUserFields = localUtils.getUserFields;
 
 // couchdb lowest collation value
@@ -2190,7 +2193,7 @@ exports.deleteIndex = callbackify(_dereq_(9));
 'use strict';
 
 var utils = _dereq_(17);
-var collate = _dereq_(27);
+var collate = _dereq_(26);
 
 function getKey(obj) {
   return Object.keys(obj)[0];
@@ -2565,7 +2568,7 @@ module.exports = {
   isCombinationalField: isCombinationalField
 };
 
-},{"17":17,"27":27}],16:[function(_dereq_,module,exports){
+},{"17":17,"26":26}],16:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
@@ -2603,7 +2606,7 @@ module.exports = function (requestDef) {
 (function (process){
 'use strict';
 
-var Promise = _dereq_(30);
+var Promise = _dereq_(29);
 
 /* istanbul ignore next */
 exports.once = function (fun) {
@@ -2684,7 +2687,7 @@ exports.clone = function (obj) {
   return exports.extend(true, {}, obj);
 };
 
-exports.extend = _dereq_(29);
+exports.extend = _dereq_(28);
 
 exports.callbackify = function (fun) {
   return exports.getArguments(function (args) {
@@ -2709,7 +2712,7 @@ exports.promisedCallback = function (promise, callback) {
 };
 
 var crypto = _dereq_(19);
-var Md5 = _dereq_(34);
+var Md5 = _dereq_(35);
 
 exports.MD5 = function (string) {
   /* istanbul ignore else */
@@ -2889,8 +2892,8 @@ exports.uniq = function(arr) {
 
 exports.log = _dereq_(20)('pouchdb:find');
 
-}).call(this,_dereq_(33))
-},{"19":19,"20":20,"23":23,"29":29,"30":30,"33":33,"34":34}],18:[function(_dereq_,module,exports){
+}).call(this,_dereq_(34))
+},{"19":19,"20":20,"23":23,"28":28,"29":29,"34":34,"35":35}],18:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -3096,7 +3099,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = _dereq_(26);
+exports.humanize = _dereq_(25);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -3281,7 +3284,7 @@ function coerce(val) {
   return val;
 }
 
-},{"26":26}],22:[function(_dereq_,module,exports){
+},{"25":25}],22:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
 var Mutation = global.MutationObserver || global.WebKitMutationObserver;
@@ -3415,261 +3418,6 @@ module.exports = isArray || function (val) {
 };
 
 },{}],25:[function(_dereq_,module,exports){
-'use strict';
-var immediate = _dereq_(22);
-
-/* istanbul ignore next */
-function INTERNAL() {}
-
-var handlers = {};
-
-var REJECTED = ['REJECTED'];
-var FULFILLED = ['FULFILLED'];
-var PENDING = ['PENDING'];
-
-module.exports = Promise;
-
-function Promise(resolver) {
-  if (typeof resolver !== 'function') {
-    throw new TypeError('resolver must be a function');
-  }
-  this.state = PENDING;
-  this.queue = [];
-  this.outcome = void 0;
-  if (resolver !== INTERNAL) {
-    safelyResolveThenable(this, resolver);
-  }
-}
-
-Promise.prototype["catch"] = function (onRejected) {
-  return this.then(null, onRejected);
-};
-Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (typeof onFulfilled !== 'function' && this.state === FULFILLED ||
-    typeof onRejected !== 'function' && this.state === REJECTED) {
-    return this;
-  }
-  var promise = new this.constructor(INTERNAL);
-  if (this.state !== PENDING) {
-    var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
-    unwrap(promise, resolver, this.outcome);
-  } else {
-    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
-  }
-
-  return promise;
-};
-function QueueItem(promise, onFulfilled, onRejected) {
-  this.promise = promise;
-  if (typeof onFulfilled === 'function') {
-    this.onFulfilled = onFulfilled;
-    this.callFulfilled = this.otherCallFulfilled;
-  }
-  if (typeof onRejected === 'function') {
-    this.onRejected = onRejected;
-    this.callRejected = this.otherCallRejected;
-  }
-}
-QueueItem.prototype.callFulfilled = function (value) {
-  handlers.resolve(this.promise, value);
-};
-QueueItem.prototype.otherCallFulfilled = function (value) {
-  unwrap(this.promise, this.onFulfilled, value);
-};
-QueueItem.prototype.callRejected = function (value) {
-  handlers.reject(this.promise, value);
-};
-QueueItem.prototype.otherCallRejected = function (value) {
-  unwrap(this.promise, this.onRejected, value);
-};
-
-function unwrap(promise, func, value) {
-  immediate(function () {
-    var returnValue;
-    try {
-      returnValue = func(value);
-    } catch (e) {
-      return handlers.reject(promise, e);
-    }
-    if (returnValue === promise) {
-      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
-    } else {
-      handlers.resolve(promise, returnValue);
-    }
-  });
-}
-
-handlers.resolve = function (self, value) {
-  var result = tryCatch(getThen, value);
-  if (result.status === 'error') {
-    return handlers.reject(self, result.value);
-  }
-  var thenable = result.value;
-
-  if (thenable) {
-    safelyResolveThenable(self, thenable);
-  } else {
-    self.state = FULFILLED;
-    self.outcome = value;
-    var i = -1;
-    var len = self.queue.length;
-    while (++i < len) {
-      self.queue[i].callFulfilled(value);
-    }
-  }
-  return self;
-};
-handlers.reject = function (self, error) {
-  self.state = REJECTED;
-  self.outcome = error;
-  var i = -1;
-  var len = self.queue.length;
-  while (++i < len) {
-    self.queue[i].callRejected(error);
-  }
-  return self;
-};
-
-function getThen(obj) {
-  // Make sure we only access the accessor once as required by the spec
-  var then = obj && obj.then;
-  if (obj && typeof obj === 'object' && typeof then === 'function') {
-    return function appyThen() {
-      then.apply(obj, arguments);
-    };
-  }
-}
-
-function safelyResolveThenable(self, thenable) {
-  // Either fulfill, reject or reject with error
-  var called = false;
-  function onError(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.reject(self, value);
-  }
-
-  function onSuccess(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.resolve(self, value);
-  }
-
-  function tryToUnwrap() {
-    thenable(onSuccess, onError);
-  }
-
-  var result = tryCatch(tryToUnwrap);
-  if (result.status === 'error') {
-    onError(result.value);
-  }
-}
-
-function tryCatch(func, value) {
-  var out = {};
-  try {
-    out.value = func(value);
-    out.status = 'success';
-  } catch (e) {
-    out.status = 'error';
-    out.value = e;
-  }
-  return out;
-}
-
-Promise.resolve = resolve;
-function resolve(value) {
-  if (value instanceof this) {
-    return value;
-  }
-  return handlers.resolve(new this(INTERNAL), value);
-}
-
-Promise.reject = reject;
-function reject(reason) {
-  var promise = new this(INTERNAL);
-  return handlers.reject(promise, reason);
-}
-
-Promise.all = all;
-function all(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var values = new Array(len);
-  var resolved = 0;
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    allResolver(iterable[i], i);
-  }
-  return promise;
-  function allResolver(value, i) {
-    self.resolve(value).then(resolveFromAll, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-    function resolveFromAll(outValue) {
-      values[i] = outValue;
-      if (++resolved === len && !called) {
-        called = true;
-        handlers.resolve(promise, values);
-      }
-    }
-  }
-}
-
-Promise.race = race;
-function race(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    resolver(iterable[i]);
-  }
-  return promise;
-  function resolver(value) {
-    self.resolve(value).then(function (response) {
-      if (!called) {
-        called = true;
-        handlers.resolve(promise, response);
-      }
-    }, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-  }
-}
-
-},{"22":22}],26:[function(_dereq_,module,exports){
 /**
  * Helpers.
  */
@@ -3796,14 +3544,14 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],27:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto
 var SEP = ''; // set to '_' for easier debugging 
 
-var utils = _dereq_(28);
+var utils = _dereq_(27);
 
 exports.collate = function (a, b) {
 
@@ -4151,7 +3899,7 @@ function numToIndexableString(num) {
   return result;
 }
 
-},{"28":28}],28:[function(_dereq_,module,exports){
+},{"27":27}],27:[function(_dereq_,module,exports){
 'use strict';
 
 function pad(str, padWith, upToLength) {
@@ -4222,7 +3970,7 @@ exports.intToDecimalForm = function (int) {
 
   return result;
 };
-},{}],29:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 "use strict";
 
 // Extends method
@@ -4403,21 +4151,276 @@ module.exports = extend;
 
 
 
-},{}],30:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var lie = _interopDefault(_dereq_(25));
+var lie = _interopDefault(_dereq_(30));
 
 /* istanbul ignore next */
 var PouchPromise = typeof Promise === 'function' ? Promise : lie;
 
 module.exports = PouchPromise;
-},{"25":25}],31:[function(_dereq_,module,exports){
+},{"30":30}],30:[function(_dereq_,module,exports){
+'use strict';
+var immediate = _dereq_(22);
+
+/* istanbul ignore next */
+function INTERNAL() {}
+
+var handlers = {};
+
+var REJECTED = ['REJECTED'];
+var FULFILLED = ['FULFILLED'];
+var PENDING = ['PENDING'];
+
+module.exports = Promise;
+
+function Promise(resolver) {
+  if (typeof resolver !== 'function') {
+    throw new TypeError('resolver must be a function');
+  }
+  this.state = PENDING;
+  this.queue = [];
+  this.outcome = void 0;
+  if (resolver !== INTERNAL) {
+    safelyResolveThenable(this, resolver);
+  }
+}
+
+Promise.prototype["catch"] = function (onRejected) {
+  return this.then(null, onRejected);
+};
+Promise.prototype.then = function (onFulfilled, onRejected) {
+  if (typeof onFulfilled !== 'function' && this.state === FULFILLED ||
+    typeof onRejected !== 'function' && this.state === REJECTED) {
+    return this;
+  }
+  var promise = new this.constructor(INTERNAL);
+  if (this.state !== PENDING) {
+    var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
+    unwrap(promise, resolver, this.outcome);
+  } else {
+    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
+  }
+
+  return promise;
+};
+function QueueItem(promise, onFulfilled, onRejected) {
+  this.promise = promise;
+  if (typeof onFulfilled === 'function') {
+    this.onFulfilled = onFulfilled;
+    this.callFulfilled = this.otherCallFulfilled;
+  }
+  if (typeof onRejected === 'function') {
+    this.onRejected = onRejected;
+    this.callRejected = this.otherCallRejected;
+  }
+}
+QueueItem.prototype.callFulfilled = function (value) {
+  handlers.resolve(this.promise, value);
+};
+QueueItem.prototype.otherCallFulfilled = function (value) {
+  unwrap(this.promise, this.onFulfilled, value);
+};
+QueueItem.prototype.callRejected = function (value) {
+  handlers.reject(this.promise, value);
+};
+QueueItem.prototype.otherCallRejected = function (value) {
+  unwrap(this.promise, this.onRejected, value);
+};
+
+function unwrap(promise, func, value) {
+  immediate(function () {
+    var returnValue;
+    try {
+      returnValue = func(value);
+    } catch (e) {
+      return handlers.reject(promise, e);
+    }
+    if (returnValue === promise) {
+      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
+    } else {
+      handlers.resolve(promise, returnValue);
+    }
+  });
+}
+
+handlers.resolve = function (self, value) {
+  var result = tryCatch(getThen, value);
+  if (result.status === 'error') {
+    return handlers.reject(self, result.value);
+  }
+  var thenable = result.value;
+
+  if (thenable) {
+    safelyResolveThenable(self, thenable);
+  } else {
+    self.state = FULFILLED;
+    self.outcome = value;
+    var i = -1;
+    var len = self.queue.length;
+    while (++i < len) {
+      self.queue[i].callFulfilled(value);
+    }
+  }
+  return self;
+};
+handlers.reject = function (self, error) {
+  self.state = REJECTED;
+  self.outcome = error;
+  var i = -1;
+  var len = self.queue.length;
+  while (++i < len) {
+    self.queue[i].callRejected(error);
+  }
+  return self;
+};
+
+function getThen(obj) {
+  // Make sure we only access the accessor once as required by the spec
+  var then = obj && obj.then;
+  if (obj && typeof obj === 'object' && typeof then === 'function') {
+    return function appyThen() {
+      then.apply(obj, arguments);
+    };
+  }
+}
+
+function safelyResolveThenable(self, thenable) {
+  // Either fulfill, reject or reject with error
+  var called = false;
+  function onError(value) {
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.reject(self, value);
+  }
+
+  function onSuccess(value) {
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.resolve(self, value);
+  }
+
+  function tryToUnwrap() {
+    thenable(onSuccess, onError);
+  }
+
+  var result = tryCatch(tryToUnwrap);
+  if (result.status === 'error') {
+    onError(result.value);
+  }
+}
+
+function tryCatch(func, value) {
+  var out = {};
+  try {
+    out.value = func(value);
+    out.status = 'success';
+  } catch (e) {
+    out.status = 'error';
+    out.value = e;
+  }
+  return out;
+}
+
+Promise.resolve = resolve;
+function resolve(value) {
+  if (value instanceof this) {
+    return value;
+  }
+  return handlers.resolve(new this(INTERNAL), value);
+}
+
+Promise.reject = reject;
+function reject(reason) {
+  var promise = new this(INTERNAL);
+  return handlers.reject(promise, reason);
+}
+
+Promise.all = all;
+function all(iterable) {
+  var self = this;
+  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+    return this.reject(new TypeError('must be an array'));
+  }
+
+  var len = iterable.length;
+  var called = false;
+  if (!len) {
+    return this.resolve([]);
+  }
+
+  var values = new Array(len);
+  var resolved = 0;
+  var i = -1;
+  var promise = new this(INTERNAL);
+
+  while (++i < len) {
+    allResolver(iterable[i], i);
+  }
+  return promise;
+  function allResolver(value, i) {
+    self.resolve(value).then(resolveFromAll, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
+    function resolveFromAll(outValue) {
+      values[i] = outValue;
+      if (++resolved === len && !called) {
+        called = true;
+        handlers.resolve(promise, values);
+      }
+    }
+  }
+}
+
+Promise.race = race;
+function race(iterable) {
+  var self = this;
+  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+    return this.reject(new TypeError('must be an array'));
+  }
+
+  var len = iterable.length;
+  var called = false;
+  if (!len) {
+    return this.resolve([]);
+  }
+
+  var i = -1;
+  var promise = new this(INTERNAL);
+
+  while (++i < len) {
+    resolver(iterable[i]);
+  }
+  return promise;
+  function resolver(value) {
+    self.resolve(value).then(function (response) {
+      if (!called) {
+        called = true;
+        handlers.resolve(promise, response);
+      }
+    }, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
+  }
+}
+
+},{"22":22}],31:[function(_dereq_,module,exports){
 'use strict';
 
-var PouchPromise = _dereq_(32);
+var PouchPromise = _dereq_(33);
 
 // this is essentially the "update sugar" function from daleharvey/pouchdb#1388
 // the diffFun tells us what delta to apply to the doc.  it either returns
@@ -4509,37 +4512,14 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(exports);
 }
 
-},{"32":32}],32:[function(_dereq_,module,exports){
+},{"33":33}],32:[function(_dereq_,module,exports){
 arguments[4][30][0].apply(exports,arguments)
-},{"25":25,"30":30}],33:[function(_dereq_,module,exports){
+},{"22":22,"30":30}],33:[function(_dereq_,module,exports){
+arguments[4][29][0].apply(exports,arguments)
+},{"29":29,"32":32}],34:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-(function () {
-  try {
-    cachedSetTimeout = setTimeout;
-  } catch (e) {
-    cachedSetTimeout = function () {
-      throw new Error('setTimeout is not defined');
-    }
-  }
-  try {
-    cachedClearTimeout = clearTimeout;
-  } catch (e) {
-    cachedClearTimeout = function () {
-      throw new Error('clearTimeout is not defined');
-    }
-  }
-} ())
 var queue = [];
 var draining = false;
 var currentQueue;
@@ -4564,7 +4544,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = cachedSetTimeout(cleanUpNextTick);
+    var timeout = setTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -4581,7 +4561,7 @@ function drainQueue() {
     }
     currentQueue = null;
     draining = false;
-    cachedClearTimeout(timeout);
+    clearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -4593,7 +4573,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        cachedSetTimeout(drainQueue, 0);
+        setTimeout(drainQueue, 0);
     }
 };
 
@@ -4632,7 +4612,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],34:[function(_dereq_,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 /*jshint bitwise:false*/
 /*global unescape*/
 
@@ -5233,7 +5213,7 @@ process.umask = function() { return 0; };
     return SparkMD5;
 }));
 
-},{}],35:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 'use strict';
 
 var utils = _dereq_(17);
@@ -5294,5 +5274,5 @@ if (typeof window !== 'undefined' && window.PouchDB) {
   window.PouchDB.plugin(plugin);
 }
 
-},{"14":14,"17":17,"6":6}]},{},[35])(35)
+},{"14":14,"17":17,"6":6}]},{},[36])(36)
 });
