@@ -88,3 +88,6 @@ Story-writer is a free Markdown editor, with a [web version](http://markdown.xia
 ## YLD
 
 [YLD](http://www.yld.io) is a Node.js software engineering, consulting and training company. We partner with enterprises to strengthen their software engineering culture and create the agility necessary to compete in today’s market, and are responsible for some of the largest Node.js solutions in production today. PouchDB allows us to create responsive, resilient and sync-enabled web applications.
+
+{% include img.html src="TeamONE.png" alt="FactoryTalk TeamONE" %}
+[FactoryTalk® TeamONE™](http://33seconds.io) delivers one new experience and helps industrial teams improve productivity.  Created by [Rockwell Automation](http://www.rockwellautomation.com/). We're using PouchDB for offline access and team synchronization. Looking to use the [Thali project](http://thaliproject.org/) (also a PouchDB client listed here) to enable true peer-to-peer connectivity. Connect with us on twitter ([@ROKTeamONE](https://twitter.com/rokteamone).)
