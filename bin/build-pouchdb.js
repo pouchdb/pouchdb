@@ -161,7 +161,9 @@ function doRollup(entry, browser, formatsToFiles) {
       }),
       replace({
         // we have switches for coverage; don't ship this to consumers
-        'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE)
+        'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
+        // pouchdb lite version contains less code
+        'process.env.POUCHDB_LITE': JSON.stringify(!!process.env.POUCHDB_LITE)
       })
     ]
   }).then(function (bundle) {
