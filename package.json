@@ -37,7 +37,6 @@
     "argsarray": "0.0.1",
     "debug": "2.3.2",
     "double-ended-queue": "2.1.0-0",
-    "es6-promise-pool": "2.4.4",
     "fruitdown": "1.0.2",
     "inherits": "2.0.3",
     "level-codec": "6.2.0",
