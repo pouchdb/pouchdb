@@ -12,6 +12,8 @@
 var rollup = require('rollup').rollup;
 var nodeResolve = require('rollup-plugin-node-resolve');
 var replace = require('rollup-plugin-replace');
+var browserifyPlugin = require('rollup-plugin-browserify-transform');
+var unreachable = require('unreachable-branch-transform');
 
 var path = require('path');
 var lie = require('lie');
@@ -73,8 +75,12 @@ function buildModule(filepath) {
           }),
           replace({
             // we have switches for coverage; don't ship this to consumers
-            'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE)
-          })
+            'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
+            // pouchdb lite version contains less code
+            'process.env.POUCHDB_LITE': JSON.stringify(!!process.env.POUCHDB_LITE)
+          }),
+          // removes dead if/else switches caused by replace() plugin
+          browserifyPlugin(unreachable)
         ]
       }).then(function (bundle) {
         var formats = ['cjs'];

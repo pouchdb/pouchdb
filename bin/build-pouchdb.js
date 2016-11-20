@@ -167,6 +167,7 @@ function doRollup(entry, browser, formatsToFiles) {
         // pouchdb lite version contains less code
         'process.env.POUCHDB_LITE': JSON.stringify(!!process.env.POUCHDB_LITE)
       }),
+      // removes dead if/else switches caused by replace() plugin
       browserifyPlugin(unreachable)
     ]
   }).then(function (bundle) {
