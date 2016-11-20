@@ -18,6 +18,8 @@ var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
 var replace = require('rollup-plugin-replace');
+var browserifyPlugin = require('rollup-plugin-browserify-transform');
+var unreachable = require('unreachable-branch-transform');
 var derequire = require('derequire');
 var fs = require('fs');
 var writeFileAsync = denodeify(fs.writeFile);
@@ -164,7 +166,8 @@ function doRollup(entry, browser, formatsToFiles) {
         'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
         // pouchdb lite version contains less code
         'process.env.POUCHDB_LITE': JSON.stringify(!!process.env.POUCHDB_LITE)
-      })
+      }),
+      browserifyPlugin(unreachable)
     ]
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
