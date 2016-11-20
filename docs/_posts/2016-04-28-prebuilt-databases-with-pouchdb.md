@@ -72,8 +72,7 @@ So let's write a short Node script to do that:
 
 ```js
 // load PouchDB with the optional node-websql adapter
-var PouchDB = require('pouchdb');
-require('pouchdb/extras/websql');
+var PouchDB = require('pouchdb').plugin(require('pouchdb-adapter-node-websql'));
 
 // set up our databases - make sure the URL is correct!
 var inputDB = new PouchDB('http://localhost:5984/turtles');
@@ -85,10 +84,11 @@ inputDB.replicate.to(outputDB);
 
 Let's call this script `dump.js`.
 
-Now, if you haven't already, you'll need to install PouchDB in the directory where we'll run the script:
+Now, if you haven't already, you'll need to install PouchDB and the [pouchdb-adapter-node-websql](https://www.npmjs.com/package/pouchdb-adapter-node-websql) plugin in the directory where we'll run the script:
 
 ```bash
 $ npm install pouchdb
+$ npm install pouchdb-adapter-node-websql
 ```
 
 Next, we'll run our script using:
@@ -123,11 +123,15 @@ $ cordova create pouchdb-prebuilt-demo
 Next, we'll want to copy the `turtles.db` into the `www/` directory. This will ensure that the file
 is bundled with the app.
 
-When we copy the file, we'll also need to add a prefix, `_pouch_`, so the final file
-will be called `_pouch_turtles.db`. This `_pouch_` is a special
-prefix that PouchDB uses when running in the browser, to avoid having its
-namespace conflict with any other databases. In order for PouchDB
-to find our database file, we'll need to be sure to add this prefix.
+{% include alert/start.html variant="warning" %}
+{% markdown %}
+
+**PouchDB 5.x instructions:** Before PouchDB 6, SQLite databases need to be
+prefixed with `_pouch_` in order to be located. So you would need to rename
+`turtles.db` to `_pouch_turtles.db`. This is not necessary in PouchDB 6+.
+
+{% endmarkdown %}
+{% include alert/end.html %}
 
 At this point, we'll also need to install some plugins for our Cordova app. In particular, we'll need the [File Plugin](https://github.com/apache/cordova-plugin-file)
 and [SQLite Plugin 2](https://github.com/nolanlawson/cordova-plugin-sqlite-2). Inside of the `pouchdb-prebuilt-demo` directory, run:
@@ -184,12 +188,29 @@ function copyDatabaseFile(dbName) {
 This uses the standard Cordova [File APIs](https://github.com/apache/cordova-plugin-file) – such as `getFile()` and `copyTo()` – while adding Promises to make it a bit more easy to use. (Note that you will need a Promise shim if you are targeting older devices.)
 It also checks whether the target file already exists, ensuring that the database is only ever copied once.
 
+Next, we'll need to include a plugin, [pouchdb-adapter-cordova-sqlite(https://github.com/nolanlawson/pouchdb-adapter-cordova-sqlite)]. This plugin will allow us to use native SQLite rather than WebSQL (which doesn't support prebuilt databases).
+
+To include this plugin, either `npm install pouchdb-adapter-cordova-sqlite` or [directly download it](https://unpkg.com/pouchdb-adapter-cordova-sqlite/dist/pouchdb.cordova-sqlite.js), then link to it:
+
+```html
+<script src="js/pouchdb.js"></script>
+<script src="js/pouchdb.cordova-sqlite.js"></script>
+```
+
+{% include alert/start.html variant="info" %}
+{% markdown %}
+
+**PouchDB 5.x instructions:** Before PouchDB 6, the WebSQL adapter would automatically fall back to SQLite if it detected it was running in a Cordova environment and the Cordova SQLite plugin was installed. This behavior [was removed](https://github.com/pouchdb/pouchdb/wiki/Breaking-changes) because it was difficult to maintain and configure.
+
+{% endmarkdown %}
+{% include alert/end.html %}
+
 Next, let's write the code to call this function and then print the contents of our preloaded PouchDB. Add this code to `www/js/index.js`, ensuring that it runs after the `deviceready` event:
 
 ```js
-copyDatabaseFile('_pouch_turtles.db').then(function () {
-  // using the websql adapter ensures we use the SQLite Plugin
-  var db = new PouchDB('turtles.db', {adapter: 'websql'});
+copyDatabaseFile('turtles.db').then(function () {
+  // using the Cordova SQLite plugin. Make sure this plugin is loaded correctly!
+  var db = new PouchDB('turtles.db', {adapter: 'cordova-sqlite'});
   return db.allDocs({include_docs: true});
 }).then(function (results) {
   var pre = document.createElement('pre');
