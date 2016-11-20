@@ -110,6 +110,12 @@ To run the node-websql test in Node, run the tests with:
 
     ADAPTER=websql
 
+### Testing fetch vs XMLHttpRequest
+
+PouchDB falls back to either XHR or fetch, whichever is available. You can test fetch-only using:
+
+    FETCH=1 npm test
+
 ### Performance tests
 
 To run the performance test suite in node.js:

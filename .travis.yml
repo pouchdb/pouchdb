@@ -68,6 +68,7 @@ env:
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
+  - FETCH=1 CLIENT=saucelabs:firefox:49 COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
   - CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
