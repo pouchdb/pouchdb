@@ -65,6 +65,23 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#5886 bulkGet with reserved id', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({_id: 'constructor', val: 1}).then(function (response) {
+        var rev = response.rev;
+        db.bulkGet({
+          docs: [
+            {id: 'constructor', rev: rev}
+          ]
+        }).then(function (response) {
+          var result = response.results[0];
+          result.docs[0].ok._id.should.equal('constructor');
+          should.not.exist(result.docs[0].ok._revisions);
+          done();
+        });
+      });
+    });
+
     it('_revisions is returned when specified', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({_id: 'foo', val: 1}).then(function (response) {
