@@ -14,12 +14,6 @@ if [[ ! -z $SERVER ]]; then
     TESTDIR=./tests/pouchdb_server
     rm -rf $TESTDIR && mkdir -p $TESTDIR
     FLAGS="--dir $TESTDIR"
-    if [[ ! -z $SERVER_ADAPTER ]]; then
-      FLAGS="$FLAGS --level-backend $SERVER_ADAPTER"
-    fi
-    if [[ ! -z $SERVER_PREFIX ]]; then
-      FLAGS="$FLAGS --level-prefix $SERVER_PREFIX"
-    fi
     echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
     ./node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!
