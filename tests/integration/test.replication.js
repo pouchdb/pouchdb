@@ -1656,6 +1656,25 @@ adapters.forEach(function (adapters) {
         });
     });
 
+    it('5904 - replication with deleted doc and value', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var doc = {_id: 'foo', integer: 4, _deleted: true};
+      var rev;
+      return db.put(doc)
+        .then(function (res) {
+          rev = res.rev;
+          return db.get(doc._id, { rev: rev });
+        }).then(function (local_doc) {
+          local_doc.integer.should.equal(4);
+          return db.replicate.to(remote);
+        }).then(function () {
+          return remote.get(doc._id, { rev: rev });
+        }).then(function (remote_doc) {
+          remote_doc.integer.should.equal(4);
+        });
+    });
+
     it('Replication with doc deleted twice', function (done) {
       if (testUtils.isCouchMaster()) {
         return done();
