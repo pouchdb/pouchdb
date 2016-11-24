@@ -18,6 +18,7 @@ var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
 var replace = require('rollup-plugin-replace');
+var globals = require('rollup-plugin-node-globals');
 var derequire = require('derequire');
 var fs = require('fs');
 var writeFileAsync = denodeify(fs.writeFile);
@@ -149,21 +150,25 @@ function doBrowserify(filepath, opts, exclude) {
 
 function doRollup(entry, browser, formatsToFiles) {
   var start = process.hrtime();
+  var plugins = [
+    nodeResolve({
+      skip: external,
+      jsnext: true,
+      browser: browser,
+      main: false  // don't use "main"s that are CJS
+    }),
+    replace({
+      // we have switches for coverage; don't ship this to consumers
+      'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE)
+    })
+  ];
+  if (browser) {
+    plugins.push(globals());
+  }
   return rollup.rollup({
     entry: addPath(entry),
     external: external,
-    plugins: [
-      nodeResolve({
-        skip: external,
-        jsnext: true,
-        browser: browser,
-        main: false  // don't use "main"s that are CJS
-      }),
-      replace({
-        // we have switches for coverage; don't ship this to consumers
-        'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE)
-      })
-    ]
+    plugins: plugins
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
       var fileOut = formatsToFiles[format];
@@ -294,4 +299,3 @@ if (require.main === module) {
 } else {
   module.exports = doBuild;
 }
-
