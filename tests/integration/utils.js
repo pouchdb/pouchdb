@@ -281,7 +281,8 @@ testUtils.extend = pouchUtils.jsExtend;
 
 testUtils.makeBlob = function (data, type) {
   if (typeof process !== 'undefined' && !process.browser) {
-    return new Buffer(data, 'binary');
+    // "global.Buffer" is to avoid Browserify pulling this in
+    return new global.Buffer(data, 'binary');
   } else {
     return pouchUtils.blob([data], {
       type: (type || 'text/plain')
@@ -334,7 +335,8 @@ if (typeof process !== 'undefined' && !process.browser) {
   if (process.env.COVERAGE) {
     global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
   } else { // no need to check for coverage
-    global.PouchDB = require('../../packages/node_modules/pouchdb');
+    // string addition is to avoid browserify pulling in whole thing
+    global.PouchDB = require('../../packages/' + 'node_modules/pouchdb');
   }
 
   if (process.env.LEVEL_ADAPTER || process.env.LEVEL_PREFIX) {
