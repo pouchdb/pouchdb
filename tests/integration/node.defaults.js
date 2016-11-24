@@ -8,7 +8,7 @@ if (!process.env.LEVEL_ADAPTER &&
   var mkdirp = require('mkdirp');
   var rimraf = require('rimraf');
 
-  describe('defaults', function () {
+  describe('node.defaults.js', function () {
 
     beforeEach(function () {
       return new PouchDB('mydb').destroy().then(function () {

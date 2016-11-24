@@ -9,6 +9,7 @@ var debounce = require('lodash.debounce');
 var buildPouchDB = require('./build-pouchdb');
 var browserify = require('browserify');
 var fs = require('fs');
+var concatFiles = require('fileconcat');
 
 var queryParams = {};
 
@@ -45,10 +46,19 @@ function browserifyPromise(src, dest) {
   });
 }
 
-function rebuildTestUtils() {
+function rebuildTests() {
   rebuildPromise = rebuildPromise.then(function () {
-    return browserifyPromise('tests/integration/utils.js',
-      'tests/integration/utils-bundle.js');
+    return Promise.all([
+      browserifyPromise('tests/integration/utils.js',
+        'tests/integration/utils-bundle.js'),
+      concatFiles([
+        'tests/integration/aa.*.js',
+        'tests/integration/test.*.js',
+        'tests/integration/browser.*.js'
+      ], 'tests/integration/tests-bundle.js').then(function () {
+        console.log('Rebuilt tests/integration/tests-bundle.js');
+      })
+    ]);
   }).then(function () {
     console.log('Rebuilt tests/integration/utils-bundle.js');
   }).catch(console.error);
@@ -66,8 +76,11 @@ function rebuildPerf() {
 function watchAll() {
   watch(['packages/node_modules/**/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
-  watch(['tests/integration/utils.js'],
-    debounce(rebuildTestUtils, 700, {leading: true}));
+  watch([
+    'tests/integration/aa.*.js',
+    'tests/integration/test.*.js',
+    'tests/integration/browser.*.js'
+  ], debounce(rebuildTests, 700, {leading: true}));
   watch(['tests/performance/**/*.js'],
     debounce(rebuildPerf, 700, {leading: true}));
 }
@@ -80,7 +93,7 @@ Promise.resolve().then(function () {
   }
   return Promise.all([
     rebuildPouch(),
-    rebuildTestUtils(),
+    rebuildTests(),
     rebuildPerf()
   ]);
 }).then(function () {

@@ -20,4 +20,5 @@ lib_unit
 src_browser/
 lerna-debug.log
 tests/integration/utils-bundle.js
+tests/integration/tests-bundle.js
 *.heapsnapshot

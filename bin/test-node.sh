@@ -12,7 +12,7 @@ else
 fi
 
 if [ $TYPE = "integration" ]; then
-    TESTS_PATH="tests/integration/test.*.js"
+    TESTS_PATH="tests/integration/{aa,test,node}.*.js"
 fi
 if [ $TYPE = "fuzzy" ]; then
     TESTS_PATH="tests/fuzzy/test.*.js"
@@ -31,7 +31,7 @@ elif [ ! $COVERAGE ]; then
     ./node_modules/.bin/mocha \
         $BAIL_OPT \
         --timeout $TIMEOUT \
-        --require=./tests/integration/node.setup.js \
+        --require=./tests/integration/setup-node.js \
         --reporter=$REPORTER \
         --grep=$GREP \
         $TESTS_PATH
@@ -41,7 +41,7 @@ else
        ./node_modules/mocha/bin/_mocha -- \
         $BAIL_OPT \
         --timeout $TIMEOUT \
-        --require=./tests/integration/node.setup.js \
+        --require=./tests/integration/setup-node.js \
         --reporter=$REPORTER \
         --grep=$GREP \
         $TESTS_PATH

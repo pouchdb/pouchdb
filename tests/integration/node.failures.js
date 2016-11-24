@@ -6,7 +6,7 @@ if (!process.env.LEVEL_ADAPTER &&
   !process.env.ADAPTER) {
   // these tests don't make sense for anything other than default leveldown
 
-  describe('test.failures.js', function () {
+  describe('node.failures.js', function () {
 
     var invalidPath = 'C:\\/path/to/thing/that/doesnt/exist\\with\\backslashes\\too';
 
