@@ -116,5 +116,6 @@ branches:
   - master
 
 cache:
+  yarn: true
   directories:
-  - $HOME/.npm
+    - node_modules
