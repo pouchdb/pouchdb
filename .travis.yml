@@ -13,7 +13,7 @@ sudo:
   false
 
 addons:
-  firefox: "49"
+  firefox: "49.0.2"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
@@ -37,7 +37,7 @@ env:
   - secure: "SSRTzT8OTeTpkGCLga74EGRfGmmRtsmAXbiXm1Xkg6tgQQmahxQJcrxr5QwHkdGdWkEIEudTd53AvZ/5KPmokmX/HiWsamdIj3WkrLdYvbEF4+mfqNa4oBBfrWXtPgPOG0vP1u5jPCK76S8qd7Ih8YrmAPUvecb04TnpVcLy+JM="
 
   matrix:
-  - CLIENT=selenium:firefox:49 COMMAND=test
+  - CLIENT=selenium:firefox:49.0.2 COMMAND=test
 
 branches:
   only:
