@@ -48,7 +48,7 @@
     "memdown": "1.2.2",
     "readable-stream": "1.0.33",
     "request": "2.78.0",
-    "scope-eval": "0.0.3",
+    "scope-eval": "1.0.0",
     "spark-md5": "2.0.2",
     "through2": "2.0.1",
     "vuvuzela": "1.0.3",
