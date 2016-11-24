@@ -3,23 +3,71 @@
    PouchDBVersion360 */
 'use strict';
 
-var scenarios = [
-  'PouchDB v1.1.0',
-  'PouchDB v2.0.0',
-  'PouchDB v2.2.0',
-  'PouchDB v3.0.6',
-  'PouchDB v3.2.0',
-  'PouchDB v3.6.0',
-  'websql'
-];
-
 describe('migration', function () {
 
   function usingDefaultPreferredAdapters() {
-    var defaults = ['idb', 'websql'];
-    return !(PouchDB.preferredAdapters < defaults ||
-      PouchDB.preferredAdapters > defaults);
+    var pref = PouchDB.preferredAdapters;
+    // Firefox will have ['idb'], Chrome will have ['idb', 'websql']
+    return (pref.length === 1 && pref[0] === 'idb') ||
+      (pref.length === 2 && pref[0] === 'idb' && pref[1] === 'websql');
   }
+
+  var scenarios = [
+    'PouchDB v1.1.0',
+    'PouchDB v2.0.0',
+    'PouchDB v2.2.0',
+    'PouchDB v3.0.6',
+    'PouchDB v3.2.0',
+    'PouchDB v3.6.0',
+    'websql'
+  ];
+
+  var skip = false;
+
+  before(function () {
+    var isNodeWebkit = typeof window !== 'undefined' &&
+      typeof process !== 'undefined';
+
+    var skipMigration = 'SKIP_MIGRATION' in testUtils.params() &&
+      testUtils.params().SKIP_MIGRATION;
+
+    if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
+      isNodeWebkit || skipMigration) {
+      skip = true;
+    }
+
+    if (skip) {
+      return;
+    }
+    // conditionally load all legacy PouchDB scripts to avoid pulling them in
+    // for test runs that don't test migrations
+    return Promise.all(scenarios.map(function (scenario) {
+      var match = scenario.match(/PouchDB v([\.\d]+)/);
+      if (!match) {
+        return testUtils.Promise.resolve();
+      }
+      return new testUtils.Promise(function (resolve, reject) {
+        var script = document.createElement('script');
+        script.onload = resolve;
+        script.onerror = reject;
+        script.src = 'deps/pouchdb-' + match[1] + '-postfixed.js';
+        document.body.appendChild(script);
+      });
+    }));
+  });
+
+  after(function () {
+    if (skip) {
+      return;
+    }
+    // free memory
+    delete window.PouchDBVersion110;
+    delete window.PouchDBVersion200;
+    delete window.PouchDBVersion220;
+    delete window.PouchDBVersion306;
+    delete window.PouchDBVersion320;
+    delete window.PouchDBVersion360;
+  });
 
   scenarios.forEach(function (scenario) {
 
@@ -27,7 +75,6 @@ describe('migration', function () {
 
       var dbs = {};
       var constructors = {};
-      var skip = false;
 
       var post220 = [
             'PouchDB v2.2.0',
@@ -49,18 +96,8 @@ describe('migration', function () {
           ].indexOf(scenario) !== -1;
 
       beforeEach(function (done) {
-
-        var isNodeWebkit = typeof window !== 'undefined' &&
-          typeof process !== 'undefined';
-
-        var skipMigration = 'SKIP_MIGRATION' in testUtils.params() &&
-          testUtils.params().SKIP_MIGRATION;
-
-        if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
-            isNodeWebkit || skipMigration) {
-          skip = true;
-          done();
-          return;
+        if (skip) {
+          return done();
         }
 
         constructors = {
@@ -102,8 +139,7 @@ describe('migration', function () {
 
       afterEach(function (done) {
         if (skip) {
-          done();
-          return;
+          return done();
         }
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
       });
