@@ -16,7 +16,11 @@ adapters.forEach(function (adapter) {
       }, function (err, res) {
         // here's the test, we should get an 'err' response
         should.exist(err);
-        err.code.should.match(/(ESOCKETTIMEDOUT|ETIMEDOUT|ENETUNREACH|EAGAIN|ECONNREFUSED)/);
+        if (err.code) { // xhr
+          err.code.should.match(/(ESOCKETTIMEDOUT|ETIMEDOUT|ENETUNREACH|EAGAIN|ECONNREFUSED)/);
+        } else { // fetch
+          err.status.should.equal(500);
+        }
         should.not.exist(res);
         done();
       });
