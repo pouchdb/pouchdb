@@ -31,6 +31,10 @@ A list of known products and services that are using PouchDB.
 
 [eHealth Africa](http://ehealthafrica.org/) is an American-Nigerian NGO specialising in the development and deployment of tech for health. To tackle the Ebola outbreak, they built [mobile apps and dashboards](https://github.com/eHealthAfrica) to help track the spread of infection in the field. The combination of CouchDB and PouchDB enabled these apps to work consistently despite the extreme network unreliability of sub-saharan Africa.
 
+## Financier
+
+[Financier](https://financier.io) is a freemium personal budgeting app that uses PouchDB to store your budget data. The paid version syncs data with CouchDB 2 for data persistence and sharing across devices. The app is fully integrated with the PouchDB changes feed for instant updates. More about the stack is available in [humans.txt](https://app.financier.io/humans.txt).
+
 ## GRADEpro GDT
 
 {% include img.html width=150 src="gradepro.png" alt="GRADEpro GDT" href="http://gradepro.org/" %}
@@ -88,3 +92,6 @@ Story-writer is a free Markdown editor, with a [web version](http://markdown.xia
 ## YLD
 
 [YLD](http://www.yld.io) is a Node.js software engineering, consulting and training company. We partner with enterprises to strengthen their software engineering culture and create the agility necessary to compete in today’s market, and are responsible for some of the largest Node.js solutions in production today. PouchDB allows us to create responsive, resilient and sync-enabled web applications.
+
+{% include img.html src="TeamONE.png" alt="FactoryTalk TeamONE" %}
+[FactoryTalk® TeamONE™](http://33seconds.io) delivers one new experience and helps industrial teams improve productivity.  Created by [Rockwell Automation](http://www.rockwellautomation.com/). We're using PouchDB for offline access and team synchronization. Looking to use the [Thali project](http://thaliproject.org/) (also a PouchDB client listed here) to enable true peer-to-peer connectivity. Connect with us on twitter ([@ROKTeamONE](https://twitter.com/rokteamone).)

@@ -732,5 +732,36 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#5883 Testing with duplicate rev hash', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.bulkDocs([
+          {
+            "_id": "foo",
+            "_rev": "3-deleted",
+            "_deleted": true,
+            "_revisions": {
+                "start": 3,
+                "ids": ["deleted", "0a21b4bd4399b51e144a06b126031edc", "created"]
+            }
+          },
+          {
+            "_id": "foo",
+            "_rev": "3-0a21b4bd4399b51e144a06b126031edc",
+            "_revisions": {
+                "start": 3,
+                "ids": ["0a21b4bd4399b51e144a06b126031edc", "updated", "created"]
+            }
+          }
+        ], { new_edits: false
+      }).then(function () {
+        return db.get('foo', { revs: true });
+      }).then(function (doc) {
+        doc._revisions.start.should.equal(3);
+        doc._revisions.ids.should.eql(["0a21b4bd4399b51e144a06b126031edc", "updated", "created"]);
+        done();
+      }).catch(done);
+    });
+
+
   });
 });

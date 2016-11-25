@@ -128,7 +128,7 @@ Now, let's go through each of these parameters in detail.
 
 ### startkey and endkey
 
-`startkey` simply tells PouchDB where you'd like to start in the stream.  For instance, the options `{startkey : 'doc5'}` would return these docs:
+`startkey` simply tells PouchDB where you'd like to start in the stream.  For instance, the options `{startkey : 'doc05'}` would return these docs:
 
 ```
       First doc returned                              Last doc returned
@@ -144,7 +144,7 @@ First doc returned                         Last doc returned
 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 ```
 
-These two options can be used together!  `{startkey : 'doc5', endkey: 'doc15'}` gives us:
+These two options can be used together!  `{startkey : 'doc05', endkey: 'doc15'}` gives us:
 
 ```
       First doc returned                   Last doc returned
