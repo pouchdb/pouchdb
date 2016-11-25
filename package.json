@@ -38,6 +38,7 @@
     "debug": "2.3.2",
     "double-ended-queue": "2.1.0-0",
     "fruitdown": "1.0.2",
+    "immediate": "3.0.6",
     "inherits": "2.0.3",
     "level-codec": "6.2.0",
     "level-write-stream": "1.0.0",
