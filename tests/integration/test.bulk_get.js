@@ -32,6 +32,31 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('test bulk get with latest=true', function () {
+      var db = new PouchDB(dbs.name);
+      var first;
+
+      return db.post({ version: 'first' })
+        .then(function (info) {
+          first = info.rev;
+          return db.put({
+          _id: info.id,
+          _rev: info.rev,
+          version: 'second'
+        }).then(function (info) {
+          return db.bulkGet({
+            docs: [
+              {id: info.id, rev: first }
+            ],
+            latest: true
+          });
+        }).then(function (response) {
+          var result = response.results[0];
+          result.docs[0].ok.version.should.equal('second');
+        });
+      });
+    });
+
     it('test bulk get with no rev specified', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({_id: 'foo', val: 1}).then(function (response) {
