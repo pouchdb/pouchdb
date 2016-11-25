@@ -90,21 +90,11 @@ Then in the PouchDB project, run:
 
 This works because `npm run dev` does not start up the pouchdb-server itself (only `npm test` does).
 
-### Testing the in-memory adapter
+### Testing different Node adapters
 
-`pouchdb-server` uses the `--in-memory` flag to use MemDOWN.  To enable this, set
+Use this option to test the in-memory adapter:
 
-    SERVER_ADAPTER=memory
-
-Whereas on the client this is configured using `PouchDB.defaults()`, so you can enable it like so:
-
-    LEVEL_ADAPTER=memdown
-
-The value is a comma-separated list of key values, where the key-values are separated by colons.
-
-Some Level adapters also require a standard database name prefix (e.g. `riak://` or `mysql://`), which you can specify like so:
-
-    LEVEL_PREFIX=riak://localhost:8087/
+    ADAPTER=memory
 
 To run the node-websql test in Node, run the tests with:
 

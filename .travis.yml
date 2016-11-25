@@ -43,6 +43,9 @@ env:
   # Test WebSQL in Node (using node-websql)
   - CLIENT=node ADAPTER=websql COMMAND=test
 
+  # Test in-memory in Node
+  - CLIENT=node ADAPTER=memory COMMAND=test
+
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox:48.0 COMMAND=test
   - CLIENT=selenium:phantomjs COMMAND=test
