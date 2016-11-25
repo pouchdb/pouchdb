@@ -38,79 +38,16 @@ env:
   - secure: "SSRTzT8OTeTpkGCLga74EGRfGmmRtsmAXbiXm1Xkg6tgQQmahxQJcrxr5QwHkdGdWkEIEudTd53AvZ/5KPmokmX/HiWsamdIj3WkrLdYvbEF4+mfqNa4oBBfrWXtPgPOG0vP1u5jPCK76S8qd7Ih8YrmAPUvecb04TnpVcLy+JM="
 
   matrix:
-  - CLIENT=node COMMAND=test
-
-  # Test WebSQL in Node (using node-websql)
-  - CLIENT=node ADAPTER=websql COMMAND=test
-
-  # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox:48.0 COMMAND=test
-  - CLIENT=selenium:phantomjs COMMAND=test
-
-  # Test auto-compaction in Node, Phantom, and Firefox
-  - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox:48.0 COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
-
-  # Test map/reduce
-  - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox:48.0 COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
-
-  # Testing in saucelabs
-  - CLIENT=saucelabs:chrome COMMAND=test
-  - FETCH=1 CLIENT=saucelabs:firefox:49 COMMAND=test
-  - CLIENT=saucelabs:safari:6 COMMAND=test
-  - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
-
-  # split up the android+iphone tests as it goes over time
-  - SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
-  - CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
-
-  # Test memory / fruitdown etc
-  - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
-  - CLIENT=selenium:firefox:48.0 ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox:48.0 ADAPTERS=localstorage COMMAND=test
-
-  # Test Webpack bundle
-  - CLIENT=selenium:firefox:48.0 COMMAND=test-webpack
-
-  # Test CouchDB master (aka bigcouch branch)
-  - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:48.0 SERVER=couchdb-master COMMAND=test
-
-  # Performance tests
-  - CLIENT=selenium:firefox:48.0 PERF=1 COMMAND=test
-  - PERF=1 COMMAND=test
-
-  # Test Webpack bundle
-  - CLIENT=selenium:firefox:48.0 NEXT=1 COMMAND=test
-
-  - COMMAND=test-unit
-  - COMMAND=test-component
-  - COMMAND=test-fuzzy
-  # need extra env variable COVERAGE here because of some subtlety in Travis containers not
-  # passing the process.env.COVERAGE to the node process
-  - COMMAND=report-coverage COVERAGE=1
-  - COMMAND=verify-build
-
-matrix:
-  fast_finish: true
-  include:
-    - node_js: "4"
-      services: docker
-      env: CLIENT=node COMMAND=test
-    - node_js: "stable"
-      services: docker
-      env: CLIENT=node COMMAND=test
-  allow_failures:
-  - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:48.0 SERVER=couchdb-master COMMAND=test
-  - env: CLIENT=selenium:firefox:48.0 PERF=1 COMMAND=test
-  - env: CLIENT=selenium:firefox:48.0 NEXT=1 COMMAND=test
-  - node_js: "stable"
-    services: docker
-    env: CLIENT=node COMMAND=test
+  - RUN=0 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=1 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=2 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=3 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=4 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=5 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=6 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=7 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=8 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - RUN=9 CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
 branches:
   only:
