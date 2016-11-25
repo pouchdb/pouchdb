@@ -13,14 +13,14 @@ sudo:
   false
 
 addons:
-  firefox: "48.0.2"
+  firefox: "49.0.2"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  - tar -xjf /tmp/firefox-48.0.2.tar.bz2 --directory /tmp
+  - tar -xjf /tmp/firefox-49.0.2.tar.bz2 --directory /tmp
   - export PATH="/tmp/firefox:$PATH"
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
