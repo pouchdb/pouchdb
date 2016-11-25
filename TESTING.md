@@ -90,6 +90,8 @@ Then in the PouchDB project, run:
 
 This works because `npm run dev` does not start up the pouchdb-server itself (only `npm test` does).
 
+Note that you must `npm install pouchdb-server` or `npm install express-pouchdb` yourself for this test to work.
+
 ### Testing the in-memory adapter
 
 `pouchdb-server` uses the `--in-memory` flag to use MemDOWN.  To enable this, set
