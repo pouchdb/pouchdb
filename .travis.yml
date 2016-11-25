@@ -13,14 +13,14 @@ sudo:
   false
 
 addons:
-  firefox: "50.0"
+  firefox: "41.0.1"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  - tar -xjf /tmp/firefox-50.0.tar.bz2 --directory /tmp
+  - tar -xjf /tmp/firefox-41.0.1.tar.bz2 --directory /tmp
   - export PATH="/tmp/firefox:$PATH"
   - alias firefox-bin="firefox"
   - echo "using firefox $(firefox --version)"
@@ -42,16 +42,16 @@ env:
   - secure: "SSRTzT8OTeTpkGCLga74EGRfGmmRtsmAXbiXm1Xkg6tgQQmahxQJcrxr5QwHkdGdWkEIEudTd53AvZ/5KPmokmX/HiWsamdIj3WkrLdYvbEF4+mfqNa4oBBfrWXtPgPOG0vP1u5jPCK76S8qd7Ih8YrmAPUvecb04TnpVcLy+JM="
 
   matrix:
-  - RUN=0 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=1 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=2 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=3 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=4 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=5 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=6 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=7 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=8 CLIENT=selenium:firefox:50.0 COMMAND=test
-  - RUN=9 CLIENT=selenium:firefox:50.0 COMMAND=test
+  - RUN=0 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=1 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=2 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=3 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=4 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=5 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=6 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=7 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=8 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=9 CLIENT=selenium:firefox:41.0.1 COMMAND=test
 
 branches:
   only:
