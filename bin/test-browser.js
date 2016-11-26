@@ -17,6 +17,9 @@ var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
 
 var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '2.53.1';
+var FIREFOX_BIN = process.env.FIREFOX_BIN;
+
+console.log('using FIREFOX_BIN', FIREFOX_BIN);
 
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
@@ -187,6 +190,9 @@ function startTest() {
     'idle-timeout': 599,
     'tunnel-identifier': tunnelId
   };
+  if (FIREFOX_BIN) {
+    opts.firefox_binary = FIREFOX_BIN;
+  }
 
   sauceClient.init(opts).get(testUrl, function () {
 
