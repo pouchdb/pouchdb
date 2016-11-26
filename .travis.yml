@@ -13,14 +13,14 @@ sudo:
   false
 
 addons:
-  firefox: "50.0"
+  firefox: "41.0.1"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  - tar -xjf /tmp/firefox-50.0.tar.bz2 --directory /tmp
+  - tar -xjf /tmp/firefox-41.0.1.tar.bz2 --directory /tmp
   - export PATH="/tmp/firefox:$PATH"
   - echo "using firefox $(firefox --version)"
   - export FIREFOX_BIN=$(which firefox)
@@ -43,8 +43,11 @@ env:
 
   matrix:
   - RUN=0 CLIENT=selenium:firefox COMMAND=test
-  - RUN=1 CLIENT=selenium:firefox:50 COMMAND=test
-  - RUN=2 CLIENT=selenium:firefox:50.0 COMMAND=test
+  - RUN=1 CLIENT=selenium:firefox:41 COMMAND=test
+  - RUN=2 CLIENT=selenium:firefox:41.0.1 COMMAND=test
+  - RUN=3 FIREFOX_BIN=/usr/local/bin/firefox CLIENT=selenium:firefox COMMAND=test
+  - RUN=4 FIREFOX_BIN=/usr/local/bin/firefox CLIENT=selenium:firefox:41 COMMAND=test
+  - RUN=5 FIREFOX_BIN=/usr/local/bin/firefox CLIENT=selenium:firefox:41.0.1 COMMAND=test
 
 branches:
   only:
