@@ -20,10 +20,8 @@ before_install:
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  - tar -xjf /tmp/firefox-50.0.tar.bz2 --directory /tmp
-  - export PATH="/tmp/firefox:$PATH"
-  - alias firefox-bin="firefox"
-  - echo "using firefox $(firefox --version)"
+  - echo "using firefox $(/usr/local/bin/firefox --version)"
+  - export FIREFOX_BIN=/usr/local/bin/firefox
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
     # Fail early so we dont run hours of saucelabs if we know there
@@ -48,22 +46,22 @@ env:
   - CLIENT=node ADAPTER=websql COMMAND=test
 
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox:50 COMMAND=test
+  - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:phantomjs COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox:50 COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox:50 COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
-  - FETCH=1 CLIENT=selenium:firefox:50 COMMAND=test
+  - FETCH=1 CLIENT=selenium:firefox COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
@@ -73,22 +71,22 @@ env:
 
   # Test memory / fruitdown etc
   - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
-  - CLIENT=selenium:firefox:50 ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox:50 ADAPTERS=localstorage COMMAND=test
+  - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
+  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:50 COMMAND=test-webpack
+  - CLIENT=selenium:firefox COMMAND=test-webpack
 
   # Test CouchDB master (aka bigcouch branch)
   - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:50 SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
 
   # Performance tests
-  - CLIENT=selenium:firefox:50 PERF=1 COMMAND=test
+  - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:50 NEXT=1 COMMAND=test
+  - CLIENT=selenium:firefox NEXT=1 COMMAND=test
 
   - COMMAND=test-unit
   - COMMAND=test-component
@@ -109,9 +107,9 @@ matrix:
       env: CLIENT=node COMMAND=test
   allow_failures:
   - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:50 SERVER=couchdb-master COMMAND=test
-  - env: CLIENT=selenium:firefox:50 PERF=1 COMMAND=test
-  - env: CLIENT=selenium:firefox:50 NEXT=1 COMMAND=test
+  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
+  - env: CLIENT=selenium:firefox PERF=1 COMMAND=test
+  - env: CLIENT=selenium:firefox NEXT=1 COMMAND=test
   - node_js: "stable"
     services: docker
     env: CLIENT=node COMMAND=test
