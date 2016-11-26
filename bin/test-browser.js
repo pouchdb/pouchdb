@@ -19,6 +19,8 @@ var accessKey = process.env.SAUCE_ACCESS_KEY;
 var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '2.53.1';
 var FIREFOX_BIN = process.env.FIREFOX_BIN;
 
+console.log('using FIREFOX_BIN', FIREFOX_BIN);
+
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
