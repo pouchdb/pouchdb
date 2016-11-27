@@ -186,5 +186,15 @@ if (!process.env.LEVEL_ADAPTER &&
       new CustomPouch('mydb');
     });
 
+    it('should be transitive (#5922)', function () {
+      var CustomPouch = PouchDB
+        .defaults({db: require('memdown')})
+        .defaults({});
+
+      var db = new CustomPouch('mydb');
+      return db.info().then(function (info) {
+        info.backend_adapter.should.equal('MemDOWN');
+      });
+    });
   });
 }
