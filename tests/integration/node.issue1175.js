@@ -52,7 +52,7 @@ function getCallback(expectError, done) {
   setTimeout(timeOutCallback, maximumTimeToWait);
   return callback;
 }
-describe('replication-http-errors:', function () {
+describe('node.issue1175.js', function () {
   it('Initial replication is ok if source returns HTTP 404', function (done) {
     var source = new MockDatabase(404, null);
     var target = new MockDatabase(200, {});
