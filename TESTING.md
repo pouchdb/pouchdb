@@ -25,6 +25,11 @@ or you can run:
 
 and open [http://127.0.0.1:8000/tests/integration/index.html](http://127.0.0.1:8000/tests/integration/index.html) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/index.html](http://localhost:8000/tests/performance/index.html).
 
+You can also test against phantomjs, but you'll need to install phantomjs yourself:
+
+    $ npm install phantomjs-prebuilt
+    $ CLIENT=selenium:phantomjs npm test
+
 ### Unit tests
 
     $ npm run build-as-modular-es5
