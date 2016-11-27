@@ -137,6 +137,7 @@ branches:
 
 cache:
   directories:
+  - $HOME/docker
   - $HOME/.npm
   # See https://github.com/gr2m/selsa
   - node_modules/selenium-standalone/.selenium
