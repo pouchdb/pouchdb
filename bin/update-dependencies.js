@@ -22,14 +22,6 @@ modules.forEach(function (mod) {
   var pkgPath = path.join(pkgDir, 'package.json');
   var pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
-  // All adapters should declare pouchdb-core as a peerDep, to warn
-  // users if they install with the wrong version.
-  // For other packages, they *may* be installed without pouchdb-core, so
-  // there's no need to add a peerDep.
-  if (/-adapter-/.test(pkg.name)) {
-    pkg.peerDependencies = { 'pouchdb-core' : mainVersion };
-  }
-
   // for the dependencies, find all require() calls
   var srcFiles = glob.sync(path.join(pkgDir, 'lib/**/*.js'));
   var uniqDeps = uniq(flatten(srcFiles.map(function (srcFile) {
