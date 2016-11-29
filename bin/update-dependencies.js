@@ -14,7 +14,6 @@ var uniq = require('lodash.uniq');
 var flatten = require('lodash.flatten');
 
 var topPkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-var mainVersion = topPkg.version;
 var modules = fs.readdirSync('./packages/node_modules');
 
 modules.forEach(function (mod) {

@@ -1113,7 +1113,7 @@ adapters.forEach(function (adapter) {
       it('#5471 PouchDB.plugin() should throw error if passed wrong type or empty object', function () {
         (function () {
           PouchDB.plugin('pouchdb-adapter-memory');
-        }).should.throw(Error, 'Invalid plugin: object passed in is empty or not an object');
+        }).should.throw(Error, 'Invalid plugin: got "pouchdb-adapter-memory", expected an object or a function');
       });
     }
   });
