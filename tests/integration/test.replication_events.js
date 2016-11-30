@@ -105,17 +105,15 @@ adapters.forEach(function (adapters) {
       }
 
       var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-      var rejectAjax = true;
-      var ajax = remote._ajax;
-
-      remote._ajax = function (opts, cb) {
-        if (rejectAjax) {
-          cb(new Error('flunking you'));
-        } else {
-          ajax.apply(this, arguments);
+      var remote = new PouchDB(dbs.remote, {
+        request: function (opts, ajax) {
+          if (rejectAjax) {
+            return testUtils.Promise.reject({status: 500});
+          }
+          return ajax(opts);
         }
-      };
+      });
+      var rejectAjax = true;
 
       db.bulkDocs([{_id: 'a'}, {_id: 'b'}]).then(function () {
 
@@ -128,7 +126,6 @@ adapters.forEach(function (adapters) {
         var counter = 0;
 
         repl.on('complete', function () {
-          remote._ajax = ajax;
           done();
         });
 
@@ -256,35 +253,32 @@ adapters.forEach(function (adapters) {
     });
 
     describe('#5172 triggering error when replicating', function () {
-      var securedDbs = [], source, dest, previousAjax;
+      var source, dest;
+
       beforeEach(function () {
+
+        var srcOpts = {}, destOpts = {};
         var err = {
           'status': 401,
           'name': 'unauthorized',
           'message': 'You are not authorized to access this db.'
         };
 
-        source = new PouchDB(dbs.name);
-        dest = new PouchDB(dbs.remote);
+        function req() {
+          return testUtils.Promise.reject(err);
+        }
 
         if (adapters[0] === 'http') {
-          previousAjax = source._ajax;
-          source._ajax = function (opts, cb) { cb(err); };
-          securedDbs.push(source);
+          srcOpts = {request: req};
         }
-
         if (adapters[1] === 'http') {
-          previousAjax = dest._ajax;
-          dest._ajax = function (opts, cb) { cb(err); };
-          securedDbs.push(dest);
+          destOpts = {request: req};
         }
+
+        source = new PouchDB(dbs.name, srcOpts);
+        dest = new PouchDB(dbs.remote, destOpts);
       });
 
-      afterEach(function () {
-        securedDbs.forEach(function (db) {
-          db._ajax = previousAjax;
-        });
-      });
 
       function attachHandlers(replication) {
         var invokedHandlers = [];

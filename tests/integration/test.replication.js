@@ -3924,23 +3924,19 @@ adapters.forEach(function (adapters) {
     it('4094 cant fetch server uuid', function (done) {
 
       var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-
-      var ajax = remote._ajax;
-
-      remote._ajax = function (opts, cb) {
-        var uri = testUtils.parseUri(opts.url);
-        if (uri.path === '/') {
-          cb(new Error('flunking you'));
-        } else {
-          ajax.apply(this, arguments);
+      var remote = new PouchDB(dbs.remote, {
+        request: function (opts, ajax) {
+          var uri = testUtils.parseUri(opts.url);
+          if (uri.path === '/') {
+            return testUtils.Promise.reject({status: 404});
+          }
+          return ajax(opts);
         }
-      };
+      });
 
       var _complete = 0;
       function complete() {
         if (++_complete === 2) {
-          remote._ajax = ajax;
           done();
         }
       }
@@ -4006,22 +4002,21 @@ adapters.forEach(function (adapters) {
       }
 
       var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-
       var seenHeartBeat = false;
-      var ajax = remote._ajax;
-      remote._ajax = function (opts) {
-        if (/heartbeat/.test(opts.url)) {
-          seenHeartBeat = true;
+
+      var remote = new PouchDB(dbs.remote, {
+        request: function (opts, ajax) {
+          if (/heartbeat/.test(opts.url)) {
+            seenHeartBeat = true;
+          }
+          return ajax(opts);
         }
-        ajax.apply(this, arguments);
-      };
+      });
 
       return remote.bulkDocs([{foo: 'bar'}]).then(function () {
         return db.replicate.from(remote, {heartbeat: 10});
       }).then(function () {
         seenHeartBeat.should.equal(true);
-        remote._ajax = ajax;
       });
     });
 
@@ -4031,24 +4026,23 @@ adapters.forEach(function (adapters) {
         return true;
       }
 
-      var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-
       var seenTimeout = false;
-      var ajax = remote._ajax;
-      remote._ajax = function (opts) {
-        // the http adapter takes 5s off the provided timeout
-        if (/timeout=15000/.test(opts.url)) {
-          seenTimeout = true;
+      var db = new PouchDB(dbs.name);
+
+      var remote = new PouchDB(dbs.remote, {
+        request: function (opts, ajax) {
+          // the http adapter takes 5s off the provided timeout
+          if (/timeout=15000/.test(opts.url)) {
+            seenTimeout = true;
+          }
+          return ajax(opts);
         }
-        ajax.apply(this, arguments);
-      };
+      });
 
       return remote.bulkDocs([{foo: 'bar'}]).then(function () {
         return db.replicate.from(remote, {timeout: 20000});
       }).then(function () {
         seenTimeout.should.equal(true);
-        remote._ajax = ajax;
       });
     });
 

@@ -51,33 +51,31 @@ describe('test.http.js', function () {
   });
 
   it('Issue 1269 redundant _changes requests', function (done) {
+
     var docs = [];
     var num = 100;
+    var callCount = 0;
+
     for (var i = 0; i < num; i++) {
-      docs.push({
-        _id: 'doc_' + i,
-        foo: 'bar_' + i
-      });
+      docs.push({_id: 'doc_' + i, foo: 'bar_' + i});
     }
-    var db = new PouchDB(dbs.name);
+
+    var db = new PouchDB(dbs.name, {
+      request: function (opts, ajax) {
+        if (/_changes/.test(opts.url)) {
+          callCount++;
+        }
+        return ajax(opts);
+      }
+    });
     db.bulkDocs({ docs: docs }, function () {
       db.info(function (err, info) {
         var update_seq = info.update_seq;
-
-        var callCount = 0;
-        var ajax = db._ajax;
-        db._ajax = function (opts) {
-          if (/_changes/.test(opts.url)) {
-            callCount++;
-          }
-          ajax.apply(this, arguments);
-        };
         db.changes({
           since: update_seq
         }).on('change', function () {
         }).on('complete', function () {
           callCount.should.equal(1, 'One _changes call to complete changes');
-          db._ajax = ajax;
           done();
         }).on('error', done);
       });
@@ -99,42 +97,35 @@ describe('test.http.js', function () {
   });
 
   it('Properly escape url params #4008', function () {
-    var db = new PouchDB(dbs.name);
-    var ajax = db._ajax;
-    db._ajax = function (opts) {
-      opts.url.should.not.contain('[');
-      ajax.apply(this, arguments);
-    };
-    return db.changes({doc_ids: ['1']}).then(function () {
-      db._ajax = ajax;
+    var db = new PouchDB(dbs.name, {
+      request: function (opts, ajax) {
+        opts.url.should.not.contain('[');
+        return ajax(opts);
+      }
     });
+    return db.changes({doc_ids: ['1']});
   });
 
   it('Allows the "ajax timeout" to extend "changes timeout"', function (done) {
     var timeout = 120000;
+    var ajaxOpts;
     var db = new PouchDB(dbs.name, {
       skipSetup: true,
-      ajax: {
-        timeout: timeout
+      ajax: { timeout: timeout },
+      request: function (opts, ajax) {
+        if (/changes/.test(opts.url)) {
+          ajaxOpts = opts;
+          changes.cancel();
+        }
+        return ajax(opts);
       }
     });
-
-    var ajax = db._ajax;
-    var ajaxOpts;
-    db._ajax = function (opts) {
-      if (/changes/.test(opts.url)) {
-        ajaxOpts = opts;
-        changes.cancel();
-      }
-      ajax.apply(this, arguments);
-    };
 
     var changes = db.changes();
 
     changes.on('complete', function () {
       should.exist(ajaxOpts);
       ajaxOpts.timeout.should.equal(timeout);
-      db._ajax = ajax;
       done();
     });
 
@@ -196,6 +187,64 @@ describe('test.http.js', function () {
     });
     return db.info().then(function () {
       return db.destroy();
+    });
+  });
+
+  it('#5322 Custom ajax to count requests', function () {
+    var reqCount = 0;
+    var db = new PouchDB(dbs.name, {
+      request: function (opts, ajax) {
+        reqCount++;
+        return ajax(opts);
+      }
+    });
+    return db.info().then(function () {
+      reqCount.should.equal(3);
+    });
+  });
+
+  it('#5322 Custom ajax to reject requests', function () {
+    var db = new PouchDB(dbs.name, {
+      request: function () {
+        return testUtils.Promise.reject({
+          status: 412,
+          name: 'myfakeerror'
+        });
+      }
+    });
+    return db.info().catch(function (err) {
+      err.status.should.equal(412);
+    });
+  });
+
+  it('#5322 Custom ajax to modify requests', function () {
+    var db = new PouchDB(dbs.name, {
+      request: function (opts, ajax) {
+        // We could add headers here, however they would need
+        // to be allowed by CORS
+        // opts.headers.myauth = 'some';
+        return ajax(opts).then(function (res) {
+          res.customfield = 'foo';
+          return res;
+        });
+      }
+    });
+    return db.info().then(function (res) {
+      res.customfield.should.equal('foo');
+    });
+  });
+
+  it('#5322 Custom ajax throws', function () {
+    var db = new PouchDB(dbs.name, {
+      request: function () {
+        throw new Error('wtf');
+      }
+    });
+    return db.info().then(function () {
+      throw 'Should not complete';
+    }).catch(function (err) {
+      should.exist(err);
+      err.message.should.equal('wtf');
     });
   });
 
