@@ -114,5 +114,5 @@ adapters.forEach(function (adapter) {
       PouchDB.on('destroyed', destroyed);
       new PouchDB(dbs.name).destroy();
     });
-
+  });
 });
