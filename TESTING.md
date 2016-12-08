@@ -25,6 +25,11 @@ or you can run:
 
 and open [http://127.0.0.1:8000/tests/integration/index.html](http://127.0.0.1:8000/tests/integration/index.html) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/index.html](http://localhost:8000/tests/performance/index.html).
 
+You can also test against phantomjs, but you'll need to install phantomjs yourself:
+
+    $ npm install phantomjs-prebuilt
+    $ CLIENT=selenium:phantomjs npm test
+
 ### Unit tests
 
     $ npm run build-as-modular-es5
@@ -63,6 +68,12 @@ or
 * `POUCHDB_SRC=../../dist/pouchdb.js` can be used to treat another file as the PouchDB source file.
 * `npm run test-webpack` will build with Webpack and then test that in a browser.
 
+#### Test against custom Firefox
+
+You can specify a custom Firefox path using `FIREFOX_BIN`
+
+    $ FIREFOX_BIN=/path/to/firefox npm run test-browser
+
 #### Run the map/reduce tests
 
 The map/reduce tests are done separately from the normal integration tests, because
@@ -90,21 +101,13 @@ Then in the PouchDB project, run:
 
 This works because `npm run dev` does not start up the pouchdb-server itself (only `npm test` does).
 
-### Testing the in-memory adapter
+Note that you must `npm install pouchdb-server` or `npm install express-pouchdb` yourself for this test to work.
 
-`pouchdb-server` uses the `--in-memory` flag to use MemDOWN.  To enable this, set
+### Testing different Node adapters
 
-    SERVER_ADAPTER=memory
+Use this option to test the in-memory adapter:
 
-Whereas on the client this is configured using `PouchDB.defaults()`, so you can enable it like so:
-
-    LEVEL_ADAPTER=memdown
-
-The value is a comma-separated list of key values, where the key-values are separated by colons.
-
-Some Level adapters also require a standard database name prefix (e.g. `riak://` or `mysql://`), which you can specify like so:
-
-    LEVEL_PREFIX=riak://localhost:8087/
+    ADAPTER=memory
 
 To run the node-websql test in Node, run the tests with:
 

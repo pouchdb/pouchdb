@@ -6,6 +6,7 @@
 // from the others due to legacy support (dist/, extras/, etc.).
 
 var DEV_MODE = process.env.CLIENT === 'dev';
+var TRAVIS = process.env.TRAVIS;
 
 var lie = require('lie');
 if (typeof Promise === 'undefined') {
@@ -97,7 +98,7 @@ function addVersion(code) {
 
 // do uglify in a separate process for better perf
 function doUglify(code, prepend, fileOut) {
-  if (DEV_MODE) { // skip uglify in "npm run dev" mode
+  if (DEV_MODE || TRAVIS) { // skip uglify in "npm run dev" mode and on Travis
     return Promise.resolve();
   }
   var binPath = require.resolve('uglify-js/bin/uglifyjs');

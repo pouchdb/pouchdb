@@ -13,17 +13,30 @@ sudo:
   false
 
 addons:
-  firefox: "48.0"
+  firefox: "47.0.2"
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
+  # Our test-browser.js script uses FIREFOX_BIN to find the Firefox binary
+  # See https://github.com/travis-ci/travis-ci/issues/4649
+  - echo "using firefox $(firefox --version)"
+  - export FIREFOX_BIN=$(which firefox)
+  # The next two lines are required for Firefox to run on Travis
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-    # Fail early so we dont run hours of saucelabs if we know there
-    # is a lint failure
+  # Install PhantomJS and cache it
+  # See https://github.com/Medium/phantomjs#continuous-integration
+  - "export PHANTOMJS_VERSION=2.1.1"
+  - "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
+  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
+  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then wget https://github.com/Medium/phantomjs/releases/download/v$PHANTOMJS_VERSION/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2; fi"
+  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
+  - "phantomjs --version"
+  # Fail early so we dont run hours of saucelabs if we know there
+  # is a lint failure
   - npm run eslint
 
 script: npm run $COMMAND
@@ -43,23 +56,26 @@ env:
   # Test WebSQL in Node (using node-websql)
   - CLIENT=node ADAPTER=websql COMMAND=test
 
+  # Test in-memory in Node
+  - CLIENT=node ADAPTER=memory COMMAND=test
+
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox:48.0 COMMAND=test
+  - CLIENT=selenium:firefox:47.0.2 COMMAND=test
   - CLIENT=selenium:phantomjs COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox:48.0 COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:firefox:47.0.2 COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox:48.0 COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:firefox:47.0.2 COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
-  - FETCH=1 CLIENT=saucelabs:firefox:49 COMMAND=test
+  - FETCH=1 CLIENT=selenium:firefox:47.0.2 COMMAND=test
   - CLIENT=saucelabs:safari:6 COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
@@ -69,22 +85,22 @@ env:
 
   # Test memory / fruitdown etc
   - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
-  - CLIENT=selenium:firefox:48.0 ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox:48.0 ADAPTERS=localstorage COMMAND=test
+  - CLIENT=selenium:firefox:47.0.2 ADAPTERS=memory COMMAND=test
+  - CLIENT=selenium:firefox:47.0.2 ADAPTERS=localstorage COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:48.0 COMMAND=test-webpack
+  - CLIENT=selenium:firefox:47.0.2 COMMAND=test-webpack
 
   # Test CouchDB master (aka bigcouch branch)
   - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:48.0 SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-master COMMAND=test
 
   # Performance tests
-  - CLIENT=selenium:firefox:48.0 PERF=1 COMMAND=test
+  - CLIENT=selenium:firefox:47.0.2 PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:48.0 NEXT=1 COMMAND=test
+  - CLIENT=selenium:firefox:47.0.2 NEXT=1 COMMAND=test
 
   - COMMAND=test-unit
   - COMMAND=test-component
@@ -105,9 +121,9 @@ matrix:
       env: CLIENT=node COMMAND=test
   allow_failures:
   - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:48.0 SERVER=couchdb-master COMMAND=test
-  - env: CLIENT=selenium:firefox:48.0 PERF=1 COMMAND=test
-  - env: CLIENT=selenium:firefox:48.0 NEXT=1 COMMAND=test
+  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-master COMMAND=test
+  - env: CLIENT=selenium:firefox:47.0.2 PERF=1 COMMAND=test
+  - env: CLIENT=selenium:firefox:47.0.2 NEXT=1 COMMAND=test
   - node_js: "stable"
     services: docker
     env: CLIENT=node COMMAND=test
@@ -119,3 +135,7 @@ branches:
 cache:
   directories:
   - $HOME/.npm
+  # See https://github.com/gr2m/selsa
+  - node_modules/selenium-standalone/.selenium
+  # See https://github.com/Medium/phantomjs#continuous-integration
+  - travis_phantomjs

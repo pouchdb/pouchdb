@@ -1630,7 +1630,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Replication with deleted doc', function (done) {
+    it('Replication with deleted doc', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docs1 = [
@@ -1640,20 +1640,39 @@ adapters.forEach(function (adapters) {
         {_id: '3', integer: 3},
         {_id: '4', integer: 4, _deleted: true}
       ];
-      remote.bulkDocs({ docs: docs1 }, function () {
-        db.replicate.from(remote, function () {
-          db.allDocs(function (err, res) {
-            res.total_rows.should.equal(4);
-            db.info(function (err, info) {
-              verifyInfo(info, {
-                update_seq: 5,
-                doc_count: 4
-              });
-              done();
-            });
+      return remote.bulkDocs({ docs: docs1 })
+        .then(function () {
+          return db.replicate.from(remote);
+        }).then(function () {
+          return db.allDocs();
+        }).then(function (res) {
+          res.total_rows.should.equal(4);
+          return db.info();
+        }).then(function (info) {
+          verifyInfo(info, {
+            update_seq: 5,
+            doc_count: 4
           });
         });
-      });
+    });
+
+    it('5904 - replication with deleted doc and value', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var doc = {_id: 'foo', integer: 4, _deleted: true};
+      var rev;
+      return db.put(doc)
+        .then(function (res) {
+          rev = res.rev;
+          return db.get(doc._id, { rev: rev });
+        }).then(function (local_doc) {
+          local_doc.integer.should.equal(4);
+          return db.replicate.to(remote);
+        }).then(function () {
+          return remote.get(doc._id, { rev: rev });
+        }).then(function (remote_doc) {
+          remote_doc.integer.should.equal(4);
+        });
     });
 
     it('Replication with doc deleted twice', function (done) {
