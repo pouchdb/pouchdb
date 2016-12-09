@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "argsarray": "0.0.1",
-    "debug": "2.3.2",
+    "debug": "2.3.3",
     "double-ended-queue": "2.1.0-0",
     "fruitdown": "1.0.2",
     "immediate": "3.0.6",
