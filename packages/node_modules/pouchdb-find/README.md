@@ -353,11 +353,9 @@ For more examples, refer to [Cloudant's `_find` documentation](https://docs.clou
 With a remote database
 ----
 
-Over HTTP, this plugin currently only works with Cloudant. Cloudant is the reference implementation, so the API should be the same.
+Over HTTP, this plugin currently works with Cloudant and CouchDB 2.0. Cloudant is the reference implementation, so the API should be the same.
 
 PouchDB Server also has this API, since it includes this very plugin by default.
-
-Eventually CouchDB 2.0 will also be supported.
 
 Debugging
 ----
