@@ -231,47 +231,28 @@ var pouch = new PouchDB('./path/to/db');
 ```
 
 then a LevelDB-based database will be created in the directory `./path/to/db`.
-
-Plus, since the LevelDB adapter is based on [LevelDOWN][], you also benefit from the rich ecosystem of LevelDOWN-based adapters. They may be installed using plain old `npm install` and `require()`. Below are a few examples.
+The LevelDB implementation uses [LevelDOWN][].
 
 #### In-memory
 
-Just as in the browser, you can create a pure in-memory pouch based on [MemDOWN][]:
+Just as in the browser, you can also create a pure in-memory PouchDB:
 
 ```
-$ npm install memdown
-```
-
-then:
-
-```js
-var pouch = new PouchDB('myDB', {db: require('memdown')});
-```
-
-Notice that in Node.js, we use the key `'db'` instead of `'adapter'`.  In Node.js the adapter is always called `'leveldb'` for historical reasons.
-
-#### Riak-based adapter
-
-This pouch is backed by [RiakDOWN][]:
-
-```
-$ npm install riakdown
+$ npm install pouchdb-adapter-memory
 ```
 
 then:
 
 ```js
-var pouch = new PouchDB('riak://localhost:8087/somebucket', {db: require('riakdown')});
+PouchDB.plugin(require('pouchdb-adapter-memory'));
+var pouch = new PouchDB('myDB', {adapter: 'memory'});
 ```
 
-#### More LevelDOWN adapters
+This implementation is based on [MemDOWN](https://github.com/level/memdown), and will not write any changes to disk.
 
-There are many other LevelDOWN-based plugins &ndash; far too many to list here. You can find a [mostly-complete list on Github](https://github.com/rvagg/node-levelup/wiki/Modules#storage-back-ends) that includes implementations on top of MySQL, Windows Azure Table Storage, and SQLite.
+#### Node SQLite adapter
 
-#### node-websql adapter
-
-In addition to the LevelDOWN-based adapters, you can also use PouchDB over
-[SQLite3](https://github.com/mapbox/node-sqlite3) in Node, using the WebSQL adapter and
+You can also use PouchDB over [SQLite3](https://github.com/mapbox/node-sqlite3) in Node, using the WebSQL adapter and
 [node-websql](https://github.com/nolanlawson/node-websql):
 
 ```js
@@ -281,14 +262,18 @@ PouchDB.plugin(require('pouchdb-adapter-node-websql'));
 var db = new PouchDB('mydatabase.db', {adapter: 'websql'});
 ```
 
-This should be more efficient than something like [sqldown](https://github.com/calvinmetcalf/SQLdown), because
-instead of using a LevelDB-esque adapter over SQLite, PouchDB is directly using
-SQLite queries to build the database.
+In this case, PouchDB is directly using SQLite queries to build the database, exactly as the WebSQL adapter would.
 
+See ["Prebuilt databases with PouchDB"](https://pouchdb.com/2016/04/28/prebuilt-databases-with-pouchdb.html)
+for a guide to how you might use this adapter to create prebuilt SQLite database files for adapters such as Cordova or Electron.
 
-{% include alert/start.html variant="warning"%}
-We do not currently test against any LevelDOWN adapters other than LevelDB and MemDOWN, so the other backends should be considered experimental.
-{% include alert/end.html%}
+#### Other LevelDOWN adapters
+
+Technically you are free to use
+[any LevelDOWN-based implementation](https://github.com/rvagg/node-levelup/wiki/Modules#storage-back-ends) in either Node or the browser.
+However this should be considered **extremely experimental** and not designed for production use.
+
+See [pouchdb-adapter-leveldb-core](https://www.npmjs.com/package/pouchdb-adapter-leveldb-core) for details.
 
 {% include anchor.html title="PouchDB over HTTP" hash="pouchdb_over_http"%}
 
@@ -341,6 +326,3 @@ The best place to look for information on which browsers support which databases
 [sqlite plugin 2]: https://github.com/nolanlawson/cordova-plugin-sqlite-2
 [leveldown]: https://github.com/rvagg/node-leveldown
 [level-js]: https://github.com/maxogden/level.js
-[memdown]: https://github.com/rvagg/memdown
-[localstorage-down]: https://github.com/No9/localstorage-down
-[RiakDOWN]: https://github.com/nlf/riakdown
