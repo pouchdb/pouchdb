@@ -94,7 +94,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('test double unref for coverage', function () {
-      this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
@@ -120,7 +119,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('test close-then-destroyed for coverage', function () {
-      this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
       return new testUtils.Promise(function (resolve) {
@@ -145,7 +143,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('test destroy-then-close for coverage', function () {
-      this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
       return new testUtils.Promise(function (resolve) {
@@ -170,7 +167,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('test destroy-then-close-and-close for coverage', function () {
-      this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
       var db3 = new PouchDB('testdb');
