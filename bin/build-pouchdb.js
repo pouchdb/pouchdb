@@ -129,8 +129,19 @@ function doBrowserify(filepath, opts, exclude) {
             path.dirname(filepath) + '/' + path.basename(filepath));
         });
     } else {
-      bundler = browserify(addPath(filepath), opts)
-        .transform('es3ify')
+      bundler = browserify(addPath(filepath), opts);
+      if (opts.standalone === 'PouchDB') {
+        // Force Browserify to ignore global `process` references, since `debug` pulls this in and
+        // it's large. Only do it for the main PouchDB package, though; for the plugin adapters, they
+        // actually require `process`.
+        bundler.transform('global-replaceify', {
+          replacements: {
+            process: '__process'
+          },
+          global: true
+        });
+      }
+      bundler.transform('es3ify')
         .plugin('bundle-collapser/plugin');
     }
 
