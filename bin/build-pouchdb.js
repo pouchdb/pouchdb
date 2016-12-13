@@ -18,6 +18,8 @@ var browserify = require('browserify');
 var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
+var builtIns = require('rollup-plugin-node-builtins');
+var commonjs = require('rollup-plugin-commonjs');
 var replace = require('rollup-plugin-replace');
 var derequire = require('derequire');
 var fs = require('fs');
@@ -181,6 +183,33 @@ function doRollup(entry, browser, formatsToFiles) {
   });
 }
 
+function doRollupForUmd(entry, fileOut, prefix, moduleName) {
+  var start = process.hrtime();
+  return rollup.rollup({
+    entry: addPath(entry),
+    plugins: [
+      nodeResolve({
+        jsnext: true,
+        browser: true,
+        preferBuiltins: true
+      }),
+      commonjs(),
+      builtIns()
+    ]
+  }).then(function (bundle) {
+    var code = bundle.generate({format: 'umd', moduleName: moduleName}).code;
+    code = prefix + code;
+    if (DEV_MODE) {
+      var ms = Math.round(process.hrtime(start)[1] / 1000000);
+      console.log('    took ' + ms + ' ms to rollup ' +
+        path.dirname(entry) + '/' + path.basename(entry));
+    }
+    return writeFile(addPath(fileOut), code).then(function () {
+      return code;
+    });
+  });
+}
+
 // build for Node (index.js)
 function buildForNode() {
   return doRollup('src/index.js', false, {
@@ -199,14 +228,9 @@ function buildForBrowserify() {
 
 // build for the browser (dist)
 function buildForBrowser() {
-  return doBrowserify('lib/index-browser.js', {
-    standalone: 'PouchDB'
-  }).then(function (code) {
-    code = comments.pouchdb + code;
-    return all([
-      writeFile(addPath('dist/pouchdb.js'), code),
-      doUglify(code, comments.pouchdb, 'dist/pouchdb.min.js')
-    ]);
+  return doRollupForUmd('lib/index-browser.es.js', 'dist/pouchdb.js',
+      comments.pouchdb, 'PouchDB').then(function (code) {
+    return doUglify(code, comments.pouchdb, 'dist/pouchdb.min.js')
   });
 }
 
