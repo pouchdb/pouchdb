@@ -19,6 +19,7 @@ var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
 var builtIns = require('rollup-plugin-node-builtins');
+var json = require('rollup-plugin-json');
 var commonjs = require('rollup-plugin-commonjs');
 var inject = require('rollup-plugin-inject');
 var replace = require('rollup-plugin-replace');
@@ -184,19 +185,22 @@ function doRollup(entry, browser, formatsToFiles) {
   });
 }
 
-function doRollupForUmd(entry, fileOut, prefix, moduleName) {
+function doRollupForUmd(entry, fileOut, prefix, moduleName, exclusions) {
   var start = process.hrtime();
   return rollup.rollup({
     entry: addPath(entry),
+    external: exclusions,
     plugins: [
       nodeResolve({
+        skip: exclusions,
         jsnext: true,
         browser: true,
         preferBuiltins: true
       }),
       commonjs(),
+      json(),
       inject({global: 'global'}),
-      builtIns()
+      builtIns
     ]
   }).then(function (bundle) {
     var code = bundle.generate({format: 'umd', moduleName: moduleName}).code;
@@ -221,7 +225,7 @@ function buildForNode() {
 }
 
 // build for Browserify/Webpack (index-browser.js)
-function buildForBrowserify() {
+function buildForBundlers() {
   return doRollup('src/index.js', true, {
     cjs: 'lib/index-browser.js',
     es: 'lib/index-browser.es.js'
@@ -231,12 +235,12 @@ function buildForBrowserify() {
 // build for the browser (dist)
 function buildForBrowser() {
   return doRollupForUmd('lib/index-browser.es.js', 'dist/pouchdb.js',
-      comments.pouchdb, 'PouchDB').then(function (code) {
+      comments.pouchdb, 'PouchDB', []).then(function (code) {
     return doUglify(code, comments.pouchdb, 'dist/pouchdb.min.js')
   });
 }
 
-function buildPluginsForBrowserify() {
+function buildPluginsForBundlers() {
   return all(plugins.map(function (plugin) {
     return doRollup('src/plugins/' + plugin + '.js', true, {
       cjs: 'lib/plugins/' + plugin + '.js'
@@ -247,12 +251,10 @@ function buildPluginsForBrowserify() {
 function buildPluginsForBrowser() {
   return all(plugins.map(function (plugin) {
     var source = 'lib/plugins/' + plugin + '.js';
-    return doBrowserify(source, {}, 'pouchdb').then(function (code) {
-      code = comments[plugin] + code;
-      return all([
-        writeFile('packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js', code),
-        doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
-      ]);
+    var fileOut = 'dist/pouchdb.' + plugin + '.js';
+    return doRollupForUmd(source, fileOut, comments[plugin],
+        plugin, ['pouchdb']).then(function (code) {
+      return doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
     });
   })).then(function () {
     return rimraf(addPath('lib/plugins')); // no need for this after building dist/
@@ -289,15 +291,15 @@ function doBuildNode() {
 }
 
 function doBuildDev() {
-  return doAll(buildForNode, buildForBrowserify)()
-    .then(doAll(buildForBrowser, buildPluginsForBrowserify, buildPouchDBNext))
+  return doAll(buildForNode, buildForBundlers)()
+    .then(doAll(buildForBrowser, buildPluginsForBundlers, buildPouchDBNext))
     .then(buildPluginsForBrowser);
 }
 
 function doBuildAll() {
   return rimrafMkdirp('lib', 'dist', 'lib/plugins')
-    .then(doAll(buildForNode, buildForBrowserify))
-    .then(doAll(buildForBrowser, buildPluginsForBrowserify, buildPouchDBNext))
+    .then(doAll(buildForNode, buildForBundlers))
+    .then(doAll(buildForBrowser, buildPluginsForBundlers, buildPouchDBNext))
     .then(doAll(buildPluginsForBrowser));
 }
 
