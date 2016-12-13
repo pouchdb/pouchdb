@@ -20,6 +20,7 @@ var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
 var builtIns = require('rollup-plugin-node-builtins');
 var commonjs = require('rollup-plugin-commonjs');
+var inject = require('rollup-plugin-inject');
 var replace = require('rollup-plugin-replace');
 var derequire = require('derequire');
 var fs = require('fs');
@@ -194,6 +195,7 @@ function doRollupForUmd(entry, fileOut, prefix, moduleName) {
         preferBuiltins: true
       }),
       commonjs(),
+      inject({global: 'global'}),
       builtIns()
     ]
   }).then(function (bundle) {
