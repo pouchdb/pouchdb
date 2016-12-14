@@ -92,10 +92,6 @@ function writeFile(filename, contents) {
   });
 }
 
-function addVersion(code) {
-  return code.replace('__VERSION__', version);
-}
-
 // do uglify in a separate process for better perf
 function doUglify(code, prepend, fileOut) {
   if (DEV_MODE || TRAVIS) { // skip uglify in "npm run dev" mode and on Travis
@@ -176,7 +172,7 @@ function doRollup(entry, browser, formatsToFiles) {
         console.log('    took ' + ms + ' ms to rollup ' +
           path.dirname(entry) + '/' + path.basename(entry));
       }
-      return writeFile(addPath(fileOut), addVersion(code));
+      return writeFile(addPath(fileOut), code);
     }));
   });
 }
