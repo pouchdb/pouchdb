@@ -134,7 +134,11 @@ adapters.forEach(function (adapters) {
             var conflictsEqual = JSON.stringify(localDoc._conflicts || []) ===
               JSON.stringify(remoteDoc._conflicts || []);
             if (!revsEqual || !conflictsEqual) {
-              return waitForUptodate();
+              // we can get caught in an infinite loop here when using adapters based
+              // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
+              return new testUtils.Promise(function (resolve) {
+                setTimeout(resolve, 0);
+              }).then(waitForUptodate);
             }
           });
         });
@@ -252,7 +256,11 @@ adapters.forEach(function (adapters) {
             var conflictsEqual = JSON.stringify(localDoc._conflicts || []) ===
               JSON.stringify(remoteDoc._conflicts || []);
             if (!revsEqual || !conflictsEqual) {
-              return waitForUptodate();
+              // we can get caught in an infinite loop here when using adapters based
+              // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
+              return new testUtils.Promise(function (resolve) {
+                setTimeout(resolve, 0);
+              }).then(waitForUptodate);
             }
           });
         });
