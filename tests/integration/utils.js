@@ -136,7 +136,7 @@ testUtils.cleanup = function (dbs, done) {
 // in rev_tree). Doc must have _rev. If prevRev is not specified
 // just insert doc with correct _rev (new_edits=false!)
 testUtils.putAfter = function (db, doc, prevRev, callback) {
-  var newDoc = testUtils.extend({}, doc);
+  var newDoc = testUtils.assign({}, doc);
   if (!prevRev) {
     db.put(newDoc, { new_edits: false }, callback);
     return;
@@ -277,7 +277,7 @@ testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
 testUtils.parseUri = pouchUtils.parseUri;
 testUtils.errors = PouchForCoverage.Errors;
-testUtils.extend = pouchUtils.jsExtend;
+testUtils.assign = pouchUtils.assign;
 
 testUtils.makeBlob = function (data, type) {
   if (typeof process !== 'undefined' && !process.browser) {
