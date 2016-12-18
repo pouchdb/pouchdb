@@ -18,6 +18,7 @@ var browserify = require('browserify');
 var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
 var nodeResolve = require('rollup-plugin-node-resolve');
+var inlineTypeof = require('rollup-plugin-inline-typeof');
 var replace = require('rollup-plugin-replace');
 var derequire = require('derequire');
 var fs = require('fs');
@@ -150,6 +151,7 @@ function doRollup(entry, browser, formatsToFiles) {
     entry: addPath(entry),
     external: external,
     plugins: [
+      inlineTypeof(),
       nodeResolve({
         skip: external,
         jsnext: true,
