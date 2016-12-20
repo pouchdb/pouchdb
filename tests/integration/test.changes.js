@@ -904,6 +904,40 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('changes w/ many modifications of same doc', function () {
+      var db = new PouchDB(dbs.name);
+      var promise = testUtils.Promise.resolve();
+      var doc = {_id: '1'};
+      function modifyDoc() {
+        return db.put(doc).then(function (res) {
+          doc._rev = res.rev;
+        });
+      }
+      for (var i  = 0; i < 5; i++) {
+        promise = promise.then(modifyDoc);
+      }
+      return promise.then(function () {
+        return db.bulkDocs([
+          {_id: '2'},
+          {_id: '3'},
+          {_id: '4'},
+          {_id: '5'}
+        ]);
+      }).then(function () {
+        return db.changes({since: 0, limit: 3}).then(function (res) {
+          res.results.map(function (x) {
+            delete x.changes;
+            delete x.seq;
+            return x;
+          }).should.deep.equal([
+            { "id": "1" },
+            { "id": "2" },
+            { "id": "3" }
+          ]);
+        });
+      });
+    });
+
     it('live-changes', function (done) {
       var db = new PouchDB(dbs.name);
       var count = 0;
