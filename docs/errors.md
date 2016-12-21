@@ -44,7 +44,7 @@ IndexedDB has a same-origin restriction. Read/write operations from another orig
 
 {% include anchor.html class="h3" title="iOS/Safari: \"there was not enough remaining storage space\"" hash="not_enough_space" %}
 
-On iOS and Safari, if you expect your app to use more than 5MB of space, you will need to request the space up-front from the user.  In certain versions, notably Safari/iOS 7, you can never request more than what the user originally grants you.
+On iOS and Safari, if you expect your app to use more than 5MB of space, you will need to request the space up-front from the user.  In certain versions of Safari, you can never request more than what the user originally grants you.
 
 {% include img.html src="safari_popup.png" alt="Safari storage quota popup" %}
 
@@ -58,7 +58,7 @@ new PouchDB('mydb', {size: 50}); // request 50 MB with a popup
 new PouchDB('mydb'); // implicitly request 5 MB, no popup until you exceed 5MB
 ```
 
-This does not affect any backend other than Web SQL. Chrome, Android, and Opera do not show the popup. On PhoneGap/Cordova apps, you can also use the [SQLite plugin][sqlite] to get around this problem. Here's [more information about storage quotas](http://www.html5rocks.com/en/tutorials/offline/quota-research) and [details on the Safari/iOS 7 bug](https://github.com/pouchdb/pouchdb/issues/2347).
+This does not affect any backend other than Web SQL. Chrome, Android, and Opera do not show the popup. On PhoneGap/Cordova apps, you can also use the [SQLite plugin][sqlite] to get around this problem. Here's [more information about storage quotas](http://www.html5rocks.com/en/tutorials/offline/quota-research) and [details on the Safari/iOS bug](https://github.com/pouchdb/pouchdb/issues/2347).
 
 {% include anchor.html class="h3" title="PouchDB throws 404 (Object Not Found) for '_local' document" hash="404__local_document" %}
 
