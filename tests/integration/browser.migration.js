@@ -27,12 +27,15 @@ describe('migration', function () {
   before(function () {
     var isNodeWebkit = typeof window !== 'undefined' &&
       typeof process !== 'undefined';
+    // older versions of PouchDB did not support Trident/EdgeHTML IDB at all
+    var isEdgeOrIE = typeof msIndexedDB !== 'undefined' ||
+      /Edge/.test(navigator.userAgent);
 
     var skipMigration = 'SKIP_MIGRATION' in testUtils.params() &&
       testUtils.params().SKIP_MIGRATION;
 
-    if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
-      isNodeWebkit || skipMigration) {
+    if (!usingDefaultPreferredAdapters() || isEdgeOrIE ||
+        isNodeWebkit || skipMigration) {
       skip = true;
     }
 
