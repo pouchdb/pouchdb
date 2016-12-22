@@ -1062,6 +1062,33 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('test info() after db close', function () {
+      var db = new PouchDB(dbs.name);
+      return db.close().then(function () {
+        return db.info().catch(function (err) {
+          err.message.should.equal('database is closed');
+        });
+      });
+    });
+
+    it('test get() after db close', function () {
+      var db = new PouchDB(dbs.name);
+      return db.close().then(function () {
+        return db.get('foo').catch(function (err) {
+          err.message.should.equal('database is closed');
+        });
+      });
+    });
+
+    it('test close() after db close', function () {
+      var db = new PouchDB(dbs.name);
+      return db.close().then(function () {
+        return db.close().catch(function (err) {
+          err.message.should.equal('database is closed');
+        });
+      });
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {

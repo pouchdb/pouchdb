@@ -21,7 +21,7 @@ function bigTest(name) {
   }).catch(onError);
 }
 
-function allDocs(name) {
+function postAttachmentThenAllDocs(name) {
   var db = new PouchDB(name);
   db.post({
     _id: 'blah',
@@ -52,6 +52,13 @@ function putAttachment(name, docId, attId, att, type) {
   }).catch(onError);
 }
 
+function allDocs(name) {
+  var db = new PouchDB(name);
+  db.allDocs().then(function (res) {
+    self.postMessage(res);
+  }).catch(onError);
+}
+
 self.addEventListener('message', function (e) {
   if (Array.isArray(e.data) && e.data[0] === 'source') {
     importScripts(e.data[1]);
@@ -61,10 +68,12 @@ self.addEventListener('message', function (e) {
     self.postMessage(PouchDB.version);
   } else if (Array.isArray(e.data) && e.data[0] === 'create') {
     bigTest(e.data[1]);
-  } else if (Array.isArray(e.data) && e.data[0] === 'allDocs') {
-    allDocs(e.data[1]);
+  } else if (Array.isArray(e.data) && e.data[0] === 'postAttachmentThenAllDocs') {
+    postAttachmentThenAllDocs(e.data[1]);
   } else if (Array.isArray(e.data) && e.data[0] === 'putAttachment') {
     putAttachment(e.data[1], e.data[2], e.data[3], e.data[4], e.data[5]);
+  } else if (Array.isArray(e.data) && e.data[0] === 'allDocs') {
+    allDocs(e.data[1]);
   } else {
     onError(new Error('unknown message: ' + JSON.stringify(e.data)));
   }
