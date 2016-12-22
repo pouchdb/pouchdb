@@ -67,8 +67,6 @@ adapters.forEach(function (adapter) {
               results[0].name.should.equal(
                 'conflict', 'First doc should be in conflict');
               should.not.exist(results[0].rev, 'no rev in conflict');
-              should.exist(results[0].id);
-              results[0].id.should.equal("0");
               for (i = 1; i < 5; i++) {
                 results[i].id.should.equal(i.toString());
                 should.exist(results[i].rev);
