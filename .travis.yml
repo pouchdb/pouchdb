@@ -39,7 +39,10 @@ before_script:
   # is a lint failure
   - npm run eslint
 
-script: npm run $COMMAND
+# travis_retry will try up to 3 times to run the script. our tests
+# are flaky enough (Selenium, SauceLabs, network, etc.) that this
+# mitigates a lot of false negatives
+script: travis_retry npm run $COMMAND
 
 env:
   global:
