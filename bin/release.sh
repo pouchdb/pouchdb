@@ -16,6 +16,7 @@ npm install
 VERSION=$(node --eval "console.log(require('./packages/node_modules/pouchdb/package.json').version);")
 
 # Create a temporary build directory
+SOURCE_DIR=$(git name-rev --name-only HEAD)
 BUILD_DIR=build_"${RANDOM}"
 git checkout -b $BUILD_DIR
 
@@ -57,7 +58,7 @@ if [ -z $DRY_RUN ]; then
     git push --tags git@github.com:pouchdb/pouchdb.git $VERSION
 
     # Cleanup
-    git checkout master
+    git checkout $SOURCE_DIR
     git branch -D $BUILD_DIR
   fi
 fi
