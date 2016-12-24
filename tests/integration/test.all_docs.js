@@ -603,6 +603,54 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('test descending with startkey/endkey', function () {
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs([
+        {_id: 'a'},
+        {_id: 'b'},
+        {_id: 'c'},
+        {_id: 'd'},
+        {_id: 'e'}
+      ]).then(function () {
+        return db.allDocs({
+          descending: true,
+          startkey: 'd',
+          endkey: 'b'
+        });
+      }).then(function (res) {
+        var ids = res.rows.map(function (x) { return x.id; });
+        ids.should.deep.equal(['d', 'c', 'b']);
+        return db.allDocs({
+          descending: true,
+          startkey: 'd',
+          endkey: 'b',
+          inclusive_end: false
+        });
+      }).then(function (res) {
+        var ids = res.rows.map(function (x) { return x.id; });
+        ids.should.deep.equal(['d', 'c']);
+        return db.allDocs({
+          descending: true,
+          startkey: 'd',
+          endkey: 'a',
+          skip: 1,
+          limit: 2
+        });
+      }).then(function (res) {
+        var ids = res.rows.map(function (x) { return x.id; });
+        ids.should.deep.equal(['c', 'b']);
+        return db.allDocs({
+          descending: true,
+          startkey: 'd',
+          endkey: 'a',
+          skip: 1
+        });
+      }).then(function (res) {
+        var ids = res.rows.map(function (x) { return x.id; });
+        ids.should.deep.equal(['c', 'b', 'a']);
+      });
+    });
+
     it('#3082 test wrong num results returned', function () {
       var db = new PouchDB(dbs.name);
       var docs = [];
