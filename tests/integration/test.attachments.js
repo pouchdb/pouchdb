@@ -2587,7 +2587,7 @@ adapters.forEach(function (adapter) {
         db.putAttachment('mydoc', 'mytext', resp.rev, blob, 'text/plain',
                          function (err, res) {
           db.get('mydoc', { attachments: false }, function (err, doc) {
-            db.remove(doc, function () {
+            db.remove(doc, function (err, res) {
               should.exist(res.ok);
               done();
             });
