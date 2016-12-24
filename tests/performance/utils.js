@@ -49,6 +49,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
             reporter.startSuite(suiteName);
           }
           reporter.start(testCase);
+          performance.mark('begin');
           t.end();
         });
       });
@@ -72,6 +73,8 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         testCase.test(db, num, setupObj, after);
       });
       t.test('teardown', function (t) {
+        performance.mark('end');
+        performance.measure('measure', 'begin', 'end');
         var testCaseTeardown = testCase.tearDown ?
           testCase.tearDown(db, setupObj) :
           Promise.resolve();
