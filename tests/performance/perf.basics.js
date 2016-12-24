@@ -77,7 +77,7 @@ module.exports = function (PouchDB, opts) {
     {
       name: 'all-docs-skip-limit',
       assertions: 1,
-      iterations: 50,
+      iterations: 10,
       setup: function (db, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
@@ -87,13 +87,16 @@ module.exports = function (PouchDB, opts) {
         db.bulkDocs({docs : docs}, callback);
       },
       test: function (db, itr, docs, done) {
-        var tasks = [];
-        for (var i = 0; i < 10; i++) {
-          tasks.push(i);
+        function taskFactory(i) {
+          return function () {
+            return db.allDocs({skip : i * 100, limit : 10});
+          };
         }
-        Promise.all(tasks.map(function (doc, i) {
-          return db.allDocs({skip : i * 100, limit : 10});
-        })).then(function () {
+        var promise = Promise.resolve();
+        for (var i = 0; i < 10; i++) {
+          promise = promise.then(taskFactory(i));
+        }
+        promise.then(function () {
           done();
         }, done);
       }
@@ -101,7 +104,7 @@ module.exports = function (PouchDB, opts) {
     {
       name: 'all-docs-startkey-endkey',
       assertions: 1,
-      iterations: 50,
+      iterations: 10,
       setup: function (db, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
@@ -114,16 +117,19 @@ module.exports = function (PouchDB, opts) {
         db.bulkDocs({docs: docs}, callback);
       },
       test: function (db, itr, docs, done) {
-        var tasks = [];
-        for (var i = 0; i < 10; i++) {
-          tasks.push(i);
+        function taskFactory(i) {
+          return function () {
+            return db.allDocs({
+              startkey: commonUtils.createDocId(i * 100),
+              endkey: commonUtils.createDocId((i * 100) + 10)
+            });
+          };
         }
-        Promise.all(tasks.map(function (doc, i) {
-          return db.allDocs({
-            startkey: commonUtils.createDocId(i * 100),
-            endkey: commonUtils.createDocId((i * 100) + 10)
-          });
-        })).then(function () {
+        var promise = Promise.resolve();
+        for (var i = 0; i < 10; i++) {
+          promise = promise.then(taskFactory(i));
+        }
+        promise.then(function () {
           done();
         }, done);
       }
