@@ -24,18 +24,25 @@ if (typeof window.Worker === 'function' &&
 
 function runTests() {
 
+  var worker;
+
+  before(function () {
+    worker = new Worker('worker.js');
+    worker.postMessage(['source', sourceFile]);
+  });
+
+  after(function () {
+    worker.terminate();
+  });
+
   function workerPromise(message) {
     return new Promise(function (resolve, reject) {
-      var worker = new Worker('worker.js');
-      worker.addEventListener('error', function (e) {
-        worker.terminate();
+      worker.onerror = function (e) {
         reject(new Error(e.message + ": " + e.filename + ': ' + e.lineno));
-      });
-      worker.addEventListener('message', function (e) {
-        worker.terminate();
+      };
+      worker.onmessage = function (e) {
         resolve(e.data);
-      });
-      worker.postMessage(['source', sourceFile]);
+      };
       worker.postMessage(message);
     });
   }
@@ -79,7 +86,7 @@ function runTests() {
     });
 
     it('add doc with blob attachment', function () {
-      return workerPromise(['allDocs', dbs.name]).then(function (data) {
+      return workerPromise(['postAttachmentThenAllDocs', dbs.name]).then(function (data) {
         data.title.should.equal('lalaa');
       });
     });
@@ -91,6 +98,38 @@ function runTests() {
       return workerPromise(message).then(function (blob) {
         blob.type.should.equal('text/plain');
         blob.size.should.equal(6);
+      });
+    });
+
+    it('total_rows consistent between worker and main thread', function () {
+      var db = new PouchDB(dbs.name);
+      
+      // this test only makes sense for idb
+      if (db.adapter !== 'idb') {
+        return;
+      }
+
+      // both threads agree the count is 0
+      return testUtils.Promise.all([
+        db.allDocs().then(function (res) {
+          res.total_rows.should.equal(0);
+        }),
+        workerPromise(['allDocs', dbs.name]).then(function (res) {
+          res.total_rows.should.equal(0);
+        })
+      ]).then(function () {
+        // post a doc
+        return db.post({});
+      }).then(function () {
+        // both threads agree the count is 1
+        return testUtils.Promise.all([
+          db.allDocs().then(function (res) {
+            res.total_rows.should.equal(1);
+          }),
+          workerPromise(['allDocs', dbs.name]).then(function (res) {
+            res.total_rows.should.equal(1);
+          })
+        ]);
       });
     });
   });
