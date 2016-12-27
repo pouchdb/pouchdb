@@ -2,13 +2,14 @@
 var isNode = process && !process.browser;
 var UAParser = require('ua-parser-js');
 var ua = !isNode && new UAParser(navigator.userAgent);
+var now = isNode ? Date.now.bind(Date) : performance.now.bind(performance);
 global.results = {};
 
 var pre = !isNode && global.document.getElementById('output');
 
 function log(msg) {
   if (pre) {
-    pre.innerHTML = pre.innerHTML + msg;
+    pre.textContent += msg;
   } else {
     console.log(msg);
   }
@@ -25,14 +26,14 @@ exports.start = function (testCase) {
   log('Starting test: ' + key + ' with ' + testCase.assertions +
     ' assertions and ' + testCase.iterations + ' iterations... ');
   global.results[key] = {
-    start: Date.now()
+    start: now()
   };
 };
 
 exports.end = function (testCase) {
   var key = testCase.name;
   var obj = global.results[key];
-  obj.end = Date.now();
+  obj.end = now();
   obj.duration = obj.end - obj.start;
   log('done in ' + obj.duration + 'ms\n');
 };

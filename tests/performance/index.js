@@ -12,15 +12,26 @@ if (typeof process !== 'undefined' && process.env) {
 }
 
 function runTestSuites(PouchDB) {
-  var reporter = require('./perf.reporter');
-  reporter.log('Testing PouchDB version ' + PouchDB.version +
-    ((opts.adapter || levelAdapter) ?
-      (', using adapter: ' + (opts.adapter || levelAdapter)) : '') +
-    '\n\n');
 
-  require('./perf.basics')(PouchDB, opts);
-  require('./perf.views')(PouchDB, opts);
-  require('./perf.attachments')(PouchDB, opts);
+  function runTestsNow() {
+    var reporter = require('./perf.reporter');
+    reporter.log('Testing PouchDB version ' + PouchDB.version +
+      ((opts.adapter || levelAdapter) ?
+        (', using adapter: ' + (opts.adapter || levelAdapter)) : '') +
+      '\n\n');
+
+    require('./perf.basics')(PouchDB, opts);
+    require('./perf.views')(PouchDB, opts);
+    require('./perf.attachments')(PouchDB, opts);
+  }
+
+  if (typeof process === 'undefined' || process.browser) {
+    // rendering the initial view has its own costs
+    // that interfere with measurements
+    setTimeout(runTestsNow, 1000);
+  } else {
+    runTestsNow();
+  }
 }
 var startNow = true;
 if (global.window && global.window.location && global.window.location.search) {

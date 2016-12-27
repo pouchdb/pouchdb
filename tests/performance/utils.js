@@ -4,6 +4,9 @@ var reporter = require('./perf.reporter');
 var test = require('tape');
 var commonUtils = require('../common-utils.js');
 var Promise = require('lie');
+var nextTick = (typeof process === 'undefined' || process.browser) ?
+  setTimeout : process.nextTick;
+var markMeasure = require('./markMeasure');
 
 var grep;
 if (global.window && global.window.location && global.window.location.search) {
@@ -18,8 +21,9 @@ var levelAdapter = typeof process !== 'undefined' && process.env &&
 
 exports.runTests = function (PouchDB, suiteName, testCases, opts) {
   testCases.forEach(function (testCase, i) {
+    var testName = testCase.name;
     if (grep && suiteName.indexOf(grep) === -1 &&
-        testCase.name.indexOf(grep) === -1) {
+        testName.indexOf(grep) === -1) {
       return;
     }
 
@@ -42,7 +46,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         testCase.setup(db, function (err, res) {
           if (err) {
             t.error(err);
-            reporter.log(testCase.name + ' errored: ' + err.message + '\n');
+            reporter.log(testName + ' errored: ' + err.message + '\n');
           }
           setupObj = res;
           if (i === 0) {
@@ -53,23 +57,30 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         });
       });
 
-      t.test(testCase.name, function (t) {
+      t.test(testName, function (t) {
         t.plan(testCase.assertions);
         var num = 0;
+        function next() {
+          nextTick(function () {
+            markMeasure.mark('start_' + testName);
+            testCase.test(db, num, setupObj, after);
+          });
+        }
         function after(err) {
           if (err) {
             t.error(err);
-            reporter.log(testCase.name + ' errored: ' + err.message + '\n');
+            reporter.log(testName + ' errored: ' + err.message + '\n');
+          } else {
+            markMeasure.mark('end_' + testName);
+            markMeasure.measure(testName, 'start_' + testName, 'end_' + testName);
           }
           if (++num < testCase.iterations) {
-            process.nextTick(function () {
-              testCase.test(db, num, setupObj, after);
-            });
+            next();
           } else {
-            t.ok(testCase.name + ' completed');
+            t.ok(testName + ' completed');
           }
         }
-        testCase.test(db, num, setupObj, after);
+        next();
       });
       t.test('teardown', function (t) {
         var testCaseTeardown = testCase.tearDown ?
