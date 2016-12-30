@@ -1840,7 +1840,8 @@ adapters.forEach(function (adapter) {
       }).then(function (res) {
         var doc = res.rows[0].doc;
         doc._attachments['foo.txt'].data.should.equal('dG90bw==');
-        return db.remove(doc);
+        return db.
+        (doc);
       }).then(function (res) {
         rev = res.rev;
         return db.allDocs({keys: ['doc'], attachments: true, include_docs: true});
@@ -2580,19 +2581,18 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Test remove doc with attachment', function (done) {
+    it('Test remove doc with attachment', function () {
       var db = new PouchDB(dbs.name);
-      db.put({ _id: 'mydoc' }, function (err, resp) {
+      return db.put({ _id: 'mydoc' }).then(function (resp) {
         var blob = testUtils.makeBlob('Mytext');
-        db.putAttachment('mydoc', 'mytext', resp.rev, blob, 'text/plain',
-                         function (err, res) {
-          db.get('mydoc', { attachments: false }, function (err, doc) {
-            db.remove(doc, function (err, res) {
-              should.exist(res.ok);
-              done();
-            });
-          });
-        });
+        return db.putAttachment('mydoc', 'mytext', resp.rev, blob, 'text/plain');
+      }).then(function (res) {
+        should.exist(res.ok);
+        return db.get('mydoc', { attachments: false });
+      }).then(function (doc) {
+        return db.remove(doc);
+      }).then(function (res) {
+        should.exist(res.ok);
       });
     });
 
