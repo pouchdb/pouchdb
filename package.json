@@ -37,7 +37,7 @@
     "argsarray": "0.0.1",
     "buffer-from": "0.1.1",
     "clone-buffer": "1.0.0",
-    "debug": "2.3.2",
+    "debug": "2.6.0",
     "double-ended-queue": "2.1.0-0",
     "immediate": "3.0.6",
     "inherits": "2.0.3",
