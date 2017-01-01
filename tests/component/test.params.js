@@ -15,8 +15,8 @@ describe('test.params.js', function () {
   before(function (done) {
     server = http.createServer(function (req, res) {
       params = url.parse(req.url,true).query;
-      res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end('');
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.end('{"results":[{"seq":1,"id":"foo","changes":[{"rev":"1-a"}]}], "last_seq":1}');
     });
     server.listen(PORT, done);
   });
@@ -28,6 +28,16 @@ describe('test.params.js', function () {
   it('Test default heartbeat', function () {
     var url = 'http://127.0.0.1:' + PORT;
     return new PouchDB(url).changes().then(function () {
+      should.not.exist(params.heartbeat);
+    });
+  });
+
+  it('Test default heartbeat for live changes', function () {
+    var url = 'http://127.0.0.1:' + PORT;
+    var changes = new PouchDB(url).changes({live: true});
+    changes.on('change', function () {
+      changes.cancel();
+    }).then(function () {
       should.exist(params.heartbeat);
     });
   });
