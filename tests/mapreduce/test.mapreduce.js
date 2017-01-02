@@ -426,6 +426,505 @@ function tests(suiteName, dbName, dbType, viewType) {
       });
     });
 
+    it('Test complex key collation', function () {
+      var map = function () {
+        emit(null);
+        emit(false);
+        emit(true);
+        emit(1);
+        emit(2);
+        emit(3);
+        emit(4);
+        emit("a");
+        emit("aa");
+        emit("b");
+        emit("ba");
+        emit("bb");
+        emit(["a"]);
+        emit(["b"]);
+        emit(["b","c"]);
+        emit(["b","c","a"]);
+        emit(["b","d"]);
+        emit(["b","d","e"]);
+        emit({"a":1});
+        emit({"a":2});
+        emit({"b":1});
+        emit({"b":2});
+        emit({"b":2,"a":1});
+        emit({"b":2,"c":2});
+      };
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, { map: map });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { id: '1', key: null, value: null },
+            { id: '2', key: null, value: null },
+            { id: '1', key: false, value: null },
+            { id: '2', key: false, value: null },
+            { id: '1', key: true, value: null },
+            { id: '2', key: true, value: null },
+            { id: '1', key: 1, value: null },
+            { id: '2', key: 1, value: null },
+            { id: '1', key: 2, value: null },
+            { id: '2', key: 2, value: null },
+            { id: '1', key: 3, value: null },
+            { id: '2', key: 3, value: null },
+            { id: '1', key: 4, value: null },
+            { id: '2', key: 4, value: null },
+            { id: '1', key: 'a', value: null },
+            { id: '2', key: 'a', value: null },
+            { id: '1', key: 'aa', value: null },
+            { id: '2', key: 'aa', value: null },
+            { id: '1', key: 'b', value: null },
+            { id: '2', key: 'b', value: null },
+            { id: '1', key: 'ba', value: null },
+            { id: '2', key: 'ba', value: null },
+            { id: '1', key: 'bb', value: null },
+            { id: '2', key: 'bb', value: null },
+            { id: '1', key: [ 'a' ], value: null },
+            { id: '2', key: [ 'a' ], value: null },
+            { id: '1', key: [ 'b' ], value: null },
+            { id: '2', key: [ 'b' ], value: null },
+            { id: '1', key: [ 'b', 'c' ], value: null },
+            { id: '2', key: [ 'b', 'c' ], value: null },
+            { id: '1', key: [ 'b', 'c', 'a' ], value: null },
+            { id: '2', key: [ 'b', 'c', 'a' ], value: null },
+            { id: '1', key: [ 'b', 'd' ], value: null },
+            { id: '2', key: [ 'b', 'd' ], value: null },
+            { id: '1', key: [ 'b', 'd', 'e' ], value: null },
+            { id: '2', key: [ 'b', 'd', 'e' ], value: null },
+            { id: '1', key: { a: 1 }, value: null },
+            { id: '2', key: { a: 1 }, value: null },
+            { id: '1', key: { a: 2 }, value: null },
+            { id: '2', key: { a: 2 }, value: null },
+            { id: '1', key: { b: 1 }, value: null },
+            { id: '2', key: { b: 1 }, value: null },
+            { id: '1', key: { b: 2 }, value: null },
+            { id: '2', key: { b: 2 }, value: null },
+            { id: '1', key: { b: 2, a: 1 }, value: null },
+            { id: '2', key: { b: 2, a: 1 }, value: null },
+            { id: '1', key: { b: 2, c: 2 }, value: null },
+            { id: '2', key: { b: 2, c: 2 }, value: null }
+          ]);
+        });
+      });
+    });
+
+    it('Test duplicate collation of objects', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit({ a: 'a' }, { b: 'b' });
+            emit({ a: 'a' }, { b: 'b' });
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": { "a": "a" }, "value": { b: 'b' }},
+            { "id": "1", "key": { "a": "a" }, "value": { b: 'b' }},
+            { "id": "2", "key": { "a": "a" }, "value": { b: 'b' }},
+            { "id": "2", "key": { "a": "a" }, "value": { b: 'b' }}
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of undefined/null', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit();
+            emit(null);
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": null, "value": null},
+            { "id": "1", "key": null, "value": null},
+            { "id": "2", "key": null, "value": null},
+            { "id": "2", "key": null, "value": null}
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of null/undefined', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit(null);
+            emit();
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": null, "value": null},
+            { "id": "1", "key": null, "value": null},
+            { "id": "2", "key": null, "value": null},
+            { "id": "2", "key": null, "value": null}
+          ]);
+        });
+      });
+    });
+
+    it('Test duplicate collation of nulls', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit(null);
+            emit(null);
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": null, "value": null},
+            { "id": "1", "key": null, "value": null},
+            { "id": "2", "key": null, "value": null},
+            { "id": "2", "key": null, "value": null}
+          ]);
+        });
+      });
+    });
+
+    it('Test duplicate collation of booleans', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit(true);
+            emit(true);
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": true, "value": null},
+            { "id": "1", "key": true, "value": null},
+            { "id": "2", "key": true, "value": null},
+            { "id": "2", "key": true, "value": null}
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different objects', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit({ a: 'b' }, { a: 'a' });
+            emit({ a: 'a' }, { b: 'b' });
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": { "a": "a" }, "value": { "b": "b" } },
+            { "id": "2", "key": { "a": "a" }, "value": { "b": "b" } },
+            { "id": "1", "key": { "a": "b" }, "value": { "a": "a" } },
+            { "id": "2", "key": { "a": "b" }, "value": { "a": "a" } }
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different objects 2', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit({ a: 'b', b: 'c' }, { a: 'a' });
+            emit({ a: 'a' }, { b: 'b' });
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": { "a": "a" }, "value": { "b": "b" } },
+            { "id": "2", "key": { "a": "a" }, "value": { "b": "b" } },
+            { "id": "1", "key": { "a": "b", "b": "c" }, "value": { "a": "a" } },
+            { "id": "2", "key": { "a": "b", "b": "c" }, "value": { "a": "a" } }
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different objects 3', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit({ a: 'a' }, { b: 'b' });
+            emit({ a: 'b'}, { a: 'a' });
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": { "a": "a" }, "value": { "b": "b" } },
+            { "id": "2", "key": { "a": "a" }, "value": { "b": "b" } },
+            { "id": "1", "key": { "a": "b" }, "value": { "a": "a" } },
+            { "id": "2", "key": { "a": "b" }, "value": { "a": "a" } }
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different objects 4', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit({ a: 'a'});
+            emit({ b: 'b'});
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": { "a": "a" }, "value": null },
+            { "id": "2", "key": { "a": "a" }, "value": null },
+            { "id": "1", "key": { "b": "b" }, "value": null },
+            { "id": "2", "key": { "b": "b" }, "value": null }
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different objects 5', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit({ a: 'a'});
+            emit({ a: 'a', b: 'b'});
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": { "a": "a" }, "value": null },
+            { "id": "2", "key": { "a": "a" }, "value": null },
+            { "id": "1", "key": { "a": "a", "b": "b" }, "value": null },
+            { "id": "2", "key": { "a": "a", "b": "b" }, "value": null }
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different objects 6', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit({ a: 'a'});
+            emit({ a: 'a', b: 'b'});
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": { "a": "a" }, "value": null },
+            { "id": "2", "key": { "a": "a" }, "value": null },
+            { "id": "1", "key": { "a": "a", "b": "b" }, "value": null },
+            { "id": "2", "key": { "a": "a", "b": "b" }, "value": null }
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different booleans', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit(true);
+            emit(false);
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": false, "value": null },
+            { "id": "2", "key": false, "value": null },
+            { "id": "1", "key": true, "value": null },
+            { "id": "2", "key": true, "value": null }
+          ]);
+        });
+      });
+    });
+
+    it('Test collation of different booleans 2', function () {
+      var db = new PouchDB(dbName);
+      return db.bulkDocs([
+        { _id: '1' },
+        { _id: '2' }
+      ]).then(function () {
+        return createView(db, {
+          map: function () {
+            emit(false);
+            emit(true);
+          }
+        });
+      }).then(function (queryFun) {
+        return db.query(queryFun).then(function (res) {
+          var rows = res.rows.map(function (x) {
+            return {
+              id: x.id,
+              key: x.key,
+              value: x.value
+            };
+          });
+          assert.deepEqual(rows, [
+            { "id": "1", "key": false, "value": null },
+            { "id": "2", "key": false, "value": null },
+            { "id": "1", "key": true, "value": null },
+            { "id": "2", "key": true, "value": null }
+          ]);
+        });
+      });
+    });
+
     it("Test joins", function () {
       var db = new PouchDB(dbName);
       return createView(db, {
