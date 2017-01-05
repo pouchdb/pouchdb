@@ -56,6 +56,36 @@ module.exports = function (PouchDB, opts) {
       }
     },
     {
+      name: 'build-secondary-index',
+      assertions: 1,
+      iterations: 1,
+      setup: function (db, callback) {
+        var docs = [];
+        for (var i = 0; i < 1000; i++) {
+          docs.push({});
+        }
+        db.bulkDocs(docs).then(function () {
+          return db.put({
+            _id : '_design/myview',
+            views : {
+              myview : {
+                map : function (doc) {
+                  emit(doc._id);
+                }.toString()
+              }
+            }
+          });
+        }).then(function () {
+          callback();
+        }, callback);
+      },
+      test: function (db, itr, doc, done) {
+        db.query('myview/myview', {limit: 0}).then(function () {
+          done();
+        }, done);
+      }
+    },
+    {
       name: 'persisted-views',
       assertions: 1,
       iterations: 10,
