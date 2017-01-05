@@ -81,7 +81,7 @@
     "istanbul": "0.4.5",
     "istanbul-coveralls": "1.0.3",
     "js-extend": "1.0.1",
-    "less": "2.7.1",
+    "less": "2.7.2",
     "lie": "3.1.0",
     "lodash.debounce": "4.0.8",
     "lodash.flatten": "4.4.0",
