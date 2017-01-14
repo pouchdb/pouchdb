@@ -94,7 +94,7 @@
     "pouchdb-express-router": "0.0.9",
     "replace": "0.3.0",
     "rimraf": "2.5.4",
-    "rollup": "0.41.1",
+    "rollup": "0.41.4",
     "rollup-plugin-node-resolve": "2.0.0",
     "rollup-plugin-replace": "1.1.1",
     "sauce-connect-launcher": "1.2.0",
