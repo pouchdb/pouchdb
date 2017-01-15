@@ -10,19 +10,20 @@ In PouchDB 6.1.1, there were substantial improvements to the performance of seco
 
 ### Measure twice, cut once
 
-There's an old English idiom that says ["measure twice, cut once"](https://en.wiktionary.org/wiki/measure_twice_and_cut_once#English). Apparently it's a reference to carpentry, but I find it to be excellent advice for performance-tuning as well.  
+There's an old English idiom that says ["measure twice, cut once"](https://en.wiktionary.org/wiki/measure_twice_and_cut_once#English). Apparently it's a reference to carpentry, but I think it's excellent advice for performance-tuning as well.  
 
 When trying to improve the performance of any piece of code, proper measurements are your most valuable asset. You can't get
-any faster if you don't know what "fast" means.
+fast if you don't know what "fast" means.
 
-PouchDB maintains [a simple set of benchmarks](https://github.com/pouchdb/pouchdb/tree/master/tests/performance) using [tape](https://github.com/substack/tape) as well as `performance.mark()`, `performance.measure()`, and `performance.now()`, aka the [User Timing API](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API). These APIs provide accurate timings as well as nice visualizations in the Chrome Dev Tools:
+PouchDB maintains [a simple set of benchmarks](https://github.com/pouchdb/pouchdb/tree/master/tests/performance) using [tape](https://github.com/substack/tape) as well as `performance.mark()`, `performance.measure()`, and `performance.now()`, i.e. the [User Timing API](https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API). These APIs provide accurate timings as well as nice visualizations in the Chrome Dev Tools:
 
-Previously we had been using `Date.now()`, but this API is no longer recommended for performance testing, because it's not as high-resolution as `performance`. During the course of modernizing our measurements, I also built a standalone library called [marky](https://github.com/nolanlawson/marky), which makes it easier to use high-resolution APIs like `performance.mark()` and `measure()` while also falling back to `Date.now()` in older browsers.
+Previously we had been using `Date.now()`, but this API is no longer recommended for performance testing, because it's not as high-resolution as `performance`. During the course of modernizing our test harness, I also built a standalone library called [marky](https://github.com/nolanlawson/marky), which makes it easier to use high-resolution APIs like `performance.mark()` and `measure()` while also falling back to `Date.now()` in older browsers.
 
-Once you've got your measurements in place, next you need to make sure that you reduce variability in the tests. When I run performance tests, I always ensure:
+Once you've got your measurements in place, next you need to make sure to reduce variability in the tests. When I run performance tests, I always ensure:
 
 1. **The Dev Tools have never been opened.** These add overhead to browsers. So for a fair assessment, it's best to completely close the Dev Tools, close the browser, and reopen it.
 2. **The laptop is connected to a power outlet.** Browsers may change their behavior in battery mode. For instance, Edge throttles `setTimeout()` to 16 milliseconds rather than the standard 4.
+3. **The web page is in the foreground.** Browsers can throttle a page if it's in a background tab or out of focus.
 3. **The tests are repeatable.** Performance tests should have enough iterations that you can see a clear, measurable difference between runs; you don't want to interpret statistical noise as a performance boost or regression. If you want to get really fancy, you can use something like [BenchmarkJS](https://benchmarkjs.com/) which does enough iterations to ensure statistical significance.
 
 Another important consideration when running performance tests is to **test in multiple browsers**. Many web developers have gotten into the habit of only ever testing in their browser of choice (usually Chrome), but this can be misleading, because browsers tend to differ enormously in their performance aspects. If you only test in one browser, you can miss performance opportunities (e.g. because the one browser happens to have already optimized a particular scenario) or over-engineer based on browser quirks (e.g. focusing only on [V8 deoptimizers](https://github.com/petkaantonov/bluebird/wiki/Optimization-killers)).
@@ -45,16 +46,16 @@ The reason I chose to focus on the IndexedDB and in-memory adapters was because 
 For these tests, I focused on the PouchDB `temp-views` test, which can be accessed by checking out the PouchDB codebase, running
 `npm install` and `npm run dev`, then opening `http://127.0.0.1:8000/tests/performance?grep=temp-views` in a browser. Different adapters can be tested by adding e.g. `&adapter=memory`.
 
-These tests were run on an i5 Surface Book running Windows 10 RS1 (aka the Anniversary Update), using Edge 14, Chrome 55, and Firefox 55.
+These tests were run on an i5 Surface Book running Windows 10 RS1 (aka the Anniversary Update, 14393.693), using Edge 14, Chrome 55, and Firefox 50. For this benchmark, I took the median of 3 runs to limit variability.
 
 So without further ado, here's what we managed to speed up!
 
 ### Using native ES6 Map/Set
 
 I mentioned earlier that you should always be testing in multiple browsers… but of course that doesn't prevent us from taking
-advantage of useful features that only appear in one browser's Dev Tools.
+advantage of useful debugging features that only appear in one browser's Dev Tools.
 
-Chrome Dev Tools recently added a neat feature called "Record Allocation Profile," which shows the memory allocation per function. Using this feature, I saw that our ES6 Map/Set shims were consuming a lot of memory:
+Chrome Dev Tools recently added a neat feature called "Record Allocation Profile," which shows the memory allocation per function. Using this feature, I saw that our ES6 `Map`/`Set` shims were consuming a lot of memory:
 
 <!-- RESULTS HERE -->
 
@@ -62,11 +63,13 @@ I also knew this was a non-negligible source of slowdown, because a regular Time
 
 <!-- RESULTS HERE -->
 
-In our case, we use Map/Set heavily across the board, mostly to prevent issues where documents with `_id`s named for Object prototype fields (e.g. `constructor`, which is an [actual npm package](npmjs.com/package/constructor) and therefore [has caused problems](https://github.com/pouchdb/pouchdb/issues/2477) when replicating from the npm CouchDB reigstry). This means we are only ever using string keys, and our implementation is to simply namespace the keys by prefixing the keys with `$`. Unfortunately this leads to relatively high memory use because of all the strings we're creating. 
+In our case, we use `Map`/`Set` heavily across the board, mostly to prevent issues where documents with `_id`s named for Object prototype fields (e.g. `constructor`, which is an [actual npm package](npmjs.com/package/constructor) and therefore [has caused problems](https://github.com/pouchdb/pouchdb/issues/2477) when replicating from the npm CouchDB reigstry). This means we are only ever using string keys, and our implementation is [to simply namespace the keys](https://github.com/pouchdb/pouchdb/blob/35fb5ed2e1efe3669d5c1ce791e9bfc8d7e94771/packages/node_modules/pouchdb-collections/src/Map.js) by prefixing the keys with `$`. Unfortunately this leads to relatively high memory use because of all the strings we're creating. 
 
-The fix was to ensure our Map/Set implementation would prefer the native implementations, and only fall back to the polyfill on older browsers. Once the fix was in place, the benchmark improved across the board:
+The fix was to ensure our Map/Set implementation would [prefer the native implementations](https://github.com/pouchdb/pouchdb/pull/5991), and only fall back to the polyfill on older browsers. Once the fix was in place, the benchmark improved across the board:
 
-Note that the [six-speed benchmark](http://kpdecker.github.io/six-speed/) seems to show that ES6 Map/Set is not always a clear winner for every API. However, for our usage patterns, it offers a nice little performance boost.
+
+
+Note that the [six-speed benchmark](http://kpdecker.github.io/six-speed/) seems to show that ES6 `Map`/`Set` is not always a clear winner for every API. However, for our usage patterns, it offers a nice little performance boost.
 
 ### Using getAll()/getAllKeys()
 
