@@ -86,6 +86,8 @@
     "lodash.debounce": "4.0.8",
     "lodash.flatten": "4.4.0",
     "lodash.uniq": "4.5.0",
+    "marky": "1.1.2",
+    "median": "0.0.2",
     "mkdirp": "0.5.1",
     "mocha": "3.2.0",
     "mockery": "2.0.0",
