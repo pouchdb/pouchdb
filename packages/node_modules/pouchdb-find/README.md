@@ -276,6 +276,18 @@ Example result:
   * `$ne` Match fields not equal to this one.
   * `$exists` True if the field should exist, false otherwise.
   * `$type` One of: "null", "boolean", "number", "string", "array", or "object".
+  * `$in` Matches if all the selectors in the array match.
+  * `$and` Matches if all the selectors in the array match.
+  * `$nin` The document field must not exist in the list provided.
+  * `$all` Matches an array value if it contains all the elements of the argument array.
+  * `$size` Special condition to match the length of an array field in a document.
+  * `$or` Matches if any of the selectors in the array match. All selectors must use the same index.
+  * `$nor` Matches if none of the selectors in the array match.
+  * `$not` Matches if the given selector does not match.
+  * `$mod` Matches documents where (field % Divisor == Remainder) is true, and only when the document field is an integer.
+  * `$regex` A regular expression pattern to match against the document field.
+  * `$elemMatch` Matches all documents that contain an array field with at least one element that matches all the specified query criteria.
+
 * `fields` (Optional) Defines a list of fields that you want to receive. If omitted, you get the full documents.
 * `sort` (Optional) Defines a list of fields defining how you want to sort. Note that sorted fields also have to be selected in the `selector`.
 * `limit` (Optional) Maximum number of documents to return.
