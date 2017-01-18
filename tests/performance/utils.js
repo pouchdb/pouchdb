@@ -6,14 +6,17 @@ var commonUtils = require('../common-utils.js');
 var Promise = require('lie');
 var nextTick = (typeof process === 'undefined' || process.browser) ?
   setTimeout : process.nextTick;
-var markMeasure = require('./markMeasure');
 
 var grep;
+var iterations;
 if (global.window && global.window.location && global.window.location.search) {
   grep = global.window.location.search.match(/[&?]grep=([^&]+)/);
   grep = grep && grep[1];
+  iterations = global.window.location.search.match(/[&?]iterations=([^&]+)/);
+  iterations = iterations && parseInt(iterations[1], 10);
 } else if (process && process.env) {
   grep = process.env.GREP;
+  iterations = process.env.ITERATIONS && parseInt(process.env.ITERATIONS, 10);
 }
 
 var levelAdapter = typeof process !== 'undefined' && process.env &&
@@ -27,7 +30,10 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
       return;
     }
 
-    if (testCase.iterations === 0) {
+    var iter = typeof iterations === 'number' ? iterations :
+      testCase.iterations;
+
+    if (iter === 0) {
       return;
     }
 
@@ -52,7 +58,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
           if (i === 0) {
             reporter.startSuite(suiteName);
           }
-          reporter.start(testCase);
+          reporter.start(testCase, iter);
           t.end();
         });
       });
@@ -62,7 +68,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
         var num = 0;
         function next() {
           nextTick(function () {
-            markMeasure.mark('start_' + testName);
+            reporter.startIteration(testCase);
             testCase.test(db, num, setupObj, after);
           });
         }
@@ -71,10 +77,9 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts) {
             t.error(err);
             reporter.log(testName + ' errored: ' + err.message + '\n');
           } else {
-            markMeasure.mark('end_' + testName);
-            markMeasure.measure(testName, 'start_' + testName, 'end_' + testName);
+            reporter.endIteration(testCase);
           }
-          if (++num < testCase.iterations) {
+          if (++num < iter) {
             next();
           } else {
             t.ok(testName + ' completed');

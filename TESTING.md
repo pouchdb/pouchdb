@@ -141,6 +141,10 @@ You can also test against node-websql:
 
     PERF=1 ADAPTER=websql npm test
 
+You can also override the default number of iterations:
+
+    PERF=1 ITERATIONS=10 npm t
+
 ### Performance tests in the browser
 
 When you run `npm run dev`, performance tests are available at:
@@ -159,6 +163,10 @@ You can also specify particular tests by using `grep=`, e.g.:
 
     http://127.0.0.1:8000/tests/performance/index.html?grep=basics
     http://127.0.0.1:8000/tests/performance/index.html?grep=basic-inserts
+
+You can also override the default number of iterations using `iterations=`:
+
+    http://127.0.0.1:8000/tests/performance/index.html?grep=basic-insert&interations=10
 
 ### Ad-hoc tests
 

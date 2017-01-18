@@ -2,8 +2,16 @@
 var isNode = process && !process.browser;
 var UAParser = require('ua-parser-js');
 var ua = !isNode && new UAParser(navigator.userAgent);
-var now = isNode ? Date.now.bind(Date) : performance.now.bind(performance);
+var marky = require('marky');
+var median = require('median');
 global.results = {};
+
+// fix for Firefox max timing entries capped to 150:
+// https://bugzilla.mozilla.org/show_bug.cgi?id=1331135
+/* global performance */
+if (typeof performance !== 'undefined' && performance.setResourceTimingBufferSize) {
+  performance.setResourceTimingBufferSize(100000);
+}
 
 var pre = !isNode && global.document.getElementById('output');
 
@@ -21,21 +29,29 @@ exports.startSuite = function (suiteName) {
   log('Starting suite: ' + suiteName + '\n\n');
 };
 
-exports.start = function (testCase) {
+exports.start = function (testCase, iter) {
   var key = testCase.name;
   log('Starting test: ' + key + ' with ' + testCase.assertions +
-    ' assertions and ' + testCase.iterations + ' iterations... ');
+    ' assertions and ' + iter + ' iterations... ');
   global.results[key] = {
-    start: now()
+    iterations: []
   };
 };
 
 exports.end = function (testCase) {
   var key = testCase.name;
   var obj = global.results[key];
-  obj.end = now();
-  obj.duration = obj.end - obj.start;
-  log('done in ' + obj.duration + 'ms\n');
+  obj.median = median(obj.iterations);
+  log('median: ' + obj.median + ' ms\n');
+};
+
+exports.startIteration = function (testCase) {
+  marky.mark(testCase.name);
+};
+
+exports.endIteration = function (testCase) {
+  var entry = marky.stop(testCase.name);
+  global.results[testCase.name].iterations.push(entry.duration);
 };
 
 exports.complete = function () {
