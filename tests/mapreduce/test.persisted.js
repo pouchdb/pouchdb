@@ -243,6 +243,21 @@ function tests(suiteName, dbName, dbType) {
       }).should.be.rejected;
     });
 
+    it("Query non-string view returns error", function () {
+      var db = new PouchDB(dbName);
+      var doc = {
+        _id: '_design/barbar',
+        views: {
+          scores: {
+            map: 1
+          }
+        }
+      };
+      return db.post(doc).then(function () {
+        return db.query('barbar/scores', {key: 'bar'});
+      }).should.be.rejected;
+    });
+
     it('many simultaneous persisted views', function () {
       this.timeout(120000);
       var db = new PouchDB(dbName);
