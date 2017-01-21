@@ -199,4 +199,33 @@ describe('test.http.js', function () {
     });
   });
 
+  it('Issue 6132 - default headers not merged', function () {
+    var db = new PouchDB(dbs.name, {
+      ajax: {
+        // need to use a header that CouchDB allows through CORS
+        headers: { "x-csrf-token": "bar" }
+      }
+    });
+
+    var ajax = db._ajax;
+    var tested = false;
+    db._ajax = function (opts) {
+      if (opts.headers && opts.headers['Content-Type']) {
+        if (opts.headers["x-csrf-token"] !== 'bar') {
+          throw new Error('default header x-csrf-token expected');
+        }
+        tested = true;
+      }
+
+      ajax.apply(this, arguments);
+    };
+
+    return db.putAttachment('mydoc', 'att.txt', testUtils.btoa('abc'), 'text/plain')
+    .then(function () {
+      if (!tested) {
+        throw new Error('header assertion skipped in test');
+      }
+    });
+  });
+
 });
