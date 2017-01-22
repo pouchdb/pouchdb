@@ -3,9 +3,7 @@
 
 var opts = {};
 
-var levelAdapter;
 if (typeof process !== 'undefined' && process.env) {
-  levelAdapter = process.env.LEVEL_ADAPTER;
   if (process.env.ADAPTER) {
     opts.adapter = process.env.ADAPTER;
   }
@@ -16,13 +14,22 @@ function runTestSuites(PouchDB) {
   function runTestsNow() {
     var reporter = require('./perf.reporter');
     reporter.log('Testing PouchDB version ' + PouchDB.version +
-      ((opts.adapter || levelAdapter) ?
-        (', using adapter: ' + (opts.adapter || levelAdapter)) : '') +
+      (opts.adapter ?
+        (', using adapter: ' + opts.adapter) : '') +
       '\n\n');
 
-    require('./perf.basics')(PouchDB, opts);
-    require('./perf.views')(PouchDB, opts);
-    require('./perf.attachments')(PouchDB, opts);
+    var theAdapterUsed;
+    var count = 0;
+    function checkDone(adapterUsed) {
+      theAdapterUsed = theAdapterUsed || adapterUsed;
+      if (++count === 3) { // number of perf.xxxx.js tests
+        reporter.complete(theAdapterUsed);
+      }
+    }
+
+    require('./perf.basics')(PouchDB, opts, checkDone);
+    require('./perf.views')(PouchDB, opts, checkDone);
+    require('./perf.attachments')(PouchDB, opts, checkDone);
   }
 
   if (typeof process === 'undefined' || process.browser) {
@@ -69,6 +76,8 @@ if (startNow) {
     // fails in Node 0.11-0.12 due to sqlite3 being incompatible
     PouchDB.plugin(require('../../packages/node_modules/' +
       'pouchdb-adapter-node-websql'));
+    PouchDB.plugin(require('../../packages/node_modules/' +
+      'pouchdb-adapter-memory'));
   }
   runTestSuites(PouchDB);
 }
