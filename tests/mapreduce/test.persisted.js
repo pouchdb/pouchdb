@@ -228,7 +228,7 @@ function tests(suiteName, dbName, dbType) {
       });
     });
 
-    it("Query non existing view returns error", function () {
+    it("Query non existing view throws error", function () {
       var db = new PouchDB(dbName);
       var doc = {
         _id: '_design/barbar',
@@ -239,11 +239,11 @@ function tests(suiteName, dbName, dbType) {
         }
       };
       return db.post(doc).then(function () {
-        return db.query('barbar/dontExist', {key: 'bar'});
-      }).should.be.rejected;
+        return db.query('barbar/dontExist', {key: 'bar'}).should.be.rejected;
+      });
     });
 
-    it("Query non-string view returns error", function () {
+    it("Query non-string view throws error", function () {
       var db = new PouchDB(dbName);
       var doc = {
         _id: '_design/barbar',
@@ -254,8 +254,8 @@ function tests(suiteName, dbName, dbType) {
         }
       };
       return db.post(doc).then(function () {
-        return db.query('barbar/scores', {key: 'bar'});
-      }).should.be.rejected;
+        return db.query('barbar/scores', {key: 'bar'}).should.be.rejected;
+      });
     });
 
     it('many simultaneous persisted views', function () {
