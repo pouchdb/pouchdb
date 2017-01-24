@@ -44,11 +44,6 @@ function buildModule(filepath) {
     depsToSkip = depsToSkip.concat(pouchdbPackages);
   }
 
-  if (pkg.browser && pkg.browser['./lib/index.js'] !== './lib/index-browser.js') {
-    return Promise.reject(new Error(pkg.name +
-      ' is missing a "lib/index.js" entry in the browser field'));
-  }
-
   // browser & node vs one single vanilla version
   var versions = pkg.browser ? [false, true] : [false];
 
@@ -79,12 +74,7 @@ function buildModule(filepath) {
           })
         ]
       }).then(function (bundle) {
-        var formats = ['cjs'];
-        if (bundledPkgs.indexOf(pkg.name) !== -1) {
-          // any packages that are aggressively bundled will also have their
-          // npm deps inlined. This means that we need a separate jsnext:main build.
-          formats.push('es');
-        }
+        var formats = ['cjs', 'es'];
         return Promise.all(formats.map(function (format) {
           var dest = (isBrowser ? 'lib/index-browser' : 'lib/index') +
             (format === 'es' ? '.es.js' : '.js');
