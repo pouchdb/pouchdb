@@ -24,7 +24,12 @@ if (process.env.POUCHDB_SRC) {
 if (process.env.COUCH_HOST) {
   queryParams.couchHost = process.env.COUCH_HOST;
 }
-
+if (process.env.ADAPTER) {
+  queryParams.adapter = process.env.ADAPTER;
+}
+if (process.env.ITERATIONS) {
+  queryParams.iterations = process.env.ITERATIONS;
+}
 if (process.env.NEXT) {
   queryParams.src = '../../packages/node_modules/pouchdb/dist/pouchdb-next.js';
 }
@@ -35,6 +40,7 @@ function rebuildPouch() {
   rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
     console.log('Rebuilt packages/node_modules/pouchdb');
   }).catch(console.error);
+  return rebuildPromise;
 }
 
 function browserifyPromise(src, dest) {
@@ -52,6 +58,7 @@ function rebuildTestUtils() {
   }).then(function () {
     console.log('Rebuilt tests/integration/utils-bundle.js');
   }).catch(console.error);
+  return rebuildPromise;
 }
 
 function rebuildPerf() {
@@ -61,6 +68,7 @@ function rebuildPerf() {
   }).then(function () {
     console.log('Rebuilt tests/performance-bundle.js');
   }).catch(console.error);
+  return rebuildPromise;
 }
 
 function watchAll() {
@@ -84,6 +92,7 @@ Promise.resolve().then(function () {
     rebuildPerf()
   ]);
 }).then(function () {
+  console.log('Rebuilt PouchDB/test/perf JS bundles');
   filesWritten = true;
   checkReady();
 });

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (PouchDB, opts) {
+module.exports = function (PouchDB, opts, callback) {
 
   var Promise = require('lie');
   var utils = require('./utils');
@@ -61,10 +61,10 @@ module.exports = function (PouchDB, opts) {
     {
       name: 'basic-gets',
       assertions: 1,
-      iterations: 10000,
+      iterations: 1000,
       setup: function (db, callback) {
         var docs = [];
-        for (var i = 0; i < 10000; i++) {
+        for (var i = 0; i < 1000; i++) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
@@ -223,5 +223,5 @@ module.exports = function (PouchDB, opts) {
     }
   ];
 
-  utils.runTests(PouchDB, 'basics', testCases, opts);
+  utils.runTests(PouchDB, 'basics', testCases, opts, callback);
 };

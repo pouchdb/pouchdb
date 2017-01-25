@@ -28,7 +28,7 @@ function randomBlob(size) {
   }
 }
 
-module.exports = function (PouchDB, opts) {
+module.exports = function (PouchDB, opts, callback) {
 
   require('lie');
   var utils = require('./utils');
@@ -53,6 +53,6 @@ module.exports = function (PouchDB, opts) {
     }
   ];
 
-  utils.runTests(PouchDB, 'views', testCases, opts);
+  utils.runTests(PouchDB, 'views', testCases, opts, callback);
 
 };
