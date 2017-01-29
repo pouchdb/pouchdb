@@ -116,6 +116,37 @@ adapters.forEach(function (adapter) {
       });
     });
 
+
+    it('force put ok', function () {
+      var db = new PouchDB(dbs.name);
+      var docId = "docId";
+      var rev1, rev2, rev3, rev2_;
+      // given
+      return db.put({_id: docId, update:1}).then(function (result) {
+        rev1 = result.rev;
+        return db.put({_id: docId, update:2.1, _rev: rev1});
+      }).then(function (result) {
+        rev2 = result.rev;
+        return db.put({_id: docId, update:3, _rev:rev2});
+      })
+      // when
+      .then(function (result) {
+        rev3 = result.rev;
+        return db.put({_id: docId, update:2.2, _rev: rev1}, {force: true});
+      })
+      // then
+      .then(function (result) {
+        rev2_ = result.rev;
+        rev2_.should.not.equal(rev3);
+        rev2_.substring(0, 2).should.equal('2-');
+        should.exist(result.ok, 'update based on nonleaf revision');
+        return db.get(docId, {conflicts: true});
+      }).then(function (doc) {
+        doc._rev.should.equal(rev3);
+        doc._conflicts.should.eql([rev2_]);
+      });
+    });
+
     // Each revision includes a list of previous revisions. The
     // revision with the longest revision history list becomes the
     // winning revision. If they are the same, the _rev values are
