@@ -17,8 +17,7 @@ var denodeify = require('denodeify');
 var browserify = require('browserify');
 var browserifyIncremental = require('browserify-incremental');
 var rollup = require('rollup');
-var nodeResolve = require('rollup-plugin-node-resolve');
-var replace = require('rollup-plugin-replace');
+var rollupPlugins = require('./rollupPlugins');
 var derequire = require('derequire');
 var fs = require('fs');
 var writeFileAsync = denodeify(fs.writeFile);
@@ -149,20 +148,12 @@ function doRollup(entry, browser, formatsToFiles) {
   return rollup.rollup({
     entry: addPath(entry),
     external: external,
-    plugins: [
-      nodeResolve({
-        skip: external,
-        jsnext: true,
-        browser: browser,
-        main: false  // don't use "main"s that are CJS
-      }),
-      replace({
-        // we have switches for coverage; don't ship this to consumers
-        'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
-        // test for fetch vs xhr
-        'process.env.FETCH': JSON.stringify(!!process.env.FETCH)
-      })
-    ]
+    plugins: rollupPlugins({
+      skip: external,
+      jsnext: true,
+      browser: browser,
+      main: false  // don't use "main"s that are CJS
+    })
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
       var fileOut = formatsToFiles[format];

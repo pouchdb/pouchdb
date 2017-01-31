@@ -10,8 +10,7 @@
 'use strict';
 
 var rollup = require('rollup').rollup;
-var nodeResolve = require('rollup-plugin-node-resolve');
-var replace = require('rollup-plugin-replace');
+var rollupPlugins = require('./rollupPlugins');
 
 var path = require('path');
 var lie = require('lie');
@@ -65,19 +64,11 @@ function buildModule(filepath) {
       return rollup({
         entry: path.resolve(filepath, './src/index.js'),
         external: depsToSkip,
-        plugins: [
-          nodeResolve({
-            skip: depsToSkip,
-            jsnext: true,
-            browser: isBrowser || forceBrowser
-          }),
-          replace({
-            // we have switches for coverage; don't ship this to consumers
-            'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
-            // test for fetch vs xhr
-            'process.env.FETCH': JSON.stringify(!!process.env.FETCH)
-          })
-        ]
+        plugins: rollupPlugins({
+          skip: depsToSkip,
+          jsnext: true,
+          browser: isBrowser || forceBrowser
+        })
       }).then(function (bundle) {
         var formats = ['cjs'];
         if (bundledPkgs.indexOf(pkg.name) !== -1) {

@@ -1,7 +1,6 @@
 // dead simple promise pool, inspired by https://github.com/timdp/es6-promise-pool
 // but much smaller in code size. limits the number of concurrent promises that are executed
 
-import Promise from 'pouchdb-promise';
 
 function pool(promiseFactories, limit) {
   return new Promise(function (resolve, reject) {
