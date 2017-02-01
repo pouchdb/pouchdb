@@ -131,6 +131,10 @@ function checkFieldsLogicallySound(indexFields, selector) {
   var firstField = indexFields[0];
   var matcher = selector[firstField];
 
+  if (typeof matcher === 'undefined') {
+    return true;
+  }
+
   var hasLogicalOperator = Object.keys(matcher).some(function (matcherKey) {
     return !(isNonLogicalMatcher(matcherKey));
   });
@@ -233,7 +237,9 @@ function getSingleFieldQueryOptsFor(userOperator, userValue) {
 
 function getSingleFieldCoreQueryPlan(selector, index) {
   var field = getKey(index.def.fields[0]);
-  var matcher = selector[field];
+  //ignoring this because the test to exercise the branch is skipped at the moment
+  /* istanbul ignore next */
+  var matcher = selector[field] || {};
   var inMemoryFields = [];
 
   var userOperators = Object.keys(matcher);
@@ -325,7 +331,7 @@ function getMultiFieldQueryOpts(selector, index) {
       finish(i);
       break;
     } else if (i > 0) {
-      if ('$ne' in matcher) { // unusable $ne index
+      if (Object.keys(matcher).some(isNonLogicalMatcher)) { // non-logical are ignored 
         finish(i);
         break;
       }
@@ -387,11 +393,11 @@ function getMultiFieldQueryOpts(selector, index) {
   };
 }
 
-function getDefaultQueryPlan () {
+function getDefaultQueryPlan (selector) {
+  //using default index, so all fields need to be done in memory
   return {
     queryOpts: {startkey: null},
-    //getInMemoryFields will do the work here later
-    inMemoryFields: []
+    inMemoryFields: [Object.keys(selector)]
   };
 }
 

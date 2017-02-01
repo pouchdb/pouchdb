@@ -47,6 +47,71 @@ module.exports = function (dbType, context) {
         });
       });
 
+      it('should use default index due to non-logical operators', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": ["name", "age"]
+          },
+          "type": "json"
+        };
+        return db.createIndex(index)
+        .then(function () {
+          return db.find({
+            selector: {
+              name: {
+                $in: ['James', 'Link']
+              },
+              age: {
+                $gt: 21
+              }
+            },
+          });
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'Link', _id: 'link', favorites: ['Zelda', 'Pokemon'], age: 22},
+          ]);
+        });
+      });
+
+      it('should return docs match single value in array with defined index', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": ["name", "favorites"]
+          },
+          "type": "json"
+        };
+        return db.createIndex(index)
+        .then(function () {
+          return db.find({
+            selector: {
+              name: {
+                $eq: 'James'
+              },
+              favorites: {
+                $in: ["Mario"]
+              }
+            },
+          });
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'James', _id: 'james',  favorites: ['Mario', 'Pokemon'], age: 20}
+          ]);
+        });
+      });
+
+
       it('should return docs match single field that is not an array', function () {
         var db = context.db;
         return db.find({
@@ -378,6 +443,25 @@ module.exports = function (dbType, context) {
           },
         }).then(function (resp) {
             resp.docs.should.have.length(4);
+        });
+      });
+
+      //Currently Mango is returning a design doc which isn't correct
+      it.skip('should work for _id field', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            _id: {
+              $nin: ['james', 'mary']
+            }
+          },
+          fields: ["_id"]
+        }).then(function (resp) {
+            resp.docs.should.deep.equal([
+      //        {_id: '_design/37ca0de9e0e68521c0eca0239d9b29c5027ae7ea'},
+              {_id: 'link'},
+              {_id: 'william'},
+            ]);
         });
       });
     });
