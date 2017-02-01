@@ -1134,6 +1134,13 @@ adapters.forEach(function (adapter) {
           });
         });
       });
+
+      it('6053, PouchDB.plugin() resets defaults', function () {
+        var db = PouchDB.defaults({foo: 'bar'});
+        var db2 = db.plugin({foo: function () {}});
+        should.exist(db2.__defaults);
+        db.__defaults.should.deep.equal(db2.__defaults);
+       });
     }
 
     if (typeof process !== 'undefined' && !process.browser) {
