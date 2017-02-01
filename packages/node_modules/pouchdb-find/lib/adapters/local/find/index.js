@@ -51,7 +51,6 @@ function doAllDocs(db, originalOpts) {
 }
 
 function find(db, requestDef) {
-
   if (requestDef.selector) {
     requestDef.selector = massageSelector(requestDef.selector);
   }
@@ -100,7 +99,7 @@ function find(db, requestDef) {
         opts.skip = requestDef.skip;
       }
     }
-
+    
     return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {
         return doAllDocs(db, opts);
@@ -109,7 +108,6 @@ function find(db, requestDef) {
         return abstractMapper.query.call(db, signature, opts);
       }
     }).then(function (res) {
-
       if (opts.inclusive_start === false) {
         // may have to manually filter the first one,
         // since couchdb has no true inclusive_start option

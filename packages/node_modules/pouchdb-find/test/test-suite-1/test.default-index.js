@@ -160,6 +160,31 @@ module.exports = function (dbType, context) {
     });
   });
 
+  it('$in works with default operator', function () {
+    var db = context.db;
+
+    return db.bulkDocs([
+      { _id: '1', foo: 'eyo'},
+      { _id: '2', foo: 'ebb'},
+      { _id: '3', foo: 'eba'},
+      { _id: '4', foo: 'abo'}
+    ]).then(function () {
+      return db.find({
+        selector: {foo: {$in: ["eba", "ebb"]}},
+        fields: ["_id"],
+      });
+    }).then(function (resp) {
+      resp.should.deep.equal({
+        warning: 'no matching index found, create an index to optimize query time',
+        docs: [
+          { _id: '2'},
+          { _id: '3'}
+        ]
+      });
+    });
+  });
+
+  //bug in mango its not sorting this on Foo but actually sorting on _id
   it.skip('ne query will work and sort', function () {
     var db = context.db;
     var index = {
@@ -172,30 +197,31 @@ module.exports = function (dbType, context) {
 
     return db.createIndex(index).then(function () {
       return db.bulkDocs([
-        { _id: '1', foo: 'eyo'},
-        { _id: '2', foo: 'ebb'},
-        { _id: '3', foo: 'eba'},
-        { _id: '4', foo: 'abo'}
+        { _id: '1', foo: 4},
+        { _id: '2', foo: 3},
+        { _id: '3', foo: 2},
+        { _id: '4', foo: 1}
       ]);
     }).then(function () {
       return db.find({
         selector: {foo: {$ne: "eba"}},
-        fields: ["_id" ],
-        sort: [{foo: "asc"}]
+        fields: ["_id", "foo"],
+        sort: [{foo: "desc"}]
       });
     }).then(function (resp) {
       resp.should.deep.equal({
         warning: 'no matching index found, create an index to optimize query time',
         docs: [
-          {_id: '1'},
+          {_id: '4'},
           {_id: '2'},
-          {_id: '4'}
+          {_id: '1'}
         ]
       });
     });
   });
 
-  it.skip('$and empty selector returns all docs', function () {
+  //need to find out what the correct response for this is
+  it.skip('$and empty selector returns empty docs', function () {
     var db = context.db;
 
     return db.createIndex({
@@ -213,6 +239,34 @@ module.exports = function (dbType, context) {
       return db.find({
         selector: {
           $and: [{}, {}]
+        },
+        fields: ['_id']
+      }).then(function (resp) {
+        resp.should.deep.equal({
+          warning: 'no matching index found, create an index to optimize query time',
+          docs: []
+        });
+      });
+    });
+  });
+
+  it.skip('empty selector returns empty docs', function () {
+    var db = context.db;
+
+    return db.createIndex({
+      index: {
+        fields: ['foo']
+      }
+    }).then(function () {
+      return db.bulkDocs([
+        {_id: '1', foo: 1},
+        {_id: '2', foo: 2},
+        {_id: '3', foo: 3},
+        {_id: '4', foo: 4}
+      ]);
+    }).then(function () {
+      return db.find({
+        selector: {
         },
         fields: ['_id']
       }).then(function (resp) {
@@ -283,7 +337,7 @@ module.exports = function (dbType, context) {
     });
   });
 
-  it.skip('handles just regex selector', function () {
+  it('handles just regex selector', function () {
     var db = context.db;
       return db.bulkDocs([
         {_id: '1', foo: 1},
@@ -293,7 +347,7 @@ module.exports = function (dbType, context) {
       ]).then(function () {
       return db.find({
         selector: {
-          _id: {$regex: /1/}
+          _id: {$regex: "1"}
         },
         fields: ['_id']
       }).then(function (resp) {

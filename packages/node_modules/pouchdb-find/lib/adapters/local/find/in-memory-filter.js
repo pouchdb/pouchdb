@@ -67,6 +67,10 @@ function filterInMemoryFields (rows, requestDef, inMemoryFields) {
 
 function rowFilter (doc, selector, inMemoryFields) {
   return inMemoryFields.every(function (field) {
+    if (isDesignDoc(doc)) {
+      return false;
+    }
+
     var matcher = selector[field];
     var parsedField = parseField(field);
     var docFieldValue = getFieldFromDoc(doc, parsedField);
@@ -76,6 +80,10 @@ function rowFilter (doc, selector, inMemoryFields) {
 
     return matchSelector(matcher, doc, parsedField, docFieldValue);
   });
+}
+
+function isDesignDoc (doc) {
+  return /^_design\//.test(doc._id);
 }
 
 function matchSelector (matcher, doc, parsedField, docFieldValue) {
