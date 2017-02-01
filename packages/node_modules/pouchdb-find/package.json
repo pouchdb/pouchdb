@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-find",
-  "version": "0.10.4",
+  "version": "0.10.5",
   "description": "Easy-to-use query language for PouchDB",
   "main": "lib/index.js",
   "repository": {
