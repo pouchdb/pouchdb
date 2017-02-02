@@ -274,7 +274,7 @@ exports.arrayEquals = function (arr1, arr2) {
   return true;
 };
 
-exports.uniq = function(arr) {
+exports.uniq = function (arr) {
   var obj = {};
   for (var i = 0; i < arr.length; i++) {
     obj['$' + arr[i]] = true;

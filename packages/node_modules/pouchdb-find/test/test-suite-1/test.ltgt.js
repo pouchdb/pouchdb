@@ -246,7 +246,7 @@ module.exports = function (dbType, context) {
           {_id: '3', docType: 'log', logDate: "2015-05-26T00:00:00.000Z"},
           {_id: '4', docType: 'log', logDate: "2015-05-27T00:00:00.000Z"}
         ]);
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: {docType: 'log'}
         }).then(function (result) {
@@ -355,7 +355,7 @@ module.exports = function (dbType, context) {
           {_id: '3', foo: 3},
           {_id: '4', foo: 4}
         ]);
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: { $and: [{foo: {$gt: 2}}, {foo: {$gte: 2}}]}
         });
@@ -419,7 +419,7 @@ module.exports = function (dbType, context) {
           {_id: '3', foo: 3},
           {_id: '4', foo: 4}
         ]);
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: { $and: [{foo: {$gt: 2}}, {foo: {$gte: 1}}]}
         });
@@ -483,7 +483,7 @@ module.exports = function (dbType, context) {
           {_id: '3', foo: 3},
           {_id: '4', foo: 4}
         ]);
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: { $and: [{foo: {$gte: 1}}, {foo: {$gt: 2}}]}
         });

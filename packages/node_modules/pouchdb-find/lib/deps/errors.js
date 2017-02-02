@@ -158,13 +158,11 @@ exports.error = function (error, reason, name) {
   function CustomPouchError(reason) {
     // inherit error properties from our parent error manually
     // so as to allow proper JSON parsing.
-    /* jshint ignore:start */
     for (var p in error) {
       if (typeof error[p] !== 'function') {
         this[p] = error[p];
       }
     }
-    /* jshint ignore:end */
     if (name !== undefined) {
       this.name = name;
     }

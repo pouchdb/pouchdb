@@ -6,6 +6,8 @@ var collate = pouchCollate.collate;
 var toIndexableString = pouchCollate.toIndexableString;
 var normalizeKey = pouchCollate.normalizeKey;
 var createView = require('./create-view');
+
+// eslint-disable-next-line no-unused-vars
 var log;
 /* istanbul ignore else */
 if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
@@ -13,6 +15,7 @@ if ((typeof console !== 'undefined') && (typeof console.log === 'function')) {
 } else {
   log = function () {};
 }
+
 var utils = require('./utils');
 var Promise = utils.Promise;
 var persistentQueues = {};

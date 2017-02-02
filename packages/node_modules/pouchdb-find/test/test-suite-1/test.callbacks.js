@@ -16,7 +16,7 @@ module.exports = function (dbType, context) {
         "name": "foo-index",
         "type": "json"
       };
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         return db.createIndex(index, function (err, res) {
           if (err) {
             return reject(err);

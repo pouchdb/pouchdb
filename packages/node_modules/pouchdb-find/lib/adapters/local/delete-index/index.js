@@ -16,7 +16,7 @@ function deleteIndex(db, index) {
   var docId = index.ddoc;
   var viewName = index.name;
 
-  function deltaFun (doc) {
+  function deltaFun(doc) {
     if (Object.keys(doc.views).length === 1 && doc.views[viewName]) {
       // only one view in this ddoc, delete the whole ddoc
       return {_id: docId, _deleted: true};

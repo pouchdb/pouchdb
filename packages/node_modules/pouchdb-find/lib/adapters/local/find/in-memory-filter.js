@@ -41,7 +41,7 @@ function createFieldSorter(sort) {
   };
 }
 
-function filterInMemoryFields (rows, requestDef, inMemoryFields) {
+function filterInMemoryFields(rows, requestDef, inMemoryFields) {
   rows = rows.filter(function (row) {
     return rowFilter(row.doc, requestDef.selector, inMemoryFields);
   });
@@ -65,7 +65,7 @@ function filterInMemoryFields (rows, requestDef, inMemoryFields) {
   return rows;
 }
 
-function rowFilter (doc, selector, inMemoryFields) {
+function rowFilter(doc, selector, inMemoryFields) {
   return inMemoryFields.every(function (field) {
     if (isDesignDoc(doc)) {
       return false;
@@ -82,11 +82,11 @@ function rowFilter (doc, selector, inMemoryFields) {
   });
 }
 
-function isDesignDoc (doc) {
+function isDesignDoc(doc) {
   return /^_design\//.test(doc._id);
 }
 
-function matchSelector (matcher, doc, parsedField, docFieldValue) {
+function matchSelector(matcher, doc, parsedField, docFieldValue) {
   if (!matcher) {
     // no filtering necessary; this field is just needed for sorting
     return true;
@@ -98,7 +98,7 @@ function matchSelector (matcher, doc, parsedField, docFieldValue) {
   });
 }
 
-function matchCominationalSelector (field, matcher, doc) {
+function matchCominationalSelector(field, matcher, doc) {
 
   if (field === '$or') {
     return matcher.some(function (orMatchers) {
@@ -134,7 +134,7 @@ function fieldIsNotUndefined(docFieldValue) {
   return typeof docFieldValue !== 'undefined';
 }
 
-function modField (docFieldValue, userValue) {
+function modField(docFieldValue, userValue) {
   var divisor = userValue[0];
   var mod = userValue[1];
   if (divisor === 0) {
@@ -156,7 +156,7 @@ function modField (docFieldValue, userValue) {
   return docFieldValue % divisor === mod;
 }
 
-function arrayContainsValue (docFieldValue, userValue) {
+function arrayContainsValue(docFieldValue, userValue) {
   return userValue.some(function (val) {
     if (docFieldValue instanceof Array) {
       return docFieldValue.indexOf(val) > -1;
@@ -166,13 +166,13 @@ function arrayContainsValue (docFieldValue, userValue) {
   });
 }
 
-function arrayContainsAllValues (docFieldValue, userValue) {
+function arrayContainsAllValues(docFieldValue, userValue) {
   return userValue.every(function (val) {
     return docFieldValue.indexOf(val) > -1;
   });
 }
 
-function arraySize (docFieldValue, userValue) {
+function arraySize(docFieldValue, userValue) {
   return docFieldValue.length === userValue;
 }
 
@@ -188,11 +188,11 @@ function typeMatch(docFieldValue, userValue) {
     case 'null':
       return docFieldValue === null;
     case 'boolean':
-      return typeof(docFieldValue) === 'boolean';
+      return typeof (docFieldValue) === 'boolean';
     case 'number':
-      return typeof(docFieldValue) === 'number';
+      return typeof (docFieldValue) === 'number';
     case 'string':
-      return typeof(docFieldValue) === 'string';
+      return typeof (docFieldValue) === 'string';
     case 'array':
       return docFieldValue instanceof Array;
     case 'object':

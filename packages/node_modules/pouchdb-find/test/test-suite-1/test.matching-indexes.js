@@ -42,7 +42,7 @@ module.exports = function (dbType, context) {
             "fields": ["debut"]
           }
         });
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: {
             $and: [

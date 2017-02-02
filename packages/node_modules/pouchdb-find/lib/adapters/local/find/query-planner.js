@@ -119,7 +119,7 @@ function checkIndexFieldsMatch(indexFields, sortOrder, fields) {
 }
 
 var logicalMatchers = ['$eq', '$gt', '$gte', '$lt', '$lte'];
-function isNonLogicalMatcher (matcher) {
+function isNonLogicalMatcher(matcher) {
   return logicalMatchers.indexOf(matcher) === -1;
 }
 
@@ -393,7 +393,7 @@ function getMultiFieldQueryOpts(selector, index) {
   };
 }
 
-function getDefaultQueryPlan (selector) {
+function getDefaultQueryPlan(selector) {
   //using default index, so all fields need to be done in memory
   return {
     queryOpts: {startkey: null},
