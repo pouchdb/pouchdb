@@ -14,13 +14,14 @@
   },
 
   "globals": {
+    "Map": true,
+    "Set": true,
     "chrome": true,
     "Promise": true,
     "Uint8Array": true,
     "ArrayBuffer": true,
     "FileReaderSync": true,
     "sqlitePlugin": true,
-
     "emit": true,
     "PouchDB": true,
     "should": true,
