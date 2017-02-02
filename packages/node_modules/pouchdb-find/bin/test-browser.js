@@ -134,7 +134,6 @@ function startTest() {
 
   sauceClient.init(opts).get(testUrl, function () {
 
-    /* jshint evil: true */
     var interval = setInterval(function () {
       sauceClient.eval('window.results', function (err, results) {
         if (err) {

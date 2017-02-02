@@ -36,7 +36,7 @@ module.exports = function (dbType, context) {
             "fields": ["debut"]
           }
         });
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: {
             $and: [
@@ -58,7 +58,7 @@ module.exports = function (dbType, context) {
         "index": {
           "fields": ["series", "debut"]
         }
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: {
             $and: [
@@ -86,7 +86,7 @@ module.exports = function (dbType, context) {
             "fields": ["rank"]
           }
         });
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: {
             $and: [
@@ -108,7 +108,7 @@ module.exports = function (dbType, context) {
         "index": {
           "fields": ["rank"]
         }
-      }).then(function() {
+      }).then(function () {
         return db.find({
           selector: {
             $and: [

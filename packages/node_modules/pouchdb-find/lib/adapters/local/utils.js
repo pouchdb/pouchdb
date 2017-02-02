@@ -28,7 +28,7 @@ function massageSort(sort) {
 }
 
 var combinationFields = ['$or', '$nor', '$not'];
-function isCombinationalField (field) {
+function isCombinationalField(field) {
   return combinationFields.indexOf(field) > -1;
 }
 
@@ -282,7 +282,7 @@ function validateIndex(index) {
   }
 }
 
-function validateSort (requestDef, index) {
+function validateSort(requestDef, index) {
   if (index.defaultUsed && requestDef.sort) {
     var noneIdSorts = requestDef.sort.filter(function (sortItem) {
       return Object.keys(sortItem)[0] !== '_id';

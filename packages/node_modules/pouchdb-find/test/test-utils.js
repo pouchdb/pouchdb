@@ -32,7 +32,7 @@ exports.fin = function (promise, cb) {
 };
 
 exports.promisify = function (fun, context) {
-  return function() {
+  return function () {
     var args = [];
     for (var i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
