@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': deep fields', function () {
+  describe(dbType + ': test.deep-fields.js', function () {
 
     it('deep fields', function () {
       var db = context.db;

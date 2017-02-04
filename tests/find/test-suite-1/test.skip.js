@@ -1,11 +1,10 @@
 'use strict';
 
-
-var sortById = testUtils.sortById;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': skip', function () {
+  var sortById = testUtils.sortById;
+
+  describe(dbType + ': test.skip.js', function () {
 
     beforeEach(function () {
       return context.db.bulkDocs([

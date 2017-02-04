@@ -1,11 +1,9 @@
 'use strict';
 
 
-var should = testUtils.should;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': ddoc', function () {
+  describe(dbType + ': test.ddoc.js', function () {
 
     it('should create an index', function () {
       var db = context.db;

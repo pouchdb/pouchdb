@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': $not', function () {
+  describe(dbType + ': test.not.js', function () {
 
     it('works with simple syntax', function () {
       var db = context.db;

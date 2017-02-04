@@ -1,10 +1,7 @@
 'use strict';
 
-
-var should = testUtils.should;
-
 testCases.push(function (dbType, context) {
-  describe(dbType + ': sorting', function () {
+  describe(dbType + ': test.sorting.js', function () {
 
     it('sorts correctly - just _id', function () {
       var db = context.db;

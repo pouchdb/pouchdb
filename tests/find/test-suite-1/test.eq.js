@@ -1,11 +1,8 @@
 'use strict';
 
-
-var should = testUtils.should;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': eq', function () {
+  describe(dbType + ': test.eq.js', function () {
     it('does eq queries', function () {
       var db = context.db;
       var index = {

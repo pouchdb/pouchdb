@@ -1,7 +1,7 @@
 'use strict';
 
 testCases.push(function (dbType, context) {
-  describe(dbType + ': $regex', function () {
+  describe(dbType + ': test.regex.js', function () {
 
     beforeEach(function () {
       return context.db.bulkDocs([

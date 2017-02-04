@@ -1,10 +1,8 @@
 'use strict';
 
 
-var should = testUtils.should;
-
 testCases.push(function (dbType, context) {
-  describe(dbType + ': Combinational', function () {
+  describe(dbType + ': test.combinational.js', function () {
 
     describe('$or', function () {
 

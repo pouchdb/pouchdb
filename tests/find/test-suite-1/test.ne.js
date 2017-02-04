@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': ne', function () {
+  describe(dbType + ': test.ne.js', function () {
 
     it('#7 does ne queries 1', function () {
       var db = context.db;

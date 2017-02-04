@@ -2,7 +2,7 @@
 
 
 testCases.push(function (dbType, context) {
-  describe(dbType + ': Array', function () {
+  describe(dbType + ': test.array.js', function () {
 
     beforeEach(function () {
       return context.db.bulkDocs([

@@ -1,11 +1,8 @@
 'use strict';
 
-
-var should = testUtils.should;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': defaultindex', function () {
+  describe(dbType + ': test.default-index.js', function () {
 
     it('uses all_docs with warning if no index found simple query 1', function () {
       var db = context.db;

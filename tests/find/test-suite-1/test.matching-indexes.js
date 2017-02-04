@@ -1,11 +1,10 @@
 'use strict';
 
-
-var sortById = testUtils.sortById;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': set-operations', function () {
+  var sortById = testUtils.sortById;
+
+  describe(dbType + ': test.matching-indexes.js', function () {
 
     beforeEach(function () {
       return context.db.bulkDocs([

@@ -1,11 +1,10 @@
 'use strict';
 
-
-var sortById = testUtils.sortById;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': exists', function () {
+  var sortById = testUtils.sortById;
+
+  describe(dbType + ': test.exists.js', function () {
 
     it('does $exists queries - true', function () {
       var db = context.db;

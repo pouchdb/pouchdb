@@ -1,11 +1,10 @@
 'use strict';
 
-var should = testUtils.should;
-var Promise = testUtils.Promise;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': basic', function () {
+  var Promise = testUtils.Promise;
+
+  describe(dbType + ': test.basic.js', function () {
 
     it('should create an index', function () {
       var db = context.db;

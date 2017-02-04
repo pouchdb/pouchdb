@@ -118,9 +118,10 @@ function buildModule(filepath) {
         standalone: camelCase(pkg.name)
       });
     }).then(function (code) {
+      var scriptName = 'dist/pouchdb.' + pkg.name;
       return all([
-        writeFile(addPath(pkg.name, 'dist/' + pkg.name + '.js'), code),
-        doUglify(pkg.name, code, '', 'dist/' + pkg.name + '.min.js')
+        writeFile(addPath(pkg.name, scriptName + '.js'), code),
+        doUglify(pkg.name, code, '', scriptName + '.min.js')
       ]);
     });
   });

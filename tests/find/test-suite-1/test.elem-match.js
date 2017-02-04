@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': $elemMatch', function () {
+  describe(dbType + ': test.elem-match.js', function () {
     if (dbType === 'http') { return;}
 
     beforeEach(function () {

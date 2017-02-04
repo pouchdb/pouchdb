@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': pick fields', function () {
+  describe(dbType + ': test.pick-fields.js', function () {
 
     it('should pick shallow fields', function () {
       var db = context.db;

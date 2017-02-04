@@ -5,13 +5,19 @@
     <title>Mocha Tests</title>
     <link rel="stylesheet" href="../../node_modules/mocha/mocha.css" />
     <script src="../../node_modules/mocha/mocha.js"></script>
+    <script src="../../node_modules/chai/chai.js"></script>
+    <script src="../../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
     <script>
-    mocha.setup('bdd');
+      mocha.setup({
+        timeout: 100000,
+        ui: 'bdd'
+      });
+      var should = chai.should();
+      var assert = chai.assert;
     </script>
   </head>
   <body>
     <div id="mocha"></div>
-    <script src='../../packages/node_modules/pouchdb-find/dist/pouchdb-find.js'></script>
     <script src='../integration/utils-bundle.js'></script>
     <script src='./test-setup.js'></script>
     <script src='./test-suite-1/test.and.js'></script>

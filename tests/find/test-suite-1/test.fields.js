@@ -1,11 +1,10 @@
 'use strict';
 
-
-var sortById = testUtils.sortById;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': fields', function () {
+  var sortById = testUtils.sortById;
+
+  describe(dbType + ': test.fields.js', function () {
 
     it('does 2-field queries', function () {
       var db = context.db;

@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': ltgt', function () {
+  describe(dbType + ': test.ltgt.js', function () {
     it('does gt queries', function () {
       var db = context.db;
       var index = {

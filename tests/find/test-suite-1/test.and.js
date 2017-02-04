@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': $and', function () {
+  describe(dbType + ': test.and.js', function () {
 
     it('does and for _id', function () {
       var db = context.db;

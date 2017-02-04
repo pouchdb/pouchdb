@@ -1,11 +1,8 @@
 'use strict';
 
-
-var should = testUtils.should;
-
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': errors', function () {
+  describe(dbType + ': test.errors.js', function () {
 
     it('error: gimme some args', function () {
       var db = context.db;

@@ -1,10 +1,7 @@
 'use strict';
 
-
-var should = testUtils.should;
-
 testCases.push(function (dbType, context) {
-  describe(dbType + ': $mod', function () {
+  describe(dbType + ': test.mod.js', function () {
 
     beforeEach(function () {
       return context.db.bulkDocs([

@@ -21,6 +21,9 @@ if (process.env.AUTO_COMPACTION) {
 if (process.env.POUCHDB_SRC) {
   queryParams.src = process.env.POUCHDB_SRC;
 }
+if (process.env.PLUGINS) {
+  queryParams.plugins = process.env.PLUGINS;
+}
 if (process.env.COUCH_HOST) {
   queryParams.couchHost = process.env.COUCH_HOST;
 }

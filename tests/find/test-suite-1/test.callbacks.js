@@ -5,7 +5,7 @@ var Promise = testUtils.Promise;
 
 testCases.push(function (dbType, context) {
 
-  describe(dbType + ': basic', function () {
+  describe(dbType + ': test.callbacks.js', function () {
 
     it('should create an index', function () {
       var db = context.db;
