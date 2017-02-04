@@ -23,3 +23,9 @@ var chai = require('chai');
 chai.use(require('chai-as-promised'));
 global.should = chai.should();
 global.assert = chai.assert;
+
+if (process.env.PLUGINS) {
+  process.env.PLUGINS.split(',').forEach(function (plugin) {
+    PouchDB.plugin(require('../../packages/node_modules/' + plugin));
+  });
+}

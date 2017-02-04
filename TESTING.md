@@ -217,6 +217,14 @@ Or even make the `preferredAdapters` list anything you want:
 
 Keep in mind that `preferredAdapters` only applies to non-http, non-https adapters.
 
+You can also inject (comma-separated) plugins into any test:
+
+    PLUGINS=pouchdb-find npm test
+
+Or as a query param:
+
+    http://localhost:8000/tests/index.html?plugins=pouchdb-find
+
 ### Installing a CouchDB server
 
 Regular install
