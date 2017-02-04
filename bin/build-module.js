@@ -23,6 +23,28 @@ var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
 var builtInModules = require('builtin-modules');
 var fs = require('fs');
+var buildUtils = require('./build-utils');
+var addPath = buildUtils.addPath;
+var doUglify = buildUtils.doUglify;
+var doBrowserify = buildUtils.doBrowserify;
+var writeFile = buildUtils.writeFile;
+var camelCase = require('change-case').camel;
+var all = Promise.all;
+
+// special case - pouchdb-for-coverage is heavily optimized because it's
+// simpler to run the coverage reports that way.
+// as for pouchdb-node/pouchdb-browser, these are heavily optimized
+// through aggressive bundling, ala pouchdb, because it's assumed that
+// for these packages bundle size is more important than modular deduping
+var AGGRESSIVELY_BUNDLED_PACKAGES =
+  ['pouchdb-for-coverage', 'pouchdb-node', 'pouchdb-browser'];
+// packages that only have a browser version
+var BROWSER_ONLY_PACKAGES =
+  ['pouchdb-browser'];
+// packages that need to publish a dist/ folder
+var PACKAGES_WITH_DIST_FOLDER =
+  ['pouchdb-find'];
+
 
 function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
@@ -33,13 +55,7 @@ function buildModule(filepath) {
   var depsToSkip = Object.keys(topPkg.dependencies || {})
     .concat(builtInModules);
 
-  var bundledPkgs = ['pouchdb-for-coverage', 'pouchdb-node', 'pouchdb-browser'];
-  if (bundledPkgs.indexOf(pkg.name) === -1) {
-    // special case - pouchdb-for-coverage is heavily optimized because it's
-    // simpler to run the coverage reports that way.
-    // as for pouchdb-node/pouchdb-browser, these are heavily optimized 
-    // through aggressive bundling, ala pouchdb, because it's assumed that
-    // for these packages bundle size is more important than modular deduping
+  if (AGGRESSIVELY_BUNDLED_PACKAGES.indexOf(pkg.name) === -1) {
     depsToSkip = depsToSkip.concat(pouchdbPackages);
   }
 
@@ -48,7 +64,7 @@ function buildModule(filepath) {
 
   // special case for "pouchdb-browser" - there is only one index.js,
   // and it's built in "browser mode"
-  var forceBrowser = pkg.name === 'pouchdb-browser';
+  var forceBrowser = BROWSER_ONLY_PACKAGES.indexOf(pkg.name) !== -1;
 
   return Promise.resolve().then(function () {
     return rimraf(path.resolve(filepath, 'lib'));
@@ -82,6 +98,18 @@ function buildModule(filepath) {
         }));
       });
     }));
+  }).then(function () {
+    if (PACKAGES_WITH_DIST_FOLDER.indexOf(pkg.name) !== -1) {
+      var thePath = path.resolve(filepath, 'lib/index-browser');
+      return doBrowserify(thePath, {
+        standalone: camelCase(pkg.name)
+      }).then(function (code) {
+        return all([
+          writeFile(addPath('dist/' + pkg.name + '.js'), code),
+          doUglify(code, '', 'dist/' + pkg.name + '.min.js')
+        ]);
+      });
+    }
   });
 }
 if (require.main === module) {

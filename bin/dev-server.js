@@ -115,11 +115,13 @@ function startServers(callback) {
       query += (query ? '&' : '?');
       query += key + '=' + encodeURIComponent(queryParams[key]);
     });
-    console.log('Integration tests: ' + testRoot +
+    console.log('Integration  tests: ' + testRoot +
                 '/tests/integration/' + query);
-    console.log('Map/reduce  tests: ' + testRoot +
+    console.log('Map/reduce   tests: ' + testRoot +
                 '/tests/mapreduce' + query);
-    console.log('Performance tests: ' + testRoot +
+    console.log('pouchdb-find tests: ' + testRoot +
+                '/tests/find/' + query);
+    console.log('Performance  tests: ' + testRoot +
                 '/tests/performance/' + query);
     serversStarted = true;
     checkReady();
