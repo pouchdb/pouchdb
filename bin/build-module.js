@@ -62,6 +62,14 @@ function buildModule(filepath) {
   // browser & node vs one single vanilla version
   var versions = pkg.browser ? [false, true] : [false];
 
+  // technically this is necessary in source code because browserify
+  // needs to know about the browser switches in the lib/ folder
+  if (pkg.browser && pkg.browser['./lib/index.js'] !==
+      './lib/index-browser.js') {
+    return Promise.reject(new Error(pkg.name +
+      ' is missing a "lib/index.js" entry in the browser field'));
+  }
+
   // special case for "pouchdb-browser" - there is only one index.js,
   // and it's built in "browser mode"
   var forceBrowser = BROWSER_ONLY_PACKAGES.indexOf(pkg.name) !== -1;
@@ -99,17 +107,22 @@ function buildModule(filepath) {
       });
     }));
   }).then(function () {
-    if (PACKAGES_WITH_DIST_FOLDER.indexOf(pkg.name) !== -1) {
-      var thePath = path.resolve(filepath, 'lib/index-browser');
-      return doBrowserify(thePath, {
-        standalone: camelCase(pkg.name)
-      }).then(function (code) {
-        return all([
-          writeFile(addPath('dist/' + pkg.name + '.js'), code),
-          doUglify(code, '', 'dist/' + pkg.name + '.min.js')
-        ]);
-      });
+    if (PACKAGES_WITH_DIST_FOLDER.indexOf(pkg.name) === -1) {
+      return;
     }
+    return rimraf(path.resolve(filepath, 'dist')).then(function () {
+      return mkdirp(path.resolve(filepath, 'dist'));
+    }).then(function () {
+      var thePath = path.resolve(filepath, 'lib/index-browser');
+      return doBrowserify(pkg.name, thePath, {
+        standalone: camelCase(pkg.name)
+      });
+    }).then(function (code) {
+      return all([
+        writeFile(addPath(pkg.name, 'dist/' + pkg.name + '.js'), code),
+        doUglify(pkg.name, code, '', 'dist/' + pkg.name + '.min.js')
+      ]);
+    });
   });
 }
 if (require.main === module) {

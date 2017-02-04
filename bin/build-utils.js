@@ -18,8 +18,8 @@ var renameAsync = denodeify(fs.rename);
 var streamToPromise = require('stream-to-promise');
 var spawn = require('child_process').spawn;
 
-function addPath(otherPath) {
-  return path.resolve('packages/node_modules/pouchdb', otherPath);
+function addPath(pkgName, otherPath) {
+  return path.resolve('packages/node_modules/' + pkgName, otherPath);
 }
 
 function writeFile(filename, contents) {
@@ -28,12 +28,12 @@ function writeFile(filename, contents) {
     return renameAsync(tmp, filename);
   }).then(function () {
     console.log('  \u2713' + ' wrote ' +
-      filename.match(/packages[\/\\]node_modules[\/\\]pouchdb[\/\\].*/)[0]);
+      filename.match(/packages[\/\\]node_modules[\/\\]\S*?[\/\\].*/)[0]);
   });
 }
 
 // do uglify in a separate process for better perf
-function doUglify(code, prepend, fileOut) {
+function doUglify(pkgName, code, prepend, fileOut) {
   if (DEV_MODE || TRAVIS) { // skip uglify in "npm run dev" mode and on Travis
     return Promise.resolve();
   }
@@ -46,26 +46,26 @@ function doUglify(code, prepend, fileOut) {
   child.stdin.end();
   return streamToPromise(child.stdout).then(function (min) {
     min = prepend + min;
-    return writeFile(addPath(fileOut), min);
+    return writeFile(addPath(pkgName, fileOut), min);
   });
 }
 
 var browserifyCache = {};
 
-function doBrowserify(filepath, opts, exclude) {
+function doBrowserify(pkgName, filepath, opts, exclude) {
 
   var bundler = browserifyCache[filepath];
 
   if (!bundler) {
     if (DEV_MODE) {
       opts.debug = true;
-      bundler = browserifyIncremental(addPath(filepath), opts)
+      bundler = browserifyIncremental(addPath(pkgName, filepath), opts)
         .on('time', function (time) {
           console.log('    took ' + time + ' ms to browserify ' +
             path.dirname(filepath) + '/' + path.basename(filepath));
         });
     } else {
-      bundler = browserify(addPath(filepath), opts)
+      bundler = browserify(addPath(pkgName, filepath), opts)
         .transform('es3ify')
         .plugin('bundle-collapser/plugin');
     }

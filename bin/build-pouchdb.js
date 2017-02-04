@@ -76,7 +76,7 @@ var comments = {
 function doRollup(entry, browser, formatsToFiles) {
   var start = process.hrtime();
   return rollup.rollup({
-    entry: addPath(entry),
+    entry: addPath('pouchdb', entry),
     external: external,
     plugins: rollupPlugins({
       skip: external,
@@ -93,7 +93,7 @@ function doRollup(entry, browser, formatsToFiles) {
         console.log('    took ' + ms + ' ms to rollup ' +
           path.dirname(entry) + '/' + path.basename(entry));
       }
-      return writeFile(addPath(fileOut), code);
+      return writeFile(addPath('pouchdb', fileOut), code);
     }));
   });
 }
@@ -116,13 +116,13 @@ function buildForBrowserify() {
 
 // build for the browser (dist)
 function buildForBrowser() {
-  return doBrowserify('lib/index-browser.js', {
+  return doBrowserify('pouchdb', 'lib/index-browser.js', {
     standalone: 'PouchDB'
   }).then(function (code) {
     code = comments.pouchdb + code;
     return all([
-      writeFile(addPath('dist/pouchdb.js'), code),
-      doUglify(code, comments.pouchdb, 'dist/pouchdb.min.js')
+      writeFile(addPath('pouchdb', 'dist/pouchdb.js'), code),
+      doUglify('pouchdb', code, comments.pouchdb, 'dist/pouchdb.min.js')
     ]);
   });
 }
@@ -138,30 +138,30 @@ function buildPluginsForBrowserify() {
 function buildPluginsForBrowser() {
   return all(plugins.map(function (plugin) {
     var source = 'lib/plugins/' + plugin + '.js';
-    return doBrowserify(source, {}, 'pouchdb').then(function (code) {
+    return doBrowserify('pouchdb', source, {}, 'pouchdb').then(function (code) {
       code = comments[plugin] + code;
       return all([
         writeFile('packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js', code),
-        doUglify(code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
+        doUglify('pouchdb', code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
       ]);
     });
   })).then(function () {
-    return rimraf(addPath('lib/plugins')); // no need for this after building dist/
+    return rimraf(addPath('pouchdb', 'lib/plugins')); // no need for this after building dist/
   });
 }
 
 function buildPouchDBNext() {
-  return doBrowserify('src/next.js', {standalone: 'PouchDB'}).then(function (code) {
+  return doBrowserify('pouchdb', 'src/next.js', {standalone: 'PouchDB'}).then(function (code) {
     return writeFile('packages/node_modules/pouchdb/dist/pouchdb-next.js', code);
   });
 }
 
 var rimrafMkdirp = argsarray(function (args) {
   return all(args.map(function (otherPath) {
-    return rimraf(addPath(otherPath));
+    return rimraf(addPath('pouchdb', otherPath));
   })).then(function () {
     return all(args.map(function (otherPath) {
-      return mkdirp(addPath(otherPath));
+      return mkdirp(addPath('pouchdb', otherPath));
     }));
   });
 });
@@ -175,7 +175,7 @@ var doAll = argsarray(function (args) {
 });
 
 function doBuildNode() {
-  return mkdirp(addPath('lib/plugins'))
+  return mkdirp(addPath('pouchdb', 'lib/plugins'))
     .then(buildForNode);
 }
 
