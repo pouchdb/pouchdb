@@ -331,6 +331,10 @@ testUtils.removeUnhandledRejectionListener = function (listener) {
     testUtils.getUnHandledRejectionEventName(), listener);
 };
 
+testUtils.sortById = function (a, b) {
+  return a._id < b._id ? -1 : 1;
+};
+
 if (typeof process !== 'undefined' && !process.browser) {
   if (process.env.COVERAGE) {
     global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
