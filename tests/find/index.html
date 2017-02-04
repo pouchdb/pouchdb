@@ -8,12 +8,11 @@
     <script>
     mocha.setup('bdd');
     </script>
-    <script src="./test-bundle.js"></script>
   </head>
   <body>
     <div id="mocha"></div>
+    <script src='../../packages/node_modules/pouchdb-find/dist/pouchdb-find.js'></script>
     <script src='../integration/utils-bundle.js'></script>
-    <script src='../../node_modules/packages/node_modules/pouchdb-find/dist/pouchdb.find.js'></script>
     <script src='./test-setup.js'></script>
     <script src='./test-suite-1/test.and.js'></script>
     <script src='./test-suite-1/test.array.js'></script>
