@@ -29,7 +29,7 @@ var doUglify = buildUtils.doUglify;
 var doBrowserify = buildUtils.doBrowserify;
 var writeFile = buildUtils.writeFile;
 var camelCase = require('change-case').camel;
-var all = Promise.all;
+var all = Promise.all.bind(Promise);
 
 // special case - pouchdb-for-coverage is heavily optimized because it's
 // simpler to run the coverage reports that way.
@@ -71,7 +71,7 @@ function buildModule(filepath) {
   }).then(function () {
     return mkdirp(path.resolve(filepath, 'lib'));
   }).then(function () {
-    return Promise.all(versions.map(function (isBrowser) {
+    return all(versions.map(function (isBrowser) {
       return rollup({
         entry: path.resolve(filepath, './src/index.js'),
         external: depsToSkip,
@@ -82,7 +82,7 @@ function buildModule(filepath) {
         })
       }).then(function (bundle) {
         var formats = ['cjs', 'es'];
-        return Promise.all(formats.map(function (format) {
+        return all(formats.map(function (format) {
           var dest = (isBrowser ? 'lib/index-browser' : 'lib/index') +
             (format === 'es' ? '.es.js' : '.js');
           return bundle.write({
