@@ -114,7 +114,7 @@ env:
   - COMMAND=test-fuzzy
   # need extra env variable COVERAGE here because of some subtlety in Travis containers not
   # passing the process.env.COVERAGE to the node process
-  - COMMAND=report-coverage COVERAGE=1 PLUGINS=pouchdb-find SERVER=pouchdb-server-stable
+  - COMMAND=report-coverage COVERAGE=1
   - COMMAND=verify-build
 
 matrix:
