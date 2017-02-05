@@ -82,6 +82,12 @@ the 5MB limit.
 
     $ TYPE=mapreduce npm test
 
+#### Run the pouchdb-find tests
+
+These are similar to the map/reduce tests:
+
+    $ TYPE=find PLUGINS=pouchdb-find npm test
+
 ### Testing against PouchDB server
 
 [pouchdb-server](https://github.com/nick-thompson/pouchdb-server) is a project that uses [express-pouchdb](https://github.com/nick-thompson/express-pouchdb) to run a CouchDB-compliant server backed by PouchDB.
