@@ -71,7 +71,7 @@
     "cssmin": "0.4.3",
     "denodeify": "1.2.1",
     "derequire": "2.0.6",
-    "es3ify": "0.2.2"
+    "es3ify": "0.2.2",
     "eslint": "3.15.0",
     "express": "4.14.1",
     "express-pouchdb": "2.2.0",
