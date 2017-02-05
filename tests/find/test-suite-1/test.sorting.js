@@ -123,12 +123,12 @@ testCases.push(function (dbType, context) {
       };
       return db.createIndex(index).then(function () {
         return db.bulkDocs([
-          { _id: '1', foo: 'AAA'},
-          { _id: '2', foo: 'aAA' },
-          { _id: '3', foo: 'BAA'},
-          { _id: '4', foo: 'bAA'},
-          { _id: '5', foo: '\u0000aAA'},
-          { _id: '6', foo: '\u0001AAA'}
+          { _id: '1', foo: 'aaa'},
+          { _id: '2', foo: '0aa' },
+          { _id: '3', foo: 'baa'},
+          { _id: '4', foo: '1aa'},
+          { _id: '5', foo: '\u00000aa'},
+          { _id: '6', foo: '\u0001aaa'}
         ]);
       }).then(function () {
         return db.find({
@@ -137,30 +137,16 @@ testCases.push(function (dbType, context) {
           "sort": [{"foo": "asc"}]
         });
       }).then(function (resp) {
-        // ASCII vs ICU ordering. just gonna hack this
-        if (dbType === 'http') {
-          resp.should.deep.equal({
-            "docs": [
-              { "_id": "2", "foo": "aAA"},
-              { "_id": "5", "foo": "\u0000aAA"},
-              { "_id": "1", "foo": "AAA"},
-              { "_id": "6", "foo": "\u0001AAA"},
-              { "_id": "4", "foo": "bAA"},
-              { "_id": "3", "foo": "BAA"}
-            ]
-          });
-        } else {
-          resp.should.deep.equal({
-            docs: [
-              { _id: '5', foo: '\u0000aAA' },
-              { _id: '6', foo: '\u0001AAA' },
-              { _id: '1', foo: 'AAA' },
-              { _id: '3', foo: 'BAA' },
-              { _id: '2', foo: 'aAA' },
-              { _id: '4', foo: 'bAA' }
-            ]
-          });
-        }
+        resp.should.deep.equal({
+          "docs": [
+            { "_id": "5", "foo": "\u00000aa" },
+            { "_id": "6", "foo": "\u0001aaa" },
+            { "_id": "2", "foo": "0aa" },
+            { "_id": "4", "foo": "1aa" },
+            { "_id": "1", "foo": "aaa" },
+            { "_id": "3", "foo": "baa" }
+          ]
+        });
       });
     });
 
