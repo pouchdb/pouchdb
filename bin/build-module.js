@@ -10,8 +10,7 @@
 'use strict';
 
 var rollup = require('rollup').rollup;
-var nodeResolve = require('rollup-plugin-node-resolve');
-var replace = require('rollup-plugin-replace');
+var rollupPlugins = require('./rollupPlugins');
 
 var path = require('path');
 var lie = require('lie');
@@ -44,11 +43,6 @@ function buildModule(filepath) {
     depsToSkip = depsToSkip.concat(pouchdbPackages);
   }
 
-  if (pkg.browser && pkg.browser['./lib/index.js'] !== './lib/index-browser.js') {
-    return Promise.reject(new Error(pkg.name +
-      ' is missing a "lib/index.js" entry in the browser field'));
-  }
-
   // browser & node vs one single vanilla version
   var versions = pkg.browser ? [false, true] : [false];
 
@@ -65,26 +59,13 @@ function buildModule(filepath) {
       return rollup({
         entry: path.resolve(filepath, './src/index.js'),
         external: depsToSkip,
-        plugins: [
-          nodeResolve({
-            skip: depsToSkip,
-            jsnext: true,
-            browser: isBrowser || forceBrowser
-          }),
-          replace({
-            // we have switches for coverage; don't ship this to consumers
-            'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
-            // test for fetch vs xhr
-            'process.env.FETCH': JSON.stringify(!!process.env.FETCH)
-          })
-        ]
+        plugins: rollupPlugins({
+          skip: depsToSkip,
+          jsnext: true,
+          browser: isBrowser || forceBrowser
+        })
       }).then(function (bundle) {
-        var formats = ['cjs'];
-        if (bundledPkgs.indexOf(pkg.name) !== -1) {
-          // any packages that are aggressively bundled will also have their
-          // npm deps inlined. This means that we need a separate jsnext:main build.
-          formats.push('es');
-        }
+        var formats = ['cjs', 'es'];
         return Promise.all(formats.map(function (format) {
           var dest = (isBrowser ? 'lib/index-browser' : 'lib/index') +
             (format === 'es' ? '.es.js' : '.js');

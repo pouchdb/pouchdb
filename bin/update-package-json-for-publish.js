@@ -4,6 +4,8 @@
 // to reflect the true dependencies (automatically determined by require())
 // and update the version numbers to reflect the version from the top-level
 // dependencies list. Also throw an error if a dep is not declared top-level.
+// Also add necessary "browser" switches to each package.json, as well as
+// other fields like "jsnext:main" and "files".
 
 var fs = require('fs');
 var path = require('path');
@@ -47,6 +49,19 @@ modules.forEach(function (mod) {
       throw new Error('Unknown dependency ' + dep);
     }
   });
+
+  // add "browser" switches for both CJS and ES modules
+  if (pkg.browser) {
+    pkg.browser = {
+      './lib/index.js': './lib/index-browser.js',
+      './lib/index.es.js': './lib/index-browser.es.js',
+    };
+  }
+  // update jsnext:main to point to lib/ rather than src/. src/ is only
+  // used for building, not publishing
+  pkg['jsnext:main'] = './lib/index.es.js';
+  // whitelist the files we'll actually publish
+  pkg.files = ['lib', 'dist', 'tonic-example.js'];
 
   var jsonString = JSON.stringify(pkg, null, '  ') + '\n';
   fs.writeFileSync(pkgPath, jsonString, 'utf8');

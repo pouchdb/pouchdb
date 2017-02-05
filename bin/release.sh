@@ -21,7 +21,7 @@ BUILD_DIR=build_"${RANDOM}"
 git checkout -b $BUILD_DIR
 
 # Update dependency versions inside each package.json (replace the "*")
-node bin/update-dependencies.js
+node bin/update-package-json-for-publish.js
 
 # Publish all modules with Lerna
 for pkg in $(ls packages/node_modules); do
