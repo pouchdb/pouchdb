@@ -271,6 +271,15 @@ When you fetch attachments, however, `getAttachment()` will always return Blobs/
 
 The other "read" APIs, such as `get()`, `allDocs()`, `changes()`, and `query()` have an `{attachments: true}` option that returns the attachments base64-encoded strings. If you add `{binary: true}`, though, they will return Blobs/Buffers.
 
+{% include alert/start.html variant="info" %}
+{% markdown %}
+
+**Performance tip:** If you can insert and retrieve your attachments using _only_ Blobs/Buffers, then you will typically get better performance, especially when it comes to memory usage. The base64 string format is mostly provided for developer convenience and debugging.
+
+{% endmarkdown %}
+{% include alert/end.html %}
+
+
 {% include anchor.html title="Blob types" hash="blob-types" %}
 
 Blobs have their own `type`, but there is also a `content_type` that you specify when you store it in PouchDB:
