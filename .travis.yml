@@ -77,8 +77,8 @@ env:
   - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Test pouchdb-find
-  - TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=pouchdb-server-stable COMMAND=test
-  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox:47.0.2 SERVER=pouchdb-server-stable COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=pouchdb-server COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox:47.0.2 SERVER=pouchdb-server COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
@@ -114,7 +114,7 @@ env:
   - COMMAND=test-fuzzy
   # need extra env variable COVERAGE here because of some subtlety in Travis containers not
   # passing the process.env.COVERAGE to the node process
-  - COMMAND=report-coverage COVERAGE=1
+  - COMMAND=report-coverage COVERAGE=1 SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find
   - COMMAND=verify-build
 
 matrix:
