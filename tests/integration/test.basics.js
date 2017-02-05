@@ -1136,10 +1136,10 @@ adapters.forEach(function (adapter) {
       });
 
       it('6053, PouchDB.plugin() resets defaults', function () {
-        var db = PouchDB.defaults({foo: 'bar'});
-        var db2 = db.plugin({foo: function () {}});
-        should.exist(db2.__defaults);
-        db.__defaults.should.deep.equal(db2.__defaults);
+        var PouchDB1 = PouchDB.defaults({foo: 'bar'});
+        var PouchDB2 = PouchDB1.plugin({foo: function () {}});
+        should.exist(PouchDB2.__defaults);
+        PouchDB1.__defaults.should.deep.equal(PouchDB2.__defaults);
        });
     }
 
