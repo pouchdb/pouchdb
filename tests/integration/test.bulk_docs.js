@@ -307,6 +307,69 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('bulk docs update then delete then conflict', function () {
+      var db = new PouchDB(dbs.name);
+      var docs= [{_id: '1'}];
+      return db.bulkDocs(docs).then(function (res) {
+        should.not.exist(res[0].error, 'no error');
+        docs[0]._rev = res[0].rev;
+        return db.bulkDocs(docs);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'no error');
+        docs[0]._rev = res[0].rev;
+        docs[0]._deleted = true;
+        return db.bulkDocs(docs);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'no error');
+        return db.bulkDocs(docs);
+      }).then(function (res) {
+        should.exist(res[0].error, 'has an error');
+        res[0].name.should.equal(
+          'conflict', 'First doc should be in conflict');
+      });
+    });
+
+    it('bulk docs update then delete then update', function () {
+      var db = new PouchDB(dbs.name);
+      var docs= [{_id: '1'}];
+      return db.bulkDocs(docs).then(function (res) {
+        should.not.exist(res[0].error, 'no error');
+        docs[0]._rev = res[0].rev;
+        return db.bulkDocs(docs);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'no error');
+        docs[0]._rev = res[0].rev;
+        docs[0]._deleted = true;
+        return db.bulkDocs(docs);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'no error');
+        docs[0]._rev = res[0].rev;
+        return db.bulkDocs(docs);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'no error');
+      });
+    });
+
+    it('bulk_docs delete then update then undelete', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: '1'};
+      return db.bulkDocs([doc]).then(function (res) {
+        should.not.exist(res[0].error, 'should not be an error 1');
+        doc._rev = res[0].rev;
+        doc._deleted = true;
+        return db.bulkDocs([doc]);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'should not be an error 2');
+        doc._rev = res[0].rev;
+        return db.bulkDocs([doc]);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'should not be an error 3');
+        doc._rev = res[0].rev;
+        doc._deleted = false;
+        return db.bulkDocs([doc]);
+      });
+    });
+
     it('#2935 new_edits=false with single unauthorized', function (done) {
 
       testUtils.isCouchDB(function (isCouchDB) {
