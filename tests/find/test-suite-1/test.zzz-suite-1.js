@@ -1,9 +1,6 @@
 'use strict';
 
-['local', 'http'].forEach(function (adapter) {
-
-  var dbName = testUtils.adapterUrl(adapter, 'testdb');
-
+['http', 'local'].forEach(function (adapter) {
   describe('pouchdb-find: ' + adapter + ': test.zzz-suite-1.js', function () {
     this.timeout(100000);
 
@@ -11,13 +8,14 @@
 
     beforeEach(function () {
       this.timeout(60000);
-
+      var dbName = testUtils.adapterUrl(adapter, 'testdb');
+      console.log('dbName', dbName);
       context.db = new PouchDB(dbName);
       return context.db;
     });
     afterEach(function () {
       this.timeout(60000);
-      return context.db.destroy();
+      return context.db.destroy(); 
     });
 
     testCases.forEach(function (testCase) {
