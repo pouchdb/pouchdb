@@ -9,7 +9,7 @@
     beforeEach(function () {
       this.timeout(60000);
       var dbName = testUtils.adapterUrl(adapter, 'testdb');
-      console.log('dbname', dbName);
+      console.log('dbName', dbName);
       context.db = new PouchDB(dbName);
       return context.db;
     });
