@@ -3867,7 +3867,7 @@ repl_adapters.forEach(function (adapters) {
 
       db.put(doc).then(function () {
         return db.get('x');
-      }).then(function (doc){
+      }).then(function (doc) {
         var digests = Object.keys(doc._attachments).map(function (a) {
           return doc._attachments[a].digest;
         });

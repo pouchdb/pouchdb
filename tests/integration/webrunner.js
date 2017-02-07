@@ -82,7 +82,7 @@ function startTests() {
     // Capture logs for selenium output
     var logs = [];
 
-    (function (){
+    (function () {
 
       var oldLog = console.log;
       console.log = function () {
