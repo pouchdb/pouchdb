@@ -36,6 +36,8 @@
     "semi": ["error", "always"],
     "curly": ["error", "all"],
     "space-unary-ops": ["error", {"words": true}],
-    "space-before-function-paren": ["error", {"anonymous": "always", "named": "never"}]
+    "space-before-function-paren": ["error", {"anonymous": "always", "named": "never"}],
+    "max-len": ["error", 100, {"ignoreComments": true, "ignoreStrings": true, "ignoreRegExpLiterals": true}]
+   
   }
 }
