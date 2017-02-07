@@ -56,10 +56,6 @@ env:
   matrix:
   - CLIENT=node COMMAND=test
 
-  # Test pouchdb-find, adding them here so they run in the beginning while I'm testing
-  - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
-  - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-master COMMAND=test
-
   # Test WebSQL in Node (using node-websql)
   - CLIENT=node ADAPTER=websql COMMAND=test
 
@@ -79,6 +75,10 @@ env:
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox:47.0.2 COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
+
+  # Test pouchdb-find
+  - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox:47.0.2 SERVER=pouchdb-server COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
