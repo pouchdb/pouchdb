@@ -38,6 +38,7 @@
     "space-unary-ops": ["error", {"words": true}],
     "space-before-function-paren": ["error", {"anonymous": "always", "named": "never"}],
     "max-len": ["error", 100, {"ignoreComments": true, "ignoreStrings": true, "ignoreRegExpLiterals": true}],
-    "curly": ["error"]  
+    "curly": ["error"],
+    "keyword-spacing": ["error"]
   }
 }

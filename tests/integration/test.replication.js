@@ -2393,7 +2393,7 @@ adapters.forEach(function (adapters) {
       // place in the 'changes' function
       var changes = source.changes;
       source.changes = function (opts) {
-        if(mismatch) {
+        if (mismatch) {
           // We expect this replication to start over,
           // so the correct value of since is 0
           // if it's higher, the replication read the checkpoint
@@ -2477,7 +2477,7 @@ adapters.forEach(function (adapters) {
       var changes = source.changes;
 
       source.changes = function (opts) {
-        if(mismatch) {
+        if (mismatch) {
           // If we resolve to 0, the checkpoint resolver has not
           // been going through the sessions
           opts.since.should.not.equal(0);
