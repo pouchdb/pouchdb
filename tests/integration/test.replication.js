@@ -64,7 +64,7 @@ adapters.forEach(function (adapters) {
       }
       // CSG will send a change event when just the ACL changed
       if (testUtils.isSyncGateway()) {
-        changes = changes.filter(function (change){
+        changes = changes.filter(function (change) {
           return change.id !== "_user/";
         });
       }
@@ -307,7 +307,7 @@ adapters.forEach(function (adapters) {
         return db.allDocs({keys: ['foo']});
       }).then(function (res) {
         if (testUtils.isSyncGateway() && !res.rows[0].value) {
-          return remote.get('foo', {open_revs:'all'}).then(function (doc){
+          return remote.get('foo', {open_revs:'all'}).then(function (doc) {
             return db.put({_id: 'foo', _rev: doc[0].ok._rev});
           });
         } else {
@@ -2393,7 +2393,7 @@ adapters.forEach(function (adapters) {
       // place in the 'changes' function
       var changes = source.changes;
       source.changes = function (opts) {
-        if(mismatch) {
+        if (mismatch) {
           // We expect this replication to start over,
           // so the correct value of since is 0
           // if it's higher, the replication read the checkpoint
@@ -2477,7 +2477,7 @@ adapters.forEach(function (adapters) {
       var changes = source.changes;
 
       source.changes = function (opts) {
-        if(mismatch) {
+        if (mismatch) {
           // If we resolve to 0, the checkpoint resolver has not
           // been going through the sessions
           opts.since.should.not.equal(0);
@@ -3892,7 +3892,7 @@ adapters.forEach(function (adapters) {
         return db.allDocs();
       }).then(function (res) {
         res.rows.should.have.length(2);
-      }).then(function (){
+      }).then(function () {
         return remote.get('a');
       }).then(function (doc) {
         return remote.remove(doc);
@@ -4094,7 +4094,7 @@ adapters.forEach(function (adapters) {
 
 // This test only needs to run for one configuration, and it slows stuff
 // down
-downAdapters.map(function (){
+downAdapters.map(function () {
 
   describe('suite2 test.replication.js-down-test', function () {
 

@@ -83,7 +83,7 @@ A useful feature of plugins is to intercept updates before they are stored in Po
 
 The best way to intercept all updates to a PouchDB database is to **override the `bulkDocs()` method**. All changes to PouchDB documents ultimately pass through the `bulkDocs()` method. For example, a call to `put()` will become become a `bulkDocs()` call with a "batch" of one document.
 
-Because PouchDB guarantees to plugin authors that all data changes ultimate happen via `bulkDocs()`, it is the ideal place for an application or plugin to intercept updates.
+Because PouchDB guarantees to plugin authors that all data changes ultimately happen via `bulkDocs()`, it is the ideal place for an application or plugin to intercept updates.
 
 {% highlight js %}
 // Keep a reference to the "upstream" function.

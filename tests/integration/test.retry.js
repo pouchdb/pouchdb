@@ -363,7 +363,7 @@ adapters.forEach(function (adapters) {
                 if (typeof originalNumListeners !== 'number') {
                   originalNumListeners = numListeners;
                 } else {
-                  if(event === "paused") {
+                  if (event === "paused") {
                     Math.abs(numListeners -  originalNumListeners).should.be.at.most(1);
                   } else {
                     Math.abs(numListeners -  originalNumListeners).should.be.eql(0);

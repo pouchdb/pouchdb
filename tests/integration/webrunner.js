@@ -88,6 +88,7 @@
       // Capture logs for selenium output
       var logs = [];
 
+
       (function () {
 
         var oldLog = console.log;
