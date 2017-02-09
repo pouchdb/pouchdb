@@ -193,7 +193,8 @@ testUtils.putTree = function (db, tree, callback) {
 
 testUtils.isCouchDB = function (cb) {
   testUtils.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
-    cb('couchdb' in res);
+    // either CouchDB or pouchdb-server qualify here
+    cb('couchdb' in res || 'express-pouchdb' in res);
   });
 };
 
