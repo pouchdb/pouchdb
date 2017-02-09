@@ -73,7 +73,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('[4595] should reject xhr errors', function (done){
+    it('[4595] should reject xhr errors', function (done) {
       var invalidUrl = 'http:///';
       new PouchDB(dbs.name).replicate.to(invalidUrl, {}).catch(function () {
         done();
@@ -81,7 +81,7 @@ adapters.forEach(function (adapter) {
 
     });
 
-    it('[4595] should emit error event on xhr error', function (done){
+    it('[4595] should emit error event on xhr error', function (done) {
       var invalidUrl = 'http:///';
       new PouchDB(dbs.name).replicate.to(invalidUrl,{})
         .on('error', function () { done(); });

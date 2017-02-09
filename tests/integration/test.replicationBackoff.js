@@ -41,7 +41,7 @@ adapters.forEach(function (adapters) {
         }
       });
 
-      replication.on("complete", function (){
+      replication.on("complete", function () {
         if (numberOfActiveListeners > 3) {
           done(new Error("Number of 'active' listeners shouldn't grow larger than one.  Currently at " + numberOfActiveListeners));
         } else {
