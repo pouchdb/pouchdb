@@ -92,7 +92,7 @@
     "mocha": "3.2.0",
     "mockery": "2.0.0",
     "ncp": "2.0.0",
-    "nock": "9.0.4",
+    "nock": "9.0.5",
     "pouchdb-express-router": "0.0.9",
     "replace": "0.3.0",
     "rimraf": "2.5.4",
