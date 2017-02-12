@@ -64,9 +64,9 @@ Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchd
 
 Hoodie-like API for PouchDB. ([Documentation](http://hoodiehq.github.io/pouchdb-hoodie-api/))
 
-#### [PouchDB Hoodie Store](https://www.npmjs.com/package/pouchdb-hoodie-store)
+#### [PouchDB Hoodie Store Client](https://www.npmjs.com/package/@hoodie/store-client)
 
-PouchDB with Hoodie's Store API.
+PouchDB Hoodie-like API for data persistence & offline sync. 
 
 #### [PouchDB List](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
