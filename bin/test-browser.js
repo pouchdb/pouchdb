@@ -40,6 +40,8 @@ if (process.env.PERF) {
   testUrl = testRoot + 'fuzzy/index.html';
 } else if (process.env.TYPE === 'mapreduce') {
   testUrl = testRoot + 'mapreduce/index.html';
+} else if (process.env.TYPE === 'find') {
+  testUrl = testRoot + 'find/index.html';
 } else {
   testUrl = testRoot + 'integration/index.html';
 }
