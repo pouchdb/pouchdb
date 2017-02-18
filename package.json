@@ -95,7 +95,7 @@
     "nock": "9.0.6",
     "pouchdb-express-router": "0.0.9",
     "replace": "0.3.0",
-    "rimraf": "2.5.4",
+    "rimraf": "2.6.0",
     "rollup": "0.41.4",
     "rollup-plugin-inject": "2.0.0",
     "rollup-plugin-node-resolve": "2.0.0",
