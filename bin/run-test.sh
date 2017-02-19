@@ -7,13 +7,16 @@ if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
       # for pouchdb-server to link to pouchdb, only in travis
-      rm -fr ./node_modules/pouchdb-server/node_modules/pouchdb
-      ln -s ../../.. ./node_modules/pouchdb-server/node_modules/pouchdb
+      npm install pouchdb-server
+      npm link
+      cd node_modules/pouchdb-server
+      npm link pouchdb
+      cd ../..
     fi
     export COUCH_HOST='http://127.0.0.1:6984'
     TESTDIR=./tests/pouchdb_server
     rm -rf $TESTDIR && mkdir -p $TESTDIR
-    FLAGS="--dir $TESTDIR"
+    FLAGS="$POUCHDB_SERVER_FLAGS --dir $TESTDIR"
     echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
     ./node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!

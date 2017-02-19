@@ -82,6 +82,12 @@ the 5MB limit.
 
     $ TYPE=mapreduce npm test
 
+#### Run the pouchdb-find tests
+
+These are similar to the map/reduce tests:
+
+    $ TYPE=find PLUGINS=pouchdb-find npm test
+
 ### Testing against PouchDB server
 
 [pouchdb-server](https://github.com/nick-thompson/pouchdb-server) is a project that uses [express-pouchdb](https://github.com/nick-thompson/express-pouchdb) to run a CouchDB-compliant server backed by PouchDB.
@@ -216,6 +222,14 @@ Or even make the `preferredAdapters` list anything you want:
     http://localhost:8000/tests/index.html?adapters=websql,memory,idb,localstorage
 
 Keep in mind that `preferredAdapters` only applies to non-http, non-https adapters.
+
+You can also inject (comma-separated) plugins into any test:
+
+    PLUGINS=pouchdb-find npm test
+
+Or as a query param:
+
+    http://localhost:8000/tests/index.html?plugins=pouchdb-find
 
 ### Installing a CouchDB server
 

@@ -40,6 +40,8 @@ if (process.env.PERF) {
   testUrl = testRoot + 'fuzzy/index.html';
 } else if (process.env.TYPE === 'mapreduce') {
   testUrl = testRoot + 'mapreduce/index.html';
+} else if (process.env.TYPE === 'find') {
+  testUrl = testRoot + 'find/index.html';
 } else {
   testUrl = testRoot + 'integration/index.html';
 }
@@ -73,6 +75,9 @@ if (process.env.SKIP_MIGRATION) {
 }
 if (process.env.POUCHDB_SRC) {
   qs.src = process.env.POUCHDB_SRC;
+}
+if (process.env.PLUGINS) {
+  qs.plugins = process.env.PLUGINS;
 }
 if (process.env.COUCH_HOST) {
   qs.couchHost = process.env.COUCH_HOST;

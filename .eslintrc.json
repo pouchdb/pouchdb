@@ -27,7 +27,8 @@
     "should": true,
     "assert": true,
     "testUtils": true,
-    "importScripts": true
+    "importScripts": true,
+    "testCases": true
   },
 
   "rules": {
