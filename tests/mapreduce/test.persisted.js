@@ -670,6 +670,23 @@ function tests(suiteName, dbName, dbType) {
       });
     });
 
+    it('should throw when user supplies map func unallowed by strict mode (#6234)', function () {
+      var db = new PouchDB(dbName);
+      var doc = {
+        _id: '_design/barbar',
+        views: {
+          scores: {
+            map: "function() { globalVar = 'hello'; })()"
+          }
+        }
+      };
+      return db.post(doc).then(function (success, failure) {
+        should.not.exist(success);
+        should.exist(failure);
+      });
+    });
+
+
     var isNode = typeof window === 'undefined';
     if (dbType === 'local' && isNode) {
       it('#239 test memdown db', function () {
