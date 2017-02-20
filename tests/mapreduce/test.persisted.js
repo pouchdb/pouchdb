@@ -672,17 +672,25 @@ function tests(suiteName, dbName, dbType) {
 
     it('should throw when user supplies map func unallowed by strict mode (#6234)', function () {
       var db = new PouchDB(dbName);
-      var doc = {
+      var ddoc = {
         _id: '_design/barbar',
         views: {
           scores: {
-            map: "function() { globalVar = 'hello'; })()"
+            map: "function() { globalVar = 'hello'; }"
           }
         }
       };
-      return db.post(doc).then(function (success, failure) {
-        should.not.exist(success);
-        should.exist(failure);
+      var doc = {
+        _id: 'foo',
+        firstName: 'Foobar',
+        lastName: 'Bazman'
+      };
+      return db.bulkDocs({docs: [ddoc, doc]}).then(function () {
+        return db.query('barbar/scores').then(function () {
+          throw new Error('expected an error in strict mode');
+        }, function (err) {
+          should.exist(err);
+        });
       });
     });
 
