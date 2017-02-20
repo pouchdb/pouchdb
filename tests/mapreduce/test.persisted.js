@@ -784,7 +784,7 @@ function tests(suiteName, dbName, dbType) {
           firstName: 'Foobar',
           lastName: 'Bazman'
         };
-        return db.bulkDocs({docs: [ddoc, doc]}).then(function () {
+        db.bulkDocs({docs: [ddoc, doc]}).then(function () {
           return db.query('barbar/scores').then(function () {
             throw new Error('expected an error in strict mode');
           }, function (err) {
