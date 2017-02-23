@@ -93,7 +93,7 @@
     "mocha": "3.2.0",
     "mockery": "2.0.0",
     "ncp": "2.0.0",
-    "nock": "9.0.5",
+    "nock": "9.0.7",
     "pouchdb-express-router": "0.0.9",
     "query-string": "4.3.1",
     "replace": "0.3.0",
