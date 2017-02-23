@@ -293,7 +293,7 @@ Example result:
 * `limit` (Optional) Maximum number of documents to return.
 * `skip` (Optional) Number of docs to skip before returning.
 
-If there's no index that matches your `selector`/`sort`, then this method will throw an error. This is a good thing, because it means it's pretty much impossible to write a slow query. :)
+If there's no index that matches your `selector`/`sort`, then this method will issue a warning.
 
 The best index will be chosen automatically. If you want to see the query plan for your query, then turn on [debugging](#debugging).
 
