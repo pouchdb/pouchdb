@@ -4089,6 +4089,59 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Replication filter using selector', function (done) {
+      // only supported in CouchDB 2.x and later
+      if (!testUtils.isCouchMaster()) {
+        done();
+        return;
+      }
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docs1 = [
+        {_id: '0', user: 'foo'},
+        {_id: '1', user: 'bar'},
+        {_id: '2', user: 'foo'},
+        {_id: '3', user: 'bar'}
+      ];
+      remote.bulkDocs({ docs: docs1 }, function () {
+        db.replicate.from(remote, {
+          selector: {'user':'foo'}
+        }).on('error', done).on('complete', function () {
+          db.allDocs(function (err, docs) {
+            if (err) { done(err); }
+            docs.rows.length.should.equal(2);
+            db.info(function (err, info) {
+              verifyInfo(info, {
+                doc_count: 2
+              });
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('Invalid selector', function () {
+      // only supported in CouchDB 2.x and later or PouchDB
+      if (!testUtils.isCouchMaster()) {
+        return;
+      }
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var thedocs = [
+        {_id: '3', integer: 3, string: '3'},
+        {_id: '4', integer: 4, string: '4'},
+        {_id: '5', integer: 5, string: '5'}
+      ];
+      return remote.bulkDocs({docs: thedocs}).then(function () {
+        return db.replicate.from(remote, {selector: 'foo'});
+      }).catch(function (err) {
+        err.name.should.equal('bad_request');
+        err.reason.should.contain('expected a JSON object');
+      });
+    });
+
   });
 });
 
