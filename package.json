@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "argsarray": "0.0.1",
-    "body-parser": "1.16.1",
+    "body-parser": "1.17.0",
     "browserify": "14.0.0",
     "browserify-incremental": "3.1.1",
     "builtin-modules": "1.1.1",
