@@ -330,6 +330,11 @@ adapters.forEach(function (adapter) {
     });
 
     it('bulk docs update then delete then update', function () {
+      // Not supported in CouchDB 2.x, see COUCHDB-2386
+      if (testUtils.isCouchMaster()) {
+        return;
+      }
+
       var db = new PouchDB(dbs.name);
       var docs= [{_id: '1'}];
       return db.bulkDocs(docs).then(function (res) {
@@ -350,7 +355,33 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('bulk_docs delete then undelete', function () {
+      var db = new PouchDB(dbs.name);
+      var doc = {_id: '1'};
+      return db.bulkDocs([doc]).then(function (res) {
+        should.not.exist(res[0].error, 'should not be an error 1');
+        doc._rev = res[0].rev;
+        doc._deleted = true;
+        return db.bulkDocs([doc]);
+      }).then(function (res) {
+        should.not.exist(res[0].error, 'should not be an error 2');
+        // Not supported in CouchDB 2.x, see COUCHDB-2386
+        if (adapter === 'http' && testUtils.isCouchMaster()) {
+          delete doc._rev;
+        } else {
+          doc._rev = res[0].rev;
+        }
+        doc._deleted = false;
+        return db.bulkDocs([doc]);
+      });
+    });
+
     it('bulk_docs delete then update then undelete', function () {
+      // Not supported in CouchDB 2.x, see COUCHDB-2386
+      if (testUtils.isCouchMaster()) {
+        return;
+      }
+
       var db = new PouchDB(dbs.name);
       var doc = {_id: '1'};
       return db.bulkDocs([doc]).then(function (res) {
