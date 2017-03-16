@@ -98,7 +98,7 @@ env:
   # Test Webpack bundle
   - CLIENT=selenium:firefox:47.0.2 COMMAND=test-webpack
 
-  # Test CouchDB master (aka bigcouch branch)
+  # Test CouchDB stable
   - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
   - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-master COMMAND=test
 
@@ -126,9 +126,6 @@ matrix:
     - node_js: "7"
       services: docker
       env: CLIENT=node COMMAND=test
-  allow_failures:
-  - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - env: COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-master COMMAND=test
 
 branches:
   only:
