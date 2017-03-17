@@ -24,8 +24,9 @@
   }
   if (plugins) {
     plugins[1].split(',').forEach(function (plugin) {
+      plugin = plugin.replace(/^pouchdb-/, '');
       scriptsToLoad.push(
-        '../../packages/node_modules/' + plugin + '/dist/pouchdb.' + plugin + '.js');
+        '../../packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js');
     });
   }
 
