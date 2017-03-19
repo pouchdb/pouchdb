@@ -1,21 +1,22 @@
-{% include anchor.html edit="true" title="Query the database" hash="query_database" %}
+{% include anchor.html edit="true" title="Map/reduce queries" hash="query_database" %}
 
 {% highlight js %}
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Invoke a map/reduce function, which allows you to perform more complex queries on PouchDB than what you get with [allDocs()](#batch_fetch). The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
+Invoke a map/reduce function, which allows you to perform more complex queries on PouchDB than what you get with [allDocs()](#batch_fetch), [changes()](#changes), or [find()](#query_index). The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
 
 Since views perform a full scan of all documents, this method may be slow, unless you first save your view in a design document. Read the [query guide](/guides/queries.html) for a good tutorial.
 
-{% include alert/start.html variant="info"%}
-
+{% include alert/start.html variant="warning"%}
 {% markdown %}
 
-**Heads up:** eventually the `query()` API will be deprecated in favor of the much simpler  [pouchdb-find plugin](https://github.com/nolanlawson/pouchdb-find). You will still be able to use `query()`, but it will be distributed as [a separate plugin](https://github.com/pouchdb/mapreduce).
+**Warning: advanced API.** The map/reduce API is designed for cases that are too complex for Mango queries, which are described in
+[createIndex()](#create_index), [find()](#query_index), [listIndexes()](#list_indexes), and [deleteIndex()](#delete_index).
+
+Under the hood, Mango indexes are the same as map/reduce indexes. The Mango API is just a simplified user-facing API on top of map/reduce.
 
 {% endmarkdown %}
-
 {% include alert/end.html%}
 
 ### Options
