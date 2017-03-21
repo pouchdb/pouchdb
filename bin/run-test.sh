@@ -6,12 +6,18 @@
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
-      # for pouchdb-server to link to pouchdb, only in travis
+      # in travis, link pouchdb-servers dependencies on pouchdb
+      # modules to the current implementations
       npm install pouchdb-server
-      npm link
-      cd node_modules/pouchdb-server
-      npm link pouchdb
-      cd ../..
+      for pkg in pouchdb-adapter-http pouchdb-adapter-leveldb \
+          pouchdb-core pouchdb-find pouchdb-mapreduce \
+          pouchdb-replication; do
+        cd packages/node_modules/${pkg}
+        npm link
+        cd ../../../node_modules/pouchdb-server
+        npm link ${pkg}
+        cd ../..
+      done
     fi
     export COUCH_HOST='http://127.0.0.1:6984'
     TESTDIR=./tests/pouchdb_server
