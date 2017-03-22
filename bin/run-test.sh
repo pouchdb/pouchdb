@@ -6,19 +6,31 @@
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
-      # for pouchdb-server to link to pouchdb, only in travis
+      # in travis, link pouchdb-servers dependencies on pouchdb
+      # modules to the current implementations
+      mkdir pouchdb-server-install
+      cd pouchdb-server-install
+      npm init -y
       npm install pouchdb-server
-      npm link
-      cd node_modules/pouchdb-server
-      npm link pouchdb
-      cd ../..
+      cd ..
+      for pkg in pouchdb-adapter-http pouchdb-adapter-leveldb \
+          pouchdb-core pouchdb-find pouchdb-mapreduce \
+          pouchdb-replication; do
+        cd packages/node_modules/${pkg}
+        npm link
+        cd ../../../pouchdb-server-install/node_modules/pouchdb-server
+        npm link ${pkg}
+        cd ../express-pouchdb
+        npm link ${pkg}
+        cd ../../..
+      done
     fi
     export COUCH_HOST='http://127.0.0.1:6984'
     TESTDIR=./tests/pouchdb_server
     rm -rf $TESTDIR && mkdir -p $TESTDIR
     FLAGS="$POUCHDB_SERVER_FLAGS --dir $TESTDIR"
     echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
-    ./node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
+    ./pouchdb-server-install/node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!
   elif [ "$SERVER" == "couchdb-master" ]; then
     if [ -z $COUCH_HOST ]; then
