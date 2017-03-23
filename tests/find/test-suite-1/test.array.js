@@ -464,6 +464,61 @@ testCases.push(function (dbType, context) {
             ]);
         });
       });
+
+      it('$nin work with complex array #6280', function () {
+        var db = context.db;
+        return context.db.bulkDocs([
+          {
+            _id: 'smith',
+            lastName: 'Smith',
+            absents: ['10/10/15', '10/10/16'],
+            year: 2016,
+            type: 'person'
+          },
+          {
+            _id: 'roberts',
+            lastName: 'Roberts',
+            absents: ['10/10/10', '10/10/16'],
+            year: 2017,
+            type: 'person'
+          },
+          {
+            _id: 'jones',
+            lastName: 'Jones',
+            absents: ['10/10/12', '10/10/20'],
+            year: 2013,
+            type: 'person'
+          }
+        ])
+        .then(function () {
+          return db.createIndex({
+              index: {
+                  fields: ['lastName','absents','year','type'],
+                  name: 'myIndex',
+                  ddoc: 'myIndex'
+              }
+            });
+        })
+        .then(function () {
+          return db.find({
+            selector: {
+              lastName: {$gt: null},
+              year: {$gt: null},
+              type: 'person',
+              absents: {
+                $nin: ['10/10/15']
+              }
+            },
+            fields: ["_id"]
+          });
+        })
+        .then(function (resp) {
+          resp.docs.should.deep.equal([
+              {_id: 'jones'},
+              {_id: 'roberts'},
+            ]);
+        });
+      });
     });
   });
 });

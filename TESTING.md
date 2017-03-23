@@ -30,6 +30,10 @@ You can also test against phantomjs, but you'll need to install phantomjs yourse
     $ npm install phantomjs-prebuilt
     $ CLIENT=selenium:phantomjs npm test
 
+To test a specific plugin in the browser run:
+
+    $ TYPE=find PLUGINS=pouchdb-find npm run dev
+
 ### Unit tests
 
     $ npm run build-as-modular-es5
