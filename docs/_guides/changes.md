@@ -139,4 +139,4 @@ Also notice that new documents always have revisions starting with the string `'
 
 {% include anchor.html title="Next" hash="next" %}
 
-Now that we know how to hook our data spigot to the changes feed, let's look into using the very powerful `query()` API.
+Now that we know how to hook our data spigot to the changes feed, let's look into using the very powerful `find()` API.

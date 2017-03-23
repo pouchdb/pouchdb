@@ -278,6 +278,46 @@ var db = new PouchDB('mydb', {adapter: 'websql'});
 console.log(db.adapter); // 'websql'
 ```
 
+### pouchdb-adapter-indexeddb
+
+{% include alert/start.html variant="warning"%}
+{% markdown %}
+
+**Warning: experimental.** You probably don't want to use this yet. &#x1F609;
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
+An experimental next-generation IndexedDB adapter, also known as "idb-next". Currently not shipped as part of PouchDB. The adapter name is `'indexeddb'`.
+
+#### Example usage
+
+```bash
+npm install pouchdb-adapter-indexeddb
+```
+
+```js
+PouchDB.plugin(require('pouchdb-adapter-indexeddb'));
+var db = new PouchDB('mydb', {adapter: 'indexeddb'});
+console.log(db.adapter); // 'indexeddb'
+```
+
+### pouchdb-find
+
+PouchDB's "Mango" query API, exposed via the `find()`, `listIndexes(), `createIndex()`, and `deleteIndex()` methods. Not shipped by default in PouchDB.
+
+#### Example usage
+
+```bash
+npm install pouchdb-find
+```
+
+```js
+PouchDB.plugin(require('pouchdb-find'));
+var db = new PouchDB('mydb');
+db.find(/* see API docs for full info */);
+```
+
 ### pouchdb-mapreduce
 
 PouchDB's map/reduce API, exposed via the `query()` and `viewCleanup()` methods. Ships by default in PouchDB.
@@ -330,6 +370,16 @@ without warning. You are strongly recommended to **use exact versions** when ins
 
 {% endmarkdown %}
 {% include alert/end.html%}
+
+### pouchdb-abstract-mapreduce
+
+The underlying logic for secondary indexes, as expressed in both `pouchdb-mapreduce` and `pouchdb-find`. Both packages use this package under the hood.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-abstract-mapreduce
+```
 
 ### pouchdb-adapter-utils
 
@@ -389,6 +439,16 @@ ES6 shims for Map and Set as used in PouchDB.
 
 ```bash
 npm install --save-exact pouchdb-collections
+```
+
+### pouchdb-debug
+
+The `PouchDB.debug()` API, expressed as a separate plugin. May eventually be removed from PouchDB core.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-debug
 ```
 
 ### pouchdb-errors
@@ -459,6 +519,16 @@ A `Promise` object, polyfilled using `lie` if Promises aren't available globally
 
 ```bash
 npm install --save-exact pouchdb-promise
+```
+
+### pouchdb-selector-core
+
+The core Mango selector logic, which allows the selector to be used both by `pouchdb-find` and for filtering/replication.
+
+#### Example usage
+
+```bash
+npm install --save-exact pouchdb-selector-core
 ```
 
 ### pouchdb-utils
