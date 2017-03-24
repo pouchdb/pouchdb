@@ -192,12 +192,6 @@ function doBuildNode() {
     .then(buildForNode);
 }
 
-function doBuildDev() {
-  return doAll(buildForNode, buildForBrowserify)()
-    .then(doAll(buildForBrowser, buildPluginsForBrowserify, buildPouchDBNext))
-    .then(buildPluginsForBrowser);
-}
-
 function doBuildAll() {
   return rimrafMkdirp('lib', 'dist', 'lib/plugins')
     .then(doAll(buildForNode, buildForBrowserify))
@@ -208,8 +202,6 @@ function doBuildAll() {
 function doBuild() {
   if (process.env.BUILD_NODE) { // rebuild before "npm test"
     return doBuildNode();
-  } else if (DEV_MODE) { // rebuild during "npm run dev"
-    return doBuildDev();
   } else { // normal, full build
     return doBuildAll();
   }

@@ -75,7 +75,7 @@ function rebuildPerf() {
 }
 
 function watchAll() {
-  watch(['packages/node_modules/**/src/**/*.js'],
+  watch(['packages/node_modules/*/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
   watch(['tests/integration/utils.js'],
     debounce(rebuildTestUtils, 700, {leading: true}));
