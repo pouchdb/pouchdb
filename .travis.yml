@@ -17,7 +17,7 @@ addons:
 
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
-  - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
+  - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3001; fi"
 
 before_script:
   # Our test-browser.js script uses FIREFOX_BIN to find the Firefox binary
@@ -72,12 +72,12 @@ env:
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
-  - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox:47.0.2 COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3000 SERVER=couchdb-1.6.1 TYPE=mapreduce CLIENT=node COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3000 SERVER=couchdb-1.6.1 TYPE=mapreduce CLIENT=selenium:firefox:47.0.2 COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3000 SERVER=couchdb-1.6.1 TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Test pouchdb-find
-  - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=node  COMMAND=test
   - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox:47.0.2 SERVER=pouchdb-server COMMAND=test
 
   # Testing in saucelabs
@@ -98,9 +98,12 @@ env:
   # Test Webpack bundle
   - CLIENT=selenium:firefox:47.0.2 COMMAND=test-webpack
 
-  # Test CouchDB stable
-  - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-master COMMAND=test
+  # Test CouchDB 1.6.1
+  - COUCH_HOST=http://127.0.0.1:3000 CLIENT=node SERVER=couchdb-1.6.1 COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3000 CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-1.6.1 COMMAND=test
+
+  # Test CouchDB 2.0
+  - COUCH_HOST=http://127.0.0.1:3002 CLIENT=node SERVER=couchdb-2.0 COMMAND=test
 
   # Performance tests
   - CLIENT=selenium:firefox:47.0.2 PERF=1 COMMAND=test
@@ -126,6 +129,8 @@ matrix:
     - node_js: "7"
       services: docker
       env: CLIENT=node COMMAND=test
+  allow_failures:
+  - env: COUCH_HOST=http://127.0.0.1:3002 CLIENT=node SERVER=couchdb-2.0 COMMAND=test
 
 branches:
   only:

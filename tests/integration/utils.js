@@ -14,8 +14,13 @@ function uniq(list) {
 }
 
 testUtils.isCouchMaster = function () {
+  return !('SERVER' in testUtils.params()) ||
+    testUtils.isCouchVersion('2.0');
+};
+
+testUtils.isCouchVersion = function (version) {
   return 'SERVER' in testUtils.params() &&
-    testUtils.params().SERVER === 'couchdb-master';
+    testUtils.params().SERVER === 'couchdb-' + version;
 };
 
 testUtils.isSyncGateway = function () {

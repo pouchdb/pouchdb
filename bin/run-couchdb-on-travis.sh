@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
-if [ "$SERVER" = "couchdb-master" ]; then
-  # Install CouchDB Master
-  docker run -d -p 3001:5984 klaemo/couchdb:2.0.0
-  COUCH_PORT=3001
-else
-  # Install CouchDB Stable
+if [ "$SERVER" = "couchdb-1.6.1" ]; then
+  # Install CouchDB 1.6.1
   docker run -d -p 3000:5984 klaemo/couchdb:1.6.1
   COUCH_PORT=3000
+elif [ "$SERVER" = "couchdb-2.0" ]; then
+  # Install CouchDB Stable. Automatically runs in admin party.
+  docker run -d -p 3002:5984 klaemo/couchdb:latest
+  COUCH_PORT=3002
+else
+  # Install CouchDB Master / build from source
+  docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev-docs --with-haproxy --with-admin-party-please -n 1
+  COUCH_PORT=3001
 fi
 
 # wait for couchdb to start, add cors
