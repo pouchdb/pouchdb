@@ -52,7 +52,6 @@
     "memdown": "1.2.4",
     "readable-stream": "1.0.33",
     "request": "2.80.0",
-    "scope-eval": "0.0.3",
     "spark-md5": "3.0.0",
     "through2": "2.0.3",
     "vuvuzela": "1.0.3",
@@ -118,7 +117,6 @@
     "// immediate is pinned to use the same version as lie for a smaller bundle",
     "// leveldown is pinned because something broke in >1.5.0: https://git.io/vy5Xv",
     "// readable-stream has breaking changes in 2.0.0",
-    "// scope-eval is pinned because of breaking changes in 1.0.0",
     "// stream-to-promise is pinned because there's a breaking change in 2.0.0"
   ],
   "greenkeeper": {
@@ -127,7 +125,6 @@
       "immediate",
       "leveldown",
       "readable-stream",
-      "scope-eval",
       "stream-to-promise"
     ]
   }
