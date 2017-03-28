@@ -32,7 +32,7 @@ var builtInModules = require('builtin-modules');
 var external = Object.keys(require('../package.json').dependencies)
   .concat(builtInModules);
 
-var plugins = ['fruitdown', 'localstorage', 'memory', 'find'];
+var plugins = ['fruitdown', 'localstorage', 'memory', 'find', 'lite'];
 
 var currentYear = new Date().getFullYear();
 
@@ -79,10 +79,21 @@ var comments = {
   '\n// PouchDB may be freely distributed under the Apache license, ' +
   'version 2.0.' +
   '\n// For all details and documentation:' +
+  '\n// http://pouchdb.com\n',
+
+  'lite': '// pouchdb-lite ' + version +
+  '\n// This is a special build of PouchDB excluding some features.' +
+  '\n// For details: http://pouchdb.com/custom.html' +
+  '\n// ' +
+  '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
+  '\n// PouchDB may be freely distributed under the Apache license, ' +
+  'version 2.0.' +
+  '\n// For all details and documentation:' +
   '\n// http://pouchdb.com\n'
 };
 
 function doRollup(entry, browser, formatsToFiles) {
+  var includePolyfills = entry !== 'src/plugins/lite.js';
   var start = process.hrtime();
   return rollup.rollup({
     entry: addPath('pouchdb', entry),
@@ -92,7 +103,7 @@ function doRollup(entry, browser, formatsToFiles) {
       jsnext: true,
       browser: browser,
       main: false  // don't use "main"s that are CJS
-    })
+    }, includePolyfills)
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
       var fileOut = formatsToFiles[format];

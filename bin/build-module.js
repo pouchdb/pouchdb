@@ -31,10 +31,12 @@ var all = Promise.all.bind(Promise);
 // through aggressive bundling, ala pouchdb, because it's assumed that
 // for these packages bundle size is more important than modular deduping
 var AGGRESSIVELY_BUNDLED_PACKAGES =
-  ['pouchdb-for-coverage', 'pouchdb-node', 'pouchdb-browser'];
+  ['pouchdb-for-coverage', 'pouchdb-node', 'pouchdb-browser', 'pouchdb-lite'];
 // packages that only have a browser version
 var BROWSER_ONLY_PACKAGES =
-  ['pouchdb-browser'];
+  ['pouchdb-browser', 'pouchdb-lite'];
+var NO_POLYFILL_PACKAGES =
+  ['pouchdb-lite'];
 
 function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
@@ -69,6 +71,7 @@ function buildModule(filepath) {
   }).then(function () {
     return mkdirp(path.resolve(filepath, 'lib'));
   }).then(function () {
+    var includePolyfills = NO_POLYFILL_PACKAGES.indexOf(pkg.name) === -1;
     return all(versions.map(function (isBrowser) {
       return rollup({
         entry: path.resolve(filepath, './src/index.js'),
@@ -77,7 +80,7 @@ function buildModule(filepath) {
           skip: depsToSkip,
           jsnext: true,
           browser: isBrowser || forceBrowser
-        })
+        }, includePolyfills)
       }).then(function (bundle) {
         var formats = ['cjs', 'es'];
         return all(formats.map(function (format) {
