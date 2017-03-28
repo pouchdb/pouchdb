@@ -12,7 +12,9 @@ function rollupPlugins(nodeResolveConfig, liteMode) {
       // we have switches for coverage; don't ship this to consumers
       'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
       // test for fetch vs xhr
-      'process.env.FETCH': JSON.stringify(!!process.env.FETCH)
+      'process.env.FETCH': JSON.stringify(!!process.env.FETCH),
+      // lite mode build
+      'process.env.LITE_MODE': JSON.stringify(!!liteMode)
     }),
     !liteMode && inject({
       exclude: [
