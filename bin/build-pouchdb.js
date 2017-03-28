@@ -93,7 +93,7 @@ var comments = {
 };
 
 function doRollup(entry, browser, formatsToFiles) {
-  var includePolyfills = entry !== 'src/plugins/lite.js';
+  var liteMode = entry === 'src/plugins/lite.js';
   var start = process.hrtime();
   return rollup.rollup({
     entry: addPath('pouchdb', entry),
@@ -103,7 +103,7 @@ function doRollup(entry, browser, formatsToFiles) {
       jsnext: true,
       browser: browser,
       main: false  // don't use "main"s that are CJS
-    }, includePolyfills)
+    }, liteMode)
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
       var fileOut = formatsToFiles[format];

@@ -3,8 +3,9 @@
 var nodeResolve = require('rollup-plugin-node-resolve');
 var replace = require('rollup-plugin-replace');
 var inject = require('rollup-plugin-inject');
+var removeGuardedConsole = require('./rollupPluginRemoveGuardedConsole');
 
-function rollupPlugins(nodeResolveConfig, includePolyfills) {
+function rollupPlugins(nodeResolveConfig, liteMode) {
   return [
     nodeResolve(nodeResolveConfig),
     replace({
@@ -13,7 +14,7 @@ function rollupPlugins(nodeResolveConfig, includePolyfills) {
       // test for fetch vs xhr
       'process.env.FETCH': JSON.stringify(!!process.env.FETCH)
     }),
-    includePolyfills && inject({
+    !liteMode && inject({
       exclude: [
         '**/pouchdb-utils/src/assign.js',
         '**/pouchdb-promise/src/index.js',
@@ -23,7 +24,8 @@ function rollupPlugins(nodeResolveConfig, includePolyfills) {
       Set: ['pouchdb-collections', 'Set'],
       'Object.assign': ['pouchdb-utils', 'assign'],
       Promise: 'pouchdb-promise'
-    })
+    }),
+    liteMode && removeGuardedConsole()
   ];
 }
 

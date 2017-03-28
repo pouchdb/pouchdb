@@ -35,7 +35,7 @@ var AGGRESSIVELY_BUNDLED_PACKAGES =
 // packages that only have a browser version
 var BROWSER_ONLY_PACKAGES =
   ['pouchdb-browser', 'pouchdb-lite'];
-var NO_POLYFILL_PACKAGES =
+var LITE_MODE_PACKAGES =
   ['pouchdb-lite'];
 
 function buildModule(filepath) {
@@ -71,7 +71,7 @@ function buildModule(filepath) {
   }).then(function () {
     return mkdirp(path.resolve(filepath, 'lib'));
   }).then(function () {
-    var includePolyfills = NO_POLYFILL_PACKAGES.indexOf(pkg.name) === -1;
+    var liteMode = LITE_MODE_PACKAGES.indexOf(pkg.name) !== -1;
     return all(versions.map(function (isBrowser) {
       return rollup({
         entry: path.resolve(filepath, './src/index.js'),
@@ -80,7 +80,7 @@ function buildModule(filepath) {
           skip: depsToSkip,
           jsnext: true,
           browser: isBrowser || forceBrowser
-        }, includePolyfills)
+        }, liteMode)
       }).then(function (bundle) {
         var formats = ['cjs', 'es'];
         return all(formats.map(function (format) {
