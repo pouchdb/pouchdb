@@ -18,7 +18,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 **Options for remote databases:**
 
-* `ajax`: (Remote databases only.) Ajax requester options. For instance, passing in the options `{ajax: {timeout: 10000}}` will allow you to set the max timeout for an HTTP request. These are passed verbatim to [request][] (in Node.js) or  [a request shim](https://github.com/pouchdb/pouchdb/blob/master/lib/deps/request-browser.js) (in the browser), with the exception of:
+* `ajax`: (Remote databases only.) Ajax requester options. For instance, passing in the options `{ajax: {timeout: 10000}}` will allow you to set the max timeout for an HTTP request. These are passed verbatim to [request][] (in Node.js) or  [a request shim](https://github.com/pouchdb/pouchdb/blob/master/packages/node_modules/pouchdb-ajax/src/request-browser.js) (in the browser), with the exception of:
 * `ajax.cache`: Appends a random string to the end of all HTTP GET requests to avoid them being cached on IE. Set this to `true` to prevent this happening.
 * `ajax.headers`: The `ajax.headers` option allows you to customise headers that are sent to the remote HTTP Server.
 * `auth.username` + `auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `auth.username` + `auth.password` options.

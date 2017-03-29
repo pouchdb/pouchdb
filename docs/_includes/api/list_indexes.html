@@ -1,0 +1,84 @@
+{% include anchor.html edit="true" title="List indexes" hash="list_indexes" %}
+
+{% highlight js %}
+db.getIndexes([callback])
+{% endhighlight %}
+
+Get a list of all the indexes you've created. Also tells you about the
+special `_all_docs` index, i.e. the default index on the `_id` field.
+
+{% include alert/start.html variant="info"%}
+{% markdown %}
+
+**pouchdb-find plugin needed:** This API requires the `pouchdb-find` plugin. See
+[Mango queries](/guides/mango-queries.html) for installation instructions.
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
+#### Example Usage:
+
+{% include code/start.html id="get_idxs" type="callback" %}
+{% highlight js %}
+db.getIndexes(function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="get_idxs" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.getIndexes();
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="get_idxs" type="promise" %}
+{% highlight js %}
+db.getIndexes().then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+
+{% highlight js %}
+{
+  "indexes": [
+    {
+      "ddoc": null,
+      "name": "_all_docs",
+      "type": "special",
+      "def": {
+        "fields": [
+          {
+            "_id": "asc"
+          }
+        ]
+      }
+    },
+    {
+      "ddoc": "_design/idx-0f3a6f73110868266fa5c688caf8acd3",
+      "name": "idx-0f3a6f73110868266fa5c688caf8acd3",
+      "type": "json",
+      "def": {
+        "fields": [
+          {
+            "foo": "asc"
+          },
+          {
+            "bar": "asc"
+          }
+        ]
+      }
+    }
+  ]
+}
+{% endhighlight %}

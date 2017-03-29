@@ -21,6 +21,7 @@ All options default to `false` unless otherwise specified.
 * `options.doc_ids`: Only show changes for docs with these ids (array of strings).
 * `options.query_params`: Object containing properties that are passed to the filter function, e.g. `{"foo":"bar"}`, where `"bar"` will be available in the filter function as `params.query.foo`. To access the `params`, define your filter function like `function (doc, params) {/* ... */}`.
 * `options.view`: Specify a view function (e.g. `'design_doc_name/view_name'` or `'view_name'` as shorthand for `'view_name/view_name'`) to act as a filter. Documents counted as "passed" for a view filter if a map function emits at least one record for them. **Note**: `options.filter` must be set to `'_view'` for this option to work.
+* `options.selector`: Filter using a query/pouchdb-find [selector](http://docs.couchdb.org/en/2.0.0/api/database/find.html#selector-syntax). **Note**: Selectors are not supported in CouchDB 1.x.
 
 **Advanced Options:**
 

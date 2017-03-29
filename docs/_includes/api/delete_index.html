@@ -1,0 +1,129 @@
+{% include anchor.html edit="true" title="Delete index" hash="delete_index" %}
+
+{% highlight js %}
+db.deleteIndex(index [, callback])
+{% endhighlight %}
+
+Delete an index, remove any orphaned design documents, and clean up any leftover data on disk.
+
+{% include alert/start.html variant="info"%}
+{% markdown %}
+
+**pouchdb-find plugin needed:** This API requires the `pouchdb-find` plugin. See
+[Mango queries](/guides/mango-queries.html) for installation instructions.
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
+
+#### Example Usage:
+
+{% include code/start.html id="delete_idx" type="callback" %}
+{% highlight js %}
+db.deleteIndex({
+  "ddoc": "_design/idx-0f3a6f73110868266fa5c688caf8acd3",
+  "name": "idx-0f3a6f73110868266fa5c688caf8acd3",
+  "type": "json",
+  "def": {
+    "fields": [
+      { "foo": "asc" },
+      { "bar": "asc" }
+    ]
+  }
+}, function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="delete_idx" type="async" %}
+{% highlight js %}
+try {
+  var result = await db.deleteIndex({
+    "ddoc": "_design/idx-0f3a6f73110868266fa5c688caf8acd3",
+    "name": "idx-0f3a6f73110868266fa5c688caf8acd3",
+    "type": "json",
+    "def": {
+      "fields": [
+        { "foo": "asc" },
+        { "bar": "asc" }
+      ]
+    }
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="delete_idx" type="promise" %}
+{% highlight js %}
+db.deleteIndex({
+  "ddoc": "_design/idx-0f3a6f73110868266fa5c688caf8acd3",
+  "name": "idx-0f3a6f73110868266fa5c688caf8acd3",
+  "type": "json",
+  "def": {
+    "fields": [
+      { "foo": "asc" },
+      { "bar": "asc" }
+    ]
+  }
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+
+{% highlight js %}
+{ "ok": true }
+{% endhighlight %}
+
+Note that the easiest way to do this is to locate the index you want to delete using [`getIndexes()`](#list_indexes).
+For instance, here is how you would delete the second index from that list (which should be the
+one after the built-in `_all_docs` index):
+
+{% include code/start.html id="delete_idx2" type="callback" %}
+{% highlight js %}
+db.findIndexes(function (err, indexesResult) {
+  if (err) { return console.log(err); }
+  db.deleteIndex(indexesResult.indexes[1], function (err, result) {
+    if (err) { return console.log(err); }
+    // handle result
+  });
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="delete_idx2" type="async" %}
+{% highlight js %}
+try {
+  var indexesResult = await db.findIndexes();
+  var result = await db.deleteIndex(indexesResult.indexes[1]);
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="delete_idx2" type="promise" %}
+{% highlight js %}
+db.findIndexes().then(function (indexesResult) {
+  return db.deleteIndex(indexesResult.indexes[1]);
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+**Notes:**
+
+* You don't need to provide a `_rev` when deleting an index.
+* The associated design doc is automatically deleted, assuming it only contains one index.
+* There is no need to call [`viewCleanup`](#view_cleanup) to clean up any leftover data. `deleteIndex()` does this automatically for you.

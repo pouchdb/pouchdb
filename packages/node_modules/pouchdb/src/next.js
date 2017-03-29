@@ -1,4 +1,9 @@
-module.exports = require('pouchdb-core')
-  .plugin(require('pouchdb-adapter-indexeddb'))
-  .plugin(require('pouchdb-adapter-http'))
-  .plugin(require('pouchdb-replication'));
+import PouchDB from 'pouchdb-core';
+import idbPouch from 'pouchdb-adapter-indexeddb';
+import httpPouch from 'pouchdb-adapter-http';
+import replication from 'pouchdb-replication';
+
+export default PouchDB
+  .plugin(idbPouch)
+  .plugin(httpPouch)
+  .plugin(replication);

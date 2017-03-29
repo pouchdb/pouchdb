@@ -20,10 +20,6 @@ Plugin for CouchDB's authentication system.
 
 Allows decentralized authentication and access control per document, using asymmetric encryption.
 
-#### [PouchDB Collate](https://github.com/pouchdb/collate)
-
-Collation utilities, so you can use complex keys as doc IDs.
-
 #### [Crypto Pouch](https://github.com/calvinmetcalf/crypto-pouch)
 
 Encrypt a PouchDB/CouchDB database.
@@ -47,10 +43,6 @@ Implements the handy "every document is a delta" pattern, so you don't have to d
 #### [PouchDB Erase](https://github.com/marten-de-vries/pouchdb-erase)
 
 A replicating `db.destroy()` alternative.
-
-#### [PouchDB Find](https://github.com/nolanlawson/pouchdb-find)
-
-MongoDB-like query language, based on CouchDB 2.0. ([Live demo](http://nolanlawson.github.io/pouchdb-find/))
 
 #### [PouchDB Full Sync](https://github.com/nolanlawson/pouchdb-full-sync)
 

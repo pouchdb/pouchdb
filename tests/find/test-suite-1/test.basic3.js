@@ -226,5 +226,22 @@ testCases.push(function (dbType, context) {
       });
     });
 
+    it('#6277 selector as an empty object', function () {
+      var db = context.db;
+      return db.createIndex({
+        index: {
+          fields: ['rank', 'awesome']
+        },
+      }).then(function () {
+        return db.find({
+          selector: { rank: 8, awesome: null }
+        });
+      }).then(function () {
+        return db.find({
+          selector: { rank: 8, awesome: {} }
+        });
+      });
+    });
+
   });
 });

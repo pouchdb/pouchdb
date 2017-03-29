@@ -23,12 +23,6 @@ var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
 var builtInModules = require('builtin-modules');
 var fs = require('fs');
-var buildUtils = require('./build-utils');
-var addPath = buildUtils.addPath;
-var doUglify = buildUtils.doUglify;
-var doBrowserify = buildUtils.doBrowserify;
-var writeFile = buildUtils.writeFile;
-var camelCase = require('change-case').camel;
 var all = Promise.all.bind(Promise);
 
 // special case - pouchdb-for-coverage is heavily optimized because it's
@@ -41,10 +35,6 @@ var AGGRESSIVELY_BUNDLED_PACKAGES =
 // packages that only have a browser version
 var BROWSER_ONLY_PACKAGES =
   ['pouchdb-browser'];
-// packages that need to publish a dist/ folder
-var PACKAGES_WITH_DIST_FOLDER =
-  ['pouchdb-find'];
-
 
 function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
@@ -106,24 +96,6 @@ function buildModule(filepath) {
         }));
       });
     }));
-  }).then(function () {
-    if (PACKAGES_WITH_DIST_FOLDER.indexOf(pkg.name) === -1) {
-      return;
-    }
-    return rimraf(path.resolve(filepath, 'dist')).then(function () {
-      return mkdirp(path.resolve(filepath, 'dist'));
-    }).then(function () {
-      var thePath = path.resolve(filepath, 'lib/index-browser');
-      return doBrowserify(pkg.name, thePath, {
-        standalone: camelCase(pkg.name)
-      });
-    }).then(function (code) {
-      var scriptName = 'dist/pouchdb.' + pkg.name;
-      return all([
-        writeFile(addPath(pkg.name, scriptName + '.js'), code),
-        doUglify(pkg.name, code, '', scriptName + '.min.js')
-      ]);
-    });
   });
 }
 if (require.main === module) {

@@ -1,5 +1,5 @@
 ---
-index: 14
+index: 15
 layout: guide
 title: Compacting and destroying
 sidebar: guides_nav.html
