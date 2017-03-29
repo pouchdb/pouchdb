@@ -34,7 +34,6 @@
     "test-webpack": "bash bin/test-webpack.sh"
   },
   "dependencies": {
-    "argsarray": "0.0.1",
     "buffer-from": "0.1.1",
     "clone-buffer": "1.0.0",
     "debug": "2.6.1",
@@ -58,7 +57,6 @@
     "websql": "0.4.4"
   },
   "devDependencies": {
-    "argsarray": "0.0.1",
     "body-parser": "1.17.1",
     "browserify": "14.1.0",
     "browserify-incremental": "3.1.1",
