@@ -81,7 +81,7 @@ db.thank('Mom'); // prints "Thank you, Mom"
 
 A useful feature of plugins is to intercept updates before they are stored in PouchDB. In this way, a plugin might validate that the data is correct for the application, or even alter documents before they are committed to the database.
 
-The best way to intercept all updates to a PouchDB database is to **override the `bulkDocs()` method**. All changes to PouchDB documents ultimately pass through the `bulkDocs()` method. For example, a call to `put()` will become become a `bulkDocs()` call with a "batch" of one document.
+The best way to intercept all updates to a PouchDB database is to **override the `bulkDocs()` method**. All changes to PouchDB documents ultimately pass through the `bulkDocs()` method. For example, a call to `put()` will become a `bulkDocs()` call with a "batch" of one document.
 
 Because PouchDB guarantees to plugin authors that all data changes ultimately happen via `bulkDocs()`, it is the ideal place for an application or plugin to intercept updates.
 
