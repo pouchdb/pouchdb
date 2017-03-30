@@ -1,13 +1,14 @@
 /* global PouchDB */
 
+// this code only runs in the browser, as its own dist/ script
+
 import FruitdownPouchPlugin from 'pouchdb-adapter-fruitdown';
 import { guardedConsole } from 'pouchdb-utils';
 
-var PDB = (typeof PouchDB !== 'undefined') ? PouchDB : require('pouchdb');
-if (!PDB) {
+if (typeof PouchDB === 'undefined') {
   guardedConsole('error', 'fruitdown adapter plugin error: ' +
     'Cannot find global "PouchDB" object! ' +
     'Did you remember to include pouchdb.js?');
 } else {
-  FruitdownPouchPlugin(PDB);
+  PouchDB.plugin(FruitdownPouchPlugin);
 }

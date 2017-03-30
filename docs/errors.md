@@ -311,3 +311,8 @@ module: {
 {% include anchor.html class="h3" title="Failed to load resource: the server responded with a status of 400 (Bad request) " hash="couchbase_dbname" %}
 
 If you are using Couchbase Lite to sync with PouchDB then you cannot use capital letters in your database name as Couchbase Lite has restrictions on valid database names.
+
+{% include anchor.html class="h3" title="Live changes pass undetected (Web Extension)" hash="webextension_live_changes" %}
+
+When using PouchDB in a WebExtension (at least in Chromium 55 and Firefox 50), but apparently only if the `manifest.json` contains the `store` permission, a [live changes feed](https://pouchdb.com/guides/changes.html#live-changes-feed) in one tab or background process may not detect changes made in another tab/process. It will of course still report those changes upon the next change that it does detect.
+Minimal code to reproduce this can be found [here](https://gist.github.com/Treora/150dca4b57b1b881bd049303e82c5ced).

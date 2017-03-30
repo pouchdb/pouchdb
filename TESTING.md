@@ -30,6 +30,10 @@ You can also test against phantomjs, but you'll need to install phantomjs yourse
     $ npm install phantomjs-prebuilt
     $ CLIENT=selenium:phantomjs npm test
 
+To test a specific plugin in the browser run:
+
+    $ TYPE=find PLUGINS=pouchdb-find npm run dev
+
 ### Unit tests
 
     $ npm run build-as-modular-es5
@@ -81,6 +85,12 @@ they take a long time. They'll also cause a ton of popups in Safari due to excee
 the 5MB limit.
 
     $ TYPE=mapreduce npm test
+
+#### Run the pouchdb-find tests
+
+These are similar to the map/reduce tests:
+
+    $ TYPE=find PLUGINS=pouchdb-find npm test
 
 ### Testing against PouchDB server
 
@@ -216,6 +226,14 @@ Or even make the `preferredAdapters` list anything you want:
     http://localhost:8000/tests/index.html?adapters=websql,memory,idb,localstorage
 
 Keep in mind that `preferredAdapters` only applies to non-http, non-https adapters.
+
+You can also inject (comma-separated) plugins into any test:
+
+    PLUGINS=pouchdb-find npm test
+
+Or as a query param:
+
+    http://localhost:8000/tests/index.html?plugins=pouchdb-find
 
 ### Installing a CouchDB server
 
