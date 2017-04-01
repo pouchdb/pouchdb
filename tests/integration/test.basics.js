@@ -804,14 +804,14 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name, { auto_compaction: true});
       return db.info().then(function (info) {
         // http doesn't support auto compaction
-        info.auto_compaction.should.equal(db.type() !== 'http');
+        info.auto_compaction.should.equal(adapter !== 'http');
       });
     });
 
     it('db.info should give adapter name (#3567)', function () {
       var db = new PouchDB(dbs.name);
       return db.info().then(function (info) {
-        info.adapter.should.equal(db.type());
+        info.adapter.should.equal(db.adapter);
       });
     });
 
@@ -987,16 +987,6 @@ adapters.forEach(function (adapter) {
         should.not.exist(doc.foo);
         Object.keys(doc).sort().should.deep.equal(['_id', '_rev', 'foo']);
       });
-    });
-
-    it('db.type() returns a type', function () {
-      var db = new PouchDB(dbs.name);
-      db.type().should.be.a('string');
-    });
-
-    it('#4788 db.type() is synchronous', function () {
-      new PouchDB(dbs.name).type.should.be.a('function');
-      new PouchDB(dbs.name).type.should.be.a('function');
     });
 
     it('replace PouchDB.destroy() (express-pouchdb#203)', function (done) {
