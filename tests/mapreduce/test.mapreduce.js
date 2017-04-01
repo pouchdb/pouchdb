@@ -1147,13 +1147,13 @@ function tests(suiteName, dbName, dbType, viewType) {
       });
     });
 
-    it("#6364 Recognize built in reduce functions with trailing whitespace", function () {
+    it("#6364 Recognize built in reduce functions with trailing garbage", function () {
       var db = new PouchDB(dbName);
       return createView(db, {
         map: function (doc) {
           emit(doc.val, 1);
         },
-        reduce: "_sum\n \r\n"
+        reduce: "_sum\n \r\nandothergarbage"
       }).then(function (queryFun) {
         return db.bulkDocs({
           docs: [
