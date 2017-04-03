@@ -7,6 +7,8 @@ db.put(doc, [options], [callback])
 
 Create a new document or update an existing document. If the document already exists, you must specify its revision `_rev`, otherwise a conflict will occur.
 
+If you want to update an existing document even if there's conflict, you should specify the base revision `_rev` and use `force=true` option, then a new conflict revision will be created.
+
 There are some [restrictions on valid property names of the documents](http://wiki.apache.org/couchdb/HTTP_Document_API#Special_Fields). If you try to store non-JSON data (for instance `Date` objects) you may see [inconsistent results](http://pouchdb.com/errors.html#could_not_be_cloned).
 
 #### Example Usage:
