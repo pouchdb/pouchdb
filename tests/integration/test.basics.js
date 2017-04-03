@@ -474,6 +474,10 @@ adapters.forEach(function (adapter) {
     });
 
     it('Doc validation', function (done) {
+      if (testUtils.isCouchVersion('1.6.1') ||
+        testUtils.isCouchVersion('2.0.0')) {
+          return done();
+      }
       var bad_docs = [
         {'_zing': 4},
         {'_zoom': 'hello'},
@@ -484,7 +488,12 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: bad_docs }, function (err) {
         err.name.should.equal('doc_validation');
-        err.status.should.equal(testUtils.errors.DOC_VALIDATION.status);
+
+        // remove this guard when PouchDB Server is updated
+        if (testUtils.isCouchMaster()) {
+          err.status.should.equal(testUtils.errors.DOC_VALIDATION.status);
+        }
+
         err.message.should.equal(testUtils.errors.DOC_VALIDATION.message +
                                  ': _zing',
                                  'correct error message returned');
