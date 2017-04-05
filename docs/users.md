@@ -65,6 +65,12 @@ A list of known products and services that are using PouchDB.
 
 [MBTA Alerts](https://twitter.com/MBTA_Alerts) is a Twitter bot that thousands of Bostonians depend upon to be notified of delays in the MBTA transit system. Uses Node.js, PouchDB, and CouchDB.
 
+## Medic Mobile
+
+{% include img.html src="medic-mobile.png" alt="Medic Mobile" %}
+
+[Medic Mobile](http://medicmobile.org) is a software toolkit that combines smart messaging, decision support, easy data gathering and management, and health system analytics. Thanks to PouchDB our tools are offline first so workers can file reports wherever they are and sync when back online.
+
 ## NPM Browser
 
 [NPM Browser](http://www.npm-browser.com/#/) is a fully offline cache of NPM packages, which runs in your browser, using Angular.js, PouchDB, and the pouchdb-load plugin.
