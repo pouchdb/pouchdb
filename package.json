@@ -94,7 +94,7 @@
     "ncp": "2.0.0",
     "nock": "9.0.10",
     "pouchdb-express-router": "0.0.9",
-    "query-string": "4.3.2",
+    "query-string": "4.3.3",
     "replace": "0.3.0",
     "rimraf": "2.6.1",
     "rollup": "0.41.4",
