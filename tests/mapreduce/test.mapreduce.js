@@ -1147,6 +1147,49 @@ function tests(suiteName, dbName, dbType, viewType) {
       });
     });
 
+    it("#6364 Recognize built in reduce functions with trailing garbage", function () {
+      var db = new PouchDB(dbName);
+      return createView(db, {
+        map: function (doc) {
+          emit(doc.val, 1);
+        },
+        reduce: "_sum\n \r\nandothergarbage"
+      }).then(function (queryFun) {
+        return db.bulkDocs({
+          docs: [
+            { val: 'bar' },
+            { val: 'bar' },
+            { val: 'baz' }
+          ]
+        }).then(function () {
+          return db.query(queryFun, {reduce: true, group_level: 999});
+        }).then(function (resp) {
+          return resp.rows.map(function (row) {
+            return row.value;
+          });
+        });
+      }).should.become([2, 1]);
+    });
+
+    it("Starts with _ but not a built in reduce function should throw",
+      function () {
+      var db = new PouchDB(dbName);
+      return createView(db, {
+        map: "function(doc){emit(null, doc.val);}",
+        reduce: "_product"
+      }).then(function (queryFun) {
+        return db.bulkDocs({
+          docs: [
+            { val: 1 },
+            { val: 2 },
+            { val: 3 }
+          ]
+        }).then(function () {
+          return db.query(queryFun, {reduce: true, group: true});
+        });
+      }).should.be.rejected;
+    });
+
     if (viewType === 'temp') {
       it("No reduce function, passing just a function", function () {
         var db = new PouchDB(dbName);
