@@ -1,4 +1,4 @@
-{% include anchor.html edit="true" title="Replicate a database" hash="replication" %} 
+{% include anchor.html edit="true" title="Replicate a database" hash="replication" %}
 
 {% highlight js %}
 PouchDB.replicate(source, target, [options])
@@ -316,4 +316,4 @@ db.replicate.to(remote, {
 
 The first time a request fails, this function will receive 0 as input. The next time it fails, 1000 will be passed in, then 3000, then 9000, etc. When the user comes back online, the `delay` goes back to 0.
 
-By default, PouchDB uses a backoff function that chooses a random starting number between 0 and 2000 milliseconds and will roughly double every time, with some randommness to prevent client requests from occurring simultaneously.
+By default, PouchDB uses a backoff function that chooses a random starting number between 0 and 2000 milliseconds and will roughly double every time, with some randomness to prevent client requests from occurring simultaneously.
