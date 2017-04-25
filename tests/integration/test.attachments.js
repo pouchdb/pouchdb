@@ -2580,19 +2580,18 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Test remove doc with attachment', function (done) {
+    it('Test remove doc with attachment', function () {
       var db = new PouchDB(dbs.name);
-      db.put({ _id: 'mydoc' }, function (err, resp) {
+      return db.put({ _id: 'mydoc' }).then(function (resp) {
         var blob = testUtils.makeBlob('Mytext');
-        db.putAttachment('mydoc', 'mytext', resp.rev, blob, 'text/plain',
-                         function (err, res) {
-          db.get('mydoc', { attachments: false }, function (err, doc) {
-            db.remove(doc, function () {
-              should.exist(res.ok);
-              done();
-            });
-          });
-        });
+        return db.putAttachment('mydoc', 'mytext', resp.rev, blob, 'text/plain');
+      }).then(function (res) {
+        should.exist(res.ok);
+        return db.get('mydoc', { attachments: false });
+      }).then(function (doc) {
+        return db.remove(doc);
+      }).then(function (res) {
+        should.exist(res.ok);
       });
     });
 
