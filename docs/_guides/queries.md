@@ -181,7 +181,7 @@ pouch.query(myMapFunction, {
 // find the first 5 pokemon whose name starts with 'P'
 pouch.query(myMapFunction, {
   startkey     : 'P',
-  endkey       : 'P\uffff',
+  endkey       : 'P\ufff0',
   limit        : 5,
   include_docs : true
 }).then(function (result) {

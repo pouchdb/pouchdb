@@ -256,7 +256,7 @@ db.query(map).then(function (result) {
 
 **Tips:**
 
-* The sort order is `[nulls, booleans, numbers, strings, arrays, objects]`, so `{startkey: ['Williams'], endkey: ['Williams', {}]}` would return all people with the last name `'Williams'` because objects are higher than strings. Something like `'zzzzz'` or `'\uffff'` would also work.
+* The sort order is `[nulls, booleans, numbers, strings, arrays, objects]`, so `{startkey: ['Williams'], endkey: ['Williams', {}]}` would return all people with the last name `'Williams'` because objects are higher than strings. Something like `'zzzzz'` or `'\ufff0'` would also work.
 * `group_level` can be very helpful when working with complex keys.  In the example above, you can use `{group_level: 1}` to group by last name, or `{group_level: 2}` to group by last and first name. (Be sure to set `{reduce: true, group: true}` as well.)
 
 #### Linked documents
