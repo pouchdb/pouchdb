@@ -520,5 +520,93 @@ testCases.push(function (dbType, context) {
         });
       });
     });
+
+    describe("$allMatch", function () {
+      it("returns zero docs for field that is not an array", function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            name: {
+              $allMatch: {
+                _id: "mary"
+              }
+            }
+          }
+        })
+        .then(function (resp) {
+          resp.docs.length.should.equal(0);
+        });
+      });
+
+      it("matches against array", function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            favorites: {
+              $allMatch: {
+                $eq: "Pokemon"
+              }
+            }
+          },
+          fields: ["_id"]
+        })
+        .then(function (resp) {
+          resp.docs.should.deep.equal([
+            {_id: 'mary'},
+          ]);
+        });
+      });
+
+      it("works with object array", function () {
+        var docs = [
+              {
+                "user_id": "a",
+                "bang": [
+                  {
+                      "foo": 1,
+                      "bar": 2
+                  },
+                  {
+                      "foo": 3,
+                      "bar": 4
+                  }
+                ]
+              },
+              {
+                "user_id": "b",
+                "bang": [
+                  {
+                    "foo": 1,
+                    "bar": 2
+                  },
+                  {
+                    "foo": 4,
+                    "bar": 4
+                  }
+                ]
+              }
+          ];
+          var db = context.db;
+          return db.bulkDocs(docs)
+          .then(function () {
+            return db.find({
+              selector: {
+                bang: {
+                  "$allMatch": {
+                    "foo": {"$mod": [2,1]},
+                    "bar": {"$mod": [2,0]}
+                  }
+                }
+              },
+              fields: ["user_id"]
+            });
+          })
+          .then(function (resp) {
+            resp.docs.should.deep.equal([
+              {user_id: "a"}
+            ]);
+          });
+      });
+    });
   });
 });
