@@ -10,7 +10,7 @@ elif [ "$SERVER" = "couchdb-2.0" ]; then
   COUCH_PORT=3002
 else
   # Install CouchDB Master / build from source
-  docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev-docs --with-haproxy --with-admin-party-please -n 1
+  docker run -d -p 3001:5984 couchdbdev/debian-8-dev --with-haproxy --with-admin-party-please -n 1
   COUCH_PORT=3001
 fi
 
