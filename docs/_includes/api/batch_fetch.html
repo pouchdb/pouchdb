@@ -153,7 +153,7 @@ This will return all docs with `_id`s between `'bar'` and `'quux'`.
 
 #### Prefix search
 
-You can do prefix search in `allDocs()` &ndash; i.e. "give me all the documents whose `_id`s start with `'foo'`" &ndash; by using the special high Unicode character `'\uffff'`:
+You can do prefix search in `allDocs()` &ndash; i.e. "give me all the documents whose `_id`s start with `'foo'`" &ndash; by using the special high Unicode character `'\ufff0'`:
 
 {% include code/start.html id="all_docs_3" type="callback" %}
 {% highlight js %}
@@ -161,7 +161,7 @@ db.allDocs({
   include_docs: true,
   attachments: true,
   startkey: 'foo',
-  endkey: 'foo\uffff'
+  endkey: 'foo\ufff0'
 }, function(err, response) {
   if (err) { return console.log(err); }
   // handle result
@@ -176,7 +176,7 @@ try {
     include_docs: true,
     attachments: true,
     startkey: 'foo',
-    endkey: 'foo\uffff'
+    endkey: 'foo\ufff0'
   });
 } catch (err) {
   console.log(err);
@@ -190,7 +190,7 @@ db.allDocs({
   include_docs: true,
   attachments: true,
   startkey: 'foo',
-  endkey: 'foo\uffff'
+  endkey: 'foo\ufff0'
 }).then(function (result) {
   // handle result
 }).catch(function (err) {

@@ -2,8 +2,7 @@
 
 if [ "$SERVER" = "couchdb-master" ]; then
   # Install CouchDB Master
-  docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev@sha256:336fd3d9a89475205fc79b6a287ee550d258fac3b62c67b8d13b8e66c71d228f --with-haproxy \
-    --with-admin-party-please -n 1
+  docker run -d -p 3001:5984 klaemo/couchdb:2.0-dev --with-haproxy --with-admin-party-please -n 1
   COUCH_PORT=3001
 else
   # Install CouchDB Stable

@@ -1,21 +1,22 @@
-{% include anchor.html edit="true" title="Query the database" hash="query_database" %}
+{% include anchor.html edit="true" title="Map/reduce queries" hash="query_database" %}
 
 {% highlight js %}
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Invoke a map/reduce function, which allows you to perform more complex queries on PouchDB than what you get with [allDocs()](#batch_fetch). The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
+Invoke a map/reduce function, which allows you to perform more complex queries on PouchDB than what you get with [allDocs()](#batch_fetch), [changes()](#changes), or [find()](#query_index). The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
 
 Since views perform a full scan of all documents, this method may be slow, unless you first save your view in a design document. Read the [query guide](/guides/queries.html) for a good tutorial.
 
-{% include alert/start.html variant="info"%}
-
+{% include alert/start.html variant="warning"%}
 {% markdown %}
 
-**Heads up:** eventually the `query()` API will be deprecated in favor of the much simpler  [pouchdb-find plugin](https://github.com/nolanlawson/pouchdb-find). You will still be able to use `query()`, but it will be distributed as [a separate plugin](https://github.com/pouchdb/mapreduce).
+**Warning: advanced API.** The map/reduce API is designed for cases that are too complex for Mango queries, which are described in
+[createIndex()](#create_index), [find()](#query_index), [listIndexes()](#list_indexes), and [deleteIndex()](#delete_index).
+
+Under the hood, Mango indexes are the same as map/reduce indexes. The Mango API is just a simplified user-facing API on top of map/reduce.
 
 {% endmarkdown %}
-
 {% include alert/end.html%}
 
 ### Options
@@ -255,7 +256,7 @@ db.query(map).then(function (result) {
 
 **Tips:**
 
-* The sort order is `[nulls, booleans, numbers, strings, arrays, objects]`, so `{startkey: ['Williams'], endkey: ['Williams', {}]}` would return all people with the last name `'Williams'` because objects are higher than strings. Something like `'zzzzz'` or `'\uffff'` would also work.
+* The sort order is `[nulls, booleans, numbers, strings, arrays, objects]`, so `{startkey: ['Williams'], endkey: ['Williams', {}]}` would return all people with the last name `'Williams'` because objects are higher than strings. Something like `'zzzzz'` or `'\ufff0'` would also work.
 * `group_level` can be very helpful when working with complex keys.  In the example above, you can use `{group_level: 1}` to group by last name, or `{group_level: 2}` to group by last and first name. (Be sure to set `{reduce: true, group: true}` as well.)
 
 #### Linked documents

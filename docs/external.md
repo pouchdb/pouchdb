@@ -20,10 +20,6 @@ Plugin for CouchDB's authentication system.
 
 Allows decentralized authentication and access control per document, using asymmetric encryption.
 
-#### [PouchDB Collate](https://github.com/pouchdb/collate)
-
-Collation utilities, so you can use complex keys as doc IDs.
-
 #### [Crypto Pouch](https://github.com/calvinmetcalf/crypto-pouch)
 
 Encrypt a PouchDB/CouchDB database.
@@ -48,10 +44,6 @@ Implements the handy "every document is a delta" pattern, so you don't have to d
 
 A replicating `db.destroy()` alternative.
 
-#### [PouchDB Find](https://github.com/nolanlawson/pouchdb-find)
-
-MongoDB-like query language, based on CouchDB 2.0. ([Live demo](http://nolanlawson.github.io/pouchdb-find/))
-
 #### [PouchDB Full Sync](https://github.com/nolanlawson/pouchdb-full-sync)
 
 Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revision history.
@@ -64,9 +56,9 @@ Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchd
 
 Hoodie-like API for PouchDB. ([Documentation](http://hoodiehq.github.io/pouchdb-hoodie-api/))
 
-#### [PouchDB Hoodie Store](https://www.npmjs.com/package/pouchdb-hoodie-store)
+#### [PouchDB Hoodie Store Client](https://www.npmjs.com/package/@hoodie/store-client)
 
-PouchDB with Hoodie's Store API.
+PouchDB Hoodie-like API for data persistence & offline sync. 
 
 #### [PouchDB List](http://python-pouchdb.marten-de-vries.nl/plugins.html)
 
@@ -244,6 +236,13 @@ PouchDB-backed Redux.
 #### [pouch-redux-middleware](https://github.com/pgte/pouch-redux-middleware#readme)
 
 Redux middleware to sync a PouchDB database with the Redux state.
+
+### Vue.js
+
+#### [vue-pouch](https://github.com/qurateinc/vue-pouch)
+
+Syncs PouchDB data with Vue.js components using Mango Selectors
+
 
 {% include anchor.html title="Other languages" hash="Other languages" %}
 

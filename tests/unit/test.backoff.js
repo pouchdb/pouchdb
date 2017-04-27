@@ -10,7 +10,7 @@ describe('test.backoff.js', function () {
     var limit = 600000;
     var delay = 0;
     var values = [];
-    for(var i=0; i<100; i++) {
+    for (var i=0; i<100; i++) {
       delay = defaultBackOff(delay);
       values.push(delay);
     }

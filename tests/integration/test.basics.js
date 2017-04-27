@@ -73,7 +73,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('[4595] should reject xhr errors', function (done){
+    it('[4595] should reject xhr errors', function (done) {
       var invalidUrl = 'http:///';
       new PouchDB(dbs.name).replicate.to(invalidUrl, {}).catch(function () {
         done();
@@ -81,7 +81,7 @@ adapters.forEach(function (adapter) {
 
     });
 
-    it('[4595] should emit error event on xhr error', function (done){
+    it('[4595] should emit error event on xhr error', function (done) {
       var invalidUrl = 'http:///';
       new PouchDB(dbs.name).replicate.to(invalidUrl,{})
         .on('error', function () { done(); });
@@ -804,14 +804,14 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name, { auto_compaction: true});
       return db.info().then(function (info) {
         // http doesn't support auto compaction
-        info.auto_compaction.should.equal(db.type() !== 'http');
+        info.auto_compaction.should.equal(adapter !== 'http');
       });
     });
 
     it('db.info should give adapter name (#3567)', function () {
       var db = new PouchDB(dbs.name);
       return db.info().then(function (info) {
-        info.adapter.should.equal(db.type());
+        info.adapter.should.equal(db.adapter);
       });
     });
 
@@ -989,16 +989,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('db.type() returns a type', function () {
-      var db = new PouchDB(dbs.name);
-      db.type().should.be.a('string');
-    });
-
-    it('#4788 db.type() is synchronous', function () {
-      new PouchDB(dbs.name).type.should.be.a('function');
-      new PouchDB(dbs.name).type.should.be.a('function');
-    });
-
     it('replace PouchDB.destroy() (express-pouchdb#203)', function (done) {
       var old = PouchDB.destroy;
       PouchDB.destroy = function (name, callback) {
@@ -1134,6 +1124,13 @@ adapters.forEach(function (adapter) {
           });
         });
       });
+
+      it('6053, PouchDB.plugin() resets defaults', function () {
+        var PouchDB1 = PouchDB.defaults({foo: 'bar'});
+        var PouchDB2 = PouchDB1.plugin({foo: function () {}});
+        should.exist(PouchDB2.__defaults);
+        PouchDB1.__defaults.should.deep.equal(PouchDB2.__defaults);
+       });
     }
 
     if (typeof process !== 'undefined' && !process.browser) {

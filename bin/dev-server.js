@@ -21,6 +21,9 @@ if (process.env.AUTO_COMPACTION) {
 if (process.env.POUCHDB_SRC) {
   queryParams.src = process.env.POUCHDB_SRC;
 }
+if (process.env.PLUGINS) {
+  queryParams.plugins = process.env.PLUGINS;
+}
 if (process.env.COUCH_HOST) {
   queryParams.couchHost = process.env.COUCH_HOST;
 }
@@ -72,7 +75,7 @@ function rebuildPerf() {
 }
 
 function watchAll() {
-  watch(['packages/node_modules/**/src/**/*.js'],
+  watch(['packages/node_modules/*/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
   watch(['tests/integration/utils.js'],
     debounce(rebuildTestUtils, 700, {leading: true}));
@@ -115,11 +118,13 @@ function startServers(callback) {
       query += (query ? '&' : '?');
       query += key + '=' + encodeURIComponent(queryParams[key]);
     });
-    console.log('Integration tests: ' + testRoot +
+    console.log('Integration  tests: ' + testRoot +
                 '/tests/integration/' + query);
-    console.log('Map/reduce  tests: ' + testRoot +
+    console.log('Map/reduce   tests: ' + testRoot +
                 '/tests/mapreduce' + query);
-    console.log('Performance tests: ' + testRoot +
+    console.log('pouchdb-find tests: ' + testRoot +
+                '/tests/find/' + query);
+    console.log('Performance  tests: ' + testRoot +
                 '/tests/performance/' + query);
     serversStarted = true;
     checkReady();

@@ -1,19 +1,19 @@
 ---
-index: 13
+index: 14
 layout: guide
 title: Map/reduce queries
 sidebar: guides_nav.html
 ---
 
-Map/reduce queries, also known as *secondary indexes*, are one of the most powerful features in PouchDB. However, they can be quite tricky to use, so this guide is designed to dispell some of the mysteries around them.
+Map/reduce queries, also known as the `query()` API, are one of the most powerful features in PouchDB. However, they can be quite tricky to use, and so this guide is designed to dispell some of the mysteries around them.
 
-{% include alert/start.html variant="warning" %}
+The first thing to understand is that you don't need map/reduce queries if you merely want to look up documents by `_id` or sort them by `_id`. The `allDocs()` API already does this, using an efficient built-in index (see ["bulk operations"](bulk-operations.html) for details).
 
-Many developers make the mistake of using the <code>query()</code> API when the more performant <code>allDocs()</code> API would be a better fit.
-<p/>&nbsp;<p/>
-Before you solve a problem with secondary indexes, you should ask yourself: can I solve this with the <em>primary index</em> (<code>_id</code>) instead?
+The second thing to know is that map/reduce is also unnecessary if you want to sort documents by their update time &ndash; this is exactly what the [changes feed](changes.html) does! Again, this is a built-in index that you get for free.
 
-{% include alert/end.html %}
+Finally, it's important to understand that [Mango queries](mango-queries.html) are much easier to use than map/reduce queries, and they can usually satisfy 99% of use cases. The point of map/reduce is to provide an _extremely advanced_ API for building secondary indexes, suitable for those with specific querying needs.
+ 
+So now that you've read the fine print, let's talk about how map/reduce queries actually work!
 
 {% include anchor.html title="Mappin' and reducin'" hash="mappin-and-reducin" %}
 
@@ -181,7 +181,7 @@ pouch.query(myMapFunction, {
 // find the first 5 pokemon whose name starts with 'P'
 pouch.query(myMapFunction, {
   startkey     : 'P',
-  endkey       : 'P\uffff',
+  endkey       : 'P\ufff0',
   limit        : 5,
   include_docs : true
 }).then(function (result) {
@@ -221,21 +221,14 @@ pouch.query(myMapReduceFun, {
 
 If you're adventurous, though, you should check out the [CouchDB documentation](http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html) or the [PouchDB documentation](http://pouchdb.com/api.html#query_database) for details on reduce functions.
 
-{% include anchor.html title="PouchDB Find" hash="pouchdb-find" %}
+{% include anchor.html title="Avoiding map/reduce" hash="avoiding-map-reduce" %}
 
-The map/reduce API is complex. Part of this problem will be resolved when the more developer-friendly [Cloudant query language](http://docs.cloudant.com/api/cloudant-query.html) is released in CouchDB 2.0, and the equivalent [pouchdb-find plugin](https://github.com/nolanlawson/pouchdb-find) is finished.
+The map/reduce API is complex, and it can be computationally expensive because it requires building up an entirely new index. Therefore, it's good to know some tricks for avoiding the map/reduce API when you don't need it:
 
-{% include alert/start.html variant="warning" %}
-{% markdown %}
-pouchdb-find is in beta, but you may find it is already sufficient for simple queries. Eventually it will replace map/reduce as PouchDB's "flagship" query engine.
-{% endmarkdown %}
-{% include alert/end.html %}
-
-In the meantime, there are a few tricks you can use to avoid unnecessarily complicating your codebase:
-
-1. Avoid the `query()` API altogether if you can. You'd be amazed how much you can do with just `allDocs()`. (In fact, under the hood, the `query()` API is simply implemented on top of `allDocs()`!)
-2. If your data is highly relational, try the [relational-pouch](https://github.com/nolanlawson/relational-pouch) plugin.
-1. Read the [12 tips for better code with PouchDB](/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html).
+1. If you can use `allDocs()` or `changes()` instead of the `query()` API, do it!
+2. If your query is simple enough that you can use `find()`, use that instead.
+3. Read the [12 tips for better code with PouchDB](/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html), especially the tip to "use and abuse your doc <code>_id</code>s."
+4. If your data is highly relational, try the [relational-pouch](https://github.com/nolanlawson/relational-pouch) plugin, which follows this advice, and only uses `_id` and `allDocs()` under the hood.
 
 {% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 
