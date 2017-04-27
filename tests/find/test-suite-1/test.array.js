@@ -446,8 +446,7 @@ testCases.push(function (dbType, context) {
         });
       });
 
-      //Currently Mango is returning a design doc which isn't correct
-      it.skip('should work for _id field', function () {
+      it('should work for _id field', function () {
         var db = context.db;
         return db.find({
           selector: {
@@ -458,7 +457,6 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         }).then(function (resp) {
             resp.docs.should.deep.equal([
-      //        {_id: '_design/37ca0de9e0e68521c0eca0239d9b29c5027ae7ea'},
               {_id: 'link'},
               {_id: 'william'},
             ]);

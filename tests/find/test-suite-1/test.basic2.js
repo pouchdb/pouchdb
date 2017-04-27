@@ -34,15 +34,13 @@ testCases.push(function (dbType, context) {
       };
       return db.createIndex(index).then(function () {
         return db.getIndexes();
-      }).then(function (res) {
-        var ddoc = res.indexes[1].ddoc;
+      }).then(function () {
         return db.find({
           selector: {_id: {$gt: '\u0000'}},
           fields: ['_id'],
           sort: ['_id']
         }).then(function (response) {
           response.docs.should.deep.equal([
-            {"_id": ddoc},
             {"_id": "dk"},
             {"_id": "falcon"},
             {"_id": "fox"},
