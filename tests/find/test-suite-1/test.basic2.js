@@ -23,7 +23,7 @@ testCases.push(function (dbType, context) {
       ]);
     });
 
-    it('should include ddocs in _id results', function () {
+    it('should not include ddocs in _id results', function () {
       var db = context.db;
       var index = {
         "index": {

@@ -536,6 +536,32 @@ testCases.push(function (dbType, context) {
         });
       });
 
+      //CouchDB is returing a different result
+      it.skip("returns false if field isn't in doc", function () {
+        var docs = [
+              {
+                "user_id": "a",
+                "bang": []
+              }
+          ];
+          var db = context.db;
+          return db.bulkDocs(docs)
+          .then(function () {
+            return db.find({
+              selector: {
+                bang: {
+                  "$allMatch": {
+                    "$eq": "Pokemon",
+                  }
+                }
+              }
+            });
+          })
+          .then(function (resp) {
+            resp.docs.length.should.equal(0);
+          });
+      });
+
       it("matches against array", function () {
         var db = context.db;
         return db.find({
