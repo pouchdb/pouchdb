@@ -39,6 +39,15 @@ For a concise list of breaking changes, there's the [wiki list of breaking chang
 
 Keep in mind that PouchDB is auto-migrating, so a database created in 1.0.0 will still work if you open it in 4.0.0+. Any release containing a migration is clearly marked in the release notes.
 
+Changelog
+----
+
+PouchDB follows [semantic versioning](http://semver.org/). To see a changelog with all PouchDB releases, check out the [Github releases page](https://github.com/pouchdb/pouchdb/releases).
+
+For a concise list of breaking changes, there's the [wiki list of breaking changes](https://github.com/pouchdb/pouchdb/wiki/Breaking-changes).
+
+Keep in mind that PouchDB is auto-migrating, so a database created in 1.0.0 will still work if you open it in 4.0.0+. Any release containing a migration is clearly marked in the release notes.
+
 Contributing
 ------------
 
