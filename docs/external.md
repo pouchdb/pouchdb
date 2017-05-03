@@ -48,6 +48,10 @@ A replicating `db.destroy()` alternative.
 
 Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revision history.
 
+#### [Filter Pouch](https://github.com/nolanlawson/filter-pouch)
+
+Applies filter functions to documents before and after storage, e.g. for encryption, compression, or massaging data.
+
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
 Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
