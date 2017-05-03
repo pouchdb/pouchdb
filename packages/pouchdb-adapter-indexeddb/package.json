@@ -1,0 +1,24 @@
+{
+  "name": "pouchdb-adapter-indexeddb",
+  "version": "5.4.0-prerelease",
+  "description": "PouchDB adapter using IndexedDB as its data store.",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "jsnext:main": "./src/index.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "argsarray": "0.0.1",
+    "pouchdb-errors": "5.4.0-prerelease",
+    "pouchdb-md5": "5.4.0-prerelease",
+    "pouchdb-merge": "5.4.0-prerelease",
+    "pouchdb-adapter-utils": "5.4.0-prerelease",
+    "pouchdb-binary-utils": "5.4.0-prerelease",
+    "pouchdb-utils": "5.4.0-prerelease"
+  }
+}
