@@ -14,8 +14,8 @@ adapterPairs.forEach(function (adapters) {
     var dbs = {};
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapters[0], 'testdb');
-      dbs.secondDB = testUtils.adapterUrl(adapters[0], 'test_repl_remote');
+      dbs.name = testUtils.adapterUrl(adapters[0], 'testdb' + (new Date()).getTime());
+      dbs.secondDB = testUtils.adapterUrl(adapters[0], 'test_repl_remote' + (new Date()).getTime());
       //
       // "test_slash_ids" is just a convenient name, b/c we re-use db
       // names to avoid the Safari popup bug in long-running tests.

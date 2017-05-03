@@ -7,9 +7,10 @@ adapters.forEach(function (adapter) {
   describe('test.basics.js-' + adapter, function () {
 
     var dbs = {};
+    var db_name = 'testdb' + (new Date()).getTime();
 
     beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
+      dbs.name = testUtils.adapterUrl(adapter, db_name);
       testUtils.cleanup([dbs.name], done);
     });
 
@@ -788,7 +789,7 @@ adapters.forEach(function (adapter) {
       }
       var db = new PouchDB(dbs.name);
       db.info().then(function (info) {
-        info.db_name.should.equal('testdb');
+        info.db_name.should.equal(db_name);
         done();
       });
     });

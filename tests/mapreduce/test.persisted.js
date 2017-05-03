@@ -5,7 +5,7 @@ var adapters = ['local', 'http'];
 adapters.forEach(function (adapter) {
 
   var suiteName = 'test.persisted.js-' + adapter;
-  var dbName = testUtils.adapterUrl(adapter, 'testdb');
+  var dbName = testUtils.adapterUrl(adapter, 'testdb' + (new Date()).getTime());
 
   tests(suiteName, dbName, adapter);
 });
