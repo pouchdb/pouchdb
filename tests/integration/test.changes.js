@@ -1982,6 +1982,11 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2569 Big non-live doc_ids filter', function () {
+      // blocked on https://issues.apache.org/jira/browse/COUCHDB-2530
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+      
       var docs = [];
       for (var i = 0; i < 5; i++) {
         var id = '';
@@ -2037,6 +2042,11 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2569 Big live doc_ids filter', function () {
+      // blocked on https://issues.apache.org/jira/browse/COUCHDB-2530
+      if (testUtils.isCouchMaster()) {
+        return true;
+      }
+
       var docs = [];
       for (var i = 0; i < 5; i++) {
         var id = '';
