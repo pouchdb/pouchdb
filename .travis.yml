@@ -15,6 +15,9 @@ sudo:
 addons:
   firefox: "47.0.2"
 
+# Workaround for https://github.com/travis-ci/travis-ci/issues/6928#issuecomment-264227708
+group: deprecated
+
 before_install:
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
@@ -137,6 +140,7 @@ branches:
 
 cache:
   directories:
+  - $HOME/docker
   - $HOME/.npm
   # See https://github.com/gr2m/selsa
   - node_modules/selenium-standalone/.selenium
