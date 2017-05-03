@@ -48,6 +48,10 @@ A replicating `db.destroy()` alternative.
 
 Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revision history.
 
+#### [PouchDB Full Sync](https://github.com/nolanlawson/pouchdb-full-sync)
+
+Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revision history.
+
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
 Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
