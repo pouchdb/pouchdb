@@ -244,6 +244,12 @@ Redux middleware to sync a PouchDB database with the Redux state.
 Syncs PouchDB data with Vue.js components using Mango Selectors
 
 
+### Kendo UI
+
+#### [kendo-pouchdb](https://github.com/terikon/kendo-pouchdb)
+
+Kendo UI DataSource adapter.
+
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
 #### [Python-PouchDB](http://python-pouchdb.marten-de-vries.nl/)
