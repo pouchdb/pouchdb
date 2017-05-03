@@ -16,6 +16,17 @@ A list of known products and services that are using PouchDB.
 
 [Cloudwall](http://cloudwall.me/) is an operating system for noBackend webapps, based on CouchDB and PouchDB.
 
+## Story-writer
+
+Story-writer is a free Markdown editor.
+
+It support web version and node-webkit client version. 
+
+Built using Node.js, Node-webkit, LevelDB, and PouchDB
+
+[web version](http://markdown.xiaoshujiang.com)  
+[client](http://soft.xiaoshujiang.com)
+
 ## Cozy Cloud
 
 {% include img.html width=125 src="cozy.png" alt="Cozy Cloud" %}
