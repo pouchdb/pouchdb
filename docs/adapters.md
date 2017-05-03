@@ -48,7 +48,7 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 	<td>&#10003; (10+)</td>
 	<td>&#10003;</td>
 	<td>&#10003;</td>
-	<td></td>
+	<td>&#10003; (10+)</td>
 	<td>&#10003;</td>
 </tr>
 <tr>
@@ -90,7 +90,7 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 </tr>
 <tr>
     <td>IndexedDB</td>
-    <td></td>
+    <td>&#10003; (10+)</td>
     <td></td>
     <td>&#10003; (4.4+)</td>
     <td>&#10003; (10+)</td>
