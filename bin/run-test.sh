@@ -85,7 +85,17 @@ elif [ "$CLIENT" == "node" ]; then
 elif [ "$CLIENT" == "dev" ]; then
     npm run launch-dev-server
 else
-    npm run test-browser
+    if [ -z $TRAVIS ]; then
+        npm run test-browser
+    else
+        # Saucelabs is extremely faily. If a test fails, try it again
+        # once, so we aren't manually restarting Travis jobs all the time.
+        npm run test-browser
+        if [[ $? != 0 ]]; then
+          echo 'Retrying the browser test'
+          npm run test-browser
+        fi
+    fi
 fi
 
 EXIT_STATUS=$?
