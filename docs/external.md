@@ -244,6 +244,10 @@ Redux middleware to sync a PouchDB database with the Redux state.
 Syncs PouchDB data with Vue.js components using Mango Selectors
 
 
+#### [Factoryng - AngularJS Adapter](https://github.com/redgeoff/factoryng)
+
+An all-in-one AngularJS factory that wraps PouchDB and Delta Pouch.
+
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
 #### [Python-PouchDB](http://python-pouchdb.marten-de-vries.nl/)
