@@ -1109,6 +1109,16 @@ adapters.forEach(function (adapter) {
           }
         }
       ];
+
+      function findRev(results, rev) {
+        for (var i = 0, l = results.length; i < l; i++) {
+          var r = results[i];
+          if (r.ok && r.ok._rev === rev) {
+            return r;
+          }
+        }
+        return null;
+      }
       return db.bulkDocs(doctree, { new_edits: false })
         .then(function () {
           return db.get('mydoc', {
@@ -1117,8 +1127,9 @@ adapters.forEach(function (adapter) {
           });
         }).then(function (result) {
           result.length.should.equal(2);
-          result[0].ok._rev.should.equal('4-d1');
-          result[1].ok._rev.should.equal('3-c2');
+          // result order is not guaranteed
+          should.exist(findRev(result, '4-d1'));
+          should.exist(findRev(result, '3-c2'));
         });
     });
 
