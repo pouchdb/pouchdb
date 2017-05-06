@@ -57,7 +57,11 @@ db.replicate.to('http://example.com/mydb');
 
       <div class='text-center col-sm-6 col-md-3'>
 
-        <div class="icon icon-node"></div>
+        <img
+          class="icon icon-lg"
+          src="{{ site.base_url }}/static/img/index/node.svg"
+          alt=""
+        />
 
         <h3>Cross Browser</h3>
         <p class="margin-bottom-none-md">Works in Firefox, Chrome, Opera, Safari, IE and Node.js</p>
@@ -66,7 +70,11 @@ db.replicate.to('http://example.com/mydb');
 
       <div class='text-center col-sm-6 col-md-3'>
 
-        <div class="icon icon-light"></div>
+        <img
+          class="icon icon-lg"
+          src="{{ site.base_url }}/static/img/index/light.svg"
+          alt=""
+        />
 
         <h3>Lightweight</h3>
         <p class="margin-bottom-none-md">PouchDB is just a script tag and 46KB (gzipped) away in the browser, or <code>$ npm install pouchdb</code> away
@@ -76,7 +84,11 @@ db.replicate.to('http://example.com/mydb');
 
       <div class='text-center col-sm-6 col-md-3'>
 
-        <div class="icon icon-learn"></div>
+        <img
+          class="icon icon-lg"
+          src="{{ site.base_url }}/static/img/index/learn.svg"
+          alt=""
+        />
 
         <h3>Easy to Learn</h3>
         <p class="margin-bottom-none-md">Requires some programming knowledge, however PouchDB is a piece of cake to learn.</p>
@@ -85,7 +97,11 @@ db.replicate.to('http://example.com/mydb');
 
       <div class='text-center col-sm-6 col-md-3'>
 
-        <div class="icon icon-open"></div>
+        <img
+          class="icon icon-lg"
+          src="{{ site.base_url }}/static/img/index/open.svg"
+          alt=""
+        />
 
         <h3>Open Source</h3>
         <p class="margin-bottom-none-md">Everything is developed out in the open on Github, contributors always welcome!</p>
