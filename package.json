@@ -102,7 +102,7 @@
     "rollup-plugin-node-resolve": "2.1.0",
     "rollup-plugin-replace": "1.1.1",
     "sauce-connect-launcher": "1.2.2",
-    "seedrandom": "2.4.2",
+    "seedrandom": "2.4.3",
     "selenium-standalone": "6.4.0",
     "stream-to-promise": "1.1.1",
     "tape": "4.6.3",
