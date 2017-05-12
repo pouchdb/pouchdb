@@ -55,6 +55,25 @@ There is also a shorthand for syncing given existing PouchDB objects. This behav
 db.sync(remoteDB, [options]);
 {% endhighlight %}
 
+It is also possible to combine "one-way" replication and sync for performance reasons. 
+When your PouchDB application starts up it could perform a one-off, one-way replication to completion and then initiate the two-way, continuous retryable sync:
+
+{% highlight js %}
+var url = 'http://localhost:5984/mydb';
+var opts = { live: true, retry: true };
+
+// do one way, one-off sync from the server until completion
+db.replicate.from(url).on('complete', function(info) {
+  // then two-way, continuous, retriable sync
+  db.sync(url, opts)
+    .on('change', onSyncChange)
+    .on('paused', onSyncPaused)
+    .on('error', onSyncError);
+}).on('error', onSyncError);;
+{% endhighlight %}
+
+The above technique results in fewer HTTP requests being used and better performance than just using `db.sync` on its own.
+
 #### Example Response:
 
 Change events in `sync` have an extra property `direction` which refers to the direction the change was going. Its value will either be `push` or `pull`.
