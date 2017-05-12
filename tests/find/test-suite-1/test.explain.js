@@ -1,5 +1,7 @@
 'use strict';
 
+var Promise = testUtils.Promise;
+
 testCases.push(function (dbType, context) {
 
   describe(dbType + ': test.explain.js', function () {
@@ -111,6 +113,32 @@ testCases.push(function (dbType, context) {
         resp.fields.should.deep.equal(actual.fields);
         resp.skip.should.deep.equal(actual.skip);
         resp.limit.should.deep.equal(actual.limit);
+      });
+    });
+
+    it("should work with a callback", function () {
+      var db = context.db;
+      return new Promise(function (resolve, reject) {
+        return db.explain({
+          selector: {
+            name: 'mario',
+            series: 'mario'
+          }
+        }, function (err, res) {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve(res);
+        });
+      });
+    });
+
+    it("should work with a throw missing selector warning", function () {
+      var db = context.db;
+      db.explain()
+      .catch(function (err) {
+        assert.ok(/provide search parameters/.test(err.message));
       });
     });
   });
