@@ -1840,7 +1840,8 @@ adapters.forEach(function (adapter) {
       }).then(function (res) {
         var doc = res.rows[0].doc;
         doc._attachments['foo.txt'].data.should.equal('dG90bw==');
-        return db.remove(doc);
+        return db.
+        (doc);
       }).then(function (res) {
         rev = res.rev;
         return db.allDocs({keys: ['doc'], attachments: true, include_docs: true});
