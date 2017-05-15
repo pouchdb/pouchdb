@@ -1,0 +1,135 @@
+{% include anchor.html edit="true" title="Explain index" hash="explain_index" %}
+
+{% highlight js %}
+db.explain(request [, callback])
+{% endhighlight %}
+
+Explain the query plan for a given query
+
+{% include alert/start.html variant="info"%}
+{% markdown %}
+
+**pouchdb-find plugin needed:** This API requires the `pouchdb-find` plugin. See
+[Mango queries](/guides/mango-queries.html) for installation instructions.
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
+#### Example Usage:
+
+{% include code/start.html id="explain_idx" type="callback" %}
+{% highlight js %}
+db.explain({
+  selector: {
+    name: 'Mario',
+    series: "mario"
+  },
+  fields: ['_id', 'name'],
+  sort: ['name']
+}, function (err, explanation) {
+  if (err) { return console.log(err); }
+  // view explanation
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="explain_idx" type="async" %}
+{% highlight js %}
+try {
+  var explanation = await db.explain({
+    selector: {
+      name: 'Mario',
+      series: "mario"
+    },
+    fields: ['_id', 'name'],
+    sort: ['name']
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="explain_idx" type="promise" %}
+{% highlight js %}
+db.explain({
+  selector: {
+    name: 'Mario',
+    series: "mario"
+  },
+  fields: ['_id', 'name'],
+  sort: ['name']
+}).then(function (explanation) {
+  // view explanation
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+#### Example Response:
+
+{% highlight js %}
+{
+  "dbname": "database-name"
+  "index": {
+    "ddoc": "_design/design-doc-name",
+    "name": "index-name",
+    "type": "json",
+    "def": {
+      "fields": [
+        {
+          "name": "asc"
+        },
+        {
+          "series": "asc"
+        }
+      ]
+    }
+  },
+  "selector": {
+    "$and": [
+      {
+        "name": {
+          "$eq": "mario"
+        }
+      },
+      {
+        "series": {
+          "$eq": "mario"
+        }
+      }
+    ]
+  },
+  "opts": {
+    "use_index": [],
+    "bookmark": "nil",
+    "limit": 25,
+    "skip": 0,
+    "sort": {"name": "asc"},
+    "fields": [
+      "_id"
+    ],
+    "r": [
+      49
+    ],
+    "conflicts": false
+  },
+  "limit": 10,
+  "skip": 1,
+  "fields": [
+    "_id"
+  ],
+  "range": {
+    "start_key": [
+      "mario",
+      "mario"
+    ],
+    "end_key": [
+      "mario",
+      "mario",
+      {}
+    ]
+  }
+};
+{% endhighlight %}
