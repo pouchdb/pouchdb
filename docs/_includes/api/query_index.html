@@ -100,6 +100,7 @@ The above is a simple example. For an in-depth tutorial, please refer to
 * `sort` (Optional) Defines a list of fields defining how you want to sort. Note that sorted fields also have to be selected in the `selector`.
 * `limit` (Optional) Maximum number of documents to return.
 * `skip` (Optional) Number of docs to skip before returning.
+* `use_index` (Optional) Set which index to use for the query. It can be "design-doc-name" or "['design-doc-name', 'name']".
 
 If there's no index that matches your `selector`/`sort`, then this method will issue a warning:
 

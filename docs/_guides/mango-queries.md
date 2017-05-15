@@ -5,7 +5,7 @@ title: Mango queries
 sidebar: guides_nav.html
 ---
 
-Mango queries, also known as `pouchdb-find` or the `find()` API, are a structured query API that allows you to build _secondary indexes_ beyond the built-in `allDocs()` and `changes()` indexes. 
+Mango queries, also known as `pouchdb-find` or the `find()` API, are a structured query API that allows you to build _secondary indexes_ beyond the built-in `allDocs()` and `changes()` indexes.
 
 This API is useful for answering questions like:
 
@@ -226,7 +226,7 @@ The reason for this is easy to understand if we imagine how this index would sor
 In the above table, the documents are sorted by `['name', 'age']`, and our "Marios above the age of 21" are very clearly grouped together.
 
 However, if we were to change the order, and sort them by `['age', 'name']`, it would look instead like this:
- 
+
 <div class="table-responsive">
 <table class="table">
 <tr>
@@ -284,13 +284,30 @@ The Mango query language is generally very permissive, and allows you to write q
 
 As a straightforward example, if you query using the `_id` field, then the query planner will automatically map that directly to an `allDocs()` query. However, if you query for a field that isn't yet indexed, then it will simply use `allDocs()` to read in all documents from the database (!) and then filter in-memory. This can lead to poor performance, especially if your database is large.
 
-If you're ever wondering how the query planner is interpreting your query, you can enable debugging like so:
+If you're ever wondering how the query planner is interpreting your query, you can use the explain endpoint:
+
+```js
+db.explain({
+  selector: {
+    name: 'mario',
+    age: {$gt: 21}
+  }
+})
+.then(function (explained) {
+  // detailed explained info can be viewed
+});
+
+```
+
+Or you enable debugging like so:
 
 ```js
 PouchDB.debug.enable('pouchdb:find');
 ```
 
+
 In the console, the query planner will show a detailed explanation of how it has interpreted the query, whether it uses any indexes, and whether any parts of the query need to be executed in-memory.
+
 
 You may also want to pay attention to the `"warning"` value included in your results set, indicating that there was no index that matched the given query. For instance, the warning may look like this:
 
@@ -299,6 +316,28 @@ You may also want to pay attention to the `"warning"` value included in your res
   "docs": [ /* ... */ ],
   "warning": "no matching index found, create an index to optimize query time"
 }
+```
+
+{% include anchor.html title="Set which index to use" hash="use_index" %}
+
+When creating a query, by settings the `use_index` field, it is possible to tell pouchdb-find which index to use.
+The below example shows how to do that.
+
+```js
+db.createIndex({
+  index: {
+    fields: ['age', 'name'],
+    ddoc: "my-index-design-doc"
+  }
+}).then(function () {
+  return db.find({
+    selector: {
+      name: 'mario',
+      age: {$gt: 21},
+    },
+    use_index: 'my-index-design-doc'
+  });
+});
 ```
 
 {% include anchor.html title="Further reading" hash="further-reading" %}
