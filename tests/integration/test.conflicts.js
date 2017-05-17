@@ -116,6 +116,78 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('force put ok on 1st level', function () {
+      var db = new PouchDB(dbs.name);
+      var docId = "docId";
+      var rev1, rev2, rev3, rev2_;
+      // given
+      return db.put({_id: docId, update:1}).then(function (result) {
+        rev1 = result.rev;
+        return db.put({_id: docId, update:2.1, _rev: rev1});
+      }).then(function (result) {
+        rev2 = result.rev;
+        return db.put({_id: docId, update:3, _rev:rev2});
+      })
+      // when
+      .then(function (result) {
+        rev3 = result.rev;
+        return db.put({_id: docId, update:2.2, _rev: rev1}, {force: true});
+      })
+      // then
+      .then(function (result) {
+        rev2_ = result.rev;
+        rev2_.should.not.equal(rev3);
+        rev2_.substring(0, 2).should.equal('2-');
+        should.exist(result.ok, 'update based on nonleaf revision');
+
+        return db.get(docId, {conflicts: true, revs: true});
+      }).then(function (doc) {
+        doc._rev.should.equal(rev3);
+        doc._conflicts.should.eql([rev2_]);
+
+        return db.get(docId, {conflicts: true, revs: true, rev: rev2_});
+      }).then(function (doc) {
+        console.log("the force doc", doc);
+      });
+    });
+
+    it('force put ok on 2nd level', function () {
+      var db = new PouchDB(dbs.name);
+      var docId = "docId";
+      var rev2, rev3, rev4, rev3_;
+      // given
+      return db.put({_id: docId, update: 1}).then(function (result) {
+        return db.put({_id: docId, update: 2, _rev: result.rev});
+      }).then(function (result) {
+        rev2 = result.rev;
+        return db.put({_id: docId, update: 3.1, _rev: rev2});
+      }).then(function (result) {
+        rev3 = result.rev;
+        return db.put({_id: docId, update: 4, _rev: rev3});
+      })
+      // when
+      .then(function (result) {
+        rev4 = result.rev;
+        return db.put({_id: docId, update:3.2, _rev: rev2}, {force: true});
+      })
+      // then
+      .then(function (result) {
+        rev3_ = result.rev;
+        rev3_.should.not.equal(rev4);
+        rev3_.substring(0, 2).should.equal('3-');
+        should.exist(result.ok, 'update based on nonleaf revision');
+
+        return db.get(docId, {conflicts: true, revs: true});
+      }).then(function (doc) {
+        doc._rev.should.equal(rev4);
+        doc._conflicts.should.eql([rev3_]);
+
+        return db.get(docId, {conflicts: true, revs: true, rev: rev3_});
+      }).then(function (doc) {
+        console.log("the force put doc", doc);
+      });
+    });
+
     // Each revision includes a list of previous revisions. The
     // revision with the longest revision history list becomes the
     // winning revision. If they are the same, the _rev values are
