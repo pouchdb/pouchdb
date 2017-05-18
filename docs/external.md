@@ -84,6 +84,10 @@ Plugin to assist in PouchDB conflict resolving.
 
 PouchDB plugin for running data migrations.
 
+#### [pouch-resolve-conflicts](https://github.com/jo/pouch-resolve-conflicts)
+
+Plugin to assist in PouchDB conflict resolving.
+
 #### [PouchDB Quick Search](https://github.com/nolanlawson/pouchdb-quick-search)
 
 Full-text search engine on top of PouchDB.
