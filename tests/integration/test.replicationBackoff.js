@@ -26,6 +26,11 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var backOffCount = 0;
       var numberOfActiveListeners = 0;
+
+      remote._ajax = function (opts, cb) {
+        cb(new Error('flunking you'));
+      };
+
       var replication = db.sync(remote, {
         live: true,
         retry: true,

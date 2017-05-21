@@ -228,4 +228,39 @@ describe('test.http.js', function () {
     });
   });
 
+  it('heartbeart cannot be > request timeout', function (done) {
+    var timeout = 500;
+    var heartbeat = 1000;
+    var CHANGES_TIMEOUT_BUFFER = 5000;
+    var db = new PouchDB(dbs.name, {
+      skipSetup: true,
+      ajax: {
+        timeout: timeout
+      }
+    });
+
+    var ajax = db._ajax;
+    var ajaxOpts;
+    db._ajax = function (opts) {
+      if (/changes/.test(opts.url)) {
+        ajaxOpts = opts;
+        changes.cancel();
+      }
+      ajax.apply(this, arguments);
+    };
+
+    var changes = db.changes({
+        heartbeat: heartbeat
+    });
+
+    changes.on('complete', function () {
+      should.exist(ajaxOpts);
+      ajaxOpts.timeout.should.equal(heartbeat + CHANGES_TIMEOUT_BUFFER);
+      ajaxOpts.url.indexOf("heartbeat=" + heartbeat).should.not.equal(-1);
+      db._ajax = ajax;
+      done();
+    });
+
+  });
+
 });
