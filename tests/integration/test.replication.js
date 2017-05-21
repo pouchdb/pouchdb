@@ -4038,7 +4038,7 @@ adapters.forEach(function (adapters) {
       var ajax = remote._ajax;
       remote._ajax = function (opts) {
         // the http adapter takes 5s off the provided timeout
-        if (/timeout=15000/.test(opts.url)) {
+        if (/timeout=20000/.test(opts.url)) {
           seenTimeout = true;
         }
         ajax.apply(this, arguments);
