@@ -502,6 +502,22 @@ putYourRightFootIn()
 
 That's what promises are all about.
 
+Another option is to return nested data from the promises, either as an object or an array:
+
+```js
+getUserByName('nolan').then(function (result) {
+  var user = result;
+  return {
+    user: user,
+    userAccount: getUserAccountById(user.id)
+  };
+}).then(function (userData) {
+  var user = userData.user;
+  var userAccount = userData.userAccount;
+  // okay, I have both the "user" and the "userAccount"
+});
+```
+
 Advanced mistake #5: promises fall through
 -----
 
