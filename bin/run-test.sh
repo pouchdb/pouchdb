@@ -32,7 +32,11 @@ if [[ ! -z $SERVER ]]; then
     echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
     ./pouchdb-server-install/node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
     export SERVER_PID=$!
-  elif [ "$SERVER" == "couchdb-master" ]; then
+  elif [ "$SERVER" == "couchdb-2.0" ]; then
+    if [ -z $COUCH_HOST ]; then
+      export COUCH_HOST='http://127.0.0.1:15984'
+    fi
+  elif [ "$SERVER" == "couchdb-1.6.1" ]; then
     if [ -z $COUCH_HOST ]; then
       export COUCH_HOST='http://127.0.0.1:15984'
     fi
