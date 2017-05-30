@@ -123,7 +123,13 @@ testUtils.cleanup = function (dbs, done) {
   var num = dbs.length;
   var finished = function () {
     if (--num === 0) {
-      done();
+      if (testUtils.isCouchMaster()) {
+        // We can't be sure when a DELETE will actually destroy
+        // a database in Couch 2, so we wait.
+        setTimeout(done, 1000);
+      } else {
+        done();
+      }
     }
   };
 
