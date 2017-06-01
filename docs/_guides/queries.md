@@ -35,11 +35,9 @@ db.query(function (doc, emit) {
 
 In the above example, the `result` object will contain stubs of documents where the `name` attribute is equal to `'foo'`. To include the document in each row of results, use the `include_docs` option.
 
-{% include alert/start.html variant="info" %}
 
 The <code>emit</code> pattern is part of the standard <a href='http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html'>CouchDB map/reduce API</a>.  What the function basically says is, "for each document, emit <code>doc.name</code> as a key."
 
-{% include alert/end.html %}
 
 ### Persistent queries
 
