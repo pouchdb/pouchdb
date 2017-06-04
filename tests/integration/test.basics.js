@@ -98,7 +98,7 @@ adapters.forEach(function (adapter) {
     it('Get invalid id', function () {
       var db = new PouchDB(dbs.name);
       return db.get(1234).then(function () {
-        throw 'show not be here';
+        throw new Error('should not be here');
       }).catch(function (err) {
         should.exist(err);
       });
