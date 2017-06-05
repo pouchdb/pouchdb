@@ -94,7 +94,7 @@ adapters.forEach(function (adapter) {
         }
       }};
       return db.put(doc).then(function () {
-        throw 'Should not succeed';
+        throw new Error('Should not succeed');
       }).catch(function (err) {
         err.name.should.equal('bad_request');
       });
