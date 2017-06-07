@@ -502,6 +502,32 @@ putYourRightFootIn()
 
 That's what promises are all about.
 
+Another option is to return nested data from the promises, either as an object or an array. You still need to use pyramids, so it looks even more kludgey than a regular pyramid - unless you have to chain together more than two promises:
+
+```js
+getUserByName('nolan').then(function (result) {
+  var user = result;
+  return getUserAccountById(user.id).then(function(userAccount) {
+    return {
+      user: user,
+      userAccount: userAccount
+    };
+  });
+}).then(function (userData) {
+  var user = userData.user;
+  var userAccount = userData.userAccount;
+  return getUserHistory(user.id).then(function(userHistory) {
+    return {
+      user: user,
+      userAccount: userAccount,
+      userHistory: userHistory
+    };
+  });
+}).then(function(userData) {
+  // now I have "user", "userAccount", and "userHistory", but I am not indented
+});
+```
+
 Advanced mistake #5: promises fall through
 -----
 
