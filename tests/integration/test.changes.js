@@ -986,14 +986,8 @@ adapters.forEach(function (adapter) {
       }).then(function () {
         return db.changes({since: 0, limit: 3}).then(function (res) {
           res.results.map(function (x) {
-            delete x.changes;
-            delete x.seq;
-            return x;
-          }).should.deep.equal([
-            { "id": "1" },
-            { "id": "2" },
-            { "id": "3" }
-          ]);
+            return x.id;
+          }).should.deep.equal(["1", "2", "3"]);
         });
       });
     });
@@ -1305,18 +1299,28 @@ adapters.forEach(function (adapter) {
         });
       }
 
+      function getExpectedGamma(seq, adapter) {
+        var gamma = {
+          "seq": seq,
+          "id": "gamma",
+          "changes": [{ "rev": "1-b"}]
+        }
+
+        if (adapter === 'local') {
+          gamma.added = true
+        }
+
+        return gamma
+      }
+
       return chain.then(function () {
         return db.changes();
       }).then(function (result) {
         normalizeResult(result);
+
         result.should.deep.equal({
           "results": [
-            {
-              "seq": seqs[2],
-              "id": "gamma",
-              "changes": [{ "rev": "1-b"}
-              ]
-            },
+            getExpectedGamma(seqs[2], adapter),
             {
               "seq": seqs[3],
               "id": "alpha",
@@ -1337,33 +1341,23 @@ adapters.forEach(function (adapter) {
       }).then(function (result) {
         normalizeResult(result);
         result.should.deep.equal({
-          "results": [{
-            "seq": seqs[2],
-            "id": "gamma",
-            "changes": [{"rev": "1-b"}]
-          }],
+          "results": [getExpectedGamma(seqs[2], adapter)],
           "last_seq": seqs[2]
         }, '1:' + JSON.stringify(result));
         return db.changes({limit: 1});
       }).then(function (result) {
         normalizeResult(result);
         result.should.deep.equal({
-          "results": [{
-            "seq": seqs[2],
-            "id": "gamma",
-            "changes": [{"rev": "1-b"}]
-          }],
+          "results": [getExpectedGamma(seqs[2], adapter)],
           "last_seq": seqs[2]
         }, '2:' + JSON.stringify(result));
         return db.changes({limit: 2});
       }).then(function (result) {
         normalizeResult(result);
         result.should.deep.equal({
-          "results": [{
-            "seq": seqs[2],
-            "id": "gamma",
-            "changes": [{"rev": "1-b"}]
-          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}],
+          "results": [
+            getExpectedGamma(seqs[2], adapter)
+            , {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}],
           "last_seq": seqs[3]
         }, '3:' + JSON.stringify(result));
         return db.changes({limit: 1, descending: true});
@@ -1401,11 +1395,8 @@ adapters.forEach(function (adapter) {
             "id": "beta",
             "changes": [{"rev": "3-f"}],
             "deleted": true
-          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]}, {
-            "seq": seqs[2],
-            "id": "gamma",
-            "changes": [{"rev": "1-b"}]
-          }],
+          }, {"seq": seqs[3], "id": "alpha", "changes": [{"rev": "2-d"}]},
+          getExpectedGamma(seqs[2], adapter)],
           "last_seq": seqs[2]
         };
         result.should.deep.equal(expected, '6:' + JSON.stringify(result) +
@@ -1718,28 +1709,42 @@ adapters.forEach(function (adapter) {
 
         var expecteds = [
           {
-            "results": [{
-              "seq": seqs[2],
-              "id": "foo",
-              "changes": [{"rev": "3-c"}, {"rev": "3-g"}]
-            }, {"seq": seqs[3], "id": "bar", "changes": [{"rev": "1-z"}]}],
+            "results": [
+              {
+                "seq": seqs[2],
+                "id": "foo",
+                "changes": [{"rev": "3-c"}, {"rev": "3-g"}]
+              },
+              {"seq": seqs[3], "id": "bar", "changes": [{"rev": "1-z"}]}],
             "last_seq": seqs[3]
           },
           {
-            "results": [{
-              "seq": seqs[2],
-              "id": "foo",
-              "changes": [{"rev": "3-c"}, {"rev": "3-g"}]
-            }, {"seq": seqs[3], "id": "bar", "changes": [{"rev": "1-z"}]}],
+            "results": [
+              {
+                "seq": seqs[2],
+                "id": "foo",
+                "changes": [{"rev": "3-c"}, {"rev": "3-g"}]
+              },
+              {"seq": seqs[3], "id": "bar", "changes": [{"rev": "1-z"}]}],
             "last_seq": seqs[3]
           },
           {
-            "results": [{"seq": seqs[3], "id": "bar",
-              "changes": [{"rev": "1-z"}]}],
+            "results": [
+              {
+                "seq": seqs[3],
+                "id": "bar",
+                "changes": [{"rev": "1-z"}]
+              }],
             "last_seq": seqs[3]
           },
           {"results": [], "last_seq": seqs[3]}
         ];
+
+        if (adapter === 'local') {
+          expecteds[0].results[1].added = true
+          expecteds[1].results[1].added = true
+          expecteds[2].results[0].added = true
+        }
 
         var chain2 = testUtils.Promise.resolve();
 
@@ -1859,6 +1864,12 @@ adapters.forEach(function (adapter) {
           },
           {"results": [], "last_seq": seqs[4]}
         ];
+
+        if (adapter === 'local') {
+          expecteds[0].results[0].added = true
+          expecteds[1].results[0].added = true
+          expecteds[2].results[0].added = true
+        }
 
         var chain2 = testUtils.Promise.resolve();
 
