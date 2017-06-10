@@ -1304,13 +1304,13 @@ adapters.forEach(function (adapter) {
           "seq": seq,
           "id": "gamma",
           "changes": [{ "rev": "1-b"}]
-        }
+        };
 
         if (adapter === 'local') {
-          gamma.added = true
+          gamma.added = true;
         }
 
-        return gamma
+        return gamma;
       }
 
       return chain.then(function () {
@@ -1741,9 +1741,9 @@ adapters.forEach(function (adapter) {
         ];
 
         if (adapter === 'local') {
-          expecteds[0].results[1].added = true
-          expecteds[1].results[1].added = true
-          expecteds[2].results[0].added = true
+          expecteds[0].results[1].added = true;
+          expecteds[1].results[1].added = true;
+          expecteds[2].results[0].added = true;
         }
 
         var chain2 = testUtils.Promise.resolve();
@@ -1866,9 +1866,9 @@ adapters.forEach(function (adapter) {
         ];
 
         if (adapter === 'local') {
-          expecteds[0].results[0].added = true
-          expecteds[1].results[0].added = true
-          expecteds[2].results[0].added = true
+          expecteds[0].results[0].added = true;
+          expecteds[1].results[0].added = true;
+          expecteds[2].results[0].added = true;
         }
 
         var chain2 = testUtils.Promise.resolve();
