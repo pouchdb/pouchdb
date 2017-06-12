@@ -279,6 +279,7 @@ testUtils.uuid = pouchUtils.uuid;
 testUtils.parseUri = pouchUtils.parseUri;
 testUtils.errors = PouchForCoverage.Errors;
 testUtils.assign = pouchUtils.assign;
+testUtils.generateReplicationId = pouchUtils.generateReplicationId;
 
 testUtils.makeBlob = function (data, type) {
   if (typeof process !== 'undefined' && !process.browser) {
