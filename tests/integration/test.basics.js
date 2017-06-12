@@ -107,7 +107,7 @@ adapters.forEach(function (adapter) {
     it('Missing doc should contain ID in error object', function () {
       var db = new PouchDB(dbs.name);
       return db.get('abc-123').then(function () {
-        throw 'should not be here';
+        throw new Error('should not be here');
       }).catch(function (err) {
         should.exist(err);
         err.requestedDocId.should.equal('abc-123');
