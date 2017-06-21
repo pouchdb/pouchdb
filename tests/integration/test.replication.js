@@ -194,7 +194,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       // simulate 5000 normal commits with two conflicts at the very end
       function uuid() {
-        return testUtils.uuid(32, 16).toLowerCase();
+        return testUtils.rev();
       }
 
       var numRevs = 5000;
@@ -327,7 +327,7 @@ adapters.forEach(function (adapters) {
       var numRevs = 200; // repro "url too long" error with open_revs
       var docs = [];
       for (var i = 0; i < numRevs; i++) {
-        var rev =  '1-' + testUtils.uuid(32, 16).toLowerCase();
+        var rev =  '1-' + testUtils.rev();
         docs.push({_id: 'doc', _rev: rev});
       }
 
@@ -3281,22 +3281,18 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
       var docid = "mydoc";
 
-      function uuid() {
-        return testUtils.uuid(32, 16).toLowerCase();
-      }
-
       // create a bunch of rando, good revisions
       var numRevs = 5;
       var uuids = [];
       for (var i = 0; i < numRevs - 1; i++) {
-        uuids.push(uuid());
+        uuids.push(testUtils.rev());
       }
 
       // good branch
       // this branch is one revision ahead of the conflicted branch
-      var a_conflict = uuid();
-      var a_burner = uuid();
-      var a_latest = uuid();
+      var a_conflict = testUtils.rev();
+      var a_burner = testUtils.rev();
+      var a_latest = testUtils.rev();
       var a_rev_num = numRevs + 2;
       var a_doc = {
         _id: docid,
@@ -3308,8 +3304,8 @@ adapters.forEach(function (adapters) {
       };
 
       // conflicted deleted branch
-      var b_conflict = uuid();
-      var b_deleted = uuid();
+      var b_conflict = testUtils.rev();
+      var b_deleted = testUtils.rev();
       var b_rev_num = numRevs + 1;
       var b_doc = {
         _id: docid,
