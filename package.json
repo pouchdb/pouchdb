@@ -107,7 +107,7 @@
     "stream-to-promise": "1.1.1",
     "tape": "4.6.3",
     "throw-max-listeners-error": "1.0.1",
-    "ua-parser-js": "0.7.12",
+    "ua-parser-js": "0.7.13",
     "uglify-js": "2.8.21",
     "watch-glob": "0.1.3",
     "wd": "1.2.0"
