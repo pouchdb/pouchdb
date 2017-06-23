@@ -649,6 +649,88 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test disable checkpoints on both source and target', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs({ docs: docs }).then(function () {
+        PouchDB.replicate(db, remote, { checkpoint: false })
+          .on('error', done)
+          .on('complete', function () {
+            testUtils.generateReplicationId(db, remote, {}).then(function (replicationId) {
+              ensureCheckpointIsMissing(db, replicationId)
+                .then(function () {
+                  return ensureCheckpointIsMissing(remote, replicationId);
+                })
+                .then(done)
+                .catch(done);
+            }).catch(done);
+          });
+      }).catch(done);
+
+      function ensureCheckpointIsMissing(db, replicationId) {
+        return db.get(replicationId).then(function () {
+          throw new Error('Found a checkpoint that should not exist for db ' + db.name);
+        }).catch(function (error) {
+          if (error.status === 404) {
+            return;
+          } else {
+            throw error;
+          }
+        });
+      }
+    });
+
+    it('Test write checkpoints on source only', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs({ docs: docs }).then(function () {
+        PouchDB.replicate(db, remote, { checkpoint: 'source' })
+          .on('error', done)
+          .on('complete', function () {
+            testUtils.generateReplicationId(db, remote, {}).then(function (replicationId) {
+              db.get(replicationId).then(function () {
+                remote.get(replicationId).then(function () {
+                  done(new Error('Found a checkpoint on target that should not exist'));
+                }).catch(function (error) {
+                  if (error.status === 404) {
+                    done();
+                  } else {
+                    done(error);
+                  }
+                });
+              }).catch(done);
+            }).catch(done);
+          });
+      }).catch(done);
+    });
+
+    it('Test write checkpoints on target only', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs({ docs: docs }).then(function () {
+        PouchDB.replicate(db, remote, { checkpoint: 'target' })
+          .on('error', done)
+          .on('complete', function () {
+            testUtils.generateReplicationId(db, remote, {}).then(function (replicationId) {
+              remote.get(replicationId).then(function () {
+                db.get(replicationId).then(function () {
+                  done(new Error('Found a checkpoint on source that should not exist'));
+                }).catch(function (error) {
+                  if (error.status === 404) {
+                    done();
+                  } else {
+                    done(error);
+                  }
+                });
+              }).catch(done);
+            }).catch(done);
+          });
+      }).catch(done);
+    });
+
     it('#3136 open revs returned correctly 1', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
