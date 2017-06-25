@@ -42,7 +42,7 @@ describe('migration', function () {
     // conditionally load all legacy PouchDB scripts to avoid pulling them in
     // for test runs that don't test migrations
     return Promise.all(scenarios.map(function (scenario) {
-      var match = scenario.match(/PouchDB v([\.\d]+)/);
+      var match = scenario.match(/PouchDB v([.\d]+)/);
       if (!match) {
         return testUtils.Promise.resolve();
       }

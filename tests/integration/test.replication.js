@@ -2246,7 +2246,7 @@ adapters.forEach(function (adapters) {
           // needed to cause the code to fetch using get
           _attachments: {
             text: {
-              content_type: 'text\/plain',
+              content_type: 'text/plain',
               data: "VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ="
             }
           }
@@ -2961,7 +2961,7 @@ adapters.forEach(function (adapters) {
 
       Array.apply(null, {length: num}).forEach(function (_, i) {
         doc._attachments['file_' + i] = {
-          content_type: 'text\/plain',
+          content_type: 'text/plain',
           data: testUtils.makeBlob('Some text: ' + i)
         };
       });
