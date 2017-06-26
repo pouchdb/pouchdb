@@ -90,7 +90,7 @@
     "median": "0.0.2",
     "mkdirp": "0.5.1",
     "mocha": "3.4.2",
-    "mockery": "2.0.0",
+    "mockery": "2.1.0",
     "ncp": "2.0.0",
     "nock": "9.0.12",
     "pouchdb-express-router": "0.0.9",
