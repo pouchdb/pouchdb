@@ -110,7 +110,7 @@ adapters.forEach(function (adapter) {
         throw new Error('should not be here');
       }).catch(function (err) {
         should.exist(err);
-        err.requestedDocId.should.equal('abc-123');
+        err.docId.should.equal('abc-123');
       });
     });
 
