@@ -105,7 +105,7 @@
     "seedrandom": "2.4.3",
     "selenium-standalone": "6.4.0",
     "stream-to-promise": "1.1.1",
-    "tape": "4.6.3",
+    "tape": "4.7.0",
     "throw-max-listeners-error": "1.0.1",
     "ua-parser-js": "0.7.12",
     "uglify-js": "3.0.20",
