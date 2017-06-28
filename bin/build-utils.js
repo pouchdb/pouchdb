@@ -28,7 +28,7 @@ function writeFile(filename, contents) {
     return renameAsync(tmp, filename);
   }).then(function () {
     console.log('  \u2713' + ' wrote ' +
-      filename.match(/packages[\/\\]node_modules[\/\\]\S*?[\/\\].*/)[0]);
+      filename.match(/packages[/\\]node_modules[/\\]\S*?[/\\].*/)[0]);
   });
 }
 
