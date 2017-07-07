@@ -114,6 +114,38 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('PUTed Conflicted doc should contain ID in error object', function () {
+      var db = new PouchDB(dbs.name);
+      var savedDocId;
+      return db.post({}).then(function (info) {
+        savedDocId = info.id;
+        return db.put({
+          _id: savedDocId,
+        });
+      }).then(function () {
+        throw new Error('should not be here');
+      }).catch(function (err) {
+        err.should.have.property('status', 409);
+        err.docId.should.equal(savedDocId);
+      });
+    });
+
+    it('POSTed Conflicted doc should contain ID in error object', function () {
+      var db = new PouchDB(dbs.name);
+      var savedDocId;
+      return db.post({}).then(function (info) {
+        savedDocId = info.id;
+        return db.post({
+          _id: savedDocId,
+        });
+      }).then(function () {
+        throw new Error('should not be here');
+      }).catch(function (err) {
+        err.should.have.property('status', 409);
+        err.docId.should.equal(savedDocId);
+      });
+    });
+
     it('Add a doc with a promise', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'somestuff'}).then(function () {
