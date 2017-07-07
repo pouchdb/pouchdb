@@ -37,32 +37,9 @@ describe('test.uuid.js', function () {
       .length(count, 'Generated small UUIDS are unique.');
   });
 
-  it('Test custom length', function () {
-    var length = 32;
-    var count = 10;
-    var uuids = makeUuids(count, length);
-    // Test single UUID wrapper
-    uuids.push(testUtils.uuid(length));
-    uuids.map(function (uuid) {
-      uuid.should.have.length(length, 'UUID length is correct.');
-    });
-  });
+  it('_rev generation', function () {
+    var _rev = testUtils.rev();
 
-  it('Test custom length, redix', function () {
-    var length = 32;
-    var count = 10;
-    var radix = 5;
-    var uuids = makeUuids(count, length, radix);
-    // Test single UUID wrapper
-    uuids.push(testUtils.uuid(length, radix));
-    uuids.map(function (uuid) {
-      var nums = uuid.split('').map(function (character) {
-          return parseInt(character, radix);
-        });
-      var max = Math.max.apply(Math, nums);
-      var min = Math.min.apply(Math, nums);
-      max.should.be.below(radix, 'Maximum character is less than radix');
-      min.should.be.at.least(0, 'Min character is greater than or equal to 0');
-    });
+    _rev.should.match(/^[0-9a-fA-F]{32}$/);
   });
 });

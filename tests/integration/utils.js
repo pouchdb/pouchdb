@@ -70,15 +70,15 @@ testUtils.readBlob = function (blob, callback) {
   } else {
     var reader = new FileReader();
     reader.onloadend = function () {
-      
+
       var binary = "";
       var bytes = new Uint8Array(this.result || '');
       var length = bytes.byteLength;
-      
+
       for (var i = 0; i < length; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
-      
+
       callback(binary);
     };
     reader.readAsArrayBuffer(blob);
@@ -276,6 +276,7 @@ testUtils.atob = pouchUtils.atob;
 testUtils.Promise = pouchUtils.Promise;
 testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
+testUtils.rev = pouchUtils.rev;
 testUtils.parseUri = pouchUtils.parseUri;
 testUtils.errors = PouchForCoverage.Errors;
 testUtils.assign = pouchUtils.assign;
