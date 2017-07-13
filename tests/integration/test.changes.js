@@ -515,12 +515,12 @@ adapters.forEach(function (adapter) {
             throw new Error(); // syntaxerrors can't be caught either.
           }.toString()
         }
-      }).should.eventually.be.fulfilled.then(function () {
-        return db.changes({filter: 'test/test'}).should.eventually.be.rejected;
       }).then(function () {
+        return db.changes({filter: 'test/test'});
+      }).then(function () {
+        done('Should have thrown an error');
+      }).catch(function () {
         done();
-      }).catch(function (err) {
-        done('We had an error - ' + err);
       });
     });
 

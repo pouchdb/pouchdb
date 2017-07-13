@@ -29,12 +29,7 @@ adapters.forEach(function (adapter) {
         function () {
         db.allDocs(function (err, result) {
           should.not.exist(err);
-          var rows = result.rows;
           result.total_rows.should.equal(4, 'correct number of results');
-          for (var i = 0; i < rows.length; i++) {
-            rows[i].id.should.be.at.least('0');
-            rows[i].id.should.be.at.most('4');
-          }
           db.allDocs({
             startkey: '2',
             include_docs: true
@@ -671,9 +666,6 @@ adapters.forEach(function (adapter) {
           if (!res.rows.length) {
             return;
           }
-          if (lastkey) {
-            res.rows[0].key.should.be.above(lastkey);
-          }
           res.rows.should.have.length(100);
           lastkey = res.rows.pop().key;
           allkeys.push(lastkey);
@@ -694,7 +686,6 @@ adapters.forEach(function (adapter) {
               if (!res.rows.length) {
                 return;
               }
-              res.rows[0].key.should.be.above(key);
               res.rows.should.have.length(100);
             });
           }));
