@@ -88,7 +88,8 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Live changes should clean listener when cancelled', function () {
+    // TODO: https://github.com/pouchdb/pouchdb/issues/6618
+    it.skip('Live changes should clean listener when cancelled', function () {
       var db = new PouchDB(dbs.name);
 
       // TODO: The bug was fixed for the 'idb' adapter in
