@@ -126,6 +126,9 @@ matrix:
     - node_js: "7"
       services: docker
       env: CLIENT=node COMMAND=test
+    - node_js: "8"
+      services: docker
+      env: CLIENT=node COMMAND=test
   allow_failures:
   - env: CLIENT=node ADAPTER=websql COMMAND=test
   - env: COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
