@@ -2,14 +2,9 @@
 
 var adapters = [
   ['local', 'http'],
-  ['http', 'http'],
   ['http', 'local'],
   ['local', 'local']
 ];
-
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
 
 adapters.forEach(function (adapters) {
   describe('test.sync.js-' + adapters[0] + '-' + adapters[1], function () {
