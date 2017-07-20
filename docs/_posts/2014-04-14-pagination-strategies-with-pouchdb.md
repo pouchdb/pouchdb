@@ -211,7 +211,7 @@ var options = {limit : 5};
 function fetchNextPage() {
   pouch.allDocs(options, function (err, response) {
     if (response && response.rows.length > 0) {
-      options.startkey = response.rows[response.rows.length - 1];
+      options.startkey = response.rows[response.rows.length - 1].id;
       options.skip = 1;
     }
     // handle err or response
