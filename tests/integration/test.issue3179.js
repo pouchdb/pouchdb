@@ -1,15 +1,10 @@
 'use strict';
 
 var adapters = [
-  ['http', 'http'],
   ['http', 'local'],
   ['local', 'http'],
   ['local', 'local']
 ];
-
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
 
 adapters.forEach(function (adapters) {
   describe('test.issue3179.js-' + adapters[0] + '-' + adapters[1], function () {
