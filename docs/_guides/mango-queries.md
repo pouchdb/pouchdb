@@ -25,7 +25,7 @@ The `find()` API is currently offered as a separate plugin, meaning that you mus
 <script src="pouchdb.find.js"></script>
 ```
 
-The `pouchdb.find.js` file is available in the `pouchdb` package in npm/Bower, on [unpkg](unpkg.com/pouchdb/dist/), or [as a GitHub download](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.find.js). Note it must be placed after `pouchdb.js`.
+The `pouchdb.find.js` file is available in the `pouchdb` package in npm/Bower, on [unpkg](https://unpkg.com/pouchdb/dist/), or [as a GitHub download](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.find.js). Note it must be placed after `pouchdb.js`.
 
 ### npm
 
