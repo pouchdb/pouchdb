@@ -4181,7 +4181,7 @@ adapters.forEach(function (adapters) {
         {_id: '2', user: 'foo'},
         {_id: '3', user: 'bar'}
       ];
-      remote.bulkDocs({ docs: docs1 }, function () {
+      remote.bulkDocs(docs1, function () {
         db.replicate.from(remote, {
           selector: {'user':'foo'}
         }).on('error', done).on('complete', function () {
@@ -4212,14 +4212,13 @@ adapters.forEach(function (adapters) {
         {_id: '4', integer: 4, string: '4'},
         {_id: '5', integer: 5, string: '5'}
       ];
-      return remote.bulkDocs({docs: thedocs}).then(function () {
+      return remote.bulkDocs(thedocs).then(function () {
         return db.replicate.from(remote, {selector: 'foo'});
       }).catch(function (err) {
         err.name.should.equal('bad_request');
         err.reason.should.contain('expected a JSON object');
       });
     });
-
   });
 });
 
