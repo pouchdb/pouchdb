@@ -4219,7 +4219,6 @@ adapters.forEach(function (adapters) {
         err.reason.should.contain('expected a JSON object');
       });
     });
-
   });
 });
 
