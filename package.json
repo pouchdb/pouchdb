@@ -51,7 +51,7 @@
     "ltgt": "2.2.0",
     "memdown": "1.2.4",
     "readable-stream": "1.0.33",
-    "request": "2.80.0",
+    "request": "2.81.1",
     "spark-md5": "3.0.0",
     "through2": "2.0.3",
     "uuid": "^3.1.0",
