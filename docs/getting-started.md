@@ -40,7 +40,7 @@ It's also a good idea to open your browser's console so you can see any errors o
 Open `index.html` and include PouchDB in the app by adding a script tag:
 
 {% highlight html %}
-<script src="//cdn.jsdelivr.net/npm/pouchdb@{{site.version}}"></script>
+<script src="//cdn.jsdelivr.net/npm/pouchdb@{{site.version}}/dist/pouchdb.min.js"></script>
 <script src="js/base.js"></script>
 <script src="js/app.js"></script>
 {% endhighlight %}
