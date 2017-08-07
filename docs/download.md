@@ -7,7 +7,7 @@ sidebar: nav.html
 {% include anchor.html class="h3" title="Quick Start" hash="file" %}
 
 {% highlight html %}
-<script src="//cdn.jsdelivr.net/pouchdb/{{ site.version }}/pouchdb.min.js">
+<script src="//cdn.jsdelivr.net/npm/pouchdb@{{site.version}}"></script>
 </script>
 <script>
   var db = new PouchDB('my_database');
