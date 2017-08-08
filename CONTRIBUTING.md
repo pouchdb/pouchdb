@@ -43,7 +43,7 @@ issue
 Dependencies
 --------------------------------------
 
-PouchDB needs the following to be able to build and test your build, if you haven't installed them then best to do do so now, we will wait.
+PouchDB needs the following to be able to build and test your build, if you haven't installed them then best to do so now, we will wait.
 
   * [Node.js](http://nodejs.org/)
   * [CouchDB](http://couchdb.apache.org/)
@@ -57,7 +57,7 @@ You'll also need to ensure that CORS is enabled on the CouchDB. You can easily d
 Building PouchDB
 --------------------------------------
 
-All dependencies installed? great, now building PouchDB itself is a breeze:
+All dependencies installed? Great, now building PouchDB itself is a breeze:
 
     $ cd pouchdb
     $ npm install
