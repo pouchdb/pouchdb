@@ -6,15 +6,14 @@ adapters.forEach(function (adapter) {
   describe('test.all_docs.js-' + adapter, function () {
 
     var dbs = {};
-    beforeEach(function (done) {
-      dbs = {name: testUtils.adapterUrl(adapter, 'testdb')};
-      testUtils.cleanup([dbs.name], done);
+
+    beforeEach(function () {
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
     });
 
     afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
-
 
     var origDocs = [
       {_id: '0', a: 1, b: 1},

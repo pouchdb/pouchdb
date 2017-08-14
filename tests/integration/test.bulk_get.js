@@ -6,9 +6,9 @@ adapters.forEach(function (adapter) {
   describe('test.bulk_get.js-' + adapter, function () {
 
     var dbs = {};
-    beforeEach(function (done) {
-      dbs = {name: testUtils.adapterUrl(adapter, 'testdb')};
-      testUtils.cleanup([dbs.name], done);
+
+    beforeEach(function () {
+      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
     });
 
     afterEach(function (done) {

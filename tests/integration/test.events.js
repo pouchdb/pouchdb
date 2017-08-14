@@ -6,15 +6,14 @@ adapters.forEach(function (adapter) {
   describe('test.events.js-' + adapter, function () {
 
     var dbs = {};
-    beforeEach(function (done) {
+
+    beforeEach(function () {
       dbs.name = testUtils.adapterUrl(adapter, 'testdb');
-      testUtils.cleanup([dbs.name], done);
     });
 
-    after(function (done) {
+    afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
-
 
     it('PouchDB emits creation event', function (done) {
       PouchDB.once('created', function (name) {

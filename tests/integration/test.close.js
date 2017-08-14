@@ -6,15 +6,14 @@ adapters.forEach(function (adapter) {
   describe('test.close.js-' + adapter, function () {
 
     var dbs = {};
-    beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapter, 'testdb');
-      testUtils.cleanup([dbs.name], done);
+
+    beforeEach(function () {
+      dbs.name = testUtils.adapterUrl(adapter, 'test_db');
     });
 
-    after(function (done) {
+    afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
-
 
     it('should emit destroyed even when closed (sync)', function () {
       var db1 = new PouchDB('testdb');

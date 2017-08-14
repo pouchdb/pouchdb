@@ -7,15 +7,13 @@ adapters.forEach(function (adapter) {
 
     var dbs = {};
 
-    beforeEach(function (done) {
+    beforeEach(function () {
       dbs.name = testUtils.adapterUrl(adapter, 'testdb');
-      testUtils.cleanup([dbs.name], done);
     });
 
     afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
-
 
     it('Test revs diff', function (done) {
       var db = new PouchDB(dbs.name, {auto_compaction: false});
