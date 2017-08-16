@@ -31,13 +31,7 @@ If you are on a Debian flavor of Linux (Ubuntu, Mint, etc.), you can install Cou
 $ sudo apt-get install couchdb
 ```
 
-On a Mac you can do:
-
-```
-$ brew install couchdb
-```
-
-On Windows, you should install from [the CouchDB web site](https://couchdb.apache.org/#download).
+If you are on a Mac or Windows you should install the official binaries from [the CouchDB web site](https://couchdb.apache.org/#download).
 
 #### A CouchDB alternative: PouchDB Server
 
