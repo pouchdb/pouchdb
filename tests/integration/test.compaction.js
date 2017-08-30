@@ -11,15 +11,14 @@ adapters.forEach(function (adapter) {
 
     var dbs = {};
 
-    beforeEach(function (done) {
+    beforeEach(function () {
       dbs.name = testUtils.adapterUrl(adapter, 'testdb');
+    });
+
+    afterEach(function (done) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    after(function (done) {
-      testUtils.cleanup([dbs.name], done);
-    });
-    
     it('#3350 compact should return {ok: true}', function (done) {
       var db = new PouchDB(dbs.name);
       db.compact(function (err, result) {

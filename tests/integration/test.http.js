@@ -4,12 +4,11 @@ describe('test.http.js', function () {
 
   var dbs = {};
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     dbs.name = testUtils.adapterUrl('http', 'test_http');
-    testUtils.cleanup([dbs.name], done);
   });
 
-  after(function (done) {
+  afterEach(function (done) {
     testUtils.cleanup([dbs.name], done);
   });
 

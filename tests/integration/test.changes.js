@@ -23,13 +23,12 @@ adapters.forEach(function (adapter) {
       }
     }
 
-    beforeEach(function (done) {
+    beforeEach(function () {
       dbs.name = testUtils.adapterUrl(adapter, 'testdb');
       dbs.remote = testUtils.adapterUrl(adapter, 'test_repl_remote');
-      testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
-    after(function (done) {
+    afterEach(function (done) {
       testUtils.cleanup([dbs.name, dbs.remote], done);
     });
 
@@ -2733,7 +2732,7 @@ adapters.forEach(function (adapter) {
 
 describe('changes-standalone', function () {
 
-  it('Changes reports errors', function (done) {
+  it.skip('Changes reports errors', function (done) {
     this.timeout(2000);
     var db = new PouchDB('http://infiniterequest.com', { skipSetup: true });
     db.changes({
