@@ -104,7 +104,7 @@ db.replicate.to('http://example.com/mydb');
         />
 
         <h3>Open Source</h3>
-        <p class="margin-bottom-none-md">Everything is developed out in the open on Github, contributors always welcome!</p>
+        <p class="margin-bottom-none-md">Everything is developed out in the open on GitHub, contributors always welcome!</p>
 
       </div>
 
