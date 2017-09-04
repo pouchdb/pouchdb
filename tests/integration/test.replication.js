@@ -729,6 +729,136 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
+    it.only('Test replicate resumes OK', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+              result.initial_checkpoint.should.equal(0);
+
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+
+                  PouchDB.replicate(db, remote)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      result.initial_checkpoint.should.equal(1);
+                      done();
+                    });
+
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it.only('Test replicate resumes OK with no checkpoints', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replicateOpts = { checkpoint: false };
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote, replicateOpts)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+              result.initial_checkpoint.should.equal(0);
+
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+
+                  PouchDB.replicate(db, remote, replicateOpts)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      result.initial_checkpoint.should.equal(0);
+                      done();
+                    });
+
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it.only('Test replicate on source only resumes OK', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replicateOpts = { checkpoint: 'source' };
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote, replicateOpts)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+              result.initial_checkpoint.should.equal(0);
+
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+
+                  PouchDB.replicate(db, remote, replicateOpts)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      result.initial_checkpoint.should.equal(0); // TODO should be 1
+                      done();
+                    });
+
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it.only('Test replicate on target only resumes OK', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replicateOpts = { checkpoint: 'target' };
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote, replicateOpts)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+              result.initial_checkpoint.should.equal(0);
+
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+
+                  PouchDB.replicate(db, remote, replicateOpts)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      result.initial_checkpoint.should.equal(0); // TODO should be 1
+                      done();
+                    });
+
+                });
+            });
+        })
+        .catch(done);
+    });
+
     it('#3136 open revs returned correctly 1', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
