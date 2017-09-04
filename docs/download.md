@@ -54,7 +54,7 @@ PouchDB is hosted at these CDNs:
 
 * [cdnjs](https://cdnjs.com/libraries/pouchdb)
 * [jsdelivr](http://www.jsdelivr.com/#!pouchdb)
-* [unpkg](https://unpkg.com/pouchdb@6.0.4/dist/)
+* [unpkg](https://unpkg.com/pouchdb@{{ site.version }}/dist/)
 
 {% include anchor.html class="h3" title="Bower" hash="bower" %}
 
