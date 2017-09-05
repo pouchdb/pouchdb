@@ -729,7 +729,7 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
-    it('Test replicate resumes OK', function (done) {
+    it('Test replication resumes when checkpointing is enabled', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -759,7 +759,7 @@ adapters.forEach(function (adapters) {
         .catch(done);
     });
 
-    it('Test replicate resumes OK with no checkpoints', function (done) {
+    it('Test replication resumes when checkpointing is disabled', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -791,7 +791,7 @@ adapters.forEach(function (adapters) {
         .catch(done);
     });
 
-    it('Test replicate on source only resumes OK', function (done) {
+    it('Test replication resumes when checkpointing on source only', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -823,7 +823,7 @@ adapters.forEach(function (adapters) {
         .catch(done);
     });
 
-    it('Test replicate on target only resumes OK', function (done) {
+    it('Test replication resumes when checkpointing on target only', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
