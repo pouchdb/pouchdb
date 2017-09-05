@@ -2653,40 +2653,40 @@ adapters.forEach(function (adapters) {
         return changes.apply(source, arguments);
       };
 
-       var doc = { _id: '3', count: 0 };
+      var doc = { _id: '3', count: 0 };
 
-       return source.put({ _id: '4', count: 1 }, {}).then(function () {
-         writeStrange = true;
-         return source.replicate.to(target);
-       }).then(function () {
-         writeStrange = false;
-         // Verify that we have old checkpoints:
-         should.exist(checkpoint);
-         var target = new PouchDB(dbs.name);
-         return testUtils.Promise.all([
-           target.get(checkpoint),
-           source.get(checkpoint)
-         ]);
-       }).then(function (res) {
-        // [0] = target checkpoint, [1] = source checkpoint
-        should.not.exist(res[0].session_id);
-        should.not.exist(res[1].session_id);
+      return source.put({ _id: '4', count: 1 }, {}).then(function () {
+        writeStrange = true;
+        return source.replicate.to(target);
+      }).then(function () {
+        writeStrange = false;
+        // Verify that we have old checkpoints:
+        should.exist(checkpoint);
+        var target = new PouchDB(dbs.name);
+        return testUtils.Promise.all([
+          target.get(checkpoint),
+          source.get(checkpoint)
+        ]);
+      }).then(function (res) {
+       // [0] = target checkpoint, [1] = source checkpoint
+       should.not.exist(res[0].session_id);
+       should.not.exist(res[1].session_id);
 
-         return source.put(doc, {});
-       }).then(function () {
-         // Do one replication, check that we start from expected last_seq
-         secondRound = true;
-         return source.replicate.to(target);
-       }).then(function () {
-         should.exist(checkpoint);
-         return source.get(checkpoint);
-       }).then(function (res) {
-         should.exist(res.version);
-         should.exist(res.replicator);
-         should.exist(res.session_id);
-         res.version.should.equal(1);
-         res.session_id.should.be.a('string');
-       });
+        return source.put(doc, {});
+      }).then(function () {
+        // Do one replication, check that we start from expected last_seq
+        secondRound = true;
+        return source.replicate.to(target);
+      }).then(function () {
+        should.exist(checkpoint);
+        return source.get(checkpoint);
+      }).then(function (res) {
+        should.exist(res.version);
+        should.exist(res.replicator);
+        should.exist(res.session_id);
+        res.version.should.equal(1);
+        res.session_id.should.be.a('string');
+      });
     });
 
     it('(#1307) - replicate empty database', function (done) {
