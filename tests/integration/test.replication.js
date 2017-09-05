@@ -729,7 +729,7 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
-    it.only('Test replicate resumes OK', function (done) {
+    it('Test replicate resumes OK', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -760,7 +760,7 @@ adapters.forEach(function (adapters) {
         .catch(done);
     });
 
-    it.only('Test replicate resumes OK with no checkpoints', function (done) {
+    it('Test replicate resumes OK with no checkpoints', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -793,7 +793,7 @@ adapters.forEach(function (adapters) {
         .catch(done);
     });
 
-    it.only('Test replicate on source only resumes OK', function (done) {
+    it('Test replicate on source only resumes OK', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -826,7 +826,7 @@ adapters.forEach(function (adapters) {
         .catch(done);
     });
 
-    it.only('Test replicate on target only resumes OK', function (done) {
+    it('Test replicate on target only resumes OK', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
