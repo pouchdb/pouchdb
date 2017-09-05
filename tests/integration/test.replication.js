@@ -753,7 +753,6 @@ adapters.forEach(function (adapters) {
                       result.initial_checkpoint.should.equal(1);
                       done();
                     });
-
                 });
             });
         })
@@ -786,7 +785,6 @@ adapters.forEach(function (adapters) {
                       result.initial_checkpoint.should.equal(0);
                       done();
                     });
-
                 });
             });
         })
@@ -819,7 +817,6 @@ adapters.forEach(function (adapters) {
                       result.initial_checkpoint.should.equal(1);
                       done();
                     });
-
                 });
             });
         })
@@ -852,7 +849,6 @@ adapters.forEach(function (adapters) {
                       result.initial_checkpoint.should.equal(1);
                       done();
                     });
-
                 });
             });
         })
