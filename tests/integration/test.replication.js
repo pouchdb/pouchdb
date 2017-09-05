@@ -816,7 +816,7 @@ adapters.forEach(function (adapters) {
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
-                      result.initial_checkpoint.should.equal(0); // TODO should be 1
+                      result.initial_checkpoint.should.equal(1);
                       done();
                     });
 
@@ -849,7 +849,7 @@ adapters.forEach(function (adapters) {
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
-                      result.initial_checkpoint.should.equal(0); // TODO should be 1
+                      result.initial_checkpoint.should.equal(1);
                       done();
                     });
 
