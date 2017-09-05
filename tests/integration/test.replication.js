@@ -2522,14 +2522,11 @@ adapters.forEach(function (adapters) {
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = source.changes;
-      source.changes = function (opts) {
-
+      interceptChanges(source, function (opts) {
         if (mismatch) {
           opts.since.should.not.equal(0);
         }
-        return changes.apply(source, arguments);
-      };
+      });
 
 
       var doc = { _id: '3', count: 0 };
@@ -2597,8 +2594,7 @@ adapters.forEach(function (adapters) {
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = source.changes;
-      source.changes = function (opts) {
+      interceptChanges(function (opts) {
         if (mismatch) {
           // We expect this replication to start over,
           // so the correct value of since is 0
@@ -2607,9 +2603,7 @@ adapters.forEach(function (adapters) {
           opts.since.should.equal(0);
           mismatch = false;
         }
-
-        return changes.apply(source, arguments);
-      };
+      });
 
       var doc = { _id: '3', count: 0 };
       var put;
@@ -2680,9 +2674,7 @@ adapters.forEach(function (adapters) {
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = source.changes;
-
-      source.changes = function (opts) {
+      interceptChanges(function (opts) {
         if (mismatch) {
           // If we resolve to 0, the checkpoint resolver has not
           // been going through the sessions
@@ -2690,9 +2682,7 @@ adapters.forEach(function (adapters) {
 
           mismatch = false;
         }
-
-        return changes.apply(source, arguments);
-      };
+      });
 
 
       var doc = { _id: '3', count: 0 };
@@ -2769,15 +2759,13 @@ adapters.forEach(function (adapters) {
       var targetPut =  target.put;
       target.put = putter;
 
-      var changes = source.changes;
-      source.changes = function (opts) {
+      interceptChanges(source, function(opts) {
         if (secondRound) {
           // Test 1: Check that we read the old style local doc
           // and didn't start from 0
           opts.since.should.not.equal(0);
         }
-        return changes.apply(source, arguments);
-      };
+      });
 
       var doc = { _id: '3', count: 0 };
 
@@ -4376,3 +4364,11 @@ downAdapters.map(function () {
 
   });
 });
+
+function interceptChanges(source, interceptFunction) {
+  var changes = source.changes;
+  source.changes = function (opts) {
+    interceptFunction(opts);
+    return changes.apply(source, arguments);
+  };
+}
