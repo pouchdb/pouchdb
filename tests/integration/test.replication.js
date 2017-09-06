@@ -733,6 +733,14 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        if (expectedSince !== false) {
+          opts.since.should.equal(expectedSince);
+          expectedSince = false;
+        }
+      });
+
       db.bulkDocs({ docs: docs.slice(0, 1) })
         .then(function () {
           PouchDB.replicate(db, remote)
@@ -740,17 +748,14 @@ adapters.forEach(function (adapters) {
             .on('complete', function (result) {
               result.docs_read.should.equal(1);
               result.docs_written.should.equal(1);
-              result.initial_checkpoint.should.equal(0);
-
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-
+                  expectedSince = 1;
                   PouchDB.replicate(db, remote)
                     .on('error', done)
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
-                      result.initial_checkpoint.should.equal(1);
                       done();
                     });
                 });
@@ -765,6 +770,14 @@ adapters.forEach(function (adapters) {
 
       var replicateOpts = { checkpoint: false };
 
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        if (expectedSince !== false) {
+          opts.since.should.equal(expectedSince);
+          expectedSince = false;
+        }
+      });
+
       db.bulkDocs({ docs: docs.slice(0, 1) })
         .then(function () {
           PouchDB.replicate(db, remote, replicateOpts)
@@ -772,17 +785,15 @@ adapters.forEach(function (adapters) {
             .on('complete', function (result) {
               result.docs_read.should.equal(1);
               result.docs_written.should.equal(1);
-              result.initial_checkpoint.should.equal(0);
 
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-
+                  expectedSince = 0;
                   PouchDB.replicate(db, remote, replicateOpts)
                     .on('error', done)
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
-                      result.initial_checkpoint.should.equal(0);
                       done();
                     });
                 });
@@ -797,6 +808,14 @@ adapters.forEach(function (adapters) {
 
       var replicateOpts = { checkpoint: 'source' };
 
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        if (expectedSince !== false) {
+          opts.since.should.equal(expectedSince);
+          expectedSince = false;
+        }
+      });
+
       db.bulkDocs({ docs: docs.slice(0, 1) })
         .then(function () {
           PouchDB.replicate(db, remote, replicateOpts)
@@ -804,17 +823,15 @@ adapters.forEach(function (adapters) {
             .on('complete', function (result) {
               result.docs_read.should.equal(1);
               result.docs_written.should.equal(1);
-              result.initial_checkpoint.should.equal(0);
 
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-
+                  expectedSince = 1;
                   PouchDB.replicate(db, remote, replicateOpts)
                     .on('error', done)
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
-                      result.initial_checkpoint.should.equal(1);
                       done();
                     });
                 });
@@ -829,6 +846,14 @@ adapters.forEach(function (adapters) {
 
       var replicateOpts = { checkpoint: 'target' };
 
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        if (expectedSince !== false) {
+          opts.since.should.equal(expectedSince);
+          expectedSince = false;
+        }
+      });
+
       db.bulkDocs({ docs: docs.slice(0, 1) })
         .then(function () {
           PouchDB.replicate(db, remote, replicateOpts)
@@ -836,17 +861,15 @@ adapters.forEach(function (adapters) {
             .on('complete', function (result) {
               result.docs_read.should.equal(1);
               result.docs_written.should.equal(1);
-              result.initial_checkpoint.should.equal(0);
 
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-
+                  expectedSince = 1;
                   PouchDB.replicate(db, remote, replicateOpts)
                     .on('error', done)
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
-                      result.initial_checkpoint.should.equal(1);
                       done();
                     });
                 });
