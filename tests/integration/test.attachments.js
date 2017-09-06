@@ -1252,6 +1252,31 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#6736 {binary: true} in bulkGet()', function () {
+      var db = new PouchDB(dbs.name);
+      var docs = [binAttDoc];
+      return db.bulkDocs(docs).then(function (response) {
+        var attName = Object.keys(binAttDoc._attachments)[0];
+        var expected = binAttDoc._attachments[attName];
+        return db.bulkGet({
+          docs: response,
+          attachments: true,
+          binary: true
+        }).then(function (response) {
+          var result = response.results[0];
+          var att = result.docs[0].ok._attachments[attName];
+          should.not.exist(att.stub);
+          should.exist(att.digest);
+          att.content_type.should.equal(expected.content_type);
+          att.data.should.not.be.a('string');
+          att.data.type.should.equal(expected.content_type);
+          return testUtils.readBlobPromise(att.data);
+        }).then(function (bin) {
+          testUtils.btoa(bin).should.equal(expected.data);
+        });
+      });
+    });
+
     it('Measures length correctly after put()', function () {
       var db = new PouchDB(dbs.name);
       return db.put(binAttDoc).then(function () {
@@ -3178,7 +3203,7 @@ adapters.forEach(function (adapter) {
         });
       });
     }
-    
+
     it('#2709 `revpos` with putAttachment', function (done) {
       var db = new PouchDB(dbs.name);
       db.putAttachment('a', 'one', '', testUtils.btoa('one'), 'text/plain', function () {
@@ -3202,7 +3227,7 @@ adapters.forEach(function (adapter) {
         });
       });
     });
-    
+
     it('#2709 `revpos` with inline attachment', function (done) {
       var db = new PouchDB(dbs.name);
       var doc = {
@@ -3253,7 +3278,7 @@ adapters.forEach(function (adapter) {
         });
       });
     });
-    
+
   });
 });
 
