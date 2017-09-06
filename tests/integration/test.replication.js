@@ -2759,7 +2759,7 @@ adapters.forEach(function (adapters) {
       var targetPut =  target.put;
       target.put = putter;
 
-      interceptChanges(source, function(opts) {
+      interceptChanges(source, function (opts) {
         if (secondRound) {
           // Test 1: Check that we read the old style local doc
           // and didn't start from 0
