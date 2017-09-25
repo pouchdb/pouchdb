@@ -74,7 +74,7 @@
     "derequire": "2.0.6",
     "es3ify": "0.2.2",
     "eslint": "4.6.1",
-    "express": "4.15.2",
+    "express": "5.0.0-alpha.6",
     "express-pouchdb": "2.3.7",
     "find-requires": "0.2.2",
     "glob": "7.1.1",
