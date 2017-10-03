@@ -39,9 +39,6 @@ before_script:
   # is a lint failure
   - npm run eslint
 
-after_script:
-  - "if [ -f /home/travis/build/pouchdb/pouchdb/coverage/coverage.json ]; then echo '============== Generated coverage report:' && cat /home/travis/build/pouchdb/pouchdb/coverage/coverage.json && echo '=========='; fi"
-
 # travis_retry will try up to 3 times to run the script. our tests
 # are flaky enough (Selenium, SauceLabs, network, etc.) that this
 # mitigates a lot of false negatives
