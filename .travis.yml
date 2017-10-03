@@ -39,13 +39,13 @@ before_script:
   # is a lint failure
   - npm run eslint
 
+after_script:
+  - "if [ -f /home/travis/build/pouchdb/pouchdb/coverage/coverage.json ]; then echo '============== Generated coverage report:' && cat /home/travis/build/pouchdb/pouchdb/coverage/coverage.json && echo '=========='; fi"
+
 # travis_retry will try up to 3 times to run the script. our tests
 # are flaky enough (Selenium, SauceLabs, network, etc.) that this
 # mitigates a lot of false negatives
 script: travis_retry npm run $COMMAND
-
-after_script:
-  - "if [ $COVERAGE ]; then npm run coveralls; fi"
 
 env:
   global:
@@ -117,7 +117,7 @@ env:
   - COMMAND=test-fuzzy
   # need extra env variable COVERAGE here because of some subtlety in Travis containers not
   # passing the process.env.COVERAGE to the node process
-  - COMMAND=coverage COVERAGE=1 SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find
+  - COMMAND=report-coverage COVERAGE=1 SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find
   - COMMAND=verify-build
 
 matrix:
