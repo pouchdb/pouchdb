@@ -733,10 +733,15 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      var checkChanges = false;
+      var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (checkChanges) {
-          opts.since.should.not.equal(0);
+        if (expectedSince !== false) {
+          if(typeof opts.since === 'number') {
+            opts.since.should.equal(expectedSince);
+          } else {
+            opts.since.should.startWith(expectedSince + '-');
+          }
+          expectedSince = false;
         }
       });
 
@@ -749,7 +754,7 @@ adapters.forEach(function (adapters) {
               result.docs_written.should.equal(1);
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-                  checkChanges = true;
+                  expectedSince = 1;
                   PouchDB.replicate(db, remote)
                     .on('error', done)
                     .on('complete', function (result) {
@@ -769,12 +774,15 @@ adapters.forEach(function (adapters) {
 
       var replicateOpts = { checkpoint: false };
 
-      var checkChanges = false;
+      var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (checkChanges) {
-          console.log('checkpointing disabled', opts.since, opts);
-          opts.since.should.equal(0);
-          checkChanges = false;
+        if (expectedSince !== false) {
+          if(typeof opts.since === 'number') {
+            opts.since.should.equal(expectedSince);
+          } else {
+            opts.since.should.startWith(expectedSince + '-');
+          }
+          expectedSince = false;
         }
       });
 
@@ -788,7 +796,7 @@ adapters.forEach(function (adapters) {
 
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-                  checkChanges = true;
+                  expectedSince = 0;
                   PouchDB.replicate(db, remote, replicateOpts)
                     .on('error', done)
                     .on('complete', function (result) {
@@ -808,11 +816,15 @@ adapters.forEach(function (adapters) {
 
       var replicateOpts = { checkpoint: 'source' };
 
-      var checkChanges = false;
+      var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (checkChanges) {
-          opts.since.should.not.equal(0);
-          checkChanges = false;
+        if (expectedSince !== false) {
+          if(typeof opts.since === 'number') {
+            opts.since.should.equal(expectedSince);
+          } else {
+            opts.since.should.startWith(expectedSince + '-');
+          }
+          expectedSince = false;
         }
       });
 
@@ -826,7 +838,7 @@ adapters.forEach(function (adapters) {
 
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-                  checkChanges = true;
+                  expectedSince = 1;
                   PouchDB.replicate(db, remote, replicateOpts)
                     .on('error', done)
                     .on('complete', function (result) {
@@ -846,11 +858,15 @@ adapters.forEach(function (adapters) {
 
       var replicateOpts = { checkpoint: 'target' };
 
-      var checkChanges = false;
+      var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (checkChanges) {
-          opts.since.should.not.equal(0);
-          checkChanges = false;
+        if (expectedSince !== false) {
+          if(typeof opts.since === 'number') {
+            opts.since.should.equal(expectedSince);
+          } else {
+            opts.since.should.startWith(expectedSince + '-');
+          }
+          expectedSince = false;
         }
       });
 
@@ -864,7 +880,7 @@ adapters.forEach(function (adapters) {
 
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-                  checkChanges = true;
+                  expectedSince = 1;
                   PouchDB.replicate(db, remote, replicateOpts)
                     .on('error', done)
                     .on('complete', function (result) {
