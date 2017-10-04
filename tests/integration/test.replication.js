@@ -733,9 +733,9 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
-      var secondRound = false;
+      var checkChanges = false;
       interceptChanges(db, function (opts) {
-        if (secondRound) {
+        if (checkChanges) {
           opts.since.should.not.equal(0);
         }
       });
@@ -749,7 +749,7 @@ adapters.forEach(function (adapters) {
               result.docs_written.should.equal(1);
               db.bulkDocs({ docs: docs.slice(1, 2) })
                 .then(function () {
-                  secondRound = true;
+                  checkChanges = true;
                   PouchDB.replicate(db, remote)
                     .on('error', done)
                     .on('complete', function (result) {
@@ -769,7 +769,7 @@ adapters.forEach(function (adapters) {
 
       var replicateOpts = { checkpoint: false };
 
-      var secondRound = false;
+      var checkChanges = false;
       interceptChanges(db, function (opts) {
         if (checkChanges) {
           console.log('checkpointing disabled', opts.since, opts);
