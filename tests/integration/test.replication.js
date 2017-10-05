@@ -739,7 +739,7 @@ adapters.forEach(function (adapters) {
           if (opts.since instanceof 'number') {
             opts.since.should.equal(expectedSince);
           } else {
-            opts.since.should.match(new RegExp(`^${expectedSince}-`));
+            opts.since.should.match(new RegExp(`^${expectedSince}-`, `Failed to match ${opts.since} with ${expectedSince}.`));
           }
           expectedSince = false;
         }
