@@ -736,11 +736,7 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          if (typeof opts.since === 'number') {
-            opts.since.should.equal(expectedSince);
-          } else {
-            opts.since.should.startWith(expectedSince + '-');
-          }
+          opts.since.should.equal(expectedSince);
           expectedSince = false;
         }
       });
@@ -777,11 +773,7 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          if (typeof opts.since === 'number') {
-            opts.since.should.equal(expectedSince);
-          } else {
-            opts.since.should.startWith(expectedSince + '-');
-          }
+          opts.since.should.equal(expectedSince);
           expectedSince = false;
         }
       });
@@ -819,11 +811,7 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          if (typeof opts.since === 'number') {
-            opts.since.should.equal(expectedSince);
-          } else {
-            opts.since.should.startWith(expectedSince + '-');
-          }
+          opts.since.should.equal(expectedSince);
           expectedSince = false;
         }
       });
@@ -861,11 +849,7 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          if (typeof opts.since === 'number') {
-            opts.since.should.equal(expectedSince);
-          } else {
-            opts.since.should.startWith(expectedSince + '-');
-          }
+          opts.since.should.equal(expectedSince);
           expectedSince = false;
         }
       });
