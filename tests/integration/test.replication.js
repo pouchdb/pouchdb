@@ -736,7 +736,11 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          opts.since.should.equal(expectedSince);
+          if (opts.since instanceof 'number') {
+            opts.since.should.equal(expectedSince);
+          } else {
+            opts.since.should.match(new RegExp(`^${expectedSince}-`));
+          }
           expectedSince = false;
         }
       });
