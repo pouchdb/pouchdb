@@ -736,7 +736,9 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          if (!opts || !opts.since) return;
+          if (!opts || !opts.since) {
+            return;
+          }
           if (opts.since instanceof 'number') {
             opts.since.should.equal(expectedSince);
           } else {
