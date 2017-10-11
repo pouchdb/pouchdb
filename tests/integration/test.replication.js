@@ -759,7 +759,7 @@ adapters.forEach(function (adapters) {
                 .then(function () {
                   expectedSince = 1;
                   PouchDB.replicate(db, remote)
-                    .on('error', done)
+                    .on('error', () => done('Something got caught here!', Array.prototype.slice.apply(arguments)))
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
