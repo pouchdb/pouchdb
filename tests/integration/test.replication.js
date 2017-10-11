@@ -742,6 +742,7 @@ adapters.forEach(function (adapters) {
             // for now, we just want to passssss!!!
 //            opts.since.should.match(new RegExp(`^${expectedSince}-`,
 //                `Failed to match ${opts.since} with ${expectedSince}.`));
+            opts.since.should.not.equal(expectedSince);
           }
           expectedSince = false;
         }
