@@ -66,5 +66,42 @@ adapters.forEach(function (adapters) {
 
     });
 
+    it('#5710 Test pending property support', function (done) {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docId = 0;
+      var numDocs = 10;
+
+      function generateDocs(n) {
+        return Array.apply(null, new Array(n)).map(function () {
+          docId += 1;
+          return {
+            _id: docId.toString(),
+            foo: Math.random().toString()
+          };
+        });
+      }
+      remote.bulkDocs(generateDocs(numDocs)).then(function () {
+        var repl = db.sync(remote, { retry: true, live: false, batch_size: 4 });
+        var pendingSum = 0;
+
+        repl.on('change', function (info) {
+          if (typeof info.change.pending === 'number') {
+            pendingSum += info.change.pending;
+            if (info.change.pending === 0) {
+              pendingSum += info.change.docs.length;
+            }
+          }
+        });
+
+        repl.on('complete', function () {
+          if (pendingSum > 0) {
+            pendingSum.should.equal(numDocs);
+          }
+          done();
+        });
+      });
+    });
   });
 });
