@@ -329,7 +329,7 @@ Similarly, there is a `Promise.reject()` that you can use to return a promise th
 Promise.reject(new Error('some awful error'));
 ```
 
-Advanced mistake #2: `catch()` isn't exactly like `then(null, ...)`
+Advanced mistake #2: `then(resolveHandler).catch(rejectHandler)` isn't exactly the same as `then(resolveHandler, rejectHandler)`
 ----
 
 I said above that `catch()` is just sugar. So these two snippets are equivalent:
