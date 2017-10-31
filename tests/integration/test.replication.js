@@ -736,17 +736,7 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          if (!opts || !opts.since) {
-            return;
-          }
-          if (opts.since instanceof 'number') {
-            opts.since.should.equal(expectedSince);
-          } else {
-            // for now, we just want to passssss!!!
-//            opts.since.should.match(new RegExp(`^${expectedSince}-`,
-//                `Failed to match ${opts.since} with ${expectedSince}.`));
-            opts.since.should.not.equal(expectedSince);
-          }
+          opts.since.should.equal(expectedSince);
           expectedSince = false;
         }
       });
@@ -762,7 +752,7 @@ adapters.forEach(function (adapters) {
                 .then(function () {
                   expectedSince = 1;
                   PouchDB.replicate(db, remote)
-                    .on('error', () => done('Something got caught here!', Array.prototype.slice.apply(arguments)))
+                    .on('error', done)
                     .on('complete', function (result) {
                       result.docs_read.should.equal(1);
                       result.docs_written.should.equal(1);
