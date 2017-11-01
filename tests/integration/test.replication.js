@@ -736,7 +736,13 @@ adapters.forEach(function (adapters) {
       var expectedSince = false;
       interceptChanges(db, function (opts) {
         if (expectedSince !== false) {
-          opts.since.should.equal(expectedSince);
+          if (typeof opts.since === 'number') {
+            opts.since.should.equal(expectedSince);
+          } else if (typeof opts.since === 'string') {
+            opts.since.should.match(new RegExp('^' + expectedSince + '-'));
+          } else {
+            throw new Error('Can\'t handle type for opts.since: ' + (typeof opts.since) + ' (value=' + opts.since + ')');
+          }
           expectedSince = false;
         }
       });
