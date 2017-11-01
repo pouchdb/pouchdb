@@ -735,16 +735,8 @@ adapters.forEach(function (adapters) {
 
       var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (expectedSince !== false) {
-          if (typeof opts.since === 'number') {
-            opts.since.should.equal(expectedSince);
-          } else if (typeof opts.since === 'string') {
-            opts.since.should.match(new RegExp('^' + expectedSince + '-'));
-          } else {
-            throw new Error('Can\'t handle type for opts.since: ' + (typeof opts.since) + ' (value=' + opts.since + ')');
-          }
-          expectedSince = false;
-        }
+        assertSince(opts, expectedSince);
+        expectedSince = false;
       });
 
       db.bulkDocs({ docs: docs.slice(0, 1) })
@@ -778,10 +770,8 @@ adapters.forEach(function (adapters) {
 
       var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (expectedSince !== false) {
-          opts.since.should.equal(expectedSince);
-          expectedSince = false;
-        }
+        assertSince(opts, expectedSince);
+        expectedSince = false;
       });
 
       db.bulkDocs({ docs: docs.slice(0, 1) })
@@ -816,10 +806,8 @@ adapters.forEach(function (adapters) {
 
       var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (expectedSince !== false) {
-          opts.since.should.equal(expectedSince);
-          expectedSince = false;
-        }
+        assertSince(opts, expectedSince);
+        expectedSince = false;
       });
 
       db.bulkDocs({ docs: docs.slice(0, 1) })
@@ -854,10 +842,8 @@ adapters.forEach(function (adapters) {
 
       var expectedSince = false;
       interceptChanges(db, function (opts) {
-        if (expectedSince !== false) {
-          opts.since.should.equal(expectedSince);
-          expectedSince = false;
-        }
+        assertSince(opts, expectedSince);
+        expectedSince = false;
       });
 
       db.bulkDocs({ docs: docs.slice(0, 1) })
@@ -4400,4 +4386,16 @@ function interceptChanges(source, interceptFunction) {
     interceptFunction(opts);
     return changes.apply(source, arguments);
   };
+}
+
+function assertSince(opts, expectedSince) {
+  if (expectedSince !== false) {
+    if (typeof opts.since === 'number') {
+      opts.since.should.equal(expectedSince);
+    } else if (typeof opts.since === 'string') {
+      opts.since.should.match(new RegExp('^' + expectedSince + '-'));
+    } else {
+      throw new Error('Can\'t handle type for opts.since: ' + (typeof opts.since) + ' (value=' + opts.since + ')');
+    }
+  }
 }
