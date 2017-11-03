@@ -729,6 +729,147 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
+    it('Test replication resumes when checkpointing is enabled', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        assertSince(opts, expectedSince);
+        expectedSince = false;
+      });
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+                  expectedSince = 1;
+                  PouchDB.replicate(db, remote)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      done();
+                    });
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it('Test replication resumes when checkpointing is disabled', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replicateOpts = { checkpoint: false };
+
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        assertSince(opts, expectedSince);
+        expectedSince = false;
+      });
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote, replicateOpts)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+                  expectedSince = 0;
+                  PouchDB.replicate(db, remote, replicateOpts)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      done();
+                    });
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it('Test replication resumes when checkpointing on source only', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replicateOpts = { checkpoint: 'source' };
+
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        assertSince(opts, expectedSince);
+        expectedSince = false;
+      });
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote, replicateOpts)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+                  expectedSince = 1;
+                  PouchDB.replicate(db, remote, replicateOpts)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      done();
+                    });
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it('Test replication resumes when checkpointing on target only', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var replicateOpts = { checkpoint: 'target' };
+
+      var expectedSince = false;
+      interceptChanges(db, function (opts) {
+        assertSince(opts, expectedSince);
+        expectedSince = false;
+      });
+
+      db.bulkDocs({ docs: docs.slice(0, 1) })
+        .then(function () {
+          PouchDB.replicate(db, remote, replicateOpts)
+            .on('error', done)
+            .on('complete', function (result) {
+              result.docs_read.should.equal(1);
+              result.docs_written.should.equal(1);
+
+              db.bulkDocs({ docs: docs.slice(1, 2) })
+                .then(function () {
+                  expectedSince = 1;
+                  PouchDB.replicate(db, remote, replicateOpts)
+                    .on('error', done)
+                    .on('complete', function (result) {
+                      result.docs_read.should.equal(1);
+                      result.docs_written.should.equal(1);
+                      done();
+                    });
+                });
+            });
+        })
+        .catch(done);
+    });
+
     it('#3136 open revs returned correctly 1', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -2396,14 +2537,11 @@ adapters.forEach(function (adapters) {
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = source.changes;
-      source.changes = function (opts) {
-
+      interceptChanges(source, function (opts) {
         if (mismatch) {
           opts.since.should.not.equal(0);
         }
-        return changes.apply(source, arguments);
-      };
+      });
 
 
       var doc = { _id: '3', count: 0 };
@@ -2471,8 +2609,7 @@ adapters.forEach(function (adapters) {
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = source.changes;
-      source.changes = function (opts) {
+      interceptChanges(function (opts) {
         if (mismatch) {
           // We expect this replication to start over,
           // so the correct value of since is 0
@@ -2481,9 +2618,7 @@ adapters.forEach(function (adapters) {
           opts.since.should.equal(0);
           mismatch = false;
         }
-
-        return changes.apply(source, arguments);
-      };
+      });
 
       var doc = { _id: '3', count: 0 };
       var put;
@@ -2554,9 +2689,7 @@ adapters.forEach(function (adapters) {
 
       // 2. We measure that the replication starts in the expected
       // place in the 'changes' function
-      var changes = source.changes;
-
-      source.changes = function (opts) {
+      interceptChanges(function (opts) {
         if (mismatch) {
           // If we resolve to 0, the checkpoint resolver has not
           // been going through the sessions
@@ -2564,9 +2697,7 @@ adapters.forEach(function (adapters) {
 
           mismatch = false;
         }
-
-        return changes.apply(source, arguments);
-      };
+      });
 
 
       var doc = { _id: '3', count: 0 };
@@ -2643,15 +2774,13 @@ adapters.forEach(function (adapters) {
       var targetPut =  target.put;
       target.put = putter;
 
-      var changes = source.changes;
-      source.changes = function (opts) {
+      interceptChanges(source, function (opts) {
         if (secondRound) {
           // Test 1: Check that we read the old style local doc
           // and didn't start from 0
           opts.since.should.not.equal(0);
         }
-        return changes.apply(source, arguments);
-      };
+      });
 
       var doc = { _id: '3', count: 0 };
 
@@ -4250,3 +4379,23 @@ downAdapters.map(function () {
 
   });
 });
+
+function interceptChanges(source, interceptFunction) {
+  var changes = source.changes;
+  source.changes = function (opts) {
+    interceptFunction(opts);
+    return changes.apply(source, arguments);
+  };
+}
+
+function assertSince(opts, expectedSince) {
+  if (expectedSince !== false) {
+    if (typeof opts.since === 'number') {
+      opts.since.should.equal(expectedSince);
+    } else if (typeof opts.since === 'string') {
+      opts.since.should.match(new RegExp('^' + expectedSince + '-'));
+    } else {
+      throw new Error('Can\'t handle type for opts.since: ' + (typeof opts.since) + ' (value=' + opts.since + ')');
+    }
+  }
+}
