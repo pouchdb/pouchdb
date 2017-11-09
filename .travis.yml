@@ -60,12 +60,12 @@ env:
   - CLIENT=node ADAPTER=memory COMMAND=test
 
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox COMMAND=test
+  - CLIENT=selenium:firefox:55.0.2 COMMAND=test
   - CLIENT=selenium:phantomjs COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:firefox:55 COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
