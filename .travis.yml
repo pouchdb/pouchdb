@@ -12,9 +12,6 @@ git:
 sudo:
   false
 
-addons:
-  firefox: "47.0.2"
-
 before_install:
   - |
     if [[ $TRAVIS_SECURE_ENV_VARS == "false"  ]] && [[ $CLIENT == saucelabs:* ]]; then
@@ -68,26 +65,26 @@ env:
   - CLIENT=node ADAPTER=memory COMMAND=test
 
   # Test in firefox/phantomjs running on travis
-  - CLIENT=selenium:firefox:47.0.2 COMMAND=test
+  - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:phantomjs COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:firefox:47.0.2 COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:firefox:47.0.2 COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
 
   # Test pouchdb-find
   - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
-  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox:47.0.2 SERVER=pouchdb-server COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
-  - FETCH=1 CLIENT=selenium:firefox:47.0.2 COMMAND=test
+  - FETCH=1 CLIENT=selenium:firefox COMMAND=test
   - CLIENT=saucelabs:safari:7 COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
@@ -97,22 +94,22 @@ env:
 
   # Test memory / fruitdown etc
   - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
-  - CLIENT=selenium:firefox:47.0.2 ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox:47.0.2 ADAPTERS=localstorage COMMAND=test
+  - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
+  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:47.0.2 COMMAND=test-webpack
+  - CLIENT=selenium:firefox COMMAND=test-webpack
 
   # Test CouchDB master (aka bigcouch branch)
   - COUCH_HOST=http://127.0.0.1:3001 CLIENT=node SERVER=couchdb-master COMMAND=test
-  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox:47.0.2 SERVER=couchdb-master COMMAND=test
+  - COUCH_HOST=http://127.0.0.1:3001 SKIP_MIGRATION=true CLIENT=selenium:firefox SERVER=couchdb-master COMMAND=test
 
   # Performance tests
-  - CLIENT=selenium:firefox:47.0.2 PERF=1 COMMAND=test
+  - CLIENT=selenium:firefox PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
   # Test Webpack bundle
-  - CLIENT=selenium:firefox:47.0.2 NEXT=1 COMMAND=test
+  - CLIENT=selenium:firefox NEXT=1 COMMAND=test
 
   - COMMAND=test-unit
   - COMMAND=test-component
