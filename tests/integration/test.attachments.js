@@ -3611,7 +3611,7 @@ repl_adapters.forEach(function (adapters) {
         var db = new PouchDB(dbs.name);
         var remote = new PouchDB(dbs.remote);
 
-        for (var i = 0; i < 100; i++) {
+        for (var i = 0; i < 30; i++) {
           doc._attachments[i + '.txt'] = {
             data: testUtils.btoa(i.toString()),
             content_type: 'text/plain'
@@ -3626,8 +3626,8 @@ repl_adapters.forEach(function (adapters) {
           ].map(function (pouch) {
             return pouch.get('foo', {attachments: true}).then(function (doc) {
               var atts = doc._attachments;
-              Object.keys(atts).length.should.equal(100);
-              for (var i = 0; i < 100; i++) {
+              Object.keys(atts).length.should.equal(30);
+              for (var i = 0; i < 30; i++) {
                 var att = atts[i + '.txt'];
                 should.not.exist(att.stub);
                 att.data.should.equal(testUtils.btoa(i.toString()));
@@ -3637,8 +3637,8 @@ repl_adapters.forEach(function (adapters) {
               return pouch.get('foo');
             }).then(function (doc) {
               var atts = doc._attachments;
-              Object.keys(atts).length.should.equal(100);
-              for (var i = 0; i < 100; i++) {
+              Object.keys(atts).length.should.equal(30);
+              for (var i = 0; i < 30; i++) {
                 var att = atts[i + '.txt'];
                 att.stub.should.equal(true);
                 att.content_type.should.equal('text/plain');

@@ -766,35 +766,41 @@ adapters.forEach(function (adapter) {
     
     
     it('#6230 Test allDocs opts update_seq: true', function () {
-      var db = new PouchDB(dbs.name);
-      return db.bulkDocs(origDocs).then(function () {
-        return db.allDocs({
-          update_seq: true
+      testUtils.isPouchDbServer(function (isPouchDbServer) {
+        if (isPouchDbServer) {
+          // pouchdb-server does not currently support opts.update_seq
+          return;
+        }
+        var db = new PouchDB(dbs.name);
+        return db.bulkDocs(origDocs).then(function () {
+          return db.allDocs({
+            update_seq: true
+          });
+        }).then(function (result) {
+          result.rows.should.have.length(4);
+          should.exist(result.update_seq);
+          result.update_seq.should.satisfy(function (update_seq) {
+            if (typeof update_seq === 'number' || typeof update_seq === 'string') {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          var normSeq = normalizeSeq(result.update_seq);
+          normSeq.should.be.a('number');
         });
-      }).then(function (result) {
-        result.rows.should.have.length(4);
-        should.exist(result.update_seq);
-        result.update_seq.should.satisfy(function (update_seq) {
-          if (typeof update_seq === 'number' || typeof update_seq === 'string') {
-            return true;
-          } else {
-            return false;
+        
+        function normalizeSeq(seq) {
+          try {
+            if (typeof seq === 'string' && seq.indexOf('-') > 0) {
+              return parseInt(seq.substring(0, seq.indexOf('-')));
+            }
+            return seq;
+          } catch (err) {
+            return seq;
           }
-        });
-        var normSeq = normalizeSeq(result.update_seq);
-        normSeq.should.equal(4);
+        }
       });
-
-      function normalizeSeq(seq) {
-        try {
-          if (typeof seq === 'string' && seq.indexOf('-') > 0) {
-            return parseInt(seq.substring(0, seq.indexOf('-')));
-          }
-          return seq;
-        } catch (err) {
-          return seq;
-        }  
-      }
     });
     
     it('#6230 Test allDocs opts with update_seq missing', function () {
