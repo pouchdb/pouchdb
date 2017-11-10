@@ -3854,44 +3854,50 @@ function tests(suiteName, dbName, dbType, viewType) {
 
 
     it('#6230 Test db.query() opts update_seq: true', function () {
-      var db = new PouchDB(dbName);
-      var docs = [];
-      for (var i = 0; i < 4; i++) {
-        docs.push({
-          _id: i.toString(),
-          name: 'foo',
-        });
-      }
-      return createView(db, {
-        map: "function(doc){emit(doc.name);};\n"
-      }).then(function (queryFun) {
-        return db.bulkDocs({ docs: docs }).then(function () {
-          return db.query(queryFun, { update_seq: true });
-        }).then(function (result) {
-          result.rows.should.have.length(4);
-          should.exist(result.update_seq);
-          result.update_seq.should.satisfy(function (update_seq) {
-            if (typeof update_seq === 'number' || typeof update_seq === 'string') {
-              return true;
-            } else {
-              return false;
-            }
-          });
-          var normSeq = normalizeSeq(result.update_seq);
-          normSeq.should.be.a('number');
-        });
-      });
-      
-      function normalizeSeq(seq) {
-        try {
-          if (typeof seq === 'string' && seq.indexOf('-') > 0) {
-            return parseInt(seq.substring(0, seq.indexOf('-')));
-          }
-          return seq;
-        } catch (err) {
-          return seq;
+      testUtils.isPouchDbServer(function (isPouchDbServer) {
+        if (isPouchDbServer) {
+          // pouchdb-server does not currently support opts.update_seq
+          return;
         }
-      }
+        var db = new PouchDB(dbName);
+        var docs = [];
+        for (var i = 0; i < 4; i++) {
+          docs.push({
+            _id: i.toString(),
+            name: 'foo',
+          });
+        }
+        return createView(db, {
+          map: "function(doc){emit(doc.name);};\n"
+        }).then(function (queryFun) {
+          return db.bulkDocs({ docs: docs }).then(function () {
+            return db.query(queryFun, { update_seq: true });
+          }).then(function (result) {
+            result.rows.should.have.length(4);
+            should.exist(result.update_seq);
+            result.update_seq.should.satisfy(function (update_seq) {
+              if (typeof update_seq === 'number' || typeof update_seq === 'string') {
+                return true;
+              } else {
+                return false;
+              }
+            });
+            var normSeq = normalizeSeq(result.update_seq);
+            normSeq.should.be.a('number');
+          });
+        });
+        
+        function normalizeSeq(seq) {
+          try {
+            if (typeof seq === 'string' && seq.indexOf('-') > 0) {
+              return parseInt(seq.substring(0, seq.indexOf('-')));
+            }
+            return seq;
+          } catch (err) {
+            return seq;
+          }
+        }
+      });  
     });
 
     it('#6230 Test db.query() opts with update_seq missing', function () {
