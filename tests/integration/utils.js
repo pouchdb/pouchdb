@@ -199,8 +199,12 @@ testUtils.isCouchDB = function (cb) {
 };
 
 testUtils.isPouchDbServer = function (cb) {
-  testUtils.ajax({url: testUtils.couchHost() + '/' }, function (err, res) {
-    cb('express-pouchdb' in res);
+  testUtils.ajax({ url: testUtils.couchHost() + '/' }, function (err, res) {
+    if (err || !res) {
+      return cb(false);
+    } else {
+      return cb('express-pouchdb' in res);
+    }
   });
 };
 
