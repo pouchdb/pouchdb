@@ -765,13 +765,13 @@ adapters.forEach(function (adapter) {
     });
     
     
-    it('#6230 Test allDocs opts update_seq: true', function () {
+    it('#6230 Test allDocs opts update_seq: true', function (done) {
+      var db = new PouchDB(dbs.name);
       testUtils.isPouchDbServer(function (isPouchDbServer) {
         if (isPouchDbServer) {
           // pouchdb-server does not currently support opts.update_seq
-          return;
+          return done();
         }
-        var db = new PouchDB(dbs.name);
         return db.bulkDocs(origDocs).then(function () {
           return db.allDocs({
             update_seq: true
@@ -788,7 +788,7 @@ adapters.forEach(function (adapter) {
           });
           var normSeq = normalizeSeq(result.update_seq);
           normSeq.should.be.a('number');
-        });
+        }).then(done, done);
         
         function normalizeSeq(seq) {
           try {
