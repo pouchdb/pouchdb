@@ -3575,8 +3575,12 @@ repl_adapters.forEach(function (adapters) {
         keys.should.deep.equal(['foo1.txt', 'foo2.txt', 'foo3.txt']);
       });
     });
-
-      it('#3961 Many attachments on same doc', function () {
+      
+    // Currently this test is causing occasional CI selenium:firefox
+    // failures. Under advice of @daleharvey, we will skip this test
+    // to not block other development/tests and track this issue.
+    // See issue #6835 and #6831 for further info  
+    it.skip('#3961 Many attachments on same doc', function () {
         var doc = {_id: 'foo', _attachments: {}};
 
         var db = new PouchDB(dbs.name);
