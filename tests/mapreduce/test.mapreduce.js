@@ -3853,11 +3853,11 @@ function tests(suiteName, dbName, dbType, viewType) {
     });
 
 
-    it('#6230 Test db.query() opts update_seq: true', function () {
+    it('#6230 Test db.query() opts update_seq: true', function (done) {
       testUtils.isPouchDbServer(function (isPouchDbServer) {
         if (isPouchDbServer) {
           // pouchdb-server does not currently support opts.update_seq
-          return;
+          return done();
         }
         var db = new PouchDB(dbName);
         var docs = [];
@@ -3867,25 +3867,25 @@ function tests(suiteName, dbName, dbType, viewType) {
             name: 'foo',
           });
         }
-        return createView(db, {
-          map: "function(doc){emit(doc.name);};\n"
-        }).then(function (queryFun) {
-          return db.bulkDocs({ docs: docs }).then(function () {
-            return db.query(queryFun, { update_seq: true });
-          }).then(function (result) {
-            result.rows.should.have.length(4);
-            should.exist(result.update_seq);
-            result.update_seq.should.satisfy(function (update_seq) {
-              if (typeof update_seq === 'number' || typeof update_seq === 'string') {
-                return true;
-              } else {
-                return false;
-              }
-            });
-            var normSeq = normalizeSeq(result.update_seq);
-            normSeq.should.be.a('number');
+        return db.bulkDocs({ docs: docs }).then(function () {
+          return createView(db, {
+            map: "function(doc){emit(doc.name);};\n"
           });
-        });
+        }).then(function (queryFun) {
+          return db.query(queryFun, { update_seq: true });
+        }).then(function (result) {
+          result.rows.should.have.length(4);
+          should.exist(result.update_seq);
+          result.update_seq.should.satisfy(function (update_seq) {
+            if (typeof update_seq === 'number' || typeof update_seq === 'string') {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          var normSeq = normalizeSeq(result.update_seq);
+          normSeq.should.be.a('number');
+        }).then(done, done);
         
         function normalizeSeq(seq) {
           try {
