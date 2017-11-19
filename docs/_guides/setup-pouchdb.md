@@ -74,9 +74,19 @@ Run this on the command line:
 $ npm install pouchdb @types/pouchdb
 ```
 
+In your `tsconfig.json` activate `allowSyntheticDefaultImports`:
+
+```json
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true
+  }
+}
+```
+
 Then in your TypeScript:
 
-```js
+```typescript
 import PouchDB from 'pouchdb';
 ```
 
