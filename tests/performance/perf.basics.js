@@ -135,6 +135,33 @@ module.exports = function (PouchDB, opts, callback) {
       }
     },
     {
+      name: 'all-docs-keys',
+      assertions: 1,
+      iterations: 100,
+      setup: function (db, callback) {
+        var docs = [];
+        for (var i = 0; i < 1000; i++) {
+          docs.push({_id : commonUtils.createDocId(i),
+            foo : 'bar', baz : 'quux'});
+        }
+        db.bulkDocs({docs : docs}, callback);
+      },
+      test: function (db, itr, docs, done) {
+        function randomDocId() {
+          return commonUtils.createDocId(
+            Math.floor(Math.random() * 1000));
+        }
+        var keys = [];
+      for (var i = 0; i < 50; i++) {
+          keys.push(randomDocId());
+        }
+        db.allDocs({
+          keys: keys,
+          include_docs: true
+        }, done);
+      }
+    },
+    {
       name: 'all-docs-include-docs',
       assertions: 1,
       iterations: 100,
