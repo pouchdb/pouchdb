@@ -26,6 +26,7 @@ All options default to `false` unless otherwise specified.
     - The row for a deleted document will have the revision ID of the deletion, and an extra key `"deleted":true` in the `value` property.
     - The row for a nonexistent document will just contain an `"error"` property with the value `"not_found"`.
     - For details, see the [CouchDB query options documentation](http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options).
+* `options.update_seq`: Include an `update_seq` value indicating which sequence id of the underlying database the view reflects.
 
 **Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](http://docs.couchdb.org/en/latest/couchapp/views/pagination.html) instead.
 
@@ -102,6 +103,8 @@ In the response, you have three things:
 * `total_rows` the total number of non-deleted documents in the database
 * `offset` the `skip` if provided, or in CouchDB the actual offset
 * `rows`: rows containing the documents, or just the `_id`/`_revs` if you didn't set `include_docs` to `true`.
+
+* You may optionally also have `update_seq` if you set `update_seq` to `true`
 
 You can use `startkey`/`endkey` to find all docs in a range:
 

@@ -51,6 +51,7 @@ All options default to `false` unless otherwise specified.
     * unspecified (default): Returns the latest results, waiting for the view to build if necessary.
     * `'ok'`: Returns results immediately, even if they're out-of-date.
     * `'update_after'`: Returns results immediately, but kicks off a build afterwards.
+* `options.update_seq`: Include an `update_seq` value indicating which sequence id of the underlying database the view reflects.
 
 For details, see the [CouchDB query options documentation](http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options).
 
@@ -182,6 +183,8 @@ db.put(ddoc).catch(function (err) {
 {% endhighlight %}
 
 In the result,`total_rows` is the total number of possible results in the view. The response is very similar to that of `allDocs()`.
+
+The result may also have `update_seq` if you set `update_seq` to `true`
 
 **Note:** you can also pass in the map function instead of saving a design doc first, but this is slow because it has to do a full database scan. The following examples will use this pattern for simplicity's sake, but you should normally avoid it.
 

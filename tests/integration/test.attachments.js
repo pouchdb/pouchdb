@@ -3600,7 +3600,7 @@ repl_adapters.forEach(function (adapters) {
         keys.should.deep.equal(['foo1.txt', 'foo2.txt', 'foo3.txt']);
       });
     });
-      
+
     // Currently this test is causing occasional CI selenium:firefox
     // failures. Under advice of @daleharvey, we will skip this test
     // to not block other development/tests and track this issue.

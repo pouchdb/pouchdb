@@ -198,6 +198,16 @@ testUtils.isCouchDB = function (cb) {
   });
 };
 
+testUtils.isPouchDbServer = function (cb) {
+  testUtils.ajax({ url: testUtils.couchHost() + '/' }, function (err, res) {
+    if (err || !res) {
+      return cb(false);
+    } else {
+      return cb('express-pouchdb' in res);
+    }
+  });
+};
+
 testUtils.writeDocs = function (db, docs, callback, res) {
   if (!res) {
     res = [];
