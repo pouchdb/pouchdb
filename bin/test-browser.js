@@ -186,7 +186,7 @@ function startSauceConnect(callback) {
 
 function startTest() {
 
-  console.log('Starting', client);
+  console.log('Starting', client, 'on', testUrl);
 
   var opts = {
     browserName: client.browser,

@@ -34,7 +34,7 @@ if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
 if (process.env.NEXT) {
-  queryParams.src = '../../packages/node_modules/pouchdb/dist/pouchdb-next.js';
+  queryParams.NEXT = '1';
 }
 
 var rebuildPromise = Promise.resolve();
