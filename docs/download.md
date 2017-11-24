@@ -8,7 +8,6 @@ sidebar: nav.html
 
 {% highlight html %}
 <script src="//cdn.jsdelivr.net/npm/pouchdb@{{site.version}}/dist/pouchdb.min.js"></script>
-</script>
 <script>
   var db = new PouchDB('my_database');
 </script>
