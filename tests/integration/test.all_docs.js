@@ -125,6 +125,8 @@ adapters.forEach(function (adapter) {
         });
       }).then(function (result) {
         result.rows.map(keyFunc).should.deep.equal(keys);
+        result.rows[keys.indexOf('2')].value.deleted.should.equal(true, 'deleted doc with keys option');
+        (result.rows[keys.indexOf('2')].doc === null).should.equal(true, 'deleted doc with keys option');
       });
     });
 
