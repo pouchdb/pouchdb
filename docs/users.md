@@ -81,6 +81,12 @@ A list of known products and services that are using PouchDB.
 
 [Pokedex.org](https://www.pokedex.org/) [(Github)](https://github.com/nolanlawson/pokedex.org) is a progressive web app, powered by ServiceWorker, PouchDB, virtual-dom, and web workers.
 
+## Quizster
+
+{% include img.html width=100 src="quizster.svg" alt="Quizster" href="https://quizster.co" %}
+
+[Quizster](https://quizster.co) is a photo-based submission and feedback system. Quizster uses PouchDB to allow real-time communication between students and teachers.
+
 ## Squarespace Blog
 
 {% include img.html width=100 src="squarespace_blog.png" alt="Squarespace Blog" %}
