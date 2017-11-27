@@ -2600,7 +2600,7 @@ adapters.forEach(function (adapter) {
       changes.on('change', function () {
         ++count;
         if (count === 1) {
-          throw new Error('an error');
+          throw new Error('deliberate error in changes');
         } else if (count === 3) {
           changes.cancel();
         }

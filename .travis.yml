@@ -16,6 +16,11 @@ addons:
   firefox: "47.0.2"
 
 before_install:
+  - |
+    if [[ $TRAVIS_SECURE_ENV_VARS == "false"  ]] && [[ $CLIENT == saucelabs:* ]]; then
+       echo "Not running test, cannot connect to saucelabs in Pull Request"
+       travis_terminate 0
+    fi
   # Because Saucelabs doesnt proxy 5984 on OSX
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
