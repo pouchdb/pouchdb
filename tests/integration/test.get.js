@@ -357,7 +357,8 @@ adapters.forEach(function (adapter) {
     it('#2951 Parallelized gets with 409s/404s', function () {
       var db = new PouchDB(dbs.name);
 
-      var numSimultaneous = 20;
+      // we don't want to overload the server and get timeout errors
+      var numSimultaneous = adapter === 'http' ? 3 : 20;
       var numDups = 3;
 
       var tasks = [];
@@ -395,7 +396,8 @@ adapters.forEach(function (adapter) {
     it('#2951 Parallelized _local gets with 409s/404s', function () {
       var db = new PouchDB(dbs.name);
 
-      var numSimultaneous = 20;
+      // we don't want to overload the server and get timeout errors
+      var numSimultaneous = adapter === 'http' ? 3 : 20;
       var numDups = 3;
 
       var tasks = [];
