@@ -291,106 +291,114 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
-    describe('#5172 triggering error when replicating', function () {
-      var securedDbs = [], source, dest, previousAjax;
-      beforeEach(function () {
-        var err = {
-          'status': 401,
-          'name': 'unauthorized',
-          'message': 'You are not authorized to access this db.'
-        };
-
-        source = new PouchDB(dbs.name);
-        dest = new PouchDB(dbs.remote);
-
-        if (adapters[0] === 'http') {
-          previousAjax = source._ajax;
-          source._ajax = function (opts, cb) { cb(err); };
-          securedDbs.push(source);
-        }
-
-        if (adapters[1] === 'http') {
-          previousAjax = dest._ajax;
-          dest._ajax = function (opts, cb) { cb(err); };
-          securedDbs.push(dest);
-        }
-      });
-
-      afterEach(function () {
-        securedDbs.forEach(function (db) {
-          db._ajax = previousAjax;
+    describe('#5172 triggering error when replicating', replication401TestFunction('unauthorized'));
+    
+    function replication401TestFunction(eventName) {
+      return function () {
+        var securedDbs = [], source, dest, previousAjax;
+        beforeEach(function () {
+          var err = {
+            'status': 401,
+            'name': eventName,
+            'message': 'You are not authorized to access this db.'
+          };
+  
+          source = new PouchDB(dbs.name);
+          dest = new PouchDB(dbs.remote);
+  
+          if (adapters[0] === 'http') {
+            previousAjax = source._ajax;
+            source._ajax = function (opts, cb) { cb(err); };
+            securedDbs.push(source);
+          }
+  
+          if (adapters[1] === 'http') {
+            previousAjax = dest._ajax;
+            dest._ajax = function (opts, cb) { cb(err); };
+            securedDbs.push(dest);
+          }
         });
-      });
-
-      function attachHandlers(replication) {
-        var invokedHandlers = [];
-        ['change', 'complete', 'paused', 'active', 'denied', 'error'].forEach(function (type) {
-          replication.on(type, function () {
-            invokedHandlers.push(type);
+  
+        afterEach(function () {
+          securedDbs.forEach(function (db) {
+            db._ajax = previousAjax;
           });
         });
-        return invokedHandlers;
-      }
-
-      it('from or to a secured database, using live replication', function () {
-        if (adapters[0] === 'local' && adapters[1] === 'local') {
-          return;
+  
+        function attachHandlers(replication) {
+          var invokedHandlers = [];
+          ['change', 'complete', 'paused', 'active', 'denied', 'error'].forEach(function (type) {
+            replication.on(type, function () {
+              invokedHandlers.push(type);
+            });
+          });
+          return invokedHandlers;
         }
-
-        var replication = source.replicate.to(dest, {live: true});
-        var invokedHandlers = attachHandlers(replication);
-
-        return replication.then(function () {
-          throw new Error('Resulting promise should be rejected');
-        }, function () {
-          invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+  
+        it('from or to a secured database, using live replication', function () {
+          if (adapters[0] === 'local' && adapters[1] === 'local') {
+            return;
+          }
+  
+          var replication = source.replicate.to(dest, {live: true});
+          var invokedHandlers = attachHandlers(replication);
+  
+          return replication.then(function () {
+            throw new Error('Resulting promise should be rejected');
+          }, function () {
+            invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+          });
         });
-      });
-
-      it('from or to a secured database, using live replication with checkpoint', function () {
-        if (adapters[0] === 'local' && adapters[1] === 'local') {
-          return;
-        }
-
-        var replication = source.replicate.to(dest, {live: true, since: 1234});
-        var invokedHandlers = attachHandlers(replication);
-
-        return replication.then(function () {
-          throw new Error('Resulting promise should be rejected');
-        }, function () {
-          invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+  
+        it('from or to a secured database, using live replication with checkpoint', function () {
+          if (adapters[0] === 'local' && adapters[1] === 'local') {
+            return;
+          }
+  
+          var replication = source.replicate.to(dest, {live: true, since: 1234});
+          var invokedHandlers = attachHandlers(replication);
+  
+          return replication.then(function () {
+            throw new Error('Resulting promise should be rejected');
+          }, function () {
+            invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+          });
         });
-      });
-
-      it('from or to a secured database, using live replication with retrying', function () {
-        if (adapters[0] === 'local' && adapters[1] === 'local') {
-          return;
-        }
-
-        var replication = source.replicate.to(dest, {live: true, retry: true});
-        var invokedHandlers = attachHandlers(replication);
-
-        return replication.then(function () {
-          throw new Error('Resulting promise should be rejected');
-        }, function () {
-          invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+  
+        it('from or to a secured database, using live replication with retrying', function () {
+          if (adapters[0] === 'local' && adapters[1] === 'local') {
+            return;
+          }
+  
+          var replication = source.replicate.to(dest, {live: true, retry: true});
+          var invokedHandlers = attachHandlers(replication);
+  
+          return replication.then(function () {
+            throw new Error('Resulting promise should be rejected');
+          }, function () {
+            invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+          });
         });
-      });
-
-      it('from or to a secured database, using one-shot replication', function () {
-        if (adapters[0] === 'local' && adapters[1] === 'local') {
-          return;
-        }
-
-        var replication = source.replicate.to(dest);
-        var invokedHandlers = attachHandlers(replication);
-
-        return replication.then(function () {
-          throw new Error('Resulting promise should be rejected');
-        }, function () {
-          invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+  
+        it('from or to a secured database, using one-shot replication', function () {
+          if (adapters[0] === 'local' && adapters[1] === 'local') {
+            return;
+          }
+  
+          var replication = source.replicate.to(dest);
+          var invokedHandlers = attachHandlers(replication);
+  
+          return replication.then(function () {
+            throw new Error('Resulting promise should be rejected');
+          }, function () {
+            invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
+          });
         });
-      });
-    });
+      };
+    }
+
+    // #5607 https://github.com/pouchdb/pouchdb/issues/5607#issuecomment-346078688
+    // Note: Uppercase 'Unauthorized' response
+    describe('#5607 handle uppercase third-party error responses', replication401TestFunction('Unauthorized'));
   });
 });
