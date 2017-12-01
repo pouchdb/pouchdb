@@ -205,22 +205,23 @@ function startTest() {
   }
 
   sauceClient.init(opts).get(testUrl, function () {
-
-    /* jshint evil: true */
-    var interval = setInterval(function () {
-      sauceClient.eval('window.results', function (err, results) {
-        if (err) {
-          clearInterval(interval);
-          testError(err);
-        } else if (results.completed || (results.failures.length && bail)) {
-          clearInterval(interval);
-          testComplete(results);
-        } else {
-          console.log(results);
-        }
-      });
-    }, 10 * 1000);
+    // don't use this, because this might never resolve
   });
+  
+  /* jshint evil: true */
+  var interval = setInterval(function () {
+    sauceClient.eval('window.results', function (err, results) {
+      if (err) {
+        clearInterval(interval);
+        testError(err);
+      } else if (results.completed || (results.failures.length && bail)) {
+        clearInterval(interval);
+        testComplete(results);
+      } else {
+        console.log(results);
+      }
+    });
+  }, 10 * 1000);
 }
 
 devserver.start(function () {
