@@ -36,11 +36,7 @@ To test a specific plugin in the browser run:
 
 ### Unit tests
 
-    $ npm run build-as-modular-es5
     $ npm run test-unit
-
-These are tests that confirm small parts of PouchDB functionality. In order to
-work correctly with ES6, they are first transpiled to `lib` as modular ES5 (`run run build-as-modular-es5`) using Babel, and then tested as CommonJS modules. See `build-as-modular-es5.sh` for details.
 
 ### Test Options
 
@@ -53,9 +49,6 @@ or append `?grep=test.replication.js` if you opened the tests in a browser manua
 #### Test Coverage
 
     $ npm run test-coverage
-
-Again, this uses `npm run build-as-modular-es5` in order to fully test the codebase
-as a non-bundle. See `build-as-modular-es5.sh` for details.
 
 #### Test alternative server
 
