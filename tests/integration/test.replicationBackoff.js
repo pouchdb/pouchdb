@@ -21,14 +21,14 @@ adapters.forEach(function (adapters) {
 
     it('Issue 5402 should not keep adding event listeners when backoff is firing', function (done) {
       this.timeout(1500);
-      var remote = new PouchDB(dbs.remote);
+      var remote = new PouchDB(dbs.remote, {
+        fetch: function () {
+          throw new Error('flunking you');
+        }
+      });
       var db = new PouchDB(dbs.name);
       var backOffCount = 0;
       var numberOfActiveListeners = 0;
-
-      remote._ajax = function (opts, cb) {
-        cb(new Error('flunking you'));
-      };
 
       var replication = db.sync(remote, {
         live: true,
