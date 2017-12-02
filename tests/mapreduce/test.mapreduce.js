@@ -1325,7 +1325,12 @@ function tests(suiteName, dbName, dbType, viewType) {
 
       // Need to avoid the cache to workaround
       // https://issues.apache.org/jira/browse/COUCHDB-2880
-      var db = new PouchDB(dbName, {ajax: {cache: false}});
+      var db = new PouchDB(dbName, {
+        fetch: function (url, opts) {
+          opts.cache = 'no-store';
+          return PouchDB.fetch(url, opts);
+        }
+      });
       var docs = [];
       for (var i = 0; i < 5; i++) {
         docs.push({
@@ -1366,7 +1371,12 @@ function tests(suiteName, dbName, dbType, viewType) {
 
       // Need to avoid the cache to workaround
       // https://issues.apache.org/jira/browse/COUCHDB-2880
-      var db = new PouchDB(dbName, {ajax: {cache: false}});
+      var db = new PouchDB(dbName, {
+        fetch: function (url, opts) {
+          opts.cache = 'no-store';
+          return PouchDB.fetch(url, opts);
+        }
+      });
       var docs = [];
       for (var i = 0; i < 5; i++) {
         docs.push({
@@ -1659,8 +1669,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         },
         reduce: '_count'
       }).then(function (queryFun) {
-        return db.query(queryFun, {group_level: -1, reduce: true})
-            .then(function (res) {
+        return db.query(queryFun, {group_level: -1, reduce: true}).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
           err.status.should.equal(400);
