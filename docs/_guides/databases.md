@@ -73,6 +73,7 @@ If instead you see:
 
 Then check to make sure that your remote CouchDB has started up correctly. Common errors (such as CORS) are [listed here](/errors.html).
 
+
 {% include anchor.html title="Get basic info about the database" hash="get-basic-info-about-the–database" %}
 
 You can see basic information about the database by using the `info()` method.
@@ -100,29 +101,18 @@ The most important bits of information are:
 * `doc_count`: the number of undeleted documents in the database
 * `db_name`: the name of the database
 
+
 {% include anchor.html title="Debugging" hash="debugging" %}
-
-When you create a PouchDB database, there are many ways to debug and inspect it.
-
-### PouchDB Inspector
-
-PouchDB Inspector is an add-on for Chrome that allows you to inspect your local databases.
-
-* [Download PouchDB Inspector for Chrome](https://chrome.google.com/webstore/detail/pouchdb-inspector/hbhhpaojmpfimakffndmpmpndcmonkfa)
-
-{% include img.html src="pouchdb_inspector.png" alt="PouchDB Inspector in Chrome" %}
-
-It provides the full "Fauxton" interface, which is the same interface you will see in CouchDB and PouchDB Server.
 
 ### IndexedDB/WebSQL inspectors
 
-You can also use the normal developer tools to see what your database looks like under the hood.
+You can use the normal developer tools to see what your database looks like under the hood.
 
 In Chrome, just choose *Overflow icon* &#9776; &#8594; *Tools* &#8594; *Developer Tools*. Then click the *Resources* tab, then *IndexedDB*, and you should see the following:
 
 {% include img.html src="dev_tools.png" alt="Chrome Developer Tools" %}
 
-This is the raw IndexedDB representation of your PouchDB, so it is very fine-grained compared to what PouchDB Inspector shows. However, you may find it useful.
+This is the raw IndexedDB representation of your PouchDB, so it is very fine-grained. However, you may find it useful.
 
 In Safari, your database will be under *Develop* &#8594; *Show Web Inspector* &#8594; *Resources* &#8594; *Databases*.
 
