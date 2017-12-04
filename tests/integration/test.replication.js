@@ -14,8 +14,7 @@ if ('saucelabs' in testUtils.params()) {
 var downAdapters = ['local'];
 
 adapters.forEach(function (adapters) {
-  describe('suite2 test.replication.js-' + adapters[0] + '-' + adapters[1],
-    function () {
+  describe('suite2 test.replication.js-' + adapters[0] + '-' + adapters[1], function () {
 
     var dbs = {};
 
@@ -37,12 +36,6 @@ adapters.forEach(function (adapters) {
     // simplify for easier deep equality checks
     function simplifyChanges(res) {
       var changes = res.results.map(function (change) {
-        if (testUtils.isSyncGateway() &&
-          change.doc && change.doc._conflicts) {
-          // CSG does not render conflict metadata inline
-          // in the document. Remove it for comparisons.
-          delete change.doc._conflicts;
-        }
         return {
           id: change.id,
           deleted: change.deleted,
@@ -55,15 +48,9 @@ adapters.forEach(function (adapters) {
 
       // in CouchDB 2.0, changes is not guaranteed to be
       // ordered
-      if (testUtils.isCouchMaster() || testUtils.isSyncGateway()) {
+      if (testUtils.isCouchMaster()) {
         changes.sort(function (a, b) {
           return a.id > b.id;
-        });
-      }
-      // CSG will send a change event when just the ACL changed
-      if (testUtils.isSyncGateway()) {
-        changes = changes.filter(function (change) {
-          return change.id !== "_user/";
         });
       }
       return changes;
@@ -71,16 +58,9 @@ adapters.forEach(function (adapters) {
 
     function verifyInfo(info, expected) {
       if (!testUtils.isCouchMaster()) {
-        if (typeof info.doc_count === 'undefined') {
-          // info is from Sync Gateway, which allocates an extra seqnum
-          // for user access control purposes.
-          info.update_seq.should.be.within(expected.update_seq,
-            expected.update_seq + 1, 'update_seq');
-        } else {
-          info.update_seq.should.equal(expected.update_seq, 'update_seq');
-        }
+        info.update_seq.should.equal(expected.update_seq, 'update_seq');
       }
-      if (info.doc_count) { // info is NOT from Sync Gateway
+      if (info.doc_count) {
         info.doc_count.should.equal(expected.doc_count, 'doc_count');
       }
     }
@@ -233,9 +213,7 @@ adapters.forEach(function (adapters) {
         result.docs_written.should.equal(1, 'correct # docs written (1)');
         return db.info();
       }).then(function (info) {
-        if (!testUtils.isSyncGateway() || info.doc_count) {
-          info.doc_count.should.equal(1, 'doc_count');
-        }
+        info.doc_count.should.equal(1, 'doc_count');
         return db.get('doc', {open_revs: "all"});
       }).then(function (doc) {
         doc[0].ok._id.should.equal("doc");
@@ -248,9 +226,7 @@ adapters.forEach(function (adapters) {
         result.docs_written.should.equal(1, 'correct # docs written (2)');
         return db.info();
       }).then(function (info) {
-        if (!testUtils.isSyncGateway() || info.doc_count) {
-          info.doc_count.should.equal(1, 'doc_count');
-        }
+        info.doc_count.should.equal(1, 'doc_count');
         return db.get('doc', {open_revs: "all"});
       }).then(function (docs) {
         // order with open_revs is unspecified
@@ -304,14 +280,8 @@ adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs({keys: ['foo']});
       }).then(function (res) {
-        if (testUtils.isSyncGateway() && !res.rows[0].value) {
-          return remote.get('foo', {open_revs:'all'}).then(function (doc) {
-            return db.put({_id: 'foo', _rev: doc[0].ok._rev});
-          });
-        } else {
-          rev = res.rows[0].value.rev;
-          return db.put({_id: 'foo', _rev: rev});
-        }
+        rev = res.rows[0].value.rev;
+        return db.put({_id: 'foo', _rev: rev});
       }).then(function () {
         return db.replicate.to(remote);
       }).then(function () {
@@ -406,9 +376,7 @@ adapters.forEach(function (adapters) {
                   if (!testUtils.isCouchMaster()) {
                     info.update_seq.should.be.above(2, 'update_seq remote');
                   }
-                  if (!testUtils.isSyncGateway() || info.doc_count) {
-                    info.doc_count.should.equal(3, 'doc_count remote');
-                  }
+                  info.doc_count.should.equal(3, 'doc_count remote');
                   done();
                 });
               });
@@ -535,16 +503,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       function complete(details) {
-
-        if (testUtils.isSyncGateway()) {
-          // TODO investigate why Sync Gateway sometimes reads a
-          // document. This seems to come up 1 more in the browser
-          // and 0 more in node, but I've seen 1 in node.
-          details.docs_read.should.be.within(0, 1);
-        } else {
-          details.docs_read.should.equal(0);
-        }
-
+        details.docs_read.should.equal(0);
         db.info(function (err, info) {
           verifyInfo(info, {
             update_seq: 3,
