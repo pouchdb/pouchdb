@@ -58,7 +58,8 @@ testUtils.couchHost = function () {
   }
 
   if ('couchHost' in testUtils.params()) {
-    return testUtils.params().couchHost;
+    // Remove trailing slash from url if the user defines one
+    return testUtils.params().couchHost.replace(/\/$/, '');
   }
 
   return 'http://localhost:5984';

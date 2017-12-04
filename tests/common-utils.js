@@ -36,7 +36,8 @@ commonUtils.couchHost = function () {
   }
 
   if ('couchHost' in commonUtils.params()) {
-    return commonUtils.params().couchHost;
+    // Remove trailing slash from url if the user defines one
+    return commonUtils.params().couchHost.replace(/\/$/, '');
   }
 
   return 'http://localhost:5984';
