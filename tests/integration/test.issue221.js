@@ -50,9 +50,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('Testing issue #221 again', function () {
-      if (testUtils.isCouchMaster()) {
-        return;
-      }
       var doc = {_id: '0', integer: 0};
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
