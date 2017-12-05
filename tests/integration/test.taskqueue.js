@@ -15,61 +15,37 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    it('Add a doc', function (done) {
+    it('Add a doc', function () {
       var db = new PouchDB(dbs.name);
-      db.post({ test: 'somestuff' }, function (err) {
-        done(err);
-      });
+      return db.post({test: 'somestuff'});
     });
 
-    it('Query', function (done) {
-      // temp views are not supported in CouchDB 2.0
-      if (testUtils.isCouchMaster()) {
-        return done();
-      }
-
+    it('Bulk docs', function () {
       var db = new PouchDB(dbs.name);
-      // Test invalid if adapter doesnt support mapreduce
-      if (!db.query) {
-        return done();
-      }
-
-      var queryFun = {
-        map: function () {}
-      };
-      db.query(queryFun, { reduce: false }, function (_, res) {
-        res.rows.should.have.length(0);
-        done();
-      });
-    });
-
-    it('Bulk docs', function (done) {
-      var db = new PouchDB(dbs.name);
-      db.bulkDocs({
+      return db.bulkDocs({
         docs: [
           { test: 'somestuff' },
           { test: 'another' }
         ]
-      }, function (err, infos) {
+      }).then(function (infos) {
         should.not.exist(infos[0].error);
         should.not.exist(infos[1].error);
-        done();
       });
     });
 
-    it('Get', function (done) {
+    it('Get', function () {
       var db = new PouchDB(dbs.name);
-      db.get('0', function (err) {
+      return db.get('0').then(function () {
+        throw 'Get should error';
+      }).catch(function (err) {
         should.exist(err);
-        done();
       });
     });
 
-    it('Info', function (done) {
+    it('Info', function () {
       var db = new PouchDB(dbs.name);
-      db.info(function (err, info) {
+      return db.info().then(function (info) {
         info.doc_count.should.equal(0);
-        done();
       });
     });
 
