@@ -63,57 +63,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('#2882/#2883 last_seq for empty db', function () {
-      // CouchDB 2.0 sequence numbers are not
-      // incremental so skip this test
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-
-      var db = new PouchDB(dbs.name);
-      return db.changes().then(function (changes) {
-        changes.last_seq.should.equal(0);
-        changes.results.should.have.length(0);
-        return db.info();
-      }).then(function (info) {
-        info.update_seq.should.equal(0);
-      });
-    });
-
-    it('#2882/#2883 last_seq when putting parent before leaf', function () {
-      // CouchDB 2.0 sequence numbers are not
-      // incremental so skip this test
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-
-      var db = new PouchDB(dbs.name);
-      var lastSeq;
-      return db.bulkDocs({
-        docs: [
-          {
-            _id: 'fubar',
-            _rev: '2-a2',
-            _revisions: { start: 2, ids: [ 'a2', 'a1' ] }
-          }, {
-            _id: 'fubar',
-            _rev: '1-a1',
-            _revisions: { start: 1, ids: [ 'a1' ] }
-          }
-        ],
-        new_edits: false
-      }).then(function () {
-        return db.changes();
-      }).then(function (changes) {
-        lastSeq = changes.last_seq;
-        changes.results[0].changes[0].rev.should.equal('2-a2');
-        changes.results[0].seq.should.equal(lastSeq);
-        return db.info();
-      }).then(function (info) {
-        info.update_seq.should.equal(lastSeq);
-      });
-    });
-
     it('force put ok on 1st level', function () {
       var db = new PouchDB(dbs.name);
       var docId = "docId";
@@ -580,23 +529,6 @@ adapters.forEach(function (adapter) {
         chain = chain.then(addTask(i));
       }
       return chain;
-    });
-
-    it('local conflicts', function () {
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-      var db = new PouchDB(dbs.name);
-      return db.put({foo: 'bar'}, '_local/baz').then(function (result) {
-        return db.put({foo: 'bar'}, '_local/baz', result.res);
-      }).then(function () {
-        return db.put({foo: 'bar'}, '_local/baz');
-      }, function (e) {
-        should.not.exist(e, 'shouldn\'t error yet');
-        throw e;
-      }).then(undefined, function (e) {
-        should.exist(e, 'error when you have a conflict');
-      });
     });
 
     it('5832 - update losing leaf returns correct rev', function () {
