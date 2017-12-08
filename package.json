@@ -35,7 +35,6 @@
   },
   "dependencies": {
     "argsarray": "0.0.1",
-    "buffer-from": "0.1.1",
     "clone-buffer": "1.0.0",
     "debug": "3.0.1",
     "double-ended-queue": "2.1.0-0",
