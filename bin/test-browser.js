@@ -95,14 +95,6 @@ if (process.env.NEXT) {
 testUrl += '?';
 testUrl += querystring.stringify(qs);
 
-// This should actually be already handled in .travis.yml 
-if (process.env.TRAVIS &&
-    client.runner === 'saucelabs' &&
-    process.env.TRAVIS_SECURE_ENV_VARS === 'false') {
-  console.error('Not running test, cannot connect to saucelabs in Pull Request');
-  process.exit(0);
-}
-
 function testError(e) {
   console.error(e);
   console.error('Doh, tests failed');
