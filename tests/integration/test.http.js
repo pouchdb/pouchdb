@@ -184,20 +184,6 @@ describe('test.http.js', function () {
     });
   });
 
-
-  it('5574 Create a pouch with / in name and prefix url', function () {
-    // CouchDB Master disallows these characters
-    if (testUtils.isCouchMaster()) {
-      return true;
-    }
-    var db = new PouchDB('test/suffix', {
-      prefix: testUtils.adapterUrl('http', '')
-    });
-    return db.info().then(function () {
-      return db.destroy();
-    });
-  });
-
   it('Issue 6132 - default headers not merged', function () {
     var db = new PouchDB(dbs.name, {
       ajax: {
@@ -304,15 +290,12 @@ describe('test.http.js', function () {
           should.not.equal(info.results[0].seq, null);
           should.not.equal(info.last_seq, null);
 
-          // CouchDB 1.x should just ignore seq_interval
-          // (added in CouchDB 2.0), but not fail with an error
-          if (testUtils.isCouchMaster()) {
+          if (seqCount === 1) {
             // one change (the "first") always contains a seq
-            seqCount.should.equal(1);
             should.equal(info.results[1].seq, null);
             should.equal(info.results[2].seq, null);
-          }
-          else {
+          } else {
+            // Couch 1.X doesnt support seq_interval
             seqCount.should.equal(3);
           }
 
