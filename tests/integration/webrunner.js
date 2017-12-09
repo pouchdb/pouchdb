@@ -74,18 +74,24 @@
     }
   }
 
-  function startTests() {
+  function loadScripts() {
 
     function loadNext() {
       if (scriptsToLoad.length) {
         var script = scriptsToLoad.shift();
         asyncLoadScript(script, loadNext);
       } else {
-        onReady();
+        if (document.readyState === 'complete') {
+          startTests();
+        } else {
+          window.addEventListener("load", startTests);
+        }
       }
     }
 
-    function onReady() {
+    function startTests() {
+      window.removeEventListener("load", startTests);
+
       modifyGlobals();
 
       var runner = mocha.run();
@@ -147,6 +153,6 @@
     loadNext();
   }
 
-  startTests();
+  loadScripts();
 
 })();
