@@ -4,7 +4,7 @@ layout: 2ColLeft
 
 {{ content }}
 
-{% assign guides = (site.guides | sort: 'index') %}
+{% assign guides = site.guides | sort: 'index' %}
 {% for guide in guides %}
     {% if page.title == guide.title %}
         {% assign prev = guide.index | minus: 2 %}

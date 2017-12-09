@@ -38,11 +38,17 @@ http://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzBampu5_7CjHW5spxoeN
 /static/img/logo.svg
 /static/img/safari_popup.png
 /static/img/dev_tools.png
-/static/img/icons.svg
 /static/img/kittens_small.jpg
 /static/img/icon-edit.svg
 /static/img/screenshots/todo-1.png
 /static/img/travis-screenshot.png
+
+/static/img/friends/couchdb.svg
+/static/img/friends/github.svg
+/static/img/friends/leveldb.svg
+/static/img/friends/saucelabs.svg
+/static/img/friends/travis.svg
+/static/img/friends/twitter.svg
 
 /static/img/browser-logos/android_32x32.png
 /static/img/browser-logos/chrome-android_32x32.png
