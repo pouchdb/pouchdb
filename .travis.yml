@@ -51,7 +51,7 @@ env:
   - SAUCE_USERNAME=pouchdb
 
   matrix:
-  - CLIENT=saucelabs:safari:10 COMMAND=test
+  - CLIENT=saucelabs:safari COMMAND=test
   - SKIP_MIGRATION=true CLIENT="saucelabs:iphone" COMMAND=test
   - CLIENT="saucelabs:iphone" ADAPTERS=fruitdown COMMAND=test
 
