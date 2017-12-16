@@ -126,6 +126,9 @@ matrix:
     - node_js: "8"
       services: docker
       env: CLIENT=node COMMAND=test
+  allow_failures:
+    - env: CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
+    - env: CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
 branches:
   only:
