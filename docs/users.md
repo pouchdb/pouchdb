@@ -71,6 +71,11 @@ A list of known products and services that are using PouchDB.
 
 [Medic Mobile](http://medicmobile.org) is a software toolkit that combines smart messaging, decision support, easy data gathering and management, and health system analytics. Thanks to PouchDB our tools are offline first so workers can file reports wherever they are and sync when back online.
 
+## MoneyTracker.cc
+
+[MoneyTracker](https://moneytracker.cc/) is an open-source personal finances tracking web app. This app can work offline on desktop, tablet and mobile.
+Data is stored locally on device in PouchDB database and can be synced to the cloud.
+
 ## NPM Browser
 
 [NPM Browser](http://www.npm-browser.com/#/) is a fully offline cache of NPM packages, which runs in your browser, using Angular.js, PouchDB, and the pouchdb-load plugin.
