@@ -33,7 +33,7 @@ function writeFile(filename, contents) {
 }
 
 function doUglify(pkgName, code, prepend, fileOut) {
-  var miniCode = prepend + UglifyJS.minify(code);
+  var miniCode = prepend + UglifyJS.minify(code).code;
   return writeFile(addPath(pkgName, fileOut), miniCode);
 }
 
