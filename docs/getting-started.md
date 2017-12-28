@@ -126,7 +126,7 @@ function checkboxChanged(todo, event) {
 }
 {% endhighlight %}
 
-This is similiar to creating a document, however the document must also contain a `_rev` field (in addition to `_id`), otherwise the write will be rejected. This ensures that you dont accidently overwrite changes to a document.
+This is similar to creating a document, however the document must also contain a `_rev` field (in addition to `_id`), otherwise the write will be rejected. This ensures that you dont accidently overwrite changes to a document.
 
 You can test that this works by checking a todo item and refreshing the page. It should stay checked.
 
