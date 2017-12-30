@@ -1,4 +1,4 @@
-[PouchDB](http://pouchdb.com/) – The Database that Syncs!
+[PouchDB](https://pouchdb.com/) – The Database that Syncs!
 =========
 
 [![Build Status](https://travis-ci.org/pouchdb/pouchdb.svg)](https://travis-ci.org/pouchdb/pouchdb) [![Coverage Status](https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_100.svg)](https://coveralls.io/github/pouchdb/pouchdb?branch=master) [![Greenkeeper badge](https://badges.greenkeeper.io/pouchdb/pouchdb.svg)](https://greenkeeper.io/) [![npm version](https://img.shields.io/npm/v/pouchdb.svg)](https://www.npmjs.com/package/pouchdb) [![jsDelivr Hits](https://data.jsdelivr.com/v1/package/npm/pouchdb/badge?style=rounded)](https://www.jsdelivr.com/package/npm/pouchdb)
@@ -10,7 +10,7 @@ PouchDB was created to help web developers build applications that work as well 
 Using PouchDB
 -------------
 
-To get started using PouchDB, check out the [web site](http://pouchdb.com) and [API documentation](http://pouchdb.com/api.html).
+To get started using PouchDB, check out the [web site](https://pouchdb.com) and [API documentation](https://pouchdb.com/api.html).
 
 Getting Help
 ------------
