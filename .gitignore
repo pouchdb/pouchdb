@@ -9,6 +9,7 @@ npm-debug.log.*
 coverage
 bower_components
 .idea/
+.vscode/
 tests/integration/cordova/www
 phantomjsdriver.log
 tests/pouchdb_server
