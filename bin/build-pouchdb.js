@@ -82,10 +82,10 @@ var comments = {
   '\n// http://pouchdb.com\n'
 };
 
-function doRollup(entry, browser, formatsToFiles) {
+function doRollup(input, browser, formatsToFiles) {
   var start = process.hrtime();
   return rollup.rollup({
-    entry: addPath('pouchdb', entry),
+    input: addPath('pouchdb', input),
     external: external,
     plugins: rollupPlugins({
       skip: external,
@@ -100,7 +100,7 @@ function doRollup(entry, browser, formatsToFiles) {
         if (DEV_MODE) {
           var ms = Math.round(process.hrtime(start)[1] / 1000000);
           console.log('    took ' + ms + ' ms to rollup ' +
-                      path.dirname(entry) + '/' + path.basename(entry));
+                      path.dirname(input) + '/' + path.basename(input));
         }
         return writeFile(addPath('pouchdb', fileOut), bundle.code);
       });
