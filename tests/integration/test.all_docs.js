@@ -144,6 +144,28 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Testing allDocs opts.keys with limit', function () {
+      var db = new PouchDB(dbs.name);
+      return db.bulkDocs(origDocs).then(function () {
+        return db.allDocs({
+          keys: ['3', '1'],
+          limit: 1
+        });
+      }).then(function (res) {
+        res.total_rows.should.equal(4);
+        res.rows.should.have.length(1);
+        res.rows[0].id.should.equal('3');
+        return db.allDocs({
+          keys: ['0', '2'],
+          limit: 3
+        });
+      }).then(function (res) {
+        res.rows.should.have.length(2);
+        res.rows[0].id.should.equal('0');
+        res.rows[1].id.should.equal('2');
+      });
+    });
+
     it('Testing allDocs invalid opts.keys', function () {
       var db = new PouchDB(dbs.name);
       return db.allDocs({keys: 1234}).then(function () {
