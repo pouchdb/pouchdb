@@ -359,7 +359,7 @@ testCases.push(function (dbType, context) {
   });
   it('handles zero as a valid index value', function () {
     var db = context.db;
-    db.createIndex({
+    return db.createIndex({
         index: {
             fields: ['foo']
         }
@@ -387,7 +387,7 @@ testCases.push(function (dbType, context) {
   });
   it('handles null as a valid index value', function () {
       var db = context.db;
-      db.createIndex({
+      return db.createIndex({
           index: {
               fields: ['foo']
           }
