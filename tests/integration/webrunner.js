@@ -19,7 +19,7 @@
   if (adapters) {
     adapters = adapters[1].split(',');
     adapters.forEach(function (adapter) {
-      if (adapter !== 'websql' && adapter !== 'idb') {
+      if (adapter !== 'idb') {
         // load from plugin
         scriptsToLoad.push(
           '../../packages/node_modules/pouchdb/dist/pouchdb.' + adapter + '.js');

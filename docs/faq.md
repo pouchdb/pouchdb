@@ -46,7 +46,7 @@ In **Firefox**, PouchDB uses IndexedDB. Though Firefox has no upper limit beside
 
 **Internet Exporer 10+** has a hard 250MB limit, and will prompt the user with a non-modal dialog at 10MB.
 
-**Mobile Safari** on iOS has a hard 50MB limit, whereas **desktop Safari** has no limit. Both will prompt the user with a modal dialog if an application requests more than 5MB of data, at increments of 5MB, 10MB, 50MB, 100MB, etc. Some versions of Safari have a bug where they only let you request additional storage once, so you'll need to request the desired space up-front. PouchDB allows you to do this using [the `size` option](http://pouchdb.com/api.html#create_database).
+**Mobile Safari** on iOS has a hard 50MB limit for WebSQL, whereas **desktop Safari** has no limit. Both will prompt the user with a modal dialog if an application requests more than 5MB of data, at increments of 5MB, 10MB, 50MB, 100MB, etc. Some versions of Safari have a bug where they only let you request additional storage once, so you'll need to request the desired space up-front. PouchDB allows you to do this using [the `size` option](http://pouchdb.com/api.html#create_database).
 
 **iOS Web Application**, a page saved on the homescreen behaves different than apps in Mobile Safari (at least from iOS 9.3.2+). No specifics are published online by Apple, but WebSQL storage seems not limited to 50mb and there will not be any prompts when requesting data storage. Use [`<meta name="apple-mobile-web-app-capable" content="yes">`](https://developer.apple.com/library/ios/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html#//apple_ref/doc/uid/TP40002051-CH3-SW3) in your html header and use *Add to Home Screen* in the share menu of Safari. Please note, IndexedDB is not available, so FruitDown won't work. It seems there is different behaviour for different models of iPad and iPhone. You can check your mileage using the [storage abuser](http://demo.agektmr.com/storage/), which you can *Add to Home Screen* on your device. **Caveat**: when iOS is running low on storage space, the OS might decide to delete all data without any notice or warning to the end user. Be sure to use devices with plenty of spare space, or your users will lose unsynced data.
 
@@ -90,6 +90,7 @@ Here are the strategies used by various browsers in PouchDB:
 	<th><img src="static/img/browser-logos/chrome_32x32.png" alt="Chrome"/></th>
 	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
 	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
+	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
 </tr>
 <tr>
     <th>Adapter</th>
@@ -98,7 +99,8 @@ Here are the strategies used by various browsers in PouchDB:
 	<th>Chrome < 43,<br/>Android</th>
 	<th>Chrome >= 43</th>
 	<th>Safari < 7.1,<br/>iOS < 8</th>
-	<th>Safari >= 7.1,<br/>iOS >= 8</th>
+	<th>Safari < 10.1, >= 7.1,<br/>iOS < 10.3, >= 8</th>
+	<th>Safari >= 10.1,<br/>iOS >= 10.3</th>
 </tr>
 <tr>
     <td>IndexedDB</td>
@@ -108,6 +110,7 @@ Here are the strategies used by various browsers in PouchDB:
 	<td>Blob</td>
 	<td></td>
 	<td></td>
+	<td>Blob</td>
 </tr>
 <tr>
 	<td>WebSQL</td>
@@ -117,6 +120,7 @@ Here are the strategies used by various browsers in PouchDB:
 	<td>Blob</td>
 	<td>UTF-16 Blob</td>
 	<td>Blob</td>
+	<td></td>
 </tr>
 </table>
 </div>
