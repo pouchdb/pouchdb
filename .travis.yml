@@ -80,11 +80,11 @@ env:
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
   - FETCH=1 CLIENT=selenium:firefox COMMAND=test
-  - CLIENT=saucelabs:safari:7 COMMAND=test
+  - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
   # split up the android+iphone tests as it goes over time
-  - SKIP_MIGRATION=true CLIENT="saucelabs:iphone:8.1:OS X 10.10" COMMAND=test
+  - SKIP_MIGRATION=true CLIENT=saucelabs:iphone COMMAND=test
   - CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
 
   # Test memory / fruitdown etc
