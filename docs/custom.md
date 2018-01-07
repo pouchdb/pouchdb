@@ -56,8 +56,8 @@ plugins. You are free to create your own presets, but PouchDB provides a few fir
 ### pouchdb-browser
 
 The `pouchdb-browser` preset contains the version of PouchDB that is designed
-for the browser. In particular, it ships with the IndexedDB and WebSQL adapters
-as its default adapters. It also contains the replication, HTTP, and map/reduce plugins.
+for the browser. In particular, it ships with the IndexedDB adapter
+as its default adapter. It also contains the replication, HTTP, and map/reduce plugins.
 
 Use this preset if you only want to use PouchDB in the browser,
 and don't want to use it in Node.js. (E.g. to avoid installing LevelDB.)
@@ -78,7 +78,6 @@ var db = new PouchDB('mydb');
 ```js
 var PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-idb'))
-  .plugin(require('pouchdb-adapter-websql'))
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-mapreduce'))
   .plugin(require('pouchdb-replication'));
@@ -158,7 +157,7 @@ console.log(db.adapter); // 'idb'
 ### pouchdb-adapter-websql
 
 The secondary adapter used by PouchDB in the browser, using WebSQL. The adapter
-name is `'websql'`.
+name is `'websql'`. Before PouchDB 7.0.0, this was shipped as a default adapter.
 
 #### Example usage
 

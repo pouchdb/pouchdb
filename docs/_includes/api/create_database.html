@@ -13,7 +13,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 **Options for local databases:**
 
 * `auto_compaction`: This turns on auto compaction, which means `compact()` is called after every change to the database. Defaults to `false`.
-* `adapter`: One of `'idb'`, `'leveldb'`, `'websql'`, or `'http'`. If unspecified, PouchDB will infer this automatically, preferring IndexedDB to WebSQL in browsers that support both (i.e. Chrome, Opera and Android 4.4+).
+* `adapter`: One of `'idb'`, `'leveldb'`, or `'http'`.
 * `revs_limit`: Specify how many old revisions we keep track (not a copy) of. Specifying a low value means Pouch may not be able to figure out whether a new revision received via replication is related to any it currently has which could result in a conflict. Defaults to `1000`.
 
 **Options for remote databases:**
@@ -31,7 +31,9 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 **WebSQL-only options:**
 
-* `size`: Amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors on iOS/Safari](/errors.html#not_enough_space). Persistent views use a separate database per view which will also request storage space so keep in mind the upper storage limits when using persistent views on iOS.
+_Note:_ as of PouchDB 7.0.0, this requires installing WebSQL as an add-on adapter.
+
+* `size`: Amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors in WebSQL on iOS/Safari](/errors.html#not_enough_space). Persistent views use a separate database per view which will also request storage space so keep in mind the upper storage limits when using persistent views on iOS.
 
 **Notes:**
 
@@ -50,7 +52,7 @@ var db = new PouchDB('dbname');
 var db = new PouchDB('http://localhost:5984/dbname');
 {% endhighlight %}
 
-Create a PouchDB that explicitly uses WebSQL:
+Create a PouchDB that explicitly uses WebSQL (must install `pouchdb-adapter-websql` first):
 
 {% highlight js %}
 var db = new PouchDB('dbname', {adapter : 'websql'});

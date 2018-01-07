@@ -4,7 +4,7 @@ title: Adapters
 sidebar: nav.html
 ---
 
-PouchDB is not a self-contained database; it is a CouchDB-style abstraction layer over other databases. By default, PouchDB ships with [IndexedDB][] and [WebSQL][] adapters in the browser, and a [LevelDB][] adapter in Node.js. This can be visualized as so:
+PouchDB is not a self-contained database; it is a CouchDB-style abstraction layer over other databases. By default, PouchDB ships with the [IndexedDB][] adapter for the browser, and a [LevelDB][] adapter in Node.js. This can be visualized as so:
 
 <object data="static/svg/pouchdb_adapters.svg" type="image/svg+xml">
     <img src="static/img/pouchdb_adapters.png" alt="adapters">
@@ -48,7 +48,7 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 	<td>&#10003; (10+)</td>
 	<td>&#10003;</td>
 	<td>&#10003;</td>
-	<td></td>
+	<td>&#10003; (10.1+)</td>
 	<td>&#10003;</td>
 </tr>
 <tr>
@@ -90,7 +90,7 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 </tr>
 <tr>
     <td>IndexedDB</td>
-    <td></td>
+    <td>&#10003; (10.3+)</td>
     <td></td>
     <td>&#10003; (4.4+)</td>
     <td>&#10003; (10+)</td>
@@ -114,14 +114,14 @@ In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB
 </div>
 
 {% include alert/start.html variant="info"%}
-Safari 7.1+ and iOS 8+ supposedly support IndexedDB, but their implementation has many bugs, so PouchDB currently ignores it.
+Prior to PouchDB 7.0.0, the WebSQL adapter was always used for Safari/iOS. The WebSQL adapter no longer ships as a default adapter in PouchDB, but may be installed separately.
 {% include alert/end.html%}
 
 If you're ever curious which adapter is being used in a particular browser, you can use the following method:
 
 ```js
 var pouch = new PouchDB('myDB');
-console.log(pouch.adapter); // prints either 'idb' or 'websql'
+console.log(pouch.adapter); // prints 'idb'
 ```
 
 ### SQLite plugin for Cordova/PhoneGap
@@ -154,7 +154,7 @@ The built-in IndexedDB and WebSQL adapters are nearly always more performant and
 
 ### Browser adapter plugins
 
-PouchDB also offers separate browser plugins that use backends other than IndexedDB and WebSQL. These plugins fully pass the PouchDB test suite and are rigorously tested in our CI process.
+PouchDB also offers separate browser plugins that use backends other than IndexedDB. These plugins fully pass the PouchDB test suite and are rigorously tested in our CI process.
 
 **Downloads:**
 
