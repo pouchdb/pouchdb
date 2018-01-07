@@ -135,7 +135,7 @@ Plugins contain functionality that can be added to a `PouchDB` instance using `P
 
 There is also a special type of plugin called an _adapter plugin_.  Adapter plugins (such as IndexedDB, WebSQL, LevelDB, and HTTP) determine the storage format that
 PouchDB uses. For the non-HTTP adapters, the plugin order matters, i.e. if you
-want IndexedDB to be preferred to WebSQL, then you should load it first. (Notice that `pouchdb-browser` does exactly this.)
+want IndexedDB to be preferred to WebSQL, then you should load it first.
 
 ### pouchdb-adapter-idb
 
@@ -156,8 +156,10 @@ console.log(db.adapter); // 'idb'
 
 ### pouchdb-adapter-websql
 
-The secondary adapter used by PouchDB in the browser, using WebSQL. The adapter
-name is `'websql'`. Before PouchDB 7.0.0, this was shipped as a default adapter.
+An adapter used by PouchDB in the browser, using WebSQL. The adapter
+name is `'websql'`.
+
+Before PouchDB 7.0.0, this was shipped as a default adapter. As of PouchDB 7.0.0, it must be loaded as a separate plugin.
 
 #### Example usage
 

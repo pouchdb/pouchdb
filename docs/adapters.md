@@ -158,6 +158,7 @@ PouchDB also offers separate browser plugins that use backends other than Indexe
 
 **Downloads:**
 
+* [pouchdb.websql.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.websql.js) (Minified: [pouchdb.websql.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.websql.min.js))
 * [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js) (Minified: [pouchdb.memory.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.min.js))
 * [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js) (Minified: [pouchdb.localstorage.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.min.js))
 * [pouchdb.fruitdown.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js) (Minified: [pouchdb.fruitdown.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.min.js))
@@ -167,6 +168,21 @@ PouchDB also offers separate browser plugins that use backends other than Indexe
 These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt.
 {% endmarkdown %}
 {% include alert/end.html%}
+
+#### WebSQL adapter
+
+Prior to PouchDB 7.0.0, this was included in PouchDB itself. If you need to support old versions of Safari (<10.1) or iOS (<10.3) then you will need this plugin.
+
+```html
+<script src="pouchdb.js"></script>
+<script src="pouchdb.websql.js"></script>
+<script>
+  // this pouch uses WebSQL
+  var pouch = new PouchDB('mydb', {adapter: 'websql'});
+  // this pouch will use WebSQL if the current browser doesn't support IDB but supports WebSQL
+  var otherPouch = new PouchDB('myotherdb', {adapter: 'websql'});
+</script>
+```
 
 #### In-memory adapter
 

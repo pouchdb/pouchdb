@@ -32,7 +32,7 @@ var builtInModules = require('builtin-modules');
 var external = Object.keys(require('../package.json').dependencies)
   .concat(builtInModules);
 
-var plugins = ['fruitdown', 'localstorage', 'memory', 'find'];
+var plugins = ['fruitdown', 'localstorage', 'memory', 'find', 'websql'];
 
 var currentYear = new Date().getFullYear();
 
@@ -79,7 +79,16 @@ var comments = {
   '\n// PouchDB may be freely distributed under the Apache license, ' +
   'version 2.0.' +
   '\n// For all details and documentation:' +
-  '\n// http://pouchdb.com\n'
+  '\n// http://pouchdb.com\n',
+
+  'websql': '// PouchDB websql plugin ' + version +
+  '\n// Since PouchDB 7.0.0, shipped as a separate plugin.' +
+  '\n// ' +
+  '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
+  '\n// PouchDB may be freely distributed under the Apache license, ' +
+  'version 2.0.' +
+  '\n// For all details and documentation:' +
+  '\n// http://pouchdb.com\n',
 };
 
 function doRollup(entry, browser, formatsToFiles) {

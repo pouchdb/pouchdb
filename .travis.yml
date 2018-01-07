@@ -61,17 +61,17 @@ env:
 
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
-  - CLIENT=selenium:phantomjs COMMAND=test
+  - CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs COMMAND=test
+  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:phantomjs COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
   # Test pouchdb-find
   - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
