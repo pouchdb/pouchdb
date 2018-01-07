@@ -79,7 +79,6 @@ env:
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
-  - FETCH=1 CLIENT=selenium:firefox COMMAND=test
   - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
