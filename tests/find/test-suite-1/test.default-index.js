@@ -372,7 +372,7 @@ testCases.push(function (dbType, context) {
         ]).then(function () {
             return db.find({
                 selector: {
-                    _id: {$eq: 0}
+                    foo: {$eq: 0}
                 },
                 fields: ['_id']
             }).then(function (resp) {
@@ -400,7 +400,7 @@ testCases.push(function (dbType, context) {
           ]).then(function () {
               return db.find({
                   selector: {
-                      _id: {$eq: null}
+                      foo: {$eq: null}
                   },
                   fields: ['_id']
               }).then(function (resp) {
