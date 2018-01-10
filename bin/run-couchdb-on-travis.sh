@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 if [ "$SERVER" = "couchdb-master" ]; then
-  # Install CouchDB Master
+  # Install CouchDB 2.X (clustered)
   docker run -d -p 3001:5984 couchdbdev/debian-8-dev --with-haproxy --with-admin-party-please -n 1
   COUCH_PORT=3001
 else
-  # Install CouchDB Stable
-  docker run -d -p 3000:5984 klaemo/couchdb:1.6.1
+  # Install CouchDB 1.X
+  docker run -d -p 3000:5984 apache/couchdb:1
   COUCH_PORT=3000
 fi
 
