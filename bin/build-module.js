@@ -71,7 +71,7 @@ function buildModule(filepath) {
   }).then(function () {
     return all(versions.map(function (isBrowser) {
       return rollup({
-        entry: path.resolve(filepath, './src/index.js'),
+        input: path.resolve(filepath, './src/index.js'),
         external: depsToSkip,
         plugins: rollupPlugins({
           skip: depsToSkip,
@@ -81,14 +81,14 @@ function buildModule(filepath) {
       }).then(function (bundle) {
         var formats = ['cjs', 'es'];
         return all(formats.map(function (format) {
-          var dest = (isBrowser ? 'lib/index-browser' : 'lib/index') +
+          var file = (isBrowser ? 'lib/index-browser' : 'lib/index') +
             (format === 'es' ? '.es.js' : '.js');
           return bundle.write({
             format: format,
-            dest: path.resolve(filepath, dest)
+            file: path.resolve(filepath, file)
           }).then(function () {
             console.log('  \u2713' + ' wrote ' +
-              path.basename(filepath) + '/' + dest + ' in ' +
+              path.basename(filepath) + '/' + file + ' in ' +
                 (isBrowser ? 'browser' :
                 versions.length > 1 ? 'node' : 'vanilla') +
               ' mode');
