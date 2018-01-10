@@ -357,4 +357,60 @@ testCases.push(function (dbType, context) {
       });
     });
   });
+  it('handles zero as a valid index value', function () {
+    var db = context.db;
+    return db.createIndex({
+        index: {
+            fields: ['foo']
+        }
+    }).then(function () {
+        return db.bulkDocs([
+            {_id: '1', foo: 0},
+            {_id: '2', foo: 1},
+            {_id: '3', foo: 2},
+            {_id: '4', foo: 3}
+        ]).then(function () {
+            return db.find({
+                selector: {
+                    foo: {$eq: 0}
+                },
+                fields: ['_id']
+            }).then(function (resp) {
+                resp.should.deep.equal({
+                    docs: [
+                        {_id: "1"}
+                    ]
+                });
+            });
+        });
+    });
+  });
+  it('handles null as a valid index value', function () {
+      var db = context.db;
+      return db.createIndex({
+          index: {
+              fields: ['foo']
+          }
+      }).then(function () {
+          return db.bulkDocs([
+              {_id: '1', foo: null},
+              {_id: '2', foo: 1},
+              {_id: '3', foo: 2},
+              {_id: '4', foo: 3}
+          ]).then(function () {
+              return db.find({
+                  selector: {
+                      foo: {$eq: null}
+                  },
+                  fields: ['_id']
+              }).then(function (resp) {
+                  resp.should.deep.equal({
+                      docs: [
+                          {_id: "1"}
+                      ]
+                  });
+              });
+          });
+      });
+  });
 });
