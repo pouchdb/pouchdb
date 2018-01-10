@@ -33,7 +33,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('explains which index it uses', function () {
+    it.skip('explains which index it uses', function () {
       var db = context.db;
       return db.explain({
         selector: {

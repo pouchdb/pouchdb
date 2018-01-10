@@ -117,12 +117,7 @@ testCases.push(function (dbType, context) {
           },
           fields: ['_id']
         }).then(function (resp) {
-          resp.should.deep.equal({
-            warning: 'no matching index found, create an index to optimize query time',
-            docs: [
-              {_id: 'yoshi'}
-            ]
-          });
+          resp.docs.should.deep.equal([{_id: 'yoshi'}]);
         });
       });
     });

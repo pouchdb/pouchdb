@@ -50,7 +50,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('use index based on ddoc', function () {
+    it.skip('use index based on ddoc', function () {
       var db = context.db;
       return db.explain({
         selector: {

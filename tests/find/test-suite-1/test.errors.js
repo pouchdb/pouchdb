@@ -71,7 +71,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('error: conflicting sort and selector', function () {
+    it.skip('error: conflicting sort and selector', function () {
       var db = context.db;
       var index = {
         "index": {

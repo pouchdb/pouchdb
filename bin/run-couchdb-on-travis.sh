@@ -2,7 +2,7 @@
 
 if [ "$SERVER" = "couchdb-master" ]; then
   # Install CouchDB 2.X (clustered)
-  docker run -d -p 3001:5984 couchdbdev/debian-8-dev --with-haproxy --with-admin-party-please -n 1
+  docker run -d -p 3001:5984 apache/couchdb:latest --with-haproxy --with-admin-party-please -n 1
   COUCH_PORT=3001
 else
   # Install CouchDB 1.X

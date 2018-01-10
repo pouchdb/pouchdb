@@ -42,7 +42,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('should find existing indexes', function () {
+    it.skip('should find existing indexes', function () {
       var db = context.db;
       return new Promise(function (resolve, reject) {
         db.getIndexes(function (err, response) {

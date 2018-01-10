@@ -26,12 +26,7 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            { _id: '4'},
-            { _id: '3'}
-          ]
-        });
+        resp.docs.should.deep.equal([{ _id: '4'}, { _id: '3'}]);
       });
     });
 
@@ -57,12 +52,7 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '4'},
-            {_id: '3'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '4'}, {_id: '3'}]);
       });
     });
 
@@ -151,18 +141,16 @@ testCases.push(function (dbType, context) {
           fields: ["_id"],
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: 'kirby'},
-            {_id: 'link'},
-            {_id: 'luigi'},
-            {_id: 'mario'},
-            {_id: 'ness'},
-            {_id: 'pikachu'},
-            {_id: 'puff'},
-            {_id: 'yoshi'}
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: 'kirby'},
+          {_id: 'link'},
+          {_id: 'luigi'},
+          {_id: 'mario'},
+          {_id: 'ness'},
+          {_id: 'pikachu'},
+          {_id: 'puff'},
+          {_id: 'yoshi'}
+        ]);
       });
     });
 

@@ -27,13 +27,11 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '3', foo: 'eba'},
-            {_id: '2', foo: 'ebb'},
-            {_id: '1', foo: 'eyo'}
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: '3', foo: 'eba'},
+          {_id: '2', foo: 'ebb'},
+          {_id: '1', foo: 'eyo'}
+        ]);
       });
     });
 
@@ -60,11 +58,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id", "foo"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '4', foo: 'abo'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '4', foo: 'abo'}]);
       });
     });
 
@@ -128,12 +122,10 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '4', foo: 'abo'},
-            {_id: '3', foo: 'eba'},
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: '4', foo: 'abo'},
+          {_id: '3', foo: 'eba'},
+        ]);
       });
     });
 
@@ -219,13 +211,11 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "desc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '1', foo: 'eyo'},
-            {_id: '2', foo: 'ebb'},
-            {_id: '3', foo: 'eba'}
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: '1', foo: 'eyo'},
+          {_id: '2', foo: 'ebb'},
+          {_id: '3', foo: 'eba'}
+        ]);
       });
     });
 
