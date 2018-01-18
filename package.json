@@ -55,7 +55,7 @@
     "request": "2.83.0",
     "spark-md5": "3.0.0",
     "through2": "2.0.3",
-    "uuid": "^3.1.0",
+    "uuid": "3.2.1",
     "vuvuzela": "1.0.3",
     "websql": "0.4.4"
   },
