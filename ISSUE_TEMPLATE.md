@@ -15,4 +15,5 @@ Write the description of the issue here
 - Server: (CouchDB/Cloudant/Couchbase/PouchDB Server/etc.)
 
 ### Reproduce
-Write the steps for others to reproduce issue here. Providing a code example, links to a repository or a live example (JSBin etc) are even more helpful.
+Issues that others can reproduce are far easier to fix, we have a website that may help you provide a
+live example of the bug @ https://pouchdb-bug-helper.glitch.me/
