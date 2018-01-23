@@ -33,11 +33,7 @@ testCases.push(function (dbType, context) {
           "fields": ["_id", "foo"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          "docs": [
-            { "_id": "2", "foo": "b"}
-          ]
-        });
+        resp.docs.should.deep.equal([{ "_id": "2", "foo": "b"}]);
       });
     });
 

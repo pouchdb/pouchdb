@@ -14,7 +14,7 @@
     });
     afterEach(function () {
       this.timeout(60000);
-      return context.db.destroy(); 
+      return context.db.destroy();
     });
 
     testCases.forEach(function (testCase) {

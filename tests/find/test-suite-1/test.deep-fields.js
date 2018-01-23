@@ -25,13 +25,7 @@ testCases.push(function (dbType, context) {
           fields: ['_id']
         });
       }).then(function (res) {
-        res.should.deep.equal({
-          "docs": [
-            {
-              "_id": "doc"
-            }
-          ]
-        });
+        res.docs.should.deep.equal([{"_id": "doc"}]);
       });
     });
 
@@ -56,13 +50,7 @@ testCases.push(function (dbType, context) {
           fields: ['_id']
         });
       }).then(function (res) {
-        res.should.deep.equal({
-          "docs": [
-            {
-              "_id": "doc"
-            }
-          ]
-        });
+        res.docs.should.deep.equal([{"_id": "doc"}]);
       });
     });
 
@@ -88,9 +76,7 @@ testCases.push(function (dbType, context) {
           fields: ['_id']
         });
       }).then(function (res) {
-        res.should.deep.equal({
-          "docs": [{ "_id": "doc2"}]
-        });
+        res.docs.should.deep.equal([{ "_id": "doc2"}]);
       });
     });
 

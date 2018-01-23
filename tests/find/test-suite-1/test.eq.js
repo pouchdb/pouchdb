@@ -27,11 +27,7 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '3', foo: 'eba'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '3', foo: 'eba'}]);
       });
     });
 
@@ -59,11 +55,7 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            { _id: '3', foo: 'eba'}
-          ]
-        });
+        resp.docs.should.deep.equal([{ _id: '3', foo: 'eba'}]);
       });
     });
 
@@ -92,11 +84,7 @@ testCases.push(function (dbType, context) {
       }).then(function (resp) {
         should.exist(resp.docs[0]._rev);
         delete resp.docs[0]._rev;
-        resp.should.deep.equal({
-          docs: [
-            {_id: '3', foo: 'eba'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '3', foo: 'eba'}]);
       });
     });
 
@@ -124,15 +112,11 @@ testCases.push(function (dbType, context) {
       }).then(function (resp) {
         should.exist(resp.docs[0]._rev);
         delete resp.docs[0]._rev;
-        resp.should.deep.equal({
-          docs: [
-            {_id: '3', foo: 'eba'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '3', foo: 'eba'}]);
       });
     });
 
-    it('does eq queries, no index name', function () {
+    it.skip('does eq queries, no index name', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -251,12 +235,7 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            { _id: '2'},
-            { _id: '1'}
-          ]
-        });
+        resp.docs.should.deep.equal([{ _id: '2'}, { _id: '1'}]);
       });
     });
 
@@ -282,12 +261,7 @@ testCases.push(function (dbType, context) {
           sort: [{foo: "asc"}]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '2'},
-            {_id: '1'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '2'}, {_id: '1'}]);
       });
     });
 
@@ -311,12 +285,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '1'},
-            {_id: '2'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '1'}, {_id: '2'}]);
       });
     });
 
@@ -340,12 +309,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '1'},
-            {_id: '2'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '1'}, {_id: '2'}]);
       });
     });
 
@@ -369,11 +333,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '1'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '1'}]);
       });
     });
 
@@ -397,11 +357,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '1'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '1'}]);
       });
     });
 
@@ -455,11 +411,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '2'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '2'}]);
       });
     });
 
@@ -483,11 +435,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '2'}
-          ]
-        });
+        resp.docs.should.deep.equal([{_id: '2'}]);
       });
     });
 
@@ -511,10 +459,7 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-          ]
-        });
+        resp.docs.should.deep.equal([]);
       });
     });
   });

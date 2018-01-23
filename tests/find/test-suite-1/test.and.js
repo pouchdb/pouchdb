@@ -28,12 +28,10 @@ testCases.push(function (dbType, context) {
           fields: ["_id"],
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: 'pikachu'},
-            {_id: 'puff'},
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: 'pikachu'},
+          {_id: 'puff'},
+        ]);
       });
     });
 
@@ -67,12 +65,10 @@ testCases.push(function (dbType, context) {
           fields: ["_id"],
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: 'pikachu'},
-            {_id: 'puff'},
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: 'pikachu'},
+          {_id: 'puff'},
+        ]);
       });
     });
 

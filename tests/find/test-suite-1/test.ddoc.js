@@ -5,7 +5,7 @@ testCases.push(function (dbType, context) {
 
   describe(dbType + ': test.ddoc.js', function () {
 
-    it('should create an index', function () {
+    it.skip('should create an index', function () {
       var db = context.db;
       var index = {
         index: {
@@ -58,7 +58,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('should create an index, existing ddoc', function () {
+    it.skip('should create an index, existing ddoc', function () {
       var db = context.db;
       var index = {
         index: {
@@ -116,7 +116,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('should create an index, reused ddoc', function () {
+    it.skip('should create an index, reused ddoc', function () {
       var db = context.db;
       var index = {
         index: {
