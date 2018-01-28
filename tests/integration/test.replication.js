@@ -497,6 +497,21 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Test type of progress values', function () {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      return remote.bulkDocs({docs: docs}).then(function () {
+        var sync = db.replicate.from(remote);
+        sync.on('change', function (c) {
+          c.start_time.should.be.a('string');
+        });
+        return sync;
+      }).then(function (c) {
+        c.start_time.should.be.a('string');
+        c.end_time.should.be.a('string');
+      });
+    });
+
     it('Test live push checkpoint', function (done) {
 
       var db = new PouchDB(dbs.name);
