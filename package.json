@@ -45,7 +45,7 @@
     "level": "2.1.2",
     "level-codec": "7.0.1",
     "level-write-stream": "1.0.0",
-    "leveldown": "2.1.1",
+    "leveldown": "3.0.0",
     "levelup": "2.0.1",
     "lie": "3.2.0",
     "localstorage-down": "0.6.7",
