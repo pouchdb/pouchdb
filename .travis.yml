@@ -61,6 +61,7 @@ env:
 
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
+  - CLIENT=selenium:firefox POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COMMAND=test
   - CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
