@@ -33,31 +33,29 @@ describe('test.http.js', function () {
   it('Issue 1269 redundant _changes requests', function (done) {
     var docs = [];
     var num = 100;
+    var callCount = 0;
     for (var i = 0; i < num; i++) {
       docs.push({
         _id: 'doc_' + i,
         foo: 'bar_' + i
       });
     }
-    var db = new PouchDB(dbs.name);
+    var db = new PouchDB(dbs.name, {
+      fetch: function (url, opts) {
+        if (/_changes/.test(url)) {
+          callCount++;
+        }
+        return PouchDB.fetch(url, opts);
+      }
+    });
     db.bulkDocs({ docs: docs }, function () {
       db.info(function (err, info) {
         var update_seq = info.update_seq;
-
-        var callCount = 0;
-        var ajax = db._ajax;
-        db._ajax = function (opts) {
-          if (/_changes/.test(opts.url)) {
-            callCount++;
-          }
-          ajax.apply(this, arguments);
-        };
         db.changes({
           since: update_seq
         }).on('change', function () {
         }).on('complete', function () {
           callCount.should.equal(1, 'One _changes call to complete changes');
-          db._ajax = ajax;
           done();
         }).on('error', done);
       });
@@ -79,54 +77,13 @@ describe('test.http.js', function () {
   });
 
   it('Properly escape url params #4008', function () {
-    var db = new PouchDB(dbs.name);
-    var ajax = db._ajax;
-    db._ajax = function (opts) {
-      opts.url.should.not.contain('[');
-      ajax.apply(this, arguments);
-    };
-    return db.changes({doc_ids: ['1']}).then(function () {
-      db._ajax = ajax;
-    });
-  });
-
-  it('Allows the "ajax timeout" to extend "changes timeout"', function (done) {
-    var timeout = 120000;
     var db = new PouchDB(dbs.name, {
-      skip_setup: true,
-      ajax: {
-        timeout: timeout
+      fetch: function (url, opts) {
+        url.should.not.contain('[');
+        return PouchDB.fetch(url, opts);
       }
     });
-
-    var ajax = db._ajax;
-    var ajaxOpts;
-    db._ajax = function (opts) {
-      if (/changes/.test(opts.url)) {
-        ajaxOpts = opts;
-        changes.cancel();
-      }
-      ajax.apply(this, arguments);
-    };
-
-    var changes = db.changes();
-
-    changes.on('complete', function () {
-      should.exist(ajaxOpts);
-      ajaxOpts.timeout.should.equal(timeout);
-      db._ajax = ajax;
-      done();
-    });
-
-  });
-
-  it('Test custom header', function () {
-    var db = new PouchDB(dbs.name, {
-      headers: {
-        'X-Custom': 'some-custom-header'
-      }
-    });
-    return db.info();
+    return db.changes({doc_ids: ['1']});
   });
 
   it('test url too long error for allDocs()', function () {
@@ -177,70 +134,6 @@ describe('test.http.js', function () {
     return db.info().then(function () {
       return db.destroy();
     });
-  });
-
-  it('Issue 6132 - default headers not merged', function () {
-    var db = new PouchDB(dbs.name, {
-      ajax: {
-        // need to use a header that CouchDB allows through CORS
-        headers: { "x-csrf-token": "bar" }
-      }
-    });
-
-    var ajax = db._ajax;
-    var tested = false;
-    db._ajax = function (opts) {
-      if (opts.headers && opts.headers['Content-Type']) {
-        if (opts.headers["x-csrf-token"] !== 'bar') {
-          throw new Error('default header x-csrf-token expected');
-        }
-        tested = true;
-      }
-
-      ajax.apply(this, arguments);
-    };
-
-    return db.putAttachment('mydoc', 'att.txt', testUtils.btoa('abc'), 'text/plain')
-    .then(function () {
-      if (!tested) {
-        throw new Error('header assertion skipped in test');
-      }
-    });
-  });
-
-  it('heartbeart cannot be > request timeout', function (done) {
-    var timeout = 500;
-    var heartbeat = 1000;
-    var CHANGES_TIMEOUT_BUFFER = 5000;
-    var db = new PouchDB(dbs.name, {
-      skip_setup: true,
-      ajax: {
-        timeout: timeout
-      }
-    });
-
-    var ajax = db._ajax;
-    var ajaxOpts;
-    db._ajax = function (opts) {
-      if (/changes/.test(opts.url)) {
-        ajaxOpts = opts;
-        changes.cancel();
-      }
-      ajax.apply(this, arguments);
-    };
-
-    var changes = db.changes({
-        heartbeat: heartbeat
-    });
-
-    changes.on('complete', function () {
-      should.exist(ajaxOpts);
-      ajaxOpts.timeout.should.equal(heartbeat + CHANGES_TIMEOUT_BUFFER);
-      ajaxOpts.url.indexOf("heartbeat=" + heartbeat).should.not.equal(-1);
-      db._ajax = ajax;
-      done();
-    });
-
   });
 
   it('changes respects seq_interval', function (done) {

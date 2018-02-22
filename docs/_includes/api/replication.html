@@ -65,7 +65,7 @@ db.replicate.to(remoteDB, [options]);
 db.replicate.from(remoteDB, [options]);
 {% endhighlight %}
 
-The `remoteDB` can either be a string or a `PouchDB` object. If you have special ajax options on a remote database, you will want to use `PouchDB` objects instead of strings, so that the options are used.
+The `remoteDB` can either be a string or a `PouchDB` object. If you have a fetch override on a remote database, you will want to use `PouchDB` objects instead of strings, so that the options are used.
 
 #### Replication events
 

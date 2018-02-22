@@ -39,6 +39,7 @@
     "clone-buffer": "1.0.0",
     "debug": "3.1.0",
     "double-ended-queue": "2.1.0-0",
+    "fetch-cookie": "0.7.0",
     "fruitdown": "1.0.2",
     "immediate": "3.0.6",
     "inherits": "2.0.3",
@@ -51,13 +52,15 @@
     "localstorage-down": "0.6.7",
     "ltgt": "2.2.0",
     "memdown": "1.2.4",
+    "node-fetch": "^2.0.0",
     "readable-stream": "1.0.33",
     "request": "2.83.0",
     "spark-md5": "3.0.0",
     "through2": "2.0.3",
     "uuid": "3.2.1",
     "vuvuzela": "1.0.3",
-    "websql": "0.4.4"
+    "websql": "0.4.4",
+    "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
     "argsarray": "0.0.1",
@@ -94,7 +97,6 @@
     "mocha": "3.5.0",
     "mockery": "2.1.0",
     "ncp": "2.0.0",
-    "nock": "9.1.6",
     "pouchdb-express-router": "0.0.10",
     "query-string": "4.3.3",
     "replace": "0.3.0",
