@@ -26,7 +26,8 @@ We will start with a template of the project where all the data related function
 
 {% highlight bash %}
 $ cd pouchdb-getting-started-todo
-$ python -m SimpleHTTPServer
+$ python -m SimpleHTTPServer  # for Python 2
+$ python -m http.server       # for Python 3
 {% endhighlight %}
 
 Then visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/). If you see the following screenshot, you are good to go:
