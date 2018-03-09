@@ -106,6 +106,12 @@ Story-writer is a free Markdown editor, with a [web version](http://markdown.xia
 
 [Thali](http://thaliproject.org/) is a Microsoft-sponsored open-source platform for creating apps that exploit the power of personal devices and put people in control of their data. It uses Cordova, PouchDB, OpenSSL, and Tor.
 
+## StudyMD
+
+{% include img.html width=100 src="studymd.png" alt="StudyMD" %}
+
+[StudyMD](https://github.com/jotron/StudyMD) transforms your markdown files into flashcards. It's an electronjs app based on reactjs. PouchDB is used in Node.js for storing the flashcards in a LevelDB database.
+
 ## YLD
 
 [YLD](http://www.yld.io) is a Node.js software engineering, consulting and training company. We partner with enterprises to strengthen their software engineering culture and create the agility necessary to compete in today’s market, and are responsible for some of the largest Node.js solutions in production today. PouchDB allows us to create responsive, resilient and sync-enabled web applications.
