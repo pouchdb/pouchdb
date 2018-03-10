@@ -13,6 +13,7 @@ sudo:
   false
 
 addons:
+  firefox: latest
   jwt:
      secure: YlCp9qGHmnnATcScIQVyOt8eI9FxLhMGAz9iRTHh7r41ADjfGJUzyqkWoBLcCagiQWtqtUujukPAtRuOibbBp9SvmGp+IIdbwHVUDvSZNOvGxkQ1qczeGxJcnht+2YNoCwfzkHW4vFrNiGOULdjvbWAB4sAJ8N0AZPShURwXU1E=
 
@@ -61,6 +62,7 @@ env:
 
   # Test in firefox/phantomjs running on travis
   - CLIENT=selenium:firefox COMMAND=test
+  - CLIENT=selenium:firefox POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COMMAND=test
   - CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
   # Test auto-compaction in Node, Phantom, and Firefox
@@ -79,13 +81,12 @@ env:
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
-  - FETCH=1 CLIENT=selenium:firefox COMMAND=test
   - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
   - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
   # split up the android+iphone tests as it goes over time
   - SKIP_MIGRATION=true CLIENT=saucelabs:iphone COMMAND=test
-  - CLIENT="saucelabs:Android:5.1:Linux" COMMAND=test
+  - CLIENT="saucelabs:Android:6.0:Linux" COMMAND=test
 
   # Test memory / fruitdown etc
   - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
@@ -134,6 +135,10 @@ matrix:
     # phantomjs doesnt like us upgrading to Apache Docker images
     - env: CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
     - env: AUTO_COMPACTION=true CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
+    - env: TYPE=mapreduce CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
+    # TODO: disabled as part of https://github.com/pouchdb/pouchdb/issues/6944
+    # but needs reenabled
+    - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
 
 branches:
   only:

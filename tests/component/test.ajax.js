@@ -16,23 +16,14 @@ describe('test.ajax.js', function () {
       }
     });
     server.listen(6000, function () {
-      PouchDB.ajax({
-        method: 'GET',
-        url: 'http://127.0.0.1:6000/install-cookie',
-        timeout: 10
-      }, function (err, res) {
-        should.equal(res.ok, true, "Server not responding");
-
-        PouchDB.ajax({
-          method: 'GET',
-          url: 'http://127.0.0.1:6000/check-cookie',
-          timeout: 10
-        }, function (err, res) {
-          server.close();
-
-          should.equal(res.ok, true, "Cookie not set");
-          done();
-        });
+      PouchDB.fetch('http://127.0.0.1:6000/install-cookie').then(function () {
+        return PouchDB.fetch('http://127.0.0.1:6000/check-cookie');
+      }).then(function (response) {
+        return response.json();
+      }).then(function (res) {
+        server.close();
+        should.equal(res.ok, true, "Cookie not set");
+        done();
       });
     });
   });
