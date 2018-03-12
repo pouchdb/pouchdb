@@ -11,7 +11,6 @@ bower_components
 .idea/
 .vscode/
 tests/integration/cordova/www
-phantomjsdriver.log
 tests/pouchdb_server
 tests/performance-bundle.js
 packages/node_modules/pouchdb/dist/*

@@ -106,10 +106,6 @@ Certain URL rewrites are broken by PouchDB's cache-busting; try adding `{cache :
 
 Did you include the [es6-promise shim library](https://github.com/jakearchibald/es6-promise)?  Not every browser implements ES6 Promises correctly. (See [issue #1747](https://github.com/pouchdb/pouchdb/issues/1747) for details.)
 
-{% include anchor.html class="h3" title="Uncaught TypeError: 'undefined' is not a function" hash="undefined_is_not_a_function" %}
-
-Did you include the [es5-shim library][es5shim]? In particular this shows up in PhantomJS because of [this bug](https://github.com/ariya/phantomjs/issues/10522).
-
 {% include anchor.html class="h3" title="SyntaxError: Parse error (Cordova on Android)" hash="cordova_android_parse_error" %}
 
 Did you include the [es5-shim library][es5shim]?  PouchDB is written in ES5, which is supported by modern browsers, but requires shims for older browsers (e.g. IE 9, Android 2.1 WebView).
