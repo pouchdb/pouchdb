@@ -4,7 +4,7 @@ var adapters = ['local'];
 
 adapters.forEach(function (adapter) {
 
-  describe('test.md5rev.js-' + adapter, function () {
+  describe('test.deterministicrev.js-' + adapter, function () {
 
     var dbs = {};
 
@@ -17,8 +17,8 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name1, dbs.name2], done);
     });
 
-    it('useMd5Rev=true so revision for two docs that are the same will be equal', function () {
-      const doc = {
+    it('deterministic_rev=true so revision for two docs that are the same will be equal', function () {
+      var doc = {
         _id: '123-this-is-an-id',
         hello: 'world',
         'testing': 123
@@ -34,15 +34,15 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('useMd5Rev=false so revision for two docs that are the same will be different', function () {
-      const doc = {
+    it('deterministic_rev=false so revision for two docs that are the same will be different', function () {
+      var doc = {
         _id: '123-this-is-an-id',
         hello: 'world',
         'testing': 123
       };
 
-      var db1 = PouchDB(dbs.name1, {useMd5Rev: false});
-      var db2 = PouchDB(dbs.name2, {useMd5Rev: false});
+      var db1 = PouchDB(dbs.name1, {deterministic_rev: false});
+      var db2 = PouchDB(dbs.name2, {deterministic_rev: false});
       return Promise.all([db1.put(doc), db2.put(doc)])
       .then(function (resp) {
         var resp1 = resp[0];
@@ -52,14 +52,14 @@ adapters.forEach(function (adapter) {
     });
 
     it('includes revision in md5 hash', function () {
-      const doc = {
+      var doc = {
         _id: '123-this-is-an-id',
         hello: 'world',
         'testing': 123,
         '_rev': '1-63c3b22973694224bb406e470152b6e4'
       };
 
-      const doc1 = Object.assign({}, doc);
+      var doc1 = Object.assign({}, doc);
       doc1._rev = '1-99c3b22973694224bb406e470152aaaa';
 
       var db1 = PouchDB(dbs.name1);
@@ -81,7 +81,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('replication and then update and delete creates same rev', function (done) {
-      const doc = {
+      var doc = {
         _id: '123-this-is-an-id',
         hello: 'world',
         'testing': 123
