@@ -2,10 +2,6 @@
 
 var DEV_MODE = process.env.CLIENT === 'dev';
 
-var lie = require('lie');
-if (typeof Promise === 'undefined') {
-  global.Promise = lie; // required for denodeify in node 0.10
-}
 var path = require('path');
 var denodeify = require('denodeify');
 var browserify = require('browserify');

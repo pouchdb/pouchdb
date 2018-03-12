@@ -2,7 +2,6 @@
 
 module.exports = function (PouchDB, opts, callback) {
 
-  var Promise = require('lie');
   var utils = require('./utils');
 
   function makeTestDocs() {
