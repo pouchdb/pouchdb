@@ -22,10 +22,6 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `auth.username` + `auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `auth.username` + `auth.password` options.
 * `skip_setup`: Initially PouchDB checks if the database exists, and tries to create it, if it does not exist yet. Set this to `true` to skip this setup.
 
-**IndexedDB-only options:**
-
-* `storage`: Specifies whether you want to use `persistent` or `temporary` storage. This non-standard feature has been supported in Firefox since version 26. Find out more about the available storage types, and how Firefox handles client-side data storage, at [Browser storage limits and eviction criteria](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Browser_storage_limits_and_eviction_criteria).
-
 **WebSQL-only options:**
 
 _Note:_ as of PouchDB 7.0.0, this requires installing WebSQL as an add-on adapter.
