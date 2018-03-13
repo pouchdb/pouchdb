@@ -19,12 +19,10 @@ console.log('Verifying dependencies...');
 // pouchdb package is aggressively bundled, shouldn't
 // contain e.g. pouchdb-mapreduce
 getReqs('pouchdb/lib/index.js').should.contain('vm');
-getReqs('pouchdb/lib/index.js').should.contain('lie');
 getReqs('pouchdb/lib/index.js').should.not.contain('pouchdb-mapreduce');
 getReqs('pouchdb/lib/index.js').should.not.contain('pouchdb');
 getReqs('pouchdb/lib/index.js').should.not.contain('pouchdb-core');
 getReqs('pouchdb/lib/index-browser.js').should.not.contain('vm');
-getReqs('pouchdb/lib/index-browser.js').should.contain('lie');
 getReqs('pouchdb/lib/index-browser.js').should.not.contain('pouchdb-mapreduce');
 getReqs('pouchdb/lib/index-browser.js').should.not.contain('pouchdb');
 getReqs('pouchdb/lib/index-browser.js').should.not.contain('leveldown');
@@ -32,25 +30,13 @@ getReqs('pouchdb/lib/index-browser.js').should.not.contain('pouchdb-core');
 
 // pouchdb-node and pouchdb-browser are also aggressively bundled
 getReqs('pouchdb-node/lib/index.js').should.not.contain('pouchdb-core');
-getReqs('pouchdb-node/lib/index.js').should.not.contain('pouchdb-promise');
 getReqs('pouchdb-node/lib/index.js').should.contain('leveldown');
 getReqs('pouchdb-browser/lib/index.js').should.not.contain('pouchdb-core');
-getReqs('pouchdb-browser/lib/index.js').should.not.contain('pouchdb-promise');
-getReqs('pouchdb-browser/lib/index.js').should.contain('lie');
-
-// other sub-dependencies are not so aggressively bundled (for now, anyway)
-getReqs('pouchdb-mapreduce/lib/index.js').should.contain('pouchdb-promise');
-getReqs('pouchdb-mapreduce/lib/index-browser.js')
-  .should.contain('pouchdb-promise');
-getReqs('pouchdb-utils/lib/index.js').should.contain('pouchdb-promise');
-getReqs('pouchdb-utils/lib/index-browser.js').should.contain('pouchdb-promise');
 
 // pouchdb-for-coverage is super-duper aggressively bundled
 getReqs('pouchdb-for-coverage/lib/index.js').should.not.contain('pouchdb');
 getReqs('pouchdb-for-coverage/lib/index.js').should.not.contain('pouchdb-core');
 getReqs('pouchdb-for-coverage/lib/index.js')
   .should.not.contain('pouchdb-utils');
-getReqs('pouchdb-for-coverage/lib/index.js')
-  .should.not.contain('pouchdb-promise');
 
 console.log('Dependencies look good!');

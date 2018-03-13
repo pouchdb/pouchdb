@@ -3,11 +3,6 @@
 // Build all modules in the packages/ folder
 
 var path = require('path');
-var lie = require('lie');
-if (typeof Promise === 'undefined') {
-  global.Promise = lie; // required for denodeify in node 0.10
-}
-var Promise = lie;
 var denodeify = require('denodeify');
 var fs = require('fs');
 var readDir = denodeify(fs.readdir);

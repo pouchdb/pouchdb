@@ -3,7 +3,6 @@
 'use strict';
 
 var http_server = require('http-server');
-var Promise = require('lie');
 var fs = require('fs');
 var watchGlob = require('watch-glob');
 var replace = require('replace');

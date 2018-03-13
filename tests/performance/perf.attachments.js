@@ -30,7 +30,6 @@ function randomBlob(size) {
 
 module.exports = function (PouchDB, opts, callback) {
 
-  require('lie');
   var utils = require('./utils');
 
   var testCases = [

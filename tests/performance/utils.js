@@ -3,7 +3,6 @@
 var reporter = require('./perf.reporter');
 var test = require('tape');
 var commonUtils = require('../common-utils.js');
-var Promise = require('lie');
 var nextTick = (typeof process === 'undefined' || process.browser) ?
   setTimeout : process.nextTick;
 

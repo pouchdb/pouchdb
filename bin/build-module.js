@@ -13,11 +13,6 @@ var rollup = require('rollup').rollup;
 var rollupPlugins = require('./rollupPlugins');
 
 var path = require('path');
-var lie = require('lie');
-if (typeof Promise === 'undefined') {
-  global.Promise = lie; // required for denodeify in node 0.10
-}
-var Promise = lie;
 var denodeify = require('denodeify');
 var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
