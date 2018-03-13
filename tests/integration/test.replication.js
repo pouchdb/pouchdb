@@ -4263,6 +4263,25 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('#6809 doc_ids dont prevent one-shot replication', function () {
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+
+      var writes = [];
+      for (var i = 0; i < 20; i++) {
+        writes.push(remote.put({_id: i + ''}));
+      }
+
+      return testUtils.Promise.all(writes).then(function () {
+        return db.replicate.from(remote, {batch_size: 1, doc_ids: ['11', '12', '13']});
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (allDocs) {
+        allDocs.total_rows.should.equal(3);
+      });
+    });
+
     it('Replication filter using selector', function (done) {
       // only supported in CouchDB 2.x and later
       if (!testUtils.isCouchMaster()) {
