@@ -4,7 +4,7 @@ var adapters = ['local'];
 
 adapters.forEach(function (adapter) {
 
-  describe('test.deterministicrev.js-' + adapter, function () {
+  describe('test.deterministicrevs.js-' + adapter, function () {
 
     var dbs = {};
 
@@ -17,7 +17,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name1, dbs.name2], done);
     });
 
-    it('deterministic_rev=true so revision for two docs that are the same will be equal', function () {
+    it('deterministic_revs=true so revision for two docs that are the same will be equal', function () {
       var doc = {
         _id: '123-this-is-an-id',
         hello: 'world',
@@ -34,15 +34,15 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('deterministic_rev=false so revision for two docs that are the same will be different', function () {
+    it('deterministic_revs=false so revision for two docs that are the same will be different', function () {
       var doc = {
         _id: '123-this-is-an-id',
         hello: 'world',
         'testing': 123
       };
 
-      var db1 = PouchDB(dbs.name1, {deterministic_rev: false});
-      var db2 = PouchDB(dbs.name2, {deterministic_rev: false});
+      var db1 = PouchDB(dbs.name1, {deterministic_revs: false});
+      var db2 = PouchDB(dbs.name2, {deterministic_revs: false});
       return Promise.all([db1.put(doc), db2.put(doc)])
       .then(function (resp) {
         var resp1 = resp[0];
