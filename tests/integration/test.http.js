@@ -122,20 +122,6 @@ describe('test.http.js', function () {
     });
   });
 
-
-  it('5574 Create a pouch with / in name and prefix url', function () {
-    // CouchDB Master disallows these characters
-    if (testUtils.isCouchMaster()) {
-      return true;
-    }
-    var db = new PouchDB('test/suffix', {
-      prefix: testUtils.adapterUrl('http', '')
-    });
-    return db.info().then(function () {
-      return db.destroy();
-    });
-  });
-
   it('changes respects seq_interval', function (done) {
     var docs = [
       {_id: '0', integer: 0, string: '0'},
@@ -144,14 +130,10 @@ describe('test.http.js', function () {
     ];
 
     var db = new PouchDB(dbs.name);
-    var seqCount = 0;
     var changesCount = 0;
     db.bulkDocs(docs).then(function () {
       db.changes({ seq_interval: 4 })
-      .on('change', function (change) {
-        if (change.seq !== null) {
-          seqCount++;
-        }
+      .on('change', function () {
         changesCount++;
       }).on('error', function (err) {
         done(err);
@@ -177,19 +159,6 @@ describe('test.http.js', function () {
           // first change always contains a seq
           should.not.equal(info.results[0].seq, null);
           should.not.equal(info.last_seq, null);
-
-          // CouchDB 1.x should just ignore seq_interval
-          // (added in CouchDB 2.0), but not fail with an error
-          if (testUtils.isCouchMaster()) {
-            // one change (the "first") always contains a seq
-            seqCount.should.equal(1);
-            should.equal(info.results[1].seq, null);
-            should.equal(info.results[2].seq, null);
-          }
-          else {
-            seqCount.should.equal(3);
-          }
-
           done();
         }
         catch (e) {

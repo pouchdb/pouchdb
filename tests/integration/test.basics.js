@@ -820,18 +820,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('db.info should give correct name', function (done) {
-      // CouchDB Master uses random names
-      if (testUtils.isCouchMaster()) {
-        return done();
-      }
-      var db = new PouchDB(dbs.name);
-      db.info().then(function (info) {
-        info.db_name.should.equal('testdb');
-        done();
-      });
-    });
-
     it('db.info should give auto_compaction = false (#2744)', function () {
       var db = new PouchDB(dbs.name, { auto_compaction: false});
       return db.info().then(function (info) {
@@ -936,41 +924,6 @@ adapters.forEach(function (adapter) {
       }, function (err) {
         should.exist(err);
         done();
-      });
-    });
-
-    it('issue 2779, correct behavior for undeleting', function () {
-
-      if (testUtils.isCouchMaster()) {
-        return true;
-      }
-
-      var db = new PouchDB(dbs.name);
-      var rev;
-
-      function checkNumRevisions(num) {
-        return db.get('foo', {
-          open_revs: 'all',
-          revs: true
-        }).then(function (fullDocs) {
-          fullDocs[0].ok._revisions.ids.should.have.length(num);
-        });
-      }
-
-      return db.put({_id: 'foo'}).then(function (resp) {
-        rev = resp.rev;
-        return checkNumRevisions(1);
-      }).then(function () {
-        return db.remove('foo', rev);
-      }).then(function () {
-        return checkNumRevisions(2);
-      }).then(function () {
-        return db.allDocs({keys: ['foo']});
-      }).then(function (res) {
-        rev = res.rows[0].value.rev;
-        return db.put({_id: 'foo', _rev: rev});
-      }).then(function () {
-        return checkNumRevisions(3);
       });
     });
 
