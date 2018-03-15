@@ -29,14 +29,6 @@ before_script:
   # The next two lines are required for Firefox to run on Travis
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  # Install PhantomJS and cache it
-  # See https://github.com/Medium/phantomjs#continuous-integration
-  - "export PHANTOMJS_VERSION=2.1.1"
-  - "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
-  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
-  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then wget https://github.com/Medium/phantomjs/releases/download/v$PHANTOMJS_VERSION/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2; fi"
-  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
-  - "phantomjs --version"
   # Fail early so we dont run hours of saucelabs if we know there
   # is a lint failure
   - npm run eslint
@@ -60,20 +52,17 @@ env:
   # Test in-memory in Node
   - CLIENT=node ADAPTER=memory COMMAND=test
 
-  # Test in firefox/phantomjs running on travis
+  # Test in firefox running on travis
   - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:firefox POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COMMAND=test
-  - CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
-  # Test auto-compaction in Node, Phantom, and Firefox
+  # Test auto-compaction in Node and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
-  - TYPE=mapreduce CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
 
   # Test pouchdb-find
   - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
@@ -132,10 +121,6 @@ matrix:
     # https://github.com/pouchdb/pouchdb/pull/6941#issuecomment-352166744
     - env: CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
     - env: CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
-    # phantomjs doesnt like us upgrading to Apache Docker images
-    - env: CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
-    - env: AUTO_COMPACTION=true CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
-    - env: TYPE=mapreduce CLIENT=selenium:phantomjs ADAPTERS=websql COMMAND=test
     # TODO: disabled as part of https://github.com/pouchdb/pouchdb/issues/6944
     # but needs reenabled
     - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
@@ -150,5 +135,3 @@ cache:
   - $HOME/.npm
   # See https://github.com/gr2m/selsa
   - node_modules/selenium-standalone/.selenium
-  # See https://github.com/Medium/phantomjs#continuous-integration
-  - travis_phantomjs
