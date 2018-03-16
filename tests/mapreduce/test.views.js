@@ -670,7 +670,7 @@ adapters.forEach(function (adapters) {
     });
     if (typeof window === 'undefined' && !process.browser) {
       var fs = require('fs');
-      it("destroy using prototype", function () {
+      it.skip("destroy using prototype", function () {
         var db = new PouchDB(dbs.name + 1);
         var doc = {
           _id: '_design/barbar',
