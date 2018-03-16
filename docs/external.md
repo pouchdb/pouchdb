@@ -255,6 +255,10 @@ Redux middleware to sync a PouchDB database with the Redux state.
 
 Syncs PouchDB data with Vue.js components using Mango Selectors
 
+#### [vue-pouch-db](https://github.com/QurateInc/vue-pouch-db)
+
+Vue Pouch DB is a VueJS Plugin that binds PouchDB with Vue and keeps a synchronised state with the database. Has support for Mango queries which are processed locally within the VuePouchDB state.
+
 
 {% include anchor.html title="Other languages" hash="Other languages" %}
 
