@@ -292,68 +292,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Test get with revs_info on compacted tree', function (done) {
-      // _compact endpoint is not exposed in CouchDB 2.0
-      // (it's exposed via a private port). Skip
-      // this test for now
-      if (testUtils.isCouchMaster()) {
-        return done();
-      }
-
-      var db = new PouchDB(dbs.name);
-      var simpleTree = [
-        [
-          {
-            _id: 'foo',
-            _rev: '1-a',
-            value: 'foo a'
-          },
-          {
-            _id: 'foo',
-            _rev: '2-b',
-            value: 'foo d'
-          },
-          {
-            _id: 'foo',
-            _rev: '3-c',
-            value: 'foo c'
-          }
-        ],
-        [
-          {
-            _id: 'foo',
-            _rev: '1-a',
-            value: 'foo a'
-          },
-          {
-            _id: 'foo',
-            _rev: '2-d',
-            value: 'foo d'
-          },
-          {
-            _id: 'foo',
-            _rev: '3-e',
-            _deleted: true
-          }
-        ]
-      ];
-      testUtils.putTree(db, simpleTree, function () {
-        db.compact(function () {
-          db.get('foo', { revs_info: true }, function (err, doc) {
-            var revs = doc._revs_info;
-            revs.length.should.equal(3, 'correct number of revs');
-            revs[0].rev.should.equal('3-c', 'rev ok');
-            revs[0].status.should.equal('available', 'not compacted');
-            revs[1].rev.should.equal('2-b', 'rev ok');
-            revs[1].status.should.equal('missing', 'compacted');
-            revs[2].rev.should.equal('1-a', 'rev ok');
-            revs[2].status.should.equal('missing', 'compacted');
-            done();
-          });
-        });
-      });
-    });
-
     it('#2951 Parallelized gets with 409s/404s', function () {
       var db = new PouchDB(dbs.name);
 
@@ -576,11 +514,8 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Testing get with some open_revs', function (done) {
-      // TODO: CouchDB master fails, needs investigation
-      if (testUtils.isCouchMaster()) {
-        return done();
-      }
+    // TODO: CouchDB master fails, needs investigation
+    it.skip('Testing get with some open_revs', function (done) {
       var db = new PouchDB(dbs.name);
       testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
         function () {
@@ -685,22 +620,14 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Testing get with open_revs on nonexistent doc', function (done) {
+    it.skip('Testing get with open_revs on nonexistent doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.get('nonexistent', { open_revs: ['2-whatever'] }, function (err, res) {
         res.length.should.equal(1, 'just one result');
         res[0].missing.should.equal('2-whatever', 'just one result');
         db.get('nonexistent', { open_revs: 'all' }, function (err) {
-          // CouchDB 1.X doesn't handle this situation correctly
-          // CouchDB 2.0 fixes it (see COUCHDB-2517)
-          testUtils.isCouchDB(function (isCouchDB) {
-            if (isCouchDB && !testUtils.isCouchMaster()) {
-              return done();
-            }
-
-            err.status.should.equal(404);
-            done();
-          });
+          err.status.should.equal(404);
+          done();
         });
       });
     });
