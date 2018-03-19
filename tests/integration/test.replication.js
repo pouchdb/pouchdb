@@ -1686,7 +1686,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('Empty replication updates checkpoint (#5145)', function () {
+    it.skip('Empty replication updates checkpoint (#5145)', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var changes = remote.changes;
