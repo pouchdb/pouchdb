@@ -71,7 +71,7 @@ env:
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
   - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
-  - CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
 
   # split up the android+iphone tests as it goes over time
   - SKIP_MIGRATION=true CLIENT=saucelabs:iphone COMMAND=test
@@ -123,7 +123,7 @@ matrix:
     - env: CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
     # TODO: disabled as part of https://github.com/pouchdb/pouchdb/issues/6944
     # but needs reenabled
-    - env: CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+    - env: SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
 
 branches:
   only:
