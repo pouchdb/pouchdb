@@ -46,6 +46,17 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Changes with complete callback as param', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.post({ test: 'somestuff' }).then(function () {
+        db.changes(function (err, complete) {
+          complete.should.have.property('last_seq');
+          complete.should.have.property('results');
+          done();
+        });
+      });
+    });
+
     it('Promise resolved when changes cancelled', function (done) {
       var docs = [
         {_id: '0', integer: 0},
@@ -170,6 +181,7 @@ adapters.forEach(function (adapter) {
 
           db.bulkDocs({ docs: docs2 }, function () {
             var promise = db.changes({
+              return_docs: true,
               since: update_seq
             }).on('complete', function (results) {
               results.results.length.should.be.at.least(2);
@@ -200,6 +212,7 @@ adapters.forEach(function (adapter) {
 
           db.bulkDocs({ docs: docs2 }, function () {
             db.changes({
+              return_docs: true,
               since: update_seq,
               limit: 1
             }).on('complete', function (results) {
@@ -229,6 +242,7 @@ adapters.forEach(function (adapter) {
 
           db.bulkDocs({ docs: docs2 }, function () {
             db.changes({
+              return_docs: true,
               since: update_seq,
               limit: 0
             }).on('complete', function (results) {
@@ -266,6 +280,7 @@ adapters.forEach(function (adapter) {
             db.put(docs2[1], function (err, info) {
               docs2[1]._rev = info.rev;
               db.changes({
+                return_docs: true,
                 limit: 2,
                 since: update_seq,
                 include_docs: true
@@ -373,6 +388,7 @@ adapters.forEach(function (adapter) {
 
           testUtils.writeDocs(db, docs2, function () {
             var promise = db.changes({
+              return_docs: true,
               filter: 'foo/even',
               limit: 2,
               since: update_seq,
@@ -407,6 +423,7 @@ adapters.forEach(function (adapter) {
 
       db.bulkDocs({ docs: docs }, function () {
         var promise = db.changes({
+          return_docs: true,
           filter: 'even',
           include_docs: true
         }).on('complete', function (results) {
@@ -577,6 +594,7 @@ adapters.forEach(function (adapter) {
           db.bulkDocs({ docs: docs2 }, function () {
 
             db.changes({
+              return_docs: true,
               filter: '_view',
               view: 'foo/even',
               limit: 2,
@@ -616,7 +634,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(docs).then(function () {
-        return db.changes({view: 'foo/even'});
+        return db.changes({return_docs: true, view: 'foo/even'});
       }).then(function (changes) {
         changes.results.length.should.equal(2);
       });
@@ -669,10 +687,11 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, simpleTree, function () {
-        db.changes().on('complete', function (res) {
+        db.changes({return_docs: true}).on('complete', function (res) {
           res.results[0].changes.length.should.equal(1);
           res.results[0].changes[0].rev.should.equal('4-f');
           db.changes({
+            return_docs: true,
             style: 'all_docs'
           }).on('complete', function (res) {
             res.results[0].changes.length.should.equal(3);
@@ -704,10 +723,11 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, simpleTree, function () {
-        db.changes(function (err, res) {
+        db.changes({return_docs: true}, function (err, res) {
           res.results[0].changes.length.should.equal(1);
           res.results[0].changes[0].rev.should.equal('4-f');
           db.changes({
+            return_docs: true,
             style: 'all_docs'
           }, function (err, res) {
             should.not.exist(err);
@@ -735,6 +755,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function () {
         db.changes({
+          return_docs: true,
           limit: 0
         }).on('complete', function (results) {
           results.results.length.should.equal(1);
@@ -953,7 +974,7 @@ adapters.forEach(function (adapter) {
       });
 
       return chain.then(function () {
-        return db.changes({style: 'all_docs'});
+        return db.changes({return_docs: true, style: 'all_docs'});
       }).then(function (res) {
         var ids = res.results.map(function (x) {
           return x.id;
@@ -985,7 +1006,12 @@ adapters.forEach(function (adapter) {
         return db.changes({style: 'all_docs', limit: 100});
       }).then(function (res) {
         var lastSeq = res.last_seq;
-        return db.changes({since: lastSeq, style: 'all_docs', limit: 100});
+        return db.changes({
+          return_docs: true,
+          since: lastSeq,
+          style: 'all_docs',
+          limit: 100
+        });
       }).then(function (res) {
         res.results.should.have.length(0);
       });
@@ -1007,6 +1033,7 @@ adapters.forEach(function (adapter) {
 
       return chain.then(function () {
         return db.changes({
+          return_docs: true,
           style: 'all_docs',
           include_docs: true
         });
@@ -1067,6 +1094,7 @@ adapters.forEach(function (adapter) {
       db.bulkDocs({ docs: docs1 }, function () {
         db.changes().on('complete', function (allChanges) {
           db.changes({
+            return_docs: true,
             filter: function (doc) {
               return doc.integer % 2 === 0;
             }
@@ -1094,6 +1122,7 @@ adapters.forEach(function (adapter) {
           descending: true
         }).on('complete', function (allChanges) {
           db.changes({
+            return_docs: true,
             descending: true,
             filter: function (doc) {
               return doc.integer > 2;
@@ -1119,6 +1148,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(docs).then(function () {
         return db.changes({
+          return_docs: true,
           doc_ids: ['1', '3']
         });
       }).then(function (changes) {
@@ -1142,6 +1172,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(docs).then(function () {
         return db.changes({
+          return_docs: true,
           doc_ids: [docs[1]._id, docs[3]._id]
         });
       }).then(function (changes) {
@@ -1228,6 +1259,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(docs).then(function () {
         return db.changes({
+          return_docs: true,
           filter: '_doc_ids',
           doc_ids: ['1', '3']
         });
@@ -1249,6 +1281,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(docs).then(function () {
         return db.changes({
+          return_docs: true,
           filter: '_doc_ids',
           doc_ids: ['1', '3']
         });
@@ -1278,6 +1311,7 @@ adapters.forEach(function (adapter) {
         db.put(docs2[0], function () {
           db.put(docs2[1], function () {
             db.changes({
+              return_docs: true,
               include_docs: true
             }).on('complete', function (changes) {
               changes.results.length.should.equal(4);
@@ -1337,6 +1371,7 @@ adapters.forEach(function (adapter) {
                     return PouchDB.replicate(remotedb, localdb).then(
                       function () {
                         return localdb.changes({
+                          return_docs: true,
                           include_docs: true,
                           style: 'all_docs',
                           conflicts: true
@@ -1383,6 +1418,7 @@ adapters.forEach(function (adapter) {
           _rev: rev
         }, function () {
           db.changes({
+            return_docs: true,
             include_docs: true
           }).on('complete', function (changes) {
             changes.results.length.should.equal(4);
@@ -1405,7 +1441,7 @@ adapters.forEach(function (adapter) {
       }
       var db = new PouchDB(dbs.name);
       db.bulkDocs({ docs: docs }, function () {
-        db.changes().on('complete', function (res) {
+        db.changes({return_docs: true}).on('complete', function (res) {
           res.results.length.should.equal(num);
           done();
         }).on('error', done);
@@ -1525,34 +1561,6 @@ adapters.forEach(function (adapter) {
         db.changes({
           descending: true,
           return_docs: false
-        }).on('change', function () {
-          changes++;
-        }).on('complete', function (results) {
-          results.results.should.have.length(0, '0 results returned');
-          changes.should.equal(num, 'correct number of changes');
-          done();
-        }).on('error', function (err) {
-          done(err);
-        });
-      });
-    });
-
-    // TODO: Remove 'returnDocs' in favor of 'return_docs' in a future release
-    it('supports returnDocs=false', function (done) {
-      var db = new PouchDB(dbs.name);
-      var docs = [];
-      var num = 10;
-      for (var i = 0; i < num; i++) {
-        docs.push({ _id: 'doc_' + i});
-      }
-      var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err) {
-        if (err) {
-          return done(err);
-        }
-        db.changes({
-          descending: true,
-          returnDocs: false
         }).on('change', function () {
           changes++;
         }).on('complete', function (results) {
@@ -1711,6 +1719,7 @@ adapters.forEach(function (adapter) {
 
       db.bulkDocs({ docs: docs }, function () {
         db.changes({
+          return_docs: true,
           selector: {"user": "foo"},
           include_docs: true
         }).on('complete', function (results) {
@@ -1738,6 +1747,7 @@ adapters.forEach(function (adapter) {
 
       db.bulkDocs({ docs: docs }, function () {
         db.changes({
+          return_docs: true,
           selector: {"user": "foo"},
           filter: '_selector',
           include_docs: true
@@ -1780,6 +1790,7 @@ adapters.forEach(function (adapter) {
 
       db.bulkDocs({ docs: docs }, function () {
         return db.changes({
+          return_docs: true,
           limit: 1,
           selector: {"user": "foo"},
           include_docs: true
@@ -1789,6 +1800,7 @@ adapters.forEach(function (adapter) {
           var last_seq = results.last_seq;
 
           return db.changes({
+            return_docs: true,
             limit: 1,
             selector: {"user": "foo"},
             include_docs: true,

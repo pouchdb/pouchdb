@@ -28,7 +28,10 @@ describe('test.replication_perf_regression.js', function () {
 
   before(function () {
     server = app.listen(0);
-    dbs = { name: 'test', remote: 'http://127.0.0.1:' + server.address().port + '/remote' };
+    dbs = {
+      name: 'test',
+      remote: 'http://127.0.0.1:' + server.address().port + '/remote'
+    };
   });
 
   after(function () {
@@ -60,12 +63,14 @@ describe('test.replication_perf_regression.js', function () {
     var db = new PouchDB(dbs.name);
     var remote = new PouchDB(dbs.remote);
 
-    return remote.destroy().then(function () {  // init local & remote db (want both empty)
+    return remote.destroy().then(function () {
+      // init local & remote db (want both empty)
       return db.destroy();
     }).then(function () {
       db = new PouchDB(dbs.name);
       remote = new PouchDB(dbs.remote);
-      return remote.bulkDocs({   // to repro issue: docs exist at remote...nothing at local
+      return remote.bulkDocs({
+        // to repro issue: docs exist at remote...nothing at local
         docs: docs,
         new_edits: false
       });

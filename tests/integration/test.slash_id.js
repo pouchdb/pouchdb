@@ -76,7 +76,7 @@ adapters.forEach(function (adapter) {
           }
           res.rows[1].doc._attachments.should.include
             .keys('attachment/with/slash');
-          db.changes().on('complete', function (res) {
+          db.changes({return_docs: true}).on('complete', function (res) {
             res.results.sort(function (a, b) {
               return a.id.localeCompare(b.id);
             });

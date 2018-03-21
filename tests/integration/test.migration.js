@@ -132,7 +132,10 @@ if (!process.env.LEVEL_ADAPTER &&
       //db.bulkDocs(docsB, {new_edits: false});
 
 
-      return db.changes({include_docs: true}).then(function (result) {
+      return db.changes({
+        include_docs: true,
+        return_docs: true
+      }).then(function (result) {
         // the important thing is that 'zam' is ignored. see
         // the other test in test.bulk_docs.js for details
         var expected = {

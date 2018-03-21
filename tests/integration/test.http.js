@@ -132,7 +132,7 @@ describe('test.http.js', function () {
     var db = new PouchDB(dbs.name);
     var changesCount = 0;
     db.bulkDocs(docs).then(function () {
-      db.changes({ seq_interval: 4 })
+      db.changes({ seq_interval: 4, return_docs: true })
       .on('change', function () {
         changesCount++;
       }).on('error', function (err) {

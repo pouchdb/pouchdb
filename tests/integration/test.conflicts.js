@@ -31,7 +31,7 @@ adapters.forEach(function (adapter) {
             should.exist(res.ok, 'Put second doc');
             db.put(doc2, function (err) {
               err.name.should.equal('conflict', 'Put got a conflicts');
-              db.changes().on('complete', function (results) {
+              db.changes({return_docs: true}).on('complete', function (results) {
                 results.results.should.have.length(1);
                 doc2._rev = undefined;
                 db.put(doc2, function (err) {
