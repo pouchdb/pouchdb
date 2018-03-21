@@ -273,6 +273,7 @@ adapters.forEach(function (adapter) {
           var attName = atts && Object.keys(atts)[0];
           var expected = atts && atts[attName];
           return db.allDocs({
+            return_docs: true,
             key: doc._id,
             attachments: true,
             binary: true,
@@ -627,6 +628,7 @@ adapters.forEach(function (adapter) {
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
         return db.changes({
+          return_docs: true,
           attachments: true,
           binary: true,
           include_docs: true
@@ -711,6 +713,7 @@ adapters.forEach(function (adapter) {
       ];
       return db.bulkDocs(docs).then(function () {
         return db.changes({
+          return_docs: true,
           attachments: true,
           binary: true,
           include_docs: true
@@ -799,6 +802,7 @@ adapters.forEach(function (adapter) {
       ];
       return db.bulkDocs(docs).then(function () {
         return db.changes({
+          return_docs: true,
           attachments: true,
           binary: true,
           include_docs: true
@@ -892,6 +896,7 @@ adapters.forEach(function (adapter) {
       return db.bulkDocs(docs).then(function () {
         return new testUtils.Promise(function (resolve, reject) {
           db.changes({
+            return_docs: true,
             attachments: true,
             binary: true,
             include_docs: true
@@ -937,6 +942,7 @@ adapters.forEach(function (adapter) {
       return db.bulkDocs(docs).then(function () {
         return new testUtils.Promise(function (resolve, reject) {
           var ret = db.changes({
+            return_docs: true,
             attachments: true,
             binary: true,
             include_docs: true,
@@ -1320,7 +1326,11 @@ adapters.forEach(function (adapter) {
         });
       }
       return db.bulkDocs(docs).then(function () {
-        return db.changes({include_docs: true, attachments: true});
+        return db.changes({
+          return_docs: true,
+          include_docs: true,
+          attachments: true
+        });
       }).then(function (res) {
         var attachments = res.results.sort(function (left, right) {
           return left.id < right.id ? -1 : 1;
@@ -1338,7 +1348,7 @@ adapters.forEach(function (adapter) {
             }
           };
         }), 'when attachments=true');
-        return db.changes({include_docs: true});
+        return db.changes({return_docs: true, include_docs: true});
       }).then(function (res) {
         var attachments = res.results.sort(function (left, right) {
           return left.id < right.id ? -1 : 1;
@@ -1355,14 +1365,14 @@ adapters.forEach(function (adapter) {
             length: iconLengths[i]
           };
         }), 'when attachments=false');
-        return db.changes({attachments: true});
+        return db.changes({return_docs: true, attachments: true});
       }).then(function (res) {
         res.results.should.have.length(5);
         res.results.forEach(function (row) {
           should.not.exist(row.doc,
             'no doc when attachments=true but include_docs=false');
         });
-        return db.changes();
+        return db.changes({return_docs: true});
       }).then(function (res) {
         res.results.should.have.length(5);
         res.results.forEach(function (row) {
@@ -1512,6 +1522,7 @@ adapters.forEach(function (adapter) {
 
       function liveChangesPromise(opts) {
         opts.live = true;
+        opts.return_docs = true;
         return new testUtils.Promise(function (resolve, reject) {
           var retChanges = {results: []};
           var changes = db.changes(opts)
@@ -2132,6 +2143,7 @@ adapters.forEach(function (adapter) {
           should.not.exist(res.rows[0].doc._attachments,
                            '(allDocs) doc0 contains no attachments');
           db.changes({
+            return_docs: true,
             include_docs: true
           }).on('change', function (change) {
             var i = +change.id.substr(3);
@@ -2460,12 +2472,12 @@ adapters.forEach(function (adapter) {
         return db.get('bin_doc').then(function (doc) {
           doc._attachments['foo.txt'].stub.should.equal(true);
           doc._attachments['foo.txt'].length.should.equal(29);
-          return db.changes({include_docs: true});
+          return db.changes({return_docs: true, include_docs: true});
         }).then(function (res) {
           var doc = res.results[0].doc;
           doc._attachments['foo.txt'].stub.should.equal(true);
           doc._attachments['foo.txt'].length.should.equal(29);
-          return db.allDocs({include_docs: true});
+          return db.allDocs({return_docs: true, include_docs: true});
         }).then(function (res) {
           var doc = res.rows[0].doc;
           doc._attachments['foo.txt'].stub.should.equal(true);
