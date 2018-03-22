@@ -2,8 +2,8 @@
 
 var adapters = [
   ['local', 'http'],
-  // ['http', 'http'],
-  // ['http', 'local'],
+  ['http', 'http'],
+  ['http', 'local'],
   ['local', 'local']
 ];
 
@@ -4178,7 +4178,13 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it.only('attachment:false does not replicate attachments', function (done) {
+    it('attachment:false does not replicate attachments', function (done) {
+      // Cannot test this with CouchDB as target
+      if (adapters[0] === 'http') {
+        done();
+        return;
+      }
+
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var thedocs = [
@@ -4214,16 +4220,21 @@ adapters.forEach(function (adapters) {
 
         return db.get('3', {attachments: true});
       })
-      .then(doc => {
+      .then(function (doc) {
         var att = doc._attachments['att.txt'];
         should.not.exist(att.data);
         done();
       });
     });
 
-    it('attachment: false replication 2nd time replicates attachments', function (done) {
+    it('attachment:false replicates changes back to source db', function (done) {
+      // Cannot test this with CouchDB as target
+      if (adapters[0] === 'http') {
+        done();
+        return;
+      }
+      console.log('DB', dbs.name, dbs.remote);
       var db = new PouchDB(dbs.name);
-      console.log('dd', db.name, dbs.remote);
       var remote = new PouchDB(dbs.remote);
       var thedocs = [
         {
@@ -4248,27 +4259,36 @@ adapters.forEach(function (adapters) {
         return db.replicate.from(remote, {attachments: false});
       })
       .then(function () {
-        return db.get('3', {attachments: true});
+        console.log('DONE 1');
+        return db.get('3');
       })
       .then(function (doc) {
         var att = doc._attachments['att.txt'];
         att.content_type.should.equal("text/plain");
         att.revpos.should.equal(1);
-        should.not.exist(att.data);
-        return db.replicate.from(remote, {attachments: true});
+        att.stub.should.true;
+
+        console.log('FETCH D1');
+        return db.get('3');
+      })
+      .then(function (doc) {
+        doc.newField = 'hello world';
+        return db.put(doc);
       })
       .then(function () {
-        return db.get('3', {attachments: true});
+        return db.replicate.to(remote, {attachments: false});
+      })
+      .then(function () {
+        return remote.get('3', {attachments: true});
       })
       .then(function (doc) {
+        doc.newField.should.equal('hello world');
         var att = doc._attachments['att.txt'];
-        console.log('AA', att);
-        att.content_type.should.equal("text/plain");
-        att.revpos.should.equal(1);
         att.data.should.equal('Zm9v');
         done();
       });
     });
+
   });
 });
 
