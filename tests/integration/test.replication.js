@@ -49,7 +49,7 @@ adapters.forEach(function (adapters) {
       // in CouchDB 2.0, changes is not guaranteed to be
       // ordered
       changes.sort(function (a, b) {
-        return a.id > b.id;
+        return (a.id > b.id) ? 1 : ((a.id < b.id) ? -1 : 0);
       });
       return changes;
     }
