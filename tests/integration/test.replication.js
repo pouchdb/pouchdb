@@ -4233,7 +4233,6 @@ adapters.forEach(function (adapters) {
         done();
         return;
       }
-      console.log('DB', dbs.name, dbs.remote);
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var thedocs = [
@@ -4259,7 +4258,6 @@ adapters.forEach(function (adapters) {
         return db.replicate.from(remote, {attachments: false});
       })
       .then(function () {
-        console.log('DONE 1');
         return db.get('3');
       })
       .then(function (doc) {
@@ -4268,7 +4266,6 @@ adapters.forEach(function (adapters) {
         att.revpos.should.equal(1);
         att.stub.should.true;
 
-        console.log('FETCH D1');
         return db.get('3');
       })
       .then(function (doc) {
