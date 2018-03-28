@@ -49,7 +49,7 @@
     "leveldown": "3.0.0",
     "levelup": "2.0.2",
     "localstorage-down": "0.6.7",
-    "ltgt": "2.2.0",
+    "ltgt": "2.2.1",
     "memdown": "1.2.4",
     "node-fetch": "^2.0.0",
     "readable-stream": "1.0.33",
