@@ -188,6 +188,7 @@ adapters.forEach(function (adapter) {
               should.exist(deleted.ok);
 
               db.changes({
+                return_docs: true,
                 since: update_seq
               }).on('complete', function (changes) {
                 var deleted_ids = changes.results.map(function (c) {
@@ -215,6 +216,7 @@ adapters.forEach(function (adapter) {
             doc.updated = 'totally';
             db.put(doc, function () {
               db.changes({
+                return_docs: true,
                 since: update_seq
               }).on('complete', function (changes) {
                 var ids = changes.results.map(function (c) { return c.id; });
@@ -265,6 +267,7 @@ adapters.forEach(function (adapter) {
             db.get('3', function (err, winRev) {
               winRev._rev.should.equal(conflictDoc2._rev);
               db.changes({
+                return_docs: true,
                 include_docs: true,
                 conflicts: true,
                 style: 'all_docs'
