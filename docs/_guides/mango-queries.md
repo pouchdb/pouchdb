@@ -89,7 +89,7 @@ db.find({
 });
 ```
 
-Note that we are specifying that the `name` must be greater than or equal to `null`, which is a workaround for the fact that the Mango query language requires us to have a selector. In [CouchDB collation order](http://docs.couchdb.org/en/2.0.0/couchapp/views/collation.html), `null` is the "lowest" value, and so this will return all documents regardless of their `name` value.
+Note that we are specifying that the `name` must be greater than or equal to `null`, which is a workaround for the fact that the Mango query language requires us to have a selector. In [CouchDB collation order](http://docs.couchdb.org/en/2.1.1/ddocs/views/collation.html), `null` is the "lowest" value, and so this will return all documents regardless of their `name` value.
 
 {% include anchor.html title="Pagination" hash="pagination" %}
 
