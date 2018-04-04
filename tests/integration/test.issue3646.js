@@ -34,7 +34,7 @@ adapters.forEach(function (adapter) {
         return db.info();
       }).then(function (info) {
         info.doc_count.should.equal(0, 'doc_count is 0');
-        return db.changes({include_docs: true});
+        return db.changes({include_docs: true, return_docs: true});
       }).then(function (changes) {
         changes.results.should.have.length(1);
         var first = changes.results[0];

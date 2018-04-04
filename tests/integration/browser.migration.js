@@ -281,7 +281,7 @@ describe('migration', function () {
                   done();
                 }
                 var newPouch = new dbs.second.pouch(dbs.second.local);
-                newPouch.changes({include_docs: true})
+                newPouch.changes({include_docs: true, return_docs: true})
                   .on('complete', function (complete) {
                     complete.results.should.have
                       .length(5, 'no _local docs in changes()');
@@ -940,6 +940,7 @@ describe('migration', function () {
             var newPouch = new dbs.second.pouch(dbs.second.local,
               {auto_compaction: false});
             return newPouch.changes({
+              return_docs: true,
               include_docs: true,
               style: 'all_docs'
             });
@@ -1201,7 +1202,7 @@ describe('migration', function () {
             return newPouch.info();
           }).then(function (info) {
             info.doc_count.should.equal(0, 'doc_count is 0');
-            return newPouch.changes({include_docs: true});
+            return newPouch.changes({include_docs: true, return_docs: true});
           }).then(function (changes) {
             changes.results.should.have.length(1);
             var first = changes.results[0];

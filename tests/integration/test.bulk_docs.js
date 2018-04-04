@@ -606,7 +606,7 @@ adapters.forEach(function (adapter) {
 
       db.bulkDocs({docs: docsA, new_edits: false}, function (err) {
         should.not.exist(err);
-        db.changes().on('complete', function (result) {
+        db.changes({return_docs: true}).on('complete', function (result) {
           var ids = result.results.map(function (row) {
             return row.id;
           });
@@ -618,6 +618,7 @@ adapters.forEach(function (adapter) {
           db.bulkDocs({docs: docsB, new_edits: false}, function (err) {
             should.not.exist(err);
             db.changes({
+              return_docs: true,
               since: update_seq
             }).on('complete', function (result) {
               var ids = result.results.map(function (row) {
