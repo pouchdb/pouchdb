@@ -49,7 +49,7 @@ Then in your `index.html`:
 Add this to your `index.html`:
 
 ```html
-<script src="//cdn.jsdelivr.net/pouchdb/{{site.version}}/pouchdb.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/pouchdb@{{site.version}}/dist/pouchdb.min.js"></script>
 ```
 
 {% include anchor.html title="Node.js" hash="nodejs" %}
