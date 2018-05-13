@@ -93,8 +93,6 @@ adapters.forEach(function (adapter) {
         doc._conflicts.should.eql([rev2_]);
 
         return db.get(docId, {conflicts: true, revs: true, rev: rev2_});
-      }).then(function (doc) {
-        console.log("the force doc", doc);
       });
     });
 
@@ -130,8 +128,6 @@ adapters.forEach(function (adapter) {
         doc._conflicts.should.eql([rev3_]);
 
         return db.get(docId, {conflicts: true, revs: true, rev: rev3_});
-      }).then(function (doc) {
-        console.log("the force put doc", doc);
       });
     });
 
