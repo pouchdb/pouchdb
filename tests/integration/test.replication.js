@@ -1434,19 +1434,19 @@ adapters.forEach(function (adapters) {
       ];
       var doc1 = {_id: 'adoc', foo: 'bar' };
       var doc2 = {_id: 'anotherdoc', foo: 'baz'};
-      remote.bulkDocs({ docs: docs }, {}, function () {
+
+      remote.bulkDocs(docs).then(function () {
         var count = 0;
-        var replicate = db.replicate.from(remote, {
-          live: true
-        }).on('complete', function () {
-          remote.put(doc2);
-          setTimeout(function () {
-            changes.cancel();
-          }, 100);
-        });
-        var changes = db.changes({
-          live: true
-        }).on('complete', function () {
+
+        function replicationComplete() {
+          remote.put(doc2).then(function () {
+            setTimeout(function () {
+              changes.cancel();
+            }, 100);
+          });
+        }
+
+        function changesComplete() {
           count.should.equal(4);
           db.info(function (err, info) {
             verifyInfo(info, {
@@ -1455,7 +1455,9 @@ adapters.forEach(function (adapters) {
             });
             done();
           });
-        }).on('change', function () {
+        }
+
+        function change() {
           ++count;
           if (count === 3) {
             remote.put(doc1);
@@ -1463,7 +1465,15 @@ adapters.forEach(function (adapters) {
           if (count === 4) {
             replicate.cancel();
           }
-        }).on('error', done);
+        }
+
+        var replicate = db.replicate.from(remote, {live: true})
+            .on('complete', replicationComplete);
+
+        var changes = db.changes({live: true})
+            .on('complete', changesComplete)
+            .on('change', change)
+            .on('error', done);
       });
     });
 
