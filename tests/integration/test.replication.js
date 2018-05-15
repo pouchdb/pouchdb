@@ -1,9 +1,9 @@
 'use strict';
 
 var adapters = [
-  ['local', 'http'],
-  ['http', 'http'],
-  ['http', 'local'],
+  // ['local', 'http'],
+  // ['http', 'http'],
+  // ['http', 'local'],
   ['local', 'local']
 ];
 
@@ -4185,6 +4185,183 @@ adapters.forEach(function (adapters) {
       }).catch(function (err) {
         err.name.should.equal('bad_request');
         err.reason.should.contain('expected a JSON object');
+      });
+    });
+
+    it('attachment:false does not replicate attachments', function (done) {
+      // Cannot test this with CouchDB as target
+      if (adapters[0] === 'http') {
+        done();
+        return;
+      }
+
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var thedocs = [
+        {
+          _id: '3',
+          integer: 3,
+          string: '3',
+          _attachments: {
+            'att.txt': {
+              data: 'Zm9v', // 'foo'
+              content_type: 'text/plain'
+            }
+          }
+        },
+        {
+          _id: '4',
+          integer: 4,
+          string: '4'
+        },
+      ];
+      remote.bulkDocs(thedocs)
+      .then(function () {
+        return db.replicate.from(remote, {attachments: false});
+      })
+      .then(function () {
+        return db.get('3', {attachments: false});
+      })
+      .then(function (doc) {
+        var att = doc._attachments['att.txt'];
+        att.content_type.should.equal("text/plain");
+        att.revpos.should.equal(1);
+        att.stub.should.true;
+        att.unfetched.should.true;
+        return db.get('3', {attachments: true});
+      })
+      .then(function (doc) {
+        var att = doc._attachments['att.txt'];
+        should.not.exist(att.data);
+        done();
+      });
+    });
+
+    it('attachment:false replicates changes back to source db', function (done) {
+      // Cannot test this with CouchDB as target
+      if (adapters[0] === 'http') {
+        done();
+        return;
+      }
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var thedocs = [
+        {
+          _id: '3',
+          integer: 3,
+          string: '3',
+          _attachments: {
+            'att.txt': {
+              data: 'Zm9v', // 'foo'
+              content_type: 'text/plain'
+            }
+          }
+        },
+        {
+          _id: '4',
+          integer: 4,
+          string: '4'
+        },
+      ];
+      remote.bulkDocs(thedocs)
+      .then(function () {
+        return db.replicate.from(remote, {attachments: false});
+      })
+      .then(function () {
+        return db.get('3');
+      })
+      .then(function (doc) {
+        var att = doc._attachments['att.txt'];
+        att.content_type.should.equal("text/plain");
+        att.revpos.should.equal(1);
+        att.stub.should.true;
+
+        return db.get('3');
+      })
+      .then(function (doc) {
+        doc.newField = 'hello world';
+        return db.put(doc);
+      })
+      .then(function () {
+        return db.replicate.to(remote, {attachments: false});
+      })
+      .then(function () {
+        return remote.get('3', {attachments: false});
+      })
+      .then(function (doc) {
+        doc.newField.should.equal('hello world');
+        var att = doc._attachments['att.txt'];
+        console.log('ATT', att);
+        should.not.exist(att.unfetched);
+      })
+      .then(function () {
+        return remote.get('3', {attachments: true});
+      })
+      .then(function (doc) {
+        doc.newField.should.equal('hello world');
+        var att = doc._attachments['att.txt'];
+        att.data.should.equal('Zm9v');
+        done();
+      });
+    });
+
+    it.only('attachment:false followed by attachment:true replicates attachments', function (done) {
+      // Cannot test this with CouchDB as target
+      if (adapters[0] === 'http') {
+        done();
+        return;
+      }
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var thedocs = [
+        {
+          _id: '3',
+          integer: 3,
+          string: '3',
+          _attachments: {
+            'att.txt': {
+              data: 'Zm9v', // 'foo'
+              content_type: 'text/plain'
+            }
+          }
+        },
+        {
+          _id: '4',
+          integer: 4,
+          string: '4'
+        },
+      ];
+      remote.bulkDocs(thedocs)
+      .then(function () {
+        return db.replicate.from(remote, {attachments: false});
+      })
+      .then(function () {
+        return db.get('3');
+      })
+      .then(function (doc) {
+        var att = doc._attachments['att.txt'];
+        att.content_type.should.equal("text/plain");
+        att.revpos.should.equal(1);
+        att.stub.should.true;
+        console.log('2nd rep');
+        return db.replicate.from(remote, {attachments: true});
+      })
+      .then(function () {
+        return db.get('3', {attachments: false});
+      })
+      .then(function (doc) {
+        console.log('DD', doc);
+        var att = doc._attachments['att.txt'];
+        should.not.exist(att.unfetched);
+      })
+      .then(function () {
+        return db.get('3', {attachments: true});
+      })
+      .then(function (doc) {
+        doc.newField.should.equal('hello world');
+        var att = doc._attachments['att.txt'];
+        att.data.should.equal('Zm9v');
+        done();
       });
     });
   });
