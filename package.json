@@ -58,7 +58,7 @@
     "through2": "2.0.3",
     "uuid": "3.2.1",
     "vuvuzela": "1.0.3",
-    "websql": "0.4.4",
+    "websql": "1.0.0",
     "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
