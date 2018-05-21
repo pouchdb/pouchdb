@@ -1101,22 +1101,6 @@ adapters.forEach(function (adapter) {
         });
       });
 
-      // this test only really makes sense for IDB
-      it('should have same blob support for 2 dbs', function () {
-        var db1 = new PouchDB(dbs.name);
-        return db1.info().then(function () {
-          var db2 = new PouchDB(dbs.name);
-          return db2.info().then(function () {
-            if (typeof db1._blobSupport !== 'undefined') {
-              db1._blobSupport.should.equal(db2._blobSupport,
-                'same blob support');
-            } else {
-              true.should.equal(true);
-            }
-          });
-        });
-      });
-
       it('6053, PouchDB.plugin() resets defaults', function () {
         var PouchDB1 = PouchDB.defaults({foo: 'bar'});
         var PouchDB2 = PouchDB1.plugin({foo: function () {}});
