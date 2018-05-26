@@ -44,14 +44,10 @@ env:
   - SAUCE_USERNAME=pouchdb
 
   matrix:
-  - SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge" COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:13:Windows 10" COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:15:Windows 10" COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:15.15063:Windows 10" COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:16:Windows 10" COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:16.16299:Windows 10" COMMAND=test
+  - SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:10:Windows 8" COMMAND=test
+  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:15" COMMAND=test
+  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:16" COMMAND=test
+  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:17" COMMAND=test
 
 branches:
   only:
