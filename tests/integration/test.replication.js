@@ -114,6 +114,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('Test pull replication with many changes', function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
       var remote = new PouchDB(dbs.remote);
 
       var numDocs = 201;
@@ -163,6 +166,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('pull replication with many changes + a conflict (#2543)', function () {
+      if (testUtils.isIE()) {
+        return Promise.resolve();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       // simulate 5000 normal commits with two conflicts at the very end
@@ -237,6 +243,9 @@ adapters.forEach(function (adapters) {
 
 
     it('Test pull replication with many conflicts', function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
       var remote = new PouchDB(dbs.remote);
 
       var numRevs = 200; // repro "url too long" error with open_revs
@@ -786,6 +795,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#3136 open revs returned correctly 1', function () {
+      if (testUtils.isIE()) {
+        return Promise.resolve();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -837,6 +849,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#3136 open revs returned correctly 2', function () {
+      if (testUtils.isIE()) {
+        return Promise.resolve();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -1664,6 +1679,10 @@ adapters.forEach(function (adapters) {
 
     it('Replication with filter that leads to some empty batches (#2689)',
        function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
+
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docs1 = [
@@ -2131,7 +2150,7 @@ adapters.forEach(function (adapters) {
     });
 
     it('Replicate large number of docs', function (done) {
-      if ('saucelabs' in testUtils.params()) {
+      if ('saucelabs' in testUtils.params() || testUtils.isIE()) {
         return done();
       }
       var db = new PouchDB(dbs.name);
@@ -2198,8 +2217,10 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('issue #909 Filtered replication bails at paging limit',
-      function (done) {
+    it('#909 Filtered replication bails at paging limit', function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docs = [];
@@ -2800,8 +2821,10 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it("Reporting write failures if whole saving fails (#942)",
-      function (done) {
+    it("Report write failures if whole saving fails (#942)", function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
       var docs = [{_id: 'a', _rev: '1-a'}, {_id: 'b', _rev: '1-b'}];
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -3327,7 +3350,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#2268 dont stop replication if single unauth', function (done) {
-
+      if (testUtils.isIE()) {
+        return done();
+      }
       testUtils.isCouchDB(function (isCouchDB) {
         if (adapters[1] !== 'http' || !isCouchDB) {
           return done();
@@ -3368,7 +3393,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#2268 dont stop replication if many unauth', function (done) {
-
+      if (testUtils.isIE()) {
+        return done();
+      }
       testUtils.isCouchDB(function (isCouchDB) {
         if (adapters[1] !== 'http' || !isCouchDB) {
           return done();
@@ -4077,7 +4104,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#2426 doc_ids dont prevent replication', function () {
-
+      if (testUtils.isIE()) {
+        return Promise.resolve();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -4096,7 +4125,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#6809 doc_ids dont prevent one-shot replication', function () {
-
+      if (testUtils.isIE()) {
+        return Promise.resolve();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 
@@ -4116,7 +4147,9 @@ adapters.forEach(function (adapters) {
 
 
     it('#6809 doc_ids dont prevent one-shot replication', function () {
-
+      if (testUtils.isIE()) {
+        return Promise.resolve();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
 

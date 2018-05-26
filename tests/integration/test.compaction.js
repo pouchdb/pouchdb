@@ -4,7 +4,7 @@ var adapters = ['http', 'local'];
 var autoCompactionAdapters = ['local'];
 
 adapters.forEach(function (adapter) {
-  describe('test.compaction.js-' + adapter, function () {
+  describe('suite2 test.compaction.js-' + adapter, function () {
 
     var dbs = {};
 
@@ -172,6 +172,9 @@ adapters.forEach(function (adapter) {
     ];
 
     it('Compact more complicated tree', function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         db.compact(function () {
@@ -183,6 +186,9 @@ adapters.forEach(function (adapter) {
     });
 
     it('Compact two times more complicated tree', function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         db.compact(function () {

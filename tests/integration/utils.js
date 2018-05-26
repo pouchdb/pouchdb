@@ -18,6 +18,15 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isIE = function () {
+  var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
+      navigator.userAgent.toLowerCase() : '';
+  var isIE = ua.indexOf('msie') !== -1;
+  var isTrident = ua.indexOf('trident') !== -1;
+  var isEdge = ua.indexOf('edge') !== -1;
+  return (isIE || isTrident || isEdge);
+};
+
 testUtils.params = function () {
   if (typeof process !== 'undefined' && !process.browser) {
     return process.env;
