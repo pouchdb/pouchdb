@@ -15,6 +15,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `auto_compaction`: This turns on auto compaction, which means `compact()` is called after every change to the database. Defaults to `false`.
 * `adapter`: One of `'idb'`, `'leveldb'`, or `'http'`.
 * `revs_limit`: Specify how many old revisions we keep track (not a copy) of. Specifying a low value means Pouch may not be able to figure out whether a new revision received via replication is related to any it currently has which could result in a conflict. Defaults to `1000`.
+* `deterministic_revs`: Use a md5 hash to create a deterministic revision number for documents. Setting it to false will mean that the revision number will be a random UUID. Defaults to true.
 
 **Options for remote databases:**
 
