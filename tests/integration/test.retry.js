@@ -572,7 +572,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#5157 replicate many docs with live+retry', function () {
-      var Promise = testUtils.Promise;
+      if (testUtils.isIE()) {
+        return Promise.resolve();
+      }
       var numDocs = 512; // uneven number
       var docs = [];
       for (var i = 0; i < numDocs; i++) {

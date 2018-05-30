@@ -59,7 +59,7 @@ adapters.forEach(function (adapter) {
         '_rev': '1-63c3b22973694224bb406e470152b6e4'
       };
 
-      var doc1 = Object.assign({}, doc);
+      var doc1 = JSON.parse(JSON.stringify(doc));
       doc1._rev = '1-99c3b22973694224bb406e470152aaaa';
 
       var db1 = PouchDB(dbs.name1);

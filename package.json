@@ -52,6 +52,7 @@
     "ltgt": "2.2.1",
     "memdown": "1.2.4",
     "node-fetch": "^2.0.0",
+    "promise-polyfill": "7.1.2",
     "readable-stream": "1.0.33",
     "request": "2.87.0",
     "spark-md5": "3.0.0",

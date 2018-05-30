@@ -216,6 +216,9 @@ adapters.forEach(function (adapters) {
     // as expected, each remote document should be passed to a
     // change event exactly once (though a change might contain multiple docs)
     it('#4627 Test no duplicate changes in live replication', function (done) {
+      if (testUtils.isIE()) {
+        return done();
+      }
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var docId = -1;

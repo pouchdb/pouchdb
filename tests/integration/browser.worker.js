@@ -17,7 +17,7 @@ var isNodeWebkit = typeof window !== 'undefined' &&
   typeof process !== 'undefined';
 
 if (typeof window.Worker === 'function' &&
-    !isNodeWebkit &&
+    !isNodeWebkit && !testUtils.isIE() &&
     (window.chrome || /Firefox/.test(navigator.userAgent))) {
   runTests();
 }
