@@ -1074,6 +1074,14 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('7259 should have "this" keyword properly scoped', function () {
+      var doc = { _id: 'foo' };
+      var db = new PouchDB(dbs.name);
+      return db.put(doc).then(function () {
+        return doc._id;
+      }).then(db.get);
+    });
+
     if (adapter === 'local') {
       // TODO: this test fails in the http adapter in Chrome
       it('should allow unicode doc ids', function (done) {
