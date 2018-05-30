@@ -108,13 +108,10 @@ env:
 matrix:
   fast_finish: true
   include:
-    - node_js: "4"
-      services: docker
-      env: CLIENT=node COMMAND=test
-    - node_js: "7"
-      services: docker
-      env: CLIENT=node COMMAND=test
     - node_js: "8"
+      services: docker
+      env: CLIENT=node COMMAND=test
+    - node_js: "10"
       services: docker
       env: CLIENT=node COMMAND=test
   allow_failures:
