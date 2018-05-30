@@ -117,6 +117,9 @@ matrix:
     - node_js: "8"
       services: docker
       env: CLIENT=node COMMAND=test
+    - node_js: "10"
+      services: docker
+      env: CLIENT=node COMMAND=test
   allow_failures:
     # Remove when passing, saucelabs latest looks to be using broken version
     - env: CLIENT=saucelabs:chrome COMMAND=test
