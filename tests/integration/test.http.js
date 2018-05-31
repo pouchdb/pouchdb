@@ -167,4 +167,14 @@ describe('test.http.js', function () {
       });
     });
   });
+
+  it('5814 Ensure prefix has trailing /', function () {
+    var index = testUtils.adapterUrl('http', '').lastIndexOf('/');
+    var prefix = testUtils.adapterUrl('http', '').substr(0, index);
+    var db = new PouchDB('test', {prefix: prefix});
+    return db.info().then(function () {
+      return db.destroy();
+    });
+  });
+
 });
