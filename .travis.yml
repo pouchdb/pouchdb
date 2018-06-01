@@ -70,10 +70,8 @@ env:
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
-  - CLIENT=saucelabs:chrome:65 COMMAND=test
   - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
   - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
-  - GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
   - GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
   - SKIP_MIGRATION=true CLIENT=saucelabs:iphone:11.2 COMMAND=test
   - CLIENT="saucelabs:Android:6.0:Linux" COMMAND=test
@@ -115,8 +113,6 @@ matrix:
       services: docker
       env: CLIENT=node COMMAND=test
   allow_failures:
-    # Remove when passing, saucelabs latest looks to be using broken version
-    - env: CLIENT=saucelabs:chrome COMMAND=test
     # localdown and fruitdown adapters broken by level upgrade @
     # https://github.com/pouchdb/pouchdb/pull/6941#issuecomment-352166744
     - env: CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
