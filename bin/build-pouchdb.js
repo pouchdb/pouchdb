@@ -28,7 +28,7 @@ var builtInModules = require('builtin-modules');
 var external = Object.keys(require('../package.json').dependencies)
   .concat(builtInModules);
 
-var plugins = ['fruitdown', 'localstorage', 'memory', 'find', 'websql'];
+var plugins = ['localstorage', 'memory', 'find'];
 
 var currentYear = new Date().getFullYear();
 
@@ -59,26 +59,8 @@ var comments = {
   '\n// For all details and documentation:' +
   '\n// http://pouchdb.com\n',
 
-  'fruitdown': '// PouchDB fruitdown plugin ' + version +
-  '\n// Based on FruitDOWN: https://github.com/nolanlawson/fruitdown' +
-  '\n// ' +
-  '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
-  '\n// PouchDB may be freely distributed under the Apache license, ' +
-  'version 2.0.' +
-  '\n// For all details and documentation:' +
-  '\n// http://pouchdb.com\n',
-
   'find': '// pouchdb-find plugin ' + version +
   '\n// Based on Mango: https://github.com/cloudant/mango' +
-  '\n// ' +
-  '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
-  '\n// PouchDB may be freely distributed under the Apache license, ' +
-  'version 2.0.' +
-  '\n// For all details and documentation:' +
-  '\n// http://pouchdb.com\n',
-
-  'websql': '// PouchDB websql plugin ' + version +
-  '\n// Since PouchDB 7.0.0, shipped as a separate plugin.' +
   '\n// ' +
   '\n// (c) 2012-' + currentYear + ' Dale Harvey and the PouchDB team' +
   '\n// PouchDB may be freely distributed under the Apache license, ' +

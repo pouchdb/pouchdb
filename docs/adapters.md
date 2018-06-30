@@ -21,100 +21,10 @@ PouchDB attempts to provide a consistent API that "just works" across every brow
 
 {% include anchor.html title="PouchDB in the browser" hash="pouchdb_in_the_browser"%}
 
-In the browser, PouchDB prefers IndexedDB, and falls back to WebSQL if IndexedDB is not available.  As of 2015, the browser support looks like this:
-
-### Desktop
-
-<div class="table-responsive">
-<table class="table">
-<tr>
-    <td></td>
-	<th><img src="static/img/browser-logos/internet-explorer_32x32.png" alt="IE"/></th>
-	<th><img src="static/img/browser-logos/firefox_32x32.png" alt="Firefox"/></th>
-	<th><img src="static/img/browser-logos/chrome_32x32.png" alt="Chrome"/></th>
-	<th><img src="static/img/browser-logos/safari_32x32.png" alt="Safari"/></th>
-	<th><img src="static/img/browser-logos/opera_32x32.png" alt="Opera"/></th>
-</tr>
-<tr>
-    <th>Adapter</th>
-	<th>IE</th>
-	<th>Firefox</th>
-	<th>Chrome</th>
-	<th>Safari</th>
-	<th>Opera</th>
-</tr>
-<tr>
-    <td>IndexedDB</td>
-	<td>&#10003; (10+)</td>
-	<td>&#10003;</td>
-	<td>&#10003;</td>
-	<td>&#10003; (10.1+)</td>
-	<td>&#10003;</td>
-</tr>
-<tr>
-	<td>WebSQL</td>
-	<td></td>
-	<td></td>
-	<td>&#10003;</td>
-	<td>&#10003;</td>
-	<td>&#10003;</td>
-</tr>
-</table>
-</div>
-
-### Mobile
-
-<div class="table-responsive">
-<table class="table">
-<tr>
-    <th></th>
-	<th><img src="static/img/browser-logos/safari-ios_32x32.png" alt="Safari iOS"/></th>
-	<th><img src="static/img/browser-logos/opera_32x32.png" alt="Opera"/></th>
-	<th><img src="static/img/browser-logos/android_32x32.png" alt="Android"/></th>
-	<th><img src="static/img/browser-logos/blackberry_32x32.png" alt="BlackBerry"/></th>
-	<th><img src="static/img/browser-logos/opera_32x32.png" alt="Opera"/></th>
-	<th><img src="static/img/browser-logos/chrome-android_32x32.png" alt="Chrome for Android"/></th>
-	<th><img src="static/img/browser-logos/firefox_32x32.png" alt="Firefox for Android"/></th>
-	<th><img src="static/img/browser-logos/internet-explorer-tile_32x32.png" alt="IE"/></th>
-</tr>
-<tr>
-    <th>Adapter</th>
-	<th>iOS Safari</th>
-	<th>Opera Mini</th>
-    <th>Android Browser</th>
-	<th>BlackBerry Browser</th>
-	<th>Opera Mobile</th>
-	<th>Chrome for Android</th>
-	<th>Firefox for Android</th>
-	<th>IE Mobile</th>
-</tr>
-<tr>
-    <td>IndexedDB</td>
-    <td>&#10003; (10.3+)</td>
-    <td></td>
-    <td>&#10003; (4.4+)</td>
-    <td>&#10003; (10+)</td>
-    <td>&#10003; (21+)</td>
-    <td>&#10003;</td>
-    <td>&#10003;</td>
-    <td>&#10003;</td>
-<tr>
-<tr>
-    <td>WebSQL</td>
-    <td>&#10003;</td>
-    <td></td>
-    <td>&#10003;</td>
-    <td>&#10003;</td>
-    <td>&#10003;</td>
-    <td>&#10003;</td>
-    <td></td>
-    <td></td>
-<tr>
-</table>
-</div>
+In the browser, PouchDB prefers IndexedDB.
 
 {% include alert/start.html variant="info"%}
-Prior to PouchDB 7.0.0, the WebSQL adapter was always used for Safari/iOS. The WebSQL adapter no longer ships as a default adapter in PouchDB, but may be installed separately.
+Prior to PouchDB 7.0.0, the WebSQL adapter was used for Safari/iOS. The WebSQL adapter no longer ships in PouchDB, but may be installed separately.
 {% include alert/end.html%}
 
 If you're ever curious which adapter is being used in a particular browser, you can use the following method:
@@ -148,7 +58,7 @@ to reduce confusion and to make it explicit whether you are using WebSQL or Cord
 
 We recommend avoiding Cordova SQLite unless you are hitting the 50MB storage limit in iOS, you 
 require native or preloaded access to the database files, or there's some other reason to go native.
-The built-in IndexedDB and WebSQL adapters are nearly always more performant and stable.
+The built-in IndexedDB adapter is nearly always more performant and stable.
 
 {% include alert/end.html%}
 
@@ -158,31 +68,14 @@ PouchDB also offers separate browser plugins that use backends other than Indexe
 
 **Downloads:**
 
-* [pouchdb.websql.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.websql.js) (Minified: [pouchdb.websql.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.websql.min.js))
 * [pouchdb.memory.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.js) (Minified: [pouchdb.memory.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.memory.min.js))
 * [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js) (Minified: [pouchdb.localstorage.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.min.js))
-* [pouchdb.fruitdown.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.js) (Minified: [pouchdb.fruitdown.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.fruitdown.min.js))
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
 These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt.
 {% endmarkdown %}
 {% include alert/end.html%}
-
-#### WebSQL adapter
-
-Prior to PouchDB 7.0.0, this was included in PouchDB itself. If you need to support old versions of Safari (<10.1) or iOS (<10.3) then you will need this plugin.
-
-```html
-<script src="pouchdb.js"></script>
-<script src="pouchdb.websql.js"></script>
-<script>
-  // this pouch uses WebSQL
-  var pouch = new PouchDB('mydb', {adapter: 'websql'});
-  // this pouch will use WebSQL if the current browser doesn't support IDB but supports WebSQL
-  var otherPouch = new PouchDB('myotherdb', {adapter: 'websql'});
-</script>
-```
 
 #### In-memory adapter
 
@@ -224,30 +117,6 @@ If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, yo
 {% include alert/start.html variant="warning"%}
 The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
 {% include alert/end.html %}
-
-#### FruitDOWN adapter
-
-If you need to support IndexedDB in Apple browsers (which PouchDB normally does not support due to instability), then you can use FruitDOWN, which works over all IndexedDB implementations at the expense of using a much smaller part of the IndexedDB API and therefore being slower and less efficient.
-
-```html
-<script src="pouchdb.js"></script>
-<script src="pouchdb.fruitdown.js"></script>
-<script>
-  // this pouch is backed by FruitDOWN
-  var pouch = new PouchDB('mydb', {adapter: 'fruitdown'});
-</script>
-```
-
-{% include anchor.html title="PouchDB in Node.js" hash="pouchdb_in_node_js"%}
-
-In Node.js, the adapter situation is much simpler than in browsers.  By default, if you create a PouchDB like this one:
-
-```js
-var pouch = new PouchDB('./path/to/db');
-```
-
-then a LevelDB-based database will be created in the directory `./path/to/db`.
-The LevelDB implementation uses [LevelDOWN][].
 
 #### In-memory
 
