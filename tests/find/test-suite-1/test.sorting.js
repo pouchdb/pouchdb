@@ -264,5 +264,101 @@ testCases.push(function (dbType, context) {
       });
     });
 
+    it('sorts correctly - foo exists', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": [{"foo": "desc"}]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: 'a', foo: 'b'},
+          {_id: 'b', foo: 'a'},
+          {_id: 'c', foo: 'c'},
+          {_id: '0', foo: 'd'}
+        ]);
+      }).then(function () {
+        return db.find({
+          "selector": {"foo": {$exists: true}},
+          "fields": ["foo"],
+          "sort": ["foo"]
+        });
+      }).then(function (resp) {
+        resp.docs.should.deep.equal([
+          {"foo": "a"},
+          {"foo": "b"},
+          {"foo": "c"},
+          {"foo": "d"}
+        ]);
+      });
+    });
+
+    it('sorts correctly - foo regex', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": [{"foo": "desc"}]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: 'a', foo: 'b'},
+          {_id: 'b', foo: 'a'},
+          {_id: 'c', foo: 'c'},
+          {_id: '0', foo: 'd'}
+        ]);
+      }).then(function () {
+        return db.find({
+          "selector": {"foo": {$regex: "[abcd]"}},
+          "fields": ["foo"],
+          "sort": ["foo"]
+        });
+      }).then(function (resp) {
+        resp.docs.should.deep.equal([
+          {"foo": "a"},
+          {"foo": "b"},
+          {"foo": "c"},
+          {"foo": "d"}
+        ]);
+      });
+    });
+
+    it('sorts correctly - foo type', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": [{"foo": "desc"}]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          {_id: 'a', foo: 'b'},
+          {_id: 'b', foo: 'a'},
+          {_id: 'c', foo: 'c'},
+          {_id: '0', foo: 'd'}
+        ]);
+      }).then(function () {
+        return db.find({
+          "selector": {"foo": {$type: "string"}},
+          "fields": ["foo"],
+          "sort": ["foo"]
+        });
+      }).then(function (resp) {
+        resp.docs.should.deep.equal([
+          {"foo": "a"},
+          {"foo": "b"},
+          {"foo": "c"},
+          {"foo": "d"}
+        ]);
+      });
+    });
+
   });
 });
