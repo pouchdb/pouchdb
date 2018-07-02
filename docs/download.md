@@ -18,6 +18,8 @@ PouchDB can also be directly downloaded:
 * [pouchdb-{{ site.version }}.min.js][latest-min] (compressed for production)
 * [pouchdb-{{ site.version }}.js][latest] (uncompressed for debugging)
 
+If you are using PouchDB in Internet Explorer a [Promise](https://www.npmjs.com/package/promise-polyfill) and [Fetch](https://www.npmjs.com/package/whatwg-fetch) polyfill will be needed.
+
 {% include anchor.html class="h3" title="npm" hash="npm" %}
 
 PouchDB can be installed through [npm](http://npmjs.com):
@@ -54,10 +56,6 @@ PouchDB is hosted at these CDNs:
 * [cdnjs](https://cdnjs.com/libraries/pouchdb)
 * [jsdelivr](http://www.jsdelivr.com/#!pouchdb)
 * [unpkg](https://unpkg.com/pouchdb@{{ site.version }}/dist/)
-
-{% include anchor.html class="h3" title="Bower" hash="bower" %}
-
-PouchDB can be installed through [Bower](http://bower.io).
 
 {% highlight bash %}bower install --save pouchdb{% endhighlight %}
 
