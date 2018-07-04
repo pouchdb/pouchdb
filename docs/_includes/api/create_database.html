@@ -23,15 +23,9 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `auth.username` + `auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `auth.username` + `auth.password` options.
 * `skip_setup`: Initially PouchDB checks if the database exists, and tries to create it, if it does not exist yet. Set this to `true` to skip this setup.
 
-**WebSQL-only options:**
-
-_Note:_ as of PouchDB 7.0.0, this requires installing WebSQL as an add-on adapter.
-
-* `size`: Amount in MB to request for storage, which you will need if you are storing >5MB in order to [avoid storage limit errors in WebSQL on iOS/Safari](/errors.html#not_enough_space). Persistent views use a separate database per view which will also request storage space so keep in mind the upper storage limits when using persistent views on iOS.
-
 **Notes:**
 
-1. In IndexedDB and WebSQL, PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
+1. In IndexedDB PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
 2. When acting as a client on Node, any other options given will be passed to [request][].
 3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][].
 
@@ -44,12 +38,6 @@ _Note:_ as of PouchDB 7.0.0, this requires installing WebSQL as an add-on adapte
 var db = new PouchDB('dbname');
 // or
 var db = new PouchDB('http://localhost:5984/dbname');
-{% endhighlight %}
-
-Create a PouchDB that explicitly uses WebSQL (must install `pouchdb-adapter-websql` first):
-
-{% highlight js %}
-var db = new PouchDB('dbname', {adapter : 'websql'});
 {% endhighlight %}
 
 Create an in-memory Pouch (must install `pouchdb-adapter-memory` first):

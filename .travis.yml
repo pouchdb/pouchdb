@@ -46,9 +46,6 @@ env:
   matrix:
   - CLIENT=node COMMAND=test
 
-  # Test WebSQL in Node (using node-websql)
-  - CLIENT=node ADAPTER=websql COMMAND=test
-
   # Test in-memory in Node
   - CLIENT=node ADAPTER=memory COMMAND=test
 
@@ -76,8 +73,7 @@ env:
   - SKIP_MIGRATION=true CLIENT=saucelabs:iphone:11.2 COMMAND=test
   - CLIENT="saucelabs:Android:6.0:Linux" COMMAND=test
 
-  # Test memory / fruitdown etc
-  - CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
+  # Test memory
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
   - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
@@ -113,9 +109,8 @@ matrix:
       services: docker
       env: CLIENT=node COMMAND=test
   allow_failures:
-    # localdown and fruitdown adapters broken by level upgrade @
+    # localdown broken by level upgrade @
     # https://github.com/pouchdb/pouchdb/pull/6941#issuecomment-352166744
-    - env: CLIENT="saucelabs:iphone:8.4:OS X 10.11" ADAPTERS=fruitdown COMMAND=test
     - env: CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
 branches:
