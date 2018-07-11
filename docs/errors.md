@@ -205,39 +205,6 @@ webView.loadDataWithBaseURL("http://www.example.com",
     null);
 ```
 
-{% include anchor.html class="h3" title="PouchDB on Windows" hash="windows_leveldown" %}
-
-It is known that building/compiling Node modules with native code on Windows can be frustrating, as there are lots of required dependencies to be installed, which may take many Gigabytes, as opossed to Unix platforms, where compiling is a breeze. Installing PouchDB on Node for Windows gave many headaches, specifically with the leveldown dep.
-
-Since v3.2.1 leveldown was changed to be an *optional dependency*: this way, npm will not refuse installing PouchDB even when having compiling errors. That way, you can use PouchDB normally, and will get an error only when trying to use leveldown as the backend. To avoid that, you can specify any compatible adapter, as pointed in the [Adapters](/adapters.html#pouchdb_in_node_js) section.
-
-For example, if you want a SQLite backend, you can install:
-
-{% highlight bash %}
-npm install sqlite3
-npm install sqldown
-{% endhighlight %}
-
-and then use PouchDB with:
-
-```js
-var db = new PouchDB('database', { db: require('sqldown') });
-
-```
-
-Also, you have the option to use [leveldown] (>= 1.2.2)(https://github.com/level/leveldown), which avoids native leveldown building when installing. Make sure the `win32-x64.tar.gz` is uploaded for your [leveldown] (https://github.com/Level/leveldown/releases) version. Then for use leveldown as backend, you can install:
-
-{% highlight bash %}
-npm install leveldown@1.2.2
-{% endhighlight %}
-
-and instance your PouchDB like this:
-
-```js
-var db = new PouchDB('database', { db: require('leveldown') });
-
-```
-
 {% include anchor.html class="h3" title="Replication with attachments is slow or fails" hash="replicating_attachments_slow" %}
 
 The symptoms for this issues are:
