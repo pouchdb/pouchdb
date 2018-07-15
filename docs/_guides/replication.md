@@ -67,7 +67,7 @@ localDB.replicate.to(remoteDB).on('complete', function () {
 
 Congratulations, all changes from the `localDB` have been replicated to the `remoteDB`.
 
-However, what if you want **bidirectional replication**? (Kinky!) You could do:
+However, what if you want **bidirectional replication**? You could do:
 
 ```js
 localDB.replicate.to(remoteDB);
