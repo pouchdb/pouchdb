@@ -47,7 +47,7 @@ For instance, if you are doing live replication, a document may be modified by s
 
 In many cases, the most practical solution to the 409 problem is to retry the `put()` until it succeeds. If the user's intended change can be expressed as a **delta** (i.e. a change that doesn't depend on the current revision), then this is very easy to achieve.
 
-Borrowing a phrase from MongoDB, let's call this an **upsert** ("update or insert"), and use the [pouchdb-upsert](https://github.com/pouchdb/pouchdb-upsert) plugin to implement it:
+Borrowing a phrase from traditional databases, let's call this an **upsert** ("update or insert"), and use the [pouchdb-upsert](https://github.com/pouchdb/pouchdb-upsert) plugin to implement it:
 
 ```js
 function myDeltaFunction(doc) {
