@@ -68,14 +68,17 @@ env:
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test
   - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
-  - SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
+
+  # Split up the ie test suites (they are faily)
+  - GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
+  - GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
+  - GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
   - GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
   - SKIP_MIGRATION=true CLIENT=saucelabs:iphone:11.2 COMMAND=test
   - CLIENT="saucelabs:Android:6.0:Linux" COMMAND=test
 
   # Test memory
   - CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
-  - CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
   # Test Webpack bundle
   - CLIENT=selenium:firefox COMMAND=test-webpack
@@ -108,10 +111,6 @@ matrix:
     - node_js: "10"
       services: docker
       env: CLIENT=node COMMAND=test
-  allow_failures:
-    # localdown broken by level upgrade @
-    # https://github.com/pouchdb/pouchdb/pull/6941#issuecomment-352166744
-    - env: CLIENT=selenium:firefox ADAPTERS=localstorage COMMAND=test
 
 branches:
   only:
