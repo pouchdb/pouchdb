@@ -62,6 +62,24 @@ module.exports = function (PouchDB, opts, callback) {
       }
     },
     {
+      name: 'simple-find-query-no-index',
+      assertions: 1,
+      iterations: 10,
+      setup: function (db, callback) {
+        db.bulkDocs(makeTestDocs())
+          .then(function () {
+            callback();
+          }, callback);
+      },
+      test: function (db, itr, doc, done) {
+        db.find({
+          selector: { key: 'foo'}
+        }).then(function () {
+          done();
+        }, done);
+      }
+    },
+    {
       name: 'complex-find-query',
       assertions: 1,
       iterations: 10,
