@@ -3236,6 +3236,24 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#7403 {attachments: true, binary: true, include_docs: true} in allDocs with one missing doc', function () {
+      var docs = [binAttDoc];
+      var db = new PouchDB(dbs.name);
+      var keys;
+      return db.bulkDocs(docs).then(function () {
+        keys = ['bin_doc', 'thisDocIsNotInDB'];
+        return db.allDocs({
+          keys: keys,
+          attachments: true,
+          binary: true,
+          include_docs: true
+        });
+      }).then(function (result) {
+        should.exist(result.rows[0].doc._attachments);
+        result.rows[1].error.should.equal('not_found');
+      });
+    });
+
   });
 });
 
