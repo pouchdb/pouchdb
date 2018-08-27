@@ -352,7 +352,7 @@ The Mango query language is quite large and supports many options. Some of the m
 
 There are many more options besides these, although note that not all of them can take advantage of indexes. For instance, `$regex`, `$ne`, and `$not` cannot use on-disk indexes, and must use in-memory filtering instead.
 
-The most complete documentation for selector options can be found in the [CouchDB `_find` documentation](http://docs.couchdb.org/en/2.0.0/api/database/find.html). You might also look at the [Cloudant Query Language](https://docs.cloudant.com/cloudant_query.html) documentation (which is nearly identical to Mango, other than `text` and other Cloudant-specific features). PouchDB uses CouchDB as the reference implementation; they ought to be functionally identical.
+The most complete documentation for selector options can be found in the [CouchDB `_find` documentation](http://docs.couchdb.org/en/2.2.0/api/database/find.html). You might also look at the [Cloudant Query Language](https://docs.cloudant.com/cloudant_query.html) documentation (which is nearly identical to Mango, other than `text` and other Cloudant-specific features). PouchDB uses CouchDB as the reference implementation; they ought to be functionally identical.
 
 It should be noted that, over HTTP, this API currently works with CouchDB 2.0+, Cloudant, and PouchDB Server.
 CouchDB 2.0 is the reference implementation, so the API should be the same. CouchDB 1.6.1 and below is not supported.
