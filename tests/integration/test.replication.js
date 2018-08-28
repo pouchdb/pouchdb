@@ -3958,27 +3958,55 @@ adapters.forEach(function (adapters) {
       }).catch(done);
     });
 
-
-    it('4094 cant fetch server uuid', function (done) {
-
+    it("#4094 can't fetch server uuid (HTTP error)", function (done) {
       var db = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-
-      var ajax = remote._ajax;
-
-      remote._ajax = function (opts, cb) {
-        var uri = testUtils.parseUri(opts.url);
-        if (uri.path === '/') {
-          cb(new Error('flunking you'));
-        } else {
-          ajax.apply(this, arguments);
+      var remote = new PouchDB(dbs.remote, {
+        fetch: function (url, opts) {
+          var uri = testUtils.parseUri(url);
+          if (uri.path === '/') {
+            // Network error, as returned by the Fetch API:
+            return Promise.reject(new TypeError('Failed to fetch'));
+          }
+          return PouchDB.fetch(url, opts);
         }
-      };
+      });
 
       var _complete = 0;
       function complete() {
         if (++_complete === 2) {
-          remote._ajax = ajax;
+          done();
+        }
+      }
+
+      var rep = db.replicate.from(remote, {live: true, retry: true})
+        .on('complete', complete);
+
+      var changes = db.changes({live: true}).on('change', function () {
+        rep.cancel();
+        changes.cancel();
+      }).on('complete', complete);
+
+      remote.post({a: 'doc'});
+    });
+
+    it("#7444 can't fetch server uuid (invalid JSON)", function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote, {
+        fetch: function (url, opts) {
+          var uri = testUtils.parseUri(url);
+          if (uri.path === '/') {
+            return PouchDB.fetch(url, opts).then(function (response) {
+              response.body = new Blob('this is not JSON');
+              return response;
+            });
+          }
+          return PouchDB.fetch(url, opts);
+        }
+      });
+
+      var _complete = 0;
+      function complete() {
+        if (++_complete === 2) {
           done();
         }
       }
