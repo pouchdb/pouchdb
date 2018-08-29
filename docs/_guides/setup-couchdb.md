@@ -55,10 +55,10 @@ $ curl localhost:5984
 You should see something like:
 
 ```js
-{"couchdb":"Welcome","version":"1.5.1",...}
+{"couchdb":"Welcome","version":"2.2.0",...}
 ```
 
-Next, open up [http://localhost:5984/_utils/fauxton/](http://localhost:5984/_utils/fauxton/) in your browser. (Or [http://localhost:5984/_utils/](http://localhost:5984/_utils/) if you installed PouchDB Server.)
+Next, open up [http://localhost:5984/_utils/](http://localhost:5984/_utils/) in your browser.
 
 If you see a screen like the following, then you are ready to rock and roll with CouchDB:
 
