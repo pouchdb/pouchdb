@@ -165,7 +165,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('pull replication with many changes + a conflict (#2543)', function () {
+    it.skip('pull replication with many changes + a conflict (#2543)', function () {
       if (testUtils.isIE()) {
         return Promise.resolve();
       }
