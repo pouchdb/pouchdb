@@ -58,7 +58,7 @@ You should see something like:
 {"couchdb":"Welcome","version":"2.2.0",...}
 ```
 
-Next, open up [http://localhost:5984/_utils/](http://localhost:5984/_utils/fauxton/) in your browser.
+Next, open up [http://localhost:5984/_utils/](http://localhost:5984/_utils/) in your browser.
 
 If you see a screen like the following, then you are ready to rock and roll with CouchDB:
 
