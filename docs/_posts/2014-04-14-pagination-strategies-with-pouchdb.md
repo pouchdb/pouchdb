@@ -161,8 +161,8 @@ However, the value doesn't actually need to be present. So for example, if you h
 `skip` tells PouchDB how many documents to skip from its normal starting point.  E.g. `{skip : 5}` gives us:
 
 ```
-      First doc returned                              Last doc returned
-             ↓                                                       ↓ 
+         First doc returned                              Last doc returned
+                ↓                                                    ↓ 
 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 ```
 
