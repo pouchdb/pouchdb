@@ -37,7 +37,7 @@
     "argsarray": "0.0.1",
     "buffer-from": "1.1.0",
     "clone-buffer": "1.0.0",
-    "debug": "3.1.0",
+    "debug": "4.0.1",
     "double-ended-queue": "2.1.0-0",
     "fetch-cookie": "0.7.0",
     "fruitdown": "1.0.2",
