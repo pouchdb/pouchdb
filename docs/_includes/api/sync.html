@@ -69,7 +69,7 @@ db.replicate.from(url).on('complete', function(info) {
     .on('change', onSyncChange)
     .on('paused', onSyncPaused)
     .on('error', onSyncError);
-}).on('error', onSyncError);;
+}).on('error', onSyncError);
 {% endhighlight %}
 
 The above technique results in fewer HTTP requests being used and better performance than just using `db.sync` on its own.
