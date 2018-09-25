@@ -42,7 +42,8 @@ function createIndex(db, requestDef) {
 
     doc.views[viewName] = {
       map: {
-        fields: mergeObjects(requestDef.index.fields)
+        fields: mergeObjects(requestDef.index.fields),
+        partial_filter_selector: requestDef.index.partial_filter_selector
       },
       reduce: '_count',
       options: {
