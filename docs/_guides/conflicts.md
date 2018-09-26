@@ -87,7 +87,7 @@ db.get('docid', {conflicts: true}).then(function (doc) {
 });
 ```
 
-If the document has conflicts, then the `doc` will be returned with a `_conflicts` attribute, which may contain the IDs of conflicting revisions.
+If the document has conflicts, then the `doc` will be returned with a `_conflicts` attribute, which may contain the revision IDs of conflicting revisions.
 
 For instance, imagine the `doc` returned is the following:
 
