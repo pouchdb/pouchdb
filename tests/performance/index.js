@@ -70,8 +70,14 @@ if (global.window && global.window.location && global.window.location.search) {
   }
 }
 if (startNow) {
-  var PouchDB = process.browser ? window.PouchDB :
-    require('../../packages/node_modules/pouchdb');
+  var PouchDB;
+  if (process.browser) {
+    PouchDB = window.PouchDB;
+  } else {
+    PouchDB = require('../../packages/node_modules/pouchdb');
+    PouchDB.plugin(require('../../packages/node_modules/' +
+      'pouchdb-find'));
+  }
   if (!process.browser) {
     PouchDB.plugin(require('../../packages/node_modules/' +
       'pouchdb-adapter-memory'));
