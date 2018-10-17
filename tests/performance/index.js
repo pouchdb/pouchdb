@@ -22,13 +22,14 @@ function runTestSuites(PouchDB) {
     var count = 0;
     function checkDone(adapterUsed) {
       theAdapterUsed = theAdapterUsed || adapterUsed;
-      if (++count === 3) { // number of perf.xxxx.js tests
+      if (++count === 4) { // number of perf.xxxx.js tests
         reporter.complete(theAdapterUsed);
       }
     }
 
     require('./perf.basics')(PouchDB, opts, checkDone);
     require('./perf.views')(PouchDB, opts, checkDone);
+    require('./perf.find')(PouchDB, opts, checkDone);
     require('./perf.attachments')(PouchDB, opts, checkDone);
   }
 
@@ -69,8 +70,14 @@ if (global.window && global.window.location && global.window.location.search) {
   }
 }
 if (startNow) {
-  var PouchDB = process.browser ? window.PouchDB :
-    require('../../packages/node_modules/pouchdb');
+  var PouchDB;
+  if (process.browser) {
+    PouchDB = window.PouchDB;
+  } else {
+    PouchDB = require('../../packages/node_modules/pouchdb');
+    PouchDB.plugin(require('../../packages/node_modules/' +
+      'pouchdb-find'));
+  }
   if (!process.browser) {
     PouchDB.plugin(require('../../packages/node_modules/' +
       'pouchdb-adapter-memory'));

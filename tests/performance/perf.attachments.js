@@ -52,6 +52,6 @@ module.exports = function (PouchDB, opts, callback) {
     }
   ];
 
-  utils.runTests(PouchDB, 'views', testCases, opts, callback);
+  utils.runTests(PouchDB, 'attachments', testCases, opts, callback);
 
 };
