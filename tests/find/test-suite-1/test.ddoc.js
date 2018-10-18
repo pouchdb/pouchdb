@@ -247,7 +247,7 @@ testCases.push(function (dbType, context) {
       // We could fix this by being better with how we hold idb handles, or by
       // making sure createIndex (and mango and view queries, since it's the
       // same problem) are queued and don't run in parallel.
-      this.timeout(1000);
+      this.timeout(5000);
 
       return Promise.all([
         context.db.createIndex({index: {fields: ['rank']}}),
@@ -258,7 +258,21 @@ testCases.push(function (dbType, context) {
         context.db.createIndex({index: {fields: ['name', 'series']}}),
         context.db.createIndex({index: {fields: ['series', 'debut', 'rank']}}),
         context.db.createIndex({index: {fields: ['rank', 'debut']}})
-      ]);
+      ]).then(function () {
+        // At time of writing the createIndex implentation also performs a
+        // search to "warm" the indexes. If this changes to happen async, or not
+        // at all, these queries will force the collision to be tested.
+        return Promise.all([
+          context.db.find({selector: {rank: 'foo'}}),
+          context.db.find({selector: {series: 'foo'}}),
+          context.db.find({selector: {debut: 'foo'}}),
+          context.db.find({selector: {name: 'foo'}}),
+          context.db.find({selector: {name: 'foo', rank: 'foo'}}),
+          context.db.find({selector: {name: 'foo', series: 'foo'}}),
+          context.db.find({selector: {series: 'foo', debut: 'foo', rank: 'foo'}}),
+          context.db.find({selector: {rank: 'foo', debut: 'foo'}}),
+        ]);
+      });
     });
   });
 });

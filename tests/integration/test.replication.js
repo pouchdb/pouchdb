@@ -2350,7 +2350,7 @@ adapters.forEach(function (adapters) {
             }
 
             check_docs.apply(this, docs.shift());
-          });
+          }).catch(done);
         }
         function second_replicate() {
           // Restore remote.bulkGet to original

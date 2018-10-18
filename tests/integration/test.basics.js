@@ -174,6 +174,32 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Modifying a doc that has rewritten content', function (done) {
+      var db = new PouchDB(dbs.name);
+      // To index all these below, indexeddb needs to rewrite this data, as:
+      //  - true, false and null are not indexable values
+      //  - keypaths need to consist only of keys that could also be JS var names
+      //
+      // This test makes sure we don't refer to these rewritten values when updating
+      var doc = {
+        _id: 'foo',
+        'something.that': null,
+        'needs-to-be': false,
+        'rewritten!': true
+      };
+
+      db.put(doc).then(function (info) {
+        doc._rev = info.rev;
+        doc.foo = 'bar';
+        return db.put(doc);
+      }).then(function (info) {
+        doc._rev = info.rev;
+        return db.get('foo');
+      }).then(function (dbDoc) {
+        dbDoc.should.deep.equal(doc);
+      }).catch(done).then(done);
+    });
+
     it('Modify a doc with a promise', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({test: 'promisestuff'}).then(function (info) {

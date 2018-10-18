@@ -1962,7 +1962,9 @@ adapters.forEach(function (adapter) {
         db.get('bin_doc', function (err, doc) {
           should.exist(doc._attachments, 'doc has attachments field');
           should.exist(doc._attachments['foo.txt'], 'doc has attachment');
+          doc._attachments['foo.txt'].stub.should.equal(true);
           doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+
           db.getAttachment('bin_doc', 'foo.txt', function (err, res) {
             should.not.exist(err, 'fetched attachment');
             res.type.should.equal('text/plain');
