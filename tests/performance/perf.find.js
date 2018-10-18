@@ -6,10 +6,11 @@ module.exports = function (PouchDB, opts, callback) {
 
   function makeTestDocs() {
     var docs = [];
-    for (var i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1e4; i++) {
       docs.push({
-        key: i % 47,
+        key: i % 1337,
         even: i % 2 === 0,
+        random: Math.random(),
         str: ['foo', 'bar', 'smang', 'foobar'][i % 3]
       });
     }

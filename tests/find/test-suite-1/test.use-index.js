@@ -41,7 +41,7 @@ testCases.push(function (dbType, context) {
       .then(function () {
         return db.createIndex({
           index: {
-            "fields": ["name", "another-field"]
+            "fields": ["name", "another_field"]
           },
           "ddoc": "index-3",
           "name": "third-index",

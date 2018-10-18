@@ -55,7 +55,6 @@ testCases.push(function (dbType, context) {
       return db.bulkDocs(docs).then(function () {
         return db.find({
           selector: {
-            _id: {$gt: null},
             events: {$elemMatch: {"status": {$eq: 'pending'}, "eventId": {$eq: 1}}},
           },
           fields: ['_id']

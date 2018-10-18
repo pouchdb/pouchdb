@@ -44,16 +44,22 @@
         { name: 'yoshi', _id: 'yoshi', rank: 6, series: 'mario', debut: 1990 },
         { name: 'kirby', _id: 'kirby', series: 'kirby', rank: 2, debut: 1992 }
       ]).then(function () {
-        return Promise.all([
-          context.db.createIndex({index: {fields: ['rank']}}),
-          context.db.createIndex({index: {fields: ['series']}}),
-          context.db.createIndex({index: {fields: ['debut']}}),
-          context.db.createIndex({index: {fields: ['name']}}),
-          context.db.createIndex({index: {fields: ['name', 'rank']}}),
-          context.db.createIndex({index: {fields: ['name', 'series']}}),
-          context.db.createIndex({index: {fields: ['series', 'debut', 'rank']}}),
-          context.db.createIndex({index: {fields: ['rank', 'debut']}})
-        ]);
+        // This could be done by Promise.all, but for now that breaks IDBNext.
+        // Promise.all index creation is tested explicitly in test.ddoc.js
+        var indexes = [
+          {index: {fields: ['rank']}},
+          {index: {fields: ['series']}},
+          {index: {fields: ['debut']}},
+          {index: {fields: ['name']}},
+          {index: {fields: ['name', 'rank']}},
+          {index: {fields: ['name', 'series']}},
+          {index: {fields: ['series', 'debut', 'rank']}},
+          {index: {fields: ['rank', 'debut']}},
+        ];
+
+        return indexes.reduce(function (p, index) {
+          return p.then(function () { return context.db.createIndex(index); });
+        }, Promise.resolve());
       });
     });
     after(function () {
