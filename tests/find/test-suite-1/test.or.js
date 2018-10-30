@@ -68,5 +68,59 @@ testCases.push(function (dbType, context) {
       });
     });
 
+      it('#7458 should do $or with nested $and', function () {
+          var db = context.db;
+          return db.find({
+              selector: {
+                  "$or": [
+                      { "name": {$eq: "Link"} },
+                      {
+                          "$and": [
+                              {"name": "Mario"},
+                              {"rank": 5}
+                          ]
+                      }
+                  ]
+              }
+          }).then(function (res) {
+              var docs = res.docs.map(function (doc) {
+                  return {
+                      _id: doc._id
+                  };
+              });
+              docs.should.deep.equal([
+                  {'_id': 'link'},
+                  {'_id': 'mario'},
+              ]);
+          });
+      });
+
+      it('#7458 should do $or with nested $and, with explicit $eq', function () {
+          var db = context.db;
+          return db.find({
+              selector: {
+                  "$or": [
+                      { "name": {$eq: "Link"} },
+                      {
+                          "$and": [
+                              {"name": {$eq: "Mario"}},
+                              {"rank": {$eq: 5}}
+                          ]
+                      }
+                  ]
+              }
+          }).then(function (res) {
+              var docs = res.docs.map(function (doc) {
+                  return {
+                      _id: doc._id
+                  };
+              });
+              docs.should.deep.equal([
+                  {'_id': 'link'},
+                  {'_id': 'mario'},
+              ]);
+          });
+      });
+
   });
 });
