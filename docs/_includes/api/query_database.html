@@ -27,7 +27,11 @@ All options default to `false` unless otherwise specified.
   * A full CouchDB-style map/reduce view: `{map : ..., reduce: ...}`.
   * A map function by itself (no reduce).
   * The name of a view in an existing design document (e.g. `'mydesigndoc/myview'`, or `'myview'` as a shorthand for `'myview/myview'`).
-* `options.reduce`: Reduce function, or the string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.  Defaults to `true` when a reduce function is defined, or `false` otherwise.
+* `options.reduce`: Defaults to `true` when a reduce function is defined, or `false` otherwise.  Valid values:
+  * `true` - calls the defined `reduce` function, or the `map` function if no `reduce` is defined.
+  * `false` - calls the defined `map` function.
+  * A reduce function.
+  * The string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.
     * Tip: if you're not using a built-in, [you're probably doing it wrong](http://youtu.be/BKQ9kXKoHS8?t=865s).
     * PouchDB will always call your reduce function with rereduce == false. As for CouchDB, refer to the [CouchDB documentation](http://docs.couchdb.org/en/1.6.1/couchapp/views/intro.html).
 * `options.include_docs`: Include the document in each row in the `doc` field.
