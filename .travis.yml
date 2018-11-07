@@ -13,7 +13,7 @@ sudo:
   false
 
 addons:
-  firefox: latest
+  firefox: latest-est
   jwt:
      secure: YlCp9qGHmnnATcScIQVyOt8eI9FxLhMGAz9iRTHh7r41ADjfGJUzyqkWoBLcCagiQWtqtUujukPAtRuOibbBp9SvmGp+IIdbwHVUDvSZNOvGxkQ1qczeGxJcnht+2YNoCwfzkHW4vFrNiGOULdjvbWAB4sAJ8N0AZPShURwXU1E=
 
@@ -22,10 +22,6 @@ before_install:
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  # Our test-browser.js script uses FIREFOX_BIN to find the Firefox binary
-  # See https://github.com/travis-ci/travis-ci/issues/4649
-  - echo "using firefox $(firefox --version)"
-  - export FIREFOX_BIN=$(which firefox)
   # The next two lines are required for Firefox to run on Travis
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
