@@ -107,6 +107,9 @@ matrix:
     - node_js: "10"
       services: docker
       env: CLIENT=node COMMAND=test
+  allow_failures:
+    - env: GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
+    - env: GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
 
 branches:
   only:
