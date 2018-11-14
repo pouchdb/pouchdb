@@ -79,9 +79,13 @@ Then check to make sure that your remote CouchDB has started up correctly. Commo
 You can see basic information about the database by using the `info()` method.
 
 ```js
-db.info().then(function (info) {
-  console.log(info);
-})
+db.info()
+  .then(function(info) {
+    console.log(info)
+  })
+  .catch(err => {
+    console.log(err)
+  })
 ```
 
 The local database should show something like:
