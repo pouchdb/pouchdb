@@ -75,7 +75,7 @@ var doc = {
     "lookin' hella cute"
   ]
 };
-db.put(doc);
+db.put(doc).catch(err => console.log(err));
 ```
 
 Whenever you `put()` a document, it must have an `_id` field so that you can retrieve it later.
