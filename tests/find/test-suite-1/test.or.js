@@ -122,33 +122,5 @@ testCases.push(function (dbType, context) {
             });
         });
 
-        it('#7458 should do $or with nested $or, with explicit $eq', function () {
-            var db = context.db;
-            return db.find({
-                selector: {
-                    "$or": [
-                        { "name": {$eq: "Link"} },
-                        {
-                            "$or": [
-                                {"name": {$eq: "Mario"}},
-                                {"debut": {$eq: 1981}}
-                            ]
-                        }
-                    ]
-                }
-            }).then(function (res) {
-                var docs = res.docs.map(function (doc) {
-                    return {
-                        _id: doc._id
-                    };
-                });
-                docs.should.deep.equal([
-                    {'_id': 'link'},
-                    {'_id': 'mario'},
-                    {'_id': 'dk'}
-                ]);
-            });
-        });
-
     });
 });
