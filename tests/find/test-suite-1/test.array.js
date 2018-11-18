@@ -23,17 +23,14 @@ testCases.push(function (dbType, context) {
     });
 
     describe('$in', function () {
-      it('should return docs match single value in array', function () {
-        var db = context.db;
-        return db.find({
-          selector: {
-            name: {
-              $gt: null
+        it('should return docs match single value in array', function () {
+          var db = context.db;
+          return db.find({
+            selector: {
+              favorites: {
+                $in: ["Mario"]
+              }
             },
-            favorites: {
-              $in: ["Mario"]
-            }
-          },
         }).then(function (resp) {
           var docs = resp.docs.map(function (doc) {
             delete doc._rev;
@@ -140,9 +137,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             age: {
               $in: [20, 23]
             }
@@ -165,9 +159,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $in: ["Mario", "Zelda"]
             }
@@ -190,9 +181,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $in: ["TMNT"]
             }
@@ -208,9 +196,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $all: ["Mario"]
             }
@@ -232,9 +217,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $all: ['Mario', 'Pokemon']
             }
@@ -255,9 +237,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $all: ["Mario", "Zelda"]
             }
@@ -273,9 +252,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $size: 1
             }
@@ -297,9 +273,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $size: 2
             }
@@ -321,9 +294,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $size: 5
             }
@@ -339,9 +309,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $nin: ["Mario"]
             }
@@ -363,9 +330,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            _id: {
-              $gt: 'a'
-            },
             name: {
               $nin: ['James', 'William']
             }
@@ -387,9 +351,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             age: {
               $nin: [20, 23]
             }
@@ -411,9 +372,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $nin: ["Pokemon", "Zelda"]
             }
@@ -434,9 +392,6 @@ testCases.push(function (dbType, context) {
         var db = context.db;
         return db.find({
           selector: {
-            name: {
-              $gt: null
-            },
             favorites: {
               $nin: ["TMNT"]
             }

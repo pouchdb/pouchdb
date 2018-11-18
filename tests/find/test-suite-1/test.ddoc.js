@@ -235,5 +235,30 @@ testCases.push(function (dbType, context) {
       });
 
     });
+
+    it('supports creating many indexes at the same time', function () {
+      // This will time out in IDBNext. This happens because an index creation
+      // also queries the view to "warm" it. This triggers our code to decide
+      // that the idb handle needs to be dropped and re-created. This is fine if
+      // it's done one by one, but if you're doing multiple at the same time
+      // they aren't getting queued one after the other and their handles are
+      // getting invalidated.
+      //
+      // We could fix this by being better with how we hold idb handles, or by
+      // making sure createIndex (and mango and view queries, since it's the
+      // same problem) are queued and don't run in parallel.
+      this.timeout(1000);
+
+      return Promise.all([
+        context.db.createIndex({index: {fields: ['rank']}}),
+        context.db.createIndex({index: {fields: ['series']}}),
+        context.db.createIndex({index: {fields: ['debut']}}),
+        context.db.createIndex({index: {fields: ['name']}}),
+        context.db.createIndex({index: {fields: ['name', 'rank']}}),
+        context.db.createIndex({index: {fields: ['name', 'series']}}),
+        context.db.createIndex({index: {fields: ['series', 'debut', 'rank']}}),
+        context.db.createIndex({index: {fields: ['rank', 'debut']}})
+      ]);
+    });
   });
 });

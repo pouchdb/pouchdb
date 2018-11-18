@@ -146,7 +146,7 @@ You can also test against node-websql:
 
 You can also override the default number of iterations:
 
-    PERF=1 ITERATIONS=10 npm t
+    PERF=1 ITERATIONS=10 npm test
 
 ### Performance tests in the browser
 

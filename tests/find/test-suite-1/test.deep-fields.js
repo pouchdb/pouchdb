@@ -54,32 +54,6 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('deep fields escaped', function () {
-      var db = context.db;
-      var index = {
-        "index": {
-          "fields": [
-            "foo\\.bar"
-          ]
-        },
-        "name": "foo-index",
-        "type": "json"
-      };
-      return db.createIndex(index).then(function () {
-        return db.bulkDocs([
-          {_id: 'doc1', foo: {bar: 'a'}},
-          {_id: 'doc2', 'foo.bar': 'a'}
-        ]);
-      }).then(function () {
-        return db.find({
-          selector: {'foo\\.bar': 'a'},
-          fields: ['_id']
-        });
-      }).then(function (res) {
-        res.docs.should.deep.equal([{ "_id": "doc2"}]);
-      });
-    });
-
     it('should create a deep multi mapper', function () {
       var db = context.db;
       var index = {

@@ -16,7 +16,6 @@ testCases.push(function (dbType, context) {
       ]).then(function () {
         return db.find({
           selector: {
-            _id: { $gt: null},
             'foo': {'$exists': true}
           },
           fields: ['_id']
@@ -41,7 +40,6 @@ testCases.push(function (dbType, context) {
       ]).then(function () {
         return db.find({
           selector: {
-            _id: { $gt: null},
             'foo': {'$exists': false}
           },
           fields: ['_id']
@@ -64,7 +62,6 @@ testCases.push(function (dbType, context) {
       ]).then(function () {
         return db.find({
           selector: {
-            _id: { $gt: null},
             'foo': {'$exists': true}
           },
           fields: ['_id']
@@ -148,7 +145,6 @@ testCases.push(function (dbType, context) {
       ]).then(function () {
         return db.find({
           selector: {
-            _id: {$gt: null},
             foo: {'$exists': true},
             bar: {$exists: true}
           },
@@ -173,7 +169,6 @@ testCases.push(function (dbType, context) {
       ]).then(function () {
         return db.find({
           selector: {
-            _id: {$gt: null},
             foo: {'$exists': true},
             bar: {$exists: false}
           },

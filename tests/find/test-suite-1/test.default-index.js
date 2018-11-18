@@ -390,4 +390,85 @@ testCases.push(function (dbType, context) {
           });
       });
   });
+
+  it('null values are indexed', function () {
+      var db = context.db;
+      return db.createIndex({
+          index: {
+              fields: ['foo']
+          }
+      }).then(function () {
+          return db.bulkDocs([
+              {_id: '1', foo: null},
+              {_id: '2', foo: 1},
+              {_id: '3', foo: 2},
+              {_id: '4', foo: 3}
+          ]).then(function () {
+              return db.find({
+                  selector: {
+                      foo: {$lt: 2}
+                  },
+                  fields: ['_id']
+              }).then(function (resp) {
+                  resp.docs.should.deep.equal([
+                    {_id: "1"},
+                    {_id: "2"},
+                  ]);
+              });
+          });
+      });
+  });
+
+  it('handles booleans as a valid index value', function () {
+      var db = context.db;
+      return db.createIndex({
+          index: {
+              fields: ['foo']
+          }
+      }).then(function () {
+          return db.bulkDocs([
+              {_id: '1', foo: true},
+              {_id: '2', foo: false},
+              {_id: '3', foo: 2},
+              {_id: '4', foo: 3}
+          ]).then(function () {
+              return db.find({
+                  selector: {
+                      foo: {$eq: true}
+                  },
+                  fields: ['_id']
+              }).then(function (resp) {
+                  resp.docs.should.deep.equal([{_id: '1'}]);
+              });
+          });
+      });
+  });
+
+  it('boolean values are indexed', function () {
+      var db = context.db;
+      return db.createIndex({
+          index: {
+              fields: ['foo']
+          }
+      }).then(function () {
+          return db.bulkDocs([
+              {_id: '1', foo: true},
+              {_id: '2', foo: false},
+              {_id: '3', foo: 2},
+              {_id: '4', foo: 3}
+          ]).then(function () {
+              return db.find({
+                  selector: {
+                      foo: {$lt: 2}
+                  },
+                  fields: ['_id']
+              }).then(function (resp) {
+                  resp.docs.should.deep.equal([
+                    {_id: '2'},
+                    {_id: '1'}
+                  ]);
+              });
+          });
+      });
+  });
 });

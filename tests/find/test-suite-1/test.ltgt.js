@@ -35,6 +35,39 @@ testCases.push(function (dbType, context) {
       });
     });
 
+    it('does gt queries exactly', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'},
+          { _id: '5', foo: 'eb'},
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$gt": "eb"}},
+          fields: ["_id", "foo"],
+          sort: [{foo: "asc"}]
+        });
+      }).then(function (resp) {
+        resp.docs.should.deep.equal([
+          {_id: '3', foo: 'eba'},
+          {_id: '2', foo: 'ebb'},
+          {_id: '1', foo: 'eyo'}
+        ]);
+      });
+    });
+
     it('does lt queries', function () {
       var db = context.db;
       var index = {
@@ -59,6 +92,96 @@ testCases.push(function (dbType, context) {
         });
       }).then(function (resp) {
         resp.docs.should.deep.equal([{_id: '4', foo: 'abo'}]);
+      });
+    });
+
+    it('does lt queries exactly', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'},
+          { _id: '5', foo: 'eb'},
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$lt": "eb"}},
+          fields: ["_id", "foo"]
+        });
+      }).then(function (resp) {
+        resp.docs.should.deep.equal([{_id: '4', foo: 'abo'}]);
+      });
+    });
+
+    it('does gte queries', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$gte": "ebb"}},
+          fields: ["_id", "foo"],
+          sort: [{foo: "asc"}]
+        });
+      }).then(function (resp) {
+        resp.docs.should.deep.equal([
+          {_id: '2', foo: 'ebb'},
+          {_id: '1', foo: 'eyo'}
+        ]);
+      });
+    });
+
+    it('does lte queries', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["foo"]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+
+      return db.createIndex(index).then(function () {
+        return db.bulkDocs([
+          { _id: '1', foo: 'eyo'},
+          { _id: '2', foo: 'ebb'},
+          { _id: '3', foo: 'eba'},
+          { _id: '4', foo: 'abo'}
+        ]);
+      }).then(function () {
+        return db.find({
+          selector: {foo: {"$lte": "eba"}},
+          fields: ["_id", "foo"],
+          sort: [{foo: "asc"}]
+        });
+      }).then(function (resp) {
+        resp.docs.should.deep.equal([
+          {_id: '4', foo: 'abo'},
+          {_id: '3', foo: 'eba'},
+        ]);
       });
     });
 
@@ -90,41 +213,6 @@ testCases.push(function (dbType, context) {
           { _id: '3', debut: 1989},
           { _id: '1', debut: 1983},
           { _id: '2', debut: 1981}
-        ]);
-      });
-    });
-    // ltge - {include_docs: true, reduce: false, descending: true, startkey: 1990}
-    // lt no sort {include_docs: true, reduce: false, endkey: 1990, inclusive_end: false}
-    // lt sort {include_docs: true, reduce: false, descending: true, 
-    // startkey: 1990, inclusive_start: false}
-
-    it('does lte queries', function () {
-      var db = context.db;
-      var index = {
-        "index": {
-          "fields": ["foo"]
-        },
-        "name": "foo-index",
-        "type": "json"
-      };
-
-      return db.createIndex(index).then(function () {
-        return db.bulkDocs([
-          { _id: '1', foo: 'eyo'},
-          { _id: '2', foo: 'ebb'},
-          { _id: '3', foo: 'eba'},
-          { _id: '4', foo: 'abo'}
-        ]);
-      }).then(function () {
-        return db.find({
-          selector: {foo: {"$lte": "eba"}},
-          fields: ["_id", "foo"],
-          sort: [{foo: "asc"}]
-        });
-      }).then(function (resp) {
-        resp.docs.should.deep.equal([
-          {_id: '4', foo: 'abo'},
-          {_id: '3', foo: 'eba'},
         ]);
       });
     });
