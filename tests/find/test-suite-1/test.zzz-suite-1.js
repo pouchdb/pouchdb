@@ -1,6 +1,6 @@
 'use strict';
 
-['http', 'local'].forEach(function (adapter) {
+['local', 'http'].forEach(function (adapter) {
   describe('pouchdb-find: ' + adapter + ': test.zzz-suite-1.js', function () {
     this.timeout(100000);
 
