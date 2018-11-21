@@ -17,6 +17,7 @@ var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
 
 var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '3.7.1';
+var CHROME_BIN = process.env.CHROME_BIN;
 var FIREFOX_BIN = process.env.FIREFOX_BIN;
 
 // BAIL=0 to disable bailing
@@ -192,6 +193,13 @@ function startTest() {
     'idle-timeout': 599,
     'tunnel-identifier': tunnelId
   };
+  if (CHROME_BIN) {
+    opts.chromeOptions = {
+      binary: CHROME_BIN,
+      args: [],
+      extensions: [],
+    };
+  }
   if (FIREFOX_BIN) {
     opts.firefox_binary = FIREFOX_BIN;
   }
