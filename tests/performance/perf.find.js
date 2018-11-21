@@ -6,7 +6,7 @@ module.exports = function (PouchDB, opts, callback) {
 
   function makeTestDocs() {
     var docs = [];
-    for (var i = 0; i < 1e4; i++) {
+    for (var i = 0; i < 100000; i++) {
       docs.push({
         key: i % 1337,
         even: i % 2 === 0,
@@ -93,6 +93,29 @@ module.exports = function (PouchDB, opts, callback) {
               }
             });
           }).then(function () {
+            callback();
+          }, callback);
+      },
+      test: function (db, itr, doc, done) {
+        db.find({
+          selector: {
+            $and: [
+              {key: { $gt: 4 }},
+              {key: { $ne: 7 }}
+            ]
+          }
+        }).then(function () {
+          done();
+        }, done);
+      }
+    },
+    {
+      name: 'complex-find-query-no-index',
+      assertions: 1,
+      iterations: 10,
+      setup: function (db, callback) {
+        db.bulkDocs(makeTestDocs())
+          .then(function () {
             callback();
           }, callback);
       },
