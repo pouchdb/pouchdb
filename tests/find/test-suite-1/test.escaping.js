@@ -2,7 +2,7 @@
 
 testCases.push(function (dbType, context) {
 
-  describe.skip(dbType + ': test.escaping.js', function () {
+  describe.only(dbType + ': test.escaping.js', function () {
 
     it('period can be escaped', function () {
       var db = context.db;
