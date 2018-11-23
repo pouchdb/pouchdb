@@ -27,4 +27,36 @@ describe('test.ajax.js', function () {
       });
     });
   });
+
+  it('fetch handles relative uris', function (done) {
+    var server = http.createServer(function (req, res) {
+      res.end(JSON.stringify({ok: req.url === '/testdb/path'}));
+    });
+    server.listen(6000, function () {
+      var db = new PouchDB('http://127.0.0.1:6000/testdb', { skip_setup: true });
+      db.fetch('path').then(function (response) {
+        return response.json();
+      }).then(function (res) {
+        server.close();
+        should.equal(res.ok, true, "Fetch did not resolve uri");
+        done();
+      });
+    });
+  });
+
+  it('fetch handles absolute uris', function (done) {
+    var server = http.createServer(function (req, res) {
+      res.end(JSON.stringify({ok: req.url === '/root-path'}));
+    });
+    server.listen(6000, function () {
+      var db = new PouchDB('http://127.0.0.1:6000/testdb', { skip_setup: true });
+      db.fetch('/root-path').then(function (response) {
+        return response.json();
+      }).then(function (res) {
+        server.close();
+        should.equal(res.ok, true, "Fetch did not resolve uri");
+        done();
+      });
+    });
+  });
 });
