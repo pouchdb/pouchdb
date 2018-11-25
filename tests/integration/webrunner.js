@@ -34,6 +34,9 @@
     });
   }
 
+  var remote = window.location.search.match(/[?&]remote=([^&]+)/);
+  remote = remote && remote[1] === '1';
+
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
   function asyncLoadScript(url, callback) {
 
@@ -94,60 +97,68 @@
 
       modifyGlobals();
 
-      var runner = mocha.run();
+      if (remote) {
+        // Capture logs for selenium output
+        var logs = [];
 
-      // Capture logs for selenium output
-      var logs = [];
+        (function () {
 
+          var oldLog = console.log;
+          console.log = function () {
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift('log');
+            logs.push(args);
+            oldLog.apply(console, arguments);
+          };
 
-      (function () {
+          var oldError = console.error;
+          console.error = function () {
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift('error');
+            logs.push(args);
+            oldError.apply(console, arguments);
+          };
 
-        var oldLog = console.log;
-        console.log = function () {
-          var args = Array.prototype.slice.call(arguments);
-          args.unshift('log');
-          logs.push(args);
-          oldLog.apply(console, arguments);
+        })();
+
+        // Capture test events for selenium output
+        window.testEventsBuffer = [];
+
+        window.testEvents = function () {
+          var events = window.testEventsBuffer;
+          window.testEventsBuffer = [];
+          return events;
         };
 
-        var oldError = console.error;
-        console.error = function () {
-          var args = Array.prototype.slice.call(arguments);
-          args.unshift('error');
-          logs.push(args);
-          oldError.apply(console, arguments);
-        };
-
-      })();
-
-      window.results = {
-        browser: navigator.userAgent,
-        lastPassed: '',
-        passed: 0,
-        failed: 0,
-        failures: []
-      };
-
-      runner.on('pass', function (e) {
-        window.results.lastPassed = e.title;
-        window.results.passed++;
-      });
-
-      runner.on('fail', function (e) {
-        window.results.logs = logs;
-        window.results.failed++;
-        window.results.failures.push({
-          title: e.title,
-          message: e.err.message,
-          stack: e.err.stack
+        mocha.reporter(function (runner) {
+          ['start', 'end', 'suite', 'suite end', 'pass', 'pending', 'fail'].forEach(function (name) {
+            runner.on(name, function (obj, err) {
+              window.testEventsBuffer.push({
+                name,
+                obj: obj && {
+                  root: obj.root,
+                  title: obj.title,
+                  duration: obj.duration,
+                  slow: typeof obj.slow === 'function' ? obj.slow() : undefined,
+                  fullTitle: typeof obj.fullTitle === 'function' ? obj.fullTitle() : undefined
+                },
+                err: err && {
+                  actual: err.actual,
+                  expected: err.expected,
+                  showDiff: err.showDiff,
+                  message: err.message,
+                  stack: err.stack,
+                  uncaught: err.uncaught
+                },
+                logs: JSON.parse(JSON.stringify(logs))
+              });
+              logs = [];
+            });
+          });
         });
-      });
+      }
 
-      runner.on('end', function () {
-        window.results.logs = logs;
-        window.results.completed = true;
-        window.results.passed++;
-      });
+      mocha.run();
     }
 
     loadNext();

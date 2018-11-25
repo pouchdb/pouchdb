@@ -9,6 +9,8 @@ var selenium = require('selenium-standalone');
 var querystring = require("querystring");
 var request = require('request').defaults({json: true});
 
+var MochaSpecReporter = require('mocha').reporters.Spec;
+
 var devserver = require('./dev-server.js');
 
 var testTimeout = 30 * 60 * 1000;
@@ -47,7 +49,7 @@ if (process.env.PERF) {
   testUrl = testRoot + 'integration/index.html';
 }
 
-var qs = {};
+var qs = { remote: 1 };
 
 var sauceClient;
 var sauceConnectProcess;
@@ -126,12 +128,10 @@ function postResult(result) {
     });
     return;
   }
-  process.exit(!process.env.PERF && result.failed ? 1 : 0);
+  process.exit(!process.env.PERF && result.failures ? 1 : 0);
 }
 
 function testComplete(result) {
-  console.log('=>', JSON.stringify(result, null, '  '), '<=');
-
   sauceClient.quit().then(function () {
     if (sauceConnectProcess) {
       sauceConnectProcess.close(function () {
@@ -178,6 +178,54 @@ function startSauceConnect(callback) {
   });
 }
 
+function RemoteRunner() {
+  this.handlers = {};
+  this.completed = false;
+  this.failed = false;
+}
+
+RemoteRunner.prototype.on = function (name, handler) {
+  var handlers = this.handlers;
+
+  if (!handlers[name]) {
+    handlers[name] = [];
+  }
+  handlers[name].push(handler);
+};
+
+RemoteRunner.prototype.handleEvents = function (events) {
+  var self = this;
+  var handlers = this.handlers;
+
+  events.forEach(function (event) {
+    self.completed = self.completed || event.name === 'end';
+    self.failed = self.failed || event.name === 'fail';
+
+    var obj = Object.assign({}, event.obj, {
+      slow() { return event.obj.slow; },
+      fullTitle() { return event.obj.fullTitle; }
+    });
+
+    handlers[event.name].forEach(function (handler) {
+      handler(obj, event.err);
+    });
+
+    if (event.logs && event.logs.length > 0) {
+      console.log('\nconsole.log:');
+      console.log(event.logs.map(function (line) { return '> ' + line.slice(1).join(' '); }).join('\n'));
+      console.log();
+    }
+  });
+};
+
+RemoteRunner.prototype.bail = function () {
+  var handlers = this.handlers;
+
+  handlers['end'].forEach(function (handler) {
+    handler();
+  });
+};
+
 function startTest() {
 
   console.log('Starting', client, 'on', testUrl);
@@ -203,26 +251,46 @@ function startTest() {
     opts.firefox_binary = FIREFOX_BIN;
   }
 
+  var runner = new RemoteRunner();
+  new MochaSpecReporter(runner);
+
   sauceClient.init(opts, function () {
     console.log('Initialized');
 
     sauceClient.get(testUrl, function () {
       console.log('Successfully started');
 
-      /* jshint evil: true */
-      var interval = setInterval(function () {
-        sauceClient.eval('window.results', function (err, results) {
-          if (err) {
-            clearInterval(interval);
-            testError(err);
-          } else if (results.completed || (results.failures.length && bail)) {
-            clearInterval(interval);
-            testComplete(results);
-          } else {
-            console.log(results);
-          }
-        });
-      }, 10 * 1000);
+      sauceClient.eval('navigator.userAgent', function (err, userAgent) {
+        if (err) {
+          testError(err);
+        } else {
+          console.log('Testing on:', userAgent);
+
+          /* jshint evil: true */
+          var interval = setInterval(function () {
+            sauceClient.eval('window.testEvents()', function (err, events) {
+              if (err) {
+                clearInterval(interval);
+                testError(err);
+              } else {
+                runner.handleEvents(events);
+
+                if (runner.completed || (runner.failed && bail)) {
+                  if (!runner.completed && runner.failed && bail) {
+                    runner.bail();
+                  }
+
+                  clearInterval(interval);
+                  testComplete(Object.assign({}, runner.stats, {
+                    // TODO Collect more stuff ? Kesako DASHBOARD_HOST ?
+                  }));
+                }
+              }
+            });
+          }, 10 * 1000);
+
+        }
+      });
     });
   });
 }
