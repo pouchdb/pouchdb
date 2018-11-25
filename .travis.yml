@@ -9,8 +9,8 @@ services:
 git:
   depth: 30
 
-sudo:
-  false
+dist: xenial
+sudo: true
 
 addons:
   firefox: latest-est
@@ -49,6 +49,9 @@ env:
   - CLIENT=selenium:firefox COMMAND=test
   - CLIENT=selenium:firefox POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COMMAND=test
 
+  # Test in chromium running on travis
+  - CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
+
   # Test auto-compaction in Node and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
@@ -56,10 +59,12 @@ env:
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox COMMAND=test
+  - TYPE=mapreduce CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
 
   # Test pouchdb-find
   - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
   - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox SERVER=pouchdb-server COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser SERVER=pouchdb-server COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome COMMAND=test

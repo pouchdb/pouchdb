@@ -16,7 +16,8 @@ var testTimeout = 30 * 60 * 1000;
 var username = process.env.SAUCE_USERNAME;
 var accessKey = process.env.SAUCE_ACCESS_KEY;
 
-var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '3.7.1';
+var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '3.141.0';
+var CHROME_BIN = process.env.CHROME_BIN;
 var FIREFOX_BIN = process.env.FIREFOX_BIN;
 
 // BAIL=0 to disable bailing
@@ -192,26 +193,37 @@ function startTest() {
     'idle-timeout': 599,
     'tunnel-identifier': tunnelId
   };
+  if (CHROME_BIN) {
+    opts.chromeOptions = {
+      binary: CHROME_BIN,
+      args: ['--headless', '--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox']
+    };
+  }
   if (FIREFOX_BIN) {
     opts.firefox_binary = FIREFOX_BIN;
   }
 
-  sauceClient.init(opts).get(testUrl, function () {
+  sauceClient.init(opts, function () {
+    console.log('Initialized');
 
-    /* jshint evil: true */
-    var interval = setInterval(function () {
-      sauceClient.eval('window.results', function (err, results) {
-        if (err) {
-          clearInterval(interval);
-          testError(err);
-        } else if (results.completed || (results.failures.length && bail)) {
-          clearInterval(interval);
-          testComplete(results);
-        } else {
-          console.log(results);
-        }
-      });
-    }, 10 * 1000);
+    sauceClient.get(testUrl, function () {
+      console.log('Successfully started');
+
+      /* jshint evil: true */
+      var interval = setInterval(function () {
+        sauceClient.eval('window.results', function (err, results) {
+          if (err) {
+            clearInterval(interval);
+            testError(err);
+          } else if (results.completed || (results.failures.length && bail)) {
+            clearInterval(interval);
+            testComplete(results);
+          } else {
+            console.log(results);
+          }
+        });
+      }, 10 * 1000);
+    });
   });
 }
 
