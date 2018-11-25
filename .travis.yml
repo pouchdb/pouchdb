@@ -51,12 +51,10 @@ env:
 
   # Test in chromium running on travis
   - CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
-  - CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COMMAND=test
 
   # Test auto-compaction in Node and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
   - AUTO_COMPACTION=true CLIENT=selenium:firefox COMMAND=test
-  - AUTO_COMPACTION=true CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
 
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
@@ -92,7 +90,6 @@ env:
 
   # Performance tests
   - CLIENT=selenium:firefox PERF=1 COMMAND=test
-  - CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser PERF=1 COMMAND=test
   - PERF=1 COMMAND=test
 
   # Test Webpack bundle
