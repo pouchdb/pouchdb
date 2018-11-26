@@ -1,6 +1,6 @@
 'use strict';
 
-var adapters = ['http', 'local'];
+var adapters = ['local'];
 var autoCompactionAdapters = ['local'];
 
 adapters.forEach(function (adapter) {
@@ -436,7 +436,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('#2931 - synchronous putAttachment + compact', function () {
+    it.only('#2931 - synchronous putAttachment + compact', function () {
 
       var db = new PouchDB(dbs.name);
       var queue = db.put({_id: 'doc'});
