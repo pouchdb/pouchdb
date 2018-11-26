@@ -268,11 +268,11 @@ function startTest() {
 
           /* jshint evil: true */
           var interval = setInterval(function () {
-            sauceClient.eval('window.testEvents()', function (err, events) {
+            sauceClient.eval('typeof window.testEvents === \'function\' && window.testEvents()', function (err, events) {
               if (err) {
                 clearInterval(interval);
                 testError(err);
-              } else {
+              } else if (events) {
                 runner.handleEvents(events);
 
                 if (runner.completed || (runner.failed && bail)) {
