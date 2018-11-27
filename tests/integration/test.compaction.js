@@ -436,7 +436,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.only('#2931 - synchronous putAttachment + compact', function () {
+    it('#2931 - synchronous putAttachment + compact', function () {
 
       var db = new PouchDB(dbs.name);
       var queue = db.put({_id: 'doc'});

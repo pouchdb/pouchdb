@@ -15,6 +15,7 @@ beforeEach(function (done) {
 afterEach(function (done) {
   testUtils.removeUnhandledRejectionListener(currentListener);
   if (currentError) {
+    currentError = new Error(currentError);
     console.error(currentError);
   }
   done(currentError);
