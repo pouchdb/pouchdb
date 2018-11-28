@@ -22,6 +22,40 @@ module.exports = function (PouchDB, opts, callback) {
       }
     },
     {
+      name: 'basic-inserts-large-docs',
+      assertions: 1,
+      iterations: 100,
+      setup: function (db, callback) {
+        var doc = {};
+        for (var i = 0; i < 100; i++) {
+          doc['hello' + i] = "hey" + i;
+        }
+        callback(null, {doc : doc});
+      },
+      test: function (db, itr, doc, done) {
+        db.post(doc, done);
+      }
+    },
+    {
+      name: 'basic-inserts-deep-docs',
+      assertions: 1,
+      iterations: 100,
+      setup: function (db, callback) {
+        var doc = {};
+        for (var i = 0; i < 50; i++) {
+          var inner = {};
+          for (var j = 0; j < 100; j++) {
+            inner["sovery"+j] = j + "cool";
+          }
+          doc['hello' + i] = inner;
+        }
+        callback(null, {doc : doc});
+      },
+      test: function (db, itr, doc, done) {
+        db.post(doc, done);
+      }
+    },
+    {
       name: 'bulk-inserts',
       assertions: 1,
       iterations: 100,
