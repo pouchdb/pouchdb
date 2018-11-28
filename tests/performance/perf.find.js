@@ -6,7 +6,7 @@ module.exports = function (PouchDB, opts, callback) {
 
   function makeTestDocs() {
     var docs = [];
-    for (var i = 0; i < 100000; i++) {
+    for (var i = 0; i < 1e4; i++) {
       docs.push({
         key: i % 1337,
         even: i % 2 === 0,

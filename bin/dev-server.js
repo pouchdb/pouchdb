@@ -2,7 +2,6 @@
 
 'use strict';
 
-var Promise = require('lie');
 var watch = require('watch-glob');
 var http_server = require('http-server');
 var debounce = require('lodash.debounce');

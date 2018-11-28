@@ -1,7 +1,7 @@
 [PouchDB](http://pouchdb.com/) - The JavaScript Database that Syncs
 ==================================================
 
-Welcome, so you are thinking about contributing to PouchDB? awesome, this is a great place to start.
+Welcome, so you are thinking about contributing to PouchDB? Awesome, this is a great place to start.
 
 Get in Touch
 ------------
@@ -28,7 +28,7 @@ Guide to Contributions
 
   * Almost all Pull Requests for features or bug fixes will need tests
   * We follow [Felix's Node.js Style Guide](https://github.com/felixge/node-style-guide)
-  * Almost all Pull Requests for features or bug fixes will need tests (seriously, its really important)
+  * Almost all Pull Requests for features or bug fixes will need tests (seriously, it's really important)
   * Before opening a pull request run `$ npm test` to lint test the changes and run node tests. Preferably run the browser tests as well.
   * Commit messages should follow the following style:
 

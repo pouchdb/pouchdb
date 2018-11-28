@@ -192,7 +192,7 @@ Now we will have the todo list sync. Back in `app.js` we need to specify the add
 // EDITING STARTS HERE (you dont need to edit anything above this line)
 
 var db = new PouchDB('todos');
-var remoteCouch = 'http://user:pass@mname.example.com/todos';
+var remoteCouch = 'http://user:pass@myname.example.com/todos';
 {% endhighlight %}
 
 Then we can implement the sync function like so:
