@@ -126,8 +126,8 @@ testCases.push(function (dbType, context) {
     // that we're also dealing with order correctly when users actually store
     // Number.MIN_SAFE_INTEGER
     //
-    // This is low priority to fix, as it only effects people storing the lowest
-    // three numbers, and would require expensive
+    // IMO this is low priority to fix, since it isn't likely to occur and requires
+    // either a heavy weight sort in many cases, or careful custom sorting
     it.skip('Orders min numbers correctly', function () {
       var db = context.db;
       return db.createIndex({

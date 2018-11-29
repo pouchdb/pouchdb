@@ -1,6 +1,6 @@
 'use strict';
 
-var adapters = ['local'];
+var adapters = ['local', 'http'];
 var autoCompactionAdapters = ['local'];
 
 adapters.forEach(function (adapter) {
