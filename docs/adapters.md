@@ -180,7 +180,7 @@ Currently PouchDB has full support for:
 * [PouchDB Server](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
 * [PouchDB Server --in-memory mode](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
 
-[Couchbase Sync Gateway](http://docs.couchbase.com/sync-gateway/) support is [in progress](https://github.com/pouchdb/pouchdb/pull/3521). It will work, but you may run into issues, especially with [attachments](https://github.com/pouchdb/pouchdb/issues/2832). [Drupal 8](http://wearepropeople.com/blog/a-content-staging-solution-for-drupal-8-and-more) has also announced support for PouchDB, and there is [rcouch](https://github.com/rcouch/rcouch) as well, but these are both untested by PouchDB.
+[Drupal 8](http://wearepropeople.com/blog/a-content-staging-solution-for-drupal-8-and-more) has also announced support for PouchDB, and there is [rcouch](https://github.com/rcouch/rcouch) as well, but these are both untested by PouchDB.
 
 If you are ever unsure about a server, consider replicating from PouchDB to CouchDB, then from that CouchDB to the other server.
 
