@@ -71,6 +71,8 @@ env:
   - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
 
   # Split up the ie test suites (they are faily)
+  - GREP=test.basics.js CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
+
   - GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
   - GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
   - GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
@@ -115,6 +117,9 @@ matrix:
   allow_failures:
     - env: GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
     - env: GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
+    - env: GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
+    - env: GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
+
 
 branches:
   only:
