@@ -201,10 +201,11 @@ RemoteRunner.prototype.handleEvents = function (events) {
     self.completed = self.completed || event.name === 'end';
     self.failed = self.failed || event.name === 'fail';
 
-    var obj = Object.assign({}, event.obj, {
+    var additionalProps = event.name !== 'pass' ? {} : {
       slow() { return event.obj.slow; },
       fullTitle() { return event.obj.fullTitle; }
-    });
+    };
+    var obj = Object.assign({}, event.obj, additionalProps);
 
     handlers[event.name].forEach(function (handler) {
       handler(obj, event.err);
@@ -225,6 +226,12 @@ RemoteRunner.prototype.bail = function () {
     handler();
   });
 };
+
+function BenchmarkReporter(runner) {
+  runner.on('benchmark:result', function (obj) {
+    console.log('      ', obj);
+  });
+}
 
 function startTest() {
 
@@ -253,6 +260,7 @@ function startTest() {
 
   var runner = new RemoteRunner();
   new MochaSpecReporter(runner);
+  new BenchmarkReporter(runner);
 
   sauceClient.init(opts, function () {
     console.log('Initialized');
@@ -268,7 +276,7 @@ function startTest() {
 
           /* jshint evil: true */
           var interval = setInterval(function () {
-            sauceClient.eval('typeof window.testEvents === \'function\' && window.testEvents()', function (err, events) {
+            sauceClient.eval('window.testEvents()', function (err, events) {
               if (err) {
                 clearInterval(interval);
                 testError(err);
@@ -287,7 +295,7 @@ function startTest() {
                 }
               }
             });
-          }, 10 * 1000);
+          }, /*10 * */1000);
 
         }
       });

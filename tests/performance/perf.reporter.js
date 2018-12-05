@@ -8,6 +8,15 @@ global.results = {
   tests: {}
 };
 
+// Capture test events for selenium output
+var testEventsBuffer = [];
+
+window.testEvents = function () {
+  var events = testEventsBuffer;
+  testEventsBuffer = [];
+  return events;
+};
+
 // fix for Firefox max timing entries capped to 150:
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1331135
 /* global performance */
@@ -29,6 +38,11 @@ exports.log = log;
 
 exports.startSuite = function (suiteName) {
   log('Starting suite: ' + suiteName + '\n\n');
+  testEventsBuffer.push({ name: 'suite', obj: { title: suiteName } });
+};
+
+exports.endSuite = function (suiteName) {
+  testEventsBuffer.push({ name: 'suite end', obj: { title: suiteName } });
 };
 
 exports.start = function (testCase, iter) {
@@ -47,6 +61,8 @@ exports.end = function (testCase) {
   obj.numIterations = obj.iterations.length;
   delete obj.iterations; // keep it simple when reporting
   log('median: ' + obj.median + ' ms\n');
+  testEventsBuffer.push({ name: 'pass', obj: { title: testCase.name } });
+  testEventsBuffer.push({ name: 'benchmark:result', obj });
 };
 
 exports.startIteration = function (testCase) {
@@ -56,6 +72,10 @@ exports.startIteration = function (testCase) {
 exports.endIteration = function (testCase) {
   var entry = marky.stop(testCase.name);
   global.results.tests[testCase.name].iterations.push(entry.duration);
+};
+
+exports.startAll = function () {
+  testEventsBuffer.push({ name: 'start' });
 };
 
 exports.complete = function (adapter) {
@@ -77,5 +97,6 @@ exports.complete = function (adapter) {
   global.results.adapter = adapter;
   console.log('=>', JSON.stringify(global.results, null, '  '), '<=');
   log('\nTests Complete!\n\n');
+  testEventsBuffer.push({ name: 'end' });
 };
 
