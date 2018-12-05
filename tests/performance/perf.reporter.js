@@ -4,14 +4,15 @@ var UAParser = require('ua-parser-js');
 var ua = !isNode && new UAParser(navigator.userAgent);
 var marky = require('marky');
 var median = require('median');
-global.results = {
+
+var results = {
   tests: {}
 };
 
 // Capture test events for selenium output
 var testEventsBuffer = [];
 
-window.testEvents = function () {
+global.testEvents = function () {
   var events = testEventsBuffer;
   testEventsBuffer = [];
   return events;
@@ -49,14 +50,14 @@ exports.start = function (testCase, iter) {
   var key = testCase.name;
   log('Starting test: ' + key + ' with ' + testCase.assertions +
     ' assertions and ' + iter + ' iterations... ');
-  global.results.tests[key] = {
+  results.tests[key] = {
     iterations: []
   };
 };
 
 exports.end = function (testCase) {
   var key = testCase.name;
-  var obj = global.results.tests[key];
+  var obj = results.tests[key];
   obj.median = median(obj.iterations);
   obj.numIterations = obj.iterations.length;
   delete obj.iterations; // keep it simple when reporting
@@ -71,7 +72,7 @@ exports.startIteration = function (testCase) {
 
 exports.endIteration = function (testCase) {
   var entry = marky.stop(testCase.name);
-  global.results.tests[testCase.name].iterations.push(entry.duration);
+  results.tests[testCase.name].iterations.push(entry.duration);
 };
 
 exports.startAll = function () {
@@ -79,13 +80,13 @@ exports.startAll = function () {
 };
 
 exports.complete = function (adapter) {
-  global.results.completed = true;
+  results.completed = true;
   if (isNode) {
-    global.results.client = {
+    results.client = {
       node: process.version
     };
   } else {
-    global.results.client = {
+    results.client = {
       browser: ua.getBrowser(),
       device: ua.getDevice(),
       engine: ua.getEngine(),
@@ -94,9 +95,9 @@ exports.complete = function (adapter) {
       userAgent: navigator.userAgent
     };
   }
-  global.results.adapter = adapter;
-  console.log('=>', JSON.stringify(global.results, null, '  '), '<=');
+  results.adapter = adapter;
+  console.log('=>', JSON.stringify(results, null, '  '), '<=');
   log('\nTests Complete!\n\n');
-  testEventsBuffer.push({ name: 'end' });
+  testEventsBuffer.push({ name: 'end', obj: results });
 };
 
