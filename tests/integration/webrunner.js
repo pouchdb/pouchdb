@@ -122,19 +122,20 @@
         })();
 
         // Capture test events for selenium output
-        window.testEventsBuffer = [];
+        var testEventsBuffer = [];
 
         window.testEvents = function () {
-          var events = window.testEventsBuffer;
-          window.testEventsBuffer = [];
+          var events = testEventsBuffer;
+          testEventsBuffer = [];
           return events;
         };
 
         mocha.reporter(function (runner) {
-          ['start', 'end', 'suite', 'suite end', 'pass', 'pending', 'fail'].forEach(function (name) {
+          var eventNames = ['start', 'end', 'suite', 'suite end', 'pass', 'pending', 'fail'];
+          eventNames.forEach(function (name) {
             runner.on(name, function (obj, err) {
-              window.testEventsBuffer.push({
-                name,
+              testEventsBuffer.push({
+                name: name,
                 obj: obj && {
                   root: obj.root,
                   title: obj.title,
