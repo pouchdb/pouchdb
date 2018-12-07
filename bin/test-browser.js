@@ -262,7 +262,12 @@ function startTest() {
 
                 if (runner.completed || (runner.failed && bail)) {
                   if (!runner.completed && runner.failed) {
-                    runner.bail();
+                    try {
+                      runner.bail();
+                    } catch (e) {
+                      // Temporary debugging of bailing failure
+                      console.log(e);
+                    }
                   }
 
                   clearInterval(interval);
