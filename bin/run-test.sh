@@ -6,7 +6,7 @@
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     export COUCH_HOST='http://127.0.0.1:6984'
-    if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" ]]; then
+    if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" || "$COVERAGE" == 1 ]]; then
       # in travis, link pouchdb-servers dependencies on pouchdb
       # modules to the current implementations
       mkdir pouchdb-server-install
