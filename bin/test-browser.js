@@ -100,8 +100,15 @@ testUrl += querystring.stringify(qs);
 function testError(e) {
   console.error(e);
   console.error('Doh, tests failed');
-  sauceClient.quit();
-  process.exit(3);
+  sauceClient.quit().then(function () {
+    if (sauceConnectProcess) {
+      sauceConnectProcess.close(function () {
+        process.exit(3);
+      });
+    } else {
+      process.exit(3);
+    }
+  });
 }
 
 function testComplete(result) {
@@ -268,7 +275,7 @@ function startTest() {
                 }
               }
             });
-          }, /*10 * */1000);
+          }, 10 * 1000);
 
         }
       });
