@@ -177,8 +177,8 @@ RemoteRunner.prototype.handleEvents = function (events) {
     self.failed = self.failed || event.name === 'fail';
 
     var additionalProps = event.name !== 'pass' ? {} : {
-      slow() { return event.obj.slow; },
-      fullTitle() { return event.obj.fullTitle; }
+      slow: event.obj.slow ? function () { return event.obj.slow; } : undefined,
+      fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
     };
     var obj = Object.assign({}, event.obj, additionalProps);
 
@@ -262,12 +262,7 @@ function startTest() {
 
                 if (runner.completed || (runner.failed && bail)) {
                   if (!runner.completed && runner.failed) {
-                    try {
-                      runner.bail();
-                    } catch (e) {
-                      // Temporary debugging of bailing failure
-                      console.log(e);
-                    }
+                    runner.bail();
                   }
 
                   clearInterval(interval);
