@@ -146,13 +146,13 @@ function startSauceConnect(callback) {
     tunnelIdentifier: tunnelId
   };
 
-  sauceConnectLauncher(options, function (err, process) {
+  sauceConnectLauncher(options, function (err, sauceProcess) {
     if (err) {
       console.error('Failed to connect to saucelabs');
       console.error(err);
       return process.exit(1);
     }
-    sauceConnectProcess = process;
+    sauceConnectProcess = sauceProcess;
     sauceClient = wd.promiseChainRemote("localhost", 4445, username, accessKey);
     callback();
   });
