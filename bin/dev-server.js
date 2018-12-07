@@ -101,10 +101,6 @@ Promise.resolve().then(function () {
 
 var HTTP_PORT = 8000;
 
-// if SERVER=sync-gateway we also have 
-// tests/misc/sync-gateway-config-server.js 
-// listening on port 8001
-
 var serversStarted;
 var readyCallback;
 

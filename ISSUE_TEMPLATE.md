@@ -12,7 +12,7 @@ Write the description of the issue here
 - Environment: (Node.js/browser/hybrid app/etc.)
 - Platform: (Chrome/FF/Safari/Edge/iOS/Android/etc.)
 - Adapter: (IndexedDB/WebSQL/LevelDB/etc.)
-- Server: (CouchDB/Cloudant/Couchbase/PouchDB Server/etc.)
+- Server: (CouchDB/Cloudant/PouchDB Server/etc.)
 
 ### Reproduce
 Issues that others can reproduce are far easier to fix, we have a website that may help you provide a
