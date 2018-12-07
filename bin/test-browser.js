@@ -100,26 +100,9 @@ testUrl += querystring.stringify(qs);
 function testError(e) {
   console.error(e);
   console.error('Doh, tests failed');
-  sauceClient.quit().then(function () {
-    if (sauceConnectProcess) {
-      sauceConnectProcess.close(function () {
-        process.exit(3);
-      });
-    } else {
-      process.exit(3);
-    }
-  });
-}
 
-function testComplete(result) {
-  sauceClient.quit().then(function () {
-    if (sauceConnectProcess) {
-      sauceConnectProcess.close(function () {
-        process.exit(!process.env.PERF && result.failures ? 1 : 0);
-      });
-    } else {
-      process.exit(!process.env.PERF && result.failures ? 1 : 0);
-    }
+  closeClient(function () {
+    process.exit(3);
   });
 }
 
@@ -155,6 +138,18 @@ function startSauceConnect(callback) {
     sauceConnectProcess = sauceProcess;
     sauceClient = wd.promiseChainRemote("localhost", 4445, username, accessKey);
     callback();
+  });
+}
+
+function closeClient(callback) {
+  sauceClient.quit().then(function () {
+    if (sauceConnectProcess) {
+      sauceConnectProcess.close(function () {
+        callback();
+      });
+    } else {
+      callback();
+    }
   });
 }
 
@@ -205,6 +200,8 @@ RemoteRunner.prototype.bail = function () {
   handlers['end'].forEach(function (handler) {
     handler();
   });
+
+  this.completed = true;
 };
 
 function BenchmarkReporter(runner) {
@@ -264,14 +261,15 @@ function startTest() {
                 runner.handleEvents(events);
 
                 if (runner.completed || (runner.failed && bail)) {
-                  if (!runner.completed && runner.failed && bail) {
+                  if (!runner.completed && runner.failed) {
                     runner.bail();
                   }
 
                   clearInterval(interval);
-                  testComplete(Object.assign({}, runner.stats, {
-                    // TODO Collect more stuff ? Kesako DASHBOARD_HOST ?
-                  }));
+
+                  closeClient(function () {
+                    process.exit(!process.env.PERF && runner.failed ? 1 : 0);
+                  });
                 }
               }
             });
