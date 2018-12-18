@@ -67,8 +67,8 @@ env:
   - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser SERVER=pouchdb-server COMMAND=test
 
   # Testing in saucelabs
-  - CLIENT=saucelabs:chrome COMMAND=test
-  - SKIP_MIGRATION=true CLIENT=saucelabs:safari COMMAND=test
+  - CLIENT=saucelabs:chrome:70 COMMAND=test
+  - SKIP_MIGRATION=true CLIENT=saucelabs:safari:10 COMMAND=test
 
   # Split up the ie test suites (they are faily)
   - GREP=test.basics.js CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
@@ -117,6 +117,7 @@ matrix:
     - env: GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:MicrosoftEdge:14:Windows 10" COMMAND=test
     - env: GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
     - env: GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
+    - env: SKIP_MIGRATION=true CLIENT=saucelabs:safari:10 COMMAND=test
 
 
 branches:
