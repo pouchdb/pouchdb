@@ -276,13 +276,13 @@ function startTest() {
                         console.log('An error occurred while bailing:');
                         console.log(e);
                       }
-
-                      clearInterval(interval);
-
-                      closeClient(function () {
-                        process.exit(!process.env.PERF && runner.failed ? 1 : 0);
-                      });
                     }
+
+                    clearInterval(interval);
+
+                    closeClient(function () {
+                      process.exit(!process.env.PERF && runner.failed ? 1 : 0);
+                    });
                   }
                 }
             });
