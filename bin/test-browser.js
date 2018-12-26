@@ -254,23 +254,29 @@ function startTest() {
           /* jshint evil: true */
           var interval = setInterval(function () {
             sauceClient.eval('window.testEvents()', function (err, events) {
-              if (err) {
-                clearInterval(interval);
-                testError(err);
-              } else if (events) {
-                runner.handleEvents(events);
-
-                if (runner.completed || (runner.failed && bail)) {
-                  if (!runner.completed && runner.failed) {
-                    runner.bail();
-                  }
-
+              try {
+                if (err) {
                   clearInterval(interval);
+                  testError(err);
+                } else if (events) {
+                  runner.handleEvents(events);
 
-                  closeClient(function () {
-                    process.exit(!process.env.PERF && runner.failed ? 1 : 0);
-                  });
+                  if (runner.completed || (runner.failed && bail)) {
+                    if (!runner.completed && runner.failed) {
+                      runner.bail();
+
+                      clearInterval(interval);
+
+                      closeClient(function () {
+                        process.exit(!process.env.PERF && runner.failed ? 1 : 0);
+                      });
+                    }
+                  }
                 }
+              } catch (e) {
+                // Temporary debugging of bailing failure
+                console.log('An error occurred while processing test events:');
+                console.log(e);
               }
             });
           }, 10 * 1000);
