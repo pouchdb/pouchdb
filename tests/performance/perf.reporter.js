@@ -4,8 +4,18 @@ var UAParser = require('ua-parser-js');
 var ua = !isNode && new UAParser(navigator.userAgent);
 var marky = require('marky');
 var median = require('median');
-global.results = {
+
+var results = {
   tests: {}
+};
+
+// Capture test events for selenium output
+var testEventsBuffer = [];
+
+global.testEvents = function () {
+  var events = testEventsBuffer;
+  testEventsBuffer = [];
+  return events;
 };
 
 // fix for Firefox max timing entries capped to 150:
@@ -29,24 +39,31 @@ exports.log = log;
 
 exports.startSuite = function (suiteName) {
   log('Starting suite: ' + suiteName + '\n\n');
+  testEventsBuffer.push({ name: 'suite', obj: { title: suiteName } });
+};
+
+exports.endSuite = function (suiteName) {
+  testEventsBuffer.push({ name: 'suite end', obj: { title: suiteName } });
 };
 
 exports.start = function (testCase, iter) {
   var key = testCase.name;
   log('Starting test: ' + key + ' with ' + testCase.assertions +
     ' assertions and ' + iter + ' iterations... ');
-  global.results.tests[key] = {
+  results.tests[key] = {
     iterations: []
   };
 };
 
 exports.end = function (testCase) {
   var key = testCase.name;
-  var obj = global.results.tests[key];
+  var obj = results.tests[key];
   obj.median = median(obj.iterations);
   obj.numIterations = obj.iterations.length;
   delete obj.iterations; // keep it simple when reporting
   log('median: ' + obj.median + ' ms\n');
+  testEventsBuffer.push({ name: 'pass', obj: { title: testCase.name } });
+  testEventsBuffer.push({ name: 'benchmark:result', obj });
 };
 
 exports.startIteration = function (testCase) {
@@ -55,17 +72,21 @@ exports.startIteration = function (testCase) {
 
 exports.endIteration = function (testCase) {
   var entry = marky.stop(testCase.name);
-  global.results.tests[testCase.name].iterations.push(entry.duration);
+  results.tests[testCase.name].iterations.push(entry.duration);
+};
+
+exports.startAll = function () {
+  testEventsBuffer.push({ name: 'start' });
 };
 
 exports.complete = function (adapter) {
-  global.results.completed = true;
+  results.completed = true;
   if (isNode) {
-    global.results.client = {
+    results.client = {
       node: process.version
     };
   } else {
-    global.results.client = {
+    results.client = {
       browser: ua.getBrowser(),
       device: ua.getDevice(),
       engine: ua.getEngine(),
@@ -74,8 +95,9 @@ exports.complete = function (adapter) {
       userAgent: navigator.userAgent
     };
   }
-  global.results.adapter = adapter;
-  console.log('=>', JSON.stringify(global.results, null, '  '), '<=');
+  results.adapter = adapter;
+  console.log('=>', JSON.stringify(results, null, '  '), '<=');
   log('\nTests Complete!\n\n');
+  testEventsBuffer.push({ name: 'end', obj: results });
 };
 

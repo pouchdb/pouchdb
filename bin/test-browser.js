@@ -7,7 +7,8 @@ wd.configureHttp({timeout: 180000}); // 3 minutes
 var sauceConnectLauncher = require('sauce-connect-launcher');
 var selenium = require('selenium-standalone');
 var querystring = require("querystring");
-var request = require('request').defaults({json: true});
+
+var MochaSpecReporter = require('mocha').reporters.Spec;
 
 var devserver = require('./dev-server.js');
 
@@ -47,7 +48,7 @@ if (process.env.PERF) {
   testUrl = testRoot + 'integration/index.html';
 }
 
-var qs = {};
+var qs = { remote: 1 };
 
 var sauceClient;
 var sauceConnectProcess;
@@ -99,47 +100,9 @@ testUrl += querystring.stringify(qs);
 function testError(e) {
   console.error(e);
   console.error('Doh, tests failed');
-  sauceClient.quit();
-  process.exit(3);
-}
 
-function postResult(result) {
-  if (process.env.PERF && process.env.DASHBOARD_HOST) {
-    result.branch = process.env.TRAVIS_BRANCH || process.env.BRANCH || false;
-    result.commit = process.env.TRAVIS_COMMIT || process.env.COMMIT || false;
-    result.pull_request = process.env.TRAVIS_PULL_REQUEST;
-    var commits = 'https://api.github.com/repos/pouchdb/pouchdb/git/commits/';
-    request({
-      method: 'GET',
-      uri: commits + result.commit,
-      headers: {'User-Agent': 'request'}
-    }, function (error, response, body) {
-      result._id = result.date = body.committer.date;
-      request({
-        method: 'POST',
-        uri: process.env.DASHBOARD_HOST + '/performance_results',
-        json: result
-      }, function (error) {
-        console.log(result);
-        process.exit(!!error);
-      });
-    });
-    return;
-  }
-  process.exit(!process.env.PERF && result.failed ? 1 : 0);
-}
-
-function testComplete(result) {
-  console.log('=>', JSON.stringify(result, null, '  '), '<=');
-
-  sauceClient.quit().then(function () {
-    if (sauceConnectProcess) {
-      sauceConnectProcess.close(function () {
-        postResult(result);
-      });
-    } else {
-      postResult(result);
-    }
+  closeClient(function () {
+    process.exit(3);
   });
 }
 
@@ -166,15 +129,91 @@ function startSauceConnect(callback) {
     tunnelIdentifier: tunnelId
   };
 
-  sauceConnectLauncher(options, function (err, process) {
+  sauceConnectLauncher(options, function (err, sauceProcess) {
     if (err) {
       console.error('Failed to connect to saucelabs');
       console.error(err);
       return process.exit(1);
     }
-    sauceConnectProcess = process;
+    sauceConnectProcess = sauceProcess;
     sauceClient = wd.promiseChainRemote("localhost", 4445, username, accessKey);
     callback();
+  });
+}
+
+function closeClient(callback) {
+  sauceClient.quit().then(function () {
+    if (sauceConnectProcess) {
+      sauceConnectProcess.close(function () {
+        callback();
+      });
+    } else {
+      callback();
+    }
+  });
+}
+
+function RemoteRunner() {
+  this.handlers = {};
+  this.completed = false;
+  this.failed = false;
+}
+
+RemoteRunner.prototype.on = function (name, handler) {
+  var handlers = this.handlers;
+
+  if (!handlers[name]) {
+    handlers[name] = [];
+  }
+  handlers[name].push(handler);
+};
+
+RemoteRunner.prototype.handleEvents = function (events) {
+  var self = this;
+  var handlers = this.handlers;
+
+  events.forEach(function (event) {
+    self.completed = self.completed || event.name === 'end';
+    self.failed = self.failed || event.name === 'fail';
+
+    var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
+      slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
+      fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
+    };
+    var obj = Object.assign({}, event.obj, additionalProps);
+
+    handlers[event.name].forEach(function (handler) {
+      handler(obj, event.err);
+    });
+
+    if (event.logs && event.logs.length > 0) {
+      event.logs.forEach(function (line) {
+        if (line.type === 'log') {
+          console.log(line.content);
+        } else if (line.type === 'error') {
+          console.error(line.content);
+        } else {
+          console.error('Invalid log line', line);
+        }
+      });
+      console.log();
+    }
+  });
+};
+
+RemoteRunner.prototype.bail = function () {
+  var handlers = this.handlers;
+
+  handlers['end'].forEach(function (handler) {
+    handler();
+  });
+
+  this.completed = true;
+};
+
+function BenchmarkReporter(runner) {
+  runner.on('benchmark:result', function (obj) {
+    console.log('      ', obj);
   });
 }
 
@@ -203,26 +242,54 @@ function startTest() {
     opts.firefox_binary = FIREFOX_BIN;
   }
 
+  var runner = new RemoteRunner();
+  new MochaSpecReporter(runner);
+  new BenchmarkReporter(runner);
+
   sauceClient.init(opts, function () {
     console.log('Initialized');
 
     sauceClient.get(testUrl, function () {
       console.log('Successfully started');
 
-      /* jshint evil: true */
-      var interval = setInterval(function () {
-        sauceClient.eval('window.results', function (err, results) {
-          if (err) {
-            clearInterval(interval);
-            testError(err);
-          } else if (results.completed || (results.failures.length && bail)) {
-            clearInterval(interval);
-            testComplete(results);
-          } else {
-            console.log(results);
-          }
-        });
-      }, 10 * 1000);
+      sauceClient.eval('navigator.userAgent', function (err, userAgent) {
+        if (err) {
+          testError(err);
+        } else {
+          console.log('Testing on:', userAgent);
+
+          /* jshint evil: true */
+          var interval = setInterval(function () {
+            sauceClient.eval('window.testEvents()', function (err, events) {
+                if (err) {
+                  clearInterval(interval);
+                  testError(err);
+                } else if (events) {
+                  runner.handleEvents(events);
+
+                  if (runner.completed || (runner.failed && bail)) {
+                    if (!runner.completed && runner.failed) {
+                      try {
+                        runner.bail();
+                      } catch (e) {
+                        // Temporary debugging of bailing failure
+                        console.log('An error occurred while bailing:');
+                        console.log(e);
+                      }
+                    }
+
+                    clearInterval(interval);
+
+                    closeClient(function () {
+                      process.exit(!process.env.PERF && runner.failed ? 1 : 0);
+                    });
+                  }
+                }
+            });
+          }, 10 * 1000);
+
+        }
+      });
     });
   });
 }

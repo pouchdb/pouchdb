@@ -100,6 +100,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts, callback) {
         }).then(function () {
           t.end();
           if (i === testCases.length - 1) {
+            reporter.endSuite(suiteName);
             callback(adapterUsed);
           }
         });
