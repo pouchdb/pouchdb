@@ -188,10 +188,10 @@ RemoteRunner.prototype.handleEvents = function (events) {
 
     if (event.logs && event.logs.length > 0) {
       event.logs.forEach(function (line) {
-        if (line[0] === 'log') {
-          console.log.apply(null, line.slice(1));
-        } else if (line[0] === 'error') {
-          console.error.apply(null, line.slice(1));
+        if (line.type === 'log') {
+          console.log(line.content);
+        } else if (line.type === 'error') {
+          console.error(line.content);
         } else {
           console.error('Invalid log line', line);
         }

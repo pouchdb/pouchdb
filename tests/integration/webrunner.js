@@ -103,21 +103,31 @@
 
         (function () {
 
-          var oldLog = console.log;
-          console.log = function () {
-            var args = Array.prototype.slice.call(arguments);
-            args.unshift('log');
-            logs.push(args);
-            oldLog.apply(console, arguments);
-          };
+          function serializeLogItem(obj, filter, space) {
+            if (typeof obj === 'string') {
+              return obj;
+            } else if (obj instanceof Error) {
+              return obj.stack;
+            } else {
+              return JSON.stringify(obj, filter, space);
+            }
+          }
 
-          var oldError = console.error;
-          console.error = function () {
-            var args = Array.prototype.slice.call(arguments);
-            args.unshift('error');
-            logs.push(args);
-            oldError.apply(console, arguments);
-          };
+          function wrappedLog(oldLog, type) {
+            return function () {
+              var args = Array.prototype.slice.call(arguments);
+              logs.push({
+                type: type,
+                content: args.map(function (arg) {
+                  return serializeLogItem(arg);
+                }).join(' ')
+              });
+              oldLog.apply(console, arguments);
+            };
+          }
+
+          console.log = wrappedLog(console.log, 'log');
+          console.error = wrappedLog(console.error, 'error');
 
         })();
 
@@ -151,7 +161,7 @@
                   stack: err.stack,
                   uncaught: err.uncaught
                 },
-                logs: JSON.parse(JSON.stringify(logs))
+                logs: JSON.parse(stringifyWithErrors(logs))
               });
               logs = [];
             });
