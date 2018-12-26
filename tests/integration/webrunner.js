@@ -161,7 +161,7 @@
                   stack: err.stack,
                   uncaught: err.uncaught
                 },
-                logs: JSON.parse(stringifyWithErrors(logs))
+                logs: logs
               });
               logs = [];
             });

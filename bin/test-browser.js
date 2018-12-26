@@ -176,7 +176,7 @@ RemoteRunner.prototype.handleEvents = function (events) {
     self.completed = self.completed || event.name === 'end';
     self.failed = self.failed || event.name === 'fail';
 
-    var additionalProps = event.name !== 'pass' ? {} : {
+    var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
       slow: event.obj.slow ? function () { return event.obj.slow; } : undefined,
       fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
     };
