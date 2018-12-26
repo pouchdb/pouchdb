@@ -187,8 +187,15 @@ RemoteRunner.prototype.handleEvents = function (events) {
     });
 
     if (event.logs && event.logs.length > 0) {
-      console.log('\nconsole.log:');
-      console.log(event.logs.map(function (line) { return '> ' + line.slice(1).join(' '); }).join('\n'));
+      event.logs.forEach(function (line) {
+        if (line[0] === 'log') {
+          console.log.apply(null, line.slice(1));
+        } else if (line[0] === 'error') {
+          console.error.apply(null, line.slice(1));
+        } else {
+          console.error('Invalid log line', line);
+        }
+      });
       console.log();
     }
   });
@@ -254,7 +261,6 @@ function startTest() {
           /* jshint evil: true */
           var interval = setInterval(function () {
             sauceClient.eval('window.testEvents()', function (err, events) {
-              try {
                 if (err) {
                   clearInterval(interval);
                   testError(err);
@@ -263,7 +269,13 @@ function startTest() {
 
                   if (runner.completed || (runner.failed && bail)) {
                     if (!runner.completed && runner.failed) {
-                      runner.bail();
+                      try {
+                        runner.bail();
+                      } catch (e) {
+                        // Temporary debugging of bailing failure
+                        console.log('An error occurred while bailing:');
+                        console.log(e);
+                      }
 
                       clearInterval(interval);
 
@@ -273,11 +285,6 @@ function startTest() {
                     }
                   }
                 }
-              } catch (e) {
-                // Temporary debugging of bailing failure
-                console.log('An error occurred while processing test events:');
-                console.log(e);
-              }
             });
           }, 10 * 1000);
 
