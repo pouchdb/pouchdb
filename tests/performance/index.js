@@ -13,6 +13,7 @@ function runTestSuites(PouchDB) {
 
   function runTestsNow() {
     var reporter = require('./perf.reporter');
+    reporter.startAll();
     reporter.log('Testing PouchDB version ' + PouchDB.version +
       (opts.adapter ?
         (', using adapter: ' + opts.adapter) : '') +
