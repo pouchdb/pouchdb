@@ -34,7 +34,7 @@ All options default to `false` unless otherwise specified.
 
 **Advanced Options:**
 
-* `options.return_docs`: Defaults to `true` except when `opts.live = true` then it defaults to `false`. Passing `false` prevents the changes feed from keeping all the documents in memory &ndash; in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
+* `options.return_docs`: Defaults to `true` except when `options.live = true` then it defaults to `false`. Passing `false` prevents the changes feed from keeping all the documents in memory &ndash; in other words complete always has an empty results array, and the `change` event is the only way to get the event. Useful for large change sets where otherwise you would run out of memory.
 * `options.batch_size`: Only available for http databases, this configures how many changes to fetch at a time. Increasing this can reduce the number of requests made. Default is 25.
 * `options.style`: Specifies how many revisions are returned in the changes array. The default, `'main_only'`, will only return the current "winning" revision; `'all_docs'` will return all leaf revisions (including conflicts and deleted former conflicts). Most likely you won't need this unless you're writing a replicator.
 * `options.seq_interval`: Only available for http databases. Specifies that seq information only be generated every N changes. Larger values can improve changes throughput with CouchDB 2.0 and later. Note that `last_seq` is always populated regardless.
