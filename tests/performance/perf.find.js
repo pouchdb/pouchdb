@@ -41,7 +41,7 @@ module.exports = function (PouchDB, opts, callback) {
     {
       name: 'simple-find-query',
       assertions: 1,
-      iterations: 10,
+      iterations: 5,
       setup: function (db, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
@@ -65,7 +65,7 @@ module.exports = function (PouchDB, opts, callback) {
     {
       name: 'simple-find-query-no-index',
       assertions: 1,
-      iterations: 10,
+      iterations: 5,
       setup: function (db, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
@@ -83,7 +83,7 @@ module.exports = function (PouchDB, opts, callback) {
     {
       name: 'complex-find-query',
       assertions: 1,
-      iterations: 10,
+      iterations: 5,
       setup: function (db, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
@@ -112,7 +112,7 @@ module.exports = function (PouchDB, opts, callback) {
     {
       name: 'complex-find-query-no-index',
       assertions: 1,
-      iterations: 10,
+      iterations: 5,
       setup: function (db, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
@@ -135,7 +135,7 @@ module.exports = function (PouchDB, opts, callback) {
     {
       name: 'multi-field-query',
       assertions: 1,
-      iterations: 10,
+      iterations: 5,
       setup: function (db, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
