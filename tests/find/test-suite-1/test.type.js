@@ -22,7 +22,6 @@ testCases.push(function (dbType, context) {
       var db = context.db;
       return db.find({
         selector: {
-          _id: {$gt: null},
           'foo': {$type: 'null'}
         },
         fields: ['_id']
@@ -36,7 +35,6 @@ testCases.push(function (dbType, context) {
       var db = context.db;
       return db.find({
         selector: {
-          _id: {$gt: null},
           'foo': {$type: 'boolean'}
         },
         fields: ['_id']
@@ -51,7 +49,6 @@ testCases.push(function (dbType, context) {
       var db = context.db;
       return db.find({
         selector: {
-          _id: {$gt: null},
           'foo': {$type: 'number'}
         },
         fields: ['_id']
@@ -65,7 +62,6 @@ testCases.push(function (dbType, context) {
       var db = context.db;
       return db.find({
         selector: {
-          _id: {$gt: null},
           'foo': {$type: 'string'}
         },
         fields: ['_id']
@@ -79,7 +75,6 @@ testCases.push(function (dbType, context) {
       var db = context.db;
       return db.find({
         selector: {
-          _id: {$gt: null},
           'foo': {$type: 'array'}
         },
         fields: ['_id']
@@ -93,7 +88,6 @@ testCases.push(function (dbType, context) {
       var db = context.db;
       return db.find({
         selector: {
-          _id: {$gt: null},
           'foo': {$type: 'object'}
         },
         fields: ['_id']
@@ -107,7 +101,6 @@ testCases.push(function (dbType, context) {
       var db = context.db;
       return db.find({
         selector: {
-          _id: {$gt: null},
           'foo': {$type: 'made-up'}
         },
         fields: ['_id']

@@ -15,6 +15,10 @@ beforeEach(function (done) {
 afterEach(function (done) {
   testUtils.removeUnhandledRejectionListener(currentListener);
   if (currentError) {
+    if (currentError instanceof PromiseRejectionEvent) {
+      currentError = currentError.reason;
+    }
+
     console.error(currentError);
   }
   done(currentError);

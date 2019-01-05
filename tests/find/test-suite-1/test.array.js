@@ -50,7 +50,7 @@ testCases.push(function (dbType, context) {
           resp.index.name.should.deep.equal('_all_docs');
         });
       });
-      
+
       it('should use name index', function () {
         var db = context.db;
         var selector = {
