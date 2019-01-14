@@ -36,7 +36,7 @@ One thing you will notice about the changes feed is that it actually omits non-l
 
 This is by design &ndash; the changes feed only tells us about leaf revisions. However, the order of those leaf revisions is determined by the order they were put in the database. So you may notice that `'firstDoc'` still appears before `'secondDoc'`, which appears before `'thirdDoc'`.
 
-Also notice the the option `{include_docs: true}`. By default, the documents themselves are not included in the changes feed; only the `id`s, `rev`s, and whether or not they were `deleted`. With `{include_docs: true}`, however, each non-deleted change will have a `doc` property containing the new or modified document.
+Also notice the option `{include_docs: true}`. By default, the documents themselves are not included in the changes feed; only the `id`s, `rev`s, and whether or not they were `deleted`. With `{include_docs: true}`, however, each non-deleted change will have a `doc` property containing the new or modified document.
 
 {% include anchor.html title="Changes pagination" hash="changes-pagination" %}
 
