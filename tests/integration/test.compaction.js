@@ -515,7 +515,11 @@ adapters.forEach(function (adapter) {
     // of pouch-adapter-(idb|websql|leveldb), skip the tests if
     // HTTP or if using new adapters (NEXT=1).
 
-
+    // TODO BEFORE MERGING: Do we still need to block this off for the indexeddb
+    // adapter?
+    // Note that we're no longer invoking that adapter by passing NEXT=1, so
+    // this code isn't firing. If these tests work with indexeddb builds on travis
+    // we can drop this.
     if (autoCompactionAdapters.indexOf(adapter) === -1 ||
         'NEXT' in testUtils.params()) {
       return;

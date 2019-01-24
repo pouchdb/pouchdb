@@ -5,13 +5,9 @@
   // eg: test.html?pluginFile=memory.pouchdb.js
   var plugins = window.location.search.match(/[?&]plugins=([^&]+)/);
   var adapters = window.location.search.match(/[?&]adapters=([^&]+)/);
-  var next = window.location.search.match(/[?&]NEXT=([^&]+)/);
-  next = next && next[1] === '1';
   var pouchdbSrc = window.location.search.match(/[?&]src=([^&]+)/);
   if (pouchdbSrc) {
     pouchdbSrc = decodeURIComponent(pouchdbSrc[1]);
-  } else if (next) {
-    pouchdbSrc = '../../packages/node_modules/pouchdb/dist/pouchdb-next.js';
   } else {
     pouchdbSrc = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
   }
