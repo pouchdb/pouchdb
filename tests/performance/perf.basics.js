@@ -58,22 +58,38 @@ module.exports = function (PouchDB, opts, callback) {
       }
     },
     {
-      name: 'bulk-inserts-deep-docs',
+      name: 'bulk-inserts-massive-docs',
       assertions: 1,
-      iterations: 100,
+      iterations: 10,
       setup: function (db, callback) {
         var docs = [];
 
-        for (var d = 0; d < 100; d++) {
-          var doc = {};
-          for (var i = 0; i < 50; i++) {
-            var inner = {};
-            for (var j = 0; j < 100; j++) {
-              inner["sovery"+j] = j + "cool";
+        // Depth is an important factor here. Depth makes any kind of recursive
+        // algorithm (eg cloning) very slow.
+        // We're also adding in something that IndexedDB needs to rewrite (slowing things down more)
+        // Other implementations are welcome to put things here that cause write slowness
+        var innerDoc = function(count) {
+          var inner = {};
+
+          if (count > 6) {
+            for (var i = 0; i < 10; i++) {
+              if (i === 3) {
+                // 1/10 branches will cause indexeddb to rewrite a value
+                inner["sovery"+i] = false;
+              }
+              inner["sovery"+i] = i + "cool";
             }
-            doc['hello' + i] = inner;
+          } else {
+            for (var i = 0; i < 4; i++) {
+              inner["sovery"+i] = innerDoc(count + 1)
+            }
           }
-          docs.push(doc);
+
+          return inner;
+        }
+
+        for (var d = 0; d < 50; d++) {
+          docs.push(innerDoc(1));
         }
 
         callback(null, {docs : docs});
