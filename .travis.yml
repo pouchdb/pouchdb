@@ -5,6 +5,7 @@ node_js:
 
 services:
   - docker
+  - xvfb
 
 git:
   depth: 30
@@ -22,10 +23,9 @@ before_install:
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  # The next three lines are required for Firefox to run on Travis
-  - "sudo apt-get update && sudo apt-get install xvfb"
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
+  # The next two lines are required for Firefox to run on Travis
+  # - "export DISPLAY=:99.0"
+  # - "sh -e /etc/init.d/xvfb start"
   # Fail early so we dont run hours of saucelabs if we know there
   # is a lint failure
   - npm run eslint
