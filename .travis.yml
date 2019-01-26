@@ -5,6 +5,7 @@ node_js:
 
 services:
   - docker
+  - xvfb
 
 git:
   depth: 30
@@ -13,7 +14,6 @@ dist: xenial
 sudo: true
 
 addons:
-  firefox: latest-est
   jwt:
      secure: YlCp9qGHmnnATcScIQVyOt8eI9FxLhMGAz9iRTHh7r41ADjfGJUzyqkWoBLcCagiQWtqtUujukPAtRuOibbBp9SvmGp+IIdbwHVUDvSZNOvGxkQ1qczeGxJcnht+2YNoCwfzkHW4vFrNiGOULdjvbWAB4sAJ8N0AZPShURwXU1E=
 
