@@ -68,7 +68,7 @@ module.exports = function (PouchDB, opts, callback) {
         // algorithm (eg cloning) very slow.
         // We're also adding in something that IndexedDB needs to rewrite (slowing things down more)
         // Other implementations are welcome to put things here that cause write slowness
-        var innerDoc = function(count) {
+        var innerDoc = function (count) {
           var inner = {};
 
           if (count > 6) {
@@ -80,13 +80,13 @@ module.exports = function (PouchDB, opts, callback) {
               inner["sovery"+i] = i + "cool";
             }
           } else {
-            for (var i = 0; i < 4; i++) {
-              inner["sovery"+i] = innerDoc(count + 1)
+            for (var ii = 0; ii < 4; ii++) {
+              inner["sovery"+ii] = innerDoc(count + 1);
             }
           }
 
           return inner;
-        }
+        };
 
         for (var d = 0; d < 50; d++) {
           docs.push(innerDoc(1));
