@@ -22,9 +22,6 @@ before_install:
   - "if [ -z \"$COUCH_HOST\" ]; then export COUCH_HOST=http://127.0.0.1:3000; fi"
 
 before_script:
-  # The next two lines are required for Firefox to run on Travis
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
   # Fail early so we dont run hours of saucelabs if we know there
   # is a lint failure
   - npm run eslint
@@ -118,6 +115,11 @@ matrix:
     - env: GREP=suite2 SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
     - env: GREP=suite2 INVERT=true SKIP_MIGRATION=true CLIENT="saucelabs:internet explorer:11:Windows 10" COMMAND=test
     - env: SKIP_MIGRATION=true CLIENT=saucelabs:safari:10 COMMAND=test
+    # xvfb started failing, removing it broke chrome tests
+    # https://github.com/pouchdb/pouchdb/issues/7625
+    - env: CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
+    - env: TYPE=mapreduce CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
+    - env: TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser SERVER=pouchdb-server COMMAND=test
 
 
 branches:
