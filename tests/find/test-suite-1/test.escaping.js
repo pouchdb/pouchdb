@@ -142,20 +142,20 @@ testCases.push(function (dbType, context) {
         "name": "foo-index",
         "type": "json"
       };
-      var foo = {
-        bar: {
-          '0foobar': 'a'
-        },
-        "0baz": false,
-        just: {
-          normal: "stuff"
+      var doc = {
+        _id: 'doc',
+        foo: {
+          bar: {
+            '0foobar': 'a'
+          },
+          "0baz": false,
+          just: {
+            normal: "stuff"
+          }
         }
       };
-      return db.bulkDocs([{
-        _id: 'doc',
-        foo: foo
-      }
-      ]).then(function () {
+      return db.bulkDocs([doc])
+      .then(function () {
         return db.createIndex(index);
       }).then(function () {
         return db.find({
@@ -163,7 +163,7 @@ testCases.push(function (dbType, context) {
           fields: ['_id', 'foo']
         });
       }).then(function (res) {
-        res.docs.should.deep.equal([foo]);
+        res.docs.should.deep.equal([doc]);
       });
     });
 
