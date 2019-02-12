@@ -11,7 +11,7 @@ Retrieves a document, specified by `docId`.
 
 All options default to `false` unless otherwise specified.
 
-* `options.rev`: Fetch specific revision of a document. Defaults to winning revision (see [the CouchDB guide](http://guide.couchdb.org/draft/conflicts.html)).
+* `options._rev`: Fetch specific revision of a document. Defaults to winning revision (see [the CouchDB guide](http://guide.couchdb.org/draft/conflicts.html)).
 * `options.revs`: Include revision history of the document.
 * `options.revs_info`: Include a list of revisions of the document, and their availability.
 * `options.open_revs`: Fetch all leaf revisions if `open_revs="all"` or fetch all leaf revisions specified in `open_revs` array. Leaves will be returned in the same order as specified in input array.
