@@ -32,7 +32,8 @@
     "build-perf": "browserify tests/performance/index.js > tests/performance-bundle.js",
     "set-version": "node bin/set-version.js",
     "verify-build": "sh bin/verify-build.sh",
-    "test-webpack": "bash bin/test-webpack.sh"
+    "test-webpack": "bash bin/test-webpack.sh",
+    "type-lint": "tsc --pretty"
   },
   "dependencies": {
     "argsarray": "0.0.1",
@@ -63,7 +64,10 @@
     "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.3.3",
+    "@babel/plugin-proposal-class-properties": "^7.3.3",
     "argsarray": "0.0.1",
+    "babel-eslint": "^10.0.1",
     "body-parser": "1.18.3",
     "browserify": "16.2.0",
     "browserify-incremental": "3.1.1",
@@ -77,7 +81,8 @@
     "denodeify": "1.2.1",
     "derequire": "2.0.6",
     "es3ify": "0.2.2",
-    "eslint": "5.13.0",
+    "eslint": "^5.13.0",
+    "eslint-plugin-babel": "^5.3.0",
     "express": "4.15.2",
     "express-pouchdb": "4.0.1",
     "find-requires": "0.2.4",
@@ -101,6 +106,7 @@
     "replace": "0.3.0",
     "rimraf": "2.6.3",
     "rollup": "0.67.4",
+    "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-inject": "2.1.0",
     "rollup-plugin-node-resolve": "3.3.0",
     "rollup-plugin-replace": "1.2.1",
@@ -110,6 +116,7 @@
     "stream-to-promise": "1.1.1",
     "tape": "4.9.2",
     "throw-max-listeners-error": "1.0.1",
+    "typescript": "^3.3.3",
     "ua-parser-js": "0.7.18",
     "uglify-js": "3.4.7",
     "watch-glob": "0.1.3",

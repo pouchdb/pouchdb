@@ -10,6 +10,7 @@ coverage
 bower_components
 .idea/
 .vscode/
+package-lock.json
 tests/integration/cordova/www
 tests/pouchdb_server
 tests/performance-bundle.js

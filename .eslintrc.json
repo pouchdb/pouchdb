@@ -2,10 +2,15 @@
 
   "extends": "eslint:recommended",
 
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module"
   },
+
+  "plugins": [
+    "babel"
+  ],
 
   "env": {
     "browser": true,
@@ -41,6 +46,8 @@
     "max-len": ["error", 100, {"ignoreComments": true, "ignoreStrings": true, "ignoreRegExpLiterals": true}],
     "curly": ["error"],
     "keyword-spacing": ["error"],
-    "space-before-blocks": ["error"]
+    "space-before-blocks": ["error"],
+    "babel/semi": 1,
+    "babel/no-invalid-this": 0
   }
 }
