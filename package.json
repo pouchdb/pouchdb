@@ -67,6 +67,8 @@
     "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.3.3",
+    "@babel/plugin-proposal-class-properties": "^7.3.3",
     "argsarray": "0.0.1",
     "body-parser": "1.18.3",
     "browserify": "16.2.0",
@@ -106,6 +108,7 @@
     "replace": "0.3.0",
     "rimraf": "2.6.3",
     "rollup": "0.67.4",
+    "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-inject": "2.1.0",
     "rollup-plugin-node-resolve": "3.3.0",
     "rollup-plugin-replace": "1.2.1",
