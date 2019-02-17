@@ -32,7 +32,11 @@
     "build-perf": "browserify tests/performance/index.js > tests/performance-bundle.js",
     "set-version": "node bin/set-version.js",
     "verify-build": "sh bin/verify-build.sh",
-    "test-webpack": "bash bin/test-webpack.sh"
+    "test-webpack": "bash bin/test-webpack.sh",
+    "SCRIPTS:TYPESCRIPT": " ----------------------------------------------------------------------------------",
+    "type-lint": "tsc --pretty",
+    "special-lint": "node tooling/inherit-types && node tooling/format-schemas && node tooling/compile-to-definitions",
+    "special-lint-fix": "node tooling/inherit-types --write --override && node tooling/format-schemas --write && node tooling/compile-to-definitions --write"
   },
   "dependencies": {
     "argsarray": "0.0.1",
@@ -86,6 +90,7 @@
     "istanbul": "0.4.5",
     "istanbul-coveralls": "1.0.3",
     "js-extend": "1.0.1",
+    "json-schema-to-typescript": "^6.1.1",
     "less": "3.9.0",
     "lodash.debounce": "4.0.8",
     "lodash.flatten": "4.4.0",
@@ -110,6 +115,7 @@
     "stream-to-promise": "1.1.1",
     "tape": "4.9.2",
     "throw-max-listeners-error": "1.0.1",
+    "typescript": "^3.3.3",
     "ua-parser-js": "0.7.18",
     "uglify-js": "3.4.7",
     "watch-glob": "0.1.3",
