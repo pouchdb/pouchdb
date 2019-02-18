@@ -10,7 +10,7 @@ This method will update an existing document to add the attachment, so it requir
 
 What's the point of attachments? If you're dealing with large binary data (such as PNGs), you may incur a performance or storage penalty if you naïvely include them as base64- or hex-encoded strings inside your documents. But if you insert the binary data as an attachment, then PouchDB will attempt to store it in [the most efficient way possible](http://pouchdb.com/faq.html#data_types).
 
-For details, see the [CouchDB documentation on attachments](https://wiki.apache.org/couchdb/HTTP_Document_API#Attachments).
+For details, see the [CouchDB documentation on attachments](https://docs.couchdb.org/en/stable/api/document/attachments.html#put--db-docid-attname).
 
 #### Example Usage:
 
@@ -343,7 +343,7 @@ db.put(doc).then(function (result) {
 {% endhighlight %}
 {% include code/end.html %}
 
-See [Inline Attachments](http://wiki.apache.org/couchdb/HTTP_Document_API#Inline_Attachments)
+See [Inline Attachments](https://docs.couchdb.org/en/stable/api/document/common.html?highlight=inline%20attachment#creating-multiple-attachments)
 on the CouchDB wiki for details.
 
 
