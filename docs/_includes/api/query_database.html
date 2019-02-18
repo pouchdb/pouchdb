@@ -194,7 +194,7 @@ The result may also have `update_seq` if you set `update_seq` to `true`
 
 #### Complex keys
 
-You can also use [complex keys](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Complex_Keys) for fancy ordering:
+You can also use [complex keys](https://docs.couchdb.org/en/stable/ddocs/views/collation.html#complex-keys) for fancy ordering:
 
 {% include code/start.html id="query2" type="callback" %}
 {% highlight js %}
@@ -268,7 +268,7 @@ db.query(map).then(function (result) {
 
 #### Linked documents
 
-PouchDB fully supports [linked documents](https://wiki.apache.org/couchdb/Introduction_to_CouchDB_views#Linked_documents). Use them to join two types of documents together, by simply adding an `_id` to the emitted value:
+PouchDB fully supports [linked documents](https://docs.couchdb.org/en/stable/ddocs/views/joins.html?highlight=linked%20documents#linked-documents). Use them to join two types of documents together, by simply adding an `_id` to the emitted value:
 
 {% include code/start.html id="query3" type="callback" %}
 {% highlight js %}
