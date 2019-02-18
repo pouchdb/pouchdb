@@ -25,7 +25,7 @@ All options default to `false` unless otherwise specified.
     - The rows are returned in the same order as the supplied `keys` array.
     - The row for a deleted document will have the revision ID of the deletion, and an extra key `"deleted":true` in the `value` property.
     - The row for a nonexistent document will just contain an `"error"` property with the value `"not_found"`.
-    - For details, see the [CouchDB query options documentation](http://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options).
+    - For details, see the [CouchDB query options documentation](https://docs.couchdb.org/en/stable/api/ddoc/views.html#db-design-design-doc-view-view-name).
 * `options.update_seq`: Include an `update_seq` value indicating which sequence id of the underlying database the view reflects.
 
 **Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](http://docs.couchdb.org/en/latest/couchapp/views/pagination.html) instead.
