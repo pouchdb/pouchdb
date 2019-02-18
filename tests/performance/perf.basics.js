@@ -22,40 +22,6 @@ module.exports = function (PouchDB, opts, callback) {
       }
     },
     {
-      name: 'basic-inserts-large-docs',
-      assertions: 1,
-      iterations: 100,
-      setup: function (db, callback) {
-        var doc = {};
-        for (var i = 0; i < 100; i++) {
-          doc['hello' + i] = "hey" + i;
-        }
-        callback(null, {doc : doc});
-      },
-      test: function (db, itr, doc, done) {
-        db.post(doc, done);
-      }
-    },
-    {
-      name: 'basic-inserts-deep-docs',
-      assertions: 1,
-      iterations: 100,
-      setup: function (db, callback) {
-        var doc = {};
-        for (var i = 0; i < 50; i++) {
-          var inner = {};
-          for (var j = 0; j < 100; j++) {
-            inner["sovery"+j] = j + "cool";
-          }
-          doc['hello' + i] = inner;
-        }
-        callback(null, {doc : doc});
-      },
-      test: function (db, itr, doc, done) {
-        db.post(doc, done);
-      }
-    },
-    {
       name: 'bulk-inserts',
       assertions: 1,
       iterations: 100,
@@ -64,6 +30,68 @@ module.exports = function (PouchDB, opts, callback) {
         for (var i = 0; i < 100; i++) {
           docs.push({much : 'docs', very : 'bulk'});
         }
+        callback(null, {docs : docs});
+      },
+      test: function (db, itr, docs, done) {
+        db.bulkDocs(docs, done);
+      }
+    },
+    {
+      name: 'bulk-inserts-large-docs',
+      assertions: 1,
+      iterations: 100,
+      setup: function (db, callback) {
+        var docs = [];
+
+        for (var d = 0; d < 100; d++) {
+          var doc = {};
+          for (var i = 0; i < 100; i++) {
+            doc['hello' + i] = "hey" + i;
+          }
+          docs.push(doc);
+        }
+
+        callback(null, {docs : docs});
+      },
+      test: function (db, itr, docs, done) {
+        db.bulkDocs(docs, done);
+      }
+    },
+    {
+      name: 'bulk-inserts-massive-docs',
+      assertions: 1,
+      iterations: 10,
+      setup: function (db, callback) {
+        var docs = [];
+
+        // Depth is an important factor here. Depth makes any kind of recursive
+        // algorithm (eg cloning) very slow.
+        // We're also adding in something that IndexedDB needs to rewrite (slowing things down more)
+        // Other implementations are welcome to put things here that cause write slowness
+        var innerDoc = function (count) {
+          var inner = {};
+
+          if (count > 6) {
+            for (var i = 0; i < 10; i++) {
+              if (i === 3) {
+                // 1/10 branches will cause indexeddb to rewrite a value
+                inner["sovery"+i] = false;
+              }
+              inner["sovery"+i] = i + "cool";
+            }
+          } else {
+            for (var ii = 0; ii < 4; ii++) {
+              inner["sovery"+ii] = innerDoc(count + 1);
+            }
+          }
+
+          return inner;
+        };
+
+        for (var d = 0; d < 50; d++) {
+          docs.push(innerDoc(1));
+        }
+
         callback(null, {docs : docs});
       },
       test: function (db, itr, docs, done) {

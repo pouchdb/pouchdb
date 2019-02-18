@@ -131,4 +131,40 @@ testCases.push(function (dbType, context) {
     });
   });
 
+  it('deeper values can be escaped', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": [
+            "foo.bar.0foobar"
+          ]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      var doc = {
+        _id: 'doc',
+        foo: {
+          bar: {
+            '0foobar': 'a'
+          },
+          "0baz": false,
+          just: {
+            normal: "stuff"
+          }
+        }
+      };
+      return db.bulkDocs([doc])
+      .then(function () {
+        return db.createIndex(index);
+      }).then(function () {
+        return db.find({
+          selector: {'foo.bar.0foobar': 'a'},
+          fields: ['_id', 'foo']
+        });
+      }).then(function (res) {
+        res.docs.should.deep.equal([doc]);
+      });
+    });
+
 });
