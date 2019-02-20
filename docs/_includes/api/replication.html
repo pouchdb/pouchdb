@@ -149,7 +149,7 @@ Example response in the `'complete'` listener:
 
 Note that replication is supported for both local and remote databases. So you can replicate from local to local or from remote to remote.
 
-However, if you replicate from remote to remote, then the changes will flow through PouchDB. If you want to trigger a server-initiated replication, please use regular ajax to POST to the CouchDB `_replicate` endpoint, as described [in the CouchDB docs](https://wiki.apache.org/couchdb/Replication).
+However, if you replicate from remote to remote, then the changes will flow through PouchDB. If you want to trigger a server-initiated replication, please use regular ajax to POST to the CouchDB `_replicate` endpoint, as described [in the CouchDB docs](https://docs.couchdb.org/en/stable/api/server/common.html#api-server-replicate).
 
 #### Filtered replication
 
