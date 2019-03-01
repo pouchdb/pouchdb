@@ -57,7 +57,7 @@
     "readable-stream": "1.0.33",
     "request": "2.87.0",
     "spark-md5": "3.0.0",
-    "through2": "2.0.3",
+    "through2": "3.0.1",
     "uuid": "3.2.1",
     "vuvuzela": "1.0.3",
     "whatwg-fetch": "2.0.3"
