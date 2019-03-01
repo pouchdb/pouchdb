@@ -120,7 +120,7 @@ matrix:
     - env: CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
     - env: TYPE=mapreduce CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
     - env: TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:chrome CHROME_BIN=/usr/bin/chromium-browser SERVER=pouchdb-server COMMAND=test
-
+    - env: CLIENT="saucelabs:Android:6.0:Linux" COMMAND=test
 
 branches:
   only:
