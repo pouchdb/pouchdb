@@ -279,3 +279,36 @@ If you are using Couchbase Lite to sync with PouchDB then you cannot use capital
 
 When using PouchDB in a WebExtension (at least in Chromium 55 and Firefox 50), but apparently only if the `manifest.json` contains the `store` permission, a [live changes feed](https://pouchdb.com/guides/changes.html#live-changes-feed) in one tab or background process may not detect changes made in another tab/process. It will of course still report those changes upon the next change that it does detect.
 Minimal code to reproduce this can be found [here](https://gist.github.com/Treora/150dca4b57b1b881bd049303e82c5ced).
+
+{% include anchor.html class="h3" title="PouchDB install errors on Windows" hash="pouchdb_install_errors_windows" %}
+
+Sometimes `npm install pouchdb` fails on windows, when no prebuilt binary is available. The error looks similar to this:
+
+```sh
+C:\XXX\node_modules\project_name>if not defined npm_config_node_gyp (node "C:\XXX\node_modules\npm\bin\node-gyp-bin\....\node_modules\node-gyp\bin\node-gyp.js" rebuild ) else (node "" rebuild )
+gyp ERR! configure error
+gyp ERR! stack Error: Can't find Python executable "python", you can set the PYTHON env variable.
+gyp ERR! stack at PythonFinder.failNoPython (C:\XXX\nodejs\node_modules\npm\node_modules\node-gyp\lib\configure.js:483:19)
+```
+
+or something like this
+
+```sh
+gyp ERR! configure error
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! leveldown@3.0.0 install: `prebuild-install || node-gyp rebuild`
+npm ERR! Exit status 1
+npm ERR!
+npm ERR! Failed at the leveldown@3.0.0 install script.
+```
+
+If you are on windows and getting any error messages mentioning **leveldown** and **Python**, please attempt the steps below.
+
+Node-Gyp requires Python 2.7, it does not work with Python 3.x unfortunately.
+
+Here are a few steps you can take:
+
+1. try `npm install --global --production windows-build-tools` (this command needs to be ran with admin privileges)
+2. read other [pointers to using node-gyp on Windows here](https://github.com/nodejs/node-gyp#on-windows)
+3. If you are only using PouchDB in the browser, you can install [pouchdb-browser](https://www.npmjs.com/package/pouchdb-browser) instead: `npm install --save pouchdb-browser`
