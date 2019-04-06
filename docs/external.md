@@ -251,7 +251,7 @@ Redux middleware to sync a PouchDB database with the Redux state.
 
 ### Vue.js
 
-#### [vue-pouch](https://github.com/qurateinc/vue-pouch)
+#### [pouch-vue](https://github.com/MDSLKTR/pouch-vue)
 
 Syncs PouchDB data with Vue.js components using Mango Selectors
 
