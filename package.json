@@ -35,6 +35,7 @@
     "test-webpack": "bash bin/test-webpack.sh"
   },
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "argsarray": "0.0.1",
     "buffer-from": "1.1.0",
     "clone-buffer": "1.0.0",
@@ -52,7 +53,7 @@
     "localstorage-down": "0.6.7",
     "ltgt": "2.2.1",
     "memdown": "1.2.4",
-    "node-fetch": "^2.0.0",
+    "node-fetch": "^2.3.0",
     "promise-polyfill": "7.1.2",
     "readable-stream": "1.0.33",
     "request": "2.87.0",
