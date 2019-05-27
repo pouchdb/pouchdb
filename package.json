@@ -100,7 +100,7 @@
     "query-string": "6.5.0",
     "replace": "1.1.0",
     "rimraf": "2.6.3",
-    "rollup": "0.67.4",
+    "rollup": "1.12.4",
     "rollup-plugin-inject": "2.1.0",
     "rollup-plugin-node-resolve": "4.1.0",
     "rollup-plugin-replace": "1.2.1",
