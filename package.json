@@ -35,7 +35,6 @@
     "test-webpack": "bash bin/test-webpack.sh"
   },
   "dependencies": {
-    "argsarray": "0.0.1",
     "buffer-from": "1.1.0",
     "clone-buffer": "1.0.0",
     "debug": "3.1.0",
@@ -63,7 +62,6 @@
     "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
-    "argsarray": "0.0.1",
     "body-parser": "1.19.0",
     "browserify": "16.2.0",
     "browserify-incremental": "3.1.1",
