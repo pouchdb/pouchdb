@@ -77,7 +77,7 @@ testCases.push(function (dbType, context) {
       return db.bulkDocs(docs).then(function () {
         return db.find({
           selector: {
-            events: {$elemMatch: {"status": 'pending', "eventId": 1},
+            events: {$elemMatch: {"status": 'pending', "eventId": 1}},
           },
           fields: ['_id']
         }).then(function (resp) {
