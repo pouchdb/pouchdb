@@ -248,6 +248,7 @@ function startTest() {
 
     sauceClient.get(testUrl, function () {
       console.log('Successfully started');
+      console.log('START RESULT', JSON.stringify(Array.from(arguments), null, 2));
 
       sauceClient.eval('navigator.userAgent', function (err, userAgent) {
         if (err) {
