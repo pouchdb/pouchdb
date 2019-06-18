@@ -49,8 +49,8 @@ env:
   - CLIENT=selenium:firefox ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COMMAND=test
 
   # Test in chromium running on travis
-  - CLIENT=saucelabs:chrome:70 ADAPTER=idb CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
-  - CLIENT=saucelabs:chrome:70 ADAPTER=indexeddb CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
+  - CLIENT=saucelabs:chrome:70 ADAPTER=idb COMMAND=test
+  - CLIENT=saucelabs:chrome:70 ADAPTER=indexeddb COMMAND=test
 
   # Test auto-compaction in Node and Firefox
   - AUTO_COMPACTION=true CLIENT=node COMMAND=test
@@ -60,16 +60,16 @@ env:
   # Test map/reduce
   - TYPE=mapreduce CLIENT=node COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox ADAPTER=idb COMMAND=test
-  - TYPE=mapreduce CLIENT=saucelabs:chrome:70 ADAPTER=idb CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
+  - TYPE=mapreduce CLIENT=saucelabs:chrome:70 ADAPTER=idb COMMAND=test
   - TYPE=mapreduce CLIENT=selenium:firefox ADAPTER=indexeddb COMMAND=test
-  - TYPE=mapreduce CLIENT=saucelabs:chrome:70 ADAPTER=indexeddb CHROME_BIN=/usr/bin/chromium-browser COMMAND=test
+  - TYPE=mapreduce CLIENT=saucelabs:chrome:70 ADAPTER=indexeddb COMMAND=test
 
   # Test pouchdb-find
   - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
   - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTER=idb SERVER=pouchdb-server COMMAND=test
-  - TYPE=find PLUGINS=pouchdb-find CLIENT=saucelabs:chrome:70 ADAPTER=idb CHROME_BIN=/usr/bin/chromium-browser SERVER=pouchdb-server COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=saucelabs:chrome:70 ADAPTER=idb SERVER=pouchdb-server COMMAND=test
   - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTER=indexeddb SERVER=pouchdb-server COMMAND=test
-  - TYPE=find PLUGINS=pouchdb-find CLIENT=saucelabs:chrome:70 ADAPTER=indexeddb CHROME_BIN=/usr/bin/chromium-browser SERVER=pouchdb-server COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=saucelabs:chrome:70 ADAPTER=indexeddb SERVER=pouchdb-server COMMAND=test
 
   # Testing in saucelabs
   - CLIENT=saucelabs:chrome:70 COMMAND=test
