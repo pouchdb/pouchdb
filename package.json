@@ -43,7 +43,7 @@
     "fetch-cookie": "0.7.0",
     "fruitdown": "1.0.2",
     "immediate": "3.0.6",
-    "inherits": "2.0.3",
+    "inherits": "2.0.4",
     "level": "5.0.1",
     "level-codec": "9.0.1",
     "level-write-stream": "1.0.0",
