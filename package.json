@@ -102,7 +102,7 @@
     "rimraf": "2.6.3",
     "rollup": "0.67.4",
     "rollup-plugin-inject": "2.1.0",
-    "rollup-plugin-node-resolve": "4.2.4",
+    "rollup-plugin-node-resolve": "5.0.4",
     "rollup-plugin-replace": "1.2.1",
     "sauce-connect-launcher": "1.2.7",
     "seedrandom": "3.0.0",
