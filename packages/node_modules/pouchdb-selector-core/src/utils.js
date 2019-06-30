@@ -17,7 +17,7 @@ function getFieldFromDoc(doc, parsedField) {
 function setFieldInDoc(doc, parsedField, value) {
   for (var i = 0, len = parsedField.length; i < len-1; i++) {
     var elem = parsedField[i];
-    doc = doc[elem] = {};
+    doc = doc[elem] = doc[elem] || {};
   }
   doc[parsedField[len-1]] = value;
 }

@@ -246,5 +246,25 @@ testCases.push(function (dbType, context) {
         ]);
       });
     });
+    
+    it('does return all fields of overlapping paths', function () {
+      var db = context.db;
+      return db.bulkDocs([
+        { _id: '1', foo: { bar: 'a', baz: 'b', qux: 'q'} },
+        { _id: '2', foo: { bar: 'a', baz: 'z', qux: 'q'} },
+      ]).then(function () {
+        return db.find({
+          "selector": {
+            _id: '1'
+          },
+          "fields": ["_id", "foo.bar", "foo.baz"]
+        });
+      }).then(function (resp) {
+        resp.docs.sort(sortById);
+        resp.docs.should.deep.equal([
+          { _id: '1', foo: { bar: 'a', baz: 'b'} }
+        ]);
+      });
+    });
   });
 });
