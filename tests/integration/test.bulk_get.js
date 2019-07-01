@@ -74,6 +74,98 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('test bulk get with bad revision specified', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({_id: 'foo', val: 1}).then(function () {
+        db.bulkGet({
+          docs: [
+            {id: 'foo', rev: 'BAD_REV'}
+          ]
+        }).then(function (resp) {
+          var result = resp.results[0];
+          result.id.should.equal('foo');
+          if (adapter === 'local') {
+            //{"id":"foo","docs":[{"error":{"status":400,"name":"bad_request","message":"Invalid rev format","error":true}}]}
+            result.docs[0].error.should.have.property('name', 'bad_request');
+          } else {
+            //{"id":"foo","docs":[{"error":{"id":"foo","rev":"BAD_REV","error":"bad_request","reason":"Invalid rev format"}}]}
+            result.docs[0].error.should.have.property('error', 'bad_request');
+          }
+          done();
+        });
+      });
+    });
+
+    it('test bulk get with bad revision specified with latest=true', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({_id: 'foo', val: 1}).then(function () {
+        db.bulkGet({
+          docs: [
+            {id: 'foo', rev: 'BAD_REV'}
+          ],
+          latest: true
+        }).then(function (resp) {
+          var result = resp.results[0];
+          result.id.should.equal('foo');
+          if (adapter === 'local') {
+            //{"id":"foo","docs":[{"error":{"status":400,"name":"bad_request","message":"Invalid rev format","error":true}}]}
+            result.docs[0].error.should.have.property('name', 'bad_request');
+          } else {
+            //{"id":"foo","docs":[{"error":{"id":"foo","rev":"BAD_REV","error":"bad_request","reason":"Invalid rev format"}}]}
+            result.docs[0].error.should.have.property('error', 'bad_request');
+          }
+          done();
+        });
+      });
+    });
+
+    it('test bulk get with non-existing revision specified', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({_id: 'foo', val: 1}).then(function (response) {
+        var invalidRev = testUtils.getInvalidRev(response.rev);
+        db.bulkGet({
+          docs: [
+            {id: 'foo', rev: invalidRev}
+          ]
+        }).then(function (resp) {
+          var result = resp.results[0];
+          result.id.should.equal('foo');
+          if (adapter === 'local') {
+            //{"id":"foo","docs":[{"missing":invalidRev}]
+            result.docs[0].should.have.property('missing', invalidRev);
+          } else {
+            //{"id":"foo","docs":[{"error":{"id":"foo","rev":invalidRev,"error":"not_found","reason":"missing"}}]}
+            result.docs[0].error.should.have.property('error', 'not_found');
+          }
+          done();
+        });
+      });
+    });
+
+    it('#7756 test bulk get with non-existing revision specified with latest=true', function (done) {
+      var db = new PouchDB(dbs.name);
+      db.put({_id: 'foo', val: 1}).then(function (response) {
+        var invalidRev = testUtils.getInvalidRev(response.rev);
+        db.bulkGet({
+          docs: [
+            {id: 'foo', rev: invalidRev}
+          ],
+          latest: true
+        }).then(function (resp) {
+          var result = resp.results[0];
+          result.id.should.equal('foo');
+          if (adapter === 'local') {
+            //{"id":"foo","docs":[{"missing":invalidRev}]
+            result.docs[0].should.have.property('missing', invalidRev);
+          } else {
+            //{"id":"foo","docs":[{"error":{"id":"foo","rev":invalidRev,"error":"not_found","reason":"missing"}}]}
+            result.docs[0].error.should.have.property('error', 'not_found');
+          }
+          done();
+        });
+      });
+    });
+
     it('_revisions is not returned by default', function (done) {
       var db = new PouchDB(dbs.name);
       db.put({_id: 'foo', val: 1}).then(function (response) {

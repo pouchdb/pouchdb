@@ -337,6 +337,15 @@ testUtils.sortById = function (a, b) {
   return a._id < b._id ? -1 : 1;
 };
 
+testUtils.getInvalidRev  = function (rev) {
+  // Create an invalid revision by incrementing the last digit.
+  var lastDigit = parseInt(rev[rev.length - 1], 16);
+  var newLastDigit = lastDigit === 0xf ? 0 : lastDigit + 1;
+  var invalidRev = rev.slice(0, -1) + newLastDigit.toString(16);
+  return invalidRev;
+};
+
+
 if (typeof process !== 'undefined' && !process.browser) {
   if (process.env.COVERAGE) {
     global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
