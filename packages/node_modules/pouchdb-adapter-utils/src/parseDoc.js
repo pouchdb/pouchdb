@@ -46,7 +46,7 @@ var dataWords = toObject([
 ]);
 
 function parseRevisionInfo(rev) {
-  if (!/^\d+-./.test(rev)) {
+  if (!/^\d+-/.test(rev)) {
     return createError(INVALID_REV);
   }
   var idx = rev.indexOf('-');
