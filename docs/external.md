@@ -116,6 +116,10 @@ PouchDB/CouchDB replication over WebSockets, using Engine.io (Socket.io).
 
 Multidimensional and spatial queries with PouchDB.
 
+#### [PouchDB Geospatial](https://github.com/dpmcmlxxvi/pouchdb-geospatial)
+
+PouchDB geospatial querying of GeoJSON objects that supports the DE-9IM spatial predicates. ([Documentation](https://dpmcmlxxvi.github.io/pouchdb-geospatial/api/))
+
 #### [Superlogin](https://www.npmjs.com/package/superlogin)
 
 Powerful authentication for APIs and single page apps using the CouchDB ecosystem, which supports a variety of providers.
