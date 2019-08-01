@@ -15,8 +15,8 @@ However, CouchDB was designed with sync in mind, and this is exactly what it exc
 
 {% include anchor.html title="CouchDB sync" hash="couchdb-sync" %}
 
-CouchDB sync has a unique design. Rather than relying on a master/slave architecture, CouchDB
-supports a **multi-master** architecture. You can think of this as a system where any node can be written to or read from, and where you don't have to care which one is the "master" and which one is the "slave." In CouchDB's egalitarian world, every citizen is as worthy as another.
+CouchDB sync has a unique design. Rather than relying on a master/follower architecture, CouchDB
+supports a **multi-master** architecture. You can think of this as a system where any node can be written to or read from, and where you don't have to care which one is the "master" and which one is the "follower." In CouchDB's egalitarian world, every citizen is as worthy as another.
 
 <figure>
   {% include img.html src="offline_replication.gif" alt="Offline replication with CouchDB." %}
