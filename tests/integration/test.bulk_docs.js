@@ -162,6 +162,21 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it("7829 bare rev 1- with new_edits=false", function (done) {
+      var db = new PouchDB(dbs.name);
+      var docs = [
+        {
+          _id: "foo",
+          _rev: "1-",
+          integer: 1
+        }
+      ];
+      db.bulkDocs({ docs: docs }, { new_edits: false }, function (err) {
+        should.not.exist(err, 'no error');
+        done();
+      });
+    });
+
     it('Test empty bulkDocs', function () {
       var db = new PouchDB(dbs.name);
       return db.bulkDocs([]);
