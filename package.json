@@ -99,7 +99,7 @@
     "pouchdb-express-router": "0.0.10",
     "query-string": "6.8.2",
     "replace": "1.1.0",
-    "rimraf": "2.6.3",
+    "rimraf": "3.0.0",
     "rollup": "0.67.4",
     "rollup-plugin-inject": "3.0.1",
     "rollup-plugin-node-resolve": "4.2.4",
