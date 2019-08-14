@@ -61,7 +61,6 @@ or
 #### Other test options
 
 * `SKIP_MIGRATION=1` should be used to skip the migration tests.
-* `NEXT=1` will test pouchdb-next (PouchDB with v2 IndexedDB adapter).
 * `POUCHDB_SRC=../../dist/pouchdb.js` can be used to treat another file as the PouchDB source file.
 * `npm run test-webpack` will build with Webpack and then test that in a browser.
 
@@ -107,6 +106,10 @@ This works because `npm run dev` does not start up the pouchdb-server itself (on
 Note that you must `npm install pouchdb-server` or `npm install express-pouchdb` yourself for this test to work.
 
 ### Testing different Node adapters
+
+Use this option to test the new indexeddb adapter:
+
+    ADAPTER=indexeddb
 
 Use this option to test the in-memory adapter:
 

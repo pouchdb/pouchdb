@@ -90,9 +90,6 @@ if (process.env.ADAPTER) {
 if (process.env.ITERATIONS) {
   qs.iterations = process.env.ITERATIONS;
 }
-if (process.env.NEXT) {
-  qs.NEXT = '1';
-}
 
 testUrl += '?';
 testUrl += querystring.stringify(qs);
