@@ -424,21 +424,6 @@ testCases.push(function (dbType, context) {
             });
         });
 
-        it('#XXXX should handle $or with single nested argument on undefined', function () {
-            var db = context.db;
-            return db.find({
-                selector: {
-                    "$or": [
-                        {"metadata.active": {$eq: "false"}},
-                    ]
-                }
-            }).then(function (res) {
-                getIdArray(res).should.deep.equal([
-                    {'_id': 'fox'},
-                ]);
-            });
-        });
-
         it('#XXXX should handle $or with single nested argument', function () {
             var db = context.db;
             return db.find({
