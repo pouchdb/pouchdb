@@ -329,7 +329,7 @@ testCases.push(function (dbType, context) {
             ]);
         });
 
-        it('#XXXX should do a $or on undefined with $ne', function () {
+        it('#7872 should do a $or on undefined with $ne', function () {
             var db = context.db;
             return db.find({
                 selector: {
@@ -350,7 +350,7 @@ testCases.push(function (dbType, context) {
             });
         });
 
-        it('#XXXX should do a $or on undefined with $nin', function () {
+        it('#7872 should do a $or on undefined with $nin', function () {
             var db = context.db;
             return db.find({
                 selector: {
@@ -371,7 +371,7 @@ testCases.push(function (dbType, context) {
             });
         });
 
-        it('#XXXX should do a $or, with nested $elemMatch', function () {
+        it('#7872 should do a $or, with nested $elemMatch', function () {
             var db = context.db;
             return db.find({
                 selector: {
@@ -391,7 +391,7 @@ testCases.push(function (dbType, context) {
             });
         });
 
-        it('#XXXX should handle $or with single argument', function () {
+        it('#7872 should handle $or with single argument', function () {
             var db = context.db;
             return db.find({
                 selector: {
@@ -409,7 +409,7 @@ testCases.push(function (dbType, context) {
             });
         });
 
-        it('#XXXX should handle $or with single nested argument on undefined', function () {
+        it('#7872 should handle $or with single nested argument on undefined', function () {
             var db = context.db;
             return db.find({
                 selector: {
@@ -424,7 +424,7 @@ testCases.push(function (dbType, context) {
             });
         });
 
-        it('#XXXX should handle $or with single nested argument', function () {
+        it('#7872 should handle $or with single nested argument', function () {
             var db = context.db;
             return db.find({
                 selector: {
@@ -439,6 +439,17 @@ testCases.push(function (dbType, context) {
                     {'_id': 'master_hand'},
                     {'_id': 'puff'},
                 ]);
+            });
+        });
+
+        it('#7872 should return everything for empty $or', function () {
+            var db = context.db;
+            return db.find({
+                selector: {
+                    "$or": []
+                }
+            }).then(function (res) {
+                getIdArray(res).should.have.lengthOf(12);
             });
         });
 
