@@ -237,6 +237,10 @@ Kendo UI DataSource adapter.
 
 ### React/Flux
 
+#### [react-pouchdb](https://github.com/ArnoSaine/react-pouchdb)
+
+React wrapper for PouchDB that also subscribes to changes.
+
 #### [pouch-redux](https://github.com/UXtemple/pouch-redux)
 
 Pouch and Redux integration. With Pouch in control this time around. 
