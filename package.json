@@ -51,7 +51,7 @@
     "levelup": "4.1.0",
     "localstorage-down": "0.6.7",
     "ltgt": "2.2.1",
-    "memdown": "1.2.4",
+    "memdown": "5.0.0",
     "node-fetch": "2.4.1",
     "promise-polyfill": "8.1.2",
     "readable-stream": "1.0.33",
