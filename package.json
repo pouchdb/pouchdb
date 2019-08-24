@@ -77,7 +77,7 @@
     "denodeify": "1.2.1",
     "derequire": "2.0.6",
     "es3ify": "0.2.2",
-    "eslint": "5.15.2",
+    "eslint": "6.2.2",
     "express": "4.17.0",
     "express-pouchdb": "4.0.1",
     "find-requires": "1.0.0",
