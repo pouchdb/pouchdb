@@ -4,8 +4,8 @@ describe('#7810 query will not find documents when an index is used', function (
             return new PouchDB('mydb', { db: require('memdown') }).destroy();
         });
     });
-    var db = new PouchDB('mydb');
     it('should find the documents even if a index is used', function () {
+        var db = new PouchDB('mydb');
         return db.createIndex({
             index: {
                 fields: [
