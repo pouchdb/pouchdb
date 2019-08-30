@@ -5,9 +5,8 @@ describe('#7810 query will not find documents when an index is used', function (
         });
     });
     it('should find the documents even if a index is used', function () {
-        PouchDB.plugin(require('pouchdb-find'));
-        var CustomPouch = PouchDB.defaults({db: require('memdown')});
-        var db = new CustomPouch('mydb');
+        PouchDB.plugin(require('../../packages/node_modules/pouchdb-find'));
+        var db = new PouchDB('mydb');
         return db.createIndex({
             index: {
                 fields: [
@@ -30,8 +29,8 @@ describe('#7810 query will not find documents when an index is used', function (
                 limit: 1
             });
         }).then(function (docs) {
-            // console.log(JSON.stringify(docs, null, 2));
             if (docs.docs.length !== 1) {
+                console.log(JSON.stringify(docs, null, 2));
                 throw new Error('document not found');
             }
         });
