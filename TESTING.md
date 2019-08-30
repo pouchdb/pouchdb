@@ -7,9 +7,8 @@ If you use docker, you can start the couchdb-instance with
 ```bash
     docker run -it --name my-couchdb -p 5984:5984 couchdb:latest
     
-    # to have a coucchdb with enabled cors, you can use trivago/couchdb-cors
+    # to have a couchdb with enabled cors, you can use trivago/couchdb-cors
     docker run -it --name my-couchdb -p 5984:5984 trivago/couchdb-cors:latest
-    
 ```
 
  * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
