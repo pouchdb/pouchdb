@@ -6,7 +6,8 @@ describe('#7810 query will not find documents when an index is used', function (
     });
     it('should find the documents even if a index is used', function () {
         PouchDB.plugin(require('../../packages/node_modules/pouchdb-find'));
-        var db = new PouchDB('mydb');
+        var CustomPouch = PouchDB.defaults({db: require('memdown')});
+        var db = new CustomPouch('mydb');
         return db.createIndex({
             index: {
                 fields: [
