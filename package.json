@@ -47,7 +47,7 @@
     "level": "5.0.1",
     "level-codec": "9.0.1",
     "level-write-stream": "1.0.0",
-    "leveldown": "5.0.2",
+    "leveldown": "5.2.0",
     "levelup": "4.1.0",
     "localstorage-down": "0.6.7",
     "ltgt": "2.2.1",
