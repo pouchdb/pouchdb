@@ -280,7 +280,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
 
       return db.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
-        res.should.deep.equal([
+        res.should.deep.equalInAnyOrder([
           {
             "id": "EE35E",
             "ok": true,
@@ -321,7 +321,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
 
       return db.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
-        res.should.deep.equal([
+        res.should.deep.equalInAnyOrder([
           {
             "id": "EE35E",
             "ok": true,

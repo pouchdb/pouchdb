@@ -21,6 +21,7 @@ exec('mkdir -p ' + testsDir, function () {
 global.testUtils = require('./utils.js');
 var chai = require('chai');
 chai.use(require('chai-as-promised'));
+chai.use(require('deep-equal-in-any-order'));
 global.should = chai.should();
 global.assert = chai.assert;
 
