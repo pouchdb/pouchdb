@@ -280,7 +280,18 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
 
       return db.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
-        res.should.deep.equal([]);
+        res.should.deep.equal([
+          {
+            "id": "EE35E",
+            "ok": true,
+            "rev": "3-f6d28"
+          },
+          {
+            "id": "EE35E",
+            "ok": true,
+            "rev": "4-70b26"
+          }
+        ]);
         return db.allDocs();
       }).then(function (res) {
         res.total_rows.should.equal(1);
@@ -310,7 +321,18 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
 
       return db.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
-        res.should.deep.equal([]);
+        res.should.deep.equal([
+          {
+            "id": "EE35E",
+            "ok": true,
+            "rev": "3-f6d28"
+          },
+          {
+            "id": "EE35E",
+            "ok": true,
+            "rev": "4-70b26"
+          }
+        ]);
         return db.allDocs();
       }).then(function (res) {
         res.total_rows.should.equal(1);
