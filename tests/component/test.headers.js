@@ -47,7 +47,7 @@ describe('test.headers.js', function () {
       _attachments: {
         'att.txt': {
           content_type: 'text/plain',
-          data: new Buffer(['Is there life on Mars?'], {type: 'text/plain'})
+          data: new Buffer(['Is there life on moon?'], {type: 'text/plain'})
         }
       }
     }).then(function () {

@@ -89,7 +89,7 @@ describe('test.replication_perf_regression.js', function () {
               // debounce pause -> active -> pause -> active etc
               debouncePauseActiveThrash_timeoutRef = setTimeout(function () {
                 replication.cancel();
-              }, 1500);
+              }, 1600);
             }
           }).on('active', function () {
             clearTimeout(debouncePauseActiveThrash_timeoutRef);
