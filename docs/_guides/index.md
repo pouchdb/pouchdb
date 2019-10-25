@@ -14,7 +14,7 @@ Feel free to skip ahead using the sidebar at any time.
 
 {% include anchor.html title="What is PouchDB?" hash="what-is-pouchdb" %}
 
-**PouchDB** is a JavaScript implementation of [CouchDB](http://couchdb.com). Its goal is to emulate the CouchDB API with near-perfect fidelity, while running in the browser or in Node.js.
+**PouchDB** is a JavaScript implementation of [CouchDB](https://couchdb.apache.org). Its goal is to emulate the CouchDB API with near-perfect fidelity, while running in the browser or in Node.js.
 
 {% include anchor.html title="What is CouchDB?" hash="what-is-couchdb" %}
 
