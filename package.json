@@ -80,7 +80,7 @@
     "es3ify": "0.2.2",
     "eslint": "5.15.2",
     "express": "4.17.0",
-    "express-pouchdb": "4.0.1",
+    "express-pouchdb": "4.2.0",
     "find-requires": "1.0.0",
     "glob": "7.1.5",
     "http-server": "0.11.0",
