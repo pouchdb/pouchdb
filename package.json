@@ -107,7 +107,7 @@
     "rollup-plugin-replace": "1.2.1",
     "sauce-connect-launcher": "1.2.7",
     "seedrandom": "3.0.5",
-    "selenium-standalone": "6.16.0",
+    "selenium-standalone": "6.17.0",
     "stream-to-promise": "1.1.1",
     "tape": "4.11.0",
     "throw-max-listeners-error": "1.0.1",
