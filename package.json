@@ -99,7 +99,7 @@
     "ncp": "2.0.0",
     "pouchdb-express-router": "0.0.10",
     "query-string": "6.9.0",
-    "replace": "1.1.3",
+    "replace": "1.1.4",
     "rimraf": "2.7.1",
     "rollup": "0.67.4",
     "rollup-plugin-inject": "3.0.1",
