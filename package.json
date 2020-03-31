@@ -59,7 +59,7 @@
     "request": "2.87.0",
     "spark-md5": "3.0.0",
     "through2": "3.0.1",
-    "uuid": "3.3.3",
+    "uuid": "7.0.3",
     "vuvuzela": "1.0.3",
     "whatwg-fetch": "2.0.3"
   },
