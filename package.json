@@ -76,7 +76,7 @@
     "child-process-promise": "2.2.1",
     "cssmin": "0.4.3",
     "denodeify": "1.2.1",
-    "derequire": "2.0.6",
+    "derequire": "2.1.0",
     "es3ify": "0.2.2",
     "eslint": "5.15.2",
     "express": "4.17.0",
