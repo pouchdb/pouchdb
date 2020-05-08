@@ -6,6 +6,7 @@ title: 12 pro tips for better code with PouchDB
 author: Nolan Lawson
 
 ---
+This was written back in 2014, but as of May 2020 it remains true!
 
 This is not a blog post per se, but more of a list of tips and tricks to get the most out of your PouchDB experience.
 
