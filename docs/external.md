@@ -229,6 +229,12 @@ Ember Data adapter for PouchDB/CouchDB.
 
 Promisy PouchDB wrapper for Ember.js.
 
+### [GopherJS](https://github.com/gopherjs/gopherjs)
+
+#### [Kivik](https://github.com/go-kivik/kivik)
+
+Kivik provides a common interface to CouchDB or CouchDB-like databases for Go and GopherJS. ([PouchDB driver](https://github.com/go-kivik/pouchdb))
+
 ### Kendo UI
 
 #### [kendo-pouchdb](https://github.com/terikon/kendo-pouchdb)

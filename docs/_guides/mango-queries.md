@@ -54,7 +54,7 @@ db.createIndex({
 });
 ```
 
-This returns a Promise once the index is created. At this point, we have an index based on the `"name"` field, so we can use it for lookup:
+This returns a Promise that resolves once the index is created. At this point, we have an index based on the `"name"` field, so we can use it for lookup:
 
 ```js
 db.find({
