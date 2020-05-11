@@ -1,64 +1,139 @@
-describe('#7810 query will not find documents when an index is used', function () {
-    var dbNameWithIndex = 'db_with_index';
-    var dbNameWithoutIndex = 'db_without_index';
+"use strict";
+
+var adapters = ["local", "http"];
+
+adapters.forEach(function (adapter) {
+  describe("test.issue7810.js-" + adapter, function () {
+    var dbs = {};
+
     beforeEach(function () {
-        return Promise.all(
-            [dbNameWithIndex, dbNameWithoutIndex].map(function (dbName) {
-                return new PouchDB(dbName).destroy().then(function () {
-                    return new PouchDB(dbName, { db: require('memdown') }).destroy();
-                });
-            })
-        );
+      dbs.withIndexName = testUtils.adapterUrl(adapter, "with_index");
+      dbs.withoutIndexName = testUtils.adapterUrl(adapter, "without_index");
+      dbs.withIndex = new PouchDB(dbs.withIndexName);
+      dbs.withoutIndex = new PouchDB(dbs.withoutIndexName);
+      var docData = {
+        _id: "foobar",
+        indexedField: "foobaz",
+        numericField: 1337,
+      };
+
+      return Promise.all([
+        dbs.withIndex.createIndex({
+          index: {
+            fields: ["indexedField"],
+          },
+        }),
+        dbs.withIndex.put(docData),
+        dbs.withoutIndex.put(docData),
+      ]);
     });
-    it('should find the same documents even if a index exists', function () {
-        PouchDB.plugin(require('../../packages/node_modules/pouchdb-find'));
-        var CustomPouch = PouchDB.defaults({ db: require('memdown') });
 
-        // create two databases
-        var dbWithIndex = new CustomPouch(dbNameWithIndex);
-        var dbWithoutIndex = new CustomPouch(dbNameWithoutIndex);
-
-        // add any index to one of the databases
-        return dbWithIndex.createIndex({
-            index: {
-                fields: [
-                    'passportId'
-                ]
-            }
-        }).then(function () {
-            // add the same document to both databases
-            var docData = {
-                _id: 'foobar',
-                passportId: 'z3i7q29g4yr1',
-                firstName: 'Edison',
-                lastName: 'Keebler',
-                age: 24
-            };
-            return Promise.all([
-                dbWithIndex.put(docData),
-                dbWithoutIndex.put(docData)
-            ]);
-        }).then(function () {
-            // run the same query on both databases
-            var query = {
-                selector: {
-                    _id: {}
-                },
-                limit: 1
-            };
-            return Promise.all([
-                dbWithIndex.find(query),
-                dbWithoutIndex.find(query)
-            ]);
-        }).then(function (results) {
-            // both databases should have returned the same results
-            var resultWithIndex = results[0];
-            var resultWithoutIndex = results[1];
-
-            if (resultWithIndex.docs.length !== resultWithoutIndex.docs.length) {
-                console.log(JSON.stringify(results, null, 2));
-                throw new Error('results are not equal');
-            }
-        });
+    afterEach(function (done) {
+      testUtils.cleanup([dbs.withIndexName, dbs.withoutIndexName], done);
     });
+
+    it("Testing issue #7810 with selector {} - should return 1 docs", function () {
+      var query = {
+        selector: {},
+        limit: 1,
+      };
+      return Promise.all([
+        dbs.withIndex.find(query),
+        dbs.withoutIndex.find(query),
+      ]).then((results) => {
+        const withIndexDocs = results[0].docs.length;
+        const withoutIndexDocs = results[1].docs.length;
+        withIndexDocs.should.equal(1, "indexed should return 1 docs");
+        withoutIndexDocs.should.equal(1, "non-indexed should return 1 docs");
+      });
+    });
+
+    it("Testing issue #7810 with selector { _id: {} } - should return 0 docs", function () {
+      var query = {
+        selector: {
+          _id: {},
+        },
+        limit: 1,
+      };
+      return Promise.all([
+        dbs.withIndex.find(query),
+        dbs.withoutIndex.find(query),
+      ]).then((results) => {
+        const withIndexDocs = results[0].docs.length;
+        const withoutIndexDocs = results[1].docs.length;
+        should.equal(withIndexDocs, 0, "indexed should return 0 docs");
+        should.equal(withoutIndexDocs, 0, "non-indexed should return 0 docs");
+      });
+    });
+
+    it("Testing issue #7810 with selector { _id: 'foobar'} - should return 1 docs", function () {
+      var query = {
+        selector: {},
+        limit: 1,
+      };
+      return Promise.all([
+        dbs.withIndex.find(query),
+        dbs.withoutIndex.find(query),
+      ]).then((results) => {
+        const withIndexDocs = results[0].docs.length;
+        const withoutIndexDocs = results[1].docs.length;
+        withIndexDocs.should.equal(1, "indexed should return 1 docs");
+        withoutIndexDocs.should.equal(1, "non-indexed should return 1 docs");
+      });
+    });
+
+    it("Testing issue #7810 with selector { indexedField: 'foobaz' } - should return 1 docs", function () {
+      var query = {
+        selector: {
+          indexedField: "foobaz",
+        },
+        limit: 1,
+      };
+      return Promise.all([
+        dbs.withIndex.find(query),
+        dbs.withoutIndex.find(query),
+      ]).then((results) => {
+        const withIndexDocs = results[0].docs.length;
+        const withoutIndexDocs = results[1].docs.length;
+        withIndexDocs.should.equal(1, "indexed should return 1 docs");
+        withoutIndexDocs.should.equal(1, "non-indexed should return 1 docs");
+      });
+    });
+
+    it("Testing issue #7810 with selector { numericField: 1337} - should return 1 docs", function () {
+      var query = {
+        selector: {
+          numericField: 1337,
+        },
+        limit: 1,
+      };
+      return Promise.all([
+        dbs.withIndex.find(query),
+        dbs.withoutIndex.find(query),
+      ]).then((results) => {
+        const withIndexDocs = results[0].docs.length;
+        const withoutIndexDocs = results[1].docs.length;
+        withIndexDocs.should.equal(1, "indexed should return 1 docs");
+        withoutIndexDocs.should.equal(1, "non-indexed should return 1 docs");
+      });
+    });
+
+    it("Testing issue #7810 with selector { numericField: 404 } - should return 0 docs", function () {
+      var query = {
+        selector: {
+          numericField: 404,
+        },
+        limit: 1,
+      };
+      return Promise.all([
+        dbs.withIndex.find(query),
+        dbs.withoutIndex.find(query),
+      ]).then((results) => {
+        const withIndexDocs = results[0].docs.length;
+        const withoutIndexDocs = results[1].docs.length;
+        should.equal(withIndexDocs, 0, "indexed should return 0 docs");
+        should.equal(withoutIndexDocs, 0, "non-indexed should return 0 docs");
+      });
+    });
+  });
 });
