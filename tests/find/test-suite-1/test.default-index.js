@@ -158,13 +158,13 @@ testCases.push(function (dbType, context) {
     }).then(function (resp) {
       // console.log(resp);
       // resp.should.deep.equal({
-      //   warning: 'no matching index found, create an index to optimize query time',
+      //   warning: 'No matching index found, create an index to optimize query time.',
       //   docs: [
       //     { _id: '2'},
       //     { _id: '3'}
       //   ]
       // });
-      resp.warning.should.equal('no matching index found, create an index to optimize query time');
+      resp.warning.should.equal('No matching index found, create an index to optimize query time.');
       resp.docs.should.deep.equal([
         { _id: '2'},
         { _id: '3'}
@@ -198,7 +198,7 @@ testCases.push(function (dbType, context) {
       });
     }).then(function (resp) {
       resp.should.deep.equal({
-        warning: 'no matching index found, create an index to optimize query time',
+        warning: 'No matching index found, create an index to optimize query time.',
         docs: [
           {_id: '4'},
           {_id: '2'},
@@ -231,7 +231,7 @@ testCases.push(function (dbType, context) {
         fields: ['_id']
       }).then(function (resp) {
         resp.should.deep.equal({
-          warning: 'no matching index found, create an index to optimize query time',
+          warning: 'No matching index found, create an index to optimize query time.',
           docs: []
         });
       });
@@ -259,7 +259,7 @@ testCases.push(function (dbType, context) {
         fields: ['_id']
       }).then(function (resp) {
         resp.should.deep.equal({
-          warning: 'no matching index found, create an index to optimize query time',
+          warning: 'No matching index found, create an index to optimize query time.',
           docs: [
             {_id: '1'},
             {_id: '2'},

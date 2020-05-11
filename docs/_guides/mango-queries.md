@@ -314,7 +314,7 @@ You may also want to pay attention to the `"warning"` value included in your res
 ```js
 {
   "docs": [ /* ... */ ],
-  "warning": "no matching index found, create an index to optimize query time"
+  "warning": "No matching index found, create an index to optimize query time."
 }
 ```
 
