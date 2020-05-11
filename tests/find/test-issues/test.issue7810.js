@@ -96,6 +96,20 @@ adapters.forEach(function (adapter) {
       );
     });
 
+    it("Testing issue #7810 with selector { indexedField: {} } - should return 0 docs", function () {
+      var query = {
+        selector: {
+          indexedField: {},
+        },
+        limit: 1,
+      };
+      return findInDbs(query).then(
+        (results) => {
+          assertWithAndWithoutLengthOf(results, 0);
+        }
+      );
+    });
+
     it("Testing issue #7810 with selector { _id: 'foobar'} - should return 1 doc", function () {
       var query = {
         selector: {
