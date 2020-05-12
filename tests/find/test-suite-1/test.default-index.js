@@ -164,7 +164,12 @@ testCases.push(function (dbType, context) {
       //     { _id: '3'}
       //   ]
       // });
-      resp.warning.should.equal('No matching index found, create an index to optimize query time.');
+      resp.warning.should.be.oneOf(
+        [
+          'no matching index found, create an index to optimize query time',
+          'No matching index found, create an index to optimize query time.'
+        ]
+      );
       resp.docs.should.deep.equal([
         { _id: '2'},
         { _id: '3'}
@@ -197,14 +202,19 @@ testCases.push(function (dbType, context) {
         sort: [{foo: "desc"}]
       });
     }).then(function (resp) {
-      resp.should.deep.equal({
-        warning: 'No matching index found, create an index to optimize query time.',
-        docs: [
-          {_id: '4'},
-          {_id: '2'},
-          {_id: '1'}
+      resp.warning.should.be.oneOf(
+        [
+          'no matching index found, create an index to optimize query time',
+          'No matching index found, create an index to optimize query time.'
         ]
-      });
+      );
+      resp.docs.should.deep.equal(
+        [
+          { _id: '4' },
+          { _id: '2' },
+          { _id: '1' }
+        ]
+      );
     });
   });
 
@@ -230,10 +240,14 @@ testCases.push(function (dbType, context) {
         },
         fields: ['_id']
       }).then(function (resp) {
-        resp.should.deep.equal({
-          warning: 'No matching index found, create an index to optimize query time.',
-          docs: []
-        });
+        resp.warning.should.be.oneOf(
+          [
+            'no matching index found, create an index to optimize query time',
+            'No matching index found, create an index to optimize query time.'
+          ]
+        );
+        resp.docs.should.deep.equal([]
+        );
       });
     });
   });
@@ -258,15 +272,19 @@ testCases.push(function (dbType, context) {
         },
         fields: ['_id']
       }).then(function (resp) {
-        resp.should.deep.equal({
-          warning: 'No matching index found, create an index to optimize query time.',
-          docs: [
+        resp.warning.should.be.oneOf(
+          [
+            'no matching index found, create an index to optimize query time',
+            'No matching index found, create an index to optimize query time.'
+          ]
+        );
+        resp.docs.should.deep.equal([
             {_id: '1'},
             {_id: '2'},
             {_id: '3'},
             {_id: '4'}
           ]
-        });
+        );
       });
     });
   });
