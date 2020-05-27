@@ -44,7 +44,11 @@ if [[ ! -z $SERVER ]]; then
     fi
   elif [ "$SERVER" == "couchdb-master" ]; then
     if [ -z $COUCH_HOST ]; then
-      export COUCH_HOST='http://127.0.0.1:15984'
+      export COUCH_HOST="http://127.0.0.1:5984"
+    fi
+  elif [ "$SERVER" == "couchdb-v2" ]; then
+    if [ -z $COUCH_HOST ]; then
+      export COUCH_HOST="http://127.0.0.1:5984"
     fi
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     node ./tests/misc/pouchdb-express-router.js &
