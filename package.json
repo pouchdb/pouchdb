@@ -83,7 +83,7 @@
     "express-pouchdb": "4.2.0",
     "find-requires": "1.0.0",
     "glob": "7.1.5",
-    "http-server": "0.12.0",
+    "http-server": "0.12.3",
     "istanbul": "0.4.5",
     "istanbul-coveralls": "1.0.3",
     "js-extend": "1.0.1",
