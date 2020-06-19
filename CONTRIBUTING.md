@@ -11,17 +11,11 @@ The following documentation should answer most of the common questions about how
 Most project discussions should happen on the Mailing list / Bug Tracker and IRC, however if you are a first time contributor and want some help getting started feel free to send a private email to any of the following maintainers:
 
  * Dale Harvey (dale@arandomurl.com, daleharvey on IRC)
- * Nolan Lawson (nolan@nolanlawson.com, nolanlawson on IRC)
- * Calvin Metcalf (calvin.metcalf@gmail.com, calvinmetcalf on IRC)
-
-#### PouchDB meeting
-
-We hold a weekly 'office hours' meeting on IRC (irc.freenode.net#pouchdb) on Mondays at 5:00PM UTC (9:00 AM Pacific, 12:00 PM Eastern, 10:30 PM IST), this is open to anyone and a time when developers and users discuss issues they are having or working on.
 
 Help Wanted
 ----------------
 
-If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [help wanted](https://github.com/pouchdb/pouchdb/issues?labels=help%20wanted&state=open).
+If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [good-first-bug](https://github.com/pouchdb/pouchdb/issues?labels=good-first-bug&state=open).
 
 Guide to Contributions
 --------------------------------------
