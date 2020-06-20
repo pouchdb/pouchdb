@@ -55,7 +55,7 @@
     "node-fetch": "2.4.1",
     "abort-controller": "3.0.0",
     "promise-polyfill": "8.1.2",
-    "readable-stream": "1.0.33",
+    "readable-stream": "1.1.14",
     "request": "2.87.0",
     "spark-md5": "3.0.0",
     "through2": "3.0.1",
