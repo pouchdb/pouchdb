@@ -22,7 +22,7 @@ Prefer video tutorials? This guide is available in video format:
 
 {% include anchor.html class="h3" title="Download Assets" hash="download" %}
 
-We will start with a template of the project where all the data related functions have been replaced with empty stubs. Download and unzip [pouchdb-getting-started-todo.zip]({{ site.baseurl }}/static/assets/pouchdb-getting-started-todo.zip). When dealing with XHR and IndexedDB you are better off running web pages from a server as opposed to a filesystem. To do this you can run:
+We will start with a template of the project where all the data related functions have been replaced with empty stubs. Download and unzip [pouchdb-getting-started-todo.zip](https://github.com/pouchdb/pouchdb-getting-started-todo/archive/master.zip). When dealing with XHR and IndexedDB you are better off running web pages from a server as opposed to a filesystem. To do this you can run:
 
 {% highlight bash %}
 $ cd pouchdb-getting-started-todo
