@@ -11,7 +11,7 @@ and faster build times.
 PouchDB exposes its custom builds via separate packages available on npm. All of
 these packages follow the format `pouchdb-<name>` and can be installed using `npm install`.
 
-Some packages are included by default in the main `pouchdb` package, whereas 
+Some packages are included by default in the main `pouchdb` package, whereas
 others (including third-party packages) must be installed separately.
 
 {% include alert/start.html variant="warning"%}
@@ -442,16 +442,6 @@ ES6 shims for Map and Set as used in PouchDB.
 npm install --save-exact pouchdb-collections
 ```
 
-### pouchdb-debug
-
-The `PouchDB.debug()` API, expressed as a separate plugin. May eventually be removed from PouchDB core.
-
-#### Example usage
-
-```bash
-npm install --save-exact pouchdb-debug
-```
-
 ### pouchdb-errors
 
 Errors exposed by PouchDB.
@@ -544,7 +534,7 @@ npm install --save-exact pouchdb-utils
 
 ### sublevel-pouchdb
 
-Fork of [level-sublevel](https://github.com/dominictarr/level-sublevel) 
+Fork of [level-sublevel](https://github.com/dominictarr/level-sublevel)
 with ony the subset of the API that PouchDB uses.
 
 #### Example usage

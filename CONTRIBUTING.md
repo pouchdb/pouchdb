@@ -68,18 +68,6 @@ Testing PouchDB
 
 Running PouchDB tests is really simple (5 minutes), go to [TESTING](./TESTING.md) for instructions.
 
-Debugging PouchDB
---------------------------------------
-
-PouchDB uses the `debug` [module](https://www.npmjs.org/package/debug) for debug
-logging, to turn on the log output enable the debug flag in node:
-
-    DEBUG=pouchdb:*
-
-Or in the browser:
-
-    PouchDB.debug.enable('pouchdb:*');
-
 Git Essentials
 --------------------------------------
 
