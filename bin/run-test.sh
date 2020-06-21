@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Run tests against a local setup of pouchdb-express-router
+# by default unless COUCH_HOST is specified.
+[ -z "$COUCH_HOST" -a -z "$SERVER"  ] && SERVER="pouchdb-express-router"
+
 : ${CLIENT:="node"}
 : ${COUCH_HOST:="http://127.0.0.1:5984"}
 
