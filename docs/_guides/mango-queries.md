@@ -299,13 +299,6 @@ db.explain({
 
 ```
 
-Or you enable debugging like so:
-
-```js
-PouchDB.debug.enable('pouchdb:find');
-```
-
-
 In the console, the query planner will show a detailed explanation of how it has interpreted the query, whether it uses any indexes, and whether any parts of the query need to be executed in-memory.
 
 

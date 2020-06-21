@@ -118,21 +118,6 @@ In Safari, your database will be under *Develop* &#8594; *Show Web Inspector* &#
 
 {% include img.html src="safari_inspector.png" alt="Web Inspector in Safari" %}
 
-### Debug logging
-
-You can also enable debug logging by doing:
-
-```js
-PouchDB.debug.enable('*');
-```
-
-And then disable it by doing:
-
-```js
-PouchDB.debug.disable();
-```
-
-
 {% include anchor.html title="Deleting your local database" hash="deleting-your-local-database" %}
 
 During development, it's often useful to destroy the local database, so you can see what your users will experience when they visit your site for the first time. A page refresh is not enough, because the data will still be there!
