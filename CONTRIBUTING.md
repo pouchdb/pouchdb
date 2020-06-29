@@ -11,17 +11,11 @@ The following documentation should answer most of the common questions about how
 Most project discussions should happen on the Mailing list / Bug Tracker and IRC, however if you are a first time contributor and want some help getting started feel free to send a private email to any of the following maintainers:
 
  * Dale Harvey (dale@arandomurl.com, daleharvey on IRC)
- * Nolan Lawson (nolan@nolanlawson.com, nolanlawson on IRC)
- * Calvin Metcalf (calvin.metcalf@gmail.com, calvinmetcalf on IRC)
-
-#### PouchDB meeting
-
-We hold a weekly 'office hours' meeting on IRC (irc.freenode.net#pouchdb) on Mondays at 5:00PM UTC (9:00 AM Pacific, 12:00 PM Eastern, 10:30 PM IST), this is open to anyone and a time when developers and users discuss issues they are having or working on.
 
 Help Wanted
 ----------------
 
-If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [help wanted](https://github.com/pouchdb/pouchdb/issues?labels=help%20wanted&state=open).
+If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [good-first-bug](https://github.com/pouchdb/pouchdb/issues?labels=good-first-bug&state=open).
 
 Guide to Contributions
 --------------------------------------
@@ -29,7 +23,6 @@ Guide to Contributions
   * Almost all Pull Requests for features or bug fixes will need tests
   * We follow [Felix's Node.js Style Guide](https://github.com/felixge/node-style-guide)
   * Almost all Pull Requests for features or bug fixes will need tests (seriously, it's really important)
-  * Before opening a pull request run `$ npm test` to lint test the changes and run node tests. Preferably run the browser tests as well.
   * Commit messages should follow the following style:
 
 ```
@@ -46,11 +39,6 @@ Dependencies
 PouchDB needs the following to be able to build and test your build, if you haven't installed them then best to do so now, we will wait.
 
   * [Node.js](http://nodejs.org/)
-  * [CouchDB](http://couchdb.apache.org/)
-
-CouchDB must be running and available at `http://localhost:5984`. If you can open that URL in a browser and see `"couchdb": "Welcome"`, then it's working.
-
-You'll also need to ensure that CORS is enabled on the CouchDB. You can easily do this by running `npm install -g add-cors-to-couchdb` and then `add-cors-to-couchdb`.
 
 **On Windows?** PouchDB's build and tests work on Windows, but you will have to follow [Microsoft's guidelines for Windows](https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#environment-setup-and-configuration) to ensure you can install and compile native add-ons. Also, we recommend [Git Bash for Windows](https://git-scm.com/download/win) because our build relies on many Bash- and Unix-isms. Another option is [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux).
 
@@ -72,33 +60,33 @@ UMD module to `dist/`. All of this logic is in `bin/build.sh`.
 Testing PouchDB
 --------------------------------------
 
-Running PouchDB tests is really simple (5 minutes), go to [TESTING](./TESTING.md) for instructions.
+The main PouchDB test suite can be run with:
 
-Debugging PouchDB
---------------------------------------
+    $ npm test
 
-PouchDB uses the `debug` [module](https://www.npmjs.org/package/debug) for debug
-logging, to turn on the log output enable the debug flag in node:
+If you would like to test against your a CouchDB instance you are currently running you can specify that with `COUCH_HOST`:
 
-    DEBUG=pouchdb:*
+    $ COUCH_HOST="http://127.0.0.1:5984" npm test
 
-Or in the browser:
-
-    PouchDB.debug.enable('pouchdb:*');
+There is more information about the various test suites and testing options in [TESTING](./TESTING.md).
 
 Git Essentials
 --------------------------------------
 
 Workflows can vary, but here is a very simple workflow for contributing a bug fix:
 
-    $ git clone git@github.com:myfork/pouchdb.git
-    $ git remote add pouchdb https://github.com/pouchdb/pouchdb.git
-
+    $ git clone https://github.com/pouchdb/pouchdb.git
     $ git checkout -b 121-issue-keyword master
     # Write tests + code
     $ git add src/afile.js
     $ git commit -m "(#121) - A brief description of what I changed"
+
+Once you have some code to push, fork the [PouchDB repository](https://github.com/pouchdb/pouchdb) then push your changes to your fork:
+
+    $ git remote add myfork https://github.com/myfork/pouchdb.git
     $ git push origin 121-issue-keyword
+
+Now when you visit https://github.com/myfork/pouchdb there should be a button that will let you create a pull request.
 
 Building PouchDB Documentation
 --------------------------------------

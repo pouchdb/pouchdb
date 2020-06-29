@@ -91,8 +91,9 @@
             ids.should.deep.equal(testConfig.output.res.docs);
           } else {
             should.exist(res.warning, 'expected a warning');
-            res.warning.should.equal('no matching index found, create an ' +
-              'index to optimize query time');
+            res.warning.should.be.oneOf([
+              'No matching index found, create an index to optimize query time.',
+              'no matching index found, create an index to optimize query time']);
           }
         }, function (err) {
           if (testConfig.output.res) {
