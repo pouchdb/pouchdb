@@ -41,7 +41,7 @@
     "double-ended-queue": "2.1.0-0",
     "fetch-cookie": "0.9.1",
     "fruitdown": "1.0.2",
-    "immediate": "3.2.3",
+    "immediate": "3.3.0",
     "inherits": "2.0.4",
     "level": "6.0.1",
     "level-codec": "9.0.1",
