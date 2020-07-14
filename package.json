@@ -58,7 +58,7 @@
     "request": "2.88.2",
     "spark-md5": "3.0.1",
     "through2": "3.0.1",
-    "uuid": "8.1.0",
+    "uuid": "8.2.0",
     "vuvuzela": "1.0.3",
     "whatwg-fetch": "2.0.4"
   },
