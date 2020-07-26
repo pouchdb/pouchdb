@@ -105,5 +105,31 @@ testCases.push(function (dbType, context) {
       });
     });
 
+    it('should works with index on multiple fields', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["name", "debut"]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {
+            name: {$regex: "^Luig"},
+            debut: {$gt: 1980}
+          },
+          sort: ['name']
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'Luigi', rank: 11, _id: 'luigi', series: 'Mario', debut: 1983, awesome: false },
+          ]);
+        });
+      });
+    });
   });
 });
