@@ -87,6 +87,14 @@ Conflicts will be discussed later in this guide. For now, you can think of revis
       rev 1
 ```
 
+{% include anchor.html title="Updating documents" hash="updating-documents" %}
+
+After a document has been retrieved from PouchDB with `get()`, updating it with new values or fields (often referred to as properties or keys) is just like updating a regular JavaScript object. Remember to insert the newly updated document back into PouchDB, using `put()`.
+
+When you are ready to start updating documents, jump to the section on [how to update documents correctly](/guides/documents.html#updating-documents-correctly).
+
+If you want to try out a modern way to accomplish this, check out [this article](/2015/03/05/taming-the-async-beast-with-es7.html) on how to work with PouchDB using async/await.
+
 {% include anchor.html title="Deleting documents" hash="deleting-documents" %}
 
 When you `remove()` a document, it's not really deleted; it just gets a `_deleted` attribute added to it.
