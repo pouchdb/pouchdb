@@ -1548,6 +1548,7 @@ adapters.forEach(function (adapters) {
       ];
       remote.bulkDocs({ docs: docs1 }, function () {
         db.replicate.from(remote, {
+          filter_id_only: true,
           filter: function (doc) {
             if(Object.keys(doc).length !== 1 || !doc._id)
               throw new Error("test fail")
