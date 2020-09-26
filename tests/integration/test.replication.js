@@ -1550,9 +1550,10 @@ adapters.forEach(function (adapters) {
         db.replicate.from(remote, {
           filter_id_only: true,
           filter: function (doc) {
-            if(Object.keys(doc).length !== 1 || !doc._id)
-              throw new Error("test fail")
-            return doc._id === '0' || doc._id === '1'
+            if (Object.keys(doc).length !== 1 || !doc._id) {
+              throw new Error("test fail");
+            }
+            return doc._id === '0' || doc._id === '1';
           }
         }).on('error', done).on('complete', function () {
           db.allDocs(function (err, docs) {
