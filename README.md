@@ -7,7 +7,7 @@ PouchDB is an open-source JavaScript database inspired by [Apache CouchDB](http:
 
 PouchDB was created to help web developers build applications that work as well offline as they do online.
 
-Using PouchDB
+Using PouchDB for developing online/offline apps
 -------------
 
 To get started using PouchDB, check out the [web site](https://pouchdb.com) and [API documentation](https://pouchdb.com/api.html).
