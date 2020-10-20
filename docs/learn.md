@@ -35,4 +35,4 @@ PouchDB can also run as its own CouchDB-compatible web server, using [PouchDB Se
 
 [IndexedDB]: http://caniuse.com/#feat=indexeddb
 [WebSQL]: http://caniuse.com/#feat=sql-storage
-[LevelDB]: http://leveldb.org/
+[LevelDB]: https://github.com/google/leveldb
