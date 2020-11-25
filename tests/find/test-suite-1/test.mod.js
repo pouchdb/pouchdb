@@ -142,27 +142,26 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('should return empty docs for non-integer field', function () {
+    it('should ignore non-int field values', function () {
       var db = context.db;
-      var index = {
-        "index": {
-          "fields": ["name"]
-        }
-      };
-      return db.createIndex(index).then(function () {
+      return context.db.bulkDocs([
+        { _id: "int", int: 10 },
+        { _id: "float", int: 10.1 },
+        { _id: "string", int: "10" },
+      ]).then(function () {
         return db.find({
           selector: {
-            name: {$gte: null},
-            awesome: {$mod: [2, 0]}
+            int: { $mod: [ 3, 1 ] }
           },
-          sort: ['name']
         }).then(function (resp) {
           var docs = resp.docs.map(function (doc) {
             delete doc._rev;
             return doc;
           });
 
-          docs.should.deep.equal([]);
+          docs.should.deep.equal([
+            { _id: "int", int: 10 }
+          ]);
         });
       });
     });

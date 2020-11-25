@@ -305,6 +305,28 @@ testCases.push(function (dbType, context) {
             resp.docs.should.have.length(0);
         });
       });
+      it('should ignore non-array field values', function () {
+        var db = context.db;
+        return context.db.bulkDocs([
+          { _id: "string", unknown: "str" },
+          { _id: "array", unknown: [ "a", "b", "c" ] },
+        ]).then(function () {
+          return db.find({
+            selector: {
+              unknown: { $size: 3 }
+            },
+          }).then(function (resp) {
+            var docs = resp.docs.map(function (doc) {
+              delete doc._rev;
+              return doc;
+            });
+
+            docs.should.deep.equal([
+              { _id: "array", unknown: [ "a", "b", "c" ] },
+            ]);
+          });
+        });
+      });
     });
 
     describe('$nin', function () {
