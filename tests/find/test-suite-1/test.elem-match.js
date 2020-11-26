@@ -65,7 +65,7 @@ testCases.push(function (dbType, context) {
         });
       });
     });
-    
+
     it('with object in array couchdb style', function () {
       var db = context.db;
       var docs = [
@@ -87,6 +87,18 @@ testCases.push(function (dbType, context) {
         });
       });
     });
-    
+
+    it('should error for non-object query value', function () {
+      var db = context.db;
+      return db.find({
+        selector: {
+          events: { $elemMatch: null },
+        },
+      }).then(function () {
+        throw new Error('Function should throw');
+      }, function (err) {
+        err.message.should.eq('Query operator $elemMatch must be an object. Received : null');
+      });
+    });
   });
 });

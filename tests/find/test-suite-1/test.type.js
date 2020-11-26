@@ -97,7 +97,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('throws error for unmatched type', function () {
+    it('should error for unsupported query value', function () {
       var db = context.db;
       return db.find({
         selector: {
@@ -105,7 +105,20 @@ testCases.push(function (dbType, context) {
         },
         fields: ['_id']
       }).catch(function (err) {
-        err.message.should.match(/made-up not supported/);
+        err.message.should.eq('Query operator $type must be a string. Supported values: "null", "boolean", "number", "string", "array", or "object". Received string: made-up');
+      });
+    });
+    it('should error for non-string query value', function () {
+      var db = context.db;
+      return db.find({
+        selector: {
+          'foo': {$type: 0}
+        },
+        fields: ['_id']
+      }).then(function () {
+        throw new Error('Function should throw');
+      }, function (err) {
+        err.message.should.eq('Query operator $type must be a string. Supported values: "null", "boolean", "number", "string", "array", or "object". Received number: 0');
       });
     });
   });
