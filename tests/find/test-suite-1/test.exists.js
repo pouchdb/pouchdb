@@ -181,5 +181,17 @@ testCases.push(function (dbType, context) {
         ]);
       });
     });
+    it('should error for non-boolean query value', function () {
+      var db = context.db;
+      return db.find({
+        selector: {
+          foo: { '$exists': 'true' },
+        },
+      }).then(function () {
+        throw new Error('Function should throw');
+      }, function (err) {
+        err.message.should.eq('Query operator $exists must be a boolean. Received string: true');
+      });
+    });
   });
 });

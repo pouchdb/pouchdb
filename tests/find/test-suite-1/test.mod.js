@@ -61,7 +61,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('should return error for zero divisor', function () {
+    it('should error for zero divisor', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -71,28 +71,23 @@ testCases.push(function (dbType, context) {
       return db.createIndex(index).then(function () {
         return db.find({
           selector: {
-            name: {$gte: null},
-            rank: {$mod: [0, 0]}
+            name: { $gte: null },
+            rank: { $mod: [ 0, 0 ] }
           },
-          sort: ['name']
+          sort: [ 'name' ]
         }).then(function () {
-          throw new Error('expected an error here');
+          throw new Error('Function should throw');
         }, function (err) {
-            if (dbType === 'http') {
-              should.exist(err);
-              return;
-            }
-
-            err.message.should.match(/Bad divisor/);
+          err.message.should.eq("Query operator $mod's divisor cannot be 0, cannot divide by zero.");
         });
       });
     });
 
-    it('should return error for non-integer divisor', function () {
+    it('should error for non-integer divisor', function () {
       var db = context.db;
       var index = {
         "index": {
-          "fields": ["name"]
+          "fields": ['name']
         }
       };
       return db.createIndex(index).then(function () {
@@ -103,19 +98,14 @@ testCases.push(function (dbType, context) {
           },
           sort: ['name']
         }).then(function () {
-          throw new Error('expected an error here');
+          throw new Error('Function should throw');
         }, function (err) {
-          if (dbType === 'http') {
-            should.exist(err);
-            return;
-          }
-
-          err.message.should.match(/Divisor is not an integer/);
+          err.message.should.eq("Query operator $mod's divisor is not an integer. Received string: a");
         });
       });
     });
 
-    it('should return error for non-integer modulus', function () {
+    it('should error for non-integer modulus', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -130,14 +120,52 @@ testCases.push(function (dbType, context) {
           },
           sort: ['name']
         }).then(function () {
-          throw new Error('expected an error here');
+          throw new Error('Function should throw');
         }, function (err) {
-          if (dbType === 'http') {
-            should.exist(err);
-            return;
-          }
+          err.message.should.eq("Query operator $mod's remainder is not an integer. Received string: a");
+        });
+      });
+    });
 
-          err.message.should.match(/Modulus is not an integer/);
+    it('should error for non-array modulus', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["name"]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {
+            name: {$gte: null},
+            rank: {$mod: 'a'}
+          },
+          sort: ['name']
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $mod must be an array. Received string: a');
+        });
+      });
+    });
+    it('should error for wrong query value length', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["name"]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {
+            name: {$gte: null},
+            rank: {$mod: [10]}
+          },
+          sort: ['name']
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $mod must be in the format [divisor, remainder], where divisor and remainder are both integers. Received array: ' + JSON.stringify([10], null, "\t"));
         });
       });
     });

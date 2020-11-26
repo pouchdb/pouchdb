@@ -192,6 +192,36 @@ testCases.push(function (dbType, context) {
             resp.docs.should.have.length(0);
         });
       });
+      it('should error for non-array query value', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            favorites: {
+              $in: 'a'
+            }
+          },
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $in must be an array. Received string: a');
+        });
+      });
+      it('should NOT error for "invalid operators" inside', function () {
+        var db = context.db;
+        return db.bulkDocs([
+          { _id: "1", list: [ { $or: "allowed" } ] }
+        ]).then(function () {
+          return db.find({
+            selector: {
+              list: { $in: [ { $or: "allowed" } ] },
+            },
+          }).then(function (resp) {
+            resp.docs.map(function (doc) {
+              return doc._id;
+            }).should.deep.equal([ "1" ]);
+          });
+        });
+      });
     });
 
     describe('$all', function () {
@@ -246,6 +276,36 @@ testCases.push(function (dbType, context) {
           },
         }).then(function (resp) {
             resp.docs.should.have.length(0);
+        });
+      });
+      it('should error for non-array query value', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            favorites: {
+              $all: 'a'
+            }
+          },
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $all must be an array. Received string: a');
+        });
+      });
+      it('should NOT error for "invalid operators" inside', function () {
+        var db = context.db;
+        return db.bulkDocs([
+          { _id: "1", list: [ { $or: "allowed" } ] }
+        ]).then(function () {
+          return db.find({
+            selector: {
+              list: { $all: [ { $or: "allowed" } ] },
+            },
+          }).then(function (resp) {
+            resp.docs.map(function (doc) {
+              return doc._id;
+            }).should.deep.equal([ "1" ]);
+          });
         });
       });
     });
@@ -305,6 +365,21 @@ testCases.push(function (dbType, context) {
             resp.docs.should.have.length(0);
         });
       });
+      it('should error on non-int query values', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            favorites: {
+              $size: 2.1
+            }
+          },
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $size must be a integer. Received number: 2.1');
+        });
+      });
+
       it('should ignore non-array field values', function () {
         var db = context.db;
         return context.db.bulkDocs([
@@ -497,6 +572,37 @@ testCases.push(function (dbType, context) {
             ]);
         });
       });
+      it('should error for non-array query value', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            favorites: {
+              $nin: 'a'
+            }
+          },
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $nin must be an array. Received string: a');
+        });
+      });
+      it('should NOT error for "invalid operators" inside', function () {
+        var db = context.db;
+        return db.bulkDocs([
+          { _id: "1", list: [ { $or: "allowed" } ] },
+          { _id: "2", list: [ { $or: "not-allowed" } ] }
+        ]).then(function () {
+          return db.find({
+            selector: {
+              list: { $nin: [ { $or: "not-allowed" } ] },
+            },
+          }).then(function (resp) {
+            resp.docs.map(function (doc) {
+              return doc._id;
+            }).should.deep.equal([ "1" ]);
+          });
+        });
+      });
     });
 
     describe("$allMatch", function () {
@@ -610,6 +716,20 @@ testCases.push(function (dbType, context) {
               {user_id: "a"}
             ]);
           });
+      });
+      it('should error for non-object query value', function () {
+        var db = context.db;
+        return db.find({
+          selector: {
+            bang: {
+              "$allMatch": 'a'
+            }
+          },
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $allMatch must be an object. Received string: a');
+        });
       });
     });
   });
