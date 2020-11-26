@@ -80,27 +80,51 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('does not return docs for regex on non-string field', function () {
+    it('should ignore non-string field values', function () {
       var db = context.db;
-      var index = {
-        "index": {
-          "fields": ["name"]
-        }
-      };
-      return db.createIndex(index).then(function () {
+      return context.db.bulkDocs([
+        { _id: "number", unknown: 10 },
+        { _id: "number-as-string", unknown: "10" },
+      ]).then(function () {
         return db.find({
           selector: {
-            name: {$gte: null},
-            debut: {$regex: "^Mario"}
+            unknown: { $regex: "10" }
           },
-          sort: ['name']
         }).then(function (resp) {
           var docs = resp.docs.map(function (doc) {
             delete doc._rev;
             return doc;
           });
 
-          docs.should.deep.equal([]);
+          docs.should.deep.equal([
+            { _id: "number-as-string", unknown: "10" },
+          ]);
+        });
+      });
+    });
+    it('should error on non string or regex query values', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": [ "name" ]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {
+            $and: [
+              { name: { $regex: 1986 } },
+            ]
+          },
+          sort: [ 'name' ]
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          if (dbType === "http") {
+            err.message.should.eq('Query operator $regex must be a string. Received number: 1986');
+          } else {
+            err.message.should.eq('Query operator $regex must be a string or an instance of a javascript regular expression. Received number: 1986');
+          }
         });
       });
     });
