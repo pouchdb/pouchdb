@@ -1,4 +1,4 @@
-tmp
+tmp*
 .DS_Store
 /node_modules
 docs/_site
