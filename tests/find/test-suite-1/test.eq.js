@@ -361,9 +361,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    // TODO: investigate later - this fails in both Couch and Pouch, but I
-    // believe it shouldn't.
-    it.skip('#170 does queries with multiple null values - $gte', function () {
+    it('#170 does queries with multiple null values - $gte', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -383,11 +381,10 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '1'}
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: '1'},
+          {_id: '2'}
+        ]);
       });
     });
 
