@@ -121,6 +121,282 @@ testCases.push(function (dbType, context) {
                 ]);
             });
         });
+        describe("nested $or inside $and", function () {
+            it('equal length $ors', function () {
+                var db = context.db;
+                var index = {
+                    "index": {
+                        "fields": ["field.a"]
+                    }
+                };
 
+                var selector = {
+                    $and: [
+                        {
+                            $or: [
+                                {a: 1},
+                                {b: 2}
+                            ]
+                        },
+                        {
+                            $or: [
+                                {a: 3},
+                                {b: 4}
+                            ]
+                        }
+                    ]
+                };
+                return db.createIndex(index).then(function () {
+                    return db.bulkDocs([
+                        {_id: '1', a: 1, b: 2},
+                        {_id: '2', a: 1, b: 4},
+                        {_id: '3', a: 3, b: 2},
+                        {_id: '4', a: 3, b: 4},
+                    ]);
+                }).then(function () {
+                    return db.find({
+                        selector,
+                        fields: ["_id"]
+                    }).then(function (resp) {
+                        resp.docs.should.deep.equal([{_id: '2'}, {_id: '3'}]);
+                    });
+                }).then(function () {
+                    if (db.adapter === "local") {
+                        return db.explain({
+                            selector,
+                            fields: ["_id"]
+                        }).then(function (resp) {
+                            resp.selector.should.deep.equal({
+                            "$or": [
+                                    {"a": {"$eq": 1}, "b": {"$eq": 4}},
+                                    {"a": {"$eq": 3}, "b": {"$eq": 2}}
+                                ]
+                            });
+                        });
+                    }
+                });
+            });
+            it('first $or length less than second', function () {
+                var db = context.db;
+                var index = {
+                    "index": {
+                        "fields": ["field.a"]
+                    }
+                };
+
+                var selector = {
+                    $and: [
+                        {
+                            $or: [
+                                {c: 2},
+                            ]
+                        },
+                        {
+                            $or: [
+                                {a: 1},
+                                {b: 1},
+                            ]
+                        },
+                    ]
+                };
+                return db.createIndex(index).then(function () {
+                    return db.bulkDocs([
+                        {_id: '1', a: 1, b: 2, c: 2},
+                        {_id: '2', a: 2, b: 2, c: 2},
+                        {_id: '3', a: 2, b: 1, c: 2},
+                        {_id: '4', a: 2, b: 2, c: 2},
+                    ]);
+                }).then(function () {
+                    return db.find({
+                        selector,
+                        fields: ["_id"]
+                    }).then(function (resp) {
+                        resp.docs.should.deep.equal([{_id: '1'}, {_id: '3'}]);
+                    });
+                }).then(function () {
+                    if (db.adapter === "local") {
+                        return db.explain({
+                            selector,
+                            fields: ["_id"]
+                        }).then(function (resp) {
+                            console.log(resp.selector);
+                            resp.selector.should.deep.equal({
+                                "$or": [
+                                    {"a": {"$eq": 1}, "c": {"$eq": 2}},
+                                    {"b": {"$eq": 1}, "c": {"$eq": 2}}
+                                ]
+                            });
+                        });
+                    }
+                });
+            });
+            it('second $or length less than first', function () {
+                var db = context.db;
+                var index = {
+                    "index": {
+                        "fields": ["field.a"]
+                    }
+                };
+
+                var selector = {
+                    $and: [
+                        {
+                            $or: [
+                                {a: 1},
+                                {b: 1},
+                            ]
+                        },
+                        {
+                            $or: [
+                                {c: 2},
+                            ]
+                        },
+                    ]
+                };
+                return db.createIndex(index).then(function () {
+                    return db.bulkDocs([
+                        {_id: '1', a: 1, b: 2, c: 2},
+                        {_id: '2', a: 2, b: 2, c: 2},
+                        {_id: '3', a: 2, b: 1, c: 2},
+                        {_id: '4', a: 2, b: 2, c: 2},
+                    ]);
+                }).then(function () {
+                    return db.find({
+                        selector,
+                        fields: ["_id"]
+                    }).then(function (resp) {
+                        resp.docs.should.deep.equal([{_id: '1'}, {_id: '3'}]);
+                    });
+                }).then(function () {
+                    if (db.adapter === "local") {
+                        return db.explain({
+                            selector,
+                            fields: ["_id"]
+                        }).then(function (resp) {
+                            resp.selector.should.deep.equal({
+                                "$or": [
+                                    {"a": {"$eq": 1}, "c": {"$eq": 2}},
+                                    {"b": {"$eq": 1}, "c": {"$eq": 2}}
+                                ]
+                            });
+                        });
+                    }
+                });
+            });
+            it('should do complex queries', function () {
+                var db = context.db;
+                var index = {
+                    "index": {
+                        "fields": ["field.a"]
+                    }
+                };
+
+                var selector = {
+                    $or: [
+                        {
+                            $and: [
+                            {
+                                $or: [
+                                    {
+                                        $or: [
+                                            {
+                                                $and: [
+                                                    {due: {important: true}},
+                                                    {tags: {$all: ["home"]}},
+                                                ]
+                                            },
+                                            // implicit and
+                                            {due: {date: "soon", important:false}},
+                                        ]
+                                    },
+                                    {due: {date: "tomorrow"}},
+                                ]
+                            },
+                            {
+                                $or: [
+                                    {assigned: "me"},
+                                    {assigned: "other1"},
+                                ]
+                            },
+                            {include: true}
+                                ]
+                        }
+                    ]
+                };
+                return db.createIndex(index).then(function () {
+                    return db.bulkDocs([
+                        {_id: '1', include:true, due: {repeating: true, date: "friday"}, tags: ["home"], assigned: "other2"},
+                        {_id: '2', include:true, due: {repeating: true, date: "friday", important: true}, tags: ["home"], assigned: "other1"},
+                        {_id: '3', include:true, due: {repeating: false, date: "soon", important: false}, tags: ["home"], assigned: "me"},
+                        {_id: '4', include:true, due: {repeating: false, date: "tuesday"}, tags: ["home"], assigned: "me"},
+                        {_id: '5', include:true, due: {repeating: true, date: "friday", important: true}, tags: ["work"], assigned: "me"},
+                        {_id: '6', include:true, due: {repeating: false, date: "tomorrow"}, tags: ["health"], assigned: "me"},
+                        {_id: '7', include:false, due: {repeating: false, date: "tomorrow"}, tags: ["health"], assigned: "me"},
+                    ]);
+                }).then(function () {
+                    return db.find({
+                        selector,
+                        fields: ["_id"]
+                    }).then(function (resp) {
+                        resp.docs.should.deep.equal([{_id: '2'}, {_id: '3'}, {_id: '6'}]);
+                    });
+                }).then(function () {
+                    if (db.adapter === "local") {
+                        return db.explain({
+                            selector,
+                            fields: ["_id"]
+                        }).then(function (resp) {
+                            console.log(JSON.stringify(resp.selector, null, "\t"));
+
+                            resp.selector.should.deep.equal({
+                                $or: [
+                                    {
+                                        $or: [
+                                            {
+                                                due: {important: true},
+                                                tags: {$all: ["home"]},
+                                            },
+                                            {
+                                                due: {
+                                                    date: "soon",
+                                                    important: false
+                                                }
+                                            },
+                                        ],
+                                        assigned: {$eq: "me"},
+                                    },
+                                    {
+                                        $or: [
+                                            {
+                                                due: {important: true},
+                                                tags: {$all: ["home"]},
+                                            },
+                                            {
+                                                due: {
+                                                    date: "soon",
+                                                    important: false
+                                                }
+                                            },
+                                        ],
+                                        assigned: {$eq: "other1"},
+                                    },
+                                    {
+                                        due: {date: "tomorrow"},
+                                        assigned: {$eq: "me"},
+                                    },
+                                    {
+                                        due: {date: "tomorrow"},
+                                        assigned: {$eq: "other1"},
+                                    },
+                                ],
+                                include: {
+                                    $eq: true,
+                                },
+                            });
+                        });
+                    }
+                });
+            });
+        });
     });
 });
