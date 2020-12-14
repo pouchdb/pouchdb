@@ -30,6 +30,9 @@ var AGGRESSIVELY_BUNDLED_PACKAGES =
 // packages that only have a browser version
 var BROWSER_ONLY_PACKAGES =
   ['pouchdb-browser'];
+// packages that only use the browser field to ignore dependencies
+var BROWSER_DEPENDENCY_ONLY_PACKAGES =
+  ['pouchdb-adapter-leveldb'];
 
 function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
@@ -49,7 +52,9 @@ function buildModule(filepath) {
 
   // technically this is necessary in source code because browserify
   // needs to know about the browser switches in the lib/ folder
-  if (pkg.browser && pkg.browser['./lib/index.js'] !==
+  // some modules don't need this check and should be skipped
+  var skipBrowserField = BROWSER_DEPENDENCY_ONLY_PACKAGES.indexOf(pkg.name) !== -1;
+  if (!skipBrowserField && pkg.browser && pkg.browser['./lib/index.js'] !==
       './lib/index-browser.js') {
     return Promise.reject(new Error(pkg.name +
       ' is missing a "lib/index.js" entry in the browser field'));
