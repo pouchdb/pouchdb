@@ -124,7 +124,7 @@ During development, it's often useful to destroy the local database, so you can 
 
 In Chrome, you can use the [Clear Cache extension](https://chrome.google.com/webstore/detail/clear-cache/cppjkneekbjaeellbfkmgnhonkkjfpdn), which will add a trashcan icon to your toolbar, which you can click to delete all local data (IndexedDB, WebSQL, LocalStorage, cookies, etc.).
 
-In Firefox, you can use the [Clear Recent History+ add-on](https://addons.mozilla.org/en-US/firefox/addon/clear-recent-history/), so when you right-click a page you can quickly clear all data.
+In Firefox, you can use the [Clear Browsing Data add-on](https://addons.mozilla.org/en-US/firefox/addon/clear-browsing-data/), which adds a toolbar button to delete your IndexedDB with one click. 
 
 In Safari, you can simply click *Safari* &#8594; *Clear History and Website Data*.
 
