@@ -4,7 +4,7 @@ gem 'jekyll', '3.9.0'
 
 group :jekyll_plugins do
   gem 'jekyll-paginate'
-  gem 'redcarpet'
+  gem 'redcarpet', '>= 3.5.1'
 end
 
 gem 'json'
