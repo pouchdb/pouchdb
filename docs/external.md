@@ -32,6 +32,10 @@ Encrypt a PouchDB/CouchDB database.
 
 Replicate from PouchDB to Dat.
 
+#### [PouchDB Hyperbee](https://github.com/RangerMauve/pouchdb-adapter-hyperbee)
+
+Sparsely load data from Hyperbee over p2p networks in Node and the Browser.
+
 #### [Pouch Datalog](https://github.com/dahjelle/pouch-datalog)
 
 Implement the Datalog query language on PouchDB, with indexes.
