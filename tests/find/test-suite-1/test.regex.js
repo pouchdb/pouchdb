@@ -105,5 +105,62 @@ testCases.push(function (dbType, context) {
       });
     });
 
+    it('should works with index on multiple fields', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["name", "debut"]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {
+            name: {$regex: "^Luig"},
+            debut: {$gt: 1980}
+          },
+          sort: ['name']
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+
+          docs.should.deep.equal([
+            { name: 'Luigi', rank: 11, _id: 'luigi', series: 'Mario', debut: 1983, awesome: false },
+          ]);
+        });
+      });
+    });
+    it('should works with $and with multiple $regex conditions on same field', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["name"]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {
+            $and: [
+              { name: { $regex: "in" } },
+              { name: { $regex: "n" } },
+            ]
+          },
+          sort: [ 'name' ]
+        }).then(function (resp) {
+          var docs = resp.docs.map(function (doc) {
+            delete doc._rev;
+            return doc;
+          });
+          docs.should.deep.equal([
+            {
+              name: 'Captain Falcon', _id: 'falcon', rank: 4, series: 'F-Zero', debut: 1990,
+              awesome: true
+            },
+            { name: 'Link', rank: 10, _id: 'link', series: 'Zelda', debut: 1986, awesome: true },
+          ]);
+        });
+      });
+    });
   });
 });

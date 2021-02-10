@@ -137,14 +137,6 @@ db.remove('docid', '2-y').then(function (doc) {
 
 If you want to resolve the conflict by creating a new revision, you simply `put()` a new document on top of the current winner, and make sure that the losing revision is deleted.
 
-{% include alert/start.html variant="info" %}
-{% markdown %}
-PouchDB deviates from CouchDB's replication algorithm in one small way: revision hashes aren't deterministic. PouchDB is forced to do this, because CouchDB calculates its revision hashes in an Erlang-specific way.
-
-In practice, this just means that PouchDB's replication algorithm is slightly less efficient than CouchDB's, for some very unlikely edge cases. For details, see [this comment](https://github.com/pouchdb/pouchdb/issues/2451#issuecomment-77386826).
-{% endmarkdown %}
-{% include alert/end.html %}
-
 {% include anchor.html title="Accountants don't use erasers" hash="accountants-dont-use-erasers" %}
 
 Another conflict resolution strategy is to design your database so that conflicts are impossible. In practice, this means that you never update or remove existing documents &ndash; you only create new documents.
@@ -159,7 +151,7 @@ This strategy has been called the "every doc is a delta" strategy. A classic use
 
 In this system, it is impossible for two documents to conflict, because the document `_id`s are just timestamps. Ledger transactions are recorded in the order they were made, and at the end of the day, you only need to do an `allDocs()` or `query()` operation to sum the result.
 
-The wisdom of this strategy can be expressed by the maxim: ["Accountants don't use erasers"](http://blogs.msdn.com/b/pathelland/archive/2007/06/14/accountants-don-t-use-erasers.aspx). Like a diligent accountant, your app can just add new documents when you want to make a change, rather than going back and scrubbing out previous changes.
+The wisdom of this strategy can be expressed by the maxim: ["Accountants don't use erasers"](https://blogs.msdn.microsoft.com/pathelland/2007/06/14/accountants-dont-use-erasers/). Like a diligent accountant, your app can just add new documents when you want to make a change, rather than going back and scrubbing out previous changes.
 
 There is also a PouchDB plugin that implements this strategy: [delta-pouch](https://github.com/redgeoff/delta-pouch).
 

@@ -116,6 +116,10 @@ PouchDB/CouchDB replication over WebSockets, using Engine.io (Socket.io).
 
 Multidimensional and spatial queries with PouchDB.
 
+#### [PouchDB Geospatial](https://github.com/dpmcmlxxvi/pouchdb-geospatial)
+
+PouchDB geospatial querying of GeoJSON objects that supports the DE-9IM spatial predicates. ([Documentation](https://dpmcmlxxvi.github.io/pouchdb-geospatial/api/))
+
 #### [Superlogin](https://www.npmjs.com/package/superlogin)
 
 Powerful authentication for APIs and single page apps using the CouchDB ecosystem, which supports a variety of providers.
@@ -225,6 +229,12 @@ Ember Data adapter for PouchDB/CouchDB.
 
 Promisy PouchDB wrapper for Ember.js.
 
+### [GopherJS](https://github.com/gopherjs/gopherjs)
+
+#### [Kivik](https://github.com/go-kivik/kivik)
+
+Kivik provides a common interface to CouchDB or CouchDB-like databases for Go and GopherJS. ([PouchDB driver](https://github.com/go-kivik/pouchdb))
+
 ### Kendo UI
 
 #### [kendo-pouchdb](https://github.com/terikon/kendo-pouchdb)
@@ -232,6 +242,10 @@ Promisy PouchDB wrapper for Ember.js.
 Kendo UI DataSource adapter.
 
 ### React/Flux
+
+#### [react-pouchdb](https://github.com/ArnoSaine/react-pouchdb)
+
+React wrapper for PouchDB that also subscribes to changes.
 
 #### [pouch-redux](https://github.com/UXtemple/pouch-redux)
 
@@ -251,7 +265,7 @@ Redux middleware to sync a PouchDB database with the Redux state.
 
 ### Vue.js
 
-#### [vue-pouch](https://github.com/qurateinc/vue-pouch)
+#### [pouch-vue](https://github.com/MDSLKTR/pouch-vue)
 
 Syncs PouchDB data with Vue.js components using Mango Selectors
 

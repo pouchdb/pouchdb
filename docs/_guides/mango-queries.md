@@ -54,7 +54,7 @@ db.createIndex({
 });
 ```
 
-This returns a Promise once the index is created. At this point, we have an index based on the `"name"` field, so we can use it for lookup:
+This returns a Promise that resolves once the index is created. At this point, we have an index based on the `"name"` field, so we can use it for lookup:
 
 ```js
 db.find({
@@ -299,13 +299,6 @@ db.explain({
 
 ```
 
-Or you enable debugging like so:
-
-```js
-PouchDB.debug.enable('pouchdb:find');
-```
-
-
 In the console, the query planner will show a detailed explanation of how it has interpreted the query, whether it uses any indexes, and whether any parts of the query need to be executed in-memory.
 
 
@@ -314,7 +307,7 @@ You may also want to pay attention to the `"warning"` value included in your res
 ```js
 {
   "docs": [ /* ... */ ],
-  "warning": "no matching index found, create an index to optimize query time"
+  "warning": "No matching index found, create an index to optimize query time."
 }
 ```
 

@@ -584,6 +584,28 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    if (adapter === 'local') {
+      // This test fails in the http adapter, if it is used with CouchDB version <3
+      // or PouchDB-Server. Which is expected.
+      it('Allows _access field in documents (#8171)', function (done) {
+        var doc = {
+          '_access': ['alice']
+        };
+        var db = new PouchDB(dbs.name);
+        db.post(doc, function (err, resp) {
+          should.not.exist(err);
+  
+          db.get(resp.id, function (err, doc2) {
+            should.not.exist(err);
+  
+            doc2._access.should.eql(['alice']);
+  
+            done();
+          });
+        });
+      });
+    }
+
     it('Testing issue #48', function (done) {
       var docs = [
         {'_id': '0'}, {'_id': '1'}, {'_id': '2'},

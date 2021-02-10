@@ -32,9 +32,6 @@ if (process.env.ADAPTER) {
 if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
-if (process.env.NEXT) {
-  queryParams.NEXT = '1';
-}
 
 var rebuildPromise = Promise.resolve();
 

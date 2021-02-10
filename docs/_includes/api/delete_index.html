@@ -89,7 +89,7 @@ one after the built-in `_all_docs` index):
 
 {% include code/start.html id="delete_idx2" type="callback" %}
 {% highlight js %}
-db.findIndexes(function (err, indexesResult) {
+db.getIndexes(function (err, indexesResult) {
   if (err) { return console.log(err); }
   db.deleteIndex(indexesResult.indexes[1], function (err, result) {
     if (err) { return console.log(err); }
@@ -102,7 +102,7 @@ db.findIndexes(function (err, indexesResult) {
 {% include code/start.html id="delete_idx2" type="async" %}
 {% highlight js %}
 try {
-  var indexesResult = await db.findIndexes();
+  var indexesResult = await db.getIndexes();
   var result = await db.deleteIndex(indexesResult.indexes[1]);
 } catch (err) {
   console.log(err);
@@ -112,7 +112,7 @@ try {
 
 {% include code/start.html id="delete_idx2" type="promise" %}
 {% highlight js %}
-db.findIndexes().then(function (indexesResult) {
+db.getIndexes().then(function (indexesResult) {
   return db.deleteIndex(indexesResult.indexes[1]);
 }).then(function (result) {
   // handle result

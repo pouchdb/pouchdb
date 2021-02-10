@@ -105,6 +105,31 @@ testCases.push(function (dbType, context) {
       });
     });
 
+    it('initial dollar sign can be escaped', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": [
+            "$foobar"
+          ]
+        },
+        "name": "foo-index",
+        "type": "json"
+      };
+      return db.bulkDocs([
+        {_id: 'doc', '$foobar': 'a'}
+      ]).then(function () {
+        return db.createIndex(index);
+      }).then(function () {
+        return db.find({
+          selector: {'\\$foobar': 'a'},
+          fields: ['_id']
+        });
+      }).then(function (res) {
+        res.docs.should.deep.equal([{ "_id": "doc"}]);
+      });
+    });
+
     it('unicode can be escaped', function () {
       var db = context.db;
       var index = {

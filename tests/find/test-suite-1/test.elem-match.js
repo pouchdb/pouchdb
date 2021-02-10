@@ -65,5 +65,28 @@ testCases.push(function (dbType, context) {
         });
       });
     });
+    
+    it('with object in array couchdb style', function () {
+      var db = context.db;
+      var docs = [
+        {_id: '1', events: [{eventId: 1, status: 'completed'}, {eventId: 2, status: 'started'}]},
+        {_id: '2', events: [{eventId: 1, status: 'pending'}, {eventId: 2, status: 'finished'}]},
+        {_id: '3', events: [{eventId: 1, status: 'pending'}, {eventId: 2, status: 'started'}]},
+      ];
+
+      return db.bulkDocs(docs).then(function () {
+        return db.find({
+          selector: {
+            events: {$elemMatch: {"status": 'pending', "eventId": 1}},
+          },
+          fields: ['_id']
+        }).then(function (resp) {
+          resp.docs.map(function (doc) {
+            return doc._id;
+          }).should.deep.equal(['2', '3']);
+        });
+      });
+    });
+    
   });
 });

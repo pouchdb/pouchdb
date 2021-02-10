@@ -3,6 +3,7 @@ tmp
 /node_modules
 docs/_site
 docs/static/css
+docs/.jekyll-cache
 npm-debug.log
 npm-debug.log.*
 *~
@@ -22,3 +23,5 @@ lerna-debug.log
 tests/integration/utils-bundle.js
 *.heapsnapshot
 /pouchdb-server-install
+package-lock.json
+yarn.lock

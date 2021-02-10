@@ -146,16 +146,6 @@ function buildPluginsForBrowser() {
   });
 }
 
-function buildPouchDBNext() {
-  return doRollup('src/next.js', true, {
-    cjs: 'lib/next.js'
-  }).then(function () {
-    return doBrowserify('pouchdb', 'lib/next.js', {standalone: 'PouchDB'});
-  }).then(function (code) {
-    return writeFile('packages/node_modules/pouchdb/dist/pouchdb-next.js', code);
-  });
-}
-
 var rimrafMkdirp = argsarray(function (args) {
   return all(args.map(function (otherPath) {
     return rimraf(addPath('pouchdb', otherPath));
@@ -182,7 +172,7 @@ function doBuildNode() {
 function doBuildAll() {
   return rimrafMkdirp('lib', 'dist', 'lib/plugins')
     .then(doAll(buildForNode, buildForBrowserify))
-    .then(doAll(buildForBrowser, buildPluginsForBrowserify, buildPouchDBNext))
+    .then(doAll(buildForBrowser, buildPluginsForBrowserify))
     .then(doAll(buildPluginsForBrowser));
 }
 

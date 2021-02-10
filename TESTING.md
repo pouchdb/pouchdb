@@ -3,6 +3,14 @@ Running PouchDB Tests
 
 The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above) running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on http://127.0.0.1:5984 with [CORS enabled](https://github.com/pouchdb/add-cors-to-couchdb), you can configure this by setting the `COUCH_HOST` env var.
 
+If you use docker, you can start the couchdb-instance with
+```bash
+    docker run -it --name my-couchdb -p 5984:5984 couchdb:latest
+    
+    # to have a couchdb with enabled cors, you can use trivago/couchdb-cors
+    docker run -it --name my-couchdb -p 5984:5984 trivago/couchdb-cors:latest
+```
+
  * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
 
 ### Node Tests
@@ -61,7 +69,6 @@ or
 #### Other test options
 
 * `SKIP_MIGRATION=1` should be used to skip the migration tests.
-* `NEXT=1` will test pouchdb-next (PouchDB with v2 IndexedDB adapter).
 * `POUCHDB_SRC=../../dist/pouchdb.js` can be used to treat another file as the PouchDB source file.
 * `npm run test-webpack` will build with Webpack and then test that in a browser.
 
@@ -107,6 +114,10 @@ This works because `npm run dev` does not start up the pouchdb-server itself (on
 Note that you must `npm install pouchdb-server` or `npm install express-pouchdb` yourself for this test to work.
 
 ### Testing different Node adapters
+
+Use this option to test the new indexeddb adapter:
+
+    ADAPTER=indexeddb
 
 Use this option to test the in-memory adapter:
 

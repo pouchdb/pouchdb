@@ -30,4 +30,18 @@ describe('test.clone.js', function () {
     obj1.kitty.foo = 'bar';
     obj2.kitty.foo.should.equal('bar');
   });
+
+  it('Clones regular dates', function () {
+    var obj1 = {name: 'one', number: 1, date: new Date('2020-12-04')};
+    clone(obj1);
+  });
+
+  it('Clones dates non finite dates', function () {
+    var obj1 = {name: 'zero', number: 0, date: new Date('0000-00-00')};
+    try {
+      clone(obj1);
+    } catch (err) {
+      console.log(err);
+    }
+  });
 });
