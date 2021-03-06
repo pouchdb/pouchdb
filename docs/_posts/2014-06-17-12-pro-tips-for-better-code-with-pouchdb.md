@@ -119,7 +119,7 @@ Every time you modify a document, another revision is added to its revision hist
 
 I already wrote [a blog post about this](http://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html), but basically, if you don't want bad performance from your secondary indexes, the best strategy is to avoid secondary indexes altogether. The primary index should be sufficient for sorting and searching in nearly all of your applications, or at least for the hot-path code.
 
-Also, if you really want to get fancy with your doc IDs, you can use [PouchDB Collate](https://github.com/pouchdb/collate/) to serialize arbitrary data into strings that are sorted according to [CouchDB collation ordering](https://wiki.apache.org/couchdb/View_collation).  This allows you to index on arrays, objects, numbers &ndash; whatever you want:
+Also, if you really want to get fancy with your doc IDs, you can use [PouchDB Collate](https://github.com/pouchdb/collate/) to serialize arbitrary data into strings that are sorted according to [CouchDB collation ordering](https://docs.couchdb.org/en/latest/ddocs/views/collation.html).  This allows you to index on arrays, objects, numbers &ndash; whatever you want:
 
 ```js
 var pouchCollate = require('pouchdb-collate');
