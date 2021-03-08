@@ -1,14 +1,13 @@
 'use strict';
 
 testCases.push(function (dbType, context) {
-  const { db } = context;
   describe(`${dbType}: test.partial.js`, function () {
     beforeEach(function () {
-      const write = db.bulkDocs({ docs: [
+      const write = context.db.bulkDocs({ docs: [
         { _id: 'a', type: 'x', hello: 'world' },
         { _id: 'a', type: 'y', hello: 'world' }
       ]});
-      const index = db.createIndex({
+      const index = context.db.createIndex({
         index: {
           fields: ['hello'],
           partial_filter_selector: { type: 'x' }
@@ -19,7 +18,7 @@ testCases.push(function (dbType, context) {
       Promise.all([write, index]);
     });
     it('should apply the partial filter', function () {
-      db.find({
+      context.db.find({
         selector: { hello: 'world' },
         use_index: ['_design/test-partial', 'type-x']
       }).then((result) => {
