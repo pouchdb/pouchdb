@@ -15,7 +15,9 @@ testCases.push(function (dbType, context) {
         ddoc: 'test-partial',
         name: 'type-x'
       });
-      Promise.all([write, index]).then(done);
+      Promise.all([write, index]).then(() => {
+        done();
+      });
     });
     it('should apply the partial filter', function (done) {
       context.db.find({
