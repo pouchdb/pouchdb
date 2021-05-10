@@ -21,10 +21,12 @@ testCases.push(function (dbType, context) {
       return context.db.find({
         selector: { hello: 'world' },
         use_index: ['_design/test-partial', 'type-x']
-      }).then((result) => {
-        result.should.deep.equals({
-          docs: [{ _id: 'a', type: 'x', hello: 'world' }]
-        });
+      }).then(function (result) {
+        result.docs.should.have.length(1);
+        const [{ _id: id, type, hello }] = result.docs;
+        id.should.equal('a');
+        type.should.equal('x');
+        hello.should.equal('world');
       });
     });
   });
