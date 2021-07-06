@@ -52,6 +52,13 @@ pouchdb-link-server-modules() {
   cd ..
 }
 
+pouchdb-build-node() {
+  if [[ $BUILD_NODE_DONE -ne 1 ]]; then
+    npm run build-node
+    BUILD_NODE_DONE=1
+  fi
+}
+
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     export COUCH_HOST='http://127.0.0.1:6984'
@@ -69,10 +76,12 @@ if [[ ! -z $SERVER ]]; then
       export COUCH_HOST="http://127.0.0.1:5984"
     fi
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
+    pouchdb-build-node
     node ./tests/misc/pouchdb-express-router.js &
     export SERVER_PID=$!
     export COUCH_HOST='http://127.0.0.1:3000'
   elif [ "$SERVER" == "express-pouchdb-minimum" ]; then
+    pouchdb-build-node
     node ./tests/misc/express-pouchdb-minimum-for-pouchdb.js &
     export SERVER_PID=$!
     export COUCH_HOST='http://127.0.0.1:3000'
@@ -103,6 +112,7 @@ printf '\nHost started :)'
 if [ "$CLIENT" == "unit" ]; then
     npm run test-unit
 elif [ "$CLIENT" == "node" ]; then
+    pouchdb-build-node
     npm run test-node
 elif [ "$CLIENT" == "dev" ]; then
     npm run launch-dev-server
