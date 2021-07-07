@@ -96,6 +96,39 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Indexing event', function (done) {
+      var docs1 = [
+        doc,
+        {_id: 'dale', score: 3},
+        {_id: 'mikeal', score: 5},
+        {_id: 'max', score: 4},
+        {_id: 'nuno', score: 3},
+      ];
+      var db = new PouchDB(dbs.name);
+      // Test invalid if adapter doesnt support mapreduce
+      if (!db.query || adapter !== 'local') {
+        return done();
+      }
+
+      let indexingEvents = [];
+
+      db.on('indexing', function (result) {
+        indexingEvents.push(result);
+      });
+
+      db.bulkDocs({ docs: docs1 }, function () {
+        db.query('foo/scores', { reduce: false }, function () {          
+          indexingEvents.length.should.equal(2);
+          indexingEvents[0]['indexed_docs'].should.equal(0);
+          indexingEvents[1]['last_seq'].should.equal(5);
+          indexingEvents[1]['results_count'].should.equal(5);
+          indexingEvents[1]['indexed_docs'].should.equal(5);
+
+          done();
+        });
+      });
+    });
+
     it('Concurrent queries', function (done) {
       var db = new PouchDB(dbs.name);
       // Test invalid if adapter doesnt support mapreduce
