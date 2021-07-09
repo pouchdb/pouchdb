@@ -400,5 +400,40 @@ adapters.forEach(function (adapters) {
     // #5607 https://github.com/pouchdb/pouchdb/issues/5607#issuecomment-346078688
     // Note: Uppercase 'Unauthorized' response
     describe('#5607 handle uppercase third-party error responses', replication401TestFunction('Unauthorized'));
+
+    it('Test checkpoint events', (done) => {
+      const docs = {
+        docs: [
+          {_id: '0', integer: 0, string: '0'},
+          {_id: '1', integer: 1, string: '1'},
+          {_id: '2', integer: 2, string: '2'},
+        ],
+      };
+      let remote = new PouchDB(dbs.remote);
+      let checkpointEvents = [];
+
+      remote.bulkDocs(docs, {}, () => {
+        let replication = PouchDB.replicate(dbs.remote, dbs.name, {}, () => {
+          checkpointEvents[0]['pending_batch'].should.equal(1);
+          checkpointEvents[1]['pending_batch'].should.equal(2);
+          checkpointEvents[2]['pending_batch'].should.equal(3);
+          checkpointEvents[3]['start_next_batch'].should.equal(3);
+          checkpointEvents[4]['revs_diff'].should.have.property('id');
+          checkpointEvents[4]['revs_diff']['id'].should.equal('0');
+          checkpointEvents[4]['revs_diff']['seq'].should.equal(1);
+          checkpointEvents[5]['revs_diff'].should.have.property('changes');
+          checkpointEvents[5]['revs_diff']['id'].should.equal('1');
+          checkpointEvents[5]['revs_diff']['seq'].should.equal(2);
+          checkpointEvents[6]['revs_diff'].should.have.property('changes');
+          checkpointEvents[6]['revs_diff']['id'].should.equal('2');
+          checkpointEvents[6]['revs_diff']['seq'].should.equal(3);
+          checkpointEvents[7]['checkpoint'].should.equal(3);
+
+          done();
+        });
+
+        replication.on('checkpoint', result => checkpointEvents.push(result));
+      });
+    });
   });
 });
