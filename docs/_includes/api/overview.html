@@ -42,15 +42,7 @@ To use a custom promise implementation with PouchDB, you must redefine a global 
 
 ### Async functions
 
-If you are using a transpiler like [Babel](http://babeljs.io/), you can enable [async functions](https://github.com/tc39/ecmascript-asyncawait), which are an experimental API tentatively slated for release in ES7 (ES2016). This allows you to use the `async`/`await` keywords when consuming promise-based APIs like PouchDB's.
-
-{% include alert/start.html variant="info"%}
-{% markdown %}
-
-**How to configure Babel?** To use async functions, you will need the [syntax-async-functions plugin](http://babeljs.io/docs/plugins/syntax-async-functions/), as well as the [transform-regenerator plugin](https://babeljs.io/docs/plugins/transform-regenerator/) or [Kneden](https://github.com/marten-de-vries/kneden) (which is experimental as of this writing). For a full working example, see [async-functions-with-regenerator](https://github.com/nolanlawson/async-functions-with-regenerator).
-
-{% endmarkdown %}
-{% include alert/end.html%}
+Another option is to use `async`/`await` pattern instead of promises chain (ie. `.then().catch()`). `async`/`await` is widely supported by all major browsers and Node.js. Use a transpiler with `async`/`await` polyfill such as [Babel](http://babeljs.io/) if you need to support older browsers.
 
 Note that the samples for `async`/`await` in the API documentation assume that your code is inside an async function. So for instance:
 
