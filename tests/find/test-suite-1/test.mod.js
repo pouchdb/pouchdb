@@ -61,7 +61,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    it('should return error for zero divisor', function () {
+    it('should error for zero divisor', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -71,28 +71,23 @@ testCases.push(function (dbType, context) {
       return db.createIndex(index).then(function () {
         return db.find({
           selector: {
-            name: {$gte: null},
-            rank: {$mod: [0, 0]}
+            name: { $gte: null },
+            rank: { $mod: [ 0, 0 ] }
           },
-          sort: ['name']
+          sort: [ 'name' ]
         }).then(function () {
-          throw new Error('expected an error here');
+          throw new Error('Function should throw');
         }, function (err) {
-            if (dbType === 'http') {
-              should.exist(err);
-              return;
-            }
-
-            err.message.should.match(/Bad divisor/);
+          err.message.should.eq("Query operator $mod's divisor cannot be 0, cannot divide by zero.");
         });
       });
     });
 
-    it('should return error for non-integer divisor', function () {
+    it('should error for non-integer divisor', function () {
       var db = context.db;
       var index = {
         "index": {
-          "fields": ["name"]
+          "fields": ['name']
         }
       };
       return db.createIndex(index).then(function () {
@@ -103,19 +98,14 @@ testCases.push(function (dbType, context) {
           },
           sort: ['name']
         }).then(function () {
-          throw new Error('expected an error here');
+          throw new Error('Function should throw');
         }, function (err) {
-          if (dbType === 'http') {
-            should.exist(err);
-            return;
-          }
-
-          err.message.should.match(/Divisor is not an integer/);
+          err.message.should.eq("Query operator $mod's divisor is not an integer. Received string: a");
         });
       });
     });
 
-    it('should return error for non-integer modulus', function () {
+    it('should error for non-integer modulus', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -130,19 +120,14 @@ testCases.push(function (dbType, context) {
           },
           sort: ['name']
         }).then(function () {
-          throw new Error('expected an error here');
+          throw new Error('Function should throw');
         }, function (err) {
-          if (dbType === 'http') {
-            should.exist(err);
-            return;
-          }
-
-          err.message.should.match(/Modulus is not an integer/);
+          err.message.should.eq("Query operator $mod's remainder is not an integer. Received string: a");
         });
       });
     });
 
-    it('should return empty docs for non-integer field', function () {
+    it('should error for non-array modulus', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -153,16 +138,58 @@ testCases.push(function (dbType, context) {
         return db.find({
           selector: {
             name: {$gte: null},
-            awesome: {$mod: [2, 0]}
+            rank: {$mod: 'a'}
           },
           sort: ['name']
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $mod must be an array. Received string: a');
+        });
+      });
+    });
+    it('should error for wrong query value length', function () {
+      var db = context.db;
+      var index = {
+        "index": {
+          "fields": ["name"]
+        }
+      };
+      return db.createIndex(index).then(function () {
+        return db.find({
+          selector: {
+            name: {$gte: null},
+            rank: {$mod: [10]}
+          },
+          sort: ['name']
+        }).then(function () {
+          throw new Error('Function should throw');
+        }, function (err) {
+          err.message.should.eq('Query operator $mod must be in the format [divisor, remainder], where divisor and remainder are both integers. Received array: ' + JSON.stringify([10], null, "\t"));
+        });
+      });
+    });
+
+    it('should ignore non-int field values', function () {
+      var db = context.db;
+      return context.db.bulkDocs([
+        { _id: "int", int: 10 },
+        { _id: "float", int: 10.1 },
+        { _id: "string", int: "10" },
+      ]).then(function () {
+        return db.find({
+          selector: {
+            int: { $mod: [ 3, 1 ] }
+          },
         }).then(function (resp) {
           var docs = resp.docs.map(function (doc) {
             delete doc._rev;
             return doc;
           });
 
-          docs.should.deep.equal([]);
+          docs.should.deep.equal([
+            { _id: "int", int: 10 }
+          ]);
         });
       });
     });

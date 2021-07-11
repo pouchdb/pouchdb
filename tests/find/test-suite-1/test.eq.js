@@ -361,9 +361,7 @@ testCases.push(function (dbType, context) {
       });
     });
 
-    // TODO: investigate later - this fails in both Couch and Pouch, but I
-    // believe it shouldn't.
-    it.skip('#170 does queries with multiple null values - $gte', function () {
+    it('#170 does queries with multiple null values - $gte', function () {
       var db = context.db;
       var index = {
         "index": {
@@ -383,11 +381,10 @@ testCases.push(function (dbType, context) {
           fields: ["_id"]
         });
       }).then(function (resp) {
-        resp.should.deep.equal({
-          docs: [
-            {_id: '1'}
-          ]
-        });
+        resp.docs.should.deep.equal([
+          {_id: '1'},
+          {_id: '2'}
+        ]);
       });
     });
 
@@ -460,6 +457,146 @@ testCases.push(function (dbType, context) {
         });
       }).then(function (resp) {
         resp.docs.should.deep.equal([]);
+      });
+    });
+    describe("implicit/explicit $eq", () => {
+      it('implicit $eq queries against objects recurse', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": [ "field.a" ]
+          }
+        };
+
+        return db.createIndex(index).then(function () {
+          return db.bulkDocs([
+            {_id: '1', field: {a: 1, b: 2}},
+            {_id: '2', field: {a: 1, b: {$eq: 1}}},
+            {_id: '3', field: {a: 1, b: 1}},
+          ]);
+        }).then(function () {
+          return db.find({
+            selector: { field: {a: 1, b: {$eq: 1}} },
+            fields: [ "_id" ]
+          });
+        }).then(function (resp) {
+          resp.docs.should.deep.equal([ {_id: '3'} ]);
+        });
+      });
+      it('implicit $eq queries against objects using dot notation recurse', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": [ "field.a" ]
+          }
+        };
+
+        return db.createIndex(index).then(function () {
+          return db.bulkDocs([
+            {_id: '1', field: {sub: {a: 1, b: 2}}},
+            {_id: '2', field: {sub: {a: 1, b: {$eq: 1}}}},
+            {_id: '3', field: {sub: {a: 1, b: 1}}},
+          ]);
+        }).then(function () {
+          return db.find({
+            selector: {field: {"sub.a": 1, "sub.b": {$eq: 1}}},
+            fields: [ "_id" ]
+          });
+        }).then(function (resp) {
+          resp.docs.should.deep.equal([ {_id: '3'} ]);
+        });
+      });
+      it('$allMatch against objects using implicit $eq recurses', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": [ "field.a" ]
+          }
+        };
+
+        return db.createIndex(index).then(function () {
+          return db.bulkDocs([
+            {_id: '1', field:[{sub: {a: 1, b: 2}}]},
+            {_id: '2', field:[{sub: {a: 1, b: {$eq: 1}}}]},
+            {_id: '3', field:[{sub: {a: 1, b: 1}}]},
+          ]);
+        }).then(function () {
+          return db.find({
+            selector: {field:{ $allMatch:{sub: {a: 1, b: {$eq: 1}}}}},
+            fields: [ "_id" ]
+          });
+        }).then(function (resp) {
+          resp.docs.should.deep.equal([ {_id: '3'} ]);
+        });
+      });
+      it('explicit $eq queries against objects compare directly', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": [ "field.a" ]
+          }
+        };
+
+        return db.createIndex(index).then(function () {
+          return db.bulkDocs([
+            {_id: '1', field: {a: 1, b: 2}},
+            {_id: '2', field: {a: 1, b: {$eq: 1}}},
+            {_id: '3', field: {a: 1, b: 1}},
+          ]);
+        }).then(function () {
+          return db.find({
+            selector: {field: {$eq: {a: 1, b: {$eq: 1}}}},
+            fields: [ "_id" ]
+          });
+        }).then(function (resp) {
+          resp.docs.should.deep.equal([{_id: '2'} ]);
+        });
+      });
+      it('explicit $eq queries against objects using dot notation compare directly', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": [ "field.a" ]
+          }
+        };
+
+        return db.createIndex(index).then(function () {
+          return db.bulkDocs([
+            {_id: '1', field: {sub: {a: 1, b: 2}}},
+            {_id: '2', field: {"sub.a": 1, "sub.b": {$eq: 1}}},
+            {_id: '3', field: {sub: {a: 1, b: 1}}},
+          ]);
+        }).then(function () {
+          return db.find({
+            selector: {field: {$eq: {"sub.a": 1, "sub.b": {$eq: 1}}}},
+            fields: [ "_id" ]
+          });
+        }).then(function (resp) {
+          resp.docs.should.deep.equal([ {_id: '2'} ]);
+        });
+      });
+      it('$allMatch against objects using explicit $eq compares directly', function () {
+        var db = context.db;
+        var index = {
+          "index": {
+            "fields": [ "field.a" ]
+          }
+        };
+
+        return db.createIndex(index).then(function () {
+          return db.bulkDocs([
+            {_id: '1', field: [ {sub: {a: 1, b: 2}} ]},
+            {_id: '2', field: [ {sub: {a: 1, b: {$eq: 1}}} ]},
+            {_id: '3', field: [ {sub: {a: 1, b: 1}} ]},
+          ]);
+        }).then(function () {
+          return db.find({
+            selector: {field: {$allMatch: {sub: {$eq: {a: 1, b: {$eq: 1}}}}}},
+            fields: [ "_id" ]
+          });
+        }).then(function (resp) {
+          resp.docs.should.deep.equal([ {_id: '2'} ]);
+        });
       });
     });
   });
