@@ -84,9 +84,6 @@ if (process.env.PLUGINS) {
 if (process.env.COUCH_HOST) {
   qs.couchHost = process.env.COUCH_HOST;
 }
-if (process.env.ADAPTER) {
-  qs.adapter = process.env.ADAPTER;
-}
 if (process.env.ITERATIONS) {
   qs.iterations = process.env.ITERATIONS;
 }
