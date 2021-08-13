@@ -11,7 +11,7 @@
   var pouchdbSrc = params.src || scriptPath + '/pouchdb.js';
 
   var scriptsToLoad = [pouchdbSrc];
-  var pluginAdapters = ['localstorage', 'memory'];
+  var pluginAdapters = ['indexeddb', 'localstorage', 'memory'];
 
   adapters.forEach(function (adapter) {
     if (pluginAdapters.includes(adapter)) {
