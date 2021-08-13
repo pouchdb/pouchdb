@@ -3,35 +3,26 @@
   'use strict';
   // use query parameter pluginFile if present,
   // eg: test.html?pluginFile=memory.pouchdb.js
-  var plugins = window.location.search.match(/[?&]plugins=([^&]+)/);
-  var adapters = window.location.search.match(/[?&]adapters=([^&]+)/);
-  var pouchdbSrc = window.location.search.match(/[?&]src=([^&]+)/);
-  if (pouchdbSrc) {
-    pouchdbSrc = decodeURIComponent(pouchdbSrc[1]);
-  } else {
-    pouchdbSrc = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
-  }
-  var scriptsToLoad = [pouchdbSrc];
-  if (adapters) {
-    adapters = adapters[1].split(',');
-    adapters.forEach(function (adapter) {
-      if (adapter !== 'idb') {
-        // load from plugin
-        scriptsToLoad.push(
-          '../../packages/node_modules/pouchdb/dist/pouchdb.' + adapter + '.js');
-      }
-    });
-  }
-  if (plugins) {
-    plugins[1].split(',').forEach(function (plugin) {
-      plugin = plugin.replace(/^pouchdb-/, '');
-      scriptsToLoad.push(
-        '../../packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js');
-    });
-  }
 
-  var remote = window.location.search.match(/[?&]remote=([^&]+)/);
-  remote = remote && remote[1] === '1';
+  var params = testUtils.params();
+  var plugins = ('plugins' in params) ? params.plugins.split(',') : [];
+  var adapters = ('adapters' in params) ? params.adapters.split(',') : [];
+  var pouchdbSrc = params.src || '../../packages/node_modules/pouchdb/dist/pouchdb.js';
+  var scriptsToLoad = [pouchdbSrc];
+  adapters.forEach(function (adapter) {
+    if (adapter !== 'idb') {
+      // load from plugin
+      scriptsToLoad.push(
+        '../../packages/node_modules/pouchdb/dist/pouchdb.' + adapter + '.js');
+    }
+  });
+  plugins.forEach(function (plugin) {
+    plugin = plugin.replace(/^pouchdb-/, '');
+    scriptsToLoad.push(
+      '../../packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js');
+  });
+
+  var remote = params.remote === '1';
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
   function asyncLoadScript(url, callback) {
@@ -65,10 +56,10 @@
   }
 
   function modifyGlobals() {
-    if (adapters) {
+    if (adapters.length > 0) {
       window.PouchDB.preferredAdapters = adapters;
     }
-    if (window.location.search.indexOf('autoCompaction') !== -1) {
+    if ('autoCompaction' in params) {
       window.PouchDB = window.PouchDB.defaults({ auto_compaction: true });
     }
   }
