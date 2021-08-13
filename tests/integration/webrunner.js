@@ -7,19 +7,20 @@
   var params = testUtils.params();
   var plugins = ('plugins' in params) ? params.plugins.split(',') : [];
   var adapters = ('adapters' in params) ? params.adapters.split(',') : [];
-  var pouchdbSrc = params.src || '../../packages/node_modules/pouchdb/dist/pouchdb.js';
+  var scriptPath = '../../packages/node_modules/pouchdb/dist';
+  var pouchdbSrc = params.src || scriptPath + '/pouchdb.js';
+
   var scriptsToLoad = [pouchdbSrc];
+  var pluginAdapters = ['localstorage', 'memory'];
+
   adapters.forEach(function (adapter) {
-    if (adapter !== 'idb') {
-      // load from plugin
-      scriptsToLoad.push(
-        '../../packages/node_modules/pouchdb/dist/pouchdb.' + adapter + '.js');
+    if (pluginAdapters.includes(adapter)) {
+      plugins.push(adapter);
     }
   });
   plugins.forEach(function (plugin) {
     plugin = plugin.replace(/^pouchdb-/, '');
-    scriptsToLoad.push(
-      '../../packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js');
+    scriptsToLoad.push(scriptPath + '/pouchdb.' + plugin + '.js');
   });
 
   var remote = params.remote === '1';
