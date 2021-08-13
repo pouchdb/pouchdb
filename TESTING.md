@@ -117,15 +117,15 @@ Note that you must `npm install pouchdb-server` or `npm install express-pouchdb`
 
 Use this option to test the new indexeddb adapter:
 
-    ADAPTER=indexeddb
+    ADAPTERS=indexeddb
 
 Use this option to test the in-memory adapter:
 
-    ADAPTER=memory
+    ADAPTERS=memory
 
 To run the node-websql test in Node, run the tests with:
 
-    ADAPTER=websql
+    ADAPTERS=websql
 
 ### Testing fetch vs XMLHttpRequest
 
@@ -153,7 +153,7 @@ You can also use `LEVEL_ADAPTER` to use a certain "DOWN" adapter:
 
 You can also test against node-websql:
 
-    PERF=1 ADAPTER=websql npm test
+    PERF=1 ADAPTERS=websql npm test
 
 You can also override the default number of iterations:
 
