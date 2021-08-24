@@ -4,8 +4,8 @@
 var opts = {};
 
 if (typeof process !== 'undefined' && process.env) {
-  if (process.env.ADAPTER) {
-    opts.adapter = process.env.ADAPTER;
+  if (process.env.ADAPTERS) {
+    opts.adapter = process.env.ADAPTERS;
   }
 }
 
