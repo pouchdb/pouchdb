@@ -351,7 +351,7 @@ if (typeof process !== 'undefined' && !process.browser) {
       auto_compaction: true,
       prefix: './tmp/_pouch_'
     });
-  } else if (process.env.ADAPTER === 'websql') {
+  } else if (process.env.ADAPTERS === 'websql') {
     // test WebSQL in Node
     // (the two strings are just to fool Browserify because sqlite3 fails
     // in Node 0.11-0.12)
@@ -361,7 +361,7 @@ if (typeof process !== 'undefined' && !process.browser) {
     global.PouchDB = global.PouchDB.defaults({
       prefix: path.resolve('./tmp/_pouch_')
     });
-  } else if (process.env.ADAPTER === 'memory') {
+  } else if (process.env.ADAPTERS === 'memory') {
     global.PouchDB.plugin(require('../../packages/node_modules/' +
       'pouchdb-adapter-memory'));
     global.PouchDB.preferredAdapters = ['memory', 'leveldb'];
