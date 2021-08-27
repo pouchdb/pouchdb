@@ -5,7 +5,8 @@
  * and see what sticks.
  */
 
-['local', 'http'].forEach(function (adapter) {
+(function () {
+  var adapter = testUtils.adapterType();
 
   function humanizeNum(i) {
     var res = (i + 1).toString();
@@ -110,4 +111,4 @@
 
     });
   });
-});
+})();

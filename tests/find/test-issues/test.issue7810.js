@@ -1,8 +1,8 @@
 "use strict";
 
-var adapters = ["local", "http"];
+(function () {
+  var adapter = testUtils.adapterType();
 
-adapters.forEach(function (adapter) {
   describe("test.issue7810.js-" + adapter, function () {
     var dbs = {};
 
@@ -219,4 +219,4 @@ adapters.forEach(function (adapter) {
       });
     });
   });
-});
+})();
