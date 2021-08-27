@@ -35,6 +35,12 @@ testUtils.isIE = function () {
   return (isIE || isTrident || isEdge);
 };
 
+testUtils.adapterType = function () {
+  var adapters = testUtils.isNode() ? process.env.ADAPTERS : testUtils.params().adapters;
+  adapters = (adapters || '').split(',');
+  return adapters.indexOf('http') < 0 ? 'local' : 'http';
+};
+
 testUtils.params = function () {
   if (testUtils.isNode()) {
     return process.env;
