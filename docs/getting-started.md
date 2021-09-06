@@ -212,4 +212,4 @@ You should be able to open [the todo app](http://127.0.0.1:8000) in another brow
 
 {% include anchor.html class="h3" title="Congratulations!" hash="congratulations" %}
 
-You've completed your first PouchDB application. This is a basic example, and a real world application will need to integrate more error checking, user signup, etc. But you should now understand the basics you need to start working on your own PouchDB project. If you have any more questions, please get in touch on [IRC](irc://freenode.net#pouchdb) or the [mailing list](https://groups.google.com/forum/#!forum/pouchdb).
+You've completed your first PouchDB application. This is a basic example, and a real world application will need to integrate more error checking, user signup, etc. But you should now understand the basics you need to start working on your own PouchDB project. If you have any more questions, please get in touch on [IRC](ircs://irc.libera.chat:6697#pouchdb) [(web)](https://web.libera.chat/#pouchdb) or the [mailing list](https://groups.google.com/forum/#!forum/pouchdb).
