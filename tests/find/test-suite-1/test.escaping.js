@@ -187,4 +187,54 @@ describe('test.escaping.js', function () {
       res.docs.should.deep.equal([doc]);
     });
   });
+
+  it('internal digits are not escaped', function () {
+    var db = context.db;
+    var index = {
+      "index": {
+        "fields": [
+          "foo0bar"
+        ]
+      },
+      "name": "foo-index",
+      "type": "json"
+    };
+    return db.bulkDocs([
+      {_id: 'doc', 'foo0bar': 'a'}
+    ]).then(function () {
+      return db.createIndex(index);
+    }).then(function () {
+      return db.find({
+        selector: {'foo0bar': 'a'},
+        fields: ['_id', 'foo0bar']
+      });
+    }).then(function (res) {
+      res.docs.should.deep.equal([{ "_id": "doc", "foo0bar": "a" }]);
+    });
+  });
+
+  it('handles escape patterns', function () {
+    var db = context.db;
+    var index = {
+      "index": {
+        "fields": [
+          "foo_c46_bar"
+        ]
+      },
+      "name": "foo-index",
+      "type": "json"
+    };
+    return db.bulkDocs([
+      {_id: 'doc', 'foo_c46_bar': 'a'}
+    ]).then(function () {
+      return db.createIndex(index);
+    }).then(function () {
+      return db.find({
+        selector: {'foo_c46_bar': 'a'},
+        fields: ['_id', 'foo_c46_bar']
+      });
+    }).then(function (res) {
+      res.docs.should.deep.equal([{ "_id": "doc", "foo_c46_bar": "a" }]);
+    });
+  });
 });
