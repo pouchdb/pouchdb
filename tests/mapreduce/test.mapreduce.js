@@ -1205,7 +1205,7 @@ function tests(suiteName, dbName, dbType, viewType) {
     }
 
     it('Query result should include _conflicts', function () {
-      var db2name = 'test2b' + Math.random();
+      var db2name = testUtils.adapterUrl(dbType, 'test2b');
       var cleanup = function () {
         return new PouchDB(db2name).destroy();
       };
@@ -1518,7 +1518,7 @@ function tests(suiteName, dbName, dbType, viewType) {
     });
 
     it('Views should include _conflicts', function () {
-      var db2name = 'test2' + Math.random();
+      var db2name = testUtils.adapterUrl(dbType, 'test2');
       var cleanup = function () {
         return new PouchDB(db2name).destroy();
       };
@@ -2980,6 +2980,7 @@ function tests(suiteName, dbName, dbType, viewType) {
 
     it('should query correctly after replicating and other ddoc', function () {
       var db = new PouchDB(dbName);
+      var db2 = new PouchDB(testUtils.adapterUrl(dbType, 'local-other'));
       return createView(db, {
         map: function (doc) {
           emit(doc.name);
@@ -2991,7 +2992,6 @@ function tests(suiteName, dbName, dbType, viewType) {
           res.rows.map(function (x) {return x.key; }).should.deep.equal([
             'foobar'
           ], 'test db before replicating');
-          var db2 = new PouchDB('local-other');
           return db.replicate.to(db2).then(function () {
             return db.query(queryFun);
           }).then(function (res) {
@@ -3020,11 +3020,11 @@ function tests(suiteName, dbName, dbType, viewType) {
               'foobar'
             ], 'test db2');
           }).catch(function (err) {
-            return new PouchDB('local-other').destroy().then(function () {
+            return db2.destroy().then(function () {
               throw err;
             });
           }).then(function () {
-            return new PouchDB('local-other').destroy();
+            return db2.destroy();
           });
         });
       });
