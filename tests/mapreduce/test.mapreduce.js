@@ -1,17 +1,13 @@
 /* global sum */
 'use strict';
 
-var adapters = ['local', 'http'];
+var viewTypes = ['persisted', 'temp'];
+viewTypes.forEach(function (viewType) {
+  var suiteName = 'test.mapreduce.js-' + viewType;
+  var adapter = testUtils.adapterType();
+  var dbName = testUtils.adapterUrl(adapter, 'testdb');
 
-adapters.forEach(function (adapter) {
-
-  var viewTypes = ['persisted', 'temp'];
-  viewTypes.forEach(function (viewType) {
-    var suiteName = 'test.mapreduce.js-' + adapter + '-' + viewType;
-    var dbName = testUtils.adapterUrl(adapter, 'testdb');
-
-    tests(suiteName, dbName, adapter, viewType);
-  });
+  tests(suiteName, dbName, adapter, viewType);
 });
 
 function tests(suiteName, dbName, dbType, viewType) {
