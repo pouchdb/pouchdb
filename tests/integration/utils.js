@@ -18,6 +18,14 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isBrowser = function () {
+  return !testUtils.isNode();
+};
+
+testUtils.isNode = function () {
+  return typeof process !== 'undefined' && !process.browser;
+};
+
 testUtils.isIE = function () {
   var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
       navigator.userAgent.toLowerCase() : '';
@@ -27,8 +35,14 @@ testUtils.isIE = function () {
   return (isIE || isTrident || isEdge);
 };
 
+testUtils.adapterType = function () {
+  var adapters = testUtils.isNode() ? process.env.ADAPTERS : testUtils.params().adapters;
+  adapters = (adapters || '').split(',');
+  return adapters.indexOf('http') < 0 ? 'local' : 'http';
+};
+
 testUtils.params = function () {
-  if (typeof process !== 'undefined' && !process.browser) {
+  if (testUtils.isNode()) {
     return process.env;
   }
   var paramStr = document.location.search.slice(1);
@@ -65,7 +79,7 @@ testUtils.couchHost = function () {
 };
 
 testUtils.readBlob = function (blob, callback) {
-  if (typeof process !== 'undefined' && !process.browser) {
+  if (testUtils.isNode()) {
     callback(blob.toString('binary'));
   } else {
     var reader = new FileReader();
@@ -92,7 +106,7 @@ testUtils.readBlobPromise = function (blob) {
 };
 
 testUtils.base64Blob = function (blob, callback) {
-  if (typeof process !== 'undefined' && !process.browser) {
+  if (testUtils.isNode()) {
     callback(blob.toString('base64'));
   } else {
     testUtils.readBlob(blob, function (binary) {
@@ -282,7 +296,7 @@ testUtils.assign = pouchUtils.assign;
 testUtils.generateReplicationId = pouchUtils.generateReplicationId;
 
 testUtils.makeBlob = function (data, type) {
-  if (typeof process !== 'undefined' && !process.browser) {
+  if (testUtils.isNode()) {
     // "global.Buffer" is to avoid Browserify pulling this in
     return new global.Buffer(data, 'binary');
   } else {
@@ -337,7 +351,7 @@ testUtils.sortById = function (a, b) {
   return a._id < b._id ? -1 : 1;
 };
 
-if (typeof process !== 'undefined' && !process.browser) {
+if (testUtils.isNode()) {
   if (process.env.COVERAGE) {
     global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
   } else { // no need to check for coverage

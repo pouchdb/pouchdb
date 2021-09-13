@@ -50,10 +50,15 @@ env:
   - TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=indexeddb COMMAND=test
 
   # Test pouchdb-find
-  - COUCH_HOST=http://127.0.0.1:3001 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master COMMAND=test
-  #- COUCH_HOST=http://127.0.0.1:3002 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-v2 COMMAND=test
-  #- TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTERS=idb SERVER=pouchdb-server COMMAND=test
-  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTERS=indexeddb SERVER=pouchdb-server COMMAND=test
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=node ADAPTERS=http SERVER=couchdb-master COUCH_HOST=http://127.0.0.1:3001
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=node ADAPTERS=http SERVER=pouchdb-server
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=node ADAPTERS=leveldb
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=node ADAPTERS=memory
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTERS=http SERVER=couchdb-master COUCH_HOST=http://127.0.0.1:3001
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTERS=http SERVER=pouchdb-server
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTERS=idb
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTERS=indexeddb
+  - TYPE=find PLUGINS=pouchdb-find CLIENT=selenium:firefox ADAPTERS=memory
 
   # Test memory
   #- CLIENT=selenium:firefox ADAPTERS=memory COMMAND=test
