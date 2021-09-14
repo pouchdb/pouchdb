@@ -324,7 +324,7 @@ describe('test.persisted.js', function () {
       }).then(function (res) {
         res.total_rows.should.be.within(0, 2);
         res.rows.length.should.be.within(0, 2);
-        return setTimeoutPromise(5);
+        return setTimeoutPromise(50);
       }).then(function () {
         return db.query(queryFun, {stale : 'ok'});
       }).then(function (res) {
