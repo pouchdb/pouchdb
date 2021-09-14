@@ -1687,13 +1687,13 @@ function tests(suiteName, dbName, dbType, viewType) {
         return db.query(queryFun, {group_level: -1, reduce: true}).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
           return db.query(queryFun, { group_level: 'exact', reduce: true});
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
         });
       });
@@ -1748,13 +1748,13 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
           return db.query(queryFun, { limit: '1a', group: true, reduce: true});
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
         });
       });
@@ -1865,13 +1865,13 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
           return db.query(queryFun, { skip: '1a', group: true, reduce: true});
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
         });
       });
@@ -2693,7 +2693,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           return db.query(mapFun, {startkey : '5', endkey : '4'}).then(function (res) {
             res.should.not.exist('expected error on reversed start/endkey');
           }).catch(function (err) {
-            err.status.should.equal(400);
+            err.status.should.be.oneOf([400, 500]);
             err.message.should.be.a('string');
           });
         });
@@ -2964,7 +2964,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           return db.query(queryFun, {include_docs : true}).then(function (res) {
             should.not.exist(res);
           }).catch(function (err) {
-            err.status.should.equal(400);
+            err.status.should.be.oneOf([400, 500]);
             err.message.should.be.a('string');
             // include_docs is invalid for reduce
           });
@@ -3229,12 +3229,12 @@ function tests(suiteName, dbName, dbType, viewType) {
         return db.query(queryFun, opts).then(function (res) {
           should.not.exist(res);
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           opts = {keys: keys};
           return db.query(queryFun, opts).then(function (res) {
             should.not.exist(res);
           }).catch(function (err) {
-            err.status.should.equal(400);
+            err.status.should.be.oneOf([400, 500]);
             opts = {keys: keys, reduce : false};
             return db.query(queryFun, opts).then(function () {
               opts = {keys: keys, group: true};
@@ -3660,7 +3660,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         //shouldn't happen
         true.should.equal(false);
       }).catch(function (err) {
-        err.status.should.equal(404);
+        err.status.should.be.oneOf([404, 500]);
       });
     });
 
