@@ -17,10 +17,10 @@ function tests(suiteName, dbName, dbType, viewType) {
     var Promise;
 
     var createView;
-    if (viewType === 'persisted') {
+    if (dbType === 'http' || viewType === 'persisted') {
       createView = function (db, viewObj) {
         var storableViewObj = {
-          map : viewObj.map.toString()
+          map: viewObj.map.toString()
         };
         if (viewObj.reduce) {
           storableViewObj.reduce = viewObj.reduce.toString();
@@ -149,7 +149,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         });
       });
     }
-    if (viewType === 'temp') {
+    if (viewType === 'temp' && dbType !== 'http') {
 
       it('Test simultaneous temp views', function () {
         var db = new PouchDB(dbName);
@@ -1186,7 +1186,7 @@ function tests(suiteName, dbName, dbType, viewType) {
       }).should.be.rejected;
     });
 
-    if (viewType === 'temp') {
+    if (viewType === 'temp' && dbType !== 'http') {
       it("No reduce function, passing just a function", function () {
         var db = new PouchDB(dbName);
         return db.post({foo: 'bar'}).then(function () {

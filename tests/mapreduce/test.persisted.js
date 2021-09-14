@@ -243,9 +243,13 @@ describe('test.persisted.js', function () {
         }
       }
     };
-    return db.post(doc).then(function () {
-      return db.query('barbar/scores', {key: 'bar'}).should.be.rejected;
-    });
+    if (dbType === 'http') {
+      return db.post(doc).should.be.rejected;
+    } else {
+      return db.post(doc).then(function () {
+        return db.query('barbar/scores', {key: 'bar'}).should.be.rejected;
+      });
+    }
   });
 
   it('many simultaneous persisted views', function () {

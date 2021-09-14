@@ -3,6 +3,8 @@
 
 describe('test.views.js', function () {
   var dbType = testUtils.adapterType();
+  if (dbType === 'http') { return; }
+
   var dbs = {};
 
   beforeEach(function (done) {
