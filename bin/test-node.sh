@@ -33,20 +33,20 @@ if [ $PERF ]; then
 elif [ ! $COVERAGE ]; then
     ./node_modules/.bin/mocha \
         $BAIL_OPT \
-        --timeout $TIMEOUT \
+        --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
-        --reporter=$REPORTER \
-        --grep=$GREP \
+        --reporter="$REPORTER" \
+        --grep="$GREP" \
         $TESTS_PATH
 else
     ./node_modules/.bin/istanbul cover \
        --no-default-excludes -x 'tests/**' -x 'node_modules/**' \
        ./node_modules/mocha/bin/_mocha -- \
         $BAIL_OPT \
-        --timeout $TIMEOUT \
+        --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
-        --reporter=$REPORTER \
-        --grep=$GREP \
+        --reporter="$REPORTER" \
+        --grep="$GREP" \
         $TESTS_PATH
 
     ./node_modules/.bin/istanbul check-coverage --line 100
