@@ -14,7 +14,7 @@ function tests(suiteName, dbName, dbType, viewType) {
 
   describe(suiteName, function () {
 
-    var Promise;
+    var Promise = testUtils.Promise;
 
     var createView;
     if (dbType === 'http' || viewType === 'persisted') {
@@ -50,14 +50,9 @@ function tests(suiteName, dbName, dbType, viewType) {
       };
     }
 
-    beforeEach(function () {
-      Promise = testUtils.Promise;
-      return new PouchDB(dbName).destroy();
-    });
     afterEach(function () {
       return new PouchDB(dbName).destroy();
     });
-
 
     it("Test basic view", function () {
       var db = new PouchDB(dbName);

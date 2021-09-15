@@ -4,7 +4,7 @@ describe('test.persisted.js', function () {
   var dbType = testUtils.adapterType();
   var dbName = testUtils.adapterUrl(dbType, 'testdb');
 
-  var Promise;
+  var Promise = testUtils.Promise;
 
   function setTimeoutPromise(time) {
     return new Promise(function (resolve) {
@@ -35,10 +35,6 @@ describe('test.persisted.js', function () {
     });
   }
 
-  beforeEach(function () {
-    Promise = testUtils.Promise;
-    return new PouchDB(dbName).destroy();
-  });
   afterEach(function () {
     return new PouchDB(dbName).destroy();
   });
