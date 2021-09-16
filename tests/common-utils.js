@@ -2,10 +2,14 @@
 
 var commonUtils = {};
 
-// This is a duplicate of the function in integration/utils.js but the
-// current test set up makes it really hard to share that function. Since
-// we are apparently going to refactor the tests for now we'll just copy the
-// function in two places.
+commonUtils.isBrowser = function () {
+  return !commonUtils.isNode();
+};
+
+commonUtils.isNode = function () {
+  return typeof process !== 'undefined' && !process.browser;
+};
+
 commonUtils.params = function () {
   if (commonUtils.isNode()) {
     return process.env;
@@ -19,6 +23,11 @@ commonUtils.params = function () {
     acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
     return acc;
   }, {});
+};
+
+commonUtils.adapters = function () {
+  var adapters = commonUtils.isNode() ? process.env.ADAPTERS : commonUtils.params().adapters;
+  return adapters ? adapters.split(',') : [];
 };
 
 commonUtils.couchHost = function () {
@@ -53,16 +62,6 @@ commonUtils.createDocId = function (i) {
     intString = '0' + intString;
   }
   return 'doc_' + intString;
-};
-
-commonUtils.isNode = function () {
-  // First part taken from
-  // http://timetler.com/2012/10/13/environment-detection-in-javascript/
-  // The !process.browser check is needed to see if we are in browserify
-  // which actually will pass the first part.
-  return typeof exports !== 'undefined' &&
-          this.exports !== exports &&
-          !process.browser;
 };
 
 module.exports = commonUtils;
