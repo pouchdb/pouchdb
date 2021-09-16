@@ -239,7 +239,6 @@ var pouchUtils = PouchForCoverage.utils;
 testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
 testUtils.btoa = pouchUtils.btoa;
 testUtils.atob = pouchUtils.atob;
-testUtils.Promise = pouchUtils.Promise;
 testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
 testUtils.rev = pouchUtils.rev;
