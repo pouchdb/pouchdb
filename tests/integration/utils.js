@@ -2,8 +2,7 @@
 /* jshint -W079 */
 'use strict';
 
-var path = require('path');
-var testUtils = {};
+var testUtils = Object.create(require('../common-utils'));
 
 function uniq(list) {
   var map = {};
@@ -18,14 +17,6 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
-testUtils.isBrowser = function () {
-  return !testUtils.isNode();
-};
-
-testUtils.isNode = function () {
-  return typeof process !== 'undefined' && !process.browser;
-};
-
 testUtils.isIE = function () {
   var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
       navigator.userAgent.toLowerCase() : '';
@@ -36,46 +27,7 @@ testUtils.isIE = function () {
 };
 
 testUtils.adapterType = function () {
-  var adapters = testUtils.isNode() ? process.env.ADAPTERS : testUtils.params().adapters;
-  adapters = (adapters || '').split(',');
-  return adapters.indexOf('http') < 0 ? 'local' : 'http';
-};
-
-testUtils.params = function () {
-  if (testUtils.isNode()) {
-    return process.env;
-  }
-  var paramStr = document.location.search.slice(1);
-  return paramStr.split('&').reduce(function (acc, val) {
-    if (!val) {
-      return acc;
-    }
-    var tmp = val.split('=');
-    acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
-    return acc;
-  }, {});
-};
-
-testUtils.couchHost = function () {
-  if (typeof window !== 'undefined' && window.cordova) {
-    // magic route to localhost on android emulator
-    return 'http://10.0.2.2:5984';
-  }
-
-  if (typeof window !== 'undefined' && window.COUCH_HOST) {
-    return window.COUCH_HOST;
-  }
-
-  if (typeof process !== 'undefined' && process.env.COUCH_HOST) {
-    return process.env.COUCH_HOST;
-  }
-
-  if ('couchHost' in testUtils.params()) {
-    // Remove trailing slash from url if the user defines one
-    return testUtils.params().couchHost.replace(/\/$/, '');
-  }
-
-  return 'http://localhost:5984';
+  return testUtils.adapters().indexOf('http') < 0 ? 'local' : 'http';
 };
 
 testUtils.readBlob = function (blob, callback) {
@@ -286,7 +238,6 @@ var pouchUtils = PouchForCoverage.utils;
 testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
 testUtils.btoa = pouchUtils.btoa;
 testUtils.atob = pouchUtils.atob;
-testUtils.Promise = pouchUtils.Promise;
 testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
 testUtils.rev = pouchUtils.rev;
@@ -352,41 +303,6 @@ testUtils.sortById = function (a, b) {
 };
 
 if (testUtils.isNode()) {
-  if (process.env.COVERAGE) {
-    global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
-  } else { // no need to check for coverage
-    // string addition is to avoid browserify pulling in whole thing
-    global.PouchDB = require('../../packages/' + 'node_modules/pouchdb');
-  }
-
-  if (process.env.AUTO_COMPACTION) {
-    // test autocompaction
-    global.PouchDB = global.PouchDB.defaults({
-      auto_compaction: true,
-      prefix: './tmp/_pouch_'
-    });
-  } else if (process.env.ADAPTERS === 'websql') {
-    // test WebSQL in Node
-    // (the two strings are just to fool Browserify because sqlite3 fails
-    // in Node 0.11-0.12)
-   global.PouchDB.plugin(require('../../packages/node_modules/' +
-      'pouchdb-adapter-node-websql'));
-    global.PouchDB.preferredAdapters = ['websql', 'leveldb'];
-    global.PouchDB = global.PouchDB.defaults({
-      prefix: path.resolve('./tmp/_pouch_')
-    });
-  } else if (process.env.ADAPTERS === 'memory') {
-    global.PouchDB.plugin(require('../../packages/node_modules/' +
-      'pouchdb-adapter-memory'));
-    global.PouchDB.preferredAdapters = ['memory', 'leveldb'];
-  } else {
-    // test regular leveldown in node
-    global.PouchDB = global.PouchDB.defaults({
-      prefix: path.resolve('./tmp/_pouch_')
-    });
-  }
-
-  require('mkdirp').sync('./tmp');
   module.exports = testUtils;
 } else {
   window.testUtils = testUtils;
