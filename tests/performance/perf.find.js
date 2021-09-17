@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (PouchDB, opts, callback) {
+module.exports = function (PouchDB, callback) {
 
   var utils = require('./utils');
 
@@ -161,5 +161,5 @@ module.exports = function (PouchDB, opts, callback) {
     }
   ];
 
-  utils.runTests(PouchDB, 'find', testCases, opts, callback);
+  utils.runTests(PouchDB, 'find', testCases, callback);
 };

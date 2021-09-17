@@ -37,10 +37,12 @@ commonUtils.plugins = function () {
 
 var PLUGIN_ADAPTERS = ['indexeddb', 'localstorage', 'memory', 'node-websql'];
 
-commonUtils.loadPouchDB = function () {
+commonUtils.loadPouchDB = function (opts) {
+  opts = opts || {};
+
   var params = commonUtils.params();
-  var adapters = commonUtils.adapters();
-  var plugins = commonUtils.plugins();
+  var adapters = commonUtils.adapters().concat(opts.adapters || []);
+  var plugins = commonUtils.plugins().concat(opts.plugins || []);
 
   for (let adapter of adapters) {
     if (adapter === 'websql') {
