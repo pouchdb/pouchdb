@@ -2,7 +2,6 @@
 /* jshint -W079 */
 'use strict';
 
-var path = require('path');
 var testUtils = Object.create(require('../common-utils'));
 
 function uniq(list) {
@@ -304,41 +303,6 @@ testUtils.sortById = function (a, b) {
 };
 
 if (testUtils.isNode()) {
-  if (process.env.COVERAGE) {
-    global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
-  } else { // no need to check for coverage
-    // string addition is to avoid browserify pulling in whole thing
-    global.PouchDB = require('../../packages/' + 'node_modules/pouchdb');
-  }
-
-  if (process.env.AUTO_COMPACTION) {
-    // test autocompaction
-    global.PouchDB = global.PouchDB.defaults({
-      auto_compaction: true,
-      prefix: './tmp/_pouch_'
-    });
-  } else if (process.env.ADAPTERS === 'websql') {
-    // test WebSQL in Node
-    // (the two strings are just to fool Browserify because sqlite3 fails
-    // in Node 0.11-0.12)
-   global.PouchDB.plugin(require('../../packages/node_modules/' +
-      'pouchdb-adapter-node-websql'));
-    global.PouchDB.preferredAdapters = ['websql', 'leveldb'];
-    global.PouchDB = global.PouchDB.defaults({
-      prefix: path.resolve('./tmp/_pouch_')
-    });
-  } else if (process.env.ADAPTERS === 'memory') {
-    global.PouchDB.plugin(require('../../packages/node_modules/' +
-      'pouchdb-adapter-memory'));
-    global.PouchDB.preferredAdapters = ['memory', 'leveldb'];
-  } else {
-    // test regular leveldown in node
-    global.PouchDB = global.PouchDB.defaults({
-      prefix: path.resolve('./tmp/_pouch_')
-    });
-  }
-
-  require('mkdirp').sync('./tmp');
   module.exports = testUtils;
 } else {
   window.testUtils = testUtils;

@@ -83,7 +83,8 @@
     mocha.run();
   }
 
-  testUtils.loadPouchDB().then(function () {
+  testUtils.loadPouchDB().then(function (PouchDB) {
+    window.PouchDB = PouchDB;
     if (document.readyState === 'complete') {
       startTests();
     } else {

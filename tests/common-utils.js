@@ -35,39 +35,77 @@ commonUtils.plugins = function () {
   return plugins ? plugins.split(',') : [];
 };
 
-commonUtils.loadPouchDB = function () {
-  var scriptPath = '../../packages/node_modules/pouchdb/dist';
-  var pluginAdapters = ['indexeddb', 'localstorage', 'memory'];
+var PLUGIN_ADAPTERS = ['indexeddb', 'localstorage', 'memory', 'node-websql'];
 
+commonUtils.loadPouchDB = function () {
   var params = commonUtils.params();
-  var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
   var adapters = commonUtils.adapters();
   var plugins = commonUtils.plugins();
-  var scripts = [pouchdbSrc];
 
   for (let adapter of adapters) {
-    if (pluginAdapters.includes(adapter)) {
-      plugins.push(adapter);
+    if (adapter === 'websql') {
+      adapter = 'node-websql';
+    }
+    if (PLUGIN_ADAPTERS.includes(adapter)) {
+      plugins.push(`pouchdb-adapter-${adapter}`);
     }
   }
-  for (let plugin of plugins) {
-    plugin = plugin.replace(/^pouchdb-/, '');
-    scripts.push(`${scriptPath}/pouchdb.${plugin}.js`);
+
+  function configurePouch(PouchDB) {
+    if (adapters.length > 0) {
+      PouchDB.preferredAdapters = adapters;
+    }
+    if ('AUTO_COMPACTION' in params || 'autoCompaction' in params) {
+      PouchDB = PouchDB.defaults({ auto_compaction: true });
+    }
+    if (commonUtils.isNode()) {
+      PouchDB = PouchDB.defaults({ prefix: './tmp/_pouch_' });
+    }
+    return PouchDB;
   }
+
+  if (commonUtils.isNode()) {
+    return configurePouch(commonUtils.loadPouchDBForNode(plugins));
+  } else {
+    return commonUtils.loadPouchDBForBrowser(plugins).then(configurePouch);
+  }
+};
+
+commonUtils.loadPouchDBForNode = function (plugins) {
+  var params = commonUtils.params();
+  var scriptPath = '../packages/node_modules';
+
+  var pouchdbSrc = params.COVERAGE
+    ? `${scriptPath}/pouchdb-for-coverage`
+    : `${scriptPath}/pouchdb`;
+
+  var PouchDB = require(pouchdbSrc);
+
+  if (!process.env.COVERAGE) {
+    for (let plugin of plugins) {
+      PouchDB.plugin(require(`${scriptPath}/${plugin}`));
+    }
+  }
+  return PouchDB;
+};
+
+commonUtils.loadPouchDBForBrowser = function (plugins) {
+  var params = commonUtils.params();
+  var scriptPath = '../../packages/node_modules/pouchdb/dist';
+  var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
+
+  plugins = plugins.map((plugin) => {
+    plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
+    return `${scriptPath}/pouchdb.${plugin}.js`;
+  });
+
+  var scripts = [pouchdbSrc].concat(plugins);
 
   var loadScripts = scripts.reduce((prevScriptLoaded, script) => {
     return prevScriptLoaded.then(() => commonUtils.asyncLoadScript(script));
   }, Promise.resolve());
 
-  return loadScripts.then(() => {
-    if (adapters.length > 0) {
-      window.PouchDB.preferredAdapters = adapters;
-    }
-    if ('autoCompaction' in params) {
-      window.PouchDB = window.PouchDB.defaults({ auto_compaction: true });
-    }
-    return window.PouchDB;
-  });
+  return loadScripts.then(() => window.PouchDB);
 };
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
