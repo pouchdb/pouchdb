@@ -155,8 +155,20 @@ testUtils.putTree = function (db, tree, callback) {
   insert(0);
 };
 
+function parseHostWithCreds(host) {
+  var uriObj = testUtils.parseUri(host);
+  var url = `${uriObj.protocol}://${uriObj.host}:${uriObj.port}${uriObj.path}`;
+  var options = {};
+  if (uriObj.userInfo) {
+    options.headers = {};
+    options.headers['Authorization'] = 'Basic: ' + testUtils.btoa(uriObj.userInfo);
+  }
+  return { url, options };
+}
+
 testUtils.isCouchDB = function (cb) {
-  PouchDB.fetch(testUtils.couchHost(), {}).then(function (response) {
+  var {url, options} = parseHostWithCreds(testUtils.couchHost());
+  PouchDB.fetch(url, options).then(function (response) {
     return response.json();
   }).then(function (res) {
     cb('couchdb' in res || 'express-pouchdb' in res);
