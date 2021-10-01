@@ -302,7 +302,7 @@ describe('test.skip.js', function () {
     ];
 
     var db = context.db;
-    db.createIndex({
+    await db.createIndex({
         index: {
             fields: ['firstName']
         }
