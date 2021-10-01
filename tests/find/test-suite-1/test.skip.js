@@ -319,6 +319,8 @@ describe('test.skip.js', function () {
     });
 
     assert.deepEqual(resultAll.length, docsData.length);
-    assert.deepEqual(resultNoFirst.length, docsData.length -1);
+
+    // should have one document less because skip: 1
+    assert.deepEqual(resultNoFirst.length, docsData.length - 1);
   });
 });
