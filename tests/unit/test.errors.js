@@ -22,6 +22,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal("missing");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #2', function () {
@@ -30,6 +31,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal("no_db_file");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #3', function () {
@@ -41,6 +43,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal("`keys` is incompatible with `key`, `start_key` and `end_key`");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #4', function () {
@@ -52,6 +55,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal("`keys` must be an array of strings.");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #5', function () {
@@ -99,6 +103,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(409);
     err.name.should.equal("conflict");
     err.message.should.equal("Document update conflict.");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #10', function () {
@@ -107,6 +112,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("bad_request");
     err.message.should.equal("Invalid rev format");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #11', function () {
@@ -115,6 +121,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("badarg");
     err.message.should.equal("33");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #12', function () {
@@ -126,6 +133,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("bad_request");
     err.message.should.equal("Referer header required.");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #13', function () {
@@ -145,6 +153,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(409);
     err.name.should.equal("conflict");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("77c03c2755ae08600a0ff58aebc513fe");
   });
 
@@ -154,6 +163,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #16', function () {
@@ -165,6 +175,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("doc_validation");
     err.message.should.equal("Bad special document member: _zing");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #23', function () {
@@ -176,6 +187,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("bad_request");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #26', function () {
@@ -189,6 +201,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("unauthorized");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("doc1");
   });
 
@@ -201,6 +214,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("file_exists");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #29', function () {
@@ -209,6 +223,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #30', function () {
@@ -220,6 +235,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #31', function () {
@@ -228,6 +244,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #32', function () {
@@ -239,6 +256,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("bad_request");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() #33', function () {
@@ -253,6 +271,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(404);
     err.name.should.equal("not_found");
     err.message.should.equal("missing");
+    err.stack.should.be.a("string");
     err.error.should.equal(true);
   });
 
@@ -280,6 +299,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("forbidden");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("0596A614-2001-05B6-93C3-6B3B6504CD05");
   });
 
@@ -294,6 +314,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("forbidden");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("45E4D1A4-B01D-6898-B8FF-035B2C76AB6B");
   });
 
@@ -308,6 +329,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("forbidden");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("5F99EF37-DABA-DACB-A58E-4C6D76511985");
   });
 
@@ -322,6 +344,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("unauthorized");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("1A3F4028-2E5D-B12F-80BB-ED5234BF6E02");
   });
 
@@ -336,6 +359,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("unauthorized");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("36824FB1-C1E6-76EE-BF7E-4D3614A36736");
   });
 
@@ -350,6 +374,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("unauthorized");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("6DA30042-600E-2581-8BD8-8A92F79CE53E");
   });
 
@@ -364,6 +389,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("unauthorized");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("foo1");
   });
 
@@ -378,6 +404,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("forbidden");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("77c03c2755ae08600a0ff58aebcaef19");
   });
 
@@ -392,6 +419,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("forbidden");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("77c03c2755ae08600a0ff58aebcb650f");
   });
 
@@ -406,6 +434,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("forbidden");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
     err.id.should.equal("77c03c2755ae08600a0ff58aebcb7be6");
   });
 
@@ -417,6 +446,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal("missing");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #2', function () {
@@ -425,6 +455,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #3', function () {
@@ -437,6 +468,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("invalid_value");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #4', function () {
@@ -448,6 +480,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal("Invalid value for positive integer: \"-1\"");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #5', function () {
@@ -459,6 +492,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal("Invalid value for integer: \"exact\"");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #6', function () {
@@ -470,6 +504,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal("Invalid value for integer: \"1a\"");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #7', function () {
@@ -482,6 +517,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #8', function () {
@@ -493,6 +529,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #9', function () {
@@ -504,6 +541,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("query_parse_error");
     err.message.should.equal(response.reason);
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #10', function () {
@@ -512,6 +550,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal("missing_named_view");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #11', function () {
@@ -520,6 +559,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("not_found");
     err.message.should.equal("deleted");
+    err.stack.should.be.a("string");
   });
 
   it('test generateErrorFromResponse() via map/reduce #12', function () {
@@ -528,6 +568,7 @@ describe('test.errors.js', function () {
     err.status.should.equal(500);
     err.name.should.equal("unknown_error");
     err.message.should.equal("function_clause");
+    err.stack.should.be.a("string");
   });
 
 
