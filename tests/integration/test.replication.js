@@ -1943,12 +1943,18 @@ adapters.forEach(function (adapters) {
     });
 
     function waitForChange(db, fun) {
+      console.log('> waitForChange(db, fun)');
       return new testUtils.Promise(function (resolve) {
         var remoteChanges = db.changes({live: true, include_docs: true});
+        console.log('> waitForChange(db, fun), remoteChanges');
         remoteChanges.on('change', function (change) {
+          console.log('> waitForChange(db, fun), onChange');
           if (fun(change)) {
+            console.log('> waitForChange(db, fun), fun(change) === true, not cancel remoteChanges');
             remoteChanges.cancel();
             resolve();
+          } else {
+            console.log('> waitForChange(db, fun), fun(change) === false, do nothing');
           }
         });
       });
@@ -2016,30 +2022,41 @@ adapters.forEach(function (adapters) {
     });
 
     it('Replicates deleted docs w/ delay (issue #2636)', function () {
+      console.log(1, '> Replicates deleted docs w/ delay (issue #2636)');
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
+      console.log(2, '> Replicates deleted docs w/ delay (issue #2636), db, remote', db, remote);
 
       var replication = db.replicate.to(remote, {
         live: true
       });
+      console.log(3, '> Replicates deleted docs w/ delay (issue #2636), replication', replication);
 
       var doc;
       return db.post({}).then(function (res) {
+        console.log(4, '> Replicates deleted docs w/ delay (issue #2636), post doc', doc, res);
         doc = {_id: res.id, _rev: res.rev};
         return waitForChange(remote, function () { return true; });
       }).then(function () {
+        console.log(5, '> Replicates deleted docs w/ delay (issue #2636), waited, now remove doc');
         return db.remove(doc);
       }).then(function () {
+        console.log(6, '> Replicates deleted docs w/ delay (issue #2636), removed doc');
         return db.allDocs();
       }).then(function (res) {
+        console.log(7, '> Replicates deleted docs w/ delay (issue #2636), allDocs()', res);
         res.rows.should.have.length(0, 'deleted locally');
       }).then(function () {
+        console.log(8, '> Replicates deleted docs w/ delay (issue #2636), wait');
         return waitForChange(remote, function (c) {
+          console.log(9, '> Replicates deleted docs w/ delay (issue #2636), wait callback', c, c.id, doc._id, c.deleted, c.id === doc._id && c.deleted);
           return c.id === doc._id && c.deleted;
         });
       }).then(function () {
+        console.log(10, '> Replicates deleted docs w/ delay (issue #2636), waited');
         return remote.allDocs();
       }).then(function (res) {
+        console.log(11, '> Replicates deleted docs w/ delay (issue #2636), allDocs()', res);
         replication.cancel();
         res.rows.should.have.length(0, 'deleted in remote');
       });
