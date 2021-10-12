@@ -5,13 +5,12 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     env:
@@ -33,53 +32,47 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         # node: [12, 14, 16]
         node: [12]
-        couchdb: ['2.3', '3.1']
+        couchdb: ["2.3", "3.1"]
         command: [
-          'CLIENT=selenium:firefox ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
-          'CLIENT=selenium:firefox ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
-          'CLIENT=selenium:chrome ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
-          'CLIENT=selenium:chrome ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
-          # skip running tests against real couches just yet
-          # 'CLIENT=selenium:firefox ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
-          # 'CLIENT=selenium:firefox ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
-          # 'CLIENT=selenium:chrome ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
-          # 'CLIENT=selenium:chrome ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
-          'TYPE=mapreduce CLIENT=node ADAPTERS=http SERVER=couchdb-master COUCH_HOST=http://admin:password@127.0.0.1:5984',
-          'TYPE=mapreduce CLIENT=node ADAPTERS=http SERVER=pouchdb-server',
-          'TYPE=mapreduce CLIENT=node ADAPTERS=leveldb',
-          'TYPE=mapreduce CLIENT=node ADAPTERS=memory',
-          'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=http SERVER=couchdb-master COUCH_HOST=http://admin:password@127.0.0.1:5984',
-          'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=http SERVER=pouchdb-server',
-          'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=idb',
-          'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=indexeddb',
-          'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=memory',
-          # 'CLIENT=selenium:firefox npm run test-webpack',
-          'AUTO_COMPACTION=true npm test',
-          'COUCH_HOST=http://admin:password@127.0.0.1:5984 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master npm test',
-          'PERF=1 npm test',
-          'npm run test-unit',
-          'npm run test-component',
-          'npm run test-fuzzy',
-          # 'SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage',
-          'npm run verify-build'
-        ]
+            'CLIENT=selenium:firefox ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
+            'CLIENT=selenium:firefox ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
+            'CLIENT=selenium:chrome ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
+            'CLIENT=selenium:chrome ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
+            # skip running tests against real couches just yet
+            # 'CLIENT=selenium:firefox ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+            # 'CLIENT=selenium:firefox ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+            # 'CLIENT=selenium:chrome ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+            # 'CLIENT=selenium:chrome ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+            "TYPE=mapreduce CLIENT=node ADAPTERS=http SERVER=couchdb-master COUCH_HOST=http://admin:password@127.0.0.1:5984",
+            "TYPE=mapreduce CLIENT=node ADAPTERS=http SERVER=pouchdb-server",
+            "TYPE=mapreduce CLIENT=node ADAPTERS=leveldb",
+            "TYPE=mapreduce CLIENT=node ADAPTERS=memory",
+            "TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=http SERVER=couchdb-master COUCH_HOST=http://admin:password@127.0.0.1:5984",
+            "TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=http SERVER=pouchdb-server",
+            "TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=idb",
+            "TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=indexeddb",
+            "TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=memory",
+            # 'CLIENT=selenium:firefox npm run test-webpack',
+            "AUTO_COMPACTION=true npm test",
+            "COUCH_HOST=http://admin:password@127.0.0.1:5984 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master npm test",
+            "PERF=1 npm test",
+            "npm run test-unit",
+            "npm run test-component",
+            "npm run test-fuzzy",
+            # 'SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage',
+            "npm run verify-build",
+          ]
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: iamssen/couchdb-github-action@master
-      with:
-        couchdb-version: ${{ matrix.couchdb }}
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node }}
-    - uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    - run: npm i
-    - run: npm run eslint
-    - run: ${{ matrix.command }}
-
+      - uses: actions/checkout@v2
+      - uses: iamssen/couchdb-github-action@master
+        with:
+          couchdb-version: ${{ matrix.couchdb }}
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm i
+      - run: npm run eslint
+      - run: ${{ matrix.command }}
