@@ -8,7 +8,7 @@
 : ${COUCH_HOST:="http://127.0.0.1:5984"}
 
 pouchdb-setup-server() {
-  # in travis, link pouchdb-servers dependencies on pouchdb
+  # in CI, link pouchdb-servers dependencies on pouchdb
   # modules to the current implementations
   mkdir pouchdb-server-install
   cd pouchdb-server-install
@@ -62,7 +62,7 @@ pouchdb-build-node() {
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     export COUCH_HOST='http://127.0.0.1:6984'
-    if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" || "$COVERAGE" == 1 ]]; then
+    if [[ -n "$GITHUB_REPOSITORY" || "$COVERAGE" == 1 ]]; then
       pouchdb-setup-server
     else
       echo -e "pouchdb-server should be running on $COUCH_HOST\n"
@@ -94,10 +94,10 @@ fi
 
 # if our COUCH_HOST has credentials in it, we need to enable CORS:
 HAS_AT=`echo $COUCH_HOST | grep @`
-COUCH_MAJOR_VERSION=`curl -s $COUCH_HOST | jq .version | grep -oE '^"(\d+)' | sed -e 's/\"//'`
+COUCH_MAJOR_VERSION=`curl -s $COUCH_HOST | jq -r '.version | split(".")[0]'`
 CONFIG_PATH=_node/_local/_config
 
-if [ $COUCH_MAJOR_VERSION -eq 2 ]; then
+if [[ $COUCH_MAJOR_VERSION -eq 2 ]]; then
   CONFIG_PATH=_config
 fi
 
