@@ -35,15 +35,19 @@ jobs:
         node: [12]
         couchdb: ['2.3', '3.1']
         command: [
-          'CLIENT=selenium:firefox ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
-          'CLIENT=selenium:firefox ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
-          'CLIENT=selenium:chrome ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
-          'CLIENT=selenium:chrome ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" npm test',
+          'CLIENT=node ADAPTERS=leveldb npm test',
+          'CLIENT=node ADAPTERS=memory npm test',
+          'CLIENT=selenium:firefox POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" ADAPTERS=idb npm test',
+          'CLIENT=selenium:firefox POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" ADAPTERS=indexeddb npm test',
+          'CLIENT=selenium:firefox POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" ADAPTERS=memory npm test',
+          'CLIENT=selenium:chrome POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" ADAPTERS=idb npm test',
+          'CLIENT=selenium:chrome POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" ADAPTERS=indexeddb npm test',
+          'CLIENT=selenium:chrome POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" ADAPTERS=memory npm test',
           # skip running tests against real couches just yet
-          # 'CLIENT=selenium:firefox ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
-          # 'CLIENT=selenium:firefox ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
-          # 'CLIENT=selenium:chrome ADAPTER=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
-          # 'CLIENT=selenium:chrome ADAPTER=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+          # 'CLIENT=selenium:firefox ADAPTERS=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+          # 'CLIENT=selenium:firefox ADAPTERS=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+          # 'CLIENT=selenium:chrome ADAPTERS=idb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
+          # 'CLIENT=selenium:chrome ADAPTERS=indexeddb POUCHDB_SRC="../../packages/node_modules/pouchdb/dist/pouchdb.min.js" COUCH_HOST=http://admin:password@127.0.0.1:5984 SKIP_MIGRATIONS=1 npm test',
           'TYPE=mapreduce CLIENT=node ADAPTERS=http SERVER=couchdb-master COUCH_HOST=http://admin:password@127.0.0.1:5984 npm test',
           'TYPE=mapreduce CLIENT=node ADAPTERS=http SERVER=pouchdb-server npm test',
           'TYPE=mapreduce CLIENT=node ADAPTERS=leveldb npm test',
