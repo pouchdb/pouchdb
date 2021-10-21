@@ -3068,10 +3068,13 @@ function tests(suiteName, dbName, dbType, viewType) {
           });
         }
 
+        var byId = Object.fromEntries(docs.map((doc) => [doc._id, doc]));
+
         function update(res, docFun) {
           for (var i  = 0; i < res.length; i++) {
-            docs[i]._rev = res[i].rev;
-            docFun(docs[i]);
+            var doc = byId[res[i].id];
+            doc._rev = res[i].rev;
+            docFun(doc);
           }
           return db.bulkDocs({docs : docs});
         }
@@ -3132,22 +3135,22 @@ function tests(suiteName, dbName, dbType, viewType) {
           });
         }
         return db.bulkDocs({docs: docs}).then(function (infos) {
-          docs.forEach(function (doc, i) {
-            doc._rev = infos[i].rev;
+          docs.forEach(function (doc) {
+            doc._rev = infos.find((info) => info.id === doc._id).rev;
             doc.name = 'gen2';
           });
           docs.reverse();
           return db.bulkDocs({docs: docs});
         }).then(function (infos) {
-          docs.forEach(function (doc, i) {
-            doc._rev = infos[i].rev;
+          docs.forEach(function (doc) {
+            doc._rev = infos.find((info) => info.id === doc._id).rev;
             doc.name = 'gen-3';
           });
           docs.reverse();
           return db.bulkDocs({docs: docs});
         }).then(function (infos) {
-          docs.forEach(function (doc, i) {
-            doc._rev = infos[i].rev;
+          docs.forEach(function (doc) {
+            doc._rev = infos.find((info) => info.id === doc._id).rev;
             doc.name = 'gen-4-odd';
           });
           var docsToUpdate = docs.filter(function (doc, i) {
