@@ -284,4 +284,43 @@ describe('test.skip.js', function () {
       });
     });
   });
+
+  it('skip 1 should work when an index is used', async function () {
+    const docsData = [
+        {
+            _id: 'dhfgqj2ng8kt',
+            firstName: 'Shakira',
+            lastName: 'Larson',
+            age: 38
+        },
+        {
+            _id: 'fumelxdcqsxn',
+            firstName: 'Christine',
+            lastName: 'Huel',
+            age: 32
+        }
+    ];
+
+    var db = context.db;
+    await db.createIndex({
+        index: {
+            fields: ['firstName']
+        }
+    });
+
+    await db.bulkDocs(docsData);
+
+    const resultAll = await db.find({
+        selector: {}
+    });
+    const resultNoFirst = await db.find({
+        selector: {},
+        skip: 1
+    });
+
+    assert.deepEqual(resultAll.length, docsData.length);
+
+    // should have one document less because skip: 1
+    assert.deepEqual(resultNoFirst.length, docsData.length - 1);
+  });
 });
