@@ -53,7 +53,7 @@ jobs:
           'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=idb',
           'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=indexeddb',
           'TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=memory',
-          # 'CLIENT=selenium:firefox npm run test-webpack',
+          'CLIENT=selenium:firefox npm run test-webpack',
           'AUTO_COMPACTION=true npm test',
           'COUCH_HOST=http://admin:password@127.0.0.1:5984 TYPE=find PLUGINS=pouchdb-find CLIENT=node SERVER=couchdb-master npm test',
           'PERF=1 npm test',
