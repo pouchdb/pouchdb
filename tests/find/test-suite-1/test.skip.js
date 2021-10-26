@@ -286,29 +286,12 @@ describe('test.skip.js', function () {
   });
 
   it('skip 1 should work when an index is used', async function () {
-    const docsData = [
-        {
-            _id: 'dhfgqj2ng8kt',
-            firstName: 'Shakira',
-            lastName: 'Larson',
-            age: 38
-        },
-        {
-            _id: 'fumelxdcqsxn',
-            firstName: 'Christine',
-            lastName: 'Huel',
-            age: 32
-        }
-    ];
-
     var db = context.db;
     await db.createIndex({
         index: {
-            fields: ['firstName']
+            fields: ['name']
         }
     });
-
-    await db.bulkDocs(docsData);
 
     const resultAll = await db.find({
         selector: {}
@@ -317,10 +300,10 @@ describe('test.skip.js', function () {
         selector: {},
         skip: 1
     });
-
-    assert.deepEqual(resultAll.length, docsData.length);
+    const totalDocCount = (await db.info()).doc_count
+    assert.deepEqual(resultAll.docs.length, totalDocCount);
 
     // should have one document less because skip: 1
-    assert.deepEqual(resultNoFirst.length, docsData.length - 1);
+    assert.deepEqual(resultNoFirst.docs.length, totalDocCount - 1);
   });
 });
