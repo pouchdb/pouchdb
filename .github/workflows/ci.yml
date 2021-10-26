@@ -20,12 +20,21 @@ env:
 
 jobs:
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/install-deps
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm run eslint
+
   # Run the integration, find and mapreduce tests against CouchDB on Node.js.
   # This should be run against every version of CouchDB and every version of
   # Node.js we support.
 
   couchdb-nodejs:
-    runs-on: ubuntu-latest
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
@@ -35,6 +44,7 @@ jobs:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
           - TYPE=mapreduce ADAPTERS=http npm test
+    runs-on: ubuntu-latest
     env:
       CLIENT: node
       SERVER: couchdb-master
@@ -53,7 +63,7 @@ jobs:
   # every target browser.
 
   couchdb-browser:
-    runs-on: ubuntu-latest
+    needs: lint
     services:
       hub:
         image: selenium/hub:3.141.59-gold
@@ -69,6 +79,7 @@ jobs:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
           - TYPE=mapreduce ADAPTERS=http npm test
+    runs-on: ubuntu-latest
     env:
       POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
       CLIENT: ${{ matrix.client }}
@@ -88,7 +99,7 @@ jobs:
   # Node.js we support.
 
   nodejs-adapter:
-    runs-on: ubuntu-latest
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
@@ -98,6 +109,7 @@ jobs:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find npm test
           - TYPE=mapreduce npm test
+    runs-on: ubuntu-latest
     env:
       CLIENT: node
       ADAPTERS: ${{ matrix.adapter }}
@@ -113,7 +125,7 @@ jobs:
   # target browser.
 
   browser-adapter:
-    runs-on: ubuntu-latest
+    needs: lint
     services:
       hub:
         image: selenium/hub:3.141.59-gold
@@ -129,6 +141,7 @@ jobs:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find npm test
           - TYPE=mapreduce npm test
+    runs-on: ubuntu-latest
     env:
       POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
       CLIENT: ${{ matrix.client }}
@@ -147,7 +160,7 @@ jobs:
   # out into a distinct job.
 
   pouchdb-server:
-    runs-on: ubuntu-latest
+    needs: lint
     services:
       hub:
         image: selenium/hub:3.141.59-gold
@@ -162,6 +175,7 @@ jobs:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
           - TYPE=mapreduce ADAPTERS=http npm test
+    runs-on: ubuntu-latest
     env:
       CLIENT: ${{ matrix.client }}
       SERVER: pouchdb-server
@@ -172,18 +186,17 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - run: ${{ matrix.cmd }}
 
-  # Run all the other testing tasks -- eslint, unit tests, and so on. These
-  # should be run on every version of Node.js that we support.
+  # Run all the other testing tasks -- unit tests, and so on. These should be
+  # run on every version of Node.js that we support.
 
   nodejs:
-    runs-on: ubuntu-latest
+    needs: lint
     strategy:
       fail-fast: false
       matrix:
         node: [12]
         cmd:
           - CLIENT=selenium:firefox npm run test-webpack
-          - npm run eslint
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
@@ -191,6 +204,7 @@ jobs:
           - npm run test-fuzzy
           # - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage
           - npm run verify-build
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/install-deps
