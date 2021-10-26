@@ -18,7 +18,6 @@
     "dev": "bash bin/run-dev.sh",
     "launch-dev-server": "node ./bin/dev-server.js",
     "test": "bash bin/run-test.sh",
-    "posttest": "npm run eslint",
     "prepublish": "npm run build",
     "release": "sh bin/release.sh",
     "install-jekyll": "sh bin/install-jekyll.sh",
