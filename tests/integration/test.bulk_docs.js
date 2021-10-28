@@ -1052,7 +1052,7 @@ adapters.forEach(function (adapter) {
         return done();
       }
 
-      var LIMIT = 1000;
+      var LIMIT = 4900;
       var db = new PouchDB(dbs.name, {revs_limit: LIMIT});
 
       // simulate 5000 normal commits with two conflicts at the very end
