@@ -23,6 +23,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `fetch(url, opts)`: Intercept or override the HTTP request, you can add or modify any headers or options relating to the http request then return a new fetch Promise.
 * `auth.username` + `auth.password`: You can specify HTTP auth parameters either by using a database with a name in the form `http://user:pass@host/name` or via the `auth.username` + `auth.password` options.
 * `skip_setup`: Initially PouchDB checks if the database exists, and tries to create it, if it does not exist yet. Set this to `true` to skip this setup.
+* `jwt_token`: This sets the JSON Web Token to use to login with to CouchDB, see https://docs.couchdb.org/en/stable/api/server/authn.html#jwt-authentication for more details about how to set this up, and the contents of the token. PouchDB treats this as an opaque string.
 
 **Notes:**
 
