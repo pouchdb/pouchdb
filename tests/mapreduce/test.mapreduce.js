@@ -2075,6 +2075,11 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (data) {
           data.rows.should.have.length(0, 'returns 0 docs');
           opts.keys = [0];
+          // When passed an empty keys array (above), query mutates opts by deleting the 
+          // keys array and adding limit = 0. That behavior breaks this test result when 
+          // implementing limit and skip (#8370); it is correct (and necessary) to clean
+          // up that side effect here.
+          delete opts.limit;
           return db.query(queryFun, opts);
         }).then(function (data) {
           data.rows.should.have.length(1, 'returns one doc');
@@ -3862,6 +3867,46 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (result) {
           result.rows.should.have.length(4);
           should.not.exist(result.update_seq);
+        });
+      });
+    });
+
+    it("#8370 keys queries should support skip and limit", function () {
+      var db = new PouchDB(dbName);
+      return createView(db, {
+        map: function (doc) {
+          emit(doc.field);
+        }
+      }).then(function (queryFun) {
+        var opts = {include_docs: true};
+        return db.bulkDocs({
+          docs: [
+            { _id: "doc_0", field: 0 },
+            { _id: "doc_1", field: 1 },
+            { _id: "doc_2", field: 2 },
+            { _id: "doc_3", field: 3 },
+          ]
+        }).then(function () {
+          opts.keys = [1, 0, 3, 2];
+          opts.limit = 2;
+          return db.query(queryFun, opts);
+        }).then(function (data) {
+          data.rows.should.have.length(2, "returns 2 docs due to limit");
+          data.rows[0].doc._id.should.equal("doc_1");
+          data.rows[1].doc._id.should.equal("doc_0");
+          delete opts.limit;
+          opts.skip = 2;
+          return db.query(queryFun, opts);
+        }).then(function (data) {
+          data.rows.should.have.length(2, "returns 2 docs due to skip");
+          data.rows[0].doc._id.should.equal("doc_3");
+          data.rows[1].doc._id.should.equal("doc_2");
+          opts.limit = 2;
+          opts.skip = 3;
+          return db.query(queryFun, opts);
+        }).then(function (data) {
+          data.rows.should.have.length(1, "returns 1 doc due to limit and skip");
+          data.rows[0].doc._id.should.equal("doc_2");
         });
       });
     });
