@@ -24,7 +24,7 @@ var FIREFOX_BIN = process.env.FIREFOX_BIN;
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
-// process.env.CLIENT is a colon seperated list of
+// process.env.CLIENT is a colon separated list of
 // (saucelabs|selenium):browserName:browserVerion:platform
 var tmp = (process.env.CLIENT || 'selenium:firefox').split(':');
 var client = {

@@ -63,4 +63,4 @@ I expect that to fix this, we will need to run the tests on dedicated hardware a
 
 Hopefully that gives a little insight into the process and issues we have with testing. It's a long and ongoing process, and I am hoping that the work we do to improve our testing infrastructure can be reused by other projects.
 
-We would love to hear more about the tools, techniques and issues that other similiar projects have come across while working on their tests. If you have anything to share, please send it along to [@pouchdb](https://twitter.com/pouchdb).
+We would love to hear more about the tools, techniques and issues that other similar projects have come across while working on their tests. If you have anything to share, please send it along to [@pouchdb](https://twitter.com/pouchdb).
