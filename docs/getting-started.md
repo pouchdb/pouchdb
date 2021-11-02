@@ -206,7 +206,7 @@ function sync() {
 }
 {% endhighlight %}
 
-`db.replicate()` tells PouchDB to transfer all the documents `to` or `from` the `remoteCouch`. This can either be a string identifier or a PouchDB object. We call this twice: once to receive remote updates, and once to push local changes. Again, the `live` flag is used to tell PouchDB to carry on doing this indefinitely. The callback will be called whenever this finishes. For live replication, this will mean an error has occured, like losing your connection or you canceled the replication.
+`db.replicate()` tells PouchDB to transfer all the documents `to` or `from` the `remoteCouch`. This can either be a string identifier or a PouchDB object. We call this twice: once to receive remote updates, and once to push local changes. Again, the `live` flag is used to tell PouchDB to carry on doing this indefinitely. The callback will be called whenever this finishes. For live replication, this will mean an error has occurred, like losing your connection or you canceled the replication.
 
 You should be able to open [the todo app](http://127.0.0.1:8000) in another browser and see that the two lists stay in sync with any changes you make to them. You may also want to look at your CouchDB's Futon administration page and see the populated database.
 
