@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ['3.1'] # TODO: test on 2.3
+        couchdb: ['2.3','3.1']
         client: ['selenium:firefox', 'selenium:chrome']
         cmd:
           - npm test
