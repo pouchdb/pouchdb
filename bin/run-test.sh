@@ -71,10 +71,6 @@ if [[ ! -z $SERVER ]]; then
     if [ -z $COUCH_HOST ]; then
       export COUCH_HOST="http://127.0.0.1:5984"
     fi
-  elif [ "$SERVER" == "couchdb-v2" ]; then
-    if [ -z $COUCH_HOST ]; then
-      export COUCH_HOST="http://127.0.0.1:5984"
-    fi
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     pouchdb-build-node
     node ./tests/misc/pouchdb-express-router.js &
@@ -92,25 +88,13 @@ if [[ ! -z $SERVER ]]; then
   fi
 fi
 
-# if our COUCH_HOST has credentials in it, we need to enable CORS:
-HAS_AT=`echo $COUCH_HOST | grep @`
-COUCH_MAJOR_VERSION=`curl -s $COUCH_HOST | jq -r '.version | split(".")[0]'`
-CONFIG_PATH=_node/_local/_config
+if [ "$SERVER" == "couchdb-master" ]; then
+  while [ '200' != $(curl -s -o /dev/null -w %{http_code} ${COUCH_HOST}) ]; do
+    echo waiting for couch to load... ;
+    sleep 1;
+  done
 
-if [[ $COUCH_MAJOR_VERSION -eq 2 ]]; then
-  CONFIG_PATH=_config
-fi
-
-if [ -n $HAS_AT ]; then
-    curl -s $COUCH_HOST/$CONFIG_PATH/httpd/enable_cors -X PUT -d '"true"'
-    curl -s $COUCH_HOST/$CONFIG_PATH/cors/credentials -X PUT -d '"true"'
-    curl -s $COUCH_HOST/$CONFIG_PATH/cors/headers -X PUT -d '"accept, authorization, content-type, origin, referer"'
-    curl -s $COUCH_HOST/$CONFIG_PATH/cors/methods -X PUT -d '"GET, PUT, POST, HEAD, DELETE"'
-    curl -s $COUCH_HOST/$CONFIG_PATH/cors/origins -X PUT -d '"http://127.0.0.1:8000"'
-fi
-
-if [ ! -z $TRAVIS ]; then
-  source ./bin/run-couchdb-on-travis.sh
+  ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
 fi
 
 printf 'Waiting for host to start .'
