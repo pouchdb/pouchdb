@@ -416,7 +416,6 @@ adapters.forEach(function (adapters) {
       const replication = PouchDB.replicate(dbs.remote, dbs.name, {});
       replication.on('checkpoint', result => checkpointEvents.push(result));
       await replication;
-      // console.log(JSON.stringify(checkpointEvents, null, 2))
       String(checkpointEvents[0]['pending_batch']).substr(0, 1).should.equal('1');
       String(checkpointEvents[1]['pending_batch']).substr(0, 1).should.equal('2');
       String(checkpointEvents[2]['pending_batch']).substr(0, 1).should.equal('3');
