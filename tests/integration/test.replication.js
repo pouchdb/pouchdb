@@ -4269,7 +4269,7 @@ downAdapters.map(function () {
     });
 
     it('replicate from down server test', function (done) {
-      var source = new PouchDB('http://infiniterequest.com', {
+      var source = new PouchDB('http://127.0.0.1:3010', {
         ajax: {timeout: 10}
       });
       var target = new PouchDB(dbs.name);
