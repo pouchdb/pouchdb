@@ -12,6 +12,8 @@ else
 fi
 
 if [ $TYPE = "integration" ]; then
+    node bin/down-server.js 3010 & export DOWN_SERVER_PID=$!
+
     TESTS_PATH="tests/integration/test.*.js"
 fi
 if [ $TYPE = "fuzzy" ]; then
@@ -52,3 +54,8 @@ else
     ./node_modules/.bin/istanbul check-coverage --line 100
 fi
 
+EXIT_STATUS=$?
+if [[ ! -z $DOWN_SERVER_PID ]]; then
+  kill $DOWN_SERVER_PID
+fi
+exit $EXIT_STATUS
