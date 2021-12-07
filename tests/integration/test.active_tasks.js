@@ -3,7 +3,7 @@
 describe('test.active_tasks.js', function () {
 
   afterEach(function (done) {
-    PouchDB.activeTasks.tasks = [];
+    PouchDB.activeTasks.tasks = {};
     return done();
   });
 
@@ -27,10 +27,10 @@ describe('test.active_tasks.js', function () {
     const id2 = PouchDB.activeTasks.add(task2);
     PouchDB.activeTasks.update(id1, {"completed_items": 2});
     PouchDB.activeTasks.update(id2, {"completed_items": 213});
-    const list = PouchDB.activeTasks.list();
-    list.length.should.equal(2);
-    list[0]['id'].should.equal(id1);
-    list[1]['id'].should.equal(id2);
+    const tasks = PouchDB.activeTasks.list();
+    Object.keys(tasks).length.should.equal(2);
+    tasks[id1].id.should.equal(id1);
+    tasks[id2].id.should.equal(id2);
   });
 
   it('Can update a task', function () {
@@ -56,7 +56,7 @@ describe('test.active_tasks.js', function () {
     PouchDB.activeTasks.update(id2, {"completed_items": 213});
     PouchDB.activeTasks.remove(id1);
     const got2 = PouchDB.activeTasks.get(id2);
-    PouchDB.activeTasks.tasks.length.should.equal(1);
+    Object.keys(PouchDB.activeTasks.tasks).length.should.equal(1);
     got2['id'].should.equal(id2);
   });
 
