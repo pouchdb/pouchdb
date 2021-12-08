@@ -44,7 +44,7 @@ describe('test.active_tasks.js', function () {
     const got2 = PouchDB.activeTasks.get(id2);
     got1['completed_items'].should.equal(2);
     got2['completed_items'].should.equal(213);
-    got2['updatedAt'].should.be.a('string');
+    got2['updated_at'].should.be.a('string');
   });
 
   it('Can remove a task', function () {
