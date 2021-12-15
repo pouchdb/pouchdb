@@ -28,9 +28,9 @@ describe('test.active_tasks.js', function () {
     PouchDB.activeTasks.update(id1, {"completed_items": 2});
     PouchDB.activeTasks.update(id2, {"completed_items": 213});
     const tasks = PouchDB.activeTasks.list();
-    Object.keys(tasks).length.should.equal(2);
-    tasks[id1].id.should.equal(id1);
-    tasks[id2].id.should.equal(id2);
+    tasks.length.should.equal(2);
+    tasks[0].id.should.equal(id1);
+    tasks[1].id.should.equal(id2);
   });
 
   it('Can update a task', function () {
