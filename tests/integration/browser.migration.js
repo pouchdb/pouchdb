@@ -1,4 +1,4 @@
-/* global PouchDB, PouchDBVersion110, PouchDBVersion200,
+/* global PouchDBVersion110, PouchDBVersion200,
    PouchDBVersion220, PouchDBVersion306, PouchDBVersion320,
    PouchDBVersion360 */
 'use strict';
@@ -130,7 +130,7 @@ describe('migration', function () {
         if (scenario in PouchDB.adapters) {
           dbs.first.localOpts.adapter = scenario;
         }
-        // else scenario might not make sense for this browser, so just use 
+        // else scenario might not make sense for this browser, so just use
         // same adapter for both
 
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
@@ -817,7 +817,7 @@ describe('migration', function () {
 
         it('#2818 compaction of atts after many revs', function () {
           if (skip) { return; }
-          
+
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
 
