@@ -1,4 +1,3 @@
-/* global mocha: true */
 (function () {
   'use strict';
 
