@@ -1,5 +1,3 @@
-/* global PouchDB */
-/* jshint -W079 */
 'use strict';
 
 var testUtils = Object.create(require('../common-utils'));
@@ -196,7 +194,7 @@ testUtils.eliminateDuplicates = function (arr) {
     obj[arr[i]] = 0;
   }
   for (element in obj) {
-    if (obj.hasOwnProperty(element)) {
+    if (Object.hasOwnProperty.call(obj, element)) {
       out.push(element);
     }
   }
