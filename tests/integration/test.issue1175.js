@@ -31,6 +31,17 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
   this.put = function () {
     return testUtils.Promise.resolve();
   };
+  this.info = function () {
+    return testUtils.Promise.resolve({
+      update_seq: 0
+    });
+  };
+  this.activeTasks = {
+    add: function () {},
+    get: function () {},
+    update: function () {},
+    remove: function () {},
+  };
 }
 function getCallback(expectError, done) {
   // returns a function which expects to be called within a certain time.
