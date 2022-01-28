@@ -39,7 +39,6 @@
   },
   "dependencies": {
     "abort-controller": "3.0.0",
-    "argsarray": "0.0.1",
     "buffer-from": "1.1.2",
     "clone-buffer": "1.0.0",
     "double-ended-queue": "2.1.0-0",
@@ -65,7 +64,6 @@
   },
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.6",
-    "argsarray": "0.0.1",
     "body-parser": "1.19.0",
     "browserify": "16.4.0",
     "browserify-incremental": "3.1.1",
