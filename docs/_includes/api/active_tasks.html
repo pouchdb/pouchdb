@@ -1,0 +1,45 @@
+{% include anchor.html edit="true" title="List active tasks" hash="active_tasks" %}
+
+{% highlight js %}
+PouchDB.activeTasks.list()
+{% endhighlight %}
+
+List all active database tasks. There are three types of internal tasks: `database_compaction`, `view_indexing`, and `replication`. PouchDB will report progress of these tasks to the active tasks API and remove tasks as soon as they are completed or have failed.
+
+#### Example Usage:
+
+{% highlight js %}
+var tasks = PouchDB.activeTasks.list()
+{% endhighlight %}
+
+#### Example Result:
+
+{% highlight js %}
+[{
+  "id": "d81fea92-8ce4-42df-bb2b-89a4e67536c3",
+  "name": "database_compaction",
+  "created_at": "2022-02-08T15:38:45.318Z",
+  "total_items": 12,
+  "completed_items": 1,
+  "updated_at": "2022-02-08T15:38:45.821Z"
+}]
+{% endhighlight %}
+
+### Real-time updates
+
+You can use [JavaScript Proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) to monitor calls to the active tasks API. For the `PouchDB.activeTasks.add()` function, which is used internally to announce new tasks to PouchDB, you can monitor calls as follows:
+
+{% highlight js %}
+PouchDB.activeTasks.add = new Proxy(PouchDB.activeTasks.add, {
+  apply: (target, thisArg, argumentsList) => {
+    const task = argumentsList[0];
+    const id = Reflect.apply(
+      target,
+      PouchDB.activeTasks,
+      [task]
+    );
+    console.log('Added task', id, task.name);
+    return id;
+  },
+});
+{% endhighlight %}
