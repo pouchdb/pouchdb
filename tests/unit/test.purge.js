@@ -178,6 +178,190 @@ const shortConflictedTreeWithout6a = [
   }
 ];
 
+// the same as the above shortConflictedTree, but without the 6-a & 5-a leaves
+const shortConflictedTreeWithout6a5a = [
+  {
+    "pos": 1,
+    "ids": [
+      "9692d401ed2d3434827608278bdc36e3",
+      {
+        "status": "available"
+      },
+      [
+        [
+          "37aa033df08c21b4f56f1da2081e9e00",
+          {
+            "status": "available"
+          },
+          [
+            [
+              "43f6d5557d6de39488c64bb2c684ae7c",
+              {
+                "status": "missing"
+              },
+              [
+                [
+                  "a3b44168027079c2692a7d8eb35e9643",
+                  {
+                    "status": "available"
+                  },
+                  []
+                ]
+              ]
+            ],
+            [
+              "df226cb9a2e5bdd3e6be009fd51f47c1",
+              {
+                "status": "available"
+              },
+              [
+                [
+                  "6e94d345514a08620c3176eea080d3ec",
+                  {
+                    "status": "available"
+                  },
+                  [
+                    [
+                      "0b84bfea5508e2020feb07384714a987",
+                      {
+                        "status": "missing"
+                      },
+                      [
+                        [
+                          "2d0ab4f4089a57c95d52bfd2d66b823d",
+                          {
+                            "status": "available"
+                          },
+                          []
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  }
+];
+
+// the same as the above shortConflictedTree, but without the 6-a, 5-a, and 6-c leaves
+const shortConflictedTreeWithout6a5a6c = [
+  {
+    "pos": 1,
+    "ids": [
+      "9692d401ed2d3434827608278bdc36e3",
+      {
+        "status": "available"
+      },
+      [
+        [
+          "37aa033df08c21b4f56f1da2081e9e00",
+          {
+            "status": "available"
+          },
+          [
+            [
+              "43f6d5557d6de39488c64bb2c684ae7c",
+              {
+                "status": "missing"
+              },
+              [
+                [
+                  "a3b44168027079c2692a7d8eb35e9643",
+                  {
+                    "status": "available"
+                  },
+                  []
+                ]
+              ]
+            ],
+            [
+              "df226cb9a2e5bdd3e6be009fd51f47c1",
+              {
+                "status": "available"
+              },
+              [
+                [
+                  "6e94d345514a08620c3176eea080d3ec",
+                  {
+                    "status": "available"
+                  },
+                  [
+                    [
+                      "0b84bfea5508e2020feb07384714a987",
+                      {
+                        "status": "missing"
+                      },
+                      []
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  }
+];
+
+
+// the same as the above shortConflictedTree, but without the 6-a, 5-a, 6-c, and 5-c leaves
+const shortConflictedTreeWithout6a5a6c5c = [
+  {
+    "pos": 1,
+    "ids": [
+      "9692d401ed2d3434827608278bdc36e3",
+      {
+        "status": "available"
+      },
+      [
+        [
+          "37aa033df08c21b4f56f1da2081e9e00",
+          {
+            "status": "available"
+          },
+          [
+            [
+              "43f6d5557d6de39488c64bb2c684ae7c",
+              {
+                "status": "missing"
+              },
+              [
+                [
+                  "a3b44168027079c2692a7d8eb35e9643",
+                  {
+                    "status": "available"
+                  },
+                  []
+                ]
+              ]
+            ],
+            [
+              "df226cb9a2e5bdd3e6be009fd51f47c1",
+              {
+                "status": "available"
+              },
+              [
+                [
+                  "6e94d345514a08620c3176eea080d3ec",
+                  {
+                    "status": "available"
+                  },
+                  []
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  }
+];
+
 /*
   With revs_limit: 4, the shortConflictedTree from above becomes:
   3-a - 4-a - 5-a - 6-a
@@ -405,8 +589,15 @@ describe('the findPathToLeaf util', function () {
 
 describe.only('the removeLeafFromTree util', function () {
   it('removes a leaf from the tree', function () {
-    const tree = removeLeafFromTree(shortConflictedTree, "6-3f7f6c55c27bf54c009b661607a9fe05");
+    let tree = removeLeafFromTree(shortConflictedTree, "6-3f7f6c55c27bf54c009b661607a9fe05");
     tree.should.be.deep.equal(shortConflictedTreeWithout6a);
+    tree = removeLeafFromTree(tree, "5-df4a81cd21c75c71974d96e88a68fc2f");
+    tree.should.be.deep.equal(shortConflictedTreeWithout6a5a);
+    tree = removeLeafFromTree(tree, "6-2d0ab4f4089a57c95d52bfd2d66b823d");
+    tree.should.be.deep.equal(shortConflictedTreeWithout6a5a6c);
+    tree = removeLeafFromTree(tree, "5-0b84bfea5508e2020feb07384714a987");
+    tree.should.be.deep.equal(shortConflictedTreeWithout6a5a6c5c);
+
   });
   it('does not remove anything from the tree if the rev is not a leaf', function () {
     const tree = removeLeafFromTree(shortConflictedTree, "5-df4a81cd21c75c71974d96e88a68fc2f");
