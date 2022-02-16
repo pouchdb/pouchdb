@@ -599,6 +599,22 @@ describe.only('the removeLeafFromTree util', function () {
     tree.should.be.deep.equal(shortConflictedTreeWithout6a5a6c5c);
 
   });
+  it('should return an empty array if the entire tree is being deleted', function () {
+    const smallTree = [
+      {
+        pos: 1,
+        ids: [
+          "df226cb9a2e5bdd3e6be009fd51f47c1",
+          {
+            "status": "available"
+          },
+          []
+        ]
+      }
+    ];
+  let tree = removeLeafFromTree(smallTree, "1-df226cb9a2e5bdd3e6be009fd51f47c1");
+    tree.should.be.deep.equal([]);
+  });
   it('does not remove anything from the tree if the rev is not a leaf', function () {
     const tree = removeLeafFromTree(shortConflictedTree, "5-df4a81cd21c75c71974d96e88a68fc2f");
     tree.should.be.deep.equal(shortConflictedTree);
