@@ -331,7 +331,7 @@ const revsLimitedSingleBranchTree = [
   }
 ];
 
-describe.only('the findPathToLeaf util', function () {
+describe('the findPathToLeaf util', function () {
   it('finds the first branch in a conflicted tree', function () {
     const path = findPathToLeaf(shortConflictedTree, '6-3f7f6c55c27bf54c009b661607a9fe05');
     path.should.be.eql([
