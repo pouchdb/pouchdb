@@ -53,9 +53,9 @@ pouchdb-link-server-modules() {
 }
 
 pouchdb-build-node() {
-  if [[ $BUILD_NODE -ne 0 ]]; then
+  if [[ $BUILD_NODE_DONE -ne 1 ]]; then
     npm run build-node
-    BUILD_NODE=0
+    BUILD_NODE_DONE=1
   fi
 }
 
