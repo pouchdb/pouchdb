@@ -8,7 +8,7 @@ import { nextTick } from 'pouchdb-utils';
 
 function once(fun) {
   var called = false;
-  return getArguments(function (args) {
+  return function (...args) {
     if (called) {
       console.trace();
       throw new Error('once called  more than once');
@@ -16,22 +16,11 @@ function once(fun) {
       called = true;
       fun.apply(this, args);
     }
-  });
-}
-function getArguments(fun) {
-  return function () {
-    var len = arguments.length;
-    var args = new Array(len);
-    var i = -1;
-    while (++i < len) {
-      args[i] = arguments[i];
-    }
-    return fun.call(this, args);
   };
 }
 function toPromise(func) {
   //create the function we will be returning
-  return getArguments(function (args) {
+  return function (...args) {
     var self = this;
     var tempCB = (typeof args[args.length - 1] === 'function') ? args.pop() : false;
     // if the last argument is a function, assume its a callback
@@ -72,16 +61,16 @@ function toPromise(func) {
       return this;
     };
     return promise;
-  });
+  };
 }
 
 function callbackify(fun) {
-  return getArguments(function (args) {
+  return function (...args) {
     var cb = args.pop();
     var promise = fun.apply(this, args);
     promisedCallback(promise, cb);
     return promise;
-  });
+  };
 }
 
 function promisedCallback(promise, callback) {
@@ -97,7 +86,7 @@ function promisedCallback(promise, callback) {
   return promise;
 }
 
-var flatten = getArguments(function (args) {
+var flatten = function (...args) {
   var res = [];
   for (var i = 0, len = args.length; i < len; i++) {
     var subArr = args[i];
@@ -108,7 +97,7 @@ var flatten = getArguments(function (args) {
     }
   }
   return res;
-});
+};
 
 function mergeObjects(arr) {
   var res = {};
@@ -221,7 +210,6 @@ export {
   arrayToObject,
   callbackify,
   flatten,
-  getArguments,
   max,
   mergeObjects,
   once,
