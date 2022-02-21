@@ -150,63 +150,64 @@ function closeClient(callback) {
   });
 }
 
-function RemoteRunner() {
-  this.handlers = {};
-  this.completed = false;
-  this.failed = false;
-}
-
-RemoteRunner.prototype.on = function (name, handler) {
-  var handlers = this.handlers;
-
-  if (!handlers[name]) {
-    handlers[name] = [];
+class RemoteRunner {
+  constructor() {
+    this.handlers = {};
+    this.completed = false;
+    this.failed = false;
   }
-  handlers[name].push(handler);
-};
 
-RemoteRunner.prototype.handleEvents = function (events) {
-  var self = this;
-  var handlers = this.handlers;
-
-  events.forEach(function (event) {
-    self.completed = self.completed || event.name === 'end';
-    self.failed = self.failed || event.name === 'fail';
-
-    var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
-      slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
-      fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
-    };
-    var obj = Object.assign({}, event.obj, additionalProps);
-
-    handlers[event.name].forEach(function (handler) {
-      handler(obj, event.err);
-    });
-
-    if (event.logs && event.logs.length > 0) {
-      event.logs.forEach(function (line) {
-        if (line.type === 'log') {
-          console.log(line.content);
-        } else if (line.type === 'error') {
-          console.error(line.content);
-        } else {
-          console.error('Invalid log line', line);
-        }
-      });
-      console.log();
+  on(name, handler) {
+    var handlers = this.handlers;
+  
+    if (!handlers[name]) {
+      handlers[name] = [];
     }
-  });
-};
+    handlers[name].push(handler);
+  }
 
-RemoteRunner.prototype.bail = function () {
-  var handlers = this.handlers;
-
-  handlers['end'].forEach(function (handler) {
-    handler();
-  });
-
-  this.completed = true;
-};
+  handleEvents(events) {
+    var handlers = this.handlers;
+  
+    events.forEach((event) => {
+      this.completed = this.completed || event.name === 'end';
+      this.failed = this.failed || event.name === 'fail';
+  
+      var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
+        slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
+        fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
+      };
+      var obj = Object.assign({}, event.obj, additionalProps);
+  
+      handlers[event.name].forEach(function (handler) {
+        handler(obj, event.err);
+      });
+  
+      if (event.logs && event.logs.length > 0) {
+        event.logs.forEach(function (line) {
+          if (line.type === 'log') {
+            console.log(line.content);
+          } else if (line.type === 'error') {
+            console.error(line.content);
+          } else {
+            console.error('Invalid log line', line);
+          }
+        });
+        console.log();
+      }
+    });
+  }
+  
+  bail() {
+    var handlers = this.handlers;
+  
+    handlers['end'].forEach(function (handler) {
+      handler();
+    });
+  
+    this.completed = true;
+  }
+}
 
 function BenchmarkReporter(runner) {
   runner.on('benchmark:result', function (obj) {
