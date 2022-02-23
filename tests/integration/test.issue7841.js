@@ -2,6 +2,11 @@
 
 var adapters = ['local', 'http'];
 
+/**
+ * Test to reproduce issue #7841
+ * 'deletion does not work when using bulkDocs with new_edits=false'
+ * @link https://github.com/pouchdb/pouchdb/issues/7841
+ */
 adapters.forEach(function (adapter) {
     describe('test.issue7841.js- ' + adapter, function () {
         var dbs = {};
@@ -18,10 +23,17 @@ adapters.forEach(function (adapter) {
             var db = new PouchDB(dbs.name);
 
             var _id = 'alice';
+            /**
+             * First insert the document with a normal put()
+             */
             return db.put({
                 _id,
                 age: 42
             }).then(function () {
+                /**
+                 * Then delete the document via bulkDocs()
+                 * with new_edits=false
+                 */
                 return db.bulkDocs(
                     [
                         {
