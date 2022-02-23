@@ -33,6 +33,10 @@
     "verify-build": "sh bin/verify-build.sh",
     "test-webpack": "bash bin/test-webpack.sh"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb.git"
+  },
   "dependencies": {
     "abort-controller": "3.0.0",
     "argsarray": "0.0.1",
