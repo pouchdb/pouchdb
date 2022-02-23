@@ -38,7 +38,7 @@ adapters.forEach(function (adapter) {
                 return db.allDocs();
             }).then(function (docsAfterDelete) {
                 should.equal(docsAfterDelete.rows.length, 0, 'allDocs() after delete');
-            })
+            });
         });
     });
 });
