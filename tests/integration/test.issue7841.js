@@ -49,6 +49,10 @@ adapters.forEach(function (adapter) {
             }).then(function () {
                 return db.allDocs();
             }).then(function (docsAfterDelete) {
+                /**
+                 * All docs must not have returned any documents
+                 * because the only document in the database is deleted.
+                 */
                 should.equal(docsAfterDelete.rows.length, 0, 'allDocs() after delete');
             });
         });
