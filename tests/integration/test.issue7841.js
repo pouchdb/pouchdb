@@ -4,7 +4,6 @@ var adapters = ['local', 'http'];
 
 adapters.forEach(function (adapter) {
     describe('test.issue7841.js- ' + adapter, function () {
-
         var dbs = {};
 
         beforeEach(function () {
