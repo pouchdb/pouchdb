@@ -37,7 +37,7 @@ adapters.forEach(function (adapter) {
             }).then(function () {
                 return db.allDocs();
             }).then(function (docsAfterDelete) {
-                should.equal(docsAfterDelete.length, 0, 'docsAfterDelete');
+                should.equal(docsAfterDelete.rows.length, 0, 'allDocs() after delete');
             })
         });
     });
