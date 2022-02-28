@@ -3581,7 +3581,7 @@ repl_adapters.forEach(function (adapters) {
     // Currently this test is causing occasional CI selenium:firefox
     // failures. Under advice of @daleharvey, we will skip this test
     // to not block other development/tests and track this issue.
-    // See issue #6835 and #6831 for further info  
+    // See issue #6835 and #6831 for further info
     it.skip('#3961 Many attachments on same doc', function () {
         var doc = {_id: 'foo', _attachments: {}};
 
@@ -3896,5 +3896,74 @@ repl_adapters.forEach(function (adapters) {
       }
     });
 
+    it('#8456 bad attachment rev after replication', function (done) {
+      var db = new PouchDB(dbs.name, {});
+      var remote = new PouchDB(dbs.remote, {});
+      var doc_1a, doc_2a, doc_3a, doc_2b, attachment;
+
+      db.put({ _id: 'doc', key: '1a' }).then(function (res) {
+        doc_1a = res;
+        return PouchDB.sync(db, remote);
+      }).then(function () {
+        return db.put({
+          _id: 'doc',
+          _rev: doc_1a.rev,
+          key: '2a',
+        });
+      }).then(function (res) {
+        doc_2a = res;
+        return db.put({
+          _id: 'doc',
+          _rev: doc_2a.rev,
+          key: '3a',
+          _attachments: {
+            'attachment.txt': {
+              content_type: 'text/plain',
+              data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=',
+            },
+          },
+        });
+      }).then(function (res) {
+        doc_3a = res;
+        return remote.put({
+          _id: 'doc',
+          _rev: doc_1a.rev,
+          key: '2-b',
+        });
+      }).then(function (res) {
+        doc_2b = res;
+        return PouchDB.sync(db, remote);
+      }).then(function () {
+        return db.get('doc', { attachments: true });
+      }).then(function (doc) {
+        attachment = doc._attachments['attachment.txt'];
+        return db.remove('doc', doc_3a.rev);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        db.put({
+          _id: 'doc',
+          _rev: doc_2b.rev,
+          key: '3-b',
+          _attachments: {
+            'attachment.txt': {
+              stub: true,
+              digest: attachment.digest,
+              content_type: attachment.content_type,
+              length: attachment.data.length,
+              revpos: attachment.revpos,
+            },
+          },
+        }, function (err) {
+          if (!err || err.status !== 412) {
+            done('error 412 is expected to be thrown (attachment should not exist)');
+          } else {
+            done();
+          }
+        });
+      }).catch(function (err) {
+        done(err);
+      });
+    });
   });
 });
