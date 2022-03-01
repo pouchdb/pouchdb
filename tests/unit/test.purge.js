@@ -560,6 +560,29 @@ describe('the removeLeafFromTree util', function () {
     const tree = removeLeafFromTree(shortConflictedTree, "foobar");
     tree.should.be.deep.equal(shortConflictedTree);
   });
+  it('removes leafs that are the first child of several siblings', function () {
+    let tree = [{
+      "pos": 1,
+      "ids": ["abcd", {}, [
+        ["efgh", {}, [
+          ["ijkl", {}, [
+            ["mnop", {}, []]
+          ]],
+          ["qrst", {}, []]
+        ]]
+      ]]
+    }];
+    let purged = removeLeafFromTree(tree, "3-mnop")
+    purged.should.deep.equal([{
+      "pos": 1,
+      "ids": ["abcd", {}, [
+        ["efgh", {}, [
+          ["ijkl", {}, []],
+          ["qrst", {}, []]
+        ]]
+      ]]
+    }])
+  });
   it('should remove respective leafs from a multi-root tree with revs_limit=4', function () {
     let tree = removeLeafFromTree(
       removeLeafFromTree(
