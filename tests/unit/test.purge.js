@@ -379,91 +379,28 @@ const shortConflictedTreeWithout6a5a6c5c = [
   3-b = 3-43f6d5557d6de39488c64bb2c684ae7c
   4-b = 4-a3b44168027079c2692a7d8eb35e9643 leaf
 */
-const shortConflictedTreeWithTwoRoots = [
-  {
-    "pos": 1,
-    "ids": [
-      "9692d401ed2d3434827608278bdc36e3",
-      {
-        "status": "available"
-      },
-      [
-        [
-          "37aa033df08c21b4f56f1da2081e9e00",
-          {
-            "status": "available"
-          },
-          [
-            [
-              "43f6d5557d6de39488c64bb2c684ae7c",
-              {
-                "status": "missing"
-              },
-              [
-                [
-                  "a3b44168027079c2692a7d8eb35e9643",
-                  {
-                    "status": "available"
-                  },
-                  []
-                ]
-              ]
-            ]
-          ]
-        ]
-      ]
-    ]
-  },
-  {
-    "pos": 3,
-    "ids": [
-      "df226cb9a2e5bdd3e6be009fd51f47c1",
-      {
-        "status": "available"
-      },
-      [
-        [
-          "6e94d345514a08620c3176eea080d3ec",
-          {
-            "status": "available"
-          },
-          [
-            [
-              "0b84bfea5508e2020feb07384714a987",
-              {
-                "status": "missing"
-              },
-              [
-                [
-                  "2d0ab4f4089a57c95d52bfd2d66b823d",
-                  {
-                    "status": "available"
-                  },
-                  []
-                ]
-              ]
-            ],
-            [
-              "df4a81cd21c75c71974d96e88a68fc2f",
-              {
-                "status": "available"
-              },
-              [
-                [
-                  "3f7f6c55c27bf54c009b661607a9fe05",
-                  {
-                    "status": "available"
-                  },
-                  []
-                ]
-              ]
-            ]
-          ]
-        ]
-      ]
-    ]
-  }
-];
+const shortConflictedTreeWithTwoRoots = [{
+  "pos": 1,
+  "ids": ["9692d401ed2d3434827608278bdc36e3", {}, [
+    ["37aa033df08c21b4f56f1da2081e9e00", {}, [
+      ["43f6d5557d6de39488c64bb2c684ae7c", {}, [
+        ["a3b44168027079c2692a7d8eb35e9643", {}, []]
+      ]]
+    ]]
+  ]]
+}, {
+  "pos": 3,
+  "ids": ["df226cb9a2e5bdd3e6be009fd51f47c1", {}, [
+    ["6e94d345514a08620c3176eea080d3ec", {}, [
+      ["0b84bfea5508e2020feb07384714a987", {}, [
+        ["2d0ab4f4089a57c95d52bfd2d66b823d", {}, []]
+      ]],
+      ["df4a81cd21c75c71974d96e88a68fc2f", {}, [
+        ["3f7f6c55c27bf54c009b661607a9fe05", {}, []]
+      ]]
+    ]]
+  ]]
+}];
 
 /*
   With revs_limit: 4, just the main branch
@@ -587,7 +524,7 @@ describe('the findPathToLeaf util', function () {
   });
 });
 
-describe.only('the removeLeafFromTree util', function () {
+describe('the removeLeafFromTree util', function () {
   it('removes a leaf from the tree', function () {
     let tree = removeLeafFromTree(shortConflictedTree, "6-3f7f6c55c27bf54c009b661607a9fe05");
     tree.should.be.deep.equal(shortConflictedTreeWithout6a);
@@ -622,5 +559,71 @@ describe.only('the removeLeafFromTree util', function () {
   it('does not remove anything from the tree if the rev doesn\'t exist', function () {
     const tree = removeLeafFromTree(shortConflictedTree, "foobar");
     tree.should.be.deep.equal(shortConflictedTree);
+  });
+  it('should remove respective leafs from a multi-root tree with revs_limit=4', function () {
+    let tree = removeLeafFromTree(
+      removeLeafFromTree(
+        shortConflictedTreeWithTwoRoots,
+        '6-3f7f6c55c27bf54c009b661607a9fe05'
+      ),
+      '6-2d0ab4f4089a57c95d52bfd2d66b823d'
+    );
+    tree.should.be.deep.equal([{
+      "pos": 1,
+      "ids": ["9692d401ed2d3434827608278bdc36e3", {}, [
+        ["37aa033df08c21b4f56f1da2081e9e00", {}, [
+          ["43f6d5557d6de39488c64bb2c684ae7c", {}, [
+            ["a3b44168027079c2692a7d8eb35e9643", {}, []]
+          ]]
+        ]]
+      ]]
+    }]);
+  });
+  it('should remove respective leafs from a multi-root tree with revs_limit=3', function () {
+    // we're creating the tree below:
+    // root1 1-9692 -> 2-37aa -> 3-df22 -> 4-6e94 -> 5-df4a -> 6-3f7f
+    //                 |                   |-------> 5-8d8c -> 6-65e0
+    // root2           |-------> 3-43f6 -> 4-a3b4
+    const limitedTree = [{
+      pos: 1,
+      ids: ["9692", {}, [
+        ["37aa", {}, [
+          ["df22", {}, [
+            ["6e94", {}, [
+              ["df4a", {}, [
+                ["3f7f", {}, []],
+              ]],
+              ["8d8c", {}, [
+                ["65e0", {}, []],
+              ]],
+            ]],
+          ]],
+        ]],
+      ]],
+    }, {
+      pos: 3,
+      ids: ["43f6", {}, [
+        ["a3b4", {}, []],
+      ]],
+    }];
+
+    const tree = removeLeafFromTree(
+      removeLeafFromTree(
+        limitedTree,
+        '6-3f7f'
+      ),
+      '6-2d0a'
+    );
+    tree.should.be.deep.equal([{
+      pos: 1,
+      ids: ["9692", {}, [
+        ["37aa", {}, []],
+      ]],
+    }, {
+      pos: 3,
+      ids: ["43f6", {}, [
+        ["a3b4", {}, []],
+      ]],
+    }]);
   });
 });
