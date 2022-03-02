@@ -105,9 +105,7 @@ adapters.forEach(function (adapters) {
     it('#3179 conflicts synced, live sync', function () {
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-
       var sync = local.sync(remote, { live: true });
-
       function waitForUptodate() {
 
         function defaultToEmpty(promise) {

@@ -20,7 +20,7 @@ if (global.window && global.window.location && global.window.location.search) {
 
 var adapterUsed;
 
-exports.runTests = function (PouchDB, suiteName, testCases, opts, callback) {
+exports.runTests = function (PouchDB, suiteName, testCases, callback) {
 
   testCases = testCases.filter(function (testCase) {
     if (grep && suiteName.indexOf(grep) === -1 &&
@@ -47,8 +47,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts, callback) {
       var localDbName = commonUtils.safeRandomDBName();
 
       t.test('setup', function (t) {
-        opts.size = 3000;
-        db = new PouchDB(localDbName, opts);
+        db = new PouchDB(localDbName, { size: 3000 });
         adapterUsed = db.adapter;
         testCase.setup(db, function (err, res) {
           if (err) {
@@ -95,8 +94,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, opts, callback) {
 
         testCaseTeardown.then(function () {
           reporter.end(testCase);
-          var opts = {adapter : db.adapter};
-          return new PouchDB(localDbName, opts).destroy();
+          return new PouchDB(localDbName).destroy();
         }).then(function () {
           t.end();
           if (i === testCases.length - 1) {

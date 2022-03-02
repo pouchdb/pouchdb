@@ -12,4 +12,4 @@ node bin/update-package-json-for-publish.js
 ./node_modules/.bin/webpack \
   --output-library PouchDB --output-library-target umd \
   ./packages/node_modules/pouchdb pouchdb-webpack.js
-POUCHDB_SRC='../../pouchdb-webpack.js' npm test
+BUILD_NODE_DONE=1 POUCHDB_SRC='../../pouchdb-webpack.js' npm test

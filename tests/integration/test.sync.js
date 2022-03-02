@@ -820,7 +820,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('5007 sync 2 databases', function (done) {
-
       var db = new PouchDB(dbs.name);
 
       var remote1 = new PouchDB(dbs.remote);
@@ -840,7 +839,6 @@ adapters.forEach(function (adapters) {
       var changes2 = remote2.changes({live: true}).on('change', onChange);
 
       db.post({foo: 'bar'});
-
       var toCancel = [changes1, changes2, sync1, sync2];
       function complete() {
         if (!toCancel.length) {
@@ -850,6 +848,7 @@ adapters.forEach(function (adapters) {
         }
         var cancelling = toCancel.shift();
         cancelling.on('complete', complete);
+        console.log(11, '> 5997 sync 2 databases, cancel');
         cancelling.cancel();
       }
     });

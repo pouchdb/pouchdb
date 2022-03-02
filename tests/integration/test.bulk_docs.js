@@ -1120,6 +1120,33 @@ adapters.forEach(function (adapter) {
       }).catch(done);
     });
 
+    it('4372 revs_limit with auto_compaction deletes old revisions of the doc', async function () {
+      // We only implement revs_limit locally
+      if (adapter === 'http') {
+        return;
+      }
+
+      const db = new PouchDB(dbs.name, {revs_limit: 2, auto_compaction: true});
+
+      try {
+        var revs = [];
+        const v1 = await db.put({_id: 'doc', v: 1});
+        revs.push(v1.rev);
+        const v2 = await db.put({_id: 'doc', _rev: revs[0], v: 2});
+        revs.push(v2.rev);
+        await db.put({_id: 'doc', _rev: revs[1], v: 3});
+
+        try {
+          const doc = await db.get('doc', {rev: revs[1]});
+          should.not.exist(doc);
+        } catch (error) {
+          error.message.should.equal('missing');
+        }
+      } catch (error) {
+        should.not.exist(error);
+      }
+    });
+
     it('4712 invalid rev for new doc generates conflict', function () {
       // CouchDB 1.X has a bug which allows this insertion via bulk_docs
       // (which PouchDB uses for all document insertions)

@@ -26,9 +26,6 @@ if (process.env.PLUGINS) {
 if (process.env.COUCH_HOST) {
   queryParams.couchHost = process.env.COUCH_HOST;
 }
-if (process.env.ADAPTER) {
-  queryParams.adapter = process.env.ADAPTER;
-}
 if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }

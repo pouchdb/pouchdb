@@ -28,7 +28,7 @@ var builtInModules = require('builtin-modules');
 var external = Object.keys(require('../package.json').dependencies)
   .concat(builtInModules);
 
-var plugins = ['localstorage', 'memory', 'find'];
+var plugins = ['indexeddb', 'localstorage', 'memory', 'find'];
 
 var currentYear = new Date().getFullYear();
 
@@ -40,6 +40,8 @@ var comments = {
   'version 2.0.' +
   '\n// For all details and documentation:' +
   '\n// http://pouchdb.com\n',
+
+  'indexeddb': '// PouchDB indexeddb plugin ' + version + '\n',
 
   'memory': '// PouchDB in-memory plugin ' + version +
   '\n// Based on MemDOWN: https://github.com/rvagg/memdown' +

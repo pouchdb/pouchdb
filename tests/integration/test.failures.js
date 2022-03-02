@@ -3,7 +3,7 @@
 if (!process.env.LEVEL_ADAPTER &&
   !process.env.LEVEL_PREFIX &&
   !process.env.AUTO_COMPACTION &&
-  !process.env.ADAPTER) {
+  !process.env.ADAPTERS) {
   // these tests don't make sense for anything other than default leveldown
 
   describe('test.failures.js', function () {

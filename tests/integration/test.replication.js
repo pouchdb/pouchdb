@@ -11,8 +11,6 @@ if ('saucelabs' in testUtils.params()) {
   adapters = [['local', 'http'], ['http', 'local']];
 }
 
-var downAdapters = ['local'];
-
 adapters.forEach(function (adapters) {
   describe('suite2 test.replication.js-' + adapters[0] + '-' + adapters[1], function () {
 
@@ -4253,32 +4251,28 @@ adapters.forEach(function (adapters) {
 
 // This test only needs to run for one configuration, and it slows stuff
 // down
-downAdapters.map(function () {
+describe('suite2 test.replication.js-down-test', function () {
+  let dbs = {};
 
-  describe('suite2 test.replication.js-down-test', function () {
+  beforeEach(function (done) {
+    dbs.name = testUtils.adapterUrl('local', 'testdb');
+    testUtils.cleanup([dbs.name], done);
+  });
 
-    var dbs = {};
+  afterEach(function (done) {
+    testUtils.cleanup([dbs.name], done);
+  });
 
-    beforeEach(function (done) {
-      dbs.name = testUtils.adapterUrl(adapters[0], 'testdb');
-      testUtils.cleanup([dbs.name], done);
+  it('replicate from down server test', async () => {
+    const source = new PouchDB('http://127.0.0.1:3010', {
+      ajax: {timeout: 10}
     });
-
-    afterEach(function (done) {
-      testUtils.cleanup([dbs.name], done);
-    });
-
-    it('replicate from down server test', function (done) {
-      var source = new PouchDB('http://infiniterequest.com', {
-        ajax: {timeout: 10}
-      });
-      var target = new PouchDB(dbs.name);
-      source.replicate.to(target, function (err) {
-        should.exist(err);
-        done();
-      });
-    });
-
+    const target = new PouchDB(dbs.name);
+    try {
+      await source.replicate.to(target);
+    } catch (error) {
+      should.exist(error);
+    }
   });
 });
 

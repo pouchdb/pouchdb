@@ -8,7 +8,7 @@
 : ${COUCH_HOST:="http://127.0.0.1:5984"}
 
 pouchdb-setup-server() {
-  # in travis, link pouchdb-servers dependencies on pouchdb
+  # in CI, link pouchdb-servers dependencies on pouchdb
   # modules to the current implementations
   mkdir pouchdb-server-install
   cd pouchdb-server-install
@@ -62,16 +62,12 @@ pouchdb-build-node() {
 if [[ ! -z $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     export COUCH_HOST='http://127.0.0.1:6984'
-    if [[ "$TRAVIS_REPO_SLUG" == "pouchdb/pouchdb" || "$COVERAGE" == 1 ]]; then
+    if [[ -n "$GITHUB_REPOSITORY" || "$COVERAGE" == 1 ]]; then
       pouchdb-setup-server
     else
       echo -e "pouchdb-server should be running on $COUCH_HOST\n"
     fi
   elif [ "$SERVER" == "couchdb-master" ]; then
-    if [ -z $COUCH_HOST ]; then
-      export COUCH_HOST="http://127.0.0.1:5984"
-    fi
-  elif [ "$SERVER" == "couchdb-v2" ]; then
     if [ -z $COUCH_HOST ]; then
       export COUCH_HOST="http://127.0.0.1:5984"
     fi
@@ -92,8 +88,13 @@ if [[ ! -z $SERVER ]]; then
   fi
 fi
 
-if [ ! -z $TRAVIS ]; then
-  source ./bin/run-couchdb-on-travis.sh
+if [ "$SERVER" == "couchdb-master" ]; then
+  while [ '200' != $(curl -s -o /dev/null -w %{http_code} ${COUCH_HOST}) ]; do
+    echo waiting for couch to load... ;
+    sleep 1;
+  done
+
+  ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
 fi
 
 printf 'Waiting for host to start .'
