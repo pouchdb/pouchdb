@@ -416,17 +416,17 @@ adapters.forEach(function (adapters) {
       const replication = PouchDB.replicate(dbs.remote, dbs.name, {});
       replication.on('checkpoint', result => checkpointEvents.push(result));
       await replication;
-      String(checkpointEvents[0]['pending_batch']).substr(0, 1).should.equal('1');
-      String(checkpointEvents[1]['pending_batch']).substr(0, 1).should.equal('2');
-      String(checkpointEvents[2]['pending_batch']).substr(0, 1).should.equal('3');
-      String(checkpointEvents[3]['start_next_batch']).substr(0, 1).should.equal('3');
+      String(checkpointEvents[0]['pending_batch']).slice(0, 1).should.equal('1');
+      String(checkpointEvents[1]['pending_batch']).slice(0, 1).should.equal('2');
+      String(checkpointEvents[2]['pending_batch']).slice(0, 1).should.equal('3');
+      String(checkpointEvents[3]['start_next_batch']).slice(0, 1).should.equal('3');
       checkpointEvents[4]['revs_diff'].should.have.property('id');
-      String(checkpointEvents[4]['revs_diff']['seq']).substr(0, 1).should.equal('1');
+      String(checkpointEvents[4]['revs_diff']['seq']).slice(0, 1).should.equal('1');
       checkpointEvents[5]['revs_diff'].should.have.property('changes');
-      String(checkpointEvents[5]['revs_diff']['seq']).substr(0, 1).should.equal('2');
+      String(checkpointEvents[5]['revs_diff']['seq']).slice(0, 1).should.equal('2');
       checkpointEvents[6]['revs_diff'].should.have.property('changes');
-      String(checkpointEvents[6]['revs_diff']['seq']).substr(0, 1).should.equal('3');
-      String(checkpointEvents[7]['checkpoint']).substr(0, 1).should.equal('3');
+      String(checkpointEvents[6]['revs_diff']['seq']).slice(0, 1).should.equal('3');
+      String(checkpointEvents[7]['checkpoint']).slice(0, 1).should.equal('3');
       [
         checkpointEvents[4]['revs_diff']['id'],
         checkpointEvents[5]['revs_diff']['id'],
