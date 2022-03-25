@@ -2156,7 +2156,7 @@ adapters.forEach(function (adapter) {
             return_docs: true,
             include_docs: true
           }).on('change', function (change) {
-            var i = +change.id.substr(3);
+            var i = +change.id.slice(3);
             if (i === 0) {
               should.not.exist(res.rows[0].doc._attachments,
                                '(onChange) doc0 contains no attachments');

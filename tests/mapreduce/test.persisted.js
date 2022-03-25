@@ -428,7 +428,7 @@ describe('test.persisted.js', function () {
       var docs = Array.apply(null, Array(5)).map(function (_, i) {
         return {
           _id: 'doc_' + i,
-          data: Math.random().toString(36).substr(2)
+          data: Math.random().toString(36).slice(2)
         };
       }).concat({
         _id: '_design/test',
