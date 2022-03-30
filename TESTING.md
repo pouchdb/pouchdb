@@ -144,6 +144,15 @@ following values:
 
 Set this to `1` to skip the migration tests.
 
+#### `VIEW_ADAPTERS` (default: `memory`)
+
+Comma-separated list of preferred view adapter backends that PouchDB will use. 
+This variable overrides the default choice and causes additional adapters to
+be loaded if they're not part of the default distribution.
+
+On Node.js the available adapters are `leveldb` and `memory`. In the
+browser they're `idb`, `indexeddb` and `memory`.
+
 
 ## Other sets of tests
 
@@ -240,6 +249,7 @@ command-line options and their query string equivalents are:
 | `ITERATIONS`         | `iterations`       |
 | `PLUGINS`            | `plugins`          |
 | `POUCHDB_SRC`        | `src`              |
+| `VIEW_ADAPTERS`      | `viewAdapters`     |
 
 
 ## Other test tasks

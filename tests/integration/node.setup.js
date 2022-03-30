@@ -1,5 +1,4 @@
 "use strict";
-
 // throw an error if any EventEmitter adds too many listeners
 require('throw-max-listeners-error');
 
@@ -25,3 +24,4 @@ chai.use(require('chai-as-promised'));
 global.should = chai.should();
 global.assert = chai.assert;
 require('mkdirp').sync('./tmp');
+global.fs = require('fs');

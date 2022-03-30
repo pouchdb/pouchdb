@@ -14,6 +14,9 @@ var queryParams = {};
 if (process.env.ADAPTERS) {
   queryParams.adapters = process.env.ADAPTERS;
 }
+if (process.env.VIEW_ADAPTERS) {
+  queryParams.viewAdapters = process.env.VIEW_ADAPTERS;
+}
 if (process.env.AUTO_COMPACTION) {
   queryParams.autoCompaction = true;
 }
