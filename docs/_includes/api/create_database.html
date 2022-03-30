@@ -17,6 +17,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `revs_limit`: Specify how many old revisions we keep track (not a copy) of. Specifying a low value means Pouch may not be able to figure out whether a new revision received via replication is related to any it currently has which could result in a conflict. Defaults to `1000`.
 * `deterministic_revs`: Use a md5 hash to create a deterministic revision number for documents. Setting it to false will mean that the revision number will be a random UUID. Defaults to true.
 * `view_update_changes_batch_size`: Specify how many change records will be consumed at a time when rebuilding view indexes when the `query()` method is used. Defaults to 50.
+* `view_adapter`: Specify a different adapter to store the view index data.
 
 **Options for remote databases:**
 

@@ -66,6 +66,9 @@ if (process.env.GREP) {
 if (process.env.ADAPTERS) {
   qs.adapters = process.env.ADAPTERS;
 }
+if (process.env.VIEW_ADAPTERS) {
+  qs.viewAdapters = process.env.VIEW_ADAPTERS;
+}
 if (process.env.AUTO_COMPACTION) {
   qs.autoCompaction = true;
 }
