@@ -475,7 +475,7 @@ describe('test.ltgt.js', function () {
       });
     }).then(function (subLevelResult) {
       if (subLevelResult.docs[0].nes.ted !== 101) {
-        console.dir(subLevelResult);
+        console.log(JSON.stringify(subLevelResult, null, 4));
         throw new Error('querying sub level field has the wrong result');
       }
     });
