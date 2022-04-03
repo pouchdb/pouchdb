@@ -420,6 +420,14 @@ describe('test.ltgt.js', function () {
           fields: ['nes.ted']
       }
     }).then(function () {
+      return db.createIndex({
+        name: 'topLevelIndex',
+        ddoc: 'topLevelIndex',
+        index: {
+            fields: ['nr']
+        }
+      });
+    }).then(function () {
       return db.put({
         _id: 'ninetynine',
         nr: 99,
