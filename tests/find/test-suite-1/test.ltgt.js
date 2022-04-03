@@ -411,6 +411,69 @@ describe('test.ltgt.js', function () {
     });
   });
 
+  it('$gt on nested field', function(){
+    var db = context.db;
+    return db.createIndex({
+      name: 'nestedIndex',
+      ddoc: 'nestedIndex',
+      index: {
+          fields: ['nes.ted']
+      }
+    }).then(function(){
+      return db.put({
+        _id: 'ninetynine',
+        nr: 99,
+        nes: {
+            ted: 99
+        }
+      });
+    }).then(function(){
+      return db.put({
+        _id: 'hundred',
+        nr: 100,
+        nes: {
+            ted: 100
+        }
+      });
+    }).then(function(){
+      return db.put({
+        _id: 'hundredOne',
+        nr: 101,
+        nes: {
+            ted: 101
+        }
+      });
+    }).then(function(){
+      return db.find({
+        selector: {
+            nr: {
+                $gt: 100
+            }
+        },
+        sort: [{ nr: 'asc' }]
+      })
+    }).then(function(topLevelResult) {
+      if(topLevelResult.docs[0].nes.ted !== 101) {
+        throw new Error('querying top level field has the wrong result')
+      }
+    }).then(function(){
+      return db.find({
+        selector: {
+            'nes.ted': {
+                $gt: 100
+            }
+        },
+        sort: [{ 'nes.ted': 'asc' }]
+      })
+    }).then(function(subLevelResult){
+      if(subLevelResult.docs[0].nes.ted !== 101) {
+        console.dir(subLevelResult);
+        throw new Error('querying sub level field has the wrong result')
+      }
+    })
+  });
+
+
   it('bunch of equivalent queries', function () {
     var db = context.db;
 
