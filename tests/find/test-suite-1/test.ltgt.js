@@ -451,10 +451,10 @@ describe('test.ltgt.js', function () {
             }
         },
         sort: [{ nr: 'asc' }]
-      })
+      });
     }).then(function(topLevelResult) {
       if(topLevelResult.docs[0].nes.ted !== 101) {
-        throw new Error('querying top level field has the wrong result')
+        throw new Error('querying top level field has the wrong result');
       }
     }).then(function(){
       return db.find({
@@ -464,16 +464,14 @@ describe('test.ltgt.js', function () {
             }
         },
         sort: [{ 'nes.ted': 'asc' }]
-      })
+      });
     }).then(function(subLevelResult){
       if(subLevelResult.docs[0].nes.ted !== 101) {
         console.dir(subLevelResult);
-        throw new Error('querying sub level field has the wrong result')
+        throw new Error('querying sub level field has the wrong result');
       }
     })
   });
-
-
   it('bunch of equivalent queries', function () {
     var db = context.db;
 
