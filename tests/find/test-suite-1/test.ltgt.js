@@ -411,7 +411,7 @@ describe('test.ltgt.js', function () {
     });
   });
 
-  it('$gt on nested field', function(){
+  it('$gt on nested field', function () {
     var db = context.db;
     return db.createIndex({
       name: 'nestedIndex',
@@ -419,7 +419,7 @@ describe('test.ltgt.js', function () {
       index: {
           fields: ['nes.ted']
       }
-    }).then(function(){
+    }).then(function () {
       return db.put({
         _id: 'ninetynine',
         nr: 99,
@@ -427,7 +427,7 @@ describe('test.ltgt.js', function () {
             ted: 99
         }
       });
-    }).then(function(){
+    }).then(function () {
       return db.put({
         _id: 'hundred',
         nr: 100,
@@ -435,7 +435,7 @@ describe('test.ltgt.js', function () {
             ted: 100
         }
       });
-    }).then(function(){
+    }).then(function () {
       return db.put({
         _id: 'hundredOne',
         nr: 101,
@@ -443,7 +443,7 @@ describe('test.ltgt.js', function () {
             ted: 101
         }
       });
-    }).then(function(){
+    }).then(function () {
       return db.find({
         selector: {
             nr: {
@@ -452,11 +452,11 @@ describe('test.ltgt.js', function () {
         },
         sort: [{ nr: 'asc' }]
       });
-    }).then(function(topLevelResult) {
-      if(topLevelResult.docs[0].nes.ted !== 101) {
+    }).then(function (topLevelResult) {
+      if (topLevelResult.docs[0].nes.ted !== 101) {
         throw new Error('querying top level field has the wrong result');
       }
-    }).then(function(){
+    }).then(function () {
       return db.find({
         selector: {
             'nes.ted': {
@@ -465,12 +465,12 @@ describe('test.ltgt.js', function () {
         },
         sort: [{ 'nes.ted': 'asc' }]
       });
-    }).then(function(subLevelResult){
-      if(subLevelResult.docs[0].nes.ted !== 101) {
+    }).then(function (subLevelResult) {
+      if (subLevelResult.docs[0].nes.ted !== 101) {
         console.dir(subLevelResult);
         throw new Error('querying sub level field has the wrong result');
       }
-    })
+    });
   });
   it('bunch of equivalent queries', function () {
     var db = context.db;
