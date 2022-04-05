@@ -572,7 +572,7 @@ describe('the removeLeafFromTree util', function () {
         ]]
       ]]
     }];
-    let purged = removeLeafFromTree(tree, "4-mnop")
+    let purged = removeLeafFromTree(tree, "4-mnop");
     purged.should.deep.equal([{
       "pos": 1,
       "ids": ["abcd", {}, [
@@ -581,7 +581,7 @@ describe('the removeLeafFromTree util', function () {
           ["qrst", {}, []]
         ]]
       ]]
-    }])
+    }]);
   });
   it('should remove respective leafs from a multi-root tree with revs_limit=4', function () {
     let tree = removeLeafFromTree(
