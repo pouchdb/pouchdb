@@ -15,7 +15,7 @@ Purge permanently removes data from the database. Normal deletion with `db.remov
 
 **Purge is currently only implemented in the `indexeddb` adapter**.
 
-Using Purge with any other adapter will throw an error.
+Using Purge with any other adapter will return an error.
 
 {% endmarkdown %}
 {% include alert/end.html%}
@@ -27,8 +27,18 @@ Using Purge with any other adapter will throw an error.
 db.purge('mydoc', '6-3a24009a9525bde9e4bfa8a99046b00d',
   function (err, result) {
     if (err) { return console.log(err); }
-    // handle result
-  }
+    console.log(result)
+    /*
+    Example result:
+    {
+      "ok": true,
+      "deletedRevs": [
+        "6-3a24009a9525bde9e4bfa8a99046b00d",
+        "5-df4a81cd21c75c71974d96e88a68fc2f"
+      ],
+      "documentWasRemovedCompletely": false
+    }
+    */
 );
 {% endhighlight %}
 {% include code/end.html %}
@@ -37,6 +47,18 @@ db.purge('mydoc', '6-3a24009a9525bde9e4bfa8a99046b00d',
 {% highlight js %}
 try {
   var result = await db.purge('mydoc', '6-3a24009a9525bde9e4bfa8a99046b00d');
+  console.log(result)
+  /*
+  Example result:
+  {
+    "ok": true,
+    "deletedRevs": [
+      "6-3a24009a9525bde9e4bfa8a99046b00d",
+      "5-df4a81cd21c75c71974d96e88a68fc2f"
+    ],
+    "documentWasRemovedCompletely": false
+  }
+  */
 } catch (err) {
   console.log(err);
 }
@@ -46,8 +68,19 @@ try {
 {% include code/start.html id="purge1" type="promise" %}
 {% highlight js %}
 db.purge('mydoc', '6-3a24009a9525bde9e4bfa8a99046b00d')
-  .then(function (doc) {
-    // handle doc
+  .then(function (result) {
+    console.log(result)
+    /*
+    Example result:
+    {
+      "ok": true,
+      "deletedRevs": [
+        "6-3a24009a9525bde9e4bfa8a99046b00d",
+        "5-df4a81cd21c75c71974d96e88a68fc2f"
+      ],
+      "documentWasRemovedCompletely": false
+    }
+    */
   }).catch(function (err) {
     console.log(err);
   });
@@ -56,32 +89,13 @@ db.purge('mydoc', '6-3a24009a9525bde9e4bfa8a99046b00d')
 
 #### Example Response:
 
-If the document has no conflicts, purging its only leaf rev deletes the document completely, and `purge()` _returns_ (not throws) the same `not_found` error as when trying to fetch a non-existent document. It has internally attempted to fetch the doc, and, as expected with a conflict-free target doc, failed:
+If the document has no conflicts, purging its only leaf rev deletes the document completely, and `purge()` returns `documentWasRemovedCompletely: true` in its result object.
 
-{% highlight js %}
-{
-  "status": 404,
-  "name": "not_found",
-  "message": "missing",
-  "error": true,
-  "reason": "missing",
-  "docId": "mydoc"
-}
-{% endhighlight %}
-
-If the document does have conflicts, purging will remove the specified rev and pick a leaf from another rev branch as the winner. Purge will then return the current state of the document with the new winning revision in `_rev`.
-
-{% highlight js %}
-{
-  "_id": "mydoc",
-  "_rev": "6-65e076aa5095b0c6ae4184ea6cf2537a"
-  "title": "Embassy Row"
-}
-{% endhighlight %}
+If the document does have conflicts, purging will remove the specified rev and pick a leaf from another rev branch as the winner. Fetching the doc after the purge will return the updated state of the document with the new winning revision in `_rev`.
 
 **Notes:**
 
-* The specified `rev` must be a leaf
+* The `rev` specified for purging must be a leaf, otherwise an error will be returned
 * Purges do not sync, they only apply to the database they are performed on
 * If the document has conflicts, purging a leaf will also remove its ancestors up to the next branching rev, and pick a new winning rev
 * Any attachments referenced in the specified rev will also be deleted
