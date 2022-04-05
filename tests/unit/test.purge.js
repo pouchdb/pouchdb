@@ -572,7 +572,7 @@ describe('the removeLeafFromTree util', function () {
         ]]
       ]]
     }];
-    let purged = removeLeafFromTree(tree, "3-mnop")
+    let purged = removeLeafFromTree(tree, "4-mnop")
     purged.should.deep.equal([{
       "pos": 1,
       "ids": ["abcd", {}, [
@@ -600,34 +600,36 @@ describe('the removeLeafFromTree util', function () {
           ]]
         ]]
       ]]
+    }, {
+      "pos": 3,
+      "ids": [
+        "df226cb9a2e5bdd3e6be009fd51f47c1", {}, [
+          ["6e94d345514a08620c3176eea080d3ec", {}, [
+            ["0b84bfea5508e2020feb07384714a987", {}, []],
+            ["df4a81cd21c75c71974d96e88a68fc2f", {}, []]
+          ]]
+        ]
+      ]
     }]);
   });
   it('should remove respective leafs from a multi-root tree with revs_limit=3', function () {
     // we're creating the tree below:
-    // root1 1-9692 -> 2-37aa -> 3-df22 -> 4-6e94 -> 5-df4a -> 6-3f7f
-    //                 |                   |-------> 5-8d8c -> 6-65e0
-    // root2           |-------> 3-43f6 -> 4-a3b4
+    // root1 4-6e94 -> 5-df4a -> 6-3f7f
+    //       └-------> 5-8d8c -> 6-65e0
+    // root2 4-a3b4
     const limitedTree = [{
-      pos: 1,
-      ids: ["9692", {}, [
-        ["37aa", {}, [
-          ["df22", {}, [
-            ["6e94", {}, [
-              ["df4a", {}, [
-                ["3f7f", {}, []],
-              ]],
-              ["8d8c", {}, [
-                ["65e0", {}, []],
-              ]],
+      pos: 4,
+      ids: ["6e94", {}, [
+            ["df4a", {}, [
+              ["3f7f", {}, []],
+            ]],
+            ["8d8c", {}, [
+              ["65e0", {}, []],
             ]],
           ]],
-        ]],
-      ]],
     }, {
-      pos: 3,
-      ids: ["43f6", {}, [
-        ["a3b4", {}, []],
-      ]],
+      pos: 4,
+      ids: ["a3b4", {}, []],
     }];
 
     const tree = removeLeafFromTree(
@@ -635,18 +637,17 @@ describe('the removeLeafFromTree util', function () {
         limitedTree,
         '6-3f7f'
       ),
-      '6-2d0a'
+      '5-df4a'
     );
-    tree.should.be.deep.equal([{
-      pos: 1,
-      ids: ["9692", {}, [
-        ["37aa", {}, []],
-      ]],
-    }, {
-      pos: 3,
-      ids: ["43f6", {}, [
-        ["a3b4", {}, []],
-      ]],
-    }]);
+    // and we’re expecting this after the purge
+    // root1 4-6e94
+    //       └-------> 5-8d8c -> 6-65e0
+    // root2 4-a3b4
+    tree.should.be.deep.equal([
+      { pos: 4, ids: [ '6e94', {}, [
+        ["8d8c", {}, [["65e0", {}, []]]]
+      ] ] },
+      { pos: 4, ids: [ 'a3b4', {}, [] ] }
+    ]);
   });
 });
