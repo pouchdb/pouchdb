@@ -6,7 +6,7 @@ PouchDB.replicate(source, target, [options])
 
 Replicate data from `source` to `target`.  Both the `source` and `target` can be a PouchDB instance or a string representing a CouchDB database URL or the name of a local PouchDB database. If `options.live` is `true`, then this will track future changes and also replicate them automatically. This method returns an object with the method `cancel()`, which you call if you want to cancel live replication.
 
-Replication is an [event emitter][] like [changes()](#changes) and emits the `'complete'`, `'active'`, `'paused'`, `'change'`, `'denied'` and `'error'` events.
+Replication is an [event emitter][] like [changes()](#changes) and emits the `'complete'`, `'active'`, `'paused'`, `'change'`, `'denied'`, `'error'` and `'checkpoint'` events.
 
 ### Options
 
@@ -75,6 +75,7 @@ The `remoteDB` can either be a string or a `PouchDB` object. If you have a fetch
 * __`active`__ - This event fires when the replication starts actively processing changes; e.g. when it recovers from an error or new changes are available.
 * __`denied`__ (`err`) - This event fires if a document failed to replicate due to validation or authorization errors.
 * __`error`__ (`err`) - This event is fired when the replication is stopped due to an unrecoverable failure. If `retry` is `false`, this will also fire when the user goes offline or another network error occurs (so you can handle retries yourself, if you want).
+* __`checkpoint`__ - This event exposes information about the internal steps of the replication process. It includes one of the fields `pending_batch`, `start_next_batch`, `revs_diff` or `checkpoint`.
 
 #### Single-shot
 
