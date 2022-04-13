@@ -155,5 +155,33 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test rev purge with a view', function () {
+      const db = new PouchDB(dbs.name);
+
+      if (typeof db._purge === 'undefined') {
+        console.log('purge is not implemented for adapter', db.adapter);
+        return;
+      }
+
+      return db.bulkDocs({
+        docs: [
+          doc,
+          {_id: 'dale', score: 3},
+          {_id: 'mikeal', score: 5},
+        ],
+      }).then(function () {
+        return db.query('foo/scores');
+      }).then(function () {
+        return db.get('dale');
+      }).then(function (_doc) {
+        return db.purge(_doc._id, _doc._rev);
+      }).then(function () {
+        return db.query('foo/scores');
+      }).then(function (res) {
+        res.rows.length.should.equal(1);
+        res.rows[0].value.should.equal(5);
+      });
+    });
+
   });
 });
