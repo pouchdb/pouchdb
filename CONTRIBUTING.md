@@ -162,7 +162,7 @@ Release Procedure
  * Push release post
  * `npm run set-version -- $VERSION`
  * `npm run release`
- * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` after you upload it.
+ * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` (same with `pouchdb.js`) after you upload it.
  * Update docs/_config.yml to the current version
  * Push updated versions to master
  * `npm run publish-site`
