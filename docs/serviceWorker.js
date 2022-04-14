@@ -36,7 +36,7 @@ var nonCriticalAssets =
     '/static/js/code.min.js',
     'https://code.jquery.com/jquery.min.js',
     'https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js',
-    'https://cdn.jsdelivr.net/pouchdb/latest/pouchdb.min.js',
+    'https://cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js',
   ]
   .concat(pages)
   .filter(function(file) {
