@@ -16,12 +16,13 @@ var tasks = PouchDB.activeTasks.list()
 
 {% highlight js %}
 [{
-  "id": "d81fea92-8ce4-42df-bb2b-89a4e67536c3",
-  "name": "database_compaction",
-  "created_at": "2022-02-08T15:38:45.318Z",
-  "total_items": 12,
-  "completed_items": 1,
-  "updated_at": "2022-02-08T15:38:45.821Z"
+  "pid": Symbol("database_compaction"),
+  "type": "database_compaction",
+  "started_on": 1644334725318,
+  "total_changes": 12,
+  "changes_done": 3,
+  "updated_on": 1644334725821,
+  "progress": 25
 }]
 {% endhighlight %}
 
@@ -33,13 +34,13 @@ You can use [JavaScript Proxies](https://developer.mozilla.org/en-US/docs/Web/Ja
 PouchDB.activeTasks.add = new Proxy(PouchDB.activeTasks.add, {
   apply: (target, thisArg, argumentsList) => {
     const task = argumentsList[0];
-    const id = Reflect.apply(
+    const pid = Reflect.apply(
       target,
       PouchDB.activeTasks,
       [task]
     );
-    console.log('Added task', id, task.name);
-    return id;
+    console.log('Added task', pid, task.type);
+    return pid;
   },
 });
 {% endhighlight %}
