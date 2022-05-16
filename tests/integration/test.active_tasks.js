@@ -81,7 +81,6 @@ describe('test.active_tasks.js', function () {
     PouchDB.activeTasks.update(id1, {"changes_done": 2});
     PouchDB.activeTasks.update(id2, {"changes_done": 213});
     const tasks = PouchDB.activeTasks.list();
-    console.log("tasks: ", tasks);
     assert.equal(tasks.length, 2);
     assert.equal(tasks[0].pid, id1);
     assert.equal(tasks[1].pid, id2);
