@@ -24,7 +24,7 @@ describe('test.active_tasks.js', function () {
     }
   });
 
-  it('Throws when task database not a string', function () {
+  it('Throws when task database is not a string', function () {
     try {
       const task = {type: 'database_compaction', total_changes: 12};
       PouchDB.activeTasks.add(task);
