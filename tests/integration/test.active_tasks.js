@@ -11,14 +11,14 @@ describe('test.active_tasks.js', function () {
     try {
       const task = {database: 'test', total_changes: 12};
       PouchDB.activeTasks.add(task);
-    } catch(err) {
+    } catch (err) {
       should.exist(err);
       err.should.be.instanceof(Error);
     }
     try {
       const task = {type: 'undefined', database: 'test', total_changes: 12};
       PouchDB.activeTasks.add(task);
-    } catch(err) {
+    } catch (err) {
       should.exist(err);
       err.should.be.instanceof(Error);
     }
@@ -28,7 +28,7 @@ describe('test.active_tasks.js', function () {
     try {
       const task = {type: 'database_compaction', total_changes: 12};
       PouchDB.activeTasks.add(task);
-    } catch(err) {
+    } catch (err) {
       should.exist(err);
       err.should.be.instanceof(Error);
     }
@@ -36,7 +36,7 @@ describe('test.active_tasks.js', function () {
     try {
       const task = {type: 'database_compaction', database: 55, total_changes: 12};
       PouchDB.activeTasks.add(task);
-    } catch(err) {
+    } catch (err) {
       should.exist(err);
       err.should.be.instanceof(Error);
     }
@@ -46,7 +46,7 @@ describe('test.active_tasks.js', function () {
     try {
       const task = {type: 'database_compaction', database: "test"};
       PouchDB.activeTasks.add(task);
-    } catch(err) {
+    } catch (err) {
       should.exist(err);
       err.should.be.instanceof(Error);
     }
@@ -54,7 +54,7 @@ describe('test.active_tasks.js', function () {
     try {
       const task = {type: 'database_compaction', database: "test", total_changes: null};
       PouchDB.activeTasks.add(task);
-    } catch(err) {
+    } catch (err) {
       should.exist(err);
       err.should.be.instanceof(Error);
     }
@@ -118,7 +118,7 @@ describe('test.active_tasks.js', function () {
     PouchDB.activeTasks.remove(id1);
     const got2 = PouchDB.activeTasks.get(id2);
     PouchDB.activeTasks.tasks.size.should.equal(1);
-    assert.equal(got2.pid, id2);;
+    assert.equal(got2.pid, id2);
   });
 
 });
