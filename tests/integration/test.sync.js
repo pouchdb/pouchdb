@@ -848,7 +848,6 @@ adapters.forEach(function (adapters) {
         }
         var cancelling = toCancel.shift();
         cancelling.on('complete', complete);
-        console.log(11, '> 5997 sync 2 databases, cancel');
         cancelling.cancel();
       }
     });
