@@ -881,40 +881,37 @@ adapters.forEach(function (adapter) {
       db2.bulkDocs({docs : [{_id : id}]}, callback);
     });
 
-    it('bulk docs input by array', function (done) {
-      var db = new PouchDB(dbs.name);
-      var docs = makeDocs(5);
-      db.bulkDocs(docs, function (err, results) {
-        results.should.have.length(5, 'results length matches');
-        for (var i = 0; i < 5; i++) {
-          results[i].id.should.equal(docs[i]._id, 'id matches');
-          should.exist(results[i].rev, 'rev is set');
-          // Update the doc
-          docs[i]._rev = results[i].rev;
-          docs[i].string = docs[i].string + '.00';
-        }
-        db.bulkDocs(docs, function (err, results) {
-          results.should.have.length(5, 'results length matches');
-          for (i = 0; i < 5; i++) {
-            results[i].id.should.equal(i.toString(), 'id matches again');
-            // set the delete flag to delete the docs in the next step
-            docs[i]._rev = results[i].rev;
-            docs[i]._deleted = true;
-          }
-          db.put(docs[0], function () {
-            db.bulkDocs(docs, function (err, results) {
-              results[0].name.should.equal(
-                'conflict', 'First doc should be in conflict');
-              should.not.exist(results[0].rev, 'no rev in conflict');
-              for (i = 1; i < 5; i++) {
-                results[i].id.should.equal(i.toString());
-                should.exist(results[i].rev);
-              }
-              done();
-            });
-          });
-        });
-      });
+    it('bulk docs input by array', async function () {
+      const db = new PouchDB(dbs.name);
+      const docs = makeDocs(5);
+      const results1 = await db.bulkDocs(docs);
+      results1.should.have.length(5, 'results length matches');
+      for (var i = 0; i < 5; i++) {
+        results1[i].id.should.equal(docs[i]._id, 'id matches');
+        should.exist(results1[i].rev, 'rev is set');
+        // Update the doc
+        docs[i]._rev = results1[i].rev;
+        docs[i].string = docs[i].string + '.00';
+      }
+
+      const results2 = await db.bulkDocs(docs);
+      results2.should.have.length(5, 'results length matches');
+      for (i = 0; i < 5; i++) {
+        results2[i].id.should.equal(i.toString(), 'id matches again');
+        // set the delete flag to delete the docs in the next step
+        docs[i]._rev = results2[i].rev;
+        docs[i]._deleted = true;
+      }
+
+      await db.put(docs[0]);
+      const results3 = await db.bulkDocs(docs);
+      results3[0].name.should.equal(
+        'conflict', 'First doc should be in conflict');
+      should.not.exist(results3[0].rev, 'no rev in conflict');
+      for (i = 1; i < 5; i++) {
+        results3[i].id.should.equal(i.toString());
+        should.exist(results3[i].rev);
+      }
     });
 
     it('Bulk empty list', function (done) {
