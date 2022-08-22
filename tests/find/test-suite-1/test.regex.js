@@ -127,7 +127,7 @@ describe('test.regex.js', function () {
     });
   });
 
-  it('should works with index on multiple fields', function () {
+  it('should work with index on multiple fields', function () {
     var db = context.db;
     var index = {
       "index": {
@@ -153,6 +153,7 @@ describe('test.regex.js', function () {
       });
     });
   });
+
   it('should works with $and with multiple $regex conditions on same field', function () {
     var db = context.db;
     var index = {
@@ -182,6 +183,30 @@ describe('test.regex.js', function () {
           { name: 'Link', rank: 10, _id: 'link', series: 'Zelda', debut: 1986, awesome: true },
         ]);
       });
+    });
+  });
+
+  it('should find records within a simple $or condition', function () {
+    var db = context.db;
+    return db.find({
+      selector: {
+        $or: [
+          { name: { $regex: 'Captain Falcon' } },
+          { name: { $regex: 'Link' } },
+        ]
+      }
+    }).then(function (resp) {
+      var docs = resp.docs.map(function (doc) {
+        delete doc._rev;
+        return doc;
+      });
+      docs.should.deep.equal([
+        {
+          name: 'Captain Falcon', _id: 'falcon', rank: 4, series: 'F-Zero', debut: 1990,
+          awesome: true
+        },
+        { name: 'Link', rank: 10, _id: 'link', series: 'Zelda', debut: 1986, awesome: true },
+      ]);
     });
   });
 });
