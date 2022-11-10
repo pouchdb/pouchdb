@@ -7,7 +7,7 @@ sidebar: guides_nav.html
 
 Attachments are where PouchDB can get really fun.
 
-The big difference between storage engines like WebSQL/IndexedDB and the older localStorage API is that you can stuff [a lot more data](http://www.html5rocks.com/en/tutorials/offline/quota-research/) in it.
+The big difference between storage engines like WebSQL/IndexedDB and the older localStorage API is that you can stuff [a lot more data](https://web.dev/storage-for-the-web/) in it.
 
 PouchDB attachments allow you to use that to full advantage to store images, MP3s, zip files, or whatever you want.
 
