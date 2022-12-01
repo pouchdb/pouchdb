@@ -244,10 +244,18 @@ function startTest() {
   new MochaSpecReporter(runner);
   new BenchmarkReporter(runner);
 
-  sauceClient.init(opts, function () {
+  sauceClient.init(opts, function (err) {
+    if (err) {
+      testError(err);
+      return;
+    }
     console.log('Initialized');
 
-    sauceClient.get(testUrl, function () {
+    sauceClient.get(testUrl, function (err) {
+      if (err) {
+        testError(err);
+        return;
+      }
       console.log('Successfully started');
 
       sauceClient.eval('navigator.userAgent', function (err, userAgent) {
