@@ -8,7 +8,7 @@ function runTestSuites(PouchDB) {
   var reporter = require('./perf.reporter');
   reporter.startAll();
   reporter.log('Testing PouchDB version ' + PouchDB.version +
-    (adapters.length > 0 ? (', using adapter: ' + adapters.join(',')) : '') +
+    (adapters.length > 0 ? (', using adapter(s): ' + adapters.join(', ')) : '') +
     '\n\n');
 
   var theAdapterUsed;
