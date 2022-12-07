@@ -51,7 +51,7 @@ describe('test.memory-adapter.js', () => {
       });
 
       // same via .get
-      const getDoc = await pouch1.get(docId);
+      await pouch1.get(docId);
       // if this is switched to pouch1.destroy(); ... this test will pass.
       pouch1.close();
     };
