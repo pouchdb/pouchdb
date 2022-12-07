@@ -5,7 +5,7 @@ PouchDB.plugin(memoryAdapter);
 describe('test.memory-adapter.js', () => {
   it('Race condition initially discovered with PouchDB in-memory-adapter 7.3.0', async () => {
     const func1 = async () => {
-      const pouch1 = new PouchDB('func1db', {
+      const pouch1 = new PouchDB('test-db', {
         adapter: 'memory'
       });
       const docId = 'func1doc1';
@@ -58,7 +58,7 @@ describe('test.memory-adapter.js', () => {
 
     const func2 = async () => {
       const pouch2 = new PouchDB(
-        'func2db', {
+        'test-db-2', {
           adapter: 'memory',
         });
 
