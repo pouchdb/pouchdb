@@ -18,6 +18,9 @@ env:
   SELENIUM_HUB_HOST: hub
   TEST_HOST: localhost
 
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
 
   lint:
