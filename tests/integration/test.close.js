@@ -15,7 +15,8 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    it('should emit destroyed even when closed (sync)', function () {
+    // TODO: https://github.com/pouchdb/pouchdb/issues/8574
+    it.skip('should emit destroyed even when closed (sync)', function () {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
@@ -92,7 +93,8 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('test double unref for coverage', function () {
+    // TODO: https://github.com/pouchdb/pouchdb/issues/8574
+    it.skip('test double unref for coverage', function () {
       this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
