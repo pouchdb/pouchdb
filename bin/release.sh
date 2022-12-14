@@ -26,23 +26,8 @@ git checkout -b $BUILD_DIR
 node bin/update-package-json-for-publish.js
 
 # Publish all modules with Lerna
-for pkg in $(ls packages/node_modules); do
-  if [ ! -d "packages/node_modules/$pkg" ]; then
-    continue
-  elif [ "true" = $(node --eval "console.log(require('./packages/node_modules/$pkg/package.json').private);") ]; then
-    continue
-  fi
-  cd packages/node_modules/$pkg
-  echo "Publishing $pkg..."
-  if [ ! -z $DRY_RUN ]; then
-    echo "Dry run, not publishing"
-  elif [ ! -z $BETA ]; then
-    npm publish --tag beta
-  else
-    npm publish
-  fi
-  cd -
-done
+ls packages/node_modules > release-todo.txt
+sh bin/publish-packages.sh
 
 # Create git tag, which is also the Bower/Github release
 rm -fr lib src dist bower.json component.json package.json
