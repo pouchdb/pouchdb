@@ -34,6 +34,9 @@ publish_packages () {
 
   if [[ "$failed" == 'n' ]] ; then
     rm "$todo"
+    return 0
+  else
+    return 1
   fi
 }
 
