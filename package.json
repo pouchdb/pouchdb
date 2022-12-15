@@ -103,7 +103,6 @@
     "rollup-plugin-inject": "3.0.1",
     "rollup-plugin-node-resolve": "4.2.4",
     "rollup-plugin-replace": "1.2.1",
-    "sauce-connect-launcher": "1.2.7",
     "seedrandom": "3.0.5",
     "selenium-standalone": "6.16.0",
     "stream-to-promise": "1.1.1",
