@@ -13,26 +13,27 @@ function runTests() {
         window.document.body.removeChild(iframe);
       }
       iframe = null;
-      delete window[callbackFnName];
+      if (callbackFnName in window) {
+        delete window[callbackFnName];
+      }
     });
-
-    it('#8581 Should not raise error', async function () {
+    this.beforeEach(() => {
       callbackFnName = "callback" + Date.now();
-      const okPromise = new Promise((res) => {
-        window[callbackFnName] = () => {
-          delete window[callbackFnName];
-          res();
-        };
-      });
-      iframe = window.document.createElement("iframe");
-      iframe.src = "about:blank";
+      iframe = window.document.createElement("iframe", { src: "about:blank" });
       window.document.body.appendChild(iframe);
+    })
+
+    it('#8581 Should not raise error', function (done) {
+      window[callbackFnName] = (err) => {
+        if (timeout) timeout = clearTimeout(timeout);
+        done(err);
+        window[callbackFnName] = () => { };
+      };
+      let timeout = setTimeout(() => callbackFnName in window && window[callbackFnName](new Error(`Timed out`)), 500);
       const target = iframe.contentDocument;
       const scriptElement = target.createElement("script");
-      scriptElement.innerHTML = `localStorage.setItem("Hello",new Date());
-requestIdleCallback(()=>window.parent.${callbackFnName}(),{timeout:100});`;
+      scriptElement.innerHTML = `localStorage.setItem("Hello",new Date());setTimeout(window.parent.${callbackFnName},100);`;
       target.body.appendChild(scriptElement);
-      await Promise.race([okPromise, new Promise(res => setTimeout(res, 250))]);
     });
   });
 }
