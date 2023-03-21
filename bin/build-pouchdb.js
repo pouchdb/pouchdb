@@ -14,7 +14,6 @@ var rollupPlugins = require('./rollupPlugins');
 var rimraf = denodeify(require('rimraf'));
 var mkdirp = denodeify(require('mkdirp'));
 var all = Promise.all.bind(Promise);
-var argsarray = require('argsarray');
 var buildUtils = require('./build-utils');
 var addPath = buildUtils.addPath;
 var doUglify = buildUtils.doUglify;
@@ -148,7 +147,7 @@ function buildPluginsForBrowser() {
   });
 }
 
-var rimrafMkdirp = argsarray(function (args) {
+var rimrafMkdirp = function (...args) {
   return all(args.map(function (otherPath) {
     return rimraf(addPath('pouchdb', otherPath));
   })).then(function () {
@@ -156,15 +155,15 @@ var rimrafMkdirp = argsarray(function (args) {
       return mkdirp(addPath('pouchdb', otherPath));
     }));
   });
-});
+};
 
-var doAll = argsarray(function (args) {
+var doAll = function (...args) {
   return function () {
     return all(args.map(function (promiseFactory) {
       return promiseFactory();
     }));
   };
-});
+};
 
 function doBuildNode() {
   return mkdirp(addPath('pouchdb', 'lib/plugins'))

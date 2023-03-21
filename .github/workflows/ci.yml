@@ -14,7 +14,7 @@ on:
     branches: [master]
 
 env:
-  NODE_VERSION: 12
+  NODE_VERSION: 14
   SELENIUM_HUB_HOST: hub
   TEST_HOST: localhost
 
@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         couchdb: ['2.3', '3.1']
-        node: [12]
+        node: [14]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -123,7 +123,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12]
+        node: [14]
         adapter: ['leveldb', 'memory']
         cmd:
           - npm test
@@ -244,7 +244,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12]
+        node: [14]
         cmd:
           - CLIENT=selenium:firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test

@@ -25,3 +25,5 @@ tests/integration/utils-bundle.js
 /pouchdb-server-install
 package-lock.json
 yarn.lock
+/.eslintcache
+release-todo.txt

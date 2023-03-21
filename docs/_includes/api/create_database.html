@@ -18,6 +18,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 * `deterministic_revs`: Use a md5 hash to create a deterministic revision number for documents. Setting it to false will mean that the revision number will be a random UUID. Defaults to true.
 * `view_update_changes_batch_size`: Specify how many change records will be consumed at a time when rebuilding view indexes when the `query()` method is used. Defaults to 50.
 * `view_adapter`: Specify a different adapter to store the view index data.
+* `purged_infos_limit`: Specify how many purged revisions we keep track of. Specifying a low value can result in Pouch not delegating older purges down to views. Defaults to `1000`.
 
 **Options for remote databases:**
 

@@ -2156,7 +2156,7 @@ adapters.forEach(function (adapter) {
             return_docs: true,
             include_docs: true
           }).on('change', function (change) {
-            var i = +change.id.substr(3);
+            var i = +change.id.slice(3);
             if (i === 0) {
               should.not.exist(res.rows[0].doc._attachments,
                                '(onChange) doc0 contains no attachments');
@@ -3253,6 +3253,38 @@ adapters.forEach(function (adapter) {
       }).then(function (result) {
         should.exist(result.rows[0].doc._attachments);
         result.rows[1].error.should.equal('not_found');
+      });
+    });
+
+    it('Test rev purge with attachment', function () {
+      const db = new PouchDB(dbs.name);
+
+      if (typeof db._purge === 'undefined') {
+        console.log('purge is not implemented for adapter', db.adapter);
+        return;
+      }
+
+      const doc = { _id: 'foo' };
+      const base64 =
+        'iVBORw0KGgoAAAANSUhEUgAAAhgAAAJLCAYAAAClnu9J' +
+        'AAAgAElEQVR4Xuy9B7ylZXUu/p62T5nOMAPM0BVJICQi' +
+        'ogjEJN5ohEgQ';
+
+      return db.put(doc).then(function (res) {
+        return db.putAttachment('foo', 'foo.bin', res.rev, base64, 'image/png');
+      }).then(function () {
+        return db.get(doc._id);
+      }).then(function (_doc) {
+        return db.purge(doc._id, _doc._rev);
+      }).then(function () {
+        return db.getAttachment(doc._id, 'foo.bin');
+      }).then(function () {
+        assert.fail('attachment should not exist');
+      }).catch(function (err) {
+        if (!err.status) {
+          throw err;
+        }
+        err.status.should.equal(404, 'attachment should not exist');
       });
     });
 
