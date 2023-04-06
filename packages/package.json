@@ -1,0 +1,5 @@
+{ "name": "pouchdb-workspaces", "workspaces": ["node_modules/**/*"],
+  "scripts": {
+    "build": "npm exec --workspaces rollup -c "
+  }
+}
