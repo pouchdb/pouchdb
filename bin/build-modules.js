@@ -1,34 +1,15 @@
 #!/usr/bin/env node
 
 // Build all modules in the packages/ folder
-
-var path = require('path');
-var denodeify = require('denodeify');
-var fs = require('fs');
-var readDir = denodeify(fs.readdir);
-var stat = denodeify(fs.stat);
-
-var buildModule = require('./build-module');
-var buildPouchDB = require('./build-pouchdb');
-
-function buildPackage(pkg) {
-  return stat(path.resolve('packages/node_modules', pkg)).then(function (stat) {
-    if (!stat.isDirectory()) { // skip e.g. 'npm-debug.log'
-      return;
-    }
-    console.log('Building ' + pkg + '...');
-    if (pkg === 'pouchdb') {
-      return buildPouchDB();
-    } else {
-      return buildModule(path.resolve('./packages/node_modules', pkg));
-    }
-  });
-}
-
-readDir('packages/node_modules').then(function (packages) {
-  return Promise.all(packages.map(buildPackage)).catch(function (err) {
-    console.error('build error');
-    console.error(err.stack);
-    process.exit(1);
-  });
+import('node:path').then((path)=>import('node:fs')
+.then(async ({promises:{stat,readdir:readDir}}) => readDir('packages/node_modules').then(packages => Promise.all(packages.map((pkg) => {
+  const nodeModulesPath = path.resolve('packages/node_modules', pkg));
+  return (await stat(nodeModulesPath)).isDirectory()) && console.log(`Building ${pkg}...`) || (pkg === 'pouchdb') 
+    ? import('./build-pouchdb').then(({ default: buildPouchDB })=>buildPouchDB())
+    : import('./build-module').then(({ default: buildModule})=>buildModule(nodeModulesPath))  
+  );
+},({stack}) => {
+  console.error('build error');
+  console.error(stack);
+  process.exit(1);
 });
