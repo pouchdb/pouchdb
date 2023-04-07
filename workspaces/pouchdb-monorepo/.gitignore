@@ -1,4 +1,3 @@
-# most rules make no sense anymore
 tmp*
 .DS_Store
 node_modules
