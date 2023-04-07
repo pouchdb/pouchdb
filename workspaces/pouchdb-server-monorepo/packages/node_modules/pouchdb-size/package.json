@@ -1,0 +1,21 @@
+{
+  "name": "pouchdb-size",
+  "description": "Adds disk_size to info()'s output for your leveldown backed PouchDB's.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "size",
+    "disk_size",
+    "info",
+    "filesize"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "pouchdb-seamless-auth",
+  "description": "Seamless switching between online (CouchDB) and offline (PouchDB) authentication.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "users",
+    "authentication",
+    "auth",
+    "seamless",
+    "online",
+    "offline"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}

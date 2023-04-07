@@ -1,0 +1,20 @@
+{
+  "name": "pouchdb-auth",
+  "description": "A PouchDB plug-in that simulates CouchDB's authentication daemon. Includes a users db that functions like CouchDB's.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "users",
+    "authentication",
+    "auth"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}

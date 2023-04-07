@@ -1,0 +1,23 @@
+{
+  "name": "http-pouchdb",
+  "description": "Access remote CouchDB databases like you would access your local PouchDB ones.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "http",
+    "remote",
+    "local"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js",
+  "browser": {
+    "xhr2": false
+  }
+}

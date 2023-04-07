@@ -1,0 +1,22 @@
+{
+  "name": "pouchdb-req-http-query",
+  "description": "Given a CouchDB request object, make a similar http request on a given PouchDB database.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "http",
+    "request"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js",
+  "browser": {
+    "xmlhttprequest-cookie": false
+  }
+}
