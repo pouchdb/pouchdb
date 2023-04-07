@@ -1,0 +1,15 @@
+{
+  "name": "pouchdb-adapter-indexeddb",
+  "version": "7.0.0-prerelease",
+  "description": "PouchDB adapter using IndexedDB as its data store.",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb.git",
+    "directory": "workspaces/packages/pouchdb-adapter-indexeddb"
+  },
+  "jsnext:main": "./src/index.js"
+}

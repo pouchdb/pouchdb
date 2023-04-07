@@ -1,0 +1,15 @@
+{
+  "name": "pouchdb-replication",
+  "version": "7.0.0-prerelease",
+  "description": "PouchDB's replication and sync algorithm, as a plugin.",
+  "main": "./lib/index.js",
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb.git",
+    "directory": "workspaces/packages/pouchdb-replication"
+  },
+  "jsnext:main": "./src/index.js"
+}
