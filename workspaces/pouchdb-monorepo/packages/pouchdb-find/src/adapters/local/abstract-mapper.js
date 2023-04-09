@@ -1,5 +1,5 @@
-import abstractMapReduce from 'pouchdb-abstract-mapreduce';
-import { matchesSelector, parseField } from 'pouchdb-selector-core';
+import abstractMapReduce from '../../../../pouchdb-abstract-mapreduce';
+import { matchesSelector, parseField } from '../../../../pouchdb-selector-core';
 
 //
 // One thing about these mappers:

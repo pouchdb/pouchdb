@@ -2,7 +2,7 @@
   "name": "pouchdb-mapreduce",
   "version": "7.0.0-prerelease",
   "description": "PouchDB's map/reduce query API as a plugin.",
-  "main": "./lib/index.js",
+  "main": "./src/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",
   "license": "Apache-2.0",

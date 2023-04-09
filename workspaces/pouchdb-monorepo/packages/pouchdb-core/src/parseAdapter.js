@@ -1,5 +1,5 @@
 import PouchDB from './constructor';
-import {  hasLocalStorage } from 'pouchdb-utils';
+import {  hasLocalStorage } from '../../pouchdb-utils';
 
 function parseAdapter(name, opts) {
   var match = name.match(/([a-z-]*):\/\/(.*)/);

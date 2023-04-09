@@ -2,21 +2,21 @@ import {
   flatten,
   nextTick,
   isRemote
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 
 import {
   base64StringToBlobOrBuffer as b64ToBluffer
-} from 'pouchdb-binary-utils';
+} from '../../pouchdb-binary-utils';
 
 import {
   collate,
   toIndexableString,
   normalizeKey,
   parseIndexableString
-} from 'pouchdb-collate';
+} from '../../pouchdb-collate';
 
-import { generateErrorFromResponse } from 'pouchdb-errors';
-import { Headers } from 'pouchdb-fetch';
+import { generateErrorFromResponse } from '../../pouchdb-errors';
+import { Headers } from '../../pouchdb-fetch';
 import TaskQueue from './taskqueue';
 import createView from './createView';
 import {
@@ -29,7 +29,7 @@ import {
   QueryParseError,
   NotFoundError,
   BuiltInError
-} from 'pouchdb-mapreduce-utils';
+} from '../../pouchdb-mapreduce-utils';
 
 var persistentQueues = {};
 var tempViewQueue = new TaskQueue();

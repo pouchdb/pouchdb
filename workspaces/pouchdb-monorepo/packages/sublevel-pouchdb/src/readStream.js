@@ -1,13 +1,6 @@
-/* Copyright (c) 2012-2014 LevelUP contributors
- * See list at <https://github.com/rvagg/node-levelup#contributing>
- * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
- */
-
+import {Readable} from 'node:stream';
 // NOTE: we are fixed to readable-stream@1.0.x for now
 // for pure Streams2 across Node versions
-import ReadableStreamCore from 'readable-stream';
-
-var Readable = ReadableStreamCore.Readable;
 
 function createClass(parent, init) {
   let klass = function (...args) {

@@ -3,7 +3,7 @@ import sublevel from 'sublevel-pouchdb';
 import { obj as through } from 'through2';
 import Deque from 'double-ended-queue';
 import bufferFrom from 'buffer-from'; // ponyfill for Node <6
-import PouchDB from 'pouchdb-core';
+import PouchDB from '../../pouchdb-core';
 import {
   clone,
   ChangesHandler as Changes,
@@ -11,34 +11,34 @@ import {
   functionName,
   uuid,
   nextTick
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 import {
   allDocsKeysQuery,
   isDeleted,
   isLocalId,
   parseDoc,
   processDocs
-} from 'pouchdb-adapter-utils';
+} from '../../pouchdb-adapter-utils';
 import {
   winningRev as calculateWinningRev,
   traverseRevTree,
   compactTree,
   collectConflicts,
   latest as getLatest
-} from 'pouchdb-merge';
+} from '../../pouchdb-merge';
 import {
   safeJsonParse,
   safeJsonStringify
-} from 'pouchdb-json';
+} from '../../pouchdb-json';
 
 import {
   binaryMd5
-} from 'pouchdb-md5';
+} from '../../pouchdb-md5';
 
 import {
   atob,
   binaryStringToBlobOrBuffer as binStringToBluffer
-} from 'pouchdb-binary-utils';
+} from '../../pouchdb-binary-utils';
 
 import readAsBluffer from './readAsBlobOrBuffer';
 import prepareAttachmentForStorage from './prepareAttachmentForStorage';
@@ -53,7 +53,7 @@ import {
   BAD_ARG,
   MISSING_STUB,
   createError
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 const DOC_STORE = 'document-store';
 const BY_SEQ_STORE = 'by-sequence';
@@ -142,7 +142,9 @@ function fetchAttachments(results, stores, opts) {
 
   return Promise.all(atts.map(att => fetchAttachment(att, stores, opts)));
 }
-
+// leveldb barks if we try to open a db multiple times
+// so we cache opened connections here for initstore()
+const dbStores = new Map();
 function LevelPouch(opts, callback) {
   opts = clone(opts);
   const api = this;
@@ -158,9 +160,7 @@ function LevelPouch(opts, callback) {
   }
 
   const leveldown = opts.db;
-// leveldb barks if we try to open a db multiple times
-// so we cache opened connections here for initstore()
-const dbStores = new Map();
+
   let dbStore;
   const leveldownName = functionName(leveldown);
   if (dbStores.has(leveldownName)) {

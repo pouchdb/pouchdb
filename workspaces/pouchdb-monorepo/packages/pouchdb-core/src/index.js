@@ -1,6 +1,6 @@
 import PouchDB from './setup';
 import version from './version';
-import pouchChangesFilter from 'pouchdb-changes-filter';
+import pouchChangesFilter from '../../pouchdb-changes-filter';
 
 // TODO: remove from pouchdb-core (breaking)
 PouchDB.plugin(pouchChangesFilter);

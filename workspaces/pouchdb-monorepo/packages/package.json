@@ -4,11 +4,13 @@
     "homepage": "http://pouchdb.com/",
     "license": "Apache-2.0",
     "private": true,
+    "install": "sh -c 'npm install --ignore-scripts'",
     "repository": {
         "type": "git",
         "url": "https://github.com/pouchdb/pouchdb.git"
     },
     "workspaces": [
-        "**/*"
+        "*",
+        "../../pouchdb-server-monorepo/packages/*"
     ]
 }

@@ -1,4 +1,4 @@
-import { ChangesHandler } from 'pouchdb-utils';
+import { ChangesHandler } from '../../pouchdb-utils';
 
 import setup from './setup';
 

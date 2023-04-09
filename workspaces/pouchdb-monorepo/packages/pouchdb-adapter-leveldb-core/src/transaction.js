@@ -3,7 +3,7 @@
 // things in-memory and then does a big batch() operation
 // when you're done
 
-import { nextTick } from 'pouchdb-utils';
+import { nextTick } from '../../pouchdb-utils';
 
 function getCacheFor(transaction, store) {
   var prefix = store.prefix()[0];

@@ -1,4 +1,4 @@
-import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
+import CoreLevelPouch from '../../pouchdb-adapter-leveldb-core';
 import localstoragedown from 'localstorage-down';
 
 function LocalStoragePouch(opts, callback) {

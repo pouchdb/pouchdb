@@ -1,11 +1,11 @@
-import { createError, MISSING_DOC, REV_CONFLICT } from 'pouchdb-errors';
+import { createError, MISSING_DOC, REV_CONFLICT } from '../../pouchdb-errors';
 import updateDoc from './updateDoc';
 import {
   isDeleted,
   isLocalId,
   merge,
   winningRev as calculateWinningRev
-} from 'pouchdb-merge';
+} from '../../pouchdb-merge';
 
 function rootIsMissing(docInfo) {
   return docInfo.metadata.rev_tree[0].ids[1].status === 'missing';

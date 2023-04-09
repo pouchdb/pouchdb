@@ -1,4 +1,4 @@
-import { clone, flatten, isRemote } from 'pouchdb-utils';
+import { clone, flatten, isRemote } from '../../pouchdb-utils';
 
 function fileHasChanged(localDoc, remoteDoc, filename) {
   return !localDoc._attachments ||

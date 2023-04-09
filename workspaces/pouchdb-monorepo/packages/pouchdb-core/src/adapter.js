@@ -1,7 +1,7 @@
 import {
   rev,
   isRemote
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 import EventEmitter from 'events';
 import Changes from './changes';
 import {
@@ -12,7 +12,7 @@ import {
   invalidIdError,
   nextTick,
   clone
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 import {
   traverseRevTree,
   collectLeaves,
@@ -21,7 +21,7 @@ import {
   isDeleted,
   isLocalId,
   findPathToLeaf
-} from 'pouchdb-merge';
+} from '../../pouchdb-merge';
 import {
   MISSING_BULK_DOCS,
   MISSING_DOC,
@@ -33,7 +33,7 @@ import {
   NOT_AN_OBJECT,
   INVALID_REV,
   createError
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 /*
  * A generic pouch adapter

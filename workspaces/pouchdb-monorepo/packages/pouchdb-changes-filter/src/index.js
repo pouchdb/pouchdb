@@ -3,13 +3,13 @@ import {
   BAD_REQUEST,
   createError,
   generateErrorFromResponse
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 import {
   parseDdocFunctionName,
   normalizeDdocFunctionName,
   isRemote
-} from 'pouchdb-utils';
-import { matchesSelector } from 'pouchdb-selector-core';
+} from '../../pouchdb-utils';
+import { matchesSelector } from '../../pouchdb-selector-core';
 import evalFilter from './evalFilter';
 import evalView from './evalView';
 

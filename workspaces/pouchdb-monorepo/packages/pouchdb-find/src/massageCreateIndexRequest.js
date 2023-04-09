@@ -1,4 +1,4 @@
-import { clone } from 'pouchdb-utils';
+import { clone } from '../../pouchdb-utils';
 
 // we restucture the supplied JSON considerably, because the official
 // Mango API is very particular about a lot of this stuff, but we like

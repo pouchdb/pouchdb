@@ -2,9 +2,9 @@ import {
   getFieldFromDoc,
   setFieldInDoc,
   parseField
-} from 'pouchdb-selector-core';
+} from '../../pouchdb-selector-core';
 
-import { nextTick } from 'pouchdb-utils';
+import { nextTick } from '../../pouchdb-utils';
 
 function once(fun) {
   var called = false;

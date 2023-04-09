@@ -1,4 +1,4 @@
-import { createError, BAD_REQUEST } from 'pouchdb-errors';
+import { createError, BAD_REQUEST } from '../../pouchdb-errors';
 
 function tryFilter(filter, doc, req) {
   try {

@@ -1,5 +1,5 @@
-import { explainError } from 'pouchdb-utils';
-import { collate } from 'pouchdb-collate';
+import { explainError } from '../../pouchdb-utils';
+import { collate } from '../../pouchdb-collate';
 
 var CHECKPOINT_VERSION = 1;
 var REPLICATOR = "pouchdb";

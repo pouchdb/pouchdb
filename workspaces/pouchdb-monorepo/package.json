@@ -4,7 +4,9 @@
     "homepage": "http://pouchdb.com/",
     "license": "Apache-2.0",
     "private": true,
-    "workspaces": ["packages/*"],
+    "workspaces": [
+        "packages/*"
+    ],
     "scripts": {
         "build": "npm run build-modules && npm run build-test",
         "build-node": "bash bin/build-node.sh",
@@ -20,7 +22,6 @@
         "launch-dev-server": "node ./bin/dev-server.js",
         "test": "bash bin/run-test.sh",
         "//prepublish": "sh -c 'cd packages && npm install --ignore-scripts'",
-        "install": "sh -c 'cd packages && npm install --ignore-scripts'",
         "release": "sh bin/release.sh",
         "install-jekyll": "sh bin/install-jekyll.sh",
         "publish-site": "sh bin/publish-site.sh",
@@ -81,7 +82,7 @@
         "es3ify": "0.2.2",
         "eslint": "8.7.0",
         "express": "4.17.0",
-        "express-pouchdb": "4.2.0",
+        "express-pouchdb": "^4.2.0",
         "find-requires": "1.0.0",
         "glob": "7.1.5",
         "http-server": "0.12.3",

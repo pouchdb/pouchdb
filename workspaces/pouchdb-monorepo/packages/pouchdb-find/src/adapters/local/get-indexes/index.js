@@ -1,6 +1,6 @@
 import { flatten } from '../../../utils';
 import { massageIndexDef } from '../utils';
-import { compare } from 'pouchdb-selector-core';
+import { compare } from '../../../../../pouchdb-selector-core';
 
 function getIndexes(db) {
   // just search through all the design docs and filter in-memory.

@@ -1,10 +1,10 @@
 'use strict';
 
-import { createError, MISSING_DOC } from 'pouchdb-errors';
+import { createError, MISSING_DOC } from '../../pouchdb-errors';
 
 import { DOC_STORE } from './util';
 
-import { latest as getLatest } from 'pouchdb-merge';
+import { latest as getLatest } from '../../pouchdb-merge';
 
 export default function (txn, id, opts, callback) {
   if (txn.error) {

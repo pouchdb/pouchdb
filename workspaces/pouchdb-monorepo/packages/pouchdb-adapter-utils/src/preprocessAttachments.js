@@ -4,9 +4,9 @@ import {
   binaryStringToBlobOrBuffer as binStringToBlobOrBuffer,
   blobOrBufferToBinaryString as blufferToBinaryString,
   blobOrBufferToBase64 as blufferToBase64
-} from 'pouchdb-binary-utils';
-import { createError, BAD_ARG } from 'pouchdb-errors';
-import { binaryMd5 } from 'pouchdb-md5';
+} from '../../pouchdb-binary-utils';
+import { createError, BAD_ARG } from '../../pouchdb-errors';
+import { binaryMd5 } from '../../pouchdb-md5';
 
 function parseBase64(data) {
   try {

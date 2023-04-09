@@ -1,5 +1,5 @@
-import { upsert } from 'pouchdb-utils';
-import { stringMd5 } from 'pouchdb-md5';
+import { upsert } from '../../pouchdb-utils';
+import { stringMd5 } from '../../pouchdb-md5';
 import createViewSignature from './createViewSignature';
 
 async function createView(sourceDB, viewName, mapFun, reduceFun, temporary, localDocName) {

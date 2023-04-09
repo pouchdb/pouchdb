@@ -1,6 +1,6 @@
 // this code only runs in the browser, as its own dist/ script
 
-import FindPlugin from 'pouchdb-find';
+import FindPlugin from '../../pouchdb-find';
 
 
 if (typeof PouchDB === 'undefined') {

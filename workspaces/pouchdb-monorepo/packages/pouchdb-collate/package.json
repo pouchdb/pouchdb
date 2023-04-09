@@ -2,7 +2,7 @@
   "name": "pouchdb-collate",
   "version": "7.0.0-prerelease",
   "description": "Collation functions for PouchDB map/reduce",
-  "main": "lib/index.js",
+  "main": "./src/index.js",
   "keywords": [
     "pouchdb",
     "pouch",

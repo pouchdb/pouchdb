@@ -1,6 +1,6 @@
-import { collate } from 'pouchdb-collate';
-import { clone } from 'pouchdb-utils';
-import { getKey, getValue, massageSelector, parseField, getFieldFromDoc } from 'pouchdb-selector-core';
+import { collate } from '../../../../pouchdb-collate';
+import { clone } from '../../../../pouchdb-utils';
+import { getKey, getValue, massageSelector, parseField, getFieldFromDoc } from '../../../../pouchdb-selector-core';
 
 // normalize the "sort" value
 function massageSort(sort) {

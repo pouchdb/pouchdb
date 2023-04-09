@@ -5,6 +5,7 @@
     "type": "git",
     "url": "https://github.com/pouchdb/pouchdb-server.git"
   },
+  "version":"4.2.0",
   "keywords": [
     "pouch",
     "pouchdb",

@@ -1,4 +1,4 @@
-import vuvuzela from 'vuvuzela';
+import { vuvuzela }from './vuvuzela.js';
 
 function safeJsonStringify(json) {
   try {

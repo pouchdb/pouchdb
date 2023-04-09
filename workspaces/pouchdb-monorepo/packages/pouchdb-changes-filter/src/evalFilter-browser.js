@@ -1,4 +1,4 @@
-import { scopeEval } from 'pouchdb-utils';
+import { scopeEval } from '../../pouchdb-utils';
 
 function evalFilter(input) {
   return scopeEval('"use strict";\nreturn ' + input + ';', {});

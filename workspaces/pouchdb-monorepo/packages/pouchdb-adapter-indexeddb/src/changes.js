@@ -2,7 +2,7 @@
 
 import { DOC_STORE, processAttachment } from './util';
 
-import { uuid, filterChange } from 'pouchdb-utils';
+import { uuid, filterChange } from '../../pouchdb-utils';
 
 export default async function (txn, idbChanges, api, dbOpts, opts) {
   if (txn.error) {

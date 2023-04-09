@@ -1,6 +1,6 @@
 'use strict';
 
-import { btoa, readAsBinaryString } from 'pouchdb-binary-utils';
+import { btoa, readAsBinaryString } from '../../pouchdb-binary-utils';
 
 import { DOC_STORE } from './util';
 

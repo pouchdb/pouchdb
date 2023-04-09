@@ -1,10 +1,10 @@
-import { uuid, rev, invalidIdError } from 'pouchdb-utils';
+import { uuid, rev, invalidIdError } from '../../pouchdb-utils';
 
 import {
   DOC_VALIDATION,
   INVALID_REV,
   createError
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 function toObject(array) {
   return array.reduce(function (obj, item) {

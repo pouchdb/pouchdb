@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { isLocalId, winningRev } from 'pouchdb-merge';
+import { isLocalId, winningRev } from '../../pouchdb-merge';
 import level from 'level';
 import { obj as through } from 'through2';
 import LevelWriteStream from 'level-write-stream';

@@ -2,7 +2,7 @@
 
 import { DOC_STORE } from './util';
 
-import { traverseRevTree } from 'pouchdb-merge';
+import { traverseRevTree } from '../../pouchdb-merge';
 
 export default function (txn, id, revs, callback) {
   if (txn.error) {

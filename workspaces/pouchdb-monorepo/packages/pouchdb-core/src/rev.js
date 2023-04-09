@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
-import { stringMd5 } from 'pouchdb-md5';
-
+import { stringMd5 } from '../../pouchdb-md5/src/index.js';
+/** @type {import('node:crypto').randomUUID} */
 export const uuid = async () => (globaThis.crypto||await import('node:crypto')).randomUUID().replaceAll('-', '');
 /**
  * Creates a new revision string that does NOT include the revision height

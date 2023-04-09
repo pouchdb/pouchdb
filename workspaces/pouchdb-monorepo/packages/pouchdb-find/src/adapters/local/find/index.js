@@ -1,13 +1,13 @@
-import {clone} from 'pouchdb-utils';
+import {clone} from '../../../../../pouchdb-utils';
 import getIndexes from '../get-indexes';
-import {collate} from 'pouchdb-collate';
+import {collate} from '../../../../../pouchdb-collate';
 import abstractMapper from '../abstract-mapper';
 import planQuery from './query-planner';
 import {
   massageSelector,
   getValue,
   filterInMemoryFields
-} from 'pouchdb-selector-core';
+} from '../../../../../pouchdb-selector-core';
 import {
   massageSort,
   validateFindRequest,

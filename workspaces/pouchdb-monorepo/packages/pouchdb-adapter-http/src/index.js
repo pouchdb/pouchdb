@@ -1,13 +1,13 @@
 // https://docs.couchdb.org/en/stable/http-routingtable.html
 import pool from './promise-pool';
 
-import { fetch, Headers, AbortController } from 'pouchdb-fetch';
+import { fetch, Headers, AbortController } from '../../pouchdb-fetch';
 
 import {
   createError,
   BAD_ARG,
   generateErrorFromResponse
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 import {
   pick,
@@ -19,7 +19,7 @@ import {
   bulkGetShim,
   flatten,
   nextTick
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 
 import {
   atob,
@@ -27,7 +27,7 @@ import {
   binaryStringToBlobOrBuffer as binStringToBluffer,
   base64StringToBlobOrBuffer as b64StringToBluffer,
   blobOrBufferToBase64 as blufferToBase64
-} from 'pouchdb-binary-utils';
+} from '../../pouchdb-binary-utils';
 
 const CHANGES_BATCH_SIZE = 25;
 const MAX_SIMULTANEOUS_REVS = 50;

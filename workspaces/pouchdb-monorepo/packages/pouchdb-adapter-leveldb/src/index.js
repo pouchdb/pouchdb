@@ -1,4 +1,4 @@
-import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
+import CoreLevelPouch from '../../pouchdb-adapter-leveldb-core';
 
 import requireLeveldown from './requireLeveldown';
 import migrate from './migrate';

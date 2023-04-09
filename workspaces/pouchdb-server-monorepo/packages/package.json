@@ -2,14 +2,13 @@
   "name": "pouchdb-server-packages",
   "private": true,
   "version": "4.2.0",
-  "workspaces": ["**/*","../../pouchdb-monorepo"],
+  "workspaces": [
+    "*",
+    "../../pouchdb-monorepo/packages/*"
+  ],
   "scripts": {
-    "unit-tests": "./bin/unit-tests.sh",
-    "test-pouchdb": "./bin/test-setup.sh && ./bin/test-pouchdb.sh",
-    "test-couchdb": "./bin/test-couchdb.sh",
-    "eslint": "eslint bin/ packages/node_modules/**/src tests/",
-    "test-express-minimum": "./bin/test-setup.sh && ./bin/test-express-minimum.sh",
-    "release": "./bin/release.sh"
+    "//note-install:": "This links shared dependencies into packages/node_modules'",
+    "//install": "sh -c 'npm install --ignore-scripts'"
   },
   "browserPackages": {
     "http-pouchdb": "buildHTTPPouchDB",

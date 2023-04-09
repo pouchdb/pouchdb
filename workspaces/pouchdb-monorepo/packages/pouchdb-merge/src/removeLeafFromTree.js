@@ -1,4 +1,4 @@
-import { clone } from 'pouchdb-utils';
+import { clone } from '../../pouchdb-utils';
 
 // this method removes a leaf from a rev tree, independent of its status.
 // e.g., by removing an available leaf, it could leave its predecessor as

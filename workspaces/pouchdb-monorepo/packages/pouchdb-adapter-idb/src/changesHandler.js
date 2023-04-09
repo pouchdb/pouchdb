@@ -1,2 +1,2 @@
-import { ChangesHandler as Changes } from 'pouchdb-utils';
+import { ChangesHandler as Changes } from '../../pouchdb-utils';
 export default new Changes();

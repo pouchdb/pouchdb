@@ -1,18 +1,18 @@
 
-import { createError, IDB_ERROR } from 'pouchdb-errors';
+import { createError, IDB_ERROR } from '../../pouchdb-errors';
 import {
   pick
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 import {
   safeJsonParse,
   safeJsonStringify
-} from 'pouchdb-json';
+} from '../../pouchdb-json';
 import {
   btoa,
   readAsBinaryString,
   base64StringToBlobOrBuffer as b64StringToBlob,
   blob as createBlob
-} from 'pouchdb-binary-utils';
+} from '../../pouchdb-binary-utils';
 import { ATTACH_AND_SEQ_STORE, ATTACH_STORE, BY_SEQ_STORE } from './constants';
 
 function idbError(callback) {

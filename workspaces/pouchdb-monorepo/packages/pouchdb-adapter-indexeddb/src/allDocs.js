@@ -1,7 +1,7 @@
 'use strict';
 
-import { createError, IDB_ERROR } from 'pouchdb-errors';
-import { collectConflicts } from 'pouchdb-merge';
+import { createError, IDB_ERROR } from '../../pouchdb-errors';
+import { collectConflicts } from '../../pouchdb-merge';
 
 import { DOC_STORE, processAttachment } from './util';
 

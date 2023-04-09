@@ -1,6 +1,6 @@
 'use strict';
 
-import { uuid } from 'pouchdb-utils';
+import { uuid } from '../../pouchdb-utils';
 
 import { META_STORE, DOC_STORE, rawIndexFields, naturalIndexName, correctIndexFields } from './util';
 

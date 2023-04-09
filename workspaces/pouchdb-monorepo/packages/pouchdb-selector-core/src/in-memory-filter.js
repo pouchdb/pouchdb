@@ -1,4 +1,4 @@
-import { collate } from 'pouchdb-collate';
+import { collate } from '../../pouchdb-collate';
 import {
   isCombinationalField,
   getKey,

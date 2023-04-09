@@ -1,5 +1,4 @@
-import vuvuzela from 'vuvuzela';
-
+import { vuvuzela } from "./vuvuzela.js";
 function safeJsonParse(str) {
   // This try/catch guards against stack overflow errors.
   // JSON.parse() is faster than vuvuzela.parse() but vuvuzela

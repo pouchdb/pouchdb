@@ -1,7 +1,7 @@
 import evalFunction from './evalFunction';
 import sum from './sum';
-import { NotFoundError } from 'pouchdb-mapreduce-utils';
-import createAbstractMapReduce from 'pouchdb-abstract-mapreduce';
+import { NotFoundError } from '../../pouchdb-mapreduce-utils';
+import createAbstractMapReduce from '../../pouchdb-abstract-mapreduce';
 
 var builtInReduce = {
   _sum: function (keys, values) {

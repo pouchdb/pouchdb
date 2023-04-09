@@ -1,4 +1,4 @@
-import ltgt from 'ltgt';
+import { ltgt } from './ltgt-compare.js';
 
 function isFunction(f) {
   return 'function' === typeof f;

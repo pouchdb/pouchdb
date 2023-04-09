@@ -1,4 +1,4 @@
-import { nextTick } from 'pouchdb-utils';
+import { nextTick } from '../../pouchdb-utils';
 import {
   QueryParseError,
   NotFoundError,

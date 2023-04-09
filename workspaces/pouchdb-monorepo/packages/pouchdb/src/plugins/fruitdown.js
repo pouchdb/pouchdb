@@ -1,6 +1,6 @@
 // this code only runs in the browser, as its own dist/ script
 
-import FruitdownPouchPlugin from 'pouchdb-adapter-fruitdown';
+import FruitdownPouchPlugin from '../../pouchdb-adapter-fruitdown';
 
 
 if (typeof PouchDB === 'undefined') {

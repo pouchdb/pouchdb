@@ -1,4 +1,4 @@
-import { toPromise, isRemote } from 'pouchdb-utils';
+import { toPromise, isRemote } from '../../pouchdb-utils';
 import * as http from './adapters/http/index';
 import * as local from './adapters/local/index';
 

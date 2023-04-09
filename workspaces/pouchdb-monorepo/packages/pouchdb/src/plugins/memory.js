@@ -1,6 +1,6 @@
 // this code only runs in the browser, as its own dist/ script
 
-import MemoryPouchPlugin from 'pouchdb-adapter-memory';
+import MemoryPouchPlugin from '../../pouchdb-adapter-memory';
 
 
 if (typeof PouchDB === 'undefined') {

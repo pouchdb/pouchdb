@@ -2,7 +2,7 @@
 // and sequentially - i.e. we wait for the async IDB open to *fully* complete
 // before calling the next one. This works around IE/Edge race conditions in IDB.
 
-import { nextTick } from 'pouchdb-utils';
+import { nextTick } from '../../pouchdb-utils';
 
 var running = false;
 var queue = [];

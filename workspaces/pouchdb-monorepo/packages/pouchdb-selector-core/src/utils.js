@@ -1,4 +1,4 @@
-import { clone } from 'pouchdb-utils';
+import { clone } from '../../pouchdb-utils';
 
 // this would just be "return doc[field]", but fields
 // can be "deep" due to dot notation

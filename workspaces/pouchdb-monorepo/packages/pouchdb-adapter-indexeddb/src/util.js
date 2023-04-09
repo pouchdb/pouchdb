@@ -1,7 +1,7 @@
 'use strict';
 
-import { createError, IDB_ERROR } from 'pouchdb-errors';
-import { btoa, readAsBinaryString } from 'pouchdb-binary-utils';
+import { createError, IDB_ERROR } from '../../pouchdb-errors';
+import { btoa, readAsBinaryString } from '../../pouchdb-binary-utils';
 import { sanitise } from './rewrite';
 
 var DOC_STORE = 'docs';

@@ -1,5 +1,5 @@
-import { generateErrorFromResponse } from 'pouchdb-errors';
-import { Headers } from 'pouchdb-fetch';
+import { generateErrorFromResponse } from '../../../../pouchdb-errors';
+import { Headers } from '../../../../pouchdb-fetch';
 import massageCreateIndexRequest from '../../massageCreateIndexRequest';
 import validateSelector from '../../validateSelector';
 

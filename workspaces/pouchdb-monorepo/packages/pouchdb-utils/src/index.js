@@ -1,6 +1,6 @@
 import adapterFun from './adapterFun';
 import bulkGetShim from './bulkGetShim';
-import { ChangesHandler } from './ChangesHandler';
+import { ChangesHandler } from './changes-handler';
 import clone from './clone';
 import defaultBackOff from './defaultBackOff';
 import explainError from './explainError';
@@ -21,7 +21,7 @@ import pick from './pick';
 import scopeEval from './scopeEval';
 import toPromise from './toPromise';
 import upsert from './upsert';
-import { default as rev, uuid } from '../../pouchdb-core/src/rev';
+import { default as rev, uuid } from '../../pouchdb-core/src/rev.js';
 
 //var uuid = v4; // mimic old import, only v4 is ever used elsewhere
 // import { v4 } from 'uuid';

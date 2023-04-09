@@ -2,12 +2,12 @@ import {
   clone,
   listenerCount,
   once
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 import {
   isDeleted,
   collectLeaves,
   collectConflicts
-} from 'pouchdb-merge';
+} from '../../pouchdb-merge';
 import EE from 'events';
 
 

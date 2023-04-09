@@ -1,7 +1,7 @@
 import abstractMapper from '../abstract-mapper';
 import { massageIndexDef, validateIndex } from '../utils';
-import { clone, upsert } from 'pouchdb-utils';
-import { stringMd5 } from 'pouchdb-md5';
+import { clone, upsert } from '../../../../../pouchdb-utils';
+import { stringMd5 } from '../../../../../pouchdb-md5';
 import massageCreateIndexRequest from '../../../massageCreateIndexRequest';
 import { mergeObjects } from '../../../utils';
 

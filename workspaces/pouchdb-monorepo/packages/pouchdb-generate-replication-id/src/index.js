@@ -1,5 +1,5 @@
-import { binaryMd5 } from 'pouchdb-md5';
-import { collate } from 'pouchdb-collate';
+import { binaryMd5 } from '../../pouchdb-md5';
+import { collate } from '../../pouchdb-collate';
 
 function sortObjectPropertiesByKey(queryParams) {
   return Object.keys(queryParams).sort(collate).reduce(function (result, key) {

@@ -4,7 +4,7 @@ import {
 import {
   getKey,
   compare
-} from 'pouchdb-selector-core';
+} from '../../../../../pouchdb-selector-core';
 import {
   arrayEquals,
   arrayToObject,

@@ -4,14 +4,14 @@ import {
   hasLocalStorage,
   uuid,
   nextTick
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 import {
   isDeleted,
   isLocalId,
   traverseRevTree,
   winningRev as calculateWinningRev,
   latest as getLatest
-} from 'pouchdb-merge';
+} from '../../pouchdb-merge';
 
 import idbBulkDocs from './bulkDocs';
 import idbAllDocs from './allDocs';
@@ -22,7 +22,7 @@ import {
   REV_CONFLICT,
   IDB_ERROR,
   createError
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 import {
   ADAPTER_VERSION,
@@ -47,7 +47,7 @@ import {
 
 import { enqueueTask } from './taskQueue';
 
-import ChangesHandler from './ChangesHandler';
+import ChangesHandler from './changesHandler';
 import changes from './changes';
 
 var cachedDBs = new Map();

@@ -2,7 +2,7 @@
   "name": "pouchdb-adapter-http",
   "version": "7.0.0-prerelease",
   "description": "PouchDB adapter using HTTP (e.g. a remote CouchDB) as its data store.",
-  "main": "./lib/index.js",
+  "main": "./src/index.js",
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",
   "license": "Apache-2.0",

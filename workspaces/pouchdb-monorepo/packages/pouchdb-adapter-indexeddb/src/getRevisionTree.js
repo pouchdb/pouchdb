@@ -1,6 +1,6 @@
 'use strict';
 
-import { createError, MISSING_DOC } from 'pouchdb-errors';
+import { createError, MISSING_DOC } from '../../pouchdb-errors';
 
 import {DOC_STORE} from './util';
 

@@ -1,6 +1,7 @@
 {
   "name": "pouchdb-server",
   "description": "A drop-in replacement for CouchDB, built on Node.js and PouchDB",
+  "version":"4.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pouchdb/pouchdb-server.git"

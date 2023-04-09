@@ -1,9 +1,9 @@
-import ChangesHandler from './ChangesHandler';
+import ChangesHandler from './changesHandler';
 import {
   clone,
   filterChange,
   uuid
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 import {
   ATTACH_STORE,
   BY_SEQ_STORE,

@@ -1,6 +1,7 @@
 {
   "name": "couchdb-resp-completer",
   "description": "Builds a complete CouchDB-like response object from a very marginal one. (Can be just a string at first.)",
+  "version":"4.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pouchdb/pouchdb-server.git"

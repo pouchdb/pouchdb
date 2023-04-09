@@ -1,5 +1,6 @@
 {
   "name": "couchdb-eval",
+  "version":"4.2.0",
   "description": "Compiles a piece of code to a function object, providing a CouchDB-like JavaScript context.",
   "repository": {
     "type": "git",

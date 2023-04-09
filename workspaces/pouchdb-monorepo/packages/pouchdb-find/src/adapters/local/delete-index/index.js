@@ -1,5 +1,5 @@
 import abstractMapper from '../abstract-mapper';
-import { upsert } from 'pouchdb-utils';
+import { upsert } from '../../../../../pouchdb-utils';
 
 function deleteIndex(db, index) {
 

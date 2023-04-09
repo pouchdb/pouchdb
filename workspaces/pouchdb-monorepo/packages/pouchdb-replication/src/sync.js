@@ -4,7 +4,7 @@ import {
   toPouch
 } from './replicateWrapper';
 import EE from 'events';
-import { clone } from 'pouchdb-utils';
+import { clone } from '../../pouchdb-utils';
 
 export default sync;
 function sync(src, target, opts, callback) {

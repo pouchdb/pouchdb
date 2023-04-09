@@ -1,6 +1,6 @@
 // this code only runs in the browser, as its own dist/ script
 
-import LocalStoragePouchPlugin from 'pouchdb-adapter-localstorage';
+import LocalStoragePouchPlugin from '../../pouchdb-adapter-localstorage';
 
 
 if (typeof PouchDB === 'undefined') {

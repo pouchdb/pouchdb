@@ -3,7 +3,7 @@ import {
   MISSING_ID,
   RESERVED_ID,
   createError
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 // Determine id an ID is valid
 //   - invalid IDs begin with an underescore that does not begin '_design' or

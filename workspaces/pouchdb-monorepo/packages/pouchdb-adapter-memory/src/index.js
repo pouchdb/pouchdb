@@ -1,4 +1,4 @@
-import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
+import CoreLevelPouch from '../../pouchdb-adapter-leveldb-core';
 
 
 import memdown from 'memdown';

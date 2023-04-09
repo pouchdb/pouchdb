@@ -1,6 +1,7 @@
 {
   "name": "couchdb-objects",
   "description": "Aids in the construction of JSON objects as used by CouchDB.",
+  "version":"4.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pouchdb/pouchdb-server.git"

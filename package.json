@@ -4,7 +4,6 @@
   "homepage": "http://pouchdb.com/",
   "license": "Apache-2.0",
   "private": true,
-  "workspaces": ["workspaces/*","workspaces/**/packages/*"],
   "scripts": {
     "build": "npm run build-modules && npm run build-test",
     "build-node": "bash bin/build-node.sh",
@@ -19,7 +18,8 @@
     "dev": "bash bin/run-dev.sh",
     "launch-dev-server": "node ./bin/dev-server.js",
     "test": "bash bin/run-test.sh",
-    "//install": "sh -c 'cd workspaces/pouchdb-server-monorepo && npm install --ignore-scripts && echo npm run build'",
+    "postinstall": "sh -c 'cd workspaces/pouchdb-server-monorepo/packages && npm install && echo npm run build'",
+    "preinstall": "sh -c 'cd workspaces/pouchdb-monorepo/packages && npm install && echo npm run build'",
     "release": "sh bin/release.sh",
     "install-jekyll": "sh bin/install-jekyll.sh",
     "publish-site": "sh bin/publish-site.sh",

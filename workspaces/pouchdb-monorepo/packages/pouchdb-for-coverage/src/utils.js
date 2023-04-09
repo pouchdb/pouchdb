@@ -16,19 +16,19 @@ import {
   upsert,
   toPromise,
   defaultBackOff
-} from 'pouchdb-utils';
+} from '../../pouchdb-utils';
 
 import {
   merge,
   winningRev
-} from 'pouchdb-merge';
+} from '../../pouchdb-merge';
 
 import {
   atob,
   btoa,
   binaryStringToBlobOrBuffer,
   blob
-} from 'pouchdb-binary-utils';
+} from '../../pouchdb-binary-utils';
 
 import {
   uniq,
@@ -36,16 +36,16 @@ import {
   fin,
   callbackify,
   promisedCallback
-} from 'pouchdb-mapreduce-utils';
+} from '../../pouchdb-mapreduce-utils';
 
 
 import {
   createError,
   generateErrorFromResponse
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
-import generateReplicationId from 'pouchdb-generate-replication-id';
-import checkpointer from 'pouchdb-checkpointer';
+import generateReplicationId from '../../pouchdb-generate-replication-id';
+import checkpointer from '../../pouchdb-checkpointer';
 
 export default {
   blob: blob,

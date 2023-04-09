@@ -1,14 +1,14 @@
-import { createError, MISSING_STUB } from 'pouchdb-errors';
+import { createError, MISSING_STUB } from '../../pouchdb-errors';
 import {
   preprocessAttachments,
   processDocs,
   isLocalId,
   parseDoc
-} from 'pouchdb-adapter-utils';
+} from '../../pouchdb-adapter-utils';
 
 import {
   compactTree
-} from 'pouchdb-merge';
+} from '../../pouchdb-merge';
 
 import {
   ATTACH_AND_SEQ_STORE,
@@ -27,7 +27,7 @@ import {
   openTransactionSafely
 } from './utils';
 
-import ChangesHandler from './ChangesHandler';
+import ChangesHandler from './changesHandler';
 
 function idbBulkDocs(dbOpts, req, opts, api, idb, callback) {
   var docInfos = req.docs;

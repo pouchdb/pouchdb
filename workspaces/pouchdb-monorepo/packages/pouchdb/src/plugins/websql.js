@@ -1,6 +1,6 @@
 // this code only runs in the browser, as its own dist/ script
 
-import WebsqlPouchPlugin from 'pouchdb-adapter-websql';
+import WebsqlPouchPlugin from '../../pouchdb-adapter-websql';
 
 
 if (typeof PouchDB === 'undefined') {

@@ -1,6 +1,6 @@
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
-import { clone } from 'pouchdb-utils';
+import { clone } from '../../pouchdb-utils';
 import parseAdapter from './parseAdapter';
 import { createClass } from './utils';
 

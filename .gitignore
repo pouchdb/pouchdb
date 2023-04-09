@@ -1,4 +1,5 @@
 # most rules make no sense anymore
+workspaces/stack/modules
 tmp*
 .DS_Store
 node_modules

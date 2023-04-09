@@ -1,21 +1,20 @@
 'use strict';
 
-import {
-  createError,
+import { createError,
   REV_CONFLICT,
   MISSING_DOC,
   MISSING_STUB,
   BAD_ARG,
   UNKNOWN_ERROR
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 import {
   binaryStringToBlobOrBuffer as binStringToBlobOrBuffer
-} from 'pouchdb-binary-utils';
+} from '../../pouchdb-binary-utils';
 
-import { parseDoc } from 'pouchdb-adapter-utils';
-import { binaryMd5 as md5 } from 'pouchdb-md5';
-import { winningRev as calculateWinningRev, merge, compactTree } from 'pouchdb-merge';
+import { parseDoc } from '../../pouchdb-adapter-utils';
+import { binaryMd5 as md5 } from '../../pouchdb-md5';
+import { winningRev as calculateWinningRev, merge, compactTree } from '../../pouchdb-merge';
 
 import { DOC_STORE, META_STORE, idbError } from './util';
 

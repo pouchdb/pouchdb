@@ -1,6 +1,6 @@
 var STARTING_BACK_OFF = 0;
 
-import { defaultBackOff } from 'pouchdb-utils';
+import { defaultBackOff } from '../../pouchdb-utils';
 
 function backOff(opts, returnValue, error, callback) {
   if (opts.retry === false) {

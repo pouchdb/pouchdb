@@ -1,6 +1,7 @@
 {
   "name": "pouchdb-show",
   "description": "A PouchDB plug-in that allows you to re-use your CouchDB show functions on the client side.",
+  "version":"4.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pouchdb/pouchdb-server.git"

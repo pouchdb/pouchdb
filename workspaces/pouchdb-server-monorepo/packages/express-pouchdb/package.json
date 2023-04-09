@@ -1,6 +1,7 @@
 {
   "name": "express-pouchdb",
   "description": "Express submodule with a CouchDB-style REST interface to PouchDB.",
+  "version": "4.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pouchdb/pouchdb-server.git"

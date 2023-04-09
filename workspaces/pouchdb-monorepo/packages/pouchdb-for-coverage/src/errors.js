@@ -23,7 +23,7 @@ import {
    MISSING_STUB,
    IDB_ERROR,
    INVALID_URL
-} from 'pouchdb-errors';
+} from '../../pouchdb-errors';
 
 export default {
   UNAUTHORIZED: UNAUTHORIZED,

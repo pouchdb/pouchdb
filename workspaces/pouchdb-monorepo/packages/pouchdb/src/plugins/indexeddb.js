@@ -1,6 +1,6 @@
 // this code only runs in the browser, as its own dist/ script
 
-import IndexeddbPouchPlugin from 'pouchdb-adapter-indexeddb';
+import IndexeddbPouchPlugin from '../../pouchdb-adapter-indexeddb';
 
 
 if (typeof PouchDB === 'undefined') {

@@ -1,4 +1,4 @@
-import { blob as createBlob } from 'pouchdb-binary-utils';
+import { blob as createBlob } from '../../pouchdb-binary-utils';
 import { DETECT_BLOB_SUPPORT_STORE } from './constants';
 
 //
