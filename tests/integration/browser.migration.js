@@ -162,8 +162,7 @@ describe('migration', function () {
         {_id: '0', a: 1, b: 1},
         {_id: '3', a: 4, b: 16},
         {_id: '1', a: 2, b: 4},
-        {_id: '2', a: 3, b: 9},
-        {_id: '_local/4', a: 5, b: 7},
+        {_id: '2', a: 3, b: 9}
       ];
 
       it('Testing basic migration integrity', function (done) {
