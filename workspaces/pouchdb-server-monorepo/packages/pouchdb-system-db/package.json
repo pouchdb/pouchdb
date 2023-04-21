@@ -1,0 +1,21 @@
+{
+  "name": "pouchdb-system-db",
+  "description": "Protects PouchDB system databases by wrapping their methods.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "system",
+    "database",
+    "protect",
+    "protection"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}

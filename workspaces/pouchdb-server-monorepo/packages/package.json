@@ -1,0 +1,26 @@
+{
+  "name": "pouchdb-server-packages",
+  "private": true,
+  "version": "4.2.0",
+  "workspaces": [
+    "*",
+    "../../pouchdb-monorepo/packages/*"
+  ],
+  "scripts": {
+    "//note-install:": "This links shared dependencies into packages/node_modules'",
+    "//install": "sh -c 'npm install --ignore-scripts'"
+  },
+  "browserPackages": {
+    "http-pouchdb": "buildHTTPPouchDB",
+    "pouchdb-auth": "Auth",
+    "pouchdb-list": "List",
+    "pouchdb-replicator": "Replicator",
+    "pouchdb-rewrite": "Rewrite",
+    "pouchdb-seamless-auth": "SeamlessAuth",
+    "pouchdb-security": "Security",
+    "pouchdb-show": "Show",
+    "pouchdb-update": "Update",
+    "pouchdb-validation": "Validation",
+    "pouchdb-vhost": "VirtualHost"
+  }
+}

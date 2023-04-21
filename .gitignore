@@ -1,6 +1,8 @@
+# most rules make no sense anymore
+workspaces/stack/modules
 tmp*
 .DS_Store
-/node_modules
+node_modules
 docs/_site
 docs/static/css
 docs/.jekyll-cache
@@ -14,7 +16,6 @@ bower_components
 tests/integration/cordova/www
 tests/pouchdb_server
 tests/performance-bundle.js
-packages/node_modules/pouchdb/dist/*
 pouchdb-webpack.js
 lib
 lib_unit

@@ -1,0 +1,22 @@
+{
+    "name": "pouchdb-stack",
+    "version": "7.0.0-prerelease",
+    "homepage": "http://pouchdb.com/",
+    "license": "Apache-2.0",
+    "private": true,
+    "install": "sh -c 'npm install --ignore-scripts'",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/pouchdb/pouchdb.git"
+    },
+    "workspaces": [
+        "../pouchdb-monorepo/packages/*",
+        "../pouchdb-server-monorepo/packages/*"
+    ],
+    "devDependencies": {
+        "@rollup/plugin-node-resolve": "^15.0.2",
+        "pouchdb-monorepo": "file:../pouchdb-monorepo",
+        "pouchdb-server-monorepo": "file:../pouchdb-server-monorepo",
+        "rollup": "^3.20.2"
+    }
+}

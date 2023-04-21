@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+// The only reason this file exists is for backwards compatibility, because
+// otherwise we break folks doing:
+// `./node_modules/pouchdb-server/bin/pouchdb-server`.
+
+require('../lib/index.js');
