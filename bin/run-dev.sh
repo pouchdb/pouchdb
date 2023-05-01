@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-CLIENT=dev bash bin/run-test.sh
+CLIENT=dev ./bin/run-test.sh

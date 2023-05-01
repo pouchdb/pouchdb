@@ -4,7 +4,6 @@
 var wd = require('wd');
 wd.configureHttp({timeout: 180000}); // 3 minutes
 
-var sauceConnectLauncher = require('sauce-connect-launcher');
 var selenium = require('selenium-standalone');
 var querystring = require("querystring");
 
@@ -14,9 +13,6 @@ var devserver = require('./dev-server.js');
 
 var testTimeout = 30 * 60 * 1000;
 
-var username = process.env.SAUCE_USERNAME;
-var accessKey = process.env.SAUCE_ACCESS_KEY;
-
 var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '3.141.0';
 var CHROME_BIN = process.env.CHROME_BIN;
 var FIREFOX_BIN = process.env.FIREFOX_BIN;
@@ -25,7 +21,7 @@ var FIREFOX_BIN = process.env.FIREFOX_BIN;
 var bail = process.env.BAIL !== '0';
 
 // process.env.CLIENT is a colon separated list of
-// (saucelabs|selenium):browserName:browserVerion:platform
+// selenium:browserName:browserVerion:platform
 var tmp = (process.env.CLIENT || 'selenium:firefox').split(':');
 var client = {
   runner: tmp[0] || 'selenium',
@@ -50,13 +46,9 @@ if (process.env.PERF) {
 
 var qs = { remote: 1 };
 
-var sauceClient;
-var sauceConnectProcess;
+var seleniumClient;
 var tunnelId = process.env.TRAVIS_JOB_NUMBER || 'tunnel-' + Date.now();
 
-if (client.runner === 'saucelabs') {
-  qs.saucelabs = true;
-}
 if (process.env.INVERT) {
   qs.invert = process.env.INVERT;
 }
@@ -112,41 +104,15 @@ function startSelenium(callback) {
       process.exit(1);
     }
     selenium.start(opts, function () {
-      sauceClient = wd.promiseChainRemote();
+      seleniumClient = wd.promiseChainRemote();
       callback();
     });
   });
 }
 
-function startSauceConnect(callback) {
-
-  var options = {
-    username: username,
-    accessKey: accessKey,
-    tunnelIdentifier: tunnelId
-  };
-
-  sauceConnectLauncher(options, function (err, sauceProcess) {
-    if (err) {
-      console.error('Failed to connect to saucelabs');
-      console.error(err);
-      return process.exit(1);
-    }
-    sauceConnectProcess = sauceProcess;
-    sauceClient = wd.promiseChainRemote("localhost", 4445, username, accessKey);
-    callback();
-  });
-}
-
 function closeClient(callback) {
-  sauceClient.quit().then(function () {
-    if (sauceConnectProcess) {
-      sauceConnectProcess.close(function () {
-        callback();
-      });
-    } else {
-      callback();
-    }
+  seleniumClient.quit().then(function () {
+    callback();
   });
 }
 
@@ -244,21 +210,21 @@ function startTest() {
   new MochaSpecReporter(runner);
   new BenchmarkReporter(runner);
 
-  sauceClient.init(opts, function (err) {
+  seleniumClient.init(opts, function (err) {
     if (err) {
       testError(err);
       return;
     }
     console.log('Initialized');
 
-    sauceClient.get(testUrl, function (err) {
+    seleniumClient.get(testUrl, function (err) {
       if (err) {
         testError(err);
         return;
       }
       console.log('Successfully started');
 
-      sauceClient.eval('navigator.userAgent', function (err, userAgent) {
+      seleniumClient.eval('navigator.userAgent', function (err, userAgent) {
         if (err) {
           testError(err);
         } else {
@@ -266,7 +232,7 @@ function startTest() {
 
           /* jshint evil: true */
           var interval = setInterval(function () {
-            sauceClient.eval('window.testEvents()', function (err, events) {
+            seleniumClient.eval('window.testEvents()', function (err, events) {
                 if (err) {
                   clearInterval(interval);
                   testError(err);
@@ -301,9 +267,5 @@ function startTest() {
 }
 
 devserver.start(function () {
-  if (client.runner === 'saucelabs') {
-    startSauceConnect(startTest);
-  } else {
-    startSelenium(startTest);
-  }
+  startSelenium(startTest);
 });
