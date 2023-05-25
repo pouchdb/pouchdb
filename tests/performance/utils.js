@@ -65,6 +65,9 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
 
       t.test(testName, function (t) {
         t.plan(testCase.assertions);
+        if (global.window && global.window.console && global.window.console.profile) {
+          global.window.console.profile(testName);
+        }
         var num = 0;
         function next() {
           nextTick(function () {
@@ -88,6 +91,9 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
         next();
       });
       t.test('teardown', function (t) {
+        if (global.window && global.window.console && global.window.console.profileEnd) {
+          global.window.console.profileEnd();
+        }
         var testCaseTeardown = testCase.tearDown ?
           testCase.tearDown(db, setupObj) :
           Promise.resolve();

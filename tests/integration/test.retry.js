@@ -7,10 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
 adapters.forEach(function (adapters) {
   var suiteName = 'test.retry.js-' + adapters[0] + '-' + adapters[1];
   describe(suiteName, function () {
