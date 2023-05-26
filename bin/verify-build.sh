@@ -6,4 +6,4 @@
 npm run build
 
 node ./bin/verify-dependencies.js
-sh ./bin/verify-bundle-size.sh
+./bin/verify-bundle-size.sh
