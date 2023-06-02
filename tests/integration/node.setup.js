@@ -18,7 +18,7 @@ exec('mkdir -p ' + testsDir, function () {
   process.on('exit', cleanup);
 });
 global.testUtils = require('./utils.js');
-global.PouchDB = testUtils.loadPouchDB();
+global.PouchDB = testUtils.loadPouchDB({ plugins: ['pouchdb-find'] });
 var chai = require('chai');
 chai.use(require('chai-as-promised'));
 global.should = chai.should();

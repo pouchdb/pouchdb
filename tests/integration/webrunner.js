@@ -82,7 +82,7 @@
     mocha.run();
   }
 
-  testUtils.loadPouchDB().then(function (PouchDB) {
+  testUtils.loadPouchDB({ plugins: ['pouchdb-find'] }).then(function (PouchDB) {
     window.PouchDB = PouchDB;
     if (document.readyState === 'complete') {
       startTests();
