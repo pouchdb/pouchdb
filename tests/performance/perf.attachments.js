@@ -10,7 +10,7 @@ function randomBrowserBlob(size) {
 }
 
 function randomBuffer(size) {
-  var buff = new Buffer(size);
+  var buff = Buffer.alloc(size);
   for (var i = 0; i < size; i++) {
     buff.write(
       String.fromCharCode(Math.floor(65535 * Math.random())),
