@@ -74,7 +74,7 @@ describe.skip('test.ajax.js', function () {
         headers: {
           'Content-Type': 'image/jpeg'
         }
-      }, new Buffer('sure this is binary data'));
+      }, Buffer.from('sure this is binary data', "utf8"));
     }, 4);
   });
 
