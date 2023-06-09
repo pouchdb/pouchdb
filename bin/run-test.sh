@@ -55,9 +55,7 @@ pouchdb-link-server-modules() {
 }
 
 search-free-port() {
-  EXPRESS_HOST="127.0.0.1"
   EXPRESS_PORT=3000
-
   while (: < /dev/tcp/127.0.0.1/$EXPRESS_PORT) 2>/dev/null; do
     ((EXPRESS_PORT++))
   done
