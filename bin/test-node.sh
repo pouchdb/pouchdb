@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 : ${TIMEOUT:=50000}
 : ${REPORTER:="spec"}

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Build the website
 BUILD=1 npm run build-site

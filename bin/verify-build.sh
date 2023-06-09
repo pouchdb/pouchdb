@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # Verify various aspects of the build to make sure everything was
 # built correctly.
