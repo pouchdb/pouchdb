@@ -12,6 +12,10 @@ export VIEW_ADAPTERS
 pouchdb-setup-server() {
   # in CI, link pouchdb-servers dependencies on pouchdb
   # modules to the current implementations
+  if [ -d "pouchdb-server-install" ]; then
+    # pouchdb server already running
+    exit 0
+  fi
   mkdir pouchdb-server-install
   cd pouchdb-server-install
   npm init -y
