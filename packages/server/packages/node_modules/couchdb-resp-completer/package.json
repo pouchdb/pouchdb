@@ -1,0 +1,19 @@
+{
+  "name": "couchdb-resp-completer",
+  "description": "Builds a complete CouchDB-like response object from a very marginal one. (Can be just a string at first.)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "response",
+    "object"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}
