@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd packages && npm install",
+    "postinstall": "cd packages && npm install && cd server/packages && npm install",
     "build": "npm run build-modules && npm run build-test",
     "build-node": "./bin/build-node.sh",
     "build-modules": "node bin/build-modules.js",
@@ -48,7 +48,7 @@
     "level": "6.0.1",
     "level-codec": "9.0.2",
     "level-write-stream": "1.0.0",
-    "leveldown": "5.6.0",
+    "leveldown": "6.1.1",
     "levelup": "4.4.0",
     "localstorage-down": "0.6.7",
     "ltgt": "2.2.1",
