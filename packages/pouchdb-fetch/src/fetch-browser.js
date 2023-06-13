@@ -1,12 +1,12 @@
+/* eslint-disable no-undef */
 // 'use strict'; is default when ESM
 
 // AbortController was introduced quite a while after fetch and
 // isnt required for PouchDB to function so polyfill if needed
-var a = (typeof AbortController !== 'undefined')
-    ? AbortController
-    : function () { return {abort: function () {}}; };
+const AbortController = globalThis.AbortController ||
+    function () { return {abort: function () {}}; };
 
-var f = fetch;
-var h = Headers;
+const fetch = globalThis.fetch;
+const Headers = globalThis.Headers;
 
-export {f as fetch, h as Headers, a as AbortController};
+export {fetch, Headers, AbortController};

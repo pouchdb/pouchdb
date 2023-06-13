@@ -1,1 +1,1 @@
-export {fetch, Headers, AbortController} from './fetch';
+export {fetch, Headers, AbortController} from './fetch.js';

@@ -9,8 +9,7 @@ import {
   collectLeaves,
   collectConflicts
 } from 'pouchdb-merge';
-import EE from 'events';
-
+import events from 'node:events';
 
 import PouchDB from './setup';
 
@@ -47,7 +46,7 @@ function processChange(doc, metadata, opts) {
   return change;
 }
 
-class Changes extends EE {
+class Changes extends events {
   constructor(db, opts, callback) {
     super();
     this.db = db;

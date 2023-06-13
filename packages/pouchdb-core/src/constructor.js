@@ -1,4 +1,4 @@
-import Adapter from './adapter';
+import Adapter from './adapter.js';
 import TaskQueue from './taskqueue';
 import { clone } from 'pouchdb-utils';
 import getParseAdapter from './parseAdapter';

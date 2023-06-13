@@ -10,7 +10,7 @@ import https from 'node:https';
 import zlib from 'node:zlib';
 import util from 'node:util';
 import vm from 'node:vm';
-import path from 'nodepath';
+import path from 'node:path';
 import os from 'node:os';
 export { 
     fs,
