@@ -26,13 +26,13 @@ git checkout -b $BUILD_DIR
 node bin/update-package-json-for-publish.js
 
 # Publish all modules with Lerna
-for pkg in $(ls packages/node_modules); do
-  if [ ! -d "packages/node_modules/$pkg" ]; then
+for pkg in $(ls packages); do
+  if [ ! -d "packages/$pkg" ]; then
     continue
-  elif [ "true" = $(node --eval "console.log(require('./packages/node_modules/$pkg/package.json').private);") ]; then
+  elif [ "true" = $(node --eval "console.log(require('./packages/$pkg/package.json').private);") ]; then
     continue
   fi
-  cd packages/node_modules/$pkg
+  cd packages/$pkg
   echo "Publishing $pkg..."
   if [ ! -z $DRY_RUN ]; then
     echo "Dry run, not publishing"
@@ -45,17 +45,17 @@ for pkg in $(ls packages/node_modules); do
 done
 
 # Build browser packages
-for pkg in $(ls packages/node_modules); do
+for pkg in $(ls packages); do
   if [ "false" = $(node --eval "console.log(!!require('./package.json').browserPackages['$pkg']);") ]; then
       continue
   fi
   module_name=$(node --eval "console.log(require('./package.json').browserPackages['$pkg']);")
-  browserify packages/node_modules/$pkg -o packages/node_modules/$pkg/dist/$pkg.js -s $module_name
-  uglifyjs packages/node_modules/$pkg/dist/$pkg.js -o packages/node_modules/$pkg/dist/$pkg.min.js
+  browserify packages/$pkg -o packages/$pkg/dist/$pkg.js -s $module_name
+  uglifyjs packages/$pkg/dist/$pkg.js -o packages/$pkg/dist/$pkg.min.js
 done
 
 # Create git tag, which is also the Bower/Github release
-git add -f ./packages/node_modules/*/dist
+git add -f ./packages/*/dist
 git commit -m "build $VERSION"
 
 # Only "publish" to GitHub/Bower if this is a non-beta non-dry run
