@@ -2,6 +2,11 @@
   "name": "pouchdb-for-coverage",
   "version": "7.0.0-prerelease",
   "main": "./lib/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
   "private": true,
   "//": [
     "Below, the node version is used for coverage tests.",

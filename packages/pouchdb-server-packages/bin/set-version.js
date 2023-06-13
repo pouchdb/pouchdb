@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-'use strict';
+// 'use strict'; is default when ESM
 
 // Set the version of all modules, since they're versioned together.
 // Usage: npm run set-version -- [version]
 // e.g.   npm run set-version -- 1.2.3
 
 var version = process.argv[process.argv.length - 1];
-var fs = require('fs');
-var path = require('path');
+var fs = require('node:fs');
+var path = require('node:path');
 
 var packages = fs.readdirSync('packages/node_modules');
 

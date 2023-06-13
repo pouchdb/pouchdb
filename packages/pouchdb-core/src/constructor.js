@@ -1,7 +1,7 @@
 import Adapter from './adapter';
 import TaskQueue from './taskqueue';
 import { clone } from 'pouchdb-utils';
-import parseAdapter from './parseAdapter';
+import getParseAdapter from './parseAdapter';
 import { createClass } from './utils';
 
 // OK, so here's the deal. Consider this code:
@@ -105,5 +105,7 @@ class PouchInternal extends Adapter {
 const PouchDB = createClass(PouchInternal, function (name, opts) {
   PouchInternal.prototype._setup.call(this, name, opts);
 });
+
+const parseAdapter = getParseAdapter(PouchDB);
 
 export default PouchDB;

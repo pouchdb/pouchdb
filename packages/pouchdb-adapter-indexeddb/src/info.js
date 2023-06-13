@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 export default function (metadata, callback) {
   callback(null, {

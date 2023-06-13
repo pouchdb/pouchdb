@@ -1,4 +1,4 @@
-import ltgt from 'ltgt';
+import * as ltgt from 'ltgt';
 
 function isFunction(f) {
   return 'function' === typeof f;

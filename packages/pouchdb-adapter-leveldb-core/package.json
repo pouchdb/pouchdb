@@ -3,6 +3,11 @@
   "version": "7.0.0-prerelease",
   "description": "Core PouchDB adapter code for LevelDOWN-based adapters",
   "main": "./lib/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",
   "license": "Apache-2.0",

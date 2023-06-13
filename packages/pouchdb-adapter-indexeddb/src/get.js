@@ -1,8 +1,8 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import { createError, MISSING_DOC } from 'pouchdb-errors';
 
-import { DOC_STORE } from './util';
+import { DOC_STORE } from './util.js';
 
 import { latest as getLatest } from 'pouchdb-merge';
 

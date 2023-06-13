@@ -1,8 +1,8 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import { uuid } from 'pouchdb-utils';
 
-import { META_STORE, DOC_STORE, rawIndexFields, naturalIndexName, correctIndexFields } from './util';
+import { META_STORE, DOC_STORE, rawIndexFields, naturalIndexName, correctIndexFields } from './util.js';
 
 //
 // Core PouchDB schema version. Increment this if we, as a library, want to make

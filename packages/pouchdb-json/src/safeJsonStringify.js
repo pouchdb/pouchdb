@@ -1,4 +1,4 @@
-import vuvuzela from 'vuvuzela';
+import * as vuvuzela from 'vuvuzela';
 
 function safeJsonStringify(json) {
   try {

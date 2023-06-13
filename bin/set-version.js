@@ -15,8 +15,8 @@ var packages = fs.readdirSync('packages/node_modules');
 var jsonFiles = packages.map(function (pkg) {
   return path.resolve(__dirname, '../packages/node_modules', pkg, 'package.json');
 }).concat([
-  path.resolve(__dirname, '../packages/node_modules/pouchdb/component.json'),
-  path.resolve(__dirname, '../packages/node_modules/pouchdb/bower.json'),
+  path.resolve(__dirname, '../packages/pouchdb/component.json'),
+  path.resolve(__dirname, '../packages/pouchdb/bower.json'),
   path.resolve(__dirname, '../package.json')
 ]);
 
@@ -27,7 +27,7 @@ jsonFiles.forEach(function (jsonFile) {
 });
 
 var versionFile = path.resolve(__dirname,
-  '../packages/node_modules/pouchdb-core/src/version.js');
+  '../packages/pouchdb-core/src/version.js');
 var versionFileContents = '// managed automatically by set-version.js\n' +
   'export default "' + version + '";\n';
 

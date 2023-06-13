@@ -1,6 +1,4 @@
-'use strict';
-
-import { DOC_STORE, processAttachment } from './util';
+import { DOC_STORE, processAttachment } from './util.js';
 
 import { uuid, filterChange } from 'pouchdb-utils';
 

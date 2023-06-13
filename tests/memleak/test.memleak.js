@@ -157,7 +157,7 @@ FakePouchDB = (function () {
 
 /* Real PouchDB, for tests */
 
-var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
+var PouchDB = require('../../packages/pouchdb-for-coverage');
 
 /* Basic sleep functionality for Promises */
 

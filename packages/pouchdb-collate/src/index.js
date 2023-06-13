@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto

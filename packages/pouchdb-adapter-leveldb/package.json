@@ -3,6 +3,11 @@
   "version": "7.0.0-prerelease",
   "description": "PouchDB adapter using LevelDB as its backing store.",
   "main": "./lib/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
   "keywords": [],
   "browser": {
     "leveldown": false

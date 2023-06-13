@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 var IDB_NULL = Number.MIN_SAFE_INTEGER;
 var IDB_FALSE = Number.MIN_SAFE_INTEGER + 1;

@@ -1,6 +1,6 @@
-'use strict';
+// 'use strict'; is default when ESM
 
-import { DOC_STORE } from './util';
+import { DOC_STORE } from './util.js';
 
 import { traverseRevTree } from 'pouchdb-merge';
 

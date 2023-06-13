@@ -3,6 +3,11 @@
   "version": "7.0.0-prerelease",
   "description": "PouchDB utilities for calculating MD5 checksums.",
   "main": "./lib/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
   "keywords": [],
   "author": "Dale Harvey <dale@arandomurl.com>",
   "license": "Apache-2.0",

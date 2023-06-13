@@ -5,7 +5,7 @@ var DB_FILES_DIR = './tmp';
 var fs = require('fs');
 var express = require('express');
 var app = express();
-var PouchDB = require('../../packages/node_modules/pouchdb').defaults({
+var PouchDB = require('../../packages/pouchdb').defaults({
   prefix: DB_FILES_DIR
 });
 

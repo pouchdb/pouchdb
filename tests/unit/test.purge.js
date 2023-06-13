@@ -1,7 +1,7 @@
 'use strict';
 
 const should = require('chai').should();
-const { findPathToLeaf, removeLeafFromTree } = require('../../packages/node_modules/pouchdb-merge');
+const { findPathToLeaf, removeLeafFromTree } = require('../../packages/pouchdb-merge');
 
 /*
   1-a - 2-a -- 3-a - 4-a - 5-a - 6-a

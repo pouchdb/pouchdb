@@ -1,8 +1,8 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import { btoa, readAsBinaryString } from 'pouchdb-binary-utils';
 
-import { DOC_STORE } from './util';
+import { DOC_STORE } from './util.js';
 
 function parseAttachment(attachment, opts, cb) {
   if (opts.binary) {

@@ -1,9 +1,9 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import { createError, IDB_ERROR } from 'pouchdb-errors';
 import { collectConflicts } from 'pouchdb-merge';
 
-import { DOC_STORE, processAttachment } from './util';
+import { DOC_STORE, processAttachment } from './util.js';
 
 function allDocsKeys(keys, docStore, allDocsInner) {
   // It's not guaranted to be returned in right order

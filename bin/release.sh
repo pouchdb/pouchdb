@@ -13,7 +13,7 @@ rm -fr node_modules
 npm install
 
 # get current version
-VERSION=$(node --eval "console.log(require('./packages/node_modules/pouchdb/package.json').version);")
+VERSION=$(node --eval "console.log(require('./packages/pouchdb/package.json').version);")
 
 # Create a temporary build directory
 SOURCE_DIR=$(git name-rev --name-only HEAD)
@@ -29,7 +29,7 @@ ls packages/node_modules > release-todo.txt
 
 # Create git tag, which is also the Bower/Github release
 rm -fr lib src dist bower.json component.json package.json
-cp -r packages/node_modules/pouchdb/{src,lib,dist,bower.json,component.json,package.json} .
+cp -r packages/pouchdb/{src,lib,dist,bower.json,component.json,package.json} .
 git add -f lib src dist *.json
 git rm -fr packages bin docs scripts tests
 

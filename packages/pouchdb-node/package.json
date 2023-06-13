@@ -4,6 +4,11 @@
   "description": "PouchDB, the Node-only edition.",
   "main": "./lib/index.js",
   "module": "./lib/index.es.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
   "author": "Dale Harvey <dale@arandomurl.com>",
   "license": "Apache-2.0",
   "repository": {

@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import PouchDB from './constructor';
 import EE from 'events';

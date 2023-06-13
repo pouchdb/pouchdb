@@ -1,6 +1,6 @@
 'use strict';
 
-// Update all the dependencies inside packages/node_modules/*/package.json
+// Update all the dependencies inside packages/*/package.json
 // to reflect the true dependencies (automatically determined by require())
 // and update the version numbers to reflect the version from the top-level
 // dependencies list. Also throw an error if a dep is not declared top-level.

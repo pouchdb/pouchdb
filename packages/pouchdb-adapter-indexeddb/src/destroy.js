@@ -1,5 +1,3 @@
-'use strict';
-
 export default function (dbOpts, openDatabases, idbChanges, callback) {
 
   idbChanges.removeAllListeners(dbOpts.name);

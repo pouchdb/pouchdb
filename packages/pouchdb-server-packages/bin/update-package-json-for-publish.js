@@ -1,12 +1,12 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 // Update all the dependencies inside packages/node_modules/*/package.json
 // to reflect the true dependencies (automatically determined by require())
 // and update the version numbers to reflect the version from the top-level
 // package.json.
 
-var fs = require('fs');
-var path = require('path');
+var fs = require('node:fs');
+var path = require('node:path');
 var glob = require('glob');
 var findRequires = require('find-requires');
 var builtinModules = require('builtin-modules');

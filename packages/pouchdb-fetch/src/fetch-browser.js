@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 // AbortController was introduced quite a while after fetch and
 // isnt required for PouchDB to function so polyfill if needed

@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import nodeFetch, {Headers} from 'node-fetch';
 import fetchCookie from 'fetch-cookie';

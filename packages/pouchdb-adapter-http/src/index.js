@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import pool from './promise-pool';
 

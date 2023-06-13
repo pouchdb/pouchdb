@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 function pad(str, padWith, upToLength) {
   var padding = '';

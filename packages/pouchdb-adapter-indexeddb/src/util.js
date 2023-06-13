@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import { createError, IDB_ERROR } from 'pouchdb-errors';
 import { btoa, readAsBinaryString } from 'pouchdb-binary-utils';

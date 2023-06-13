@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 import { changesHandler } from 'pouchdb-utils';
 
 import setup from './setup';
@@ -16,7 +16,7 @@ import destroy from './destroy';
 import {query, viewCleanup} from './find';
 import purge from './purge';
 
-import { DOC_STORE } from './util';
+import { DOC_STORE } from './util.js';
 
 var ADAPTER_NAME = 'indexeddb';
 

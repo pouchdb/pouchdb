@@ -1,4 +1,4 @@
-import { DOC_STORE } from "pouchdb-adapter-indexeddb/src/util";
+import { DOC_STORE } from "../../pouchdb-adapter-indexeddb/src/util.js";
 import { removeLeafFromTree, winningRev } from "pouchdb-merge";
 
 function purgeAttachments(doc, revs) {

@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import {
   createError,
@@ -17,7 +17,7 @@ import { parseDoc } from 'pouchdb-adapter-utils';
 import { binaryMd5 as md5 } from 'pouchdb-md5';
 import { winningRev as calculateWinningRev, merge, compactTree } from 'pouchdb-merge';
 
-import { DOC_STORE, META_STORE, idbError } from './util';
+import { DOC_STORE, META_STORE, idbError } from './util.js';
 
 import { rewrite } from './rewrite';
 

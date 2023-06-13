@@ -1,6 +1,6 @@
 (function() {
 
-  'use strict';
+  // 'use strict'; is default when ESM
 
   var ENTER_KEY = 13;
   var newTodoDom = document.getElementById('new-todo');

@@ -1,4 +1,4 @@
-import vuvuzela from 'vuvuzela';
+import * as vuvuzela from 'vuvuzela';
 
 function safeJsonParse(str) {
   // This try/catch guards against stack overflow errors.

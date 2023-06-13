@@ -1,7 +1,6 @@
-import PouchDB from './constructor';
 import { guardedConsole, hasLocalStorage } from 'pouchdb-utils';
 
-function parseAdapter(name, opts) {
+const getParseAdapter = (PouchDB) => function parseAdapter(name, opts) {
   var match = name.match(/([a-z-]*):\/\/(.*)/);
   if (match) {
     // the http adapter expects the fully qualified name
@@ -42,6 +41,8 @@ function parseAdapter(name, opts) {
     name: usePrefix ? (prefix + name) : name,
     adapter: adapterName
   };
-}
+};
 
-export default parseAdapter;
+
+
+export default getParseAdapter;

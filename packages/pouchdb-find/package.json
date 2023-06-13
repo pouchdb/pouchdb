@@ -3,6 +3,11 @@
   "version": "7.0.0-prerelease",
   "description": "Easy-to-use query language for PouchDB",
   "main": "lib/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
   "keywords": [
     "pouch",
     "pouchdb",

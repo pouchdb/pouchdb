@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict'; is default when ESM
 
 import {
   DOC_STORE,
@@ -6,7 +6,7 @@ import {
   rawIndexFields,
   isPartialFilterView,
   naturalIndexName
-} from './util';
+} from './util.js';
 
 import {
   IDB_NULL,
