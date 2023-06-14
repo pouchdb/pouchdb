@@ -1,30 +1,14 @@
-import assert from 'node:assert';
-import fs from 'node:fs';
-import buffer from 'node:buffer';
-import events from 'node:events';
-import crypto from 'node:crypto';
-import stream from 'node:stream';
-import http from 'node:http';
-import url from 'node:url';
-import https from 'node:https';
-import zlib from 'node:zlib';
-import util from 'node:util';
-import vm from 'node:vm';
-import path from 'node:path';
-import os from 'node:os';
-export { 
-    fs,
-    assert,
-    buffer,
-    events,
-    crypto,
-    stream,
-    http,
-    https,
-    url,
-    util,
-    zlib,
-    vm,
-    path,
-    os,
-};
+export { default as assert } from 'node:assert';
+export { default as fs } from 'node:fs';
+export { default as buffer } from 'node:buffer';
+export { default as events } from 'node:events';
+export { default as crypto } from 'node:crypto';
+export { default as stream } from 'node:stream';
+export { default as http } from 'node:http';
+export { default as url } from 'node:url';
+export { default as https } from 'node:https';
+export { default as zlib } from 'node:zlib';
+export { default as util } from 'node:util';
+export { default as vm } from 'node:vm';
+export { default as path } from 'node:path';
+export { default as os } from 'node:os';
