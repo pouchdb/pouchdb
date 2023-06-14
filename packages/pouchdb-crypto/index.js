@@ -44,7 +44,7 @@ export function blobToBase64(blobOrBuffer, callback) {
 // hex2base64 new Buffer('c836ecd6c71f61daaa2e9c7215bd6017', 'hex').toString('base64')
 
 // Returns only the ${base64Data}
-// Reverse: await fetch(`data:image/jpeg;base64,${base64Data}`);
+// Reverse: await fetch(`data:${'image/jpeg'||''};base64,${base64Data}`);
 export const toBase64 = (blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
     reader.onerror = reject;
