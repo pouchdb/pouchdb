@@ -5,7 +5,7 @@ import {
   BY_SEQ_STORE,
   DOC_STORE,
   META_STORE
-} from './constants';
+} from './constants.js';
 import {
   decodeDoc,
   decodeMetadata,
@@ -13,7 +13,7 @@ import {
   postProcessAttachments,
   openTransactionSafely,
   idbError
-} from './utils';
+} from './utils.js';
 import runBatchedCursor from './runBatchedCursor.js';
 import getAll from './getAll.js';
 
