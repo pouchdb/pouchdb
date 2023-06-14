@@ -70,4 +70,4 @@ Promise.resolve().then(async () =>
     }),
     nodeResolve({preferBuiltins: false,browser:true}),json(),commonjs()
   ],
-})).write({ dir: 'lib' }));
+})).write({ dir: 'lib', sourcemap: 'inline', }));
