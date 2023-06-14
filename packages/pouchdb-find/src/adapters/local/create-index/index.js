@@ -16,7 +16,6 @@ async function createIndex(db, requestDef) {
   // run if required
   var md5 = await stringMd5(JSON.stringify(requestDef));
   
-
   var viewName = requestDef.name || ('idx-' + md5);
 
   var ddocName = requestDef.ddoc || ('idx-' + md5);
