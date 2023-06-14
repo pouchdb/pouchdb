@@ -21,7 +21,6 @@ export async function digestFromMessage(message,algo='SHA-256') {
 //   ...new Uint8Array(arrayBuffer)
 // ));
  
-
 const base64encoderStream = {
     transform(data,ready) {
         let reader = new FileReader();        
@@ -55,3 +54,7 @@ function blobToBase64(blobOrBuffer, callback) {
    (b64)=>callback(null,b64),err=>callback(err));
    //callback(blobOrBuffer.toString('binary'));
 }
+// eg "digest":"md5-yDbs1scfYdqqLpxyFb1gFw==",
+// base642hex new Buffer('yDbs1scfYdqqLpxyFb1gFw==', 'base64').toString('hex')
+// hex2base64 new Buffer('c836ecd6c71f61daaa2e9c7215bd6017', 'hex').toString('base64')
+
