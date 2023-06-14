@@ -23,9 +23,7 @@ import {
 } from 'pouchdb-utils';
 
 import {
-  atob,
-  btoa,
-  binaryStringToBlobOrBuffer as binStringToBluffer,
+  binaryStringToBlobOrBuffer as binStringToBuffer,
   base64StringToBlobOrBuffer as b64StringToBuffer,
   blobOrBufferToBase64 as blufferToBase64
 } from 'pouchdb-binary-utils';
@@ -697,7 +695,7 @@ function HttpPouch(opts, callback) {
         return callback(createError(BAD_ARG,
                         'Attachment is not a valid base64 string'));
       }
-      blob = binary ? binStringToBluffer(binary, type) : '';
+      blob = binary ? binStringToBuffer(binary, type) : '';
     }
 
     try {
