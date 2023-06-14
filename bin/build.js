@@ -20,15 +20,16 @@ const entries = [
 fs.readdirSync('packages').map(pkg=>[rollup.rollup({ 
   input: { [pkg+'.es']: pkg },
   plugins: [
+    eslint,
     alias({
       customResolver, entries,
     }),
-    nodeResolve({preferBuiltins: true}),json(),commonjs(),eslint
+    nodeResolve({preferBuiltins: true}),json(),commonjs()
   ],
 }).then(bundle=>bundle.write({ dir: 'lib' })),rollup.rollup({ 
   input: { [pkg+'.browser.es']: pkg },
-  plugins: [alias({
+  plugins: [eslint,alias({
       customResolver, entries,
-    }),nodeResolve({preferBuiltins:false,browser:true}),json(),commonjs(),eslint
+    }),nodeResolve({preferBuiltins:false,browser:true}),json(),commonjs()
   ],
 }).then(bundle=>bundle.write({ dir: 'lib' }))]);
