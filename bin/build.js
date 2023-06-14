@@ -5,6 +5,8 @@ const commonjs = require('@rollup/plugin-commonjs');
 const json = require('@rollup/plugin-json');
 const alias = require('@rollup/plugin-alias');
 const eslint = require('@rollup/plugin-eslint')({
+  include: ["*.js","*.mjs"],
+  exclude: [],
   fix:true,
 });
 const customResolver = nodeResolve({
