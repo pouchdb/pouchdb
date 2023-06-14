@@ -34,13 +34,15 @@ Promise.resolve().then(async () =>
     }),
     nodeResolve({preferBuiltins: true}), json(), commonjs()
   ],
-})).write({ dir: 'lib' })).then(async ()=>(await rollup.rollup({ 
-  input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg+'.browser',pkg])),
-  plugins: [
-    eslint,
-    alias({
-      customResolver, entries,
-    }),
-    nodeResolve({preferBuiltins: false, browser: true}), json(), commonjs()
-  ],
-})).write({ dir: 'lib', }));
+})).write({ dir: 'lib' }));
+
+// .then(async ()=>(await rollup.rollup({ 
+//   input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg+'.browser',pkg])),
+//   plugins: [
+//     eslint,
+//     alias({
+//       customResolver, entries,
+//     }),
+//     nodeResolve({preferBuiltins: false, browser: true}), json(), commonjs()
+//   ],
+// })).write({ dir: 'lib', }));
