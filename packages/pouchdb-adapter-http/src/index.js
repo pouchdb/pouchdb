@@ -1,7 +1,7 @@
 // 'use strict'; is default when ESM
 
 import pool from './promise-pool';
-
+import {toBase64} from 'pouchdb-crypto';
 import { fetch, Headers, AbortController } from 'pouchdb-fetch';
 
 import {
@@ -158,6 +158,7 @@ function HttpPouch(opts, callback) {
     if (opts.auth || host.auth) {
       const nAuth = opts.auth || host.auth;
       const str = nAuth.username + ':' + nAuth.password;
+      await toBase64(str)
       const token = btoa(unescape(encodeURIComponent(str)));
       options.headers.set('Authorization', 'Basic ' + token);
     }
