@@ -1,5 +1,5 @@
 import { btoa } from './base64';
-import blobOrBufferToBinaryString from './blobOrBufferToBinaryString';
+import blobOrBufferToBinaryString from './blobOrBufferToBinaryString.js';
 
 function blobToBase64(blobOrBuffer, callback) {
   blobOrBufferToBinaryString(blobOrBuffer, function (base64) {
