@@ -10,8 +10,8 @@ const eslint = require('@rollup/plugin-eslint')({
   fix:true,
 });
 
-const { resolve } = require('node:path/posix');
-const pathResolve = (prefix)=>(name) => resolve(prefix,name);
+//const { resolve } = require('node:path/posix');
+//const pathResolve = (prefix)=>(name) => resolve(prefix,name);
 const customResolver = nodeResolve({
   extensions: ['.mjs', '.js', '.jsx', '.json', '.sass', '.scss'],
 });
