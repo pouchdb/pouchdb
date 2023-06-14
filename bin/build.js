@@ -53,7 +53,9 @@ const entries = [
 
 Promise.resolve().then(async () =>
 (await rollup.rollup({ 
-  input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg,pkg])),
+  input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg,pkg]).concat(
+    fs.readdirSync('packages/pouchdb/plugins').map(plg=>['plugin-'+plg.slice(-3),'pouchdb/plugins/'+plg])
+  )),
   plugins: [
     eslint,
     alias({
