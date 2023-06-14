@@ -1,4 +1,3 @@
-
 async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest(algo, msgUint8); // hash the message
