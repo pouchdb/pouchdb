@@ -14,14 +14,12 @@ async function createIndex(db, requestDef) {
 
   // calculating md5 is expensive - memoize and only
   // run if required
-  var md5;
-  async function getMd5() {
-    return md5 || (md5 = await stringMd5(JSON.stringify(requestDef)));
-  }
+  var md5 = await stringMd5(JSON.stringify(requestDef));
+  
 
-  var viewName = requestDef.name || ('idx-' + await getMd5());
+  var viewName = requestDef.name || ('idx-' + md5);
 
-  var ddocName = requestDef.ddoc || ('idx-' + await getMd5());
+  var ddocName = requestDef.ddoc || ('idx-' + md5);
   var ddocId = '_design/' + ddocName;
 
   var hasInvalidLanguage = false;
