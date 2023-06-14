@@ -11,7 +11,7 @@ const eslint = require('@rollup/plugin-eslint')({
 });
 
 const { resolve } = require('node:path/posix');
-const pathResolve = (name) => resolve(name);
+const pathResolve = (prefix)=>(name) => resolve(prefix,name);
 const customResolver = nodeResolve({
   extensions: ['.mjs', '.js', '.jsx', '.json', '.sass', '.scss'],
 });
@@ -41,7 +41,7 @@ const updateLibs = Promise.allSettled(fs.readdirSync('packages').map(pkg=>[rollu
   
 updateLibs.then(async () =>
 (await rollup.rollup({ 
-  input: fs.readdirSync('lib').map(pathResolve),
+  input: fs.readdirSync('lib').map(pathResolve('lib')),
   plugins: [
     eslint,
     alias({
