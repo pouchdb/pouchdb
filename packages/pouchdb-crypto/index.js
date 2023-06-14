@@ -48,7 +48,7 @@ export const toBase64 = (blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
     reader.onerror = reject;
     reader.onload = () => {
-        resolve(reader.result);
+        resolve(reader.result.split('base64,',1)[1]);
     };
     reader.readAsDataURL(new Blob([].concat(blob)));
 });
