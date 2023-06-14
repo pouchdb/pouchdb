@@ -41,6 +41,6 @@ Promise.resolve().then(async () =>
     alias({
       customResolver, entries,
     }),
-    nodeResolve({preferBuiltins: false,browser:true}), json(), commonjs()
+    nodeResolve({preferBuiltins: false, browser: true}), json(), commonjs()
   ],
 })).write({ dir: 'lib', sourcemap: 'inline', }));
