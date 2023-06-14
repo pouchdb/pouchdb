@@ -6,8 +6,9 @@ function bufferToBinaryString(arrayBuffer) {
 const toBase64 = (arrayBuffer) => btoa(bufferToBinaryString(arrayBuffer));
 
 function blobToBase64(blobOrBuffer, callback) {
-  new Response(blobOrBuffer).arrayBuffer().then(toBase64).then((b64)=>callback(null,b64),err=>callback(err));
-  callback(blobOrBuffer.toString('binary'));
+  new Response(blobOrBuffer).arrayBuffer().then(toBase64).then(
+    (b64)=>callback(null,b64),err=>callback(err));
+  //callback(blobOrBuffer.toString('binary'));
 }
 
 export default blobToBase64;
