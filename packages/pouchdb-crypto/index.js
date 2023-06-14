@@ -17,20 +17,23 @@ export async function digestFromMessage(message,algo='SHA-256') {
     }
 }
 // Old But gold
-const toBase64 = (arrayBuffer) => btoa(String.fromCharCode(
-  ...new Uint8Array(arrayBuffer)
-));
+// const toBase64 = (arrayBuffer) => btoa(String.fromCharCode(
+//   ...new Uint8Array(arrayBuffer)
+// ));
  
 
 const base64encoderStream = {
-    transform(data,ready){
+    transform(data,ready) {
         let reader = new FileReader();        
-        reader.onloadend = () => ready.enqueue(reader.result.split(';base64,',1)) && (reader = null)
+        reader.onloadend = () => {
+            ready.enqueue(reader.result.split(';base64,',1));
+            reader = null;
+        }
         reader.readAsDataURL(new Blob(data));
     }
 };
 
-new TransformStream(base64encoderStream)
+//new TransformStream(base64encoderStream)
 
 
 
