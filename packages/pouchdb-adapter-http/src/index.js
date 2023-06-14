@@ -158,8 +158,9 @@ function HttpPouch(opts, callback) {
     if (opts.auth || host.auth) {
       const nAuth = opts.auth || host.auth;
       const str = nAuth.username + ':' + nAuth.password;
-      await toBase64(str)
-      const token = btoa(unescape(encodeURIComponent(str)));
+      
+      const token = await toBase64(str);
+      //btoa(unescape(encodeURIComponent(str)));
       options.headers.set('Authorization', 'Basic ' + token);
     }
 
@@ -508,9 +509,10 @@ function HttpPouch(opts, callback) {
           }
           data = blob;
         } else {
-          data = await new Promise(function (resolve) {
-            blufferToBase64(blob, resolve);
-          });
+          data = await toBase64(blob);
+          // await new Promise(function (resolve) {
+          //   blufferToBase64(blob, resolve);
+          // });
         }
 
         delete att.stub;
