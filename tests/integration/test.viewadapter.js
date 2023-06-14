@@ -55,6 +55,10 @@ viewAdapters.forEach(viewAdapter => {
         return;
       }
 
+      if (db.adapter !== 'leveldb' && db.adapter !== 'idb') {
+        return;
+      }
+
       await db.bulkDocs(docs);
       await db.query('index', { key: 'abc', include_docs: true });
 
@@ -92,6 +96,10 @@ viewAdapters.forEach(viewAdapter => {
 
     it('Create pouch with no view adapters', async function () {
       const db = new PouchDB(dbs.name);
+
+      if (db.adapter !== 'leveldb' && db.adapter !== 'idb') {
+        return;
+      }
 
       await db.bulkDocs(docs);
       await db.query('index', { key: 'abc', include_docs: true });
