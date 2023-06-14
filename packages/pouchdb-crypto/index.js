@@ -21,13 +21,16 @@ const toBase64 = (arrayBuffer) => btoa(String.fromCharCode(
   ...new Uint8Array(arrayBuffer)
 ));
  
-new TransformStream({
 
+const base64encoderStream = {
     transform(data,ready){
         const reader = new FileReader();        
-        reader.onloadend = () => ready.enqueue(reader.result.split(';base64,',1)
+        reader.onloadend = () => ready.enqueue(reader.result.split(';base64,',1))
+        reader.readAsDataURL(new Blob(data));
     }
-})
+};
+
+new TransformStream(base64encoderStream)
 
 
 
