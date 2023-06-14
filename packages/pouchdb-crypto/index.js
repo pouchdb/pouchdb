@@ -10,51 +10,43 @@ export async function digestFromMessage(message,algo='SHA-256') {
                 // converted buffer to byte array
                 .map((b) => b.toString(16).padStart(2, "0"))
                 .join(""), // converted bytes to hex string;
-            }
+            };
             // Fails by design with wrong format            
             return formats[format]();
         } 
-    }
+    };
 }
-// Old But gold
-// const toBase64 = (arrayBuffer) => btoa(String.fromCharCode(
-//   ...new Uint8Array(arrayBuffer)
-// ));
+
  
-const base64encoderStream = {
+export const base64encoderStream = {
     transform(data,ready) {
         let reader = new FileReader();        
         reader.onloadend = () => {
             ready.enqueue(reader.result.split(';base64,',1));
             reader = null;
-        }
+        };
         reader.readAsDataURL(new Blob(data));
     }
 };
 
 //new TransformStream(base64encoderStream)
 
-
-
-reader.addEventListener(
-  "load",
-  () => {
-    // convert image file to base64 string
-    preview.src = reader.result;
-  },
-  false
-);
-
-if (file) {
-  reader.readAsDataURL(file);
-}
-
-function blobToBase64(blobOrBuffer, callback) {
-   new Response(blobOrBuffer).arrayBuffer().then(toBase64).then(
-   (b64)=>callback(null,b64),err=>callback(err));
+// Old But gold
+export function blobToBase64(blobOrBuffer, callback) {
+    new Response(blobOrBuffer).arrayBuffer().then((arrayBuffer) => btoa(
+    String.fromCharCode(
+    ...new Uint8Array(arrayBuffer)
+    ))).then((b64)=>callback(null,b64),err=>callback(err));
    //callback(blobOrBuffer.toString('binary'));
 }
 // eg "digest":"md5-yDbs1scfYdqqLpxyFb1gFw==",
 // base642hex new Buffer('yDbs1scfYdqqLpxyFb1gFw==', 'base64').toString('hex')
 // hex2base64 new Buffer('c836ecd6c71f61daaa2e9c7215bd6017', 'hex').toString('base64')
 
+
+
+
+//import { md5, sha1, sha512, sha3 } from 'hash-wasm'
+// replaces stringMD5 returns hex should also use message.normalize('NFKC')
+export const createoldMD5 = (message="") => import('hash-wasm').then(({ md5 }) => md5(new TextEncoder().encode(message)));
+export const createMD5 = async (message="") => (await import('hash-wasm')).md5(message);
