@@ -4,7 +4,7 @@
 
 var path = require('path');
 var denodeify = require('denodeify');
-var fs = require('fs');
+var fs = require('node:fs');
 const fsPromises = fs.promises;
 var readDir = denodeify(fs.readdir);
 

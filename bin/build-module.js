@@ -17,7 +17,7 @@ var denodeify = require('denodeify');
 var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
 var builtInModules = require('builtin-modules');
-var fs = require('fs');
+var fs = require('node:fs');
 
 // special case - pouchdb-for-coverage is heavily optimized because it's
 // simpler to run the coverage reports that way.

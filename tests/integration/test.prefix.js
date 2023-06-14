@@ -44,7 +44,7 @@ if (typeof process !== 'undefined' &&
 
   var mkdirp = require('mkdirp');
   var rimraf = require('rimraf');
-  var fs = require('fs');
+  var fs = require('node:fs');
 
   describe('node test.prefix.js', function () {
 

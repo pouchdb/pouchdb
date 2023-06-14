@@ -666,7 +666,7 @@ describe('test.views.js', function () {
     });
   });
   if (typeof window === 'undefined' && !process.browser) {
-    var fs = require('fs');
+    var fs = require('node:fs');
     it.skip("destroy using prototype", function () {
       var db = new PouchDB(dbs.name + 1);
       var doc = {

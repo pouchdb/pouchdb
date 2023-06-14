@@ -5,7 +5,7 @@
 
 var findRequires = require('find-requires');
 var path = require('path');
-var fs = require('fs');
+var fs = require('node:fs');
 var chai = require('chai');
 chai.should();
 

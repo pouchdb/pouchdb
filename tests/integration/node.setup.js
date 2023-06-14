@@ -24,4 +24,4 @@ chai.use(require('chai-as-promised'));
 global.should = chai.should();
 global.assert = chai.assert;
 require('mkdirp').sync('./tmp');
-global.fs = require('fs');
+global.fs = require('node:fs');

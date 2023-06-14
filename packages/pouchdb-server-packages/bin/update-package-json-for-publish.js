@@ -37,7 +37,7 @@ modules.forEach(function (mod) {
   }))).filter(function (dep) {
     // some modules require() themselves, e.g. for plugins
     return dep !== pkg.name &&
-      // exclude built-ins like 'inherits', 'fs', etc.
+      // exclude built-ins like 'inherits', 'node:fs', etc.
       builtinModules.indexOf(dep) === -1;
   }).sort();
 

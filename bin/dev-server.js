@@ -7,7 +7,7 @@ var http_server = require('http-server');
 var debounce = require('lodash.debounce');
 var buildPouchDB = require('./build-pouchdb');
 var browserify = require('browserify');
-var fs = require('fs');
+var fs = require('node:fs');
 
 var queryParams = {};
 

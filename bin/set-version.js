@@ -7,7 +7,7 @@
 // e.g.   npm run set-version -- 1.2.3
 
 var version = process.argv[process.argv.length - 1];
-var fs = require('fs');
+var fs = require('node:fs');
 var path = require('path');
 
 var packages = fs.readdirSync('packages/node_modules');
