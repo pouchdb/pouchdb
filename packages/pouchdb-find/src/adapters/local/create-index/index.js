@@ -19,9 +19,9 @@ async function createIndex(db, requestDef) {
     return md5 || (md5 = await stringMd5(JSON.stringify(requestDef)));
   }
 
-  var viewName = requestDef.name || ('idx-' + getMd5());
+  var viewName = requestDef.name || ('idx-' + await getMd5());
 
-  var ddocName = requestDef.ddoc || ('idx-' + getMd5());
+  var ddocName = requestDef.ddoc || ('idx-' + await getMd5());
   var ddocId = '_design/' + ddocName;
 
   var hasInvalidLanguage = false;
