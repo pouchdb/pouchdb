@@ -34,4 +34,14 @@ fs.readdirSync('packages').map(pkg=>[rollup.rollup({
       customResolver, entries,
     }),nodeResolve({preferBuiltins:false,browser:true}),json(),commonjs()
   ],
-}).then(bundle=>bundle.write({ dir: 'lib' }))]);
+}).then(bundle=>bundle.write({ dir: 'lib' }))]).map(Promise.all).map(async (p) => await p && 
+  rollup.rollup({ 
+  input: fs.readdirSync('lib'),
+  plugins: [
+    eslint,
+    alias({
+      customResolver, entries,
+    }),
+    nodeResolve({preferBuiltins: true})
+  ],
+}).then(bundle=>bundle.write({ dir: 'dist/node' })));
