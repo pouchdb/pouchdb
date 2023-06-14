@@ -1,9 +1,9 @@
-// Abstracts constructing a Blob object, so it also works in older
+// Contained shim to create a Blob object, so it also works in older
 // browsers that don't support the native Blob constructor (e.g.
-// old QtWebKit versions, Android < 4.4).
+// old QtWebKit versions, Android < 4.4). Is Deprecated.
+
 function createBlob(parts, properties) {
   return new Blob([].concat(parts),properties);
 }
 
 export default createBlob;
-
