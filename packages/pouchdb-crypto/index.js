@@ -21,15 +21,15 @@ const toBase64 = (arrayBuffer) => btoa(String.fromCharCode(
   ...new Uint8Array(arrayBuffer)
 ));
  
-new WritableStream({
-    start() {
-        this.reader = new FileReader();
-    },
-    write(){
+new TransformStream({
 
+    transform(data,ready){
+        const reader = new FileReader();        
+        reader.onloadend = () => ready.enqueue(reader.result)
     }
 })
-const reader = new FileReader();
+
+
 
 reader.addEventListener(
   "load",
