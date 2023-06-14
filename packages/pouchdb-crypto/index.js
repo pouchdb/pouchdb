@@ -25,7 +25,7 @@ new TransformStream({
 
     transform(data,ready){
         const reader = new FileReader();        
-        reader.onloadend = () => ready.enqueue(reader.result)
+        reader.onloadend = () => ready.enqueue(reader.result.split(';base64,',1)
     }
 })
 
