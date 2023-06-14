@@ -20,7 +20,30 @@ export async function digestFromMessage(message,algo='SHA-256') {
 const toBase64 = (arrayBuffer) => btoa(String.fromCharCode(
   ...new Uint8Array(arrayBuffer)
 ));
-  
+ 
+new WritableStream({
+    start() {
+        this.reader = new FileReader();
+    },
+    write(){
+
+    }
+})
+const reader = new FileReader();
+
+reader.addEventListener(
+  "load",
+  () => {
+    // convert image file to base64 string
+    preview.src = reader.result;
+  },
+  false
+);
+
+if (file) {
+  reader.readAsDataURL(file);
+}
+
 function blobToBase64(blobOrBuffer, callback) {
    new Response(blobOrBuffer).arrayBuffer().then(toBase64).then(
    (b64)=>callback(null,b64),err=>callback(err));
