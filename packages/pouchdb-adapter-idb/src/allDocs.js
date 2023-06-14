@@ -14,8 +14,8 @@ import {
   openTransactionSafely,
   idbError
 } from './utils';
-import runBatchedCursor from './runBatchedCursor';
-import getAll from './getAll';
+import runBatchedCursor from './runBatchedCursor.js';
+import getAll from './getAll.js';
 
 function allDocsKeys(keys, docStore, onBatch) {
   // It's not guaranted to be returned in right order  

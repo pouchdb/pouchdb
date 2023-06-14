@@ -115,22 +115,7 @@ function getHost(name, opts) {
 
 // Generate a URL with the host data given by opts and the given path
 function genDBUrl(opts, path) {
-  return genUrl(opts, opts.db + '/' + path);
-}
-
-// Generate a URL with the host data given by opts and the given path
-function genUrl(opts, path) {
-  // If the host already has a path, then we need to have a path delimiter
-  // Otherwise, the path delimiter is the empty string
-  const pathDel = !opts.path ? '' : '/';
-
-  // If the host already has a path, then we need to have a path delimiter
-  // Otherwise, the path delimiter is the empty string
-  return `${opts.protocol}://${opts.host}${
-    opts.port ? `:${opts.port}` : ''
-  }/${
-      opts.path + pathDel + path
-  }`;
+  return new URL({...opts, pathname: opts.db + '/' + path });
 }
 
 function paramsToStr(params) {
@@ -294,7 +279,7 @@ function HttpPouch(opts, callback) {
   api.id = adapterFun('id', async function (callback) {
     let result;
     try {
-      const response = await ourFetch(genUrl(host, ''));
+      const response = await ourFetch(new URL(host));
       result = await response.json();
     } catch (err) {
       result = {};
@@ -391,7 +376,7 @@ function HttpPouch(opts, callback) {
     }
 
     // mark the whole database as either supporting or not supporting _bulk_get
-    const dbUrl = genUrl(host, '');
+    const dbUrl = new URL(host);
     const supportsBulkGet = supportsBulkGetMap[dbUrl];
 
     /* istanbul ignore next */
@@ -436,7 +421,7 @@ function HttpPouch(opts, callback) {
   api.fetch = async function (path, options) {
     await setup();
     const url = path.substring(0, 1) === '/' ?
-    genUrl(host, path.substring(1)) :
+    new URL(path.substring(1), new URL(host)) :
     genDBUrl(host, path);
     return ourFetch(url, options);
   };
