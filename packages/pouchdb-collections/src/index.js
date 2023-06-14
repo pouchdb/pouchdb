@@ -1,8 +1,8 @@
 // based on https://github.com/montagejs/collections
 
-import ShimmedMap from './Map';
-import ShimmedSet from './Set';
-import supportsMapAndSet from './supportsMapAndSet';
+import ShimmedMap from './Map.js';
+import ShimmedSet from './Set.js';
+import supportsMapAndSet from './supportsMapAndSet.js';
 
 var ExportedSet;
 var ExportedMap;
