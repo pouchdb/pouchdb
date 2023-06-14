@@ -1,4 +1,4 @@
-import { btoa, readAsArrayBuffer } from 'pouchdb-binary-utils';
+import { readAsArrayBuffer } from 'pouchdb-binary-utils';
 import Md5 from 'spark-md5';
 var setImmediateShim = self.setImmediate || self.setTimeout;
 var MD5_CHUNK_SIZE = 32768;
