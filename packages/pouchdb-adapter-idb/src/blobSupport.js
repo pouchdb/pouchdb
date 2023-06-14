@@ -1,4 +1,3 @@
-import { blob as createBlob } from 'pouchdb-binary-utils';
 import { DETECT_BLOB_SUPPORT_STORE } from './constants';
 
 //
@@ -15,7 +14,7 @@ import { DETECT_BLOB_SUPPORT_STORE } from './constants';
 //
 function checkBlobSupport(txn) {
   return new Promise(function (resolve) {
-    var blob = createBlob(['']);
+    var blob = new Blob(['']);
     var req = txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(blob, 'key');
 
     req.onsuccess = function () {

@@ -11,7 +11,6 @@ import {
   btoa,
   readAsBinaryString,
   base64StringToBlobOrBuffer as b64StringToBlob,
-  blob as createBlob
 } from 'pouchdb-binary-utils';
 import { ATTACH_AND_SEQ_STORE, ATTACH_STORE, BY_SEQ_STORE } from './constants';
 
@@ -72,7 +71,7 @@ function decodeDoc(doc) {
 function readBlobData(body, type, asBlob, callback) {
   if (asBlob) {
     if (!body) {
-      callback(createBlob([''], {type: type}));
+      callback(new Blob([''], {type: type}));
     } else if (typeof body !== 'string') { // we have blob support
       callback(body);
     } else { // no blob support

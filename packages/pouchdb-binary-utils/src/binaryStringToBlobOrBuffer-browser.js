@@ -1,8 +1,8 @@
-import createBlob from './blob';
-import binaryStringToArrayBuffer from './binaryStringToArrayBuffer';
+//import createBlob from './blob';
+//import binaryStringToArrayBuffer from './binaryStringToArrayBuffer';
 
 function binStringToBluffer(binString, type) {
-  return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
+  return new Blob(binString, {type: type});
 }
 
 export default binStringToBluffer;

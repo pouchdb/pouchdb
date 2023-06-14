@@ -24,10 +24,7 @@ import {
 } from 'pouchdb-merge';
 
 import {
-  atob,
-  btoa,
   binaryStringToBlobOrBuffer,
-  blob
 } from 'pouchdb-binary-utils';
 
 import {
@@ -48,7 +45,6 @@ import generateReplicationId from 'pouchdb-generate-replication-id';
 import checkpointer from 'pouchdb-checkpointer';
 
 export default {
-  blob: blob,
   parseUri: parseUri,
   uuid: uuid,
   rev: rev,

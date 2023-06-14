@@ -7,7 +7,9 @@ import blobOrBufferToBinaryString from './blobOrBufferToBinaryString';
 import readAsArrayBuffer from './readAsArrayBuffer';
 import readAsBinaryString from './readAsBinaryString';
 import typedBuffer from './typedBuffer';
-
+// export const atob = globalThis.atob;
+// export const btoa = globalThis.btoa;
+// export const blob = (data) => new Blob([].concat(data));
 export {
   base64StringToBlobOrBuffer,
   binaryStringToArrayBuffer,
