@@ -26,7 +26,7 @@ import {
   atob,
   btoa,
   binaryStringToBlobOrBuffer as binStringToBluffer,
-  base64StringToBlobOrBuffer as b64StringToBluffer,
+  base64StringToBlobOrBuffer as b64StringToBuffer,
   blobOrBufferToBase64 as blufferToBase64
 } from 'pouchdb-binary-utils';
 
@@ -45,7 +45,7 @@ function readAttachmentsAsBlobOrBuffer(row) {
   }
   Object.keys(atts).forEach(function (filename) {
     const att = atts[filename];
-    att.data = b64StringToBluffer(att.data, att.content_type);
+    att.data = b64StringToBuffer(att.data, att.content_type);
   });
 }
 
