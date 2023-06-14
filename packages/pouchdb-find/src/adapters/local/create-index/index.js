@@ -5,7 +5,7 @@ import { stringMd5 } from 'pouchdb-crypto';
 import massageCreateIndexRequest from '../../../massageCreateIndexRequest';
 import { mergeObjects } from '../../../utils';
 
-function createIndex(db, requestDef) {
+async function createIndex(db, requestDef) {
   requestDef = massageCreateIndexRequest(requestDef);
   var originalIndexDef = clone(requestDef.index);
   requestDef.index = massageIndexDef(requestDef.index);
@@ -15,8 +15,8 @@ function createIndex(db, requestDef) {
   // calculating md5 is expensive - memoize and only
   // run if required
   var md5;
-  function getMd5() {
-    return md5 || (md5 = stringMd5(JSON.stringify(requestDef)));
+  async function getMd5() {
+    return md5 || (md5 = await stringMd5(JSON.stringify(requestDef)));
   }
 
   var viewName = requestDef.name || ('idx-' + getMd5());
