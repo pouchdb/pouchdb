@@ -35,7 +35,6 @@ import {
 } from 'pouchdb-md5';
 
 import {
-  atob,
   binaryStringToBlobOrBuffer as binStringToBluffer
 } from 'pouchdb-binary-utils';
 

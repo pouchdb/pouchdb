@@ -8,7 +8,6 @@ import {
   safeJsonStringify
 } from 'pouchdb-json';
 import {
-  btoa,
   readAsBinaryString,
   base64StringToBlobOrBuffer as b64StringToBlob,
 } from 'pouchdb-binary-utils';

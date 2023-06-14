@@ -49,8 +49,6 @@ export default {
   uuid: uuid,
   rev: rev,
   Promise: Promise,
-  atob: atob,
-  btoa: btoa,
   binaryStringToBlobOrBuffer: binaryStringToBlobOrBuffer,
   clone: clone,
   createError: createError,

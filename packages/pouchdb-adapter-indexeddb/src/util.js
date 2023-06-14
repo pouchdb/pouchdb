@@ -1,7 +1,7 @@
 // 'use strict'; is default when ESM
 
 import { createError, IDB_ERROR } from 'pouchdb-errors';
-import { btoa, readAsBinaryString } from 'pouchdb-binary-utils';
+import { readAsBinaryString } from 'pouchdb-binary-utils';
 import { sanitise } from './rewrite';
 
 var DOC_STORE = 'docs';
