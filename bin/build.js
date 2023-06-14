@@ -9,6 +9,9 @@ const eslint = require('@rollup/plugin-eslint')({
   exclude: [],
   fix:true,
 });
+
+const { resolve } = require('node:path/posix');
+const pathResolve = (name) => resolve(name);
 const customResolver = nodeResolve({
   extensions: ['.mjs', '.js', '.jsx', '.json', '.sass', '.scss'],
 });
@@ -19,7 +22,7 @@ const entries = [
   }
 ];
 
-fs.readdirSync('packages').map(pkg=>[rollup.rollup({ 
+const updateLibs = Promise.allSettled(fs.readdirSync('packages').map(pkg=>[rollup.rollup({ 
   input: { [pkg+'.es']: pkg },
   plugins: [
     eslint,
@@ -34,10 +37,11 @@ fs.readdirSync('packages').map(pkg=>[rollup.rollup({
       customResolver, entries,
     }),nodeResolve({preferBuiltins:false,browser:true}),json(),commonjs()
   ],
-}).then(bundle=>bundle.write({ dir: 'lib' }))]);
+}).then(bundle=>bundle.write({ dir: 'lib' }))]));
   
-rollup.rollup({ 
-  input: fs.readdirSync('lib'),
+updateLibs.then(async () =>
+(await rollup.rollup({ 
+  input: fs.readdirSync('lib').map(pathResolve),
   plugins: [
     eslint,
     alias({
@@ -45,4 +49,5 @@ rollup.rollup({
     }),
     nodeResolve({preferBuiltins: true})
   ],
-}).then(bundle=>bundle.write({ dir: 'dist/node' }));
+})).write({ dir: 'dist/node' }));
+
