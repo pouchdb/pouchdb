@@ -22,8 +22,38 @@ const entries = [
   }
 ];
 
-const updateLibs = Promise.allSettled(fs.readdirSync('packages').map(pkg=>[rollup.rollup({ 
-  input: { [pkg+'.es']: pkg },
+// const updateLibs = Promise.allSettled(fs.readdirSync('packages').map(pkg=>[rollup.rollup({ 
+//   input: { [pkg+'.es']: pkg },
+//   plugins: [
+//     eslint,
+//     alias({
+//       customResolver, entries,
+//     }),
+//     nodeResolve({preferBuiltins: true}),json(),commonjs()
+//   ],
+// }).then(bundle=>bundle.write({ dir: 'lib' })),rollup.rollup({ 
+//   input: { [pkg+'.browser.es']: pkg },
+//   plugins: [eslint,alias({
+//       customResolver, entries,
+//     }),nodeResolve({preferBuiltins:false,browser:true}),json(),commonjs()
+//   ],
+// }).then(bundle=>bundle.write({ dir: 'lib' }))]));
+  
+// updateLibs.then(async () =>
+// (await rollup.rollup({ 
+//   input: fs.readdirSync('lib').map(pathResolve('lib')),
+//   plugins: [
+//     eslint,
+//     alias({
+//       customResolver, entries,
+//     }),
+//     nodeResolve({preferBuiltins: true})
+//   ],
+// })).write({ dir: 'dist/node' }));
+
+Promise.resolve().then(async () =>
+(await rollup.rollup({ 
+  input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg,pkg])),
   plugins: [
     eslint,
     alias({
@@ -31,23 +61,13 @@ const updateLibs = Promise.allSettled(fs.readdirSync('packages').map(pkg=>[rollu
     }),
     nodeResolve({preferBuiltins: true}),json(),commonjs()
   ],
-}).then(bundle=>bundle.write({ dir: 'lib' })),rollup.rollup({ 
-  input: { [pkg+'.browser.es']: pkg },
-  plugins: [eslint,alias({
-      customResolver, entries,
-    }),nodeResolve({preferBuiltins:false,browser:true}),json(),commonjs()
-  ],
-}).then(bundle=>bundle.write({ dir: 'lib' }))]));
-  
-updateLibs.then(async () =>
-(await rollup.rollup({ 
-  input: fs.readdirSync('lib').map(pathResolve('lib')),
+})).write({ dir: 'lib' })).then(async ()=>(await rollup.rollup({ 
+  input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg+'.browser',pkg])),
   plugins: [
     eslint,
     alias({
       customResolver, entries,
     }),
-    nodeResolve({preferBuiltins: true})
+    nodeResolve({preferBuiltins: false,browser:true}),json(),commonjs()
   ],
-})).write({ dir: 'dist/node' }));
-
+})).write({ dir: 'lib' }));
