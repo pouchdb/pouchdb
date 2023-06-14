@@ -47,6 +47,6 @@ export function blobToBase64(blobOrBuffer, callback) {
 
 
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
-// replaces stringMD5 returns hex should also use message.normalize('NFKC')
+// replaces stringMd5 returns hex should also use message.normalize('NFKC')
 export const createoldMD5 = (message="") => import('hash-wasm').then(({ md5 }) => md5(new TextEncoder().encode(message)));
 export const createMD5 = async (message="") => (await import('hash-wasm')).md5(message);
