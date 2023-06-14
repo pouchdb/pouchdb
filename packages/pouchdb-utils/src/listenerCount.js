@@ -1,4 +1,4 @@
-import EE from 'events';
+import EE from 'node:events';
 
 function listenerCount(ee, type) {
   return 'listenerCount' in ee ? ee.listenerCount(type) :

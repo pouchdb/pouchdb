@@ -1,7 +1,7 @@
 // 'use strict'; is default when ESM
 
 import PouchDB from './constructor';
-import EE from 'events';
+import EE from 'node:events';
 import { fetch } from 'pouchdb-fetch';
 import ActiveTasks from './active-tasks';
 import { createClass } from './utils';

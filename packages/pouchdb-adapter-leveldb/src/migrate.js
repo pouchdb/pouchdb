@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import path from 'path';
+import path from 'node:path';
 import { isLocalId, winningRev } from 'pouchdb-merge';
 import level from 'level';
 import { obj as through } from 'through2';

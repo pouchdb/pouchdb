@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import hasLocalStorage from './env/hasLocalStorage';
 import pick from './pick';
 import nextTick from './nextTick';

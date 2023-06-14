@@ -1,4 +1,4 @@
-import events from 'events';
+import events from 'node:events';
 import NotFoundError from './NotFoundError';
 
 var EventEmitter = events.EventEmitter;

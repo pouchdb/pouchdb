@@ -1,5 +1,5 @@
 import { rev, guardedConsole, isRemote } from 'pouchdb-utils';
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import Changes from './changes';
 import {
   pick,

@@ -3,7 +3,7 @@ import {
   replicate,
   toPouch
 } from './replicateWrapper';
-import EE from 'events';
+import EE from 'node:events';
 import { clone } from 'pouchdb-utils';
 
 export default sync;

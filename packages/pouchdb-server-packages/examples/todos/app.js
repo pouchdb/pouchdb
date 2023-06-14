@@ -4,7 +4,7 @@
  */
 
 var express = require('express')
-  , path = require('path')
+  , path = require('node:path')
   , morgan = require('morgan');
 
 var app = express();
