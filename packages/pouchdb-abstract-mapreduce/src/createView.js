@@ -1,7 +1,7 @@
 import { upsert } from 'pouchdb-utils';
-import { stringMd5 } from 'pouchdb-md5';
+//import { stringMd5 } from 'pouchdb-md5';
 import createViewSignature from './createViewSignature';
-
+import { stringMd5 } from 'pouchdb-crypto';
 async function createView(sourceDB, viewName, mapFun, reduceFun, temporary, localDocName) {
   const viewSignature = createViewSignature(mapFun, reduceFun);
 
@@ -16,7 +16,7 @@ async function createView(sourceDB, viewName, mapFun, reduceFun, temporary, loca
 
   const promiseForView = sourceDB.info().then(async function (info) {
     const depDbName = info.db_name + '-mrview-' +
-    (temporary ? 'temp' : stringMd5(viewSignature));
+    (temporary ? 'temp' : await stringMd5(viewSignature));
 
     // save the view name in the source db so it can be cleaned up if necessary
     // (e.g. when the _design doc is deleted, remove all associated view data)
