@@ -43,7 +43,14 @@ export function blobToBase64(blobOrBuffer, callback) {
 // base642hex new Buffer('yDbs1scfYdqqLpxyFb1gFw==', 'base64').toString('hex')
 // hex2base64 new Buffer('c836ecd6c71f61daaa2e9c7215bd6017', 'hex').toString('base64')
 
-
+export const toBase64 = (blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader;
+    reader.onerror = reject;
+    reader.onload = () => {
+        resolve(reader.result);
+    };
+    reader.readAsDataURL(new Blob([].concat(blob)));
+});
 
 
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
