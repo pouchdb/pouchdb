@@ -23,18 +23,24 @@ const entries = [
 ];
 
 Promise.resolve().then(async () =>
-(await rollup.rollup({ 
+[(await rollup.rollup({ 
   input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg,pkg]).concat(
     fs.readdirSync('packages/pouchdb/src/plugins').map(plg=>['plugin-'+plg,'packages/pouchdb/src/plugins/'+plg])
   )),
   plugins: [
     eslint,
+    {
+      name: 'emit-module-package-file',
+      generateBundle() {
+        this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
+      },
+    },
     alias({
       customResolver, entries,
     }),
     nodeResolve({preferBuiltins: true}), json(), commonjs()
   ],
-})).write({ dir: 'lib' }));
+}))].map(b=>[b.write({ dir: 'lib' })]));
 
 // .then(async ()=>(await rollup.rollup({ 
 //   input: Object.fromEntries(fs.readdirSync('packages').map(pkg=>[pkg+'.browser',pkg])),
