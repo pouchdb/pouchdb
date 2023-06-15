@@ -3,10 +3,10 @@ export async function allDocsKeysQuery(api, opts) {
   const finalResults = {
     offset: opts.skip,
     rows: Promise.all(opts.keys.map(async (key) => {
-      const filterOpts = ({limit,skip,keys,...subOpts}) => 
-        Object.assign({key: key, deleted: 'ok'}, subOpts);
-            
-      api._allDocs(filterOpts(opts), function (err, res) {
+      const filterOpts = ({limit,skip,keys,...subOpts}) => subOpts;            
+      api._allDocs(Object.assign(
+        {key: key, deleted: 'ok'}, filterOpts(opts)
+      ), (err, res) => {
         /* istanbul ignore if */
         if (err) {
           throw new Error(err);
