@@ -1,29 +1,7 @@
 import vm from 'vm';
-import './functionName-56a2e70f.js';
-import 'node:events';
-import 'clone-buffer';
-import './pouchdb-errors.js';
-import 'crypto';
-import { BuiltInError, NotFoundError } from './pouchdb-mapreduce-utils.js';
-import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
-import { s as scopeEval } from './scopeEval-ff3a416d.js';
-import createAbstractMapReduce from './pouchdb-abstract-mapreduce.js';
-import './nextTick-ea093886.js';
-import './flatten-994f45c6.js';
-import './isRemote-2533b7cb.js';
-import './base64StringToBlobOrBuffer-3fd03be6.js';
-import './typedBuffer-a8220a49.js';
-import './index-7f131e04.js';
-import './fetch-ad491323.js';
-import 'stream';
-import 'http';
-import 'url';
-import 'punycode';
-import 'https';
-import 'zlib';
-import 'fetch-cookie';
-import './upsert-331b6913.js';
-import './pouchdb-crypto.js';
+import { BuiltInError, NotFoundError } from 'pouchdb-mapreduce-utils';
+import { guardedConsole, scopeEval } from 'pouchdb-utils';
+import abstractMapReduce from 'pouchdb-abstract-mapreduce';
 
 function createBuiltInError(name) {
   var message = 'builtin ' + name +
@@ -216,7 +194,7 @@ function ddocValidator(ddoc, viewName) {
 }
 
 var localDocName = 'mrviews';
-var abstract = createAbstractMapReduce(localDocName, mapper, reducer, ddocValidator);
+var abstract = abstractMapReduce(localDocName, mapper, reducer, ddocValidator);
 
 function query(fun, opts, callback) {
   return abstract.query.call(this, fun, opts, callback);
@@ -226,9 +204,9 @@ function viewCleanup(callback) {
   return abstract.viewCleanup.call(this, callback);
 }
 
-var mapreduce = {
+var index = {
   query: query,
   viewCleanup: viewCleanup
 };
 
-export { mapreduce as default };
+export { index as default };

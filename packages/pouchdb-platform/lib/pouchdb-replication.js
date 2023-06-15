@@ -1,25 +1,8 @@
-import { defaultBackOff, uuid, filterChange } from './pouchdb-utils.js';
-import './functionName-56a2e70f.js';
+import { clone, flatten, isRemote, defaultBackOff, uuid, filterChange, nextTick } from 'pouchdb-utils';
+import checkpointer from 'pouchdb-checkpointer';
+import generateReplicationId from 'pouchdb-generate-replication-id';
+import { createError, BAD_REQUEST } from 'pouchdb-errors';
 import EE from 'node:events';
-import { c as clone } from './clone-3530a126.js';
-import { createError, BAD_REQUEST } from './pouchdb-errors.js';
-import { f as flatten } from './flatten-994f45c6.js';
-import { i as isRemote } from './isRemote-2533b7cb.js';
-import 'crypto';
-import Checkpointer from './pouchdb-checkpointer.js';
-import 'clone-buffer';
-import generateReplicationId from './pouchdb-generate-replication-id.js';
-import { n as nextTick } from './nextTick-ea093886.js';
-import './rev-591f7bff.js';
-import './stringMd5-15f53eba.js';
-import './guardedConsole-f54e5a40.js';
-import './normalizeDdocFunctionName-ea3481cf.js';
-import './once-de8350b9.js';
-import './scopeEval-ff3a416d.js';
-import './toPromise-42fa3440.js';
-import './upsert-331b6913.js';
-import './index-7f131e04.js';
-import './binaryMd5-601b2421.js';
 
 function fileHasChanged(localDoc, remoteDoc, filename) {
   return !localDoc._attachments ||
@@ -204,7 +187,7 @@ function replicate(src, target, opts, returnValue, result) {
   var doc_ids = opts.doc_ids;
   var selector = opts.selector;
   var repId;
-  var checkpointer;
+  var checkpointer$1;
   var changedDocs = [];
   // Like couchdb, every replication gets a unique session id
   var session = uuid();
@@ -223,7 +206,7 @@ function replicate(src, target, opts, returnValue, result) {
   returnValue.ready(src, target);
 
   function initCheckpointer() {
-    if (checkpointer) {
+    if (checkpointer$1) {
       return Promise.resolve();
     }
     return generateReplicationId(src, target, opts).then(function (res) {
@@ -240,7 +223,7 @@ function replicate(src, target, opts, returnValue, result) {
         checkpointOpts = { writeSourceCheckpoint: true, writeTargetCheckpoint: true };
       }
 
-      checkpointer = new Checkpointer(src, target, repId, returnValue, checkpointOpts);
+      checkpointer$1 = new checkpointer(src, target, repId, returnValue, checkpointOpts);
     });
   }
 
@@ -326,7 +309,7 @@ function replicate(src, target, opts, returnValue, result) {
       });
     });
 
-    return checkpointer.writeCheckpoint(currentBatch.seq,
+    return checkpointer$1.writeCheckpoint(currentBatch.seq,
         session).then(function () {
       returnValue.emit('checkpoint', { 'checkpoint': currentBatch.seq });
       writingCheckpoint = false;
@@ -549,7 +532,7 @@ function replicate(src, target, opts, returnValue, result) {
       // update the checkpoint so we start from the right seq next time
       if (!currentBatch && changes.results.length === 0) {
         writingCheckpoint = true;
-        checkpointer.writeCheckpoint(changes.last_seq,
+        checkpointer$1.writeCheckpoint(changes.last_seq,
             session).then(function () {
           writingCheckpoint = false;
           result.last_seq = last_seq = changes.last_seq;
@@ -635,7 +618,7 @@ function replicate(src, target, opts, returnValue, result) {
         completeReplication();
         return;
       }
-      return checkpointer.getCheckpoint().then(createTask).then(function (checkpoint) {
+      return checkpointer$1.getCheckpoint().then(createTask).then(function (checkpoint) {
         last_seq = checkpoint;
         initial_last_seq = checkpoint;
         changesOpts = {
@@ -703,7 +686,7 @@ function replicate(src, target, opts, returnValue, result) {
   } else {
     initCheckpointer().then(function () {
       writingCheckpoint = true;
-      return checkpointer.writeCheckpoint(opts.since, session);
+      return checkpointer$1.writeCheckpoint(opts.since, session);
     }).then(function () {
       writingCheckpoint = false;
       /* istanbul ignore if */

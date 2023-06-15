@@ -1,26 +1,10 @@
-import './functionName-56a2e70f.js';
-import 'node:events';
-import { n as nextTick } from './nextTick-ea093886.js';
-import 'clone-buffer';
-import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
-import { generateErrorFromResponse } from './pouchdb-errors.js';
-import { f as flatten } from './flatten-994f45c6.js';
-import { i as isRemote } from './isRemote-2533b7cb.js';
-import 'crypto';
-import { b as b64ToBluffer } from './base64StringToBlobOrBuffer-3fd03be6.js';
-import { c as collate, t as toIndexableString, n as normalizeKey, p as parseIndexableString } from './index-7f131e04.js';
-import { H as Headers } from './fetch-ad491323.js';
-import { u as upsert } from './upsert-331b6913.js';
-import { stringMd5 } from './pouchdb-crypto.js';
-import { promisedCallback, callbackify, mapToKeysArray, sequentialize, fin, NotFoundError, QueryParseError, uniq, BuiltInError } from './pouchdb-mapreduce-utils.js';
-import './typedBuffer-a8220a49.js';
-import 'stream';
-import 'http';
-import 'url';
-import 'punycode';
-import 'https';
-import 'zlib';
-import 'fetch-cookie';
+import { upsert, isRemote, nextTick, flatten, guardedConsole } from 'pouchdb-utils';
+import { base64StringToBlobOrBuffer } from 'pouchdb-binary-utils';
+import { collate, toIndexableString, normalizeKey, parseIndexableString } from 'pouchdb-collate';
+import { generateErrorFromResponse } from 'pouchdb-errors';
+import { Headers } from 'pouchdb-fetch';
+import { stringMd5 } from 'pouchdb-crypto';
+import { callbackify, mapToKeysArray, sequentialize, promisedCallback, fin, NotFoundError, QueryParseError, uniq, BuiltInError } from 'pouchdb-mapreduce-utils';
 
 /*
  * Simple task queue to sequentialize actions. Assumes
@@ -253,7 +237,7 @@ function createAbstractMapReduce(localDocName, mapper, reducer, ddocValidator) {
       }
       Object.keys(atts).forEach(function (filename) {
         const att = atts[filename];
-        atts[filename].data = b64ToBluffer(att.data, att.content_type);
+        atts[filename].data = base64StringToBlobOrBuffer(att.data, att.content_type);
       });
     });
   }

@@ -1,64 +1,15 @@
-import { o as obj, L as LevelPouch$1 } from './index-a2dd8350.js';
+import CoreLevelPouch from 'pouchdb-adapter-leveldb-core';
 import fs from 'node:fs';
 import path from 'node:path';
-import { w as winningRev } from './rootToLeaf-f8d0e78a.js';
-import './functionName-56a2e70f.js';
-import 'node:events';
-import 'clone-buffer';
-import './pouchdb-errors.js';
-import 'crypto';
-import { a as isLocalId } from './isLocalId-d067de54.js';
+import { isLocalId, winningRev } from 'pouchdb-merge';
 import level from 'level';
+import { o as obj } from './through2-358f03fa.js';
 import LevelWriteStream from 'level-write-stream';
-import 'levelup';
-import './sublevel-pouchdb.js';
-import 'ltgt';
-import 'level-codec';
-import './_commonjsHelpers-7d1333e8.js';
 import 'stream';
+import './_commonjsHelpers-7d1333e8.js';
 import 'events';
 import 'buffer';
 import 'util';
-import 'double-ended-queue';
-import './pouchdb-core.js';
-import './fetch-ad491323.js';
-import 'http';
-import 'url';
-import 'punycode';
-import 'https';
-import 'zlib';
-import 'fetch-cookie';
-import './rev-591f7bff.js';
-import './stringMd5-15f53eba.js';
-import './nextTick-ea093886.js';
-import './clone-3530a126.js';
-import './guardedConsole-f54e5a40.js';
-import './isRemote-2533b7cb.js';
-import './upsert-331b6913.js';
-import './once-de8350b9.js';
-import './collectConflicts-ad0b7c70.js';
-import './findPathToLeaf-7e69c93c.js';
-import 'pouchdb-utils.js';
-import './pouchdb-changes-filter.js';
-import './normalizeDdocFunctionName-ea3481cf.js';
-import './matches-selector-02a28973.js';
-import './index-7f131e04.js';
-import 'vm';
-import './pouchdb-utils.js';
-import './flatten-994f45c6.js';
-import './scopeEval-ff3a416d.js';
-import './toPromise-42fa3440.js';
-import './allDocsKeysQuery-9ff66512.js';
-import './parseDoc-a0994e12.js';
-import './latest-0521537f.js';
-import './binaryStringToBlobOrBuffer-39ece35b.js';
-import './typedBuffer-a8220a49.js';
-import './binaryMd5-601b2421.js';
-import './processDocs-2980e64a.js';
-import './merge-1e46cced.js';
-import './revExists-12209d1c.js';
-import './safeJsonStringify-a65d9a0c.js';
-import 'vuvuzela';
 
 // require leveldown. provide verbose output on error as it is the default
 // nodejs adapter, which we do not provide for the user
@@ -298,7 +249,7 @@ function LevelDownPouch(opts, callback) {
     migrate: migrate
   }, opts);
 
-  LevelPouch$1.call(this, _opts, callback);
+  CoreLevelPouch.call(this, _opts, callback);
 }
 
 // overrides for normal LevelDB behavior on Node
@@ -307,8 +258,8 @@ LevelDownPouch.valid = function () {
 };
 LevelDownPouch.use_prefix = false;
 
-function LevelPouch (PouchDB) {
+function index (PouchDB) {
   PouchDB.adapter('leveldb', LevelDownPouch, true);
 }
 
-export { LevelPouch as default };
+export { index as default };

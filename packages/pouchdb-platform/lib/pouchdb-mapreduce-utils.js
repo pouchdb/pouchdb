@@ -1,9 +1,4 @@
-import './functionName-56a2e70f.js';
-import 'node:events';
-import { n as nextTick } from './nextTick-ea093886.js';
-import 'clone-buffer';
-import './pouchdb-errors.js';
-import 'crypto';
+import { nextTick } from 'pouchdb-utils';
 
 class QueryParseError extends Error {
   constructor(message) {

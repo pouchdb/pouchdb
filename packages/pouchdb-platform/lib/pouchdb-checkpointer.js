@@ -1,9 +1,5 @@
-import './functionName-56a2e70f.js';
-import 'node:events';
-import 'clone-buffer';
-import './pouchdb-errors.js';
-import 'crypto';
-import { c as collate } from './index-7f131e04.js';
+import { explainError } from 'pouchdb-utils';
+import { collate } from 'pouchdb-collate';
 
 var CHECKPOINT_VERSION = 1;
 var REPLICATOR = "pouchdb";
@@ -20,7 +16,11 @@ var LOWEST_SEQ = 0;
 function updateCheckpoint(db, id, checkpoint, session, returnValue) {
   return db.get(id).catch(function (err) {
     if (err.status === 404) {
-      if (db.adapter === 'http' || db.adapter === 'https') ;
+      if (db.adapter === 'http' || db.adapter === 'https') {
+        explainError(
+          404, 'PouchDB is just checking if a remote checkpoint exists.'
+        );
+      }
       return {
         session_id: session,
         _id: id,

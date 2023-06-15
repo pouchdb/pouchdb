@@ -1,3 +1,0 @@
-const server = {};
-
-export { server };
