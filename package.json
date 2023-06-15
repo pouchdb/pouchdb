@@ -4,9 +4,6 @@
   "homepage": "http://pouchdb.com/",
   "license": "Apache-2.0",
   "private": true,
-  "workspaces": [
-    "packages"
-  ],
   "scripts": {
     "build": "echo build?",
     "sbuild": "npm run build-modules && npm run build-test",
