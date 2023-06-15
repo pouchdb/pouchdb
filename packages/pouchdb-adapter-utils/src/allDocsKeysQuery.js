@@ -21,7 +21,6 @@ export async function allDocsKeysQuery(api, opts) {
         finalResults.total_rows = res.total_rows;
         resolve(res.rows[0] || {key: key, error: 'not_found'});
       });
-    
     })),
   };
   
