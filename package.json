@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "private": true,
   "workspaces": [
-    "packages/**/*"
+    "packages"
   ],
   "scripts": {
     "build": "echo build?",

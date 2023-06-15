@@ -1,6 +1,7 @@
 {
     "name": "pouchdb-lib",
     "main": "src/channel.js",
+    "workspaces": ["../../"],
     "devDependencies": {
         "@rollup/plugin-alias": "5.0.0",
         "@rollup/plugin-commonjs": "25.0.1",
