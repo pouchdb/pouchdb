@@ -37,6 +37,8 @@ const entries = [
 //     nodeResolve({preferBuiltins: false, browser: true}), json(), commonjs()
 //   ],
 // })).write({ dir: 'lib', }));
+const me_is_great = "";
+me_is_great;
 const input = Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,pkg]).concat(
   fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>[`pouchdb-plugin-${plg.slice(-3)}`,'../../packages/pouchdb/src/plugins/'+plg])
 ).concat([
@@ -50,7 +52,10 @@ module.exports = [{
       name: 'emit-module-package-file',
       generateBundle() {
         this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
-        this.emitFile({ fileName: 'index.js', source: `const input = ${JSON.stringify(input)}`, type: 'asset' });
+        this.emitFile({ fileName: 'index.js', 
+        source: `${Object.keys(input).map((key) => `import ${key} from '${key}.js';\n`)}
+        
+        `, type: 'asset' });
       },
     },
     alias({
