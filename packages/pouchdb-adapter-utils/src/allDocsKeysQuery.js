@@ -1,4 +1,4 @@
-export async function allDocsKeysQuery(api, {limit,skip: offset ,keys,...subOpts}) {
+export async function allDocsKeysQuery(api, {limit, skip: offset ,keys,...subOpts}) {
   
   const finalResults = {
     offset,
