@@ -60,7 +60,8 @@ module.exports = [{
       // dedupe is not needed as we resolve via workspaces
       // Order matters Injection happens via local /node_modules
       modulePaths: ['../','node_modules','../../node_modules'],
-      resolveOnly: module => !module.includes('joker'),
+      // we do not resolve our own modules as this is a platform
+      resolveOnly: module => !module.includes('pouchdb-'),
     }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]
