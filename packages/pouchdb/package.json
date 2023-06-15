@@ -4,7 +4,6 @@
   "description": "PouchDB is a pocket-sized database",
   "main": "./src/index.js",
   "module": "./src/index.js",
-  "workspaces": ["../"],
   "exports": {
     "import": "./src/index.js",
     "require": "./lib/index.js",
