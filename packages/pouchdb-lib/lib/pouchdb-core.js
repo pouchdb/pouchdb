@@ -1,11 +1,34 @@
 import EE from 'node:events';
-import { fetch } from 'pouchdb-fetch';
-import { v4 } from 'uuid';
-import { clone, once, listenerCount, guardedConsole, invalidIdError, rev, bulkGetShim, isRemote, upsert, pick, nextTick, hasLocalStorage } from 'pouchdb-utils';
-import { collectLeaves, isDeleted, collectConflicts, findPathToLeaf, isLocalId, traverseRevTree, rootToLeaf } from 'pouchdb-merge';
-import { createError, UNKNOWN_ERROR, MISSING_DOC, NOT_AN_OBJECT, REV_CONFLICT, INVALID_ID, INVALID_REV, QUERY_PARSE_ERROR, MISSING_BULK_DOCS, BAD_REQUEST } from 'pouchdb-errors';
+import { f as fetch } from './fetch-ad491323.js';
+import { u as uuid_1 } from './functionName-56a2e70f.js';
+import { l as listenerCount, i as invalidIdError, r as rev, b as bulkGet, p as pick, h as hasLocalStorage } from './rev-591f7bff.js';
+import { n as nextTick } from './nextTick-ea093886.js';
+import { c as clone } from './clone-3530a126.js';
+import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
+import { createError, UNKNOWN_ERROR, MISSING_DOC, NOT_AN_OBJECT, REV_CONFLICT, INVALID_ID, INVALID_REV, QUERY_PARSE_ERROR, MISSING_BULK_DOCS, BAD_REQUEST } from './pouchdb-errors.js';
+import { i as isRemote } from './isRemote-2533b7cb.js';
+import { u as upsert } from './upsert-331b6913.js';
+import { o as once } from './once-de8350b9.js';
+import 'crypto';
+import { c as collectLeaves, a as collectConflicts } from './collectConflicts-ad0b7c70.js';
+import { i as isDeleted, a as isLocalId } from './isLocalId-d067de54.js';
+import { t as traverseRevTree, r as rootToLeaf } from './rootToLeaf-f8d0e78a.js';
+import { f as findPathToLeaf } from './findPathToLeaf-7e69c93c.js';
 import { clone as clone$1 } from 'pouchdb-utils.js';
-import pouchChangesFilter from 'pouchdb-changes-filter';
+import 'clone-buffer';
+import applyChangesFilterPlugin from './pouchdb-changes-filter.js';
+import 'stream';
+import 'http';
+import 'url';
+import 'punycode';
+import 'https';
+import 'zlib';
+import 'fetch-cookie';
+import './stringMd5-15f53eba.js';
+import './normalizeDdocFunctionName-ea3481cf.js';
+import './matches-selector-02a28973.js';
+import './index-7f131e04.js';
+import 'vm';
 
 class ActiveTasks {
   constructor() {
@@ -17,7 +40,7 @@ class ActiveTasks {
   }
 
   add(task) {
-    const id = v4();
+    const id = uuid_1.v4();
     this.tasks[id] = {
       id,
       name: task.name,
@@ -667,7 +690,7 @@ class AbstractPouchDB extends BroadcastChannel {
     // small). The http adapter overrides this in order
     // to do a more efficient single HTTP request.
     this.bulkGet = (opts, callback) => {
-      bulkGetShim(this, opts, callback);
+      bulkGet(this, opts, callback);
     };
 
     // compact one document and fire callback
@@ -1517,6 +1540,6 @@ PouchDB.prototype.activeTasks = PouchDB.activeTasks = new ActiveTasks();
 var PouchDB$1 = PouchDB;
 
 // TODO: remove from pouchdb-core (breaking)
-PouchDB$1.plugin(pouchChangesFilter);
+PouchDB$1.plugin(applyChangesFilterPlugin);
 
 export { PouchDB$1 as default };

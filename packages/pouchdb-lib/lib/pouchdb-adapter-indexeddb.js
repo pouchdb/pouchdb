@@ -1,9 +1,31 @@
-import { uuid, filterChange, changesHandler } from 'pouchdb-utils';
-import { createError, IDB_ERROR, MISSING_DOC, UNKNOWN_ERROR, REV_CONFLICT, MISSING_STUB, BAD_ARG } from 'pouchdb-errors';
-import { readAsBinaryString, binaryStringToBlobOrBuffer } from 'pouchdb-binary-utils';
-import { latest, merge, winningRev, compactTree, collectConflicts, traverseRevTree, removeLeafFromTree } from 'pouchdb-merge';
-import { parseDoc } from 'pouchdb-adapter-utils';
-import { binaryMd5 } from 'pouchdb-md5';
+import './functionName-56a2e70f.js';
+import { uuid, filterChange, changesHandler as Changes } from './pouchdb-utils.js';
+import 'clone-buffer';
+import { createError, IDB_ERROR, MISSING_DOC, UNKNOWN_ERROR, REV_CONFLICT, MISSING_STUB, BAD_ARG } from './pouchdb-errors.js';
+import 'node:events';
+import 'crypto';
+import { r as readAsBinaryString } from './readAsBinaryString-06e911ba.js';
+import { l as latest, c as compactTree } from './latest-0521537f.js';
+import { b as binStringToBluffer } from './binaryStringToBlobOrBuffer-39ece35b.js';
+import { p as parseDoc } from './parseDoc-a0994e12.js';
+import { b as binaryMd5 } from './binaryMd5-601b2421.js';
+import { w as winningRev, t as traverseRevTree } from './rootToLeaf-f8d0e78a.js';
+import { m as merge } from './merge-1e46cced.js';
+import { a as collectConflicts } from './collectConflicts-ad0b7c70.js';
+import { r as removeLeafFromRevTree } from './removeLeafFromTree-913b121c.js';
+import './rev-591f7bff.js';
+import './stringMd5-15f53eba.js';
+import './nextTick-ea093886.js';
+import './clone-3530a126.js';
+import './guardedConsole-f54e5a40.js';
+import './flatten-994f45c6.js';
+import './isRemote-2533b7cb.js';
+import './normalizeDdocFunctionName-ea3481cf.js';
+import './once-de8350b9.js';
+import './scopeEval-ff3a416d.js';
+import './toPromise-42fa3440.js';
+import './upsert-331b6913.js';
+import './typedBuffer-a8220a49.js';
 
 // 'use strict'; is default when ESM
 
@@ -803,7 +825,7 @@ function bulkDocs (api, req, opts, metadata, dbOpts, idbChanges, callback) {
       if (binData.error) {
         return Promise.reject(binData.error);
       }
-      attachment.data = binaryStringToBlobOrBuffer(binData, attachment.content_type);
+      attachment.data = binStringToBluffer(binData, attachment.content_type);
     } else {
       binData = attachment.data;
     }
@@ -1614,7 +1636,7 @@ function purge(txn, docId, revs, callback) {
 
     for (const rev of revs) {
       // purge rev from tree
-      doc.rev_tree = removeLeafFromTree(doc.rev_tree, rev);
+      doc.rev_tree = removeLeafFromRevTree(doc.rev_tree, rev);
 
       // assign new revs
       delete doc.revs[rev];
@@ -1651,7 +1673,7 @@ function purge(txn, docId, revs, callback) {
 var ADAPTER_NAME = 'indexeddb';
 
 // TODO: Constructor should be capitalised
-var idbChanges = new changesHandler();
+var idbChanges = new Changes();
 
 // A shared list of database handles
 var openDatabases = {};
@@ -1795,8 +1817,8 @@ IdbPouch.valid = function () {
   return true;
 };
 
-function index (PouchDB) {
+function IndexeddbPouchPlugin (PouchDB) {
   PouchDB.adapter(ADAPTER_NAME, IdbPouch, true);
 }
 
-export { index as default };
+export { IndexeddbPouchPlugin as default };

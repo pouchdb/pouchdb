@@ -55,7 +55,9 @@ module.exports = [{
     alias({
       customResolver, entries,
     }),
-    nodeResolve({preferBuiltins: true}), json(), commonjs()
+    nodeResolve({preferBuiltins: true,
+      modulePaths: ['../','node_modules','../../node_modules'],
+    }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]
 }];

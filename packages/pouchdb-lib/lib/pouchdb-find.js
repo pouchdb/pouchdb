@@ -1,10 +1,31 @@
-import { clone, nextTick, upsert, toPromise, isRemote } from 'pouchdb-utils';
-import { generateErrorFromResponse } from 'pouchdb-errors';
-import { Headers } from 'pouchdb-fetch';
-import { parseField, getFieldFromDoc, setFieldInDoc, matchesSelector, massageSelector, getValue, getKey, compare, filterInMemoryFields } from 'pouchdb-selector-core';
-import abstractMapReduce from 'pouchdb-abstract-mapreduce';
-import { collate } from 'pouchdb-collate';
-import { stringMd5 } from 'pouchdb-crypto';
+import './functionName-56a2e70f.js';
+import 'node:events';
+import 'clone-buffer';
+import { generateErrorFromResponse } from './pouchdb-errors.js';
+import { i as isRemote } from './isRemote-2533b7cb.js';
+import { t as toPromise } from './toPromise-42fa3440.js';
+import 'crypto';
+import { H as Headers } from './fetch-ad491323.js';
+import { c as clone } from './clone-3530a126.js';
+import { p as parseField, g as getFieldFromDoc, s as setFieldInDoc, m as matchesSelector, a as massageSelector, b as getValue, c as getKey, d as compare, f as filterInMemoryFields } from './matches-selector-02a28973.js';
+import { n as nextTick } from './nextTick-ea093886.js';
+import createAbstractMapReduce from './pouchdb-abstract-mapreduce.js';
+import { c as collate } from './index-7f131e04.js';
+import { u as upsert } from './upsert-331b6913.js';
+import { stringMd5 } from './pouchdb-crypto.js';
+import './guardedConsole-f54e5a40.js';
+import './once-de8350b9.js';
+import 'stream';
+import 'http';
+import 'url';
+import 'punycode';
+import 'https';
+import 'zlib';
+import 'fetch-cookie';
+import './flatten-994f45c6.js';
+import './base64StringToBlobOrBuffer-3fd03be6.js';
+import './typedBuffer-a8220a49.js';
+import './pouchdb-mapreduce-utils.js';
 
 // we restucture the supplied JSON considerably, because the official
 // Mango API is very particular about a lot of this stuff, but we like
@@ -496,7 +517,7 @@ function ddocValidator(ddoc, viewName) {
   }
 }
 
-var abstractMapper = abstractMapReduce(
+var abstractMapper = createAbstractMapReduce(
   /* localDocName */ 'indexes',
   mapper,
   reducer,

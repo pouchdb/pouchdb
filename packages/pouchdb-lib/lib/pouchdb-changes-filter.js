@@ -1,7 +1,15 @@
-import { createError, BAD_REQUEST, generateErrorFromResponse, MISSING_DOC } from 'pouchdb-errors';
-import { normalizeDdocFunctionName, isRemote, parseDdocFunctionName } from 'pouchdb-utils';
-import { matchesSelector } from 'pouchdb-selector-core';
+import { createError, BAD_REQUEST, generateErrorFromResponse, MISSING_DOC } from './pouchdb-errors.js';
+import './functionName-56a2e70f.js';
+import 'node:events';
+import 'clone-buffer';
+import { i as isRemote } from './isRemote-2533b7cb.js';
+import { n as normalizeDesignDocFunctionName, p as parseDesignDocFunctionName } from './normalizeDdocFunctionName-ea3481cf.js';
+import 'crypto';
+import { m as matchesSelector } from './matches-selector-02a28973.js';
 import vm from 'vm';
+import './guardedConsole-f54e5a40.js';
+import './clone-3530a126.js';
+import './index-7f131e04.js';
 
 function evalFilter(input) {
   var code = '(function() {\n"use strict";\nreturn ' + input + '\n})()';
@@ -48,9 +56,9 @@ function normalize(opts) {
 
   if (opts.filter && typeof opts.filter === 'string') {
     if (opts.filter === '_view') {
-      opts.view = normalizeDdocFunctionName(opts.view);
+      opts.view = normalizeDesignDocFunctionName(opts.view);
     } else {
-      opts.filter = normalizeDdocFunctionName(opts.filter);
+      opts.filter = normalizeDesignDocFunctionName(opts.filter);
     }
   }
 }
@@ -69,7 +77,7 @@ function filter(changesHandler, opts) {
       return callback(err);
     }
     // fetch a view from a design doc, make it behave like a filter
-    var viewName = parseDdocFunctionName(opts.view);
+    var viewName = parseDesignDocFunctionName(opts.view);
     changesHandler.db.get('_design/' + viewName[0], function (err, ddoc) {
       /* istanbul ignore if */
       if (changesHandler.isCancelled) {
@@ -96,7 +104,7 @@ function filter(changesHandler, opts) {
     changesHandler.doChanges(opts);
   } else {
     // fetch a filter from a design doc
-    var filterName = parseDdocFunctionName(opts.filter);
+    var filterName = parseDesignDocFunctionName(opts.filter);
     changesHandler.db.get('_design/' + filterName[0], function (err, ddoc) {
       /* istanbul ignore if */
       if (changesHandler.isCancelled) {

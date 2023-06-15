@@ -1,5 +1,10 @@
 import FruitdownPouchPlugin from 'pouchdb-adapter-fruitdown';
-import { guardedConsole } from 'pouchdb-utils';
+import './functionName-56a2e70f.js';
+import 'node:events';
+import 'clone-buffer';
+import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
+import './pouchdb-errors.js';
+import 'crypto';
 
 // this code only runs in the browser, as its own dist/ script
 

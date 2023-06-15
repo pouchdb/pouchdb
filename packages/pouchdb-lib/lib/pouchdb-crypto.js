@@ -57,7 +57,7 @@ const toBase64 = (blob) => new Promise((resolve, reject) => {
 
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
-const createoldMD5 = (message="") => import('hash-wasm').then(({ md5 }) => md5(new TextEncoder().encode(message)));
-const stringMd5 = async (message="") => (await import('hash-wasm')).md5(message);
+const createoldMD5 = (message="") => import('./hash-wasm.js').then(({ md5 }) => md5(new TextEncoder().encode(message)));
+const stringMd5 = async (message="") => (await import('./hash-wasm.js')).md5(message);
 
 export { base64encoderStream, blobToBase64, createoldMD5, digestFromMessage, stringMd5, toBase64 };
