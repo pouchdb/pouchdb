@@ -51,7 +51,7 @@ module.exports = [{
       name: 'emit-module-package-file',
       generateBundle() {
         this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
-        this.emitFile({ fileName: 'index.js', 
+        this.emitFile({ fileName: 'index.js', // import * from lib/pouchdb-*
         source: `${Object.keys(input).map((key) => `import ${key.replaceAll('-','_')} from './${key}.js';\n`)}
         
         `, type: 'asset' });
