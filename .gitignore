@@ -17,7 +17,7 @@ tests/pouchdb_server
 tests/performance-bundle.js
 pouchdb-webpack.js
 lib
-!/lib
+!/packages/pouchdb-lib/lib
 lib_unit
 src_browser/
 lerna-debug.log
