@@ -13,7 +13,8 @@ const eslint = require('@rollup/plugin-eslint')({
 //const { resolve } = require('node:path/posix');
 //const pathResolve = (prefix)=>(name) => resolve(prefix,name);
 const customResolver = nodeResolve({
-  modulePaths: ['../../node_modules','node_modules'],
+  // Order matters Injection happens via local /node_modules
+  modulePaths: ['node_modules','../../node_modules'],
   extensions: ['.mjs', '.js', '.jsx', '.json', '.sass', '.scss'],
 });
 
