@@ -1122,4 +1122,6 @@
 //   PouchDB.adapter('http', HttpPouch, false);
 //   PouchDB.adapter('https', HttpPouch, false);
 // }
-export default {}
+var HttpPouch = {};
+
+export { HttpPouch as default };

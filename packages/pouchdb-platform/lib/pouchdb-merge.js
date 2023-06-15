@@ -1,0 +1,14 @@
+export { a as collectConflicts, c as collectLeaves } from './collectConflicts-ad0b7c70.js';
+export { c as compactTree, l as latest } from './latest-0521537f.js';
+export { f as findPathToLeaf } from './findPathToLeaf-7e69c93c.js';
+export { m as merge } from './merge-1e46cced.js';
+export { r as removeLeafFromTree } from './removeLeafFromTree-913b121c.js';
+export { r as revExists } from './revExists-12209d1c.js';
+export { r as rootToLeaf, t as traverseRevTree, w as winningRev } from './rootToLeaf-f8d0e78a.js';
+export { i as isDeleted, a as isLocalId } from './isLocalId-d067de54.js';
+import './functionName-56a2e70f.js';
+import 'crypto';
+import 'node:events';
+import './clone-3530a126.js';
+import 'clone-buffer';
+import './pouchdb-errors.js';
