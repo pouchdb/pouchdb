@@ -4,7 +4,7 @@ export async function allDocsKeysQuery(api, opts) {
     offset: opts.skip,
     rows: await Promise.all(opts.keys.map(async (key) => {
       const filterOpts = ({limit,skip,keys,...subOpts}) => subOpts;            
-      new Promise(resolve => (api._allDocs(Object.assign(
+      await new Promise(resolve => (api._allDocs(Object.assign(
         {key: key, deleted: 'ok'}, filterOpts(opts)
       ), (err, res) => {
         /* istanbul ignore if */
