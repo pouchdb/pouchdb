@@ -40,7 +40,7 @@ const entries = [
 
 module.exports = [{ 
   input: Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,pkg]).concat(
-    fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>['pouchdb-plugin-'+plg.slice(-3),'../../packages/pouchdb/src/plugins/'+plg])
+    fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>[`pouchdb-plugin-${plg.slice(-3)}`,'../../packages/pouchdb/src/plugins/'+plg])
   ).concat([
     ['hash-wasm','hash-wasm']
   ])),

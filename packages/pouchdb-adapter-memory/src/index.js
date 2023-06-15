@@ -15,6 +15,6 @@ MemDownPouch.valid = function () {
 };
 MemDownPouch.use_prefix = false;
 
-export default function (PouchDB) {
+export default function index(PouchDB) {
   PouchDB.adapter('memory', MemDownPouch, true);
 }

@@ -84,8 +84,8 @@ MemDownPouch.valid = function () {
 };
 MemDownPouch.use_prefix = false;
 
-function MemoryPouchPlugin (PouchDB) {
+function index(PouchDB) {
   PouchDB.adapter('memory', MemDownPouch, true);
 }
 
-export { MemoryPouchPlugin as default };
+export { index as default };
