@@ -2,7 +2,7 @@ export async function allDocsKeysQuery(api, opts) {
   var keys = opts.keys;
   var finalResults = {
     offset: opts.skip,
-    rows: keys.map((key) => async () => {
+    rows: Promise.all(keys.map(async (key) => {
       var subOpts = Object.assign({key: key, deleted: 'ok'}, opts);
       ['limit', 'skip', 'keys'].forEach(function (optKey) {
         delete subOpts[optKey];
@@ -21,7 +21,7 @@ export async function allDocsKeysQuery(api, opts) {
           resolve(res.rows[0] || {key: key, error: 'not_found'});
         });
       });
-    }),
+    })),
   };
   
   
