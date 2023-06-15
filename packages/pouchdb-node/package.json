@@ -4,7 +4,7 @@
   "description": "PouchDB, the Node-only edition.",
   "main": "./lib/index.js",
   "module": "./lib/index.es.js",
-  "workspaces": ["../../"],
+  "workspaces": ["../../","../"],
   "exports": {
     "import": "./src/index.js",
     "require": "./lib/index.js",
