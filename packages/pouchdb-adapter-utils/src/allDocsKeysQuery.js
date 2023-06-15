@@ -1,18 +1,18 @@
-export async function allDocsKeysQuery(api, opts) {
+export async function allDocsKeysQuery(api, {limit,skip: offset ,keys,...subOpts}) {
   
   const finalResults = {
-    offset: opts.skip,
+    offset,
     rows: await Promise.all(opts.keys.map(async (key) => {
-      const filterOpts = ({limit,skip,keys,...subOpts}) => subOpts;            
+             
       return await new Promise((resolve) => (api._allDocs(Object.assign(
-        {key: key, deleted: 'ok'}, filterOpts(opts)
+        {key: key, deleted: 'ok'}, subOpts
       ), (err, res) => {
         /* istanbul ignore if */
         if (err) {
           throw new Error(err);
         }
         /* istanbul ignore if */
-        if (opts.update_seq && res.update_seq !== undefined) {
+        if (subOpts.update_seq && res.update_seq !== undefined) {
           finalResults.update_seq = res.update_seq;
         }
         finalResults.total_rows = res.total_rows;
