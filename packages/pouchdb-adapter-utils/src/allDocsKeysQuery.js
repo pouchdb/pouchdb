@@ -3,12 +3,13 @@ export async function allDocsKeysQuery(api, opts) {
   var finalResults = {
     offset: opts.skip
   };
-  return Promise.all(keys.map(function (key) {
+  
+  keys.map(async (key) => {
     var subOpts = Object.assign({key: key, deleted: 'ok'}, opts);
     ['limit', 'skip', 'keys'].forEach(function (optKey) {
       delete subOpts[optKey];
     });
-    return new Promise(function (resolve, reject) {
+    await new Promise(function (resolve, reject) {
       api._allDocs(subOpts, function (err, res) {
         /* istanbul ignore if */
         if (err) {
@@ -22,10 +23,10 @@ export async function allDocsKeysQuery(api, opts) {
         resolve(res.rows[0] || {key: key, error: 'not_found'});
       });
     });
-  })).then(function (results) {
-    finalResults.rows = results;
-    return finalResults;
-  });
+  })
+  finalResults.rows = results;
+  return finalResults;
+  
 }
 
 export default allDocsKeysQuery;
