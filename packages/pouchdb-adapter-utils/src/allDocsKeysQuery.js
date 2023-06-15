@@ -4,7 +4,7 @@ export async function allDocsKeysQuery(api, opts) {
     offset: opts.skip
   };
   
-  keys.map(async (key) => {
+  keys.map((key) => async () => {
     var subOpts = Object.assign({key: key, deleted: 'ok'}, opts);
     ['limit', 'skip', 'keys'].forEach(function (optKey) {
       delete subOpts[optKey];
