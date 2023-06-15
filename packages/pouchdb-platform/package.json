@@ -1,4 +1,5 @@
-{ "main": "./lib/index.js", "module": "./src/index.js", "browser": "./browser.js",
+{ "name": "pouchdb-platform",
+  "main": "./lib/index.js", "module": "./src/index.js", "browser": "./browser.js",
   "exports": {
     "import": "./src/index.js", "require": "./lib/index.js", "browser": "./browser.js"
   }
