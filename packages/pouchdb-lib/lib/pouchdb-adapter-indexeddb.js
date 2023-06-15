@@ -1817,8 +1817,8 @@ IdbPouch.valid = function () {
   return true;
 };
 
-function index (PouchDB) {
+function IndexeddbPouchPlugin (PouchDB) {
   PouchDB.adapter(ADAPTER_NAME, IdbPouch, true);
 }
 
-export { index as default };
+export { IndexeddbPouchPlugin as default };
