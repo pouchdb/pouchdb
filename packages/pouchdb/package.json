@@ -2,7 +2,7 @@
   "name": "pouchdb",
   "version": "7.0.0-prerelease",
   "description": "PouchDB is a pocket-sized database",
-  "main": "./lib/index.js",
+  "main": "./src/index.js",
   "module": "./src/index.js",
   "workspaces": ["../"],
   "exports": {
