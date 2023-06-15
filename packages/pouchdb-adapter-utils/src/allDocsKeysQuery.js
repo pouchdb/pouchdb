@@ -1,5 +1,4 @@
-
-function allDocsKeysQuery(api, opts) {
+export async function allDocsKeysQuery(api, opts) {
   var keys = opts.keys;
   var finalResults = {
     offset: opts.skip
