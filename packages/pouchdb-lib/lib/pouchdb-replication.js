@@ -18,7 +18,7 @@ import './once-de8350b9.js';
 import './scopeEval-ff3a416d.js';
 import './toPromise-42fa3440.js';
 import './upsert-331b6913.js';
-import './index-7f131e04.js';
+import './pouchdb-collate.js';
 import './binaryMd5-601b2421.js';
 
 function fileHasChanged(localDoc, remoteDoc, filename) {

@@ -3,7 +3,7 @@ import 'node:events';
 import 'clone-buffer';
 import './pouchdb-errors.js';
 import 'crypto';
-import { c as collate } from './index-7f131e04.js';
+import { collate } from './pouchdb-collate.js';
 
 var CHECKPOINT_VERSION = 1;
 var REPLICATOR = "pouchdb";

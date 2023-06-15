@@ -5,11 +5,11 @@ import 'clone-buffer';
 import { i as isRemote } from './isRemote-2533b7cb.js';
 import { n as normalizeDesignDocFunctionName, p as parseDesignDocFunctionName } from './normalizeDdocFunctionName-ea3481cf.js';
 import 'crypto';
-import { m as matchesSelector } from './matches-selector-02a28973.js';
+import { m as matchesSelector } from './matches-selector-db0b5c42.js';
 import vm from 'vm';
 import './guardedConsole-f54e5a40.js';
 import './clone-3530a126.js';
-import './index-7f131e04.js';
+import './pouchdb-collate.js';
 
 function evalFilter(input) {
   var code = '(function() {\n"use strict";\nreturn ' + input + '\n})()';

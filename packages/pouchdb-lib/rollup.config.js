@@ -42,7 +42,7 @@ const input = Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,
   fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>[`pouchdb-plugin-${plg.slice(-3)}`,'../../packages/pouchdb/src/plugins/'+plg])
 ).concat([
   ['hash-wasm','hash-wasm']
-]));
+]).filter((entrie)=>entrie[0].startsWith('pouchdb')));
 module.exports = [{ 
   input,
   plugins: [
@@ -52,9 +52,10 @@ module.exports = [{
       generateBundle() {
         this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
         this.emitFile({ fileName: 'index.js', // index.js exports lib/pouchdb-*.js
-        source: `${Object.keys(input).map((key) => `export * as ${
-          key.replaceAll('-','_')} from './${key}.js';\n`)
-        }`, type: 'asset' });
+          source: `${Object.keys(input).map((key) => 
+          `export * as ${key.replaceAll('-','_')} from './${key}.js';\n`)}`,
+           type: 'asset' 
+        });
       },
     },
     alias({

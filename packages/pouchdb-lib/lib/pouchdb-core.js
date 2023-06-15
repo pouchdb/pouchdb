@@ -40,8 +40,8 @@ import 'node:vm';
 import 'node:path';
 import 'node:os';
 import './normalizeDdocFunctionName-ea3481cf.js';
-import './matches-selector-02a28973.js';
-import './index-7f131e04.js';
+import './matches-selector-db0b5c42.js';
+import './pouchdb-collate.js';
 import 'vm';
 
 class ActiveTasks {

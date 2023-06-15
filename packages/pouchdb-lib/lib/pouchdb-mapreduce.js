@@ -13,7 +13,7 @@ import './flatten-994f45c6.js';
 import './isRemote-2533b7cb.js';
 import './base64StringToBlobOrBuffer-3fd03be6.js';
 import './typedBuffer-a8220a49.js';
-import './index-7f131e04.js';
+import './pouchdb-collate.js';
 import './fetch-ad491323.js';
 import 'stream';
 import 'http';

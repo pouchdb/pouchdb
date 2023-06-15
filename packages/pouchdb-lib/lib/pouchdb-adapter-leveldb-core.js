@@ -1,6 +1,5 @@
 import 'levelup';
-import './index-1b39f5b0.js';
-export { L as default } from './index-1f480111.js';
+export { L as default } from './index-a3730a19.js';
 import 'double-ended-queue';
 import './pouchdb-core.js';
 import './pouchdb-utils.js';
@@ -59,8 +58,8 @@ import './findPathToLeaf-7e69c93c.js';
 import 'pouchdb-utils.js';
 import './pouchdb-changes-filter.js';
 import './normalizeDdocFunctionName-ea3481cf.js';
-import './matches-selector-02a28973.js';
-import './index-7f131e04.js';
+import './matches-selector-db0b5c42.js';
+import './pouchdb-collate.js';
 import 'vm';
 import './flatten-994f45c6.js';
 import './scopeEval-ff3a416d.js';
