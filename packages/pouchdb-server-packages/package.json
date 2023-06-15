@@ -2,7 +2,6 @@
   "name": "pouchdb-server-packages",
   "private": true,
   "version": "4.2.0",
-  "workspaces":[ "./**/*" ],
   "module": "src/index.js",
   "scripts": {
     "unit-tests": "./bin/unit-tests.sh",
