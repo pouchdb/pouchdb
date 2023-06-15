@@ -1,6 +1,5 @@
 import { v4 } from 'uuid';
 
-import adapterFun from './adapterFun';
 import bulkGetShim from './bulkGetShim';
 import changesHandler from './changesHandler';
 import clone from './clone';
@@ -29,7 +28,6 @@ import rev from './rev';
 var uuid = v4; // mimic old import, only v4 is ever used elsewhere
 
 export {
-  adapterFun,
   assign,
   bulkGetShim,
   changesHandler,

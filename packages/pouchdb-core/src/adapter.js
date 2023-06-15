@@ -2,7 +2,6 @@ import { rev, guardedConsole, isRemote } from 'pouchdb-utils';
 import Changes from './changes.js';
 import {
   pick,
-  adapterFun,
   upsert,
   bulkGetShim,
   invalidIdError,
@@ -30,6 +29,13 @@ import {
   INVALID_REV,
   createError
 } from 'pouchdb-errors';
+
+/**
+ * About Adapter FUN it is not funny 
+ * we can use new Proxy to get all calls or we simple use 
+ * the new message bassed api which can log for obvious reaasons
+ */
+
 
 /*
  * A generic pouch adapter
@@ -187,7 +193,7 @@ function attachmentNameError(name) {
 
 class AbstractPouchDB extends BroadcastChannel {
   _setup() {
-    this.post = adapterFun('post', (doc, opts, callback) => {
+    this.post = (doc, opts, callback) => {
       if (typeof opts === 'function') {
         callback = opts;
         opts = {};
@@ -196,9 +202,9 @@ class AbstractPouchDB extends BroadcastChannel {
         return callback(createError(NOT_AN_OBJECT));
       }
       this.bulkDocs({docs: [doc]}, opts, yankError(callback, doc._id));
-    });
+    };
 
-    this.put = adapterFun('put', (doc, opts, cb) => {
+    this.put = (doc, opts, cb) => {
       if (typeof opts === 'function') {
         cb = opts;
         opts = {};
@@ -248,9 +254,9 @@ class AbstractPouchDB extends BroadcastChannel {
         doc._rev = `${newRevNum}-${newRevId}`;
         opts.new_edits = false;
       }
-    });
+    };
 
-    this.putAttachment = adapterFun('putAttachment', function (docId, attachmentId, rev, blob, type) {
+    this.putAttachment = (docId, attachmentId, rev, blob, type) => {
       const api = this;
       if (typeof type === 'function') {
         type = blob;
@@ -294,9 +300,9 @@ class AbstractPouchDB extends BroadcastChannel {
           throw err;
         }
       });
-    }).bind(this);
+    };
 
-    this.removeAttachment = adapterFun('removeAttachment', (docId, attachmentId, rev, callback) => {
+    this.removeAttachment = (docId, attachmentId, rev, callback) => {
       this.get(docId, (err, obj) => {
         /* istanbul ignore if */
         if (err) {
@@ -317,9 +323,9 @@ class AbstractPouchDB extends BroadcastChannel {
         }
         this.put(obj, callback);
       });
-    });
+    };
 
-    this.remove = adapterFun('remove', (docOrId, optsOrRev, opts, callback) => {
+    this.remove = (docOrId, optsOrRev, opts, callback) => {
       let doc;
       if (typeof optsOrRev === 'string') {
         // id, rev, opts, callback style
@@ -350,9 +356,9 @@ class AbstractPouchDB extends BroadcastChannel {
         return this._removeLocal(doc, callback);
       }
       this.bulkDocs({docs: [newDoc]}, opts, yankError(callback, newDoc._id));
-    });
+    };
 
-    this.revsDiff = adapterFun('revsDiff', (req, opts, callback) => {
+    this.revsDiff = (req, opts, callback) => {
       if (typeof opts === 'function') {
         callback = opts;
         opts = {};
@@ -418,7 +424,7 @@ class AbstractPouchDB extends BroadcastChannel {
           }
         });
       }, this);
-    });
+    };
 
     // _bulk_get API for faster replication, as described in
     // https://github.com/apache/couchdb-chttpd/pull/33
@@ -427,14 +433,14 @@ class AbstractPouchDB extends BroadcastChannel {
     // for local databases (except the cost of multiple transactions, which is
     // small). The http adapter overrides this in order
     // to do a more efficient single HTTP request.
-    this.bulkGet = adapterFun('bulkGet', (opts, callback) => {
+    this.bulkGet = (opts, callback) => {
       bulkGetShim(this, opts, callback);
-    });
+    };
 
     // compact one document and fire callback
     // by compacting we mean removing all revisions which
     // are further from the leaf in revision tree than max_height
-    this.compactDocument = adapterFun('compactDocument', function (docId, maxHeight, callback) {
+    this.compactDocument = (docId, maxHeight, callback) => {
       this._getRevisionTree(docId, (err, revTree) => {
         /* istanbul ignore if */
         if (err) {
@@ -457,11 +463,11 @@ class AbstractPouchDB extends BroadcastChannel {
         });
         this._doCompaction(docId, revs, callback);
       });
-    }).bind(this);
+    };
 
     // compact the whole database using single document
     // compaction
-    this.compact = adapterFun('compact', function (opts, callback) {
+    this.compact = (opts, callback) => {
       if (typeof opts === 'function') {
         callback = opts;
         opts = {};
@@ -474,10 +480,10 @@ class AbstractPouchDB extends BroadcastChannel {
       if (this._compactionQueue.length === 1) {
         doNextCompaction(this);
       }
-    }).bind(this);
+    };
 
     /* Begin api wrappers. Specific functionality to storage belongs in the _[method] */
-    this.get = adapterFun('get', function (id, opts, cb) {
+    this.get = (id, opts, cb) => {
       if (typeof opts === 'function') {
         cb = opts;
         opts = {};
@@ -665,12 +671,12 @@ class AbstractPouchDB extends BroadcastChannel {
           cb(null, doc);
         }
       });
-    });
+    };
 
     // TODO: I dont like this, it forces an extra read for every
     // attachment read and enforces a confusing api between
     // adapter.js and the adapter implementation
-    this.getAttachment = adapterFun('getAttachment', (docId, attachmentId, opts, callback) => {
+    this.getAttachment = (docId, attachmentId, opts, callback) => {
       if (opts instanceof Function) {
         callback = opts;
         opts = {};
@@ -688,9 +694,9 @@ class AbstractPouchDB extends BroadcastChannel {
           return callback(createError(MISSING_DOC));
         }
       });
-    });
+    };
 
-    this.allDocs = adapterFun('allDocs', (opts, callback) => {
+    this.allDocs = (opts, callback) => {
       if (typeof opts === 'function') {
         callback = opts;
         opts = {};
@@ -723,15 +729,15 @@ class AbstractPouchDB extends BroadcastChannel {
       }
 
       return this._allDocs(opts, callback);
-    });
+    };
 
-    this.close = adapterFun('close', (callback) => {
+    this.close = (callback) => {
       this._closed = true;
       this.postMessage('closed');
       return this._close(callback);
-    });
+    };
 
-    this.info = adapterFun('info', function (callback) {
+    this.info = function (callback) {
       this._info((err, info) => {
         if (err) {
           return callback(err);
@@ -742,13 +748,13 @@ class AbstractPouchDB extends BroadcastChannel {
         info.adapter = this.adapter;
         callback(null, info);
       });
-    }).bind(this);
+    };
 
-    this.id = adapterFun('id', function (callback) {
+    this.id = (callback) => {
       return this._id(callback);
-    }).bind(this);
+    };
 
-    this.bulkDocs = adapterFun('bulkDocs', function (req, opts, callback) {
+    this.bulkDocs = (req, opts, callback) => {
       if (typeof opts === 'function') {
         callback = opts;
         opts = {};
@@ -827,9 +833,9 @@ class AbstractPouchDB extends BroadcastChannel {
 
         callback(null, res);
       });
-    }).bind(this);
+    };
 
-    this.registerDependentDatabase = adapterFun('registerDependentDatabase', function (dependentDb, callback) {
+    this.registerDependentDatabase = (dependentDb, callback) => {
       const dbOptions = clone(this.__opts);
       if (this.__opts.view_adapter) {
         dbOptions.adapter = this.__opts.view_adapter;
@@ -848,9 +854,9 @@ class AbstractPouchDB extends BroadcastChannel {
       upsert(this, '_local/_pouch_dependentDbs', diffFun).then(() => {
         callback(null, {db: depDB});
       }).catch(callback);
-    }).bind(this);
+    };
 
-    this.destroy = adapterFun('destroy', function (opts, callback) {
+    this.destroy = (opts, callback) => {
 
       if (typeof opts === 'function') {
         callback = opts;
@@ -896,7 +902,7 @@ class AbstractPouchDB extends BroadcastChannel {
         });
         Promise.all(deletedMap).then(destroyDb, callback);
       });
-    }).bind(this);
+    };
   }
 
   _compact({last_seq}, callback) {
@@ -969,7 +975,7 @@ class AbstractPouchDB extends BroadcastChannel {
 
 // The abstract purge implementation expects a doc id and the rev of a leaf node in that doc.
 // It will return errors if the rev doesn’t exist or isn’t a leaf.
-AbstractPouchDB.prototype.purge = adapterFun('_purge', function (docId, rev, callback) {
+AbstractPouchDB.prototype.purge = (docId, rev, callback) => {
   if (typeof this._purge === 'undefined') {
     return callback(createError(UNKNOWN_ERROR, 
       `Purge is not implemented in the ${this.adapter} adapter.`
@@ -998,6 +1004,6 @@ AbstractPouchDB.prototype.purge = adapterFun('_purge', function (docId, rev, cal
       }
     });
   });
-});
+};
 
 export default AbstractPouchDB;
