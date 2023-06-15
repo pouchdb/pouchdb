@@ -39,7 +39,7 @@ const entries = [
 // })).write({ dir: 'lib', }));
 
 module.exports = [{ 
-  input: Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,pkg]).concat(
+  input: Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,`../../packages/${pkg}/src/index.js`]).concat(
     fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>['plugin-'+plg,'../../packages/pouchdb/src/plugins/'+plg])
   ).concat([
     ['hash-wasm','hash-wasm']
@@ -61,7 +61,7 @@ module.exports = [{
       // Order matters Injection happens via local /node_modules
       modulePaths: ['../','node_modules','../../node_modules'],
       // we do not resolve our own modules as this is a platform
-      //resolveOnly: module => !module.includes('pouchdb-'),
+      resolveOnly: module => !module.includes('pouchdb-'),
     }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]
