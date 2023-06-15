@@ -1,12 +1,13 @@
 export async function allDocsKeysQuery(api, opts) {
-  var keys = opts.keys;
-  var finalResults = {
+  const keys = opts.keys;
+  const finalResults = {
     offset: opts.skip,
     rows: Promise.all(keys.map(async (key) => {
       var subOpts = Object.assign({key: key, deleted: 'ok'}, opts);
-      ['limit', 'skip', 'keys'].forEach((optKey) => {
-        delete subOpts[optKey];
-      });
+      
+      delete subOpts['limit'];
+      delete subOpts['skip'];
+      delete subOpts['keys'];
       
       api._allDocs(subOpts, function (err, res) {
         /* istanbul ignore if */
@@ -24,8 +25,6 @@ export async function allDocsKeysQuery(api, opts) {
     })),
   };
   
-  
-  finalResults.rows = results;
   return finalResults;
   
 }
