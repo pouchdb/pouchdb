@@ -1,5 +1,5 @@
 import { o as obj, L as LevelPouch$1 } from './index-0631c880.js';
-import fs from 'node:fs';
+import fs from 'pouchdb-platform';
 import path from 'node:path';
 import { w as winningRev } from './rootToLeaf-f8d0e78a.js';
 import './functionName-56a2e70f.js';

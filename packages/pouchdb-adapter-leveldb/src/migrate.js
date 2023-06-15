@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs from 'pouchdb-platform';
 import path from 'node:path';
 import { isLocalId, winningRev } from 'pouchdb-merge';
 import level from 'level';
