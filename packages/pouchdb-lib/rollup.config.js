@@ -52,7 +52,7 @@ module.exports = [{
       generateBundle() {
         this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
         this.emitFile({ fileName: 'index.js', 
-        source: `${Object.keys(input).map((key) => `import ${key.replaceAll('-','_')} from '${key}.js';\n`)}
+        source: `${Object.keys(input).map((key) => `import ${key.replaceAll('-','_')} from './${key}.js';\n`)}
         
         `, type: 'asset' });
       },
