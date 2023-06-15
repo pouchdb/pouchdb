@@ -46,6 +46,12 @@ We're always looking for new contributors! If you'd like to try your hand at wri
 
 If you have a pull request that you'd like to submit, please read the [contributing guide](https://github.com/pouchdb/pouchdb/blob/master/CONTRIBUTING.md) for info on style, commit message format, and other (slightly!) nitpicky things like that. PouchDB is heavily tested, so you'll also want to check out the [testing guide](https://github.com/pouchdb/pouchdb/blob/master/TESTING.md).
 
-
+```sh
 git clone this
 npm --prefix ./packages install
+# or
+cd packages
+npm install
+cd packages/pouchdb-lib/
+rollup -c
+```
