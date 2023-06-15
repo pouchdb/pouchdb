@@ -2,9 +2,9 @@ export async function allDocsKeysQuery(api, opts) {
   
   const finalResults = {
     offset: opts.skip,
-    rows: Promise.all(opts.keys.map(async (key) => {
+    rows: await Promise.all(opts.keys.map(async (key) => {
       const filterOpts = ({limit,skip,keys,...subOpts}) => subOpts;            
-      api._allDocs(Object.assign(
+      new Promise(resolve => (api._allDocs(Object.assign(
         {key: key, deleted: 'ok'}, filterOpts(opts)
       ), (err, res) => {
         /* istanbul ignore if */
@@ -17,7 +17,7 @@ export async function allDocsKeysQuery(api, opts) {
         }
         finalResults.total_rows = res.total_rows;
         resolve(res.rows[0] || {key: key, error: 'not_found'});
-      });
+      })));
     })),
   };
   
