@@ -1,15 +1,5 @@
-import { clone } from './pouchdb-utils.js';
-import { collate } from './pouchdb-collate.js';
-import './index-15c7260a.js';
-import './_commonjsHelpers-24198af3.js';
-import 'buffer';
-import './index-f7cc900c.js';
-import './pouchdb-collections.js';
-import './inherits-febe64f8.js';
-import './pouchdb-errors.js';
-import 'events';
-import './pouchdb-md5.js';
-import 'crypto';
+import { clone } from 'pouchdb-utils';
+import { collate } from 'pouchdb-collate';
 
 // this would just be "return doc[field]", but fields
 // can be "deep" due to dot notation
@@ -278,15 +268,14 @@ function isAndInSelector(obj, isAnd) {
 //
 function massageSelector(input) {
   var result = clone(input);
-  var wasAnded = false;
-    //#7458: if $and is present in selector (at any level) merge nested $and
-    if (isAndInSelector(result, false)) {
-        result = mergeAndedSelectorsNested(result);
-        if ('$and' in result) {
-            result = mergeAndedSelectors(result['$and']);
-        }
-        wasAnded = true;
+
+  //#7458: if $and is present in selector (at any level) merge nested $and
+  if (isAndInSelector(result, false)) {
+    result = mergeAndedSelectorsNested(result);
+    if ('$and' in result) {
+      result = mergeAndedSelectors(result['$and']);
     }
+  }
 
   ['$or', '$nor'].forEach(function (orOrNor) {
     if (orOrNor in result) {
@@ -319,20 +308,37 @@ function massageSelector(input) {
 
     if (typeof matcher !== 'object' || matcher === null) {
       matcher = {$eq: matcher};
-    } else if (!wasAnded) {
-      // These values must be placed in an array because these operators can be used multiple times on the same field
-      // when $and is used, mergeAndedSelectors takes care of putting them into arrays, otherwise it's done here:
-      if ('$ne' in matcher) {
-        matcher.$ne = [matcher.$ne];
-      }
-      if ('$regex' in matcher) {
-        matcher.$regex = [matcher.$regex];
-      }
     }
     result[field] = matcher;
   }
 
+  normalizeArrayOperators(result);
+
   return result;
+}
+
+//
+// The $ne and $regex values must be placed in an array because these operators can be used multiple times on the same field.
+// When $and is used, mergeAndedSelectors takes care of putting some of them into arrays, otherwise it's done here.
+//
+function normalizeArrayOperators(selector) {
+  Object.keys(selector).forEach(function (field) {
+    var matcher = selector[field];
+
+    if (Array.isArray(matcher)) {
+      matcher.forEach(function (matcherItem) {
+        if (matcherItem && typeof matcherItem === 'object') {
+          normalizeArrayOperators(matcherItem);
+        }
+      });
+    } else if (field === '$ne') {
+      selector.$ne = [matcher];
+    } else if (field === '$regex') {
+      selector.$regex = [matcher];
+    } else if (matcher && typeof matcher === 'object') {
+      normalizeArrayOperators(matcher);
+    }
+  });
 }
 
 // create a comparator based on the sort object

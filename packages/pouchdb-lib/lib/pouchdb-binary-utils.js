@@ -1,97 +1,6 @@
-import { g as getDefaultExportFromCjs } from './_commonjsHelpers-24198af3.js';
-
-/* eslint-disable node/no-deprecated-api */
-
-var toString = Object.prototype.toString;
-
-var isModern = (
-  typeof Buffer !== 'undefined' &&
-  typeof Buffer.alloc === 'function' &&
-  typeof Buffer.allocUnsafe === 'function' &&
-  typeof Buffer.from === 'function'
-);
-
-function isArrayBuffer (input) {
-  return toString.call(input).slice(8, -1) === 'ArrayBuffer'
-}
-
-function fromArrayBuffer (obj, byteOffset, length) {
-  byteOffset >>>= 0;
-
-  var maxLength = obj.byteLength - byteOffset;
-
-  if (maxLength < 0) {
-    throw new RangeError("'offset' is out of bounds")
-  }
-
-  if (length === undefined) {
-    length = maxLength;
-  } else {
-    length >>>= 0;
-
-    if (length > maxLength) {
-      throw new RangeError("'length' is out of bounds")
-    }
-  }
-
-  return isModern
-    ? Buffer.from(obj.slice(byteOffset, byteOffset + length))
-    : new Buffer(new Uint8Array(obj.slice(byteOffset, byteOffset + length)))
-}
-
-function fromString (string, encoding) {
-  if (typeof encoding !== 'string' || encoding === '') {
-    encoding = 'utf8';
-  }
-
-  if (!Buffer.isEncoding(encoding)) {
-    throw new TypeError('"encoding" must be a valid string encoding')
-  }
-
-  return isModern
-    ? Buffer.from(string, encoding)
-    : new Buffer(string, encoding)
-}
-
-function bufferFrom (value, encodingOrOffset, length) {
-  if (typeof value === 'number') {
-    throw new TypeError('"value" argument must not be a number')
-  }
-
-  if (isArrayBuffer(value)) {
-    return fromArrayBuffer(value, encodingOrOffset, length)
-  }
-
-  if (typeof value === 'string') {
-    return fromString(value, encodingOrOffset)
-  }
-
-  return isModern
-    ? Buffer.from(value)
-    : new Buffer(value)
-}
-
-var bufferFrom_1 = bufferFrom;
-
-var bufferFrom$1 = /*@__PURE__*/getDefaultExportFromCjs(bufferFrom_1);
-
-function thisAtob(str) {
-  var base64 = new Buffer(str, 'base64');
-  // Node.js will just skip the characters it can't decode instead of
-  // throwing an exception
-  if (base64.toString('base64') !== str) {
-    throw new Error("attachment is not a valid base64 string");
-  }
-  return base64.toString('binary');
-}
-
-function thisBtoa(str) {
-  return bufferFrom$1(str, 'binary').toString('base64');
-}
-
 function typedBuffer(binString, buffType, type) {
   // buffType is either 'binary' or 'base64'
-  var buff = bufferFrom$1(binString, buffType);
+  const buff = Buffer.from(binString, buffType);
   buff.type = type; // non-standard, but used for consistency with the browser
   return buff;
 }
@@ -116,18 +25,18 @@ function binStringToBluffer(binString, type) {
   return typedBuffer(binString, 'binary', type);
 }
 
-// This function is unused in Node
-/* istanbul ignore next */
-function createBlob() {
-}
-
-function blobToBase64(blobOrBuffer, callback) {
+function blobToBase64$1(blobOrBuffer, callback) {
   callback(blobOrBuffer.toString('base64'));
 }
 
-// not used in Node, but here for completeness
-function blobToBase64$1(blobOrBuffer, callback) {
-  callback(blobOrBuffer.toString('binary'));
+const toBase64 = (arrayBuffer) => btoa(String.fromCharCode(
+  ...new Uint8Array(arrayBuffer)
+));
+
+function blobToBase64(blobOrBuffer, callback) {
+  new Response(blobOrBuffer).arrayBuffer().then(toBase64).then(
+    (b64)=>callback(null,b64),err=>callback(err));
+  //callback(blobOrBuffer.toString('binary'));
 }
 
 // simplified API. universal browser support is assumed
@@ -171,4 +80,4 @@ function readAsBinaryString(blob, callback) {
   }
 }
 
-export { thisAtob as atob, b64ToBluffer as base64StringToBlobOrBuffer, binaryStringToArrayBuffer, binStringToBluffer as binaryStringToBlobOrBuffer, createBlob as blob, blobToBase64 as blobOrBufferToBase64, blobToBase64$1 as blobOrBufferToBinaryString, thisBtoa as btoa, readAsArrayBuffer, readAsBinaryString, typedBuffer };
+export { b64ToBluffer as base64StringToBlobOrBuffer, binaryStringToArrayBuffer, binStringToBluffer as binaryStringToBlobOrBuffer, blobToBase64$1 as blobOrBufferToBase64, blobToBase64 as blobOrBufferToBinaryString, readAsArrayBuffer, readAsBinaryString, typedBuffer };

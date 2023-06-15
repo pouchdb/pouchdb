@@ -1,3 +1,5 @@
+// 'use strict'; is default when ESM
+
 function pad(str, padWith, upToLength) {
   var padding = '';
   var targetLength = upToLength - str.length;
@@ -12,6 +14,8 @@ function padLeft(str, padWith, upToLength) {
   var padding = pad(str, padWith, upToLength);
   return padding + str;
 }
+
+// 'use strict'; is default when ESM
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto

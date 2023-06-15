@@ -87,7 +87,10 @@ function supportsMapAndSet() {
 var ExportedSet;
 var ExportedMap;
 
-{
+if (process.env.COVERAGE) { // don't penalize ourselves on coverage
+  ExportedSet = Set$1;
+  ExportedMap = Map$1;
+} else {
   if (supportsMapAndSet()) { // prefer built-in Map/Set
     ExportedSet = Set;
     ExportedMap = Map;

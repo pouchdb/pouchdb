@@ -1,34 +1,9 @@
-import { u as uuid } from './index-f8a9e0ec.js';
-import { t as traverseRevTree, w as winningRev } from './rootToLeaf-f8d0e78a.js';
-import { a as isLocalId, i as isDeleted } from './isLocalId-d067de54.js';
-import { c as compactTree, l as latest } from './latest-0521537f.js';
-import { c as createError, l as IDB_ERROR, e as MISSING_STUB, M as MISSING_DOC, R as REV_CONFLICT } from './functionName-97119de9.js';
-import { p as parseDoc } from './binaryStringToBlobOrBuffer-3ba36433.js';
-import 'node:events';
-import './index-15c7260a.js';
-import 'crypto';
-import { p as preprocessAttachments } from './preprocessAttachments-db47f8d6.js';
-import { p as processDocs } from './processDocs-62433f84.js';
-import { p as pick } from './pick-60e95b5a.js';
-import { s as safeJsonStringify, a as safeJsonParse } from './safeJsonStringify-6520e306.js';
-import { b as b64ToBluffer } from './base64StringToBlobOrBuffer-3fd03be6.js';
-import { r as readAsBinaryString } from './readAsBinaryString-06e911ba.js';
-import { C as Changes } from './changesHandler-c020580c.js';
-import { a as collectConflicts } from './collectConflicts-ad0b7c70.js';
-import { n as nextTick } from './nextTick-ea093886.js';
-import { c as clone } from './clone-9d9f421b.js';
-import { f as filterChange } from './filterChange-0090dde4.js';
-import { t as toPromise } from './toPromise-05472f25.js';
-import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
-import './v4-b7ee9c0c.js';
-import './rev-75d26c01.js';
-import './typedBuffer-a8220a49.js';
-import './_commonjsHelpers-24198af3.js';
-import 'buffer';
-import './binaryMd5-601b2421.js';
-import './merge-1e46cced.js';
-import './revExists-12209d1c.js';
-import './once-de8350b9.js';
+import { pick, changesHandler as changesHandler$1, nextTick, clone, uuid, filterChange, toPromise, hasLocalStorage, guardedConsole } from 'pouchdb-utils';
+import { compactTree, collectConflicts, isDeleted, latest, traverseRevTree, isLocalId as isLocalId$1, winningRev } from 'pouchdb-merge';
+import { createError, IDB_ERROR, MISSING_STUB, MISSING_DOC, REV_CONFLICT } from 'pouchdb-errors';
+import { isLocalId, parseDoc, preprocessAttachments, processDocs } from 'pouchdb-adapter-utils';
+import { safeJsonStringify, safeJsonParse } from 'pouchdb-json';
+import { base64StringToBlobOrBuffer, readAsBinaryString } from 'pouchdb-binary-utils';
 
 // IndexedDB requires a versioned database structure, so we use the
 // version here to manage migrations.
@@ -116,7 +91,7 @@ function readBlobData(body, type, asBlob, callback) {
     } else if (typeof body !== 'string') { // we have blob support
       callback(body);
     } else { // no blob support
-      callback(b64ToBluffer(body, type));
+      callback(base64StringToBlobOrBuffer(body, type));
     }
   } else { // as base64 string
     if (!body) {
@@ -266,7 +241,7 @@ function openTransactionSafely(idb, stores, mode) {
   }
 }
 
-var changesHandler = new Changes();
+var changesHandler = new changesHandler$1();
 
 function idbBulkDocs(dbOpts, req, opts, api, idb, callback) {
   var docInfos = req.docs;
@@ -1347,7 +1322,7 @@ function init(api, opts, callback) {
       if (cursor) {
         var metadata = cursor.value;
         var docId = metadata.id;
-        var local = isLocalId(docId);
+        var local = isLocalId$1(docId);
         var rev = winningRev(metadata);
         if (local) {
           var docIdRev = docId + "::" + rev;
@@ -1840,6 +1815,9 @@ function init(api, opts, callback) {
     req.onsuccess = function () {
       //Remove open request from the list.
       openReqList.delete(dbName);
+      if (hasLocalStorage() && (dbName in localStorage)) {
+        delete localStorage[dbName];
+      }
       callback(null, { 'ok': true });
     };
 
@@ -2030,8 +2008,8 @@ IdbPouch.valid = function () {
   }
 };
 
-function IDBPouch (PouchDB) {
+function index (PouchDB) {
   PouchDB.adapter('idb', IdbPouch, true);
 }
 
-export { IDBPouch as default };
+export { index as default };

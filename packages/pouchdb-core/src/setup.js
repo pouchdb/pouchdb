@@ -7,35 +7,6 @@ import TaskQueue from './taskqueue.js';
 import { clone } from 'pouchdb-utils.js';
 import getParseAdapter from './parseAdapter.js';
 
-// OK, so here's the deal. Consider this code:
-//     var db1 = new PouchDB('foo');
-//     var db2 = new PouchDB('foo');
-//     db1.destroy();
-// ^ these two both need to emit 'destroyed' events,
-// as well as the PouchDB constructor itself.
-// So we have one db object (whichever one got destroy() called on it)
-// responsible for emitting the initial event, which then gets emitted
-// by the constructor, which then broadcasts it to any other dbs
-// that may have been created with the same name.
-function prepareForDestruction(self) {
-
-  function onDestroyed(from_constructor) {
-    self.removeListener('closed', onClosed);
-    if (!from_constructor) {
-      self.constructor.emit('destroyed', self.name);
-    }
-  }
-
-  function onClosed() {
-    self.removeListener('destroyed', onDestroyed);
-    self.constructor.emit('unref', self);
-  }
-
-  self.once('destroyed', onDestroyed);
-  self.once('closed', onClosed);
-  self.constructor.emit('ref', self);
-}
-
 class PouchInternal extends Adapter {
   constructor(name, opts) {
     super();
@@ -96,7 +67,7 @@ class PouchInternal extends Adapter {
       if (err) {
         return this.taskqueue.fail(err);
       }
-      prepareForDestruction(this);
+      
 
       this.emit('created', this);
       PouchDB.emit('created', this.name);

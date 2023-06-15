@@ -1,45 +1,7 @@
 import vm from 'vm';
-import 'node:events';
-import './index-15c7260a.js';
-import './functionName-97119de9.js';
-import 'crypto';
-import { B as BuiltInError, c as createAbstractMapReduce, N as NotFoundError } from './index-bd745a58.js';
-import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
-import './_commonjsHelpers-24198af3.js';
-import 'buffer';
-import './nextTick-ea093886.js';
-import './flatten-994f45c6.js';
-import './isRemote-2533b7cb.js';
-import './base64StringToBlobOrBuffer-3fd03be6.js';
-import './typedBuffer-a8220a49.js';
-import './index-7f131e04.js';
-import './upsert-bb51d1b8.js';
-import 'stream';
-import 'http';
-import 'url';
-import './abort-controller-08d1ea45.js';
-import 'punycode';
-import 'util';
-import 'https';
-import 'zlib';
-import './pouchdb-crypto.js';
-
-// Based on https://github.com/alexdavid/scope-eval v0.0.3
-// (source: https://unpkg.com/scope-eval@0.0.3/scope_eval.js)
-// This is basically just a wrapper around new Function()
-
-function scopeEval(source, scope) {
-  var keys = [];
-  var values = [];
-  for (var key in scope) {
-    if (Object.prototype.hasOwnProperty.call(scope, key)) {
-      keys.push(key);
-      values.push(scope[key]);
-    }
-  }
-  keys.push(source);
-  return Function.apply(null, keys).apply(null, values);
-}
+import { BuiltInError, NotFoundError } from 'pouchdb-mapreduce-utils';
+import { guardedConsole, scopeEval } from 'pouchdb-utils';
+import abstractMapReduce from 'pouchdb-abstract-mapreduce';
 
 function createBuiltInError(name) {
   var message = 'builtin ' + name +
@@ -232,7 +194,7 @@ function ddocValidator(ddoc, viewName) {
 }
 
 var localDocName = 'mrviews';
-var abstract = createAbstractMapReduce(localDocName, mapper, reducer, ddocValidator);
+var abstract = abstractMapReduce(localDocName, mapper, reducer, ddocValidator);
 
 function query(fun, opts, callback) {
   return abstract.query.call(this, fun, opts, callback);
@@ -242,9 +204,9 @@ function viewCleanup(callback) {
   return abstract.viewCleanup.call(this, callback);
 }
 
-var mapreduce = {
+var index = {
   query: query,
   viewCleanup: viewCleanup
 };
 
-export { mapreduce as default };
+export { index as default };

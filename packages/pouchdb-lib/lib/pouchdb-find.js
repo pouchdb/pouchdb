@@ -1,28 +1,10 @@
-import { generateErrorFromResponse } from './pouchdb-errors.js';
-import { Headers } from './pouchdb-fetch.js';
-import createAbstractMapReduce from './pouchdb-abstract-mapreduce.js';
-import { stringMd5 } from './pouchdb-md5.js';
-import { collate } from './pouchdb-collate.js';
-import { compare, massageSelector, getValue, filterInMemoryFields, parseField, getFieldFromDoc, setFieldInDoc, matchesSelector, getKey } from './pouchdb-selector-core.js';
-import { toPromise, isRemote, clone, nextTick, upsert, assign as assign$2 } from './pouchdb-utils.js';
-import './inherits-febe64f8.js';
-import './_commonjsHelpers-24198af3.js';
-import 'stream';
-import 'http';
-import 'url';
-import './abort-controller-08d1ea45.js';
-import 'punycode';
-import 'util';
-import 'https';
-import 'zlib';
-import './pouchdb-collections.js';
-import './pouchdb-binary-utils.js';
-import './pouchdb-mapreduce-utils.js';
-import './index-f7cc900c.js';
-import './index-15c7260a.js';
-import 'buffer';
-import 'events';
-import 'crypto';
+import { clone, nextTick, upsert, toPromise, isRemote } from 'pouchdb-utils';
+import { generateErrorFromResponse } from 'pouchdb-errors';
+import { Headers } from 'pouchdb-fetch';
+import { parseField, getFieldFromDoc, setFieldInDoc, matchesSelector, massageSelector, getValue, getKey, compare, filterInMemoryFields } from 'pouchdb-selector-core';
+import abstractMapReduce from 'pouchdb-abstract-mapreduce';
+import { collate } from 'pouchdb-collate';
+import { stringMd5 } from 'pouchdb-crypto';
 
 // we restucture the supplied JSON considerably, because the official
 // Mango API is very particular about a lot of this stuff, but we like
@@ -116,7 +98,6 @@ function checkFieldValueType(name, value, isHttp) {
 
 	if (name === '$regex') {
 		if (typeof value !== 'string') {
-			console.log("here", isHttp);
 			if (isHttp) {
 				message = 'Query operator $regex must be a string.';
 			} else if (!(value instanceof RegExp)) {
@@ -202,7 +183,7 @@ function dbFetch(db, path, opts, callback) {
   }).catch(callback);
 }
 
-function createIndex(db, requestDef, callback) {
+function createIndex$1(db, requestDef, callback) {
   requestDef = massageCreateIndexRequest(requestDef);
   dbFetch(db, '_index', {
     method: 'POST',
@@ -210,7 +191,7 @@ function createIndex(db, requestDef, callback) {
   }, callback);
 }
 
-function find(db, requestDef, callback) {
+function find$1(db, requestDef, callback) {
   validateSelector(requestDef.selector, true);
   dbFetch(db, '_find', {
     method: 'POST',
@@ -218,20 +199,20 @@ function find(db, requestDef, callback) {
   }, callback);
 }
 
-function explain(db, requestDef, callback) {
+function explain$1(db, requestDef, callback) {
   dbFetch(db, '_explain', {
     method: 'POST',
     body: JSON.stringify(requestDef)
   }, callback);
 }
 
-function getIndexes(db, callback) {
+function getIndexes$1(db, callback) {
   dbFetch(db, '_index', {
     method: 'GET'
   }, callback);
 }
 
-function deleteIndex(db, indexDef, callback) {
+function deleteIndex$1(db, indexDef, callback) {
 
 
   var ddoc = indexDef.ddoc;
@@ -251,25 +232,13 @@ function deleteIndex(db, indexDef, callback) {
   dbFetch(db, url, {method: 'DELETE'}, callback);
 }
 
-function getArguments(fun) {
-  return function () {
-    var len = arguments.length;
-    var args = new Array(len);
-    var i = -1;
-    while (++i < len) {
-      args[i] = arguments[i];
-    }
-    return fun.call(this, args);
-  };
-}
-
 function callbackify(fun) {
-  return getArguments(function (args) {
+  return function (...args) {
     var cb = args.pop();
     var promise = fun.apply(this, args);
     promisedCallback(promise, cb);
     return promise;
-  });
+  };
 }
 
 function promisedCallback(promise, callback) {
@@ -285,7 +254,7 @@ function promisedCallback(promise, callback) {
   return promise;
 }
 
-var flatten = getArguments(function (args) {
+var flatten = function (...args) {
   var res = [];
   for (var i = 0, len = args.length; i < len; i++) {
     var subArr = args[i];
@@ -296,12 +265,12 @@ var flatten = getArguments(function (args) {
     }
   }
   return res;
-});
+};
 
 function mergeObjects(arr) {
   var res = {};
   for (var i = 0, len = arr.length; i < len; i++) {
-    res = assign$2(res, arr[i]);
+    res = Object.assign(res, arr[i]);
   }
   return res;
 }
@@ -527,7 +496,7 @@ function ddocValidator(ddoc, viewName) {
   }
 }
 
-var abstractMapper = createAbstractMapReduce(
+var abstractMapper = abstractMapReduce(
   /* localDocName */ 'indexes',
   mapper,
   reducer,
@@ -535,7 +504,22 @@ var abstractMapper = createAbstractMapReduce(
 );
 
 function abstractMapper$1 (db) {
-  return db._customFindAbstractMapper || abstractMapper;
+  if (db._customFindAbstractMapper) {
+    return {
+      // Calls the _customFindAbstractMapper, but with a third argument:
+      // the standard findAbstractMapper query/viewCleanup.
+      // This allows the indexeddb adapter to support partial_filter_selector.
+      query: function addQueryFallback(signature, opts) {
+        var fallback = abstractMapper.query.bind(this);
+        return db._customFindAbstractMapper.query.call(this, signature, opts, fallback);
+      },
+      viewCleanup: function addViewCleanupFallback() {
+        var fallback = abstractMapper.viewCleanup.bind(this);
+        return db._customFindAbstractMapper.viewCleanup.call(this, fallback);
+      }
+    };
+  }
+  return abstractMapper;
 }
 
 // normalize the "sort" value
@@ -576,6 +560,11 @@ function massageIndexDef(indexDef) {
     }
     return field;
   });
+  if (indexDef.partial_filter_selector) {
+    indexDef.partial_filter_selector = massageSelector(
+      indexDef.partial_filter_selector
+    );
+  }
   return indexDef;
 }
 
@@ -583,7 +572,7 @@ function getKeyFromDoc(doc, index) {
   var res = [];
   for (var i = 0; i < index.def.fields.length; i++) {
     var field = getKey(index.def.fields[i]);
-    res.push(doc[field]);
+    res.push(getFieldFromDoc(doc, parseField(field)));
   }
   return res;
 }
@@ -726,7 +715,7 @@ function getUserFields(selector, sort) {
   };
 }
 
-function createIndex$1(db, requestDef) {
+async function createIndex(db, requestDef) {
   requestDef = massageCreateIndexRequest(requestDef);
   var originalIndexDef = clone(requestDef.index);
   requestDef.index = massageIndexDef(requestDef.index);
@@ -735,14 +724,11 @@ function createIndex$1(db, requestDef) {
 
   // calculating md5 is expensive - memoize and only
   // run if required
-  var md5;
-  function getMd5() {
-    return md5 || (md5 = stringMd5(JSON.stringify(requestDef)));
-  }
+  var md5 = await stringMd5(JSON.stringify(requestDef));
+  
+  var viewName = requestDef.name || ('idx-' + md5);
 
-  var viewName = requestDef.name || ('idx-' + getMd5());
-
-  var ddocName = requestDef.ddoc || ('idx-' + getMd5());
+  var ddocName = requestDef.ddoc || ('idx-' + md5);
   var ddocId = '_design/' + ddocName;
 
   var hasInvalidLanguage = false;
@@ -763,7 +749,8 @@ function createIndex$1(db, requestDef) {
 
     doc.views[viewName] = {
       map: {
-        fields: mergeObjects(requestDef.index.fields)
+        fields: mergeObjects(requestDef.index.fields),
+        partial_filter_selector: requestDef.index.partial_filter_selector
       },
       reduce: '_count',
       options: {
@@ -800,7 +787,7 @@ function createIndex$1(db, requestDef) {
   });
 }
 
-function getIndexes$1(db) {
+function getIndexes(db) {
   // just search through all the design docs and filter in-memory.
   // hopefully there aren't that many ddocs.
   return db.allDocs({
@@ -1299,7 +1286,7 @@ function planQuery(request, indexes) {
   var sort = request.sort;
 
   if (shouldShortCircuit(selector)) {
-    return assign$2({}, SHORT_CIRCUIT_QUERY, { index: indexes[0] });
+    return Object.assign({}, SHORT_CIRCUIT_QUERY, { index: indexes[0] });
   }
 
   var userFieldsRes = getUserFields(selector, sort);
@@ -1375,7 +1362,7 @@ function doAllDocs(db, originalOpts) {
     });
 }
 
-function find$1(db, requestDef, explain) {
+function find(db, requestDef, explain) {
   if (requestDef.selector) {
     // must be validated before massaging
     validateSelector(requestDef.selector, false);
@@ -1392,7 +1379,7 @@ function find$1(db, requestDef, explain) {
 
   validateFindRequest(requestDef);
 
-  return getIndexes$1(db).then(function (getIndexesRes) {
+  return getIndexes(db).then(function (getIndexesRes) {
 
     db.constructor.emit('debug', ['find', 'planning query', requestDef]);
     var queryPlan = planQuery(requestDef, getIndexesRes.indexes);
@@ -1402,7 +1389,7 @@ function find$1(db, requestDef, explain) {
 
     validateSort(requestDef, indexToUse);
 
-    var opts = assign$2({
+    var opts = Object.assign({
       include_docs: true,
       reduce: false,
       // Add amount of index for doAllDocs to use (related to issue #7810)
@@ -1479,8 +1466,8 @@ function find$1(db, requestDef, explain) {
   });
 }
 
-function explain$1(db, requestDef) {
-  return find$1(db, requestDef, true)
+function explain(db, requestDef) {
+  return find(db, requestDef, true)
   .then(function (queryPlan) {
     return {
       dbname: db.name,
@@ -1507,7 +1494,7 @@ function explain$1(db, requestDef) {
   });
 }
 
-function deleteIndex$1(db, index) {
+function deleteIndex(db, index) {
 
   if (!index.ddoc) {
     throw new Error('you must supply an index.ddoc when deleting');
@@ -1537,11 +1524,11 @@ function deleteIndex$1(db, index) {
   });
 }
 
-var createIndexAsCallback = callbackify(createIndex$1);
-var findAsCallback = callbackify(find$1);
-var explainAsCallback = callbackify(explain$1);
-var getIndexesAsCallback = callbackify(getIndexes$1);
-var deleteIndexAsCallback = callbackify(deleteIndex$1);
+var createIndexAsCallback = callbackify(createIndex);
+var findAsCallback = callbackify(find);
+var explainAsCallback = callbackify(explain);
+var getIndexesAsCallback = callbackify(getIndexes);
+var deleteIndexAsCallback = callbackify(deleteIndex);
 
 var plugin = {};
 plugin.createIndex = toPromise(function (requestDef, callback) {
@@ -1550,9 +1537,9 @@ plugin.createIndex = toPromise(function (requestDef, callback) {
     return callback(new Error('you must provide an index to create'));
   }
 
-  var createIndex$$1 = isRemote(this) ?
-    createIndex : createIndexAsCallback;
-  createIndex$$1(this, requestDef, callback);
+  var createIndex = isRemote(this) ?
+    createIndex$1 : createIndexAsCallback;
+  createIndex(this, requestDef, callback);
 });
 
 plugin.find = toPromise(function (requestDef, callback) {
@@ -1566,8 +1553,8 @@ plugin.find = toPromise(function (requestDef, callback) {
     return callback(new Error('you must provide search parameters to find()'));
   }
 
-  var find$$1 = isRemote(this) ? find : findAsCallback;
-  find$$1(this, requestDef, callback);
+  var find = isRemote(this) ? find$1 : findAsCallback;
+  find(this, requestDef, callback);
 });
 
 plugin.explain = toPromise(function (requestDef, callback) {
@@ -1581,14 +1568,14 @@ plugin.explain = toPromise(function (requestDef, callback) {
     return callback(new Error('you must provide search parameters to explain()'));
   }
 
-  var find$$1 = isRemote(this) ? explain : explainAsCallback;
-  find$$1(this, requestDef, callback);
+  var find = isRemote(this) ? explain$1 : explainAsCallback;
+  find(this, requestDef, callback);
 });
 
 plugin.getIndexes = toPromise(function (callback) {
 
-  var getIndexes$$1 = isRemote(this) ? getIndexes : getIndexesAsCallback;
-  getIndexes$$1(this, callback);
+  var getIndexes = isRemote(this) ? getIndexes$1 : getIndexesAsCallback;
+  getIndexes(this, callback);
 });
 
 plugin.deleteIndex = toPromise(function (indexDef, callback) {
@@ -1597,9 +1584,9 @@ plugin.deleteIndex = toPromise(function (indexDef, callback) {
     return callback(new Error('you must provide an index to delete'));
   }
 
-  var deleteIndex$$1 = isRemote(this) ?
-    deleteIndex : deleteIndexAsCallback;
-  deleteIndex$$1(this, indexDef, callback);
+  var deleteIndex = isRemote(this) ?
+    deleteIndex$1 : deleteIndexAsCallback;
+  deleteIndex(this, indexDef, callback);
 });
 
 export { plugin as default };

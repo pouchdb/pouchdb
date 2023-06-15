@@ -1,26 +1,9 @@
-import { C as Changes } from './changesHandler-c020580c.js';
-import './index-15c7260a.js';
-import { c as createError, l as IDB_ERROR, M as MISSING_DOC, U as UNKNOWN_ERROR, R as REV_CONFLICT, e as MISSING_STUB, h as BAD_ARG } from './functionName-97119de9.js';
-import 'node:events';
-import 'crypto';
-import { u as uuid } from './index-f8a9e0ec.js';
-import { r as readAsBinaryString } from './readAsBinaryString-06e911ba.js';
-import { l as latest, c as compactTree } from './latest-0521537f.js';
-import { p as parseDoc, b as binStringToBluffer } from './binaryStringToBlobOrBuffer-3ba36433.js';
-import { b as binaryMd5 } from './binaryMd5-601b2421.js';
-import { w as winningRev, t as traverseRevTree } from './rootToLeaf-f8d0e78a.js';
-import { m as merge } from './merge-1e46cced.js';
-import { a as collectConflicts } from './collectConflicts-ad0b7c70.js';
-import { f as filterChange } from './filterChange-0090dde4.js';
-import { r as removeLeafFromRevTree } from './removeLeafFromTree-af761a97.js';
-import './pick-60e95b5a.js';
-import './nextTick-ea093886.js';
-import './_commonjsHelpers-24198af3.js';
-import 'buffer';
-import './v4-b7ee9c0c.js';
-import './rev-75d26c01.js';
-import './typedBuffer-a8220a49.js';
-import './clone-9d9f421b.js';
+import { uuid, filterChange, changesHandler } from 'pouchdb-utils';
+import { createError, IDB_ERROR, MISSING_DOC, UNKNOWN_ERROR, REV_CONFLICT, MISSING_STUB, BAD_ARG } from 'pouchdb-errors';
+import { readAsBinaryString, binaryStringToBlobOrBuffer } from 'pouchdb-binary-utils';
+import { latest, merge, winningRev, compactTree, collectConflicts, traverseRevTree, removeLeafFromTree } from 'pouchdb-merge';
+import { parseDoc } from 'pouchdb-adapter-utils';
+import { binaryMd5 } from 'pouchdb-md5';
 
 // 'use strict'; is default when ESM
 
@@ -820,7 +803,7 @@ function bulkDocs (api, req, opts, metadata, dbOpts, idbChanges, callback) {
       if (binData.error) {
         return Promise.reject(binData.error);
       }
-      attachment.data = binStringToBluffer(binData, attachment.content_type);
+      attachment.data = binaryStringToBlobOrBuffer(binData, attachment.content_type);
     } else {
       binData = attachment.data;
     }
@@ -1631,7 +1614,7 @@ function purge(txn, docId, revs, callback) {
 
     for (const rev of revs) {
       // purge rev from tree
-      doc.rev_tree = removeLeafFromRevTree(doc.rev_tree, rev);
+      doc.rev_tree = removeLeafFromTree(doc.rev_tree, rev);
 
       // assign new revs
       delete doc.revs[rev];
@@ -1668,7 +1651,7 @@ function purge(txn, docId, revs, callback) {
 var ADAPTER_NAME = 'indexeddb';
 
 // TODO: Constructor should be capitalised
-var idbChanges = new Changes();
+var idbChanges = new changesHandler();
 
 // A shared list of database handles
 var openDatabases = {};
@@ -1812,8 +1795,8 @@ IdbPouch.valid = function () {
   return true;
 };
 
-function IndexeddbPouchPlugin (PouchDB) {
+function index (PouchDB) {
   PouchDB.adapter(ADAPTER_NAME, IdbPouch, true);
 }
 
-export { IndexeddbPouchPlugin as default };
+export { index as default };
