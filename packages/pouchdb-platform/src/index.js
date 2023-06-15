@@ -12,3 +12,5 @@ export { default as util } from 'node:util';
 export { default as vm } from 'node:vm';
 export { default as path } from 'node:path';
 export { default as os } from 'node:os';
+
+import('./environment.js');
