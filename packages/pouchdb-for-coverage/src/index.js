@@ -1,6 +1,6 @@
-import PouchDB from './pouchdb';
-import utils from './utils';
-import errors from './errors';
+import PouchDB from './pouchdb.js';
+import utils from './utils.js';
+import errors from './errors.js';
 import * as collate from 'pouchdb-collate';
 // explicitly include pouchdb-find so coverage captures it correctly
 import find from 'pouchdb-find';
