@@ -55,7 +55,13 @@ module.exports = [{
     alias({
       customResolver, entries,
     }),
-    nodeResolve({preferBuiltins: true}), json(), commonjs()
+    nodeResolve({
+      preferBuiltins: true,
+      // dedupe is not needed as we resolve via workspaces
+      // Order matters Injection happens via local /node_modules
+      modulePaths: ['../','node_modules','../../node_modules'],
+      resolveOnly: module => !module.includes('joker'),
+    }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]
 }];
