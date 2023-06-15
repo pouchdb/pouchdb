@@ -37,19 +37,20 @@ const entries = [
 //     nodeResolve({preferBuiltins: false, browser: true}), json(), commonjs()
 //   ],
 // })).write({ dir: 'lib', }));
-
+const input = Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,pkg]).concat(
+  fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>[`pouchdb-plugin-${plg.slice(-3)}`,'../../packages/pouchdb/src/plugins/'+plg])
+).concat([
+  ['hash-wasm','hash-wasm']
+]));
 module.exports = [{ 
-  input: Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,pkg]).concat(
-    fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>[`pouchdb-plugin-${plg.slice(-3)}`,'../../packages/pouchdb/src/plugins/'+plg])
-  ).concat([
-    ['hash-wasm','hash-wasm']
-  ])),
+  input,
   plugins: [
     eslint,
     {
       name: 'emit-module-package-file',
       generateBundle() {
         this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
+        this.emitFile({ fileName: 'index.js', source: `const input = ${JSON.stringify(input)}`, type: 'asset' });
       },
     },
     alias({
