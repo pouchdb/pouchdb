@@ -61,7 +61,7 @@ module.exports = [{
       // Order matters Injection happens via local /node_modules
       modulePaths: ['../','node_modules','../../node_modules'],
       // we do not resolve our own modules as this is a platform
-      resolveOnly: module => !module.includes('pouchdb-'),
+      //resolveOnly: module => !module.includes('pouchdb-'),
     }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]
