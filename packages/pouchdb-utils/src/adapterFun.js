@@ -1,4 +1,4 @@
-import toPromise from './toPromise';
+import toPromise from './toPromise.js';
 
 function logApiCall(self, name, args) {
   /* istanbul ignore if */
