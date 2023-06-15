@@ -1122,3 +1122,4 @@
 //   PouchDB.adapter('http', HttpPouch, false);
 //   PouchDB.adapter('https', HttpPouch, false);
 // }
+export {}
