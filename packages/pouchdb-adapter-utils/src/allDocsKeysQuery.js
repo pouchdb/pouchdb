@@ -1,9 +1,7 @@
-export async function allDocsKeysQuery(api, {limit, skip: offset ,keys,...subOpts}) {
+export async function allDocsKeysQuery(api, {limit, offset: skip ,keys,...subOpts}) {
   
   const finalResults = {
-    offset,
-    rows: await Promise.all(opts.keys.map(async (key) => {
-             
+    offset, rows: await Promise.all(opts.keys.map(async (key) => {
       return await new Promise((resolve) => (api._allDocs(Object.assign(
         {key: key, deleted: 'ok'}, subOpts
       ), (err, res) => {
