@@ -1,8 +1,7 @@
-// eslint-disable-next-line no-unused-vars
-export async function allDocsKeysQuery(api, {limit, skip: offset, keys,...subOpts}) {
+async function allDocsKeysQuery(api, {limit: _limit, skip: offset, keys,...subOpts}) {
   
   const finalResults = {
-    offset, rows: await Promise.all(keys.map(async (key) => {
+    offset, rows: await Promise.all(opts.keys.map(async (key) => {
       return await new Promise((resolve) => (api._allDocs(Object.assign(
         {key: key, deleted: 'ok'}, subOpts
       ), (err, res) => {
@@ -24,4 +23,4 @@ export async function allDocsKeysQuery(api, {limit, skip: offset, keys,...subOpt
   
 }
 
-export default allDocsKeysQuery;
+export { allDocsKeysQuery as a };

@@ -8,7 +8,7 @@ import require$$1 from 'util';
 import Deque from 'double-ended-queue';
 import PouchDB from './pouchdb-core.js';
 import { changesHandler as Changes, uuid, filterChange } from './pouchdb-utils.js';
-import { a as allDocsKeysQuery } from './allDocsKeysQuery-9ff66512.js';
+import { a as allDocsKeysQuery } from './allDocsKeysQuery-7f4fbcb9.js';
 import { p as parseDoc } from './parseDoc-a0994e12.js';
 import { a as collectConflicts } from './collectConflicts-ad0b7c70.js';
 import { t as traverseRevTree, w as winningRev } from './rootToLeaf-f8d0e78a.js';
