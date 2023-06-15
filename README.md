@@ -52,6 +52,7 @@ npm --prefix ./packages install
 # or
 cd packages
 npm install
+## Update migration lib
 cd packages/pouchdb-lib/
 rollup -c
 ```
