@@ -1,5 +1,4 @@
 import { rev, guardedConsole, isRemote } from 'pouchdb-utils';
-import EventEmitter from 'node:events';
 import Changes from './changes.js';
 import {
   pick,
@@ -186,7 +185,7 @@ function attachmentNameError(name) {
   return false;
 }
 
-class AbstractPouchDB extends EventEmitter {
+class AbstractPouchDB extends BroadcastChannel {
   _setup() {
     this.post = adapterFun('post', function (doc, opts, callback) {
       if (typeof opts === 'function') {
@@ -728,7 +727,7 @@ class AbstractPouchDB extends EventEmitter {
 
     this.close = adapterFun('close', function (callback) {
       this._closed = true;
-      this.emit('closed');
+      this.postMessage('closed');
       return this._close(callback);
     }).bind(this);
 
@@ -867,7 +866,7 @@ class AbstractPouchDB extends EventEmitter {
             return callback(err);
           }
           this._destroyed = true;
-          this.emit('destroyed');
+          this.postMessage('destroyed');
           callback(null, resp || { 'ok': true });
         });
       };
