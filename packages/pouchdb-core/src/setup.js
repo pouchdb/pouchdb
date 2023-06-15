@@ -13,25 +13,25 @@ PouchDB.prefix = '_pouch_';
 
 var eventEmitter = new EE();
 
-function setUpEventEmitter(Pouch) {
+
   Object.keys(EE.prototype).forEach(function (key) {
     if (typeof EE.prototype[key] === 'function') {
-      Pouch[key] = eventEmitter[key].bind(eventEmitter);
+      PouchDB[key] = eventEmitter[key].bind(eventEmitter);
     }
   });
 
   // these are created in constructor.js, and allow us to notify each DB with
   // the same name that it was destroyed, via the constructor object
-  var destructListeners = Pouch._destructionListeners = new Map();
+  var destructListeners = PouchDB._destructionListeners = new Map();
 
-  Pouch.on('ref', function onConstructorRef(db) {
+  PouchDB.on('ref', function onConstructorRef(db) {
     if (!destructListeners.has(db.name)) {
       destructListeners.set(db.name, []);
     }
     destructListeners.get(db.name).push(db);
   });
 
-  Pouch.on('unref', function onConstructorUnref(db) {
+  PouchDB.on('unref', function onConstructorUnref(db) {
     if (!destructListeners.has(db.name)) {
       return;
     }
@@ -50,7 +50,7 @@ function setUpEventEmitter(Pouch) {
     }
   });
 
-  Pouch.on('destroyed', function onConstructorDestroyed(name) {
+  PouchDB.on('destroyed', function onConstructorDestroyed(name) {
     if (!destructListeners.has(name)) {
       return;
     }
@@ -60,9 +60,7 @@ function setUpEventEmitter(Pouch) {
       db.emit('destroyed',true);
     });
   });
-}
 
-setUpEventEmitter(PouchDB);
 
 PouchDB.adapter = function (id, obj, addToPreferredAdapters) {
   /* istanbul ignore else */
