@@ -1,4 +1,4 @@
-import events from 'node:events';
+import { events } from 'pouchdb-platform';
 import NotFoundError from './NotFoundError';
 
 var EventEmitter = events.EventEmitter;

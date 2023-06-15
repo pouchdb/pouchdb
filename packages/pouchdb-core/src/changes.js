@@ -9,7 +9,7 @@ import {
   collectLeaves,
   collectConflicts
 } from 'pouchdb-merge';
-import events from 'node:events';
+import { events } from 'pouchdb-platform';
 
 import PouchDB from './setup';
 
