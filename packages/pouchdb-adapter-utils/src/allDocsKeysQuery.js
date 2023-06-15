@@ -2,7 +2,7 @@ export async function allDocsKeysQuery(api, opts) {
   const keys = opts.keys;
   const finalResults = {
     offset: opts.skip,
-    rows: Promise.all(keys.map(async (key) => {
+    rows: Promise.all(opts.keys.map(async (key) => {
       var subOpts = Object.assign({key: key, deleted: 'ok'}, opts);
       
       delete subOpts['limit'];
