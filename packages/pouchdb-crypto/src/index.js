@@ -28,8 +28,9 @@ export const btoa = globalThis.btoa
   );
 
 export const atob = globalThis.atob 
-  ? (str="") => globalThis.btoa(str) // Links to deprecated Buffer.atob in node
-  : Buffer.from(str, 'base64');
+  ? (string="") => globalThis.btoa(string) // Links to deprecated Buffer.atob in node
+  : globalThis.Buffer.from(string, 'base64');
+
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
 export const createoldMD5 = async (message="") => md5(new TextEncoder().encode(message));
