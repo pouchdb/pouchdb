@@ -1,5 +1,20 @@
 /* eslint-disable no-undef */
 
+// Todo: crypto api useage must be async browser api is async and hash-wasm is async
+// Todo: we should use hash-wasm md5 only at present and use where supported
+//       crypto.subtle nodejs / browser(secure context only) const { subtle } = globalThis.crypto;
+// Importing only usefull methods that are not included in globalThis.crypto.subtle
+export {
+    blake3,
+    blake2s,
+    blake2b,
+    md5,
+    createMD5,
+    createBLAKE3,
+    createBLAKE2s,
+    createBLAKE2b 
+} from 'hash-wasm';
+
 export async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
     const arrayBuffer = await crypto.subtle.digest(algo, msgUint8); // hash the message
@@ -68,7 +83,8 @@ export function blobToBase64(blobOrBuffer, callback) {
 // base642hex new Buffer('yDbs1scfYdqqLpxyFb1gFw==', 'base64').toString('hex')
 // hex2base64 new Buffer('c836ecd6c71f61daaa2e9c7215bd6017', 'hex').toString('base64')
 
-// Returns only the ${base64Data}
+// Node does not even support the fileReader Api 
+// Returns only the ${base64Data} 
 // Reverse: await fetch(`data:${'image/jpeg'||''};base64,${base64Data}`);
 export const toBase64 = (blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
@@ -79,10 +95,18 @@ export const toBase64 = (blob) => new Promise((resolve, reject) => {
     reader.readAsDataURL(new Blob([].concat(blob)));
 });
 
-
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
-export const createoldMD5 = (message="") => import('hash-wasm').then(({ md5 }) => md5(
-    new TextEncoder().encode(message)
-));
+export const createoldMD5 = (message="") => import('hash-wasm').then(({ 
+    md5 
+}) => md5(new TextEncoder().encode(message)));
+
 export const stringMd5 = async (message="") => (await import('hash-wasm')).md5(message);
+
+
+// Development notes
+// Todo: Improve base64 use maybe deprecate it complet in favor of nativ UTF8 PrivateArea
+// Todo: Improve Linking refactor to use pouchdb-lib/src/index.js pouchdb_package_name
+// Todo: we should stay with atob for browsers and btoa Buffer.string('base64') for node
+
+// Todo: node buffer should only get used in the edge case of base64
