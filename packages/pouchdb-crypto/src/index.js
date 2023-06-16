@@ -91,20 +91,7 @@ export async function digestFromMessage(message,algo='SHA-256') {
         algo, await new Blob([str]).arrayBuffer()
     ); 
         
-    return { 
-        digist(format='hex') {
-            const formats = {
-                hex: () => 
-                    Array.from(new Uint8Array(arrayBuffer))
-                    // converted buffer to byte array
-                    .map((b) => b.toString(16).padStart(2, "0"))
-                    .join(""), // converted bytes to hex string;
-                base64: () => btoa(new TextDecoder().decode(arrayBuffer)),
-            };
-            // Fails by design with wrong format            
-            return formats[format]();
-        } 
-    };
+    return StringBuffer(arrayBuffer);
 }
 
 // Enables binary raw fetch eliminates the need for ascii conversation
