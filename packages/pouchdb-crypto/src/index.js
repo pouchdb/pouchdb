@@ -84,7 +84,7 @@ export const StringBuffer = async (arrayBuffer) => {
                 : (format.startsWith('u') || format.startsWith('U')) 
                     ? formats.utf16() 
                     : arrayBuffer.toString();
-        } 
+        },
     };
 };
 
@@ -92,7 +92,7 @@ export const StringBuffer = async (arrayBuffer) => {
 export async function digestFromMessage(message,algo='SHA-256') {
     // hash the message
     const arrayBuffer = await crypto.subtle.digest(
-        algo, await new Blob([str]).arrayBuffer()
+        algo, await new Blob([message]).arrayBuffer()
     ); 
         
     return StringBuffer(arrayBuffer);
