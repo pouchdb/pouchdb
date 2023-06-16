@@ -121,13 +121,13 @@ export const base64encoderStream = {
 // Node does not even support the fileReader Api 
 // Returns only the ${base64Data} 
 // Reverse: await fetch(`data:${'image/jpeg'||''};base64,${base64Data}`);
-export const readBlobAsBase64 = (blob) => new Promise((resolve, reject) => {
+export const readBase64DataFromBlob = (blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
     reader.onerror = reject;
     reader.onload = () => {
         resolve(reader.result.split('base64,',1)[1]);
     };
-    reader.readAsDataURL(new Blob([].concat(blob)));
+    reader.readAsDataURL(new Blob([].concat([blob])));
 });
 
 
