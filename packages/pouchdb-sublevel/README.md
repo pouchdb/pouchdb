@@ -1,4 +1,4 @@
-pouchdb-sublevel ![semver non-compliant](https://img.shields.io/badge/semver-non--compliant-red.svg)
+sublevel-pouchdb ![semver non-compliant](https://img.shields.io/badge/semver-non--compliant-red.svg)
 ======
 
 Fork of [level-sublevel](https://github.com/dominictarr/level-sublevel) 
@@ -8,7 +8,7 @@ commit [fa1b712](https://github.com/dominictarr/level-sublevel/commits/fa1b7121f
 ### Usage
 
 ```bash
-npm install --save-exact pouchdb-sublevel
+npm install --save-exact sublevel-pouchdb
 ```
 
 For full API documentation and guides on PouchDB, see [PouchDB.com](http://pouchdb.com/). For details on PouchDB sub-packages, see the [Custom Builds documentation](http://pouchdb.com/custom.html).
