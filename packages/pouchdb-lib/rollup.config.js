@@ -60,7 +60,7 @@ module.exports = [{
         this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
         this.emitFile({ fileName: 'pouchdb-lib.js', // index.js exports lib/pouchdb-*.js
            source: `${Object.keys(input).map((key) => 
-           `export * as ${key.replaceAll('-','_')} from './${key}.js';`).join('\n')}`,
+           `export * as ${key.replaceAll('-','_')} from '${key}';`).join('\n')}`,
             type: 'asset' 
         });
       },
