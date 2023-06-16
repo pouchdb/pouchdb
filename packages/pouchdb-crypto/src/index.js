@@ -78,8 +78,9 @@ export const StringBuffer = async (arrayBuffer) => {
                 base64: () => btoa(new TextDecoder().decode(arrayBuffer)),
                 utf16: () => new TextDecoder().decode(arrayBuffer),
             };
-            // Fails by design with wrong format            
-            return formats[format] ? formats[format]() : arrayBuffer.toString();
+            
+            return formats[format] ? formats[format]() : (format.startsWith('u') 
+                || format.startsWith('U')) ? formats.utf16() : arrayBuffer.toString();
         } 
     };
 };
