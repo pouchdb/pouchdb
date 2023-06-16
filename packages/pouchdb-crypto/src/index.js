@@ -102,7 +102,7 @@ export const createoldMD5 = (message="") => import('hash-wasm').then(({
     md5 
 }) => md5(new TextEncoder().encode(message)));
 
-export const stringMd5 = async (message="") => (await import('hash-wasm')).md5(message);
+export const stringMd5 = async (message="") => md5(message);
 
 
 // Development notes
