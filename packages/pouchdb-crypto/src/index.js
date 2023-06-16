@@ -26,6 +26,9 @@ const btoa = (globalThis.btoa) || globalThis.Buffer && ((string) => globalThis.B
 
 const charset = 'x-user-defined';
 
+
+// Enables binary raw fetch eliminates the need for ascii conversation
+// eliminates the need for base64 
 // Maps to the UTF Private Address Space Area so you can get bits as chars
 const binaryRawEnablingHeader = `text/plain; charset=${charset}`;
 
@@ -33,10 +36,9 @@ const binaryRawEnablingHeader = `text/plain; charset=${charset}`;
 const convertToAbyte = (chars) => 
   new Array(chars.length)
     .map((_abyte,offset) => chars.charCodeAt(offset) & 0xff);
-
+// supports   'range': 'bytes=2-5,10-13'
 export const _BinaryRawFetch = (url) => fetch(url,{ headers: { 
   'Content-Type': binaryRawEnablingHeader,
-  'range': 'bytes=2-5,10-13'
 }}).then(
     (res) => convertToAbyte(res.text())
 );
