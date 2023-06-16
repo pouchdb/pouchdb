@@ -1,5 +1,5 @@
-import binaryMd5 from './binaryMd5';
-import stringMd5 from './stringMd5';
+import binaryMd5 from './binaryMd5.js';
+import stringMd5 from './stringMd5.js';
 
 export {
   binaryMd5,
