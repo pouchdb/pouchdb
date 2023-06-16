@@ -1,4 +1,4 @@
-import { o as obj, L as LevelPouch$1 } from './index-c5aea249.js';
+import { o as obj, L as LevelPouch$1 } from './index-20fb4ee6.js';
 import './pouchdb-platform.js';
 import path from 'node:path';
 import { w as winningRev } from './rootToLeaf-f8d0e78a.js';
@@ -12,8 +12,7 @@ import level from 'level';
 import LevelWriteStream from 'level-write-stream';
 import fs from 'node:fs';
 import 'levelup';
-import 'ltgt';
-import 'level-codec';
+import 'pouchdb-sublevel';
 import 'stream';
 import 'events';
 import 'buffer';
@@ -68,7 +67,7 @@ import './merge-1e46cced.js';
 import './revExists-12209d1c.js';
 import './safeJsonStringify-a65d9a0c.js';
 import 'vuvuzela';
-import 'pouchdb-lib/lib/pouchdb-md5.js';
+import './binaryMd5-601b2421-601b2421.js';
 
 // require leveldown. provide verbose output on error as it is the default
 // nodejs adapter, which we do not provide for the user
