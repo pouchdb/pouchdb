@@ -67,10 +67,13 @@ export async function digestFromMessage(message,algo='SHA-256') {
 // eliminates the need for base64 
 const charset = 'x-user-defined';
 
+
+
+
+// UTF-8 based replacement alternative for base64
+// Nativ UTF-8 Binary mode.
 // Maps to the UTF Private Address Space Area so you can get bits as chars
 const binaryRawEnablingHeader = `text/plain; charset=${charset}`;
-
-
 
 // supports   'range': 'bytes=2-5,10-13'
 // Returns byteArray from raw bytes represented by UTF-8 Binary
@@ -92,13 +95,14 @@ export const base64encoderStream = {
 };
 
 //new TransformStream(base64encoderStream)
-
+export const arrayBufferToBase64 = (arrayBuffer) => btoa(
+    String.fromCharCode(...new Uint8Array(arrayBuffer))
+);
 // Old But gold
 export function blobToBase64(blobOrBuffer, callback) {
-    new Response(blobOrBuffer).arrayBuffer().then((arrayBuffer) => btoa(
-    String.fromCharCode(
-    ...new Uint8Array(arrayBuffer)
-    ))).then((b64)=>callback(null,b64),err=>callback(err));
+    new Response(blobOrBuffer).arrayBuffer().then(arrayBufferToBase64).then((
+        b64)=>callback(null,b64),err=>callback(err)
+    );
    //callback(blobOrBuffer.toString('binary'));
 }
 // eg "digest":"md5-yDbs1scfYdqqLpxyFb1gFw==",
