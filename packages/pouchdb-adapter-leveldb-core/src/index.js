@@ -1,5 +1,5 @@
 import levelup from 'levelup';
-import sublevel from 'sublevel-pouchdb';
+import sublevel from 'pouchdb-sublevel';
 import { obj as through } from 'through2';
 import Deque from 'double-ended-queue';
 import PouchDB from 'pouchdb-core';

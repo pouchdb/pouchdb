@@ -1,5 +1,5 @@
 {
-  "name": "sublevel-pouchdb",
+  "name": "pouchdb-sublevel",
   "version": "7.0.0-prerelease",
   "description": "Fork of level-sublevel with ony the subset of the API that PouchDB uses",
   "main": "./lib/index.js",
@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/pouchdb/pouchdb.git",
-    "directory": "packages/node_modules/sublevel-pouchdb"
+    "directory": "packages/node_modules/pouchdb-sublevel"
   },
   "module": "./src/index.js",
   "contributors": [
