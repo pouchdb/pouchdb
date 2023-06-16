@@ -57,11 +57,11 @@ module.exports = [{
       name: 'emit-module-package-file',
       generateBundle() {
         this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
-        this.emitFile({ fileName: 'index.js', // index.js exports lib/pouchdb-*.js
-          source: `${Object.keys(input).map((key) => 
-          `export * as ${key.replaceAll('-','_')} from './${key}.js';`).join('\n')}`,
-           type: 'asset' 
-        });
+        // this.emitFile({ fileName: 'index.js', // index.js exports lib/pouchdb-*.js
+        //   source: `${Object.keys(input).map((key) => 
+        //   `export * as ${key.replaceAll('-','_')} from './${key}.js';`).join('\n')}`,
+        //    type: 'asset' 
+        // });
       },
     },
     alias({
