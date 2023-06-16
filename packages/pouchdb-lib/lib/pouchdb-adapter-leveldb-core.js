@@ -1,4 +1,4 @@
-export { L as default } from './index-ce9a41d8.js';
+export { L as default } from './index-3d81fcba.js';
 import './pouchdb-core.js';
 import './pouchdb-utils.js';
 import './allDocsKeysQuery-7f4fbcb9.js';
@@ -20,6 +20,7 @@ import './_commonjsHelpers-24198af3.js';
 import 'events';
 import 'util';
 import 'buffer';
+import './readable-bcb7bff2.js';
 import 'stream';
 import 'assert';
 import './typedBuffer-a8220a49.js';

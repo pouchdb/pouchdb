@@ -1,4 +1,4 @@
-import { i as immutable, m as mutable, e as errors, a as inheritsExports, l as levelCodec, b as levelup$1, o as obj, L as LevelPouch$1 } from './index-ce9a41d8.js';
+import { i as immutable, m as mutable, e as errors, l as levelup$1, o as obj, L as LevelPouch$1 } from './index-3d81fcba.js';
 import './pouchdb-platform.js';
 import path$1 from 'node:path';
 import { w as winningRev } from './rootToLeaf-f8d0e78a.js';
@@ -9,6 +9,7 @@ import 'crypto';
 import { a as isLocalId } from './isLocalId-d067de54.js';
 import { g as getDefaultExportFromCjs } from './_commonjsHelpers-24198af3.js';
 import require$$0 from 'buffer';
+import { i as inheritsExports, l as levelCodec } from './readable-bcb7bff2.js';
 import require$$0$1$1 from 'util';
 import require$$0$1 from 'fs';
 import require$$1 from 'path';

@@ -31,6 +31,7 @@ export * as pouchdb_platform from 'pouchdb-platform';
 export * as pouchdb_replication from 'pouchdb-replication';
 export * as pouchdb_selector_core from 'pouchdb-selector-core';
 export * as pouchdb_server_packages from 'pouchdb-server-packages';
+export * as pouchdb_sublevel from 'pouchdb-sublevel';
 export * as pouchdb_utils from 'pouchdb-utils';
 // export * as pouchdb_plugin_find from 'pouchdb-plugin-find';
 // export * as pouchdb_plugin_fruitdown from 'pouchdb-plugin-fruitdown';

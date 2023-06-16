@@ -1,5 +1,6 @@
-import { a as inheritsExports, L as LevelPouch } from './index-ce9a41d8.js';
+import { L as LevelPouch } from './index-3d81fcba.js';
 import { c as commonjsGlobal, g as getDefaultExportFromCjs } from './_commonjsHelpers-24198af3.js';
+import { i as inheritsExports } from './readable-bcb7bff2.js';
 import require$$0 from 'buffer';
 import 'events';
 import 'util';
