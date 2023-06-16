@@ -24,7 +24,7 @@ import 'stream';
 import 'assert';
 import './typedBuffer-a8220a49.js';
 import 'node:events';
-import './fetch-f2310cb2.js';
+import './fetch-a9c3fc6d.js';
 import 'http';
 import 'url';
 import 'punycode';

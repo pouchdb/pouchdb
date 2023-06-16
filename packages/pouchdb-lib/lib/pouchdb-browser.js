@@ -4,7 +4,7 @@ import IDBPouch from './pouchdb-adapter-idb.js';
 import mapreduce from './pouchdb-mapreduce.js';
 import replication from './pouchdb-replication.js';
 import 'node:events';
-import './fetch-f2310cb2.js';
+import './fetch-a9c3fc6d.js';
 import 'stream';
 import 'http';
 import 'url';

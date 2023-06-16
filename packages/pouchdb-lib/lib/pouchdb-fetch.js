@@ -1,4 +1,4 @@
-export { A as AbortController, H as Headers, f as fetch } from './fetch-f2310cb2.js';
+export { A as AbortController, H as Headers, f as fetch } from './fetch-a9c3fc6d.js';
 import 'stream';
 import 'http';
 import 'url';
