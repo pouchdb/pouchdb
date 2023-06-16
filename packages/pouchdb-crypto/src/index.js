@@ -19,6 +19,10 @@ export {
     createBLAKE2s,
     createBLAKE2b,
 } from 'hash-wasm';
+const btoa = globalThis.btoa ? (str="") => globalThis.btoa(str) : globalThis.Buffer && (
+    (string) => globalThis.Buffer.from(string).toString('base64')
+);
+
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
 export const createoldMD5 = async (message="") => md5(new TextEncoder().encode(message));
@@ -35,7 +39,7 @@ export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(
 
 export const hex2utf16 = (hex="") => hex.match(
     /\w{2}/g).map(b=>String.fromCharCode(parseInt(b, 16))).join("");
-const btoa = globalThis.btoa ? (str="") => globalThis.btoa(str) : globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
+
 export const hex2base64 = (hex="") => btoa(hex2utf16(hex));
 
 export async function binaryMd5(data, callback=()=>{}) {
@@ -43,6 +47,19 @@ export async function binaryMd5(data, callback=()=>{}) {
     // callback(base64);
     return md5(data).then(btoa).then((base64)=>[callback(base64)] && base64);
 }
+
+export const arrayBufferToBase64 = (arrayBuffer) => btoa(
+    String.fromCharCode(...new Uint8Array(arrayBuffer))
+);
+// Old But gold
+export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
+    return new Response(blobOrBuffer).arrayBuffer().then(arrayBufferToBase64).then((
+        b64)=>callback(null,b64)||b64,err=>callback(err)
+    );
+   //callback(blobOrBuffer.toString('binary'));
+}
+
+
 
 export async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
@@ -95,16 +112,7 @@ export const base64encoderStream = {
 };
 
 //new TransformStream(base64encoderStream)
-export const arrayBufferToBase64 = (arrayBuffer) => btoa(
-    String.fromCharCode(...new Uint8Array(arrayBuffer))
-);
-// Old But gold
-export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
-    return new Response(blobOrBuffer).arrayBuffer().then(arrayBufferToBase64).then((
-        b64)=>callback(null,b64)||b64,err=>callback(err)
-    );
-   //callback(blobOrBuffer.toString('binary'));
-}
+
 // eg "digest":"md5-yDbs1scfYdqqLpxyFb1gFw==",
 // base642hex new Buffer('yDbs1scfYdqqLpxyFb1gFw==', 'base64').toString('hex')
 // hex2base64 new Buffer('c836ecd6c71f61daaa2e9c7215bd6017', 'hex').toString('base64')
