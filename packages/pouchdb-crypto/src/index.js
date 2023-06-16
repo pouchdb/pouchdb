@@ -154,7 +154,7 @@ export const readBase64DataFromBlob = (blob) => new Promise((resolve, reject) =>
 
 // Node 19 crypto support v16.x upward need --experimental-global-webcrypto
 // Node 18 fetch support v16.x upward needs --experimental-fetch
-// Node 18 BroadcastChannel (replacement for eventEmitter)
 //  => Response Support abort controller Blob
+// Node 18 BroadcastChannel (replacement for eventEmitter)
 // Node 18 is stable so we got flagbased backward compatability till 16.x
 // Future roadmap if globalThis.crypto does not exist use hash-wasm
