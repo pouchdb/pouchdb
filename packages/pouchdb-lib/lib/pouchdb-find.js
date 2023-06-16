@@ -4,7 +4,7 @@ import { generateErrorFromResponse } from './pouchdb-errors.js';
 import { i as isRemote } from './isRemote-2533b7cb.js';
 import { t as toPromise } from './toPromise-f6e385ee.js';
 import 'crypto';
-import { H as Headers } from './fetch-a9c3fc6d.js';
+import { H as Headers } from './fetch-f2310cb2.js';
 import { c as clone } from './clone-7eeb6295.js';
 import { p as parseField, g as getFieldFromDoc, s as setFieldInDoc, m as matchesSelector, a as massageSelector, b as getValue, c as getKey, d as compare, f as filterInMemoryFields } from './matches-selector-87ab4d5f.js';
 import { n as nextTick } from './nextTick-ea093886.js';

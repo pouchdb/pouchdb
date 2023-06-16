@@ -1,5 +1,5 @@
 import EE from 'node:events';
-import { f as fetch } from './fetch-a9c3fc6d.js';
+import { f as fetch } from './fetch-f2310cb2.js';
 import { v as v4, l as listenerCount, i as invalidIdError, r as rev, b as bulkGet, p as pick, h as hasLocalStorage } from './rev-48662a2a.js';
 import { n as nextTick } from './nextTick-ea093886.js';
 import { c as clone } from './clone-7eeb6295.js';

@@ -12,7 +12,7 @@ import 'buffer';
 import 'stream';
 import 'assert';
 import './pouchdb-core.js';
-import './fetch-a9c3fc6d.js';
+import './fetch-f2310cb2.js';
 import 'http';
 import 'url';
 import 'punycode';
