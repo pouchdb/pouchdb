@@ -158,3 +158,4 @@ export const readBase64DataFromBlob = (blob) => new Promise((resolve, reject) =>
 // Node 18 BroadcastChannel (replacement for eventEmitter)
 // Node 18 is stable so we got flagbased backward compatability till 16.x
 // Future roadmap if globalThis.crypto does not exist use hash-wasm
+// Node 16 needs the broadcast-channel.js Polyfill
