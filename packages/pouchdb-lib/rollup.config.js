@@ -4,6 +4,7 @@ const nodeResolve = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const json = require('@rollup/plugin-json');
 const alias = require('@rollup/plugin-alias');
+const replace = require('@rollup/plugin-replace');
 const eslint = require('@rollup/plugin-eslint')({
   include: ["*.js","*.mjs"],
   exclude: [],
@@ -21,7 +22,9 @@ const customResolver = nodeResolve({
 const entries = [
   { find: 'zlib', replacement: 'node:zlib'// path.resolve(projectRootDir, 'src')
     // OR place `customResolver` here. See explanation below.
-  }
+  },
+  { find: 'vm', replacement: 'node:vm' },
+  { find: 'buffer', replacement: 'node:buffer' },
 ];
 
 // Promise.resolve().then(async () =>
@@ -64,6 +67,23 @@ module.exports = [{
     }),
     nodeResolve({preferBuiltins: true,
       modulePaths: ['../','node_modules','../../node_modules'],
+    }), json(), commonjs()
+  ],
+  output: [{ dir: 'lib' }]
+},{ 
+  input: { "pouchdb-lib.esm.js": "lib/index.js" },
+  plugins: [
+    replace({
+      '("vm")': `('node:vm')`,
+      [`from 'buffer'`]: `from 'node:buffer'`,
+      [`from 'vm'`]: `from 'node:vm'`,
+      __buildVersion: 15
+    }),
+    alias({
+      customResolver, entries,
+    }),
+    nodeResolve({preferBuiltins: true,
+      modulePaths: ['../','node_modules','../../node_modules','./'],
     }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]

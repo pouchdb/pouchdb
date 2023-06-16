@@ -83230,6 +83230,62 @@ function isLocalId(id) {
 // Creates
 import('./environment-4ed993c7-4ed993c7.js');
 
+// `findPathToLeaf()` returns an array of revs that goes from the specified
+// leaf rev to the root of that leaf’s branch.
+//
+// eg. for this rev tree:
+// 1-9692 ▶ 2-37aa ▶ 3-df22 ▶ 4-6e94 ▶ 5-df4a ▶ 6-6a3a ▶ 7-57e5
+//          ┃                 ┗━━━━━━▶ 5-8d8c ▶ 6-65e0
+//          ┗━━━━━━▶ 3-43f6 ▶ 4-a3b4
+//
+// For a `targetRev` of '7-57e5', `findPathToLeaf()` would return ['7-57e5', '6-6a3a', '5-df4a']
+// The `revs` arument has the same structure as what `revs_tree` has on e.g.
+// the IndexedDB representation of the rev tree datastructure. Please refer to
+// tests/unit/test.purge.js for examples of what these look like.
+//
+// This function will throw an error if:
+// - The requested revision does not exist
+// - The requested revision is not a leaf
+function findPathToLeaf(revs, targetRev) {
+  let path = [];
+  const toVisit = revs.slice();
+
+  let node;
+  while ((node = toVisit.pop())) {
+    const { pos, ids: tree } = node;
+    const rev = `${pos}-${tree[0]}`;
+    const branches = tree[2];
+
+    // just assuming we're already working on the path up towards our desired leaf.
+    path.push(rev);
+
+    // we've reached the leaf of our dreams, so return the computed path.
+    if (rev === targetRev) {
+      //…unleeeeess
+      if (branches.length !== 0) {
+        throw new Error('The requested revision is not a leaf');
+      }
+      return path.reverse();
+    }
+
+    // this is based on the assumption that after we have a leaf (`branches.length == 0`), we handle the next
+    // branch. this is true for all branches other than the path leading to the winning rev (which is 7-57e5 in
+    // the example above. i've added a reset condition for branching nodes (`branches.length > 1`) as well.
+    if (branches.length === 0 || branches.length > 1) {
+      path = [];
+    }
+
+    // as a next step, we push the branches of this node to `toVisit` for visiting it during the next iteration
+    for (let i = 0, len = branches.length; i < len; i++) {
+      toVisit.push({ pos: pos + 1, ids: branches[i] });
+    }
+  }
+  if (path.length === 0) {
+    throw new Error('The requested revision does not exist');
+  }
+  return path.reverse();
+}
+
 function parseDesignDocFunctionName(s) {
   if (!s) {
     return null;
@@ -84812,6 +84868,35 @@ function doNextCompaction(self) {
   });
 }
 
+function appendPurgeSeq(db, docId, rev) {
+  return db.get('_local/purges').then(doc => {
+    const purgeSeq = doc.purgeSeq + 1;
+    doc.purges.push({
+      docId,
+      rev,
+      purgeSeq,
+    });
+    if (doc.purges.length > self.purged_infos_limit) {
+      doc.purges.splice(0, doc.purges.length - self.purged_infos_limit);
+    }
+    doc.purgeSeq = purgeSeq;
+    return doc;
+  }).catch(err => {
+    if (err.status !== 404) {
+      throw err;
+    }
+    return {
+      _id: '_local/purges',
+      purges: [{
+        docId,
+        rev,
+        purgeSeq: 0,
+      }],
+      purgeSeq: 0,
+    };
+  }).then(doc => db.put(doc));
+}
+
 function attachmentNameError(name) {
   if (name.charAt(0) === '_') {
     return `${name} is not a valid attachment name, attachment names cannot start with '_'`;
@@ -85603,12 +85688,35 @@ class AbstractPouchDB extends BroadcastChannel {
 
 // The abstract purge implementation expects a doc id and the rev of a leaf node in that doc.
 // It will return errors if the rev doesn’t exist or isn’t a leaf.
-AbstractPouchDB.prototype.purge = (docId, rev, callback) => {
-  if (typeof undefined._purge === 'undefined') {
+AbstractPouchDB.prototype.purge = function purge(docId, rev, callback) {
+  if (typeof this._purge === 'undefined') {
     return callback(createError(UNKNOWN_ERROR, 
-      `Purge is not implemented in the ${undefined.adapter} adapter.`
+      `Purge is not implemented in the ${this.adapter} adapter.`
     ));
   }
+  const self = this;
+
+  self._getRevisionTree(docId, (error, revs) => {
+    if (error) {
+      return callback(error);
+    }
+    if (!revs) {
+      return callback(createError(MISSING_DOC));
+    }
+    let path;
+    try {
+      path = findPathToLeaf(revs, rev);
+    } catch (error) {
+      return callback(error.message || error);
+    }
+    self._purge(docId, path, (error, result) => {
+      if (error) {
+        return callback(error);
+      } else {
+        appendPurgeSeq(self, docId, rev).then(() => callback(null, result));
+      }
+    });
+  });
 };
 
 class TaskQueue$1 {
