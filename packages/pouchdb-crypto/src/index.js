@@ -24,6 +24,13 @@ export {
 export const createoldMD5 = async (message="") => md5(new TextEncoder().encode(message));
 export const stringMd5 = async (message="") => md5(message);
 
+
+// used by hash-wasm to convert digest: hex to Response(arrayBuffer)
+export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16))).buffer;
+export const hex2string = (hex="") => hex.match(/\w{2}/g).map(b=>String.fromCharCode(parseInt(b, 16))).join("");
+const btoa = globalThis.btoa ? (str="") => globalThis.btoa(str) : globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
+export const hex2base64 = (hex="") => btoa(hex2string(hex));
+
 export async function binaryMd5(data, callback=()=>{}) {
     // var base64 = crypto.createHash('md5').update(data, 'binary').digest('base64');
     // callback(base64);
@@ -49,11 +56,7 @@ export async function digestFromMessage(message,algo='SHA-256') {
     };
 }
 
-// used by hash-wasm to convert digest: hex to Response(arrayBuffer)
-export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16))).buffer;
-export const hex2string = (hex="") => hex.match(/\w{2}/g).map(b=>String.fromCharCode(parseInt(b, 16))).join("");
-const btoa = globalThis.btoa ? (str) => globalThis.btoa(str) : globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
-export const hex2base64 = (hex="") => btoa(hex2string(hex));
+
 
 // Enables binary raw fetch eliminates the need for ascii conversation
 // eliminates the need for base64 
