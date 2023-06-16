@@ -1,10 +1,14 @@
 /* eslint-disable no-undef */
 
+// Hashing Checksums and more
+
 // Todo: crypto api useage must be async browser api is async and hash-wasm is async
 // Todo: we should use hash-wasm md5 only at present and use where supported
 // nodejs / browser(secure context only) 
 //       const { subtle } = globalThis.crypto;
 // Importing only usefull methods that are not included in globalThis.crypto.subtle
+import { md5 } from 'hash-wasm';
+
 export {
     blake3,
     blake2s,
@@ -15,6 +19,10 @@ export {
     createBLAKE2s,
     createBLAKE2b,
 } from 'hash-wasm';
+//import { md5, sha1, sha512, sha3 } from 'hash-wasm'
+// replaces stringMd5 returns hex should also use message.normalize('NFKC')
+export const createoldMD5 = (message="") => md5(new TextEncoder().encode(message));
+export const stringMd5 = async (message="") => md5(message);
 
 export async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
@@ -96,13 +104,7 @@ export const toBase64 = (blob) => new Promise((resolve, reject) => {
     reader.readAsDataURL(new Blob([].concat(blob)));
 });
 
-//import { md5, sha1, sha512, sha3 } from 'hash-wasm'
-// replaces stringMd5 returns hex should also use message.normalize('NFKC')
-export const createoldMD5 = (message="") => import('hash-wasm').then(({ 
-    md5 
-}) => md5(new TextEncoder().encode(message)));
 
-export const stringMd5 = async (message="") => md5(message);
 
 
 // Development notes
