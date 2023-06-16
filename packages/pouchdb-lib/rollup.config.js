@@ -50,7 +50,7 @@ const input = Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,
 
 module.exports = [{ 
   input,
-  external: (name="") => name.includes('pouchdb-lib'),
+  external: (name="") => console.log(name,name.includes('pouchdb-lib')) || name.includes('pouchdb-lib'),
   plugins: [
     eslint,
     {
