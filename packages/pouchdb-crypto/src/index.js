@@ -19,6 +19,7 @@ export {
     createBLAKE2s,
     createBLAKE2b,
 } from 'hash-wasm';
+
 // string2base64
 const btoa = globalThis.btoa 
 ? (str="") => globalThis.btoa(str) 
@@ -87,9 +88,6 @@ export async function digestFromMessage(message,algo='SHA-256') {
 // eliminates the need for base64 
 const charset = 'x-user-defined';
 
-
-
-
 // UTF-8 based replacement alternative for base64
 // Nativ UTF-8 Binary mode.
 // Maps to the UTF Private Address Space Area so you can get bits as chars
@@ -123,7 +121,7 @@ export const base64encoderStream = {
 // Node does not even support the fileReader Api 
 // Returns only the ${base64Data} 
 // Reverse: await fetch(`data:${'image/jpeg'||''};base64,${base64Data}`);
-export const toBase64 = (blob) => new Promise((resolve, reject) => {
+export const readBlobAsBase64 = (blob) => new Promise((resolve, reject) => {
     const reader = new FileReader;
     reader.onerror = reject;
     reader.onload = () => {
