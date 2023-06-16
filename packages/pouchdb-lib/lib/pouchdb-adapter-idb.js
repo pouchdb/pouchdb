@@ -10,7 +10,7 @@ import 'crypto';
 import { p as preprocessAttachments } from './preprocessAttachments-24086c35.js';
 import { p as processDocs } from './processDocs-f320a035.js';
 import { p as pick } from './pick-60e95b5a.js';
-import { s as safeJsonStringify, a as safeJsonParse } from './safeJsonStringify-74893f3d.js';
+import { s as safeJsonStringify, a as safeJsonParse } from './safeJsonStringify-6520e306.js';
 import { b as b64ToBluffer } from './base64StringToBlobOrBuffer-3fd03be6.js';
 import { r as readAsBinaryString } from './readAsBinaryString-06e911ba.js';
 import { C as Changes } from './changesHandler-c020580c.js';
@@ -30,7 +30,6 @@ import './typedBuffer-a8220a49.js';
 import './binaryMd5-601b2421.js';
 import './merge-1e46cced.js';
 import './revExists-12209d1c.js';
-import './index-ddf3f5c0.js';
 import './once-de8350b9.js';
 
 // IndexedDB requires a versioned database structure, so we use the

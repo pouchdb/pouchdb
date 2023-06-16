@@ -8,7 +8,7 @@ import { i as isRemote } from './isRemote-2533b7cb.js';
 import 'crypto';
 import { b as b64ToBluffer } from './base64StringToBlobOrBuffer-3fd03be6.js';
 import { c as collate, t as toIndexableString, n as normalizeKey, p as parseIndexableString } from './index-618b2bca.js';
-import { H as Headers } from './fetch-dd6d0a21.js';
+import { H as Headers } from './fetch-148a5ead.js';
 import { u as upsert } from './upsert-331b6913.js';
 import { stringMd5 } from './pouchdb-crypto.js';
 import { p as promisedCallback, c as callbackify, m as mapToKeysArray, s as sequentialize, f as fin, u as uniq } from './index-cffd0bb5.js';

@@ -1,10 +1,9 @@
 import Stream from 'stream';
 import http from 'http';
 import Url from 'url';
-import { p as publicApi } from './abort-controller-b8f44fb2.js';
+import { p as publicApi, f as fetchCookie } from './abort-controller-08d1ea45.js';
 import https from 'https';
 import zlib from 'zlib';
-import { f as fetchCookie } from './index-31837118.js';
 
 // Based on https://github.com/tmpvar/jsdom/blob/aa85b2abf07766ff7bf5c1f6daafb3726f2f2db5/lib/jsdom/living/blob.js
 

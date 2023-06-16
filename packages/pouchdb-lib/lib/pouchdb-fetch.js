@@ -1,11 +1,10 @@
 import Stream from 'stream';
 import http from 'http';
 import Url from 'url';
-import { p as publicApi } from './abort-controller-b8f44fb2.js';
-export { A as AbortController } from './abort-controller-b8f44fb2.js';
+import { p as publicApi, f as fetchCookie } from './abort-controller-08d1ea45.js';
+export { A as AbortController } from './abort-controller-08d1ea45.js';
 import https from 'https';
 import zlib from 'zlib';
-import { f as fetchCookie } from './index-31837118.js';
 import 'punycode';
 import './_commonjsHelpers-24198af3.js';
 import 'util';
