@@ -63,8 +63,6 @@ export async function digestFromMessage(message,algo='SHA-256') {
     };
 }
 
-
-
 // Enables binary raw fetch eliminates the need for ascii conversation
 // eliminates the need for base64 
 const charset = 'x-user-defined';
@@ -72,10 +70,11 @@ const charset = 'x-user-defined';
 // Maps to the UTF Private Address Space Area so you can get bits as chars
 const binaryRawEnablingHeader = `text/plain; charset=${charset}`;
 
-// UNICODE Private Area 0xF700-0xF7ff.
+
 const convertToAbyte = (chars) => 
-  new Array(chars.length)
-    .map((_abyte,offset) => chars.charCodeAt(offset) & 0xff);
+  new Array(chars.length).map(
+    // UNICODE Private Area 0xF700-0xF7ff.
+    (_abyte,offset) => chars.charCodeAt(offset) & 0xff);
 
 // supports   'range': 'bytes=2-5,10-13'
 export const _BinaryRawFetch = (url) => fetch(url,{ headers: { 
