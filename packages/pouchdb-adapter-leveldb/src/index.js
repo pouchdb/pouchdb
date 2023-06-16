@@ -28,11 +28,11 @@ function LevelDownPouch(opts, callback) {
 }
 
 // overrides for normal LevelDB behavior on Node
-LevelDownPouch.valid = function () {
+LevelDownPouch.valid = () => {
   return true;
 };
 LevelDownPouch.use_prefix = false;
 
-export default function (PouchDB) {
+export default function LevelPouch(PouchDB) {
   PouchDB.adapter('leveldb', LevelDownPouch, true);
 }
