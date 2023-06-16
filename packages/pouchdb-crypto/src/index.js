@@ -21,8 +21,14 @@ export {
 } from 'hash-wasm';
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
-export const createoldMD5 = (message="") => md5(new TextEncoder().encode(message));
+export const createoldMD5 = async (message="") => md5(new TextEncoder().encode(message));
 export const stringMd5 = async (message="") => md5(message);
+
+export async function binaryMd5(data, callback=()=>{}) {
+    // var base64 = crypto.createHash('md5').update(data, 'binary').digest('base64');
+    // callback(base64);
+    return md5(data).then(btoa).then((base64)=>[callback(base64)] && base64);
+}
 
 export async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
