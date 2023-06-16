@@ -32,6 +32,7 @@ export const stringMd5 = async (message="") => md5(message);
 // Note base64 is only usefull in URLS json supports hex strings
 export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(
     /../g).map(h=>parseInt(h,16))).buffer;
+/** @type {(x:string)=>string} */
 export const hex2utf16 = (hex="") => hex.match(
     /\w{2}/g).map(b=>String.fromCharCode(parseInt(b, 16))).join("");
 const btoa = globalThis.btoa ? (str="") => globalThis.btoa(str) : globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
