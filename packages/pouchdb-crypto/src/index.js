@@ -152,10 +152,12 @@ export const readBase64DataFromBlob = (blob) => new Promise((resolve, reject) =>
 
 // Todo: node buffer should only get used in the edge case of base64
 
+// Node 18 is stable so we got flagbased backward compatability till 16.x
+
 // Node 19 crypto support v16.x upward need --experimental-global-webcrypto
 // Node 18 fetch support v16.x upward needs --experimental-fetch
 //  => Response Support abort controller Blob
 // Node 18 BroadcastChannel (replacement for eventEmitter)
-// Node 18 is stable so we got flagbased backward compatability till 16.x
 // Future roadmap if globalThis.crypto does not exist use hash-wasm
 // Node 16 needs the broadcast-channel.js Polyfill
+// Node 18 got Compression Streams all other need to use zlib
