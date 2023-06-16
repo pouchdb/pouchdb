@@ -73,7 +73,7 @@ module.exports = [{
   ],
   output: [{ dir: 'lib' }]
 },{ 
-  input: { "pouchdb-lib.esm.js": "lib/index.js" },
+  input: { "pouchdb-modules": "lib/index.js" },
   plugins: [
     replace({
       '("vm")': `('node:vm')`,
