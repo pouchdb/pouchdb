@@ -139,3 +139,8 @@ export const readBase64DataFromBlob = (blob) => new Promise((resolve, reject) =>
 // Todo: we should stay with atob for browsers and btoa Buffer.string('base64') for node
 
 // Todo: node buffer should only get used in the edge case of base64
+
+
+// Node 19 crypto support v16.x upward need --experimental-global-webcrypto
+// Node 18 fetch support v16.x upward needs --experimental-fetch
+//  => Response Support abort controller Blob
