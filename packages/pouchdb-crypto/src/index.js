@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 export async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
     const arrayBuffer = await crypto.subtle.digest(algo, msgUint8); // hash the message
@@ -17,7 +19,12 @@ export async function digestFromMessage(message,algo='SHA-256') {
     };
 }
 
+// used by hash-wasm to convert digest: hex to Response(arrayBuffer)
 export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16))).buffer;
+
+const btoa = (globalThis.btoa) || globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
+
+
 
  
 export const base64encoderStream = {
