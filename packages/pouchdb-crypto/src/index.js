@@ -26,8 +26,11 @@ export const stringMd5 = async (message="") => md5(message);
 
 
 // used by hash-wasm to convert digest: hex to Response(arrayBuffer)
-export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16))).buffer;
-export const hex2string = (hex="") => hex.match(/\w{2}/g).map(b=>String.fromCharCode(parseInt(b, 16))).join("");
+// Note that hex is a text format to represent bytes 
+export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(
+    /../g).map(h=>parseInt(h,16))).buffer;
+export const hex2string = (hex="") => hex.match(
+    /\w{2}/g).map(b=>String.fromCharCode(parseInt(b, 16))).join("");
 const btoa = globalThis.btoa ? (str="") => globalThis.btoa(str) : globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
 export const hex2base64 = (hex="") => btoa(hex2string(hex));
 
