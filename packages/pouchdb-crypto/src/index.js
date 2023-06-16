@@ -99,9 +99,9 @@ export const arrayBufferToBase64 = (arrayBuffer) => btoa(
     String.fromCharCode(...new Uint8Array(arrayBuffer))
 );
 // Old But gold
-export function blobToBase64(blobOrBuffer, callback) {
-    new Response(blobOrBuffer).arrayBuffer().then(arrayBufferToBase64).then((
-        b64)=>callback(null,b64),err=>callback(err)
+export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
+    return new Response(blobOrBuffer).arrayBuffer().then(arrayBufferToBase64).then((
+        b64)=>callback(null,b64)||b64,err=>callback(err)
     );
    //callback(blobOrBuffer.toString('binary'));
 }
