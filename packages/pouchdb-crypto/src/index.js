@@ -65,11 +65,31 @@ export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
     );
    //callback(blobOrBuffer.toString('binary'));
 }
+
+export const StringBuffer = async (arrayBuffer) => {    
+    return { 
+        digist(format='hex') {
+            const formats = {
+                hex: () => 
+                    Array.from(new Uint8Array(arrayBuffer))
+                    // converted buffer to byte array
+                    .map((b) => b.toString(16).padStart(2, "0"))
+                    .join(""), // converted bytes to hex string;
+                base64: () => btoa(new TextDecoder().decode(arrayBuffer)),
+            };
+            // Fails by design with wrong format            
+            return formats[format]();
+        } 
+    };
+};
+
 // message is UTF-16 String
 export async function digestFromMessage(message,algo='SHA-256') {
-    const msgUint8 = new TextEncoder().encode(message);
+    
     // hash the message
-    const arrayBuffer = await crypto.subtle.digest(algo, msgUint8); 
+    const arrayBuffer = await crypto.subtle.digest(
+        algo, await new Blob([str]).arrayBuffer()
+    ); 
         
     return { 
         digist(format='hex') {
