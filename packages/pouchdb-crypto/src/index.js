@@ -21,12 +21,15 @@ export {
 } from 'hash-wasm';
 
 // string2base64
-const btoa = globalThis.btoa 
-? (str="") => globalThis.btoa(str) // Links to deprecated Buffer.btoa in node
-: globalThis.Buffer && ( // is the new replacement for Buffer.btoa in node
+export const btoa = globalThis.btoa 
+  ? (str="") => globalThis.btoa(str) // Links to deprecated Buffer.btoa in node
+  : globalThis.Buffer && ( // is the new replacement for Buffer.btoa in node
     (string) => globalThis.Buffer.from(string).toString('base64')
-);
+  );
 
+export const atob = globalThis.atob 
+  ? (str="") => globalThis.btoa(str) // Links to deprecated Buffer.atob in node
+  : Buffer.from(str, 'base64');
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
 export const createoldMD5 = async (message="") => md5(new TextEncoder().encode(message));
@@ -137,4 +140,5 @@ export const readBase64DataFromBlob = (blob) => new Promise((resolve, reject) =>
 
 // Node 19 crypto support v16.x upward need --experimental-global-webcrypto
 // Node 18 fetch support v16.x upward needs --experimental-fetch
+// Node 18 BroadcastChannel (replacement for eventEmitter)
 //  => Response Support abort controller Blob
