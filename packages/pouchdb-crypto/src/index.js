@@ -67,20 +67,23 @@ export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
 }
 // Implements nodes Buffer.toString('hex','base64','utf-8')
 export const StringBuffer = async (arrayBuffer) => {    
+    const formats = {
+        hex: () => 
+            Array.from(new Uint8Array(arrayBuffer))
+            // converted buffer to byte array
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join(""), // converted bytes to hex string;
+        base64: () => btoa(new TextDecoder().decode(arrayBuffer)),
+        utf16: () => new TextDecoder().decode(arrayBuffer),
+    };
+
     return { 
-        toString(format='hex') {
-            const formats = {
-                hex: () => 
-                    Array.from(new Uint8Array(arrayBuffer))
-                    // converted buffer to byte array
-                    .map((b) => b.toString(16).padStart(2, "0"))
-                    .join(""), // converted bytes to hex string;
-                base64: () => btoa(new TextDecoder().decode(arrayBuffer)),
-                utf16: () => new TextDecoder().decode(arrayBuffer),
-            };
-            
-            return formats[format] ? formats[format]() : (format.startsWith('u') 
-                || format.startsWith('U')) ? formats.utf16() : arrayBuffer.toString();
+        toString(format='hex') {       
+            return formats[format] 
+                ? formats[format]() 
+                : (format.startsWith('u') || format.startsWith('U')) 
+                    ? formats.utf16() 
+                    : arrayBuffer.toString();
         } 
     };
 };
