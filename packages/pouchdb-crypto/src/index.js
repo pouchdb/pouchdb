@@ -2,7 +2,8 @@
 
 // Todo: crypto api useage must be async browser api is async and hash-wasm is async
 // Todo: we should use hash-wasm md5 only at present and use where supported
-//       crypto.subtle nodejs / browser(secure context only) const { subtle } = globalThis.crypto;
+// nodejs / browser(secure context only) 
+//       const { subtle } = globalThis.crypto;
 // Importing only usefull methods that are not included in globalThis.crypto.subtle
 export {
     blake3,
@@ -12,7 +13,7 @@ export {
     createMD5,
     createBLAKE3,
     createBLAKE2s,
-    createBLAKE2b 
+    createBLAKE2b,
 } from 'hash-wasm';
 
 export async function digestFromMessage(message,algo='SHA-256') {
