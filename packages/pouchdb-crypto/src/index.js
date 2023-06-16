@@ -19,7 +19,7 @@ export {
     createBLAKE2s,
     createBLAKE2b,
 } from 'hash-wasm';
-
+// string2base64
 const btoa = globalThis.btoa 
 ? (str="") => globalThis.btoa(str) 
 : globalThis.Buffer && (
