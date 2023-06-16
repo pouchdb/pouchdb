@@ -5,7 +5,7 @@ import 'clone-buffer';
 import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
 import './pouchdb-errors.js';
 import 'crypto';
-import './index-5962f5bd.js';
+import './index-c5aea249.js';
 import 'levelup';
 import 'ltgt';
 import './pouchdb-platform.js';
@@ -67,7 +67,7 @@ import './merge-1e46cced.js';
 import './revExists-12209d1c.js';
 import './safeJsonStringify-a65d9a0c.js';
 import 'vuvuzela';
-import './binaryMd5-601b2421-601b2421.js';
+import 'pouchdb-lib/lib/pouchdb-md5.js';
 import 'localstorage-down';
 
 // this code only runs in the browser, as its own dist/ script

@@ -21,7 +21,7 @@ import { createError, MISSING_DOC, NOT_OPEN, REV_CONFLICT, MISSING_STUB, BAD_ARG
 import 'crypto';
 import { p as processDocs } from './processDocs-2980e64a.js';
 import { s as safeJsonStringify, a as safeJsonParse } from './safeJsonStringify-a65d9a0c.js';
-import { b as binaryMd5 } from './binaryMd5-601b2421-601b2421.js';
+import { binaryMd5 } from 'pouchdb-lib/lib/pouchdb-md5.js';
 import { t as typedBuffer } from './typedBuffer-a8220a49.js';
 import { f as functionName } from './functionName-56a2e70f.js';
 import { n as nextTick } from './nextTick-ea093886.js';

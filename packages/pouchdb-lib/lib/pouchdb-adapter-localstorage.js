@@ -1,4 +1,4 @@
-import { L as LevelPouch } from './index-5962f5bd.js';
+import { L as LevelPouch } from './index-c5aea249.js';
 import localstoragedown from 'localstorage-down';
 import 'levelup';
 import 'ltgt';
@@ -67,7 +67,7 @@ import './merge-1e46cced.js';
 import './revExists-12209d1c.js';
 import './safeJsonStringify-a65d9a0c.js';
 import 'vuvuzela';
-import './binaryMd5-601b2421-601b2421.js';
+import 'pouchdb-lib/lib/pouchdb-md5.js';
 
 function LocalStoragePouch(opts, callback) {
   var _opts = Object.assign({
