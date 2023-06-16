@@ -1,4 +1,4 @@
-import { L as LevelPouch } from './index-a3730a19.js';
+import { L as LevelPouch } from './index-5962f5bd.js';
 import memdown from 'memdown';
 import 'levelup';
 import 'ltgt';
@@ -62,12 +62,12 @@ import './parseDoc-a0994e12.js';
 import './latest-0521537f.js';
 import './binaryStringToBlobOrBuffer-39ece35b.js';
 import './typedBuffer-a8220a49.js';
-import './binaryMd5-601b2421.js';
 import './processDocs-2980e64a.js';
 import './merge-1e46cced.js';
 import './revExists-12209d1c.js';
 import './safeJsonStringify-a65d9a0c.js';
 import 'vuvuzela';
+import './binaryMd5-601b2421-601b2421.js';
 
 function MemDownPouch(opts, callback) {
   var _opts = Object.assign({

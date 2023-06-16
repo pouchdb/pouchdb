@@ -30,9 +30,7 @@ import {
   safeJsonStringify
 } from 'pouchdb-json';
 
-import {
-  binaryMd5
-} from 'pouchdb-md5';
+import { binaryMd5 } from 'pouchdb-lib/lib/pouchdb-md5.js';
 
 import {
   binaryStringToBlobOrBuffer as binStringToBluffer

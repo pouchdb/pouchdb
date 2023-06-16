@@ -30,6 +30,7 @@ import require$$2 from 'events';
 import require$$0$1 from 'buffer';
 import require$$1$1 from 'util';
 import Deque from 'double-ended-queue';
+import { b as binaryMd5 } from './binaryMd5-601b2421-601b2421.js';
 import * as vuvuzela from 'vuvuzela';
 import level from 'level';
 import LevelWriteStream from 'level-write-stream';
@@ -57,6 +58,10 @@ import './stringMd5-15f53eba.js';
 import './typedBuffer-a8220a49.js';
 import './binaryMd5-601b2421.js';
 import './pouchdb-collate.js';
+
+function stringMd5$1(string) {
+  return crypto$2.createHash('md5').update(string, 'binary').digest('hex');
+}
 
 var publicApi = {};
 
@@ -82759,10 +82764,6 @@ function generateErrorFromResponse(err) {
   return err;
 }
 
-function stringMd5$1(string) {
-  return crypto$2.createHash('md5').update(string, 'binary').digest('hex');
-}
-
 // like underscore/lodash _.pick()
 function pick$1(obj, arr) {
   var res = {};
@@ -83631,11 +83632,11 @@ function numToIndexableString(num) {
 }
 
 var collate$1 = /*#__PURE__*/Object.freeze({
-	__proto__: null,
-	collate: collate,
-	normalizeKey: normalizeKey,
-	parseIndexableString: parseIndexableString,
-	toIndexableString: toIndexableString
+  __proto__: null,
+  collate: collate,
+  normalizeKey: normalizeKey,
+  parseIndexableString: parseIndexableString,
+  toIndexableString: toIndexableString
 });
 
 // this would just be "return doc[field]", but fields
@@ -86331,11 +86332,6 @@ function typedBuffer(binString, buffType, type) {
 
 function binStringToBluffer(binString, type) {
   return typedBuffer(binString, 'binary', type);
-}
-
-function binaryMd5(data, callback) {
-  var base64 = crypto$2.createHash('md5').update(data, 'binary').digest('base64');
-  callback(base64);
 }
 
 // for a better overview of what this is doing, read:

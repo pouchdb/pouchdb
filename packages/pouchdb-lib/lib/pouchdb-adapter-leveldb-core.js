@@ -1,5 +1,5 @@
 import 'levelup';
-export { L as default } from './index-a3730a19.js';
+export { L as default } from './index-5962f5bd.js';
 import 'double-ended-queue';
 import './pouchdb-core.js';
 import './pouchdb-utils.js';
@@ -11,10 +11,10 @@ import './latest-0521537f.js';
 import './isLocalId-d067de54.js';
 import './binaryStringToBlobOrBuffer-39ece35b.js';
 import './pouchdb-errors.js';
-import './binaryMd5-601b2421.js';
 import 'crypto';
 import './processDocs-2980e64a.js';
 import './safeJsonStringify-a65d9a0c.js';
+import './binaryMd5-601b2421-601b2421.js';
 import './clone-3530a126.js';
 import './functionName-56a2e70f.js';
 import './nextTick-ea093886.js';
