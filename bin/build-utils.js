@@ -29,8 +29,10 @@ function writeFile(filename, contents) {
 }
 
 function doUglify(pkgName, code, prepend, fileOut) {
-  var miniCode = prepend + terser.minify(code).code;
-  return writeFile(path.resolve('packages/' + pkgName, fileOut), miniCode);
+
+  var miniCode = prepend + terser.minify(code, { output: { ascii_only: true }}).code;
+  return writeFile(addPath(pkgName, fileOut), miniCode);
+
 }
 
 var browserifyCache = {};
