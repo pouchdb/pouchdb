@@ -88,5 +88,5 @@ module.exports = [{
       //modulePaths: ['../','node_modules','../../node_modules','./'],
     }), json(), commonjs()
   ],
-  output: [{ dir: 'lib' }]
+  output: [{ dir: 'dist' }]
 }];
