@@ -51,7 +51,7 @@ export async function digestFromMessage(message,algo='SHA-256') {
 
 // used by hash-wasm to convert digest: hex to Response(arrayBuffer)
 export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16))).buffer;
-
+export const hex2base64 = (hex="") => btoa(hex.match(/\w{2}/g).map(function(a){return String.fromCharCode(parseInt(a, 16));} ).join(""))
 const btoa = (globalThis.btoa) || globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
 
 // Enables binary raw fetch eliminates the need for ascii conversation
