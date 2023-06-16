@@ -65,7 +65,7 @@ export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
     );
    //callback(blobOrBuffer.toString('binary'));
 }
-
+// Implements nodes Buffer.toString('hex','base64','utf-8')
 export const StringBuffer = async (arrayBuffer) => {    
     return { 
         toString(format='hex') {
