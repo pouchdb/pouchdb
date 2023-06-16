@@ -15,7 +15,7 @@ import './isRemote-2533b7cb.js';
 import './base64StringToBlobOrBuffer-3fd03be6.js';
 import './typedBuffer-a8220a49.js';
 import './pouchdb-collate.js';
-import './fetch-a9c3fc6d.js';
+import './fetch-f2310cb2.js';
 import 'stream';
 import 'http';
 import 'url';

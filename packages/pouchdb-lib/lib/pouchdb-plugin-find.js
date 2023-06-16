@@ -8,7 +8,7 @@ import './isRemote-2533b7cb.js';
 import './toPromise-f6e385ee.js';
 import './clone-7eeb6295.js';
 import './once-de8350b9.js';
-import './fetch-a9c3fc6d.js';
+import './fetch-f2310cb2.js';
 import 'stream';
 import 'http';
 import 'url';

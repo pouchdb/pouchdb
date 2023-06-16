@@ -63,7 +63,7 @@ import './pouchdb-mapreduce-utils.js';
 import './pouchdb-abstract-mapreduce.js';
 import './base64StringToBlobOrBuffer-3fd03be6.js';
 import './pouchdb-collate.js';
-import './fetch-a9c3fc6d.js';
+import './fetch-f2310cb2.js';
 import 'http';
 import 'url';
 import 'punycode';

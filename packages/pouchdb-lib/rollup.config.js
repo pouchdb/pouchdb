@@ -46,11 +46,13 @@ const input = Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,
 ).concat([
   ['hash-wasm','hash-wasm']
 ]).filter( // here we filter out the node_modules folder package.json 
-  (entrie)=>entrie[0].startsWith('pouchdb') && !entrie[0].includes('pouchdb-lib')));
+  (entrie)=>entrie[0].startsWith('pouchdb') 
+  //&& !entrie[0].includes('pouchdb-lib')
+  ));
 
 module.exports = [{ 
   input,
-  external: (name="") => console.log(name,name.includes('pouchdb-lib')) || name.includes('pouchdb-lib'),
+  //external: (name="") => console.log(name,name.includes('pouchdb-lib')) || name.includes('pouchdb-lib'),
   plugins: [
     eslint,
     {

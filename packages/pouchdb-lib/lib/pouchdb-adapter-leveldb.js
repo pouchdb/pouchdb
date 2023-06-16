@@ -9,7 +9,7 @@ import 'crypto';
 import { a as isLocalId } from './isLocalId-d067de54.js';
 import { g as getDefaultExportFromCjs } from './_commonjsHelpers-24198af3.js';
 import require$$0 from 'buffer';
-import require$$0$2 from 'util';
+import require$$0$1$1 from 'util';
 import require$$0$1 from 'fs';
 import require$$1 from 'path';
 import require$$2 from 'os';
@@ -18,7 +18,7 @@ import fs$1 from 'node:fs';
 import 'events';
 import 'assert';
 import './pouchdb-core.js';
-import './fetch-a9c3fc6d.js';
+import './fetch-f2310cb2.js';
 import 'http';
 import 'url';
 import 'punycode';
@@ -1526,7 +1526,7 @@ load.compareTags = compareTags;
 
 var binding$3 = nodeGypBuild(__dirname);
 
-const util$2 = require$$0$2;
+const util$2 = require$$0$1$1;
 const AbstractChainedBatch = abstractLeveldown$1.AbstractChainedBatch;
 const binding$2 = binding$3;
 
@@ -1555,7 +1555,7 @@ util$2.inherits(ChainedBatch$1, AbstractChainedBatch);
 
 var chainedBatch = ChainedBatch$1;
 
-const util$1 = require$$0$2;
+const util$1 = require$$0$1$1;
 const AbstractIterator = abstractLeveldown$1.AbstractIterator;
 const binding$1 = binding$3;
 
@@ -1606,7 +1606,7 @@ Iterator$1.prototype._end = function (callback) {
 
 var iterator = Iterator$1;
 
-const util = require$$0$2;
+const util = require$$0$1$1;
 const AbstractLevelDOWN = abstractLeveldown$1.AbstractLevelDOWN;
 const binding = binding$3;
 const ChainedBatch = chainedBatch;
