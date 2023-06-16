@@ -45,7 +45,8 @@ const input = Object.fromEntries(fs.readdirSync('../../packages').map(pkg=>[pkg,
   fs.readdirSync('../../packages/pouchdb/src/plugins').map(plg=>[`pouchdb-plugin-${plg.slice(0,-3)}`,'../../packages/pouchdb/src/plugins/'+plg])
 ).concat([
   ['hash-wasm','hash-wasm']
-]).filter((entrie)=>entrie[0].startsWith('pouchdb')));
+]).filter( // here we filter out the node_modules folder package.json 
+  (entrie)=>entrie[0].startsWith('pouchdb')));
 
 module.exports = [{ 
   input,
