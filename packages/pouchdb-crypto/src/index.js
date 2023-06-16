@@ -70,18 +70,15 @@ const charset = 'x-user-defined';
 // Maps to the UTF Private Address Space Area so you can get bits as chars
 const binaryRawEnablingHeader = `text/plain; charset=${charset}`;
 
-
-const convertToAbyte = (chars) => 
+const convertToByteArray = (chars) => 
   new Array(chars.length).map(
     // UNICODE Private Area 0xF700-0xF7ff.
-    (_abyte,offset) => chars.charCodeAt(offset) & 0xff);
+    (_byte,offset) => chars.charCodeAt(offset) & 0xff);
 
 // supports   'range': 'bytes=2-5,10-13'
 export const _BinaryRawFetch = (url) => fetch(url,{ headers: { 
   'Content-Type': binaryRawEnablingHeader,
-}}).then(
-    (res) => convertToAbyte(res.text())
-);
+}}).then((res) => convertToByteArray(res.text()));
 
 export const base64encoderStream = {
     transform(data,ready) {
