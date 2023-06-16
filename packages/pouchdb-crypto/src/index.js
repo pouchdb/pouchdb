@@ -22,8 +22,8 @@ export {
 
 // string2base64
 const btoa = globalThis.btoa 
-? (str="") => globalThis.btoa(str) 
-: globalThis.Buffer && (
+? (str="") => globalThis.btoa(str) // Links to deprecated Buffer.btoa in node
+: globalThis.Buffer && ( // is the new replacement for Buffer.btoa in node
     (string) => globalThis.Buffer.from(string).toString('base64')
 );
 
@@ -32,7 +32,6 @@ const btoa = globalThis.btoa
 export const createoldMD5 = async (message="") => md5(new TextEncoder().encode(message));
 /** @type {(x:string)=>string} string containing Hex */
 export const stringMd5 = async (message="") => md5(message);
-
 
 // used by hash-wasm to convert digest: hex to Response(arrayBuffer)
 // Note that hex is a text representation of bytes like base64
@@ -62,8 +61,6 @@ export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
     );
    //callback(blobOrBuffer.toString('binary'));
 }
-
-
 
 export async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
@@ -100,6 +97,7 @@ export const _BinaryRawFetch = (url) => fetch(url,{ headers: {
 }}).then((r)=>r.text()).then((chars) => new Array(chars.length).map(
   // UNICODE Private Area 0xF700-0xF7ff.
   (_byte,offset) => chars.charCodeAt(offset) & 0xff));
+
 
 export const base64encoderStream = {
     transform(data,ready) {
