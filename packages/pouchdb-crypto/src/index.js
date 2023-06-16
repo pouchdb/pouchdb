@@ -17,6 +17,8 @@ export async function digestFromMessage(message,algo='SHA-256') {
     };
 }
 
+export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16))).buffer;
+
  
 export const base64encoderStream = {
     transform(data,ready) {
