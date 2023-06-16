@@ -65,7 +65,7 @@ export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
     );
    //callback(blobOrBuffer.toString('binary'));
 }
-
+// message is UTF-16 String
 export async function digestFromMessage(message,algo='SHA-256') {
     const msgUint8 = new TextEncoder().encode(message);
     // hash the message
