@@ -28,6 +28,7 @@ export const stringMd5 = async (message="") => md5(message);
 // used by hash-wasm to convert digest: hex to Response(arrayBuffer)
 // Note that hex is a text representation of bytes like base64
 // Note that UTF-8 Strings can get turned into hex and base64
+// Note base64 is only usefull in URLS json supports hex strings
 export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(
     /../g).map(h=>parseInt(h,16))).buffer;
 export const hex2utf16 = (hex="") => hex.match(
