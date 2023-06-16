@@ -1,13 +1,15 @@
 import EE from 'node:events';
-import { f as fetch } from './fetch-ad491323.js';
-import { u as uuid_1 } from './functionName-56a2e70f.js';
-import { l as listenerCount, i as invalidIdError, r as rev, b as bulkGet, p as pick, h as hasLocalStorage } from './rev-591f7bff.js';
+import { f as fetch } from './fetch-dd6d0a21.js';
+import { v as v4 } from './v4-b7ee9c0c.js';
+import { p as pick } from './pick-60e95b5a.js';
 import { n as nextTick } from './nextTick-ea093886.js';
-import { c as clone } from './clone-3530a126.js';
+import { c as clone } from './clone-9d9f421b.js';
 import { g as guardedConsole } from './guardedConsole-f54e5a40.js';
-import { createError, UNKNOWN_ERROR, MISSING_DOC, NOT_AN_OBJECT, REV_CONFLICT, INVALID_ID, INVALID_REV, QUERY_PARSE_ERROR, MISSING_BULK_DOCS, BAD_REQUEST } from './pouchdb-errors.js';
+import { c as createError, U as UNKNOWN_ERROR, M as MISSING_DOC, N as NOT_AN_OBJECT, R as REV_CONFLICT, I as INVALID_ID, a as INVALID_REV, Q as QUERY_PARSE_ERROR, b as MISSING_BULK_DOCS, B as BAD_REQUEST } from './functionName-97119de9.js';
+import { i as invalidIdError } from './invalidIdError-d6c03c27.js';
 import { i as isRemote } from './isRemote-2533b7cb.js';
 import { u as upsert } from './upsert-331b6913.js';
+import { r as rev } from './rev-5211ac7a.js';
 import { o as once } from './once-de8350b9.js';
 import 'crypto';
 import { c as collectLeaves, a as collectConflicts } from './collectConflicts-ad0b7c70.js';
@@ -16,16 +18,18 @@ import './pouchdb-platform.js';
 import { t as traverseRevTree, r as rootToLeaf } from './rootToLeaf-f8d0e78a.js';
 import { f as findPathToLeaf } from './findPathToLeaf-7e69c93c.js';
 import { clone as clone$1 } from 'pouchdb-utils.js';
-import 'clone-buffer';
+import './index-15c7260a.js';
 import applyChangesFilterPlugin from './pouchdb-changes-filter.js';
 import 'stream';
 import 'http';
 import 'url';
+import './abort-controller-b8f44fb2.js';
 import 'punycode';
 import 'https';
 import 'zlib';
-import 'fetch-cookie';
-import './stringMd5-15f53eba.js';
+import './index-31837118.js';
+import './_commonjsHelpers-24198af3.js';
+import 'util';
 import 'node:assert';
 import 'node:fs';
 import 'node:buffer';
@@ -39,9 +43,10 @@ import 'node:util';
 import 'node:vm';
 import 'node:path';
 import 'node:os';
+import 'buffer';
 import './normalizeDdocFunctionName-ea3481cf.js';
-import './matches-selector-db0b5c42.js';
-import './pouchdb-collate.js';
+import './matches-selector-96146c79.js';
+import './index-618b2bca.js';
 import 'vm';
 
 class ActiveTasks {
@@ -54,7 +59,7 @@ class ActiveTasks {
   }
 
   add(task) {
-    const id = uuid_1.v4();
+    const id = v4();
     this.tasks[id] = {
       id,
       name: task.name,
@@ -106,6 +111,147 @@ function createClass(parent, init) {
   };
   inherits(klass, parent);
   return klass;
+}
+
+// Most browsers throttle concurrent requests at 6, so it's silly
+// to shim _bulk_get by trying to launch potentially hundreds of requests
+// and then letting the majority time out. We can handle this ourselves.
+var MAX_NUM_CONCURRENT_REQUESTS = 6;
+
+function identityFunction(x) {
+  return x;
+}
+
+function formatResultForOpenRevsGet(result) {
+  return [{
+    ok: result
+  }];
+}
+
+// shim for P/CouchDB adapters that don't directly implement _bulk_get
+function bulkGet(db, opts, callback) {
+  var requests = opts.docs;
+
+  // consolidate into one request per doc if possible
+  var requestsById = new Map();
+  requests.forEach(function (request) {
+    if (requestsById.has(request.id)) {
+      requestsById.get(request.id).push(request);
+    } else {
+      requestsById.set(request.id, [request]);
+    }
+  });
+
+  var numDocs = requestsById.size;
+  var numDone = 0;
+  var perDocResults = new Array(numDocs);
+
+  function collapseResultsAndFinish() {
+    var results = [];
+    perDocResults.forEach(function (res) {
+      res.docs.forEach(function (info) {
+        results.push({
+          id: res.id,
+          docs: [info]
+        });
+      });
+    });
+    callback(null, {results: results});
+  }
+
+  function checkDone() {
+    if (++numDone === numDocs) {
+      collapseResultsAndFinish();
+    }
+  }
+
+  function gotResult(docIndex, id, docs) {
+    perDocResults[docIndex] = {id: id, docs: docs};
+    checkDone();
+  }
+
+  var allRequests = [];
+  requestsById.forEach(function (value, key) {
+    allRequests.push(key);
+  });
+
+  var i = 0;
+
+  function nextBatch() {
+
+    if (i >= allRequests.length) {
+      return;
+    }
+
+    var upTo = Math.min(i + MAX_NUM_CONCURRENT_REQUESTS, allRequests.length);
+    var batch = allRequests.slice(i, upTo);
+    processBatch(batch, i);
+    i += batch.length;
+  }
+
+  function processBatch(batch, offset) {
+    batch.forEach(function (docId, j) {
+      var docIdx = offset + j;
+      var docRequests = requestsById.get(docId);
+
+      // just use the first request as the "template"
+      // TODO: The _bulk_get API allows for more subtle use cases than this,
+      // but for now it is unlikely that there will be a mix of different
+      // "atts_since" or "attachments" in the same request, since it's just
+      // replicate.js that is using this for the moment.
+      // Also, atts_since is aspirational, since we don't support it yet.
+      var docOpts = pick(docRequests[0], ['atts_since', 'attachments']);
+      docOpts.open_revs = docRequests.map(function (request) {
+        // rev is optional, open_revs disallowed
+        return request.rev;
+      });
+
+      // remove falsey / undefined revisions
+      docOpts.open_revs = docOpts.open_revs.filter(identityFunction);
+
+      var formatResult = identityFunction;
+
+      if (docOpts.open_revs.length === 0) {
+        delete docOpts.open_revs;
+
+        // when fetching only the "winning" leaf,
+        // transform the result so it looks like an open_revs
+        // request
+        formatResult = formatResultForOpenRevsGet;
+      }
+
+      // globally-supplied options
+      ['revs', 'attachments', 'binary', 'ajax', 'latest'].forEach(function (param) {
+        if (param in opts) {
+          docOpts[param] = opts[param];
+        }
+      });
+      db.get(docId, docOpts, function (err, res) {
+        var result;
+        /* istanbul ignore if */
+        if (err) {
+          result = [{error: err}];
+        } else {
+          result = formatResult(res);
+        }
+        gotResult(docIdx, docId, result);
+        nextBatch();
+      });
+    });
+  }
+
+  nextBatch();
+
+}
+
+// in Node of course this is false
+function hasLocalStorage() {
+  return false;
+}
+
+function listenerCount(ee, type) {
+  return 'listenerCount' in ee ? ee.listenerCount(type) :
+                                 EE.listenerCount(ee, type);
 }
 
 function tryCatchInChangeListener(self, change, pending, lastSeq) {

@@ -67,7 +67,7 @@ module.exports = [{
       customResolver, entries,
     }),
     nodeResolve({preferBuiltins: true,
-      modulePaths: ['../','node_modules','../../node_modules'],
+      //modulePaths: ['../','node_modules','../../node_modules'],
     }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]
@@ -84,7 +84,7 @@ module.exports = [{
       customResolver, entries,
     }),
     nodeResolve({preferBuiltins: true,
-      modulePaths: ['../','node_modules','../../node_modules','./'],
+      //modulePaths: ['../','node_modules','../../node_modules','./'],
     }), json(), commonjs()
   ],
   output: [{ dir: 'lib' }]

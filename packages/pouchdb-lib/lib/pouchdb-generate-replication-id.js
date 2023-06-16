@@ -1,6 +1,6 @@
 import { b as binaryMd5 } from './binaryMd5-601b2421.js';
 import 'crypto';
-import { collate } from './pouchdb-collate.js';
+import { c as collate } from './index-618b2bca.js';
 
 function sortObjectPropertiesByKey(queryParams) {
   return Object.keys(queryParams).sort(collate).reduce(function (result, key) {

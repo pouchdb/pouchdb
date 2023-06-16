@@ -1,48 +1,50 @@
-import './functionName-56a2e70f.js';
-import 'node:events';
-import { n as nextTick } from './nextTick-ea093886.js';
-import 'clone-buffer';
+import { Set as ExportedSet } from './pouchdb-collections.js';
+import { a as argsarray } from './index-f7cc900c.js';
+import { nextTick } from './pouchdb-utils.js';
+import { a as inherits } from './inherits-febe64f8.js';
+import './_commonjsHelpers-24198af3.js';
+import './index-15c7260a.js';
+import 'buffer';
 import './pouchdb-errors.js';
+import 'events';
+import './pouchdb-md5.js';
 import 'crypto';
 
-class QueryParseError extends Error {
-  constructor(message) {
-    super();
-    this.status = 400;
-    this.name = 'query_parse_error';
-    this.message = message;
-    this.error = true;
-    try {
-      Error.captureStackTrace(this, QueryParseError);
-    } catch (e) {}
-  }
+function QueryParseError(message) {
+  this.status = 400;
+  this.name = 'query_parse_error';
+  this.message = message;
+  this.error = true;
+  try {
+    Error.captureStackTrace(this, QueryParseError);
+  } catch (e) {}
 }
 
-class NotFoundError extends Error {
-  constructor(message) {
-    super();
-    this.status = 404;
-    this.name = 'not_found';
-    this.message = message;
-    this.error = true;
-    try {
-      Error.captureStackTrace(this, NotFoundError);
-    } catch (e) {}
-  }
+inherits(QueryParseError, Error);
+
+function NotFoundError(message) {
+  this.status = 404;
+  this.name = 'not_found';
+  this.message = message;
+  this.error = true;
+  try {
+    Error.captureStackTrace(this, NotFoundError);
+  } catch (e) {}
 }
 
-class BuiltInError extends Error {
-  constructor(message) {
-    super();
-    this.status = 500;
-    this.name = 'invalid_value';
-    this.message = message;
-    this.error = true;
-    try {
-      Error.captureStackTrace(this, BuiltInError);
-    } catch (e) {}
-  }
+inherits(NotFoundError, Error);
+
+function BuiltInError(message) {
+  this.status = 500;
+  this.name = 'invalid_value';
+  this.message = message;
+  this.error = true;
+  try {
+    Error.captureStackTrace(this, BuiltInError);
+  } catch (e) {}
 }
+
+inherits(BuiltInError, Error);
 
 function promisedCallback(promise, callback) {
   if (callback) {
@@ -60,14 +62,14 @@ function promisedCallback(promise, callback) {
 }
 
 function callbackify(fun) {
-  return function (...args) {
+  return argsarray(function (args) {
     var cb = args.pop();
     var promise = fun.apply(this, args);
     if (typeof cb === 'function') {
       promisedCallback(promise, cb);
     }
     return promise;
-  };
+  });
 }
 
 // Promise finally util similar to Q.finally
@@ -96,7 +98,7 @@ function sequentialize(queue, promiseFactory) {
 // uniq an array of strings, order not guaranteed
 // similar to underscore/lodash _.uniq
 function uniq(arr) {
-  var theSet = new Set(arr);
+  var theSet = new ExportedSet(arr);
   var result = new Array(theSet.size);
   var index = -1;
   theSet.forEach(function (value) {

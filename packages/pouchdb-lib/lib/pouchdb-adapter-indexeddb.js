@@ -1,31 +1,28 @@
-import './functionName-56a2e70f.js';
-import { uuid, filterChange, changesHandler as Changes } from './pouchdb-utils.js';
-import 'clone-buffer';
-import { createError, IDB_ERROR, MISSING_DOC, UNKNOWN_ERROR, REV_CONFLICT, MISSING_STUB, BAD_ARG } from './pouchdb-errors.js';
+import { C as Changes } from './changesHandler-c020580c.js';
+import './index-15c7260a.js';
+import { c as createError, l as IDB_ERROR, M as MISSING_DOC, U as UNKNOWN_ERROR, R as REV_CONFLICT, e as MISSING_STUB, h as BAD_ARG } from './functionName-97119de9.js';
 import 'node:events';
 import 'crypto';
+import { u as uuid } from './index-f8a9e0ec.js';
 import { r as readAsBinaryString } from './readAsBinaryString-06e911ba.js';
 import { l as latest, c as compactTree } from './latest-0521537f.js';
 import { b as binStringToBluffer } from './binaryStringToBlobOrBuffer-39ece35b.js';
-import { p as parseDoc } from './parseDoc-a0994e12.js';
+import { p as parseDoc } from './parseDoc-67781d71.js';
 import { b as binaryMd5 } from './binaryMd5-601b2421.js';
 import { w as winningRev, t as traverseRevTree } from './rootToLeaf-f8d0e78a.js';
 import { m as merge } from './merge-1e46cced.js';
 import { a as collectConflicts } from './collectConflicts-ad0b7c70.js';
-import { r as removeLeafFromRevTree } from './removeLeafFromTree-913b121c.js';
-import './rev-591f7bff.js';
-import './stringMd5-15f53eba.js';
+import { f as filterChange } from './filterChange-0090dde4.js';
+import { r as removeLeafFromRevTree } from './removeLeafFromTree-af761a97.js';
+import './pick-60e95b5a.js';
 import './nextTick-ea093886.js';
-import './clone-3530a126.js';
-import './guardedConsole-f54e5a40.js';
-import './flatten-994f45c6.js';
-import './isRemote-2533b7cb.js';
-import './normalizeDdocFunctionName-ea3481cf.js';
-import './once-de8350b9.js';
-import './scopeEval-ff3a416d.js';
-import './toPromise-42fa3440.js';
-import './upsert-331b6913.js';
+import './_commonjsHelpers-24198af3.js';
+import 'buffer';
+import './v4-b7ee9c0c.js';
 import './typedBuffer-a8220a49.js';
+import './rev-5211ac7a.js';
+import './invalidIdError-d6c03c27.js';
+import './clone-9d9f421b.js';
 
 // 'use strict'; is default when ESM
 

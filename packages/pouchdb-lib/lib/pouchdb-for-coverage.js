@@ -5,9 +5,9 @@ import Url from 'url';
 import require$$0 from 'punycode';
 import https from 'https';
 import zlib from 'zlib';
-import fetchCookie from 'fetch-cookie';
+import { f as fetchCookie } from './index-31837118.js';
 import crypto$2 from 'crypto';
-import cloneBuffer from 'clone-buffer';
+import { c as cloneBuffer } from './index-15c7260a.js';
 import 'node:assert';
 import fs from 'node:fs';
 import 'node:buffer';
@@ -23,40 +23,73 @@ import path from 'node:path';
 import 'node:os';
 import { clone as clone$2 } from 'pouchdb-utils.js';
 import vm from 'vm';
-import levelup from 'levelup';
-import sublevel from 'pouchdb-sublevel';
-import require$$2 from 'events';
-import require$$0$1 from 'buffer';
 import require$$1$1 from 'util';
-import Deque from 'double-ended-queue';
-import * as vuvuzela from 'vuvuzela';
-import level from 'level';
-import LevelWriteStream from 'level-write-stream';
-import { b as binaryMd5$1 } from './binaryMd5-601b2421-601b2421.js';
-import { parseUri, uuid as uuid$2, defaultBackOff as defaultBackOff$1 } from './pouchdb-utils.js';
+import { s as sublevelPouch, l as levelup, D as Deque, b as binaryMd5$1 } from './binaryMd5-601b2421-d30c2c24.js';
+import EventEmitter from 'events';
+import require$$0$1 from 'buffer';
+import { p as parse, s as stringify$1 } from './index-ddf3f5c0.js';
+import { l as level, L as LevelWriteStream } from './index-859998ff.js';
+import { u as uuid$2 } from './index-f8a9e0ec.js';
 import { w as winningRev$1 } from './rootToLeaf-f8d0e78a.js';
 import { m as merge$1 } from './merge-1e46cced.js';
 import { b as binStringToBluffer$1 } from './binaryStringToBlobOrBuffer-39ece35b.js';
-import { uniq as uniq$2, sequentialize as sequentialize$1, fin as fin$1, callbackify as callbackify$2, promisedCallback as promisedCallback$2 } from './pouchdb-mapreduce-utils.js';
-import { createError as createError$1, generateErrorFromResponse as generateErrorFromResponse$1, UNAUTHORIZED, MISSING_BULK_DOCS as MISSING_BULK_DOCS$1, MISSING_DOC as MISSING_DOC$1, REV_CONFLICT as REV_CONFLICT$1, INVALID_ID as INVALID_ID$1, MISSING_ID as MISSING_ID$1, RESERVED_ID as RESERVED_ID$1, NOT_OPEN as NOT_OPEN$1, UNKNOWN_ERROR as UNKNOWN_ERROR$1, BAD_ARG as BAD_ARG$1, INVALID_REQUEST, QUERY_PARSE_ERROR as QUERY_PARSE_ERROR$1, DOC_VALIDATION as DOC_VALIDATION$1, BAD_REQUEST as BAD_REQUEST$1, NOT_AN_OBJECT as NOT_AN_OBJECT$1, DB_MISSING, WSQ_ERROR, LDB_ERROR, FORBIDDEN, INVALID_REV as INVALID_REV$1, FILE_EXISTS, MISSING_STUB as MISSING_STUB$1, IDB_ERROR, INVALID_URL } from './pouchdb-errors.js';
+import { u as uniq$2, s as sequentialize$1, f as fin$1, c as callbackify$2, p as promisedCallback$2 } from './index-cffd0bb5.js';
+import { c as createError$1, g as generateErrorFromResponse$1, m as UNAUTHORIZED, b as MISSING_BULK_DOCS$1, M as MISSING_DOC$1, R as REV_CONFLICT$1, I as INVALID_ID$1, j as MISSING_ID$1, k as RESERVED_ID$1, d as NOT_OPEN$1, U as UNKNOWN_ERROR$1, h as BAD_ARG$1, n as INVALID_REQUEST, Q as QUERY_PARSE_ERROR$1, D as DOC_VALIDATION$1, B as BAD_REQUEST$1, N as NOT_AN_OBJECT$1, o as DB_MISSING, W as WSQ_ERROR, L as LDB_ERROR, F as FORBIDDEN, a as INVALID_REV$1, p as FILE_EXISTS, e as MISSING_STUB$1, l as IDB_ERROR, q as INVALID_URL } from './functionName-97119de9.js';
 import generateReplicationId$1 from './pouchdb-generate-replication-id.js';
 import Checkpointer$1 from './pouchdb-checkpointer.js';
-import { r as rev$1 } from './rev-591f7bff.js';
-import { c as clone$3 } from './clone-3530a126.js';
+import { r as rev$1 } from './rev-5211ac7a.js';
+import { c as clone$3 } from './clone-9d9f421b.js';
 import { p as parseDesignDocFunctionName$1, n as normalizeDesignDocFunctionName$1 } from './normalizeDdocFunctionName-ea3481cf.js';
 import { o as once$1 } from './once-de8350b9.js';
 import { u as upsert$1 } from './upsert-331b6913.js';
-import { t as toPromise$1 } from './toPromise-42fa3440.js';
-import './functionName-56a2e70f.js';
-import './nextTick-ea093886.js';
-import './guardedConsole-f54e5a40.js';
-import './flatten-994f45c6.js';
-import './isRemote-2533b7cb.js';
-import './scopeEval-ff3a416d.js';
-import './stringMd5-15f53eba.js';
+import { t as toPromise$1 } from './toPromise-05472f25.js';
+import { d as defaultBackOff$1 } from './defaultBackOff-55b856e3.js';
+import './_commonjsHelpers-24198af3.js';
+import './inherits-febe64f8.js';
+import 'assert';
+import './pouchdb-platform.js';
+import 'fs';
+import 'path';
+import 'os';
+import './v4-b7ee9c0c.js';
 import './typedBuffer-a8220a49.js';
+import './nextTick-ea093886.js';
 import './binaryMd5-601b2421.js';
-import './pouchdb-collate.js';
+import './index-618b2bca.js';
+
+// originally parseUri 1.2.2, now patched by us
+// (c) Steven Levithan <stevenlevithan.com>
+// MIT License
+var keys = ["source", "protocol", "authority", "userInfo", "user", "password",
+    "host", "port", "relative", "path", "directory", "file", "query", "anchor"];
+var qName ="queryKey";
+var qParser = /(?:^|&)([^&=]*)=?([^&]*)/g;
+
+// use the "loose" parser
+/* eslint no-useless-escape: 0 */
+var parser = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+function parseUri(str) {
+  var m = parser.exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) {
+    var key = keys[i];
+    var value = m[i] || "";
+    var encoded = ['user', 'password'].indexOf(key) !== -1;
+    uri[key] = encoded ? decodeURIComponent(value) : value;
+  }
+
+  uri[qName] = {};
+  uri[keys[12]].replace(qParser, function ($0, $1, $2) {
+    if ($1) {
+      uri[qName][$1] = $2;
+    }
+  });
+
+  return uri;
+}
 
 function stringMd5$1(string) {
   return crypto$2.createHash('md5').update(string, 'binary').digest('hex');
@@ -86873,7 +86906,7 @@ function safeJsonParse(str) {
     return JSON.parse(str);
   } catch (e) {
     /* istanbul ignore next */
-    return vuvuzela.parse(str);
+    return parse(str);
   }
 }
 
@@ -86882,7 +86915,7 @@ function safeJsonStringify(json) {
     return JSON.stringify(json);
   } catch (e) {
     /* istanbul ignore next */
-    return vuvuzela.stringify(json);
+    return stringify$1(json);
   }
 }
 
@@ -88501,7 +88534,7 @@ function require_stream_readable () {
 	Readable.ReadableState = ReadableState;
 
 	/*<replacement>*/
-	require$$2.EventEmitter;
+	EventEmitter.EventEmitter;
 
 	var EElistenerCount = function (emitter, type) {
 	  return emitter.listeners(type).length;
@@ -90028,7 +90061,7 @@ function LevelPouch$1(opts, callback) {
     db = dbStore.get(name);
     afterDBCreated();
   } else {
-    dbStore.set(name, sublevel(levelup(leveldown(name), opts, function (err) {
+    dbStore.set(name, sublevelPouch(levelup(leveldown(name), opts, function (err) {
       /* istanbul ignore if */
       if (err) {
         dbStore.delete(name);

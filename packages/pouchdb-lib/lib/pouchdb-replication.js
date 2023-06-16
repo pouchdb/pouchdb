@@ -1,24 +1,21 @@
-import { defaultBackOff, uuid, filterChange } from './pouchdb-utils.js';
-import './functionName-56a2e70f.js';
+import { u as uuid } from './index-f8a9e0ec.js';
 import EE from 'node:events';
-import { c as clone } from './clone-3530a126.js';
-import { createError, BAD_REQUEST } from './pouchdb-errors.js';
+import { c as clone } from './clone-9d9f421b.js';
+import { c as createError, B as BAD_REQUEST } from './functionName-97119de9.js';
 import { f as flatten } from './flatten-994f45c6.js';
 import { i as isRemote } from './isRemote-2533b7cb.js';
 import 'crypto';
 import Checkpointer from './pouchdb-checkpointer.js';
-import 'clone-buffer';
+import './index-15c7260a.js';
+import { d as defaultBackOff } from './defaultBackOff-55b856e3.js';
 import generateReplicationId from './pouchdb-generate-replication-id.js';
+import { f as filterChange } from './filterChange-0090dde4.js';
 import { n as nextTick } from './nextTick-ea093886.js';
-import './rev-591f7bff.js';
-import './stringMd5-15f53eba.js';
+import './v4-b7ee9c0c.js';
 import './guardedConsole-f54e5a40.js';
-import './normalizeDdocFunctionName-ea3481cf.js';
-import './once-de8350b9.js';
-import './scopeEval-ff3a416d.js';
-import './toPromise-42fa3440.js';
-import './upsert-331b6913.js';
-import './pouchdb-collate.js';
+import './index-618b2bca.js';
+import './_commonjsHelpers-24198af3.js';
+import 'buffer';
 import './binaryMd5-601b2421.js';
 
 function fileHasChanged(localDoc, remoteDoc, filename) {

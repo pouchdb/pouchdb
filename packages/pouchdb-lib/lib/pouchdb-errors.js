@@ -1,21 +1,24 @@
-class PouchError extends Error {
-  constructor(status, error, reason) {
-    super();
-    this.status = status;
-    this.name = error;
-    this.message = reason;
-    this.error = true;
-  }
+import { a as inherits } from './inherits-febe64f8.js';
+import './_commonjsHelpers-24198af3.js';
 
-  toString() {
-    return JSON.stringify({
-      status: this.status,
-      name: this.name,
-      message: this.message,
-      reason: this.reason
-    });
-  }
+inherits(PouchError, Error);
+
+function PouchError(status, error, reason) {
+  Error.call(this, reason);
+  this.status = status;
+  this.name = error;
+  this.message = reason;
+  this.error = true;
 }
+
+PouchError.prototype.toString = function () {
+  return JSON.stringify({
+    status: this.status,
+    name: this.name,
+    message: this.message,
+    reason: this.reason
+  });
+};
 
 var UNAUTHORIZED = new PouchError(401, 'unauthorized', "Name or password is incorrect.");
 var MISSING_BULK_DOCS = new PouchError(400, 'bad_request', "Missing JSON list of 'docs'");

@@ -1,15 +1,16 @@
-import { createError, BAD_REQUEST, generateErrorFromResponse, MISSING_DOC } from './pouchdb-errors.js';
-import './functionName-56a2e70f.js';
+import { c as createError, B as BAD_REQUEST, g as generateErrorFromResponse, M as MISSING_DOC } from './functionName-97119de9.js';
 import 'node:events';
-import 'clone-buffer';
+import './index-15c7260a.js';
 import { i as isRemote } from './isRemote-2533b7cb.js';
 import { n as normalizeDesignDocFunctionName, p as parseDesignDocFunctionName } from './normalizeDdocFunctionName-ea3481cf.js';
 import 'crypto';
-import { m as matchesSelector } from './matches-selector-db0b5c42.js';
+import { m as matchesSelector } from './matches-selector-96146c79.js';
 import vm from 'vm';
+import './_commonjsHelpers-24198af3.js';
+import 'buffer';
 import './guardedConsole-f54e5a40.js';
-import './clone-3530a126.js';
-import './pouchdb-collate.js';
+import './clone-9d9f421b.js';
+import './index-618b2bca.js';
 
 function evalFilter(input) {
   var code = '(function() {\n"use strict";\nreturn ' + input + '\n})()';
