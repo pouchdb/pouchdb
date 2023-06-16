@@ -975,7 +975,7 @@ class AbstractPouchDB extends BroadcastChannel {
 
 // The abstract purge implementation expects a doc id and the rev of a leaf node in that doc.
 // It will return errors if the rev doesn’t exist or isn’t a leaf.
-AbstractPouchDB.prototype.purge = (docId, rev, callback) => {
+AbstractPouchDB.prototype.purge = function purge(docId, rev, callback) {
   if (typeof this._purge === 'undefined') {
     return callback(createError(UNKNOWN_ERROR, 
       `Purge is not implemented in the ${this.adapter} adapter.`
