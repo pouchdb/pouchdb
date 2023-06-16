@@ -22,6 +22,7 @@ export {
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
 export const createoldMD5 = async (message="") => md5(new TextEncoder().encode(message));
+/** @type {(x:string)=>"hexString"} */
 export const stringMd5 = async (message="") => md5(message);
 
 
