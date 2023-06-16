@@ -24,11 +24,10 @@ export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(/../g).map(h
 
 const btoa = (globalThis.btoa) || globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
 
-const charset = 'x-user-defined';
-
-
 // Enables binary raw fetch eliminates the need for ascii conversation
 // eliminates the need for base64 
+const charset = 'x-user-defined';
+
 // Maps to the UTF Private Address Space Area so you can get bits as chars
 const binaryRawEnablingHeader = `text/plain; charset=${charset}`;
 
@@ -36,6 +35,7 @@ const binaryRawEnablingHeader = `text/plain; charset=${charset}`;
 const convertToAbyte = (chars) => 
   new Array(chars.length)
     .map((_abyte,offset) => chars.charCodeAt(offset) & 0xff);
+
 // supports   'range': 'bytes=2-5,10-13'
 export const _BinaryRawFetch = (url) => fetch(url,{ headers: { 
   'Content-Type': binaryRawEnablingHeader,
@@ -43,7 +43,6 @@ export const _BinaryRawFetch = (url) => fetch(url,{ headers: {
     (res) => convertToAbyte(res.text())
 );
 
- 
 export const base64encoderStream = {
     transform(data,ready) {
         let reader = new FileReader();        
@@ -83,5 +82,7 @@ export const toBase64 = (blob) => new Promise((resolve, reject) => {
 
 //import { md5, sha1, sha512, sha3 } from 'hash-wasm'
 // replaces stringMd5 returns hex should also use message.normalize('NFKC')
-export const createoldMD5 = (message="") => import('hash-wasm').then(({ md5 }) => md5(new TextEncoder().encode(message)));
+export const createoldMD5 = (message="") => import('hash-wasm').then(({ md5 }) => md5(
+    new TextEncoder().encode(message)
+));
 export const stringMd5 = async (message="") => (await import('hash-wasm')).md5(message);
