@@ -68,7 +68,7 @@ export async function blobToBase64(blobOrBuffer, callback=(_err,val)=>val) {
 
 export const StringBuffer = async (arrayBuffer) => {    
     return { 
-        digist(format='hex') {
+        toString(format='hex') {
             const formats = {
                 hex: () => 
                     Array.from(new Uint8Array(arrayBuffer))
@@ -76,16 +76,16 @@ export const StringBuffer = async (arrayBuffer) => {
                     .map((b) => b.toString(16).padStart(2, "0"))
                     .join(""), // converted bytes to hex string;
                 base64: () => btoa(new TextDecoder().decode(arrayBuffer)),
+                utf16: () => new TextDecoder().decode(arrayBuffer),
             };
             // Fails by design with wrong format            
-            return formats[format]();
+            return formats[format] ? formats[format]() : arrayBuffer.toString();
         } 
     };
 };
 
 // message is UTF-16 String
 export async function digestFromMessage(message,algo='SHA-256') {
-    
     // hash the message
     const arrayBuffer = await crypto.subtle.digest(
         algo, await new Blob([str]).arrayBuffer()
