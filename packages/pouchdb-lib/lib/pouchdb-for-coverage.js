@@ -30,10 +30,10 @@ import require$$2 from 'events';
 import require$$0$1 from 'buffer';
 import require$$1$1 from 'util';
 import Deque from 'double-ended-queue';
-import { b as binaryMd5 } from './binaryMd5-601b2421-601b2421.js';
 import * as vuvuzela from 'vuvuzela';
 import level from 'level';
 import LevelWriteStream from 'level-write-stream';
+import { b as binaryMd5$1 } from './binaryMd5-601b2421-601b2421.js';
 import { parseUri, uuid as uuid$2, defaultBackOff as defaultBackOff$1 } from './pouchdb-utils.js';
 import { w as winningRev$1 } from './rootToLeaf-f8d0e78a.js';
 import { m as merge$1 } from './merge-1e46cced.js';
@@ -86779,6 +86779,11 @@ function safeJsonStringify(json) {
   }
 }
 
+function binaryMd5(data, callback) {
+  var base64 = crypto$2.createHash('md5').update(data, 'binary').digest('base64');
+  callback(base64);
+}
+
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function getDefaultExportFromCjs (x) {
@@ -97648,7 +97653,7 @@ function generateReplicationId(src, target, opts) {
     var queryData = res[0] + res[1] + filterFun + filterViewName +
       queryParams + docIds + selector;
     return new Promise(function (resolve) {
-      binaryMd5(queryData, resolve);
+      binaryMd5$1(queryData, resolve);
     });
   }).then(function (md5sum) {
     // can't use straight-up md5 alphabet, because
