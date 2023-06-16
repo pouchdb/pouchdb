@@ -1,5 +1,5 @@
 import levelup from 'levelup';
-import sublevel from 'pouchdb-sublevel';
+import sublevel from 'sublevel-pouchdb';
 import { obj as through } from 'through2';
 import Deque from 'double-ended-queue';
 import PouchDB from 'pouchdb-core';
@@ -30,7 +30,7 @@ import {
   safeJsonStringify
 } from 'pouchdb-json';
 
-import { binaryMd5 } from 'pouchdb-lib/lib/pouchdb-md5.js';
+import { binaryMd5 } from 'pouchdb-md5';
 
 import {
   binaryStringToBlobOrBuffer as binStringToBluffer
