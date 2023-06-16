@@ -26,13 +26,14 @@ export const stringMd5 = async (message="") => md5(message);
 
 
 // used by hash-wasm to convert digest: hex to Response(arrayBuffer)
-// Note that hex is a text format to represent bytes 
+// Note that hex is a text format to represent bytes like base64
+// Note that UTF-8 Strings can get turned into hex and base64
 export const hex2arrayBuffer = (hex="") => new Uint8Array(hex.match(
     /../g).map(h=>parseInt(h,16))).buffer;
-export const hex2string = (hex="") => hex.match(
+export const hex2utf16 = (hex="") => hex.match(
     /\w{2}/g).map(b=>String.fromCharCode(parseInt(b, 16))).join("");
 const btoa = globalThis.btoa ? (str="") => globalThis.btoa(str) : globalThis.Buffer && ((string) => globalThis.Buffer.from(string).toString('base64'));
-export const hex2base64 = (hex="") => btoa(hex2string(hex));
+export const hex2base64 = (hex="") => btoa(hex2utf16(hex));
 
 export async function binaryMd5(data, callback=()=>{}) {
     // var base64 = crypto.createHash('md5').update(data, 'binary').digest('base64');
