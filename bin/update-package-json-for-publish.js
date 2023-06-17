@@ -5,7 +5,7 @@
 // and update the version numbers to reflect the version from the top-level
 // dependencies list. Also throw an error if a dep is not declared top-level.
 // Also add necessary "browser" switches to each package.json, as well as
-// other fields like "jsnext:main" and "files".
+// other fields like "module" and "files".
 
 var fs = require('fs');
 var path = require('path');
@@ -57,10 +57,10 @@ modules.forEach(function (mod) {
       './lib/index.es.js': './lib/index-browser.es.js',
     };
   }
-  // Update "jsnext:main" to point to `lib/` rather than `src/`.
+  // Update "module" to point to `lib/` rather than `src/`.
   // `src/` is only used for building, not publishing.
   // Also add "module" member: https://github.com/rollup/rollup/wiki/pkg.module
-  pkg['jsnext:main'] = pkg.module = './lib/index.es.js';
+  pkg['module'] = pkg.module = './lib/index.es.js';
   // whitelist the files we'll actually publish
   pkg.files = ['lib', 'dist', 'tonic-example.js'];
 
