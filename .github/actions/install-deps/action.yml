@@ -22,6 +22,6 @@ runs:
     - run: npm install
       shell: bash
 
-    - uses: SourceR85/couchdb-github-action@2023-06-17
+    - uses: iamssen/couchdb-github-action@master
       with:
         couchdb-version: ${{ inputs.couchdb-version }}
