@@ -60,7 +60,7 @@ modules.forEach(function (mod) {
   // Update "module" to point to `lib/` rather than `src/`.
   // `src/` is only used for building, not publishing.
   // Also add "module" member: https://github.com/rollup/rollup/wiki/pkg.module
-  pkg['module'] = pkg.module = './lib/index.es.js';
+  pkg.module = './lib/index.es.js';
   // whitelist the files we'll actually publish
   pkg.files = ['lib', 'dist', 'tonic-example.js'];
 
