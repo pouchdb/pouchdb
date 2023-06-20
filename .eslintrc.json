@@ -33,6 +33,7 @@
   },
 
   "rules": {
+    "eol-last": "error",
     "no-empty": "off",
     "no-console": "off",
     "semi": ["error", "always"],
