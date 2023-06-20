@@ -12,12 +12,12 @@
 # > Error: 'default' is not exported by node_modules/inherits/inherits.js
 #
 # To avoid this, fail if this script is run in a non-clean git repo:
-git_status="$(git status --untracked-files=no --porcelain)"
-if [[ "$git_status" != "" ]]; then
-  git status --untracked-files=no
+git_diff="$(git diff -- package.json packages/node_modules/*/package.json)"
+if [[ "$git_diff" != "" ]]; then
+  git status --untracked-files=no -- package.json packages/node_modules/*/package.json
   echo "!!!"
-  echo "!!! Your git working directory is dirty  !!!"
-  echo "!!! Please clean, and re-run the command !!!"
+  echo "!!! Your git working directory has changes to package.json file(s) !!!"
+  echo "!!! Please revert/stage/commit changes, and re-run the command !!!"
   echo "!!!"
   exit 1
 fi
