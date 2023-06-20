@@ -293,7 +293,7 @@ describe('test.skip.js', function () {
 //             fields: ['name']
 //         }
 //     });
-// 
+//
 //     const resultAll = await db.find({
 //         selector: {}
 //     });
@@ -303,7 +303,7 @@ describe('test.skip.js', function () {
 //     });
 //     const totalDocCount = (await db.info()).doc_count
 //     assert.deepEqual(resultAll.docs.length, totalDocCount);
-// 
+//
 //     // should have one document less because skip: 1
 //     assert.deepEqual(resultNoFirst.docs.length, totalDocCount - 1);
 //   });

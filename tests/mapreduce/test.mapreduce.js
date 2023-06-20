@@ -2075,8 +2075,8 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (data) {
           data.rows.should.have.length(0, 'returns 0 docs');
           opts.keys = [0];
-          // When passed an empty keys array (above), query mutates opts by deleting the 
-          // keys array and adding limit = 0. That behavior breaks this test result when 
+          // When passed an empty keys array (above), query mutates opts by deleting the
+          // keys array and adding limit = 0. That behavior breaks this test result when
           // implementing limit and skip (#8370); it is correct (and necessary) to clean
           // up that side effect here.
           delete opts.limit;
