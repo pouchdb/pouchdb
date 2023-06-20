@@ -1,0 +1,85 @@
+dist: trusty
+
+language: node_js
+
+node_js:
+  - "6"
+
+sudo: false
+
+git:
+  depth: 30
+
+addons:
+  firefox: "47.0.2"
+
+script: travis_retry npm run $COMMAND
+
+before_install:
+- npm install -g npm@latest
+- npm -v
+
+before_script:
+  # Our test-browser.js script uses FIREFOX_BIN to find the Firefox binary
+  # See https://github.com/travis-ci/travis-ci/issues/4649
+  - echo "using firefox $(firefox --version)"
+  - export FIREFOX_BIN=$(which firefox)
+  # The next two lines are required for Firefox to run on Travis
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  # Install PhantomJS and cache it
+  # See https://github.com/Medium/phantomjs#continuous-integration
+  - "export PHANTOMJS_VERSION=2.1.1"
+  - "export PATH=$PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64/bin:$PATH"
+  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
+  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then wget https://github.com/Medium/phantomjs/releases/download/v$PHANTOMJS_VERSION/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2; fi"
+  - "if [ $(phantomjs --version) != $PHANTOMJS_VERSION ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
+  - "phantomjs --version"
+  # Fail early if there's a eslint problem
+  - npm run eslint
+
+env:
+  global:
+  - secure: "WYQbfTXYwPfqz7t3ycqpXIDQdZ7C9kQJAP+08OF0cuR8eqhm7HxCiu9LjSNqoLAdlDmc55ygeS16Kn3Oht3zZ/i2Y7Gm75HcQfzUIb1sDv1xVm3aQmqZDJfAQ/r7fN8upBCLii/W8IUkJr1k717MpbdsTerIjyfPOb27hw0kJTM="
+  - secure: "Ut9pRqzbVJHxg8vt1Cx0bTv4HAroBkvOLjtHF+11f/OzfNnAORIEPnJFHqGbOTozCPOizmzgwvCGqq9gYL8SakrfiI0wBfaL+lk0ub/FPuJ1+hwrLDU0Ju4O5reL0OSu0JB+OTmXfILuRQQkD9/7uwUEbLDFId4phSq3cz1UsK0="
+  - secure: "MiufQQKR/EBoS7kcau/I7oYenVilysEqwx37zdgLEKlEUe3SxVOe31uLZv/bhfLNZiRuLAfmIOZmhLGnhMf0LaBzR2yC5qhBxrVHcAiTuS3q6zxpzEf02jnu+hACvj1kJJEPjpOLpEVx7ghWL4McEO0qLbdtSbQlm2IkOX1ONg0="
+
+  matrix:
+  - COMMAND=unit-tests
+  - COMMAND=test-express-minimum
+  - CLIENT=node COMMAND=test-pouchdb
+  - CLIENT=node SERVER_ARGS=--in-memory COMMAND=test-pouchdb
+  - CLIENT=node SERVER_ARGS=--sqlite COMMAND=test-pouchdb
+  - CLIENT=node SERVER_ARGS="--level-backend memdown" COMMAND=test-pouchdb
+
+  # Test in firefox/phantomjs running on travis
+  - CLIENT=selenium:firefox COMMAND=test-pouchdb
+  - CLIENT=selenium:phantomjs COMMAND=test-pouchdb
+
+  # Run the mapreduce tests
+  - COMMAND=test-pouchdb TYPE=mapreduce CLIENT=node
+  - COMMAND=test-pouchdb TYPE=mapreduce CLIENT=selenium:firefox
+
+  # Test against the couchdb harness
+  - COMMAND=test-couchdb
+
+matrix:
+  fast_finish: true
+  include:
+    - node_js: "8"
+      env: CLIENT=node COMMAND=test-pouchdb
+  allow_failures:
+  - env: COMMAND=test-couchdb
+
+branches:
+  only:
+  - master
+  - /^greenkeeper/.*$/
+
+cache:
+  directories:
+  - $HOME/.npm
+  # See https://github.com/gr2m/selsa
+  - node_modules/selenium-standalone/.selenium
+  # See https://github.com/Medium/phantomjs#continuous-integration
+  - travis_phantomjs

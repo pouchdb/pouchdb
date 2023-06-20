@@ -4,7 +4,7 @@ if (!process.env.LEVEL_ADAPTER &&
     !process.env.AUTO_COMPACTION &&
     !process.env.ADAPTERS) {
   // these tests don't make sense for anything other than default leveldown
-  var fs = require('fs');
+  var fs = require('node:fs');
   var ncp = require('ncp').ncp;
 
   ncp.limit = 16;

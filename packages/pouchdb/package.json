@@ -1,0 +1,33 @@
+{
+  "name": "pouchdb",
+  "version": "7.0.0-prerelease",
+  "description": "PouchDB is a pocket-sized database",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/pouchdb/pouchdb",
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/pouchdb.js": "./src/pouchdb-browser.js"
+  },
+  "jspm": {
+    "main": "dist/pouchdb.js"
+  },
+  "tonicExampleFilename": "tonic-example.js",
+  "keywords": [
+    "db",
+    "couchdb",
+    "pouchdb"
+  ],
+  "tags": [
+    "db",
+    "couchdb",
+    "pouchdb"
+  ]
+}

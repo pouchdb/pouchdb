@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>VanillaJS • TodoMVC</title>
+    <link rel="stylesheet" href="styles/base.css">
+  </head>
+  <body>
+    <section id="todoapp">
+      <header id="header">
+        <h1>todos</h1>
+        <input id="new-todo" placeholder="What needs to be done?" autofocus>
+      </header>
+      <section id="main">
+        <ul id="todo-list"></ul>
+      </section>
+      <footer id="footer">
+        <span id="todo-count"></span>
+        <div id="sync-wrapper">
+          <div id="sync-success">Currently syncing</div>
+          <div id="sync-error">There was a problem syncing</div>
+        </div>
+      </footer>
+    </section>
+    <footer id="info">
+      <p>Double-click to edit a todo</p>
+      <p>Template by <a href="http://github.com/sindresorhus">Sindre Sorhus</a></p>
+      <p>Created by <a href="http://twitter.com/ffesseler">Florian Fesseler</a></p>
+      <p>Cleanup, edits by <a href="http://github.com/boushley">Aaron Boushley</a></p>
+    </footer>
+    <script src="scripts/pouchdb-nightly.min.js"></script>
+    <script src="scripts/app.js"></script>
+  </body>
+</html>

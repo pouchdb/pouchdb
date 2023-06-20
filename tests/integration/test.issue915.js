@@ -4,7 +4,7 @@ if (!process.env.LEVEL_ADAPTER &&
     !process.env.AUTO_COMPACTION &&
     !process.env.ADAPTERS) {
   // these tests don't make sense for anything other than default leveldown
-  var fs = require('fs');
+  var fs = require('node:fs');
   describe('test.issue915.js', function () {
     afterEach(function (done) {
       fs.unlink('./tmp/_pouch_veryimportantfiles/something', function () {

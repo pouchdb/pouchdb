@@ -3,7 +3,7 @@
 'use strict';
 
 var http_server = require('http-server');
-var fs = require('fs');
+var fs = require('node:fs');
 var watchGlob = require('watch-glob');
 var replace = require('replace');
 var exec = require('child-process-promise').exec;

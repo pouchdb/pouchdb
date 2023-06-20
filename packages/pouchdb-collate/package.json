@@ -1,0 +1,24 @@
+{
+  "name": "pouchdb-collate",
+  "version": "7.0.0-prerelease",
+  "description": "Collation functions for PouchDB map/reduce",
+  "main": "lib/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
+  "keywords": [
+    "pouchdb",
+    "pouch",
+    "couch",
+    "couchdb"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb.git",
+    "directory": "packages/node_modules/pouchdb-collate"
+  },
+  "license": "Apache-2.0",
+  "module": "./src/index.js"
+}

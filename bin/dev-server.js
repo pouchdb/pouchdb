@@ -7,7 +7,7 @@ var http_server = require('http-server');
 var debounce = require('lodash.debounce');
 var buildPouchDB = require('./build-pouchdb');
 var browserify = require('browserify');
-var fs = require('fs');
+var fs = require('node:fs');
 
 var queryParams = {};
 
@@ -37,7 +37,7 @@ var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
   rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
-    console.log('Rebuilt packages/node_modules/pouchdb');
+    console.log('Rebuilt packages/pouchdb');
   }).catch(console.error);
   return rebuildPromise;
 }
@@ -71,7 +71,7 @@ function rebuildPerf() {
 }
 
 function watchAll() {
-  watch(['packages/node_modules/*/src/**/*.js'],
+  watch(['packages/*/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
   watch(['tests/integration/utils.js'],
     debounce(rebuildTestUtils, 700, {leading: true}));

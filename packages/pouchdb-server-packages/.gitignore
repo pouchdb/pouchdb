@@ -1,0 +1,14 @@
+testdb_*
+test_*
+_pouch_*
+_allDbs
+pouch__all_dbs__
+pouch__auth_sessions__
+npm-debug.log
+_users
+_replicator
+config.json
+log.txt
+/pouchdb
+/tmp
+pouchdb-tests

@@ -1,0 +1,20 @@
+{
+  "name": "pouchdb-route",
+  "description": "Given a CouchDB request object, return the response of PouchDB's equivalent function.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "request",
+    "route",
+    "routing"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}

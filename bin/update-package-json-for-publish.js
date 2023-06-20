@@ -1,13 +1,13 @@
 'use strict';
 
-// Update all the dependencies inside packages/node_modules/*/package.json
+// Update all the dependencies inside packages/*/package.json
 // to reflect the true dependencies (automatically determined by require())
 // and update the version numbers to reflect the version from the top-level
 // dependencies list. Also throw an error if a dep is not declared top-level.
 // Also add necessary "browser" switches to each package.json, as well as
 // other fields like "jsnext:main" and "files".
 
-var fs = require('fs');
+var fs = require('node:fs');
 var path = require('path');
 var glob = require('glob');
 var findRequires = require('find-requires');
@@ -35,7 +35,7 @@ modules.forEach(function (mod) {
   }))).filter(function (dep) {
     // some modules require() themselves, e.g. for plugins
     return dep !== pkg.name &&
-      // exclude built-ins like 'inherits', 'fs', etc.
+      // exclude built-ins like 'inherits', 'node:fs', etc.
       builtinModules.indexOf(dep) === -1;
   }).sort();
 

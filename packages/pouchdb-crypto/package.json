@@ -1,0 +1,3 @@
+{
+    "exports": { "import": "./src/index.js" }
+}

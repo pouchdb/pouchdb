@@ -1,0 +1,20 @@
+{
+  "name": "couchdb-render",
+  "description": "Given the code of a CouchDB show/list function (and some other stuff), this module runs it and returns the result.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "render",
+    "show",
+    "list"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}

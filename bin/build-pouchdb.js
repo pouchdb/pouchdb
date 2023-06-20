@@ -7,20 +7,18 @@
 
 var DEV_MODE = process.env.CLIENT === 'dev';
 
-var path = require('path');
+var path = require('node:path');
 var denodeify = require('denodeify');
 var rollup = require('rollup');
 var rollupPlugins = require('./rollupPlugins');
 var rimraf = denodeify(require('rimraf'));
 var mkdirp = denodeify(require('mkdirp'));
-var all = Promise.all.bind(Promise);
 var buildUtils = require('./build-utils');
-var addPath = buildUtils.addPath;
 var doUglify = buildUtils.doUglify;
 var doBrowserify = buildUtils.doBrowserify;
 var writeFile = buildUtils.writeFile;
 
-var pkg = require('../packages/node_modules/pouchdb/package.json');
+var pkg = require('../packages/pouchdb/package.json');
 var version = pkg.version;
 
 var builtInModules = require('builtin-modules');
@@ -70,44 +68,51 @@ var comments = {
   '\n// http://pouchdb.com\n',
 };
 
-function doRollup(input, browser, formatsToFiles) {
+async function doRollup(inputPath, browser, formatsToFiles) {
   var start = process.hrtime();
-  return rollup.rollup({
-    input: addPath('pouchdb', input),
-    external: external,
+  console.log('ROLLUP:',{ inputPath });
+  const input = path.resolve('packages/' + 'pouchdb/' + inputPath);
+  const bundle = (await rollup.rollup({
+    input,
+    external,
     plugins: rollupPlugins({
-      mainFields: ["module"],
-      browser: browser
+      //mainFields: ["module"],
+      browser
     })
-  }).then(function (bundle) {
-    return Promise.all(Object.keys(formatsToFiles).map(function (format) {
-      var fileOut = formatsToFiles[format];
-      return bundle.generate({format: format}).then(function (bundle) {
-        if (DEV_MODE) {
-          var ms = Math.round(process.hrtime(start)[1] / 1000000);
-          console.log('    took ' + ms + ' ms to rollup ' +
-                      path.dirname(input) + '/' + path.basename(input));
-        }
-        return writeFile(addPath('pouchdb', fileOut), bundle.code);
-      });
-    }));
-  });
+  }));
+  
+  return Promise.all(Object.keys(formatsToFiles).map(function (format) {
+    return bundle.generate({format: format}).then(function (bundle) {
+      if (DEV_MODE) {
+        var ms = Math.round(process.hrtime(start)[1] / 1000000);
+        console.log('    took ' + ms + ' ms to rollup ' +
+          path.dirname(input) + '/' + path.basename(input));
+      }
+      
+      return writeFile(path.resolve('packages/' + 'pouchdb/' + formatsToFiles[format]), bundle.output[0].code);
+    });
+  }));
+  
 }
+// true == isBrowser
+const builds = [['src/index.js', false, {
+  cjs: 'lib/index.js',
+  es: 'lib/index.es.js'
+}],['src/index.js', true, {
+  cjs: 'lib/index-browser.js',
+  es: 'lib/index-browser.es.js'
+}]];
+
 
 // build for Node (index.js)
 function buildForNode() {
-  return doRollup('src/index.js', false, {
-    cjs: 'lib/index.js',
-    es: 'lib/index.es.js'
-  });
+  return doRollup(...builds[0]);
 }
 
 // build for Browserify/Webpack (index-browser.js)
-function buildForBrowserify() {
-  return doRollup('src/index.js', true, {
-    cjs: 'lib/index-browser.js',
-    es: 'lib/index-browser.es.js'
-  });
+async function buildForBrowserify() {
+  return true;
+  //return doRollup(...builds[1]);
 }
 
 // build for the browser (dist)
@@ -116,67 +121,65 @@ function buildForBrowser() {
     standalone: 'PouchDB'
   }).then(function (code) {
     code = comments.pouchdb + code;
-    return all([
-      writeFile(addPath('pouchdb', 'dist/pouchdb.js'), code),
+    //console.log('comments:',{code});
+    return Promise.all([
+      writeFile(path.resolve('packages/' + 'pouchdb/' + 'dist/pouchdb.js'), code),
       doUglify('pouchdb', code, comments.pouchdb, 'dist/pouchdb.min.js')
     ]);
   });
 }
 
 function buildPluginsForBrowserify() {
-  return all(plugins.map(function (plugin) {
-    return doRollup('src/plugins/' + plugin + '.js', true, {
-      cjs: 'lib/plugins/' + plugin + '.js'
-    });
+  return plugins.map(async (plugin) => await doRollup('src/plugins/' + plugin + '.js', true, {
+    cjs: 'lib/plugins/' + plugin + '.js'
   }));
 }
 
 function buildPluginsForBrowser() {
-  return all(plugins.map(function (plugin) {
+  return Promise.all(plugins.map(function (plugin) {
     var source = 'lib/plugins/' + plugin + '.js';
     return doBrowserify('pouchdb', source, {}, 'pouchdb').then(function (code) {
       code = comments[plugin] + code;
-      return all([
-        writeFile('packages/node_modules/pouchdb/dist/pouchdb.' + plugin + '.js', code),
+      return Promise.all([
+        writeFile('packages/pouchdb/dist/pouchdb.' + plugin + '.js', code),
         doUglify('pouchdb', code, comments[plugin], 'dist/pouchdb.' + plugin + '.min.js')
       ]);
     });
   })).then(function () {
-    return rimraf(addPath('pouchdb', 'lib/plugins')); // no need for this after building dist/
+    return rimraf(path.resolve('packages/' + 'pouchdb/' + 'lib/plugins')); // no need for this after building dist/
   });
 }
 
 var rimrafMkdirp = function (...args) {
-  return all(args.map(function (otherPath) {
-    return rimraf(addPath('pouchdb', otherPath));
+  return Promise.all(args.map(function (otherPath) {
+    return rimraf(path.resolve('packages/' + 'pouchdb/' + otherPath));
   })).then(function () {
-    return all(args.map(function (otherPath) {
-      return mkdirp(addPath('pouchdb', otherPath));
+    return Promise.all(args.map(function (otherPath) {
+      return mkdirp(path.resolve('packages/' + 'pouchdb/' + otherPath));
     }));
   });
 };
 
-var doAll = function (...args) {
-  return function () {
-    return all(args.map(function (promiseFactory) {
-      return promiseFactory();
-    }));
-  };
-};
-
-function doBuildNode() {
-  return mkdirp(addPath('pouchdb', 'lib/plugins'))
-    .then(buildForNode);
+async function doBuildNode() {
+  await mkdirp(path.resolve('packages/' + 'pouchdb/' + 'lib/plugins'));
+  buildForNode();
 }
 
-function doBuildAll() {
-  return rimrafMkdirp('lib', 'dist', 'lib/plugins')
-    .then(doAll(buildForNode, buildForBrowserify))
-    .then(doAll(buildForBrowser, buildPluginsForBrowserify))
-    .then(doAll(buildPluginsForBrowser));
+async function doBuildAll() {
+  await rimrafMkdirp('lib', 'dist', 'lib/plugins');
+  Promise.all([
+    buildForNode,
+    //buildForBrowserify,
+    buildForBrowser,
+    //buildPluginsForBrowserify,
+    //buildPluginsForBrowser
+  ].map((fn) => fn()));  
+  
+    
 }
 
 function doBuild() {
+  //return doBuildNode();
   if (process.env.BUILD_NODE) { // rebuild before "npm test"
     return doBuildNode();
   } else { // normal, full build

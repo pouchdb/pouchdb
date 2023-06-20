@@ -1,5 +1,5 @@
-var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
-var memoryAdapter = require('../../packages/node_modules/pouchdb-adapter-memory');
+var PouchDB = require('../../packages/pouchdb-for-coverage');
+var memoryAdapter = require('../../packages/pouchdb-adapter-memory');
 PouchDB.plugin(memoryAdapter);
 
 describe('test.memory-adapter.js', () => {

@@ -1,0 +1,20 @@
+{
+  "name": "pouchdb-for-coverage",
+  "version": "7.0.0-prerelease",
+  "exports": {"import": "./src/index.js"},
+  "type": "module",
+  "private": true,
+  "//": [
+    "Below, the node version is used for coverage tests.",
+    "The browser version is actually used for tests/integration/utils.js."
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb.git",
+    "directory": "packages/node_modules/pouchdb-for-coverage"
+  },
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js",
+    "./src/pouchdb.js": "./src/pouchdb-browser.js"
+  }
+}

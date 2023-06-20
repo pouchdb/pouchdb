@@ -1,0 +1,20 @@
+{
+  "name": "pouchdb-adapter-utils",
+  "version": "7.0.0-prerelease",
+  "description": "Utilities for PouchDB adapters.",
+  "main": "./lib/index.js",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./lib/index.js",
+    "default": "./src/index.js"
+  },
+  "keywords": [],
+  "author": "Dale Harvey <dale@arandomurl.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb.git",
+    "directory": "packages/node_modules/pouchdb-adapter-utils"
+  },
+  "module": "./src/index.js"
+}

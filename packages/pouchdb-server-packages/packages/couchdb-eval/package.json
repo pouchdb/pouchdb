@@ -1,0 +1,18 @@
+{
+  "name": "couchdb-eval",
+  "description": "Compiles a piece of code to a function object, providing a CouchDB-like JavaScript context.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouchdb/pouchdb-server.git"
+  },
+  "keywords": [
+    "pouch",
+    "pouchdb",
+    "couch",
+    "couchdb",
+    "eval"
+  ],
+  "license": "Apache-2.0",
+  "author": "Marten de Vries",
+  "main": "lib/index.js"
+}

@@ -243,7 +243,7 @@ testUtils.promisify = function (fun, context) {
 // We need to use pouchdb-for-coverage here to ensure that e.g pouchdb-utils
 // and pouchdb-ajax don't get pulled in, because then our coverage tests
 // would complain that we're not using the "whole" thing.
-var PouchForCoverage = require('../../packages/node_modules/pouchdb-for-coverage');
+var PouchForCoverage = require('../../packages/pouchdb-for-coverage');
 var pouchUtils = PouchForCoverage.utils;
 testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
 testUtils.btoa = pouchUtils.btoa;

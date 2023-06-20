@@ -101,7 +101,7 @@ commonUtils.loadPouchDBForNode = function (plugins) {
 
 commonUtils.loadPouchDBForBrowser = function (plugins) {
   var params = commonUtils.params();
-  var scriptPath = '../../packages/node_modules/pouchdb/dist';
+  var scriptPath = '../../packages/pouchdb/dist';
   var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
 
   plugins = plugins.map((plugin) => {
@@ -181,7 +181,7 @@ commonUtils.createDocId = function (i) {
   return 'doc_' + intString;
 };
 
-var PouchForCoverage = require('../packages/node_modules/pouchdb-for-coverage');
+var PouchForCoverage = require('../packages/pouchdb-for-coverage');
 var pouchUtils = PouchForCoverage.utils;
 commonUtils.Promise = pouchUtils.Promise;
 

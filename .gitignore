@@ -1,6 +1,7 @@
+dist
 tmp*
 .DS_Store
-/node_modules
+node_modules
 docs/_site
 docs/static/css
 docs/.jekyll-cache
@@ -14,16 +15,15 @@ bower_components
 tests/integration/cordova/www
 tests/pouchdb_server
 tests/performance-bundle.js
-packages/node_modules/pouchdb/dist/*
 pouchdb-webpack.js
 lib
+!/packages/pouchdb-lib/lib
+!/packages/pouchdb-platform/lib
 lib_unit
 src_browser/
 lerna-debug.log
 tests/integration/utils-bundle.js
 *.heapsnapshot
 /pouchdb-server-install
-package-lock.json
-yarn.lock
 /.eslintcache
 release-todo.txt

@@ -1,0 +1,71 @@
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  },
+  "globals": {
+    "Map": true,
+    "Set": true,
+    "chrome": true,
+    "Promise": true,
+    "Uint8Array": true,
+    "ArrayBuffer": true,
+    "FileReaderSync": true,
+    "sqlitePlugin": true,
+    "emit": true,
+    "PouchDB": true,
+    "should": true,
+    "assert": true,
+    "testUtils": true,
+    "importScripts": true
+  },
+  "rules": {
+    "no-empty": 0,
+    "no-console": 0,
+    "semi": [
+      "error",
+      "always"
+    ],
+    "curly": [
+      "error",
+      "all"
+    ],
+    "space-unary-ops": [
+      "error",
+      {
+        "words": true
+      }
+    ],
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "always",
+        "named": "never"
+      }
+    ],
+    "max-len": [
+      "error",
+      100,
+      {
+        "ignoreComments": true,
+        "ignoreStrings": true,
+        "ignoreRegExpLiterals": true
+      }
+    ],
+    "curly": [
+      "error"
+    ],
+    "keyword-spacing": [
+      "error"
+    ],
+    "space-before-blocks": [
+      "error"
+    ]
+  }
+}

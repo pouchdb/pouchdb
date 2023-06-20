@@ -17,8 +17,7 @@ var denodeify = require('denodeify');
 var mkdirp = denodeify(require('mkdirp'));
 var rimraf = denodeify(require('rimraf'));
 var builtInModules = require('builtin-modules');
-var fs = require('fs');
-var all = Promise.all.bind(Promise);
+var fs = require('node:fs');
 
 // special case - pouchdb-for-coverage is heavily optimized because it's
 // simpler to run the coverage reports that way.
@@ -34,9 +33,9 @@ var BROWSER_ONLY_PACKAGES =
 var BROWSER_DEPENDENCY_ONLY_PACKAGES =
   ['pouchdb-adapter-leveldb'];
 
-function buildModule(filepath) {
+async function buildModule(filepath) {
   var pkg = require(path.resolve(filepath, 'package.json'));
-  var topPkg = require(path.resolve(filepath, '../../../package.json'));
+  var topPkg = require(path.resolve(filepath, '../../package.json'));
   var pouchdbPackages = fs.readdirSync(path.resolve(filepath, '..'));
   // All external modules are assumed to be CommonJS, and therefore should
   // be skipped by Rollup. We may revisit this later.
@@ -56,47 +55,40 @@ function buildModule(filepath) {
   var skipBrowserField = BROWSER_DEPENDENCY_ONLY_PACKAGES.indexOf(pkg.name) !== -1;
   if (!skipBrowserField && pkg.browser && pkg.browser['./lib/index.js'] !==
       './lib/index-browser.js') {
-    return Promise.reject(new Error(pkg.name +
-      ' is missing a "lib/index.js" entry in the browser field'));
+    new Error(pkg.name +
+      ' is missing a "lib/index.js" entry in the browser field');
   }
 
   // special case for "pouchdb-browser" - there is only one index.js,
   // and it's built in "browser mode"
   var forceBrowser = BROWSER_ONLY_PACKAGES.indexOf(pkg.name) !== -1;
-
-  return Promise.resolve().then(function () {
-    return rimraf(path.resolve(filepath, 'lib'));
-  }).then(function () {
-    return mkdirp(path.resolve(filepath, 'lib'));
-  }).then(function () {
-    return all(versions.map(function (isBrowser) {
-      return rollup({
+  rimraf(path.resolve(filepath, 'lib'));
+  mkdirp(path.resolve(filepath, 'lib'));
+  
+  return versions.map((isBrowser) => ['es'].map(
+    async (format) => {
+      const file = (isBrowser ? 'lib/index-browser' : 'lib/index') +
+        (format === 'es' ? '.es.js' : '.js');
+      await (await rollup({
         input: path.resolve(filepath, './src/index.js'),
         external: depsToSkip,
         plugins: rollupPlugins({
-          mainFields: ['module', 'main'],
           browser: isBrowser || forceBrowser
         })
-      }).then(function (bundle) {
-        var formats = ['cjs', 'es'];
-        return all(formats.map(function (format) {
-          var file = (isBrowser ? 'lib/index-browser' : 'lib/index') +
-            (format === 'es' ? '.es.js' : '.js');
-          return bundle.write({
-            format: format,
-            file: path.resolve(filepath, file)
-          }).then(function () {
-            console.log('  \u2713' + ' wrote ' +
-              path.basename(filepath) + '/' + file + ' in ' +
-                (isBrowser ? 'browser' :
-                versions.length > 1 ? 'node' : 'vanilla') +
-              ' mode');
-          });
-        }));
+      })).write({
+        inlineDynamicImports: true,
+        format: format,
+        file: path.resolve(filepath, file)
       });
-    }));
-  });
+      console.log('  \u2713' + ' wrote ' +
+        path.basename(filepath) + '/' + file + ' in ' +
+          (isBrowser ? 'browser' :
+          versions.length > 1 ? 'node' : 'vanilla') +
+        ' mode');
+    }
+  ));
 }
+
 if (require.main === module) {
   buildModule(process.argv[process.argv.length - 1]).catch(function (err) {
     console.error('build-module.js error');
