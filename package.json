@@ -5,6 +5,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
+    "postinstall": "cd packages && npm install",
     "build": "npm run build-modules && npm run build-test",
     "build-node": "./bin/build-node.sh",
     "build-modules": "node bin/build-modules.js",
