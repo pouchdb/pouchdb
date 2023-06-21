@@ -266,8 +266,8 @@ jobs:
       - name: First retry
         id: retry
         if: steps.test.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
         continue-on-error: true
       - name: Second retry
         if: steps.retry.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
