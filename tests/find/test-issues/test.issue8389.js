@@ -4,7 +4,7 @@ describe("test.issue8389.js", function () {
   var adapter = testUtils.adapterType();
   var db = null;
   var dbName = null;
-  
+
   const docData = {
     _id: "foobar",
     indexedField: "foobaz",
@@ -48,7 +48,7 @@ describe("test.issue8389.js", function () {
     };
     return assertLengthOf(query, 0);
   });
-  
+
   it("Testing issue #8389 _id should work in find index: 1 with matching query", function () {
     var query = {
       selector: {
@@ -74,7 +74,7 @@ describe("test.issue8389.js", function () {
       return assertLengthOf(query, 1);
     });
   });
-  
+
   it("Testing issue #8389 _id should work in find index: 2/2 with multiple docs", function () {
     var query = {
       selector: {
