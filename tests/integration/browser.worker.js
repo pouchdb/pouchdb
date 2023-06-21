@@ -1,13 +1,5 @@
 'use strict';
 
-var sourceFile = window.location.search.match(/[?&]sourceFile=([^&]+)/);
-
-if (!sourceFile) {
-  sourceFile = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
-} else {
-  sourceFile = '../../packages/node_modules/pouchdb/dist/' + sourceFile[1];
-}
-
 // only running in Chrome and Firefox due to various bugs.
 // IE: https://connect.microsoft.com/IE/feedback/details/866495
 // Safari: doesn't have IndexedDB or WebSQL in a WW
@@ -16,9 +8,9 @@ if (!sourceFile) {
 var isNodeWebkit = typeof window !== 'undefined' &&
   typeof process !== 'undefined';
 
-if (typeof window.Worker === 'function' &&
+if ((window && typeof window.Worker === 'function') &&
     !isNodeWebkit && !testUtils.isIE() &&
-    (window.chrome || /Firefox/.test(navigator.userAgent))) {
+    ((window && window.chrome) || (navigator && /Firefox/.test(navigator.userAgent)))) {
   runTests();
 }
 
@@ -28,6 +20,15 @@ function runTests() {
 
   before(function () {
     worker = new Worker('worker.js');
+
+    var sourceFile = window && window.location.search.match(/[?&]sourceFile=([^&]+)/);
+
+    if (!sourceFile) {
+      sourceFile = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
+    } else {
+      sourceFile = '../../packages/node_modules/pouchdb/dist/' + sourceFile[1];
+    }
+
     worker.postMessage(['source', sourceFile]);
   });
 
