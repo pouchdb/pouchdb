@@ -246,7 +246,7 @@ jobs:
       matrix:
         node: [14, 16]
         cmd:
-          - git reset --hard && CLIENT=selenium:firefox npm run test-webpack
+          - CLIENT=selenium:firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
@@ -266,8 +266,8 @@ jobs:
       - name: First retry
         id: retry
         if: steps.test.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
         continue-on-error: true
       - name: Second retry
         if: steps.retry.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
