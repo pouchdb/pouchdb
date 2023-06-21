@@ -103,7 +103,7 @@ function runTests() {
 
     it('total_rows consistent between worker and main thread', function () {
       var db = new PouchDB(dbs.name);
-      
+
       // this test only makes sense for idb
       if (db.adapter !== 'idb') {
         return;

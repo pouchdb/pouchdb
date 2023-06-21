@@ -31,7 +31,7 @@ commonUtils.adapters = function () {
 };
 
 commonUtils.viewAdapters = function () {
-  var viewAdapters = commonUtils.isNode() ? 
+  var viewAdapters = commonUtils.isNode() ?
     process.env.VIEW_ADAPTERS : commonUtils.params().viewAdapters;
   return viewAdapters ? viewAdapters.split(',') : [];
 };
