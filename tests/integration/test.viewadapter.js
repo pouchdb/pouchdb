@@ -48,85 +48,110 @@ viewAdapters.forEach(viewAdapter => {
       dbs.name = testUtils.adapterUrl('local', 'testdb');
     });
 
-    it('Create pouch with separate view adapters', async function () {
+    it('Create pouch with separate view adapters', function (done) {
       const db = new PouchDB(dbs.name, {view_adapter: viewAdapter});
 
       if (db.adapter === viewAdapter) {
-        return;
+        return done();
       }
 
       if (db.adapter !== 'leveldb' && db.adapter !== 'idb') {
-        return;
+        return done();
       }
 
-      await db.bulkDocs(docs);
-      await db.query('index', { key: 'abc', include_docs: true });
+      db.bulkDocs(docs).then(function () {
+        db.query('index', {
+          key: 'abc',
+          include_docs: true
+        }).then(function () {
 
-      if (testUtils.isNode()) {
-        const dbs = getDbNamesFromLevelDBFolder(db.name);
-        dbs.length.should.equal(1); // only one db created on disk, no dependent db created
-      } else {
-        const { viewDbName, docDbName } = getDBNames(localStorage);
-        // check indexedDB for saved views
-        // need to add '_pouch_' because views are saved in memory
-        const viewRequest = indexedDB.open('_pouch_' + viewDbName, 1);
-        viewRequest.onupgradeneeded = function (event) {
-          // The version of the view database created is 1 which shows that this
-          // database was newly created in IndexedDB and did not exist there
-          // before. So the view database was created in the database specified in
-          // the view_adapter and not in the default `idb`adapter.
-          event.oldVersion.should.equal(0);
-          event.newVersion.should.equal(1);
-        };
+          if (testUtils.isNode()) {
+            const dbs = getDbNamesFromLevelDBFolder(db.name);
+            dbs.length.should.equal(1); // only one db created on disk, no dependent db created
+            done();
+          } else {
+            const { viewDbName, docDbName } = getDBNames(localStorage);
+            // check indexedDB for saved views
+            // need to add '_pouch_' because views are saved in memory
+            const viewRequest = indexedDB.open('_pouch_' + viewDbName, 1);
+            viewRequest.onupgradeneeded = function (event) {
+              // The version of the view database created is 1 which shows that this
+              // database was newly created in IndexedDB and did not exist there
+              // before. So the view database was created in the database specified in
+              // the view_adapter and not in the default `idb`adapter.
+              event.oldVersion.should.equal(0);
+              event.newVersion.should.equal(1);
+            };
+            viewRequest.onerror = function () {
+              done(new Error('viewRequest.open() failed'));
+            };
+            viewRequest.onsuccess = function () {
+              // Nothing is saved here
+              viewRequest.result.objectStoreNames.length.should.equal(0);
+              viewRequest.result.version.should.equal(1);
 
-        viewRequest.onsuccess = function () {
-          // Nothing is saved here
-          viewRequest.result.objectStoreNames.length.should.equal(0);
-          viewRequest.result.version.should.equal(1);
-        };
-
-        // check indexedDB for saved docs
-        const docRequest = indexedDB.open(docDbName, 5);
-        docRequest.onsuccess = function () {
-          // something is saved here
-          docRequest.result.objectStoreNames.length.should.equal(7);
-        };
-      }
+              // check indexedDB for saved docs
+              const docRequest = indexedDB.open(docDbName, 5);
+              docRequest.onerror = function () {
+                done(new Error('docRequest.open() failed'));
+              };
+              docRequest.onsuccess = function () {
+                // something is saved here
+                docRequest.result.objectStoreNames.length.should.equal(7);
+                done();
+              };
+            };
+          }
+        }).catch(done);
+      }).catch(done);
     });
 
-    it('Create pouch with no view adapters', async function () {
+    it('Create pouch with no view adapters', function (done) {
       const db = new PouchDB(dbs.name);
 
       if (db.adapter !== 'leveldb' && db.adapter !== 'idb') {
-        return;
+        return done();
       }
 
-      await db.bulkDocs(docs);
-      await db.query('index', { key: 'abc', include_docs: true });
+      db.bulkDocs(docs).then(function () {
+        db.query('index', {
+          key: 'abc',
+          include_docs: true
+        }).then(function () {
 
-      if (testUtils.isNode()) {
-        const dbs = getDbNamesFromLevelDBFolder(db.name);
-        const expectedLength = db.adapter === 'memory' ? 0 : 2;
-        dbs.length.should.equal(expectedLength);
-      } else {
-        const { viewDbName, docDbName } = getDBNames(localStorage);
+          if (testUtils.isNode()) {
+            const dbs = getDbNamesFromLevelDBFolder(db.name);
+            const expectedLength = db.adapter === 'memory' ? 0 : 2;
+            dbs.length.should.equal(expectedLength);
+            done();
+          } else {
+            const { viewDbName, docDbName } = getDBNames(localStorage);
 
-        // check indexedDB for saved views
-        const viewRequest = indexedDB.open(viewDbName, 5);
-        viewRequest.onsuccess = function () {
-          // Something is saved here
-          // This shows that without a view_adapter specified
-          // the view query data is stored in the default adapter database.
-          viewRequest.result.objectStoreNames.length.should.equal(7);
-        };
+            // check indexedDB for saved views
+            const viewRequest = indexedDB.open(viewDbName, 5);
+            viewRequest.onerror = function () {
+              done(new Error('viewRequest.open() failed'));
+            };
+            viewRequest.onsuccess = function () {
+              // Something is saved here
+              // This shows that without a view_adapter specified
+              // the view query data is stored in the default adapter database.
+              viewRequest.result.objectStoreNames.length.should.equal(7);
 
-        // check indexedDB for saved docs
-        const docRequest = indexedDB.open(docDbName, 5);
-        docRequest.onsuccess = function () {
-          // something is saved here
-          docRequest.result.objectStoreNames.length.should.equal(7);
-        };
-      }
+              // check indexedDB for saved docs
+              const docRequest = indexedDB.open(docDbName, 5);
+              docRequest.onerror = function () {
+                done(new Error('docRequest.open() failed'));
+              };
+              docRequest.onsuccess = function () {
+                // something is saved here
+                docRequest.result.objectStoreNames.length.should.equal(7);
+                done();
+              };
+            };
+          }
+        }).catch(done);
+      }).catch(done);
     });
   });
 });
