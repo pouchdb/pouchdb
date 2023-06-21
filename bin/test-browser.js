@@ -230,7 +230,6 @@ function startTest() {
         } else {
           console.log('Testing on:', userAgent);
 
-          /* jshint evil: true */
           var interval = setInterval(function () {
             seleniumClient.eval('window.testEvents()', function (err, events) {
                 if (err) {

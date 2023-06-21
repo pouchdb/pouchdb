@@ -1,4 +1,3 @@
-/* jshint worker: true */
 'use strict';
 
 function onError(err) {
