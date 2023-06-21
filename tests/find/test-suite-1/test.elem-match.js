@@ -98,7 +98,7 @@ describe('test.elem-match.js', function () {
       err.message.should.eq('Query operator $elemMatch must be an object. Received : null');
     });
   });
-    
+
   it('with null value in array', function () {
     var db = context.db;
     var docs = [
