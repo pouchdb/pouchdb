@@ -18,7 +18,6 @@ pouchdb-webpack.js
 lib
 lib_unit
 src_browser/
-lerna-debug.log
 tests/integration/utils-bundle.js
 *.heapsnapshot
 /pouchdb-server-install
