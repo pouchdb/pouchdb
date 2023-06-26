@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-: ${TIMEOUT:=50000}
+: ${TIMEOUT:=5000}
 : ${REPORTER:="spec"}
 : ${BAIL:=1}
 : ${TYPE:="integration"}
