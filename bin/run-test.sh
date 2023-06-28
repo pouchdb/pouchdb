@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Run tests against a local setup of pouchdb-express-router
 # by default unless COUCH_HOST is specified.
@@ -12,6 +12,10 @@ export VIEW_ADAPTERS
 pouchdb-setup-server() {
   # in CI, link pouchdb-servers dependencies on pouchdb
   # modules to the current implementations
+  if [ -d "pouchdb-server-install" ]; then
+    # pouchdb server already running
+    exit 0
+  fi
   mkdir pouchdb-server-install
   cd pouchdb-server-install
   npm init -y
@@ -54,6 +58,14 @@ pouchdb-link-server-modules() {
   cd ..
 }
 
+search-free-port() {
+  EXPRESS_PORT=3000
+  while (: < /dev/tcp/127.0.0.1/$EXPRESS_PORT) 2>/dev/null; do
+    ((EXPRESS_PORT++))
+  done
+  export PORT=$EXPRESS_PORT
+}
+
 pouchdb-build-node() {
   if [[ $BUILD_NODE_DONE -ne 1 ]]; then
     npm run build-node
@@ -75,9 +87,10 @@ if [[ ! -z $SERVER ]]; then
     fi
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     pouchdb-build-node
+    search-free-port
     node ./tests/misc/pouchdb-express-router.js &
     export SERVER_PID=$!
-    export COUCH_HOST='http://127.0.0.1:3000'
+    export COUCH_HOST="http://127.0.0.1:${PORT}"
   elif [ "$SERVER" == "express-pouchdb-minimum" ]; then
     pouchdb-build-node
     node ./tests/misc/express-pouchdb-minimum-for-pouchdb.js &

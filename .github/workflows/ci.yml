@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         couchdb: ['2.3', '3.1']
-        node: [14]
+        node: [14, 16]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -123,7 +123,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14]
+        node: [14, 16]
         adapter: ['leveldb', 'memory']
         cmd:
           - npm test
@@ -244,7 +244,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14]
+        node: [14, 16]
         cmd:
           - CLIENT=selenium:firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
@@ -266,8 +266,8 @@ jobs:
       - name: First retry
         id: retry
         if: steps.test.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
         continue-on-error: true
       - name: Second retry
         if: steps.retry.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}

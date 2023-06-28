@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
 
 if [ ! -z $DRY_RUN ]; then
   echo "Doing a dry run release..."
