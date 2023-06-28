@@ -18,7 +18,7 @@ describe('pouchdb-find: test.kitchen-sink-2.js', function () {
   }
 
   var dbName = testUtils.adapterUrl(testUtils.adapterType(), 'testdb');
-  var Promise = testUtils.Promise;  
+  var Promise = testUtils.Promise;
 
   this.timeout(100000);
 

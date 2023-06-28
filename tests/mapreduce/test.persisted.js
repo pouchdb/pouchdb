@@ -402,7 +402,6 @@ describe('test.persisted.js', function () {
     return db.bulkDocs({docs : docs}).then(function (responses) {
       var tasks = [];
       for (var i = 0; i < docs.length; i++) {
-        /* jshint loopfunc:true */
         docs[i]._rev = responses[i].rev;
         tasks.push(db.query('view' + i + '/view'));
       }

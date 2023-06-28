@@ -728,7 +728,7 @@ describe('test.array.js', function () {
         err.message.should.eq('Query operator $allMatch must be an object. Received string: a');
       });
     });
-        
+
     it('with null value in array', function () {
       var db = context.db;
       var docs = [

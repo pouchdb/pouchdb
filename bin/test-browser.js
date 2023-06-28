@@ -125,7 +125,7 @@ class RemoteRunner {
 
   on(name, handler) {
     var handlers = this.handlers;
-  
+
     if (!handlers[name]) {
       handlers[name] = [];
     }
@@ -134,21 +134,21 @@ class RemoteRunner {
 
   handleEvents(events) {
     var handlers = this.handlers;
-  
+
     events.forEach((event) => {
       this.completed = this.completed || event.name === 'end';
       this.failed = this.failed || event.name === 'fail';
-  
+
       var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
         slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
         fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
       };
       var obj = Object.assign({}, event.obj, additionalProps);
-  
+
       handlers[event.name].forEach(function (handler) {
         handler(obj, event.err);
       });
-  
+
       if (event.logs && event.logs.length > 0) {
         event.logs.forEach(function (line) {
           if (line.type === 'log') {
@@ -163,14 +163,14 @@ class RemoteRunner {
       }
     });
   }
-  
+
   bail() {
     var handlers = this.handlers;
-  
+
     handlers['end'].forEach(function (handler) {
       handler();
     });
-  
+
     this.completed = true;
   }
 }
@@ -230,7 +230,6 @@ function startTest() {
         } else {
           console.log('Testing on:', userAgent);
 
-          /* jshint evil: true */
           var interval = setInterval(function () {
             seleniumClient.eval('window.testEvents()', function (err, events) {
                 if (err) {
