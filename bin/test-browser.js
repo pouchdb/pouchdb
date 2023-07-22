@@ -13,9 +13,9 @@ var devserver = require('./dev-server.js');
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
-const browserEngine = process.env.CLIENT || 'firefox';
-if (!Object.prototype.hasOwnProperty.call(playwrightBrowsers, browserEngine)) {
-  throw new Error(`Browser not supported: '${browserEngine}'`);
+const browserName = process.env.CLIENT || 'firefox';
+if (!Object.prototype.hasOwnProperty.call(playwrightBrowsers, browserName)) {
+  throw new Error(`Browser not supported: '${browserName}'`);
 }
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
@@ -138,9 +138,9 @@ function BenchmarkReporter(runner) {
 
 async function startTest() {
 
-  console.log('Starting', browserEngine, 'on', testUrl);
+  console.log('Starting', browserName, 'on', testUrl);
 
-  const browserImpl = playwrightBrowsers[browserEngine];
+  const browserImpl = playwrightBrowsers[browserName];
 
   const runner = new RemoteRunner();
   new MochaSpecReporter(runner);
