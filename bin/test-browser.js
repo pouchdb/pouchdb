@@ -149,7 +149,7 @@ async function startTest() {
   const options = {
     headless: true,
   };
-  const browser = await browserImpl.launch(options); // FIXME Or 'firefox' or 'webkit'.
+  const browser = await browserImpl.launch(options);
   const page = await browser.newPage();
   if (process.env.BROWSER_CONSOLE) {
     page.on('console', message => {
