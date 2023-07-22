@@ -94,7 +94,7 @@
     "mocha": "3.5.0",
     "mockery": "2.1.0",
     "ncp": "2.0.0",
-    "playwright": "^1.35.1",
+    "playwright": "1.36.1",
     "pouchdb-express-router": "0.0.11",
     "query-string": "6.10.1",
     "replace": "1.2.1",
