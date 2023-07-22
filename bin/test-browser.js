@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const { chromium, firefox, webkit } = require('playwright');
-const playwrightBrowsers = { chromium, firefox, webkit };
+const playwright = require('playwright');
 
 var querystring = require("querystring");
 
@@ -14,7 +13,7 @@ var devserver = require('./dev-server.js');
 var bail = process.env.BAIL !== '0';
 
 const browserName = process.env.CLIENT || 'firefox';
-if (!Object.prototype.hasOwnProperty.call(playwrightBrowsers, browserName)) {
+if (![ 'chromium', 'firefox', 'webkit' ].includes(browserName)) {
   throw new Error(`Browser not supported: '${browserName}'`);
 }
 
@@ -140,7 +139,7 @@ async function startTest() {
 
   console.log('Starting', browserName, 'on', testUrl);
 
-  const browserImpl = playwrightBrowsers[browserName];
+  const browserImpl = playwright[browserName];
 
   const runner = new RemoteRunner();
   new MochaSpecReporter(runner);
