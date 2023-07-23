@@ -12,9 +12,16 @@ var devserver = require('./dev-server.js');
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
+// Playwright BrowserType whitelist.
+// See: https://playwright.dev/docs/api/class-playwright
+const SUPPORTED_BROWSERS = [ 'chromium', 'firefox', 'webkit' ];
 const browserName = process.env.CLIENT || 'firefox';
-if (![ 'chromium', 'firefox', 'webkit' ].includes(browserName)) {
-  throw new Error(`Browser not supported: '${browserName}'`);
+if (!SUPPORTED_BROWSERS.includes(browserName)) {
+  console.log(`
+    !!! Requested browser not supported: '${browserName}'.
+    !!! Available browsers: ${SUPPORTED_BROWSERS.map(b => `'${b}'`).join(', ')}
+  `);
+  process.exit(1);
 }
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
