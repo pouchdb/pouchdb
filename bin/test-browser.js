@@ -139,8 +139,6 @@ async function startTest() {
 
   console.log('Starting', browserName, 'on', testUrl);
 
-  const browserImpl = playwright[browserName];
-
   const runner = new RemoteRunner();
   new MochaSpecReporter(runner);
   new BenchmarkReporter(runner);
@@ -148,7 +146,7 @@ async function startTest() {
   const options = {
     headless: true,
   };
-  const browser = await browserImpl.launch(options);
+  const browser = await playwright[browserName].launch(options);
   const page = await browser.newPage();
   if (process.env.BROWSER_CONSOLE) {
     page.on('console', message => {
